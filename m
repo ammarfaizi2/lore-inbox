@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268846AbRG0NQI>; Fri, 27 Jul 2001 09:16:08 -0400
+	id <S268847AbRG0NUg>; Fri, 27 Jul 2001 09:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268851AbRG0NP4>; Fri, 27 Jul 2001 09:15:56 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:21764 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S268846AbRG0NPr>;
-	Fri, 27 Jul 2001 09:15:47 -0400
-Date: Fri, 27 Jul 2001 15:15:51 +0200
+	id <S268849AbRG0NU0>; Fri, 27 Jul 2001 09:20:26 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:38149 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S268847AbRG0NUG>;
+	Fri, 27 Jul 2001 09:20:06 -0400
+Date: Fri, 27 Jul 2001 15:20:00 +0200
 From: Stelian Pop <stelian.pop@fr.alcove.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH 2.4.8-pre1 - RESEND] Configure.help updates for sonypi & meye
-Message-ID: <20010727151551.A6860@come.alcove-fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Hugh Dickins <hugh@veritas.com>
+Subject: [PATCH 2.4.8-pre1 and 2.4.7-ac1] Motion Eye camera driver updates.
+Message-ID: <20010727152000.B6860@come.alcove-fr>
 Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -22,55 +24,67 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Linus,
+This patch applies cleanly to either 2.4.8-pre1 or 2.4.7-ac1
+and updates the motion eye camera driver to remove an array
+from the stack, and slightly optimize the code.
 
-This patch adds the missing Configure.help entries for the 
-sonypi and motion eye driver.
+All the credit goes to Hugh Dickins <hugh@veritas.com>.
+
+Alan, Linus, please apply.
 
 Stelian.
 
---- linux-2.4.8-pre1.orig/Documentation/Configure.help	Fri Jul 27 14:56:25 2001
-+++ linux-2.4.8-pre1/Documentation/Configure.help	Fri Jul 27 15:10:31 2001
-@@ -14228,6 +14228,19 @@
+diff -uNr --exclude-from=dontdiff linux-2.4.6-ac5.orig/drivers/media/video/meye.c linux-2.4.6-ac5/drivers/media/video/meye.c
+--- linux-2.4.6-ac5.orig/drivers/media/video/meye.c	Fri Jul 27 14:27:36 2001
++++ linux-2.4.6-ac5/drivers/media/video/meye.c	Thu Jul 26 11:45:57 2001
+@@ -209,28 +209,23 @@
  
-   If unsure, say N.
+ /* return a page table pointing to N pages of locked memory */
+ static void *ptable_alloc(int npages, u32 *pt_addr) {
+-	int i = 0;
++	int i;
+ 	void *vmem;
+-	u32 ptable[npages+1];
+-	signed long size;
++	u32 *ptable;
+ 	unsigned long adr;
  
-+Sony Vaio Programmable I/O Control Device support
-+CONFIG_SONYPI
-+  This driver enables access to the Sony Programmable I/O Control Device
-+  which can be found in many (all ?) Sony Vaio laptops.
-+
-+  If you have one of those laptops, read Documentation/sonypi.txt,
-+  and say Y or M here.
-+
-+  If you want to compile the driver as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want),
-+  say M here and read <file:Documentation/modules.txt>. The module will be
-+  called sonypi.o.
-+
- Intel Random Number Generator support
- CONFIG_INTEL_RNG
-   This driver provides kernel-side support for the Random Number
-@@ -17520,6 +17533,19 @@
-   module called pms.o ( = code which can be inserted in and removed
-   from the running kernel whenever you want). If you want to compile
-   it as a module, say M here and read Documentation/modules.txt.
-+
-+CONFIG_VIDEO_MEYE
-+  This is the video4linux driver for the Motion Eye camera found
-+  in the Vaio Picturebook laptops. Please read the material in
-+  <file:Documentation/video4linux/meye.txt> for more information.
-+
-+  If you say Y or M here, you need to say Y or M to "Sony Programmable
-+  I/O Control Device" in the character device section.
-+
-+  This driver is available as a module called meye.o ( = code
-+  which can be inserted in and removed from the running kernel
-+  whenever you want). If you want to compile it as a module, say M
-+  here and read <file:Documentation/modules.txt>.
+-	size = (npages + 1) * PAGE_SIZE;
+-	vmem = rvmalloc(size);
++	vmem = rvmalloc((npages + 1) * PAGE_SIZE);
+ 	if (!vmem)
+ 		return NULL;
  
- IBM's S/390 architecture
- CONFIG_ARCH_S390
+-	memset(ptable, 0, sizeof(ptable));
+         adr = (unsigned long)vmem;
+-	while (size > 0) {
+-		ptable[i++] = virt_to_bus(__va(kvirt_to_pa(adr)));
++	ptable = (u32 *)(vmem + npages * PAGE_SIZE);
++	for (i = 0; i < npages; i++) {
++		ptable[i] = (u32) kvirt_to_bus(adr);
+ 		adr += PAGE_SIZE;
+-		size -= PAGE_SIZE;
+ 	}
+ 
+-	memcpy(vmem + npages * PAGE_SIZE, ptable, PAGE_SIZE);
+-	*pt_addr = ptable[npages];
+-
++	*pt_addr = (u32) kvirt_to_bus(adr);
+ 	return vmem;
+ }
+ 
+diff -uNr --exclude-from=dontdiff linux-2.4.6-ac5.orig/drivers/media/video/meye.h linux-2.4.6-ac5/drivers/media/video/meye.h
+--- linux-2.4.6-ac5.orig/drivers/media/video/meye.h	Fri Jul 27 14:27:36 2001
++++ linux-2.4.6-ac5/drivers/media/video/meye.h	Fri Jul 27 10:12:35 2001
+@@ -29,7 +29,7 @@
+ #define _MEYE_PRIV_H_
+ 
+ #define MEYE_DRIVER_MAJORVERSION	1
+-#define MEYE_DRIVER_MINORVERSION	0
++#define MEYE_DRIVER_MINORVERSION	1
+ 
+ /****************************************************************************/
+ /* Motion JPEG chip registers                                               */
 -- 
 Stelian Pop <stelian.pop@fr.alcove.com>
 |---------------- Free Software Engineer -----------------|

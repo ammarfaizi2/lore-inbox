@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbTD2Ud4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 16:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTD2Ud4
+	id S261753AbTD2Ued (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 16:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTD2Uec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 16:33:56 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:2955 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261704AbTD2Udy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 16:33:54 -0400
-Message-ID: <3EAEE48E.8030307@colorfullife.com>
-Date: Tue, 29 Apr 2003 22:46:06 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nicolas <linux@1g6.biz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: oops mm/slab.c:1563  on 2.5.68
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Apr 2003 16:34:32 -0400
+Received: from [195.208.223.247] ([195.208.223.247]:11136 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261753AbTD2Ueb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 16:34:31 -0400
+Date: Wed, 30 Apr 2003 00:46:33 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] DMA mapping API for Alpha
+Message-ID: <20030430004633.A1473@localhost.park.msu.ru>
+References: <1051647735.2501.45.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1051647735.2501.45.camel@mulgrave>; from James.Bottomley@SteelEye.com on Tue, Apr 29, 2003 at 03:22:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas wrote:
+On Tue, Apr 29, 2003 at 03:22:12PM -0500, James Bottomley wrote:
+>  I use the platform_data field to cache the
+> particular IO-MMU the device is connected to.  I assume this is the same
+> in alpha?
 
->Apr 29 17:37:00 hal9003 kernel: drivers/usb/media/ov511.c: Invalid channel 
->(-1)
->Apr 29 17:37:31 hal9003 last message repeated 123 times
->Apr 29 17:37:52 hal9003 last message repeated 89 times
->Apr 29 17:37:53 hal9003 kernel: ------------[ cut here ]------------
->Apr 29 17:37:53 hal9003 kernel: kernel BUG at mm/slab.c:1563!
->
-You are running with slab debugging enabled, and the internal self test 
-noticed a corrupted object list.
+Exactly.
 
->Apr 29 17:37:53 hal9003 kernel: invalid operand: 0000 [#1]
->Apr 29 17:37:53 hal9003 kernel: CPU:    0
->Apr 29 17:37:53 hal9003 kernel: EIP:    0060:[cache_alloc_refill+533/616]    
->
-The error is noticed during allocation
-
->Apr 29 17:37:53 hal9003 kernel:  [copy_mm+456/864] copy_mm+0x1c8/0x360
->  
->
-of an mm_struct object.
-
-It looks like a double-free. It was not detected during free, because 
-mm_struct's are larger than 512 bytes, and thus not redzoned.
-
-Is this the first oops that occured since reboot, or were there previous 
-messages?
-
-Could you provide further details about your system?
---
-    Manfred
-
+Ivan.

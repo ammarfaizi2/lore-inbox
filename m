@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267540AbRGMVJ3>; Fri, 13 Jul 2001 17:09:29 -0400
+	id <S267539AbRGMVJ3>; Fri, 13 Jul 2001 17:09:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267544AbRGMVJR>; Fri, 13 Jul 2001 17:09:17 -0400
-Received: from weta.f00f.org ([203.167.249.89]:14979 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267539AbRGMVJE>;
-	Fri, 13 Jul 2001 17:09:04 -0400
-Date: Sat, 14 Jul 2001 09:09:05 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: lyons@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl bug?
-Message-ID: <20010714090905.C5737@weta.f00f.org>
-In-Reply-To: <Pine.LNX.4.33.0107131559160.12456-100000@gruel.uchicago.edu>
-Mime-Version: 1.0
+	id <S267540AbRGMVJP>; Fri, 13 Jul 2001 17:09:15 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33799 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267544AbRGMVJE>; Fri, 13 Jul 2001 17:09:04 -0400
+Subject: Re: swsusp again [was Re: Switching Kernels without Rebooting?]
+To: pavel@suse.cz (Pavel Machek)
+Date: Fri, 13 Jul 2001 22:08:51 +0100 (BST)
+Cc: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
+In-Reply-To: <20010713012417.C122@bug.ucw.cz> from "Pavel Machek" at Jul 13, 2001 01:24:17 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107131559160.12456-100000@gruel.uchicago.edu>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15LAB9-0000Fg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 13, 2001 at 04:00:24PM -0500, Gary Lyons wrote:
+> Suspend-to-disk, change hardware, restore-from-disk, load neccessary
+> modules seems quite easy to do with swsusp. It is very different from
+> suspend-to-disk, change kernel, restore-from-disk (which is guaranteed
+> to kill you if kernel changes size).
 
-    Yes. sorry about leaving that out.
-
-strace -fblah lsattr some-dir/
-
-(where some-dir is empty)
-
-and then show us what 'blah' looks like
-
-
-
-   --cw
+It works for most hw changes. I've used swsusp to replace a burned out 3c509
+without rebooting 8)

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269337AbUJQUPD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269320AbUJQUTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269337AbUJQUPD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 16:15:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269395AbUJQUPC
+	id S269320AbUJQUTD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 16:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbUJQUTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 16:15:02 -0400
-Received: from holomorphy.com ([207.189.100.168]:3994 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269299AbUJQUNw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 16:13:52 -0400
-Date: Sun, 17 Oct 2004 13:13:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org,
-       luc@saillard.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: rc4-mm1 and pwc-unofficial: kernel BUG and scheduling while atomic [u]
-Message-ID: <20041017201335.GC5607@holomorphy.com>
-References: <20041017073614.GC7395@gamma.logic.tuwien.ac.at> <20041017093018.GY5607@holomorphy.com> <1098038131.15115.8.camel@nosferatu.lan> <20041017190054.GB5607@holomorphy.com> <1098043065.15115.13.camel@nosferatu.lan>
+	Sun, 17 Oct 2004 16:19:01 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:15014 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269394AbUJQUS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 16:18:29 -0400
+Subject: Re: [patch] exec-shield-nx-2.6.9-A1
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: mingo@elte.hu
+Content-Type: text/plain
+Organization: 
+Message-Id: <1098043886.2674.14320.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098043065.15115.13.camel@nosferatu.lan>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Oct 2004 16:11:27 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-17 at 12:00 -0700, William Lee Irwin III wrote:
->> Only the third argument changed, from a physical address to a pfn.
+You have some bits in this patch that don't belong.
+They aren't even conditional on a config option or
+sysctl value.
 
-On Sun, Oct 17, 2004 at 09:57:45PM +0200, Martin Schlemmer [c] wrote:
-> Its the vesafb-tng patch
-> (http://dev.gentoo.org/~spock/projects/vesafb-tng/)
-> I did it as:
-> 
-> ----
->         vma.vm_mm = current->active_mm;
->         vma.vm_page_prot.pgprot = PROT_READ | PROT_EXEC | PROT_WRITE;
-> 
->         ret = remap_pfn_range(&vma, 0x000000, __pa(mem) >> PAGE_SHIFT, REAL_MEM_SIZE, vma.vm_page_prot);
->         ret += remap_pfn_range(&vma, 0x0a0000, 0x0a0000, 0x100000 - 0x0a0000, vma.vm_page_prot);
+First, you change the permission on the /proc/*/maps file.
+Normally a remote attacker is unable to read this anyway,
+and a local setuid attack has time to try until success.
+Changing the permission might be a good idea, mostly
+because it exposes filenames, but it should be a separate
+patch.
 
-You probably have to shift the physical address in the second call also.
+Second, you restrict wchan. Oddly, you don't allow for
+the target task's euid to play a role, and you chose the
+CAP_SYS_NICE bit instead of some other bit. Huh? One might
+guess from CAP_SYS_NICE that the feature has now become
+hopelessly slow. Same as with the maps file, this should
+be a separate patch.
 
 
--- wli
+
+

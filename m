@@ -1,35 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278329AbRJSHt7>; Fri, 19 Oct 2001 03:49:59 -0400
+	id <S274666AbRJSH53>; Fri, 19 Oct 2001 03:57:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278330AbRJSHtt>; Fri, 19 Oct 2001 03:49:49 -0400
-Received: from denise.shiny.it ([194.20.232.1]:28621 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S278329AbRJSHte>;
-	Fri, 19 Oct 2001 03:49:34 -0400
-Message-ID: <XFMail.20011019095006.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20011018194415.S12055@athlon.random>
-Date: Fri, 19 Oct 2001 09:50:06 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
+	id <S278335AbRJSH5U>; Fri, 19 Oct 2001 03:57:20 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:27317 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S274666AbRJSH5D>; Fri, 19 Oct 2001 03:57:03 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: Poor floppy performance in kernel 2.4.10
-Cc: Andrea Arcangeli <andrea@suse.de>
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [RFC] New Driver Model for 2.5
+Date: Fri, 19 Oct 2001 07:57:35 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9qomdf$obo$1@forge.intermeta.de>
+In-Reply-To: <3BCE7568.1DAB9FF0@mandrakesoft.com> <20011018121318.17949@smtp.adsl.oleane.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1003478255 16025 212.34.181.4 (19 Oct 2001 07:57:35 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 19 Oct 2001 07:57:35 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-> Indeed, only 2.2 trusted the check media change information and left the
-> cache valid on top of the floppy across close/open of the blkdev.
+>>> struct device {
+>>>         struct list_head        bus_list;
+>>>         struct io_bus           *parent;
+>>>         struct io_bus           *subordinate;
+>>> 
+>>>         char                    name[DEVICE_NAME_SIZE];
+>>>         char                    bus_id[BUS_ID_SIZE];
+>>> 
+>>>         struct dentry           *dentry;
+>>>         struct list_head        files;
+>>> 
+>>>         struct  semaphore       lock;
+>>> 
+>>>         struct device_driver    *driver;
+>>>         void                    *driver_data;
+>>>         void                    *platform_data;
+>>> 
+>>>         u32                     current_state;
+>>>         unsigned char           *saved_state;
+>>> };
 
-Which is not a bad thing IMHO, but it can cause problems with
-some broken SCSI implementation where the drive doesn't send
-UNIT_ATTENTION after a media change (like my MO drive when I
-misconfigured the jumpers, damn :-((( ).
+>Hi Patrick ! Nice to see this happening ;)
 
+>I would add to the generic structure device, a "uuid" string field.
 
-Bye.
+And a version field! Please add a version field right to the
+beginning. This would make supporting legacy drivers in later versions
+_much_ easier.
 
+	Ciao
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

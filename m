@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265368AbTBJWtJ>; Mon, 10 Feb 2003 17:49:09 -0500
+	id <S265477AbTBJWuV>; Mon, 10 Feb 2003 17:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265400AbTBJWtJ>; Mon, 10 Feb 2003 17:49:09 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9485 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265368AbTBJWtJ>; Mon, 10 Feb 2003 17:49:09 -0500
-Date: Mon, 10 Feb 2003 14:54:49 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: James Lamanna <james.lamanna@appliedminds.com>
-cc: "'Stephen Hemminger'" <shemminger@osdl.org>,
-       "'Maciej Soltysiak'" <solt@dns.toxicfilms.tv>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.5.60
-In-Reply-To: <022401c2d14a$edc4d4c0$39140b0a@amthinking.net>
-Message-ID: <Pine.LNX.4.44.0302101452080.2096-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265414AbTBJWuV>; Mon, 10 Feb 2003 17:50:21 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:24712 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265477AbTBJWuU>;
+	Mon, 10 Feb 2003 17:50:20 -0500
+Subject: [KEXEC][2.5.60] Success Report
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot@osdl.org,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044918007.1705.22.camel@andyp.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 10 Feb 2003 15:00:07 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The same configuration of kexec that I have used successfully with
+2.5.58 and 2.5.59 on my uniproc crash system also works when patched
+into 2.5.60.
 
-On Mon, 10 Feb 2003, James Lamanna wrote:
->
-> Looks like ->sig should be ->signal ??
+The current patch stack that I am using is now available in OSDL's patch
+manager:
 
-Actually, it should be "sighand". And probably the thing shouldn't muck
-around with signal internals at all, but right now the fix is to just 
-replace all the "->sig" with "->sighand".
+kexec base for 2.5.60 (based upon the version for 2.5.54):
+http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1467
 
-		Linus
+kexec hwfixes that make it work for me (same as for 2.5.5[89]):
+http://www.osdl.org/cgi-bin/plm?module=patch_info&patch_id=1468
+
+I have no new data to report on that oops sighting with kexec +
+2.5.{59,60} on MP systems...
+
+Andy
+
 

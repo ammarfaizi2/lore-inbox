@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTHUNrn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 09:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTHUNrl
+	id S262695AbTHUNos (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 09:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbTHUNnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 09:47:41 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:41419 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S262690AbTHUNp1
+	Thu, 21 Aug 2003 09:43:46 -0400
+Received: from law14-f73.law14.hotmail.com ([64.4.21.73]:25875 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262679AbTHUNIU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 09:45:27 -0400
-Date: Thu, 21 Aug 2003 15:45:15 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-In-Reply-To: <20030821144441.A3480@pclin040.win.tue.nl>
-Message-ID: <Pine.GSO.3.96.1030821152921.2489G-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Aug 2003 09:08:20 -0400
+X-Originating-IP: [194.85.81.178]
+X-Originating-Email: [john_r_newbie@hotmail.com]
+From: "John Newbie" <john_r_newbie@hotmail.com>
+To: sneakums@zork.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maybe remove request_module("scsi_hostadapter"); from ->
+Date: Thu, 21 Aug 2003 17:08:19 +0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law14-F73UTyiSw5CFc00071a4b@hotmail.com>
+X-OriginalArrivalTime: 21 Aug 2003 13:08:20.0136 (UTC) FILETIME=[4B153A80:01C367E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, Andries Brouwer wrote:
+>There already exists a solution, which is to alias scsi_hostadapter to
+>off.
 
-> > > Etc. Set 3 is a pain. Nobody wants it, except the people who have read
-> > > the spec only and say - look, neat, a single code for a single keystroke.
-> > 
-> >  Plus the symmetry of keys -- no more strange behaviour of "special" keys.
-> 
-> On my BTC keyboard, the macro key produces e0 6f in Set 3, yes, two scancodes.
-> On my Safeway keyboard, the multimedia keys do not produce any scancode
-> at all in Set 3. The same holds for my Compaq Easy Access Keyboard.
+Ok, I have IDE box with scsi built in (not module), many people have such 
+boxes,
+I have alias scsi_hostadapter off, and I _have_ this annoying pseudo-error 
+message.
+(As I've said scsi starts before we can access modules.conf)
 
- So if you need these keys, then just use what works for you.  Thanks for
-mentioning these -- I'll know what to avoid. 
+My solution is better. It is tested. Works perfect. All happy.
+Please apply.
 
- BTW, for completeness, have you tried set #1? 
-
-> The correspondence between Set 2 codes and Set 3 codes varies from
-> keyboard to keyboard.
-> Things are not pretty in reality.
-> Only on paper, and only if you disregard all "new" keys.
-
- There are good devices out there (mine inclusive :-) ) that comply to
-what papers require and I see no reason not to handle them fully. 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+_________________________________________________________________
+The new MSN 8: smart spam protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 

@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261736AbTCXI17>; Mon, 24 Mar 2003 03:27:59 -0500
+	id <S261834AbTCXI3z>; Mon, 24 Mar 2003 03:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261834AbTCXI17>; Mon, 24 Mar 2003 03:27:59 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:36995 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261736AbTCXI16>;
-	Mon, 24 Mar 2003 03:27:58 -0500
-Date: Mon, 24 Mar 2003 09:39:00 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, Jurriaan <thunder7@xs4all.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.65 + matrox framebuffer: life is good!
-Message-ID: <20030324083859.GA5881@vana.vc.cvut.cz>
-References: <20030323120949.GA5002@hh.idb.hist.no> <Pine.LNX.4.44.0303231649170.5720-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303231649170.5720-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.5.4i
+	id <S261896AbTCXI3z>; Mon, 24 Mar 2003 03:29:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32016 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261834AbTCXI3y>; Mon, 24 Mar 2003 03:29:54 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: lmbench results for 2.4 and 2.5 -- updated results
+Date: Mon, 24 Mar 2003 08:39:34 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b5mg86$qm$1@penguin.transmeta.com>
+References: <3E7C8B22.7020505@nortelnetworks.com> <3E7EA0F6.8000308@nortelnetworks.com>
+X-Trace: palladium.transmeta.com 1048495257 19634 127.0.0.1 (24 Mar 2003 08:40:57 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 24 Mar 2003 08:40:57 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 23, 2003 at 04:50:12PM +0000, James Simmons wrote:
-> 
-> > On Fri, Mar 21, 2003 at 07:43:37PM +0100, Jurriaan wrote:
-> > > Just to let people know there's a new version of Petr's ongoing work
-> > > with the matrox framebuffer available:
-> > > 
-> > > ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/
-> > > 
-> > > the file is called mga-2.5.65.gz, and it works wonderfully.
-> > > 
-> > > As far as I know, this patch was only announced on the fbdev-developers
-> > > mailing-list. I assume there are more matrox-users here.
-> > > 
-> > It applies fine to 2.5.65-mm3 too.
-> > Is this something that could be mergerd?  The current
-> > matrox driver don't even compile.
-> 
-> Its for testing and it hasn't been fully ported over yet. Its close. 
-> I was busy fixing higher level bugs but now that most are fixed I can work 
-> on the matrox driver again.
+In article <3E7EA0F6.8000308@nortelnetworks.com>,
+Chris Friesen  <cfriesen@nortelnetworks.com> wrote:
+>
+>Here are the results of 2.4.20 and 2.5.65 with as close to matching configs as I 
+>could make them.
+>
+>The ones that stand out are:
+>--fork/exec (due to rmap I assume?)
+>--mmap (also due to rmap?)
 
-There are still some open problems (text mode, hardware cursor), and I missed 
-something somewhere, as czech font works only on VT1 console with mga-2.5.65 
-(on other VTs there is some font loaded, but character mapping looks broken). 
-I have no idea whether it is my problem or James's...
+Yes. You could try the objrmap patches, they are supposed to help. They
+may be in -mm, I'm not sure.
 
-Probably worst problem currently is cursor code: it calls imgblit from interrupt
-context, and matroxfb's accelerated procedures are not ready to handle
-such thing (patch hooks cursor call much sooner for primary mga head).
+>--select latency (any ideas?)
 
-At worst, for 2.6.0 I can remove text mode from version for Linus, and maintain
-text mode capable driver separately, if we'll find some solution for cursor...
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+I think this is due to the extra TCP debugging, but it might be
+something else. To disable the debugging, remove the setting of 
+NETIF_F_TSO in linux/drivers/net/loopback.c, and re-test:
+
+        /* Current netfilter will die with oom linearizing large skbs,
+         * however this will be cured before 2.5.x is done.
+         */
+        dev->features          |= NETIF_F_TSO;
+
+>--udp latency (related to select latency?)
+
+I doubt it. But there might be some more overhead somewhere. You should
+also run lmbench at least three times to get some feeling for the
+variance of the numbers, it can be quite big.
+
+>--page fault (is this significant?)
+
+I don't think so, there's something strange with the lmbench pagefault
+tests, it only has one significant digit of accuracy, and I don't even
+know what it is testing. Because of the single lack of precision, it's
+hard to tell what the real change is.
+
+>--tcp bandwidth (explained as debugging code)
+
+See if the NETIF_F_TSO change makes any difference. If performance is
+still bad, holler.
+
+		Linus

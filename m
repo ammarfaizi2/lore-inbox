@@ -1,51 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265378AbUFHXFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265383AbUFHXHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265378AbUFHXFU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUFHXFM
+	id S265383AbUFHXHo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 19:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUFHXHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:05:12 -0400
-Received: from gprs214-242.eurotel.cz ([160.218.214.242]:61825 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265382AbUFHXFE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:05:04 -0400
-Date: Wed, 9 Jun 2004 01:04:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Mark Gross <mgross@linux.jf.intel.com>
+	Tue, 8 Jun 2004 19:07:43 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:17516 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S265383AbUFHXHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 19:07:16 -0400
+Subject: Re: 2.4.26 SMP lockup problem
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: norman.r.weathers@conocophillips.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp "not enough swap space" 2.6.5-mm6.
-Message-ID: <20040608230450.GA13916@elf.ucw.cz>
-References: <200406080829.35120.mgross@linux.intel.com>
+In-Reply-To: <200406081757.28770.norman.r.weathers@conocophillips.com>
+References: <200406081757.28770.norman.r.weathers@conocophillips.com>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1086736002.3346.56.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406080829.35120.mgross@linux.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 08 Jun 2004 16:06:42 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Norman,
 
-> I'm sorry for not having more information, but the failing computer is my home 
-> laptop (I'll get more details after work or I'll bring it in tomorrow for 
-> more details).
-> 
-> Anyway, this thing does software suspend using the 2.6.2-mm1 kernel, and last 
-> night I was updating it to 2.6.5-mm6, and I started getting these not enough 
-> disk space errors.
-> 
-> I found your bug fix patch, 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107806008626357&w=2
->  and checked that it is included in the 2.6.5-mm6 kernel I'm using.
-> 
-> Without more information does this problem ring any bells?
-> 
-> Can you recommend a "good" kernel version that does reliable swsusp?
+A kernel traceback of the lockup would be helpful.
 
-Get 2.6.6, and set swappiness to 100.
+To do this, add the nmi_watchdog=1 to the kernel command line (lilo or
+pxe boot append option).  This will cause the NMI watchdog handler to
+buzz off when you have your deadlock.
 
-								Pavel
+Run the output through ksymoops and post that to the list.
 
--- 
-934a471f20d6580d5aad759bf0d97ddc
+Thanks
+-steve
+
+On Tue, 2004-06-08 at 15:57, Norman Weathers wrote:
+> Hello All.
+> 
+> During an interesting round of kernel updates, I found a very interesting 
+> problem.  I have several "hundred" nodes in a cluster that I am currently 
+> updating from kernel 2.4.21 to 2.4.26.  These nodes are all running RedHat 
+> 7.3 (old, I know, but this is the OS that are software currently works on).  
+> During this round of updates, I have updated about 150 PIII 800 MHz nodes, 
+> all of which are currently being used and work just fine (1 GB Ram, e100 
+> ethernet driver, IDE drives, fairly generic).  Also, I have a few PIII 1260 
+> nodes (Tyan Motherboard, 2 GB Ram, e100 ethernet driver, again, fairly 
+> generic) that have also been updated and run fine.  I have even started 
+> testing fairly new P4 3060 IBM blades.  They also seem to work just fine.  
+> 
+> Now to the problem.  I have "several hundred" Tyan Thunder Motherboards (older 
+> AMD 760MP chipset).  I have rebooted ~ 200 of these nodes with the new 2.4.26 
+> kernel and about half of these nodes have suffered a hard lockup during 
+> bootup.  The lockup is hard enough that I cannot even isuse sys request keys 
+> over serial or at the local keyboard to cause them to reboot or output a 
+> trace.  These nodes have 2 GB of ram, dual 3Com 100 Mb NICS, and IDE drives.  
+> Again, fairly generic for a cluster.  I had a vanilal + trond patched 2.4.21 
+> kernel running on these boxes just fine.  (The new 2.4.26 kernel also has the 
+> trond patches for 2.4.26).  Has anyone seen this happen to them?
+> 
+> Here is some info on the kernel config for the 2.4.26 kernel:
+> 
+> #
+> # Automatically generated by make menuconfig: don't edit
+> #
+> CONFIG_X86=y
+> # CONFIG_SBUS is not set
+> CONFIG_UID16=y
+> 
+> #
+> # Code maturity level options
+> #
+> CONFIG_EXPERIMENTAL=y
+> 
+> #
+> # Loadable module support
+> #
+> CONFIG_MODULES=y
+> CONFIG_MODVERSIONS=y
+> CONFIG_KMOD=y
+> 
+> #
+> # Processor type and features
+> #
+> # CONFIG_M386 is not set
+> # CONFIG_M486 is not set
+> # CONFIG_M586 is not set
+> # CONFIG_M586TSC is not set
+> # CONFIG_M586MMX is not set
+> # CONFIG_M686 is not set
+> CONFIG_MPENTIUMIII=y
+> # CONFIG_MPENTIUM4 is not set
+> # CONFIG_MK6 is not set
+> # CONFIG_MK7 is not set
+> # CONFIG_MK8 is not set
+> # CONFIG_MELAN is not set
+> # CONFIG_MCRUSOE is not set
+> # CONFIG_MWINCHIPC6 is not set
+> # CONFIG_MWINCHIP2 is not set
+> # CONFIG_MWINCHIP3D is not set
+> # CONFIG_MCYRIXIII is not set
+> # CONFIG_MVIAC3_2 is not set
+> CONFIG_X86_WP_WORKS_OK=y
+> CONFIG_X86_INVLPG=y
+> CONFIG_X86_CMPXCHG=y
+> CONFIG_X86_XADD=y
+> CONFIG_X86_BSWAP=y
+> CONFIG_X86_POPAD_OK=y
+> # CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> CONFIG_X86_L1_CACHE_SHIFT=5
+> CONFIG_X86_HAS_TSC=y
+> CONFIG_X86_GOOD_APIC=y
+> CONFIG_X86_PGE=y
+> CONFIG_X86_USE_PPRO_CHECKSUM=y
+> CONFIG_X86_F00F_WORKS_OK=y
+> CONFIG_X86_MCE=y
+> # CONFIG_TOSHIBA is not set
+> # CONFIG_I8K is not set
+> CONFIG_MICROCODE=y
+> # CONFIG_X86_MSR is not set
+> # CONFIG_X86_CPUID is not set
+> # CONFIG_EDD is not set
+> # CONFIG_NOHIGHMEM is not set
+> # CONFIG_HIGHMEM4G is not set
+> CONFIG_HIGHMEM64G=y
+> CONFIG_HIGHMEM=y
+> CONFIG_X86_PAE=y
+> CONFIG_HIGHIO=y
+> # CONFIG_MATH_EMULATION is not set
+> CONFIG_MTRR=y
+> CONFIG_SMP=y
+> CONFIG_NR_CPUS=32
+> # CONFIG_X86_NUMA is not set
+> # CONFIG_X86_TSC_DISABLE is not set
+> CONFIG_X86_TSC=y
+> CONFIG_HAVE_DEC_LOCK=y
+> 
+> #
+> # General setup
+> #
+> CONFIG_NET=y
+> CONFIG_X86_IO_APIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_PCI=y
+> # CONFIG_PCI_GOBIOS is not set
+> # CONFIG_PCI_GODIRECT is not set
+> CONFIG_PCI_GOANY=y
+> CONFIG_PCI_BIOS=y
+> CONFIG_PCI_DIRECT=y
+> CONFIG_ISA=y
+> CONFIG_PCI_NAMES=y
+> # CONFIG_EISA is not set
+> # CONFIG_MCA is not set
+> CONFIG_HOTPLUG=y
+> ---- Rest cut -------
+> 
+> I have the noapic option passed on the lilo boot prompt line, otherwise we get 
+> the APIC error after about a month or two in service.
+> 
+> We tried to make the kernel somewhat generic because we want this kernel to 
+> boot on the largest hardware base possible.  Is there something obvious that 
+> I have missed (I have used these options on the 2.4.21 kernel that we used on 
+> all of the nodes with the exception of the 64 GB memory.  
+> 
+> Any help would be appreciated.  Any dumps that need to be made (or try to 
+> make), great as I have about 200 nodes right now that are candidates for 
+> testing.
+> 
+> Please contact me at email listed below as I am not on the list.
+> 
+> 
+> Email:  norman.r.weathers@conocophillips.com
+> 
+> 
+> Thanks in advance.
+

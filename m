@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281150AbRKENlh>; Mon, 5 Nov 2001 08:41:37 -0500
+	id <S281152AbRKENuL>; Mon, 5 Nov 2001 08:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281151AbRKENla>; Mon, 5 Nov 2001 08:41:30 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:19438 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S281150AbRKENlP>;
-	Mon, 5 Nov 2001 08:41:15 -0500
-Date: Mon, 5 Nov 2001 14:41:12 +0100
-From: Petr Baudis <pasky@pasky.ji.cz>
-To: Jakob ?stergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org,
-        Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        Tim Jansen <tim@tjansen.de>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011105144112.Q11619@pasky.ji.cz>
-Mail-Followup-To: Jakob ?stergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org,
-	Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-	Tim Jansen <tim@tjansen.de>
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160MMf-1ptGtMC@fmrl05.sul.t-online.com> <20011104143631.B1162@pelks01.extern.uni-tuebingen.de> <160Nyq-2ACgt6C@fmrl07.sul.t-online.com> <20011104163354.C14001@unthought.net>
+	id <S281153AbRKENuA>; Mon, 5 Nov 2001 08:50:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58497 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281152AbRKENtu>;
+	Mon, 5 Nov 2001 08:49:50 -0500
+Date: Mon, 05 Nov 2001 05:49:17 -0800 (PST)
+Message-Id: <20011105.054917.21928205.davem@redhat.com>
+To: kszysiu@main.braxis.co.uk
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.14-pre7 KERNEL: assertion (sk->pprev==NULL) failed at
+ tcp_ipv4.c(345):__tcp_v4_hash
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011105143508.A1327@main.braxis.co.uk>
+In-Reply-To: <20011105143508.A1327@main.braxis.co.uk>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011104163354.C14001@unthought.net>
-User-Agent: Mutt/1.3.23i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>
+   Date: Mon, 5 Nov 2001 14:35:09 +0100
+   
+   I believe, that it's related to -pre6 David Miller's net updates.
 
-> We want to avoid these problems:
->  1)  It is hard to parse (some) /proc files from userspace
->  2)  As /proc files change, parsers must be changed in userspace
-> 
-> Still, we want to keep on offering
->  3)  Human readable /proc files with some amount of pretty-printing
->  4)  A /proc fs that can be changed as the kernel needs those changes
+It's Andi Kleen's connect port allocation changes.
+If he can't figure out a fix we'll just revert that
+stuff.
 
-  I've read the whole thread, but i still don't get it. Your solution doesn't
-improve (1) for parsers in scripting languages, where it is frequently far
-easier to parse ASCII stuff than messing with binary things, when not almost
-impossible. So we don't make any progress here.  And for languages like C,
-where this will have most use, there actually is solution and it is working.
-So, please, can you enlighten me, what's so wrong on sysctl? It actually
-provides exactly what do you want, and you even don't need to bother yourself
-with open() etc ;). So it would be maybe better improving sysctl interface,
-especially mirroring of all /proc stuff there, instead of arguing about scanf()
-:-).
-
-  So can you please explain me merits of your approach against sysctl?
-
--- 
-
-				Petr "Pasky" Baudis
-
-UN*X programmer, UN*X administrator, hobbies = IPv6, IRC
-Real Users hate Real Programmers.
-Public PGP key, geekcode and stuff: http://pasky.ji.cz/~pasky/
+Franks a lot,
+David S. Miller
+davem@redhat.com

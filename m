@@ -1,25 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287828AbSBKQcI>; Mon, 11 Feb 2002 11:32:08 -0500
+	id <S289820AbSBKQhS>; Mon, 11 Feb 2002 11:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289820AbSBKQb6>; Mon, 11 Feb 2002 11:31:58 -0500
-Received: from mx.fluke.com ([129.196.128.53]:1543 "EHLO evtvir03.tc.fluke.com")
-	by vger.kernel.org with ESMTP id <S287828AbSBKQby>;
-	Mon, 11 Feb 2002 11:31:54 -0500
-Date: Mon, 11 Feb 2002 08:31:54 -0800 (PST)
-From: David Dyck <dcd@tc.fluke.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: more than one file matches LATEST-IS-* in /pub/linux/kernel/v2.5/
-Message-ID: <Pine.LNX.4.33.0202110830460.10177-100000@dd.tc.fluke.com>
+	id <S289837AbSBKQhI>; Mon, 11 Feb 2002 11:37:08 -0500
+Received: from flrtn-4-m1-156.vnnyca.adelphia.net ([24.55.69.156]:54422 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S289820AbSBKQg6>;
+	Mon, 11 Feb 2002 11:36:58 -0500
+Message-ID: <3C67F327.8010404@tmsusa.com>
+Date: Mon, 11 Feb 2002 08:36:55 -0800
+From: J Sloan <joe@tmsusa.com>
+Organization: J S Concepts
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: tux-list@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tux officially in kernel?
+In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If that's not part of the roadmap I'd be surprised,
+since tux is so much more capable than the
+khttpd which is currently part of the tree.
+
+Tux has clearly demonstrated it's performance
+and low resource consumption.
+
+I also think including tux in the mainline kernel
+would further stimulate development, as folks
+begin to realize what they can do with tux....
+
+At least Red Hat seems committed to it.
+
+IMHO of course...
+
+Joe
 
 
-ncftp /pub/linux/kernel/v2.5 > ls -l *LAT*
--rw-r--r--   1 korg     korg            0   Jan 30 19:19   LATEST-IS-2.5.3
--rw-r--r--   1 korg     korg            0   Feb 11 01:53   LATEST-IS-2.5.4
+Roy Sigurd Karlsbakk wrote:
+
+>hi
+>
+>Are there any plans to move Tux into the official kernel?
+>
+>roy
+>
+>--
+>Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+>
+>Computers are like air conditioners.
+>They stop working when you open Windows.
+>
+>
+>
+>
+>
+>_______________________________________________
+>tux-list mailing list
+>tux-list@redhat.com
+>https://listman.redhat.com/mailman/listinfo/tux-list
+>
 
 

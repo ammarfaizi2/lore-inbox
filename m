@@ -1,95 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263839AbUCZCHS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 21:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbUCZCHS
+	id S263908AbUCZCJd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 21:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263906AbUCZCJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 21:07:18 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:29969 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S263816AbUCZCHM
+	Thu, 25 Mar 2004 21:09:33 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24317 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263858AbUCZCJZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 21:07:12 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Matthew Wilcox" <willy@debian.org>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Adrian Bunk" <bunk@fs.tum.de>,
-       <239952@bugs.debian.org>, <debian-devel@lists.debian.org>,
-       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: RE: Binary-only firmware covered by the GPL?
-Date: Thu, 25 Mar 2004 18:06:37 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEFILEAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2096
-In-Reply-To: <81ptb0wh45.wl@omega.webmasters.gr.jp>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 25 Mar 2004 17:45:04 -0800
-	(not processed: message from valid local sender)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-Reply-To: davids@webmaster.com
+	Thu, 25 Mar 2004 21:09:25 -0500
+Date: Thu, 25 Mar 2004 18:09:16 -0800
+From: Todd Poynor <tpoynor@mvista.com>
+Message-Id: <200403260209.i2Q29Gwx013549@dhcp193.mvista.com>
+To: akpm@osdl.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PM subsystem idle behavior attribute
+Cc: kenneth.w.chen@intel.com, tpoynor@mvista.com, zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As recently discussed in "add lowpower_idle sysctl", an addition to
+the PM subsystem that allows a platform to register functions to show
+and store attribute /sys/power/idle for idle mode behavior.  The patch
+currently passes strings that are interpreted entirely by the platform
+code, since I'm not sure there's a standard set of generic behaviors
+that can be described.  If there's an expected need to specify idle
+behavior in platform-independent manner then I'd appreciate hearing
+more about what's needed.
 
+-- 
+Todd Poynor
+MontaVista Software
 
-> At Fri, 26 Mar 2004 00:33:39 +0000,
-
-> Matthew Wilcox wrote:
-
-> > I realise there's a grey area between "magic data you write to a device"
-> > and "a program that is executed on a different processor".  For example,
-> > palette data for a frame buffer.  But nobody's arguing for that grey
-> > area here -- it's clearly a program without source code that Debian
-> > can't distribute.
-
-> Well, I also think this is grey area.
-
-	On what basis? How is this file different from an executable?
-
-	The gray area cases are where the code, as orginally written, is obscure.
-Perhaps because it uses 'magic numbers' from data sheets rather than
-symbolic constants. However, the GPL doesn't require you to add comments or
-to write clear code. It simply prohibits deliberate obfuscation by one
-particular means, namely having two forms of the code, one that you
-distribute and one that you use to make modifications. (Other forms of
-obfuscation are the gray areas.)
-
-	But this case is squarely where the GPL says "no". In this case, there is
-one form of the firmware for the purposes of making modifications to it and
-there is another form that's distributed, ostensibly under the GPL.
-
-> But think about: why can we distribute assembler only code in linux
-> kernel?  It's near to binary form (objdump -d is your friend).
-
-	We can distribute binaries if we want. The issue is that we cannot
-distribute in any form and withhold the preferred form of the code for the
-purpose of making modifications to it. How easy or hard it is to modify is
-not the issue, one just can't take active steps to make it harder by
-withholding the 'real source'.
-
-> If they insist this source code is GPL, then I think this code is
-> covered under GPL at least for this case.  If it's GPL, then we can
-> derive the newer firmware code from this original ql2100_fw.c freely.
-
-	I can't figure out what you're trying to say here. The file claims it is
-GPL'd. If it is, then whoever receives it has a right to a copy of the
-preferred form of that file for the purpose of making modifications to it.
-Anyone who cannot distribute that preferred form cannot, according to the
-GPL, distribute the other form.
-
-	Bluntly, that file is the preferred form of the firmware for the purpose of
-using or executing it. The GPL requires the preferred form for the purpose
-of making modifications.
-
-	IMO, the 'whole work' and 'linking' arguments are not important. The issue
-is clear just from looking at this one file and what is required to
-distribute it itself.
-
-	DS
-
+--- linux-2.6.4-orig/kernel/power/main.c	2004-03-11 14:59:06.000000000 -0800
++++ linux-2.6.4-idle/kernel/power/main.c	2004-03-25 15:17:19.181176080 -0800
+@@ -233,8 +233,40 @@
+ 
+ power_attr(state);
+ 
++/**
++ *	idle - control idle mode behavior
++ */
++
++static ssize_t idle_show(struct subsystem * subsys, char * buf)
++{
++	ssize_t n;
++
++	if (pm_ops && pm_ops->show_idle_params)
++		n = pm_ops->show_idle_params(buf);
++	else
++		n = sprintf(buf,"[default]\n");
++	
++	return n;
++
++}
++
++static ssize_t idle_store(struct subsystem * subsys, const char * buf, size_t n)
++{
++	int error;
++
++	if (pm_ops && pm_ops->set_idle_params)
++		error = pm_ops->set_idle_params(buf, n);
++	else
++		error = -EINVAL;
++
++	return error ? error :n;
++}
++
++power_attr(idle);
++
+ static struct attribute * g[] = {
+ 	&state_attr.attr,
++	&idle_attr.attr,
+ 	NULL,
+ };
+ 
+@@ -252,3 +284,4 @@
+ }
+ 
+ core_initcall(pm_init);
++
+--- linux-2.6.4-orig/include/linux/pm.h	2004-03-11 14:58:50.000000000 -0800
++++ linux-2.6.4-idle/include/linux/pm.h	2004-03-25 15:17:30.032526424 -0800
+@@ -215,6 +215,8 @@
+ 	int (*prepare)(u32 state);
+ 	int (*enter)(u32 state);
+ 	int (*finish)(u32 state);
++	ssize_t (*show_idle_params)(char *buf);
++	int (*set_idle_params)(const char *buf, size_t n);
+ };
+ 
+ extern void pm_set_ops(struct pm_ops *);

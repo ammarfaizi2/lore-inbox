@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268737AbTHCTLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 15:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbTHCTLQ
+	id S269661AbTHCTYo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 15:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270032AbTHCTYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 15:11:16 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:53253 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S268737AbTHCTLP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 15:11:15 -0400
-Date: Sun, 3 Aug 2003 21:11:02 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       devik@cdi.cz
-Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel from being modified easily
-Message-ID: <20030803191102.GA29616@alpha.home.local>
-References: <20030803180950.GA11575@outpost.ds9a.nl>
+	Sun, 3 Aug 2003 15:24:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51909 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269661AbTHCTYm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 15:24:42 -0400
+Date: Sun, 3 Aug 2003 12:25:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shane Shrybman <shrybman@sympatico.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm3 and mysql
+Message-Id: <20030803122555.7cb01b08.akpm@osdl.org>
+In-Reply-To: <1059922912.2282.15.camel@mars.goatskin.org>
+References: <1059871132.2302.33.camel@mars.goatskin.org>
+	<20030802180410.265dfe40.akpm@osdl.org>
+	<1059875927.2966.32.camel@mars.goatskin.org>
+	<20030802190859.3384ee08.akpm@osdl.org>
+	<1059922912.2282.15.camel@mars.goatskin.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030803180950.GA11575@outpost.ds9a.nl>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 08:09:50PM +0200, bert hubert wrote:
- 
-> It blocks attempts by rootkits, such as devik's SucKIT, to hide themselves.
-> 
-> It is not a final solution but it raises the bar a lot. Please apply.
-> 
-> By default, nothing is changed, but I'd turn this feature on on servers
-> without X. Patch:
+Shane Shrybman <shrybman@sympatico.ca> wrote:
+>
+> I still haven't been able to make it appear in 2.6.0-test1-mm1, but once
+>  when I rebooted from -test1-mm1 to -test2-mm3 the tables had problems
+>  immediately
 
-Why not make this change dynamic instead ? eg : your system boots unlocked,
-and definitely locks /dev/{,k}mem once you do something such as
+Sorry, test2-mm3 was a disaster.  I replaced it with test3-mm3-1, which
+should be better.
 
-  echo foo > /proc/path_to_magic_entry
-
-So the same config can be used with kernel with and without X, it's just a
-matter of runtime configuration. It could even be a sysctl, as long as there's
-no way to unset it.
-
-Regards,
-Willy
-
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm3/2.6.0-test2-mm3-1.bz2

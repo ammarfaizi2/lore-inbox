@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130877AbRAQR53>; Wed, 17 Jan 2001 12:57:29 -0500
+	id <S130195AbRAQSCT>; Wed, 17 Jan 2001 13:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRAQR5T>; Wed, 17 Jan 2001 12:57:19 -0500
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:46273 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S130877AbRAQR5E>; Wed, 17 Jan 2001 12:57:04 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880945@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Problems in 2.4 kernel 
-Date: Wed, 17 Jan 2001 12:49:58 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S131455AbRAQSCA>; Wed, 17 Jan 2001 13:02:00 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:61198 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130195AbRAQSBz>;
+	Wed, 17 Jan 2001 13:01:55 -0500
+Date: Wed, 17 Jan 2001 19:01:26 +0100
+From: Andi Kleen <ak@suse.de>
+To: Tony Gale <gale@syntax.dera.gov.uk>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        Jussi Hamalainen <count@theblah.org>
+Subject: Re: IP defrag (was RE: ipchains blocking port 65535)
+Message-ID: <20010117190126.B2859@gruyere.muc.suse.de>
+In-Reply-To: <20010117183547.A2528@gruyere.muc.suse.de> <XFMail.20010117174430.gale@syntax.dera.gov.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010117174430.gale@syntax.dera.gov.uk>; from gale@syntax.dera.gov.uk on Wed, Jan 17, 2001 at 05:44:30PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think when you configure the kernel (make menuconfig) you did not 
-make floppy driver part of the kernel. I also faced the same problem,
-and I fixed it by making the floppy driver part of the kernel.
+On Wed, Jan 17, 2001 at 05:44:30PM -0000, Tony Gale wrote:
+> 
+> On 17-Jan-2001 Andi Kleen wrote:
+> > 
+> > Connection tracking always defrags as needed.
+> > masquerading/NAT/iptables 
+> > with connection tracking uses that.
+> > 
+> > This means that if any of these are enabled and your machine acts
+> > as a 
+> > router lots of CPU could get burned in defragmentation, and packets
+> > will not forwarded until all fragments arrived.
+> 
+> Hmm... ok, what if I'm on a single nic system using ipchains on the
+> input and want to always defrag before they hit the ipchains
+> filter, what settings would I need? No masq., no NAT. (bearing in
+> mind that ipchains differentiates between SYN+frag and noSYN+frag.
 
-Let me know if this helps.
+You probably need to just load ip_conntrack_standalone and make sure it runs.
+It has a higher priority than ipchains in the prerouting chain and should just defragment 
+things. 
 
--hiren
+Better would it be to just write a small netfilter module with a higher
+priority than ipchains that always defrags. 
 
-> -----Original Message-----
-> From: Sajeev [mailto:sajeevm@vantel.net]
-> Sent: Wednesday, January 17, 2001 1:12 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Problems in 2.4 kernel 
-> 
-> 
-> Hi.
-> I am not able to mount my floppy drive. When I try to mount 
-> it gives me the
-> following error
-> 'mount: /dev/fd0 has wrong major or minor number'
-> I am running the latest kernel release i.e. 2.4 .
-> I tried recreating the node but it has been of no use.
-> Can anyone please help me.
-> Thanks
-> Sajeev
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Actually I thought I've once seen such a beast, but it doesn't seem to
+be included in the main kernel now that I look for it.  It's all only a few 
+lines of code anyways.
+
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261516AbRERUGp>; Fri, 18 May 2001 16:06:45 -0400
+	id <S261504AbRERUDz>; Fri, 18 May 2001 16:03:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261520AbRERUGf>; Fri, 18 May 2001 16:06:35 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41743 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261516AbRERUGZ>; Fri, 18 May 2001 16:06:25 -0400
-Subject: Re: Kernel bug with UNIX sockets not detecting other end gone?
-To: Q@ping.be (Kurt Roeckx)
-Date: Fri, 18 May 2001 21:02:51 +0100 (BST)
-Cc: chris@scary.beasts.org (Chris Evans), linux-kernel@vger.kernel.org,
-        davem@redhat.com
-In-Reply-To: <20010518192422.B18162@ping.be> from "Kurt Roeckx" at May 18, 2001 07:24:22 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261512AbRERUDi>; Fri, 18 May 2001 16:03:38 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:1681 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S261504AbRERUDU>;
+	Fri, 18 May 2001 16:03:20 -0400
+Message-ID: <3B058003.81A01B77@mandrakesoft.com>
+Date: Fri, 18 May 2001 16:03:15 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150qSZ-0007cw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: viro@math.psu.edu, rddunlap@att.net, jack@suse.cz,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PATCH 2.4.5.3: quota initcall
+Content-Type: multipart/mixed;
+ boundary="------------7A0FE63FEC77EFCB6DB41AA3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What I'm seeing however in an other program is that select says I
-> can read from the socket, and that read returns 0, with errno set
-> to EGAIN.  I call select() again, with returns and says I can read
+This is a multi-part message in MIME format.
+--------------7A0FE63FEC77EFCB6DB41AA3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-No no no. If the read does not return -1 it does not change errno. EOF isnt
-an error.
+IMHO this is an obvious change, but it is untested...  dquot_hash and
+dqstats are correctly declared static and in BSS, and thus are
+automatically cleared at kernel startup.
 
+Since quota init now just printk's a startup message, we can safely make
+it an initcall.
+
+-- 
+Jeff Garzik      | "Do you have to make light of everything?!"
+Building 1024    | "I'm extremely serious about nailing your
+MandrakeSoft     |  step-daughter, but other than that, yes."
+--------------7A0FE63FEC77EFCB6DB41AA3
+Content-Type: text/plain; charset=us-ascii;
+ name="quota-initcall-2.4.5.3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="quota-initcall-2.4.5.3.patch"
+
+Index: linux_2_4/fs/dquot.c
+diff -u linux_2_4/fs/dquot.c:1.1.1.50 linux_2_4/fs/dquot.c:1.1.1.50.4.1
+--- linux_2_4/fs/dquot.c:1.1.1.50	Tue May 15 04:36:48 2001
++++ linux_2_4/fs/dquot.c	Fri May 18 12:55:25 2001
+@@ -1343,13 +1343,11 @@
+ }
+ 
+ 
+-void __init dquot_init_hash(void)
++static int __init dquot_init(void)
+ {
+ 	printk(KERN_NOTICE "VFS: Diskquotas version %s initialized\n", __DQUOT_VERSION__);
+-
+-	memset(dquot_hash, 0, sizeof(dquot_hash));
+-	memset((caddr_t)&dqstats, 0, sizeof(dqstats));
+ }
++__initcall(dquot_init);
+ 
+ /*
+  * Definitions of diskquota operations.
+Index: linux_2_4/init/main.c
+diff -u linux_2_4/init/main.c:1.1.1.62 linux_2_4/init/main.c:1.1.1.62.4.1
+--- linux_2_4/init/main.c:1.1.1.62	Tue May 15 04:37:56 2001
++++ linux_2_4/init/main.c	Fri May 18 12:55:25 2001
+@@ -108,9 +108,6 @@
+ #if defined(CONFIG_SYSVIPC)
+ extern void ipc_init(void);
+ #endif
+-#if defined(CONFIG_QUOTA)
+-extern void dquot_init_hash(void);
+-#endif
+ 
+ /*
+  * Boot command-line arguments
+
+--------------7A0FE63FEC77EFCB6DB41AA3--
 

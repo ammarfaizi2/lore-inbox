@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312891AbSDGBQa>; Sat, 6 Apr 2002 20:16:30 -0500
+	id <S312896AbSDGBdo>; Sat, 6 Apr 2002 20:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312894AbSDGBQ3>; Sat, 6 Apr 2002 20:16:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32268 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312891AbSDGBQ2>;
-	Sat, 6 Apr 2002 20:16:28 -0500
-Message-ID: <3CAF9DCB.8C86443@zip.com.au>
-Date: Sat, 06 Apr 2002 17:15:55 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Davis <pbd@Op.Net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: delayed interrupt processing caused by cswitching/pipe_writes?
-In-Reply-To: <200204061954.g36Jsoe11292@op.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S312915AbSDGBdn>; Sat, 6 Apr 2002 20:33:43 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:32150 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S312896AbSDGBdm>; Sat, 6 Apr 2002 20:33:42 -0500
+Subject: Re: more on 2.4.19pre... & swsusp
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: brian@worldcontrol.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E16tz9Q-0002sH-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 06 Apr 2002 20:33:27 -0500
+Message-Id: <1018143212.8480.99.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Davis wrote:
+On Sat, 2002-04-06 at 17:59, Alan Cox wrote:
+> > On a different note.  Why doesn't the ac branch have ftpfs yet?  Besides
+> > the fact that it sometimes has problems with ls'ing a directory because
 > 
+> Because its perfectly doable in user space. Its for testing useful stuff not
+> a dumping ground
+> -
 
-Hi, Paul.
 
-> ...
-> But now that JACK splits the
-> handling across two threads in different processes, the thing that
-> kills us is not the context switch times, not the delay caused by
-> cache and/or TLB invalidation, or any of that stuff. instead, its that
-> we start delaying the execution of the audio interface interrupt
-> handler to the point where our assumptions about handling every
-> interrupt on time fall apart.
 
-Conceivably, something somewhere is forgetting to reenable interrupts,
-and we're just not noticing because the scheduler and/or return
-from syscall just turns them on unconditionally.
+Wouldn't that be true of any networked filesystem?  They should all be
+able to be done in userspace.  The problem with that would be it loses
+it's transparency to the user and increases latency.  Sure ftpfs can be
+done in userspace, but the point of it is so i dont have to interface
+with ftp's through a specific client.  I'm sure people would love it if
+they had to open samba-view whenever they wanted to copy to and from
+samba shares, same for nfs etc.  
 
-There are a couple of things you can try.
+There are more than a couple examples of things in the kernel that can
+also be completely functional just done in userspace,  Both autofs (why
+we continue to ship an older version when the newer one is reverse
+compat is a mystery to me) implementations are two such examples.  
 
-First is to just use the kernel profiler.  Do it on uniprocessor
-to make life simpler.   If you see a particular function
-is showing up prominently then perhaps that's the place
-where interrupts are getting turned back on, and that may
-point us at the source of the problem.
+I have nothing against not including something for personal preferences
+( it is your branch) or because something is too untested.. but because
+it can be done in userspace just doesn't hold up when you look at some
+of the things in the kernel already.   But i've wasted enough time
+arguing about something that doesn't require any changes. heh 
 
-Note that you'll probably get better retults with a higher
-profiling frequency - build the UP kernel with local APIC
-support and use `readprofile -M10' to profile at 1000 Hz.
-
-The other approach would be to apply
-
-http://www.zip.com.au/~akpm/linux/timepeg-2.4.19-pre6-1.patch.gz
-
-and enable "Timepeg instrumentation" and "Interrupt latency
-instrumentation" in the Kernel Hacking menu.
-
-Compile up http://www.zip.com.au/~akpm/linux/tpt.tar.gz
-and run
-
-	sudo ./tpt -s | sort -nr +5 | head -20
-
-then run your workload, then run the above command a second time.
-I get:
-
-        slab.c:1323 -> slab.c:1347  572      .66  55.91     5.90   3375.52
-       do_IRQ.in:0 -> softirq.c:84  1628   10.72  22.18    11.22  18270.64
-          exit.c:396 -> exit.c:430  3       5.50  10.66     7.66     22.98
-ll_rw_blk.c:886 -> ll_rw_blk.c:996  54      1.25   8.72     2.15    116.28
-
-which shows that the worst-case interrupt-off times
-were between lines 1347 and 1323 of slab.c.
-
-Beware that the timepeg patch increases your kernel
-size tremendously - it's probably OK with a uniprocessor
-build, but even though I've dropped NR_CPUS to 2, a
-large SMP kernel build can simply fail to load.
-
--

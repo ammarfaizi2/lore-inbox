@@ -1,189 +1,182 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316141AbSEJV5v>; Fri, 10 May 2002 17:57:51 -0400
+	id <S316143AbSEJWFy>; Fri, 10 May 2002 18:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316142AbSEJV5u>; Fri, 10 May 2002 17:57:50 -0400
-Received: from holomorphy.com ([66.224.33.161]:47245 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316141AbSEJV5s>;
-	Fri, 10 May 2002 17:57:48 -0400
-Date: Fri, 10 May 2002 14:56:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] convert pidhash to list_t
-Message-ID: <20020510215628.GZ32767@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <20020510044023.GX32767@holomorphy.com> <20020510131707.GY32767@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316144AbSEJWFx>; Fri, 10 May 2002 18:05:53 -0400
+Received: from iq.mensalinux.org ([208.255.12.114]:24448 "EHLO
+	iq.mensalinux.org") by vger.kernel.org with ESMTP
+	id <S316143AbSEJWFv>; Fri, 10 May 2002 18:05:51 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Jason Straight <jason@blazeconnect.net>
+To: linux-kernel@vger.kernel.org
+Subject: irq handling and APM on new Laptop Sony Vaio GRX 570
+Date: Fri, 10 May 2002 18:06:21 -0400
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200205101806.21465.jason@blazeconnect.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 06:17:07AM -0700, William Lee Irwin III wrote:
-> d'oh!!!
+I apparently have a system with a bios that doesn't play well with linux.
 
-Batched messages from the "How the heck did I screw this up?" department...
-Converting pidhash to list_t, take 3.
+Laptop - Sony Vaio GRX 570 i8x0
+The only problems I'm having are with audio (ac97_codec), and the modem (hcf).
+
+The sound is choppy.
+
+And the modem just won't work (drivers installed). All modules load clean when 
+I try to access the modems dev with minicom or ppp but it won't communicate. 
+I'm just guessing because it doesn't get assigned an IRQ.
+
+I've tried booting with the pci=biosirq parm with no luck. If anyone has any 
+ideas what I can do, thanks.
+
+/proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 
+4).
+      Prefetchable 32 bit memory at 0xec000000 [0xefffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 4).
+      Master Capable.  Latency=96.  Min Gnt=12.
+  Bus  0, device  29, function  0:
+    USB Controller: PCI device 8086:2482 (Intel Corp.) (rev 2).
+      IRQ 9.
+      I/O at 0x1800 [0x181f].
+  Bus  0, device  29, function  1:
+    USB Controller: PCI device 8086:2484 (Intel Corp.) (rev 2).
+      IRQ 9.
+      I/O at 0x1820 [0x183f].
+  Bus  0, device  29, function  2:
+    USB Controller: PCI device 8086:2487 (Intel Corp.) (rev 2).
+      I/O at 0x1840 [0x185f].
+  Bus  0, device  30, function  0:
+    PCI bridge: Intel Corp. 82820 820 (Camino 2) Chipset PCI (-M) (rev 66).
+      Master Capable.  No bursts.  Min Gnt=4.
+  Bus  0, device  31, function  0:
+    ISA bridge: PCI device 8086:248c (Intel Corp.) (rev 2).
+  Bus  0, device  31, function  1:
+    IDE interface: PCI device 8086:248a (Intel Corp.) (rev 2).
+      I/O at 0x1f0 [0x1f7].
+      I/O at 0x3f6 [0x3f6].
+      I/O at 0x170 [0x177].
+      I/O at 0x376 [0x376].
+      I/O at 0x1860 [0x186f].
+      Non-prefetchable 32 bit memory at 0xe8000000 [0xe80003ff].
+  Bus  0, device  31, function  3:
+    SMBus: PCI device 8086:2483 (Intel Corp.) (rev 2).
+      I/O at 0x1880 [0x189f].
+  Bus  0, device  31, function  5:
+    Multimedia audio controller: Intel Corp. AC'97 Audio Controller (rev 2).
+      IRQ 9.
+      I/O at 0x1c00 [0x1cff].
+      I/O at 0x18c0 [0x18ff].
+  Bus  0, device  31, function  6:
+    Modem: PCI device 8086:2486 (Intel Corp.) (rev 2).
+      I/O at 0x2400 [0x24ff].
+      I/O at 0x2000 [0x207f].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LW (rev 
+0).
+      IRQ 9.
+      Master Capable.  Latency=66.  Min Gnt=8.
+      Prefetchable 32 bit memory at 0xf0000000 [0xf7ffffff].
+      I/O at 0x3000 [0x30ff].
+      Non-prefetchable 32 bit memory at 0xe8100000 [0xe810ffff].
+  Bus  2, device   5, function  0:
+    CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 168).
+      IRQ 3.
+      Master Capable.  Latency=168.  Min Gnt=128.Max Lat=7.
+      Non-prefetchable 32 bit memory at 0xe8202000 [0xe8202fff].
+  Bus  2, device   5, function  1:
+    CardBus bridge: Ricoh Co Ltd RL5c476 II (#2) (rev 168).
+      Master Capable.  Latency=168.  Min Gnt=128.Max Lat=7.
+      Non-prefetchable 32 bit memory at 0xe8203000 [0xe8203fff].
+  Bus  2, device   5, function  2:
+    FireWire (IEEE 1394): PCI device 1180:0552 (Ricoh Co Ltd) (rev 0).
+      Master Capable.  Latency=64.  Min Gnt=2.Max Lat=4.
+      Non-prefetchable 32 bit memory at 0xe8201000 [0xe82017ff].
+  Bus  2, device   8, function  0:
+    Ethernet controller: Intel Corp. 82801CAM (ICH3) Chipset Ethernet 
+Controller (rev 66).
+      IRQ 9.
+      Master Capable.  Latency=66.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xe8200000 [0xe8200fff].
+      I/O at 0x4000 [0x403f].
+
+/proc/interrupts
+           CPU0       
+  0:     184731          XT-PIC  timer
+  1:       9048          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:       5826          XT-PIC  orinoco_cs
+  8:      17213          XT-PIC  rtc
+  9:          0          XT-PIC  usb-uhci, usb-uhci, Intel ICH3
+ 12:       9703          XT-PIC  PS/2 Mouse
+ 14:      29574          XT-PIC  ide0
+ 15:       2681          XT-PIC  ide1
+NMI:          0 
+LOC:          0 
+ERR:          0
+MIS:          0
+
+/proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0100-013f : orinoco_cs
+0170-0177 : PCI device 8086:248a (Intel Corp.)
+  0170-0177 : ide1
+01f0-01f7 : PCI device 8086:248a (Intel Corp.)
+  01f0-01f7 : ide0
+0376-0376 : PCI device 8086:248a (Intel Corp.)
+  0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03f6-03f6 : PCI device 8086:248a (Intel Corp.)
+  03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+1800-181f : PCI device 8086:2482 (Intel Corp.)
+  1800-181f : usb-uhci
+1820-183f : PCI device 8086:2484 (Intel Corp.)
+  1820-183f : usb-uhci
+1840-185f : PCI device 8086:2487 (Intel Corp.)
+1860-186f : PCI device 8086:248a (Intel Corp.)
+  1860-1867 : ide0
+  1868-186f : ide1
+1880-189f : PCI device 8086:2483 (Intel Corp.)
+18c0-18ff : Intel Corp. AC'97 Audio Controller
+  18c0-18ff : Intel ICH3
+1c00-1cff : Intel Corp. AC'97 Audio Controller
+  1c00-1cff : Intel ICH3
+2000-207f : PCI device 8086:2486 (Intel Corp.)
+2400-24ff : PCI device 8086:2486 (Intel Corp.)
+3000-3fff : PCI Bus #01
+  3000-30ff : ATI Technologies Inc Radeon Mobility M6 LW
+4000-4fff : PCI Bus #02
+  4000-403f : Intel Corp. 82801CAM (ICH3) Chipset Ethernet Controller
+    4000-403f : eepro100
 
 
-Cheers,
-Bill
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.530   -> 1.534  
-#	      kernel/ksyms.c	1.83    -> 1.84   
-#	       kernel/fork.c	1.43    -> 1.44   
-#	include/linux/sched.h	1.55    -> 1.56   
-#	      kernel/sched.c	1.73    -> 1.77   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/05/09	wli@holomorphy.com	1.531
-# Cleanup of pidhash to use list_t for list linkage.
-# --------------------------------------------
-# 02/05/10	wli@holomorphy.com	1.532
-# Actually bootmem alloc the pidhash table.
-# --------------------------------------------
-# 02/05/10	wli@holomorphy.com	1.533
-# sched.c:
-#   Include bootmem.h
-# --------------------------------------------
-# 02/05/10	wli@holomorphy.com	1.534
-# sched.c:
-#   Initialize pidhash_size before using it.
-# --------------------------------------------
-#
-diff -Nru a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	Fri May 10 14:40:47 2002
-+++ b/include/linux/sched.h	Fri May 10 14:40:47 2002
-@@ -283,8 +283,7 @@
- 	struct list_head thread_group;
- 
- 	/* PID hash table linkage. */
--	struct task_struct *pidhash_next;
--	struct task_struct **pidhash_pprev;
-+	list_t pidhash_list;
- 
- 	wait_queue_head_t wait_chldexit;	/* for wait4() */
- 	struct completion *vfork_done;		/* for vfork() */
-@@ -420,37 +419,37 @@
- extern struct   mm_struct init_mm;
- extern struct task_struct *init_tasks[NR_CPUS];
- 
--/* PID hashing. (shouldnt this be dynamic?) */
--#define PIDHASH_SZ (4096 >> 2)
--extern struct task_struct *pidhash[PIDHASH_SZ];
-+/* PID hashing. */
-+extern list_t *pidhash;
-+extern unsigned long pidhash_size;
- 
--#define pid_hashfn(x)	((((x) >> 8) ^ (x)) & (PIDHASH_SZ - 1))
-+static inline unsigned pid_hashfn(pid_t pid)
-+{
-+	return ((pid >> 8) ^ pid) & (pidhash_size - 1);
-+}
- 
- static inline void hash_pid(struct task_struct *p)
- {
--	struct task_struct **htable = &pidhash[pid_hashfn(p->pid)];
--
--	if((p->pidhash_next = *htable) != NULL)
--		(*htable)->pidhash_pprev = &p->pidhash_next;
--	*htable = p;
--	p->pidhash_pprev = htable;
-+	list_add(&p->pidhash_list, &pidhash[pid_hashfn(p->pid)]);
- }
- 
- static inline void unhash_pid(struct task_struct *p)
- {
--	if(p->pidhash_next)
--		p->pidhash_next->pidhash_pprev = p->pidhash_pprev;
--	*p->pidhash_pprev = p->pidhash_next;
-+	list_del(&p->pidhash_list);
- }
- 
--static inline struct task_struct *find_task_by_pid(int pid)
-+static inline task_t *find_task_by_pid(int pid)
- {
--	struct task_struct *p, **htable = &pidhash[pid_hashfn(pid)];
-+	list_t *p, *pid_list = &pidhash[pid_hashfn(pid)];
-+
-+	list_for_each(p, pid_list) {
-+		task_t *t = list_entry(p, task_t, pidhash_list);
- 
--	for(p = *htable; p && p->pid != pid; p = p->pidhash_next)
--		;
-+		if(t->pid == pid)
-+			return t;
-+	}
- 
--	return p;
-+	return NULL;
- }
- 
- /* per-UID process charging. */
-diff -Nru a/kernel/fork.c b/kernel/fork.c
---- a/kernel/fork.c	Fri May 10 14:40:47 2002
-+++ b/kernel/fork.c	Fri May 10 14:40:47 2002
-@@ -44,7 +44,8 @@
- unsigned long total_forks;	/* Handle normal Linux uptimes. */
- int last_pid;
- 
--struct task_struct *pidhash[PIDHASH_SZ];
-+list_t *pidhash;
-+unsigned long pidhash_size;
- 
- rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
- 
-diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
---- a/kernel/ksyms.c	Fri May 10 14:40:47 2002
-+++ b/kernel/ksyms.c	Fri May 10 14:40:47 2002
-@@ -588,3 +588,4 @@
- 
- EXPORT_SYMBOL(tasklist_lock);
- EXPORT_SYMBOL(pidhash);
-+EXPORT_SYMBOL(pidhash_size);
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Fri May 10 14:40:47 2002
-+++ b/kernel/sched.c	Fri May 10 14:40:47 2002
-@@ -15,6 +15,7 @@
- #include <linux/mm.h>
- #include <linux/nmi.h>
- #include <linux/init.h>
-+#include <linux/bootmem.h>
- #include <asm/uaccess.h>
- #include <linux/highmem.h>
- #include <linux/smp_lock.h>
-@@ -1581,7 +1582,21 @@
- void __init sched_init(void)
- {
- 	runqueue_t *rq;
--	int i, j, k;
-+	int i, j, k, size = PAGE_SIZE*sizeof(list_t);
-+
-+	do {
-+		pidhash = (list_t *)alloc_bootmem(size);
-+		if (!pidhash)
-+			size >>= 1;
-+	} while (!pidhash && size >= sizeof(list_t));
-+
-+	if (!pidhash)
-+		panic("Failed to allocated pid hash table!\n");
-+
-+	pidhash_size = size/sizeof(list_t);
-+
-+	for (i = 0; i < pidhash_size; ++i)
-+		INIT_LIST_HEAD(&pidhash[i]);
- 
- 	for (i = 0; i < NR_CPUS; i++) {
- 		runqueue_t *rq = cpu_rq(i);
+-- 
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Jason Straight
+President
+BlazeConnect Internet Services
+Cheboygan Michigan
+www.blazeconnect.net
+Phone: 231-597-0376
+

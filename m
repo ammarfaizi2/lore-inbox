@@ -1,115 +1,575 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbUCLRnv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 12:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUCLRnv
+	id S262008AbUCLRql (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 12:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbUCLRql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 12:43:51 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54032
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261706AbUCLRnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 12:43:47 -0500
-Date: Fri, 12 Mar 2004 18:44:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: anon_vma RFC2
-Message-ID: <20040312174429.GE30940@dualathlon.random>
-References: <20040312171307.GA30940@dualathlon.random> <Pine.LNX.4.44.0403121217440.6494-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403121217440.6494-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 12 Mar 2004 12:46:41 -0500
+Received: from 69-90-55-107.fastdsl.ca ([69.90.55.107]:51849 "EHLO
+	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id S262008AbUCLRqP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 12:46:15 -0500
+Message-ID: <4051F8B2.9010003@brad-x.com>
+Date: Fri, 12 Mar 2004 12:51:46 -0500
+From: Brad Laue <brad@brad-x.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040222
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ksoftirqd using mysteriously high amounts of CPU time
+References: <404F85A6.6070505@brad-x.com>	<20040310155712.7472e31c.akpm@osdl.org>	<4050271C.3070103@brad-x.com>	<40503120.9000008@brad-x.com> <20040311020832.1aa25177.akpm@osdl.org>
+In-Reply-To: <20040311020832.1aa25177.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------070609050704010702050900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 12:23:22PM -0500, Rik van Riel wrote:
-> On Fri, 12 Mar 2004, Andrea Arcangeli wrote:
-> > On Fri, Mar 12, 2004 at 11:25:27AM -0500, Rik van Riel wrote:
-> > > pointing to a struct address_space with its anonymous
-> > > memory.  On exec() the mm_struct gets a new address_space,
-> > > on fork parent and child share them.
-> > 
-> > isn't this what anonmm is already doing? are you suggesting something
-> > different?
+This is a multi-part message in MIME format.
+--------------070609050704010702050900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Andrew Morton wrote:
+> Brad Laue <brad@brad-x.com> wrote:
 > 
-> I am suggesting a pointer from the mm_struct to a
-> struct address_space ...
-
-that's the anonmm:
-
-+	mm->anonmm = anonmm;
-
-> > > There's no difference between mremap() of anonymous memory
-> > > and mremap() of part of an mmap() range of a file...
-> > > 
-> > > At least, there doesn't need to be.
-> > 
-> > the anonmm simply cannot work because it's not reaching vmas, it only
-> > reaches mm, and with an mm and a virtual address you cannot reach the
-> > right vma if it was moved around by mremap,
+>> Brad Laue wrote:
+>> > Hopefully the attached shows some irregularity. If not, I'll have to 
+>> > reply back in a few weeks when the problem recurs over the course of time.
+>>
+>> And without further ado, the attachment. It's been a long day. :)
 > 
-> ... and use the offset into the struct address_space as
-> the page->index, NOT the virtual address inside the mm.
 > 
-> On first creation of anonymous memory these addresses
-> could be the same, but on mremap inside a forked process
-> (with multiple processes sharing part of anonymous memory)
-> a page could have a different offset inside the struct
-> address space than its virtual address....
+> It beats me.  Something must be waking up ksoftirqd all the time.
 > 
-> Then on mremap you only need to adjust the start and
-> end offsets inside the VMAs, not the page->index ...
-
-I don't see how this can work, each vma needs its own vm_off or a single
-address space can't handle them all. Also the page->index is the virtual
-address (or the virtual offset with anon_vma), it cannot be replaced
-with something global, it has to be per-page.
-
-> Isn't being LESS finegrained the whole reason for moving
-> from pte based to object based reverse mapping ? ;))
-
-the object is to cover ranges, instead of forcing per-page overhread.
-Being finegrined at the vma is fine, being finegrined less than a vma is
-desiderable only if there's no downside.
-
-> > (it also avoids the need of a prio_tree even if in theory we could stack
-> > a prio_tree on top of every anon_vma, but it's really not needed)
+> If you have time, could you please apply the below, then wait for ksoftirqd
+> to go bad again and then run:
 > 
-> We need the prio_tree anyway for files.  I don't see
+> 
+> 	dmesg -c
+> 	echo 1 > /proc/sys/debug/0 ; sleep 1; echo 0 > /proc/sys/debug/0
+> 	dmesg -s 1000000 > /tmp/foo
+> 
+> and then send foo?
+> 
 
-As I said in the last email the prio_tree will not work for the
-anonvmas, because every vma in the same range will map to different
-pages. So you'll find more vmas than the ones you're interested about.
-This doesn't happen with inodes. with inodes every vma queued into the
-i_mmap will be mapping to the right page _if_ it's pte_present == 1.
+Okay, it looks like the 'pppoe' process is definitely causing all the
+soft interrupts. Puzzling, because on other systems with similar
+hardware this doesn't happen. Ran the machine without iptables running
+(eek!!!) just to make sure, and the same result occurred, so it doesn't
+seem to be the fact that packets are going through an elaborate ruleset
+that's causing it. Kernel mode PPPoE doesn't seem to change things much.
 
-with your anonymous address space shared by childs the prio_tree will
-find lots of vmas in different vma->vm_mm, each one pointing to
-different pages. so to unmap a direct page after a malloc, you may end
-up scanning all the address spaces by mistake. This cannot happen with
-anon_vma. Furthermore the prio_tree will waste 12 bytes per vma, while
-the anon_vma design will waste _at_most_ 8 bytes per vma (actually less
-if the anon_vma are shared). And with anon_vma in practice you won't
-need a prio_tree stacked on top of anon_vma. You could put one if you
-want paying another 12bytes per vma, but it doesn't worth it. So
-anon_vma takes less memory and it's more efficent as far as I can tell.
+Hard to figure out from a kernel perspective why this many soft 
+interrupts are being used, but I'm just getting a grasp on what their 
+purpose is to begin with.
 
-> Having the same code everywhere will definately help
-> simplifying things.
+Hope this offers some insight.
 
-Reusing the same code would be good I agree, but I don't think it would
-work as well as with the inodes, and with the inodes it's really needed
-only for a special 32bit case, so normally the lookup would be immdiate,
-while here we need it for real expensive lookups if one has many
-anonymous vmas in the childs even on 64bit apps. So I prefer a design
-where the prio_tree or not the cost for good apps 64bit archs is the
-same. prio_tree is not free, it's still O(log(N)) and I prefer a design
-where the common case is N == 1 like with anon_vma (with your
-address-space design N would be >1 normally in a server app).
+Brad
+
+--------------070609050704010702050900
+Content-Type: text/plain;
+ name="wakes_softirqd"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wakes_softirqd"
+
+ction+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c02978b3>] net_tx_action+0x83/0xd0
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c02978b3>] net_tx_action+0x83/0xd0
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+pppoe wakes ksoftirqd
+Call Trace:
+ [<c0121e6c>] __tasklet_schedule+0x7c/0x80
+ [<d084656c>] ppp_asynctty_receive+0xbc/0xd0 [ppp_async]
+ [<c024a342>] pty_write+0x142/0x1d0
+ [<c0249333>] write_chan+0x1f3/0x220
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c011a910>] default_wake_function+0x0/0x20
+ [<c0243d38>] tty_write+0x1e8/0x290
+ [<c0249140>] write_chan+0x0/0x220
+ [<c0243b50>] tty_write+0x0/0x290
+ [<c0151fa8>] vfs_write+0xb8/0x130
+ [<c01520d2>] sys_write+0x42/0x70
+ [<c0109387>] syscall_call+0x7/0xb
+
+
+
+--------------070609050704010702050900
+Content-Type: text/plain;
+ name="profile"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="profile"
+
+c013df00 kmem_cache_alloc                              2   0.0312
+c013df90 __kmalloc                                     2   0.0156
+c01d8900 xfs_ilock                                     2   0.0114
+c0204390 linvfs_write                                  2   0.0069
+c02475f0 n_tty_write_wakeup                            2   0.0312
+c0247630 n_tty_receive_buf                             2   0.0005
+c024a200 pty_write                                     2   0.0043
+c0121cc0 local_bh_enable                               3   0.0208
+c016d180 dnotify_parent                                3   0.0156
+c0215eb0 fast_clear_page                               3   0.0312
+c0109354 system_call                                   4   0.0909
+c0138300 generic_file_aio_write_nolock                 4   0.0015
+c0151e30 do_sync_write                                 4   0.0208
+c0151ef0 vfs_write                                     4   0.0132
+c0155e10 generic_commit_write                          4   0.0227
+c0164ce0 sys_select                                    4   0.0032
+c016bde0 inode_update_time                             4   0.0192
+c0243a00 tty_read                                      4   0.0119
+c0243b50 tty_write                                     4   0.0061
+c0126040 run_timer_softirq                             5   0.0116
+c013a580 free_hot_cold_page                            5   0.0195
+c0164900 max_select_fd                                 5   0.0223
+c0215974 csum_partial                                  5   0.0174
+c02488e0 read_chan                                     5   0.0023
+c0152ee0 fget                                          6   0.0938
+c01551f0 __block_prepare_write                         6   0.0059
+c01649e0 do_select                                     6   0.0083
+c0213930 radix_tree_lookup                             6   0.0750
+c011a990 __wake_up                                     8   0.0833
+c013e060 kfree                                         9   0.0804
+c01b0ed0 xfs_bmapi                                     9   0.0018
+c01862a0 write_profile                                10   0.1562
+c0208de0 xfs_write                                    10   0.0047
+c0216440 __copy_from_user_ll                          17   0.1328
+c011a340 schedule                                     18   0.0128
+c010ad50 handle_IRQ_event                             21   0.1875
+c02163d0 __copy_to_user_ll                            27   0.2411
+c0121c00 do_softirq                                  144   0.7500
+c0107030 default_idle                               8696 181.1667
+00000000 total                                      9144   0.0060
+
+
+--------------070609050704010702050900--

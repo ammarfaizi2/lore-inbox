@@ -1,165 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267996AbUHPWdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268001AbUHPWev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267996AbUHPWdP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUHPWco
+	id S268001AbUHPWev (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUHPWdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:32:44 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55199 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267994AbUHPWb7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:31:59 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
-Date: Tue, 17 Aug 2004 00:29:07 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408161923.19024.bzolnier@elka.pw.edu.pl> <1092677759.21013.33.camel@localhost.localdomain>
-In-Reply-To: <1092677759.21013.33.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200408170029.07912.bzolnier@elka.pw.edu.pl>
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 16 Aug 2004 18:33:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18829 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267993AbUHPWcv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 18:32:51 -0400
+Date: Mon, 16 Aug 2004 15:32:43 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 2.4] blacklist a device in usb-storage
+Message-Id: <20040816153243.7e050372@lembas.zaitcev.lan>
+In-Reply-To: <4120D8B1.6040000@ttnet.net.tr>
+References: <mailman.1092508141.32379.linux-kernel2news@redhat.com>
+	<20040815235204.0e9ec874@lembas.zaitcev.lan>
+	<412066BC.9040503@ttnet.net.tr>
+	<20040816080751.733c188d@lembas.zaitcev.lan>
+	<4120D8B1.6040000@ttnet.net.tr>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 August 2004 19:36, Alan Cox wrote:
-> On Llu, 2004-08-16 at 18:23, Bartlomiej Zolnierkiewicz wrote:
-> > On Sunday 15 August 2004 17:13, Alan Cox wrote:
-> > > There really isnt any sane way to break this patch down because all the
-> > > changes are interlinked so closely.
-> >
-> > at least /proc/ide/hd?/settings:ide-scsi removal and doc fixes are very
-> > easy to separate, I also think that locking fixes should be separated
-> > from hotplugging ones
->
-> I continue to believe splitting the locking and hotplugging ones are
-> essentially impossible without inventing a fake never written version.
-> The other stuff can probably be done.
->
-> If you can let me know which bits you are going to apply I can work on
-> sorting out the rest. In the meantime I'll keep a -ac patch for people
-> who want to work on the IDE bits or who need the fixes and driver
-> updates.
+On Mon, 16 Aug 2004 18:54:25 +0300
+"O.Sezer" <sezeroz@ttnet.net.tr> wrote:
 
-I'm going to apply "easy" stuff first:
-- /proc/ide/hd?/settings:ide-scsi removal
-  (patch attached for your convenience)
-- DocBook fixes
-- misc comments fixes
-- bad geometry hang fix
-- no slave/master decoding workaround
-- ...
+> EIP: 0010: [<e0d24da0>]  Not tainted
 
-I will defer applying locking/hotpluggin fixes - I need to fully understand 
-them and check that they don't break anything - and ITE driver - it needs 
-some minor cleanup first, also I want to check if we can't go with libata
-for it...
+> Call Trace: [<e0a3b9cf>]  [<e0a3bde4>]  [<e0207ee9>]
+>          [<e0a3be87>]   [<c010a848>]  [<c010aa33>]
+>          [<e0ae4385>]   [<c0107150>]   [<c0105000>]
+>          [<c01071f4>]
 
+>  >>EIP; e0d24da0 <[sr_mod]sr_registered+22deec/22e1ac>   <=====
 
-[PATCH] ide: remove /proc/ide/hd?/settings:ide-scsi / HDIO_SET_IDE_SCSI ioctl
+> Trace; e0a3b9cf <[usb-uhci]process_interrupt+21f/260>
+> Trace; e0a3bde4 <[usb-uhci]process_urb+254/260>
+> Trace; e0207ee9 <_end+1fe721a5/2064e31c>
+> Trace; e0a3be87 <[usb-uhci]uhci_interrupt+97/170>
+> Trace; c010a848 <handle_IRQ_event+48/80>
+> Trace; c010aa33 <do_IRQ+83/f0>
+> Trace; c0107150 <default_idle+0/40>
+> Trace; c01071f4 <cpu_idle+34/40>
 
-As noticed by Alan Cox:
+Hmm. This looks fishy, because sr_registered is not a function.
 
-"It doesn't work now so it clearly isnt being used 8). We hold the lock
-because its a proc function and we then replace the proc functions in the
-attach method -> deadlock. It is also incredibly hard to fix without a
-major rewrite."
+Does the same happen after "echo /bin/true > /proc/sys/kernel/hotplug"?
+Maybe your hotplug setup yanks a module. I heard some crazy distro
+did that on unplug.
 
-The same is true for HDIO_SET_IDE_SCSI ioctl.
-
-Both were broken 18 months ago in 2.5.63 as a side-effect of Alan's locking
-fixes for ide settings and AFAIR there wasn't any complains about it.
-
-Also /proc/ide/hd?/driver interface is still available.
-
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
----
-
- linux-2.6.8.1-bzolnier/drivers/ide/ide.c     |   19 -------------------
- linux-2.6.8.1-bzolnier/include/linux/hdreg.h |    5 ++---
- linux-2.6.8.1-bzolnier/include/linux/ide.h   |    2 +-
- 3 files changed, 3 insertions(+), 23 deletions(-)
-
-diff -puN drivers/ide/ide.c~ide_scsi_proc drivers/ide/ide.c
---- linux-2.6.8.1/drivers/ide/ide.c~ide_scsi_proc	2004-08-16 
-19:55:00.324694184 +0200
-+++ linux-2.6.8.1-bzolnier/drivers/ide/ide.c	2004-08-16 19:55:00.353689776 
-+0200
-@@ -1322,23 +1322,6 @@ static int set_xfer_rate (ide_drive_t *d
- 	return err;
- }
- 
--int ide_atapi_to_scsi (ide_drive_t *drive, int arg)
--{
--	if (drive->media == ide_disk) {
--		drive->scsi = 0;
--		return 0;
--	}
--
--	if (DRIVER(drive)->cleanup(drive)) {
--		drive->scsi = 0;
--		return 0;
--	}
--
--	drive->scsi = (u8) arg;
--	ata_attach(drive);
--	return 0;
--}
--
- void ide_add_generic_settings (ide_drive_t *drive)
- {
- /*
-@@ -1353,8 +1336,6 @@ void ide_add_generic_settings (ide_drive
- 	ide_add_setting(drive,	"init_speed",		SETTING_RW,					-1,			-1,			TYPE_BYTE,	
-0,	70,				1,		1,		&drive->init_speed,		NULL);
- 	ide_add_setting(drive,	"current_speed",	SETTING_RW,					-1,			-1,			
-TYPE_BYTE,	0,	70,				1,		1,		&drive->current_speed,		set_xfer_rate);
- 	ide_add_setting(drive,	"number",		SETTING_RW,					-1,			-1,			TYPE_BYTE,	0,	
-3,				1,		1,		&drive->dn,			NULL);
--	if (drive->media != ide_disk)
--		ide_add_setting(drive,	"ide-scsi",		SETTING_RW,					-1,		HDIO_SET_IDE_SCSI,		
-TYPE_BYTE,	0,	1,				1,		1,		&drive->scsi,			ide_atapi_to_scsi);
- }
- 
- int system_bus_clock (void)
-diff -puN include/linux/hdreg.h~ide_scsi_proc include/linux/hdreg.h
---- linux-2.6.8.1/include/linux/hdreg.h~ide_scsi_proc	2004-08-16 
-19:55:00.349690384 +0200
-+++ linux-2.6.8.1-bzolnier/include/linux/hdreg.h	2004-08-16 19:55:00.354689624 
-+0200
-@@ -449,9 +449,8 @@ enum {
- /* hd/ide ctl's that pass (arg) ptrs to user space are numbered 0x033n/0x033n 
-*/
- /* 0x330 is reserved - used to be HDIO_GETGEO_BIG */
- /* 0x331 is reserved - used to be HDIO_GETGEO_BIG_RAW */
--
--#define HDIO_SET_IDE_SCSI      0x0338
--#define HDIO_SET_SCSI_IDE      0x0339
-+/* 0x338 is reserved - used to be HDIO_SET_IDE_SCSI */
-+/* 0x339 is reserved - used to be HDIO_SET_SCSI_IDE */
- 
- #define __NEW_HD_DRIVE_ID
- 
-diff -puN include/linux/ide.h~ide_scsi_proc include/linux/ide.h
---- linux-2.6.8.1/include/linux/ide.h~ide_scsi_proc	2004-08-16 
-19:55:00.350690232 +0200
-+++ linux-2.6.8.1-bzolnier/include/linux/ide.h	2004-08-16 19:55:00.354689624 
-+0200
-@@ -756,8 +756,8 @@ typedef struct ide_drive_s {
- 					 *  2=48-bit doing 28-bit
- 					 *  3=64-bit
- 					 */
-+	unsigned scsi		: 1;	/* 0=default, 1=ide-scsi emulation */
- 
--	u8	scsi;		/* 0=default, 1=skip current ide-subdriver for ide-scsi emulation 
-*/
-         u8	quirk_list;	/* considered quirky, set for a specific host */
-         u8	suspend_reset;	/* drive suspend mode flag, soft-reset recovers */
-         u8	init_speed;	/* transfer rate set at boot */
-_
+-- Pete

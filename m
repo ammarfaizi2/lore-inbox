@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275336AbRJAR2v>; Mon, 1 Oct 2001 13:28:51 -0400
+	id <S275353AbRJARmM>; Mon, 1 Oct 2001 13:42:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275357AbRJAR2l>; Mon, 1 Oct 2001 13:28:41 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:10136 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S275346AbRJAR2a>;
-	Mon, 1 Oct 2001 13:28:30 -0400
-Date: Mon, 1 Oct 2001 19:28:56 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200110011728.TAA09370@harpo.it.uu.se>
-To: torvalds@transmeta.com
-Subject: Re: 2.4.11-pre1 oops in bdget() -- FIXED
-Cc: linux-kernel@vger.kernel.org, mason@suse.com, viro@math.psu.edu
+	id <S275354AbRJARlw>; Mon, 1 Oct 2001 13:41:52 -0400
+Received: from ps.ksky.ne.jp ([210.233.160.3]:34017 "EHLO ps.ksky.ne.jp")
+	by vger.kernel.org with ESMTP id <S275353AbRJARln>;
+	Mon, 1 Oct 2001 13:41:43 -0400
+To: Alan.Cox@linux.org, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, hng@ps.ksky.ne.jp
+Subject: Documentation/filesystems/fat_cvf.txt
+X-Mailer: Mew version 1.94.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011002024001A.hng@ps.ksky.ne.jp>
+Date: Tue, 02 Oct 2001 02:40:01 +0900
+From: Hirokazu Nomoto <hng@ps.ksky.ne.jp>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Oct 2001 08:35:03 -0700 (PDT), Linus Torvalds wrote:
->
->The thing we oops on is the _old_ blksize_size[] array information for the
->floppy, which was loaded as a module and then unloaded - it's ugly that it
->doesn't clean up its copy of the blksize_size array, but the real cause
->for the problem is that bdget() references it before it has opened the
->device.
->
->The (untested) fix is to just remove the line in bdget() that sets
->i_blkbits, as the thing is later set correctly in blkdev_get().
+Hello.
+I made a patch for Documentation/filesystems/fat_cvf.txt.
+Its 2.2 version is identical to its 2.4 version.
+I don't know this maintainer, so I send you.
 
-Confirmed. With the patch below I can no longer trigger the oops.
-
-/Mikael
-
---- linux-2.4.11-pre1/fs/block_dev.c.~1~	Mon Oct  1 11:48:54 2001
-+++ linux-2.4.11-pre1/fs/block_dev.c	Mon Oct  1 18:59:16 2001
-@@ -345,7 +345,6 @@ struct block_device *bdget(dev_t dev)
- 			inode->i_rdev = kdev;
- 			inode->i_dev = kdev;
- 			inode->i_bdev = new_bdev;
--			inode->i_blkbits = blksize_bits(block_size(kdev));
- 			inode->i_data.a_ops = &def_blk_aops;
- 			inode->i_data.gfp_mask = GFP_USER;
- 			spin_lock(&bdev_lock);
+Best regards,
+===
+--- fat_cvf.txt	Mon Mar 26 01:31:56 2001
++++ fat_cvf.txt.new	Tue Oct  2 01:50:21 2001
+@@ -112,7 +112,7 @@
+   int (*mount_cvf) (struct super_block*sb,char*options);
+   int (*unmount_cvf) (struct super_block*sb);
+   [...]
+-  void (*cvf_zero_cluster) (struct inode*inode,int clusternr);
++  void (*zero_out_cluster) (struct inode*, int clusternr);
+ }
+ 
+ This structure defines the capabilities of a CVF module. It must be filled
+@@ -161,8 +161,8 @@
+       functions. NULL means use the original FAT driver functions instead.
+       If you really want "no action", write a function that does nothing and 
+       hang it in instead.
+-  - cvf_zero_cluster:
+-      The cvf_zero_cluster function is called when the fat driver wants to
++  - zero_out_cluster:
++      The zero_out_cluster function is called when the fat driver wants to
+       zero out a (new) cluster. This is important for directories (mkdir).
+       If it is NULL, the FAT driver defaults to overwriting the whole
+       cluster with zeros. Note that clusternr is absolute, not relative
+===
+Hirokazu Nomoto / JF Project

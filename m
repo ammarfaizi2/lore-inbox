@@ -1,85 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUFQTg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbUFQTgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbUFQTg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 15:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUFQTg2
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 15:36:28 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:20216 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262772AbUFQTgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S262802AbUFQTgO (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 17 Jun 2004 15:36:14 -0400
-Date: Thu, 17 Jun 2004 21:36:11 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Finn Thain <ft01@webmastery.com.au>, Andreas Schwab <schwab@suse.de>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: make checkstack on m68k
-In-Reply-To: <Pine.GSO.4.58.0406172115050.1495@waterleaf.sonytel.be>
-Message-ID: <Pine.GSO.4.58.0406172130130.1495@waterleaf.sonytel.be>
-References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
- <je3c4uqum0.fsf@sykes.suse.de> <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
- <20040617182658.GB29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172115050.1495@waterleaf.sonytel.be>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUFQTgN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 17 Jun 2004 15:36:13 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:59832 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262766AbUFQTfw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 15:35:52 -0400
+From: Mark Gross <mgross@linux.jf.intel.com>
+Organization: Intel
+To: ganzinger@mvista.com, George Anzinger <george@mvista.com>,
+       Mark Gross <mgross@linux.jf.intel.com>
+Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
+Date: Thu, 17 Jun 2004 12:35:39 -0700
+User-Agent: KMail/1.5.4
+Cc: ganzinger@mvista.com, Arjan van de Ven <arjanv@redhat.com>,
+       Geoff Levand <geoffrey.levand@am.sony.com>,
+       high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <40C7BE29.9010600@am.sony.com> <200406150904.01447.mgross@linux.intel.com> <40D0CAB5.6010000@mvista.com>
+In-Reply-To: <40D0CAB5.6010000@mvista.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406171235.39799.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
-> On Thu, 17 Jun 2004, [iso-8859-1] Jörn Engel wrote:
-> > On Fri, 18 June 2004 01:17:31 +1000, Finn Thain wrote:
-> > > On Thu, 17 Jun 2004, Andreas Schwab wrote:
-> > > >
-> > > >   $re = qr/.*(?:linkw %fp,|addw )#-([0-9]{1,4})(?:,%sp)?$/o;
-> > >
-> > > I think that should be addaw, not addw. And it may be necessary to remove
-> > > the $ anchor at the end.
+On Wednesday 16 June 2004 15:33, George Anzinger wrote:
+> > Details...  Thats a hard thing to come by when in a high level design
+> > discussion.  
 > >
-> > Changed, updated patch below.  Thanks.
+> > Its too bad the conversion_bits export got shot down.  Perhaps it was
+> > because you where exporting a data structure that made implicit
+> > assumptions rather than a more object based interface, with function
+> > pointers to conversion functions, and private data?
+>
+> The functions, of course, were also exported.  But this is exported from
+> the arch side of things and not the base.  They need to provide the
+> conversion functions, the bits just being somthing that is needed if they
+> export inline code, where as, if they export the functions, they don't need
+> the bits (i.e. they are private).  I rather like to export inline code as
+> it is about twice as fast (I would guess).
+
+I think if in-lines are exported through more than one level of indirection 
+through include files then the code is hard to grok.
+
+>
+> > Regardless of doing an object based implementation of your design or not,
+> > if we could loose the #ifdefs and implicit ifdefs (i.e. IF_HIGH_RES) from
+> > the code (especially posix-timers.c) that would be really a good thing.
 > >
-> > Can anyone test?
+> > I do still like the object based design concept ;)
 >
-> Doesn't work ;-(
->
-> I also tried with
->
->     $re = qr/.*(?:linkw %fp,|addaw )#-([0-9]{1,4})(?:,%sp)?$/o;
->
-> but still didn't work ;-(
+> I am afraid I am too old :(   I rather think I understand object based code
+> while not finding it very "warm".   I have never written anything large
+> that way and find myself objecting in the name of performance, but then, as
+> I said, I may be too old.
 
-*bummer*
+Object based code good for some things, and not for others.  I think it could 
+be a good match this code, but I bet it can be done well other ways as too.
 
-why doesn't checkstack.pl complain if I forget to specify `m68k'?!?
-
-So it works with the above regex, if I undo the `my $size = $2;' change as
-well.
-
-To avoid mistakes/confusion, here is a patch against pristine 2.6.7:
-
---- linux-2.6.7/scripts/checkstack.pl	2004-06-09 14:51:23.000000000 +0200
-+++ linux-m68k-2.6.7/checkstack.pl	2004-06-17 21:31:45.000000000 +0200
-@@ -40,6 +40,10 @@
- 	} elsif ($arch =~ /^ia64$/) {
- 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
- 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
-+	} elsif ($arch =~ /^m68k$/) {
-+		#    2b6c:       4e56 fb70       linkw %fp,#-1168
-+		#  1df770:       defc ffe4       addaw #-28,%sp
-+		$re = qr/.*(?:linkw %fp,|addaw )#-([0-9]{1,4})(?:,%sp)?$/o;
- 	} elsif ($arch =~ /^mips64$/) {
- 		#8800402c:       67bdfff0        daddiu  sp,sp,-16
- 		$re = qr/.*daddiu.*sp,sp,-(([0-9]{2}|[3-9])[0-9]{2})/o;
+I think without exporting abstractions (even just prototypes) that are common 
+across architectures, timebases and interrupt source you will get into #ifdef 
+hell with this code.
 
 
-Gr{oetje,eeting}s,
+--mgross
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

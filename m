@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262315AbRERNjn>; Fri, 18 May 2001 09:39:43 -0400
+	id <S262312AbRERNhd>; Fri, 18 May 2001 09:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262316AbRERNjd>; Fri, 18 May 2001 09:39:33 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:58019 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S262315AbRERNjY>; Fri, 18 May 2001 09:39:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: APIC, AMD-K6/2 -mcpu=586...
-From: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: 18 May 2001 09:38:01 -0400
-Message-ID: <m2u22ibww6.fsf@sympatico.ca>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
+	id <S262315AbRERNhX>; Fri, 18 May 2001 09:37:23 -0400
+Received: from [142.176.139.106] ([142.176.139.106]:28170 "EHLO ve1drg.com")
+	by vger.kernel.org with ESMTP id <S262312AbRERNhJ>;
+	Fri, 18 May 2001 09:37:09 -0400
+Date: Fri, 18 May 2001 10:37:05 -0300 (ADT)
+From: Ted Gervais <ve1drg@ve1drg.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rtl8139 - kernel 2.4.3
+In-Reply-To: <Pine.LNX.4.21.0105181328560.11038-100000@tux.rsn.bth.se>
+Message-ID: <Pine.LNX.4.21.0105181036320.8552-100000@ve1drg.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
-
-I have the 2.4.4 distribution from kernel.org. 
-
- "http://www.kernel.org/pub/linux/kernel/v2.4/"
-
-I have a Mandrake system and selected the AMD processors and APIC
-option.  The egcs-2.91.66 compiler with -mcpu=586.  It appears that
-the structure alignment of the floating point registers was not
-correct under this configuration.  This code was being compiled and
-a linker error produced.
-
-	if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
-/*  printk("WJP: value is %x.\n", 
-       offsetof(struct task_struct, thread.i387.fxsave) & 15); */
-/*  	  while(1); */
-		extern void __buggy_fxsr_alignment(void);
-		__buggy_fxsr_alignment();
-	}
-
-The alignment was to 8 bytes instead of 16.  I added some padding to
-the thread structure to produce an alignment of 16 and the code
-compiled and seemed to work fine; I used it for a few days.
-
-[in processor.h]
-/* floating point info */
-/*          unsigned char wjpDummy[8]; */
-	union i387_union	i387;
+Yup!   Mine was ok too with the 2.4.2 kernel. So something has changed
+from 2.4.3 and up. Hmmmmmm??
 
 
-I did not see any mention of this in the archives [but the volume of
-mailings is large... which I may be contributing to].  I recompiled
-without the padding and APIC support and everything seems to be fine,
-but _VERY_ slow.  Is this change ok locally?  Has it been addressed 
-in a patch?
+On Fri, 18 May 2001, Martin Josefsson wrote:
 
-regards,
-Bill Pringlemeir.
+> Date: Fri, 18 May 2001 13:31:56 +0200 (CEST)
+> From: Martin Josefsson <gandalf@wlug.westbo.se>
+> To: Ted Gervais <ve1drg@ve1drg.com>
+> Subject: Re: rtl8139 - kernel 2.4.3
+> 
+> On Thu, 17 May 2001, Ted Gervais wrote:
+> 
+> > 
+> > I get the following when ftping from one workstation to another.
+> > Using kernel 2.4.3 and Redhat7.1:
+> > 
+> > Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
+> > Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
+> > Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
+> > Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
+> > Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
+> > Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
+> > eth0: Out-of-sync dirty pointer, 456 vs. 462.
+> > Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
+> > Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
+> > Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
+> > Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
+> > 
+> > 
+> > Is there a fix for this?  Kernel 2.4.4 is worse. It gives me a 'kernel
+> > panic'..  doing the same ftp transfer between workstations.
+> 
+> I think I suffer from the same problem. The machine was stable with
+> 2.4.2-ac6 until I started playing with smbfs and hit a bug in that. 
+> So I upgraded to 2.4.4 and since then the machine has been very unstable.
+> Maximum uptime so far is 4 days and then it fell over.
+> And I'm using an rtl8139 card too.
+> 
+> I don't have a monitor attached to the machine but I'm compiling
+> 2.4.4-ac10 (afraid of the LVM changes in -ac11) with the kmsgdump patch so
+> I'll probably get a stackdump sometime later today.
+> 
+> /Martin
+> 
 
-
+---
+The mosquito is the state bird of New Jersey.
+                -- Andy Warhol
+                
+Ted Gervais <ve1drg@ve1drg.com>
+44.135.34.201 linux.ve1drg.ampr.org
 
 

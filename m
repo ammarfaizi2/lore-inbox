@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbUAITXP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 14:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUAITXO
+	id S263850AbUAITWd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 14:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbUAITWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 14:23:14 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:54434 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S263930AbUAITXL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 14:23:11 -0500
-Date: Fri, 9 Jan 2004 09:23:09 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: schwab@suse.de, paulus@samba.org, akpm@osdl.org, joe.korty@ccur.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-Id: <20040109092309.42bb6049.pj@sgi.com>
-In-Reply-To: <20040109152533.A25396@infradead.org>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-	<20040108051111.4ae36b58.pj@sgi.com>
-	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
-	<20040109064619.35c487ec.pj@sgi.com>
-	<je1xq9duhc.fsf@sykes.suse.de>
-	<20040109152533.A25396@infradead.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jan 2004 14:22:33 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3200 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263850AbUAITWc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 14:22:32 -0500
+Date: Fri, 9 Jan 2004 14:22:12 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: PATCH 1/2: Make gotoxy & siblings use unsigned variables
+In-Reply-To: <1073672901.2069.15.camel@laptop-linux>
+Message-ID: <Pine.LNX.4.53.0401091415430.571@chaos>
+References: <1073672901.2069.15.camel@laptop-linux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas wrote:
-> S390x is big-endian, too.  IMHO it should rather be in
-> include/linux/byteorder, or derived from the macros in there.
+On Sat, 10 Jan 2004, Nigel Cunningham wrote:
 
-ok.
+> This patch makes console X and Y coordinates unsigned, rather than
+> signed. Issues with wide (> 128 char?) consoles, seen when developing
+> Software Suspend's 'nice display' are thus fixed. A brief examination of
+> related code showed that this use of signed variables was the exception
+> rather than the rule.
+>
+> Regards,
+>
+> Nigel
+[SNIPPED...]
 
-I suspect I will end up agreeing with your byteorder.h suggestion - good.
+Question: Shouldn't we be using "size_t" for unsigned int, and
+"ssize_t" for signed? If the "ints" are going to be changed,
+they probably should be changed only once. As I recall, size_t
+was the largest unsigned int that would fit into a register and
+ssize_t was the largest signed int that would fit.
 
-Chistoph wrote:
-> Yes, we'll need it for mips, too.
+Cheers,
 
-ok.
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTLEIQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 03:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTLEIQ2
+	id S261733AbTLEIYO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 03:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLEIYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 03:16:28 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:50838 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263298AbTLEIQZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 03:16:25 -0500
-Date: Fri, 5 Dec 2003 09:16:23 +0100
-From: cheuche+lkml@free.fr
-To: linux-kernel@vger.kernel.org
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11) - IRQ flood related ?
-Message-ID: <20031205081623.GA4043@localnet>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3FCF25F2.6060008@netzentry.com> <1070551149.4063.8.camel@athlonxp.bradney.info> <20031204163243.GA10471@forming> <frodoid.frodo.87vfow33zm.fsf@usenet.frodoid.org> <20031204175548.GB10471@forming> <20031204200208.GA4167@localnet>
-Mime-Version: 1.0
+	Fri, 5 Dec 2003 03:24:14 -0500
+Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:41857 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261733AbTLEIYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 03:24:13 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031204200208.GA4167@localnet>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16336.16523.259812.642087@wombat.chubb.wattle.id.au>
+Date: Fri, 5 Dec 2003 19:23:39 +1100
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, Paul Adams <padamsdev@yahoo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <3FD00CD2.2020900@cyberone.com.au>
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
+	<3FCFCC3E.8050008@cyberone.com.au>
+	<16336.2094.950232.375620@wombat.chubb.wattle.id.au>
+	<3FD00CD2.2020900@cyberone.com.au>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just seen something strange about IRQ7, during one test, the
-interrupt counter on IRQ7 was in sync with the timer counter, and the
-difference was about 21400. I rebooted to see what happens at 21.4
-seconds after boot and it is more or less the time some modules get
-loaded by auto-detecting hardware. But unfortunately I now cannot
-reproduced it, I only get bursts of IRQ7 as initially reported.
+>>>>> "Nick" == Nick Piggin <piggin@cyberone.com.au> writes:
 
-I also noted in dmesg of 2.6.0-test that part about timer interrupt :
+Nick> Peter Chubb wrote:
 
-..TIMER: vector=0x31 pin1=2 pin2=-1
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ... failed.
-...trying to set up timer as ExtINT IRQ... works.
+Nick> Not quite sure what you mean here. As far as I was aware, SCO
+Nick> doesn't have any copyrights or patents on any code in the Linux
+Nick> Kernel so it is not a similar situation. I haven't followed the
+Nick> SCO thing closely though.
 
-This is interesting because 2.4.22 and 2.4.23-pre9 shows :
+As I understand it, SCO is/was claiming that JFS and XFS are derived
+works of the UNIX source base, because they were developed to match
+the internal interfaces of UNIX, and with knowledge of the internals
+of UNIX -- and they hold the copyrights of and are the licensor of UNIX.
 
-..TIMER: vector=0x31 pin1=2 pin2=0
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-...trying to set up timer (IRQ0) through the 8259A ...
-..... (found pin 0) ...works.
+I may be misunderstanding their points.  And I am not a lawyer.
 
-and then the timer is not in XT-PIC mode but IO-APIC-edge mode, and I
-also noticed there is no flood of IRQ7 with these 2.4 kernels. Is it 
-Related or not with the IRQ flood or the lockups I don't know.
-
-By the way 2.4.23 shows the same thing as 2.6.0-test, timer in XT-PIC
-mode and some IRQ7, but way less than 2.6.0-test.
-
-Mathieu
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

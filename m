@@ -1,41 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274681AbRKHP6w>; Thu, 8 Nov 2001 10:58:52 -0500
+	id <S274368AbRKHP7M>; Thu, 8 Nov 2001 10:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274434AbRKHP6m>; Thu, 8 Nov 2001 10:58:42 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:65290 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S274368AbRKHP6Y>; Thu, 8 Nov 2001 10:58:24 -0500
-To: "Drizzt Do'Urden" <drizzt.dourden@iname.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "LLX" <llx@swissonline.ch>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Module Licensing? (thinking a little more)
-In-Reply-To: <NLEDJBJHJDOPHJOIBBAFIEINCGAA.drizzt.dourden@iname.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 08 Nov 2001 10:56:35 -0500
-In-Reply-To: "Drizzt Do'Urden"'s message of "Thu, 8 Nov 2001 15:53:09 +0100"
-Message-ID: <m3bsidxnm4.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S274434AbRKHP7E>; Thu, 8 Nov 2001 10:59:04 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16397 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S274368AbRKHP6s>; Thu, 8 Nov 2001 10:58:48 -0500
+Date: Thu, 8 Nov 2001 12:40:06 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: out_of_memory() heuristic broken for different mem configurations
+ (fwd)
+Message-ID: <Pine.LNX.4.21.0111081239270.1689-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Drizzt Do'Urden" <drizzt.dourden@iname.com> writes:
 
-> People always can license the binary driver with the asm source code
-> or a asm source with:
-> 
-> func:
-> 	dd 0xFF,0x01 
-> 	...
-> 
-> 
-> This is a mess also :)
+Linus,
 
-Read the GPL again, more carefully.
+I guess you forgot to apply the following patch on 2.4.15-pre1, right ?
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+
+---------- Forwarded message ----------
+Date: Tue, 6 Nov 2001 15:23:29 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: out_of_memory() heuristic broken for different mem
+    configurations
+
+
+
+On Tue, 6 Nov 2001, Marcelo Tosatti wrote:
+
+> 
+> > With the more aggressive max_mapped, the oom failure count could be
+> > dropped to something smaller, as a false positive from shrink_caches
+> > should be fairly rare. I don't think it needs to be tunable on memory
+> > size, I just didn't even try any other values on my machines (I noticed
+> > that the old values were too high once max_mapped was upped and the swap
+> > cache reclaiming was re-done, but I didn't try if five seconds and ten
+> > failures was any better than 10 seconds and five failures, for example)
+> 
+> Ok, I'll take a careful look at shrink_cache()/try_to_free_pages() path
+> later and find out "saner" magic numbers for big/small memory workloads.
+
+Ok, I found it. The problem is that swap_out() tries to scan the _whole_
+address space looking for pte's to deactivate, and try_to_swap_out() does
+not return a value indicating the lack of swap space, so at each
+swap_out() call we simply loop around the whole VM when there is no swap
+space available.
+
+Here goes the tested fix.
+
+
+--- linux.orig/mm/vmscan.c	Sun Nov  4 22:54:44 2001
++++ linux/mm/vmscan.c	Tue Nov  6 16:06:08 2001
+@@ -36,7 +36,8 @@
+ /*
+  * The swap-out function returns 1 if it successfully
+  * scanned all the pages it was asked to (`count').
+- * It returns zero if it couldn't do anything,
++ * It returns zero if it couldn't free the given pte or -1
++ * if there was no swap space left.
+  *
+  * rss may decrease because pages are shared, but this
+  * doesn't count as having freed a page.
+@@ -142,7 +143,7 @@
+ 	/* No swap space left */
+ 	set_pte(page_table, pte);
+ 	UnlockPage(page);
+-	return 0;
++	return -1;
+ }
+ 
+ /* mm->page_table_lock is held. mmap_sem is not held */
+@@ -170,7 +171,12 @@
+ 			struct page *page = pte_page(*pte);
+ 
+ 			if (VALID_PAGE(page) && !PageReserved(page)) {
+-				count -= try_to_swap_out(mm, vma, address, pte, page, classzone);
++				int ret = try_to_swap_out(mm, vma, address, pte, page, classzone);
++				if (ret < 0)
++					return ret;
++
++				count -= ret;
++
+ 				if (!count) {
+ 					address += PAGE_SIZE;
+ 					break;
+@@ -205,7 +211,11 @@
+ 		end = pgd_end;
+ 	
+ 	do {
+-		count = swap_out_pmd(mm, vma, pmd, address, end, count, classzone);
++		int ret = swap_out_pmd(mm, vma, pmd, address, end, count, classzone);
++
++		if (ret < 0)
++			return ret;
++		count = ret;
+ 		if (!count)
+ 			break;
+ 		address = (address + PMD_SIZE) & PMD_MASK;
+@@ -230,7 +240,10 @@
+ 	if (address >= end)
+ 		BUG();
+ 	do {
+-		count = swap_out_pgd(mm, vma, pgdir, address, end, count, classzone);
++		int ret = swap_out_pgd(mm, vma, pgdir, address, end, count, classzone);
++		if (ret < 0)
++			return ret;
++		count = ret;
+ 		if (!count)
+ 			break;
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+@@ -287,7 +300,7 @@
+ static int FASTCALL(swap_out(unsigned int priority, unsigned int gfp_mask, zone_t * classzone));
+ static int swap_out(unsigned int priority, unsigned int gfp_mask, zone_t * classzone)
+ {
+-	int counter, nr_pages = SWAP_CLUSTER_MAX;
++	int counter, nr_pages = SWAP_CLUSTER_MAX, ret;
+ 	struct mm_struct *mm;
+ 
+ 	counter = mmlist_nr;
+@@ -311,9 +324,15 @@
+ 		atomic_inc(&mm->mm_users);
+ 		spin_unlock(&mmlist_lock);
+ 
+-		nr_pages = swap_out_mm(mm, nr_pages, &counter, classzone);
++		ret = swap_out_mm(mm, nr_pages, &counter, classzone);
+ 
+ 		mmput(mm);
++
++		/* No more swap space ? */
++		if (ret < 0)
++			return nr_pages;
++
++		nr_pages = ret;
+ 
+ 		if (!nr_pages)
+ 			return 1;
+
+

@@ -1,115 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265441AbTL2XMb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 18:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265445AbTL2XMb
+	id S265508AbTL2XQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 18:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbTL2XQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 18:12:31 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:31167 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265441AbTL2XMT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 18:12:19 -0500
-Subject: Re: 2.6.0 performance problems
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
-	 <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
-	 <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DSAwnr8e8ub0EzGPFivv"
-Message-Id: <1072739685.25741.65.camel@nosferatu.lan>
+	Mon, 29 Dec 2003 18:16:59 -0500
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:32835
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S265508AbTL2XQy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 18:16:54 -0500
+Date: Mon, 29 Dec 2003 18:16:53 -0500
+From: Omkhar Arasaratnam <omkhar@rogers.com>
+To: b.zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       kernel-janitors-disucss@lists.sf.net, trivial@rustcorp.com
+Subject: [PATCH] drivers/ide/ide-probe.c MOD_INC/DEC_USE_COUNT fixup
+Message-ID: <20031229231653.GA17346@omkhar.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 30 Dec 2003 01:14:45 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.192.237.88] using ID <omkhar@rogers.com> at Mon, 29 Dec 2003 18:14:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Minor fixup to replace MOD_DEC_USE_COUNT/MOD_INC_USE_COUNT with module_put(THIS_MODULE)
+and try_module_get(THIS_MODULE)
 
---=-DSAwnr8e8ub0EzGPFivv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I am new are this so feel free to tell me if I have done something incorrectly.
 
-On Tue, 2003-12-30 at 00:58, Thomas Molina wrote:
-> On Mon, 29 Dec 2003, Linus Torvalds wrote:
->=20
-> >=20
-> >=20
-> > On Mon, 29 Dec 2003, Thomas Molina wrote:
-> > >
-> > > I just finished a couple of comparisons between 2.4 and 2.6 which see=
-m to=20
-> > > confirm my impressions.  I understand that the comparison may not be=20
-> > > apples to apples and my methods of testing may not be rigorous, but h=
-ere=20
-> > > it is.  In contrast to some recent discussions on this list, this tes=
-t is=20
-> > > a "real world" test at which 2.6 comes off much worse than 2.4. =20
-> >=20
-> > Are you sure you have DMA enabled on your laptop disk? Your 2.6.x syste=
-m=20
-> > times are very high - much bigger than the user times. That sounds like=
-=20
-> > PIO to me.
->=20
-> It certainly looks like DMA is enabled.  Under 2.4 I get:
->=20
-> [root@lap root]# hdparm /dev/hda
->=20
-> /dev/hda:
->  multcount    =3D 16 (on)
->  IO_support   =3D  1 (32-bit)
->  unmaskirq    =3D  1 (on)
->  using_dma    =3D  1 (on)
->  keepsettings =3D  0 (off)
->  readonly     =3D  0 (off)
->  readahead    =3D  8 (on)
->  geometry     =3D 2584/240/63, sectors =3D 39070080, start =3D 0
->=20
->=20
-> Under 2.6  I get:
->=20
-> [root@lap root]# hdparm /dev/hda
->=20
-> /dev/hda:
->  multcount    =3D 16 (on)
->  IO_support   =3D  1 (32-bit)
->  unmaskirq    =3D  1 (on)
->  using_dma    =3D  1 (on)
->  keepsettings =3D  0 (off)
->  readonly     =3D  0 (off)
->  readahead    =3D 256 (on)
->  geometry     =3D 38760/16/63, sectors =3D 39070080, start =3D 0
->=20
-
-Increase your readahead:
-
- # hdparm -a 8192 /dev/hda
+This is mainly to clean up compiler #warnings since MOD_*_USE_COUNT macros are
+depreciated in 2.6
 
 
-BTW:  As we really do get this question a _lot_ of times, why
-      don't the ide layer automatically set a higher readahead
-      if there is enough cache on the drive or something?
+--- linux-clean/drivers/ide/ide-probe.c.org	2003-12-29 18:06:21.000000000 -0500
++++ linux-clean/drivers/ide/ide-probe.c	2003-12-29 15:38:03.000000000 -0500
+@@ -1323,7 +1323,7 @@
+ 	unsigned int index;
+ 	int probe[MAX_HWIFS];
+ 	
+-	MOD_INC_USE_COUNT;
++	try_module_get(THIS_MODULE);
+ 	memset(probe, 0, MAX_HWIFS * sizeof(int));
+ 	for (index = 0; index < MAX_HWIFS; ++index)
+ 		probe[index] = !ide_hwifs[index].present;
+@@ -1350,7 +1350,7 @@
+ 	}
+ 	if (!ide_probe)
+ 		ide_probe = &ideprobe_init;
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ 	return 0;
+ }
 
 
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-DSAwnr8e8ub0EzGPFivv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/8LVlqburzKaJYLYRAg8ZAKCGUDzhBsAAw74qZk8XqEktV6++AACfdSc3
-ZX/ynbzaQxQ5ew32pPS8adE=
-=oFNQ
------END PGP SIGNATURE-----
-
---=-DSAwnr8e8ub0EzGPFivv--
-
+O

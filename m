@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTENSrH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 14:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTENSrH
+	id S263542AbTENSmN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 14:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbTENSmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 14:47:07 -0400
-Received: from corky.net ([212.150.53.130]:60626 "EHLO marcellos.corky.net")
-	by vger.kernel.org with ESMTP id S263633AbTENSrG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 14:47:06 -0400
-Date: Wed, 14 May 2003 21:59:47 +0300 (IDT)
-From: Yoav Weiss <ml-lkml@unpatched.org>
-X-X-Sender: yoavw@marcellos.corky.net
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Ahmed Masud <masud@googgun.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
-In-Reply-To: <20030514162323.GB16093@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0305142152500.12748-100000@marcellos.corky.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 14 May 2003 14:42:13 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:47835 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S263542AbTENSmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 14:42:10 -0400
+Date: Wed, 14 May 2003 19:55:39 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Thomas Horsten <thomas@horsten.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, "H . Peter Anvin" <hpa@zytor.com>,
+       Michael Elizabeth Chastain <mec@shout.net>
+Subject: Re: [PATCH] 2.5.69 Changes to Kconfig and i386 Makefile to include support for various K7 optimizations
+Message-ID: <20030514185539.GA25542@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Thomas Horsten <thomas@horsten.com>,
+	LKML <linux-kernel@vger.kernel.org>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Michael Elizabeth Chastain <mec@shout.net>
+References: <200305071834.26789.thomas@horsten.com> <20030514160449.B28115@suse.de> <200305141940.10999.thomas@horsten.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305141940.10999.thomas@horsten.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003, Jörn Engel wrote:
+On Wed, May 14, 2003 at 07:40:10PM +0100, Thomas Horsten wrote:
 
-> On Wed, 14 May 2003 12:13:03 -0400, Ahmed Masud wrote:
-> >
-> > The idea is to have encryption keys for the pages to be unique on a
-> > per-uid per-process basis. So one user on the system cannot access (even
-> > if they are root) parts of another's private data.  To achieve this,
-> > different parts of swap device need to be encrypted with different keys.
->
-> How do user *know* that root cannot simply bypass this security?
->
-> Root, god, what's the difference? ;-)
+ > I think when GCC supports the different cores, it should be supported by the 
+ > kernel scripts, the differences between the cores are real enough to have 
+ > potential optimizations at least in theory (as far as I could see the only 
+ > difference in GCC 3.2 is whether to use SSE, but that could change in the 
+ > future).
 
-Aside from what Ahmed said about about rootless systems, the per-process
-encryption reduces the window of opportunity for attackers who gain root
-(or physical access).
+To use SSE in kernel space, we need to wrap it in kernel_fpu_begin() /
+kernel_fpu_end() pairs anyway. gcc doesn't (and can't) know this.
 
-Try strings(1) on your swap device.  You'll be surprised at what you find.
-You'll probably recognize passwords you haven't useds for a long time, and
-a lot of other stuff you didn't expect.  Sometimes you can find whole ssh
-sessions there, plaintext.  (think xterm scroll buffer).
+ > I think it's a fairly simple patch that doesn't break anything
 
-With per-process encryption, even if root decides to read the swap at some
-point (evil admin or an attacker who 0wn3d the box), the leakage is
-limited to processes currently running.
+it's non-obvious that it'll break things when people use broken compilers.
+read what I wrote before, several gcc versions got this horribly wrong.
+"athlon4" was even tuned for 64bit at one point.
 
-	Yoav
+Take away the SSE, take away the broken compiler versions, and you'd be
+left with something that would hardly show a blip on a benchmark.
 
+		Dave

@@ -1,88 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288284AbSA3EHT>; Tue, 29 Jan 2002 23:07:19 -0500
+	id <S288384AbSA3EMK>; Tue, 29 Jan 2002 23:12:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288344AbSA3EHA>; Tue, 29 Jan 2002 23:07:00 -0500
-Received: from s2.org ([195.197.64.39]:33287 "EHLO kalahari.s2.org")
-	by vger.kernel.org with ESMTP id <S288284AbSA3EGx>;
-	Tue, 29 Jan 2002 23:06:53 -0500
-To: linux-kernel@vger.kernel.org
-Subject: How to avoid zombie kernel threads?
-From: Jarno Paananen <jpaana@s2.org>
-Date: 30 Jan 2002 06:06:50 +0200
-Message-ID: <m3hep4qy79.fsf@kalahari.s2.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S288414AbSA3EMA>; Tue, 29 Jan 2002 23:12:00 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:62212 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288384AbSA3ELu>;
+	Tue, 29 Jan 2002 23:11:50 -0500
+Date: Tue, 29 Jan 2002 20:10:39 -0800
+From: Greg KH <greg@kroah.com>
+To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
+Cc: mochel@osdl.org, linux-usb-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driverfs support for USB - take 2
+Message-ID: <20020130041039.GB23261@kroah.com>
+In-Reply-To: <20020130002418.GB21784@kroah.com> <Pine.LNX.4.44.0201291748390.1012-100000@stag.slac.stanford.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0201291748390.1012-100000@stag.slac.stanford.edu>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 02 Jan 2002 01:56:59 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jan 29, 2002 at 05:49:36PM -0800, Stephen J. Gowdy wrote:
+> Hi Greg,
+> 	Not that it matters for this discussion, but I thought the USB2.0 
+> cards had two OHCI and one EHCI controllers?
 
-I'm coding a driver (can be found from
-http://hardsid.sourceforge.net/ is someone is actually interested)
-that uses a kernel thread to do the actual work asynchronously from
-rest of the world. The thread is created when opening a character
-device and exits when the device is closed.
+I think you're right.
 
-This works fine otherwise but if the user mode process opens and
-closes the device multiple times during its lifetime I get N-1
-zombie kernel threads where N is the number of opens.
-
-The code goes like this:
-
-in device open:
-
-        DECLARE_MUTEX_LOCKED(sem);
-        int rmmod = 0; 
-
-        rmmod = 0;
-        notify = &sem;
-        kernel_thread(hsid_thread, (void *)sid_data, 0);
-        down(&sem);
-        notify = NULL;
- 
-
-in device close:
-
-        notify = &sem;
-        rmmod = 1;
-        up(&todoSem); // just to wake the thread to do something
-        down(&sem);
-        notify = NULL;
-        rmmod = 0;
-
-and the thread itself does:
-
-[daemonize() etc.]
-
-    /* Notify the parent */
-    if(notify != NULL)
-        up(notify);
-
-    for(;;)
-    {
-        if (rmmod || signal_pending(current))
-            break;
-
-        /* We sit here waiting for something to do */
-        down_interruptible(&todoSem);
-
-        if (rmmod || signal_pending(current))
-            break;
-
-        [actual work]
-    }
-
-    if(notify != NULL)
-        up(notify);
-
-    return 0;
-
-
-I think this worked fine in earlier 2.4 versions (not sure though),
-but I'm now seeing this in both 2.4.18-pre7 and 2.5.2-dj6, UP and SMP.
-
-Thanks,
-
-// Jarno
+greg k-h

@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268439AbUHQVTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266737AbUHQVTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268439AbUHQVTY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 17:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268437AbUHQVTK
+	id S266737AbUHQVTb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 17:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268444AbUHQVTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 17:19:10 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:40042 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S268432AbUHQVCq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 17:02:46 -0400
-Message-ID: <412271EF.6040201@microgate.com>
-Date: Tue, 17 Aug 2004 16:00:31 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sds@epoch.ncsc.mil, jmorris@redhat.com, akpm@osdl.org
-Subject: Re: 2.6.8.1-mm1 Tty problems?
-References: <2a4f155d040817070854931025@mail.gmail.com>
-In-Reply-To: <2a4f155d040817070854931025@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 17 Aug 2004 17:19:25 -0400
+Received: from gprs214-166.eurotel.cz ([160.218.214.166]:8576 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266737AbUHQVQg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 17:16:36 -0400
+Date: Tue, 17 Aug 2004 23:14:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Fao, Sean" <Sean.Fao@capitalgenomix.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Coding style: do_this(a,b) vs. do_this(a, b)
+Message-ID: <20040817211456.GA555@elf.ucw.cz>
+References: <20040817103852.GA18758@elf.ucw.cz> <412273F6.3040403@capitalgenomix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412273F6.3040403@capitalgenomix.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ismail dönmez wrote:
+Hi!
 
-> Hi all,
-> 
-> Watch this sequence :
-> 
-> 
-> cartman@southpark:~$ echo "foo" > foo
-> cartman@southpark:~$ cat foo
-> foo
-> cartman@southpark:~$ less foo
-> cartman@southpark:~$ 
-> 
-> As you see less doesn't show up anything. Strace shows this piece of info :
-> 
-> <snip>
-> 
-> open("/dev/tty", O_RDONLY|O_LARGEFILE)  = 3
-> ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, 0xbffff430) = -1 ENOTTY
-> (Inappropriate ioctl for device)
-> 
-> </snip>
-> 
-> Any ideas whats going on?
-> 
-> P.S : 2.6.8 was working just fine.
+> Speaking of style preferences, does anybody else feel that there are too 
+> many spaces in the indentations?  I personally prefer no more than two 
+> or three spaces, as I can fit a lot more code per line that way.
 
-Stephen, James, Andrew:
+Better not start *that* flamewar.
 
-the selinux-revalidate-access-to-controlling-tty patch
-seems to be causing the problem with less program as
-shown above. See the rest of this thread for more details.
-
---
-Paul Fulghum
-paulkf@microgate.com
+[Its on purpose, see archives.]
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

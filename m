@@ -1,23 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264931AbSLJUhR>; Tue, 10 Dec 2002 15:37:17 -0500
+	id <S264785AbSLJUlO>; Tue, 10 Dec 2002 15:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265177AbSLJUhR>; Tue, 10 Dec 2002 15:37:17 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:1796 "EHLO
+	id <S264969AbSLJUlN>; Tue, 10 Dec 2002 15:41:13 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:6916 "EHLO
 	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S264931AbSLJUhQ>; Tue, 10 Dec 2002 15:37:16 -0500
-Date: Tue, 10 Dec 2002 21:45:30 +0100
+	id <S264785AbSLJUlM>; Tue, 10 Dec 2002 15:41:12 -0500
+Date: Tue, 10 Dec 2002 21:50:45 +0100
 From: DervishD <raul@pleyades.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
-Message-ID: <20021210204530.GA63@DervishD>
-References: <200212101931.gBAJV1K10639@hera.kernel.org> <20021210.121908.00373632.davem@redhat.com>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK-2.4] [Patch] Small do_mmap_pgoff correction
+Message-ID: <20021210205045.GB63@DervishD>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021210.121908.00373632.davem@redhat.com>
 User-Agent: Mutt/1.4i
 Organization: Pleyades
 User-Agent: Mutt/1.4i <http://www.mutt.org>

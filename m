@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265499AbUGSTXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGSTru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265499AbUGSTXu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 15:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbUGSTXu
+	id S265212AbUGSTru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 15:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbUGSTrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 15:23:50 -0400
-Received: from frigo.cybercat.ca ([207.96.251.197]:19599 "EHLO cybercat.qc.ca")
-	by vger.kernel.org with ESMTP id S265500AbUGSTXJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 15:23:09 -0400
-Message-ID: <033601c46dc5$dd5470a0$1a07a8c0@civic2k>
-From: "Nicolas Ross" <rossnick-lists@cybercat.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Unable to handle kernel NULL pointer dereference
-Date: Mon, 19 Jul 2004 15:23:25 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Mon, 19 Jul 2004 15:47:49 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:51735 "EHLO
+	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S265212AbUGSTro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 15:47:44 -0400
+Message-Id: <200407191947.i6JJldK1024910@falcon10.austin.ibm.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
+X-projects-eio: lpar-ide-hotplug
+To: Linux IDE Mailing List <linux-ide@vger.kernel.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC] IDE/ATA/SATA controller hotplug
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 19 Jul 2004 14:47:39 -0500
+From: Doug Maxey <dwm@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all !
 
-I have a firewall box, with a vanilla kernel from kernel.org. I've tried
-with 2.4.19 and 2.4.24. The system is RedHat 7.3 (it does the same thing
-with 8.0, and gcc 3)
+Howdy!
 
-The kernel is pretty straigh-up, not much options, some net modules,
-iptables etc.
+  This note went out originally to a semi-internal list, but after
+  several comments, posting it here...
 
-The only thing out of the ordinary is a custom net/core/dev.c file to
-support a bandwith management module, wich isn't gpl and is pre-compiled.
+  As we chug along here in PPC64 land, we (meaning IBM internal) have
+  been given a requirement to make all devices on our new DLPAR
+  (POWER5 and later) systems be hotplug capable.  This includes ALL
+  PCI devices on the system, even those that are soldered on the
+  motherboard.
 
-When issuing commands to configure the bandwith manager, I get :
+  This raises some interesting issues when dealing with IDE devices.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<00000000>]    Tainted: P
-EFLAGS: 00010086
-eax: ddf5f948   ebx: ddf5e000   ecx: ddf5f980   edx: de9db400
-esi: c0000000   edi: ddf5f986   ebp: ddf5f9b8   esp: ddf5f92c
-ds: 0018   es: 0018   ss: 0018
-Process bwmgr (pid: 1120, stackpage=ddf5f000)
-Stack: e08c4431 de9db400 ddf5f980 00008946 fffffec4 11860f1f 00000000
-0000000a
-       00000000 00000001 00000000 00000000 00000000 00000000 00000000
-00000000
-       00000000 00bd0c00 00000000 00000000 90c8ebff 6e616c76 e08d0032
-defec800
-Call Trace:    [<e08c4431>] [<e08d0032>] [<e08d58d7>] [<e08d68b5>]
-[<c012b346>]
-  [<c0120ea3>] [<c012b346>] [<c012995a>] [<c0120ea3>] [<c0120f19>]
-[<c010f303>]
-  [<c028407e>] [<e08d95f6>] [<c01216de>] [<c010f1b0>] [<c01071b4>]
-[<c0282bab>]
-  [<c010f1b0>] [<c01071b4>] [<c0282bab>] [<e08af1f7>] [<e08c33ec>]
-[<c01a3a17>]
-  [<c023af54>] [<c023b138>] [<c023315a>] [<c013e413>] [<c01070a3>]
+  I realize there is considerable work under way (hi Bart :) to clean
+  up the 2.6 trees.  This hotplug work would be another delta on top
+  of that work.
 
-Code:  Bad EIP value.
+  The changes could also possibly affect the libata work, as that
+  could also be touched by work on the attached devices themselves.
 
-After that the system still responds but isn't much usable, I have to
-reboot, not practicall...
+  What I would like is input on the general strategy that should be
+  taken to modify the controller/adapter and device stack to:
 
-All of this was working with the exact same setup, but on a different MB,
-and kernel 2.4.19.
+  1) be first class modules, where all controllers/adapters are
+     capable of being loaded and unloaded.  This is directed mostly at
+     IDE/Southbridge controller/adapter devices.
 
-Any hints on the source of this exception ?
+  2) extend that support to all child devices; disk, optical,
+     and tape.
 
-Nicolas
+  3) be part of mainline.
+
+  The items I perceive at the top of the issue list are:
+
+  - The primary platforms for IDE/ATA devices are x86 based, and
+    certainly do not care about having this capability.
+
+  - Assuming the capability is added, what rework would be acceptable
+    for block devices?
+
+  - Where should this capability go?  Fork a subset of IDE
+    controllers, and put them under the arch specific dir?
+    Or include all devices?
+
+  - should we work to the goal of having the capability for all
+    platforms, and all IDE devices?
+
+++doug
+
+
+
+
+
 

@@ -1,47 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbTCEG1c>; Wed, 5 Mar 2003 01:27:32 -0500
+	id <S264765AbTCEGbR>; Wed, 5 Mar 2003 01:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbTCEG1c>; Wed, 5 Mar 2003 01:27:32 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:18397 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S262871AbTCEG1b>; Wed, 5 Mar 2003 01:27:31 -0500
-Date: Wed, 5 Mar 2003 01:38:02 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Local APIC support interacting badly with cardbus/orinoco
-Message-ID: <20030305063801.GB25599@delft.aura.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S264788AbTCEGbR>; Wed, 5 Mar 2003 01:31:17 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:9601 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S264765AbTCEGbP>; Wed, 5 Mar 2003 01:31:15 -0500
+Date: Wed, 5 Mar 2003 07:36:35 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Brett <generica@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: pcmcia no worky in 2.5.6[32]
+Message-ID: <20030305063635.GA2507@brodo.de>
+References: <20030303071855.GA1224@brodo.de> <Pine.LNX.4.44.0303051153550.9291-100000@bad-sports.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <Pine.LNX.4.44.0303051153550.9291-100000@bad-sports.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I've been tracing a problem where my wavelan card causes lockups on my
-thinkpad X20 laptop.
+On Wed, Mar 05, 2003 at 11:54:36AM +1100, Brett wrote:
+> On Mon, 3 Mar 2003, Dominik Brodowski wrote:
+> 
+> > > Hey,
+> > > 
+> > > since 2.5.62, I've not been able to get pcmcia working.
+> > > 
+> > > Hardware: toshiba 100CS
+> > > 
+> > > I've attached my .config for 2.5.63,
+> > > and a dmesg directly after boot for 2.5.61 and 2.5.63
+> > > 
+> > > any other details needed, please let me know
+> > > 
+> > > thanks,
+> > > 
+> > > 	/ Brett
+> > 
+> > Could you please try this patch? It *should* fix this problem:
+> > 
+> 
+> Sadly, it didn't do a thing
+> same dmesg/no pcmcia as vanilla 2.5.63
+> 
+> any other ideas ??
 
-2.5.58 by itself can't load the cardbus modules, but after applying the
-cardbus.c patch from 2.5.59 it works fine. 2.5.59 was broken in other
-fun ways, but pulling the kernel/module.c changes out of 2.5.60 makes it
-at least not Oops during boot. However, bringing up the wireless network
-causes the system to lock up within a couple of minutes, where the code
-seems to think that the cardbus card was removed.
+Yes: platform_match within the pcmcia core wasn't doing was it was supposed
+to do... and it still doesn't work in 2.5.64. So could you please try if it
+works with this patch against 2.5.64?
 
-Disabling "Local APIC support on uniprocessors" (X86_UP_APIC) seems to
-solve the problem and 2.5.59 doesn't lock up at all. The most
-interesting part of this is that with Local APIC configured the
-following shows up in dmesg,
+Many thanks,
+	Dominik
 
-Mar  4 23:42:55 mentor kernel: Local APIC disabled by BIOS -- reenabling.
-Mar  4 23:42:55 mentor kernel: Could not enable APIC!
 
-Which made me think that the APIC code wasn't used, so I don't know how
-any changes in that area could be responsible for the cardbus/orinoco
-flakiness.
-
-Jan
-
+diff -ruN linux-original/drivers/base/platform.c linux/drivers/base/platform.c
+--- linux-original/drivers/base/platform.c	2003-03-05 07:19:19.000000000 +0100
++++ linux/drivers/base/platform.c	2003-03-05 07:22:31.000000000 +0100
+@@ -59,12 +59,9 @@
+ 
+ static int platform_match(struct device * dev, struct device_driver * drv)
+ {
+-	char name[BUS_ID_SIZE];
++	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
+ 
+-	if (sscanf(dev->bus_id,"%s",name))
+-		return (strcmp(name,drv->name) == 0);
+-
+-	return 0;
++	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
+ }
+ 
+ struct bus_type platform_bus_type = {
+diff -ruN linux-original/drivers/pcmcia/hd64465_ss.c linux/drivers/pcmcia/hd64465_ss.c
+--- linux-original/drivers/pcmcia/hd64465_ss.c	2003-03-05 07:19:13.000000000 +0100
++++ linux/drivers/pcmcia/hd64465_ss.c	2003-03-05 07:35:34.000000000 +0100
+@@ -1070,8 +1070,8 @@
+ 	}
+ 
+ /*	hd64465_io_debug = 0; */
+-	platform_device_register(&hd64465_device);
+ 	hd64465_device.dev.class_data = &hd64465_data;
++	platform_device_register(&hd64465_device);
+ 
+ 	return 0;
+ }
+diff -ruN linux-original/drivers/pcmcia/i82365.c linux/drivers/pcmcia/i82365.c
+--- linux-original/drivers/pcmcia/i82365.c	2003-03-05 07:19:13.000000000 +0100
++++ linux/drivers/pcmcia/i82365.c	2003-03-05 07:35:34.000000000 +0100
+@@ -1628,11 +1628,11 @@
+ 	request_irq(cs_irq, pcic_interrupt, 0, "i82365", pcic_interrupt);
+ #endif
+     
+-    platform_device_register(&i82365_device);
+-
+     i82365_data.nsock = sockets;
+     i82365_device.dev.class_data = &i82365_data;
+     
++    platform_device_register(&i82365_device);
++
+     /* Finally, schedule a polling interrupt */
+     if (poll_interval != 0) {
+ 	poll_timer.function = pcic_interrupt_wrapper;
+diff -ruN linux-original/drivers/pcmcia/tcic.c linux/drivers/pcmcia/tcic.c
+--- linux-original/drivers/pcmcia/tcic.c	2003-03-05 07:19:13.000000000 +0100
++++ linux/drivers/pcmcia/tcic.c	2003-03-05 07:35:34.000000000 +0100
+@@ -452,8 +452,6 @@
+ 	sockets++;
+     }
+ 
+-    platform_device_register(&tcic_device);
+-
+     switch (socket_table[0].id) {
+     case TCIC_ID_DB86082:
+ 	printk("DB86082"); break;
+@@ -527,6 +525,8 @@
+     tcic_data.nsock = sockets;
+     tcic_device.dev.class_data = &tcic_data;
+ 
++    platform_device_register(&tcic_device);
++
+     return 0;
+     
+ } /* init_tcic */

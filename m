@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130329AbRAXKJl>; Wed, 24 Jan 2001 05:09:41 -0500
+	id <S129401AbRAXKKP>; Wed, 24 Jan 2001 05:10:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbRAXKJc>; Wed, 24 Jan 2001 05:09:32 -0500
-Received: from duck.doc.ic.ac.uk ([146.169.1.46]:1805 "EHLO duck.doc.ic.ac.uk")
-	by vger.kernel.org with ESMTP id <S129401AbRAXKJ0>;
-	Wed, 24 Jan 2001 05:09:26 -0500
-To: "Benjamin C.R. LaHaise" <blah@kvack.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: limit on number of kmapped pages
-In-Reply-To: <Pine.LNX.3.96.1010123205643.7482A-100000@kanga.kvack.org>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 24 Jan 2001 10:09:22 +0000
-In-Reply-To: "Benjamin C.R. LaHaise"'s message of "Tue, 23 Jan 2001 21:03:09 -0500 (EST)"
-Message-ID: <y7r7l3ldzxp.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129729AbRAXKKM>; Wed, 24 Jan 2001 05:10:12 -0500
+Received: from nef.ens.fr ([129.199.96.32]:28678 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id <S129401AbRAXKJl>;
+	Wed, 24 Jan 2001 05:09:41 -0500
+Date: Wed, 24 Jan 2001 11:09:37 +0100
+From: Thomas Pornin <Thomas.Pornin@ens.fr>
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <20010124110937.A9695@bolet.ens.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010124100240.A4526@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Benjamin C.R. LaHaise" <blah@kvack.org> writes:
-> On 24 Jan 2001, David Wragg wrote:
-> 
-> > ebiederm@xmission.com (Eric W. Biederman) writes:
-> > > Why do you need such a large buffer? 
-> > 
-> > ext2 doesn't guarantee sustained write bandwidth (in particular,
-> > writing a page to an ext2 file can have a high latency due to reading
-> > the block bitmap synchronously).  To deal with this I need at least a
-> > 2MB buffer.
-> 
-> This is the wrong way of going about things -- you should probably insert
-> the pages into the page cache and write them into the filesystem via
-> writepage. 
+In article <20010124100240.A4526@athlon.random> you write:
+> I know this code has undefined behaviour at _runtime_. But I thought
+> you were obliged to allow it to compile. That was my only point.
 
-I currently use prepare_write/commit_write, but I think writepage
-would have the same issue: When ext2 allocates a block, and has to
-allocate from a new block group, it may do a synchronous read of the
-new block group bitmap.  So before the writepage (or whatever) that
-causes this completes, it has to wait for the read to get picked by
-the elevator, the seek for the read, etc.  By the time it gets back to
-writing normally, I've buffered a couple of MB of data.
+There is no distinction between compilation and runtime in the standard.
+Actually, C could be interpreted, or a very smart compiler could also
+think real hard and replace the whole program by an equivalent printf().
 
-But I do have a workaround for the ext2 issue.
-
-> That way the pages don't need to be mapped while being written
-> out.
-
-Point taken, though the kmap needed before prepare_write is much less
-significant than the kmap I need to do before copying data into the
-page.
-
-> For incoming data from a network socket, making use of the
-> data_ready callbacks and directly copying from the skbs in one pass with a
-> kmap of only one page at a time.
->
-> Maybe I'm guessing incorrect at what is being attempted, but kmap should
-> be used sparingly and as briefly as possible.
-
-I'm going to see if the one-page-kmapped approach makes a measurable
-difference.
-
-I'd still like to know what the basis for the current kmap limit
-setting is.
+Besides, a standard (C99) compiler will reject the 'main' definition.
+At least, the return type cannot be implicit anymore.
 
 
-David Wragg
+	--Thomas Pornin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130759AbRAYLh1>; Thu, 25 Jan 2001 06:37:27 -0500
+	id <S131406AbRAYLk5>; Thu, 25 Jan 2001 06:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131723AbRAYLhR>; Thu, 25 Jan 2001 06:37:17 -0500
-Received: from [202.9.161.7] ([202.9.161.7]:47608 "HELO
-	pagladashu.naturesoft.com") by vger.kernel.org with SMTP
-	id <S130759AbRAYLhC>; Thu, 25 Jan 2001 06:37:02 -0500
-Message-ID: <3A700FF2.4050804@bigfoot.com>
-Date: Thu, 25 Jan 2001 17:07:22 +0530
-From: archan <devrootp@bigfoot.com>
-Organization: Open Source Software
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-21mdk i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Rahul <callrahulonly@yahoo.co.in>
-Subject: Re: Can anybody help me regarding Remote Desktop Protocol
-In-Reply-To: <20010125073748.13257.qmail@web8001.mail.in.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131637AbRAYLkr>; Thu, 25 Jan 2001 06:40:47 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:42508 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131406AbRAYLkj>;
+	Thu, 25 Jan 2001 06:40:39 -0500
+Date: Thu, 25 Jan 2001 12:40:36 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, kuznet@ms2.inr.ac.ru,
+        Manfred Spraul <manfred@colorfullife.COM>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
+Message-ID: <20010125124036.A15952@gruyere.muc.suse.de>
+In-Reply-To: <3A6E02E6.B3261E1@colorfullife.com> <200101242003.XAA21040@ms2.inr.ac.ru> <20010124215634.A2992@gruyere.muc.suse.de> <14960.3804.197814.496909@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14960.3804.197814.496909@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 03:32:44AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am facing the following prob like --
-		couldnot determine hostname
+On Thu, Jan 25, 2001 at 03:32:44AM -0800, David S. Miller wrote:
+> 
+> Andi Kleen writes:
+>  > It's mostly for security to make it more difficult to nuke connections
+>  > without knowing the sequence number.
+>  > 
+>  > Remember RFC is from a very different internet with much less DoS attacks.
+> 
+> Andi, one of the worst DoSs in the world is not being able to
+> communicate with half of the systems out there.
 
-rahul, can u guide me someway?
+If it was that serious then there would be surely more reports ;)
 
-archan
-devrootp@bigfoot.com
-archanp@bigfoot.com
+> 
+> BSD and Solaris both make these kinds of packets, therefore it is must
+> to handle them properly.  So we will fix Linux, there is no argument.
 
-Rahul wrote:
+How do you propose to handle them? Queue the data anyways or just process
+the ACK?
 
-> Hi friends,
->          I am working in India, and i want to
-> implement remote desktop protocol for my thin client
-> so i downloaded the source from the site
-> www.rdesktop.org and thereafter i tried to execute the
-> command and i got the following messages :
-> 
-> bash# rdesktop -l 192.168.1.121(my server's IP
-> address) rdesktop: A Remote Desktop Protocol Client
-> version 1.0.0. Copyright(c) 1999-2000 Matt Chapman
-> see http://www.rdesktop.org/ for more information
-> 
-> Connection successful
-> read: Connection reset by peer
-> ERROR: expected DT, got 240
-> Broken pipe
-> 
-> can any one help me regarding this and tell me why
-> this message is coming and if possible give me the
-> name of site were i can find free source for RDP and
-> documentation also.
-> 
-> Eagerly waiting for your responce
-> With regards
-> 
-> Rahul Chowdhury
-> SPA Computers Ltd.
-> 100 Ft road,
-> HAL II Stage
-> Bangalore
-> India
-> 
-> ____________________________________________________________
 
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

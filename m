@@ -1,42 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262630AbREVQce>; Tue, 22 May 2001 12:32:34 -0400
+	id <S262637AbREVQde>; Tue, 22 May 2001 12:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262624AbREVQcY>; Tue, 22 May 2001 12:32:24 -0400
-Received: from smtp-1.nordnet.fr ([194.206.126.239]:54788 "EHLO
-	smtp-1.nordnet.fr") by vger.kernel.org with ESMTP
-	id <S262643AbREVQcO>; Tue, 22 May 2001 12:32:14 -0400
-Date: Tue, 22 May 2001 18:31:43 +0200
-Message-Id: <200105221631.SAA17839@pop-7.nordnet.fr>
-From: virusalert@nordnet.fr
-To: linux-kernel@vger.kernel.org
-Subject: ALERTE: VIRUS DETECTE DANS UN MESSAGE ENVOYE PAR linux-kernel-owner@vger.kernel.org
+	id <S262656AbREVQdR>; Tue, 22 May 2001 12:33:17 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:42743 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262633AbREVQcx>; Tue, 22 May 2001 12:32:53 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDE89@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Philip Wang'" <PXWang@stanford.edu>
+Cc: linux-kernel@vger.kernel.org, Dawson Engler <engler@cs.Stanford.EDU>
+Subject: RE: [PATCH] drivers/acpi/driver.c (repost)
+Date: Tue, 22 May 2001 09:32:45 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-             A L E R T E   V I R U S
+[trimmed CCs]
 
+Hi Philip,
 
-  Notre système de détection automatique anti-virus 
-  a détecté un virus dans un message qui vous a été
-  envoyé par linux-kernel-owner@vger.kernel.org.
+That code no longer exists in latest acpi snapshots, therefore it no longer
+has the bug ;-)
 
-    La distribution de ce message a été stoppée.
+I appreciate it, though.
 
-  Veuillez vous rapprocher de l'émetteur linux-kernel-owner@vger.kernel.org pour
-  régler avec lui le problème.
+Regards -- Andy
 
-
-                  ***********
-
-             V I R U S   A L E R T
-
-
-  Our anti-virus system has detected a virus in an 
-  email sent by linux-kernel-owner@vger.kernel.org.
-
-    We have stopped the delivery of this email.
-
-  We invite you to contact linux-kernel-owner@vger.kernel.org
-  to solve the problem.
+> -----Original Message-----
+> From: Philip Wang [mailto:PXWang@stanford.edu]
+> Sent: Monday, May 21, 2001 8:46 PM
+> To: alan@lxorguk.ukuu.org.uk
+> Cc: torvalds@transmeta.com; linux-kernel@vger.kernel.org; 
+> Dawson Engler
+> Subject: [PATCH] drivers/acpi/driver.c (repost)
+> Importance: High
+> 
+> 
+> Hello!
+> 
+> This is a repost of my previous message, which came out 
+> garbled.  Now you 
+> should be able to run patch -pO from the root linux dir on 
+> the files...
+> 
+> There is a bug in driver.c of not freeing memory on error 
+> paths.  buf.pointer is allocated but not freed if 
+> copy_to_user fails.  The 
+> addition I made was to kfree buf.pointer before returning 
+> -EFAULT.  Thanks!
+> 
+> Philip
+> 
+> --- drivers/acpi/driver.c.orig       Mon May 21 20:36:55 2001
+> +++ drivers/acpi/driver.c    Mon May 21 20:37:21 2001
+> @@ -311,8 +311,10 @@
+>                  size = buf.length - file->f_pos;
+>                  if (size > *len)
+>                          size = *len;
+> -               if (copy_to_user(buffer, data, size))
+> -                       return -EFAULT;
+> +               if (copy_to_user(buffer, data, size)) {
+> +                 kfree(buf.pointer);
+> +                 return -EFAULT;
+> +               }
+>          }
+> 
+>          kfree(buf.pointer);
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

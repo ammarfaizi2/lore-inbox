@@ -1,102 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135506AbRAJNDs>; Wed, 10 Jan 2001 08:03:48 -0500
+	id <S135509AbRAJNMy>; Wed, 10 Jan 2001 08:12:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135509AbRAJNDj>; Wed, 10 Jan 2001 08:03:39 -0500
-Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:59626 "EHLO
-	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
-	id <S135506AbRAJNDa>; Wed, 10 Jan 2001 08:03:30 -0500
-Message-ID: <3A5C5D75.6E4425F6@valinux.com>
-Date: Thu, 11 Jan 2001 00:02:45 +1100
-From: Gareth Hughes <gareth@valinux.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Michael D. Crawford" <crawford@goingware.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DRI doesn't work on 2.4.0 but does on prerelease-ac5
+	id <S135526AbRAJNMp>; Wed, 10 Jan 2001 08:12:45 -0500
+Received: from mailout1-1.nyroc.rr.com ([24.92.226.146]:46538 "EHLO
+	mailout1-1.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S135509AbRAJNMk>; Wed, 10 Jan 2001 08:12:40 -0500
+Date: Wed, 10 Jan 2001 08:08:44 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE Linux)
+Message-ID: <20010110080844.C8077@rochester.rr.com>
+In-Reply-To: <20010110004201.A308@cerebro.laendle> <3A5BB340.9EA8B5C3@namesys.botik.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5BB340.9EA8B5C3@namesys.botik.ru>; from vs@namesys.botik.ru on Wed, Jan 10, 2001 at 03:56:32AM +0300
+From: Gnea <gnea@rochester.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael D. Crawford wrote:
->
-> glxinfo says dri is not available if I remove the library as I did. So I 
-> rebuilt Mesa and reinstalled it. The full output of glxinfo on my machine 
-> follows. Note that it says "direct rendering: Yes" but the version strings 
-> don't match. Does that indicate the problem? 
+On Wed, Jan 10, 2001 at 03:56:32AM +0300, Vladimir V. Saveliev wrote:
+> Hi
 > 
-> Server: 1.3 Mesa 3.4 
-> Client: 1.2 Mesa 3.4 
-> OpenGL: 1.2 Mesa 3.4 
+> Marc Lehmann wrote:
 > 
-> display: :0.0 screen:0 
-> direct rendering: Yes 
-> server glx vendor string: Brian Paul 
-> server glx version string: 1.3 Mesa 3.4 
-> server glx extensions: 
->     GLX_MESA_pixmap_colormap, GLX_EXT_visual_info, GLX_EXT_visual_rating, 
->     GLX_MESA_release_buffers, GLX_MESA_copy_sub_buffer, GLX_SGI_video_sync, 
->     GLX_ARB_get_proc_address 
-> client glx vendor string: Brian Paul 
-> client glx version string: 1.2 Mesa 3.4 
-> client glx extensions: 
->     GLX_MESA_pixmap_colormap, GLX_EXT_visual_info, GLX_EXT_visual_rating, 
->     GLX_MESA_release_buffers, GLX_MESA_copy_sub_buffer, GLX_SGI_video_sync, 
->     GLX_ARB_get_proc_address 
-> GLX extensions: 
->     GLX_MESA_pixmap_colormap, GLX_EXT_visual_info, GLX_EXT_visual_rating, 
->     GLX_MESA_release_buffers, GLX_MESA_copy_sub_buffer, GLX_SGI_video_sync, 
->     GLX_ARB_get_proc_address 
-> OpenGL vendor string: Brian Paul 
-> OpenGL renderer string: Mesa X11 
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> OpenGL version string: 1.2 Mesa 3.4 
-> OpenGL extensions: 
->     ...
+> > We are still investigating, but there seems to be a major security problem
+> 
+> Hmm,
+> mkdir "$(perl -e 'print "x" x 768')"
+> ls
+> echo *
+> 
+> works here as it should. (2.2.18 and reiserfs-3.5.29)
 
-You are still using software Mesa.  It's not using the DRI libGL.so,
-simple as that.
+ cat /proc/version
+ Linux version 2.4.0-test11 (root@celery) (gcc version 2.95.2 20000220
+ (Debian GNU/Linux)) #1 SMP Fri Dec 15 01:45:43 EST 2000
 
-You should see something like this:
+snipping from dmesg:
+reiserfs: checking transaction log (device 21:08) ...
+Using tea hash to sort names
+ReiserFS version 3.6.22
 
-demos> glxinfo 
-display: :0.0  screen:0
-...
-OpenGL vendor string: VA Linux Systems, Inc.
-OpenGL renderer string: Mesa DRI Radeon 20010105 AGP 2x x86/3DNow!
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-OpenGL version string: 1.2 Mesa 3.4
-OpenGL extensions:
-    GL_ARB_multitexture, GL_ARB_tranpose_matrix, GL_EXT_abgr, 
-    GL_EXT_blend_func_separate, GL_EXT_clip_volume_hint, 
-    GL_EXT_compiled_vertex_array, GL_EXT_histogram,
-GL_EXT_packed_pixels, 
-    GL_EXT_polygon_offset, GL_EXT_rescale_normal, GL_EXT_stencil_wrap, 
-    GL_EXT_texture3D, GL_EXT_texture_env_add,
-GL_EXT_texture_env_combine, 
-    GL_EXT_texture_env_dot3, GL_EXT_texture_object,
-GL_EXT_texture_lod_bias, 
-    GL_EXT_vertex_array, GL_MESA_window_pos, GL_MESA_resize_buffers, 
-    GL_NV_texgen_reflection, GL_PGI_misc_hints, GL_SGIS_pixel_texture, 
-    GL_SGIS_texture_edge_clamp
-...
+while mkdir "$(perl -e 'print "x" x 768')" works just fine, doing a
+mkdir "$(perl -e 'print "x" x 4000')" will create the dir, but will NOT
+segfault any program, NOR cause a kernel oops.. howeever, it will NOT
+show up with ls.  rm -rf "$(perl -e 'print "x" x 4000')" _will_ work...
+i have yet to experience any crashes, segfaults or oopses since.
 
-Try running with LIBGL_DEBUG=verbose set.  If you don't see the
-following messages, you know for sure the DRI is not being used.
+-- 
+    .oO Gnea [gnea at rochester dot rr dot com] Oo.
+         .oO url: http://garson.org/~gnea Oo.
 
-demos> LIBGL_DEBUG=verbose glxinfo
-libGL: trying /usr/XF86/lib/modules/dri/radeon_dri.so
-libGL: trying /usr/XF86/lib/modules/dri/radeon_dri.so
-display: :0.0  screen:0
-...
-
-Try reading the DRI User's Guide at http://dri.sourceforge.net, or post
-to dri-users@lists.sourceforge.net for help.  It just sounds like a
-config problem, not a bug in the kernel, Mesa or the DRI.
-
--- Gareth
+"You can tune a filesystem, but you can't tuna fish." -unknown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

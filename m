@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132414AbRDMXns>; Fri, 13 Apr 2001 19:43:48 -0400
+	id <S132427AbRDMXv7>; Fri, 13 Apr 2001 19:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132416AbRDMXnk>; Fri, 13 Apr 2001 19:43:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7951 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132414AbRDMXnU>; Fri, 13 Apr 2001 19:43:20 -0400
-Subject: Re: New SYM53C8XX driver in 2.4.3-ac5 FIXES CD Writing!!!!
-To: grantma@anathoth.gen.nz (Matthew Grant)
-Date: Sat, 14 Apr 2001 00:44:54 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        grantma@anathoth.gen.nz (Matthew Grant), linux-kernel@vger.kernel.org
-In-Reply-To: <E14oD8K-0002oj-00@zion.int.anathoth.gen.nz> from "Matthew Grant" at Apr 14, 2001 11:37:43 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14oDFI-0003or-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132433AbRDMXvu>; Fri, 13 Apr 2001 19:51:50 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:20609 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S132427AbRDMXvh>; Fri, 13 Apr 2001 19:51:37 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 13 Apr 2001 16:51:34 -0700
+Message-Id: <200104132351.QAA05523@adam.yggdrasil.com>
+To: chief@bandits.org
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> A core kernel developer  NEEDS to get these features straightened out properly 
-> in a clean fashion.  People WANT reiserfs integrated and working with LVM and 
+"John Fremlin" <chief@bandits.org> writes:
+> "Adam J. Richter" <adam@yggdrasil.com> writes:
+>> 	Guess why you're seeing this email.  That's right.  Linux-2.4.3's
+>> fork() does not run the child first.
 
-Note _clean_
+>[...] If an app wants to fork and exec, it
+>should use *vfork* and exec, which is a performance win across many
+>OSs because the COW mappings don't even have to be set up, IIRC.
 
-> It does not look like that much work is needed to fix the stuff the base kernel
-> and get better integration of these features.  The rough edges on them make us 
-> look like a bunch of amatuers.
+	Even in that case, you want to run the child first because
+it may block on I/O when it does the exec or the new program starts
+running, and you are likely to be able to use that time while the
+child is waiting on I/O for the parent to run (typically just to
+record the process in its internal data structures and then call
+wait()).  Basically, you want to kick off some new I/O before running
+something that can run while that I/O is pending.
 
-Lots of work needs doing. The entire quota code needs rewriting and that won't
-happen until 2.5. The reiser+nfs stuff is probably also 2.5
+	Of course, in the vfork case, this change is probably only a
+very small win.  The real advantage is with regular fork() followed
+by an exec, which happens quite a lot.  For example, I do not see
+vfork anywhere in the bash sources.
 
-> Alan, will you look into it as a project???
-
-Not interested. Now is stabilizing time, not stuffing crap into the kernel tree
-time. Vendors can (and will) ship stuff which is workable but not clean, and
-they will hopefully over time fix up the stuff they care about and submit it.
-
-Alan
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

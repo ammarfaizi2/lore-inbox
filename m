@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284730AbRLUQdT>; Fri, 21 Dec 2001 11:33:19 -0500
+	id <S284732AbRLUQk7>; Fri, 21 Dec 2001 11:40:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbRLUQdK>; Fri, 21 Dec 2001 11:33:10 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:5106 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S284730AbRLUQc6>;
-	Fri, 21 Dec 2001 11:32:58 -0500
-Subject: Re: [PATCH] G550 config entry/help
-From: Robert Love <rml@tech9.net>
-To: David Weinehall <tao@acc.umu.se>
-Cc: marcelo@conectiva.com.br, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011221091352.G5235@khan.acc.umu.se>
-In-Reply-To: <1008892244.938.9.camel@phantasy> 
-	<20011221091352.G5235@khan.acc.umu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 21 Dec 2001 11:32:49 -0500
-Message-Id: <1008952375.2040.0.camel@phantasy>
+	id <S284745AbRLUQku>; Fri, 21 Dec 2001 11:40:50 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:46585 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S284741AbRLUQkg>; Fri, 21 Dec 2001 11:40:36 -0500
+Date: Fri, 21 Dec 2001 11:43:52 -0500
+To: Jens Axboe <axboe@kernel.org>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre1 dbench 32 hangs in vmstat "b" state
+Message-ID: <20011221114352.A8661@earthlink.net>
+In-Reply-To: <20011221091104.A120@earthlink.net> <20011221154654.E811@suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011221154654.E811@suse.de>; from axboe@kernel.org on Fri, Dec 21, 2001 at 03:46:54PM +0100
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-21 at 03:13, David Weinehall wrote:
+On Fri, Dec 21, 2001 at 03:46:54PM +0100, Jens Axboe wrote:
+> You neglected to mention what disk I/O system you are using? IDE or
+> SCSI, and if the latter what host adapter?
+> 
+> -- 
+> Jens Axboe
 
-> I'd say there's some loss of information here. Is that intentional?
-> That is, has G100 been tested and G450 been confirmed to work properly?
+Sorry about that.  It's an IDE drive.
 
-Yes and yes.
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+00:0f.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
 
-	Robert Love
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+-- 
+Randy Hron
 

@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266267AbUARIDh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 03:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUARIDh
+	id S266252AbUARIBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 03:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266265AbUARIBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 03:03:37 -0500
-Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:62348
-	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
-	id S266267AbUARIDU convert rfc822-to-8bit (ORCPT
+	Sun, 18 Jan 2004 03:01:46 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:23505 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266252AbUARIBp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 03:03:20 -0500
-Subject: Re: [RFC] kill sleep_on
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <400A396B.4090207@colorfullife.com>
-References: <40098251.2040009@colorfullife.com>
-	 <1074367701.9965.2.camel@imladris.demon.co.uk>
-	 <20040117201000.GL21151@parcelfarce.linux.theplanet.co.uk>
-	 <1074383111.9965.4.camel@imladris.demon.co.uk>
-	 <20040117224139.5585fb9c.akpm@osdl.org>
-	 <1074409074.1569.12.camel@nidelv.trondhjem.org>
-	 <20040117233618.094c9d22.akpm@osdl.org> <400A396B.4090207@colorfullife.com>
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 18 Jan 2004 03:01:45 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <1074412980.1574.40.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 18 Jan 2004 03:03:00 -0500
+Subject: RE: [ACPI] More info on VP6 panics
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Sun, 18 Jan 2004 16:01:35 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CF5@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] More info on VP6 panics
+Thread-Index: AcPcxoXczFtRUU69RbawLrDFZ5NqyAA0Lh4A
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Ian Pilcher" <i.pilcher@comcast.net>, <acpi-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Jan 2004 08:01:35.0685 (UTC) FILETIME=[4B235F50:01C3DD99]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 18/01/2004 klokka 02:44, skreiv Manfred Spraul:
-> Andrew Morton wrote:
+
+>ve that the panic occurs anywhere in the ACPI 
+> code.  From
+> what I can tell, the transition to ACPI mode causes the idle thread on
+> the other processor to panic.
 > 
-> >That's quite a lot of contention on the lock_kernel() in remote_llseek().
-> >  
-> >
-> What about switching to generic_file_llseek, at least for files? The 
-> only references to f_pos are in filldir/readdir.
+> I believe that I have identified the line of code that triggers the
+> panic.  It is the actual transition to ACPI mode at
+> drivers/acpi/hardware/hwacpi.c, line 143.  If I insert an 
+> infinite loop
+> before the call to acpi_os_write_port, the boot process simply hangs.
+> If I move the loop below the call to acpi_os_write_port, I 
+> get the same
+> old panic message.
+>
 
-I'm not sure that taking inode->i_sem would be much of an improvement.
-Both th BKL and the inode semaphore seem superfluous to me in this
-situation.
-After all, the file size is now protected by neither of the above, but
-rather by its own seqlock...
+That experiment can only tell that there is no panic displayed on you
+screen
+before the infinite loop.
 
-Cheers,
-  Trond
+I did remember this error, but I cannot find out other emails about this
+issue.
+Did you file it on bugzilla.kernel.org? It will help us a lot.
+
+Thanks,
+Luming
+

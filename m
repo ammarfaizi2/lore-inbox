@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUHLC05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUHLC10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268367AbUHLC05 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 22:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268358AbUHLCYt
+	id S268360AbUHLC10 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 22:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268350AbUHLC1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 22:24:49 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:51378 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S268356AbUHLCYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 22:24:25 -0400
-Date: Thu, 12 Aug 2004 04:24:22 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <Pine.LNX.4.44.0408120413040.3142-100000@hubble.stokkie.net>
+	Wed, 11 Aug 2004 22:27:25 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:33972 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S268359AbUHLCZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 22:25:37 -0400
+To: Greg KH <greg@kroah.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+References: <20040806211413.77833.qmail@web14926.mail.yahoo.com>
+	<200408111004.02995.jbarnes@engr.sgi.com>
+	<20040811172800.GB14979@kroah.com>
+	<200408111102.10689.jbarnes@engr.sgi.com>
+	<20040811181236.GD14979@kroah.com>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Thu, 12 Aug 2004 11:25:27 +0900
+In-Reply-To: <20040811181236.GD14979@kroah.com> (Greg KH's message of "Wed,
+ 11 Aug 2004 11:12:36 -0700")
+Message-ID: <buo1xidw0rs.fsf@mctpc71.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH <greg@kroah.com> writes:
+> That's fine.  It's the "Copyright (c) 2004" order and exact "(c)" that
+> really matters, from what I have been told to do.
 
-On Tue, 10 Aug 2004, Joerg Schilling wrote 
+Is that true now?  It used to be said (including by some people who I
+trust on such matters) that the ascii graphic "(c)" -- as opposed to a
+real c-in-a-circle character -- was _not_ officially recognized as
+meaning "Copyright", and so one needed the actual word "Copyright", or a
+real c-in-a-circle, for such notices to have some meaning.  However the
+word "Copyright" alone is apparently enough.
 
-> As the people who did create the bastardized version of cdrecord
-> you are using did not make clear where the official defaults file
-> for cdrecord is located, they did violate the license of cdrecord.
->  
-> It really does mot make fun to see useless forks for software including
-> only modifications that do not give you a single advantage over the original.
->  
-> The license used with cdrecord allows people to make modifications and to 
-> rediustribute the versions. 
->  
-> Not a single modification from one of the Linux distribution I did see so far
-> did introduce any advantage over the original.
->  
-> I would love to see cooperations (and there is cooperation with people from 
-> many places), but the big Linux distributors all fail to cooperate :-(
->  
-> Look into the mkisofs source, I even needed to include a comment in hope to
-> prevent people from SuSE to convert legal and correct C code into a broken
-> piece of code just because they modify things they don't understand :-(
->  
-> Jörg
-
-Hello Jörg,
-
-i must agree here that getting cdrecord/cdrtools-2.0x going on the latest
-SuSE 9.x editions has been extremely tiresome. Can it not be the case that
-this has something todo with SuSE's inheritance to the UnitedLinux project?
-
-I would like to suggest and kindly propose to maybe start cooperating
-with Warly from MandrakeSoft. I think he has done a fine job sofar
-in the latest Mandrake editions, 9.2 and 10.0 , making your cdrtools-2.0x
-software run like it should. Warly is even by you mentioned as the only
-one not violating your GPL licensed cdrtools package.
-
-His efforts to get DVD burning rolling can be found at : 
-
-http://people.mandrakesoft.com/~warly/files/cdrtools/
- 
-thanks,
-best regards,
-
-Robert
+-Miles
 -- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+Somebody has to do something, and it's just incredibly pathetic that it
+has to be us.  -- Jerry Garcia

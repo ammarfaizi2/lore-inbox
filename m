@@ -1,145 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbUDML0F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 07:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbUDML0F
+	id S263563AbUDMLpW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 07:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUDMLpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 07:26:05 -0400
-Received: from lug.demon.co.uk ([80.177.165.112]:34145 "EHLO lug.demon.co.uk")
-	by vger.kernel.org with ESMTP id S263157AbUDMLZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 07:25:58 -0400
-From: David Johnson <dj@david-web.co.uk>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.5-mm5-1 compile error on Alpha
-Date: Tue, 13 Apr 2004 12:26:14 +0100
-User-Agent: KMail/1.6
+	Tue, 13 Apr 2004 07:45:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54765 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263563AbUDMLpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 07:45:18 -0400
+Date: Tue, 13 Apr 2004 13:36:59 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Raghavendra Koushik <raghavendra.koushik@s2io.com>, jgarzik@pobox.com
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: 2.6.5-mm5: no help text for S2IO_NAPI
+Message-ID: <20040413113659.GN27003@fs.tum.de>
+References: <20040412221717.782a4b97.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_W58eA0o0iU2ON8H"
-Message-Id: <200404131226.15241.dj@david-web.co.uk>
+In-Reply-To: <20040412221717.782a4b97.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 12, 2004 at 10:17:17PM -0700, Andrew Morton wrote:
+>...
+> All 215 patches:
+>...
+> bk-netdev.patch
+>...
 
---Boundary-00=_W58eA0o0iU2ON8H
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+There is no help text for S2IO_NAPI in the Kconfig file, please add one.
 
-Hi,
-
-I'm getting an error trying to compile 2.6.5-mm5-1 on Alpha:
-
-  CC      arch/alpha/kernel/osf_sys.o
-  CC      arch/alpha/kernel/irq.o
-  CC      arch/alpha/kernel/irq_alpha.o
-  CC      arch/alpha/kernel/signal.o
-arch/alpha/kernel/signal.c: In function `do_signal':
-arch/alpha/kernel/signal.c:616: warning: passing arg 2 of 
-`get_signal_to_deliver' from incompatible pointer type
-arch/alpha/kernel/signal.c:616: error: too few arguments to function 
-`get_signal_to_deliver'
-make[1]: *** [arch/alpha/kernel/signal.o] Error 1
-make: *** [arch/alpha/kernel] Error 2
-
-
-GCC version 3.3.3. My .config is attached. Any other info you need?
-(I'm on LKML, so no need to CC)
-
-Thanks.
+TIA
+Adrian
 
 -- 
-David Johnson
-http://www.david-web.co.uk/
 
---Boundary-00=_W58eA0o0iU2ON8H
-Content-Type: application/x-gzip;
-  name="config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="config.gz"
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-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
-AAA=
-
---Boundary-00=_W58eA0o0iU2ON8H--

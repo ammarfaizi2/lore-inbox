@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbTEGGrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTEGGrN
+	id S262930AbTEGGr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTEGGr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:47:13 -0400
-Received: from [217.157.19.70] ([217.157.19.70]:6924 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S262776AbTEGGrM (ORCPT
+	Wed, 7 May 2003 02:47:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61933 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262930AbTEGGrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:47:12 -0400
-From: Thomas Horsten <thomas@horsten.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
-Date: Wed, 7 May 2003 07:59:49 +0100
-User-Agent: KMail/1.5.1
-Cc: "ismail (cartman) donmez" <voidcartman@yahoo.com>,
-       "David S. Miller" <davem@redhat.com>, marcelo@conectiva.com.br,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-References: <20030506104956.A29357@infradead.org> <200305070744.27207.thomas@horsten.com> <20030507074557.A9197@infradead.org>
-In-Reply-To: <20030507074557.A9197@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 7 May 2003 02:47:22 -0400
+Date: Tue, 06 May 2003 22:52:23 -0700 (PDT)
+Message-Id: <20030506.225223.116372228.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
+Subject: Re: [2.5.69-mm1] kernel BUG at include/linux/module.h:284! 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030507035148.31D332C117@lists.samba.org>
+References: <1052227331.983.46.camel@rth.ninka.net>
+	<20030507035148.31D332C117@lists.samba.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305070759.49121.thomas@horsten.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 May 2003 7:45 am, Christoph Hellwig wrote:
-> That's highly broken because his libc was compiled against 2.2 headers.
-> You must never use different headers in /usr/include/Pasm,linux} then those
-> your libc was compiled against.
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Wed, 07 May 2003 13:48:15 +1000
 
-I don't see why moving up should be wrong - the ABI is {guaranteed | supposed} 
-to remain backward compatible so the libc itself should be fine, and using 
-the newer headers to build apps shouldn't hurt - at least I can't see any 
-obvious cases (there are probably some, but at any rate I, have seen this 
-work without problems a number of times, without rebuilding libc but using 
-new features from the kernel, like iptables).
+   In message <1052227331.983.46.camel@rth.ninka.net> you write:
+   > Arnaldo, ipv6 creates a socket of it's own type during
+   > module init, try_module_get() on the current module fails
+   > during module load... do you see the problem?
+   > 
+   > Rusty, you said you were working on a solution for modules
+   > that call themselves during their own init?
+   
+   In fact, it's backwards.
 
-In any case, it doesn't change my example, just let Joe Admin rebuild glibc as 
-well :-)
+You're, of course, right.  I misread the bug report, and this
+patch below ought to fix it.  It's untested, but I'll do that in
+a bit and push upstream.
 
-// Thomas
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1083  -> 1.1084 
+#	  net/ipv4/af_inet.c	1.44    -> 1.45   
+#	 net/ipv6/af_inet6.c	1.33    -> 1.34   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/06	davem@nuts.ninka.net	1.1084
+# [IPV4/IPV6]: Set owner field in family ops.
+# --------------------------------------------
+#
+diff -Nru a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+--- a/net/ipv4/af_inet.c	Tue May  6 23:58:43 2003
++++ b/net/ipv4/af_inet.c	Tue May  6 23:58:43 2003
+@@ -926,6 +926,7 @@
+ struct net_proto_family inet_family_ops = {
+ 	.family = PF_INET,
+ 	.create = inet_create,
++	.owner	= THIS_MODULE,
+ };
+ 
+ 
+diff -Nru a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c	Tue May  6 23:58:43 2003
++++ b/net/ipv6/af_inet6.c	Tue May  6 23:58:43 2003
+@@ -535,6 +535,7 @@
+ struct net_proto_family inet6_family_ops = {
+ 	.family = PF_INET6,
+ 	.create = inet6_create,
++	.owner	= THIS_MODULE,
+ };
+ 
+ #ifdef MODULE

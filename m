@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315547AbSFOVOO>; Sat, 15 Jun 2002 17:14:14 -0400
+	id <S315593AbSFOVT6>; Sat, 15 Jun 2002 17:19:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315593AbSFOVON>; Sat, 15 Jun 2002 17:14:13 -0400
-Received: from holomorphy.com ([66.224.33.161]:23723 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315547AbSFOVON>;
-	Sat, 15 Jun 2002 17:14:13 -0400
-Date: Sat, 15 Jun 2002 14:13:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Amit Nadgar <vangough_spinlock@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: accessing the struct task_struct using a pid
-Message-ID: <20020615211346.GM22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Amit Nadgar <vangough_spinlock@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020615210620.38592.qmail@web14401.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S315599AbSFOVT5>; Sat, 15 Jun 2002 17:19:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64782 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315593AbSFOVT5>;
+	Sat, 15 Jun 2002 17:19:57 -0400
+Message-ID: <3D0BB065.317E8027@zip.com.au>
+Date: Sat, 15 Jun 2002 14:23:49 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rwhron@earthlink.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 IDE 91
+In-Reply-To: <20020615210009.GA32730@rushmore>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 15, 2002 at 02:06:20PM -0700, Amit Nadgar wrote:
->    I am writing a kernel module where I am trying to
-> access the task_structs. Now I have tried this using
-> various mathods.
->    1) Using the pidhash array.
->       Here when I do a insmod I get a unresolved symbol.
+rwhron@earthlink.net wrote:
+> 
+> > Does this patch get the throughput back?
+> 
+> That makes all the difference to dbench.  Throughput
+> for dbench 128 up over 40% compared to vanilla 2.5.21.
 
-EXPORT_SYMBOL(pidhash) or something. Make sure you included sched.h
+ho hum.  Now we need to work out why a larger request queue
+whacks dbench, whether it penalises workloads which we actually
+care about and if so, what the appropriate size really should be.
+If indeed that algorithms are optimal.  urgh.
 
-On Sat, Jun 15, 2002 at 02:06:20PM -0700, Amit Nadgar wrote:
->    2) Directly accessing the location of pidhash as seen in System.map.
->       Here when the pidhash_fn hashes the supplied pid the particular
->	location into which it indexes in NULL.
+Thanks again, Randy.
 
-How early are you trying to do this?
-
-On Sat, Jun 15, 2002 at 02:06:20PM -0700, Amit Nadgar wrote:
->   3) Starting from the init_task.
->      here the next task after the init task is found to be NULL.
-
-Don't do that.
-
-On Sat, Jun 15, 2002 at 02:06:20PM -0700, Amit Nadgar wrote:
->	Could some one help me in this matter.
-
-I'm afraid there's only so much help that can be given. Some effort may
-be required on your part to make this work. Help with basic concepts
-and Linux conventions is more likely to be found on irc.openprojects.net
-#kernelnewbies or the kernelnewbies@nl.linux.org mailing list.
-
-
-Cheers,
-Bill
+-

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270800AbTHOTZt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270801AbTHOTZt
+	id S270755AbTHOTeY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 15:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270765AbTHOTeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 15:25:49 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:44296 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S270800AbTHOTZr convert rfc822-to-8bit (ORCPT
+	Fri, 15 Aug 2003 15:34:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59041 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270755AbTHOTeX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 15:25:47 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Mikael Pettersson <mikpe@csd.uu.se>, Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: [PATCH][2.4.22-rc2] Disable APIC on reboot.
-Date: Fri, 15 Aug 2003 21:22:10 +0200
-User-Agent: KMail/1.5.3
-Cc: marcelo@conectiva.com.br, fxkuehl@gmx.de, linux-kernel@vger.kernel.org,
-       willy@w.ods.org
-References: <E19mCuO-0003dI-00@tetrachloride> <16183.51974.508883.472043@gargle.gargle.HOWL> <16184.10173.412201.802953@gargle.gargle.HOWL>
-In-Reply-To: <16184.10173.412201.802953@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308152121.44027.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 15 Aug 2003 15:34:23 -0400
+Date: Fri, 15 Aug 2003 12:30:53 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Debug: sleeping function called from invalid context
+Message-Id: <20030815123053.2f81ec0a.rddunlap@osdl.org>
+In-Reply-To: <20030815173246.GB9681@redhat.com>
+References: <20030815101856.3eb1e15a.rddunlap@osdl.org>
+	<20030815173246.GB9681@redhat.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 August 2003 01:33, Mikael Pettersson wrote:
+On Fri, 15 Aug 2003 18:32:47 +0100 Dave Jones <davej@redhat.com> wrote:
 
-Hi Mikael,
+| On Fri, Aug 15, 2003 at 10:18:56AM -0700, Randy.Dunlap wrote:
+| 
+|  > Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
+|  > Call Trace:
+|  >  [<c0120d94>] __might_sleep+0x54/0x5b
+|  >  [<c010d001>] save_v86_state+0x71/0x1f0
+|  >  [<c010dbd5>] handle_vm86_fault+0xc5/0xa90
+|  >  [<c019cab8>] ext3_file_write+0x28/0xc0
+|  >  [<c011cd96>] __change_page_attr+0x26/0x220
+|  >  [<c010b310>] do_general_protection+0x0/0x90
+|  >  [<c010a69d>] error_code+0x2d/0x40
+|  >  [<c0109657>] syscall_call+0x7/0xb
+| 
+| That's one really wierd looking backtrace. What else was that
+| machine up to at the time ?
 
-> disable_local_APIC() now checks if detect_init_APIC() enabled the
-> local APIC via the APIC_BASE MSR, and if so it now disables APIC_BASE.
-> Previously we would leave APIC_BASE enabled, and that made some
-> BIOSen unhappy.
-> The SMP reboot code calls disable_local_APIC(). On SMP HW there is
-> no change since detect_init_APIC() isn't called and APIC_BASE isn't
-> enabled by us. An SMP kernel on UP HW behaves just like an UP_APIC
-> kernel, so it disables APIC_BASE if we enabled it at boot.
-> The UP_APIC disable-before-suspend code is simplified since the existing
-> code to disable APIC_BASE is moved into disable_local_APIC().
-> (Felix Kühling originally reported the BIOS reboot problem. This is a
-> fixed-up version of his preliminary patch.)
+Some parts of it are explainable (to me), some not.
+I don't know what caused a GP fault or why ext3 shows up.
 
-please correct me if I say something really stupid now but shouldn't the APIC 
-be disabled only during reboot time and enabled again at a new boot?
+But I can follow from do_general_protection() to handle_vm86_fault()
+to [inline] return_to_32bit() to save_v86_state() to __might_sleep().
 
-my experience with this patch is, after a reboot he APIC isn't enabled again 
-until I power off my machine.
+And __might_sleep() is correct if change_page_attr() was called,
+since it takes a spinlock.  I just can't connect quite all of the dots.
 
-ciao, Marc
-
+--
+~Randy

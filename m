@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275317AbTHMSfE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 14:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275319AbTHMSfE
+	id S275319AbTHMSgS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 14:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275337AbTHMSgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 14:35:04 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:20217 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275317AbTHMSe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 14:34:58 -0400
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030813163927.GE2184@redhat.com>
-References: <20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
-	 <1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
-	 <20030813042544.5064b3f4.akpm@osdl.org.suse.lists.linux.kernel>
-	 <1060774803.8008.24.camel@localhost.localdomain.suse.lists.linux.kernel>
-	 <p7365l17o70.fsf@oldwotan.suse.de>
-	 <1060778924.8008.39.camel@localhost.localdomain>
-	 <20030813131457.GD32290@wotan.suse.de>
-	 <1060783794.8008.62.camel@dhcp23.swansea.linux.org.uk>
-	 <20030813142055.GC9179@wotan.suse.de>
-	 <1060788009.8957.5.camel@dhcp23.swansea.linux.org.uk>
-	 <20030813163927.GE2184@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060799674.9129.21.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 13 Aug 2003 19:34:36 +0100
+	Wed, 13 Aug 2003 14:36:18 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:62635 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S275319AbTHMSgJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 14:36:09 -0400
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: consistent_dma_mask is a ghost?
+References: <mailman.1060643897.16128.linux-kernel2news@redhat.com>
+	<200308130011.h7D0BME29033@devserv.devel.redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 13 Aug 2003 16:51:11 +0200
+In-Reply-To: <200308130011.h7D0BME29033@devserv.devel.redhat.com>
+Message-ID: <m3n0ed6274.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-13 at 17:39, Dave Jones wrote:
->  > several instructions later added (including prefetch). The later Cyrix
->  > also has a couple of the additional ones but not prefetch.
+Pete Zaitcev <zaitcev@redhat.com> writes:
 
-Ok I got this crossed - the Cyrix/AMD thing was the extended MMX stuff,
-they both did 3Dnow! but the Jalapeno old style Cyrix CPU with 3dnow was
-canned. Ok so there is a different reason why my Cyrix crashes on boot
-with 2.6test. Andi is right that 3Dnow safely implies prefetch. My docs
-list it as part of extended MMX not 3dnow although the Cyrix seems to
-not posess the instruction anyway.
+> Platforms which worked correctly before continue to work
+> correctly thereafter. IMHO, the whole thing is a kludge,
+> designed to support AIC7xxx on SGI SN-2, and that's about
+> all it does.
 
-So 3dnow == prefetch/prefetchw is ok but not useful on K6.
+I'm a little confused. I assume the driver is not in the official tree
+and this SN-2 uses either Itanium or Opteron CPU.
 
-> Which Cyrixen are you talking about ?
-> C3's up to and including Ezra-T should DTRT when it comes to
-> 3dnow prefetch instruction, and pre-VIA Cyrixen didn't have 3dnow
-> at all iirc.
+> There's a device which uses fewer DMA bits
+> when it accesses its mailbox than when it accesses data.
+> Since the mailbox is allocated in consistent memory, this
+> can be used as a clue to restrict the allocation. This is a
+> fragile, opaque construct and it's conceptually wrong (what if
+> the driver accessed device mailboxes through streaming mappings?),
+> but it works for its purpose. Just don't use it in your drivers
+> and you'll be fine.
 
-pre VIA Cyrixen have MMX and CXMMX. The CPU also set bit 31 but doesn't
-have 3dnow (which fooled me but the kernel does know about). C3's seem
-to have prefetch/prefetchw (but not prefetchnta). I don't have a nemeiah
-but I assume Nemeiah has prefetchnta too ?
+Right, but at least the documentation needs a fix. I also have a device
+which needs different masks for streaming and consistent allocations
+(4 GB for DMA streaming but only 256 MB for memory shared directly between
+main CPU and on-board one) and I was hoping that setting the consistent
+dma mask to 256MB (-1) would actually have some meaning (while it's NOP
+on most platforms).
 
-
-I've tried building a summary list. Additional contributions welcomed
-
-MMX:  Pentium (later only), Cyrix MediaGX (later only), Cyrix 6x86/MII
-      Intel PII/PIII/PIV, AMD K6/Athlon/Opteron, VIA Cyrix III, VIA C3
-CXMMX: Extended MMX - Cyrix MII/AMD K6(II+ ?)/K7/Opteron
-3DNOW: AMD K6-II/III(not original K6),K7/,Opteron, VIA Cyrix III, 
-VIA C3 (pre Nemiah only ??)
-"Enhanced" 3DNow: Athlon Tbird
-SSE: Intel PII, PIII, Athlon (XP, Duron >=1Gz only)
-SSE2: Pentium IV
- 
-So the prefetch fallback is needed for pre Nemiah C3, Duron < 1Ghz and
-pre T-Bird Athlon if my table is right.
+The question is: would it be better to only fix the docs to reflect
+reality, or let the kludge die and fix AIC7xxx driver instead?
+I understand it could be trivially done in the driver, i.e. by setting
+dma_mask to correct value just before the consistent allocation is
+requested. It should have little impact (if any) on performance, even
+if the driver needs it for normal operation rather than for init only.
 
 
+Or, should we do it the other way around? Instead of fixing docs,
+we can fix the code to actually support setting the consistent dma mask
+reliably (at least the easy part).
+-- 
+Krzysztof Halasa
+Network Administrator

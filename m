@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267708AbTAaHCN>; Fri, 31 Jan 2003 02:02:13 -0500
+	id <S267717AbTAaHVy>; Fri, 31 Jan 2003 02:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267714AbTAaHCN>; Fri, 31 Jan 2003 02:02:13 -0500
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:44771 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id <S267708AbTAaHCM>;
-	Fri, 31 Jan 2003 02:02:12 -0500
-Date: Fri, 31 Jan 2003 09:11:27 +0200 (EET)
-From: Catalin BOIE <util@ns2.deuroconsult.ro>
-X-X-Sender: <util@hosting.rdsbv.ro>
-To: Bruce Harada <bharada@coral.ocn.ne.jp>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Problem - See attached dmesg dump
-In-Reply-To: <20030131025550.1c2cf71a.bharada@coral.ocn.ne.jp>
-Message-ID: <Pine.LNX.4.33.0301310909290.16563-100000@hosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267714AbTAaHVy>; Fri, 31 Jan 2003 02:21:54 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:36779 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267713AbTAaHVw>;
+	Fri, 31 Jan 2003 02:21:52 -0500
+Date: Thu, 30 Jan 2003 23:18:52 -0800 (PST)
+Message-Id: <20030130.231852.18464285.davem@redhat.com>
+To: cw@f00f.org
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, lists@openunix.de,
+       debian-sparc@lists.debian.org, Ralf.Hildebrandt@charite.de,
+       byron@markerman.com, john@grabjohn.com
+Subject: [PATCH] fix for "assertion (newsk->state != TCP_SYN_RECV) ..."
+From: "David S. Miller" <davem@redhat.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Jan 2003, Bruce Harada wrote:
 
-> On Wed, 29 Jan 2003 10:57:09 +0200 (EET)
-> Catalin BOIE <util@ns2.deuroconsult.ro> wrote:
->
-> > I checked the memory and it's ok.
->
-> How did you check it? Hint: Get memtest86 and run it continuously for as long
-> as you can stand it.
-The machine has 512MB RAM and I let the test (memtest86) run for 8 hours
-or more.
+Chris and others, this below should cure the infamous:
 
-> Linux version: http://public.planetmirror.com/pub/memtest86/memtest86-3.0.tar.gz
-> Windows version: http://public.planetmirror.com/pub/memtest86/memt30.zip
->
-> > The computer is new.
->
-> Worst kind - they break more than any other type.
-:)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
 
-> > The only thing that looks strange is the CPU temperature (68 Celsius).
-> > CPU is Athlon XP 1700+
->
-> 68C is rather high, especially if that's under no load...
-68 in BIOS when it's no load... :(
+assertion failures people have been seeing starting in 2.4.20
 
->
-> > It has a big fan that spins at ~5000 rpm.
->
-> Well, that's nice to know anyway. I suggest checking to see if that big fan is
-> correctly attached.
+The bug is in 2.5.x too, and the patch below applies pretty cleanly
+there.
 
-Probably you are right. I will check.
+This has been sent to Marcelo already, and Linus will get it for
+2.5.x when he gets back.
 
-Thanks!
+Thanks to everyone for reporting.  The fact that multiple reports
+existed made it possible for to figure out what was so common
+amongst the reports and thus find the bug relatively quickly.
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.933   -> 1.934  
+#	net/ipv4/tcp_minisocks.c	1.12    -> 1.13   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/01/30	davem@nuts.ninka.net	1.934
+# [TCP]: In tcp_check_req, handle ACKless packets properly.
+# --------------------------------------------
+#
+diff -Nru a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+--- a/net/ipv4/tcp_minisocks.c	Thu Jan 30 23:08:40 2003
++++ b/net/ipv4/tcp_minisocks.c	Thu Jan 30 23:08:40 2003
+@@ -938,6 +938,12 @@
+ 	if (flg & (TCP_FLAG_RST|TCP_FLAG_SYN))
+ 		goto embryonic_reset;
+ 
++	/* ACK sequence verified above, just make sure ACK is
++	 * set.  If ACK not set, just silently drop the packet.
++	 */
++	if (!(flg & TCP_FLAG_ACK))
++		return NULL;
++
+ 	/* If TCP_DEFER_ACCEPT is set, drop bare ACK. */
+ 	if (tp->defer_accept && TCP_SKB_CB(skb)->end_seq == req->rcv_isn+1) {
+ 		req->acked = 1;

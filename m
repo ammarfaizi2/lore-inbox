@@ -1,33 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261628AbRFGPoC>; Thu, 7 Jun 2001 11:44:02 -0400
+	id <S261782AbRFGPuN>; Thu, 7 Jun 2001 11:50:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261651AbRFGPnw>; Thu, 7 Jun 2001 11:43:52 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:23805 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S261628AbRFGPni>; Thu, 7 Jun 2001 11:43:38 -0400
-Date: Thu, 7 Jun 2001 16:44:06 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: John Stoffel <stoffel@casc.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] Reap dead swap cache earlier v2
-In-Reply-To: <15135.37871.373389.465893@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.21.0106071640410.1596-100000@localhost.localdomain>
+	id <S261771AbRFGPuD>; Thu, 7 Jun 2001 11:50:03 -0400
+Received: from cloven-ext.nks.net ([216.139.204.130]:31750 "EHLO
+	homer.mkintl.com") by vger.kernel.org with ESMTP id <S261741AbRFGPty>;
+	Thu, 7 Jun 2001 11:49:54 -0400
+Message-ID: <3B1FA29B.812AA63A@illusionary.com>
+Date: Thu, 07 Jun 2001 11:49:47 -0400
+From: Derek Glidden <dglidden@illusionary.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Miles Lane <miles@megapathdsl.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.33.0106062032390.26171-100000@asdf.capslock.lan> <991883613.15447.0.camel@agate>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jun 2001, John Stoffel wrote:
-> Shouldn't the "swap_count(page) == 1" check be earlier in the if
-> statement, so we can fall through more quickly if there is no work to
-> be done?  A small optimization, but putting the common cases first
-> will help.
+Miles Lane wrote:
+> 
+> So please, if you have new facts that you want to offer that
+> will help us characterize and understand these VM issues better
+> or discover new problems, feel free to share them.  But if you
+> just want to rant, I, for one, would rather you didn't.
 
-I don't think so: the out-of-line swap_count() function is considerably
-more complicated than the macros and inline functions tested before it.
+*sigh*
 
-Hugh
+Not to prolong an already pointless thread, but that really was the
+intent of my original message.  I had figured out a specific way, with
+easy-to-follow steps, to make the VM misbehave under very certain
+conditions.  I even offered to help figure out a solution in any way I
+could, considering I'm not familiar with kernel code.
 
+However, I guess this whole "too much swap" issue has a lot of people on
+edge and immediately assumed I was talking about this subject, without
+actually reading my original message.
+
+-- 
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#!/usr/bin/perl -w
+$_='while(read+STDIN,$_,2048){$a=29;$b=73;$c=142;$t=255;@t=map
+{$_%16or$t^=$c^=($m=(11,10,116,100,11,122,20,100)[$_/16%8])&110;
+$t^=(72,@z=(64,72,$a^=12*($_%16-2?0:$m&17)),$b^=$_%64?12:0,@z)
+[$_%8]}(16..271);if((@a=unx"C*",$_)[20]&48){$h=5;$_=unxb24,join
+"",@b=map{xB8,unxb8,chr($_^$a[--$h+84])}@ARGV;s/...$/1$&/;$d=
+unxV,xb25,$_;$e=256|(ord$b[4])<<9|ord$b[3];$d=$d>>8^($f=$t&($d
+>>12^$d>>4^$d^$d/8))<<17,$e=$e>>8^($t&($g=($q=$e>>14&7^$e)^$q*
+8^$q<<6))<<9,$_=$t[$_]^(($h>>=8)+=$f+(~$g&$t))for@a[128..$#a]}
+print+x"C*",@a}';s/x/pack+/g;eval 
+
+usage: qrpff 153 2 8 105 225 < /mnt/dvd/VOB_FILENAME \
+    | extract_mpeg2 | mpeg2dec - 
+
+http://www.eff.org/                    http://www.opendvd.org/ 
+         http://www.cs.cmu.edu/~dst/DeCSS/Gallery/

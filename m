@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264286AbRFGHDb>; Thu, 7 Jun 2001 03:03:31 -0400
+	id <S264348AbRFGHZn>; Thu, 7 Jun 2001 03:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264348AbRFGHDU>; Thu, 7 Jun 2001 03:03:20 -0400
-Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:4224 "EHLO
-	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
-	id <S264345AbRFGHDO>; Thu, 7 Jun 2001 03:03:14 -0400
-Date: Thu, 7 Jun 2001 09:57:23 +0300
-From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: isolating process..
-Message-ID: <20010607095723.C1706@kivc.vstu.vinnica.ua>
-Mail-Followup-To: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010605123755.B5998@kivc.vstu.vinnica.ua> <20010606215725.H27260@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
+	id <S264349AbRFGHZd>; Thu, 7 Jun 2001 03:25:33 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:43271 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S264348AbRFGHZZ>; Thu, 7 Jun 2001 03:25:25 -0400
+Message-ID: <3B1F2BFE.28E7CCF0@idb.hist.no>
+Date: Thu, 07 Jun 2001 09:23:42 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Derek Glidden <dglidden@illusionary.com>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com> <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com> <3B1D927E.1B2EBE76@uow.edu.au> <20010605231908.A10520@illusionary.com> <3B1DEAC7.43DEFA1C@idb.hist.no> <3B1E437C.D5D339EB@illusionary.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010606215725.H27260@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Wed, Jun 06, 2001 at 09:57:25PM +0200
-X-Logged: Logged by kivc.vstu.vinnica.ua as f576vN701778 at Thu Jun  7 09:57:23 2001
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 06, 2001 at 09:57:25PM +0200, Erik Mouw wrote:
+Derek Glidden wrote:
+> 
+> Helge Hafting wrote:
+> >
+> > The drive is inactive because it isn't needed, the machine is
+> > running loops on data in memory.  And it is unresponsive because
+> > nothing else is scheduled, maybe "swapoff" is easier to implement
+> 
+> I don't quite get what you're saying.  If the system becomes
+> unresponsive because  the VM swap recovery parts of the kernel are
+> interfering with the kernel scheduler then that's also bad because there
+> absolutely *are* other processes that should be getting time, like the
+> console windows/shells at which I'm logged in.  If they aren't getting
+> it specifically because the VM is preventing them from receiving
+> execution time, then that's another bug.
+> 
+Sure.  The kernel doing a big job without scheduling anything 
+is a problem.
 
->> Is it possible by any means to isolate any given process, so that
->> it'll be unable to crash system. 
-> You just gave a nice description what an OS kernel should do :)
-* Sigh * :-)
+> I'm not familiar enough with the swapping bits of the kernel code, so I
+> could be totally wrong, but turning off a swap file/partition should
+> just call the same parts of the VM subsystem that would normally try to
+> recover swap space under memory pressure.  
 
-> > Please, supply ANY suggestions.
-> > 
-> > My ideas:
-> > 
-> > create some user, and decrease his ulimits up to miminum of 1 process,
-> > 0 core size, appropriate memory/ etc.
-> That's indeed the way to do it.
-Byt how should I restrict him open socket and send some data (my IP,
-for example) somewhere ??
+A problem with this is that normal paging-in is allowed to page other
+things out as well.  But you can't have that when swap is about to
+be turned off.  My guess is that swapoff functionality was perceived to
+be so seldom used that they didn't bother too much with scheduling 
+or efficiency.
 
-I thinks I'll end up writing kernel module which will restrict all
-ioctls but few {mmap, brk, geteuid, geuid, etc..} for given UID.
+I don't have the same problem myself though.  Shutting down with
+30M or so in swap never take unusual time on 2.4.x kernels here,
+with a 300MHz processor.  I did a test while typing this letter,
+almost filling the 96M swap partition with 88M.  swapoff
+took 1 minute at 100% cpu.  This is long, but the machine was responsive
+most of that time.  I.e. no worse than during a kernel compile.
+The machine froze 10 seconds or so at the end of the minute, I can
+imagine that biting with bigger swap.
 
-
-thank, thought.
+Helge Hafting

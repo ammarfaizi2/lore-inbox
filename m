@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278412AbRJMVNZ>; Sat, 13 Oct 2001 17:13:25 -0400
+	id <S278411AbRJMVGZ>; Sat, 13 Oct 2001 17:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278413AbRJMVNP>; Sat, 13 Oct 2001 17:13:15 -0400
-Received: from rj.SGI.COM ([204.94.215.100]:11686 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S278412AbRJMVNK>;
-	Sat, 13 Oct 2001 17:13:10 -0400
-Message-ID: <3BC8AE84.48808982@sgi.com>
-Date: Sat, 13 Oct 2001 14:13:40 -0700
-From: L A Walsh <law@sgi.com>
-Organization: Trust Technology, Core Linux, SGI
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S278412AbRJMVGG>; Sat, 13 Oct 2001 17:06:06 -0400
+Received: from nsd.netnomics.com ([216.71.84.35]:43824 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S278411AbRJMVFz>; Sat, 13 Oct 2001 17:05:55 -0400
+Date: Sat, 13 Oct 2001 16:06:18 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: "peter k." <spam-goes-to-dev-null@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: iptables v1.2.3: can't initialize iptables table `filter': Module is wrong version
+In-Reply-To: <20011013135507.B9856@vitelus.com>
+Message-ID: <Pine.LNX.3.96.1011013160400.28071B-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Maximum size of ext2 files on ia32 is?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was hesitantly and pleasantly surprised when I was copying across an
-unmounted 8G unmounted file partition via dump to an NFS partition.  Until
-August, regular backups splitted the dump image (used the "-M" flag to
-dump) to into 4 2G files.  My backup disk died so it took some time to
-replace it and just got around to doing so (I know, running w/out backups
-is like unprotected sex, but lets ignore that critique).  So I startup
-dump and it produced 1 9G file.  I was a bit concerned that NFS had
-a screwed up mapping of the local file, but the server confirmed the file
-size.  'du' confirmed it was 8.8G, I even unmounted, forced an fsck on it
-and remounted -- still 8.8G.  I was allocating special partitions to
-backup non-dump compatible partitions (win) to the server but find now they
-can be backed up into a single 8G+ file.  I notice some utils from my latest
-suse72 install (stat) don't know about it either:
-> du -sh *
-14M     BOOT_101101.dump
-8.8G    HOME_101201.dump.001
-...
-> stat HOME_101201.dump.001
-HOME_101201.dump.001: Value too large for defined data typ
+On Sat, 13 Oct 2001, Aaron Lehmann wrote:
+> On Sat, Oct 13, 2001 at 01:05:33PM +0200, peter k. wrote:
+> > iptables keeps telling me that whenever i run it although i got the latest
+> > kernel, latest iptables and all modules required for iptables are loaded (it
+> > also doesnt work when i compile them into the kernel)!
+> > anyone got an idea how to fix this?
+> 
+> did you compile your iptables against the version/configuration of the
+> kernel you are trying to run?
 
-So, I have been a bit busy and distracted and all, but when did large 
-file support go in for the i386 arch and what is the new max files size?
+I am getting the same thing here.  I am using iptables 1.2.2 SRPMS from
+Mandrake 8.1, compiled against the latest 2.4 kernel.  Same message as
+in $subject.  I poked through the source and found that "module is wrong
+version" is the standard text message for the error code EINVAL, which
+is rather silly and uninformative.
 
-Congratulations and great work for addressing that limitation!  
+I built ipchains compatibility module, and am about to install ipchains
+and see if I can get things working that way...
 
-Linda
+	Jeff
 
-p.s. -- I hope this is a real feature and not considered a bug...:-)
 
---  -    _    -    _    -    _    -    _    -    _    -    _    -    _    -
-L A Walsh, law at sgi dot com     | Senior Engineer
-01-650-933-5338                   | Trust Technology, Core Linux, SGI
+
+

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUE0RkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUE0Rl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264914AbUE0RkM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUE0RkM
+	id S264911AbUE0Rl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264834AbUE0Rla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:40:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2749 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264902AbUE0Rj6 (ORCPT
+	Thu, 27 May 2004 13:41:30 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:65199 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S264902AbUE0Rl0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:39:58 -0400
-Subject: Re: [2.6.7-rc1-mm1] lp int copy_to_user replaced
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: FabF <fabian.frederick@skynet.be>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1085679127.2070.21.camel@localhost.localdomain>
-References: <1085679127.2070.21.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AG0XfFGcDRx7mygzyzQZ"
-Organization: Red Hat UK
-Message-Id: <1085679588.7179.9.camel@laptop.fenrus.com>
+	Thu, 27 May 2004 13:41:26 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on
+	Alpha
+Date: Thu, 27 May 2004 17:41:25 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c95985$gd7$1@news.cistron.nl>
+References: <20040527194920.A1709@jurassic.park.msu.ru> <1085675193.7179.5.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 27 May 2004 19:39:48 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1085679685 16807 62.216.29.200 (27 May 2004 17:41:25 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1085675193.7179.5.camel@laptop.fenrus.com>,
+Arjan van de Ven  <arjanv@redhat.com> wrote:
+>On Thu, 2004-05-27 at 17:49, Ivan Kokshaysky wrote:
+>> Spinning the disks down across a 'halt' on Alpha is even
+>> worse than doing that on reboot on i386 (assuming the
+>> boot device is IDE disk).
+>
+>how do you flush the disks' writecache then? Halting the disk seems to
+>be the only reliable way to do so.
 
---=-AG0XfFGcDRx7mygzyzQZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Alpha, Sun and other hardware, "halt" puts you into the firmware
+monitor. It doesn't actually turn the machine off, so it's not
+critical to flush the write cache of the disk - the only time
+that is really neccesary is right before poweroff, in all other
+cases the disk will expire the write cache itself.
 
-On Thu, 2004-05-27 at 19:32, FabF wrote:
-> Andrew,
->=20
-> 	Here's a patch to have standard __put_user for integer transfers in lp
-> driver.Is it correct ?
-
-no it's not. You need to use put_user() not __put_user() at least, to
-make sure the destination address is checked to not be in kernel
-space...
-
-
---=-AG0XfFGcDRx7mygzyzQZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAtifkxULwo51rQBIRAibNAJ9wMWIdshwThB+Fbd5D4r4XiKpCSwCgoFB8
-utrT1/fBwaXpX2oSrNHWPK0=
-=hbIS
------END PGP SIGNATURE-----
-
---=-AG0XfFGcDRx7mygzyzQZ--
+Mike.
 

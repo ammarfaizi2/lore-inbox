@@ -1,55 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135902AbRDZUAf>; Thu, 26 Apr 2001 16:00:35 -0400
+	id <S135908AbRDZUEf>; Thu, 26 Apr 2001 16:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135477AbRDZUAT>; Thu, 26 Apr 2001 16:00:19 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:50827 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id <S135902AbRDZUAE>;
-	Thu, 26 Apr 2001 16:00:04 -0400
-Date: Thu, 26 Apr 2001 12:59:53 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Alexandru Barloiu Nicolae <axl@light.kappa.ro>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <001b01c0ce88$5632fc70$e8c6e7c1@scream>
-Message-ID: <Pine.LNX.4.33.0104261259360.3851-100000@twin.uoregon.edu>
+	id <S135905AbRDZUEZ>; Thu, 26 Apr 2001 16:04:25 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:22610 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S135477AbRDZUES>; Thu, 26 Apr 2001 16:04:18 -0400
+Date: Thu, 26 Apr 2001 20:48:26 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+Reply-To: Bjorn Wesen <bjorn@sparta.lu.se>
+To: Padraig Brady <padraig@antefacto.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ramdisk/tmpfs/ramfs/memfs ?
+In-Reply-To: <3AE879AE.387D3B78@antefacto.com>
+Message-ID: <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yeah two hour upgrade window today...
+On Thu, 26 Apr 2001, Padraig Brady wrote:
+> I'm working on an embedded system here which has no harddisk.
+> So, I can't swap to disk and need to have /var & /tmp in RAM.
+> I'm confused between the various options for in RAM file-
+> systems. At the moment I've created a ramdisk and made an 
+> ext2 partition in it (which is compressed as I applied the 
+> e2compr patch), which is working fine. Anyway questions:
 
-joelja
+Ouch.. yes you had to do stuff like that in the old days but it's very 
+cumbersome and inefficient compared to ramfs for what you're trying to do.
 
-On Thu, 26 Apr 2001, Alexandru Barloiu Nicolae wrote:
+> 1. I presume the kernel is clever enough to not cache any
+>    files from these filesystems? Would it ever need to?
 
-> is ftp.kernel.org down or is just my connections fault ?
->
-> axl
->
->
-> ______________________________________________________
-> support slackware anyway posible paypal@slackware.com anyone ?
->    http://www.slackware.com/forum/read.php?f=5&i=7887&t=7887
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+You always need to "cache" pages read. Because a page is the smallest
+possible granularity for the MMU, and a block-based filesystem does not
+need to be page-aligned, so it's impossible to do it otherwise in a
+general way.
 
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+> 3. If I've no backing store (harddisk?) is there any advantage 
+>    of using tmpfs instead of ramfs? Also does tmpfs need a 
+>    backing store?
+
+I don't know what tmpfs does actually, but if it is like you suggest (a
+ramfs that can be swapped out ?) then you don't need it obviously (since
+you don't have any swap).
+
+ramfs simply inserts any files written into the kernels cache and tells it
+not to forget it. it can't get much more simple than that.
+
+> 5. Can you set size limits on ramfs/tmpfs/memfs?
+
+i don't think you can set a limit in the current ramfs implementation but
+it would not be particularly difficult to make it work I think
+
+> 6. Is a ramdisk resizable like the others. If so, do you have
+>    to delete/recreate or umount/resize a fs (e.g. ext2) every
+>    time it's resized? Do ramfs/tmpfs/memfs do this transparently?
+>    Are ramdisks resizable in kernel 2.2?
+
+ramfs does not need any "resizing" because there is no filesystem behind
+it. there is only the actual file data and metadata in the cache itself.
+if you delete a file, it disapperas, if you create a new one new pages are
+brought in.
+
+> 7. What's memfs?
+> 8. Is there a way I can get transparent compression like I now
+>    have using a ramdisk+ext2+e2compr with ramfs et al?
+
+you could try using jffs2 on a RAM-simulated MTD partition. i think that
+would work but i have not tried it..
+
+> 9. Apart from this transparent compression, is there any other
+>    functionality ext2 would have over ramfs for e.g, for /tmp
+>    & /var? Also would ramfs have less/more speed over ext2?
+
+ramfs has all the bells and whistles you need except size limiting. and
+obviously its faster than simulating a harddisk in ram and using ext2 on
+it.. 
+
+-bw
 
 

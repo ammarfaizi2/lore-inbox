@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261475AbSJMJLF>; Sun, 13 Oct 2002 05:11:05 -0400
+	id <S261476AbSJMJ1K>; Sun, 13 Oct 2002 05:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbSJMJLF>; Sun, 13 Oct 2002 05:11:05 -0400
-Received: from 62-190-219-54.pdu.pipex.net ([62.190.219.54]:10756 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261475AbSJMJLE>; Sun, 13 Oct 2002 05:11:04 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210130925.g9D9Ptj2004902@darkstar.example.net>
-Subject: ALSA still broken in 2.5.42
-To: linux-kernel@vger.kernel.org
-Date: Sun, 13 Oct 2002 10:25:55 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261477AbSJMJ1K>; Sun, 13 Oct 2002 05:27:10 -0400
+Received: from pD951B340.dip.t-dialin.net ([217.81.179.64]:10126 "EHLO
+	lisa.wg.de") by vger.kernel.org with ESMTP id <S261476AbSJMJ1J>;
+	Sun, 13 Oct 2002 05:27:09 -0400
+Message-ID: <3DA93DC5.9050304@gmx.de>
+Date: Sun, 13 Oct 2002 11:32:53 +0200
+From: Constantin Loizides <consti75@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en, de, de-at, de-de, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.42 module tmscsi
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile 2.5.42 with:
+Hi,
+I am not able to compile the driver tmscsim.c
+for my Tekram DC-390 adapter. It seems that
+some porting from the 2.4.x kernels has to
+be done (see scsiiom.c and Documentation/DMA
+-mapping.txt). Is there someone working    
+on that?      
+If not, are there some good starting
+points to do it myself?
 
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SBAWE=y
+       
+Constantin
 
-fails:
 
-  Generating build number
-make -f init/Makefile 
-  Generating include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-sound/built-in.o: In function `snd_emu8000_new':
-sound/built-in.o(.text.init+0x13b3): undefined reference to `snd_seq_device_new'
-make: *** [vmlinux] Error 1
-
-Works fine when I configure the dummy sound card device instead.
-
-Same with 2.5.41 and 2.5.40.
-
-John.

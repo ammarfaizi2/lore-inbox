@@ -1,100 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUI0JCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUI0JEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUI0JCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 05:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUI0JCN
+	id S266465AbUI0JEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 05:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUI0JEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 05:02:13 -0400
-Received: from gate.crashing.org ([63.228.1.57]:28811 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266474AbUI0JBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 05:01:47 -0400
-Subject: [PATCH] ppc64: Remote some userland-only stuff from kernel header
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1096275593.1071.32.camel@gaston>
+	Mon, 27 Sep 2004 05:04:51 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:11648 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S266467AbUI0JDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 05:03:42 -0400
+Date: Mon, 27 Sep 2004 19:03:43 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: davem@davemloft.net, jgarzik@pobox.com, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: strange network slowness in 2.6 unless pingflooding
+Message-ID: <20040927090342.GA1794@zip.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 27 Sep 2004 18:59:54 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hi,
 
-include/asm-ppc64/systemcfg.h defines a structure that currently gets 
-exposed to userland via /proc, and which I intend to deprecate in the
-near future once I have better alternatives available. In the meantime,
-this patch removes a bunch of stuff from this file that were only defined
-for non-__KERNEL__, like an inline function for getting to that struture
-via /proc, and some CPU & platform type definitions that were duplicates
-of the ones in asm-ppc64/processor.h. These things have nothing to do in
-a kernel header.
+This is still happening. I ran the same set of tests on a totally
+different network, with my xircom  realport ethernet card (tulip
+driver - 16bit) and from linux to linux and windows to linux. Scrolling
+through a message in mutt eventually slows down and if I lift my finger
+off the enter key whilst it's slow the scrolling keeps going, as if it
+was all bufferd. If I do a pingflood (ping -f) from a machine to my
+laptop it's all fine.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+I am also now running 2.6.9-rc1-mm4.
 
-===== include/asm-ppc64/systemcfg.h 1.3 vs edited =====
---- 1.3/include/asm-ppc64/systemcfg.h	2004-06-27 17:19:24 +10:00
-+++ edited/include/asm-ppc64/systemcfg.h	2004-09-27 18:15:45 +10:00
-@@ -59,54 +59,7 @@
- 
- #ifdef __KERNEL__
- extern struct systemcfg *systemcfg;
--#else
--
--/* Processor Version Register (PVR) field extraction */
--#define PVR_VER(pvr)  (((pvr) >>  16) & 0xFFFF) /* Version field */
--#define PVR_REV(pvr)  (((pvr) >>   0) & 0xFFFF) /* Revison field */
--
--/* Processor Version Numbers */
--#define PV_NORTHSTAR    0x0033
--#define PV_PULSAR       0x0034
--#define PV_POWER4       0x0035
--#define PV_ICESTAR      0x0036
--#define PV_SSTAR        0x0037
--#define PV_POWER4p      0x0038
--#define PV_GPUL		0x0039
--#define PV_POWER5	0x003a
--#define PV_970FX	0x003c
--#define PV_630          0x0040
--#define PV_630p         0x0041
--
--/* Platforms supported by PPC64 */
--#define PLATFORM_PSERIES      0x0100
--#define PLATFORM_PSERIES_LPAR 0x0101
--#define PLATFORM_ISERIES_LPAR 0x0201
--#define PLATFORM_POWERMAC     0x0400
--
--/* Compatibility with drivers coming from PPC32 world */
--#define _machine	(systemcfg->platform)
--#define _MACH_Pmac	PLATFORM_POWERMAC
--
--
--static inline volatile struct systemcfg *systemcfg_init(void)
--{
--	int fd = open("/proc/ppc64/systemcfg", O_RDONLY);
--	volatile struct systemcfg *ret;
--
--	if (fd == -1)
--		return 0;
--	ret = mmap(0, sizeof(struct systemcfg), PROT_READ, MAP_SHARED, fd, 0);
--	close(fd);
--	if (!ret)
--		return 0;
--	if (ret->version.major != SYSTEMCFG_MAJOR || ret->version.minor < SYSTEMCFG_MINOR) {
--		munmap((void *)ret, sizeof(struct systemcfg));
--		return 0;
--	}
--	return ret;
--}
--#endif /* __KERNEL__ */
-+#endif
- 
- #endif /* __ASSEMBLY__ */
- 
+Help? :/
 
+----- Forwarded message from CaT <cat@zip.com.au> -----
 
+Date: 	Thu, 19 Aug 2004 12:03:40 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Whacky 2.6 network behaviour
+Organisation: Furball Inc.
+X-Mailing-List: 	linux-kernel@vger.kernel.org
 
+I have an SSH session across a 100mb network from my desktop to my
+laptop. It's mostly ok but when I scroll line-by-line on a message
+with mutt it can fo really fast for a bit and then slows down to
+almost a line per second and keeps going after I take my finger off
+the enter key. 
+
+If I pingflood the laptop from the desktop things improve drastically
+and I only get a few freezes here and there. If I pingflood with 60000
+byte packets things get a little better but then a severe loss of
+pings occurs. Each time the pings are lost my SSH connection also
+freezes.
+
+If I ping a different host from my desktop (like my gateway) I get no
+pingloss with 60000 byte packets (though this doesn't help with the
+scrolling issues. :)
+
+If I ping my desktop from my laptop with 60000 byte packets, the freezes
+are totally gone and I get no pingloss. If I ping my gateway from my
+laptop with 60000 byte packets I also get no pingloss and the freezes
+are also gone.
+
+My desktop is using kernel 2.6.7, my laptop 2.6.8.1 and the gw 2.4.27.
+Cards in use are: desktop: 3com 3c59x; laptop: e100 (intels); gw:
+ e100 (intels). CPUs are: desktop: P3 600; laptop: P3 700; gw: p3 500.
+
+(Hmm. Spoke too soon. There is still SOME packet loss but it's more a
+freak thing rather then a repeated occurance - I've only seen it once
+for the last two cases and I've been flood pinging for the laptop for
+the majority of this message).
+
+I'll be more then happy to do any debugging/diag but I need to know
+what is needed and, if need be, how to get it so if any help is requried
+please shout and I'll get on it ASAP.
+
+-- 
+    Red herrings strewn hither and yon.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+
+-- 
+    Red herrings strewn hither and yon.

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270152AbTG0JbL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 05:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270620AbTG0JbL
+	id S270700AbTG0Jh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 05:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270701AbTG0Jh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 05:31:11 -0400
-Received: from p4-7036.uk2net.com ([213.232.95.37]:17572 "EHLO
-	uptime.churchillrandoms.co.uk") by vger.kernel.org with ESMTP
-	id S270152AbTG0JbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 05:31:09 -0400
-Subject: Re: [2.6.0-test1] yenta_socket.c:yenta_get_status returns bad
-	value compared to 2.4
-From: Stefan Jones <cretin@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-pcmcia@lists.infradead.org
-In-Reply-To: <1059244318.3400.17.camel@localhost>
-References: <1059244318.3400.17.camel@localhost>
-Content-Type: text/plain
-Organization: Gentoo Linux
-Message-Id: <1059299182.3383.18.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 27 Jul 2003 10:46:22 +0100
+	Sun, 27 Jul 2003 05:37:56 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:52884
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270700AbTG0Jhm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 05:37:42 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Date: Sun, 27 Jul 2003 19:57:01 +1000
+User-Agent: KMail/1.5.2
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307271112570.7547-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0307271112570.7547-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307271957.01597.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OSDL wrote:
-> 
-> Which is interesting in itself. It's entirely possible that we should 
-> just ignore the 16-bit status when it comes to the SS_POWERON logic. 
-> 
-> 
-> Does the card actually _work_ when you do your hack? Or does it just 
-> stop the hang? 
-> 
-It just stopped the hang, which caused me to think I was onto something.
+On Sun, 27 Jul 2003 19:24, Ingo Molnar wrote:
+> On Sat, 26 Jul 2003, Felipe Alfaro Solana wrote:
+> > [...] I feel that Con and Ingo work is starting to collide.
+>
+> they do collide only on the patch level - both change the same code.
+> Otherwise, most of Con's tunings/changes are still valid with my patches
+> applied - and i'd more than encourage Con's work to continue! Watching the
+> tuning work i got the impression that the problem areas are suffering from
+> a lack of infrastructure, not from a lack of tuning. So i introduced 3 new
+> items: accurate statistics, on-runqueue boosting and timeslice
+> granularity. The fact that these items improved certain characteristics
+> (and fixed a couple of corner cases like test-starve.c) prove that it's a
+> step in the right direction. It's definitely not the final step.
 
-I will continue my debugging and take this to the pcmcia list,
+Thanks Ingo. I will continue then and stepwise make use of the extra 
+infrastructure you've made available when I can decide how best to benefit 
+from it.
 
-so far with printk's and early returns I have got the following:
-
-The ds_ioctl's are triggering the hang,
-
-ioctl calls to DS_ADJUST_RESOURCE_INFO and DS_GET_STATUS work fine (all
-others are quoted out and are not called before the hang )
-
-But the first call to DS_VALIDATE_CIS causes the machine to hang.
-I have tracked down the hang to 
-
-pcmcia_get_first_tuple called from
-pcmcia_validate_cis called from
-ds_ioctl
-
-in cistpl.c
-
-Will narrow it down some more today.
-
-PS. the card is:
-Netgear 802.11b wireless PC card 16-bit PCMCIA MA401
-( which works fine with 2.4.21 )
-
-For you pcmcia ppl:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0166.html
-( hardware details )
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0690.html
-( my misdiagnosis )
-
-Any tips, known problem?
-
-Stefan
+Con
 

@@ -1,111 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281158AbRKLW6p>; Mon, 12 Nov 2001 17:58:45 -0500
+	id <S281165AbRKLXEs>; Mon, 12 Nov 2001 18:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281161AbRKLW6f>; Mon, 12 Nov 2001 17:58:35 -0500
-Received: from a59178.upc-a.chello.nl ([62.163.59.178]:24328 "EHLO
-	www.unternet.org") by vger.kernel.org with ESMTP id <S281158AbRKLW6T>;
-	Mon, 12 Nov 2001 17:58:19 -0500
-Date: Mon, 12 Nov 2001 23:56:42 +0100
-From: Frank de Lange <lkml-frank@unternet.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Frank de Lange <lkml-frank@unternet.org>, linux-kernel@vger.kernel.org
-Subject: Re: Abysmal interactive performance on 2.4.linus
-Message-ID: <20011112235642.A17544@unternet.org>
-In-Reply-To: <20011112205551.A14132@unternet.org> <3BF02BA4.D7E2D70E@mandrakesoft.com>
+	id <S281162AbRKLXEh>; Mon, 12 Nov 2001 18:04:37 -0500
+Received: from marine.sonic.net ([208.201.224.37]:52024 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S281161AbRKLXE2>;
+	Mon, 12 Nov 2001 18:04:28 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Mon, 12 Nov 2001 15:04:21 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: File System Performance
+Message-ID: <20011112150420.B6749@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BF04926.2080009@free.fr> <Pine.LNX.4.33.0111121411410.7555-100000@penguin.transmeta.com> <3BF04ED8.8A9280B5@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BF02BA4.D7E2D70E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Nov 12, 2001 at 03:05:56PM -0500
+In-Reply-To: <3BF04ED8.8A9280B5@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 03:05:56PM -0500, Jeff Garzik wrote:
-> Can you try 2.4.13ac6 (not 7/8), and 2.2.20, and post a comparison?
+On Mon, Nov 12, 2001 at 02:36:08PM -0800, Andrew Morton wrote:
+>   /* Detect if outputting to "/dev/null".  */
+>   {
+>     static char const dev_null[] = "/dev/null";
+>     struct stat dev_null_stat;
+> 
+>     dev_null_output =
+>       (strcmp (archive_name_array[0], dev_null) == 0
+>        || (! _isrmt (archive)
+>            && stat (dev_null, &dev_null_stat) == 0
+>            && S_ISCHR (archive_stat.st_mode)
+>            && archive_stat.st_rdev == dev_null_stat.st_rdev));
+>   }
+> 
+> It's actually a bug.  I may _want_ an ISREG /dev/null...
 
-Here's the results from some tests I did:
+Doesn't the S_ISCHR() handle that case?
 
-2.2.20
-======
-without filesystem activity
-no slowdowns observed
-time ls -al /usr/|sort -k 5 -n
-real	0m0.121s
-user	0m0.000s
-sys	0m0.090s
-
-with filesystem activity on ext2
-no slowdowns observed
-time ls -al /opt/|sort -k 5 -n
-real	0m0.079s
-user	0m0.010s
-sys	0m0.100s
-
-2.4.13-ac5
-==========
-no slowdowns observed
-without filesystem activity
-time ls -al /usr/|sort -k 5 -n
-real	0m0.142s
-user	0m0.000s
-sys	0m0.000s
-
-with filesystem activity on ext2
-no slowdowns observed
-time ls -al /opt/|sort -k 5 -n
-real	0m0.022s
-user	0m0.020s
-sys	0m0.010s
-
-with filesystem activity on reiserfs
- - it took 31 seconds to just open this small ( < 1 kb) text file (which
-   resides in my home directory, on an ext2 filesystem) in vi...
-time ls -al /usr/|sort -k 5 -n
-real    0m6.136s
-user    0m0.020s
-sys     0m0.020s
-
-
-2.4.15-pre4
-===========
-without filesystem activity
-no slowdowns observed
-time ls -al /usr/|sort -k 5 -n
-real	0m0.081s
-user	0m0.010s
-sys	0m0.010s
-
-with filesystem activity on ext2
-no slowdowns observed
-time ls -al /usr/|sort -k 5 -n
-real    0m0.146s
-user    0m0.000s
-sys     0m0.020s
-
-with filesystem activity on reiserfs
-system behaviour erratic, some slowdowns
-time ls -al /opt|sort -k5 -n
-real    0m13.232s
-user    0m0.020s
-sys     0m0.010s
-
-Seems that reiserfs is the common factor here, at least on my box. This is a 35
-GB reiserfs filesystem, app 80% used, both large and small files.
-
-As said in my previous message, the numbers themselves don't mean squat. It is
-the large delays (the fact that user+sys <<< real) which are the problem here.
-
-Any other magic anyone wants me to perform? Hans, you reading this?
-
-Cheers//Frank
+mrc
 -- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \ lkml-frank@unternet.org  /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

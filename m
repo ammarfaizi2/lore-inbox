@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbUKLWYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbUKLW2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbUKLWYy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 17:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbUKLWXI
+	id S262645AbUKLW2A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 17:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbUKLW2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 17:23:08 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:54211 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262636AbUKLWU7 (ORCPT
+	Fri, 12 Nov 2004 17:28:00 -0500
+Received: from waste.org ([209.173.204.2]:62393 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262647AbUKLW1q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 17:20:59 -0500
-Message-Id: <200411122220.iACMKpjw014426@death.nxdomain.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-cc: radheka.godse@intel.com, bonding-devel@lists.sourceforge.net,
-       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Bonding-devel][PATCH]Zero Copy Transmit Support (Update) 
-In-Reply-To: Message from "David S. Miller" <davem@davemloft.net> 
-   of "Fri, 12 Nov 2004 13:49:18 PST." <20041112134918.305379c4.davem@davemloft.net> 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.1
-Date: Fri, 12 Nov 2004 14:20:51 -0800
-From: Jay Vosburgh <fubar@us.ibm.com>
+	Fri, 12 Nov 2004 17:27:46 -0500
+Date: Fri, 12 Nov 2004 14:27:11 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] include ordering breaks sysrq on 8250 serial
+Message-ID: <20041112222710.GD8040@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller <davem@davemloft.net> wrote:
->That's definitely a good start.
->
->It does need to be fixed to enforce the usual rules about
->illegal combinations.  And his code is going to include
->all sorts of weird things like VLAN offload which I wonder
->if works correctly with the current bonding driver? :)
+This has been pestering me for a couple days, finally dug into it:
 
-	The existing code should handle VLANs correctly, and the patch
-excludes the VLAN related bits from the dev->features update.
+serial_8250.h was including serial_core.h before SUPPORT_SYSRQ was
+getting set up. I suspect this problem exists elsewhere. Tested
+against latest bk snapshot.
 
->The two rules are codified in register_netdevice() as follows:
-[...]
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-	Would it be preferrable to duplicate that logic in bonding, or
-push it out to an inline or some such?
+Index: l-bk20/drivers/serial/8250.c
+===================================================================
+--- l-bk20.orig/drivers/serial/8250.c	Fri Nov 12 13:03:25 2004
++++ l-bk20/drivers/serial/8250.c	Fri Nov 12 14:19:04 2004
+@@ -20,6 +20,11 @@
+  *  membase is an 'ioremapped' cookie.
+  */
+ #include <linux/config.h>
++
++#if defined(CONFIG_SERIAL_8250_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
++#define SUPPORT_SYSRQ
++#endif
++
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/tty.h>
+@@ -37,10 +42,6 @@
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ 
+-#if defined(CONFIG_SERIAL_8250_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
+-#define SUPPORT_SYSRQ
+-#endif
+-
+ #include <linux/serial_core.h>
+ #include "8250.h"
+ 
 
-	-J
 
----
-	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com
+-- 
+Mathematics is the supreme nostalgia of our time.

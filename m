@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbUCGStj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 13:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUCGStj
+	id S262302AbUCGStP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 13:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbUCGStP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 13:49:39 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:52027 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262304AbUCGStg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 13:49:36 -0500
-Date: Sun, 7 Mar 2004 19:40:11 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Daniel Egger <degger@fhm.edu>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: Re: [2.6 patch] MAINTAINERS: remove LAN media entry
-Message-ID: <20040307184011.GD2002@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Daniel Egger <degger@fhm.edu>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-	jgarzik@pobox.com, linux-net@vger.kernel.org
-References: <20040226225131.GX5499@fs.tum.de> <A93036A2-68C5-11D8-A46E-000A9597297C@fhm.edu> <20040227205446.GZ5499@fs.tum.de> <DC71BC17-69DC-11D8-BD1F-000A9597297C@fhm.edu> <20040307155146.GN22479@fs.tum.de> <20040307162523.GA2440@mars.ravnborg.org> <20040307163245.GO22479@fs.tum.de>
-Mime-Version: 1.0
+	Sun, 7 Mar 2004 13:49:15 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:32018 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262302AbUCGStO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 13:49:14 -0500
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.26-pre2
+References: <200403071619.i27GJkOZ003480@eeyore.valparaiso.cl>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 07 Mar 2004 10:49:05 -0800
+In-Reply-To: <200403071619.i27GJkOZ003480@eeyore.valparaiso.cl>
+Message-ID: <52y8qcv6fy.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040307163245.GO22479@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 07 Mar 2004 18:49:05.0792 (UTC) FILETIME=[DDD90000:01C40474]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07, 2004 at 05:32:46PM +0100, Adrian Bunk wrote:
-> In 2.6.4-rc1-mm2, there's exactly one entry marked "Unmaintained"
-> (PCMCIA SUBSYSTEM) and there are very few marked "Orphan".
-> 
-> I don't have a strong opinion on this, but my impresion was that usually 
-> unmaintained device drivers are not listed in MAINTAINERS.
+    Eyal> In standard C we declare all variables at the top of a
+    Eyal> function. While some compilers allow extension, it is not a
+    Eyal> good idea to get used to them if we want portable code.
 
-OK - we should follow general practice.
+    Horst> Oh, come on. This is _kernel_ code, it won't ever be
+    Horst> compiled with anything not GCC-compatible.
 
-	Sam
+gcc 2.95 rejects declarations after code.  The kernel, especially
+kernel 2.4, shouldn't use this particular extension, even if gcc 3
+accepts it.
+
+ - R.
+

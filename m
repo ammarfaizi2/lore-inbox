@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbUKDRfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbUKDRh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbUKDRfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbUKDRfZ
+	id S262306AbUKDRh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbUKDRh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:35:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42699 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262311AbUKDReu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:34:50 -0500
-Date: Thu, 4 Nov 2004 12:29:25 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Germano <germano.barreiro@cyclades.com>, greg@kroah.com,
-       Scott_Kilau@digi.com, linux-kernel@vger.kernel.org
-Subject: Re: patch for sysfs in the cyclades driver
-Message-ID: <20041104142925.GB9431@logos.cnet>
-References: <1099487348.1428.16.camel@tsthost> <20041104102505.GA8379@logos.cnet> <52fz3po8k2.fsf@topspin.com>
+	Thu, 4 Nov 2004 12:37:27 -0500
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:21124 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S262306AbUKDRhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:37:13 -0500
+Date: Thu, 4 Nov 2004 10:37:12 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Subject: [PATCH 2.6.10-rc1] Add __KERNEL__ to <linux/crc-ccitt.h>
+Message-ID: <20041104173712.GA13456@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <52fz3po8k2.fsf@topspin.com>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 08:58:21AM -0800, Roland Dreier wrote:
->     Marcelo> The problem was class_simple only contains the "dev"
->     Marcelo> attribute. You can't add other attributes to it.
-> 
-> I believe, based on the comment in class_simple.c:
-> 
->   Any further sysfs files that might be required can be created using this pointer.
-> 
-> and the implementation in in drivers/scsi/st.c, that there's no
-> problem adding attributes to a device in a simple class.  You can just
-> use class_set_devdata() on your class_device to set whatever context
-> you need to get back to your internal structures, and then use
-> class_device_create_file() to add the attributes.
-> 
-> I assume this is OK (since there is already one in-kernel driver doing
-> it), but Greg, can you confirm that it's definitely OK for a driver to
-> use class_set_devdata() on a class_device from class_simple_device_add()?
+Hello.  The following adds a __KERNEL__ check to <linux/crc-ccitt.h>.
+The problem is that the ppp package includes <linux/ppp_defs.h> via
+<net/ppp_defs.h>, which in turn gets <linux/crc-ccitt.h>.
 
-Hi Roland,
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-Oh thanks, I didnt knew the existance of such possibily.
+--- 1.2/include/linux/crc-ccitt.h	2004-07-11 01:54:19 -07:00
++++ edited/include/linux/crc-ccitt.h	2004-11-04 10:34:24 -07:00
+@@ -1,5 +1,6 @@
+ #ifndef _LINUX_CRC_CCITT_H
+ #define _LINUX_CRC_CCITT_H
++#ifdef __KERNEL__
+ 
+ #include <linux/types.h>
+ 
+@@ -12,4 +13,5 @@
+ 	return (crc >> 8) ^ crc_ccitt_table[(crc ^ c) & 0xff];
+ }
+ 
++#endif /* __KERNEL__ */
+ #endif /* _LINUX_CRC_CCITT_H */
 
-I once asked here on the list:
-
----------
-
-Hope this is not a FAQ.
-
-I want to export some read-only attributes (statistics) from cyclades.c char
-driver to userspace via sysfs.
-
-I can't figure out the right place to do it - I could create a class under
-/sys/class/cyclades for example, but that doesnt sound right since this
-is not a "class" of device, but a device itself.
-
-Hooking the statistics into /sys/class/tty/ttyC$/ sounds reasonable, but
-its not possible it seems because "tty" is a class_simple class, which only implements
-the "dev" attribute.
-
------- Greg answer was:
-
-For a driver only attribute, you want them to show up in the place for
-the driver (like under /sys/bus/pci/driver/MY_FOO_DRIVER/).  To do that
-use the DRIVER_ATTR() and the driver_add_file() functions.  For
-examples, see the other drivers that use these functions.
-
-
-But I hope you are right - /sys/class/tty/tty$/ 
-sounds the correct place for those files - I thought a "class_tty" 
-class was required for new attributes. 
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

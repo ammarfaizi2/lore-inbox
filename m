@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269142AbUJKSBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUJKSEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269142AbUJKSBo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 14:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269160AbUJKSBn
+	id S269096AbUJKSEi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 14:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUJKSEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 14:01:43 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:4038 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S269142AbUJKSBm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 14:01:42 -0400
-Message-ID: <416ACA91.6040405@drzeus.cx>
-Date: Mon, 11 Oct 2004 20:01:53 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 14:04:38 -0400
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:4011 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S269096AbUJKSDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 14:03:33 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: CDROM support in ata_piix?
+From: Doug McNaught <doug@mcnaught.org>
+Date: Mon, 11 Oct 2004 14:03:30 -0400
+Message-ID: <87k6txdte5.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/20.7 (gnu/linux)
 MIME-Version: 1.0
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: MMC performance
-References: <416A68E5.6080608@drzeus.cx>	 <20041011131919.B19175@flint.arm.linux.org.uk> <1097500722.31259.17.camel@localhost.localdomain> <416AA670.6040109@drzeus.cx>
-In-Reply-To: <416AA670.6040109@drzeus.cx>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Alan Cox wrote:
-> 
->> Only on retries. You can try and blast the lot out the first time then
->> on retries you write sector by sector.
->>
->>  
->>
-> Something like this? Gives more than double throughput here.
-> 
-> 
+I have an IBM server with a SATA controller listed as:
 
-*sigh*
+0000:00:1f.2 IDE interface: Intel Corp. 6300ESB SATA Storage Controller (rev 02)
 
-I'm starting to think there is a special place in hell reserved for the 
-folks at SimpleTech. This card has been giving me all kinds of trouble 
-and this patch adds another one. It seems the card completely screws up 
-multiple block writes. As little as two blocks at a time causes corrupt 
-data on the card.
+Debian's 2.6.8 kernel with libata works fine, except that the CDROM
+(which is on a PATA port) does not appear as a SCSI device.  It's also
+not seen by the regular IDE driver, because ata_piix has already
+grabbed the i/o resources--I get:
 
-I've been digging through the specs I have to find some way of detecting 
-cards like these but I haven't had any success. Hopefully there aren't 
-too many of these out there. If the choice comes down to high speed or 
-supporting non-compliant cards, then my vote is for speed.
+ide0: I/O resource 0x1F0-0x1F7 not free.
+ide0: ports already in use, skipping probe
+ide1: I/O resource 0x170-0x177 not free.
+ide1: ports already in use, skipping probe
 
---
-Pierre
+Is there any way to get ata_piix to register my CDROM, or
+alternatively to have the regular IDE driver handle it? 
+
+This seems to be a known problem (it's filed as a Debian bug)--is it
+fixed in 2.6.9-rc4?  I had a look at the -rc4 patch but couldn't tell
+from the diff whether there's anything CDROM-related in there...
+
+Thanks,
+Doug
+

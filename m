@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUJARkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJARnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUJARkS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 13:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJARkS
+	id S265805AbUJARnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 13:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUJARnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 13:40:18 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:44465 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265234AbUJARkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 13:40:10 -0400
-From: jmerkey@comcast.net
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@drdos.com
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Fri, 01 Oct 2004 17:40:07 +0000
-Message-Id: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Sep 14 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Fri, 1 Oct 2004 13:43:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50353 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265395AbUJARnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 13:43:03 -0400
+Date: Fri, 1 Oct 2004 10:42:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Al Borchers <alborchers@steinerpoint.com>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: new locking in change_termios breaks USB serial drivers
+Message-ID: <20041001174243.GA14015@kroah.com>
+References: <415D3408.8070201@steinerpoint.com> <1096630567.21871.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096630567.21871.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who cares about GPL violations in Linux .  What can anyone do about it anyway.  The FSF 
-isn't going to sue anyone unless someone give them the money to do it.  Most of this
-banter and name calling people do about it is a waste of time.  What punishment will 
-anyone get for it.  A few people writing mean emails and finder pointing -- Yeah -- 
-this will really stop someone from doing it.  If you give your code away GPL, or not
-you have just done just that.   Tigrian is correct in his statements.  
+On Fri, Oct 01, 2004 at 12:36:09PM +0100, Alan Cox wrote:
+> On Gwe, 2004-10-01 at 11:40, Al Borchers wrote:
+> > Unfortunately, many USB serial drivers' set_termios functions
+> > send an urb to change the termios settings and sleep waiting for
+> > it to complete.
+> > 
+> > I just looked quickly, but it seems belkin_sa.c, digi_acceleport.c,
+> > ftdi_sio.c, io_ti.c, kl5usb105.c, mct_u232.c, pl2303.c, and whiteheat.c
+> > all sleep in their set_termios functions.
+> > 
+> > If this locking in change_termios() stays, we are going to have to
+> > fix set_termios in all of these drivers.  I am updating io_ti.c right
+> > now.
+> 
+> How much of a problem is this, would it make more sense to make the
+> termios locking also include a semaphore to serialize driver side events
+> and not the spin lock ?
 
-Even if you review it and make a fuss it does nothing to stop people.  The GPL is flawed 
-since it does not require people to go back to the copyright holders and demand a license
-for commerical use.  This is the only way you will ever stop these people.  So instead
-of being whinny babies about it, fix the GPL and add this language.  Then anyone 
-who uses the code in a commerical enterprise will be required to get a license, and you 
-can actually do something about it. 
+It would make the usb-serial drivers much simpler if this was turned
+into a semaphore.
 
-Oops.  Too late.  Linux has a huge trail of everyone's code under the GPL so you cannot
-re-release the code under another license unless the entire code base is re-written.  So 
-anyone can fork it at any point and claim, "we never accepted the license even though 
-we download and use the code.  Guess what, this is legally valid to say and totally 
-circumvents the GPL, they just have to leave your copyright notices in place. 
+> We need some kind of locking there otherwise multiple parallel termios
+> setters resulting in truely strange occurences because driver authors
+> don't think about 64 parallel executions of ->change_termios()
+> 
+> I can switch the lock around if you want.
 
-:-)
+I'm all for it, if the tty core isn't messing with any line settings
+from interrupts.
 
-Jeff
+thanks,
 
-
-
+greg k-h

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbTEOAgm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 20:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTEOAgl
+	id S263279AbTEOAj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 20:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbTEOAj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 20:36:41 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:24795 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S263258AbTEOAgj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 20:36:39 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Chuck Ebbert" <76306.1226@compuserve.com>,
-       "Chris Siebenmann" <cks@utcc.utoronto.ca>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: The disappearing sys_call_table export.
-Date: Wed, 14 May 2003 17:49:23 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAELMCPAA.davids@webmaster.com>
+	Wed, 14 May 2003 20:39:27 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:51727 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S263279AbTEOAjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 20:39:24 -0400
+Date: Thu, 15 May 2003 10:51:57 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Andrew Morton <akpm@digeo.com>
+cc: Ken Ashcraft <kash@stanford.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] Passing wrong size to memcpy/memset
+In-Reply-To: <20030514173351.32c3a4c8.akpm@digeo.com>
+Message-ID: <Mutt.LNX.4.44.0305151050220.11738-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200305141928_MC3-1-38F1-60EC@compuserve.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 14 May 2003, Andrew Morton wrote:
 
-> Chris Siebenmann wrote:
+> Ken Ashcraft <kash@stanford.edu> wrote:
+> >
+> > I'm with the Stanford Metacompilation research group and I wrote a checker
+> > that looks for places where people use 'sizeof(ptr)' instead of
+> > 'sizeof(*ptr)' as the length argument to memcpy/memset. 
+> 
+> Well they all look like genuine bugs.  It could be that some code is just
+> performing overly-paranoid memsets.
+> 
+> I shall submit the below lot unless squeaked at.
 
->   Many of these decisions are made by Dumb White Guys sitting around
-> a boardroom table looking at feature lists, and pushed by even dumber
-> 3-letter consulting firms whose technical representatives say things
-> like "Yes, we will be decrypting all SSL sessions at the firewall to
-> check for viruses."
+No squeaks from me.
 
->   So I think Linux needs these 'fringe' features if it's going to
-> continue to expand its user base in the face of such stupidity.
+Ken, would you please try and Cc: maintainers for future reports?
 
-	I, for one, completely disagree in the strongest way possible. This whole
-argument style rings entirely hollow with me. I'd much rather say, "We don't
-do that because it's stupid. We will gladly explain to you why we think it's
-stupid, what you really want, and how to get that from us."
 
-	Deliberately designing in misfeatures so that dumb people will get what
-they think they want is architectural suicide. I hope Linux never moves in
-that direction.
-
-	It's better to refuse to do things until and unless you're totally
-convinced they are the right thing to do. That way, people know that
-anything you've done is right.
-
-	There will always be some friction between those who want to see Linux run
-by as many people and machines as possible and those who think various other
-things are more important. I'm squarely in the "make the best possible OS"
-camp. If people don't want to run it, that's their loss.
-
-	DS
-
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

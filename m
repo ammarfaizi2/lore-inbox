@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265007AbTFLVjb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 17:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbTFLVjb
+	id S265009AbTFLVnt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 17:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265016AbTFLVns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 17:39:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49156 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265007AbTFLVj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 17:39:28 -0400
-Date: Thu, 12 Jun 2003 22:53:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] early_port_register
-Message-ID: <20030612225310.G3348@flint.arm.linux.org.uk>
-Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <20030612132001.A4693@home.com> <20030612212723.A15400@infradead.org> <20030612134113.B4693@home.com>
+	Thu, 12 Jun 2003 17:43:48 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:42252
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S265009AbTFLVnk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 17:43:40 -0400
+Subject: Re: Intel PRO/Wireless 2100 vs. Broadcom BCM9430x
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Anders Karlsson <anders@trudheim.com>
+Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055454724.2084.9.camel@tor.trudheim.com>
+References: <Pine.LNX.4.44.0306120813380.411-100000@twin.uoregon.edu>
+	 <1055450268.3989.27.camel@tor.trudheim.com>
+	 <1055452675.13998.2.camel@ixodes.goop.org>
+	 <1055454724.2084.9.camel@tor.trudheim.com>
+Content-Type: text/plain
+Message-Id: <1055455041.13997.10.camel@ixodes.goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030612134113.B4693@home.com>; from mporter@kernel.crashing.org on Thu, Jun 12, 2003 at 01:41:13PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 12 Jun 2003 14:57:22 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 01:41:13PM -0700, Matt Porter wrote:
-> On Thu, Jun 12, 2003 at 09:27:23PM +0100, Christoph Hellwig wrote:
-> > On Thu, Jun 12, 2003 at 01:20:01PM -0700, Matt Porter wrote:
-> > > Linus, please apply.
-> > 
-> > Umm, isn't Russell the serial maintainer?  I think you should
-> > discuss changes in that area with him..  (And I remember having
-> > sent him a similar patch..)
+On Thu, 2003-06-12 at 14:52, Anders Karlsson wrote:
+> I based my statement on a discussion from about a week ago on the list
+> and that seemed to indicate that the IBM Thinkpads had a 'white-list'
+> of sorts to allow only some specific mini-PCI cards. IIRC it was the
+> T40, R40 and X31 that was affected.
 > 
-> Well, I didn't mention that I first sent this to him more than two
-> months ago.  He hasn't had time to reply about it so it may be that
-> he's not actively maintaining the serial driver.  Queried a couple
-> more times with no reply.  This is the next stop.
+> Apologies if my statement was incorrect.
 
-Sigh, there seems to be one cset still pending in my serial BK tree:
+No, you're right, its just that it isn't TCPA which does the checking;
+it's the plain old BIOS.  In other words, IBM are being painful and
+irritating, but at least they're not being sinister, painful and
+irritating.
 
-ChangeSet@1.1113.2.1, 2003-05-14 16:50:47+02:00, hch@lab343.munich.sgi.com
-  acpi serial stuff
-
-I'll request Linus pulls this tonight.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	J
 

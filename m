@@ -1,83 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286316AbRL0Pql>; Thu, 27 Dec 2001 10:46:41 -0500
+	id <S286310AbRL0Pmm>; Thu, 27 Dec 2001 10:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286315AbRL0Pqc>; Thu, 27 Dec 2001 10:46:32 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:52920 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S286311AbRL0Pq0>;
-	Thu, 27 Dec 2001 10:46:26 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A36@ottonexc1.ottawa.loran.com>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: The direction linux is taking
-Date: Thu, 27 Dec 2001 07:46:32 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S286312AbRL0Pmc>; Thu, 27 Dec 2001 10:42:32 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:23763 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S286310AbRL0PmW>;
+	Thu, 27 Dec 2001 10:42:22 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 27 Dec 2001 15:42:20 GMT
+Message-Id: <UTC200112271542.PAA121704.aeb@cwi.nl>
+To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
+Subject: Re: Configure.help editorial policy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > 1. Are we satisfied with the source code control system ?
+> Most disk sizes are an unholy mixture of the two
+> that deserves a stake through the heart,
+> where 1 GB = 1,024,000,000 bytes.
 
-> > > Yes.  Alan (2.2) and Marcelo (2.4) and Linus (2.5) are doing
-> > > a good job with source control.
+"Are"??
 
-> really ?
-> Do you know what good source control is ? i doubt it.
+I see several good people spout this particular type of nonsense
+here. If I interpret "are" to mean that that is the unit
+disk manufacturers use, then it is false - as far as I know
+no manufacturer uses this.
 
-why do you drop to personal insults?  are your arguments that weak?
+Let us look at Maxtor. They are so friendly to give disk size
+as part of the type.
+Maxtor 91728D8 - 17280442368 bytes, 17280 MB, 17.2 GB
+Maxtor 93652U8 - 36529274880 bytes, 36529 MB, 36.5 GB
+Maxtor 96147H6 - 61473226752 bytes, 61473 MB, 61.4 GB
 
-i'm a perforce admin.  if you don't know what perforce is, you go
-look it up.  i used to be a CVS admin.  i REALLY hope you know what
-THAT is.  and i've used clearcase and even SCCS/RCS in the past.
+You see that the number of GB claimed by the manufacturer is
+just (number of megabytes)/1000.
+There is no 2.4% difference that could justify your strange claim.
 
-my point wasn't that marcelo and linus and allan are source control
-systems.  my point was that if you're looking for a properly source-
-controlled project, THEN DON'T USE LINUX AND QUIT YOUR FUCKING WHINING.
+All disk manufacturers always use decimal.
+And this has been true for many years.
 
-(ok, that might be a bit harsh, but there have been quite a few
-people here who think that the linux kernel should be maintained
-in the same way as a closed source commercially run project. But
-if it was, it wouldn't be _Linux_ any more.)
-
-Linux is maintained by Linus (2.5), Allan (2.2), and Marcelo (2.4)
-(and someone's doing 2.0 still, but i forget who :)
-That's The Way It Is (tm) and trying to change that isn't going to
-happen any time soon (nor, given the disparity between the
-Linux Kernel and the Linux Distributions, should it be)
-
-> >Not really. We do a passable job. Stuff gets dropped, lost,
-> >deferred and forgotten, applied when it conflicts with other work
-> >- much of this stuff that software wouldnt actually improve on over a
-> >person
-
-ahhh, so trying to tackle these problems would be a good idea.
-For example, Marcelo's adoption of the "final -pre is (essentially)
-unchanged when it becomes the formal release"
-
-Q - Would CVS or Perforce or BitKeeper help fix these problems?
-A - No, the problem is one of organization, not accountability
-
-Maybe we should toss the original question and try to find ways
-to solve the organizational problems instead?
-
-> >Many kernel bug reports end up invisible to some of the developers.
-
-> that is exactly my point.
-
-so maybe we should make it clear (in the maintainers file, for example)
-WHERE patches and bugs should be reported?
-
-It sounds more like a reporting problem than a tracking problem : the
-maintainers know which bugs have been fixed (or patches to fix the bugs
-have been applied at least) so the only thing missing is that the
-maintainers
-have to know about the bugs.  I don't think that a bugzilla-type central
-bug reporting tool will help that, because the maintainers who don't read
-LKML won't pay attention to bugzilla either.
-
---
-Dana Lacoste
-Ottawa, Canada
+Andries

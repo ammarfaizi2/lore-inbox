@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266298AbUFZX4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUFZX61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266298AbUFZX4R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 19:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUFZX4R
+	id S267238AbUFZX61 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 19:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267239AbUFZX61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 19:56:17 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:46299 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266298AbUFZX4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 19:56:15 -0400
-Date: Sat, 26 Jun 2004 16:56:16 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: rmk+lkml@arm.linux.org.uk, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6.7-bk: asm/setup.h and linux/init.h
-Message-Id: <20040626165616.09a4cf6b.pj@sgi.com>
-In-Reply-To: <1088292861.3727.5.camel@bach>
-References: <20040626153511.A30532@flint.arm.linux.org.uk>
-	<Pine.LNX.4.58.0406260903190.14449@ppc970.osdl.org>
-	<20040626174904.B30532@flint.arm.linux.org.uk>
-	<20040626162429.4592cced.pj@sgi.com>
-	<1088292861.3727.5.camel@bach>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 26 Jun 2004 19:58:27 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:184 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267238AbUFZX6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 19:58:16 -0400
+Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wedgwood <cw@f00f.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>
+In-Reply-To: <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
+References: <1088266111.1943.15.camel@mulgrave>
+	 <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
+	 <20040626221802.GA12296@taniwha.stupidest.org>
+	 <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1088290477.3790.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 26 Jun 2004 23:54:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Russell's original post ... enters #include hell ...
+On Sad, 2004-06-26 at 23:48, Linus Torvalds wrote:
+> "jiffies" is one of the few things that I accept as volatile, since it's 
+> basically read-only and accessed directly and has no internal structure 
+> (ie it's a single word).
 
-Ah - ok.  Thanks.  Make sense.
+For most uses jiffies should die. If drivers could not access jiffies
+except by a (possibly trivial) helper then it would be a huge step
+closer to being able to run embedded linux without a continually running
+timer.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265394AbSJRVo1>; Fri, 18 Oct 2002 17:44:27 -0400
+	id <S265395AbSJRVq2>; Fri, 18 Oct 2002 17:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265412AbSJRVo1>; Fri, 18 Oct 2002 17:44:27 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:11947 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S265394AbSJRVo0>; Fri, 18 Oct 2002 17:44:26 -0400
-Date: Fri, 18 Oct 2002 16:50:17 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Daniel Phillips <phillips@arcor.de>, <S@samba.org>,
-       Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: your mail 
-In-Reply-To: <20021018025633.1D4C72C0BF@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0210181647410.10010-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265400AbSJRVq2>; Fri, 18 Oct 2002 17:46:28 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:49169 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265395AbSJRVq1>;
+	Fri, 18 Oct 2002 17:46:27 -0400
+Date: Fri, 18 Oct 2002 14:51:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Wiktor Wodecki <wodecki@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch for linux/usb.h
+Message-ID: <20021018215157.GA10444@kroah.com>
+References: <20021018212532.GE32609@net-m.de> <20021018213521.GA10351@kroah.com> <20021018214519.GF32609@net-m.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021018214519.GF32609@net-m.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, Rusty Russell wrote:
-
-> > I wonder if this new method is going to be mandatory (the only one
-> > available) or optional. I think there's two different kind of users, for
-> > one modules which use an API which provides its own infrastructure for
-> > dealing with modules via ->owner, on the other hand things like netfilter
-> > (that's probably where you are coming from) where calls into a module,
-> > which need protection are really frequent.
+On Fri, Oct 18, 2002 at 11:45:19PM +0200, Wiktor Wodecki wrote:
+> > > +} urb_t;
+> > > -};
+> > 
+> > No, that's not "missing" it was taken out because it should have never
+> > gotten there in the first place.
 > 
-> Mandatory for interfaces where the function can sleep (or be preempted).
+> hmmm, it might "not be a good thing" to change an interface in a stable
+> kernel series. this, for example, broke my quickcam express video cam
+> driver. It might be wrong there, however I think we should leave it
+> there...not apply this to 2.5 then
 
-and is not protected by other means (try_inc_mod_count()), I presume.
+Sorry, but I fixed up all in-kernel instances of this usage.  If you
+want to keep a driver outside of the main kernel tree, you're going to
+have to get used to things like this.  In fact, this is a very minor
+change, wait until some of the other USB API changes that have happened
+in 2.5 get backported to 2.4 :)
 
-> > I see that your approach makes frequent calls into the module cheaper, but
-> > I'm not totally convinced that the current safe interfaces need to change
-> > just to accomodate rare cases like netfilter (there's most likely some
-> > more cases like it, but the majority of modules is not).
-> 
-> They're not changing.  The current users doing try_inc_mod_count() are
-> fine.  It's the ones not doing it which are problematic.
+Good luck,
 
-Alright, so I'm fine with it ;) (not that makes a difference, but...)
-
---Kai
-
-
+greg k-h

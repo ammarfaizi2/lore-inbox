@@ -1,77 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbQL2Qu0>; Fri, 29 Dec 2000 11:50:26 -0500
+	id <S129345AbQL2RBV>; Fri, 29 Dec 2000 12:01:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130061AbQL2QuG>; Fri, 29 Dec 2000 11:50:06 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:46857 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S129930AbQL2QuE>; Fri, 29 Dec 2000 11:50:04 -0500
-Date: Sat, 30 Dec 2000 00:15:56 +0800
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Message-Id: <200012291615.eBTGFuq32091@silk.corp.fedex.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
-Cc: jchua@fedex.com
+	id <S130061AbQL2RBK>; Fri, 29 Dec 2000 12:01:10 -0500
+Received: from monza.monza.org ([209.102.105.34]:32261 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129345AbQL2RBC>;
+	Fri, 29 Dec 2000 12:01:02 -0500
+Date: Fri, 29 Dec 2000 08:30:14 -0800
+From: Tim Wright <timw@splhi.com>
+To: Mark Hemment <markhe@veritas.com>
+Cc: "David S. Miller" <davem@redhat.com>, ak@suse.de, torvalds@transmeta.com,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: test13-pre5
+Message-ID: <20001229083014.A3096@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Mark Hemment <markhe@veritas.com>,
+	"David S. Miller" <davem@redhat.com>, ak@suse.de,
+	torvalds@transmeta.com, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200012282233.OAA01433@pizda.ninka.net> <Pine.LNX.4.21.0012291533000.3592-100000@alloc.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012291533000.3592-100000@alloc.wat.veritas.com>; from markhe@veritas.com on Fri, Dec 29, 2000 at 03:46:22PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the only thing you've to be careful is to make sure you set
-the correct options for the module (if you compiled it as module).
+On Fri, Dec 29, 2000 at 03:46:22PM +0000, Mark Hemment wrote:
+>   Note, for those of us running on 32bit with lots of physical memory, the
+> available virtual address-space is of major consideration.  Reducing the
+> size of the page structure is more than just reducing cache misses - it
+> gives us more virtual to play with...
+> 
+> Mark
+> 
 
-# options=0x30 100mbps full duplex
-# options=0x20 100mbps half duplex
-# options=0     10mbps half duplex
-options eepro100 options=0
+Yes, this is a very important point if we ever want to make serious use
+of large memory machines on ia32. We ran into this with DYNIX/ptx when the
+P6 added 36-bit physical addressing. Conserving KVA (kernel virtual address
+space), became a very high priority. Eventually, we had to add code to play
+silly segment games and "magically" materialize and dematerialize a 4GB
+kernel virtual address space instead of the 1GB. This only comes into play
+with really large amounts of memory, and is almost certainly not worth the
+agony of implementation on Linux, but we'll need to be careful elsewhere to
+conserve it as much as possible.
 
-Otherwise, it'll cause a lot of unnecessary network traffic and
-slow down your network!
+Regards,
 
-These are not obvious unless you read the source code.
-
-Jeff.
+Tim
 
 
->From linux-kernel-owner@vger.kernel.org  Fri Dec 29 14:14:55 2000
-X-Authentication-Warning: palladium.transmeta.com: mail set sender to news@transmeta.com using -f
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
-Date: 	28 Dec 2000 22:15:17 -0800
-Organization: Transmeta Corporation
-In-Reply-To: <20001228161126.A982@lingas.basement.bogus> <200012282159.NAA00929@pizda.ninka.net> <20001228212116.A968@lingas.basement.bogus>
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: 	linux-kernel@vger.kernel.org
-
-In article <20001228212116.A968@lingas.basement.bogus>,
-Mike Elmore  <mike@kre8tive.org> wrote:
->
->I really need to get rid of this 8139 card.  Since
->yall are the oracle, which nice 100mbs card is fine
->hardware and is coupled with a well debugged driver?
-
-There are always problems with some hardware, but my personal
-recommendation for a card would definitely be the Intel Ethernet Pro 100
-series (82557). 
-
-Unlike the tulip cards (which are pretty good too), there aren't a
-million different versions of it.  There's a few, but it's not a big
-mess.  It performs well, and is stable.  It's pretty well documented
-(apart from the magic extensions), and it's common. 
-
-That said, some people have trouble even with that card.  Nobody knows
-why, but at least the driver is actively maintained etc, so I still am
-not nervous about recommending it. 
-
-I bet that others will have other recommendations, but so far I have at
-least personally had good luck with the eepro100.
-
-		Linus
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbUKVVaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbUKVVaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbUKVVaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 16:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbUKVTGJ
+	id S262396AbUKVVaX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 16:30:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbUKVTFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 14:06:09 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:60801 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262315AbUKVTEk
+	Mon, 22 Nov 2004 14:05:54 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51417 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262317AbUKVTEm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:04:40 -0500
-Date: Mon, 22 Nov 2004 10:54:01 -0800
+	Mon, 22 Nov 2004 14:04:42 -0500
+Date: Mon, 22 Nov 2004 10:40:51 -0800
 From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 PATCH] visor: Always do generic_startup
-Message-ID: <20041122185401.GA6363@kroah.com>
-References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041121012353.GA4008@himi.org> <20041121040856.GB1569@kroah.com> <20041121071530.GA5586@himi.org>
+To: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+Message-ID: <20041122184051.GA6060@kroah.com>
+References: <200411201131.12987.gjwucherpfennig@gmx.net> <20041121182952.GA26874@kroah.com> <200411222233.45709.gjwucherpfennig@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041121071530.GA5586@himi.org>
+In-Reply-To: <200411222233.45709.gjwucherpfennig@gmx.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 06:15:30PM +1100, Simon Fowler wrote:
-> I've attached the gzipped log file, from the point it the new USB
-> device is registered to the point the device nodes are deleted by
-> udev.
+On Mon, Nov 22, 2004 at 10:33:45PM +0100, Gerold J. Wucherpfennig wrote:
+> 
+> I'm a stupid idiot, but I'm sure that the sysfs and hal thing still has to
+> mature for a few years.
 
-I don't see anything unusual in the log, sorry.
+"mature for a few years" before what happens?  It becomes a fine
+vintage, and everyone enjoys it?  Or it becomes a stinking pile of
+decaying matter?  I don't understand what you are getting at here.
 
-If you replace the version in your kernel with the visor.c version in
-2.6.9, does it work properly for you?
+> Just imagine such things like listing all available modem devices.
+> Listing /sys/class/tty/*/dev without the virtual consoles just isn't
+> enough.
+
+You can not determine "modem devices" by just listing tty devices.  tty
+devices are tty devices, some of them can be acting like a modem (like a
+ACM device) and others can just be a serial port connected to a modem.
+
+If you have issues with how HAL works, talk to the developers of it.
+It's a relativly new project, and they can use the help.  But please
+realize that sysfs doesn't exist for the sole reason of HAL.  HAL was
+created because sysfs enabled it to be created.
 
 thanks,
 

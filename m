@@ -1,35 +1,108 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316227AbSEVQOo>; Wed, 22 May 2002 12:14:44 -0400
+	id <S316237AbSEVQQK>; Wed, 22 May 2002 12:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316232AbSEVQNK>; Wed, 22 May 2002 12:13:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26128 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316227AbSEVQM0>; Wed, 22 May 2002 12:12:26 -0400
-Date: Wed, 22 May 2002 09:10:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, <zippel@linux-m68k.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-In-Reply-To: <10810000.1022076893@baldur.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44.0205220909510.7580-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316235AbSEVQQI>; Wed, 22 May 2002 12:16:08 -0400
+Received: from mailgate.bridgetrading.com ([62.49.201.178]:13748 "EHLO 
+	directcommunications.net") by vger.kernel.org with ESMTP
+	id <S316237AbSEVQPE>; Wed, 22 May 2002 12:15:04 -0400
+Date: Wed, 22 May 2002 17:15:12 +0100
+From: Chris <chris@directcommunications.net>
+Message-Id: <200205221615.g4MGFCH30271@directcommunications.net>
+To: linux-kernel@vger.kernel.org
+Subject: It hurts when I shoot myself in the foot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+A Cautionary Tale for Silly People
+----------------------------------
 
-On Wed, 22 May 2002, Dave McCracken wrote:
->
-> What would be the incremental cost of just switching to init_mm?
+For the past year now, I've had "ping" problems.
 
-Pretty much zero.
+It pauses when it runs, and always returns warnings like so:
 
-Switching to init_mm is the easy approach with no real downside, it just
-has the downside that it's also guaranteed to have no upside (ie there is
-no win on the _next_ context switch).
+"Warning: time of day goes back, taking countermeasures"
 
-			Linus
+I looked _everywhere_ on the net trying to find the problem.
+
+I upgraded the kernel many times.
+I upgraded glibc a few times.
+I upgraded iputils a few times as well.
+
+Nothing helped.
+
+The clock was sync'd with an atomic clock every night.
+
+Still, I kept getting the problem.
+
+Then while moving log files around today, I noticed that the clock 'second'
+didn't move.  Weird.
+
+So I ran this:
+  
+  while :
+  do
+    date "+%H:%M:%S"
+  done
+
+I got interesting results:
+
+17:05:24
+17:05:24
+17:05:24
+17:05:33
+17:05:33
+17:05:25
+17:05:25
+17:05:33
+17:05:25
+17:05:25
+
+Nice huh!
+
+ Why?  
+
+I looked inside the box and found a Pentium II 400, and a Pentium II 450.
+
+Oddly enough they run together as a 266.
+
+[root@hercules root]#cat /proc/cpuinfo
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 5
+model name	: Pentium II (Deschutes)
+stepping	: 2
+cpu MHz		: 265.915
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips	: 530.84
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 5
+model name	: Pentium II (Deschutes)
+stepping	: 1
+cpu MHz		: 265.915
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips	: 663.55
 

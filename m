@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263656AbTEOCDh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 22:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbTEOCDh
+	id S263675AbTEOCGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 22:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263680AbTEOCGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 22:03:37 -0400
-Received: from dp.samba.org ([66.70.73.150]:21894 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263656AbTEOCDf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 22:03:35 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, akpm@zip.com.au, rth@twiddle.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] __optional and __keep
-Date: Thu, 15 May 2003 12:09:25 +1000
-Message-Id: <20030515021624.B814B2C017@lists.samba.org>
+	Wed, 14 May 2003 22:06:24 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:1408 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263675AbTEOCGY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 22:06:24 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 14 May 2003 19:18:13 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Christopher Hoover <ch@murgatroid.com>
+cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
+In-Reply-To: <002901c31a86$0f606020$175e040f@bergamot>
+Message-ID: <Pine.LNX.4.55.0305141917260.4539@bigblue.dev.mcafeelabs.com>
+References: <002901c31a86$0f606020$175e040f@bergamot>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+On Wed, 14 May 2003, Christopher Hoover wrote:
 
-Does anyone else find __attribute_used__ confusing, or is it just me?
-In the tradition of likely() and unlikely(), I think __optional and
-__keep are clearer.
+>
+> > This should also break kernels with MMUs ( see mm_release ).
+>
+> I don't believe it does as there's a cond_syscall entry for sys_futex.
 
-Thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Yep, you're right cond_syscall does it.
 
-Name: __keep and __optional attributes
-Author: Rusty Russell
-Status: Trivial
 
-D: Renames __attribute_used to __keep, and introduces __optional.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21892-linux-2.5.69-bk9/include/linux/compiler.h .21892-linux-2.5.69-bk9.updated/include/linux/compiler.h
---- .21892-linux-2.5.69-bk9/include/linux/compiler.h	2003-04-20 18:05:14.000000000 +1000
-+++ .21892-linux-2.5.69-bk9.updated/include/linux/compiler.h	2003-05-15 11:11:19.000000000 +1000
-@@ -51,10 +51,11 @@
-  * would be warned about except with attribute((unused)).
-  */
- #if __GNUC__ == 3 && __GNUC_MINOR__ >= 3 || __GNUC__ > 3
--#define __attribute_used__	__attribute__((__used__))
-+#define __keep		__attribute__((__used__))
- #else
--#define __attribute_used__	__attribute__((__unused__))
-+#define __keep		__attribute__((__unused__))
- #endif
-+#define __optional	__attribute__((__unused__))
- 
- /* This macro obfuscates arithmetic on a variable address so that gcc
-    shouldn't recognize the original var, and make assumptions about it */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21892-linux-2.5.69-bk9/scripts/modpost.c .21892-linux-2.5.69-bk9.updated/scripts/modpost.c
---- .21892-linux-2.5.69-bk9/scripts/modpost.c	2003-05-05 12:37:16.000000000 +1000
-+++ .21892-linux-2.5.69-bk9.updated/scripts/modpost.c	2003-05-15 11:11:19.000000000 +1000
-@@ -466,7 +466,7 @@ add_depends(struct buffer *b, struct mod
- 
- 	buf_printf(b, "\n");
- 	buf_printf(b, "static const char __module_depends[]\n");
--	buf_printf(b, "__attribute_used__\n");
-+	buf_printf(b, "__keep\n");
- 	buf_printf(b, "__attribute__((section(\".modinfo\"))) =\n");
- 	buf_printf(b, "\"depends=");
- 	for (s = mod->unres; s; s = s->next) {
+- Davide
+

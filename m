@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbUKDCPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbUKDCSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbUKDCPG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 21:15:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbUKDCIm
+	id S261449AbUKDCSE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 21:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbUKDCRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 21:08:42 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:58318 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S262066AbUKDB6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 20:58:11 -0500
-Date: Wed, 3 Nov 2004 17:59:59 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Russell Miller <rmiller@duskglow.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041104015959.GA54786@gaz.sfgoth.com>
-References: <200411030751.39578.gene.heskett@verizon.net> <200411031901.28977.rmiller@duskglow.com> <87654m4clz.fsf@asmodeus.mcnaught.org> <200411031945.20894.rmiller@duskglow.com>
-Mime-Version: 1.0
+	Wed, 3 Nov 2004 21:17:46 -0500
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:36509 "EHLO
+	tyo206.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261174AbUKDCQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 21:16:48 -0500
+To: Valdis.Kletnieks@vt.edu
+Cc: "Giacomo A. Catenazzi" <cate@debian.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+References: <41894779.10706@techsource.com>
+	<20041103211714.GP12275@mea-ext.zmailer.org>
+	<41894F86.7070405@debian.org>
+	<200411032157.iA3LvA4i019705@turing-police.cc.vt.edu>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Thu, 04 Nov 2004 11:16:23 +0900
+In-Reply-To: <200411032157.iA3LvA4i019705@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Wed, 03 Nov 2004 16:57:10 -0500")
+Message-ID: <buois8me4ug.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411031945.20894.rmiller@duskglow.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Miller wrote:
-> Couldn't ring 1 be used to make 
-> sure an errant driver doesn't drop the kernel, at least on x86 machines?
+Valdis.Kletnieks@vt.edu writes:
+> However, the problem is that I probably want to compile a working
+> kernel *now*, not when the GCC people finally get around to fixing
+> the b0rkedness they added for my architecture in gcc 3.2.3.
 
-Not really -- drivers could still do things like mis-program their associated
-hardware making it do DMA writes all over kernel memory (just as one example)
+Yup, this is particuarly true with fringe architectures.
 
-Basically it'd add a lot of complexity (and inefficiency) without adding
-much real safety.
+E.g., you're using a compiler for your CPU that has changes not in
+mainstream gcc, the vendor who made them is slow in updating to new gcc
+versions, and their changes are complex enough that you don't want to
+spend the manpower to port them yourself.
 
--Mitch
+You've got the GPL, so of course it's of course _possible_ to do the
+work yourself and get a newer gcc working, but sometimes it's really
+nice to also have the option _not_ to do that...
+
+-Miles
+-- 
+((lambda (x) (list x x)) (lambda (x) (list x x)))

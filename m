@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314491AbSFEKYG>; Wed, 5 Jun 2002 06:24:06 -0400
+	id <S314446AbSFEKXy>; Wed, 5 Jun 2002 06:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSFEKYF>; Wed, 5 Jun 2002 06:24:05 -0400
-Received: from [212.176.239.134] ([212.176.239.134]:40095 "EHLO
-	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S314491AbSFEKYD>; Wed, 5 Jun 2002 06:24:03 -0400
-Message-ID: <000c01c20c7a$a5c527a0$baefb0d4@nick>
-Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
-From: "Nick Evgeniev" <nick@octet.com>
-To: "Bill Davidsen" <davidsen@tmr.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020604143643.5024C-100000@gatekeeper.tmr.com>
-Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
-Date: Wed, 5 Jun 2002 14:20:41 +0400
-Organization: Octet Corp.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Scanner: exiscan *17FXuE-0006uH-00*q6o73JjUhlg* http://duncanthrax.net/exiscan/
+	id <S314491AbSFEKXx>; Wed, 5 Jun 2002 06:23:53 -0400
+Received: from ns.suse.de ([213.95.15.193]:56081 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S314446AbSFEKXx>;
+	Wed, 5 Jun 2002 06:23:53 -0400
+Date: Wed, 5 Jun 2002 12:23:53 +0200
+From: Dave Jones <davej@suse.de>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scheduler hints
+Message-ID: <20020605122353.G5277@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Helge Hafting <helgehaf@aitel.hist.no>, Robert Love <rml@tech9.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1023206034.912.89.camel@sinai> <3CFDC796.C05FC7E2@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 05, 2002 at 10:11:02AM +0200, Helge Hafting wrote:
+ > The problem is that this may be abused.  Someone nasty could
+ > write a cpu hog that drops a lot of hints about being
+ > interactive, starving real interactive programs.
+ > 
+ > Generally, it degenerates into application programmers
+ > using _all_ the hints to get performance, so they
+ > can beat some competitor in benchmarks.  And all
+ > other programs just get penalized.
 
-No, I don't have task_file enabled.
+I can see how that would be a problem.
+If I didn't have the source to $programs.
 
-> > I wrote about ide problems with 2.4.19-pre8 a few days ago (it just
-trashed
-> > filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was
-a
-> > little bit better though every 5-8 hours I've got ide errors in log (at
-> > least it didn't crash my reiserfs volumes yet):
->
-> I see a lot of the 0x58 with taskfile enabled, are you doing that? I even
-> see it mounting an "IDE" compact flash! I ran out of time to try w/o
-> taskfile_io.
+        Dave
 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

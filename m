@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbTJaJQi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 04:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTJaJQi
+	id S263129AbTJaJ0w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 04:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTJaJ0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 04:16:38 -0500
-Received: from main.gmane.org ([80.91.224.249]:44761 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263126AbTJaJQg (ORCPT
+	Fri, 31 Oct 2003 04:26:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12259 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263129AbTJaJ0u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 04:16:36 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6.0-test9 vs sound
-Date: Fri, 31 Oct 2003 10:16:33 +0100
-Message-ID: <yw1xr80tzs0e.fsf@kth.se>
-References: <200310301008.27871.gene.heskett@verizon.net> <20031030160719.76bee7f6.cliffw@osdl.org>
- <200310302049.45009.gene.heskett@verizon.net>
+	Fri, 31 Oct 2003 04:26:50 -0500
+Date: Fri, 31 Oct 2003 01:28:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: age <ahuisman@cistron.nl>
+Cc: linux-kernel@vger.kernel.org, nuno.silva@vgertech.com
+Subject: Re: READAHEAD
+Message-Id: <20031031012846.48fa233c.akpm@osdl.org>
+In-Reply-To: <3FA25377.3050207@cistron.nl>
+References: <bnrdqi$uho$1@news.cistron.nl>
+	<20031030134407.0c97c86e.akpm@osdl.org>
+	<3FA25377.3050207@cistron.nl>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:8iemc01M9eyJj2R4Oyd9xQn2GnI=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> writes:
+age <ahuisman@cistron.nl> wrote:
+>
+> > Lots of people have been reporting this.  It's rather weird.
+>   >
+>   > Is the same effect observable when reading a large file, or is it only
+>   > observable via `hdparm -t'?
+>   >
+> 
+>  Hi Andrew,
+> 
+>  Here are some tests with bonnie++.
 
-> Ok thanks, followup Q:  Whats the version number thats in the kernel 
-> srcs?
-> The latest dl's available are version 9.8.
+Like so many of these things, bonnie++ is generally far, far too complex
+for kernel performance tuning.
 
-No, it's 0.9.8.  The version in the kernel is approximately 0.9.7,
-with some patches, IIRC.
+Please, just use time, cat, dd, etc.
 
--- 
-Måns Rullgård
-mru@kth.se
+	mount /dev/xxx /mnt/yyy
+	dd if=/dev/zero of=/mnt/yyy/x bs=1M count=1024
+	umount /dev/xxx
+	mount /dev/xxx /mnt/yyy
+	time cat /mnt/yyy/x > /dev/null
+
+nice'n'easy.
 

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132479AbRDWWdC>; Mon, 23 Apr 2001 18:33:02 -0400
+	id <S132471AbRDWWgM>; Mon, 23 Apr 2001 18:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132482AbRDWWcl>; Mon, 23 Apr 2001 18:32:41 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:7177 "EHLO
-	Opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S132471AbRDWWbm>; Mon, 23 Apr 2001 18:31:42 -0400
-Date: Mon, 23 Apr 2001 15:30:26 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [upatch] lib/Makefile
-Message-ID: <20010423153026.E19945@opus.bloom.county>
-In-Reply-To: <20010423171624.B1690@cadcamlab.org>
+	id <S132488AbRDWWgI>; Mon, 23 Apr 2001 18:36:08 -0400
+Received: from t2.redhat.com ([199.183.24.243]:44281 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S132471AbRDWWfv>; Mon, 23 Apr 2001 18:35:51 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200104232225.f3NMPHrn001690@pincoya.inf.utfsm.cl> 
+In-Reply-To: <200104232225.f3NMPHrn001690@pincoya.inf.utfsm.cl> 
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Russell King <rmk@arm.linux.org.uk>, mythos <papadako@csd.uoc.gr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Can't compile 2.4.3 with agcc 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010423171624.B1690@cadcamlab.org>; from peter@cadcamlab.org on Mon, Apr 23, 2001 at 05:16:24PM -0500
+Date: Mon, 23 Apr 2001 23:35:38 +0100
+Message-ID: <4624.988065338@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 05:16:24PM -0500, Peter Samuelson wrote:
 
-> Introduced in 2.4.4pre4, I believe.  $(export-objs) need not be
-> conditional, and the if statement was not really correct either,
-> although in this case it probably worked.
 
-Er, are you sure changing the test for !"nn" is correct here?
-I _think_ at least that is intentional and correct (since you can have
-one on but not the other).
+vonbrand@inf.utfsm.cl said:
+>  Your patch (tries to) transform a compile and link time check into a
+> runtime check. Not nice.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+It transforms a broken and cryptic compile-time check into a correct and
+informative runtime check.
+
+If you can provide a correct and informative compile-time check, that would 
+be wonderful.
+
+--
+dwmw2
+
+

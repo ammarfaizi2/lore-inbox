@@ -1,102 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283537AbRLRBqN>; Mon, 17 Dec 2001 20:46:13 -0500
+	id <S283581AbRLRBqx>; Mon, 17 Dec 2001 20:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283586AbRLRBqE>; Mon, 17 Dec 2001 20:46:04 -0500
-Received: from mail.myrio.com ([63.109.146.2]:15602 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S283585AbRLRBpp>;
-	Mon, 17 Dec 2001 20:45:45 -0500
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB08@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'andersen@codepoet.org'" <andersen@codepoet.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        "'viro@math.psu.edu'" <viro@math.psu.edu>
-Subject: ramdisk corruption problems - was: RE: pivot_root and initrd kern
-	el panic woes
-Date: Mon, 17 Dec 2001 17:44:54 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S283586AbRLRBqo>; Mon, 17 Dec 2001 20:46:44 -0500
+Received: from codepoet.org ([166.70.14.212]:7946 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S283581AbRLRBqh>;
+	Mon, 17 Dec 2001 20:46:37 -0500
+Date: Mon, 17 Dec 2001 18:46:37 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Dave Jones <davej@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.17-rc1
+Message-ID: <20011217184637.A17505@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Dave Jones <davej@suse.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20011217182724.A17312@codepoet.org> <Pine.LNX.4.33.0112180237440.23388-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112180237440.23388-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: 2.4.13-ac8-rmk1, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Erik Anderson and Al Viro, your responses to my first
-report helped me to produce this much more accurate report.
+On Tue Dec 18, 2001 at 02:38:48AM +0100, Dave Jones wrote:
+> On Mon, 17 Dec 2001, Erik Andersen wrote:
+> 
+> 
+> > This fix from -pre6 broke NCR5380 so that it does not compile
+> > when linked into the kernel (i.e.  not as a module).  This patch
+> > fixes it.  Please apply for 2.4.17-rc2,
+> 
+> This doesn't look right..
 
-I've narrowed it down quite a bit.  It's a problem with ramdisk 
-corruption on some 2.4 kernels, not specifically initrd, and 
-definitely not a problem with booting initrd.  
+Sure it does, look closer.  :-)
 
-executive summary:
-  dd'ing from /dev/ram0 usually produces a corrupted ramdisk
-  image.
+> > -static int __init do_NCR53C400_setup(char *str)
+> > -static int __init do_NCR53C400A_setup(char *str)
+> > -static int __init do_DTC3181E_setup(char *str)
+> 
+> You nuked the functions..
 
-This is reproducible on:
- 2.4.12 
- 2.4.16 
- 2.4.17-pre2 + low-latency patch + custom tweaks 
+Exactly.  Because there were two copies of that code, but one
+copy was wrapped inside an '#ifndef MODULE' so when compiling as
+a module, everything was cool.  But if you link the driver into
+the kernel you would get two copies of those init funcs....
 
-However, I cannot reproduce the problem on:
- 2.4.8-26mdk  (default Mandrake 8.1 kernel)
- 2.4.9 
+> >  __setup("ncr5380=", do_NCR5380_setup);
+> >  __setup("ncr53c400=", do_NCR53C400_setup);
+> >  __setup("ncr53c400a=", do_NCR53C400A_setup);
+> >  __setup("dtc3181e=", do_DTC3181E_setup);
+> 
+> But not the references to them. What error are you seeing ?
 
-On 2.4.10, I can't do the test, seems like ramdisk was *really*
-broken on that kernel.  (no room on ramdisk after mke2fs???)
+make[3]: Entering directory `/usr/src/linux/drivers/scsi'
+ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o scsicam.o scsi_proc.o scsi_error.o scsi_obsolete.o scsi_queue.o scsi_lib.o scsi_merge.o scsi_dma.o scsi_scan.o scsi_syms.o
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o g_NCR5380.o g_NCR5380.c
+g_NCR5380.c:917: redefinition of `do_NCR53C400_setup'
+g_NCR5380.c:230: `do_NCR53C400_setup' previously defined here
+g_NCR5380.c: In function `do_NCR53C400_setup':
+g_NCR5380.c:921: warning: implicit declaration of function `generic_NCR53C400_setup'
+g_NCR5380.c: At top level:
+g_NCR5380.c:927: redefinition of `do_NCR53C400A_setup'
+g_NCR5380.c:248: `do_NCR53C400A_setup' previously defined here
+g_NCR5380.c: In function `do_NCR53C400A_setup':
+g_NCR5380.c:931: warning: implicit declaration of function `generic_NCR53C400A_setup'
+g_NCR5380.c: At top level:
+g_NCR5380.c:937: redefinition of `do_DTC3181E_setup'
+g_NCR5380.c:266: `do_DTC3181E_setup' previously defined here
+g_NCR5380.c: In function `do_DTC3181E_setup':
+g_NCR5380.c:941: warning: implicit declaration of function `generic_DTC3181E_setup'
+g_NCR5380.c: At top level:
+NCR5380.c:458: warning: `NCR5380_print_phase' defined but not used
+NCR5380.c:402: warning: `NCR5380_print' defined but not used
+{standard input}: Assembler messages:
+{standard input}:4585: Error: symbol `do_NCR53C400_setup' is already defined
+{standard input}:4608: Error: symbol `do_NCR53C400A_setup' is already defined
+{standard input}:4631: Error: symbol `do_DTC3181E_setup' is already defined
+make[3]: *** [g_NCR5380.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
-I now have a simple script that checks for the problem and was 
-tried on each of the kernels listed above:
+ -Erik
 
----------------------------------------------------
-#!/bin/bash
-
-umount /dev/ram0
-./rootfs/bin/busybox freeramdisk /dev/ram0
-
-mke2fs -m0 /dev/ram0 4000
-mount -t ext2 /dev/ram0 /mnt/ramdisk
-cp -a rootfs/* /mnt/ramdisk
-umount /dev/ram0
-dd if=/dev/ram0 of=initrd bs=1k count=4000 
-
-dd if=initrd of=/dev/ram0 bs=1k count=4000 
-mount -t ext2 /dev/ram0 /mnt/ramdisk
-
-diff -q -r /mnt/ramdisk/bin ./rootfs/bin
-diff -q -r /mnt/ramdisk/lib ./rootfs/lib
-
----------------------------------------------------
-
-On kernels with the problem, the scripted diff reports that most 
-(or all?) the binaries and libraries are corrupt.  This contradicts 
-my earlier problem report, sorry about that. 
-
-I'm eager to help track this down, I can test patches, supply 
-more information, give you a tar.gz of the contents of my rootfs,
-or do whatever it takes.   In the meantime I've gone back to 
-the default Mandrake 2.4.8 kernel.  It's noticably slower. :-(
-
-
-A few loose ends...
-
-Erik Andersen wrote:
-> Any particular reason you are using a version of busybox that is 
-> quite old?  You really should get a newer release -- I've fixed a 
-> lot of bugs since then.
-
-Yes, that is one of the reasons I'm working on this again - I'm 
-updating my old initrd with the new kernel and the latest versions 
-of all the tools I'm using, including busybox.  BTW, thanks 
-for your work on busybox, it's great.
-
-[...]
-
-> Can you sucessfully chroot into your rootfs dir?
-
-Good suggestion, that helped set me on the right track to finding
-the problem.  I can chroot into my rootfs "source" directory, but 
-(unsurprisingly) attempting to chroot to a corrupted image segfaults,
-that's how I discovered the corruption, not sure how I missed it 
-before.  I'll blame it on Friday afternoon confusion.
-
-Torrey
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,47 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272583AbRHaBsw>; Thu, 30 Aug 2001 21:48:52 -0400
+	id <S272586AbRHaCDd>; Thu, 30 Aug 2001 22:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272584AbRHaBsm>; Thu, 30 Aug 2001 21:48:42 -0400
-Received: from zok.sgi.com ([204.94.215.101]:63872 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S272583AbRHaBs2>;
-	Thu, 30 Aug 2001 21:48:28 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac5 
-In-Reply-To: Your message of "Fri, 31 Aug 2001 02:26:09 +0100."
-             <E15cd4T-0002Hm-00@the-village.bc.nu> 
-Mime-Version: 1.0
+	id <S272585AbRHaCDX>; Thu, 30 Aug 2001 22:03:23 -0400
+Received: from mail100.mail.bellsouth.net ([205.152.58.40]:37113 "EHLO
+	imf00bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S272586AbRHaCDO>; Thu, 30 Aug 2001 22:03:14 -0400
+Message-ID: <3B8EF06D.24BAB4AF@bellsouth.net>
+Date: Thu, 30 Aug 2001 22:03:25 -0400
+From: Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [Patch]: incorrect e2fsprog data from ver_linux script
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 31 Aug 2001 11:48:34 +1000
-Message-ID: <9293.999222514@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Aug 2001 02:26:09 +0100 (BST), 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> What do you need for licence support in modutils?  Obviously modinfo
->> needs to print it, but what about insmod?  Should insmod issue warning
->> messages for proprietary modules?  What about ksymoops?  IOW, what was
->> the reason for adding MODULE_LICENSE?
->
->My goal is to eventually include the info tucked away on oops report lines
->so that I can automatically dump bug reports with binary drivers, including
->the growing number of people who lie about nvdriver and think that this will
->get their bug cured.
+Hello Alan/Linus,
+Ted suggested I pass this onto your for 2.2 and 2.4
+Please apply small patch to both releases.
+Thanks,
+Albert
 
-Then we have a problem.  The modinfo and modstring sections are not
-loaded into kernel space, they are processed by insmod then discarded.
 
-Solution: /proc/sys/kernel/tainted.  Set to 0 on boot, set to 1 by
-insmod when it finds a non-GPL module, printed by panic, extracted by
-ksymoops.  Any load of a proprietary module taints the kernel, even if
-it is later removed.  The kernel code for that sysctl only allows taint
-to be set, not to be cleared.
+-------- Original Message --------
+Subject: incorrect e2fsprog data from ver_linux script
+Date: Thu, 30 Aug 2001 10:08:27 -0400
+From: Albert Cranford <ac9410@bellsouth.net>
+To: tytso@valinux.com, tytso@mit.edu
 
-Not perfect, really malicious users can hack the kernel.  Or they can
-simply edit the taint flag in the oops report.  But it will catch 90%+
-of the problem case.
+Hello Ted,
+I'm not sure when incorrect e2fsprog info started popping
+up from the linux/scripts/ver_linux script, but what do
+you think about submitting this patch to Linus?
+Later,
+Albert
+
+
+---BEFORE------------------------------
+home1:~ /usr/src/linux/scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux home1 2.4.10-pre2 #1 Thu Aug 30 00:17:13 EDT 2001 i686 AuthenticAMD
+
+Gnu C                  3.0.1
+Gnu make               3.79
+binutils               2.11.2
+util-linux             2.11h
+mount                  2.11h
+modutils               2.4.8
+e2fsprogs              tune2fs
+PPP                    2.4.0
+----AFTER-----------------------------
+home1:~ /usr/local/bin/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux home1 2.4.10-pre2 #1 Thu Aug 30 00:17:13 EDT 2001 i686 AuthenticAMD
+
+Gnu C                  3.0.1
+Gnu make               3.79
+binutils               2.11.2
+util-linux             2.11h
+modutils               2.4.8
+e2fsprogs              1.23
+PPP                    2.4.0
+----BEFORE-----------------------------
+home1:/usr/src/e2fsprogs-1.23/misc# tune2fs 2>&1 | grep tune2fs | sed 's/,//' |
+awk 'NR==1 {print "e2fsprogs             ", $2}'
+e2fsprogs              tune2fs
+----AFTER------------------------------
+home1:/usr/src/e2fsprogs-1.23/misc# tune2fs 2>&1 | grep tune2fs | sed 's/,//' |
+awk 'NR==2 {print "e2fsprogs             ", $2}'
+e2fsprogs              1.23
+----PATCH-----------------------------
+--- linux/scripts/ver_linux.orig        Thu Aug 30 09:56:39 2001
++++ linux/scripts/ver_linux     Thu Aug 30 09:56:49 2001
+@@ -27,7 +27,7 @@
+ insmod -V  2>&1 | awk 'NR==1 {print "modutils              ",$NF}'
+ 
+ tune2fs 2>&1 | grep tune2fs | sed 's/,//' |  awk \
+-'NR==1 {print "e2fsprogs             ", $2}'
++'NR==2 {print "e2fsprogs             ", $2}'
+ 
+ reiserfsck 2>&1 | grep reiserfsprogs | awk \
+ 'NR==1{print "reiserfsprogs         ", $NF}'
+-- 
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net
 

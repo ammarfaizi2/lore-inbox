@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267635AbSKTHUN>; Wed, 20 Nov 2002 02:20:13 -0500
+	id <S267637AbSKTHXm>; Wed, 20 Nov 2002 02:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267636AbSKTHUL>; Wed, 20 Nov 2002 02:20:11 -0500
-Received: from dp.samba.org ([66.70.73.150]:51667 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267635AbSKTHTt>;
-	Wed, 20 Nov 2002 02:19:49 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch: module-init-tools-0.6/modprobe.c - support subdirectories 
-In-reply-to: Your message of "Tue, 19 Nov 2002 14:55:02 -0000."
-             <20021119145502.B5535@flint.arm.linux.org.uk> 
-Date: Wed, 20 Nov 2002 08:34:36 +1100
-Message-Id: <20021120072654.09CAE2C075@lists.samba.org>
+	id <S267641AbSKTHXW>; Wed, 20 Nov 2002 02:23:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:54199 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267637AbSKTHXP>;
+	Wed, 20 Nov 2002 02:23:15 -0500
+Date: Wed, 20 Nov 2002 08:30:03 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] 2.5.48-mm1 with contest
+Message-ID: <20021120073003.GF11884@suse.de>
+References: <1037741326.3ddaad0ef119d@kolivas.net> <1037741983.1504.2229.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037741983.1504.2229.camel@phantasy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021119145502.B5535@flint.arm.linux.org.uk> you write:
-> On Tue, Nov 19, 2002 at 05:42:38PM +1100, Rusty Russell wrote:
-> > A: The total linking code is about 200 generic lines, 100
-> >    x86-specific lines.
+On Tue, Nov 19 2002, Robert Love wrote:
+> On Tue, 2002-11-19 at 16:28, Con Kolivas wrote:
 > 
-> Should we be bounds-checking the relocations?  Maybe we are (I'm not
-> familiar enough with this new module code yet.)  I'm specifically
-> thinking about the following:
+> > xtar_load:
+> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > 2.5.48 [5]              184.4   41      2       6       2.52
+> > 2.5.48-mm1 [5]          210.7   35      2       6       2.88
+> >
+> > read_load:
+> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > 2.5.48 [5]              102.9   74      6       4       1.41
+> > 2.5.48-mm1 [5]          256.7   29      11      2       3.51*
 > 
-> 		/* This is where to make the change */
-> 		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-> 			+ rel[i].r_offset;
-> 		/* This is the symbol it is referring to */
-> 		sym = (Elf32_Sym *)sechdrs[symindex].sh_offset
-> 			+ ELF32_R_SYM(rel[i].r_info);
-> 		if (!sym->st_value) {
+> What changed, Andrew?
+> 
+> Wall time is up but CPU is down... spending more time on I/O?
 
-No, you didn't miss anything: I do minimal checking.  I figured it was
-worth preventing mistakes (eg. insmod randomcrap.o), but in the end
-you're going to trust the module.
+-mm is an io scheduler test base atm, expect fluctuations. Unless you
+are working on it, dont worry about it.
 
-I'd say definitely if you know that it has happened (eg. binutils bugs
-or something).
+-- 
+Jens Axboe
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

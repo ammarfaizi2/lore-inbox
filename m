@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbUKJOEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbUKJOUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbUKJOEo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbUKJOC5
+	id S261941AbUKJOUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbUKJOR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:02:57 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:59570 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261945AbUKJN4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 08:56:45 -0500
-From: Karsten Wiese <annabellesgarden@yahoo.de>
+	Wed, 10 Nov 2004 09:17:26 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:71 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S261893AbUKJONg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 09:13:36 -0500
 To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-Date: Wed, 10 Nov 2004 14:58:11 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-References: <20041021132717.GA29153@elte.hu> <20041109160544.GA28242@elte.hu> <200411101452.36007.annabellesgarden@yahoo.de>
-In-Reply-To: <200411101452.36007.annabellesgarden@yahoo.de>
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
+Date: Wed, 10 Nov 2004 08:12:22 -0600
+Message-ID: <OF4859D245.BB8FA90D-ON86256F48.004E0938-86256F48.004E0960@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/10/2004 08:12:28 AM
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411101458.11258.annabellesgarden@yahoo.de>
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch 10 November 2004 14:52 schrieb Karsten Wiese:
-> Am Dienstag 09 November 2004 17:05 schrieb Ingo Molnar:
-> > 
-> > i have released the -V0.7.23 Real-Time Preemption patch, which can be
-> > downloaded from the usual place:
-> > 
-> >     http://redhat.com/~mingo/realtime-preempt/
-> 
-> Hi
-> 
-> On SMP/HT/P4 I get:
->  BUG: lock held at task exit time!
+>* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+>
+>> [3] I am not so sure that the latency tracing works. I do not get any
+>> trace output, even if I set preempt_max_latency to zero.
+>
+>What is the value of preempt_thresh?
+It was zero at boot time. Now that I check, set it somewhere to 200.
+Setting it back to zero, I now see that I have some extremely
+small reports, max so far is 63 usec. Will run my big test again
+to see what turns up.
 
-Forgot to write that this happened with V0.7.24.
+  --Mark
+

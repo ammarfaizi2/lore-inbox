@@ -1,126 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265201AbTLFPrE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 10:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbTLFPrE
+	id S265205AbTLFP6T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 10:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbTLFP6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 10:47:04 -0500
-Received: from ce.fis.unam.mx ([132.248.33.1]:12200 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id S265201AbTLFPq7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 10:46:59 -0500
-Subject: Re: Linux 2.4 future
-From: Max Valdez <maxvalde@fis.unam.mx>
-To: John Jasen <jjasen@realityfailure.org>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0312051021300.1469-100000@bushido>
-References: <Pine.LNX.4.44.0312051021300.1469-100000@bushido>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NUrL/aw839rL5hNVsGc2"
-Message-Id: <1070725773.2258.51.camel@garaged.fis.unam.mx>
+	Sat, 6 Dec 2003 10:58:19 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:37521
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S265205AbTLFP6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 10:58:17 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+From: Ian Kumlien <pomac@vapor.com>
+To: Craig Bradney <cbradney@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com
+In-Reply-To: <1070724815.13016.16.camel@athlonxp.bradney.info>
+References: <1070676480.1989.15.camel@big.pomac.com>
+	 <1070717770.13004.11.camel@athlonxp.bradney.info>
+	 <1070721735.1991.20.camel@big.pomac.com>
+	 <1070724815.13016.16.camel@athlonxp.bradney.info>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ieiCGUVV1wIX8vtZ+D0k"
+Message-Id: <1070726295.1995.40.camel@big.pomac.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 09:49:33 -0600
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamScore: s
+Date: Sat, 06 Dec 2003 16:58:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-NUrL/aw839rL5hNVsGc2
+--=-ieiCGUVV1wIX8vtZ+D0k
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-The nices thing is that the evolution from 2.6.0 to 2.6.8 will be very
-fast :-), what are the predictions? mine is less than 6 months, we begin
-with a nice kernel, not the best, but will finish those 6 months with a
-great kernel, really stable, the the release pace will be slower, and we
-can start to think on the new shiny unstable 2.7.x kernel :-)
+On Sat, 2003-12-06 at 16:33, Craig Bradney wrote:
+> On Sat, 2003-12-06 at 15:42, Ian Kumlien wrote:
+> Its a pity that as Bart said, those numbers dont reflect any sort of
+> revision as that might lead to a conclusion about why it happens on some
+> and not others.
 
-Max
-On Fri, 2003-12-05 at 09:33, John Jasen wrote:
-> On Wed, 3 Dec 2003, Jan Rychter wrote:
+Yeah i saw that aswell...=20
+
+> > Btw, i have UDMA100 disks.. 2 disks on primary and 2 cdroms on
+> > secondary... I dunno if this could make any difference..
 >=20
-> > >>>>> "Marcelo" =3D=3D Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
-> >  Marcelo> The intention of this email is to clarify my position on 2.4.=
-x
-> >  Marcelo> future.
-> >=20
-> >  Marcelo> 2.6 is becoming more stable each day, and we will hopefully
-> >  Marcelo> see a 2.6.0 release during this month or January.
+> 1 ata133 primary master and dvdrw and cdrom on secondary here.
+
+I'm just wondering if it could be a relation to the disk aswell or so..=20
+
+> > Good luck =3D)
 >=20
-> I would argue that 2.2 wasn't really usable until somewhere around 2.2.12=
-.
->=20
-> I would also claim that 2.4 wasn't useful until 2.4.10.
->=20
-> If we continue to improve along these lines, can I expect 2.6 to be=20
-> generally usable somewhere around 2.6.8? :)
->=20
-> > On my notebook, I have spent the last two years going through regular
-> > painful kernel patching and upgrades.=20
->=20
-> <snip>
->=20
-> His experiences pretty much mirror my own -- ACPI has been an adventure,=20
-> cpufreq occasionally didn't work, full USB doesn't work without ACPI, I=20
-> need alsa drivers and ACPI in order to have acceptable sound, and I need=20
-> to use GATOS drivers for my display, else 3d just blows chunks.
->=20
-> For the longest time on this beast, kernel upgrades were a day long=20
-> adventure.=20
->=20
-> First, to push in acpi, cpufreq, and freeswan. (Oh, look, 2.4.foo is=20
-> out ... but the latest ACPI patch was 2.4.foo-prebar and CPUfreq is=20
-> 2.4.foo-pre(bar-2)-3weeks-earlier ... time to patch and resolve=20
-> rejections!)
->=20
-> Then it was off to put in alsa, radoen, freeswan, linux-wlan-ng and so=20
-> forth ...
->=20
-> Some things should be migrated in and updated. drm modules, for example. =
-I=20
-> would also vote for alsa being merged. ACPI was brought up to date in=20
-> 2.4.22, I believe, but I haven't checked since then. It should also be=20
-> relativelt current, IMHO.
->=20
-> >   1) Please don't stop working (and that does include pulling in new
-> >      stuff) on 2.4, as many people still have to use it.
-> >=20
-> >   2) Please don't start developing 2.7 too soon. Go for at least 6
-> >      months of bug-fixing. During that time, patches with new features
-> >      will accumulate anyway, so it isn't lost time. But it will at leas=
-t
-> >      prevent people from saying "well, I use 2.7.45 and it works for
-> >      me".
->=20
-> I have to agree with both of these points. 2.6.0 will probably have=20
-> problems that will take a while to sort out. Putting it on systems to tes=
-t=20
-> is one thing, putting it into production as its the only blessed solution=
-=20
-> is another ...
+> You too :)
+
+Heh, thanks =3D)
+
+Now, about this ACPI powersave thing, wouldn't that be enabled in
+windows aswell? So wouldn't this workaround be something that $other_os
+doesn't have to do.
+
+(In general i have always had to hack windows into not crashing when
+linux worked and doing it the other way around without a real fix dosn't
+sound that nice in my ears.. =3DP)
+
+It would be interesting to hear from nvidia about nmi_watchdog... Since
+nmi_watchdog with the 'not-done-correctly' APIC patch claims that nmi is
+stalled/locked/doesn't work... If nvidia states that this *should* work,
+then we have something to go on.
+
+Also, if Allen Martin (nvidia) could go trough the proc/interrupts and
+tell us if something is wrong, like the XT-PIC on timer. Or just give us
+a correct listing, since noone had io-apic-edge on timer before afair.=20
+
 --=20
-Linux garaged 2.4.22-ac4 #2 SMP Mon Oct 6 14:33:25 UTC 2003 i686 Pentium II=
-I (Coppermine) GenuineIntel GNU/Linux
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GS/ d-s:a-28C++ILHA+++P+L++>+++E---W++N*o--K-w++++O-M--V--PS+PEY--PGP++t5XR=
-tv++b++DI--D-G++e++h-r+y**
-------END GEEK CODE BLOCK------
-gpg-key: http://garaged.homeip.net/gpg-key.txt
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 
---=-NUrL/aw839rL5hNVsGc2
+--=-ieiCGUVV1wIX8vtZ+D0k
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQA/0fqNNNkpVEFxW78RAjjuAKCfQpWI9FXcudp8AYmHUYUk+0CD+wCaAyGX
-tMq26xG+Z5Q2ZIawtYI5fOE=
-=kuUP
+iD8DBQA/0fyX7F3Euyc51N8RAkxuAKCq/d6hq02IcxqXfNLn3M2Uzerk/ACfQool
+efTup6zDB5WpTT0/aFJGetQ=
+=ma/H
 -----END PGP SIGNATURE-----
 
---=-NUrL/aw839rL5hNVsGc2--
+--=-ieiCGUVV1wIX8vtZ+D0k--
 

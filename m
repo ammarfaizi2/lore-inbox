@@ -1,33 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVAOA7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVAOA7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVAOA7h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 19:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVAOA7g
+	id S262081AbVAOA7i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 19:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVAOAuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 19:59:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:50158 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262085AbVAOA6p (ORCPT
+	Fri, 14 Jan 2005 19:50:14 -0500
+Received: from waste.org ([216.27.176.166]:9953 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262071AbVAOAtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 19:58:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Cc5dsuQaC1ySXIdJ4wdunkKHpUIwTfPIS0HEWmjvkAWthzjHTtOoPRo5Rty3Z6Bh00fk3qCDXv/9LrIXWeZ/wvZJImhtuvyQb4wY8sXnNjX9b2wYEXjivC3xaiFMk8UG0L3vKXcQ6f9n16Iu/XVmvX0/gl4/ymGxvkD7IKI/58I=
-Message-ID: <58cb370e05011416584437493d@mail.gmail.com>
-Date: Sat, 15 Jan 2005 01:58:44 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [UPDATE PATCH] ide/ide-cd: use ssleep() instead of schedule_timeout()
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, kj <kernel-janitors@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050107194741.GG7387@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041225004846.GA19373@nd47.coderock.org>
-	 <20050107194013.GB2924@us.ibm.com> <20050107194741.GG7387@suse.de>
+	Fri, 14 Jan 2005 19:49:13 -0500
+Date: Fri, 14 Jan 2005 18:49:07 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.563253706@selenic.com>
+Message-Id: <6.563253706@selenic.com>
+Subject: [PATCH 5/10] random pt2: simplify initialization
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied
+Simplify the init code
+
+Signed-off-by: Matt Mackall <mpm@selenic.com>
+
+Index: rnd/drivers/char/random.c
+===================================================================
+--- rnd.orig/drivers/char/random.c	2005-01-12 21:28:02.593185340 -0800
++++ rnd/drivers/char/random.c	2005-01-12 21:28:03.909017586 -0800
+@@ -1485,9 +1485,6 @@
+ static void init_std_data(struct entropy_store *r)
+ {
+ 	struct timeval tv;
+-	__u32 words[2];
+-	char *p;
+-	int i;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&r->lock, flags);
+@@ -1495,20 +1492,9 @@
+ 	spin_unlock_irqrestore(&r->lock, flags);
+ 
+ 	do_gettimeofday(&tv);
+-	words[0] = tv.tv_sec;
+-	words[1] = tv.tv_usec;
+-	add_entropy_words(r, words, 2);
+-
+-	/*
+-	 *	This doesn't lock system.utsname. However, we are generating
+-	 *	entropy so a race with a name set here is fine.
+-	 */
+-	p = (char *) &system_utsname;
+-	for (i = sizeof(system_utsname) / sizeof(words); i; i--) {
+-		memcpy(words, p, sizeof(words));
+-		add_entropy_words(r, words, sizeof(words)/4);
+-		p += sizeof(words);
+-	}
++	add_entropy_words(r, (__u32 *)&tv, sizeof(tv)/4);
++	add_entropy_words(r, (__u32 *)&system_utsname,
++			  sizeof(system_utsname)/4);
+ }
+ 
+ static int __init rand_initialize(void)

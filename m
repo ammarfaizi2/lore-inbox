@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLNQqR>; Thu, 14 Dec 2000 11:46:17 -0500
+	id <S129345AbQLNQzl>; Thu, 14 Dec 2000 11:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129423AbQLNQqG>; Thu, 14 Dec 2000 11:46:06 -0500
-Received: from ulisse.provincia.parma.it ([195.120.125.15]:34503 "EHLO
-	ulisse.provincia.parma.it") by vger.kernel.org with ESMTP
-	id <S129267AbQLNQp5>; Thu, 14 Dec 2000 11:45:57 -0500
-Message-ID: <3A38F21E.B135B1C8@ca.provincia.parma.it>
-Date: Thu, 14 Dec 2000 16:15:26 +0000
-From: Marco Nardelli <marco@ca.provincia.parma.it>
-Reply-To: marco@ca.provincia.parma.it
-X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.2.12 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: macro MSG_PEEK
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129383AbQLNQza>; Thu, 14 Dec 2000 11:55:30 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:25348 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129345AbQLNQzS>; Thu, 14 Dec 2000 11:55:18 -0500
+Message-Id: <200012141624.eBEGOls50132@aslan.scsiguy.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
+In-Reply-To: Your message of "Thu, 14 Dec 2000 16:48:41 +0100."
+             <200012141548.QAA22537@ns.caldera.de> 
+Date: Thu, 14 Dec 2000 09:24:47 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-I have some trouble in testing a Perl module.
-The "make test" gives me this problem:
+>In article <200012132215.eBDMFas35908@aslan.scsiguy.com> you wrote:
+>> For those
+>> of you building the driver as a module, take note that the module
+>> name is now "aic7xxx_mod" rather than "aic7xxx".
+>
+>Could you please undo that change?
+>Postfixing a module name with _mod does not make sense.
+>Yes, some modules use it - but that's just because they have older source
+>files that are called like the multi-object module.
 
-t/07io..............Your vendor has not defined Socket macro MSG_PEEK,
-used at blib/lib/Convert/BER.pm line 968
-dubious
+It will change today assuming I can get the build to work consistently.
+The change occurred because the driver now is composed of multiple
+objects.
 
-and I didn't find this macro defined in "sys/types.h" or in
-"sys/socket.h" or in any other header.
-Can anyone help me?
-Does anyone know where I can find the macro MSG_PEEK?
-thanks in advance
-marco nardelli
-
+--
+Justin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

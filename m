@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTIUQmU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 12:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTIUQmU
+	id S262454AbTIUQth (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 12:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTIUQth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 12:42:20 -0400
-Received: from bolyai1.elte.hu ([157.181.72.1]:418 "EHLO bolyai1.elte.hu")
-	by vger.kernel.org with ESMTP id S262451AbTIUQmS (ORCPT
+	Sun, 21 Sep 2003 12:49:37 -0400
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:2002
+	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S262454AbTIUQtg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 12:42:18 -0400
-Subject: Re: Loop device and smbmount: I/O error
-From: Kovacs Gabor <kgabor@BOLYAI1.ELTE.HU>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+	Sun, 21 Sep 2003 12:49:36 -0400
+Date: Sun, 21 Sep 2003 12:49:33 -0400
+From: Sean Estabrooks <seanlkml@rogers.com>
+To: Russell King <rmk@arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F6B1FAF.89C9F5F4@pp.inet.fi>
-References: <1063914356.1639.34.camel@warp>  <3F6B1FAF.89C9F5F4@pp.inet.fi>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Sep 2003 18:46:03 +0200
-Message-Id: <1064162764.5217.5.camel@warp>
+Subject: Re: [PCMCIA]  Xircom nic hang on boot since cs.c race condition
+ patch
+Message-Id: <20030921124933.6ef0d1bb.seanlkml@rogers.com>
+In-Reply-To: <20030920222207.B4517@flint.arm.linux.org.uk>
+References: <20030917144406.753953dd.seanlkml@rogers.com>
+	<20030920222207.B4517@flint.arm.linux.org.uk>
+Organization: 
+X-Mailer: Sylpheed version 0.9.4-gtk2-20030802 (GTK+ 2.2.3; i386-redhat-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.103.218.41] using ID <seanlkml@rogers.com> at Sun, 21 Sep 2003 12:49:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-19 at 17:24, Jari Ruusu wrote:
+On Sat, 20 Sep 2003 22:22:07 +0100
+Russell King <rmk@arm.linux.org.uk> wrote:
+
+
+> Ok, can you try the attached patch please?  It basically juggles the
+> initialisation so that we avoid the locking issues by moving the init
+> between our the socket driver and our private thread.
 > 
-> This bug should be fixed in loop-AES version of loop, here:
+> The patch is against Linus' tree as of last Wednesday.
 > 
-> http://loop-aes.sourceforge.net/loop-AES/loop-AES-v1.7e.tar.bz2
-> 
-> Can you try again with that version?
+> Note that I haven't compile-tested this exact patch, (but one similar)
+> so I need feedback from both cardbus and pcmcia-using people before I
+> submit it.
 
-It works! (2.4.22 + loop-AES-v1.7e.tar.bz2)
-Thanks!
+Russell,
 
-Gabor Kovacs
+Thanks for the patch!  It applied cleanly against linus-bk as of
+this morning and fixed the problem here.
 
-
+Cheers,
+Sean

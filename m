@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129371AbQJ3WmU>; Mon, 30 Oct 2000 17:42:20 -0500
+	id <S129064AbQJ3Wwa>; Mon, 30 Oct 2000 17:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129475AbQJ3WmJ>; Mon, 30 Oct 2000 17:42:09 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:43534 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129371AbQJ3WmG>;
-	Mon, 30 Oct 2000 17:42:06 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S129068AbQJ3WwU>; Mon, 30 Oct 2000 17:52:20 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25350 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129064AbQJ3WwD>; Mon, 30 Oct 2000 17:52:03 -0500
+Date: Mon, 30 Oct 2000 14:51:25 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Keith Owens <kaos@ocs.com.au>
 cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: test10-pre7 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 14:24:13 -0800."
-             <Pine.LNX.4.10.10010301423070.1085-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 09:41:57 +1100
-Message-ID: <11037.972945717@ocs3.ocs-net>
+In-Reply-To: <11037.972945717@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.10.10010301447490.1085-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000 14:24:13 -0800 (PST), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->This is the right fix. We MUST NOT sort those things.
 
-Correction.  We can sort them if we know what the correct link order
-should be.  In far too many Makefiles, we have no idea if the existing
-order is required or is just historical so we fail safe and do not sort
-them.  For USB we know what the link order must be, usb.o must be
-first, the rest do not matter.  This patch only affects usb because it
-is the only one that uses LINK_FIRST.
 
->The only reason for sorting is apparently to remove the "multi-objs"
->things, and replace them with the object files they are composed of.
->
->To which I say "Why?"
->
->It makes more sense to just leave the multi's there.
+On Tue, 31 Oct 2000, Keith Owens wrote:
+> 
+> obj-y is used together with export-objs to split objects into O_OBJS
+> (no export symbol) and OX_OBJS (export symbol).  If usbcore.o (multi)
+> is not replaced by its components then usb.o (in export-objs) is not
+> added to OX_OBJS so usb.c gets compiled with the wrong flags which
+> causes incorrect module symbols.  Multi's in obj-y have to replaced by
+> their components before being split into O_OBS and OX_OBJS.
 
-obj-y is used together with export-objs to split objects into O_OBJS
-(no export symbol) and OX_OBJS (export symbol).  If usbcore.o (multi)
-is not replaced by its components then usb.o (in export-objs) is not
-added to OX_OBJS so usb.c gets compiled with the wrong flags which
-causes incorrect module symbols.  Multi's in obj-y have to replaced by
-their components before being split into O_OBS and OX_OBJS.
+Your honour, I object.
+
+What would be wrong with just splitting it the other way, ie make OX_OBJS
+be the expanded (but not ordered) list?
+
+That should take care of it, no?
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

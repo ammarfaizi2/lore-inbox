@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280964AbRKCPVi>; Sat, 3 Nov 2001 10:21:38 -0500
+	id <S280967AbRKCPa6>; Sat, 3 Nov 2001 10:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280965AbRKCPV1>; Sat, 3 Nov 2001 10:21:27 -0500
-Received: from sitar.i-cable.com ([210.80.60.11]:3217 "HELO sitar.i-cable.com")
-	by vger.kernel.org with SMTP id <S280964AbRKCPVS>;
-	Sat, 3 Nov 2001 10:21:18 -0500
-Message-ID: <3BE4B4D5.5090704@rcn.com.hk>
-Date: Sun, 04 Nov 2001 11:24:05 +0800
-From: David Chow <davidchow@rcn.com.hk>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-GB; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-gb
+	id <S280968AbRKCPas>; Sat, 3 Nov 2001 10:30:48 -0500
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:9616 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S280967AbRKCPae>; Sat, 3 Nov 2001 10:30:34 -0500
+Subject: [PATCH] 2.4.14-pre7 Missing disk req queue unplugs
+To: torvalds@transmeta.com
+Date: Sat, 3 Nov 2001 15:30:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, will_dyson@pobox.com
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: wrong domainname in ipconfig.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <E1602ki-0001Uw-00@draco.cus.cam.ac.uk>
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Linus,
 
-In ipconfig.c the GNU extension'ss domainname (ypdomain or nisdomain) in 
-system_utsname.domainname is wrong after executing the function "__init 
-ip_auto_config_setup()". It has mixed with the dnsdomain passed from the 
-kernel command line "ip=". This also results in the wrong hostname which 
-is passed by the command line, this make commands like "domainname", 
-"nisdomainname", "dnsdomainname" and "hostname" output wrong 
-information. The dns domainname should be read from the hostname from 
-the "uname()" call. The nisdomainname stored in the 
-system_utsname.domainname is a GNU extension. To support passing 
-nisdomain from the kernel command line should use a separate parameter 
-such as "nisdomain=" or "ypdomain=" where #ifdef _GNU_SOURCE will enable 
-compile-in of this bootup option to allow bootup configure with the 
-nisdomain. I will make a patch for this later. If anyone is also doing 
-the same thing, please give me a notice. Thanks.
+Please apply below patch for your next -pre kernel.
 
-regards,
+This patch adds two disk request queue unplugs in mm/filemap.c which are
+present in -ac kernels but not in -pre kernels.
 
-DC
+Without this patch NTFS TNG will hang when it tries to read anything using
+the page cache. Same for BeFS as reported by Will Dyson. The hangs would
+"unhang" as soon as something else caused disk io to happen (e.g. doing
+md5sum on an ext2 partition on a file that hasn't been accessed before
+so it isn't in the page cache yet).
+
+With this patch NTFS TNG no longer hangs. I haven't tried BeFS but I am
+confident it will be fixed by this patch, too.
+
+Thanks go to Andrew Morton for locating the problem causing the hangs.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+--- linux-2.4.14-pre7-unplug.diff ---
+
+diff -u -urN linux-2.4.14-pre7-vanilla/mm/filemap.c linux-2.4.14-pre7-aia1/mm/filemap.c
+--- linux-2.4.14-pre7-vanilla/mm/filemap.c	Sat Nov  3 12:17:55 2001
++++ linux-2.4.14-pre7-aia1/mm/filemap.c	Sat Nov  3 15:18:22 2001
+@@ -769,6 +769,7 @@
+ 		if (!PageLocked(page))
+ 			break;
+ 		sync_page(page);
++		run_task_queue(&tq_disk);
+ 		schedule();
+ 	} while (PageLocked(page));
+ 	tsk->state = TASK_RUNNING;
+@@ -800,7 +801,9 @@
+ 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+ 		if (PageLocked(page)) {
+ 			sync_page(page);
++			run_task_queue(&tq_disk);
+ 			schedule();
++			continue;
+ 		}
+ 		if (!TryLockPage(page))
+ 			break;
 

@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278125AbRKHUi1>; Thu, 8 Nov 2001 15:38:27 -0500
+	id <S278218AbRKHUsQ>; Thu, 8 Nov 2001 15:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278205AbRKHUiQ>; Thu, 8 Nov 2001 15:38:16 -0500
-Received: from a59178.upc-a.chello.nl ([62.163.59.178]:30987 "EHLO
-	www.unternet.org") by vger.kernel.org with ESMTP id <S278125AbRKHUiB>;
-	Thu, 8 Nov 2001 15:38:01 -0500
-Date: Thu, 8 Nov 2001 21:36:23 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Frank de Lange <lkml-frank@unternet.org>, linux-kernel@vger.kernel.org
-Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
-Message-ID: <20011108213623.B11523@unternet.org>
-In-Reply-To: <89EA9194B5B@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <89EA9194B5B@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Nov 08, 2001 at 09:08:10PM +0000
+	id <S278205AbRKHUsH>; Thu, 8 Nov 2001 15:48:07 -0500
+Received: from 24.213.60.124.up.mi.chartermi.net ([24.213.60.124]:28313 "EHLO
+	front2.chartermi.net") by vger.kernel.org with ESMTP
+	id <S278218AbRKHUsD>; Thu, 8 Nov 2001 15:48:03 -0500
+Date: Thu, 8 Nov 2001 14:49:53 -0600 (CST)
+From: Cheryl Homiak <chomiak@chartermi.net>
+To: linux-kernel@vger.kernel.org
+Subject: loopback device problem and unrequested modules trying to load:
+ linux-2.4.14
+Message-ID: <Pine.LNX.4.40.0111081437370.368-100000@maranatha>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 09:08:10PM +0000, Petr Vandrovec wrote:
-> Is it really solid freeze (what does alt-sysrq-s,u,s,b)? 
+I experienced dependency problems with the 2.2.14 kernel when I tried to
+compile in loopback block device, as others have reported. In addition to
+this,modprobe was looking for modules which I had not had installed:
+sound-service0-0 and sound-slot (may not have the module names verbatim).
+I have sound support compiled in to the kernel; there should be no sound
+modules loading, and I didn't have any loading before compiling this
+kernel. when I rebooted with my oldkernel, those modules were no longer
+trying to load. I should clarify that the modules weren't actually
+loading; modprobe was trying to find them and couldn't. I double-checked
+my config to make sure I hadn't requested any modules for sound by
+accident.
 
-Solid as a rock, nothing responds anymore. You can sit an elephant on the
-keyboard and it won't respond.
-
-Only the big white switch helps (fsck'ing 80 gigs gives me enough time to make
-a good cup of coffee... time for ext3 in the main kernel series...)
-
-Have you investigated the problems any further? I mean, does it hang in the
-vmware module (probably vmmon as it does not seem to be related to network or
-other peripheral activity), or is it somewhere in the main kernel code?
-
- [ maybe I should give up and just install that kernel debugger... ]
-
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]

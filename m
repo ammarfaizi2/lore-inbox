@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbUKQAg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbUKQAml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbUKQAg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 19:36:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUKQAeg
+	id S262150AbUKQAml (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 19:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUKQAjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 19:34:36 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:38019 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S262134AbUKQAcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 19:32:51 -0500
-Date: Wed, 17 Nov 2004 01:32:48 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [BUG][2.6.10-rc2-bk1] ACPI S3 suspend to RAM broken (may be USB unable to resume)
-Message-ID: <20041117003248.GA5226@khan.acc.umu.se>
-Mail-Followup-To: Shawn Starr <shawn.starr@rogers.com>,
-	linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
-	acpi-devel@lists.sourceforge.net
-References: <200411161838.28344.shawn.starr@rogers.com>
+	Tue, 16 Nov 2004 19:39:54 -0500
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:34224 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262134AbUKQAhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 19:37:24 -0500
+References: <419A9151.2000508@atmos.washington.edu> <20041116163257.0e63031d@zqx3.pdx.osdl.net>
+Message-ID: <cone.1100651833.776334.15267.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Network slowdown from 2.6.7 to 2.6.9
+Date: Wed, 17 Nov 2004 11:37:13 +1100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-In-Reply-To: <200411161838.28344.shawn.starr@rogers.com>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 06:38:27PM -0500, Shawn Starr wrote:
+Stephen Hemminger writes:
+
+> On Tue, 16 Nov 2004 15:46:25 -0800
+> Harry Edmon <harry@atmos.washington.edu> wrote:
 > 
-> As of 2.6.10-rc1 + I can no longer resume from S3 (suspend-to-RAM),  When it 
-> begins to resume, it seems to get stuck with USB (going to confirm).. The 
-> laptop stays in a stuck state (cresent-moon remains lit).
-
-I experience the same problem, but if I remove the snd_intel8x0 driver
-before suspending, resume works properly.  This problem started with
--rc1-bk15 for me; which is interesting since there doesn't seem to be
-any changes to snd_intel8x0 between -bk13 and -bk15...
-
-> I have IBM-ACPI extras turned on (compiled in).
+>> I have a system that is running a program that receives and sends 
+>> atmospheric data via TCP.  Most of the data is either in little packets 
+>> (between 64 and 127 bytes) and large packets (between 1024 and 1517).  I 
+>> am running this on a dual Xeon box (Tyan S2721-533 motherboard) with 2 
+>> GB of memory and a Intel gigabit ethernet (82546EB).  I have been 
+>> running this under 2.6.7.  When I switch to 2.6.9 on the same hardware, 
+>> my network throughtput is cut by more than half.  All I can tell from 
+>> looking at "netstat -s" is that my TCP resets are orders of magnitude 
+>> higher under 2.6.9 than 2.6.7.  Enclosed is my 2.6.7 and 2.6.9 config 
+>> files.  Anyone have any ideas where I should look to find the problem?
 > 
-> Anyone else report this?
+> Do an OpenBSD or other firewall in the way that doesn't understand window
+> scaling? OpenBSD pf doesn't correctly TCP window scaling so it ruins the
+> throughput (typically 1/4 of expected).
 
+Easiest way to see if this is responsible is to disable it and see if the 
+throughput improves
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+
+Cheers,
+Con
+

@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131060AbQL1SfG>; Thu, 28 Dec 2000 13:35:06 -0500
+	id <S129391AbQL1SiR>; Thu, 28 Dec 2000 13:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131071AbQL1Se4>; Thu, 28 Dec 2000 13:34:56 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:47860 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131060AbQL1Seu>; Thu, 28 Dec 2000 13:34:50 -0500
-Date: Thu, 28 Dec 2000 16:02:49 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dan Aloni <karrde@callisto.yi.org>, Zlatko Calusic <zlatko@iskon.hr>,
-        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.10.10012280946020.12064-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0012281552390.14052-100000@duckman.distro.conectiva>
+	id <S129408AbQL1SiH>; Thu, 28 Dec 2000 13:38:07 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:60423 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129391AbQL1Shv>; Thu, 28 Dec 2000 13:37:51 -0500
+Date: Thu, 28 Dec 2000 10:07:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Rohland <cr@sap.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] shmem_unuse race fix
+In-Reply-To: <m31yuswyig.fsf@linux.local>
+Message-ID: <Pine.LNX.4.10.10012281003360.12064-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000, Linus Torvalds wrote:
-> On Thu, 28 Dec 2000, Rik van Riel wrote:
-> > 
-> > I've made a small debugging patch that simply checks
-> > for this illegal state in add_page_to_active_list and
-> > add_page_to_inactive_dirty_list.
+
+
+On 28 Dec 2000, Christoph Rohland wrote:
 > 
-> I bet it won't catch the real bad guy, which almost certainly is
-> the "remove_from_swap_cache()" thing (it should do a
-> ClearPageDirty() before it removes it from the swapper_inode
-> mapping).
+> First we need the following patch since otherwise we use a swap entry
+> without having the count increased:
 
-Ohhh indeed. This is a very likely candidate which is
-trivial to fix.
+No, that shouldn't be needed.
 
-regards,
+Look at the code-path: the kernel has the page locked, so nothing will
+de-allocate the swap entry - so it's perfectly ok to increase it later. I
+dislike the "magic" __get_swap_page(2) thing - we might make
+get_swap_page() itself _always_ return a swap entry with count two (one
+fot eh swap cache, one for the user), or we should keep it the way it was
+(where we explicitly increment it for the user).
 
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
+> Second there look at this in handle_pte_fault:
+> 
+> 		/*
+> 		 * If it truly wasn't present, we know that kswapd
+> 		 * and the PTE updates will not touch it later. So
+> 		 * drop the lock.
+> 		 */
+> 		spin_unlock(&mm->page_table_lock);
+> 		if (pte_none(entry))
+> 			return do_no_page(mm, vma, address, write_access, pte);
+> 		return do_swap_page(mm, vma, address, pte, pte_to_swp_entry(entry), write_access);
+> 
+> The comment is wrong. try_to_unuse will touch it. This stumbles over a
+> bad swap entry after try_to_unuse complaining about an undead swap
+> entry.
+> 
+> If I retry in try_to_unuse it goes into an infinite loop since it
+> deadlocks with this.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Ok. How about making try_to_unuse() just get the VM semaphore instead of
+the page table lock?
+
+Then try_to_unuse() would follow all the right rules, and the above
+problem wouldn't exist..
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQLaMuo>; Sun, 31 Dec 2000 07:50:44 -0500
+	id <S129324AbQLaNVq>; Sun, 31 Dec 2000 08:21:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLaMue>; Sun, 31 Dec 2000 07:50:34 -0500
-Received: from AGrenoble-101-1-1-84.abo.wanadoo.fr ([193.251.23.84]:51953 "EHLO
-	lyon.ram.loc") by vger.kernel.org with ESMTP id <S129324AbQLaMuV>;
-	Sun, 31 Dec 2000 07:50:21 -0500
-From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0 test13-pre7 still causes CDROM ioctl errors
-X-Mailer: MH [version 6.8]
-Organization: Home, Grenoble, France
-Date: Sun, 31 Dec 2000 13:19:47 +0100
-Message-ID: <1344.978265187@nice.ram.loc>
+	id <S129370AbQLaNVh>; Sun, 31 Dec 2000 08:21:37 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:55050 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129324AbQLaNVQ>; Sun, 31 Dec 2000 08:21:16 -0500
+Date: Sun, 31 Dec 2000 12:50:49 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Steven Cole <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre7...
+In-Reply-To: <Pine.LNX.4.10.10012301910420.1904-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0012311249560.20938-100000@ferret.lmh.ox.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had sent the following report a week ago:
 
---------------------------
-Since I've installed 2.4.0 test13-pre4, I see the following errors
-in my log:
+On Sat, 30 Dec 2000, Linus Torvalds wrote:
 
-	sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+> On Sat, 30 Dec 2000, Steven Cole wrote:
+> >
+> > It looks like 2.4.0-test13-pre7 is a clear winner when running dbench 48
+> > on my somewhat slow test machine (450 Mhz P-III, 192MB, IDE).
+>
+> This is almost certainly purely due to changing (some would say "fixing")
+> the bdflush synchronous wait point.
 
-and xmcd reports:
+Nice:)
 
-	CD audio: ioctl error on /dev/scd0: cmd=CDROMVOLCTRL errno=95
+Did Rik's drop_behind performance fix make it in or can we look forward to
+another jump in the dbench benchmarks?
 
-This was working fine with 2.4.0 test12-pre5, which was the previous
-kernel I was using.
--------------------------
+Cheers
+Chris
 
-Well, I installed 2.4.0 test13-pre7 and I still have the same error.
-
-My CDROM driver is SCSI, connected to a Tekram DC390.  I use
-the am53c974 driver.
-
-Something must have changed in this driver since 2.4.0 test12-pre5 which
-broke the ioctl() handling routine.
-
-Raphael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

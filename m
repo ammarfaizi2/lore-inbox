@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVBKJkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVBKJmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbVBKJkm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 04:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVBKJkm
+	id S262226AbVBKJmi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 04:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVBKJmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 04:40:42 -0500
-Received: from waste.org ([216.27.176.166]:45031 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262223AbVBKJkg (ORCPT
+	Fri, 11 Feb 2005 04:42:38 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:17294 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262226AbVBKJmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 04:40:36 -0500
-Date: Fri, 11 Feb 2005 01:40:21 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
-Subject: Re: 2.6.11-rc3-mm2
-Message-ID: <20050211094021.GJ15058@waste.org>
-References: <a075431a050210125145d51e8c@mail.gmail.com> <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net> <20050211020956.GC15058@waste.org> <20050211081422.GB2287@elte.hu> <20050211084107.GG15058@waste.org> <20050211085942.GB3980@elte.hu>
+	Fri, 11 Feb 2005 04:42:33 -0500
+Date: Fri, 11 Feb 2005 10:42:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Sven Dietrich <sdietrich@mvista.com>
+Cc: "'George Anzinger'" <george@mvista.com>,
+       "'William Weston'" <weston@lysdexia.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+Message-ID: <20050211094222.GA6229@elte.hu>
+References: <20050211083408.GB3349@elte.hu> <000501c5101d$8247b280$c800a8c0@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050211085942.GB3980@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <000501c5101d$8247b280$c800a8c0@mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 09:59:42AM +0100, Ingo Molnar wrote:
+
+* Sven Dietrich <sdietrich@mvista.com> wrote:
+
+> No, this is not in arm. Here is the patch.
 > 
-> think of SCHED_FIFO on the desktop as an ugly wart, a hammer, that
-> destroys the careful balance of priorities of SCHED_OTHER tasks. Yes, it
-> can be useful if you _need_ a scheduling guarantee due to physical
-> constraints, and it can be useful if the hardware (or the kernel) cannot
-> buffer enough, but otherwise, it only causes problems.
+> Index: linux-2.6.10/include/asm-i386/spinlock.h
 
-Agreed. I think something short of full SCHED_FIFO will make most
-desktop folks happy. But a) we still have to figure out exactly how to
-do that and b) we still have to make everyone else happy. The embedded
-folks (me included) would prefer to not run our realtime bits as root
-too..
+what version do you have? The current released patch is
+2.6.11-rc3-V0.7.38-10.
 
-> but i'm not sure how rlimits will contain the whole problem - can
-> rlimits be restricted to a single app (jackd)?
-
-Yes. There's also the whole soft limit thing.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+	Ingo

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272049AbTG2UXK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 16:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272058AbTG2UXK
+	id S272062AbTG2U3R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272048AbTG2U3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 16:23:10 -0400
-Received: from modemcable198.171-130-66.que.mc.videotron.ca ([66.130.171.198]:8325
-	"EHLO gaston") by vger.kernel.org with ESMTP id S272049AbTG2UXH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 16:23:07 -0400
-Subject: Re: [PATCH] Framebuffer: client notification mecanism & PM
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0307291753530.5874-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0307291753530.5874-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059510171.8538.53.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 29 Jul 2003 16:22:51 -0400
+	Tue, 29 Jul 2003 16:29:17 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:16768 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272062AbTG2U3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 16:29:11 -0400
+Date: Tue, 29 Jul 2003 21:38:52 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-29 at 12:55, James Simmons wrote:
-> > > matroxfb tried to use a 'dead' for handling hot removal, but your code
-> > > looks definitely saner
-> > 
-> > My code wasn't really intended to deal with hot-removal, more with
-> > "what happens if printk occurs during the Power Management suspend
-> > sequence", but I tried to keep the notification mecanism simple
-> > enough so it could be used for that as well. Also, indeed, the fbcon
-> > changes should deal with hot-removal in some way (though you surely
-> > also want to "deatch" from the fbdev's in this case).
-> > 
-> > Among other things that could be used for is live monitor insertion/
-> > removal detection (some HW are able to do that), "pivot" monitor
-> > kind of things, etc... typically via the mode_changed hook.
-> 
-> I knew it was a matter of time before "client" management would happen. 
-> Is this a 2.6.X thing tho or shoudl we wait for the next developement 
-> cycle. I don't mind working on experimental stuff.
+> > This patch adds an abstraction layer for programmable LED devices,
+> > hardware drivers for the Status LEDs found on some Intel PIIX4E based
+> > server hardware (notably the ISP1100 1U rackmount server) and LEDs wired
+> > to the parallel port data lines.
+>
+> I haven't had chance to test this yet, but I really like the idea - by
+> an amasing co-incidence, I was actually thinking about the possibility
+> of doing a parallel port connected front panel earlier today!
+>
+> Does anybody have any suggestions for recommended standard uses for
+> parallel port connected LEDs?
+>
+> Disk spinning up/disk ready
+> Root login active
+>
+> Any other suggestions?
 
-We need that now for proper power management.
+Ah, I just thought, for debugging purposes we could have LEDs for:
 
-Ben.
+* BKL taken
+* Servicing interrupt
+* Kernel stack usage > 2K
 
+John.

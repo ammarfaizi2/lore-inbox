@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUCHAwb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 19:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbUCHAwb
+	id S262359AbUCHA5L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 19:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbUCHA5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 19:52:31 -0500
-Received: from ce.fis.unam.mx ([132.248.33.1]:13730 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id S262361AbUCHAw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 19:52:28 -0500
-From: Max Valdez <maxvalde@fis.unam.mx>
-Organization: CCF
-To: linux-kernel@vger.kernel.org
-Subject: distcc crashes fedora 2.4.22-1.2149.nptl
-Date: Sun, 7 Mar 2004 18:52:18 -0600
-User-Agent: KMail/1.6.51
+	Sun, 7 Mar 2004 19:57:11 -0500
+Received: from 18-165-237-24-mvl.nwc.gci.net ([24.237.165.18]:9871 "EHLO
+	nevaeh-linux.org") by vger.kernel.org with ESMTP id S262359AbUCHA4r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 19:56:47 -0500
+Date: Sun, 7 Mar 2004 15:56:47 -0900 (AKST)
+From: Arthur Corliss <corliss@digitalmages.com>
+X-X-Sender: acorliss@bifrost.nevaeh-linux.org
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+cc: Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Re: 2.6.x BSD Process Accounting w/High UID
+In-Reply-To: <Pine.LNX.4.53.0403071820190.32060@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.58.0403071535290.1733@bifrost.nevaeh-linux.org>
+References: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com>
+ <Pine.LNX.4.58.0403041103500.24930@bifrost.nevaeh-linux.org>
+ <Pine.LNX.4.53.0403042242190.29818@gockel.physik3.uni-rostock.de>
+ <Pine.LNX.4.58.0403041324330.20616@bifrost.nevaeh-linux.org>
+ <Pine.LNX.4.53.0403071820190.32060@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403071852.18132.maxvalde@fis.unam.mx>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Sun, 7 Mar 2004, Tim Schmielau wrote:
 
-I'm experiencing something weird, I use distcc over a couple of boxes using 
-fedora, both of them crash every once in a while if compiling something 
-remotelly. But it seems to happen only when the sender is my box running 
-2.6.4-rc1-mm1 kernel, not tried other 2.6 kernels, but with 2.4.25 nothing 
-bad happened.
+> But the current tools are only broken for the few people using high UIDs
+> (and generally on 64 bit archs, but that's a different story).
 
-The fedora kernel version is 2.4.22-1.2149.nptl.
+This is broken on x86 as well.  I guess I still have to question the logic of
+logging bad data, even if you think the data is infrequent at best.  Keep in
+mind that in my environment I'm not using high UIDs because I actually have
+that many accounts, I'm using them because each employee uses their employee
+ID as their UID, which simplifies management for me.  Again, this most likely
+isn't typical, but it's not irrational, either.
 
-I know this is not the correct list to ask problems about fedora, but maybe 
-someone knows what can be happening, and what can I do to trace the problem 
-down. Should I try to install a vanilla kernel to see if that corrects the 
-problem ?
+> We shouldn't require people to recompile their userspace tools in the
+> middle of a stable kernel series. (OK, 2.6 has just started, but we don't
+> want to offend people upgrading from 2.4, either.)
 
-Max
+I can understand this argument, and I would certainly agree for things that
+are commonly used.  But given the state of the BSD accounting tools (a package
+that hasn't had a public update since 1998, and which has non-high uid broken
+bits in it as well) I would hazard a guess that the impacted users is going to
+be minimal, at best.
 
--- 
-Linux garaged 2.6.3-mm3 #2 SMP Tue Feb 24 15:44:58 CST 2004 i686 Intel(R) 
-Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GS/S d- s: a-29 C++(+++) ULAHI+++ P+ L++>+++ E--- W++ N* o-- K- w++++ O- M-- 
-V-- PS+ PE Y-- PGP++ t- 5- X+ R tv++ b+ DI+++ D- G++ e++ h+ r+ z**
-------END GEEK CODE BLOCK------
-gpg-key: http://garaged.homeip.net/gpg-key.txt
+> How about the patch below? It requires a change to userspace tools if you
+> want to use high uids, but it dosn't break binary compatibility. It even
+> allows userspace to check whether high UIDs are supported, and allows
+> future incompatible format changes to be detected.
+
+I like it, and the addition of ac_version is a great idea.  I might alter the
+comment about 64-bit machines in acct.c, though.  32-bit UIDs affects 32-bit
+machines as well.
+
+> Well, they are not totally meaningless since we clip at the maximum
+> representable value instead of wrapping around.
+
+:-P I don't look at this any different than the byte-clipping we're doing with
+UIDs.  If we're logging data that's wrong, then you can't do accurate
+accounting, period.
+
+	--Arthur Corliss
+	  Bolverk's Lair -- http://arthur.corlissfamily.org/
+	  Digital Mages -- http://www.digitalmages.com/
+	  "Live Free or Die, the Only Way to Live" -- NH State Motto

@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132251AbRBEM5K>; Mon, 5 Feb 2001 07:57:10 -0500
+	id <S132418AbRBEM7u>; Mon, 5 Feb 2001 07:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132418AbRBEM5A>; Mon, 5 Feb 2001 07:57:00 -0500
-Received: from bastion.power-x.co.uk ([62.232.19.201]:48658 "EHLO
-	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
-	id <S132251AbRBEM4t>; Mon, 5 Feb 2001 07:56:49 -0500
-Date: Mon, 5 Feb 2001 12:57:37 +0000 (GMT)
-From: "Dr. David Gilbert" <dave@treblig.org>
-To: Hans Reiser <reiser@namesys.com>
-cc: <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink
-In-Reply-To: <3A7E998A.9CB7A4B3@namesys.com>
-Message-ID: <Pine.LNX.4.30.0102051255200.18076-100000@springhead.px.uk.com>
+	id <S132711AbRBEM7k>; Mon, 5 Feb 2001 07:59:40 -0500
+Received: from colorfullife.com ([216.156.138.34]:43269 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132418AbRBEM73>;
+	Mon, 5 Feb 2001 07:59:29 -0500
+Message-ID: <3A7EA3B0.2D7CFA19@colorfullife.com>
+Date: Mon, 05 Feb 2001 13:59:28 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: christophe barbe <christophe.barbe@inup.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IRQ and sleep_on
+In-Reply-To: <20010205131154.I31876@pc8.inup.com> <20010205133837.A485@pc8.inup.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Hans Reiser wrote:
-
-> and if reiserfs is the root partition?  You really want to make them reboot to
-> the old kernel and recompile rather than making them just recompile?
+christophe barbe wrote:
+> 
+> I've missed the thread "avoiding bad sleeps" last week. I've had a similar problem
+> and I would like to discuss the solution I've used to avoid it.
+> 
+> I want to wake up a sleeping process from an IRQ handler. In the process, if I use
+> a interruptible_sleep_on(), I need first to restore flags (otherwise the process
+> will sleep forever).
+> 
+> restore_flags(flags);
+> // <<== here IRQ handler possibly call wake_up()
+> interruptible_sleep_on(&my_queue);
 >
-> Stop trying to blame something other than the compiler, it is ridiculous.
+> [...]
+> I've written a modified version of  interruptible_sleep_on which takes an
+> additionnal argument : flags to be restored.
 
-Blaming the compiler is one thing - however stopping the user running into
-a bug caused by a dodgy compiler is a different one.
+That's possible, but it will crash on Sparc: you cannot restore the
+interrupt flag saved in one function in another function.
 
-Putting a test in to identify a duff compiler and then stop the kernel
-doing something potentially dangerous given that it has been compiled in a
-broken way is perfectly reasonable.
+The solution is very simple: do not call restore_flags() before
+interruptible_sleep_on(), the schedule internally reenables interrupts.
 
-Dave
+>>>>>>>>>>
+for(;;) {
+	cli();
+	if(condition) {
+		sti();
+		break;
+	}
+	interruptible_sleep_on();
+	sti(); /* required! */
+} 	
+>>>>>>>>>
 
--- 
-/------------------------------------------------------------------\
-| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
-| -------- G7FHJ --------|---------------------------------------- |
-| Home: dave@treblig.org            http://www.treblig.org         |
-\------------------------------------------------------------------/
+But if you are writing new code, then DO NOT USE sleep_on(), use
+add_wait_queue(), and a spinlock instead of cli().
+Look at wait_event_irq in <linux/raid/md_k.h> from the 2.4 kernel as an
+example.
 
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271940AbTG2RxB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 13:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271943AbTG2RxA
+	id S271943AbTG2RzX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 13:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271845AbTG2RxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 13:53:00 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:13697 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S271940AbTG2Rso (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 13:48:44 -0400
-Message-Id: <200307291748.h6THma3o007162@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andries.Brouwer@cwi.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [PATCH] select fix 
-In-Reply-To: Your message of "Tue, 29 Jul 2003 10:36:30 PDT."
-             <20030729103630.7fb415cb.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <UTC200307291412.h6TECwA17034.aeb@smtp.cwi.nl>
-            <20030729103630.7fb415cb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1531834568P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 29 Jul 2003 13:48:36 -0400
+	Tue, 29 Jul 2003 13:53:14 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:52616 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S271941AbTG2Rve
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 13:51:34 -0400
+Date: Tue, 29 Jul 2003 13:54:05 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: James Simmons <jsimmons@infradead.org>
+cc: Charles Lepple <clepple@ghz.cc>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+In-Reply-To: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
+Message-ID: <Pine.LNX.4.53.0307291338260.6166@chaos>
+References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1531834568P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 29 Jul 2003, James Simmons wrote:
 
-On Tue, 29 Jul 2003 10:36:30 PDT, Andrew Morton said:
+>
+> > Yes. This is f*ing absurb. A default that kills the screen and the
+> > requirement to send some @!_$%!@$ sequences to turn it off. This
+> > is absolute crap, absolutely positively, with no possible justification
+> > whatsoever. If I made an ioctl, it will probably be rejected.........
+>
+> Welcome to the world of ESC sequences. These are terminal standards. Sorry.
+>
 
-> > -	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
-> > +	if (!tty->stopped && tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
-> >  		mask |= POLLOUT | POLLWRNORM;
-> 
-> Manfred sent a patch through esterday which addresses it this way:
-> 
-> -	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
-> +	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS &&
-> +			tty->driver->write_room(tty) > 0)
-> 
-> Any preferences?
+No. There are no ANSI, nor DEC nor AT&T nor IRIS, nor IBM, nor any
+other terminals that have screen-blanking capabilities. These are
+the inventions of later-date emulations. If my DEC VT-220 screen
+went blank I would need to have it serviced.
 
-Would including all 3 conditions make sense?  Not sure if it should be A&B&C, or
-A&(B|C) though, but it certainly smells like the write_room() and tty->stopped
-checks are covering 2 different corner cases....
+This is a PC invention that was adopted by Linux. It's very poor
+design to have screen blanking enabled as the default. It's a
+feature that should be enabled if wanted, not forced.
 
---==_Exmh_1531834568P
-Content-Type: application/pgp-signature
+If you are not on-site within 10 minutes of having a remote
+system fail, you can't see what's on the screen when you
+plug in your monitor because the console driver has dutifully
+blanked the screen. And, you can write escape sequences from
+a task that doesn't exist. If `init` or whatever substitutes
+for it fails to execute, unless you are watching, or can observe
+the result before the screen blanks, you can't see what happened.
+It is very poor design.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+If the machine had blanking disabled by default, then the
+usual SYS-V startup scripts could execute setterm to enable
+it IFF it was wanted.
 
-iD8DBQE/JrN0cC3lWbTT17ARAs34AKDaBY+VvGHFEiB002eD82iM98X5bQCfahtx
-vx5kJNJrSN936/yL+lm5oaI=
-=bYrV
------END PGP SIGNATURE-----
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
---==_Exmh_1531834568P--

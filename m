@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263361AbVCDXIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263578AbVCEEez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263361AbVCDXIA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbVCDXEZ
+	id S263578AbVCEEez (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 23:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbVCDXmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:04:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45474 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263193AbVCDUy7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:59 -0500
-Cc: muneda.takahiro@jp.fujitsu.com
-Subject: [PATCH] PCI: fix pci_remove_legacy_files() crash
-In-Reply-To: <11099696361878@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:53:56 -0800
-Message-Id: <11099696363673@kroah.com>
+	Fri, 4 Mar 2005 18:42:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35266 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263276AbVCDVuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 16:50:54 -0500
+Date: Fri, 4 Mar 2005 16:50:33 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       torvalds@osdl.org
+Subject: Re: Linux 2.6.11.1
+Message-ID: <20050304215033.GB931@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
+References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304124431.676fd7cf.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1998.11.11, 2005/02/07 16:20:26-08:00, muneda.takahiro@jp.fujitsu.com
+On Fri, Mar 04, 2005 at 12:44:31PM -0800, Andrew Morton wrote:
 
-[PATCH] PCI: fix pci_remove_legacy_files() crash
+ > wrt the nfsd patches, Neil said:
+ > 
+ > The problem they fix is that currently:
+ >     Client A holds a lock
+ >     Client B tries to get the lock and blocks
+ >     Client A drops the lock
+ >   **Client B doesn't get the lock immediately, but has to wait for a
+ >            timeout. (several seconds)
 
-The legacy_io which is the member of pci_bus struct might be
-NULL. It should be checked.
+Sounds like a performance thing than "oh my god the world is falling apart"
+type thing.  Given it recovers after a few seconds, is it worth it ?
 
-This patch checks 'b->legacy_io', NULL or not.
-
-Signed-off-by: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
-Acked-by: Jesse Barnes <jbarnes@sgi.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
- drivers/pci/probe.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	2005-03-04 12:42:59 -08:00
-+++ b/drivers/pci/probe.c	2005-03-04 12:42:59 -08:00
-@@ -64,9 +64,11 @@
- 
- void pci_remove_legacy_files(struct pci_bus *b)
- {
--	class_device_remove_bin_file(&b->class_dev, b->legacy_io);
--	class_device_remove_bin_file(&b->class_dev, b->legacy_mem);
--	kfree(b->legacy_io); /* both are allocated here */
-+	if (b->legacy_io) {
-+		class_device_remove_bin_file(&b->class_dev, b->legacy_io);
-+		class_device_remove_bin_file(&b->class_dev, b->legacy_mem);
-+		kfree(b->legacy_io); /* both are allocated here */
-+	}
- }
- #else /* !HAVE_PCI_LEGACY */
- static inline void pci_create_legacy_files(struct pci_bus *bus) { return; }
+		Dave
 

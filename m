@@ -1,93 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbTJQBeb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 21:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTJQBeb
+	id S263275AbTJQBgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 21:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTJQBgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 21:34:31 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56434 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263272AbTJQBe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 21:34:29 -0400
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Josh Litherland <josh@temp123.org>,
+	Thu, 16 Oct 2003 21:36:36 -0400
+Received: from [65.248.22.68] ([65.248.22.68]:36300 "EHLO stoneflynetworks.com")
+	by vger.kernel.org with ESMTP id S263275AbTJQBg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 21:36:27 -0400
+Subject: tg3 driver - trying to get the old v0.99 driver woking on RedHat
+	2.4.18-10
+From: Piet Delaney <piet@stoneflynetworks.com>
+Reply-To: piet@stoneflynetworks.com
+To: Linux-Net <linux-net@vger.kernel.org>
+Cc: Piet Delaney <piet@www.piet.net>, Piet Delaney <piet@stoneflynetworks.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-References: <1066163449.4286.4.camel@Borogove>
-	<20031015133305.GF24799@bitwizard.nl>
-	<16269.20654.201680.390284@laputa.namesys.com>
-	<20031015142738.GG24799@bitwizard.nl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Oct 2003 19:32:57 -0600
-In-Reply-To: <20031015142738.GG24799@bitwizard.nl>
-Message-ID: <m1ekxcejhy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Organization: StoneFLy Networks
+Message-Id: <1066354407.2525.40.camel@piet1.stonefly.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 16 Oct 2003 18:33:27 -0700
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Oct 2003 01:36:26.0606 (UTC) FILETIME=[14A300E0:01C3944F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> writes:
+I'm curently locked in to using this old RedHat 7.3 with
+the old 2.4.18 kernel. I need the see what's going on with
+skbuffs in the ethernet driver, in this case the broadcom
+bcm5700. When running 2.6 I use the tg3 driver and it's
+wonderfull. Getting the Broadcom driver to like without
+being a module looked more difficult that just using an
+older version of the tg3.c driver. I updated the old 0.99
+version (Jun 11, 2002) to know about the Serverworks Card:
 
-> On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
-> > Erik Mouw writes:
-> >  > Nowadays disks are so incredibly cheap, that transparent compression
-> >  > support is not realy worth it anymore (IMHO).
-> > 
-> > But disk bandwidth is so incredibly expensive that compression becoming
-> > more and more useful: on compressed file system bandwidth of user-data
-> > transfers can be larger than raw disk bandwidth. It is the same
-> > situation as with allocation of disk space for files: disks are cheap,
-> > but storing several files in the same block becomes more advantageous
-> > over time.
-> 
-> You have a point, but remember that modern IDE drives can do about
-> 50MB/s from medium. I don't think you'll find a CPU that is able to
-> handle transparent decompression on the fly at 50MB/s, even not with a
-> simple compression scheme as used in NTFS (see the NTFS docs on
-> SourceForge for details).
+	{ PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC1001,
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
+        { PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC1003,
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
+        { PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC9100,
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
 
-You don't need to do 50MB/s decompression to for compression to be
-a win though.  At 16MB/s with an average of 3:1 compression you have
-achieved the same speed off of the disk.  So you only need > 16MB/s
-for it to be a speed win.  The double buffering and cpu resources
-may give rise to other throughput issues though.
+        { PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_0X14,
+							/* Piet */
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
+        { 0, }
 
-Beyond that modern disks cannot do 50MB/s random I/O seeks are too
-expensive.  So by compressing data you can fit it into a smaller
-space and with care reduce your seek overhead.
+and the device is matched ok now. Unfortunately when it does
+the probe it fails:
+--------------------------------------------------------------------
+(gdb) where
 
-Looking for some real world examples I picked one of my log files that
-I generate from my daily development activities.  It was archived
-with logrotate and already compressed.  And I just picked the largest 
-one.  The file is a text log file, it is not full of zeros and
-run length encoding it would not be useful.
+#0  pcnet32_probe_pci (pdev=0xc16b3000, ent=0x0) at pcnet32.c:493
+#1  0xc028213d in pci_announce_device (drv=<incomplete type>,
+dev=0xc16b3000) at
+ pci.c:626
+#2  0xc02821a2 in pci_register_driver (drv=<incomplete type>) at
+pci.c:653
+#3  0xc042ffd0 in pcnet32_init_module () at
+/home/piet2/src/stonefly/perf/eng/ba
+sebuilds/stonefly/kernel/linux-2.4.18-10/include/linux/pci.h:686
+#4  0xc041c7a2 in do_initcalls () at init/main.c:427
+#5  0xc010503b in init (unused=0x0) at init/main.c:537
+(gdb)
+------------------------------------------------------------------------
+tg3.c:v0.99 (Jun 11, 2002)
+tg3: Cannot find proper PCI device base address, aborting.
+tg3: Cannot find proper PCI device base address, aborting.
+tg3: Cannot find proper PCI device base address, aborting.
+PCI: Assigned IRQ 7 for device 02:00.0
+tg3: Problem fetching invariants of chip, aborting.
+PCI: Assigned IRQ 5 for device 02:00.1
+tg3: Problem ", aborting.
+PCI: Assigned IRQ 7 for device 03:06.0
+tg3: Problem fetching invariants of chip, aborting.
+PCI: Assigned IRQ 5 for device 03:06.1
+tg3: Problem fetching invariants of chip, aborting.
+---------------------------------------------------------------------------
 
-Compressed it is 5.5M decompressed it is 128M.  
-At home on my athlon 700Mhz I can decompress it in roughly 3 seconds.
-At work on my xeon 1.7Ghz  I can decompress it in 1 second.
-On my test opteron at 1.4 Ghz I can decompress it in 0.9 seconds.
+What does "fetching invariants of chip" mean?
 
-So I would get effective 42MB/s at home and 128MB/s at work, and 142MB/s on my
-test box.  So for some loads there is certainly a performance win to
-be had.
+I thought one of you guys might have a suggestion.
 
-The way to incorporate this into the write path of a filesystem
-is to use delayed allocation, and put off the write as long as possible.
-Then compress the file, allocate the blocks for it and write it in one
-big piece.   This allows very big compressed blocks.  e2compr I think stopped
-development before compression was implemented in the right place.
+The tg3 driver looks cleaner than the Brodcom addon.
+I could also modify the driver so it doesn't have to
+be built as a module.
 
-And then there are other cases where compression is worthwhile like zisofs.
-You can't make a CD bigger so to stuff more data on it you must compress it.
-And then you have more files you can use immediately.
+-piet
 
-I suspect other things like a transparently compressed glibc would also be a win.
-You always have it in ram so it might as well be compressed on disk
-and save space..
 
-And there are enough embedded cases out there where people are
-squeezing the hardware budgets to bring prices down as far as they can 
-living on less hardware is a good thing is you can do so easily.
+-- 
 
-Eric

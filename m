@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUAYWbO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:31:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbUAYWbO
+	id S265305AbUAYWZt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:25:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265306AbUAYWZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:31:14 -0500
-Received: from mail4.edisontel.com ([62.94.0.37]:8162 "EHLO
-	mail4.edisontel.com") by vger.kernel.org with ESMTP id S261775AbUAYWbL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:31:11 -0500
-From: Eduard Roccatello <lilo@roccatello.it>
-Organization: SPINE
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel/ptrace.c BUG_ON fixes
-Date: Sun, 25 Jan 2004 23:33:12 +0100
-User-Agent: KMail/1.5.4
-References: <200401252328.56344.lilo@roccatello.it>
-In-Reply-To: <200401252328.56344.lilo@roccatello.it>
-X-IRC: #hardware@azzurra.org #rolug@freenode
-X-Jabber: eduardroccatello@jabber.linux.it
-X-GPG-Keyserver: keyserver.linux.it
-X-GPG-FingerPrint: F7B3 3844 038C D582 2C04 4488 8D46 368B 474D 6DB0
-X-GPG-KeyID: 474D6DB0
-X-Website: http://www.pcimprover.it
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 25 Jan 2004 17:25:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42698 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265305AbUAYWZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 17:25:48 -0500
+Date: Sun, 25 Jan 2004 14:25:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: cova@ferrara.linux.it, ak@muc.de, bunk@fs.tum.de, eric@cisu.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-Id: <20040125142500.526dcac5.akpm@osdl.org>
+In-Reply-To: <20040125221304.GD28576@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net>
+	<200401252221.01679.cova@ferrara.linux.it>
+	<20040125214653.GB28576@colin2.muc.de>
+	<200401252308.33005.cova@ferrara.linux.it>
+	<20040125221304.GD28576@colin2.muc.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401252333.12066.lilo@roccatello.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 January 2004 23:28, Eduard Roccatello wrote:
-> I've changed them in BUG_ON(condition);
-i forgot... this patch is against to 2.6.2-rc1
+Andi Kleen <ak@muc.de> wrote:
+>
+> I would suspect the new weird CPU
+>  configuration stuff.
 
-best regards,
-Eduard
-
+What do you believe is wrong with it?

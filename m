@@ -1,102 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUJNKle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUJNKrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266683AbUJNKle (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 06:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUJNKle
+	id S266648AbUJNKrS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 06:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUJNKrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 06:41:34 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24193 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S266683AbUJNKlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 06:41:13 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net, colpatch@us.ibm.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]>
-	<20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]> <835810000.1096848156@[10.10.2.4]>
-	<20041003175309.6b02b5c6.pj@sgi.com>
-	<838090000.1096862199@[10.10.2.4]>
-	<20041003212452.1a15a49a.pj@sgi.com>
-	<843670000.1096902220@[10.10.2.4]>
-	<Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
-	<58780000.1097004886@flay> <20041005172808.64d3cc2b.pj@sgi.com>
-	<1193270000.1097025361@[10.10.2.4]>
-	<20041005190852.7b1fd5b5.pj@sgi.com>
-	<1097103580.4907.84.camel@arrakis>
-	<20041007015107.53d191d4.pj@sgi.com>
-	<Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr>
-	<1250810000.1097160595@[10.10.2.4]>
-	<20041007105425.02e26dd8.pj@sgi.com>
-	<1344740000.1097172805@[10.10.2.4]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 Oct 2004 04:35:54 -0600
-In-Reply-To: <1344740000.1097172805@[10.10.2.4]>
-Message-ID: <m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Oct 2004 06:47:18 -0400
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:36761 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266648AbUJNKrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 06:47:14 -0400
+Subject: Re: hang after resume with adb: starting probe task.
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Benjamin Herrenschmidt <benh@KERNEL.CRASHING.ORG>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097283818.3646.7.camel@gaston>
+References: <1097172895.3281.31.camel@localhost>
+	 <1097189899.16161.6.camel@gaston>  <1097234268.3339.27.camel@localhost>
+	 <1097283818.3646.7.camel@gaston>
+Content-Type: text/plain
+Date: Thu, 14 Oct 2004 11:33:49 +0200
+Message-Id: <1097746429.4328.10.camel@localhost>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+On Sat, 2004-10-09 at 11:03 +1000, Benjamin Herrenschmidt wrote:
+> > Actually there was nothing plugged into the ethernet nor usb port. Could
+> > it also be the airport failing ? I still use orinoco cvs, i.e. airport
+> > 0.15rc2HEAD, but that one also on 2.6.8.1. 
+> > 
+> > I now have a more or less reliable way of making this pbook crash: put
+> > it to sleep and wake it up as soon it is sleeping.
+> 
+> Difficult to say at this point. One thing possible is to add printk's
+> (or more violent btext_drawstring) when calling the sleep / wakeup
+> callbacks of drivers in drivers/base/power/* and drivers/macintosh/via-pmu.c
+> and try to figure where precisely it dies.
 
-> My main problem is that I don't think we want lots of overlapping complex 
-> interfaces in the kernel. Plus I think some of the stuff proposed is fairly 
-> klunky as an interface (physical binding where it's mostly not needed, and
-> yes I sort of see your point about keeping jobs on separate CPUs, though I
-> still think it's tenuous), and makes heavy use of stuff that doesn't work 
-> well (e.g. cpus_allowed). So I'm searching for various ways to address that.
-
-Sorry I spotted this thread late.  People seem to be looking at how things
-are done on clusters and then apply them to numa machines.  Which I agree
-looks totally backwards.  
-
-The actual application requirement (ignoring the sucky batch schedulers)
-is for a group of processes (a magic process group?) to all be
-simultaneously runnable.  On a cluster that is accomplished by having
-an extremely stupid scheduler place one process per machine.   On a
-NUMA machine you can do better because you can suspend and migrate
-processes.  
-
-The other difference on these large machines is these compute jobs
-that are cpu hogs will often have priority over all of the other
-processes in the system.  
-
-A batch scheduler should be able to prevent a machine from being
-overloaded by simply not putting too many processes on the machine at
-a time.  Or if a higher priority job comes in suspending all of
-the processes that of some lower priority job to make run for the
-new job.  Being able to swap page tables is likely a desirable feature
-in that scenario so all of the swapped out jobs resources can be
-removed from memory.
-
-> It all just seems like a lot of complexity for a fairly obscure set of
-> requirements for a very limited group of users, to be honest. 
-
-I think that is correct to some extent.  I think the requirements are
-much more reasonable when people stop hanging on to the cludges they
-have been using because they cannot migrate jobs, or suspend
-sufficiently jobs to get out of the way of other jobs. 
-
-Martin does enhancing the scheduler to deal with a group of processes 
-that all run in lock-step, usually simultaneously computing or
-communicating sound sane?  Where preempting one is effectively preempting
-all of them.
-
-I have been quite confused by this thread in that I have not seen
-any mechanism that looks beyond an individual processes at a time,
-which seems so completely wrong.
+Well, I now realize that I turned on CONFIG_USB_SUSPEND which also
+caused slightly different kernel messages. I turned this option off
+again and had no crash since then (for 4 days).
 
 
-Eric
+w/o CONFIG_USB_SUSPEND:
+========================
+eth1: Airport entering sleep mode
+eth0: suspending, WakeOnLan disabled
+radeonfb: suspending to state: 3...
+agpgart: Putting AGP V2 device at 0000:00:0b.0 into 0x mode
+agpgart: Putting AGP V2 device at 0000:00:10.0 into 0x mode
+radeonfb: switching to D2 state...
+cpufreq: resume failed to assert current frequency is what timing core thinks it
+ is.
+radeonfb: switching to D0 state...
+radeonfb: resumed !
+eth1: get_wireless_stats() called while device not present
+enable_irq(27) unbalanced
+enable_irq(28) unbalanced
+eth0: resuming
+eth1: get_wireless_stats() called while device not present
+eth1: Airport waking up
+ide_pmac: Set UDMA timing for mode 4, reg: 0x0c50038c
+hda: Enabling Ultra DMA 4
+hdc: MDMA, cycleTime: 120, accessTime: 90, recTime: 30
+hdc: Set MDMA timing for mode 2, reg: 0x00011d26
+hdc: Enabling MultiWord DMA 2
+adb: starting probe task...
+adb devices: [2]: 2 c4 [3]: 3 1 [7]: 7 1f
+ADB keyboard at 2, handler 1
+ADB mouse at 3, handler set to 4 (trackpad)
+adb: finished probe task...
+PHY ID: 2060e1, addr: 0
+
+with CONFIG_USB_SUSPEND:
+========================
+ohci_hcd 0001:10:19.0: Unlink after no-IRQ?  Different ACPI or APIC settings may help.
+ohci_hcd 0001:10:18.0: Unlink after no-IRQ?  Different ACPI or APIC settings may help.
+eth1: Airport entering sleep mode
+eth0: suspending, WakeOnLan disabled
+radeonfb: suspending to state: 3...
+agpgart: Putting AGP V2 device at 0000:00:0b.0 into 0x mode
+agpgart: Putting AGP V2 device at 0000:00:10.0 into 0x mode
+radeonfb: switching to D2 state...
+cpufreq: resume failed to assert current frequency is what timing core thinks it is.
+radeonfb: switching to D0 state...
+radeonfb: resumed !
+enable_irq(27) unbalanced
+enable_irq(28) unbalanced
+eth0: resuming
+eth1: Airport waking up
+ide_pmac: Set UDMA timing for mode 4, reg: 0x0c50038c
+hda: Enabling Ultra DMA 4
+hdc: MDMA, cycleTime: 120, accessTime: 90, recTime: 30
+hdc: Set MDMA timing for mode 2, reg: 0x00011d26
+hdc: Enabling MultiWord DMA 2
+hub 1-0:1.0: reactivate --> -22
+hub 2-0:1.0: reactivate --> -22
+adb: starting probe task...
+adb devices: [2]: 2 c4 [3]: 3 1 [7]: 7 1f
+ADB keyboard at 2, handler 1
+ADB mouse at 3, handler set to 4 (trackpad)
+adb: finished probe task...
+PHY ID: 2060e1, addr: 0
+ 
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
+

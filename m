@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUGBTZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUGBT3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264890AbUGBTZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 15:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUGBTZs
+	id S264909AbUGBT3N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 15:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264910AbUGBT3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 15:25:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9099 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264890AbUGBTZq
+	Fri, 2 Jul 2004 15:29:12 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:41390 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264909AbUGBT3J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 15:25:46 -0400
-Message-ID: <40E5B6AD.6060904@pobox.com>
-Date: Fri, 02 Jul 2004 15:25:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dan Williams <dcbw@redhat.com>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current
- CVS
-References: <1088795498.18039.25.camel@dcbw.boston.redhat.com>
-In-Reply-To: <1088795498.18039.25.camel@dcbw.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jul 2004 15:29:09 -0400
+Date: Fri, 2 Jul 2004 14:29:06 -0500
+From: linas@austin.ibm.com
+To: paulus@au1.ibm.com, paulus@samba.org
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6 PPC64 Power5 PCI boot fixes
+Message-ID: <20040702142906.X21634@forte.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Williams wrote:
-> Hi,
-> 
-> This patch is simply the fixed-up diff between the kernel's current
-> 0.13e version and the upstream 0.15rc1+ version from savannah CVS.
-> 0.15rc1 has been out for a couple months now and seems stable.
-> 
-> The major benefits that this newer version brings are, of course, many
-> bugfixes, but best of all wireless scanning support for the Orinoco line
-> of cards.
-> 
-> http://people.redhat.com/dcbw/linux-2.6.7-orinoco.patch.bz2
-> 
-> Dan Williams
-> Red Hat, Inc.
 
 
-I'm desperately hoping that someone will split this up into multiple 
-patches...
+Paul,
 
-	Jeff
+Please review and forward upstream the following PCI EEH patch.
 
+This patch allows ppc64 to boot on the Power5 architecture.  The 
+new Power5 PCI bridge design requires EEH to be enabled for all PCI
+devices, not just some PCI devices.  In addition, this patch moves
+the check for PCI to ISA bridges out of perf critical code, and into
+initialization code.   This also avoids race conditions where the 
+device type might not have been set.  Also, some whitespace fixes, 
+and some error-message-printing beautification. 
 
+Signed-off-by: Linas Vepstas <linas@linas.org>
+
+--linas

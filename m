@@ -1,76 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265746AbUFDLyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265758AbUFDL5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265746AbUFDLyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 07:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265747AbUFDLyp
+	id S265758AbUFDL5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 07:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUFDL4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 07:54:45 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:22179 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265746AbUFDLym
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 07:54:42 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>, Ed Tomlinson <edt@aei.ca>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Date: Fri, 4 Jun 2004 13:57:58 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <1085689455.7831.8.camel@localhost> <200406040722.14026.edt@aei.ca> <20040604113226.GU1946@suse.de>
-In-Reply-To: <20040604113226.GU1946@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jun 2004 07:56:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26035 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265741AbUFDL4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 07:56:19 -0400
+Date: Fri, 4 Jun 2004 13:56:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: mattia <mattia@nixlab.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: DriveReady SeekComplete Error
+Message-ID: <20040604115613.GW1946@suse.de>
+References: <E1BWBjw-0003QZ-1h@andromeda.hostvector.com> <20040604102258.GR1946@suse.de> <200406041344.30738.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406041357.58813.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200406041344.30738.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 of June 2004 13:32, Jens Axboe wrote:
-> On Fri, Jun 04 2004, Ed Tomlinson wrote:
-> > On June 4, 2004 05:42 am, Jens Axboe wrote:
-> > > On Thu, Jun 03 2004, Andrew Morton wrote:
-> > > > Ed Tomlinson <edt@aei.ca> wrote:
-> > > > > Hi,
-> > > > >
-> > > > > I am still getting these ide errors with 7-rc2-mm2.  I  get the
-> > > > > errors even if I mount with barrier=0 (or just defaults).  It would
-> > > > > seem that something is sending my drive commands it does not
-> > > > > understand...
-> > > > >
-> > > > > May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 {
-> > > > > DriveReady SeekComplete Error } May 27 18:18:05 bert kernel: hda:
-> > > > > drive_cmd: error=0x04 { DriveStatusError }
-> > > > >
-> > > > > How can we find out what is wrong?
-> > > > >
-> > > > > This does not seem to be an error that corrupts the fs, it just
-> > > > > slows things down when it hits a group of these.  Note that they
-> > > > > keep poping up - they do stop (I still get them hours after
-> > > > > booting).
-> > > >
-> > > > Jens, do we still have the command bytes available when this error
-> > > > hits?
+On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
+> On Friday 04 of June 2004 12:22, Jens Axboe wrote:
+> > damnit, don't trim the cc list!
+> >
+> > On Fri, Jun 04 2004, mattia wrote:
+> > > I have the following error (kernel 2.6.6):
 > > >
-> > > It's not trivial, here's a hack that should dump the offending opcode
-> > > though.
+> > > Jun  4 08:05:43 blink kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > > Jun  4 08:05:43 blink kernel: hdc: Maxtor 6Y160P0, ATA DISK drive
+> > > Jun  4 08:05:43 blink kernel: hdd: Maxtor 6Y120L0, ATA DISK drive
+> > > Jun  4 08:05:43 blink kernel: ide1 at 0x170-0x177,0x376 on irq 15
+> > > Jun  4 08:05:43 blink kernel: hda: max request size: 128KiB
+> > > Jun  4 08:05:43 blink kernel: hda: 78177792 sectors (40027 MB) w/1819KiB
+> > > Cache, CHS=65535/16/63, UDMA(100)
+> > > Jun  4 08:05:43 blink kernel:  hda: hda1 hda2 hda3
+> > > Jun  4 08:05:43 blink kernel: hdc: max request size: 1024KiB
+> > > Jun  4 08:05:43 blink kernel: hdc: 320173056 sectors (163928 MB)
+> > > w/7936KiB Cache, CHS=19929/255/63, UDMA(100)
+> > > Jun  4 08:05:43 blink kernel:  hdc: hdc1
+> > > Jun  4 08:05:43 blink kernel: hdd: max request size: 128KiB
+> > > Jun  4 08:05:43 blink kernel: hdd: 240121728 sectors (122942 MB)
+> > > w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+> > > Jun  4 08:05:43 blink kernel:  hdd: hdd1 hdd2 hdd3
+> > > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: status=0x51 {
+> > > DriveReady SeekComplete Error }
+> > > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: error=0x04 {
+> > > DriveStatusError }
+> > > Jun  4 08:05:43 blink kernel: hdd: Write Cache FAILED Flushing!
+> > >
+> > >
+> > > I found somewhere that's something wrong with that maxtor drive.
+> > > However, everything works fine.
 > >
-> > Hi Jens,
-> >
-> > I applied the patch below and booted into the new kernel (the boot
-> > message showed the new compile time).  The error messages remained the
-> > same - no extra info.  Is there another place that prints this (or
-> > (!rq) is true)?
->
-> !rq should not be true, strange... are you sure it just doesn't to go
-> /var/log/messages, it should be there in dmesg. Alternatively, add a
-> KERN_ERR to that printk.
+> > There's nothing wrong with the drive technically, it's just odd (lba48
+> > without FLUSH_CACHE_EXT). It's really a linux ide bug that's fixed in
+> > newer kernels. 2.6.7 will fix your problem.
+> 
+> Wrong.
+> 
+> Bug is a combination of a very minor firmware quirk
+> and lack of strict checking in Linux IDE driver.
+> 
+> FLUSH_CACHE_EXT bit is set but it is not supported
+> (but it is not a problem because LBA48 is not supported also).
 
-Probably !rq is true.
+Ah my bad, I didn't realize this bit was actually set correctly (you
+mean (cfs_enable_2 & 0x2400) == 0x2400 is actually true?).
 
-Hint: this is what you get for playing tricks with hwrgroup->wrq
-(do you now understand why it is evil?).
+> It is fixed in 2.6.7-rc1 but your IDE barrier patch has this problem
+> (just reminding you that it is still not fixed in 2.6.7-rc2-mm2).
 
-Cheers,
-Bartlomiej
+So where's the bug? I don't see it...
+
+-- 
+Jens Axboe
 

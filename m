@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268102AbTBYRet>; Tue, 25 Feb 2003 12:34:49 -0500
+	id <S268101AbTBYReg>; Tue, 25 Feb 2003 12:34:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268105AbTBYRet>; Tue, 25 Feb 2003 12:34:49 -0500
-Received: from holomorphy.com ([66.224.33.161]:57270 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268102AbTBYRer>;
-	Tue, 25 Feb 2003 12:34:47 -0500
-Date: Tue, 25 Feb 2003 09:43:59 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, Hanna Linder <hannal@us.ibm.com>,
-       lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225174359.GA10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-	Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
-	linux-kernel@vger.kernel.org
-References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <20030225171727.GN29467@dualathlon.random>
+	id <S268102AbTBYReg>; Tue, 25 Feb 2003 12:34:36 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14355 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268101AbTBYRee>; Tue, 25 Feb 2003 12:34:34 -0500
+Date: Tue, 25 Feb 2003 18:44:49 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ducrot Bruno <ducrot@poupinou.org>
+Cc: Robert <robert.woerle@symplon.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Robert Woerle <robert@paceblade.com>
+Subject: Re: [ACPI] PaceBlade broken acpi/memory map
+Message-ID: <20030225174449.GD12028@atrey.karlin.mff.cuni.cz>
+References: <20030220172144.GA15016@elf.ucw.cz> <20030224164209.GD13404@poup.poupinou.org> <20030224183955.GC517@atrey.karlin.mff.cuni.cz> <20030225143505.GH13404@poup.poupinou.org> <3E5B835E.7050601@symplon.com> <20030225151341.GI13404@poup.poupinou.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030225171727.GN29467@dualathlon.random>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030225151341.GI13404@poup.poupinou.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 07:24:24PM -0800, Andrew Morton wrote:
->> So whole stole the remaining 1.85 seconds?   Looks like pte_highmem.
+Hi!
 
-On Tue, Feb 25, 2003 at 06:17:27PM +0100, Andrea Arcangeli wrote:
-> would you mind to add the line for 2.4.21-pre4aa3? it has pte-highmem so
-> you can easily find it out for sure if it is pte_highmem that stole >10%
-> of your fast cpu. A line for the 2.4-rmap patch would be also
-> interesting.
+> > >>>>I have PaceBlade here, and its memory map is wrong, which leads to
+> > >>>>ACPI refusing to load. [It does not mention "ACPI data" in the memory
+> > >>>>map at all!]
+> > >>>>       
+> > >>>>
+> > >>>I have made those patches to workaround that.  I have no time
+> > >>>     
+> > >>>
+> > >>Yes, I have seen those... I also made a patch that enables you to do
+> > >>that workaround from mem= options at kernel command line.
+> > >>
+> > >>   
+> > >>
+> > >
+> > >I doubt you received the latest one, since I have not make it public
+> > >unless this day.
+> > > 
+> > >
+> > i did sent it to him since he recieved our machine from Suse Nuernberg
+> > 
+> 
+> Ah, OK.  Wasn't aware of that.  But why then making a mem= opitons in
+> that case.  I have take care to *not* use any mem= at all because that
+> can make things worse.
 
-On Sat, Feb 22, 2003 at 07:24:24PM -0800, Andrew Morton wrote:
->> Note one second spent in pte_alloc_one().
+I've received it after I made my patch, and I think that more machine
+with broken tables will be created in future...
 
-On Tue, Feb 25, 2003 at 06:17:27PM +0100, Andrea Arcangeli wrote:
-> note the seconds spent in the rmap affected paths too.
-
-The pagetable cache is gone in 2.5, so pte_alloc_one() takes the
-bitblitting hit for pagetables.
-
-I didn't catch the whole profile, so I'll need numbers for rmap paths.
-
-
--- wli
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

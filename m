@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289559AbSAJRTi>; Thu, 10 Jan 2002 12:19:38 -0500
+	id <S289561AbSAJR01>; Thu, 10 Jan 2002 12:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289560AbSAJRT1>; Thu, 10 Jan 2002 12:19:27 -0500
-Received: from web14902.mail.yahoo.com ([216.136.225.54]:28279 "HELO
-	web14902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289559AbSAJRTS>; Thu, 10 Jan 2002 12:19:18 -0500
-Message-ID: <20020110171525.55894.qmail@web14902.mail.yahoo.com>
-Date: Thu, 10 Jan 2002 12:15:25 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: Re: About Loop Device
-To: linux-kernel@vger.kernel.org
-Cc: root@chaos.analogic.com
+	id <S289562AbSAJR0I>; Thu, 10 Jan 2002 12:26:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31243 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289561AbSAJR0C>; Thu, 10 Jan 2002 12:26:02 -0500
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+To: cate@debian.org (Giacomo Catenazzi)
+Date: Thu, 10 Jan 2002 17:37:24 +0000 (GMT)
+Cc: davej@suse.de (Dave Jones), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+In-Reply-To: <3C3DCBA7.4080802@debian.org> from "Giacomo Catenazzi" at Jan 10, 2002 06:13:11 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Oj8m-00050R-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, now I can use the "mount -o loop /dev/fd0 /mnt" to
-mount the loop device after I use mke2fs format the
-/dev/fd0. But how can I test it? What are the
-/dev/loop0,/dev/loop1.....,/dev/loop7 used for? Are
-there any detailed informations about how to use the
-loop device? I've read some souce code about the
-loop.c file. But not fully understand. Can anyone give
-me a hand on this. Thanks in advance.
+> Surelly I will not maintain the DMI table!
 
-Michael
+Quite
 
+> This is a call for help: how to write a table
+> CPU - CONFIG_SYMBOL ?
+> Now I use Vendor/Name/Family/Stepping/, but
+> maybe with Vendor + flags (CPUID flags) the result
+> will be more correct?
 
-On Wed, 9 Jan 2002, Michael Zhu wrote:
-
-> Thanks for the reply. But when I try to use the
-> command "mount -o loop /dev/fd0 /floppy", the mount
-> returns an error saying "mount: you must specify the
-> filesystem type". What is wrong? Thanks.
-> 
-> Michael
->
-
-man mount
-
-mount -o loop -t ext2  /dev/fd0 /mnt   # Usual linux
-mount -o loop -t msdos /dev/fd0 /mnt   # DOS
-file-system
-mount -o loop -t vfat  /dev/fd0 /mnt   # Win/NT, etc.
-                    |         |    |__________
-mount-point
-                    |         |_______________ device
-                    |_________________________
-File-system type
-
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine
-(797.90 BogoMips).
-
-    I was going to compile a list of innovations that
-could be
-    attributed to Microsoft. Once I realized that
-Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't
-any.
-
-
-______________________________________________________________________ 
-Web-hosting solutions for home and business! http://website.yahoo.ca
+You need the family/model information to get the right optimisations. Its
+often not that the instruction set is different but that the cpu
+implementation is different that determines the choice. With a couple of 
+exceptions cpu type is actually not too important and accidentally using
+486 will make little difference
+ 

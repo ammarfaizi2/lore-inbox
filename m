@@ -1,64 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTDDU0K (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTDDU0K (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:26:10 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:46822 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261305AbTDDU0F (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 15:26:05 -0500
-Date: Fri, 4 Apr 2003 23:37:31 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: William Scott Lockwood III <vlad@geekizoid.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20030404203731.GU29167@mea-ext.zmailer.org>
-References: <Pine.LNX.4.53.0304040752500.2804@chaos> <20030404072327.J5167-100000@www.geekizoid.com>
+	id S261320AbTDDU34 (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbTDDU3z (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:29:55 -0500
+Received: from holomorphy.com ([66.224.33.161]:6803 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261320AbTDDU3t (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 15:29:49 -0500
+Date: Fri, 4 Apr 2003 12:40:51 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>
+Subject: Re: fairsched + O(1) process scheduler
+Message-ID: <20030404204051.GF993@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Antonio Vargas <wind@cocodriloo.com>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com> <200304021144.21924.frankeh@watson.ibm.com> <20030403125355.GA12001@wind.cocodriloo.com> <20030403192241.GB1828@holomorphy.com> <20030404112704.GA15864@wind.cocodriloo.com> <20030404140447.GC1828@holomorphy.com> <20030404201241.GB15864@wind.cocodriloo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030404072327.J5167-100000@www.geekizoid.com>
+In-Reply-To: <20030404201241.GB15864@wind.cocodriloo.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 07:28:12AM -0800, William Scott Lockwood III wrote:
-...
-> The best list is one that is inclusive.  One that tollerates other opinions
-> and choices.  LKML has turned into the largest, nastiest click I've ever
-> seen, and that's really sad, as I'm sure it scares some good people away.
+On Fri, Apr 04, 2003 at 06:04:47AM -0800, William Lee Irwin III wrote:
+>> Possible, though I'd favor a per-user spinlock.
 
-Are you speaking about PEOPLE who react on emails by flaming, or
-something of list filtering "technology" ?
+On Fri, Apr 04, 2003 at 10:12:41PM +0200, Antonio Vargas wrote:
+> So, when trying to add a task to the per-user pending tasks, I'd have
+> to do this:
+> 1. spin_lock_irqsave(uidhash_lock, flags)
+> 2. spin_lock(my_user->user_lock)
+> 3. spin_unlock_restore(uidhash_lock, flags);
+> Is this any good?
+> Could I simply do "spin_unlock(my_user->user_lock)" at end without
+> taking the uidhash_lock again?
 
->  Look at all the crap I and others got for using hotmail - I finally
-> got sick and tired of the whining and now have to take 3x as long to 
-> read my mail - but it's not a hotmail address anymore, so the whining
-> stoped.
+Well, you should unlock in the opposite order you acquired, and also
+unlock all the locks you acquired in general.
 
-About people, then..    There I can't help, unfortunately.
+But you shouldn't need to do this. There's a trick with reference
+counting that saves you from the ostensible hierarchy:
 
-We have lots of people subscribing on Hotmail addresses, and only 
-complaint I can voice is that those people will at times let their
-mailbox quotas overflow, which leads to bounces, and then subscription
-revocation...  (Hard controlled quotas are not unique to Hotmail, nor
-people who let them overflow...)
+You know the user won't go away b/c you hold a reference. You've now
+forked a child, and are looking to set it up. You get a reference for
+the child so it won't go away in the child's lifetime, and then take
+the per-user lock _only_. The per-user lock keeps two things looking at
+a user's task list from interfering with each other, but isn't needed
+for looking at the rest of the user. Now you can safely park a new
+task on the list or remove an old one, and when you're done, you drop
+the per-user lock only.
+
+The per-user and uidhash locks shouldn't be taken simultaneously; the
+reference count on the user should be moved to or from zero,and the
+thing allocated or freed, and the uidhash_lock taken and dropped to
+hash or unhash without ever taking the per-user lock. Then we can just
+take the per-user lock when adding to it (we hold a reference) or not
+take any lock at all when freeing it (we were the last reference; no
+one will ever use this again without re-initializing it). Fresh
+allocations can also allow the task to add itself to the per-user
+tasklist without taking the per-user lock.
+
+The actual tricky parts are setuid and so on, where you have to move
+a task between users. For this just compare the addresses of the two
+per-user locks and acquire them in address order, much like something
+in the scheduler, double_rq_lock(). Then you can modify both lists
+while holding both the locks to make the move happen, and when done,
+just unlock in the same order you acquired.
 
 
-> Why not spend less timing restricting what people can read and post
-> from, and just let people participate?
+On Fri, Apr 04, 2003 at 06:04:47AM -0800, William Lee Irwin III wrote:
+>> The code looks reasonable now, modulo that race you asked about.
 
-There is this small thing called spam...
+On Fri, Apr 04, 2003 at 10:12:41PM +0200, Antonio Vargas wrote:
+> What do I need to lock when I want to add a task to a runqueue?
+> I'm doing a "spin_lock_irq(this_rq()->lock);"
+> As you can see, I'm not yet at speed with the locking rules... any
+> online references to the latest locking rules? The BKL was really
+> easy to understand in comparison! *grin*
 
-We have various filters (see my other posting), but obviously they
-are not infallible, a few spams do leak thru, and earn new filter
-rules (if I can think up something suitably specific, while generic..)
+That's fine for the runqueue. Seems you've gotten it right. There are
+hard problems with using the BKL; be glad the lock you're taking has a
+specific relationship to what you're doing and what you're doing it to.
 
-A somewhat better anti-spam filter method, than what we use presently
-is to use strictly CLOSED list -- e.g. must be a member to post.
-I have seen what kind of pains closed lists are, I even moderate
-couple small ones.
+BTW, this probably won't actually be very efficient on SMP or with large
+numbers of users, but you're probably having fun writing it anyway. =)
+Best to get something running and tweak it later.
 
-However we are deliberately running "open for posting, subject to
-filters" policy, which lets questions and reports to come from
-non-subscribers.
+Hubertus & rml & others know more about scheduling policy in general,
+so you should probably ask them about the details of that; I just
+occasionally debug this stuff when it explodes.
 
 
-/Matti Aarnio
+-- wli

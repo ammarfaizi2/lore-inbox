@@ -1,27 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266644AbUFWUKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266625AbUFWUW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266644AbUFWUKa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 16:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUFWUK3
+	id S266625AbUFWUW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 16:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266651AbUFWUW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 16:10:29 -0400
-Received: from pD9EC3E9C.dip.t-dialin.net ([217.236.62.156]:32019 "Helo
-	yqnrgt.hu") by vger.kernel.org with SMTP id S266599AbUFWUK2 (ORCPT
+	Wed, 23 Jun 2004 16:22:56 -0400
+Received: from mail.njit.edu ([128.235.251.173]:45274 "EHLO mail-gw5.njit.edu")
+	by vger.kernel.org with ESMTP id S266625AbUFWUWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 16:10:28 -0400
-From: chexum@shadow.banki.hu
-To: linux-net@vger.kernel.org
-Date: Wed, 23 Jun 2004 20:08:14 GMT
+	Wed, 23 Jun 2004 16:22:54 -0400
+Date: Wed, 23 Jun 2004 16:22:53 -0400 (EDT)
+From: rahul b jain cs student <rbj2@oak.njit.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Question about ip_rcv() function
+In-Reply-To: <20040623115027.11ef0902.davem@redhat.com>
+Message-ID: <Pine.GSO.4.58.0406231615220.7099@chrome.njit.edu>
+References: <20040622212403.21346.qmail@lwn.net> <Pine.GSO.4.58.0406231441500.7099@chrome.njit.edu>
+ <20040623115027.11ef0902.davem@redhat.com>
 MIME-Version: 1.0
-Subject: TUERKEN-TERROR AM HIMMELFAHRTSTAG :Key:2282:
-Importance: Normal
-X-Priority: 3 (Normal)
-Message-ID: <cb2b60b6c3e4fe.48fcb.qmail@shadow.banki.hu>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-31.05.2003 Hamburg-Volkspark:
+Thanks for your response.
 
-Ruecksichtslos wurde eine Strasse zugeparkt, weil Tuerken am Vatertag im Volkspark grillen wollten. Da ein Rettungswagen auf Grund der Fehlparker stecken blieb und nicht bis zum Einsatzort vordringen konnte, war die Polizei gezwungen, ca. 11 PKWs abschleppen zu lassen. Uneinsichtig blockierten die Tuerken daraufhin die Strasse, verhinderten das Abschleppen und damit das ein Krankenwagen an den Ort gelangen konnte, wo offensichtlich jemand dringend medizinische Hilfe benoetigte. Erst die Unterstuetzung von ca. 25 Beamten sowie der Einsatz von Polizeihunden konnten die Tuerken, die inzwischen die Polizeibeamten attackierten von der Strasse entfernen und dem Rettungswagen somit die Weiterfahrt ermoeglichen.
+I just want to know if my understanding of how the sk_buff structure is
+correct.
+
+When data arrives at the TCP layer it is pointed to by the data pointer
+and the TCP header goes in the skb->data-skb->head area. When this packet
+is passed to the IP layer, skb->tail-skb->data section will now contain
+the TCP header + TCP data and now the IP header will be put in the new
+skb->data-skb->head area.
+
+Please let me know if this understanding is correct.
+
+I also wanted to know does psk_may_pull() only check for correct header
+length or does it (thought some func calls) strip off the IP header ?
+
+Thanks,
+Rahul.
+
+On Wed, 23 Jun 2004, David S. Miller wrote:
+
+> On Wed, 23 Jun 2004 14:45:47 -0400 (EDT)
+> rahul b jain cs student <rbj2@oak.njit.edu> wrote:
+>
+> > can anyone explain what is the difference between the following two pieces
+> > of code.
+> >
+> > 1. if (!pskb_may_pull(skb, sizeof(struct iphdr)))
+> >                 goto inhdr_error;
+> >
+> >    iph = skb->nh.iph;
+> >
+> > 2. if (!pskb_may_pull(skb, iph->ihl*4))
+> >                 goto inhdr_error;
+> >
+> >    iph = skb->nh.iph;
+>
+> We can't dereference any of the iphdr fields (such as iph->ihl) until
+> we know that at least "sizeof(struct iphdr)" bytes are there first.
+>

@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132975AbRDETRF>; Thu, 5 Apr 2001 15:17:05 -0400
+	id <S132591AbRDETcL>; Thu, 5 Apr 2001 15:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132976AbRDETQ4>; Thu, 5 Apr 2001 15:16:56 -0400
-Received: from jalon.able.es ([212.97.163.2]:26855 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S132975AbRDETQs>;
-	Thu, 5 Apr 2001 15:16:48 -0400
-Date: Thu, 5 Apr 2001 21:15:50 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Miao Qingjun <qjmiao@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to embed linux into a board based on QED rm5230 mips cpu?
-Message-ID: <20010405211550.A1449@werewolf.able.es>
-In-Reply-To: <20010405190615.54979.qmail@web12303.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010405190615.54979.qmail@web12303.mail.yahoo.com>; from qjmiao@yahoo.com on Thu, Apr 05, 2001 at 21:06:15 +0200
-X-Mailer: Balsa 1.1.3
+	id <S132593AbRDETcB>; Thu, 5 Apr 2001 15:32:01 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:25572 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S132591AbRDETbp>; Thu, 5 Apr 2001 15:31:45 -0400
+Message-ID: <3ACCC648.2849B9EC@coplanar.net>
+Date: Thu, 05 Apr 2001 15:23:52 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Userspace TCP sequence number control?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On 04.05 Miao Qingjun wrote:
-> Hi,
-> 
-> Can anybody help me?
-> 
-> How to embed linux into a board based on QED rm5230
-> mips cpu?
->
+If there's a forum more specifically dedicated to 2.4 networking,
+please point me in the right direction, otherwise please consider
+the following.  (I'm on lkml so you don't need to CC: me)
 
-http://www.uclinux.org/
+Is there a way to set the sequence number sent in the SYN
+response to an incoming connnection request (an incoming
+SYN) to a specific value with listen()?
 
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
+It may sound like a security risk, but consider the problem
+of trying to do http load balancing using 2.4 netfilter,
+(ie in kernel, packet/conntrack-based) but trying to maintain session
+affinity
+to a specific backend server.
 
-Linux werewolf 2.4.3-ac3 #1 SMP Thu Apr 5 00:28:45 CEST 2001 i686
+Clearly, the load balancer must open a http (and thus TCP)
+connection to determine the client that is connecting, in order
+to determine which back-end server is already servicing
+the user session.   Typically, from this point on, the load balancer
+must just copy the data back and forth between the socket
+connected to the client and another socket.  This could be
+userspace or kernelspace, but it's copying either way.
+
+What if the connection could be handed off via
+DNAT *after* it had been established?  The load
+balancer could establish a connection with the backend
+server, posing as the client, setup an iptable entry
+directing the client connection's packets to the
+backend server, then close it's connection
+(somehow without sending FIN)...
+
+the (big) part missing is that the backend server's
+sequence number will differ from the one used
+by the load-balancer.  (whereas the load balancer
+can just copy the last sequence number recieved
+by the client)
+
+Does this functionality exist already?  Or can
+iptables re-write the sequence numbers ?
+(Cisco's PIX does this to re-randomize them
+for hosts inside firewall that have poor random
+number generation)
+
+Am I talking crazy talk already?
+(I know I should research the tunneling
+method more)
+
+Regards,
+
+Jeremy
 

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbTAIICp>; Thu, 9 Jan 2003 03:02:45 -0500
+	id <S261996AbTAIIVL>; Thu, 9 Jan 2003 03:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbTAIICp>; Thu, 9 Jan 2003 03:02:45 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:1550 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262380AbTAIICo>;
-	Thu, 9 Jan 2003 03:02:44 -0500
-Date: Thu, 9 Jan 2003 00:10:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Rus Foster <rghf@fsck.me.uk>
-Cc: Dmitri <dmitri@users.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe OT: Unregistering a USB device
-Message-ID: <20030109081057.GD8400@kroah.com>
-References: <1041818057.5269.96.camel@usb.networkfab.com> <20030106072607.L27804-100000@freebsd.rf0.com>
+	id <S262040AbTAIIVK>; Thu, 9 Jan 2003 03:21:10 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:34577 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S261996AbTAIIVI>; Thu, 9 Jan 2003 03:21:08 -0500
+Subject: Re: 2.4.21-pre3 fails compile of ehci-hcd.c
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030109073849.GC8400@kroah.com>
+References: <1042096276.8219.126.camel@madmax> 
+	<20030109073849.GC8400@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 09 Jan 2003 03:29:46 -0500
+Message-Id: <1042100988.3055.11.camel@madmax>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030106072607.L27804-100000@freebsd.rf0.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 07:27:12AM +0000, Rus Foster wrote:
-> On 5 Jan 2003, Dmitri wrote:
+On Thu, 2003-01-09 at 02:38, Greg KH wrote:
+> On Thu, Jan 09, 2003 at 02:11:15AM -0500, Kristofer T. Karas wrote:
+> > Noticed that I could not get patch-2.4.21-pre3 to compile:
 > 
-> > On Sun, 2003-01-05 at 15:09, Rus Foster wrote:
-> >
-> > Someone else asked this question earlier:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-usb-users&m=104127472526623&w=2
-> >
-> > Dmitri
-> 
-> Ah right the problem is that
-> a) I still want one of the usb-mass storage devices to still be accessible
-> at the same time.
-> b) My kernel is monolithic
+> Does this patch solve it for you?
 
-You can use the USBDEVFS_DISCONNECT ioctl on the usb device node in
-usbfs to disconnect the driver from the device.
+Hi Greg - Yes.  The extra whitespace made gcc do the right thing. 
+Thanks.
 
-Hope this helps,
+<Bewilderment> Well I learn something new every day </Bewilderment>
 
-greg k-h
+I notice, however, that speed with this version of EHCI seems down.
+	hdparm -t /dev/discs/disc1/disc
+		2.4.21-pre2	2.4.21-pre3
+		-----------	-----------
+		10.5 MB/s	8.3 MB/s
+
+Either way, this is a great improvement over my previous attempts at
+getting USB2.0 running with a Soltek SL75-DRV2 MoBo, which resulted in
+instantaneous reboots.
+
+Kris
+

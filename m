@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261910AbSJZHbn>; Sat, 26 Oct 2002 03:31:43 -0400
+	id <S261911AbSJZHgf>; Sat, 26 Oct 2002 03:36:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261911AbSJZHbn>; Sat, 26 Oct 2002 03:31:43 -0400
-Received: from pop.gmx.de ([213.165.64.20]:11073 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261910AbSJZHbm>;
-	Sat, 26 Oct 2002 03:31:42 -0400
-Message-Id: <5.1.1.6.2.20021026093212.00b47538@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sat, 26 Oct 2002 09:34:58 +0200
-To: reneb@cistron.nl, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: loadlin with 2.5.?? kernels
-In-Reply-To: <slrnarkdne.ol8.reneb@orac.aais.org>
+	id <S261914AbSJZHgf>; Sat, 26 Oct 2002 03:36:35 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:16394 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S261911AbSJZHge>;
+	Sat, 26 Oct 2002 03:36:34 -0400
+Date: Sat, 26 Oct 2002 09:42:35 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Adrian Pop <adrpo@ida.liu.se>
+Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: The pain with the Net Drivers (ne*, xirc2ps_c, etc)
+Message-ID: <20021026074235.GA29184@alpha.home.local>
+References: <20021026044500.GA11483@www.kroptech.com> <Pine.GSO.4.44.0210260712300.11632-100000@mir20.ida.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0210260712300.11632-100000@mir20.ida.liu.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:32 AM 10/26/2002 +0200, Rene Blokland wrote:
->In article <5.1.0.14.2.20021026073915.00b55008@pop.gmx.net>, Mike 
->Galbraith wrote:
->didn't loose much argument wise
-> > ;-)  The other loadlin user reported failure at .38, so maybe your 
-> patch is
-> > needed sometimes even with loadlin-1.6c.  (other loadlin user listening?)
->Yes, I'm there and use 1.6c
+Hi !
 
-Did Eric's patch fix your boot woes?
+On Sat, Oct 26, 2002 at 07:58:36AM +0200, Adrian Pop wrote:
+>  NETDEV WATCHDOG: eth0: transmit timed out
+>  eth0: transmit timed out
+> And after this the card resets, and it
+> takes quite a while for that.
+> 
+> My workaround for NE2000 cards: in 8390.h replaced
+>   #define TX_TIMEOUT (20*HZ/100)
+>   with
+>   #define TX_TIMEOUT (100*HZ/100)
 
-         -Mike
+you understand that this means that your card often needds more than 0.2s to
+send a frame ? Are all your cards connected to a defective hub, or a network
+with lots of collisions ? Is the yellow led on your hub constantly lit ?
+
+I have several ISA cards here (3c509, hp, ...) on a 386sx and a 486DX2-66 and
+I have used NE2K for years on these machines under 2.2 and 2.4 kernels
+without even one problem. The 486 is a firewall which generates lots of
+collisions on the hub when uploading files to the local web server, but I
+never had the problem you mention on these machines.
+
+In fact, the only PC on which I see it is my laptop. When I send lots of
+traffic to a 3c575 (cardbus), I get lots of these. This is not because of
+the card (it works well in other notebooks, and other cards do the same),
+but the notebook itself. When it's getting hot, I think it looses interrupts!
+
+And please, give us an example of kernel version you use. >2.2 is not an
+answer. How do you want people to read the code if they don't know *exactly*
+which one certainly induces the problem ? We don't even know if it's a vanilla
+kernel or a patched one.
+
+Cheers,
+Willy
 

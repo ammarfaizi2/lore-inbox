@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbUJWOD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbUJWOKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbUJWOD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUJWOD1
+	id S261192AbUJWOKy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUJWOKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:03:27 -0400
-Received: from relay03.pair.com ([209.68.5.17]:39941 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S261191AbUJWODY (ORCPT
+	Sat, 23 Oct 2004 10:10:54 -0400
+Received: from main.gmane.org ([80.91.229.2]:25734 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261192AbUJWOKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:03:24 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <417A64AB.5010606@cybsft.com>
-Date: Sat, 23 Oct 2004 09:03:23 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <41798BD6.6060207@cybsft.com> <20041023103247.GE30270@elte.hu>
-In-Reply-To: <20041023103247.GE30270@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 10:10:51 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Writing linux kernel specification
+Date: Sat, 23 Oct 2004 16:01:05 +0200
+Message-ID: <yw1xu0slsfdq.fsf@inprovide.com>
+References: <20041023133944.GA1204@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 154.80-202-166.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:X/iZdRqzcaJ2+o65H1Y9sQd/O9A=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
-> 
-> 
->>Oct 22 14:37:14 swdev14 kernel: BUG: sleeping function called from invalid context ksoftirqd/0(3) at kernel/mutex.c:37
->>Oct 22 14:37:14 swdev14 kernel: in_atomic():1 [00000001], irqs_disabled():0
->>Oct 22 14:37:14 swdev14 kernel:  [<c011ac3d>] __might_sleep+0xc4/0xd6 (12)
->>Oct 22 14:37:14 swdev14 kernel:  [<c0132ae8>] _mutex_lock+0x3e/0x63 (36)
->>Oct 22 14:37:14 swdev14 kernel:  [<e0a8b297>] ipxitf_find_using_phys+0x1e/0x4c [ipx] (28)
->>Oct 22 14:37:14 swdev14 kernel:  [<e0a8d5a6>] ipx_rcv+0xdc/0x1dd [ipx] (20)
->>Oct 22 14:37:14 swdev14 kernel:  [<c024050b>] snap_rcv+0x5f/0xe0 (32)
-> 
-> 
-> does the patch below fix these?
-> 
-> 	Ingo
-> 
+Karel Kulhavy <clock@twibright.com> writes:
 
-I will try reproducing it here (at home). Otherwise it'll have to wait 
-till Monday.
+> Hello
+>
+> I am pondering on writing a Linux kernel specification, or rather
+> compiling it from the various bits that are online.
+>
+> However I need to be sure that something like this is welcome at
+> all:
+>
+> 1) Is Linux kernel meant to be a separate project or is it a subproject
+> of GNU/Linux, Debian, Fedora, SuSE or whatever?
 
-> --- linux/net/802/psnap.c.orig
-> +++ linux/net/802/psnap.c
-> @@ -55,7 +55,7 @@ static int snap_rcv(struct sk_buff *skb,
->  		.type = __constant_htons(ETH_P_SNAP),
->  	};
->  
-> -	rcu_read_lock();
-> +	rcu_read_lock_spin(&snap_lock);
->  	proto = find_snap_client(skb->h.raw);
->  	if (proto) {
->  		/* Pass the frame on. */
-> @@ -68,7 +68,7 @@ static int snap_rcv(struct sk_buff *skb,
->  		rc = 1;
->  	}
->  
-> -	rcu_read_unlock();
-> +	rcu_read_unlock_spin(&snap_lock);
->  	return rc;
->  }
->  
-> 
+It seems pretty separate to me, although many kernel developers work
+for redhat, suse or another distribution.
+
+> 2) Is Linux kernel meant to be used by general public, or is it intended
+>    only for developpers of GNU/Linux, Debian, Fedora, SuSE etc.?
+
+Read the GPL.
+
+> 3) Is Linux kernel meant to have a specification and just a lack of time
+>    prevented it, or is Linux kernel meant to not have a specification?
+
+POSIX?
+
+> 4) If I produce a specification that is valid, correct and complete enough
+>    to be useful for general public, will it be included on the Linux kernel
+>    homepage http://www.kernel.org under a link "Linux kernel official
+>    specification" upon my request?
+>
+> Cl<
+
+-- 
+Måns Rullgård
+mru@inprovide.com
 

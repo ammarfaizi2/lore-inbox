@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262487AbRENUpw>; Mon, 14 May 2001 16:45:52 -0400
+	id <S262486AbRENUqM>; Mon, 14 May 2001 16:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbRENUpm>; Mon, 14 May 2001 16:45:42 -0400
-Received: from ns.suse.de ([213.95.15.193]:21256 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262486AbRENUpc>;
-	Mon, 14 May 2001 16:45:32 -0400
-Date: Mon, 14 May 2001 22:45:08 +0200
-From: Andi Kleen <ak@suse.de>
-To: mostrows@speakeasy.net
-Cc: Marcell GAL <cell@sch.bme.hu>, linux-kernel@vger.kernel.org,
-        paulus@samba.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: Scheduling in interrupt BUG. [Patch]
-Message-ID: <20010514224508.A3960@gruyere.muc.suse.de>
-In-Reply-To: <3AFFBF14.7D7BAB01@sch.bme.hu> <15103.53345.869090.593925@slug.watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15103.53345.869090.593925@slug.watson.ibm.com>; from mostrows@us.ibm.com on Mon, May 14, 2001 at 08:32:33AM -0400
+	id <S262484AbRENUqD>; Mon, 14 May 2001 16:46:03 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:18172 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262486AbRENUp7>; Mon, 14 May 2001 16:45:59 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105142044.f4EKiSQY002195@webber.adilger.int>
+Subject: Re: Linux support for Microsoft dynamic disks?
+In-Reply-To: <01051322152601.00874@artsystems.ksu.ru> "from Art Boulatov at May
+ 13, 2001 10:15:26 pm"
+To: Art Boulatov <art@ksu.ru>
+Date: Mon, 14 May 2001 14:44:28 -0600 (MDT)
+CC: Guest section DW <dwguest@win.tue.nl>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 08:32:33AM -0400, Michal Ostrowski wrote:
-> Having looked at the code for locking sockets I am concerned that the
-> locking procedures for tcp may be wrong.   __release_sock releases the
-> socket spinlock before calling sk->backlog_rcv() (== tcp_v4_do_rcv),
-> however the comments at the top of tcp_v4_do_rcv() assert that the
-> socket's spinlock is held (which is definitely not the case).
-> 
-> Anybody care to comment on this?
+Art writes:
+> Understanding the layout of a dynamic disk is just a part of the problem
+> as far as I can see it.
+> What if I have two (three,four) dynamic disks with volumes organized into a 
+> software stripe (raid0) under Windows?
+> There must be an implementation of MS' software raid in the linux kernel in 
+> order to access that "striped filesystem"  under linux, I'm I right?
 
-Looks ok for me.
+I think the correct place to start implementing this is in the framework
+of the EVMS project (http://sourceforge.net/projects/evms).  It is doing
+the work of a generalized block-remapping driver for Linux.  They already
+have working Linux LVM kernel drivers, along with MS-DOS partition code,
+etc.  Adding in the NT dynamic disk remapping would probably be welcome.
 
-The user socket lock (lock.users>0) is held while __release_sock runs, 
-which is also sufficient to protect it as all new packets will go into backlog.
-The spinlock comment only applies to bottom halves.
-
--Andi
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSLOPlA>; Sun, 15 Dec 2002 10:41:00 -0500
+	id <S261872AbSLOPuh>; Sun, 15 Dec 2002 10:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261872AbSLOPk7>; Sun, 15 Dec 2002 10:40:59 -0500
-Received: from 213-97-199-90.uc.nombres.ttd.es ([213.97.199.90]:387 "HELO
-	fargo") by vger.kernel.org with SMTP id <S261855AbSLOPk6>;
-	Sun, 15 Dec 2002 10:40:58 -0500
-Date: Sun, 15 Dec 2002 16:49:44 +0100
-From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
-To: David =?iso-8859-15?Q?San=E1n?= Baena <davidsanan@teleline.es>
+	id <S261900AbSLOPuh>; Sun, 15 Dec 2002 10:50:37 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:40335 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261872AbSLOPug>;
+	Sun, 15 Dec 2002 10:50:36 -0500
+Date: Sun, 15 Dec 2002 15:57:28 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Scott Robert Ladd <scott@coyotegulch.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems creating a driver
-Message-ID: <20021215154944.GA1288@fargo>
-Mail-Followup-To: David =?iso-8859-15?Q?San=E1n?= Baena <davidsanan@teleline.es>,
+Subject: Re: Kernel for Pentium 4 hyperthreading?
+Message-ID: <20021215155728.GB20335@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Scott Robert Ladd <scott@coyotegulch.com>,
 	linux-kernel@vger.kernel.org
-References: <002901c2a43a$b057d5c0$6e9afea9@anabel>
+References: <20021215134408.GA20335@suse.de> <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <002901c2a43a$b057d5c0$6e9afea9@anabel>
+In-Reply-To: <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David ;);
+On Sun, Dec 15, 2002 at 10:07:43AM -0500, Scott Robert Ladd wrote:
+ > Hi,
+ > 
+ > What I have is, indeed, a hyperthread-enabled Pentium 4. They aren't common;
+ > I obtained this one direct from Intel through their Early Access Program.
 
-> totcl.cc:60: sorry, not implemented: non-trivial labeled initializers
-> totcl.cc:60: cannot convert `int (*) (inode *, file *)' to `ssize_t (*)
-> (file *, char *, unsigned int, loff_t *)' in initialization
-> make: *** [totcl.ko] Error 1
+Ah, apologies. Yes. In this case, you win. I bit the same problem you
+had btw with this box in 2.4. You need an updated BIOS. Contact Intel.
 
-I think the problem it's that designated initializers are not implemented in 
-the GNU c++ compiler, so you have to initialize all the field in the structure.
+		Dave
 
-> my file_operations var is:
-> struct file_operations totcl_fops=
-> {
->  read:totcl_read,
->  open:totcl_open,
->  release:totcl_release,
-> };
-
-By the way, C99 syntax is better, most of the kernel has been changed to the
-new syntax:
-
-struct file_operations totcl_fops=
-{
-    .read=totcl_read,
-    .open=totcl_open,
-    .release=toctl_release,
-};
-
-
---
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

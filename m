@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbUCNQ2i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 11:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCNQ2i
+	id S261420AbUCNQaF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 11:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCNQ2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 11:28:38 -0500
-Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:60651 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261313AbUCNQ2P
+	Sun, 14 Mar 2004 11:28:51 -0500
+Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:61163 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261376AbUCNQ2W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 11:28:15 -0500
-Date: Mon, 15 Mar 2004 01:28:13 +0900
-Message-ID: <m2d67f1jhe.wl%ysato@users.sourceforge.jp>
+	Sun, 14 Mar 2004 11:28:22 -0500
+Date: Mon, 15 Mar 2004 01:28:20 +0900
+Message-ID: <m2brmz1jh7.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 support update (2/4) - fix build error
+Subject: [PATCH] H8/300 support update (3/4) - fix waring
 User-Agent: Wanderlust/2.11.23 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,29 +23,127 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- add asm/dma-mapping.h
-- add CONFIG_PCI
+- fix gcc-3.4.0 warnings
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/Kconfig linux-2.6.4-h8300/arch/h8300/Kconfig
---- linux-2.6.4/arch/h8300/Kconfig	2004-03-14 18:17:37.000000000 +0900
-+++ linux-2.6.4-h8300/arch/h8300/Kconfig	2004-03-03 21:10:41.000000000 +0900
-@@ -37,6 +37,10 @@
- 	bool
- 	default y
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/kernel/setup.c linux-2.6.4-h8300/arch/h8300/kernel/setup.c
+--- linux-2.6.4/arch/h8300/kernel/setup.c	2004-01-09 15:59:09.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/kernel/setup.c	2004-03-03 17:30:20.000000000 +0900
+@@ -135,7 +135,7 @@
+ 	init_mm.brk = (unsigned long) 0; 
  
-+config PCI
-+	bool
-+	default n
-+
- source "init/Kconfig"
+ #if (defined(CONFIG_H8300H_SIM) || defined(CONFIG_H8S_SIM)) && defined(CONFIG_GDB_MAGICPRINT)
+-	register_console(&gdb_console);
++	register_console((struct console *)&gdb_console);
+ #endif
  
- menu "Processor type and features"
-diff -Nru -X .exclude-diff linux-2.6.4/include/asm-h8300/dma-mapping.h linux-2.6.4-h8300/include/asm-h8300/dma-mapping.h
---- linux-2.6.4/include/asm-h8300/dma-mapping.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux-2.6.4-h8300/include/asm-h8300/dma-mapping.h	2004-03-03 21:12:33.000000000 +0900
-@@ -0,0 +1 @@
-+#include <asm-generic/dma-mapping-broken.h>
+ 	printk("\r\n\nuClinux " CPU "\n");
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/mm/init.c linux-2.6.4-h8300/arch/h8300/mm/init.c
+--- linux-2.6.4/arch/h8300/mm/init.c	2004-01-09 15:59:41.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/mm/init.c	2004-03-14 23:33:13.000000000 +0900
+@@ -156,7 +156,7 @@
+ 	/* DAVIDM look at setup memory map generically with reserved area */
+ 	unsigned long tmp;
+ 	extern char _etext, _stext, _sdata, _ebss, __init_begin, __init_end;
+-	extern unsigned char _ramend, _ramstart;
++	extern unsigned long  _ramend, _ramstart;
+ 	unsigned long len = &_ramend - &_ramstart;
+ 	unsigned long start_mem = memory_start; /* DAVIDM - these must start at end of kernel */
+ 	unsigned long end_mem   = memory_end; /* DAVIDM - this must not include kernel stack at top */
+diff -Nru -X .exclude-diff linux-2.6.4/arch/h8300/platform/h8300h/generic/timer.c linux-2.6.4-h8300/arch/h8300/platform/h8300h/generic/timer.c
+--- linux-2.6.4/arch/h8300/platform/h8300h/generic/timer.c	2004-03-14 18:17:37.000000000 +0900
++++ linux-2.6.4-h8300/arch/h8300/platform/h8300h/generic/timer.c	2004-03-14 23:33:13.000000000 +0900
+@@ -31,7 +31,7 @@
+ #include <asm/regs306x.h>
+ #define CMFA 6
+ 
+-int platform_timer_setup(void (*timer_int)(int, void *, struct pt_regs *))
++int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
+ {
+ 	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
+ 	ctrl_outb(0x00,_8TCSR2);
+@@ -62,7 +62,7 @@
+ #define GRA  0x00ffff6a
+ #define GRB  0x00ffff6c
+ 
+-int platform_timer_setup(void (*timer_int)(int, void *, struct pt_regs *))
++int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
+ {
+ 	*(unsigned short *)GRA= H8300_TIMER_COUNT_DATA;
+ 	*(unsigned short *)TCNT=0;
+diff -Nru -X .exclude-diff linux-2.6.4/include/asm-h8300/bitops.h linux-2.6.4-h8300/include/asm-h8300/bitops.h
+--- linux-2.6.4/include/asm-h8300/bitops.h	2004-02-20 01:08:06.000000000 +0900
++++ linux-2.6.4-h8300/include/asm-h8300/bitops.h	2004-03-14 23:33:13.000000000 +0900
+@@ -89,21 +89,21 @@
+ 	case BIT:						     \
+ 	__asm__("stc ccr,%w1\n\t"				     \
+ 		"orc #0x80,ccr\n\t"				     \
+-		"bld #" #BIT ",@%3\n\t"				     \
+-		OP " #" #BIT ",@%3\n\t"				     \
++		"bld #" #BIT ",@%4\n\t"				     \
++		OP " #" #BIT ",@%4\n\t"				     \
+ 		"rotxl.l %0\n\t"				     \
+ 		"ldc %w1,ccr"					     \
+-		: "=r"(retval),"=&r"(ccrsave)			     \
++		: "=r"(retval),"=&r"(ccrsave),"=m"(*b_addr)	     \
+ 		: "0" (retval),"r" (b_addr)			     \
+ 		: "memory");                                         \
+         break;
+ 
+ #define H8300_GEN_TEST_BITOP_CONST(OP,BIT)			     \
+ 	case BIT:						     \
+-	__asm__("bld #" #BIT ",@%2\n\t"				     \
+-		OP " #" #BIT ",@%2\n\t"				     \
++	__asm__("bld #" #BIT ",@%3\n\t"				     \
++		OP " #" #BIT ",@%3\n\t"				     \
+ 		"rotxl.l %0\n\t"				     \
+-		: "=r"(retval)					     \
++		: "=r"(retval),"=m"(*b_addr)			     \
+ 		: "0" (retval),"r" (b_addr)			     \
+ 		: "memory");                                         \
+         break;
+@@ -129,13 +129,13 @@
+ 	} else {						     \
+ 		__asm__("stc ccr,%w1\n\t"			     \
+ 			"orc #0x80,ccr\n\t"			     \
+-			"btst %w4,@%3\n\t"			     \
+-			OP " %w4,@%3\n\t"			     \
++			"btst %w5,@%4\n\t"			     \
++			OP " %w5,@%4\n\t"			     \
+ 			"beq 1f\n\t"				     \
+ 			"inc.l #1,%0\n"				     \
+ 			"1:\n\t"				     \
+ 			"ldc %w1,ccr"				     \
+-			: "=r"(retval),"=&r"(ccrsave)		     \
++			: "=r"(retval),"=&r"(ccrsave),"=m"(*b_addr)  \
+ 			: "0" (retval),"r" (b_addr),"r"(nr)	     \
+ 			: "memory");				     \
+ 	}							     \
+@@ -159,12 +159,12 @@
+ 			H8300_GEN_TEST_BITOP_CONST(OP,7) 	     \
+ 		}						     \
+ 	} else {						     \
+-		__asm__("btst %w3,@%2\n\t"			     \
+-			OP " %w3,@%2\n\t"			     \
++		__asm__("btst %w4,@%3\n\t"			     \
++			OP " %w4,@%3\n\t"			     \
+ 			"beq 1f\n\t"				     \
+ 			"inc.l #1,%0\n"				     \
+ 			"1:"					     \
+-			: "=r"(retval)				     \
++			: "=r"(retval),"=m"(*b_addr)		     \
+ 			: "0" (retval),"r" (b_addr),"r"(nr)	     \
+ 			: "memory");				     \
+ 	}							     \
+@@ -183,7 +183,7 @@
+ 
+ static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+ {
+-	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
++	unsigned long *p = (unsigned long *)(((unsigned long)addr + (offset >> 3)) & ~3);
+ 	unsigned long result = offset & ~31UL;
+ 	unsigned long tmp;
+ 

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262020AbRFBWpk>; Sat, 2 Jun 2001 18:45:40 -0400
+	id <S262019AbRFBWra>; Sat, 2 Jun 2001 18:47:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262019AbRFBWpa>; Sat, 2 Jun 2001 18:45:30 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18193 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261988AbRFBWpR>; Sat, 2 Jun 2001 18:45:17 -0400
-Subject: Re: Date goes four times faster!
-To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
-Date: Sat, 2 Jun 2001 23:43:27 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <E156K3F-0002FV-00@the-village.bc.nu> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Jun 03, 2001 12:51:49 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E156K7D-0002Fn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262009AbRFBWrU>; Sat, 2 Jun 2001 18:47:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33028 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262019AbRFBWrB>; Sat, 2 Jun 2001 18:47:01 -0400
+Date: Sun, 3 Jun 2001 00:46:55 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Reading from /dev/fb0 very slow?
+Message-ID: <20010603004655.E2434@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010602105249.A979@bug.ucw.cz> <E156JUS-0002DC-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E156JUS-0002DC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Jun 02, 2001 at 11:03:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I use your -ac series ever (did I? :-) but I am under the impression that my 
-> hardware clock (date in the long run) is running (little) to fast.
+Hi!
 
-Well that would probably imply the clock is out on the machine - which with
-modern systems is not that unusual.  You can tune the clock slide with adjtimex
+> > I did some benchmarks, and my framebuffer is *way* faster when writing
+> > than when reading:
 > 
-> Athlon I 550 (0.25 µm)
-> MSI MS-6167 (AMD Irongate C4) --- Yes, Alan the very first one...;-)
+> That is quite normal.
 
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller (rev 23)
+Unfortunately, at least X and few framebuffer modes can not survive
+that too well.
 
-and my clock does behave..
+vesafb ypan mode attempts to do video-to-video copy, which is slow.
+Xserver attempts that, too. 
 
-> ACPI anabled...
+> > That is 6 times slower! This is also very visible in X, where moving
+> > regions is expensive, while just drawing regions is fast. For example
+> > gnome-terminal is *way* faster *with* transparent background option.
+> > 
+> > Any idea why such assymetry? [This is toshiba 4030cdt with vesafb and
+> > 2.4.5]
+> 
+> Writes to a PCI device can be queued or posted. Reads from a PCI device for
+> obvious reasons have to stall the CPU until the data returns. 
 
-Brave man 8)
+But they can't be posted indifinitely, right? I'm copying whole
+framebuffer at a time, I do not believe PCI has enough buffers to
+cache *that*. [Or is it using some kind of burst mode it can not use
+for reading? That does not give a sense, you can cache reads, too....]
 
-Alan
-
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

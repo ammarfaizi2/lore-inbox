@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264606AbTH2U7p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 16:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264612AbTH2U7o
+	id S261957AbTH2Ufi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTH2UfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:59:44 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:35879 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id S264606AbTH2U7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:59:33 -0400
-Date: Fri, 29 Aug 2003 22:01:15 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] swapon note error
-Message-ID: <Pine.LNX.4.44.0308292158500.1816-100000@localhost.localdomain>
+	Fri, 29 Aug 2003 16:35:16 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:62642 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261939AbTH2Uct
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 16:32:49 -0400
+Message-Id: <200308292032.h7TKWats006188@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] s390 (5/8): common i/o layer.
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Date: Fri, 29 Aug 2003 22:31:47 +0200
+References: <pV54.523.43@gated-at.bofh.it> <pX6U.7Vu.35@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's good that swapon fails on a tmpfs file ("swapfile has holes"),
-but not good that it then hangs up: note error from setup_swap_extents.
+OGAWA Hirofumi wrote:
 
-Hugh
+> Shouldn't the above use BUS_ID_SIZE instead of DEVICE_ID_SIZE?
 
---- 2.6.0-test4-mm3-1/mm/swapfile.c	Mon Aug 11 14:20:43 2003
-+++ linux/mm/swapfile.c	Fri Aug 29 20:53:33 2003
-@@ -1403,7 +1403,8 @@
- 	p->max = maxpages;
- 	p->pages = nr_good_pages;
- 
--	if (setup_swap_extents(p))
-+	error = setup_swap_extents(p);
-+	if (error)
- 		goto bad_swap;
- 
- 	swap_list_lock();
+Right. Actually, all uses of DEVICE_ID_SIZE in drivers/s390 are wrong.
+I'll take care of that.
 
+The only other user of DEVICE_ID_SIZE right now is drivers/usb/core/file.c
+and I'm not sure if it's used in the intended way there.
+Greg, maybe you want to get rid of it as well, or move the definition
+into file.c.
+
+        Arnd <><

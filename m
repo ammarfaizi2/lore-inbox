@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311460AbSCNBDc>; Wed, 13 Mar 2002 20:03:32 -0500
+	id <S311459AbSCNBCv>; Wed, 13 Mar 2002 20:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311461AbSCNBDY>; Wed, 13 Mar 2002 20:03:24 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:48391
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S311460AbSCNBDI>; Wed, 13 Mar 2002 20:03:08 -0500
-Date: Wed, 13 Mar 2002 20:04:38 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Martin Dalecki <martin@dalecki.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PIIX rewrite patch, pre-final
-In-Reply-To: <20020314001449.A31068@ucw.cz>
-Message-ID: <Pine.LNX.4.40.0203132004310.7822-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311460AbSCNBCm>; Wed, 13 Mar 2002 20:02:42 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:54159 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S311459AbSCNBCb>; Wed, 13 Mar 2002 20:02:31 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 13 Mar 2002 17:02:24 -0800
+Message-Id: <200203140102.RAA05788@adam.yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> NCR drivers in 2.4.18 and 2.5.6, but looking at the changes with
+>> "diff -w" shows very few other changes, just really ancilliary
+>> things like option parsing.
 
-This will benifit PIIX3 chipsets? :)
+>That sounds like its some half step
 
-On Thu, 14 Mar 2002, Vojtech Pavlik wrote:
+	I think I may have gotten confused here.  Are you only
+talking about the NCR53*80* drivers (pas16, seagate, t128,
+dmx3191, dtc), or the '80 and the '9x drivers (NCR53C9x.c,
+blz1230, bzl2060, cyberstorm, cyberstormII, dec_esp, fastlane,
+jazz_esp, mac_esp, mac_53c9x, oktago_esp, sun3x_esp), or both?
 
-> Hi!
->
-> This is a rewrite of the PIIX IDE timing driver. It should give slightly
-> better performance (+4% was measured), and also replaces the slc90c66
-> Efar Victory66 driver, because the Victory66 is mostly a PIIX clone.
->
-> It has been tested on PIIX4 only. Please anyone with a PIIX or ICH chip,
-> and if anyone has the Victory66 one even moreso, test this if you can.
->
-> The patch is against 2.5.6 + the patches I sent earlier, for a complete
-> patch against clean 2.5.6 see
->
-> http://twilight.ucw.cz/ide-via-amd-piix-timing-8-pre-final.diff
->
-> Killed code good code. :)
->
-> --
-> Vojtech Pavlik
-> SuSE Labs
->
+	NCR5380.c in 2.4.18 and 2.5.7-pre1 are identical files,
+as is NCR5380.h.  If those are the only files that you were
+talking about being reverted/upgraded, then my statements
+about the diffs were in error, and I apologize for the confusion.
 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

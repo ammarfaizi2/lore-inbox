@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317386AbSHCAwK>; Fri, 2 Aug 2002 20:52:10 -0400
+	id <S317404AbSHCAxk>; Fri, 2 Aug 2002 20:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317393AbSHCAwK>; Fri, 2 Aug 2002 20:52:10 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:11166 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317386AbSHCAwJ>; Fri, 2 Aug 2002 20:52:09 -0400
-Date: Sat, 3 Aug 2002 02:55:21 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Nick Orlov <nick.orlov@mail.ru>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <Pine.LNX.4.44.0208022004150.3717-100000@freak.distro.conectiva>
-Message-ID: <Pine.SOL.4.30.0208030241540.18115-100000@mion.elka.pw.edu.pl>
+	id <S317405AbSHCAxk>; Fri, 2 Aug 2002 20:53:40 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13073 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317404AbSHCAxi>; Fri, 2 Aug 2002 20:53:38 -0400
+Date: Fri, 2 Aug 2002 21:56:57 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Daniel Phillips <phillips@arcor.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Rmap speedup
+In-Reply-To: <3D4B2471.29EE6462@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0208022155310.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Aug 2002, Andrew Morton wrote:
 
-On Fri, 2 Aug 2002, Marcelo Tosatti wrote:
-> On Fri, 2 Aug 2002, Bartlomiej Zolnierkiewicz wrote:
-> > > Just FYI,
-> > >
-> > > before these "#ifdef" fixes it was treated as OFF_BOARD unless
-> > > CONFIG_PDC202XX_FORCE is set. (now it's inverted)
-> >
-> > This should be fixed.
+> > > Well that's fairly straightforward, thanks.  Butt-ugly though ;)
+
+> I changed it to, essentially:
+
+> See http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.30/daniel-rmap-speedup.patch
+
+This patch looks good.  Good enough for long-term maintainability,
+even... ;)
+
+I like it.
+
+> We have short-term rmap problems:
 >
-> If we change the #ifdef on ide-pci.c it will skip some controllers which
-> worked before _without_ CONFIG_PDC202XX_FORCE set.
+> 1) Unexplained pte chain state with ntpd
 
-I was thinking about changing it globally to do what its name suggest.
+I'll do a detailed trace of xntpd to see what's happening...
 
-Main problem is that before introducing skipping Promises, FORCE
-controlled overriding BIOS only (?) and now it is also used to control
-'skipping'. (FORCE should be by default on of course)
-Probably 'skipping' should be separated to another config option...
+> 2) 10-20% increased CPU load in fork/exec/exit loads
+> 3) system lock under heavy mmap load
+> 4) ZONE_NORMAL pte_chain consumption
+>
+> Daniel and I are on 2), Bill is on 4) (I think).
 
-And second problem is that 20265 is used as primary onboard
-sometimes and sometimes as offboard (another config option?).
+regards,
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Regards
---
-puzzled Bartlomiej
+http://www.surriel.com/		http://distro.conectiva.com/
 

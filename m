@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319002AbSH1VvG>; Wed, 28 Aug 2002 17:51:06 -0400
+	id <S318988AbSH1Vgv>; Wed, 28 Aug 2002 17:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319005AbSH1VvG>; Wed, 28 Aug 2002 17:51:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49422 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319002AbSH1VvG>; Wed, 28 Aug 2002 17:51:06 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Bug in kernel code?
-Date: 28 Aug 2002 14:54:59 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <akjgrj$o7m$1@cesium.transmeta.com>
-References: <3D6BD62C.581.ACEBAD@localhost> <20020827.203946.102043898.davem@redhat.com> <3D6BEF22.21951.10E69E8@localhost> <20020827.212649.102436426.davem@redhat.com>
+	id <S318990AbSH1Vgv>; Wed, 28 Aug 2002 17:36:51 -0400
+Received: from dp.samba.org ([66.70.73.150]:10429 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318988AbSH1Vgu>;
+	Wed, 28 Aug 2002 17:36:50 -0400
+From: Paul Mackerras <paulus@au1.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15725.17098.681128.713398@argo.ozlabs.ibm.com>
+Date: Thu, 29 Aug 2002 07:38:18 +1000 (EST)
+To: James Simmons <jsimmons@infradead.org>
+Cc: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: still ati fb errors with 2.5.31, thought patch applied
+In-Reply-To: <Pine.LNX.4.33.0208281114420.1459-100000@maxwell.earthlink.net>
+References: <46344979984.20020828090546@eunet.at>
+	<Pine.LNX.4.33.0208281114420.1459-100000@maxwell.earthlink.net>
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020827.212649.102436426.davem@redhat.com>
-By author:    "David S. Miller" <davem@redhat.com>
-In newsgroup: linux.dev.kernel
->
->    From: "Stephen Biggs" <s.biggs@softier.com>
->    Date: Tue, 27 Aug 2002 21:29:06 -0700
-> 
->    You tell me.  You're saying a billion pages (((unsigned long)(~0)) >> 2) also crashes) is never 
->    going to be realistically possible?
-> 
-> On a 32-bit system?  No.  x86 cpus are architectually limited
-> to 64GB of memory, shift that right by PAGE_SIZE (13) and we're
-> still within bounds.                   ^^^^^^^^^^^^^^
-> 
+James Simmons writes:
 
-PAGE_SHIFT, 12.
+> > aty128fb.c: In function `aty128_pci_register':
+> > aty128fb.c:1730: too many arguments to function `aty128find_ROM'
+> > aty128fb.c:1736: warning: passing arg 1 of `aty128_get_pllinfo' from incompatible pointer type
+> > aty128fb.c:1749: structure has no member named `mtrr'
+> > aty128fb.c:1750: structure has no member named `vram_size'
+> > aty128fb.c:1751: structure has no member named `mtrr'
+> > aty128fb.c: At top level:
+> > aty128fb.c:1402: warning: `aty128fb_rasterimg' defined but not used
 
-The maximum possible page count of any known 32-bit system (64 GB @ 4K
-for x86) is 2^24 pages.
+> This driver has not been ported to the new api.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I sent you a patch to convert aty128fb.c to the new API, and I posted
+a message to lkml saying that it was available at:
+
+ftp://ftp.samba.org/pub/paulus/aty128.patch
+
+It's about 112kB uncompressed, so I didn't include it in the mail to
+lkml, but I'll send it to anyone who asks.
+
+Paul.

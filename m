@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264662AbTFLBqq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbTFLBqp
+	id S264694AbTFLBtS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 21:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264676AbTFLBtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:46:45 -0400
-Received: from dp.samba.org ([66.70.73.150]:12737 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264662AbTFLBql (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:46:41 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
+	Wed, 11 Jun 2003 21:49:17 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:28935 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264690AbTFLBst convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 21:48:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10553833502745@movementarian.org>
+Subject: [PATCH 2/4] OProfile: update Changes
+In-Reply-To: <10553833504038@movementarian.org>
+From: John Levon <levon@movementarian.org>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Thu, 12 Jun 2003 03:02:31 +0100
+Content-Transfer-Encoding: 7BIT
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ver_linux script version fix
-Date: Thu, 12 Jun 2003 10:48:43 +1000
-Message-Id: <20030612020025.CEFC82C002@lists.samba.org>
+Mime-Version: 1.0
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19QHQ8-00022B-Ao*HGi3F0fBjTo*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
 
-ver_linux script should know whether depmod refers to old version or
-new version (this way I can tell whether people haven't install
-module-init-tools, although it's usually pretty obvious):
+Update the version information.
 
-depmod -V (new output):
-	module-init-tools 0.9.12
-
-depmod -V (old output):
-	depmod version 2.4.21
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.70-bk16/scripts/ver_linux working-2.5.70-bk16-ver_linux/scripts/ver_linux
---- linux-2.5.70-bk16/scripts/ver_linux	2003-05-27 15:02:29.000000000 +1000
-+++ working-2.5.70-bk16-ver_linux/scripts/ver_linux	2003-06-12 10:41:09.000000000 +1000
-@@ -28,7 +28,7 @@ fdformat --version | awk -F\- '{print "u
+diff -Naur -X dontdiff linux-cvs/Documentation/Changes linux-fixes/Documentation/Changes
+--- linux-cvs/Documentation/Changes	2003-05-25 23:13:37.000000000 +0100
++++ linux-fixes/Documentation/Changes	2003-06-12 02:07:08.000000000 +0100
+@@ -61,7 +61,7 @@
+ o  PPP                    2.4.0                   # pppd --version
+ o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep version
+ o  procps                 2.0.9                   # ps --version
+-o  oprofile               0.5                     # oprofiled --version
++o  oprofile               0.5.3                   # oprofiled --version
+ o  nfs-utils              1.0.3                   # showmount --version
  
- mount --version | awk -F\- '{print "mount                 ", $NF}'
+ Kernel compilation
+@@ -367,7 +367,7 @@
  
--depmod -V  2>&1 | grep version | awk 'NR==1 {print "module-init-tools     ",$NF}'
-+depmod -V  2>&1 | awk '/version/ {print "modutils              ",$NF} /module-init-tools/ {print "module-init-tools     ",$NF}'
- 
- tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
- 'NR==1 {print "e2fsprogs             ", $2}'
+ OProfile
+ --------
+-o  <http://oprofile.sf.net/download.php3>
++o  <http://oprofile.sf.net/download/>
+  
+ Suggestions and corrections
+ ===========================
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

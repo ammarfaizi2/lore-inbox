@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbTINVhD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 17:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbTINVhD
+	id S262016AbTINVpq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 17:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbTINVpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 17:37:03 -0400
-Received: from 67-50-116-12.br1.fod.ia.frontiernet.net ([67.50.116.12]:19840
-	"EHLO www.duskglow.com") by vger.kernel.org with ESMTP
-	id S261627AbTINVhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 17:37:01 -0400
-Date: Sun, 14 Sep 2003 16:41:32 -0500
-From: Russell Miller <rmiller@duskglow.com>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [SUMMARY] rebooting problem solved - athlon/SiS incompatibility.
-Message-ID: <20030914214132.GA1833@www.duskglow.com>
-References: <20030914205429.GA3535@www.duskglow.com> <20030914210429.GA26027@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Sep 2003 17:45:46 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:43245
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S262016AbTINVpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 17:45:45 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: 2.4.22-ck2
+Date: Mon, 15 Sep 2003 07:53:41 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200309132210.46837.kernel@kolivas.org> <200309132222.31892.kernel@kolivas.org> <20030914214356.GB22148@DUK2.13thfloor.at>
+In-Reply-To: <20030914214356.GB22148@DUK2.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030914210429.GA26027@redhat.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200309150753.41736.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 14, 2003 at 10:04:29PM +0100, Dave Jones wrote:
+On Mon, 15 Sep 2003 07:43, Herbert Poetzl wrote:
+> On Sat, Sep 13, 2003 at 10:22:31PM +1000, Con Kolivas wrote:
+> > On Sat, 13 Sep 2003 22:13, Marc-Christian Petersen wrote:
+> > > On Saturday 13 September 2003 14:10, Con Kolivas wrote:
+> > >
+> > > Hi Con,
+> > >
+> > > > The O1int interactivity backport is more substantial now bringing it
+> > > > in line with O20.1int with only the nanosecond resolution missing
+> > > > from the 2.6
+> > >
+> > > and where is that split out patch?
+> >
+> > As I said; available by request. Will mail it to you separately
+>
+> please send it to me too ...  /AOL
 
-...
+A more substantial set of incrementals is now available via my website thanks 
+to Wiktor Wodecki who is kindly hosting my stuff now.
 
-Note the words "an athlon thunderbird processor".  The documentation says, as
-I remember, that turning on SMP on a UP board should have no appreciable effect.
+http://kernel.kolivas.org
 
-I take that back, it says it should run on many, but not all, uniprocessor machines.
-So instead of what I said, please note that the K7SEM is a motherboard that will not
-work with an SMP kernel.
+Con
 
---Russell
-
-> 		Dave
-> 
-> -- 
->  Dave Jones     http://www.codemonkey.org.uk

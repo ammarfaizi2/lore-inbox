@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313500AbSDJSlk>; Wed, 10 Apr 2002 14:41:40 -0400
+	id <S313504AbSDJSmi>; Wed, 10 Apr 2002 14:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313504AbSDJSlj>; Wed, 10 Apr 2002 14:41:39 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:52472 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S313500AbSDJSlj>; Wed, 10 Apr 2002 14:41:39 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 10 Apr 2002 12:40:10 -0600
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-Message-ID: <20020410184010.GC3509@turbolinux.com>
-Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200204101533.g3AFXwS09100@vindaloo.ras.ucalgary.ca>
+	id <S313506AbSDJSmh>; Wed, 10 Apr 2002 14:42:37 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:36879 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S313504AbSDJSmd>;
+	Wed, 10 Apr 2002 14:42:33 -0400
+Date: Wed, 10 Apr 2002 20:42:31 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Generic access to firmware environment variables
+Message-ID: <20020410184231.GC8136@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6zdv2QT/q3FMhpsV"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux mail 2.4.15-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 10, 2002  09:33 -0600, Richard Gooch wrote:
-> Even though I'm using persistent superblockss, which is supposed to
-> allow one to move devices from one controller to another, I can't
-> use my RAID) set in this configuration. Looks like a bug.
-> 
-> md0: former device scsi/host2/bus0/target1/lun0/part2 is unavailable, removing from array!
-> md: md0, array needs 6 disks, has 5, aborting.
 
-Note that this appears to be your real problem.
+--6zdv2QT/q3FMhpsV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Note the following line from the kernel logs above:
-> md: can not import scsi/host6/bus0/target0/lun0/part2, has active inodes!
-> 
-> Well, that's no surprise, as this partition has /usr! And this
-> partition isn't even mentioned in the /etc/raidtab file. But I note
-> that it has the same device number in this (the broken) configuration
-> as /dev/sd/c0b0t1u0p2 has in the working configuration.
+Hi!
 
-That is a red herring, I think.
+I've developed a driver to access environment variables on Alpha
+computers from userspace through procfs some time ago. These
+days, I updated the driver. While doing this, I also looked
+at other architectures; some of them also do have some kind
+of environment variables in firmware:
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+	Alphas			-	SRM firmware
+	SGI Workstations	-	ARCS firmware
+	MIPS/ITE-Boards		-	PMON
+	m68k/MAC		-	?? (info is placed into a
+					"bootinfo" struct)
+	IA64			-	(_seems_ to know about
+					environment...)
 
+They all access environment variables either by name, or by an
+internally handles number. For Alpha, I've (now) implemented both,
+access by name (if variable name is known/described) and access by
+generic number.
+
+I think it would be useful to have something like this for other
+architectures as well. So I'm currently thinking about implementing a
+base driver (like parport does) and additional modules to implement
+machine/architecture specific access methode (like parport_pc).
+
+It's easy to code, so what do you think of this?
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
+
+--6zdv2QT/q3FMhpsV
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjy0h5YACgkQHb1edYOZ4buk8ACgkDP7hhJ1SImAsTBeEEqLe/AY
+B9QAn32CyNRMJGwFoMA8K3apuA0q6NX1
+=rqHx
+-----END PGP SIGNATURE-----
+
+--6zdv2QT/q3FMhpsV--

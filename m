@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUAZQQz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 11:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUAZQQz
+	id S264358AbUAZQXl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 11:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUAZQXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 11:16:55 -0500
-Received: from gprs40-6.eurotel.cz ([160.218.40.6]:30895 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264505AbUAZQQw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 11:16:52 -0500
-Date: Mon, 26 Jan 2004 17:16:25 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: Bluetooth USB oopses on unplug (2.6.1)
-Message-ID: <20040126161625.GB227@elf.ucw.cz>
-References: <20040126102041.GA1112@elf.ucw.cz> <1075124726.25442.2.camel@pegasus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075124726.25442.2.camel@pegasus>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 26 Jan 2004 11:23:41 -0500
+Received: from fairchild-196.adsl.newnet.co.uk ([213.131.187.196]:57530 "HELO
+	pinus.navaho") by vger.kernel.org with SMTP id S264358AbUAZQXh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 11:23:37 -0500
+X-Sender-Local: 10.0.0.42
+Date: Mon, 26 Jan 2004 16:23:02 +0000 (GMT)
+From: Steve Hill <steve@navaho.co.uk>
+X-X-Sender: steve@sorbus2.navaho
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ALIM7101 watchdog
+Message-ID: <Pine.LNX.4.58.0401261621060.15669@sorbus2.navaho>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="666112-1741476213-1075134182=:15669"
+X-Navaho-ID: 40153a0a
+X-Domain-Forwarded-By: pinus.navaho
+X-Navaho-Spam-Rating: 0.000000
+X-Spam-Override: Local user [steve@navaho.co.uk]
+X-Navaho-Spam: No
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> > In 2.6.1, bluetooth-over-usb (hci_usb) works very well... As long as I
-> > do not unplug it. When I do, it oopses. Is there newer version of
-> > bluetooth that I should try?
-> 
-> try to disable the SCO audio option for the driver itself. It should
-> work then, because the driver no longer uses ISOC transfers.
+--666112-1741476213-1075134182=:15669
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Will try.
 
-> However show us the oops (through ksymoops) and show us your USB
-> hardware on your motherboard (lspci).
+Attached is a patch against 2.4.24 to fix the ALIM7101 watchdog driver 
+which wasn't properly taking notice of NOWAYOUT not being set.
 
-pavel@amd:~$ lspci
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3188 (rev 01)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b188
-00:0a.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller
-00:0c.0 Network controller: Broadcom Corporation BCM94306 802.11g (rev 02)
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 Audio Controller (rev 50)
-00:11.6 Communication controller: VIA Technologies, Inc. Intel 537 [AC97 Modem] (rev 80)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-00:13.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 02)
-pavel@amd:~$
+- Steve Hill
+Senior Software Developer                        Email: steve@navaho.co.uk
+Navaho Technologies Ltd.                           Tel: +44-870-7034015
 
-I'll have to hand-copy the oops, as machine dies after unplug. Here it
-is:
+        ... Alcohol and calculus don't mix - Don't drink and derive! ...
 
-Oops: 2
-EIP  is at uhci_remov_pending_qhs
-Call trace:
-	uhci_irq
-	usb_hcd_irq
-	handle_irq_event
-	do_IRQ
-	common_interrupt_1
+--666112-1741476213-1075134182=:15669
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="alim7101_wdt_nowayout_fix.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0401261623020.15669@sorbus2.navaho>
+Content-Description: 
+Content-Disposition: attachment; filename="alim7101_wdt_nowayout_fix.patch"
 
-								Pavel
+ZGlmZiAtdXJOIGxpbnV4LTIuNC4yNC52YW5pbGxhL2RyaXZlcnMvY2hhci9h
+bGltNzEwMV93ZHQuYyBsaW51eC0yLjQuMjQvZHJpdmVycy9jaGFyL2FsaW03
+MTAxX3dkdC5jDQotLS0gbGludXgtMi40LjI0LnZhbmlsbGEvZHJpdmVycy9j
+aGFyL2FsaW03MTAxX3dkdC5jCTIwMDItMTEtMjggMjM6NTM6MTIuMDAwMDAw
+MDAwICswMDAwDQorKysgbGludXgtMi40LjI0L2RyaXZlcnMvY2hhci9hbGlt
+NzEwMV93ZHQuYwkyMDA0LTAxLTI2IDExOjUzOjA2LjAwMDAwMDAwMCArMDAw
+MA0KQEAgLTIwOSw3ICsyMDksNyBAQA0KIA0KIHN0YXRpYyBpbnQgZm9wX2Ns
+b3NlKHN0cnVjdCBpbm9kZSAqIGlub2RlLCBzdHJ1Y3QgZmlsZSAqIGZpbGUp
+DQogew0KLQlpZih3ZHRfZXhwZWN0X2Nsb3NlKQ0KKwlpZiAoKHdkdF9leHBl
+Y3RfY2xvc2UpIHx8ICghIG5vd2F5b3V0KSkNCiAJCXdkdF90dXJub2ZmKCk7
+DQogCWVsc2Ugew0KIAkJcHJpbnRrKE9VUl9OQU1FICI6IGRldmljZSBmaWxl
+IGNsb3NlZCB1bmV4cGVjdGVkbHkuIFdpbGwgbm90IHN0b3AgdGhlIFdEVCFc
+biIpOw0K
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--666112-1741476213-1075134182=:15669--
+

@@ -1,115 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264733AbUEaTUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264748AbUEaTi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264733AbUEaTUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 15:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUEaTUJ
+	id S264748AbUEaTi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 15:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264749AbUEaTi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 15:20:09 -0400
-Received: from vsmtp1b.tin.it ([212.216.176.141]:36785 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S264733AbUEaTTm (ORCPT
+	Mon, 31 May 2004 15:38:56 -0400
+Received: from nacho.alt.net ([207.14.113.18]:47034 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S264748AbUEaTiv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 15:19:42 -0400
-Subject: Re: 2.6.x partition breakage and dual booting
-From: Frediano Ziglio <freddyz77@tin.it>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040531180821.GC5257@louise.pinerecords.com>
-References: <40BA2213.1090209@pobox.com>
-	 <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com>
-	 <20040530200300.GA4681@apps.cwi.nl> <s5g8yf9ljb3.fsf@patl=users.sf.net>
-	 <20040531180821.GC5257@louise.pinerecords.com>
-Content-Type: text/plain
-Message-Id: <1086031180.3985.32.camel@freddy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 31 May 2004 21:19:40 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 31 May 2004 15:38:51 -0400
+Date: Mon, 31 May 2004 12:38:48 -0700 (PDT)
+To: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
+Subject: Re: crashes in prune_icache() in 2.4.26
+In-Reply-To: <Pine.LNX.4.44.0405302345250.12337-100000@nacho.alt.net>
+Message-ID: <Pine.LNX.4.44.0405311233450.16373-100000@nacho.alt.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Chris Caputo <ccaputo@alt.net>
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il lun, 2004-05-31 alle 20:08, Tomas Szepe ha scritto:
-> > This is really very simple.  If you move a disk from a machine with
-a
-> > different BIOS and you preserve the partition table geometry, you
-will
-> > NEVER be able to install Windows on the drive.  If you partition a
-> > blank drive and use the wrong geometry, you will NEVER be able to
-> > install Windows on the drive.
+Made a little more progress...
+
+Turns out the infinite loop wasn't in the CONFIG_HIGMEM while() loop, but 
+rather in the while() loop at the top of the code.  Sorry about that.  I 
+misunderstood the disassembly until now.
+
+So basically both types of crashes I am seeing (NULL deref and infinite
+loop) are happening in the primary/top while() loop of prune_icache()  
+and I suspect they are both the result of a corrupted inode_unused list.
+
+Now I am trying to figure out where/how the inode_unused list is getting
+corrupted...  If anyone has any existing code for validating list
+integrity, which I could sprinkle around the code, I'd love a copy.
+
+Thanks,
+Chris
+
+On Mon, 31 May 2004, Chris Caputo wrote:
+> [CC'ed lkml in case anyone else wants to take a shot.]
 > 
-> I don't quite believe this.  AFAICT the Windows 2000/XP install
-program will
-> succeed no matter what, the only problem is with getting the dirty
-thing to
-> boot AFTER install has completed.  If it craps out, boot off the
-install
-> CD to the repair console prompt, run fixboot/fixmbr and all should be
-swell.
-> If you need dual boot, you can go ahead and reinstall lilo/grub at
-this point.
-> The one scenario unfixable without a hex editor that I know of is
-installing
-> Windows on a partition that was created using mkdosfs -F 32 (and even
-that
-> will sometimes work).
-
-Let me explain my point of view
-
-I encountered the problem trying to install Fedora Core 2. Using Fedora
-Core 2 and fdisk do not works (it return bad head count), so it's not
-only an anaconda problem.
-
-I analyzed 2.4.22 code and 2.6.5 code (both from Fedora kernels)
-In 2.4 when an IDE drive is detected it looks in CMOS to see if a HD is
-configured, then fetch BIOS data from int 41h / int 46h. If this is not
-possible it try to compute heads number (the number that allow you to
-access most data) (drivers/ide/ide-geometry.c). Another hint is to check
-partition table (fs/partitions/msdos.c). In 2.6 this code just
-disappeared...
-
-I think it's important to know BIOS point of view. Linux provide these
-information so we have two choices to solve the problem:
-- correct the informations we return
-- do not return anything and let user space programs do the job!
-
-How to match Linux view with BIOS view? We have some unimplemented mode
-I'll explain below (I just want to fix this problem).
-
-Mainly the problem raise cause we have a lot of choices and different
-configurations:
-- SCSI. BIOS can see SCSI disks before IDE disks, see the first SCSI
-disk then IDEs then others SCSIs;
-- BIOS settings. Some BIOS always minimize cylinder count (maximizing
-head count), others no, others allow you to select geometry (in my BIOS
-I have three choices: LBA, CHS and Large)
-- BIOS boot sequence. Newer BIOS let you choice what's is the first
-disks. Also I tried to plug a USB disks and select as first disk but
-BIOS put it always as second (even if I boot from floppy)... perhaps it
-check MBR???
-
-How to match BIOS with Linux?
-There are some infos that can helps:
-- if we have only a disks it's easy
-- we can use dimensions (int13h/8h, int 41h/46h)
-- MBR signature. I don't even know this before yesterday!!! We save only
-this information for first BIOS disk (80h), we can improve saving this
-information (and provide in sysfs)
-- EDD 1.0. Use physical dimensions to match
-- EDD 2.0. I don't understand why Linux code int 41h/46h and ignore
-these informations. My BIOSes do not support EDD 3.0 but support EDD
-2.0. EDD 2.0 provide informations like command port and if slave or not
-(see Ralph Brown's interrupt list, int 13h/48h). If a disk is IDE we can
-match _exactly_ the disk!
-- EDD 3.0. Here we have disk type and path (like LUN/ID on SCSI), very
-easy to match but not very widely implemented.
-IMHO we should try to use these informations as best that we can.
-
-There are also some informations in EDD that should be detected like
-removable disks. It would be useful if Linux can provide a mapping
-between BIOS and Linux disks to user-space programs.
-
-I can try to code some implementation but I'm not an Linux kernel
-hacker... for example I don't know if IDE is detected before SCSI
-(something suggests me that there isn't an order).
-
-freddy77
-
+> A little more info...  I added some printk's to the function to highlight
+> the input value of parameter 'goal' and also to show where the function
+> was returning.
+> 
+> My understanding is these printk's all happened in rapid succession:
+> 
+>     entry > prune_icache(goal = 92370)
+>     exit < prune_icache() at if (goal <= 0)
+> 
+>   Above the function completed without entering the CONFIG_HIGHMEM while
+>   loop.
+> 
+>     entry > prune_icache(goal = 94037)
+>     exit < prune_icache() - end of function
+> 
+>   Above the function went through the CONFIG_HIGHMEM while loop.  This was
+>   the first time this happened since boot, after a number of 
+>   prune_icache() calls that had returned prior to the CONFIG_HIGHMEM while 
+>   loop.
+> 
+>     entry > prune_icache(goal = 98609)
+>     Unable to handle kernel NULL pointer dereference at virtual address 00000004
+> 
+>   The final printk above shows the function being entered and then hitting
+>   the NULL dereference.
+> 
+> Chris
+> 
+> On Sun, 30 May 2004, Chris Caputo wrote:
+> > Hi.  I have been experiencing a number of crashes in fs/inode.c's
+> > prune_icache() function.  I found on linux.bkbits.net that you made the
+> > most recent major change to this function back in January.  With that in
+> > mind I hope it is okay to write directly to you.
+> > 
+> > I have experienced two kinds of crashes with this function.
+> > 
+> > The first is in the older part of the code.  Basically the inode_unused 
+> > list is somehow getting corrupt and when it does an Oops happens at:
+> > 
+> >     entry = entry->prev;   (line 808 of the 2.4.26 fs/inode.c)
+> > 
+> > I haven't yet figured out how it is getting corrupt so any tips welcome.
+> > 
+> > A second problem I have seen is that my system has gotten into an infinite
+> > loop in the while loop in the CONFIG_HIGHMEM part of the prune_icache()
+> > code.  I haven't yet figured out why.  But I am curious about the code at 
+> > the beginning of the loop:
+> > 
+> >         while (goal-- > 0) {
+> >                 if (list_empty(&inode_unused_pagecache))
+> >                         break;
+> >                 entry = inode_unused_pagecache.prev;
+> >                 list_del(entry);
+> >                 list_add(entry, &inode_unused_pagecache);
+> > 
+> > Is the intent of the last 3 lines to remove the entry from the end of the
+> > linked-list and then add it to the front, as a way of traversing the list?  
+> > Or is it intended that the add be an add to the inode_unused list as
+> > opposed to the inode_unused_pagecache list?
+> > 
+> > I'd love to figure out the problems I am experiencing, so any advice on
+> > how to proceed is welcome.  The bug happens every few days on our main
+> > fileserver and I have been able to reproduce it on a test fileserver too.
+> > 
+> > Chris
+> 
+> 
+> 
 

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266686AbUH1Ntr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUH1Nvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266686AbUH1Ntr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 09:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUH1Ntr
+	id S266777AbUH1Nvu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 09:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUH1Nvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 09:49:47 -0400
-Received: from zero.aec.at ([193.170.194.10]:2308 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266686AbUH1Nti (ORCPT
+	Sat, 28 Aug 2004 09:51:50 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22482 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266825AbUH1Nvn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 09:49:38 -0400
-To: =?iso-8859-1?Q?Petter_Sundl=F6f?= <petter.sundlof@findus.dhs.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Voluntary Preempt P9 againstclean  2.6.8.1 -- on AMD64, compile
- failure
-References: <2xSys-7h8-11@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 28 Aug 2004 15:49:30 +0200
-In-Reply-To: <2xSys-7h8-11@gated-at.bofh.it> (Petter
- =?iso-8859-1?Q?Sundl=F6f's?= message of "Fri, 27 Aug 2004 19:20:08 +0200")
-Message-ID: <m3vff3cqz9.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 28 Aug 2004 09:51:43 -0400
+Date: Sat, 28 Aug 2004 15:48:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86-64 compile error in 2.6.9-rc1-bk1
+Message-Id: <20040828154833.3d9aa7d7.ak@suse.de>
+In-Reply-To: <1093460094.23633.18.camel@duffman>
+References: <1093460094.23633.18.camel@duffman>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petter Sundlöf <petter.sundlof@findus.dhs.org> writes:
+On Wed, 25 Aug 2004 11:54:54 -0700
+Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu> wrote:
 
-> On Debian-AMD64
-> Applied
-> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
-> to a clean 2.6.8.1 (simply copied over my old .config). Patching went
-> fine. Using gcc 3.3.4.
+> If you have CONFIG_SWIOTLB=y (GART_IOMMU=y), you get:
+> 
+> ld: BFD 2.15.90.0.3 20040415 assertion fail ../../bfd/linker.c:619
+> arch/x86_64/mm/built-in.o(.init.text+0x52a): In function `mem_init':
+> : undefined reference to `swiotlb_force'
+> make[1]: *** [.tmp_vmlinux1] Error 1
+> make: *** [_all] Error 2
+> 
+> This was added in Linus's tree.  But I cannot find where swiotlb_force is defined...
 
+It is defined in a ia64 specific file (believe it or not) The change should 
+go in as soon as Linus pulls the IA64 update from Tony Luck. 
 
-Looks like your tree is broken. Download a fresh tarball.
-I tried to compile your configuration and it worked just fine.
+For now you can just comment out the if. 
 
 -Andi
-

@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261641AbSI0GI0>; Fri, 27 Sep 2002 02:08:26 -0400
+	id <S261642AbSI0GR0>; Fri, 27 Sep 2002 02:17:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261639AbSI0GI0>; Fri, 27 Sep 2002 02:08:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61160 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261636AbSI0GIZ>;
-	Fri, 27 Sep 2002 02:08:25 -0400
-Date: Fri, 27 Sep 2002 08:13:28 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doing file transfers
-Message-ID: <20020927061328.GL5646@suse.de>
-References: <20020925232736.A19209@shookay.newview.com> <20020926061419.GA12862@suse.de> <3D92B17C.9030504@myrealbox.com> <3870780000.1033054272@aslan.scsiguy.com>
-Mime-Version: 1.0
+	id <S261643AbSI0GR0>; Fri, 27 Sep 2002 02:17:26 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9993 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261642AbSI0GRZ>; Fri, 27 Sep 2002 02:17:25 -0400
+Date: Thu, 26 Sep 2002 23:21:47 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: jgarzik@pobox.com, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [RFC] {read,write}s{b,w,l} or iobarrier_*()
+In-Reply-To: <20020926.141223.128110378.davem@redhat.com>
+Message-ID: <Pine.LNX.4.10.10209261951560.13669-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3870780000.1033054272@aslan.scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26 2002, Justin T. Gibbs wrote:
-> >     I reported this same problem some weeks ago -
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103069116227685&w=2 .
-> > 2.4.20pre kernels solved the error messages flooding the console, and
-> > improved things a bit, but system load still got very high and disk read
-> > and write performance was lousy. Adding more memory and using a
-> > completely different machine didn't help. What did? Changing the Adaptec
-> > scsi driver to aic7xxx_old . The performance was up 50% for writes and
-> > 90% for reads, and the system load was acceptable. And i didn't even had
-> > to change the RedHat kernel (2.4.18-10) for a custom one. The storage was
-> > two external Arena raid boxes, btw.
+On Thu, 26 Sep 2002, David S. Miller wrote:
+
+>    From: Jeff Garzik <jgarzik@pobox.com>
+>    Date: Thu, 26 Sep 2002 12:23:41 -0400
 > 
-> I would be interested in knowing if reducing the maximum tag depth for
-> the driver improves things for you.  There is a large difference in the
-> defaults between the two drivers.  It has only reacently come to my
-> attention that the SCSI layer per-transaction overhead is so high that
-> you can completely starve the kernel of resources if this setting is too
-> high.  For example, a 4GB system installing RedHat 7.3 could not even
-> complete an install on a 20 drive system with the default of 253 commands.
-> The latest version of the aic7xxx driver already sent to Marcelo drops the
-> default to 32.
+>    Benjamin Herrenschmidt wrote:
+>    >  - Have all archs provide {read,write}s{b,w,l} functions.
+>    > Those will hide all of the details of bytewapping & barriers
+>    > from the drivers and can be used as-is for things like IDE
+>    > MMIO iops.
+>    
+>    I prefer this solution...
+> 
+> I'm starting to think about taking back all the previous
+> arguments I had against this idea.  It's starting to sound
+> like the preferred way to go.
 
-2.4 layer is most horrible there, 2.5 at least gets rid of the old
-scsi_dma crap. That said, 253 default depth is a bit over the top, no?
+Hi Dave,
 
--- 
-Jens Axboe, who always uses 4
+One of the main reasons for changing the core iops of the ata/ide driver
+results from newer HBA's either supporting dual transports modes or in
+some case exclusive MMIO, similar to current IOMIO x86 HBA's today.
+
+Additionally, I suspect the current dual path for execution may end up
+going N-ways.  As there are a few PATA hosts and in the future all SATA
+hosts will convert to the FP-DMA (First Party DMA) messaging service
+protocol.
+
+This will then make (3) different execution transports.  The bad news is
+during transition period (just now starting) it will become more painful
+if we do not make the drive independent of iops regardless of arch/bus
+issues.
+
+One of the key ideas hottly debated between Ben, Jeff, and myself were the
+impacts resulting from this change in direction.  Obviously Ben lives in a
+world of MMIO and has suffered with a driver which was designed around
+IOMIO.  Thus all the bastardized macros we all hate resulted from
+x86-centric lameness (industry driven for the most part, yeah me included).
+
+Now if we expand the issue into Jeff's world of the net-stack drivers, he
+banged me over the head with the issue of "pci-posting delays".  Ben got
+his shots in also about the issue, too.  Thus the resulting io_barrier
+additions by Ben to the original ATA-driver transformation, can be extened
+to the Net-Drivers.  Oh and the slope is increasing fast now.
+
+So if it works for ATA and NET, could it not migrate to all hardware?
+If it makes it to all hardware, should it not be coupled to the BUS?
+If it is coupled to the BUS, are there going to be problems with
+exceptions?
+
+Well once I leave ATA (storage in general), I am not really able to
+discuss those issues from a position of first hand experience.  So here is
+my nickel spent.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
 

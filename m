@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262236AbSJHMGm>; Tue, 8 Oct 2002 08:06:42 -0400
+	id <S262205AbSJHMAc>; Tue, 8 Oct 2002 08:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262284AbSJHMGm>; Tue, 8 Oct 2002 08:06:42 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:23033 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262236AbSJHMGl>; Tue, 8 Oct 2002 08:06:41 -0400
-Subject: Re: [patch] IDE driver model update
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0210072126380.29030-100000@weyl.math.psu.edu>
-References: <Pine.GSO.4.21.0210072126380.29030-100000@weyl.math.psu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Oct 2002 13:21:08 +0100
-Message-Id: <1034079668.26550.54.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262236AbSJHMAc>; Tue, 8 Oct 2002 08:00:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46831 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262205AbSJHMAa>; Tue, 8 Oct 2002 08:00:30 -0400
+Date: Tue, 8 Oct 2002 14:06:05 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: akpm@zip.com.au, <Martin.Bligh@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.41: i386/mm/discontig.c doesn't compile with CONFIG_HIGHMEM
+In-Reply-To: <20021008113620.GE12432@holomorphy.com>
+Message-ID: <Pine.NEB.4.44.0210081405170.8340-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-08 at 03:17, Alexander Viro wrote:
-> _ALL_ buses that have driverfs support (IDE, SCSI, USB, PCI) have their
-> own rules for lifetimes of their structures.  And that's not likely to
-> change - these objects belong to drivers and in some cases (IDE) are
-> not even allocated dynamically - they are reused if nothing is holding
-> them.
+On Tue, 8 Oct 2002, William Lee Irwin III wrote:
 
-IDE objects can also outlast the hardware - consider an active mount on
-an ejected pcmcia card. Right now we don't do the right stuff to
-reconnect that on re-insert but one day we may need to. As it is we keep
-the instance around to avoid crashes
+> On Tue, Oct 08, 2002 at 12:45:05PM +0200, Adrian Bunk wrote:
+> > FYI:
+> > The compilation of arch/i386/mm/discontig.c fails in both 2.5.41 and
+> > 2.5.41-ac1 with the following error when CONFIG_HIGHMEM is enabled:
+> > <--  snip  -->
+>
+> Fix already sent to akpm.
+>
+> Date:   Sat, 5 Oct 2002 17:05:33 -0700
+> From:   William Lee Irwin III <wli@holomorphy.com>
+> To:     linux-kernel@vger.kernel.org
+> Cc:     linux-mm@kvack.org, akpm@zip.com.au
+> Subject: 2.5.40 snapshot ia32 discontig compilefix
+> Message-ID: <20021006000533.GE12432@holomorphy.com>
+
+
+Thanks, I missed this patch.
+
+
+> Bill
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130199AbRAHWhd>; Mon, 8 Jan 2001 17:37:33 -0500
+	id <S131901AbRAHWkD>; Mon, 8 Jan 2001 17:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131901AbRAHWhZ>; Mon, 8 Jan 2001 17:37:25 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:7717 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130199AbRAHWhV>; Mon, 8 Jan 2001 17:37:21 -0500
-Date: Mon, 8 Jan 2001 23:37:34 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benson Chow <blc@q.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010108233734.C27646@athlon.random>
-In-Reply-To: <20010108225451.A968@stefan.sime.com> <Pine.LNX.4.31.0101081501560.10554-100000@q.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.31.0101081501560.10554-100000@q.dyndns.org>; from blc@q.dyndns.org on Mon, Jan 08, 2001 at 03:11:08PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S135745AbRAHWjy>; Mon, 8 Jan 2001 17:39:54 -0500
+Received: from anime.net ([63.172.78.150]:57356 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S131901AbRAHWjm>;
+	Mon, 8 Jan 2001 17:39:42 -0500
+Date: Mon, 8 Jan 2001 14:40:58 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Michael Meissner <meissner@spectacle-pond.org>, Ookhoi <ookhoi@dds.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: The advantage of modules?
+In-Reply-To: <200101082214.WAA00962@raistlin.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.30.0101081437030.19618-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 03:11:08PM -0700, Benson Chow wrote:
-> Not very portable at all...
-> 
-> hpux = HP/UX 10.2
-> 
-> hpux:~$ mkdir foo
-> hpux:~$ cd foo
-> hpux:~/foo$ rmdir "`pwd`"
-> rmdir: /home/blc/foo: Cannot remove mountable directory
-> hpux:~/foo$ rmdir .
-> rmdir: cannot remove .. or .
-> hpux:~/foo$ rmdir /home/blc/foo
-> rmdir: /home/blc/foo: Cannot remove mountable directory
-> hpux:~/foo$ rmdir ./
-> rmdir: ./: Cannot remove mountable directory
-> hpux:~/foo$
-> 
-> Maybe HP/UX is messed up as well.
+On Mon, 8 Jan 2001, Russell King wrote:
+> Seriously though, you can't depreciate a term for referring to a type of
+> bus without providing some other term to describe said bus.
 
-It seems not to return -EBUSY. As also mentioned by Andries:
+You need to distinguish between SCSI-the-protocol and
+SCSI-the-physical-layer. The term "SCSI" alone is simply too ambiguous to
+be really useful anymore. I think you can use term "SCSI-1" or "SCSI-2"
+when specicfally meaning SCSI protocol over classic 50 wire layer.
 
-	If the directory is the root directory or the current working directory
-	of any process, it is unspecified whether the function succeeds, or
-	whether it fails and sets errno to [EBUSY]. 
+Saying "SCSI does not support hotplug" is very misleading.
 
-The portable way is the one I mentioned as possible change for my code:
+Right now, the term "SCSI" is more akin to "IP".
 
-        os.chdir("..")
-        shutil.rmtree(binutils_build)
+-Dan
 
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270283AbTHLNjX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270325AbTHLNjX
+	id S270332AbTHLNtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270338AbTHLNtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:39:23 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:25493 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270283AbTHLNjW
+	Tue, 12 Aug 2003 09:49:09 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:12784 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S270332AbTHLNtH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:39:22 -0400
-Subject: Re: [2.6 patch] add an -Os config option
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030811211145.GA569@fs.tum.de>
-References: <20030811211145.GA569@fs.tum.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060695341.21160.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Aug 2003 14:35:41 +0100
+	Tue, 12 Aug 2003 09:49:07 -0400
+Date: Tue, 12 Aug 2003 15:48:48 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Dave Jones <davej@codemonkey.org.uk>, torvalds@transmeta.com,
+       fxkuehl@gmx.de, linux-kernel@vger.kernel.org, willy@w.ods.org
+Subject: Re: [PATCH][2.6.0-test3] Disable APIC on reboot.
+In-Reply-To: <16184.10167.743824.668791@gargle.gargle.HOWL>
+Message-ID: <Pine.GSO.3.96.1030812154705.7029B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-08-11 at 22:11, Adrian Bunk wrote:
-> +config OPTIMIZE_FOR_SIZE
-> +	bool "Optimize for size" if EMBEDDED
-> +	default n
-> +	help
-> +	  Enabling this option will pass "-Os" instead of "-O2" to gcc
-> +	  resulting in a smaller kernel.
-> +
-> +	  The resulting kernel might be significantly slower.
+On Tue, 12 Aug 2003, Mikael Pettersson wrote:
 
-With most of the gcc's I tried -Os was faster.
+> @@ -249,6 +250,14 @@
+>  	 * other OSs see a clean IRQ state.
+>  	 */
+>  	smp_send_stop();
+> +#elif CONFIG_X86_LOCAL_APIC
+> +	if (cpu_has_apic) {
+> +		local_irq_disable();
+> +		disable_local_APIC();
+> +		local_irq_enable();
+> +	}
+> +#endif
+> +#ifdef CONFIG_X86_IO_APIC
+>  	disable_IO_APIC();
+>  #endif
+
+ You obviously want to disable I/O APICs first.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

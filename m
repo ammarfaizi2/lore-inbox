@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUIOVlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUIOXqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267571AbUIOVlb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUIOVkp
+	id S267653AbUIOXqO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUIOW1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:40:45 -0400
-Received: from soundwarez.org ([217.160.171.123]:59550 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S267571AbUIOVis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:38:48 -0400
-Subject: Re: [patch] kernel sysfs events layer
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Robert Love <rml@novell.com>
-Cc: Greg KH <greg@kroah.com>, Tim Hockin <thockin@hockin.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1095283589.23385.117.camel@betsy.boston.ximian.com>
-References: <20040915034455.GB30747@kroah.com>
-	 <20040915194018.GC24131@kroah.com>
-	 <1095279043.23385.102.camel@betsy.boston.ximian.com>
-	 <20040915202234.GA18242@hockin.org>
-	 <1095279985.23385.104.camel@betsy.boston.ximian.com>
-	 <20040915203133.GA18812@hockin.org>
-	 <1095280414.23385.108.camel@betsy.boston.ximian.com>
-	 <20040915204754.GA19625@hockin.org>
-	 <1095281358.23385.109.camel@betsy.boston.ximian.com>
-	 <20040915205643.GA19875@hockin.org>  <20040915212322.GB25840@kroah.com>
-	 <1095283589.23385.117.camel@betsy.boston.ximian.com>
-Content-Type: text/plain
-Date: Wed, 15 Sep 2004 23:38:50 +0200
-Message-Id: <1095284330.3508.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+	Wed, 15 Sep 2004 18:27:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38803 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267649AbUIOW06
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 18:26:58 -0400
+Message-ID: <4148C1A2.2030309@pobox.com>
+Date: Wed, 15 Sep 2004 18:26:42 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: alan@lxorguk.ukuu.org.uk, paul@clubi.ie, netdev@oss.sgi.com,
+       leonid.grossman@s2io.com, linux-kernel@vger.kernel.org
+Subject: Re: The ultimate TOE design
+References: <4148991B.9050200@pobox.com>	<Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>	<1095275660.20569.0.camel@localhost.localdomain>	<4148A90F.80003@pobox.com>	<20040915140123.14185ede.davem@davemloft.net>	<20040915210818.GA22649@havoc.gtf.org>	<20040915141346.5c5e5377.davem@davemloft.net>	<4148B2E5.50106@pobox.com> <20040915142926.7bc456a4.davem@davemloft.net>
+In-Reply-To: <20040915142926.7bc456a4.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 17:26 -0400, Robert Love wrote:
-> On Wed, 2004-09-15 at 14:23 -0700, Greg KH wrote:
+David S. Miller wrote:
+> On Wed, 15 Sep 2004 17:23:49 -0400
+> Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
-> > We aren't giving absolute /dev entries here, that's the beauty of the
-> > kobject tree :)
 > 
-> Not that I agree, but I don't think it is the absolute /dev entries that
-> bother him: it is the fact that knowledge of the mount itself is an
-> information leak.
+>>The typical definition of TOE is "offload 90+% of the net stack", as 
+>>opposed to "TCP assist", which is stuff like TSO.
 > 
-> Which it is.  As root, in my name space, I should rest in the knowledge
-> that my mounts are secret, I guess.  But I just do not see it as a big
-> problem.
+> 
+> I think a better goal is "offload 90+% of the net stack cost" which
+> is effectively what TSO does on the send side.
 
-Anyone can watch the refcount on the fs-modules, they increment on every
-device claim. Is that a leak in your eyes too :)
 
-Kay
+A better goal is to not bother with TOE at all, and just get multi-core 
+processors with huge memory bandwidth :)
+
+Again, the point of my message is to have something _positive_ to tell 
+people when they specifically asked about TOE.  Rather than "no, we'll 
+never do TOE" we have "it's possible, but there are better questions you 
+should be asking"
+
+	Jeff
+
 

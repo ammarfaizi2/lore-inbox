@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130429AbQKYAZM>; Fri, 24 Nov 2000 19:25:12 -0500
+        id <S130205AbQKYArr>; Fri, 24 Nov 2000 19:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130439AbQKYAZC>; Fri, 24 Nov 2000 19:25:02 -0500
-Received: from nat-dial-160.valinux.com ([198.186.202.160]:23286 "EHLO
-        tytlal.z.streaker.org") by vger.kernel.org with ESMTP
-        id <S130429AbQKYAYy>; Fri, 24 Nov 2000 19:24:54 -0500
-Date: Fri, 24 Nov 2000 15:28:31 -0800
-From: Chip Salzenberg <chip@valinux.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] blindingly stupid 2.2 VM bug
-Message-ID: <20001124152831.A5696@valinux.com>
-In-Reply-To: <20001119100100.A54301@niksula.cs.hut.fi> <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+        id <S130281AbQKYAri>; Fri, 24 Nov 2000 19:47:38 -0500
+Received: from slc807.modem.xmission.com ([166.70.6.45]:30476 "EHLO
+        flinx.biederman.org") by vger.kernel.org with ESMTP
+        id <S130162AbQKYArV>; Fri, 24 Nov 2000 19:47:21 -0500
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [patch] O_SYNC patch 3/3, add inode dirty buffer list support to ext2
+In-Reply-To: <20001122112646.D6516@redhat.com> <20001122115424.A18592@vger.timpanogas.org> <20001123120135.D8368@redhat.com> <20001123130125.B23067@vger.timpanogas.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 24 Nov 2000 16:32:56 -0700
+In-Reply-To: "Jeff V. Merkey"'s message of "Thu, 23 Nov 2000 13:01:25 -0700"
+Message-ID: <m1snohvtcn.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Nov 20, 2000 at 11:38:38AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Rik van Riel:
-> Luckily my patch fixes some of the suspect areas in
-> VM-global [...]
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> writes:
 
-Would you say that the below patch is just the try_to_free_pages
-bug fix, then?
+> Cool.  ORACLE is going to **SMOKE** on EXT2 with this change.
 
-Index: mm/vmscan.c
---- mm/vmscan.c.prev
-+++ mm/vmscan.c	Fri Nov 24 15:17:59 2000
-@@ -401,4 +401,5 @@ int try_to_free_pages(unsigned int gfp_m
- 	int priority;
- 	int count = SWAP_CLUSTER_MAX;
-+	int loopcount = count;
- 	int killed = 0;
- 
-@@ -409,5 +410,5 @@ int try_to_free_pages(unsigned int gfp_m
- 
- again:
--	priority = 5;
-+	priority = 6;
- 	do {
- 		while (shrink_mmap(priority, gfp_mask)) {
-@@ -431,5 +432,10 @@ again:
- 
- 		shrink_dcache_memory(priority, gfp_mask);
--	} while (--priority > 0);
-+
-+		/* Only lower priority if we didn't make progress. */
-+		if (count == loopcount)
-+			--priority;
-+		loopcount = count;
-+	} while (priority > 0);
- done:
- 	unlock_kernel();
-@@ -454,6 +460,9 @@ done:
- 	}
- 
--	/* Return success if we freed a page. */
--	return priority > 0;
-+	/* Return success if we have enough free memory or we freed a page. */
-+	if (nr_free_pages > freepages.low)
-+		return 1;
-+
-+	return count < SWAP_CLUSTER_MAX;
- }
- 
+<Pessimism>
 
--- 
-Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
-   "Give me immortality, or give me death!"  // Firesign Theatre
+Hmm I don't see how ORACLE is going to **SMOKE**.
+Last I looked ORACLE would need a query optimizer that always
+would find the best possible index and much less overhead to **SMOKE**.
+
+Last I looked table reads were 10x slower than file reads.
+
+</Pessimism>
+
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

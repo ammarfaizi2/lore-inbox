@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbUJ0QMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbUJ0QM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbUJ0QMq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbUJ0QMq
+	id S262490AbUJ0QM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbUJ0QM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:12:46 -0400
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:56998 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S262497AbUJ0QLv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:11:51 -0400
-Date: Wed, 27 Oct 2004 18:11:43 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
-Subject: [OT] Re: The naming wars continue...
-In-Reply-To: <20041027154828.GA21160@thundrix.ch>
-Message-ID: <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
- <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com>
- <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <20041027154828.GA21160@thundrix.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 27 Oct 2004 12:12:26 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:25759 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262490AbUJ0QJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:09:02 -0400
+Subject: Re: Let's make a small change to the process
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Randy Dunlap <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Dave Jones <davej@redhat.com>
+In-Reply-To: <200410262220_MC3-1-8D36-77F@compuserve.com>
+References: <200410262220_MC3-1-8D36-77F@compuserve.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098889516.4302.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Oct 2004 16:05:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Tonnerre wrote:
+On Mer, 2004-10-27 at 03:17, Chuck Ebbert wrote:
+> > If the goal of -ac is to only include those fixes, why can't we rename
+> > it in something more "intuitive" for the final users ?
+> > Do you see what I mean ?
+> 
+>   AFAICT -ac is not supposed to be a complete collection of bugfixes.
+>   2.6.9-ac3 was certainly missing a lot of them (haven't seen -ac4 yet.)
 
-> Salut,
->
-> On Wed, Oct 27, 2004 at 11:33:25AM +0300, Denis Vlasenko wrote:
->> Why there is any distinction between, say, gcc and X?
->> KDE and Midnight Commander? etc... Why some of them go
->> to /opt while others are spread across dozen of dirs?
->
-> Well.
->
-> FHS specifies that everything needed  to boot the system should got to
-> /bin  and /sbin. The  base system  (build system,  etc.) should  go to
-> /usr. The rest should be /opt/itspackagename.
->
-> I'm not quite a FHS fan. I use libexec dirs, but I still have my build
-> system under /usr (and my home  under /usr/home), and the rest (X, KDE
-> et al) lives under /opt.
+The goal of -ac is to contain the stuff I personally consider important.
+A lot of the smaller bugfixes individually are fine but a 'complete set
+of bugfixes' turns into a large change set and then needs an entire
+validation and release cycle of its own.
 
-Hi,
+Each 2.6.10rc change I merged is on the basis of reward >> risk.
 
-In Gentoo everything goes to /usr/bin or /usr/sbin except very basic 
-things that are instaled in /bin or /sbin and binary-only packages that 
-are instaled in /opt (very good idea).
+I don't care if its 2.6.9-ac or 2.6.9.4 personally but it's for Linus to
+decide if he wants to do that and who he wants to make keeper of the
+2.6.x.y tree if anyone.
 
-Yes, Linux (or UNIX) directory structure should be changed years ago but 
-nobody (except GOBO Linux I think) is going to do it. That will require 
-patching realy big amount of code and changing some standards. If somebody 
-has time for it feel free to contact me, and I will tell him (or her) what 
-should be changed to produce The New Directory Standard That Breaks 
-Everything But Is The Best And Most Sane In The World (TM)... :-)
-
-
-Grzegorz Kulewski
+Alan
 

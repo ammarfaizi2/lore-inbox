@@ -1,124 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287467AbSA0Bqu>; Sat, 26 Jan 2002 20:46:50 -0500
+	id <S287478AbSA0CFY>; Sat, 26 Jan 2002 21:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287464AbSA0Bql>; Sat, 26 Jan 2002 20:46:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:43281 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287467AbSA0Bqg>;
-	Sat, 26 Jan 2002 20:46:36 -0500
-Date: Sun, 27 Jan 2002 02:46:31 +0100
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Make ide-scsi compile in 2.5
-Message-ID: <20020127024631.A28936@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S287488AbSA0CFS>; Sat, 26 Jan 2002 21:05:18 -0500
+Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:14753 "EHLO
+	mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S287478AbSA0CFA>; Sat, 26 Jan 2002 21:05:00 -0500
+Message-ID: <034501c1a510$44422590$6caaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <pogosyan@phys.ualberta.ca>, <whitney@math.berkeley.edu>
+Cc: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>,
+        "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020124155853Z287177-13996+11274@vger.kernel.org> <Pine.LNX.4.44.0201241803540.1345-100000@grignard.amagerkollegiet.dk> <200201241749.g0OHnbG02468@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <3C505702.7B665083@phys.ualberta.ca>
+Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a  chipset)
+Date: Thu, 24 Jan 2002 12:49:42 -0700
+Organization: LSG, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Actually, I used a separate temperature sensor to come up with proper values
+for lm_sensors to read the CPU temperature on my A7V (ver 1.01). After
+testing lowest and highest temperatures, this what I came up with:
 
-ide-scsi doesn't compile currently in 2.5.x. This patch fixes it in a 
-rather hackish way by adding some kmap_atomic()s.  It would be 
-probably better to kmap earlier in process context in the request 
-function instead, but I leave this to the people who know more 
-about IDE/block layer than me (but apparently not compile ide-scsi..)
-I'm also not totally convinced that it is deadlock free here to use
-KM_BOUNCE_READ here, it may be safer to add a new bounce type. 
-You have been warned. 
+  compute    temp2     28.2+((@-18)*2), ((@-28.2)/2)+18
 
-I have only tested it without highmem and it works for me. 
+I know it looks weird, but it makes the "sensors" value for CPU temperate
+match (within .5 degrees C) across the entire range I can test (which is
+from full load on a 1GHz Thunderbird down to idle and using the old "lvcool"
+patch).
 
-Hopefully there will be eventually a better fix, but for now it 
-allows to burn (and mount if you use /dev/scd* for ide) CDs under 2.5 again. 
-
-
--Andi
-
+----- Original Message -----
+From: <pogosyan@phys.ualberta.ca>
+To: <whitney@math.berkeley.edu>
+Cc: "Rasmus Bøg Hansen" <moffe@amagerkollegiet.dk>; "LKML"
+<linux-kernel@vger.kernel.org>
+Sent: Thursday, January 24, 2002 11:48 AM
+Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a
+chipset)
 
 
-Index: drivers/scsi/ide-scsi.c
-===================================================================
-RCS file: /cvs/linux/drivers/scsi/ide-scsi.c,v
-retrieving revision 1.45
-diff -u -u -r1.45 ide-scsi.c
---- drivers/scsi/ide-scsi.c	2002/01/16 20:58:39	1.45
-+++ drivers/scsi/ide-scsi.c	2002/01/27 01:40:26
-@@ -52,7 +52,7 @@
- #include "sd.h"
- #include <scsi/sg.h>
- 
--#define IDESCSI_DEBUG_LOG		0
-+/* #define IDESCSI_DEBUG_LOG		0 */
- 
- typedef struct idescsi_pc_s {
- 	u8 c[12];				/* Actual packet bytes */
-@@ -132,13 +132,20 @@
- 	int count;
- 
- 	while (bcount) {
-+		void *addr; 
- 		if (pc->sg - (struct scatterlist *) pc->scsi_cmd->request_buffer > pc->scsi_cmd->use_sg) {
- 			printk (KERN_ERR "ide-scsi: scatter gather table too small, discarding data\n");
- 			idescsi_discard_data (drive, bcount);
- 			return;
- 		}
- 		count = IDE_MIN (pc->sg->length - pc->b_count, bcount);
--		atapi_input_bytes (drive, pc->sg->address + pc->b_count, count);
-+		/* This kmap should be moved earlier into process context
-+		   and use kmap instead of kmap_atomic. Not now. 
-+		   It also should use an own KMAP_ type to avoid deadlocks, 
-+		   butter better do the first should. b_count is hopefully <= PAGE_SIZE */  
-+		addr = kmap_atomic(pc->sg->page, KM_BOUNCE_READ);  
-+		atapi_input_bytes (drive, addr + pc->sg->offset + pc->b_count, count);
-+		kunmap_atomic(addr, KM_BOUNCE_READ); 
- 		bcount -= count; pc->b_count += count;
- 		if (pc->b_count == pc->sg->length) {
- 			pc->sg++;
-@@ -152,13 +159,16 @@
- 	int count;
- 
- 	while (bcount) {
-+		void *addr;
- 		if (pc->sg - (struct scatterlist *) pc->scsi_cmd->request_buffer > pc->scsi_cmd->use_sg) {
- 			printk (KERN_ERR "ide-scsi: scatter gather table too small, padding with zeros\n");
- 			idescsi_output_zeros (drive, bcount);
- 			return;
- 		}
- 		count = IDE_MIN (pc->sg->length - pc->b_count, bcount);
--		atapi_output_bytes (drive, pc->sg->address + pc->b_count, count);
-+		addr = kmap_atomic(pc->sg->page, KM_BOUNCE_READ); 
-+		atapi_output_bytes (drive, addr + pc->sg->offset + pc->b_count, count);
-+		kunmap_atomic(addr, KM_BOUNCE_READ); 
- 		bcount -= count; pc->b_count += count;
- 		if (pc->b_count == pc->sg->length) {
- 			pc->sg++;
-@@ -753,22 +763,21 @@
- 			struct page *page = sg->page;
- 			int offset = sg->offset;
- 
-+#if 0
- 			if (!page) {
- 				BUG_ON(!sg->address);
- 				page = virt_to_page(sg->address);
- 				offset = (unsigned long) sg->address & ~PAGE_MASK;
- 			}
-+#endif			
- 				
- 			bh->bi_io_vec[0].bv_page = page;
- 			bh->bi_io_vec[0].bv_len = sg->length;
- 			bh->bi_io_vec[0].bv_offset = offset;
- 			bh->bi_size = sg->length;
- 			bh = bh->bi_next;
--			/*
--			 * just until scsi_merge is fixed up...
--			 */
--			BUG_ON(PageHighMem(page));
--			sg->address = page_address(page) + offset;
-+			sg->page =  page; 
-+			sg->offset = offset; 
- 			sg++;
- 		}
- 	} else {
+> > Note that on this motherboard (and perhaps all ASUS Via chipset
+> > motherboards, including the A7V133), one needs the following line in
+> > /etc/sensors.conf to get reasonable lm_sensors CPU temperatures:
+> >   compute temp2 @*2, @/2
+> > This is as described at http://www2.lm-sensors.nu/~lm78/support.html
+> > in Ticket 775.
+> >
+>
+> I have ASUS A7V266-E (AS99127F chip) and lm_sensors 2.6.2
+> shows 43 C for CPU without any additional lines in /etc/sensors.conf
+>
+> Which sounds reasonable.   However this temperature is rarely ever change
+!
+> I typically have 43.1,   sometimes 42.8   and that's it.   Even after 2-3
+min
+>
+> compiles.    So something is wrong
+>
+>                 Dmitri
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
 

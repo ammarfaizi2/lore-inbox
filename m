@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUIIUFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUIIUBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUIIUFc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 16:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUIIUEd
+	id S264795AbUIIUBx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 16:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUIIT6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 16:04:33 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:51898 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264668AbUIIT7v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 15:59:51 -0400
-Date: Thu, 9 Sep 2004 21:51:32 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dan Williams <dcbw@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>,
-       David Gibson <hermes@gibson.dropbear.id.au>
-Subject: Re: [0/15] orinoco merge preliminaries
-Message-ID: <20040909195132.GA6305@electric-eye.fr.zoreil.com>
-References: <20040712213349.A2540@electric-eye.fr.zoreil.com> <40F57D78.9080609@pobox.com> <20040715010137.GB3697@zax> <41068E4B.2040507@pobox.com> <20040728065128.GC16908@zax> <20040729005029.A11537@electric-eye.fr.zoreil.com> <20040729001918.GD15321@zax> <20040730011917.A1043@electric-eye.fr.zoreil.com> <1094656727.6006.24.camel@localhost.localdomain> <413FCA57.5040807@pobox.com>
+	Thu, 9 Sep 2004 15:58:14 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:38814 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264795AbUIITzM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 15:55:12 -0400
+Date: Thu, 9 Sep 2004 21:56:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jack Steiner <steiner@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Fix potential race condition in wake_up_forked_process()
+Message-ID: <20040909195642.GA3435@elte.hu>
+References: <20040909194558.GA28653@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <413FCA57.5040807@pobox.com>
+In-Reply-To: <20040909194558.GA28653@sgi.com>
 User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> :
-[...]
-> >Francois: is the patchlist you have complete?
 
-No.
+* Jack Steiner <steiner@sgi.com> wrote:
 
-I'll spend some time on it next week. Current week is dedicated to
-the r8169.
+> There appears to be a tiny (microscopic) timing hole in
+> wake_up_forked_process(). It is possible that a load_balancing
+> application could change cpus_allowed on a task as it is being forked.
+> Unlikely, but it can happen, especially if preemption is enabled.
 
-[...]
-> I merged a bunch of David's patches, so at the very least I think 
-> Francois's patches would need re-diffing.
+there has been alot of work in this area and sched.c in -BK is much
+different from 2.6.8.1's sched.c. In particular there's no
+wake_up_forked_process() but wake_up_new_task().
 
-<evil cunning plan>
-David's patches have been part of my serie since 07/30/2004
-</evil cunning plan>
+more importantly, the whole bootstrapping of a new task has been
+reworked and the set_cpus_allowed() race should not exist in -BK
+anymore. Could you double-check to make sure?
 
-http://www.zoreil.com/linux/kernel/2.6.x/2.6.9-rc1-mm4 contains the
-instant (no-)rediff.
-
---
-Ueimor
+	Ingo

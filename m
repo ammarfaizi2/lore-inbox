@@ -1,86 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261722AbSJJQwK>; Thu, 10 Oct 2002 12:52:10 -0400
+	id <S261664AbSJJQ6h>; Thu, 10 Oct 2002 12:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261709AbSJJQwK>; Thu, 10 Oct 2002 12:52:10 -0400
-Received: from email.gcom.com ([206.221.230.194]:37563 "EHLO gcom.com")
-	by vger.kernel.org with ESMTP id <S261716AbSJJQwI>;
-	Thu, 10 Oct 2002 12:52:08 -0400
-Message-Id: <5.1.0.14.2.20021010115616.04a0de70@localhost>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 10 Oct 2002 11:57:46 -0500
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-From: David Grothe <dave@gcom.com>
-Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
-Cc: linux-kernel@vger.kernel.org, LiS <linux-streams@gsyc.escet.urjc.es>,
-       davem@redhat.com, bidulock@openss7.org
-In-Reply-To: <4386E3211F1@vcnet.vc.cvut.cz>
+	id <S261690AbSJJQ6g>; Thu, 10 Oct 2002 12:58:36 -0400
+Received: from waste.org ([209.173.204.2]:60876 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261664AbSJJQ6f>;
+	Thu, 10 Oct 2002 12:58:35 -0400
+Date: Thu, 10 Oct 2002 12:04:16 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: george anzinger <george@mvista.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+Message-ID: <20021010170416.GP21400@waste.org>
+References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA4BECB.9C7D6119@mvista.com> <20021010155424.GN21400@waste.org> <3DA5A9D6.D72A8E00@mvista.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_1710900895==_"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA5A9D6.D72A8E00@mvista.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_1710900895==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+On Thu, Oct 10, 2002 at 09:24:54AM -0700, george anzinger wrote:
+> Oliver Xymoron wrote:
+> > 
+> > On Wed, Oct 09, 2002 at 04:42:03PM -0700, george anzinger wrote:
+> > > Linus Torvalds wrote:
+> > > >
+> > > > On Wed, 9 Oct 2002, george anzinger wrote:
+> > > > >
+> > > > > This patch, in conjunction with the "core" high-res-timers
+> > > > > patch implements high resolution timers on the i386
+> > > > > platforms.
+> > > >
+> > > > I really don't get the notion of partial ticks, and quite frankly, this
+> > > > isn't going into my tree until some major distribution kicks me in the
+> > > > head and explains to me why the hell we have partial ticks instead of just
+> > > > making the ticks shorter.
+> > > >
+> > > Well, the notion is to provide timers that have resolution
+> > > down into the micro seconds.  Since this take a bit more
+> > > overhead, we just set up an interrupt on an as needed
+> > > basis.  This is why we define both a high res and a low res
+> > > clock.  Timers on the low res clock will always use the 1/HZ
+> > > tick to drive them and thus do not introduce any additional
+> > > overhead.  If this is all that is needed the configure
+> > > option can be left off and only these timers will be
+> > > available.
+> > >
+> > > On the other hand, if a user requires better resolution,
+> > > s/he just turns on the high-res option and incures the
+> > > overhead only when it is used and then only at timer expire
+> > > time.  Note that the only way to access a high-res timer is
+> > > via the POSIX clocks and timers API.  They are not available
+> > > to select or any other system call.
+> > >
+> > > Making ticks shorter causes extra overhead ALL the time,
+> > > even when it is not needed.  Higher resolution is not free
+> > > in any case, but it is much closer to free with this patch
+> > > than by increasing HZ (which, of course, can still be
+> > > done).  Overhead wise and resolution wise, for timers, we
+> > > would be better off with a 1/HZ tick and the "on demand"
+> > > high-res interrupts this patch introduces.
+> > 
+> > I think what Linus is getting at is: why not make the units of jiffies
+> > microseconds and give it larger increments on clock ticks? Now you
+> > don't need any special logic to go to better than HZ resolution.
+> > Unfortunately, this means identifying all the things that use HZ as a
+> > measure of how often we check for rescheduling.
+> 
+> Well then you are still dealing with two measures, the HZ
+> and the tick rate.
 
-Attached is the "final" patch.  I eliminated the unregister function.  This 
-is tested on stock 2.4.19 kernel.
+Yep, and separating the two breaks a few things. Granted.
 
-Will someone see that it is added to the kernel source?
+> One might also argue that the subjiffie
+> should be some "normal" thing like nanosecond or micro
+> second.  I went round and round with this in the beginning. 
+> What it comes down to it the conversion back and forth is
+> much easier and faster (less overhead) when using the
+> natural units of the underlying clock.  This way the
+> interrupt code, for example, does not have to even do a
+> conversion.
 
-Thanks,
-Dave
---=====================_1710900895==_
-Content-Type: text/plain; name="stock-i386-2.4.19.txt";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="stock-i386-2.4.19.txt"
+Then the argument becomes move jiffies to the most convenient unit
+that encompasses what you want to do with subjiffies. Microseconds was
+just an example. Most code doesn't really care when ticks happen,
+except to the extent that they currently trigger timers, so
+jiffies=tick HZ stops being a meaningful measure once timers are
+untied from ticks, see?
 
-LS0tIGFyY2gvaTM4Ni9rZXJuZWwvZW50cnkuUy5vcmlnCTIwMDItMDgtMDIgMTk6Mzk6NDIuMDAw
-MDAwMDAwIC0wNTAwCisrKyBhcmNoL2kzODYva2VybmVsL2VudHJ5LlMJMjAwMi0xMC0wOCAxNTo0
-MzowOC4wMDAwMDAwMDAgLTA1MDAKQEAgLTU4NCw4ICs1ODQsOCBAQAogCS5sb25nIFNZTUJPTF9O
-QU1FKHN5c19jYXBzZXQpICAgICAgICAgICAvKiAxODUgKi8KIAkubG9uZyBTWU1CT0xfTkFNRShz
-eXNfc2lnYWx0c3RhY2spCiAJLmxvbmcgU1lNQk9MX05BTUUoc3lzX3NlbmRmaWxlKQotCS5sb25n
-IFNZTUJPTF9OQU1FKHN5c19uaV9zeXNjYWxsKQkJLyogc3RyZWFtczEgKi8KLQkubG9uZyBTWU1C
-T0xfTkFNRShzeXNfbmlfc3lzY2FsbCkJCS8qIHN0cmVhbXMyICovCisJLmxvbmcgU1lNQk9MX05B
-TUUoc3lzX2dldHBtc2cpCQkvKiBzdHJlYW1zMSAqLworCS5sb25nIFNZTUJPTF9OQU1FKHN5c19w
-dXRwbXNnKQkJLyogc3RyZWFtczIgKi8KIAkubG9uZyBTWU1CT0xfTkFNRShzeXNfdmZvcmspICAg
-ICAgICAgICAgLyogMTkwICovCiAJLmxvbmcgU1lNQk9MX05BTUUoc3lzX2dldHJsaW1pdCkKIAku
-bG9uZyBTWU1CT0xfTkFNRShzeXNfbW1hcDIpCi0tLSBrZXJuZWwva3N5bXMuYy5vcmlnCTIwMDIt
-MDgtMDIgMTk6Mzk6NDYuMDAwMDAwMDAwIC0wNTAwCisrKyBrZXJuZWwva3N5bXMuYwkyMDAyLTEw
-LTEwIDExOjQ2OjU0LjAwMDAwMDAwMCAtMDUwMApAQCAtNDk3LDYgKzQ5Nyw5IEBACiBFWFBPUlRf
-U1lNQk9MKHNlcV9yZWxlYXNlKTsKIEVYUE9SVF9TWU1CT0woc2VxX3JlYWQpOwogRVhQT1JUX1NZ
-TUJPTChzZXFfbHNlZWspOworZXh0ZXJuIGludCByZWdpc3Rlcl9zdHJlYW1zX2NhbGxzKGludCAo
-KnB1dHBtc2cpIChpbnQsdm9pZCAqLHZvaWQgKixpbnQsaW50KSwKKwkJCQkgICBpbnQgKCpnZXRw
-bXNnKSAoaW50LHZvaWQgKix2b2lkICosaW50LGludCkpOworRVhQT1JUX1NZTUJPTChyZWdpc3Rl
-cl9zdHJlYW1zX2NhbGxzKTsKIAogLyogUHJvZ3JhbSBsb2FkZXIgaW50ZXJmYWNlcyAqLwogRVhQ
-T1JUX1NZTUJPTChzZXR1cF9hcmdfcGFnZXMpOwotLS0ga2VybmVsL3N5cy5jLm9yaWcJMjAwMi0w
-OC0wMiAxOTozOTo0Ni4wMDAwMDAwMDAgLTA1MDAKKysrIGtlcm5lbC9zeXMuYwkyMDAyLTEwLTEw
-IDExOjQ2OjQ0LjAwMDAwMDAwMCAtMDUwMApAQCAtMTY3LDYgKzE2Nyw0OCBAQAogCXJldHVybiBu
-b3RpZmllcl9jaGFpbl91bnJlZ2lzdGVyKCZyZWJvb3Rfbm90aWZpZXJfbGlzdCwgbmIpOwogfQog
-CitzdGF0aWMgaW50ICgqZG9fcHV0cG1zZykgKGludCwgdm9pZCAqLCB2b2lkICosIGludCwgaW50
-KSA9IE5VTEw7CitzdGF0aWMgaW50ICgqZG9fZ2V0cG1zZykgKGludCwgdm9pZCAqLCB2b2lkICos
-IGludCwgaW50KSA9IE5VTEw7CisKK3N0YXRpYyBERUNMQVJFX1JXU0VNKHN0cmVhbXNfY2FsbF9z
-ZW0pIDsKKworbG9uZyBhc21saW5rYWdlIHN5c19wdXRwbXNnKGludCBmZCwgdm9pZCAqY3RscHRy
-LCB2b2lkICpkYXRwdHIsIGludCBiYW5kLCBpbnQgZmxhZ3MpCit7CisJaW50IHJldCA9IC1FTk9T
-WVM7CisJZG93bl9yZWFkKCZzdHJlYW1zX2NhbGxfc2VtKSA7CS8qIHNob3VsZCByZXR1cm4gaW50
-LCBidXQgZG9lc24ndCAqLworCWlmIChkb19wdXRwbXNnKQorCQlyZXQgPSAoKmRvX3B1dHBtc2cp
-IChmZCwgY3RscHRyLCBkYXRwdHIsIGJhbmQsIGZsYWdzKTsKKwl1cF9yZWFkKCZzdHJlYW1zX2Nh
-bGxfc2VtKTsKKwlyZXR1cm4gcmV0OworfQorCitsb25nIGFzbWxpbmthZ2Ugc3lzX2dldHBtc2co
-aW50IGZkLCB2b2lkICpjdGxwdHIsIHZvaWQgKmRhdHB0ciwgaW50IGJhbmQsIGludCBmbGFncykK
-K3sKKwlpbnQgcmV0ID0gLUVOT1NZUzsKKwlkb3duX3JlYWQoJnN0cmVhbXNfY2FsbF9zZW0pIDsJ
-Lyogc2hvdWxkIHJldHVybiBpbnQsIGJ1dCBkb2Vzbid0ICovCisJaWYgKGRvX2dldHBtc2cpCisJ
-CXJldCA9ICgqZG9fZ2V0cG1zZykgKGZkLCBjdGxwdHIsIGRhdHB0ciwgYmFuZCwgZmxhZ3MpOwor
-CXVwX3JlYWQoJnN0cmVhbXNfY2FsbF9zZW0pOworCXJldHVybiByZXQ7Cit9CisKK2ludCByZWdp
-c3Rlcl9zdHJlYW1zX2NhbGxzKGludCAoKnB1dHBtc2cpIChpbnQsIHZvaWQgKiwgdm9pZCAqLCBp
-bnQsIGludCksCisJCQkgICAgaW50ICgqZ2V0cG1zZykgKGludCwgdm9pZCAqLCB2b2lkICosIGlu
-dCwgaW50KSkKK3sKKwlpbnQgcmV0ID0gMDsKKwlkb3duX3dyaXRlKCZzdHJlYW1zX2NhbGxfc2Vt
-KSA7CS8qIHNob3VsZCByZXR1cm4gaW50LCBidXQgZG9lc24ndCAqLworCWlmICggICAocHV0cG1z
-ZyAhPSBOVUxMICYmIGRvX3B1dHBtc2cgIT0gTlVMTCkKKwkgICAgfHwgKGdldHBtc2cgIT0gTlVM
-TCAmJiBkb19nZXRwbXNnICE9IE5VTEwpCisJICAgKQorCQlyZXQgPSAtRUJVU1k7CisJZWxzZSB7
-CisJCWRvX3B1dHBtc2cgPSBwdXRwbXNnOworCQlkb19nZXRwbXNnID0gZ2V0cG1zZzsKKwl9CisJ
-dXBfd3JpdGUoJnN0cmVhbXNfY2FsbF9zZW0pOworCXJldHVybiByZXQgOworfQorCiBhc21saW5r
-YWdlIGxvbmcgc3lzX25pX3N5c2NhbGwodm9pZCkKIHsKIAlyZXR1cm4gLUVOT1NZUzsK
---=====================_1710900895==_--
+> > I don't think he can seriously mean cranking HZ up to match whatever
+> > timing requirements we might have - that obviously doesn't scale.
+> 
+> This is at least the third "take" on what he means, each of
+> which sends me in a very different direction.  Sure would
+> like to know what he really means.
 
+Perhaps if you pose it as a multiple-choice question? I suppose he's
+almost sure to answer with "none of the above".
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUCFLOe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 06:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUCFLOe
+	id S261654AbUCFLjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 06:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUCFLjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 06:14:34 -0500
-Received: from main.gmane.org ([80.91.224.249]:9906 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261648AbUCFLOa (ORCPT
+	Sat, 6 Mar 2004 06:39:33 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:32448 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S261654AbUCFLjc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 06:14:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCH] UTF-8ifying the kernel source
-Date: Sat, 06 Mar 2004 12:14:27 +0100
-Message-ID: <yw1xu112b52k.fsf@kth.se>
-References: <20040304100503.GA13970@havoc.gtf.org> <20040305232425.GA6239@havoc.gtf.org>
- <c2b2o0$cbp$1@terminus.zytor.com>
- <1078571331.963.3.camel@bip.parateam.prv>
+	Sat, 6 Mar 2004 06:39:32 -0500
+Subject: Re: nicksched v30
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Nick Piggin <piggin@cyberone.com.au>, akpm@osdl.org, mfedyk@matchmail.com
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <4049485B.3070104@cyberone.com.au>
+References: <4048204E.8000807@cyberone.com.au>
+	 <1078488995.13256.1.camel@midux>  <4049485B.3070104@cyberone.com.au>
+Content-Type: text/plain
+Message-Id: <1078573144.1850.7.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:xtPU/fVJ93VMOhTfI95v0OIrRK4=
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Mar 2004 13:39:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> writes:
+On Sat, 2004-03-06 at 05:41, Nick Piggin wrote:
+> Unfortunately not. The scheduler in -mm is different enough
+> that porting isn't straightfoward.
+> 
+> What does mm break for you?
+I don't know about the current, but one or two versions back when I
+tested the last time it printed something about unknown key for the
+whole dmesg and couldn't find /dev/hd{b,c}. After investigations the
+hard-drives had changed place for some reason (Not swapped place, but
+they were in a weird location, can't recall which).
 
-> Le sam 06/03/2004 à 00:33, H. Peter Anvin a écrit :
->> Followup to:  <20040305232425.GA6239@havoc.gtf.org>
->> By author:    David Eger <eger@havoc.gtf.org>
->> In newsgroup: linux.dev.kernel
->> 
->> > The third patch concerns 8-bit characters embedded in C strings.
->> > These are almost always output to devfs or proc.  The characters used are
->> > the degrees symbol (for ppc temp. sensors) and mu (for micro-seconds).
->>
->> I would highly vote for making those UTF-8 unless it breaks protocol.
->
-> ISO-8859-1 characters are mostly the same in UTF-8.
-
-The 7-bit ones are the same.  The 8-bit ones are all different.
-
--- 
-Måns Rullgård
-mru@kth.se
+I'll try the new one when I have time to boot this one.
+ 
+        Markus
 

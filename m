@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbTEFHQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 03:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTEFHQq
+	id S262423AbTEFHPr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 03:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTEFHPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 03:16:46 -0400
-Received: from 130.146.174.203.mel.ntt.net.au ([203.174.146.130]:42133 "EHLO
-	enki.rimspace.net") by vger.kernel.org with ESMTP id S262426AbTEFHQo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 03:16:44 -0400
-To: linux-kernel@vger.kernel.org
-Subject: CPUFreq sysfs interface MIA?
-From: Daniel Pittman <daniel@rimspace.net>
-Date: Tue, 06 May 2003 17:29:15 +1000
-Message-ID: <873cjsv8hg.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 May 2003 03:15:47 -0400
+Received: from elin.scali.no ([62.70.89.10]:35981 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id S262423AbTEFHPp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 03:15:45 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: D.A.Fedorov@inp.nsk.su
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SGI.4.10.10305060920320.7773473-100000@Sky.inp.nsk.su>
+References: <Pine.SGI.4.10.10305060920320.7773473-100000@Sky.inp.nsk.su>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1052206053.15887.0.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 06 May 2003 09:27:34 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under both 2.5.68 and 2.5.69 the CPUFreq /sys interface seems to be
-missing for my machine (IBM A31p), with an Intel 845 Brookdale chipset
-and SpeedStep support.
-
-It was certainly present around 2.5.67 or so, but seems to have vanished
-since that point. I have not yet tracked down exactly where it went MIA.
-
-Since I couldn't work out from either the documentation or the code if
-there should be a /sys/devices/sys/cpu0/cpufreq directory when the code
-is compiled in, but not active, I couldn't tell if this was failing to
-find the SpeedStep support now or if it simply lost the sysfs interface.
-
-When I compiled in the debug information to the SpeedStep driver, I only
-get the following output in dmesg:
-
-cpufreq: Intel(R) SpeedStep(TM) support $Revision: 1.70 $
+Yes, but it should be enough
 
 
-The ACPI P-States driver and the P4 clock modulation driver don't work,
-or cause the interface directory to show either, but I have never had
-either of those two working before -- I tried them to try and eliminate
-a cause.
-
-The content of /sys/devices/sys/cpu0 is:
-/sys/devices/sys/cpu0
-|-- name
-`-- power
-
-0 directories, 2 files
-
-   Daniel
-
+On Tue, 2003-05-06 at 04:23, Dmitry A. Fedorov wrote:
+> On 6 May 2003, Terje Eggestad wrote:
+> 
+> > Good point, it should actually be very simple.
+> > from /proc/ksyms we've got teh adresses of the sys_*, then from
+> > asm/unistd.h we got the order.
+> 
+> /proc/ksyms shows only exported symbols, is not it?
+> 
+> > Then search thru /dev/kmem until you find the right string og addresses,
+> > and you got sys_call_table. 
+> > 
+> > Dirty but it should be portable. 
 -- 
-That's the point of quotations you know; one can use another's words
-to be insulting.
-        -- Amanda Cross
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

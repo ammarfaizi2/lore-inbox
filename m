@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267407AbTAQGGR>; Fri, 17 Jan 2003 01:06:17 -0500
+	id <S267408AbTAQGJs>; Fri, 17 Jan 2003 01:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267408AbTAQGGR>; Fri, 17 Jan 2003 01:06:17 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:15121 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267407AbTAQGGQ>; Fri, 17 Jan 2003 01:06:16 -0500
-Date: Fri, 17 Jan 2003 07:14:58 +0100
-From: Jurriaan <thunder7@xs4all.nl>
+	id <S267409AbTAQGJr>; Fri, 17 Jan 2003 01:09:47 -0500
+Received: from h80ad2561.async.vt.edu ([128.173.37.97]:14466 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267408AbTAQGJq>; Fri, 17 Jan 2003 01:09:46 -0500
+Message-Id: <200301170618.h0H6IZxw013611@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
 To: Linux Geek <bourne@ToughGuy.net>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [DUMB]: Is kernel oops always a kernel bug ???
-Message-ID: <20030117061458.GA3450@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+Subject: Re: [DUMB]: Is kernel oops always a kernel bug ??? 
+In-Reply-To: Your message of "Fri, 17 Jan 2003 11:33:46 +0530."
+             <3E279CC2.9040806@ToughGuy.net> 
+From: Valdis.Kletnieks@vt.edu
 References: <3E279CC2.9040806@ToughGuy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E279CC2.9040806@ToughGuy.net>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+Content-Type: multipart/signed; boundary="==_Exmh_-730119788P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 17 Jan 2003 01:18:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linux Geek <bourne@ToughGuy.net>
-Date: Fri, Jan 17, 2003 at 11:33:46AM +0530
-> Hi all ,
-> 
+--==_Exmh_-730119788P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 17 Jan 2003 11:33:46 +0530, Linux Geek <bourne@ToughGuy.net>  said:
 > If a kernel oops,  then is the problem always with the kernel ? Can't a 
 > user proggie ( running as root ) do something insane and make the
 > kernel oops ?
-> 
-That shouldn't happen - it's called DOS (Denial-Of-Service) if a user
-program can make the kernel oops. Some of these probably still exist in
-the linux kernel, nothing is perfect :-)
 
-But another option exists: hardware failures. If your memory decides to
-take a break, you will get an oops also.
+At least in theory, there should be *nothing* that can happen in user space
+that will kill the kernel.  However, in practice, if a program is running
+as root, it can definitely blortch things up.  This is mostly due to the
+assumption that the root user has a clue, and that if they are (for instance)
+opening /proc/kcore for writing, that they know what they're doing.  Similarly,
+if a program opens /dev/hda1 for writing and scribbles over the superblock,
+it may be a bit difficult to mount the filesystem.
 
-Good luck,
-Jurriaan
+So in general, yes, the root user can screw things up in the kernel.  On the
+other hand, the root user can also 'rm -rf /' which doesn't require any
+extraordinary kernel assistance, just the unlink() system call.  The only
+solution here is to not give root to clueless bozos, and to take regular
+backups. ;)
 -- 
-Holed up in your little room, we talk for hour on empty hour,
-pacing up and down between the walls that we have built ourselves.
-	New Model Army - Long Goodbye
-GNU/Linux 2.5.58 SMP/ReiserFS 2x2752 bogomips load av: 0.16 0.61 0.61
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
+
+
+--==_Exmh_-730119788P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+J6A6cC3lWbTT17ARAtWxAKCeCZUX9ZVVnq5x4d9vXp+pMw9DFQCg9/O6
+Kp3Rh631hUpWUb0DsvqzSIk=
+=4XVs
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-730119788P--

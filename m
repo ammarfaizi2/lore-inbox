@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUJLTuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUJLTxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267649AbUJLTuz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 15:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUJLTuz
+	id S267686AbUJLTxY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267700AbUJLTxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 15:50:55 -0400
-Received: from gprs212-24.eurotel.cz ([160.218.212.24]:1152 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267649AbUJLTux (ORCPT
+	Tue, 12 Oct 2004 15:53:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:45233 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267686AbUJLTxT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 15:50:53 -0400
-Date: Tue, 12 Oct 2004 21:50:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: ncunningham@linuxmail.org, Paul Mackerras <paulus@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Totally broken PCI PM calls
-Message-ID: <20041012195039.GA1070@elf.ucw.cz>
-References: <1097455528.25489.9.camel@gaston> <200410111437.17898.david-b@pacbell.net> <20041012085349.GA2292@elf.ucw.cz> <200410121152.53140.david-b@pacbell.net>
+	Tue, 12 Oct 2004 15:53:19 -0400
+Date: Tue, 12 Oct 2004 21:54:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>
+Subject: [patch] VP-2.6.9-rc4-mm1-T8
+Message-ID: <20041012195424.GA3961@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410121152.53140.david-b@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041012123318.GA2102@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > If you are entering S4 or S5 at the end of swsusp basically should not
-> > matter to anyone. What we tell the drivers is same in both cases.
-> 
-> The problem cases are on resume, where drivers
-> can see different controller state.  Both S4 and S5
-> resume can leave it in reset; fine.  But from S4
-> the other option is the controller being in the state
-> set up previously by the driver ... yet from S5 the
-> other option is boot firmware (BIOS etc) mucking
-> with it, leaving it in any of several states that are
-> not otherwise documented for resume() paths.
+i've uploaded the -T8 VP patch:
 
-I do not think that S4 ad S5 differ in this regard. During resume, you
-go through normal boot in both cases, bootloader, linux-kernel boot.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T8
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+lots of stabilization of CONFIG_PREEMPT_REALTIME. It's still in
+experimental status but general stability is improving.
+
+Changes since -T7:
+
+ - fixed a nasty category of bugs that were introduced by the use of 
+   rwsems for rwlocks. rwsems are not read-recursive, while rwlocks are. 
+   Fortunately it was not too hard to identify & fix recursive users of
+   tasklist_lock, in fact each of these also qualifies as a cleanup. The 
+   symptom of this bug was a soft-deadlocking of the system. 
+
+ - fixed profiler locks, i believe this could resolve the bootup crash
+   reported by K.R. Foley.
+
+ - fixed VP / XFS namespace collision reported by Mark H. Johnson
+
+ - fix one more final detail of the new zombie-task handling code
+
+ - fixed 3c59x.c, fasync-handling, ipv6, module-loader runtime
+   warnings reported by K.R. Foley.
+
+ - fixed the ali5451 locking
+
+to create a -T8 tree from scratch the patching order is:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T8
+
+	Ingo

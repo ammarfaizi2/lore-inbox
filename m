@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUHaMs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUHaMtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268344AbUHaMs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 08:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUHaMqz
+	id S268183AbUHaMtA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 08:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUHaMrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:46:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2503 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268215AbUHaMmQ
+	Tue, 31 Aug 2004 08:47:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62662 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268144AbUHaMl7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:42:16 -0400
-Date: Tue, 31 Aug 2004 07:56:19 -0300
+	Tue, 31 Aug 2004 08:41:59 -0400
+Date: Tue, 31 Aug 2004 08:16:21 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
+To: Corey Minyard <minyard@acm.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] - Fixes bug in fs/ext3/super.c.
-Message-ID: <20040831105619.GA4615@logos.cnet>
-References: <20040830124724.5f9b2f8e.lcapitulino@conectiva.com.br>
+Subject: Re: IPMI driver updates for 2.4
+Message-ID: <20040831111621.GE4615@logos.cnet>
+References: <411EB8F1.5040209@acm.org> <20040823132820.GB2157@logos.cnet> <4132A17A.8060607@acm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830124724.5f9b2f8e.lcapitulino@conectiva.com.br>
+In-Reply-To: <4132A17A.8060607@acm.org>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 12:47:24PM -0300, Luiz Fernando N. Capitulino wrote:
-> 
->  Hi Marcelo,
-> 
->   Some time ago I fixed this bug in 2.6.
-> 
->   There is a `return NULL' missing in ext3_get_journal() if the
->  call to journal_init_inode() fail. Note that if the error happens,
->  `journal' will be NULL and used.
-> 
-> (agains't 2.4.28-pre2).
-> 
-> Signed-off-by: Luiz Capitulino <lcapitulino@conectiva.com.br>
-> 
-> 
-> diff -Nparu a/fs/ext3/super.c a~/fs/ext3/super.c
-> --- a/fs/ext3/super.c	2004-08-07 20:26:05.000000000 -0300
-> +++ a~/fs/ext3/super.c	2004-08-15 22:18:18.000000000 -0300
-> @@ -1302,6 +1302,7 @@ static journal_t *ext3_get_journal(struc
->  	if (!journal) {
->  		printk(KERN_ERR "EXT3-fs: Could not load journal inode\n");
->  		iput(journal_inode);
-> +		return NULL;
->  	}
->  	ext3_init_journal_params(EXT3_SB(sb), journal);
->  	return journal;
 
-Applied, 
+Hi Corey, 
 
-thanks.
+You wrote a nice changelog entry - thanks for that.
+
+I'm not sure if we should apply all of this in v2.4. It looks like a
+big driver revamp to me. 
+
+Is is all this critical for being merged in v2.4.x now? 
+
+Would it be very painful/unwanted to maintain only the bugfixes 
+and not only new features? What you think about that?
+
+On Sun, Aug 29, 2004 at 10:39:38PM -0500, Corey Minyard wrote:
+> Marcelo Tosatti wrote:
+> 
+> >Corey,
+> >
+> >Care to write a detailed changelog so we can apply this?
+> >
+> >Thanks
+> >
+> > 
+> >
+> I'm sorry this took so long, I have been dealing with disasters at work.
+> 
+> Ok, a detailed changelog:
+> 
+> * Add a new "system interface" driver that supports all the standard
+>  IPMI system interfaces (SMIC, BT, and KCS, see the IPMI spec for
+>  more details if you care).  This driver will auto-detect the interface
+>  type and parameters via SMBIOS or ACPI tables.
+> * Deprecate the old KCS-only interface.
+> * Support non-contiguous registers for system interfaces.
+> * Add support for IPMI LAN bridging so messages can be received
+>  from and sent to system software connected to a LAN interface.
+> * Add support for powering off the system on a halt via the IPMI
+>  interface.
+> * Add support for storing panic logs in the IPMI event log.
+> * Allow control of message parameters (resends, timeouts)
+> 
+> I've also re-attached the patch.
+> 
+> Thanks,

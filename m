@@ -1,51 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbTDRGvD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 02:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbTDRGvD
+	id S262894AbTDRHMH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 03:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTDRHMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 02:51:03 -0400
-Received: from granite.he.net ([216.218.226.66]:8464 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S262885AbTDRGvC (ORCPT
+	Fri, 18 Apr 2003 03:12:06 -0400
+Received: from dp.samba.org ([66.70.73.150]:34006 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262894AbTDRHME (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 02:51:02 -0400
-Date: Fri, 18 Apr 2003 00:05:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Frode Isaksen <fisaksen@bewan.com>
-Cc: linux-kernel@vger.kernel.org, weissg@vienna.at
-Subject: Re: PATCH: usb-uhci: interrupt out with urb->interval 0
-Message-ID: <20030418070514.GA2322@kroah.com>
-References: <F628F73A-70AE-11D7-8F05-003065EF6010@bewan.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F628F73A-70AE-11D7-8F05-003065EF6010@bewan.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 18 Apr 2003 03:12:04 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] __module_get()
+Date: Fri, 18 Apr 2003 17:17:58 +1000
+Message-Id: <20030418072401.87DB92C014@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 10:31:18AM +0200, Frode Isaksen wrote:
-> A recent change (2.4.21)
+Re-xmit.  Linus, please apply.
 
-Um, 2.4.21 is not out yet :)
+Name: __module_get
+Author: Rusty Russell
+Status: Trivial
 
-> in the usb-uhci driver calls 
-> "uhci_clean_iso_step2" after the completion of one-shot (urb->interval 
-> 0) interrupt out transfers. This call clears the list of descriptors. 
-> However, it crashes when trying to get the next desciptor in the "for" 
-> loop in the "process_interrupt" function, since the list of descriptors 
-> are already cleared. A simple change I did was to do a "break" to quit 
-> the "for" loop for interrupt out transfers with urb->interval 0.
+D: Introduces __module_get for places where we know we already hold
+D: a reference and ignoring the fact that the module is being "rmmod --wait"ed
+D: is simpler.
 
-Hm, I thought someone tested this previously.  Do you have a test case
-for this that I can try to duplicate the problem for?
-
-Also, your patch will not apply against the latest (2.4.21-pre7) version
-of this file.
-
-thanks,
-
-greg k-h
-
-p.s. I'd recommend sending these kinds of patches to the linux-usb-devel
-mailing list too.  That's where most of the Linux USB developers are.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5001-linux-2.5.67-bk5/fs/filesystems.c .5001-linux-2.5.67-bk5.updated/fs/filesystems.c
+--- .5001-linux-2.5.67-bk5/fs/filesystems.c	2003-04-14 13:45:44.000000000 +1000
++++ .5001-linux-2.5.67-bk5.updated/fs/filesystems.c	2003-04-14 15:44:36.000000000 +1000
+@@ -32,17 +32,7 @@ static rwlock_t file_systems_lock = RW_L
+ /* WARNING: This can be used only if we _already_ own a reference */
+ void get_filesystem(struct file_system_type *fs)
+ {
+-	if (!try_module_get(fs->owner)) {
+-#ifdef CONFIG_MODULE_UNLOAD
+-		unsigned int cpu = get_cpu();
+-		local_inc(&fs->owner->ref[cpu].count);
+-		put_cpu();
+-#else
+-		/* Getting filesystem while it's starting up?  We're
+-                   already supposed to have a reference. */
+-		BUG();
+-#endif
+-	}
++	__module_get(fs->owner);
+ }
+ 
+ void put_filesystem(struct file_system_type *fs)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5001-linux-2.5.67-bk5/include/linux/module.h .5001-linux-2.5.67-bk5.updated/include/linux/module.h
+--- .5001-linux-2.5.67-bk5/include/linux/module.h	2003-04-08 11:15:01.000000000 +1000
++++ .5001-linux-2.5.67-bk5.updated/include/linux/module.h	2003-04-14 15:45:15.000000000 +1000
+@@ -255,6 +255,7 @@ struct module *module_text_address(unsig
+ 
+ #ifdef CONFIG_MODULE_UNLOAD
+ 
++unsigned int module_refcount(struct module *mod);
+ void __symbol_put(const char *symbol);
+ #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
+ void symbol_put_addr(void *addr);
+@@ -265,6 +266,17 @@ void symbol_put_addr(void *addr);
+ #define local_dec(x) atomic_dec(x)
+ #endif
+ 
++/* Sometimes we know we already have a refcount, and it's easier not
++   to handle the error case (which only happens with rmmod --wait). */
++static inline void __module_get(struct module *module)
++{
++	if (module) {
++		BUG_ON(module_refcount(module) == 0);
++		local_inc(&module->ref[get_cpu()].count);
++		put_cpu();
++	}
++}
++
+ static inline int try_module_get(struct module *module)
+ {
+ 	int ret = 1;
+@@ -300,6 +317,9 @@ static inline int try_module_get(struct 
+ static inline void module_put(struct module *module)
+ {
+ }
++static inline void __module_get(struct module *module)
++{
++}
+ #define symbol_put(x) do { } while(0)
+ #define symbol_put_addr(p) do { } while(0)
+ 
+@@ -357,6 +377,10 @@ static inline struct module *module_text
+ #define symbol_put(x) do { } while(0)
+ #define symbol_put_addr(x) do { } while(0)
+ 
++static inline void __module_get(struct module *module)
++{
++}
++
+ static inline int try_module_get(struct module *module)
+ {
+ 	return 1;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5001-linux-2.5.67-bk5/kernel/module.c .5001-linux-2.5.67-bk5.updated/kernel/module.c
+--- .5001-linux-2.5.67-bk5/kernel/module.c	2003-04-14 13:45:46.000000000 +1000
++++ .5001-linux-2.5.67-bk5.updated/kernel/module.c	2003-04-14 15:44:36.000000000 +1000
+@@ -431,7 +431,7 @@ static inline void restart_refcounts(voi
+ }
+ #endif
+ 
+-static unsigned int module_refcount(struct module *mod)
++unsigned int module_refcount(struct module *mod)
+ {
+ 	unsigned int i, total = 0;
+ 
+@@ -439,6 +439,7 @@ static unsigned int module_refcount(stru
+ 		total += atomic_read(&mod->ref[i].count);
+ 	return total;
+ }
++EXPORT_SYMBOL(module_refcount);
+ 
+ /* This exists whether we can unload or not */
+ static void free_module(struct module *mod);
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266939AbTBHAxC>; Fri, 7 Feb 2003 19:53:02 -0500
+	id <S266940AbTBHBDg>; Fri, 7 Feb 2003 20:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266941AbTBHAxB>; Fri, 7 Feb 2003 19:53:01 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:54525 "EHLO
-	orion.mvista.com") by vger.kernel.org with ESMTP id <S266939AbTBHAw7>;
-	Fri, 7 Feb 2003 19:52:59 -0500
-Date: Fri, 7 Feb 2003 17:02:40 -0800
+	id <S266944AbTBHBDg>; Fri, 7 Feb 2003 20:03:36 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:44783 "EHLO
+	orion.mvista.com") by vger.kernel.org with ESMTP id <S266940AbTBHBDg>;
+	Fri, 7 Feb 2003 20:03:36 -0500
+Date: Fri, 7 Feb 2003 17:13:16 -0800
 From: Jun Sun <jsun@mvista.com>
 To: linux-kernel@vger.kernel.org
 Cc: jsun@mvista.com
-Subject: a race condition in SMP TLB flushing code?
-Message-ID: <20030207170240.A27605@mvista.com>
+Subject: [2.5 Question] Is TIF_USEDFPU cleared for a new process?
+Message-ID: <20030207171316.B27605@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,35 +19,29 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were chasing a bug in MIPS/SMP TLB part, and noticed that
-i386 may have a race condition in the same area.
+In 2.4, this flag is cleared in the common code, copy_flags(), 
+when a new process is created.  Not so anymore in 2.5.  I wonder 
+if it ever cleared.
 
-Here is the scenario how it may happen:
+I looked at the code (2.5.59) a couple of times and can't seem
+to find any place it is cleared for a new process.
 
-cpu A:
-        call flush_tlb_mm()
-        find out cpu_vm_mask set for cpu B (cpu_mask != 0)
+Assuming it is not cleared, I am interested in knowing what
+would happen, especially in the following scenario:
 
-cpu B:
-        inside schedule(), calling switch_mm()
-        clear cpu_vm_mask bit for current mm, trying
-        stop ipi for flushing tlb
+1) the new process is switched on, runs without using any FPU
 
-cpu A:
-        oops, but it is a little too late.  already
-        checked cpu_vm_mask, and send an ipi to cpu B for
-        flushing tlb anyway.
+2) the new process is switched off.  Because the TIF_USEDFPU
+   is set, it will execute 'fnsave' or 'fxsave'.
 
-cpu B:
-        get the ipi and (WITHOUT CHECKING cpu_vm_mask again)
-        go ahead doing tlb flushing.
+   a) if FPU is enabled at this moment, we will save bogus FPU
+      contents back into new process's thread structure.
+   b) if FPU is not enabled, we will go through the trap, restore
+      FPU registers from the thread structure, and then save
+      the same value back into the thread structure again.
 
-I am not sure if any disastrous result will happen, but apparently
-an unintended flush has happened.  In MIPS such a hole could
-cause two processes using the same TLB entries which yields all kinds
-of interesting crashes.
+Either a) or b) is bad.  Is this scenario real or just fictitious?
 
-BTW, I am looking at the 2.4.19 kernel.  Please cc your reply to my
-email address.  Thanks.
+Please cc your reply to my email address.  Thanks.
 
 Jun

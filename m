@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261953AbREURtT>; Mon, 21 May 2001 13:49:19 -0400
+	id <S261972AbREURwt>; Mon, 21 May 2001 13:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261977AbREURtJ>; Mon, 21 May 2001 13:49:09 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:60304 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261953AbREURsw>; Mon, 21 May 2001 13:48:52 -0400
-Date: Mon, 21 May 2001 18:41:50 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew McNamara <andrewm@connect.com.au>, tytso@valinux.com,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Ext2, fsync() and MTA's?
-Message-ID: <20010521184150.A24682@redhat.com>
-In-Reply-To: <20010512115034.A6245285B9@wawura.off.connect.com.au> <E14ya9b-0004Bc-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14ya9b-0004Bc-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, May 12, 2001 at 03:13:55PM +0100
+	id <S261973AbREURwj>; Mon, 21 May 2001 13:52:39 -0400
+Received: from tahoe.in-system.com ([207.70.22.1]:33036 "EHLO
+	tahoe.in-system.com") by vger.kernel.org with ESMTP
+	id <S261972AbREURw3>; Mon, 21 May 2001 13:52:29 -0400
+Message-Id: <200105211752.LAA12353@osprey.in-system.com>
+Date: Mon, 21 May 2001 11:52:18 -0600 (MDT)
+From: Jim Castleberry <jcastle@in-system.com>
+Reply-To: Jim Castleberry <jcastle@in-system.com>
+Subject: Re: "clock timer configuration lost" on Serverworks chipset
+To: jcastle@in-system.com, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Content-MD5: vdO8uWKxQGGwE/bCdsgYGg==
+X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.4 SunOS 5.8 sun4u sparc 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm confused.  The 2.2.19 time.c is already doing ">":
+    /* VIA686a test code... reset the latch if count > max */
+    if (count > LATCH-1) {
+        [adjust count and whine]
+The 2.2.20-pre2 patch doesn't change time.c, and I don't see
+this code in 2.4.4 or 2.4.5pre.
 
-On Sat, May 12, 2001 at 03:13:55PM +0100, Alan Cox wrote:
+Are you saying the code should be doing the equivalent of
+"(count > LATCH)", or is 2.2.19 correct and the whines I'm
+seeing mean there really is a problem with the Serverworks
+chipset?
 
-> fsync guarantees the inode data is up to date, fdatasync just the data.
+Thanks,
 
-fdatasync guarantees "important" inode data too.  The only thing that
-fdatasync is allowed to skip is the timestamps.
+jcastle
 
---Stephen
+Alan Cox wrote:
+>Jim Castleberry)wrote:
+>> How well has the problem been nailed down?  Could it be that it just
+>> showed up first on VIA and the real cause (and fix) remains to be
+>> discovered?  Or does Serverworks somehow have an identical bug in
+>> their chipset?
+>
+>There is a notional off by one in the check at least by the rules of the
+>original chip which do allow the overflow value to be visible momentarily.
+>Later -ac checks for > not >=
+>
+

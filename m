@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278591AbRJSSsE>; Fri, 19 Oct 2001 14:48:04 -0400
+	id <S278593AbRJSSsO>; Fri, 19 Oct 2001 14:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278594AbRJSSry>; Fri, 19 Oct 2001 14:47:54 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:26758 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278591AbRJSSrn>;
-	Fri, 19 Oct 2001 14:47:43 -0400
-Date: Fri, 19 Oct 2001 14:48:11 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Albert Bartoszko <albertb@nt.kegel.com.pl>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-In-Reply-To: <Pine.LNX.4.33.0110191527430.2675-200000@bellatrix.tat.physik.uni-tuebingen.de>
-Message-ID: <Pine.GSO.4.21.0110191422570.24783-100000@weyl.math.psu.edu>
+	id <S278594AbRJSSsE>; Fri, 19 Oct 2001 14:48:04 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:39121 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278593AbRJSSrs>; Fri, 19 Oct 2001 14:47:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: hps@intermeta.de, "Henning P. Schmiedehausen" <mailgate@hometree.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New Driver Model for 2.5
+Date: Fri, 19 Oct 2001 20:50:54 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <3BCE7568.1DAB9FF0@mandrakesoft.com> <20011018121318.17949@smtp.adsl.oleane.com> <9qomdf$obo$1@forge.intermeta.de>
+In-Reply-To: <9qomdf$obo$1@forge.intermeta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15uegq-0xpVlAC@fmrl04.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 19 October 2001 09:57, Henning P. Schmiedehausen wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+> >>> struct device {
+> And a version field! Please add a version field right to the
+> beginning. This would make supporting legacy drivers in later versions
+> _much_ easier.
+
+IMHO it would be a good idea not to create and fill those structs using a 
+function, instead of letting the driver code create the struct or using 
+versions. 
+
+In the current version of the patch struct device is allocated using 
+
+struct device *device_alloc_dev(void);
+
+and then later registered using 
+
+int device_register_dev(struct device *dev);
 
 
-On Fri, 19 Oct 2001, Richard Guenther wrote:
+In other words the fields are set by the bus driver. The problem is that when 
+somebody adds a new, required field then existing code will silently break. 
+So I would propose to think about using something like
 
-> Hi Linus,
-> 
-> As Al pissed me off again with complaining about binfmt_misc, please
-> apply the attached patch which corrects the 'not C code' line and
-> fixes the problem Albert noticed. This doesnt fix various assumptions
-> about the /proc code that were either valid at the time of writing
-> binfmt_misc or badly/not documented.
+struct device *device_create_dev(const char *name,
+			const char *bus_id,
+			struct device_driver *driver, 
+			void *driver_data, 
+			void *platform_data,
+			u32 current_state);
 
-Like, say it, "thou shalt not dereference user-supplied pointers for verily,
-copy_from_user() is there for purpose"?
+The advantage is that when you add a new field the old code won't compile 
+before it has been fixed. It also allows you to do large changes in the 
+underlying code without breaking source compatibility. 
+The disadvantage is that you cannot add a field that should be specifier by 
+the caller without either adding a new function or destroying source 
+compatibility.
 
-Or "tons of blind sprintf() calls can really ruin your day when you overflow
-the buffer"?
-
-Or that checking the values of arguments, while a noble thing, should
-be done _before_ you use them?
-
-Or, say it, one about meaning of
-        if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
-not being the same as
-        if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
-Darn that Ritchie guy - he should've documented that stuff.  Oh, wait -
-he had actually done that...
-
-Please, learn C.  Then learn some basic stuff about kernel programming.
-Then feel free to start mouthing off.
-
-As for the version in -ac and maintaining it - sure I will.
-
+bye...
 

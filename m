@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270475AbTGSCoe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 22:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270479AbTGSCoe
+	id S270480AbTGSCva (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 22:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270482AbTGSCva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 22:44:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64733 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270475AbTGSCod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 22:44:33 -0400
-Date: Fri, 18 Jul 2003 20:00:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bourne <jbourne@hardrock.org>
-Cc: breed@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BUG REPORT 2.6.0] cisco airo_cs scheduling while atomic
-Message-Id: <20030718200013.40e983f6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0307182044420.22990-100000@cafe.hardrock.org>
-References: <20030718140414.371cdb55.akpm@osdl.org>
-	<Pine.LNX.4.44.0307182044420.22990-100000@cafe.hardrock.org>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jul 2003 22:51:30 -0400
+Received: from modemcable029.129-200-24.mtl.mc.videotron.ca ([24.200.129.29]:19072
+	"EHLO mainframe1.boofer.ca") by vger.kernel.org with ESMTP
+	id S270480AbTGSCva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 22:51:30 -0400
+Message-ID: <3F18B603.70405@yahoo.ca>
+Date: Fri, 18 Jul 2003 23:07:47 -0400
+From: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030716
+X-Accept-Language: en-ca
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test1 Cannot login in X or console
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bourne <jbourne@hardrock.org> wrote:
->
-> > I've been waiting months for someone to test this patch.  Can you please do
->  > so?
-> 
->  Well, the error is gone, unfortunately I won't have anything for the card to
->  talk to until monday (or if I take my laptop for a car ride...).
+I have succesfully compiled and booted the 2.6.0-test1 kernel. After i 
+enter my username and password succesfuly the login window simply stays 
+there:
 
-Well Daniel Ritz has posted a big fix to the driver so I threw mine away. 
-I'll include it in the next -mm, so please test that.
+Login: user <enter>
+Password: xxxx<enter>
+<freezes>
+
+Same thing with gdm. I do not have this problem with 2.4.21+swsup+preempt.
+There is no error written in the system log.
+Is it possible that PAM + 2.6.0-test1 results in this problem ?
+The single runlevel works fine.(booted with single as kernel arg)
+I am running gentoo.
+
+Any insight appreciated.
+
+Joe
 

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279922AbRKFSNQ>; Tue, 6 Nov 2001 13:13:16 -0500
+	id <S279927AbRKFSPg>; Tue, 6 Nov 2001 13:15:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279925AbRKFSNG>; Tue, 6 Nov 2001 13:13:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14603 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279922AbRKFSMp>; Tue, 6 Nov 2001 13:12:45 -0500
+	id <S279926AbRKFSP0>; Tue, 6 Nov 2001 13:15:26 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:62729 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S279927AbRKFSPJ>; Tue, 6 Nov 2001 13:15:09 -0500
+Date: Tue, 6 Nov 2001 14:55:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: Using %cr2 to reference "current"
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 6 Nov 2001 18:19:46 +0000 (GMT)
-Cc: bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 06, 2001 09:49:15 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <E161AkQ-0001Fp-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0111061453050.10028-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E161Ap8-0001Gf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That said, how expensive is loading %cr2 anyway? We can do all the same
-> tricks with a 16kB stack and just playing games with using the higher bits
-> as the "offset", ie things like
-
-So thats another 600K on my box vanished. I suspect the page faults will
-outweigh it
-
-> the stack larger (we steal 2kB for the coloring, but we'd use an order-2
-> allocation that at least SGI wants to do regardless).
-
-16K stack is serious "people who cant program" country.
-
-> I would not be surprised if "mov %cr2,%reg" will break a netburst trace
-> cache entity, or even cause microcode to be executed. While I _guarantee_
-> that all future Intel CPU's will continue to be fast at mixtures of simple
-> arithmetic operations like "add" and "and".
-
-True enough, but then we can go to
-
-	andl %%esp, %0
-	movl (%%eax), %%eax
-
-which doesnt really change the cost much, lets us colour the task structs
-nicely, and lets us colour the stack somewhat by offseting esp from the base
-- and all in standard instructions
-
-Alan
 
 
+On Tue, 6 Nov 2001, Alan Cox wrote:
+
+> > "get_current" interrupt safe (ie switching tasks is totally atomic, as
+> > it's the one single "movl ..,%esp" instruction that does the real switch
+> > as far as the kernel is concerned).
+> > 
+> > It does require using an order-2 allocation, which the current VM will
+> > allow anyway, but which is obviously nastier than an order-1.
+> 
+> I've seen boxes dead in the water from 8K NFS (ie 16K order-2 allocations),
+> let alone the huge memory hit. Michael's rtlinux approach looks even more
+> interesting and I may have to play with that (using the TSS to ident the
+> cpu)
+
+Btw, I also want to see what intense "for-optimization" high-order
+allocators are going to do to the current VM. 
+
+Think about the possible intensive pressure (and CPU wasted) caused by,
+for example, SCSI code which _always_ tries to do 1-order allocations (or
+bigger?) to allocate scatter/gather tables. We want those allocations to
+fail to 0-order allocations instead looping madly inside the VM freeing
+routines.
 
 

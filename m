@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUJZSpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUJZSuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUJZSpD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 14:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUJZSpD
+	id S261423AbUJZSuV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 14:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUJZSuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 14:45:03 -0400
-Received: from outmx007.isp.belgacom.be ([195.238.3.234]:33960 "EHLO
-	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261366AbUJZSo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 14:44:58 -0400
-Subject: Re: Framebuffer problem.
-From: Arnaud Ligot <spyroux@spyroux.be>
-To: "Olavo B D'Antonio" <olavobdantonio@ig.com.br>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41733238.4010409@ig.com.br>
-References: <41733238.4010409@ig.com.br>
-Content-Type: text/plain
-Date: Tue, 26 Oct 2004 20:44:54 +0200
-Message-Id: <1098816294.6475.18.camel@chatPotte.home.spyroux.be>
+	Tue, 26 Oct 2004 14:50:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:48005 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261400AbUJZSuQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 14:50:16 -0400
+Date: Tue, 26 Oct 2004 20:50:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Michael Geithe <warpy@gmx.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: 2.6.10-rc1-bk4 and kernel/futex.c:542
+Message-ID: <20041026185044.GA10894@elte.hu>
+References: <200410261135.51035.warpy@gmx.de> <20041026133126.1b44fb38@mango.fruits.de> <20041026112415.GA21015@elte.hu> <200410261338.00341.warpy@gmx.de> <417E3D4C.2010909@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417E3D4C.2010909@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-On Mon, 2004-10-18 at 01:02 -0200, Olavo B D'Antonio wrote:
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> >Oct 26 11:02:19 h2so4 kernel: Badness in futex_wait at kernel/futex.c:542
+
 > Hi,
->    
->     I changed my GeForce FX 5200 128MB to  another GeForce FX5200 but 
-> with 256MB of memory, and something had been wrong. At boot, framebuffer 
-> return a error:
->     vesafb: probe of vesafb0 failed with error -6
-same error here (Linux chatPotte 2.6.8.1 #2 SMP Thu Sep 16 06:38:51 CEST
-2004 i686 Intel(R) Pentium(R) 4 CPU 3.40GHz GenuineIntel GNU/Linux) 
-(SMP with the HT Scheduler)
+> Can you try the following patch and see what it says?
 
-I never tried with a newer kernel... I could do that during this week if
-you want.
+i found the bug that most likely caused the PREEMPT_REALTIME one
+reported by Florian - it was a spurious wakeup caused by that patch, so
+upstream is not affected.
 
-I only managed to get a framebuffer with the vga driver :-/ 
-
-I have the same card but sold in an ASUS box.
-
--- (from cat /proc/pci)
-  Bus  1, device   0, function  0:
-    VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200]
-(rev 161).
-      IRQ 16.
-      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
-      Non-prefetchable 32 bit memory at 0xfd000000 [0xfdffffff].
-      Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
-
-A.
-
--- 
-Arnaud Ligot <spyroux@spyroux.be>
-
+	Ingo

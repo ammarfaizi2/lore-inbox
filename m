@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286011AbRLTDrn>; Wed, 19 Dec 2001 22:47:43 -0500
+	id <S286056AbRLTEE1>; Wed, 19 Dec 2001 23:04:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286012AbRLTDrd>; Wed, 19 Dec 2001 22:47:33 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:55393 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S286011AbRLTDrU>; Wed, 19 Dec 2001 22:47:20 -0500
-Date: Wed, 19 Dec 2001 22:47:17 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: billh@tierra.ucsd.edu, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: aio
-Message-ID: <20011219224717.A3682@redhat.com>
-In-Reply-To: <20011219182628.A13280@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com> <20011219190716.A26007@burn.ucsd.edu> <20011219.191354.65000844.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011219.191354.65000844.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 07:13:54PM -0800
+	id <S286047AbRLTEEQ>; Wed, 19 Dec 2001 23:04:16 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:55432 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S286044AbRLTEEP>;
+	Wed, 19 Dec 2001 23:04:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Scheduler ( was: Just a second ) ...
+Date: Wed, 19 Dec 2001 20:04:10 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0112200149330.15741-100000@imladris.surriel.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16GuRG-0002Oz-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 07:13:54PM -0800, David S. Miller wrote:
-> I don't think AIO, because of it's non-trivial impact to the tree, is
-> at all outside the scope of this list.  This is in fact the place
-> where major stuff like AIO is meant to be discussed, not some special
-> list where only "AIO people" hang out, of course people on that list
-> will be enthusiastic about AIO!
+On December 19, 2001 19:50, Rik van Riel wrote:
+> On Tue, 18 Dec 2001, Linus Torvalds wrote:
+> > The thing is, I'm personally very suspicious of the "features for that
+> > exclusive 0.1%" mentality.
+>
+> Then why do we have sendfile(), or that idiotic sys_readahead() ?
 
-Well maybe yourself and others should make some comments about it then.
+Damn straights
 
-> Frankly, on your other comments, I don't give a rats ass what BSD/OS
-> people are doing about, nor how highly they rate, Java.  That is
-> neither here nor there.  Java is going to be dead in a few years, and
-> let's just agree to disagree about this particular point ok?
+sendfile(2) had an oppertunity to be a real extention of the Unix philosophy. 
+If it was called something like "copy" (to match "read" and "write"), and 
+worked on all fds (even if it didn't do zerocopy, it should still just work), 
+it'd fit in a lot more nicely than even BSD sockets. Alas, as it is, it's 
+more of a wart than an extention. 
 
-Who cares about Java?  What about high performance LDAP servers or tux-like 
-userspace performance?  How about faster select and poll?  An X server that 
-doesn't have to make a syscall to find out that more data has arrived?  What 
-about nbd or iscsi servers that are in userspace and have all the benefits 
-that their kernel side counterparts do?
+Now, sys_readahead() is pretty much the stupidest thing I've ever heard. If 
+we had a copy(2) syscall, we could do the same thing by: copy(sourcefile, 
+/dev/null, count). I don't think sys_readahead() even qualifies as a wart. 
 
-		-ben
--- 
-Fish.
+-Ryan

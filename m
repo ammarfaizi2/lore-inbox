@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUFQWnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUFQW7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264082AbUFQWnb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 18:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFQWnb
+	id S264058AbUFQW7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 18:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFQW7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 18:43:31 -0400
-Received: from mail.dif.dk ([193.138.115.101]:43712 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S264082AbUFQWnX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 18:43:23 -0400
-Date: Fri, 18 Jun 2004 00:42:29 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: [Bug 2905] New: Aironet 340 PCMCIA card not working since 2.6.7
-In-Reply-To: <Pine.LNX.4.60.0406172152310.5847@poirot.grange>
-Message-ID: <Pine.LNX.4.56.0406180040050.15935@jjulnx.backbone.dif.dk>
-References: <200406171753.i5HHrx38015816@fire-2.osdl.org>
- <Pine.LNX.4.60.0406172152310.5847@poirot.grange>
+	Thu, 17 Jun 2004 18:59:00 -0400
+Received: from web41104.mail.yahoo.com ([66.218.93.20]:6149 "HELO
+	web41104.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264058AbUFQW66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 18:58:58 -0400
+Message-ID: <20040617225857.41605.qmail@web41104.mail.yahoo.com>
+Date: Thu, 17 Jun 2004 15:58:57 -0700 (PDT)
+From: tom st denis <tomstdenis@yahoo.com>
+Subject: Re: space left on ext3 (2.6.6-bk3)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.60.0406180018530.9599@poirot.grange>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+> On a ext3 fs:
+> 
+> fast:/mnt/tmp# df
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/sda3               958488    521864    387936  58% /mnt
+> 
+> fast:/mnt/tmp# cat /dev/zero > zr
+> cat: write error: No space left on device
+> 
+> fast:/mnt/tmp# ls -l
+> total 436624
+> -rw-r--r--    1 root     root     446660608 Jun 18 00:23 zr
+> 
+> fast:/mnt/tmp# rm zr
+> 
+> fast:/mnt/tmp# df
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/sda3               958488    521864    387936  58% /mnt
+> 
+> Is this an expected behaviour?.. Yeah, it is nice to have more space
+> than 
+> you think you have, but...
 
-> -			skb = dev_alloc_skb( len + hdrlen + 2 );
-> +			skb = dev_alloc_skb( len + hdrlen + 2 + 2 );
+Have you tried running fsck on it?  How many inodes are available.
 
-nitpicking, but why not
-	skb = dev_alloc_skb( len + hdrlen + 4 );
-?
+Tom
 
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
-
+		
+__________________________________
+Do you Yahoo!?
+Take Yahoo! Mail with you! Get it on your mobile phone.
+http://mobile.yahoo.com/maildemo 

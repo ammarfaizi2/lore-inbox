@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270682AbTGPMIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270702AbTGPMIo
+	id S270442AbTGPMMc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGPMMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:08:44 -0400
-Received: from holomorphy.com ([66.224.33.161]:4577 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270682AbTGPMIm (ORCPT
+	Wed, 16 Jul 2003 08:12:32 -0400
+Received: from list.rug.nl ([129.125.4.44]:8678 "EHLO list.rug.nl")
+	by vger.kernel.org with ESMTP id S270442AbTGPMMb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:08:42 -0400
-Date: Wed, 16 Jul 2003 05:24:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test1-mm1
-Message-ID: <20030716122454.GJ15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, "Barry K. Nathan" <barryn@pobox.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030715225608.0d3bff77.akpm@osdl.org> <20030716104448.GC25869@ip68-4-255-84.oc.oc.cox.net> <20030716035848.560674ac.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716035848.560674ac.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Jul 2003 08:12:31 -0400
+From: "J. Hidding" <J.Hidding@student.rug.nl>
+Subject: linux-2.6.0-test1 freezes sometimes
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.4.0.6
+Date: Wed, 16 Jul 2003 14:27:11 +0200
+Message-ID: <web-8138438@mail.rug.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Barry K. Nathan" <barryn@pobox.com> wrote:
->>  arch/ppc/kernel/irq.c: At top level:  
->>  arch/ppc/kernel/irq.c:575: braced-group within expression allowed only
->>  inside a function
+Hello,
 
-On Wed, Jul 16, 2003 at 03:58:48AM -0700, Andrew Morton wrote:
-> Bill?
+linux-2.6.0-test1 freezes quite often. I think it's 
+related with running a verry nasty Mozilla 1.4, but it's 
+only a hunch. Is anybody else experiencing this problem?
 
-Building a cross-compiler and taking a stab at fixing it...
-
-
--- wli
+Johan Hidding

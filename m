@@ -1,177 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVAQQ2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVAQQaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbVAQQ2i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 11:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVAQQ2h
+	id S262246AbVAQQaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 11:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVAQQaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 11:28:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16289 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262229AbVAQQ1n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 11:27:43 -0500
-From: David Howells <dhowells@redhat.com>
-To: rusty@rustcorp.com.au, akpm@osdl.org, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: [PATCH] Fix kallsyms/insmod/rmmod race
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Mon, 17 Jan 2005 16:27:19 +0000
-Message-ID: <31453.1105979239@redhat.com>
+	Mon, 17 Jan 2005 11:30:00 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63755 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262246AbVAQQ3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 11:29:45 -0500
+Date: Mon, 17 Jan 2005 17:29:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org, Klaus Dittrich <kladit@t-online.de>
+Subject: Re: brought up 4 cpu's
+Message-ID: <20050117162938.GS4274@stusta.de>
+References: <20050117153646.GA25273@xeon2.local.here> <200501171609.15054.m.watts@eris.qinetiq.com> <41EBE54B.1010401@xeon2.local.here> <200501171632.26443.m.watts@eris.qinetiq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501171632.26443.m.watts@eris.qinetiq.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 17, 2005 at 04:32:26PM +0000, Mark Watts wrote:
+> 
+> > Mark Watts wrote:
+> > >
+> > >>kernel-2.6.11-rc1-bk5 stops booting after the message
+> > >>"Brought up 4 CPU'S"
+> > >>
+> > >>System is Dual-P4.
+> > >
+> > >With HyperThreading?
+> >
+> > Yes, 2 XEON/P4.
+> 
+> Thats your answer then. HyperThreading makes one cpu act as two (with a 
+> suitable performance increase for some workloads)
 
-The attached patch fixes a race between kallsyms and insmod/rmmod.
+This doesn't explain why it stopped booting on his computer...
 
-The problem is this:
+> Mark.
 
- (1) The various kallsyms functions poke around in the module list without any
-     locking so that they can be called from the oops handler.
+cu
+Adrian
 
- (2) Although insmod and rmmod use locks to exclude each other, these have no
-     effect on the kallsyms function.
+-- 
 
- (3) Although rmmod modifies the module state with the machine "stopped", it
-     hasn't removed the metadata from the module metadata list, meaning that
-     as soon as the machine is "restarted", the metadata can be observed by
-     kallsyms.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-     It's not possible to say that an item in that list should be ignored if
-     it's state is marked as inactive - you can't get at the state information
-     because you can't trust the metadata in which it is embedded.
-
-     Furthermore, list linkage information is embedded in the metadata too, so
-     you can't trust that either...
-
- (4) kallsyms may be walking the module list without a lock whilst either
-     insmod or rmmod are busy changing it. insmod probably isn't a problem
-     since nothing is going a way, but rmmod is as it's deleting an entry.
-
- (5) Therefore nothing that uses these functions can in any way trust any
-     pointers to "static" data (such as module symbol names or module names)
-     that are returned.
-
- (6) On ppc64 the problems are exacerbated since the hypervisor may reschedule
-     bits of the kernel, making operations that appear adjacent occur a long
-     time apart.
-
-This patch fixes the race by only linking/unlinking modules into/from the
-master module list with the machine in the "stopped" state. This means that
-any "static" information can be trusted as far as the next kernel reschedule
-on any given CPU without the need to hold any locks.
-
-However, I'm not sure how this is affected by preemption. I suspect more work
-may need to be done in that case, but I'm not entirely sure.
-
-This also means that rmmod has to bump the machine into the stopped state
-twice... but since that shouldn't be a common operation, I don't think that's
-a problem.
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat kallsyms-race-2611rc1.diff
- kallsyms.c |   16 ++++++++++++++--
- module.c   |   35 ++++++++++++++++++++++++++++-------
- 2 files changed, 42 insertions(+), 9 deletions(-)
-
-diff -uNrp linux-2.6.11-rc1/kernel/kallsyms.c linux-2.6.11-rc1-kallsyms/kernel/kallsyms.c
---- linux-2.6.11-rc1/kernel/kallsyms.c	2005-01-12 19:09:18.000000000 +0000
-+++ linux-2.6.11-rc1-kallsyms/kernel/kallsyms.c	2005-01-17 15:33:55.000000000 +0000
-@@ -139,13 +139,20 @@ unsigned long kallsyms_lookup_name(const
- 	return module_kallsyms_lookup_name(name);
- }
- 
--/* Lookup an address.  modname is set to NULL if it's in the kernel. */
-+/*
-+ * Lookup an address
-+ * - modname is set to NULL if it's in the kernel
-+ * - we guarantee that the returned name is valid until we reschedule even if
-+ *   it resides in a module
-+ * - we also guarantee that modname will be valid until rescheduled
-+ */
- const char *kallsyms_lookup(unsigned long addr,
- 			    unsigned long *symbolsize,
- 			    unsigned long *offset,
- 			    char **modname, char *namebuf)
- {
- 	unsigned long i, low, high, mid;
-+	const char *msym;
- 
- 	/* This kernel should never had been booted. */
- 	BUG_ON(!kallsyms_addresses);
-@@ -196,7 +203,12 @@ const char *kallsyms_lookup(unsigned lon
- 		return namebuf;
- 	}
- 
--	return module_address_lookup(addr, symbolsize, offset, modname);
-+	/* see if it's in a module */
-+	msym = module_address_lookup(addr, symbolsize, offset, modname);
-+	if (msym)
-+		return strncpy(namebuf, msym, KSYM_NAME_LEN);
-+
-+	return NULL;
- }
- 
- /* Replace "%s" in format with address, or returns -errno. */
-diff -uNrp linux-2.6.11-rc1/kernel/module.c linux-2.6.11-rc1-kallsyms/kernel/module.c
---- linux-2.6.11-rc1/kernel/module.c	2005-01-12 19:09:18.000000000 +0000
-+++ linux-2.6.11-rc1-kallsyms/kernel/module.c	2005-01-17 15:31:42.000000000 +0000
-@@ -1072,14 +1072,24 @@ static void mod_kobject_remove(struct mo
- 	kobject_unregister(&mod->mkobj.kobj);
- }
- 
-+/*
-+ * unlink the module with the whole machine is stopped with interrupts off
-+ * - this defends against kallsyms not taking locks
-+ */
-+static inline int __unlink_module(void *_mod)
-+{
-+	struct module *mod = _mod;
-+	spin_lock(&modlist_lock);
-+	list_del(&mod->list);
-+	spin_unlock(&modlist_lock);
-+	return 0;
-+}
-+
- /* Free a module, remove from lists, etc (must hold module mutex). */
- static void free_module(struct module *mod)
- {
- 	/* Delete from various lists */
--	spin_lock_irq(&modlist_lock);
--	list_del(&mod->list);
--	spin_unlock_irq(&modlist_lock);
--
-+	stop_machine_run(__unlink_module, mod, NR_CPUS);
- 	remove_sect_attrs(mod);
- 	mod_kobject_remove(mod);
- 
-@@ -1732,6 +1742,19 @@ static struct module *load_module(void _
- 	goto free_hdr;
- }
- 
-+/*
-+ * link the module with the whole machine is stopped with interrupts off
-+ * - this defends against kallsyms not taking locks
-+ */
-+static inline int __link_module(void *_mod)
-+{
-+	struct module *mod = _mod;
-+	spin_lock(&modlist_lock);
-+	list_add(&mod->list, &modules);
-+	spin_unlock(&modlist_lock);
-+	return 0;
-+}
-+
- /* This is where the real work happens */
- asmlinkage long
- sys_init_module(void __user *umod,
-@@ -1766,9 +1789,7 @@ sys_init_module(void __user *umod,
- 
- 	/* Now sew it into the lists.  They won't access us, since
-            strong_try_module_get() will fail. */
--	spin_lock_irq(&modlist_lock);
--	list_add(&mod->list, &modules);
--	spin_unlock_irq(&modlist_lock);
-+	stop_machine_run(__link_module, mod, NR_CPUS);
- 
- 	/* Drop lock so they can recurse */
- 	up(&module_mutex);

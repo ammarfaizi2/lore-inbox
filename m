@@ -1,158 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264756AbTBJPrt>; Mon, 10 Feb 2003 10:47:49 -0500
+	id <S264877AbTBJPxB>; Mon, 10 Feb 2003 10:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264857AbTBJPrt>; Mon, 10 Feb 2003 10:47:49 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:19373 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S264756AbTBJPro>; Mon, 10 Feb 2003 10:47:44 -0500
-Message-ID: <3E47CBE8.2000303@blue-labs.org>
-Date: Mon, 10 Feb 2003 10:57:28 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
-X-Accept-Language: en-us, en
+	id <S264878AbTBJPxB>; Mon, 10 Feb 2003 10:53:01 -0500
+Received: from relay2.uni-heidelberg.de ([129.206.210.211]:36013 "EHLO
+	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S264877AbTBJPw7> convert rfc822-to-8bit; Mon, 10 Feb 2003 10:52:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Bernd Schubert <bernd-schubert@web.de>
+To: John Clemens <john@deater.net>, linux-kernel@vger.kernel.org
+Subject: Re: Mouse/Keyboard hangs..
+Date: Mon, 10 Feb 2003 17:02:38 +0100
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.44.0302100225160.26242-100000@pianoman.cluster.toy>
+In-Reply-To: <Pine.LNX.4.44.0302100225160.26242-100000@pianoman.cluster.toy>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: __down_failed, 2,5,59
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302101702.38448.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root     27966  0.0  0.0  1500  620 ?        D    00:08   0:00 
-.././config/imake/imake -I.././config/cf -Wundef -DTOPDIR=.. -DCURDIR=fonts
+Hi,
 
-imake         D 00000082     0 27966      1               12121 (NOTLB)
-Call Trace:
- [<c01630e5>] unlock_nd+0x55/0xa0
- [<c0108246>] __down+0x96/0x100    
- [<c011db90>] default_wake_function+0x0/0x40
- [<c010845c>] __down_failed+0x8/0xc
- [<c016360b>] .text.lock.namei+0x7d/0x172
- [<c0151e33>] filp_open+0x43/0x70
- [<c015228b>] sys_open+0x5b/0x90
- [<c010955f>] syscall_call+0x7/0xb
+did you also try to disable apm (so disable acpi and apm) ?
 
-# ls -l /proc/27966/fd
-total 0
-lrwx------    1 root     root           64 Feb 10 10:50 0 -> /dev/null
-l-wx------    1 root     root           64 Feb 10 10:50 1 -> 
-/tmp/cron.root.12339 (deleted)
-l-wx------    1 root     root           64 Feb 10 10:50 2 -> 
-/tmp/cron.root.12339 (deleted)
-lrwx------    1 root     root           64 Feb 10 10:50 3 -> 
-/var/tmp/portage/xfree-4.2.99.4/work/xc/fonts/Makefile (deleted)
-l-wx------    1 root     root           64 Feb 10 10:50 4 -> 
-/var/tmp/portage/xfree-4.2.99.4/work/xc/fonts/Imakefile.c
-# ls -Lil /proc/27966/fd
-total 1200
-     55 crw-rw-rw-    1 root     root       1,   3 Dec 31  1969 0
-  41799 -rw-------    0 root     root       611482 Feb 10 10:36 1
-  41799 -rw-------    0 root     root       611482 Feb 10 10:36 2
- 293141 -rw-r--r--    0 root     root            0 Feb 10 00:08 3
- 293142 -rw-r--r--    1 root     root            0 Feb 10 00:08 4
+On my thinpad R31 a loop reading of /proc/apm makes mouses and keyboard usage 
+almost impossible (it is said that its the fault of the BIOS), perhaps your 
+problem is related.
 
+Bernd
 
-# lsof -p 27966
-COMMAND   PID USER   FD   TYPE DEVICE    SIZE   NODE NAME
-imake   27966 root  cwd    DIR    8,1     240 290354 
-/var/tmp/portage/xfree-4.2.99.4/work/xc/fonts
-imake   27966 root  rtd    DIR    8,1     384      2 /
-imake   27966 root  txt    REG    8,1   25218 292705 
-/var/tmp/portage/xfree-4.2.99.4/work/xc/config/imake/imake
-imake   27966 root  mem    REG    8,1   90645 176866 /lib/ld-2.3.1.so
-imake   27966 root  mem    REG    8,1   23201 258203 /lib/libsandbox.so
-imake   27966 root  mem    REG    8,1 1432487 176723 /lib/libc-2.3.1.so
-imake   27966 root  mem    REG    8,1   12247 176867 /lib/libdl-2.3.1.so
-imake   27966 root    0u   CHR    1,3             55 /dev/null
-imake   27966 root    1w   REG    8,1  611482  41799 
-/tmp/cron.root.12339 (deleted)
-imake   27966 root    2w   REG    8,1  611482  41799 
-/tmp/cron.root.12339 (deleted)
-imake   27966 root    3u   REG    8,1       0 293141 
-/var/tmp/portage/xfree-4.2.99.4/work/xc/fonts/Makefile (deleted)
-imake   27966 root    4w   REG    8,1       0 293142 
-/var/tmp/portage/xfree-4.2.99.4/work/xc/fonts/Imakefile.c
-
-
-
-root       723  0.0  0.6  6020 4412 pts/5    D    00:18   0:00 python2.2 
-/usr/bin/emerge xfree
-
-python2.2     D 00000086     0   723  12064                     (NOTLB)
-Call Trace:
- [<c0108246>] __down+0x96/0x100
- [<c011db90>] default_wake_function+0x0/0x40
- [<c010845c>] __down_failed+0x8/0xc
- [<c01529e9>] .text.lock.open+0x55/0x7c
- [<c015c7f7>] sys_stat64+0x37/0x40
- [<c010955f>] syscall_call+0x7/0xb
-
-# ls -l /proc/723/fd
-total 0
-lrwx------    1 root     root           64 Feb 10 10:50 0 -> /dev/pts/5
-lrwx------    1 root     root           64 Feb 10 10:50 1 -> /dev/pts/5
-lrwx------    1 root     root           64 Feb 10 10:50 2 -> /dev/pts/5
-# ls -Lil /proc/723/fd
-total 0
-   1030 crw-------    1 david    tty      136,   5 Feb 10 00:18 0
-   1030 crw-------    1 david    tty      136,   5 Feb 10 00:18 1
-   1030 crw-------    1 david    tty      136,   5 Feb 10 00:18 2
-
-
-# lsof -p 723
-COMMAND   PID USER   FD   TYPE DEVICE    SIZE   NODE NAME
-python2.2 723 root  cwd    DIR    8,1     264   2779 /root
-python2.2 723 root  rtd    DIR    8,1     384      2 /
-python2.2 723 root  txt    REG    8,1  682120  65317 /usr/bin/python2.2
-python2.2 723 root  mem    REG    8,1   90645 176866 /lib/ld-2.3.1.so
-python2.2 723 root  mem    REG    8,1   16272  65270 
-/usr/lib/python2.2/lib-dynload/select.so
-python2.2 723 root  mem    REG    8,1   26680  65306 
-/usr/lib/python2.2/lib-dynload/strop.so
-python2.2 723 root  mem    REG    8,1   12247 176867 /lib/libdl-2.3.1.so
-python2.2 723 root  mem    REG    8,1   84042 176705 /lib/libpthread-0.10.so
-python2.2 723 root  mem    REG    8,1   11061 176746 /lib/libutil-2.3.1.so
-python2.2 723 root  mem    REG    8,1 1065659 270107 
-/usr/lib/gcc-lib/i686-pc-linux-gnu/3.2.2/libstdc++.so.5.0.2
-python2.2 723 root  mem    REG    8,1  184308 176865 /lib/libm-2.3.1.so
-python2.2 723 root  mem    REG    8,1   40460 270115 
-/usr/lib/gcc-lib/i686-pc-linux-gnu/3.2.2/libgcc_s.so.1
-python2.2 723 root  mem    REG    8,1 1432487 176723 /lib/libc-2.3.1.so
-python2.2 723 root  mem    REG    8,1   15272  65288 
-/usr/lib/python2.2/lib-dynload/fcntl.so
-python2.2 723 root  mem    REG    8,1   18996  65283 
-/usr/lib/python2.2/lib-dynload/time.so
-python2.2 723 root  mem    REG    8,1    7092 258169 
-/usr/lib/python2.2/site-packages/missingos.so
-python2.2 723 root  mem    REG    8,1   65368  65279 
-/usr/lib/python2.2/lib-dynload/cPickle.so
-python2.2 723 root  mem    REG    8,1   20943  65266 
-/usr/lib/python2.2/lib-dynload/cStringIO.so
-python2.2 723 root  mem    REG    8,1    8259  65287 
-/usr/lib/python2.2/lib-dynload/grp.so
-python2.2 723 root  mem    REG    8,1    8738  65294 
-/usr/lib/python2.2/lib-dynload/pwd.so
-python2.2 723 root  mem    REG    8,1   19096  40187 
-/usr/lib/python2.2/site-packages/fchksum.so
-python2.2 723 root  mem    REG    8,1   50054 174377 
-/lib/libnss_compat-2.3.1.so
-python2.2 723 root  mem    REG    8,1   88984 176721 /lib/libnsl-2.3.1.so
-python2.2 723 root  mem    REG    8,1   72573   2238 /usr/lib/libz.so.1.1.4
-python2.2 723 root    0u   CHR  136,5           1030 /dev/pts/5
-python2.2 723 root    1u   CHR  136,5           1030 /dev/pts/5
-python2.2 723 root    2u   CHR  136,5           1030 /dev/pts/5
-
-
-The above occurred last night 'round midnight.  Kernel is vanilla 
-2.5.59, underlying filesystem is reiserfs.  Single Athlon CPU.
-
-David
-
--- 
-I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
-
-When it absolutely, positively, has to be destroyed overnight.
-                           AIR FORCE
-
-
+On Monday 10 February 2003 09:23, John Clemens wrote:
+> Hi all..
+>
+> I'm having an issue with my laptop.. the same issue i've had for since I
+> baught it..  Under linux the mouse (synaptics touchpad) and/or keyboard
+> will suddenly lock.  All input stops.  I can telnet in and shutdown
+> cleanly, but that doesn't help recover that I've got on my screen in X (or
+> the console).
+>
+> Hardware: HP n5430 laptop, synaptics touchpad, trident XP graphics,
+> standard low-end laptop.
+>
+> Here's the really odd part.  When it happens, if i notice quickly enough
+> and hit the power switch on my laptop for just a split second (not the 5
+> seconds to power off).. it sometimes comes back!  It's happened twice
+> while typing this email in pine using a text console (no X, no mouse).
+> But if I wait too long (a few seconds)...no matter how many times i nudge
+> the power switch, it never comes back.  Sometimes it's more frequent then
+> others.. sometimes I'll go for days/weeks without seeing it.
+>
+> I've been seeing this since I got the laptop, and I've run almost every
+> 2.4.x (x > ~10) and a lot of 2.5 kernels on here (currently, 2.5.54).
+> The behavior is a little different recently though with the 2.5 series.
+> Now, sometimes when it comes back, i get the character i was typing
+> repeated (as if a key was stuck) until i hit another key.  This change
+> could be related to the new i8042 changes in 2.5, I'm not sure.
+>
+> I've tried : APIC, no APIC.
+> 	     ACPI, no ACPI.
+> 	     ALI IRQ router, ACPI IRQ router.
+> 	     psmouse_noext command line arg.
+> 	     powernow-ing the CPU down to 500Mhz (850Mhz duron... heat
+> 							related?)
+>
+> All to no avial.  The only possible reason I can think of that hitting the
+> power button could help is that triggers ACPI, which uses IRQ 9...
+> and I seem to remember something about IRQ 2 (cascade) and IRQ 9 (ACPI)
+> being one in the same, really.. maybe we missed an interrupt somewhere and
+> hitting the power switch forces IRQ 2 to trigger, somehow triggering IRQ
+> 1 (keyboard) as well?  It's a stretch and my understanding of PC IRQ
+> logic is sketchy at best.
+>
+> Does anyone have any ideas?
+>
+> /proc/interrupts and relevant dmesg output is below the sig..
+> thanks,
+> john.c
+>
+> - --
+> John Clemens          http://www.deater.net/john
+> john@deater.net     ICQ: 7175925, IM: PianoManO8
+>       "I Hate Quotes" -- Samuel L. Clemens
+>
+> Linux diana 2.5.54 #14 Sat Jan 4 00:02:14 EST 2003 i686 unknown
+>
+>            CPU0
+>   0:  615936502          XT-PIC  timer
+>   1:       4574          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   8:          1          XT-PIC  rtc
+>  11:   24012204          XT-PIC  eth0
+>  12:         52          XT-PIC  i8042
+>  14:     285204          XT-PIC  ide0
+>  15:     628739          XT-PIC  ide1
+> NMI:          0
+> LOC:          0
+> ERR:          0
+>
+> dmesg:
+> ....
+> ACPI: RSDP (v000 PTLTD                      ) @ 0x000f7c20
+> ACPI: RSDT (v001 PTLTD    RSDT   01540.00000) @ 0x0fffcc46
+> ACPI: FADT (v001 ALI    M1533    01540.00000) @ 0x0fffef64
+> ACPI: BOOT (v001 PTLTD  $SBFTBL$ 01540.00000) @ 0x0fffefd8
+> ACPI: DSDT (v001 COMPAL      736 01540.00000) @ 0x00000000
+> ACPI: BIOS passes blacklist
+> ACPI: MADT not present
+> Building zonelist for node : 0
+> Kernel command line: BOOT_IMAGE=Linux ro root=305 ide0=ata66
+> psmouse_noext=1 ide_setup: ide0=ata66
+> Local APIC disabled by BIOS -- reenabling.
+> Found and enabled local APIC!
+> Initializing CPU#0
+> Detected 849.376 MHz processor.
+> ....
+> Enabling disabled K7/SSE Support.
+> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> CPU: L2 Cache: 64K (64 bytes/line)
+> CPU:     After generic, caps: 0383fbff c1c7fbff 00000000 00000000
+> Intel machine check architecture supported.
+> Intel machine check reporting enabled on CPU#0.
+> Machine check exception polling timer started.
+> CPU: AMD mobile AMD Duron(tm) Processor stepping 01
+> ....
+> device class 'input': registering
+> register interface 'mouse' with class 'input'
+> mice: PS/2 mouse device common for all mice
+> register interface 'event' with class 'input'
+> input: PS/2 Generic Mouse on isa0060/serio1
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> input: AT Set 2 keyboard on isa0060/serio0
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> ....
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

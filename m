@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264963AbSJPIOa>; Wed, 16 Oct 2002 04:14:30 -0400
+	id <S264968AbSJPISr>; Wed, 16 Oct 2002 04:18:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264965AbSJPIO3>; Wed, 16 Oct 2002 04:14:29 -0400
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:27599 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S264963AbSJPIO3>; Wed, 16 Oct 2002 04:14:29 -0400
-To: jw schultz <jw@pegasys.ws>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
-References: <20021015165947.50642.qmail@web13801.mail.yahoo.com>
-	<aoi6bb$309$1@cesium.transmeta.com> <20021016072345.GE7844@pegasys.ws>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 16 Oct 2002 17:20:15 +0900
-In-Reply-To: <20021016072345.GE7844@pegasys.ws>
-Message-ID: <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S264969AbSJPISr>; Wed, 16 Oct 2002 04:18:47 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:14331 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S264968AbSJPISq>; Wed, 16 Oct 2002 04:18:46 -0400
+Date: Wed, 16 Oct 2002 01:15:20 -0700
+From: Chris Wright <chris@wirex.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Daniel Phillips <phillips@arcor.de>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] In-kernel module loader 1/7
+Message-ID: <20021016011520.A26442@figure1.int.wirex.com>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Daniel Phillips <phillips@arcor.de>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+References: <E181Tcc-0003k0-00@starship> <20021016021949.DB2A92C2C1@lists.samba.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021016021949.DB2A92C2C1@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Oct 16, 2002 at 09:53:26AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz <jw@pegasys.ws> writes:
-> i distinctly remember the working with the newest R400x in 1993 which
-> was still 32bit.  I know MIPS went to 64bit sometime not too long
-> after that (mid 90's?) but by then Alpha and Sparc had beaten them to
-> the punch.
+* Rusty Russell (rusty@rustcorp.com.au) wrote:
+> 
+> I really wish the security guys had gone down the macro path, with
+> something like
+> 
+> #define security_check(func, default_val, ...)
+> 	({ if (try_inc_mod_count(security_ops->owner))
+> 		security_ops->func(__VA_ARGS__);
+> 	   else
+> 		default_val;
+> 	})
+> 
+> This also allows the whole thing to vanish if
+> CONFIG_SECURITY_CAPABILITIES=n, and allows more flexibility for
+> schemes like "always run with preemption disabled around security ops"
+> or whatever, rather than having to search for all the references to
+> security_ops.
 
-You're wrong -- the R4000 was absolutely 64-bit, and was released in
-1991.  The 64-bit sparc was circa '93, and alpha I dunno, but I think
-'91-'92.
+You may be seeing something like this soon.  Greg is working on some
+conversions right now.  I'm not sure what the final format will be,
+but it should make the work above easier.  Check out his '[RFC] change
+format of LSM hooks' message from a few hours ago.
 
-[note that I'm talking about chips, not software; I believe it was quite
-a while before the OS stuff caught up with the 64-bit mips processors]
-
--Miles
+thanks,
+-chris
 -- 
-Ich bin ein Virus. Mach' mit und kopiere mich in Deine .signature.
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274738AbRJAIDl>; Mon, 1 Oct 2001 04:03:41 -0400
+	id <S274750AbRJAIUo>; Mon, 1 Oct 2001 04:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274736AbRJAIDc>; Mon, 1 Oct 2001 04:03:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9133 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S274738AbRJAIDR>;
-	Mon, 1 Oct 2001 04:03:17 -0400
-Date: Mon, 1 Oct 2001 04:03:45 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Erik Andersen <andersen@codepoet.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] cleanup of partition code
-In-Reply-To: <20011001000446.A24245@codepoet.org>
-Message-ID: <Pine.GSO.4.21.0110010345110.14660-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274752AbRJAIUe>; Mon, 1 Oct 2001 04:20:34 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:10254 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S274750AbRJAIUX>; Mon, 1 Oct 2001 04:20:23 -0400
+Subject: 2.4.11-pre1 -- Error in ./Changes -- Wrong location given to
+	retrieve the latest Mkinitrd
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99 (Preview Release)
+Date: 01 Oct 2001 01:13:01 -0700
+Message-Id: <1001923986.17172.54.camel@stomata.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The Changes document gives the following mkinitrd information:
 
+Mkinitrd
+--------
+o  <ftp://rawhide.redhat.com/pub/rawhide/SRPMS/SRPMS/>
 
-On Mon, 1 Oct 2001, Erik Andersen wrote:
+However, rawhide.redhat.com/pub/rawhide no longer exists.
+The current directory listing for pub is:
 
-> Note the ll_rw_block msg from where the acorn stuff is not reading in units
-> of the physical sector size?  Also notice the "unable to read..." msg, which
-> is where acorn chokes the partition table scanning...
-> 
-> 
-> So now, while fdisk is still able to see that partitions exist
-> 
-> 	[andersen@dillweed andersen]$ fdisk -l /dev/sda
-> 	Note: sector size is 2048 (not 512)
-> 
-> 	Disk /dev/sda: 64 heads, 32 sectors, 151 cylinders
-> 	Units = cylinders of 2048 * 2048 bytes
-> 
-> 	   Device Boot    Start       End    Blocks   Id  System
-> 	/dev/sda1   *         1       151    618432   83  Linux
-> 
-> the acorn stuff has caused the partition scan to abort prematurely, such that
-> proc partitions (and Linux) know nothing about the device's partitions.  I can
-> give you a dd from one of these disks, but I doubt that would show the error... 
+contrib/    .private/   redhat/     .snapshot/  up2date/
 
-	OK, first of all, it's _not_ an acorn partition table at all.
-It's a garden-variety DOS partition table.
+I've searched the web quite a bit and have failed to find
+an authoritative distribution location.
 
-	Actually, you've found a rather nasty bug in acorn.c - code in
-the current tree fails if it tries to look for acorn-style partition
-table on a large-sector disk.  Fails with IO error, and reports that
-to high-level code in check_partitions().  Which decides to stop.
-msdos_partition() would be called after acorn_partition(), so it
-doesn't get called at all.
-
-	Lovely...  OK, there are two possible fixes - one is to
-add check for block size into acorn_partition() (it's checked on
-almost all branches, but there's one where it's missing).  Another
-is to switch to new partition code, which works with any physical
-sector size.
-
-	I'm putting the new patch on anonftp -
-ftp.math.psu.edu/pub/viro/partition-c-S11-pre1
-
-	News:
-* massaged into form that should be easy to backport.
-* acorn.c converted (_completely_ untested)
-
-	Folks, please help to test that sucker. 
+	Miles
 

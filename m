@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264447AbRFTA2i>; Tue, 19 Jun 2001 20:28:38 -0400
+	id <S264448AbRFTAaS>; Tue, 19 Jun 2001 20:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264448AbRFTA22>; Tue, 19 Jun 2001 20:28:28 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:48213
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264447AbRFTA2Q>; Tue, 19 Jun 2001 20:28:16 -0400
-Date: Tue, 19 Jun 2001 17:28:14 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010619172814.D14119@work.bitmover.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <p05100319b75593a25b1e@[10.128.7.49]> <20010619171945.I6778@thune.mrc-home.com>
-Mime-Version: 1.0
+	id <S264450AbRFTAaJ>; Tue, 19 Jun 2001 20:30:09 -0400
+Received: from linux.vmri.hu ([193.225.208.140]:34820 "EHLO linux.vmri.hu")
+	by vger.kernel.org with ESMTP id <S264448AbRFTAaE>;
+	Tue, 19 Jun 2001 20:30:04 -0400
+Message-ID: <3B2FEEE0.C57EC336@sch.bme.hu>
+Date: Wed, 20 Jun 2001 02:31:28 +0200
+From: Marcell Gal <cell@sch.bme.hu>
+Reply-To: cell@sch.bme.hu
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
+CC: "David S. Miller" <davem@redhat.com>, Dax Kelson <dkelson@gurulabs.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>,
+        VLAN Mailing List <vlan@Scry.WANfear.com>,
+        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
+        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
+Subject: Re: Should VLANs be devices or something else?
+In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
+			<Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com> <15151.55017.371775.585016@pizda.ninka.net> <3B2FDD62.EFC6AEB1@candelatech.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010619171945.I6778@thune.mrc-home.com>; from dalgoda@ix.netcom.com on Tue, Jun 19, 2001 at 05:19:45PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 05:19:45PM -0700, Mike Castle wrote:
-> On Tue, Jun 19, 2001 at 04:56:16PM -0700, Jonathan Lundell wrote:
-> > But so what? That's $16 worth of DRAM (I just checked). Not so bad 
-> > *if* threads are otherwise a great solution. I grant that one might 
-> > have a pretty tough time making the case, but again, for the right 
-> > application, say some app with a dedicated server, 73MB isn't the end 
-> > of the world (though I suppose it was at the time...).
-> 
-> How much would 73MB of cache cost?  How much would it cost to get that much
-> on the CPU?
+Hi,
 
-Good question but I doubt we're going to get anywhere.  Anyone who thinks
-that 73MB of RAM is an OK thing to waste on window system is probably a
-died-in-the-wool Java programmer and could care less about performance,
-system design, or any elegance whatsoever.
+Ben Greear wrote:
 
-It pains me to believe that people like this exist but there they are.
-What can you do?  As Confucius says "If I hold up three corners of a square
-and the student does not hold up the fourth, I do not bother to go over
-the point again".
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> >  > > Should VLANs be devices or some other thing?
+> I found it to be the easiest way to implement things.  It allowed
+> me to not have to touch any of layer 3, and I did not have to patch
+> any user-space program like ip or ifconfig.
+
+I faced the same issue when implementing RFC2684 (formerly 1483)
+Ethernet over ATM-AAL5. Since users want to do the same thing
+(ifconfig, tcpdump, rfc 2514 pppoe, dhcp, ipx) as with traditional eth0
+using register_netdev was 'the right thing'.
+However having the possibility of many devices annoyed
+some people. (upto appr. 4095/ATM-VC in case of vlan over rfc2684 over
+atm ;-)
+
+My answer to the (old) 'long ifconfig listing' argument:
+Users do not have more interfaces in the ifconfig listing than those they
+create for themselves.
+That's ok, exactly what they want. Those who do not like many interfaces
+do not
+create many.
+The real thrill would be maintaining new (or patched) tools just because
+we want to
+avoid having the _possibility_ of long listings at any cost...
+
+I remember
+/proc/sys/net/ipv4/conf/
+was broken for about >300 devices. I do not know how's it today.
+
+> Adding the hashed lookup for devices took the exponential curve out of
+> ip and ifconfig's performance, btw.
+
+n^2 for creating n devices (in the unfortunate increasing or random
+order),
+(not 2^n), I guess.
+
+    Cell
+
+--
+You'll never see all the places, or read all the books, but fortunately,
+they're not all recommended.
+
+
+

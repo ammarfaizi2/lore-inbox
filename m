@@ -1,76 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265643AbUABVK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 16:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUABVK3
+	id S265642AbUABVFW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 16:05:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265643AbUABVFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 16:10:29 -0500
-Received: from h80ad254a.async.vt.edu ([128.173.37.74]:43967 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265643AbUABVK1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 16:10:27 -0500
-Message-Id: <200401022110.i02LALKa014919@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware 
-In-Reply-To: Your message of "Fri, 02 Jan 2004 12:56:16 PST."
-             <Pine.LNX.4.44.0401021252070.2488-100000@bigblue.dev.mdolabs.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0401021252070.2488-100000@bigblue.dev.mdolabs.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1718534732P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 2 Jan 2004 16:05:22 -0500
+Received: from lmdeliver01.st1.spray.net ([212.78.202.210]:31902 "EHLO
+	lmdeliver01.st1.spray.net") by vger.kernel.org with ESMTP
+	id S265642AbUABVFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 16:05:08 -0500
+From: Paolo Ornati <ornati@lycos.it>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
+Date: Fri, 2 Jan 2004 22:04:27 +0100
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200401021658.41384.ornati@lycos.it> <3FF5B3AB.5020309@wmich.edu>
+In-Reply-To: <3FF5B3AB.5020309@wmich.edu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200401022200.22917.ornati@lycos.it>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 02 Jan 2004 16:10:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1718534732P
-Content-Type: text/plain; charset=us-ascii
+On Friday 02 January 2004 19:08, Ed Sweetman wrote:
+>
+>
+> Note, sometimes when moving backwards back to a lower readhead my speed
+> does not decrease to the values you see here. readahead on my system
+> always goes up (on avg) with higher readahead numbers, maxing at 8192.
+> No matter the buffer size or speed or position the ide drive is in.
+>
+> hdparm -t is difficult to get really accurate, which is why they suggest
+> running it multiple times.  I see differences of 4MB/sec on subsequent
+> runs without changing anything.  run hdparm -t at least 3-4 times for
+> each readahead value.
+>
+> I suggest trying 128, 256,512,8192 as values for readahead and skip all
+> those crap numbers in between.
+>
+>
+> if you still see on avg lower numbers on the top end, try nicing hdparm
+> to -20.  Also, update to a newer hdparm. hdparm v5.4, you seem to be
+> using an older one.
+>
 
-On Fri, 02 Jan 2004 12:56:16 PST, Davide Libenzi said:
-> On Fri, 2 Jan 2004, Bill Davidsen wrote:
-> 
-> > Yes and even worse, if you stop running setiathome the scientific task 
-> > *still* only gets half the available CPU!
-> 
-> Look that this is not true. If one core is not running any task, the idle 
-> task (if not polling) does "hlt" and the "what they call Fetch And 
+ok, hdparm updated to v5.4
 
-What Bill said was:
+and this is the new script:
+_____________________________________________________________________
+#!/bin/bash
 
->> memory-bound seti&home at CPU1. Even without hyperthreading, your
->> scientific task is going to run at 50% of speed and seti&home is going
->> to get second half. Oops.
+# This script assumes hdparm v5.4
 
-> Yes and even worse, if you stop running setiathome the scientific task 
-> *still* only gets half the available CPU!
+NR_TESTS=3
+RA_VALUES="64 128 256 8192"
 
-So Bill is pointing out that on a *normal* SMP, you get 50% whether or
-not the other processor is busy.
+killall5
+sync
+hdparm -a 0 /dev/hda > /dev/null
+hdparm -t /dev/hda > /dev/null
 
-> The difference is that with HT running a task on one sibling actually 
-> does (or can) slow the other. That's not true with true SMP, at least 
-> not directly, since the resourses shared (memory and disk) are much 
-> farther away from the CPU.
-
-And this is where Bill talks about issues like the one you mentioned about
-sharing the dispatch engine.
-
-So I think you and Bill are actually saying the same exact thing.
+for ra in $RA_VALUES; do
+    hdparm -a $ra /dev/hda > /dev/null;
+    echo -n $ra$'\t';
+    tot=0;
+    for i in `seq $NR_TESTS`; do
+	tmp=`nice -n '-20' hdparm -t /dev/hda|grep 'Timing'|tr -d ' '|cut -d'=' -f2|cut -d'M' -f1`;
+	tot=`echo "scale=2; $tot+$tmp" | bc`;
+    done;
+    s=`echo "scale=2; $tot/$NR_TESTS" | bc`;
+    echo $s;
+done
+_____________________________________________________________________
 
 
---==_Exmh_-1718534732P
-Content-Type: application/pgp-signature
+The results are like the previous.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+2.6.0:
+64        31.91
+128      31.89
+256      26.22	# during the transfer HD LED blinks
+8192    26.26	# during the transfer HD LED blinks
 
-iD8DBQE/9d49cC3lWbTT17ARAiKEAKDbpqkiJTBPAqwfV6l0rORurTYBBQCgwjd7
-qJOPKxKKo0M2Dgf3kHSEk0s=
-=JNol
------END PGP SIGNATURE-----
+2.6.1-rc1:
+64        25.84	# during the transfer HD LED blinks
+128      25.85	# during the transfer HD LED blinks
+256      25.90	# during the transfer HD LED blinks
+8192    26.42	# during the transfer HD LED blinks
 
---==_Exmh_-1718534732P--
+I have tried with and without "nice -n '-20'" but without any visible changes.
+
+Performance with 2.4:
+with kernel 2.4.23 && readahead = 8 I get 31.89 MB/s...
+changing readahead doesn't seem to affect the speed too much.
+
+Bye
+
+-- 
+	Paolo Ornati
+	Linux v2.4.23
+

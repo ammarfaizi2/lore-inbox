@@ -1,110 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSEGNJu>; Tue, 7 May 2002 09:09:50 -0400
+	id <S315440AbSEGNPr>; Tue, 7 May 2002 09:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315440AbSEGNJt>; Tue, 7 May 2002 09:09:49 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:20746 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315439AbSEGNJt>; Tue, 7 May 2002 09:09:49 -0400
-Message-ID: <3CD7C360.6050002@evision-ventures.com>
-Date: Tue, 07 May 2002 14:06:56 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.13 IDE 54
-In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net>	<3CC7E358.8050905@evision-ventures.com>	<20020425172508.GK3542@suse.de>	<20020425173439.GM3542@suse.de>	<aa9qtb$d8a$1@penguin.transmeta.com>	<3CD5564A.6030308@evision-ventures.com> <15575.52723.240506.668782@argo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315441AbSEGNPq>; Tue, 7 May 2002 09:15:46 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:6443 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315440AbSEGNPp>; Tue, 7 May 2002 09:15:45 -0400
+Message-Id: <5.1.0.14.2.20020507140736.022aed90@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 07 May 2002 14:16:04 +0100
+To: Martin Dalecki <dalecki@evision-ventures.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] 2.5.14 IDE 57
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD7BA24.9050205@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Paul Mackerras napisa?:
-> Martin Dalecki writes:
-> 
-> 
->>Sun May  5 16:32:22 CEST 2002 ide-clean-54
->>
->>- Finish the changes from patch 53. ide_dma_actaion_t is gone now as well as
->>   whole hidden code paths associated with it. I hope I didn't mess too many
->>   things up with this, since the sheer size of the changes make them sensitive.
-> 
-> 
-> I'm wondering how you would suggest that I change ide-pmac.c now so
-> that it compiles and works again.
-> 
-> With this patch we have calls to udma_enable scattered throughout
-> ide.c, and udma_enable assumes that it is to do its stuff by poking
-> particular I/O ports.  You seem to have taken away the ability to have
-> a chipset provide its own methods for setting up, enabling and
-> disabling DMA.
-> 
-> The comment above udma_enable seems to indicate that you think it
-> should be ifdef'd per-architecture.  That won't work for us (besides
-> being ugly), because we can have two ATA host adaptors in the one
-> machine that need to be programmed quite differently.  Consider for
-> instance a powermac with the built-in IDE interface (which would use
-> the ide-pmac.c code) and a plug-in PCI IDE card, for which the
-> udma_enable code is presumably correct.
-> 
-> So we definitely need to have the DMA setup/enable/disable methods
-> able to be specified per host adaptor.
+At 12:27 07/05/02, Martin Dalecki wrote:
+>Tue May  7 02:37:49 CEST 2002 ide-clean-57
+>
+>Nuke /proc/ide. For explanations why, please see the frustrated comments 
+>in the previous change log.
 
-OK I see I have "forced" you to take care of this.
-My problem previously was the simple fact that in esp.
-the pmac code was sidestepping the generic code and providing his
-own mechanisms for handling chipset specific dma transfer methods.
+This is a big mistake IMO.
 
-As you can see now it's possible to have overloaded most
-of the "virtuaized" udma_xxx channel methods.
+Nuking the ability to change settings, fair enough, but only if alternative 
+interface is provided for userspace to tweak everything, otherwise provide 
+the interface before you remove the existing one. (There may be already 
+another interface, I don't know...I am sure someone will tell me if there is!)
 
-Now you request me to virtualize the udma_enable stuff.
-Nothing easier then this.
+Removing the information provided by /proc/ide is very bad! It is very 
+useful to diagnose one's ide setup, to see what the host is configured as, 
+what all settings are set to, etc. This is the first place I look to check 
+whether the interfaces are configured as I expect them to be and in case of 
+problems, this is again the first place I look.
 
-Now we have:
+What alternatives are you going to present to give all the information that 
+/proc/ide gives? If the answer is none IMHO your patch is not acceptable...
 
-udma_enable()
-{
-...
-     /* default method implementation */
-...
-}
+Best regards,
 
-I will do the following with it:
-
-static do_dma_enable() // was udma_enable() before
-{
-    /* default method implementation */
-}
+         Anton
 
 
-udma_enable()
-{
-    if (ch->udma_enable)
-		return ch->udma_enable();
-
-    /* fallback to default implementation */
-    do_dma_enable();
-}
-
-
-I think this should suite your needs and you will be
-able to just overload the implementation of
-udma_enable() in ide-pmac.c
-
-by setting the udma_enable method in the
-host chip initialization routine there. (Directly alonside
-the the compiler will chock on ->udma so such memmber.)
-
-> If I have missed something, please let me know.  But it looks to me
-> very much as though this patch makes it impossible for me to use my
-> powermac IDE interfaces.
-
-
-Would the above infrastructue adjustment suit your needs?
-
-If Yes (I think so), please just drop me an OK please.
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

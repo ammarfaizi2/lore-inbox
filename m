@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbTEURbf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 13:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTEURbf
+	id S262232AbTEURzp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 13:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbTEURzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 13:31:35 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:26131 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262220AbTEURbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 13:31:34 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Christoph Hellwig <hch@infradead.org>, Ross Biro <rossb@google.com>
-Subject: Re: Patch FIOFLUSH
-Date: Wed, 21 May 2003 19:44:19 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <3ECBB723.7070707@google.com> <20030521183814.A1291@infradead.org>
-In-Reply-To: <20030521183814.A1291@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 21 May 2003 13:55:45 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:63983 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262232AbTEURzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 13:55:44 -0400
+Subject: Latest test runs by LTC test on 2.5.x
+From: Stephanie Glass <sglass@linuxtestproject.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305211944.19442.m.c.p@wolk-project.de>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 May 2003 13:09:54 -0500
+Message-Id: <1053540595.965.17.camel@saglasstest.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 May 2003 19:38, Christoph Hellwig wrote:
+The LTC is now posting 2.5 test runs on both the ltp and osdl site.
+The actual pages are for the LTP site at:
+http://ltp.sourceforge.net/execmatrix.php
+or OSDL site at:
+http://www.osdl.org/projects/26lnxstblztn/results/linstab-web/ltc/execut25_324rev1.html 
+Some recent examples from the matrix are:
 
-Hi Christoph,
+2.5.69  dbgrinder/MySQL IBM 8-way, P3-7000Mhz,10G Ram, default kernel
+config, Red Hat 8.0, 120 hours, completed successfully
 
-> This came up at SGI some time ago and the right solution is _not_ a new
-> ioctl but fadvise(..., POSIX_FADV_DONTNEED).   I'll submit a clean backport
-could you please send it to me even 2.4.21 is not out? Thank you.
+2.5.69  ltp-fslvm tests, IBM Netfinity 600R, 700MHz, 900Mb Ram, default
+kernel, Red Hat 8.0, 2 hours 48 minutes, completed successfully
+ 
+Stephanie Glass
 
-> once 2.4.21 is out (if that will ever happen)
-ROTFL! :-)
 
-ciao, Marc
+

@@ -1,85 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130085AbRASJcK>; Fri, 19 Jan 2001 04:32:10 -0500
+	id <S129652AbRASJjq>; Fri, 19 Jan 2001 04:39:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129911AbRASJcA>; Fri, 19 Jan 2001 04:32:00 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:16768 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129818AbRASJbs>; Fri, 19 Jan 2001 04:31:48 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010119094130.A7816@bfrey.dev.cn.tlan> 
-In-Reply-To: <20010119094130.A7816@bfrey.dev.cn.tlan>  <01011823245400.01549@statler.ether-net> 
-To: Bob Frey <bfrey@turbolinux.com.cn>
-Cc: Stephen Kitchener <stephen@g6dzj.demon.co.uk>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Scanning problems - machine lockups 
-Mime-Version: 1.0
+	id <S129881AbRASJj0>; Fri, 19 Jan 2001 04:39:26 -0500
+Received: from eugate.sgi.com ([192.48.160.10]:50201 "EHLO yog-sothoth.sgi.com")
+	by vger.kernel.org with ESMTP id <S129652AbRASJjO>;
+	Fri, 19 Jan 2001 04:39:14 -0500
+Message-ID: <3A67FA33.25F188E0@sgi.com>
+Date: Fri, 19 Jan 2001 09:26:27 +0100
+From: Dag Bakke <dagb@sgi.com>
+Organization: Silicon Graphics, Inc.
+X-Mailer: Mozilla 4.76C-SGI [en] (X11; U; IRIX 6.5 IP32)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Inconsistent cache size reporting.?
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 19 Jan 2001 09:30:50 +0000
-Message-ID: <11746.979896650@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-bfrey@turbolinux.com.cn said:
-> For Linux I think the right way to handle this is to have each
-> (SA_SHIRQ) sharing capable interrupt handler return a TRUE or FALSE
-> value indicating whether the interrupt belongs to the driver. In
-> kernel/irq.c:handle_IRQ_event() check the return value. If after one
-> pass through all of the interrupt (action) handlers no one has claimed
-> the inerrupt then log a warning message (spurious interrupt) and clear
-> the interrupt.
+I have noticed something strange about the L1/L2 cache size reporting in the
+2.4.0 kernel which could need a little explanation. 
 
-There exists hardware on which it's impossible to know for sure whether an 
-interrupt was generated or not. Upon receiving what might have been a 
-'status change' IRQ you check the status register. If it's reading the same 
-as when you last looked at it, you have know way to be sure that it hasn't 
-actually changed twice.
+It looks as if /proc/cpuinfo reports the L2 cache size on a PII, while it
+reports the L1 cache size on a K6-2. 
 
-So you'd have to have a YES/NO/MAYBE return code, which means you'd still 
-want to deal with the case of an IRQ storm with the only handler returning 
-MAYBE. And in reality, your first pass through all the drivers would simply 
-be to change the prototype and make them return MAYBE. And many 
-of them would stay that way for a _loooong_ time. 
-
-Also, you don't necessarily need to mask the IRQ just because you got a 
-single spurious trigger. It's only really necessary if you're getting 
-inundated with so many IRQs that the system is falling over.
-
-So your heuristic might be something like...
-
- Each jiffy, reset the 'spurious IRQ' count for each IRQ.
+Either that, or my external L2 cache is 64kB, and not 512 as it is supposed
+to be. memtest86 reports 'cacheable memory' to be 128MB, which is according
+to spec. I can verify with lmbench that I *have* a l2 cache, by switching it
+on/off in bios. (Larry: any chance of detecting/measuring l2 cache size?)
 
 
- Each time an IRQ is triggered, note the 'maximum' return code from the
-	handlers called (where NO < MAYBE < YES).
 
- If YES, goto out:
+My friend's system reports:
 
- If MAYBE, increase the spurious IRQ count for this IRQ by 1
+dmesg:
+CPU: Before vendor init, caps: 0183f9ff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: After vendor init, caps: 0183f9ff 00000000 00000000 00000000
+CPU: After generic, caps: 0183f9ff 00000000 00000000 00000000
+CPU: Common caps: 0183f9ff 00000000 00000000 00000000
+CPU: Intel Pentium II (Deschutes) stepping 01
 
- If NO, increase the spurious IRQ count for this IRQ by 100
+/proc/cpuinfo:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 1
+cpu MHz         : 350.799
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+pat
+pse36 mmx fxsr
+bogomips        : 699.59
 
- If the spurious IRQ count for this IRQ has reached <a suitable number>,
-	then disable the IRQ.
 
-out:
- Return from irq.
+My own system reports:
+
+dmesg:
+CPU: Before vendor init, caps: 008021bf 808029bf 00000000, vendor = 2
+CPU: L1 I Cache: 32K (32 bytes/line), D cache 32K (32 bytes/line)
+CPU: After vendor init, caps: 008021bf 808029bf 00000000 00000002
+CPU: After generic, caps: 008021bf 808029bf 00000000 00000002
+CPU: Common caps: 008021bf 808029bf 00000000 00000002
+CPU: AMD-K6(tm) 3D processor stepping 0c
+
+/proc/cpuinfo:
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 8
+model name      : AMD-K6(tm) 3D processor
+stepping        : 12
+cpu MHz         : 501.121
+cache size      : 64 KB         <-------????
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow
+k6_mtrr
+bogomips        : 999.42
 
 
-Perhaps you don't want to touch the whole list of IRQ counts every jiffy. 
-Perhaps you could reset it to zero on each YES response. Or something.
+I also note that performance on this system isn't quite what I would expect
+it to be. compiling glibc 2.1.3 takes longer time on my system than on a
+PII-366.
+A Celeron 300 outperforms the K6 when running 'mpeg2dec -o null'. Is the K6-2
+really this bad? Or is it my memory latency/bandwidth which is hurting me?
 
-And if you start randomly disabling IRQs because they're triggering too 
-often, then you'll probably need a way for a device driver to force you to 
-turn them back on again, like kick_irq().
+lmbench data. Notice that the 2nd run is with external cache switched off.
+Kernel is 2.4.0-ac6.
 
---
-dwmw2
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+dagb      Linux 2.4.0-a   93   56   41     89    272     73     73  272   103
+dagb      Linux 2.4.0-a   54   38   28     59    270     79     80  270   112
+
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+---------------------------------------------------
+Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
+--------- -------------  ---- ----- ------    --------    -------
+dagb      Linux 2.4.0-a   501 3.996    133    235
+dagb      Linux 2.4.0-a   501 3.996    233    238    No L2 cache?
 
 
+
+Regards,
+
+Dag B
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIPQFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUIPQFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268212AbUIPQFn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 12:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIPQEA
+	id S268295AbUIPQFl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 12:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268247AbUIPQE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:04:00 -0400
-Received: from mail.tmr.com ([216.238.38.203]:43012 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268280AbUIPP4y (ORCPT
+	Thu, 16 Sep 2004 12:04:26 -0400
+Received: from styx.suse.cz ([82.119.242.94]:12678 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S268176AbUIPP5u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:56:54 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Date: Thu, 16 Sep 2004 11:57:34 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ciccmu$ija$1@gatekeeper.tmr.com>
-References: <20040913135253.GA3118@crusoe.alcove-fr>
+	Thu, 16 Sep 2004 11:57:50 -0400
+Date: Thu, 16 Sep 2004 17:58:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: input: Disable the AUX LoopBack command in i8042.c on Compaq ProLiant
+Message-ID: <20040916155801.GA5345@ucw.cz>
+References: <200409161509.i8GF90iJ021552@hera.kernel.org> <1095349977.2698.17.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1095349791 19050 192.168.12.100 (16 Sep 2004 15:49:51 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040913135253.GA3118@crusoe.alcove-fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095349977.2698.17.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> Hi all,
-> 
-> Is there a reason there is no API implementing a simple in-kernel
-> FIFO ? A linked list is a bit overkill...
-> 
-> Besides my sonypi and meye drivers which could use this, there are
-> quite a few other drivers which re-implement the circular buffer
-> over and over again...
-> 
-> An initial implementation follows below. Comments ?
+On Thu, Sep 16, 2004 at 05:52:57PM +0200, Arjan van de Ven wrote:
 
-Many.
+> On Wed, 2004-06-02 at 13:44, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1722.87.1, 2004/06/02 13:44:20+02:00, vojtech@suse.cz
+> > 
+> > 	input: Disable the AUX LoopBack command in i8042.c on Compaq ProLiant
+> > 	       8-way Xeon ProFusion systems, as it causes crashes and reboots
+> > 	       on these machines. DMI data is used for determining if the
+> > 	       workaround should be enabled.
+> > 	
+> > 	Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+> > 
+> 
+> is there any reason you do this in dmi_scan.c and not via the "new"
+> since some time method where the user gives the dmi code a table with
+> callbacks instead ????
 
-- you don't need both size and len, just the length
-- you don't need a count of what's in the fifo, calc from tail-head
-- you don't need remaining, when the tail reaches the head
-   you're out of data.
-- you want to do at most two memcpy operations, the loop is just
-   unproductive overhead.
-- if the fifo goes empty set the head and tail back to zero so you don't
-   wrap (assumes doing just two memcpy ops) when you don't need to
+There is no such reason other than on 06/02 there wasn't the "new"
+method yet, as far as I know. In the same set of patches:
+
+ChangeSet@1.1757.59.2, 2004-06-29 11:59:04+02:00, vojtech@suse.cz
+  input: Move Compaq ProLiant DMI handling (ServerWorks/OSB workaround)
+         to i8042.c.
+         
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Vojtech Pavlik
+SuSE Labs, SuSE CR

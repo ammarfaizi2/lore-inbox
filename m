@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUFVTeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265122AbUFVTjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265502AbUFVTeB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUFVTd7
+	id S265122AbUFVTjj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbUFVTjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:33:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2465 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265132AbUFVTTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:19:09 -0400
-Date: Tue, 22 Jun 2004 12:18:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, mikpe@csd.uu.se
-Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
-Message-Id: <20040622121805.7c5873a8.akpm@osdl.org>
-In-Reply-To: <16600.14436.344871.168096@alkaid.it.uu.se>
-References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
-	<20040622015311.561a73bf.akpm@osdl.org>
-	<16600.14436.344871.168096@alkaid.it.uu.se>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 15:39:14 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:4235 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265122AbUFVTe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 15:34:57 -0400
+Date: Tue, 22 Jun 2004 20:34:50 +0100 (BST)
+From: jsimmons@pentafluge.infradead.org
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, Rik van Riel <riel@redhat.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040619144214.B32669@electric-eye.fr.zoreil.com>
+Message-ID: <Pine.LNX.4.56.0406222034210.5006@pentafluge.infradead.org>
+References: <40D33C58.1030905@am.sony.com>
+ <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
+ <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org>
+ <20040619144214.B32669@electric-eye.fr.zoreil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 NO_REAL_NAME           From: does not include a real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
->
-> Andrew Morton writes:
->  > Random points:
->  > 
->  > 
->  > - In __vperfctr_set_cpus_allowed(), is it possible for a process to
->  >   generate that printk deliberately, thus spamming the logs?
+
+> jsimmons@pentafluge.infradead.org <jsimmons@pentafluge.infradead.org> :
+> [...]
+> > The framebuffer is also so far behind. 9 out of 10 patches are 
+> > dropped. The reason being is that everyone is a volunteer doing this in 
 > 
-> On a HT P4, yes that's possible. Should I put in a rate limit?
-
-Spose so - __printk_ratelimit().  Or simply turn the message off until the
-next reboot.
-
->  > - perfctr_set_cpus_allowed() does task_lock().  Should that be
->  >   vperfctr_task_lock() instead?
+> Do you mean dropped as "Posted on fb-devel but nobody cared" ?
 > 
-> vperfctr_task_lock() _is_ task_lock() when HT P4s are possible.
+> (no need to keep me in the Cc: loop except for this specific point, thank you)
 
-I know.  I was asking whether that could should have used the macro rather
-than open-coding the task_lock().  Whatever.
+More like patches come in but no one has enough time to sit down and go 
+thre wthem and try them out.
 
->  >   Please update the locking comment over task_lock() to represent this
->  >   new usage.
-> 
-> You mean add a comment there to the effect that set_cpus_allowed()
-> may do a task_lock()?
-
-That comment describes what data structures are protected by task_lock(). 
-If you're aware of missing info or if you're protecting new data via
-task_lock(), please update the comment.
-
->  > - Why does sys_vperfctr_open() call ptrace_check_attach()?  (I suspect
->  >   I'd know that if there was API documentation?)
-> 
-> In the remote-control case, we must check that the opening process
-> has the right to control the target process. I'm using the same
-> rules as ptrace(ATTACH) does, hence the ptrace_check_attach() call.
-
-OK.  The term "remote control" has not been defined by you, so I'm to
-assume that it refers to one process initiating perfctr instrumentation
-against another, in some fashion.  Please feel my minor frustration ;)
-
->  >   These big structures should be dynamically allocated.
-> 
-> There's room for a temp copy in the perfctr state object, which as
-> you've noticed is an entire page. That should reduce stack usage.
-
-hm, not sure I understand that, but whatever.  Please fix up the big stack
-users, especially those which do copy_*_user, or non-atomic memory
-allocations.

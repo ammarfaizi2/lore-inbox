@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133035AbRAQRUl>; Wed, 17 Jan 2001 12:20:41 -0500
+	id <S131795AbRAQR34>; Wed, 17 Jan 2001 12:29:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133023AbRAQRUW>; Wed, 17 Jan 2001 12:20:22 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:12303 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S131795AbRAQRUN>; Wed, 17 Jan 2001 12:20:13 -0500
-Date: Wed, 17 Jan 2001 12:22:34 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Michael Meissner <meissner@spectacle-pond.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-Message-ID: <20010117122234.A3480@munchkin.spectacle-pond.org>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95191@ATL_MS1> <Pine.LNX.4.21.0101161154580.17397-100000@sol.compendium-tech.com> <20010116153757.A1609@munchkin.spectacle-pond.org> <20010117003205.A711@werewolf.able.es> <20010116194210.C1609@munchkin.spectacle-pond.org> <20010116201401.C6364@cadcamlab.org>
-Mime-Version: 1.0
+	id <S132829AbRAQR3r>; Wed, 17 Jan 2001 12:29:47 -0500
+Received: from ktk.bidmc.harvard.edu ([134.174.237.112]:26895 "EHLO
+	ktk.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id <S131795AbRAQR3b>; Wed, 17 Jan 2001 12:29:31 -0500
+Message-ID: <3A65D668.F746F2EE@bigfoot.com>
+Date: Wed, 17 Jan 2001 12:29:12 -0500
+From: "Kristofer T. Karas" <ktk@bigfoot.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
+X-Accept-Language: en, en-GB
+MIME-Version: 1.0
+To: Svein Erik Brostigen <svein.brostigen@oracle.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre8, webbrowsers and proxies...
+In-Reply-To: <3A6553F1.C1A87632@oracle.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010116201401.C6364@cadcamlab.org>; from peter@cadcamlab.org on Tue, Jan 16, 2001 at 08:14:01PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2001 at 08:14:01PM -0600, Peter Samuelson wrote:
-> 
-> [Michael Meissner]
-> > Ummm, I just reread the 2.4 Changes file once again just to be sure,
-> > and it did not cover this issue.  So how the *$@% are people supposed
-> > to "read some docs" to know about this, if the docs don't mention the
-> > information.  I know people have been complaining about this change
-> > since at least the fall time frame.
-> 
-> SCSI host probe order has never been guaranteed, afaik -- this is not
-> new to 2.4.  If you have multiple host adapters, you really need to use
-> the command line to say which is which, as always.  If you don't, you
-> will be bitten eventually.
-> 
-> "Eventually" in this case meant 2.2->2.4, perhaps, but that doesn't
-> make it an item for Documentation/Changes.  Or is this not what you
-> were talking about?
+Svein Erik Brostigen wrote:
 
-What I'm talking about is that whenever you have these flag day(*) type of
-operations, is weakens the whole Linux movement.  Yes, each individual change
-might mean a few minutes to half an hour of a persons time, but cumulatively it
-just sends the signal that Linux is just a hackers toy.  If people can't easily
-switch between kernels for instance due to the wrong disk being listed as the
-boot disk, or they have to replug which ethernet controller gets which cord, it
-will mean fewer people testing new kernels for instance.
+> After compiling and booting into 2.4.1-pre8, I found some strange
+> behaviour. I was not able to connect to any website using a http proxy.
 
-* http://www.tuxedo.org/~esr/jargon/html/entry/flag-day.html
+The problem is not with your web client, it's with your connection to the
+proxy.  Your proxy doesn't want to talk to your machine.  I am assuming that
+the proxy does accept a connection when you are running kernel 2.2.x, but
+rejects it under 2.4.x, correct?  If this is not so (the proxy refuses you
+regardless of kernel version) then you need to ask the proxy administrator;
+it's their problem, not linux's.
 
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+But assuming the refused connections occur with 2.4.x, then what is most
+likely happening is that you have compiled CONFIG_INET_ECN into your kernel.
+As the documentation says, many firewalls (at notable sites) refuse
+connections from machines with ECN enabled.
+
+See if the file /proc/sys/net/ipv4/tcp_ecn exists when you are running 2.4.x.
+
+If so, do  'echo 0 > /proc/sys/net/ipv4/tcp_ecn' and try your proxy again.
+
+Kris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

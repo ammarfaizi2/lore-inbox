@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbTHTXs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 19:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbTHTXs3
+	id S262272AbTHTXli (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 19:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbTHTXli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 19:48:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:36738 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262268AbTHTXs2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 19:48:28 -0400
-Date: Thu, 21 Aug 2003 00:48:10 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rob Landley <rob@landley.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
-Message-ID: <20030820234810.GA24970@mail.jlokier.co.uk>
-References: <lRjc.6o4.3@gated-at.bofh.it> <3F4120DD.3030108@softhome.net> <20030818190421.GN24693@gtf.org> <200308190832.24744.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308190832.24744.rob@landley.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 20 Aug 2003 19:41:38 -0400
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:13358 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262272AbTHTXlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 19:41:35 -0400
+Message-ID: <3F440387.5090902@sbcglobal.net>
+Date: Wed, 20 Aug 2003 18:25:59 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test3-mm3 reserve IRQ for isapnp
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I've done quite a bit of
+So sad...  Ever since I started with kernel 2.5.69, the kernel has been 
+properly reserving IRQ 5 for ISA, as set in my BIOS.
 
-	#ifdef __i386__
-	#define __NR_futex	240
-	#elif defined (__alpha__)
-	#define __NR_futex	394
-	#elif defined (__mips__)
-	... etc. ...
-	#endif
+Unfortunately for me, it looks like 2.6.0-test3-mm3 is like 2.4.18 and 
+ignores my BIOS settings, so it locks up trying to ativate my SB16 on 
+boot (since IRQ 5 is used for IDE).  Oddly it doesn't spit out any 
+warnings, just locks up after "pnp: Device 00:01.03 activated". 
 
-In order to distribute programs which compile with a distro's libc but
-will take advantage of features in later kernels when run on them.
+I used "pci=irqmask=0xffdf" in 2.4.18, but that doesn't seem to work for 
+2.6.0-test3-mm3.  I'm not positive I'm giving it the correct value 
+though...so maybe that's the problem.
 
-That's really unpleasant.  So, in revenge, here's an annoying question:
+I'd really like to try out the O17int version of mm3, but I don't want 
+to disable sound either.
 
-If userspace applications are ultimately compiled using Linux header
-files, indirectly included via Glibc or some other libc, and the
-kernel header files are GPL (version 2 only; not LGPL or any later
-GPL), isn't distributing those binary applications a gross violation
-of the GPL in some cases?
+Thanks!
 
--- Jamie
+Wes
+

@@ -1,50 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270796AbRHSVTY>; Sun, 19 Aug 2001 17:19:24 -0400
+	id <S270797AbRHSVXo>; Sun, 19 Aug 2001 17:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270797AbRHSVTP>; Sun, 19 Aug 2001 17:19:15 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:53731 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S270796AbRHSVTK>;
-	Sun, 19 Aug 2001 17:19:10 -0400
-Date: Sun, 19 Aug 2001 22:19:22 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>
-Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <478297685.998259561@[169.254.45.213]>
-In-Reply-To: <998193404.653.12.camel@phantasy>
-In-Reply-To: <998193404.653.12.camel@phantasy>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
+	id <S270708AbRHSVXY>; Sun, 19 Aug 2001 17:23:24 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:8508 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S270676AbRHSVXS>; Sun, 19 Aug 2001 17:23:18 -0400
+Message-ID: <3B802776.5F4F39D9@mindspring.com>
+Date: Sun, 19 Aug 2001 13:54:14 -0700
+From: Joe <joeja@mindspring.com>
+Reply-To: joeja@mindspring.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9 compiler warnings & errors NTFS
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert,
+Okay I tried kernel the patch to 2.4.9 (I applied 2.4.8 patch on top of
+a 2.4.7 kernel then 2.4.9 patch).
 
-> I claim there is entropy from what?  The difference between interrupts
-> for net devices?  Everyone agrees that there is.  The issues is that an
-> external attacker could influence the interrupts to the net device, and
-                          ^^^^^^^^^
+The NTFS module wont build in 2.4.9.  It seems that there is a missing
+include file in fs/ntfs/unistr.c .  After I added
 
-Actually, to be fair, the true risk is more that an external attacker could
-/obvserve/ the timing of packets to the NIC with sufficient accuracy to
-predict the inter-IRQ timing, and hence the consequent manipulation of
-the pool. This would mean that entropy was being added, (assuming a system
-free of entropy to start with), eventually causing /dev/random not to block,
-and thus, short of any other entropy, the net effect would be that
-/dev/random would become exactly as good/bad a random number source
-as /dev/urandom. However, in most environments, it is not possible
-to observe and accurately (microseconds) time the packet coming into
-the NIC without physical access to the machine (in which case there
-are, urm, easier attacks), and there is a largely indeterminable latency
-between the arrival of the packet and the consequent network IRQ, this
-latency being neither externally visible, nor being determinable by
-some non-root user.
+#include <linux/fs.h>
 
---
-Alex Bligh
+to the file it seems to have fixed the problem. (patch at bottom of
+mail)
+
+Joe
+
+The following is the error before I added the include:
+
+make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
+namei.c: In function `msdos_lookup':
+namei.c:237: warning: implicit declaration of function `fat_brelse'
+namei.c: In function `msdos_add_entry':
+namei.c:266: warning: implicit declaration of function
+`fat_mark_buffer_dirty'
+unistr.c: In function `ntfs_collate_names':
+unistr.c:99: warning: implicit declaration of function `min'
+unistr.c:99: parse error before `unsigned'
+unistr.c:99: parse error before `)'
+unistr.c:97: warning: `c1' might be used uninitialized in this function
+unistr.c: At top level:
+unistr.c:118: parse error before `if'
+unistr.c:123: warning: type defaults to `int' in declaration of `c1'
+unistr.c:123: `name1' undeclared here (not in a function)
+unistr.c:123: warning: data definition has no type or storage class
+unistr.c:124: parse error before `if'
+make[2]: *** [unistr.o] Error 1
+make[1]: *** [_modsubdir_ntfs] Error 2
+make: *** [_mod_fs] Error 2
+cp: cannot stat `ntfs.o': No such file or directory
+
+
+This is the error after I added the include. (It compiled too)
+
+sym53c8xx.c: In function `ncr_soft_reset':
+sym53c8xx.c:6994: warning: `istat' might be used uninitialized in this
+function
+make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
+namei.c: In function `msdos_lookup':
+namei.c:237: warning: implicit declaration of function `fat_brelse'
+namei.c: In function `msdos_add_entry':
+namei.c:266: warning: implicit declaration of function
+`fat_mark_buffer_dirty'
+dir.c: In function `umsdos_readdir_x':
+dir.c:142: warning: passing arg 3 of `fat_readdir' from incompatible
+pointer type
+dir.c: In function `UMSDOS_readdir':
+dir.c:315: warning: passing arg 5 of `umsdos_readdir_x' from
+incompatible pointer type
+ioctl.c: In function `UMSDOS_ioctl_dir':
+ioctl.c:146: warning: passing arg 3 of `fat_readdir' from incompatible
+pointer type
+rdir.c: In function `UMSDOS_rreaddir':
+rdir.c:70: warning: passing arg 3 of `fat_readdir' from incompatible
+pointer type
+
+################## patch
+
+--- fs/ntfs/unistr.c Sun Aug 19 12:31:03 2001
++++ linux-test/fs/ntfs/unistr.c Sun Aug 19 13:32:46 2001
+@@ -24,6 +24,8 @@
+ #include <linux/string.h>
+ #include <asm/byteorder.h>
+
++#include <linux/fs.h>
++
+ #include "unistr.h"
+ #include "macros.h"
+
+
+
+

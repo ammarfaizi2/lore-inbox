@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbUBZNDt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 08:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUBZNDt
+	id S262781AbUBZNEV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 08:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbUBZNEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 08:03:49 -0500
-Received: from unthought.net ([212.97.129.88]:6611 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262711AbUBZNDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 08:03:47 -0500
-Date: Thu, 26 Feb 2004 14:03:45 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.25 - large inode_cache
-Message-ID: <20040226130344.GP29776@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org
-References: <20040226013313.GN29776@unthought.net> <20040226111912.GB4554@core.home> <Pine.LNX.4.58L.0402261004310.5003@logos.cnet>
+	Thu, 26 Feb 2004 08:04:21 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:7393 "EHLO
+	smtp.uk.superh.com") by vger.kernel.org with ESMTP id S262781AbUBZNEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 08:04:15 -0500
+Date: Thu, 26 Feb 2004 13:02:49 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: linux-kernel@vger.kernel.org
+Cc: Paul Mundt <lethal@linux-sh.org>, Dan Kegel <dank@kegel.com>,
+       Sean McGoogan <sean.mcgoogan@superh.com>
+Subject: Re: Kernel Cross Compiling [update]
+Message-ID: <20040226130249.GD16667@malvern.uk.w2k.superh.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Paul Mundt <lethal@linux-sh.org>, Dan Kegel <dank@kegel.com>,
+	Sean McGoogan <sean.mcgoogan@superh.com>
+References: <20040222035350.GB31813@MAIL.13thfloor.at> <20040222155209.GA11162@linux-sh.org> <20040222170720.GA24703@MAIL.13thfloor.at> <20040222172307.GB11162@linux-sh.org> <20040223132819.GB16667@malvern.uk.w2k.superh.com> <20040223144149.GC4092@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402261004310.5003@logos.cnet>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040223144149.GC4092@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.4i
+X-OriginalArrivalTime: 26 Feb 2004 13:04:50.0241 (UTC) FILETIME=[1E0C8B10:01C3FC69]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 10:08:23AM -0300, Marcelo Tosatti wrote:
-...
-> >
-> > free output is this:
-> >              total       used       free     shared    buffers  cached
-> > Mem:        515980     506464       9516          0    2272      19204
-> > -/+ buffers/cache:     484988      30992
-> > Swap:      1951856       7992    1943864
+On Mon, 23 Feb, 2004 at  3:41pm, Herbert Poetzl wrote:
+> On Mon, Feb 23, 2004 at 01:28:19PM +0000, Richard Curnow wrote:
+> > 
+> > The last public release we made of the SH-5 tools is available at
+> > 
+> >     ftp://ftp.uk.superh.com/pub/SuperH-GNU/Barcelona-20030414
 > 
-> This should be normal behaviour -- the i/d caches grew because of file
-> system activitity. This memory will be reclaimed in case theres pressure.
+> how are they related to the 'mainline' toolchain?
 
-But how is "pressure" defined?
+This release equated to something like gcc 3.2.1 + some work from the
+3.3 branch + some in-house work.
 
-Will a heap of busy knfsd processes doing reads or writes exert
-pressure?   Or is it only local userspace that can pressurize the VM (by
-either anonymously backed memory or file I/O).
+> i.e. is this something completely separate, or do you follow the
+> binutils/gcc updates from time to time?
 
-This server happily serves large home directories over NFS, at really
-poor speeds.  It will happily serve tens or hundreds of gigabytes, read
-and write, over the course of a day, and *still* only cache about 100MB
-NFS to/from the server is slow. It's common to see 10 knfsd processes in
-D state while vmstat tells me the array works with about 4-6MB/sec
-sustained throughput (where hdparm -t would give me more than 70MB/sec
-on the md device).
+No, it's not completely separate.  We do follow the mainline tree
+(largely via gcc CVS rather than released tarballs), though we tend to
+have fairly long periods between such 'rebaselinings'.
 
-The files read and written are commonly in the 20-60 MB range, so it's
-not just because I'm loading the server with small seeks. Many files are
-read multiple times within a few minutes, so the cache usage of 100MB is
-completely bogus the way that I see it - but maybe there's just
-something I don't know about the caching?   :)
+> what would be the binutils/gcc version which is 'closest' to 'your'
+> toolchain? wouldn't it make sense to get those changes back into the
+> mainline?
 
+A lot of changes have already gone into the mainline gcc 3.4 branch.
+
+As for binutils, I assume the position is similar, but I've not checked
+the details.
+
+> > The SH-5 tools we're currently using in-house are a few months more
+> > advanced than those.  (They date from about August 2003.)  We'd be
+> > happy to package this version up and make it available if people
+> > express interest in this.
 > 
-> Is the behaviour different from previous 2.4 or 2.6 kernels?
+> sure I'm interested *expressing interest*
 
-I never investigated the slabinfo on earlier 2.4. But the performance on
-this server has been "under expectations" for as long as I can remember.
-So, from the performance experience on this server I would say that
-2.4.25 is not any worse than older kernels.
+OK.  Acknowleged.  BTW that version has the same basic ancestry as the
+April 14th version, it just has some additional in-house fixes in it.
 
-Since this is a production system I have been reluctant to jump on the
-2.6 wagon - but my other experiences with 2.6.X have been good, so I'm
-probably going to soften up and give it a try in a not too distant
-future.
+HTH
+Richard
 
-However, if this dcache/icache problem is well known and is (or at least
-should be) solved in 2.6, then I can do the test this weekend.
-
-Any enlightenment or suggestions are greatly appreciated :)
-
-Thanks,
-
- / jakob
-
-
+-- 
+Richard \\\ SH-4/SH-5 Core & Debug Architect
+Curnow  \\\         SuperH (UK) Ltd, Bristol

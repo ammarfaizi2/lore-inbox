@@ -1,31 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270824AbRHNUpY>; Tue, 14 Aug 2001 16:45:24 -0400
+	id <S270847AbRHNUwx>; Tue, 14 Aug 2001 16:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270826AbRHNUpN>; Tue, 14 Aug 2001 16:45:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12805 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270824AbRHNUpG>; Tue, 14 Aug 2001 16:45:06 -0400
-Subject: Re: Are we going too fast?
-To: anders@alarsen.net (Anders Larsen)
-Date: Tue, 14 Aug 2001 21:47:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pf-kernel1@mirkwood.net (PinkFreud),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Anders Larsen" at Aug 14, 2001 10:29:18 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270843AbRHNUwn>; Tue, 14 Aug 2001 16:52:43 -0400
+Received: from mail2.aracnet.com ([216.99.193.35]:50181 "EHLO
+	mail2.aracnet.com") by vger.kernel.org with ESMTP
+	id <S270841AbRHNUwc>; Tue, 14 Aug 2001 16:52:32 -0400
+Date: Tue, 14 Aug 2001 13:52:35 -0700 (PDT)
+From: Paul Buder <paulb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <hiryuu@envisiongames.net>
+Subject: tmpfs works! was Large ramdisk crashes 2.4.8
+Message-ID: <Pine.LNX.4.33.0108141350340.15748-100000@shell1.aracnet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Wl5b-0001vV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mike didn't mention any details of the hardware where he's experiencing this
-> bug, but is it possibly a multiprocessor machine?
-> Since I only have UP's to test on, the qnxfs might have SMP issues.
-> 
-> Could someone please glance through the code in fs/qnx4 to check if there
-> are any obvious problems?
+Brian <hiryuu@envisiongames.net> writes:
 
-If I get time tomorrow I'll test the qnxfs code on a dual PPro
+>Not that this condition should occur, but is this task something that
+>could be done in tmpfs?  Does tmpfs exhibit the same problems?
+
+I hadn't heard of tmpfs but it seems to work great.  There doesn't
+seem to be much documentation on it though.  I need two ram filesystems
+in my box, and no hard disk. It boots off cdrom.  So with a 128 meg
+experimental box I tried the following.
+
+swapoff -a
+mount -t tmpfs -osize=35M /dev/shm1 /mnt1
+mount -t tmpfs -osize=35M /dev/shm2 /mnt2
+dd if=/dev/zero of=/mnt1/junk bs=1024000 count=100
+dd if=/dev/zero of=/mnt2/junk bs=1024000 count=100
+
+It seems to work but I'm a little worried about the /dev/shm1 and 2.
+It doesn't seem to matter if they even exist or not, they don't seem to
+do anything.  Is this just placeholder candy for fstab and the mount
+command, or am I missing something?
+
+
+
+
+>	-- Brian
+
+>On Saturday 11 August 2001 04:10 pm, Paul Buder wrote:
+>> A large ramdisk will either crash or make useless a
+>> 2.4.8 kernel.  I did the following.
+>>
+>> I cleared out buffered memory by running this till it
+>> appropiately died.
+>> perl -e "$x='x' x 10000 while 1"
+>>
+>> top then said I was using 7 megs of ram on my 128 meg box.
+
+

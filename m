@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316782AbSF0MPz>; Thu, 27 Jun 2002 08:15:55 -0400
+	id <S316798AbSF0MUw>; Thu, 27 Jun 2002 08:20:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316795AbSF0MPy>; Thu, 27 Jun 2002 08:15:54 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:55216 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S316782AbSF0MPy>; Thu, 27 Jun 2002 08:15:54 -0400
-Date: Thu, 27 Jun 2002 13:15:11 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Amos Waterland <apw@us.ibm.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Tom Gall <tom_gall@vnet.ibm.com>
-Subject: Re: O_ASYNC question
-Message-ID: <20020627131511.A16012@kushida.apsleyroad.org>
-References: <20020625113052.A7510@kvasir.austin.ibm.com> <20020626211122.GL22961@holomorphy.com> <20020626163755.A10713@kvasir.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020626163755.A10713@kvasir.austin.ibm.com>; from apw@us.ibm.com on Wed, Jun 26, 2002 at 04:37:55PM -0500
+	id <S316799AbSF0MUw>; Thu, 27 Jun 2002 08:20:52 -0400
+Received: from host37.240.113.209.conversent.net ([209.113.240.37]:45272 "EHLO
+	netezza.com") by vger.kernel.org with ESMTP id <S316798AbSF0MUv>;
+	Thu, 27 Jun 2002 08:20:51 -0400
+From: "Amrith Kumar" <akumar@netezza.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Maximum core file size in Linux 
+Date: Thu, 27 Jun 2002 08:30:34 -0400
+Message-ID: <GMEPJBOPOAKOBODMIKMGMEMHCAAA.akumar@netezza.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amos Waterland wrote:
-> When you say that it is 'not done for files', does that mean that it is
-> not done by design, and no plans exist to implement it for files
-> (perhaps because completion notification is fundamentally different than
-> readiness notification?), or that the work just has yet to be done?
-> Thanks.
+Appears that there's an implicit 2Gb limit on the size of core files because
+it's being created without O_LARGEFILE.
 
-It isn't implemented for files, per POSIX I believe - in the same way
-that select() will always return readable and writable on files.
+A small change in fs/exec.c (do_coredump) gets me past the limit and I can
+now generate a core file in excess of 2Gb but then gdb complains that the
+core dump is too large ...
 
-I believe (i.e. I assume in my code ;-) that you should treat a SIGIO as
-something which occurs when an fd transitions from "not readable" to
-"readable", or from "not writable" to "writable".  This applies even to
-sockets: if you read only part of the readable data from a socket, then
-you won't receive a SIGIO just because there is more unread data.
+Looks like there's a broader underlying issue here that would involve
+changes to other places than I had thought would be required.
 
-If the fd is permanently "readable" and "writable", such as with a file,
-then there is no transition.  Following this logic, you don't actually
-need a special case for different kinds of fd -- you just need to check
-their status with poll(), select(), or by trying a read/write operation
-and checking for EAGAIN.
+Anyone else out there run into a similar problem ? And if so, could you let
+me know what other things I may run into ... Also, is this something that
+has been fixed in a forthcoming release ?
 
-Please, someone point out if this logic does not hold, thanks :-)
+Thanks,
 
--- Jamie
+/a
+
+--
+Amrith Kumar
+akumar@netezza.com
+508-665-6835
+
+#include <std_disclaimer.h>
+This e-mail message is for the sole use of the intended recipient(s) and may
+contain Netezza Corporation confidential and privileged information.  Any
+unauthorized review, use, disclosure, or distribution is prohibited.  If you
+are not the intended recipient, please contact the sender by reply e-mail
+and destroy all copies of the original message.
+
+

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264326AbTLPELW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 23:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTLPELW
+	id S264341AbTLPEOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 23:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbTLPEOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 23:11:22 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:10932 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S264326AbTLPELK
+	Mon, 15 Dec 2003 23:14:20 -0500
+Received: from smtp-relay.dca.net ([216.158.48.66]:65469 "EHLO
+	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S264341AbTLPEOF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 23:11:10 -0500
-Date: Mon, 15 Dec 2003 23:04:39 -0500
+	Mon, 15 Dec 2003 23:14:05 -0500
+Date: Mon, 15 Dec 2003 23:02:51 -0500
 From: "Mark M. Hoffman" <mhoffman@lightlink.com>
 To: Greg KH <greg@kroah.com>
 Cc: LKML <linux-kernel@vger.kernel.org>,
        Sensors <sensors@Stimpy.netroedge.com>
-Subject: Re: [PATCH 2.6] sensors chip updates (4 of 4)
-Message-ID: <20031216040439.GE1658@earth.solarsys.private>
+Subject: Re: [PATCH 2.6] sensors chip updates (2 of 4)
+Message-ID: <20031216040251.GC1658@earth.solarsys.private>
 References: <20031216035219.GA1658@earth.solarsys.private>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,125 +26,203 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch is based on the lm_sensors project CVS, from revisions 1.45 and 1.1
-of lm75.c and lm75.h, respectively.
+This patch is from the lm_sensors project CVS, from this revision:
 
-The patch fixes the conversion routines (according to datasheet) and moves
-them into a header file - as these conversions can be used by several drivers
-which emulate LM75s as subclients.  Also, temps are now reported in 1/1000 C
-in sysfs as per documentation.
+	1.111 (mds) remove initialization of limits by driver
 
---- linux-2.6.0-test11-mmh/drivers/i2c/chips/lm75.c.old	2003-12-14 18:02:18.000000000 -0500
-+++ linux-2.6.0-test11-mmh/drivers/i2c/chips/lm75.c	2003-12-14 19:28:08.000000000 -0500
-@@ -25,6 +25,7 @@
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/i2c-sensor.h>
-+#include "lm75.h"
+It is better to set these limits by a combination of /etc/sensors.conf
+and 'sensors -s'; "mechanism not policy." And what's not to like about
+a patch that removes 163 lines?
+
+--- linux-2.6.0-test11-mmh/drivers/i2c/chips/w83781d.c.old	2003-12-14 17:22:51.307815925 -0500
++++ linux-2.6.0-test11-mmh/drivers/i2c/chips/w83781d.c	2003-12-14 17:20:35.000000000 -0500
+@@ -208,72 +208,6 @@
+ 	return ((u8) i);
+ }
  
- 
- /* Addresses to scan */
-@@ -44,13 +45,6 @@
- #define LM75_REG_TEMP_HYST	0x02
- #define LM75_REG_TEMP_OS	0x03
- 
--/* Conversions. Rounding and limit checking is only done on the TO_REG
--   variants. Note that you should be a bit careful with which arguments
--   these macros are called: arguments may be evaluated more than once.
--   Fixing this is just not worth it. */
--#define TEMP_FROM_REG(val)	((((val & 0x7fff) >> 7) * 5) | ((val & 0x8000)?-256:0))
--#define TEMP_TO_REG(val)	(SENSORS_LIMIT((val<0?(0x200+((val)/5))<<7:(((val) + 2) / 5) << 7),0,0xffff))
+-/* Initial limits */
+-#define W83781D_INIT_IN_0		(vid == 3500 ? 280 : vid / 10)
+-#define W83781D_INIT_IN_1		(vid == 3500 ? 280 : vid / 10)
+-#define W83781D_INIT_IN_2		330
+-#define W83781D_INIT_IN_3		(((500)   * 100) / 168)
+-#define W83781D_INIT_IN_4		(((1200)  * 10) / 38)
+-#define W83781D_INIT_IN_5		(((-1200) * -604) / 2100)
+-#define W83781D_INIT_IN_6		(((-500)  * -604) / 909)
+-#define W83781D_INIT_IN_7		(((500)   * 100) / 168)
+-#define W83781D_INIT_IN_8		300
+-/* Initial limits for 782d/783s negative voltages */
+-/* Note level shift. Change min/max below if you change these. */
+-#define W83782D_INIT_IN_5		((((-1200) + 1491) * 100)/514)
+-#define W83782D_INIT_IN_6		((( (-500)  + 771) * 100)/314)
 -
- /* Each client has this additional data */
- struct lm75_data {
- 	struct semaphore	update_lock;
-@@ -83,15 +77,12 @@
- static int lm75_id = 0;
+-#define W83781D_INIT_IN_PERCENTAGE	10
+-#define W83781D_INIT_IN_MIN(val)	(val - val * W83781D_INIT_IN_PERCENTAGE / 100)
+-#define W83781D_INIT_IN_MAX(val)	(val + val * W83781D_INIT_IN_PERCENTAGE / 100)
+-
+-#define W83781D_INIT_IN_MIN_0		W83781D_INIT_IN_MIN(W83781D_INIT_IN_0)
+-#define W83781D_INIT_IN_MAX_0		W83781D_INIT_IN_MAX(W83781D_INIT_IN_0)
+-#define W83781D_INIT_IN_MIN_1		W83781D_INIT_IN_MIN(W83781D_INIT_IN_1)
+-#define W83781D_INIT_IN_MAX_1		W83781D_INIT_IN_MAX(W83781D_INIT_IN_1)
+-#define W83781D_INIT_IN_MIN_2		W83781D_INIT_IN_MIN(W83781D_INIT_IN_2)
+-#define W83781D_INIT_IN_MAX_2		W83781D_INIT_IN_MAX(W83781D_INIT_IN_2)
+-#define W83781D_INIT_IN_MIN_3		W83781D_INIT_IN_MIN(W83781D_INIT_IN_3)
+-#define W83781D_INIT_IN_MAX_3		W83781D_INIT_IN_MAX(W83781D_INIT_IN_3)
+-#define W83781D_INIT_IN_MIN_4		W83781D_INIT_IN_MIN(W83781D_INIT_IN_4)
+-#define W83781D_INIT_IN_MAX_4		W83781D_INIT_IN_MAX(W83781D_INIT_IN_4)
+-#define W83781D_INIT_IN_MIN_5		W83781D_INIT_IN_MIN(W83781D_INIT_IN_5)
+-#define W83781D_INIT_IN_MAX_5		W83781D_INIT_IN_MAX(W83781D_INIT_IN_5)
+-#define W83781D_INIT_IN_MIN_6		W83781D_INIT_IN_MIN(W83781D_INIT_IN_6)
+-#define W83781D_INIT_IN_MAX_6		W83781D_INIT_IN_MAX(W83781D_INIT_IN_6)
+-#define W83781D_INIT_IN_MIN_7		W83781D_INIT_IN_MIN(W83781D_INIT_IN_7)
+-#define W83781D_INIT_IN_MAX_7		W83781D_INIT_IN_MAX(W83781D_INIT_IN_7)
+-#define W83781D_INIT_IN_MIN_8		W83781D_INIT_IN_MIN(W83781D_INIT_IN_8)
+-#define W83781D_INIT_IN_MAX_8		W83781D_INIT_IN_MAX(W83781D_INIT_IN_8)
+-
+-/* Initial limits for 782d/783s negative voltages */
+-/* These aren't direct multiples because of level shift */
+-/* Beware going negative - check */
+-#define W83782D_INIT_IN_MIN_5_TMP \
+-	(((-1200 * (100 + W83781D_INIT_IN_PERCENTAGE)) + (1491 * 100))/514)
+-#define W83782D_INIT_IN_MIN_5 \
+-	((W83782D_INIT_IN_MIN_5_TMP > 0) ? W83782D_INIT_IN_MIN_5_TMP : 0)
+-#define W83782D_INIT_IN_MAX_5 \
+-	(((-1200 * (100 - W83781D_INIT_IN_PERCENTAGE)) + (1491 * 100))/514)
+-#define W83782D_INIT_IN_MIN_6_TMP \
+-	((( -500 * (100 + W83781D_INIT_IN_PERCENTAGE)) +  (771 * 100))/314)
+-#define W83782D_INIT_IN_MIN_6 \
+-	((W83782D_INIT_IN_MIN_6_TMP > 0) ? W83782D_INIT_IN_MIN_6_TMP : 0)
+-#define W83782D_INIT_IN_MAX_6 \
+-	((( -500 * (100 - W83781D_INIT_IN_PERCENTAGE)) +  (771 * 100))/314)
+-
+-#define W83781D_INIT_FAN_MIN_1		3000
+-#define W83781D_INIT_FAN_MIN_2		3000
+-#define W83781D_INIT_FAN_MIN_3		3000
+-
+-/* temp = value / 100 */
+-#define W83781D_INIT_TEMP_OVER		6000
+-#define W83781D_INIT_TEMP_HYST		12700	/* must be 127 for ALARM to work */
+-#define W83781D_INIT_TEMP2_OVER		6000
+-#define W83781D_INIT_TEMP2_HYST		5000
+-#define W83781D_INIT_TEMP3_OVER		6000
+-#define W83781D_INIT_TEMP3_HYST		5000
+-
+ /* There are some complications in a module like this. First off, W83781D chips
+    may be both present on the SMBus and the ISA bus, and we have to handle
+    those cases separately at some places. Second, there might be several
+@@ -1688,113 +1622,6 @@
+ #endif				/* W83781D_RT */
  
- #define show(value)	\
--static ssize_t show_##value(struct device *dev, char *buf)	\
--{								\
--	struct i2c_client *client = to_i2c_client(dev);		\
--	struct lm75_data *data = i2c_get_clientdata(client);	\
--	int temp;						\
--								\
--	lm75_update_client(client);				\
--	temp = TEMP_FROM_REG(data->value);			\
--	return sprintf(buf, "%d\n", temp * 100);		\
-+static ssize_t show_##value(struct device *dev, char *buf)		\
-+{									\
-+	struct i2c_client *client = to_i2c_client(dev);			\
-+	struct lm75_data *data = i2c_get_clientdata(client);		\
-+	lm75_update_client(client);					\
-+	return sprintf(buf, "%d\n", LM75_TEMP_FROM_REG(data->value));	\
- }
- show(temp_max);
- show(temp_hyst);
-@@ -102,9 +93,8 @@
- {								\
- 	struct i2c_client *client = to_i2c_client(dev);		\
- 	struct lm75_data *data = i2c_get_clientdata(client);	\
--	int temp = simple_strtoul(buf, NULL, 10) / 100;		\
--								\
--	data->value = TEMP_TO_REG(temp);			\
-+	int temp = simple_strtoul(buf, NULL, 10);		\
-+	data->value = LM75_TEMP_TO_REG(temp);			\
- 	lm75_write_value(client, reg, data->value);		\
- 	return count;						\
- }
---- linux-2.6.0-test11-mmh/drivers/i2c/chips/lm75.h.old	2003-12-14 18:05:09.000000000 -0500
-+++ linux-2.6.0-test11-mmh/drivers/i2c/chips/lm75.h	2003-12-14 18:32:46.000000000 -0500
-@@ -0,0 +1,49 @@
-+/*
-+    lm75.h - Part of lm_sensors, Linux kernel modules for hardware
-+             monitoring
-+    Copyright (c) 2003 Mark M. Hoffman <mhoffman@lightlink.com>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+/*
-+    This file contains common code for encoding/decoding LM75 type
-+    temperature readings, which are emulated by many of the chips
-+    we support.  As the user is unlikely to load more than one driver
-+    which contains this code, we don't worry about the wasted space.
-+*/
-+
-+#include <linux/i2c-sensor.h>
-+
-+/* straight from the datasheet */
-+#define LM75_TEMP_MIN (-55000)
-+#define LM75_TEMP_MAX 125000
-+
-+/* TEMP: 0.001C/bit (-55C to +125C)
-+   REG: (0.5C/bit, two's complement) << 7 */
-+static inline u16 LM75_TEMP_TO_REG(int temp)
-+{
-+	int ntemp = SENSORS_LIMIT(temp, LM75_TEMP_MIN, LM75_TEMP_MAX);
-+	ntemp += (ntemp<0 ? -250 : 250);
-+	return (u16)((ntemp / 500) << 7);
-+}
-+
-+static inline int LM75_TEMP_FROM_REG(u16 reg)
-+{
-+	/* use integer division instead of equivalent right shift to
-+	   guarantee arithmetic shift and preserve the sign */
-+	return ((s16)reg / 128) * 500;
-+}
-+
-
+ 	if (init) {
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(0),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_0));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(0),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_0));
+-		if (type != w83783s && type != w83697hf) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(1),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_1));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(1),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_1));
+-		}
+-
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(2),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_2));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(2),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_2));
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(3),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_3));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(3),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_3));
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(4),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_4));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(4),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_4));
+-		if (type == w83781d || type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(5),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_5));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(5),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_5));
+-		} else {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(5),
+-					    IN_TO_REG(W83782D_INIT_IN_MIN_5));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(5),
+-					    IN_TO_REG(W83782D_INIT_IN_MAX_5));
+-		}
+-		if (type == w83781d || type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(6),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_6));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(6),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_6));
+-		} else {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(6),
+-					    IN_TO_REG(W83782D_INIT_IN_MIN_6));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(6),
+-					    IN_TO_REG(W83782D_INIT_IN_MAX_6));
+-		}
+-		if ((type == w83782d) || (type == w83627hf) ||
+-		    (type == w83697hf)) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(7),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_7));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(7),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_7));
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(8),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_8));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(8),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_8));
+-			w83781d_write_value(client, W83781D_REG_VBAT,
+-					    (w83781d_read_value
+-					     (client,
+-					      W83781D_REG_VBAT) | 0x01));
+-		}
+-		w83781d_write_value(client, W83781D_REG_FAN_MIN(1),
+-				    FAN_TO_REG(W83781D_INIT_FAN_MIN_1, 2));
+-		w83781d_write_value(client, W83781D_REG_FAN_MIN(2),
+-				    FAN_TO_REG(W83781D_INIT_FAN_MIN_2, 2));
+-		if (type != w83697hf) {
+-			w83781d_write_value(client, W83781D_REG_FAN_MIN(3),
+-					    FAN_TO_REG(W83781D_INIT_FAN_MIN_3,
+-						       2));
+-		}
+-
+-		w83781d_write_value(client, W83781D_REG_TEMP_OVER(1),
+-				    TEMP_TO_REG(W83781D_INIT_TEMP_OVER));
+-		w83781d_write_value(client, W83781D_REG_TEMP_HYST(1),
+-				    TEMP_TO_REG(W83781D_INIT_TEMP_HYST));
+-
+-		if (type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(2),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(2),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_HYST));
+-		} else {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(2),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(2),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_HYST));
+-		}
+-		w83781d_write_value(client, W83781D_REG_TEMP2_CONFIG, 0x00);
+-
+-		if (type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(3),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(3),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_HYST));
+-		} else if (type != w83783s && type != w83697hf) {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(3),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(3),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_HYST));
+-		}
+ 		if (type != w83783s && type != w83697hf) {
+ 			w83781d_write_value(client, W83781D_REG_TEMP3_CONFIG,
+ 					    0x00);
 -- 
 Mark M. Hoffman
 mhoffman@lightlink.com

@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262119AbRE0UPh>; Sun, 27 May 2001 16:15:37 -0400
+	id <S262126AbRE0UZR>; Sun, 27 May 2001 16:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbRE0UPS>; Sun, 27 May 2001 16:15:18 -0400
-Received: from hamachi.synopsys.com ([204.176.20.26]:41692 "EHLO
-	hamachi.synopsys.com") by vger.kernel.org with ESMTP
-	id <S262119AbRE0UPK>; Sun, 27 May 2001 16:15:10 -0400
-Message-ID: <3B116039.AEAEEF69@Synopsys.COM>
-Date: Sun, 27 May 2001 22:14:49 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Chris Rankin <rankinc@pacbell.net>
-Subject: Re: Overkeen CDROM disk-change messages
-In-Reply-To: <200105271945.f4RJjxh00759@twopit.underworld>
+	id <S262163AbRE0UZH>; Sun, 27 May 2001 16:25:07 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:52016 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262126AbRE0UZB>; Sun, 27 May 2001 16:25:01 -0400
+Date: Sun, 27 May 2001 22:24:45 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [patch] severe softirq handling performance bug, fix, 2.4.5
+Message-ID: <20010527222445.C731@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain> <20010527190700.H676@athlon.random> <15121.13986.987230.445825@pizda.ninka.net> <20010527195619.K676@athlon.random> <15121.20713.676075.980272@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15121.20713.676075.980272@pizda.ninka.net>; from davem@redhat.com on Sun, May 27, 2001 at 12:09:29PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe thats related to the problems with my CDROM drives (SCSI or 
-IDE SCSI emulation). I cannot mount any CD with 2.4.5. kern.log says:
+On Sun, May 27, 2001 at 12:09:29PM -0700, David S. Miller wrote:
+> "live lock".  What do you hope to avoid by pushing softirq processing
+> into a scheduled task?  I think doing that is a stupid idea.
 
-May 26 15:31:17 bilbo kernel: Detected scsi CD-ROM sr0 at scsi0, channel 0, id 2, lun 0
-May 26 15:31:17 bilbo kernel: Detected scsi CD-ROM sr1 at scsi0, channel 0, id 4, lun 0
-May 26 15:31:17 bilbo kernel: Detected scsi CD-ROM sr2 at scsi2, channel 0, id 0, lun 0
-May 26 15:31:17 bilbo kernel: sr0: scsi3-mmc drive: 0x/0x cd/rw xa/form2 cdda tray
-May 26 15:31:17 bilbo kernel: Uniform CD-ROM driver Revision: 3.12
-May 26 15:31:17 bilbo kernel: sr1: scsi3-mmc drive: 32x/32x cd/rw xa/form2 cdda tray
-May 26 15:31:17 bilbo kernel: sr2: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
-May 26 15:31:17 bilbo kernel: VFS: Disk change detected on device sr(11,1)
-May 26 15:31:17 bilbo last message repeated 3 times
-May 26 15:31:17 bilbo kernel: Device 0b:01 not ready.
-May 26 15:31:17 bilbo kernel:  I/O error: dev 0b:01, sector 1024
+NOTE: I'm not pushing anything out of the atomic context, I'm using
+ksoftirqd only to cure the cases that are getting wrong by the fast-path
+code.
 
-Of course I did _not_ change the CD 4 times within 1 second.
+It fixes the 1/HZ latency with the idle task and it gets right the case
+of softirq marked pending again under do_softirq.
 
+> You are saying that if we are getting a lot of soft irqs we should
+> defer it so that we can leave the trap handler, to avoid "live lock".
 
-Regards
+Yes, that is what all kernels out there are doing.
 
-Harri
+> I think this is a bogus scheme for several reasons.  First of all,
+> deferring the processing will only increase the likelyhood that the
+> locality of the data will be lost, making the system work harder.
+
+Of course almost all the time the processing is not deferred.
+
+> Secondly, if we are getting softirqs at such a rate, we have other
+> problems.  We are likely getting surged with hardware interrupts, and
+> until we have Jamals stuff in to move ethernet hardware interrupt
+> handling into softirqs your deferrals will be fruitless when they do
+> actually trigger.  We will be livelocked in hardware interrupt
+> processing instead of being livelocked in softirq processing, what an
+> incredible improvement. :-)
+
+The sofitrq could be marked running also from another softirq, it
+doesn't need to be an interrupt.
+
+> from trap, no matter what kind, call do_softirq if softirqs are
+> pending.
+
+that just happens, I assume you mean you prefer to remove mask &=
+~active from do_softirq() internally.
+
+But doing that will hang in irq as soon as a softirq or tasklet or
+that marks itself running again in software (and I think this happens
+just now in some driver to poll the hardware from atomic context where
+you cannot schedule).  Furthmore the softirq is going to take more time
+than the irq core itself, so the live lock issue is not so obvious as
+you say I think.
+
+> Again, I am totally against ksoftirqd, I think it's a completely dumb
+> idea.  Softirqs were meant to be as light weight as possible, don't
+> crap on them like this with this heavyweight live lock "solution".
+> It isn't even solving live locks, it's rather trading one kind for
+> another with zero improvement.
+
+softirq is still as light as possible but without ksoftirq the logic is
+wrong in some case, and so it can get a seneless 1/HZ latency sometime.
+ksofitrqd fixes all those broken cases in a clean manner.
+
+I'd like to know how much it helps on the gigabit benchmarks. For the
+100mbit ethernet that I can test locally it is fine.
+
+Andrea

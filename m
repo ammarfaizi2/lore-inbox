@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTJGSBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 14:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTJGSBS
+	id S262555AbTJGRz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 13:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTJGRz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 14:01:18 -0400
-Received: from mail.kroah.org ([65.200.24.183]:43756 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262567AbTJGSBQ (ORCPT
+	Tue, 7 Oct 2003 13:55:26 -0400
+Received: from relay.pair.com ([209.68.1.20]:50959 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S262555AbTJGRzV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 14:01:16 -0400
-Date: Tue, 7 Oct 2003 11:01:06 -0700
-From: Greg KH <greg@kroah.com>
-To: merwan kashouty <kashouty@dakotainet.net>
+	Tue, 7 Oct 2003 13:55:21 -0400
+X-pair-Authenticated: 68.42.66.6
+Subject: Re: More 2.6.0-test6 PCMCIA and Orinoco problems
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: "Joshua M. Thompson" <funaho@jurai.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test6 usblp and scanner lock system
-Message-ID: <20031007180105.GF1956@kroah.com>
-References: <3F81778E.6000807@dakotainet.net>
+In-Reply-To: <1065540880.1415.22.camel@lumiere.jurai.org>
+References: <1065540880.1415.22.camel@lumiere.jurai.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1065549318.4323.9.camel@athena.fprintf.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F81778E.6000807@dakotainet.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 07 Oct 2003 13:55:18 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 09:09:18AM -0500, merwan kashouty wrote:
-> modprobing usblp and scanner on my system lock the console... i can 
-> switch consoles and continue to work but the output of 
-> /lib/modules/2.6.0-test6/modules.symbols looks like this....
+On Tue, 2003-10-07 at 11:34, Joshua M. Thompson wrote:
+> Been searching the net and list archives for a three days now and can't
+> find any reports of this exact problem, so here goes:
+> 
+> I finally decided to try out 2.6 on my notebook again. It's a Gateway
+> 600E (P4-M 2.0, Intel 845 chipset, TI PCI1250 cardbus controller)
+> running RedHat 9.0, upgraded with the beta RPMS from
+> http://people.redhat.com/arjanv/2.5/. I'm up and running MOSTLY ok
+> except that I can't get PCMCIA to work. Specifically, my built-in
+> Orinoco wireless card doesn't work anymore, nor does an Orinoco Gold
+> card I happen to have lying around. PCMCIA starts up ok and the
+> orinoco_cs driver loads; however it fails to start, giving only the
+> error message "ds: unable to create instance of 'orinoco_cs'".
+> 
+> I've tried several solutions. Tried booting with ACPI off, with APIC
+> off, and even tried "cardctl eject; cardctl insert" which seems to help
+> some people. Same error every time. The wireless card works fine with
+> 2.4.20 and also worked fine when I briefly tried 2.5.68 a while back.
 
-Can you press Alt-SysRq-T and see where the kernel is stuck in the usb
-drivers?
+<snip>
 
-thanks,
+Is this the in-kernel driver or the one from pcmcia-cs?  I use the
+in-kernel driver and pcmcia socket driver (yenta), and just use the
+userspace tools from pcmcia-cs, and everything is good for me.  I never
+was able to get a pure pcmcia-cs (userspace and drivers) working with my
+2.6.0-test1 kernels when I tried it.
 
-greg k-h
+-- 
+Daniel Gryniewicz <dang@fprintf.net>

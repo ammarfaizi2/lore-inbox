@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271988AbRH2O4n>; Wed, 29 Aug 2001 10:56:43 -0400
+	id <S271993AbRH2PTq>; Wed, 29 Aug 2001 11:19:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271992AbRH2O4Z>; Wed, 29 Aug 2001 10:56:25 -0400
-Received: from erm1.u-strasbg.fr ([130.79.74.61]:31751 "HELO erm1.u-strasbg.fr")
-	by vger.kernel.org with SMTP id <S271988AbRH2O4O>;
-	Wed, 29 Aug 2001 10:56:14 -0400
-Date: Wed, 29 Aug 2001 17:07:52 +0200
-From: Bruno Boettcher <bboett@erm1.u-strasbg.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [AMD] 79c970 ethernet card problems.....
-Message-ID: <20010829170752.D2689@erm1.u-strasbg.fr>
-Mail-Followup-To: Bruno Boettcher <bboett@erm1.u-strasbg.fr>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010829152925.H1357@erm1.u-strasbg.fr> <3B8CF62F.69DA74C2@inet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3B8CF62F.69DA74C2@inet.com>; from eli.carter@inet.com on Wed, Aug 29, 2001 at 09:03:27AM -0500
+	id <S271994AbRH2PTg>; Wed, 29 Aug 2001 11:19:36 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:17651 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S271993AbRH2PTV> convert rfc822-to-8bit; Wed, 29 Aug 2001 11:19:21 -0400
+Importance: Normal
+Subject: Re: VM: Bad swap entry 0044cb00
+To: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
+Cc: "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
+        "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF50C3DE71.2836FB36-ONC1256AB7.0052FBEB@de.ibm.com>
+From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
+Date: Wed, 29 Aug 2001 17:20:13 +0200
+X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 29/08/2001 17:19:27
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 09:03:27AM -0500, Eli Carter wrote:
-> You might try the pcnet32 module instead of the lance module.
-ok the result of using the pcnet32 module was a hard lock of my kernel,
-had to remove the card to be able to boot again....
-that's the part where it stops:
-Aug 29 16:32:24 kalman kernel: eth1: PCnet/PCI 79C970 at 0xe000, warning
-PROM address does not match CSR address<4>eth1: Probably a Compaq, using
-the PROM address of 00 80 ad 11 09 20
-Aug 29 16:32:24 kalman kernel: pcnet32: pcnet32_private lp=d0e4b000
-lp_dma_addr=0x10e4b000 assigned IRQ 10.
-Aug 29 16:32:24 kalman kernel: pcnet32.c:v1.25kf 26.9.1999
-tsbogend@alpha.franken.de
 
-after that nothing moves anymore.....
 
-BTW forgot to say that's its an 2.4.9 kernel (debian source package)
-running on an AMD Athlon...
+> But keep yesterday's testing patch in too, in case you find
+> problems still (as Adrian Bunk reported on 2.4.9-ac2).
 
--- 
-ciao bboett
-==============================================================
-bboett@earthling.net
-http://inforezo.u-strasbg.fr/~bboett http://erm1.u-strasbg.fr/~bboett
-===============================================================
-the total amount of intelligence on earth is constant.
-human population is growing....
+Hi Hugh,
+
+as we still have to stuck with 2.4.7 I applied your patch, but the problem
+isn´t fully solved. The error message still appears.
+In some minutes I am going to vacation so for further questions, write to
+Martin Schwidefsky. (schwidefsky@de.ibm.com) and cc Ulrich Weigand
+(Ulrich.Weigand@de.ibm.com).
+
+Sorry.
+
+Bytheway now the messages were:
+
+Out of Memory: Killed process 7090 (_18411Y45_s).
+swap_free from 80030d04: Bad swap entry 0a9ca600
+Out of Memory: Killed process 7841 (_18411Y46_s).
+Out of Memory: Killed process 7861 (_18411Y47_s).
+Out of Memory: Killed process 7993 (_18411Y48_s).
+Out of Memory: Killed process 8020 (_18411Y47_s).
+Out of Memory: Killed process 8153 (_18411Y48_s).
+Out of Memory: Killed process 8260 (_18411Y85_s).
+Out of Memory: Killed process 8345 (_18411Y86_s).
+Out of Memory: Killed process 8355 (_18411Y85_s).
+Out of Memory: Killed process 8414 (_18411Y87_s).
+Out of Memory: Killed process 8453 (_18411Y86_s).
+Out of Memory: Killed process 8478 (_18411Y8_10_s).
+Out of Memory: Killed process 8480 (_18411Y45_s).
+Out of Memory: Killed process 8545 (_18411Y87_s).
+Out of Memory: Killed process 8586 (_18411Y46_s).
+Out of Memory: Killed process 8645 (_18423Y11_s).
+
+30d04 seems to be the same call to swap_free as before.
+

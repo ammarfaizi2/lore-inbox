@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292122AbSBYS5Y>; Mon, 25 Feb 2002 13:57:24 -0500
+	id <S293106AbSBYSzF>; Mon, 25 Feb 2002 13:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293298AbSBYS5O>; Mon, 25 Feb 2002 13:57:14 -0500
-Received: from users.ccur.com ([208.248.32.211]:55319 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id <S292122AbSBYS5L>;
-	Mon, 25 Feb 2002 13:57:11 -0500
-From: jak@rudolph.ccur.com (Joe Korty)
-Message-Id: <200202251856.SAA11120@rudolph.ccur.com>
-Subject: [RFC][PATCH] irq0 affinity broke on some i386 boxes
-To: linux-kernel@vger.kernel.org
-Date: Mon, 25 Feb 2002 13:56:51 -0500 (EST)
-Reply-To: joe.korty@ccur.com (Joe Korty)
-X-Mailer: ELM [version 2.5 PL0b1]
+	id <S293219AbSBYSy4>; Mon, 25 Feb 2002 13:54:56 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:31954 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293106AbSBYSyq>; Mon, 25 Feb 2002 13:54:46 -0500
+Date: Mon, 25 Feb 2002 10:55:03 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Erich Focht <focht@ess.nec.de>, Mike Kravetz <kravetz@us.ibm.com>
+cc: Jesse Barnes <jbarnes@sgi.com>, Peter Rival <frival@zk3.dec.com>,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] NUMA scheduling
+Message-ID: <20940000.1014663303@flay>
+In-Reply-To: <Pine.LNX.4.21.0202251737420.30318-100000@sx6.ess.nec.de>
+In-Reply-To: <Pine.LNX.4.21.0202251737420.30318-100000@sx6.ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
-  The following patch fixes a bug that prevents a write to
-/proc/irq/0/smp_affinity from actually changing the cpu affinity
-of IRQ #0, on all the (Dell server) SMP machines I have access to.
+> - The load_balancing() concept is different:
+> 	- there are no special time intervals for balancing across pool
+> 	boundaries, the need for this can occur very quickly and I
+> 	have the feeling that 2*250ms is a long time for keeping the 
+> 	nodes unbalanced. This means: each time load_balance() is called
+> 	it _can_ balance across pool boundaries (but doesn't have to).
 
-Given the wide variety of IO APIC and legacy PIC usage on various SMP
-motherboards, and the nascent state of my APIC understanding, it is
-quite likely that this fix is not universal.
+Imagine for a moment that there's a short spike in workload on one node.
+By agressively balancing across nodes, won't you incur a high cost
+in terms of migrating all the cache data to the remote node (destroying
+the cache on both the remote and local node), when it would be cheaper 
+to wait for a few more ms, and run on the local node? This is a 
+non-trivial problem to solve, and I'm not saying either approach is
+correct, just that there are some disadvantages of being too agressive.
+Perhaps it's architecture dependant (I'm used to NUMA-Q, which has 
+caches on the interconnect, and a cache-miss access speed ratio of 
+about 20:1 remote:local).
 
-I would like expand this patch so that IRQ0 affinity assignment works
-properly on as many i386 SMP motherboards as possible.  If you have
-such a motherboard, please first 1) verify that assignments to
-/proc/irq/0/smp_affinity NOP for you, and 2) if it does NOP, that
-this patch does or does not fix the problem on your system.
+> Would be interesting to hear oppinions on initial balancing. What are the
+> pros and cons of balancing at do_fork() or do_execve()? And it would be
+> interesting to learn about other approaches, too...
 
-To verify that your system has the problem or not:
+Presumably exec-time balancing is cheaper, since there are fewer shared
+pages to be bounced around between nodes, but less effective if the main
+load on the machine is one large daemon app, which just forks a few copies
+of itself ... I would have though that'd get sorted out a little later anyway
+by the background rebalancing though?
 
-    in one window, run `watch -n1 cat /proc/interrupts'.
+M.
 
-    in another window, assign some affinity value to irq0.  In the
-    following example, cpu #0 (in a 4-cpu system) is to no longer get
-    irq0 interrupts:
-
-	echo e >/proc/irq/0/smp_affinity
-
-    If your system is working properly, the watch-window should no
-    longer show increments for the irq0 value for cpu0.
-
-This patch is against 2.4.18-rc4
-
-Joe
-
---- linux/arch/i386/kernel/io_apic.c.orig	Tue Nov 13 20:28:41 2001
-+++ linux/arch/i386/kernel/io_apic.c	Mon Feb 25 13:17:13 2002
-@@ -1537,6 +1537,7 @@
- 				setup_nmi();
- 				check_nmi_watchdog();
- 			}
-+			add_pin_to_irq(0, 0, pin2);
- 			return;
- 		}
- 		/*

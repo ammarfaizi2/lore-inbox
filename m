@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261606AbTCGOS3>; Fri, 7 Mar 2003 09:18:29 -0500
+	id <S261610AbTCGOa5>; Fri, 7 Mar 2003 09:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261607AbTCGOS3>; Fri, 7 Mar 2003 09:18:29 -0500
-Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:13953 "EHLO
-	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id <S261606AbTCGOS2>; Fri, 7 Mar 2003 09:18:28 -0500
-From: jlnance@unity.ncsu.edu
-Date: Fri, 7 Mar 2003 09:28:46 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-Message-ID: <20030307142846.GA4485@ncsu.edu>
-References: <Pine.LNX.4.44.0303060936301.7206-100000@home.transmeta.com> <Pine.LNX.4.44.0303070653050.2873-100000@localhost.localdomain>
+	id <S261612AbTCGOa5>; Fri, 7 Mar 2003 09:30:57 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:32773 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S261610AbTCGOaz>; Fri, 7 Mar 2003 09:30:55 -0500
+Date: Fri, 7 Mar 2003 08:43:57 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Make ipconfig.c work as a loadable module.
+Message-ID: <20030307084357.A10344@discworld.dyndns.org>
+References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk> <200303070913.h279Cpu07949@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303070653050.2873-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303070913.h279Cpu07949@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Fri, Mar 07, 2003 at 11:10:15AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 06:57:58AM +0100, Ingo Molnar wrote:
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> 
+> Anything built static against glibs tends to be 400K+.
 
-> so the correct approach is both to make X more interactive (your patch),
-> _and_ to make the compilation jobs less interactive (my patch). This is
-> that explains why Andrew saw roughly similar interactivity with you and my
-> patch applied separately, but the best result was when the combo patch was
-> applied. Agreed?
+So don't use glibc.  Link staticly against diet-libc or klibc.
 
-Ingo,
-    Forgive me if this is what your patch does, I have only looked at
-Linus'es.  But I dont think this is what you are doing.
-    Linus'es patch gives a boost to non-interactive proceses that wake
-up interactive ones.  It seems that we could solve the make problem by
-applying the same idea in the reverse direction.  Lets unboost interactive
-processes that are woken up by non-interactive ones.  So if make gets
-woken up by gcc (which is hopefully non-interactive), make does not
-get "credit" for having been asleep.
-    I am trying to think if this would break anything.  The only thing
-I can think of is that if the X server gets marked as non-interactive,
-then it is going to cause its clients to get marked as non-interactive
-as well when it sends them data.  But this may be a good thing.  If
-X is marked as non-interactive it means that it is busy, so this may
-have the effect of preventing the X clients from sending it a lot of
-extra work while its already busy.
-
-Thanks,
-
-Jim
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,74 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276309AbRJCOQN>; Wed, 3 Oct 2001 10:16:13 -0400
+	id <S276329AbRJCObu>; Wed, 3 Oct 2001 10:31:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276317AbRJCOQE>; Wed, 3 Oct 2001 10:16:04 -0400
-Received: from colorfullife.com ([216.156.138.34]:19460 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S276309AbRJCOP4>;
-	Wed, 3 Oct 2001 10:15:56 -0400
-Message-ID: <002c01c14c15$f270d6b0$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "jamal" <hadi@cyberus.ca>
-Cc: <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>,
-        "Andreas Dilger" <adilger@turbolabs.com>, <linux-netdev@oss.sgi.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Date: Wed, 3 Oct 2001 16:15:13 +0200
+	id <S276328AbRJCObk>; Wed, 3 Oct 2001 10:31:40 -0400
+Received: from pat.uio.no ([129.240.130.16]:47252 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S276327AbRJCObd>;
+	Wed, 3 Oct 2001 10:31:33 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <15291.8540.950034.832350@charged.uio.no>
+Date: Wed, 3 Oct 2001 16:31:56 +0200
+To: jstrand1@rochester.rr.com (James D Strandboge)
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
+Subject: Re: status of nfs and tcp with 2.4
+In-Reply-To: <20011003083326.A12840@rochester.rr.com>
+In-Reply-To: <20010927105321.A15128@rochester.rr.com>
+	<shssnd88xae.fsf@charged.uio.no>
+	<20010927131030.A15669@rochester.rr.com>
+	<shslmizaejh.fsf@charged.uio.no>
+	<20011003083326.A12840@rochester.rr.com>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 3 Oct 2001, jamal wrote:
-> > On Wed, 3 Oct 2001, Ingo Molnar wrote:
-> > >
-> > > but the objectives, judging from the description you gave, are i
-> > > think largely orthogonal,  with some overlapping in the polling
-> > > part.
-> >
-> > yes. Weve done a lot of thoroughly thought work in that area and i
-> > think it will be a sin to throw it out.
-> >
->
-> I hit the send button to fast..
-> The dynamic irq limiting (it must not be set by a system admin to
-> conserve the principle of work) could be used as a last resort.
-> The point is, if you are not generating a lot of interupts to begin
-> with (as is the case with NAPI), i dont see the irq rate limiting
-> kicking in at all.
+>>>>> " " == James D Strandboge <jstrand1@rochester.rr.com> writes:
 
-A few notes as seen for low-end nics:
+     > By 'when a client gets congested' my understanding is you mean
+     > 'when a client is sending a lot to the server, and the server
+     > can't respond quickly enough.'  Therefore, dropping udp replies
 
-Forcing an irq limit without asking the driver is bad - it must be the
-opposite way around.
-e.g. the winbond nic contains a bug that forces it to 1 interrupt/packet
-tx, but I can switch to rx polling/mitigation.
-I'm sure the ne2k-pci users would also complain if a fixed irq limit is
-added - I bet the majority of the drivers perform worse with a fixed
-limit, only some perform better, and most perform best if they are given
-a notice that they should reduce their irq rate. (e.g. disable
-rx_packet, tx_packet. Leave the error interrupts on, and do the
-rx_packet, tx_packet work in the poll handler)
+There are several scenarios. The one that worries me most on TCP
+connections is when the TCP socket on the server gets swamped for some
+reason, and the call to sendmsg() sleeps. This means that if one
+client has fired off a load of requests, and then doesn't listen for
+the reply, we can end up sleeping for a long time (and being
+unavailable to other clients).
 
-But a hint for the driver ("now switch mitigation on/off") seems to be a
-good idea. And that hint should not be the return value of netif_rx -
-what if the driver is only sending packets?
-What if it's not even a network driver?
-
-NAPI seems to be very promising to fix the total system overload case
-(so many packets arrive that despite irq mitigation the system is still
-overloaded).
-
-But the implementation of irq mitigation is driver specific, and a 10
-millisecond stop is far too long.
-
---
-    Manfred
+OTOH under UDP, we use nonblocking I/O, so the sendmsg() returns, and
+the server can just drop the request (as the UDP allows for quick
+resends). The thread in this scenario therefore never sleeps if a
+client is unavailable. It can only sleep on (relatively fast) disk
+I/O.
 
 
+     > is ok, since the client will just send it again, however, with
+     > tcp, the client will only resend every 60 seconds and that is
+     > too slow, and it blocks the socket in the meantime.  Is my
+     > understanding correct?
 
+That is correct. TCP is designed to be a reliable protocol, so clients
+are allowed to assume that the server will reply to a request once it
+has been sent.
+
+    >> There are 2 possible strategies:
+    >>
+    >> 1 Allocate 1 thread per TCP connection
+
+     > This seems to be the easier of the two to implement, however
+     > you opted against this because we are putting an eventual limit
+     > on the number of clients we can serve based on NFSD_MAXSERVS.
+     > Is this correct?
+
+Well... Thread limits can be changed. My main objection is that it is
+ugly. Why allocate a thread when what you want to do is to be able to
+cope with sleeping? We have non-blocking I/O, and the tcp
+'write_space()' socket routine (see the client use in
+net/sunrpc/xprt.c) that was designed to enable a thread to get called
+back once a socket is free.
+
+    >> 2 Use non-blocking I/O, but allow TCP connections to defer
+    >> sending the reply until the socket is available (and allow the
+    >> thread to service other requests while the socket is busy).
+    >>
+    >> I started work on (2) last autumn, <snip>
+
+     > Are there patches for this that I could look at?
+
+  http://www.fys.uio.no/~trondmy/src/pre_alpha/linux-2.4.0-test6-rpctcp.dif
+
+It's a patch against linux-2.4.0-test6 and is basically at the 'toy'
+stage. Definitely nowhere near ready for release. IIRC though it did
+actually run fairly reliably.
+
+Cheers,
+   Trond

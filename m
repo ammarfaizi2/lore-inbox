@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVDDJzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVDDKAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVDDJzq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 05:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVDDJzq
+	id S261202AbVDDKAI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 06:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVDDKAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 05:55:46 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:5173 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261193AbVDDJzj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 05:55:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bjcKjUzKtIiu+pRa+gCJHSWxE9LHWai+pizkwfN2DV1+2lpmr8GbBdcmfKCuS5yNcn6tdjRh5J2ocV1aDDDFA5moIsHbkJbqsHRzANB1D5LfJGpRe+uiiigBBX1xbqYjtebd9zpPu6NfsZNY6umAppkpcFJmRlWrFmbrEhy0+sc=
-Message-ID: <c0310912050404025520a3fd80@mail.gmail.com>
-Date: Mon, 4 Apr 2005 18:55:38 +0900
-From: Piotr Muszynski <piotru@gmail.com>
-Reply-To: Piotr Muszynski <piotru@gmail.com>
-To: prasanna@in.ibm.com
-Subject: Re: module for controlling kprobes with /proc
-Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@sgi.com>
-In-Reply-To: <20050404083507.GG1715@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 4 Apr 2005 06:00:07 -0400
+Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:31758 "EHLO
+	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261202AbVDDKAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 06:00:01 -0400
+In-Reply-To: <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com>
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger> <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <3821024b00b47598e66f504c51437f72@xs4all.nl>
 Content-Transfer-Encoding: 7bit
-References: <20050404083507.GG1715@in.ibm.com>
+Cc: Kenneth Johansson <ken@kenjo.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       linux-kernel@vger.kernel.org, Dag Arne Osvik <da@osvik.no>
+From: Renate Meijer <kleuske@xs4all.nl>
+Subject: Re: Use of C99 int types
+Date: Mon, 4 Apr 2005 12:05:29 +0200
+To: Kyle Moffett <mrmacman_g4@mac.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Prasanna,
 
-On Apr 4, 2005 5:35 PM, Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
-> why /proc ?
+On Apr 4, 2005, at 12:08 AM, Kyle Moffett wrote:
 
-Thank you for your remarks. I originally thought of writing a simple
-CLI app  to sit over /proc , do basic sanity checks and be simple to
-use.
+> On Apr 03, 2005, at 16:25, Kenneth Johansson wrote:
+>> But is this not exactly what Dag Arne Osvik was trying to do ??
+>> uint_fast32_t means that we want at least 32 bits but it's OK with
+>> more if that happens to be faster on this particular architecture.
+>> The problem was that the C99 standard types are not defined anywhere
+>> in the kernel headers so they can not be used.
+>
+> Uhh, so what's wrong with "int" or "long"?
 
-> You can use a combination of SysRq key to enter a kprobe command line prompt.
-> Initially you can define a dummy breakpoint for command line prompt and accept
-> commands from thereon.
-> Later display the list of features add/remove/display breakpoint, backtrace etc.
-> Also once you hit a breakpoint you give a command line prompt and user can backtrace/ dump some global memory, dump registers etc.
-> 
-> Let me know if you need more information.
+My point exactly, though I agree with Kenneth that adding the C99 types
+would be a Good Thing.
 
-Yes please, I would be grateful.
-TIA
+> GCC will generally do the right thing if you just tell it "int".
 
-Piotr
+And if you don't, you imply some special requirement, which, if none 
+really exists, is
+misleading.
+
+Regards,
+
+Renate.
+
+timeo hominem unius libri
+
+Thomas van Aquino
+

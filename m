@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUCBPiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 10:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbUCBPiI
+	id S261691AbUCBPoC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 10:44:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbUCBPoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 10:38:08 -0500
-Received: from mta01-svc.ntlworld.com ([62.253.162.41]:33377 "EHLO
-	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261680AbUCBPiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 10:38:05 -0500
-Date: Tue, 2 Mar 2004 15:38:04 +0000 (GMT)
-From: Ben <linux-kernel-junk-email@slimyhorror.com>
-X-X-Sender: ben@baphomet.bogo.bogus
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: epoll and fork()
-In-Reply-To: <Pine.LNX.4.44.0403020654080.24044-100000@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0403021527360.20736@baphomet.bogo.bogus>
-References: <Pine.LNX.4.44.0403020654080.24044-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Mar 2004 10:44:02 -0500
+Received: from findaloan.ca ([66.11.177.6]:53124 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S261691AbUCBPn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 10:43:59 -0500
+Date: Tue, 2 Mar 2004 10:42:02 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Ben <linux-kernel-junk-email@slimyhorror.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: epoll and fork()
+Message-ID: <20040302154202.GA24226@mark.mielke.cc>
+Mail-Followup-To: Ben <linux-kernel-junk-email@slimyhorror.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0403021224520.20736@baphomet.bogo.bogus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403021224520.20736@baphomet.bogo.bogus>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2004, Davide Libenzi wrote:
+On Tue, Mar 02, 2004 at 12:31:20PM +0000, Ben wrote:
+> Is there a defined behaviour for what happens when a process with an epoll
+> fd forks?
 
-> >
-> > Is there a defined behaviour for what happens when a process with an epoll
-> > fd forks?
-> >
-> > I've an app that inherits an epoll fd from its parent, and then
-> > unregisters some file descriptors from the epoll set. This seems to have
-> > the nasty side effect of unregistering the same file descriptors from the
-> > parent process as well. Surely this can't be right?
->
-> epoll does register the underlying file* not the fd, so this is the
-> expected behaviour. Inheriting an fd, and epoll is no exception, simply
-> bumps a counter, so both parent and child epoll fd shares the same context.
-> Sorry but what behaviour do you expect by unregistering an fd pushed by
-> the parent from inside a child? Events work exactly the same. Since the
-> context is shared, events are delivered only once.
+You found it. :-)
 
-It seems unintuitive, although having heard the arguments, I can
-understand why it works this way.
+> I've an app that inherits an epoll fd from its parent, and then
+> unregisters some file descriptors from the epoll set. This seems to have
+> the nasty side effect of unregistering the same file descriptors from the
+> parent process as well. Surely this can't be right?
 
-I was thinking that epoll should behave like a file descriptor (i.e. a
-child can close an inherited fd without affecting the parent), simply
-because the only connection a process has with epoll is the file
-descriptor. I suppose if you think of epoll_ctl() and epoll_wait() as
-write()s and read()s on the file descriptor, then it makes sense that
-these operations would affect both processes.
+The epoll fd should probably be closed after the fork(), re-allocated,
+and then initialized to contain the file descriptors that you want to
+watch.
 
-It still feels 'wrong' though :)
+mark
 
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Ben
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

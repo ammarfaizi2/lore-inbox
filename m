@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKPWeL>; Thu, 16 Nov 2000 17:34:11 -0500
+	id <S131369AbQKPWhx>; Thu, 16 Nov 2000 17:37:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131369AbQKPWeC>; Thu, 16 Nov 2000 17:34:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16968 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129150AbQKPWdt>; Thu, 16 Nov 2000 17:33:49 -0500
-Subject: Re: RFC: "SubmittingPatches" text
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 16 Nov 2000 22:04:02 +0000 (GMT)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200011162132.PAA01944@mandrakesoft.mandrakesoft.com> from "Jeff Garzik" at Nov 16, 2000 03:32:40 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131466AbQKPWhn>; Thu, 16 Nov 2000 17:37:43 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:50582 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S131369AbQKPWhY>; Thu, 16 Nov 2000 17:37:24 -0500
+Date: Thu, 16 Nov 2000 14:07:16 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Scheduler Scalability CFP
+Message-ID: <20001116140716.A5291@w-mikek.des.sequent.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wX8W-0008Qt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	The Unofficial Linus HOWTO
+As part of the Linux Scalability Effort (lse) project at
+SourceForge, we have published a call for participation
+in the area of Scheduler Scalability:
 
-	'Care And Operation Of Your Linus Torvalds'
+http://lse.sourceforge.net/CFP/ScaleSchedProj-1.html
 
+If this is an area of interest to you, please join the
+lse-tech mailing list.
 
-> 	mv linux linux-vanilla
-> 	diff -urN linux-vanilla $MYSRC > /tmp/patch
+http://sourceforge.net/projects/lse
 
-Include Tigrans recommended exclude list and info
-
-> code.  A MIME attachment also takes Linus a bit more time to process,
-> decreasing the likelihood of your MIME-attached change being accepted.
-
-+ If your mailer is mangling patches then someone may ask you to resend them
-+ using MIME.
-
-Maybe also note that maintainers of given modules are much more likely to
-give feedback than Linus, also the [PATCH]: convention
-
-
-Alan
-
+Thanks,
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
+15450 SW Koll Parkway
+Beaverton, OR 97006-6063                     (503)578-3494
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

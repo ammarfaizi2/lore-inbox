@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276777AbSIVG2B>; Sun, 22 Sep 2002 02:28:01 -0400
+	id <S263495AbSIVGic>; Sun, 22 Sep 2002 02:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276786AbSIVG2B>; Sun, 22 Sep 2002 02:28:01 -0400
-Received: from mta03bw.bigpond.com ([139.134.6.86]:5096 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S276777AbSIVG2A>; Sun, 22 Sep 2002 02:28:00 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Subject: Re: Serial port monitoring with keyboard LEDs
-Date: Sun, 22 Sep 2002 16:26:26 +1000
-User-Agent: KMail/1.4.5
-References: <200209212106.g8LL6FKP001764@darkstar.example.net>
-In-Reply-To: <200209212106.g8LL6FKP001764@darkstar.example.net>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209221626.26623.bhards@bigpond.net.au>
+	id <S276646AbSIVGib>; Sun, 22 Sep 2002 02:38:31 -0400
+Received: from m088067.ap.plala.or.jp ([219.164.88.67]:47232 "HELO
+	mana.fennel.org") by vger.kernel.org with SMTP id <S263495AbSIVGib>;
+	Sun, 22 Sep 2002 02:38:31 -0400
+Date: Sun, 22 Sep 2002 15:43:31 +0900 (JST)
+Message-Id: <20020922.154331.51732591.sian@big.or.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: make bzImage fails on 2.5.38
+From: Hiroshi Takekawa <sian@big.or.jp>
+In-Reply-To: <Pine.GSO.4.21.0209220229480.22740-100000@weyl.math.psu.edu>
+References: <1999.202.54.87.179.1032675381.squirrel@mail.nls.ac.in>
+	<Pine.GSO.4.21.0209220229480.22740-100000@weyl.math.psu.edu>
+X-Mailer: Mew version 3.0.64 on Emacs 21.3 / Mule 5.0
+ =?iso-2022-jp?B?KBskQjgtTFobKEIvU0FLQUtJKQ==?=
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Sun, 22 Sep 2002 07:06, jbradford@dial.pipex.com wrote:
-> I'm using a 2.4.19 kernel as a reference, and looking at putting my code in
-> /drivers/char/serial.c, specifically at the serial_in and serial_out
-> functions, is this the Right Thing or not?  Obviously the LEDs won't
-> actually reflect what is going out on the serial line, because of
-> buffering, etc, and also, what's going to be more useful - just flash on
-> and off for each byte sent, or LED on for 1, LED off for 0 bit?  That would
-> be even more of an approximation to what's actually happening on the serial
-> line, because obviously we're sending a byte at a time to the serial port.
-Not sure about the serial code. 
+Here's diff for this.
+No sooner than had I made this diff than I read your mail...
+But just replacing devfs_handle with cdroms causes weird
+cdroms/cdroms/cdrom0 symlink.
+Please review.
 
-However you can't update the keyboard LEDs at anything like normal serial port 
-rates. And even if you could update at 10kHz, you just varied the brightness, 
-rather than caused any real "blinking"
+> > First post to the list, I've followed the format given in REPORTING-BUGS
+> > 
+> > 1. make bzImage fails on 2.5.38
 
-> Any pointers to docs I should read would be appreicated :-)
-You are going to cause problems. There are other users of keyboard LEDs in the 
-kernel (eg for notifying of an oops). It isn't looking too good.
+> Arrgh.
 
-If you are really intent on doing this, you can probably manage this from 
-userspace, using the event interface and the application that is sending data 
-over the serial interface. Of course, you'd need to have a suitable keyboard 
-(probably only USB or ADB in 2.4.x).
+> ed fs/partitions/check.c <<EOF
+> 365s/devfs_handle/cdroms/
+> w
+> q
+> EOF
 
-Brad
-
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9jWKSW6pHgIdAuOMRAs6lAJ9w0Rn9N31TNrb6+jk2a3kwTA9RZQCeLV40
-bDEJ/o3W5w53efj9lIIwRys=
-=t+NX
------END PGP SIGNATURE-----
-
+diff -Naur linux-2.5.38.vanilla/fs/partitions/check.c linux-2.5.38/fs/partitions/check.c
+--- linux-2.5.38.vanilla/fs/partitions/check.c	Sun Sep 22 15:27:26 2002
++++ linux-2.5.38/fs/partitions/check.c	Sun Sep 22 15:17:10 2002
+@@ -338,17 +338,13 @@
+ static void devfs_create_cdrom(struct gendisk *dev)
+ {
+ #ifdef CONFIG_DEVFS_FS
+-	int pos = 0;
+-	devfs_handle_t dir, slave;
+-	unsigned int devfs_flags = DEVFS_FL_DEFAULT;
+-	char dirname[64], symlink[16];
+ 	char vname[23];
+ 
+ 	if (!cdroms)
+ 		cdroms = devfs_mk_dir (NULL, "cdroms", NULL);
+ 
+ 	dev->number = devfs_alloc_unique_number(&cdrom_numspace);
+-	sprintf(vname, "cdroms/cdrom%d", dev->number);
++	sprintf(vname, "cdrom%d", dev->number);
+ 	if (dev->de) {
+ 		int pos;
+ 		devfs_handle_t slave;
+@@ -362,13 +358,13 @@
+ 		pos = devfs_generate_path(dev->disk_de, rname+3, sizeof(rname)-3);
+ 		if (pos >= 0) {
+ 			strncpy(rname + pos, "../", 3);
+-			devfs_mk_symlink(devfs_handle, vname,
++			devfs_mk_symlink(cdroms, vname,
+ 					 DEVFS_FL_DEFAULT,
+ 					 rname + pos, &slave, NULL);
+ 			devfs_auto_unregister(dev->de, slave);
+ 		}
+ 	} else {
+-		dev->disk_de = devfs_register (NULL, vname, DEVFS_FL_DEFAULT,
++		dev->disk_de = devfs_register (cdroms, vname, DEVFS_FL_DEFAULT,
+ 				    dev->major, dev->first_minor,
+ 				    S_IFBLK | S_IRUGO | S_IWUGO,
+ 				    dev->fops, NULL);

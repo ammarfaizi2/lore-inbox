@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272773AbTG3GHO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 02:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272774AbTG3GHO
+	id S272774AbTG3GKL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 02:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272778AbTG3GKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 02:07:14 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:35744 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S272773AbTG3GHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 02:07:13 -0400
-Message-Id: <5.1.0.14.2.20030730080726.00a797e0@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 30 Jul 2003 08:08:29 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: Linux 2.4.22-pre9
+	Wed, 30 Jul 2003 02:10:11 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:25749 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S272774AbTG3GKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 02:10:09 -0400
+Date: Wed, 30 Jul 2003 08:09:58 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Eli Carter <eli.carter@inet.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       pgw99@doc.ic.ac.uk
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030730060958.GH4279@louise.pinerecords.com>
+References: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk> <3F26DC68.3010000@inet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: EG4vGYZArePJ5t4eOMT-fHuKGEXyk0tZ24k4PcEw3isdytCx1cMnQy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F26DC68.3010000@inet.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.22-pre9; fi
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-pre9/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
+> [eli.carter@inet.com]
+> 
+> Maybe also:
+> ...
+>  * and of course, Morse code ;)
 
-Still not fixed :-)
+Provided the lowlevel LED support is hacked together as a module for
+the 2.[56] input layer, the current morse code panics patch should work
+"out of the box."
 
-Margit 
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

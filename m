@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292265AbSBYUJo>; Mon, 25 Feb 2002 15:09:44 -0500
+	id <S292228AbSBYUQo>; Mon, 25 Feb 2002 15:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288801AbSBYUHl>; Mon, 25 Feb 2002 15:07:41 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62729 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288748AbSBYUGj>;
-	Mon, 25 Feb 2002 15:06:39 -0500
-Message-ID: <3C7A98FF.3E92DC8C@zip.com.au>
-Date: Mon, 25 Feb 2002 12:05:19 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S292327AbSBYUQh>; Mon, 25 Feb 2002 15:16:37 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:34572 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S292228AbSBYUQD>; Mon, 25 Feb 2002 15:16:03 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 25 Feb 2002 12:18:43 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Bill Davidsen <davidsen@tmr.com>, <lse-tech@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] NUMA scheduling
+In-Reply-To: <20020225120242.F22497@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0202251215510.1499-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Steve Lord <lord@sgi.com>
-CC: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] only irq-safe atomic ops
-In-Reply-To: <3C7A939D.FCAE9096@zip.com.au>,
-		<1014449389.1003.149.camel@phantasy.suse.lists.linux.kernel>
-		<3C774AC8.5E0848A2@zip.com.au.suse.lists.linux.kernel>
-		<3C77F503.1060005@sgi.com.suse.lists.linux.kernel>
-		<p73y9hjq5mw.fsf@oldwotan.suse.de> <3C78045C.668AB945@zip.com.au>
-		<3C780702.9060109@sgi.com> <3C780CDA.FEAF9CB4@zip.com.au>
-		<3C781362.7070103@sgi.com> <3C781909.F69D8791@zip.com.au>
-		<3C7A35FF.5040508@sgi.com> <20020225131218.GO11837@suse.de>
-		<3C7A398A.1060300@sgi.com>  <3C7A939D.FCAE9096@zip.com.au> <1014666322.9227.368.camel@jen.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
-> 
-> On Mon, 2002-02-25 at 13:42, Andrew Morton wrote:
-> > Stephen Lord wrote:
+On Mon, 25 Feb 2002, Larry McVoy wrote:
+
+> On Mon, Feb 25, 2002 at 02:49:40PM -0500, Bill Davidsen wrote:
+> > On Mon, 25 Feb 2002, Larry McVoy wrote:
+> >
+> > > If you read the early hardware papers on SMP, they all claim "Symmetric
+> > > Multi Processor", i.e., you can run any process on any CPU.  Skip forward
+> > > 3 years, now read the cache affinity papers from the same hardware people.
+> > > You have to step back and squint but what you'll see is that these papers
+> > > could be summarized on one sentence:
 > > >
-> > > Yep, bio just made it easier to get larger requests.
+> > > 	"Oops, we lied, it's not really symmetric at all"
 > > >
+> > > You should treat each CPU as a mini system and think of a process reschedule
+> > > someplace else as a checkpoint/restart and assume that is heavy weight.  In
+> > > fact, I'd love to see the scheduler code forcibly sleep the process for
+> > > 500 milliseconds each time it lands on a different CPU.  Tune the system
+> > > to work well with that, then take out the sleep, and you'll have the right
+> > > answer.
 > >
-> > Which promptly go kersplat when you feed them into
-> > submit_bio():
-> >
-> >      BUG_ON(bio_sectors(bio) > q->max_sectors);
-> >
-> > Given that I'm hand-rolling a monster bio, I need to know
-> > when to wrap it up and send it off, to avoid creating a bio
-> > which is larger than the target device will accept.  I'm currently
-> > using the below patch.   Am I right that this is missing API
-> > functionality, or did I miss something?
-> >
-> 
-> I don't run into that one, but probably because I limit xfs to
-> use BIO_MAX_SECTORS, take a look at ll_rw_kio to see how that
-> splits things up. This of course does not take into account
-> any further restriction in an underlying queue.
+> >   Unfortunately this is an overly simple view of how SMP works. The only
+> > justification for CPU latency is to preserve cache contents. Trying to
+> > express this as a single number is bound to produce suboptimal results.
+>
+> And here is the other side of the coin.  Remember what we are doing.
+> We're in the middle of a context switch, trying to figure out where we
+> should run this process.  We would like context switches to be fast.
+> Any work we do here is at direct odds with our goals.  SGI took the
+> approach that your statements would imply, i.e., approximate the
+> cache footprint, figure out if it was big or small, and use that to
+> decide where to land the process.  This has two fatal flaws:
+> a) Because there is no generic hardware interface to say "how many cache
+>    lines are mine", you approximate that by looking at how much of the
+>    process timeslice this process used, if it used a lot, you guess it
+>    filled the cache.  This doesn't work at all for I/O bound processes,
+>    who typically run in short bursts.  So IRIX would bounce these around
+>    for no good reason, resulting in crappy I/O perf.  I got about another
+>    20% in BDS by locking down the processes (BDS delivered 3.2GBytes/sec
+>    of NFS traffic, sustained, in 1996).
+> b) all of the "thinking" you do to figure out where to land the process
+>    contributes directly to the cost of the context switch.  Linux has
+>    nice light context switches, let's keep it that way.
 
-Ah, yes.  I looked at that, and promptly ignored it :)
+Obviously Larry you do not want to do such work on an active CPU. Idle
+time is balancing time ...
 
-Too small, too hard-wired.  If the underlying device can
-cope with megabyte requests, why restrict it to 64k?  Let's
-push the envelope a bit, rather than creating more must-fixes
-for 2.7.x.
 
--
+
+
+- Davide
+
+

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQLOQfz>; Fri, 15 Dec 2000 11:35:55 -0500
+	id <S129641AbQLOQlz>; Fri, 15 Dec 2000 11:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129423AbQLOQfq>; Fri, 15 Dec 2000 11:35:46 -0500
-Received: from dhcp065-024-129-011.columbus.rr.com ([65.24.129.11]:52492 "EHLO
-	hunley.homeip.net") by vger.kernel.org with ESMTP
-	id <S129913AbQLOQfc>; Fri, 15 Dec 2000 11:35:32 -0500
-Message-ID: <3A3A4128.FA65B0C2@hunley.homeip.net>
-Date: Fri, 15 Dec 2000 11:04:56 -0500
-From: "Douglas J. Hunley" <root@hunley.homeip.net>
-Organization: Like I have time to be organized
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18ext3 i586)
-X-Accept-Language: en
+	id <S130232AbQLOQlh>; Fri, 15 Dec 2000 11:41:37 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:27912 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129423AbQLOQlZ>;
+	Fri, 15 Dec 2000 11:41:25 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Dana Lacoste" <dana.lacoste@peregrine.com>
+Date: Fri, 15 Dec 2000 17:09:57 MET-1
 MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3-0.0.5d questions
-In-Reply-To: <3A3A3579.5BF5078@hunley.homeip.net> <20001215163815.F28783@khan.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re:       [OT] Re: Linus's include file strategy redux
+CC: <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <FBFCEB5345D@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
+On 15 Dec 00 at 11:00, Dana Lacoste wrote:
+> > Maybe you did not notice, but for months we have
+> > /lib/modules/`uname -r`/build/include, which points to kernel headers,
+> > and which should be used for compiling out-of-tree kernel modules
+> > (i.e. latest vmware uses this).
 > 
-> On Fri, Dec 15, 2000 at 10:15:05AM -0500, Douglas J. Hunley wrote:
-> > I just took the plunge and converted all my drives to EXT3. I've now got
-> > a _lot_ of questions. Is there a FAQ? Web documentation? Mailing list?
+> What about the case where I'm compiling for a kernel that I'm
+> not running (yet)?
 > 
-> A tip for next time you decide to do something akin to this:
+> lm_sensors, for example, told me yesterday when I compiled it
+> that I was running 2.2.17, but it was compiling for 2.2.18
+> (because I moved the symlink in /usr/src/linux to point to
+> /usr/src/linux-2.2.18)
 > 
-> Read FAQ's, documentation etc. FIRST, then convert your
-> filesystems/install new software etc...
-> 
-> /David Weinehall
+> I personally wouldn't like some programs to do a `uname -r`
+> check because it won't do what I want it to :)
 
-I normally do. However, I couldn't find any. And after rebuildin a lost
-30G drive, I decided to bite the bullet.
+You can list /lib/modules/*/build/include and present user with list
+of possible kernels. You should check whether version.h contents
+matches directory name, but it is just an additional check against 
+users which compile all kernels in /usr/src/linux.
 
-(sorry for the dupe David)
---
-Douglas J. Hunley (Linux User #174778)
-http://hunley.homeip.net/
-
-Linux, the way to get rid of boot viruses
+For lmsensors, you just have to compile kernel first, and lm_sensors
+after that. But intervening reboot is not required as long as
+configure does not use 'uname -r' (ok, I'm filling vmware bugreport
+just now).
+                            Best regards,
+                                    Petr Vandrovec
+                                    vandrove@vc.cvut.cz
+                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

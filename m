@@ -1,85 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTEPWuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 18:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTEPWuY
+	id S264608AbTEPWwo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 18:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbTEPWwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 18:50:24 -0400
-Received: from aneto.able.es ([212.97.163.22]:7679 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S263281AbTEPWuQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 18:50:16 -0400
-Date: Sat, 17 May 2003 01:02:57 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET] Linux-2.4.21-rc2-jam1
-Message-ID: <20030516230257.GA4653@werewolf.able.es>
+	Fri, 16 May 2003 18:52:44 -0400
+Received: from grendel.firewall.com ([66.28.56.41]:59520 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S264608AbTEPWwi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 18:52:38 -0400
+Date: Sat, 17 May 2003 01:05:26 +0200
+From: Marek Habersack <grendel@caudium.net>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel oops on boot with 2.5.69-mm{5,6}
+Message-ID: <20030516230526.GA1527@thanes.org>
+Reply-To: grendel@caudium.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.11
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-New release, no important changes. Just I have to admit that bproc does not
-work on top of -aa. I suspect that the O(1) scheduler is the one to blame.
-I remembered that it worked with -aa, but I think it was before it adopted
-the scheduler. So the bproc patch is there just to rty to debug. sigh. I like
--aa vm.
+--TakKZr9L6Hm6aLOc
+Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
 
-New things: hfsplus driver, updated aic.
-Current contents:
 
-000-aa.bz2 (-rc2-aa1)
-001-version.bz2
-002-printk.bz2
-003-memparam.bz2
-004-clone-detached.bz2
-005-self_exec_id.bz2
-006-always-inline.bz2
-007-scsi-error-tmout.bz2
-008-e1000-close.bz2
-009-config-syntax.bz2
-010-modular-ide.bz2
-011-modular-ide-scsi.bz2
-012-smp-call-mb.bz2
-013-nfs.bz2
-10-inode-size.bz2
-11-handle2dentry.bz2
-12-fast-csum-D-2.bz2
-13-kill-per-cpu-stats.bz2
-14-O_STREAMING.bz2
-15-binfmt-stack.bz2
-16-mremap-use-after-free.bz2
-17-slab-loop-init.bz2
-18-fat-fdmode.bz2
-19-interactive-timeslice.bz2
-21-x86-pII.bz2
-22-x86-check_gcc.bz2
-23-x86-mb.bz2
-24-config-nr-cpus.bz2
-30-ext3-0.9.19+htree+orlov.bz2
-31-seq-single-ops.bz2
-40-aic7xxx-20030502.bz2
-41-aic-4G-boundary.bz2
-45-ide-readahead.bz2
-50-perfctr-2.5.2.bz2
-51-kksymoops.bz2
-52-proconfig-0.9.7.bz2
-60-hfsplus-20030507-2.bz2
-70-i2c-2.7.0.bz2
-71-sensors-2.7.0.bz2
-80-bproc-3.2.5.bz2
-81-export-task_nice.bz2
-90-make.bz2
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.21-rc2-jam1/
+Hello all,
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-rc2-jam1 (gcc 3.2.3 (Mandrake Linux 9.2 3.2.3-1mdk))
+2.5.69-mm3 works fine, mm4 wasn't tested. Kernel oopses right after attempting to
+initialize agpgart. I've managed to copy only the little data from the oops
+that is shown below, enough to locate it (oops happened in the swapper task):
+
+agp_via_probe+0x106/0x180
+sysfs_create_dir+0x81/0xb0
+pci_device_probe+0x5e/0x70
+bus_match+0x45/0xb0
+driver_attach+0x5c/0x60
+bus_add_driver+0xa8/0xc0
+driver_register+0x2f/0x40
+pci_register_driver+0x41/0x60
+agp_via_init+0x13/0x40
+do_initcalls+0x2c/0xa0
+init_workqueues+0xf/0x30
+init+0x33/0x1b0
+init+0x0/0x1b0
+kernel_thread_helper+0x5/0x18
+
+Code: 5c 24 0c 85 74 24 10 8b 5c 24 18 8b 43 18 85 c0 0f 84 55 01
+      00 00 a1 e4 5d 44 c0 85 c0 0f 85 32 01 00 00 8b 43 04 be 01
+      00 00 00 <8b> 10 85 d2 74 2f b8 00 e0 ff ff 21 e0 ff 40 14
+      85 3a 02 0f 84
+
+Machine config attached,
+
+regards,
+
+marek
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="config-2.5.69-mm6.bz2"
+Content-Transfer-Encoding: base64
+
+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
+u5IpwoSG+9/XQA==
+
+--d6Gm4EdcadzBjdND--
+
+--TakKZr9L6Hm6aLOc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+xW62q3909GIf5uoRAh3WAJ9sV1LYmvDMVZJrlMejU+pm+43EAQCcCA3h
+cAk/csLurhpeG5rPifa76AE=
+=sJfh
+-----END PGP SIGNATURE-----
+
+--TakKZr9L6Hm6aLOc--

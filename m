@@ -1,83 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVCPM0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVCPMan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbVCPM0B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 07:26:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVCPM0B
+	id S262557AbVCPMan (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 07:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVCPMan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 07:26:01 -0500
-Received: from alog0049.analogic.com ([208.224.220.64]:16522 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262560AbVCPMZ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 07:25:26 -0500
-Date: Wed, 16 Mar 2005 07:23:11 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Robert Hancock <hancockr@shaw.ca>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bogus buffer length check in linux-2.6.11  read()
-In-Reply-To: <423776E2.5000801@shaw.ca>
-Message-ID: <Pine.LNX.4.61.0503160715400.16304@chaos.analogic.com>
-References: <3IoOm-5M2-49@gated-at.bofh.it> <423776E2.5000801@shaw.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 16 Mar 2005 07:30:43 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52674 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262557AbVCPMab (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 07:30:31 -0500
+Date: Wed, 16 Mar 2005 04:30:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: noahm@csail.mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: OOM problems with 2.6.11-rc4
+Message-Id: <20050316043005.3e2a0ef5.akpm@osdl.org>
+In-Reply-To: <20050316003134.GY7699@opteron.random>
+References: <20050315204413.GF20253@csail.mit.edu>
+	<20050316003134.GY7699@opteron.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005, Robert Hancock wrote:
-
-> linux-os wrote:
->> 
->> The attached file shows that the kernel thinks it's doing
->> something helpful by checking the length of the input
->> buffer for a read(). It will return "Bad Address" until
->> the length is 1632 bytes.  Apparently the kernel thinks
->> 1632 is a good length!
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> Likely because only 1632 bytes of memory is accessible after the start of the 
-> buf buffer, and trying to read in more than that results in copy_to_user 
-> failing to write some data.
->
+> This below is an untested attempt at bringing dquot a bit more in line
+>  with the API, to make the whole thing a bit more consistent,
 
-There was NO DATA read or written! The read() call returns immediately
-without reading anything. Look at the code, assume nothing. This
-is a blocking read from standard-input.
+Like this?  (Noah, don't bother testing this one)
 
->> 
->> Did anybody consider the overhead necessary to do this
->> and the fact that the kernel has no way of knowing if
->> the pointer to the buffer is valid until it actually
->> does the write. What was wrong with copy_to_user()?
->> Why is there the additional bogus check?
->
-> What additional check?
->
 
-Somebody added some very dumb check of the input value
-of a read() length that occurs before anything is
-actually read.
 
-Previously, a read(), which is a kernel write to user-data
-space, would seg-fault if the read exceeded the data-space
-that had been mapped. It is done by the CPU, it generates
-a trap. The performance cost, when done by the CPU, if
-the data doesn't exceed bounds, is zero. Now, there is
-a beginning check (a wrong check BTW), in software,
-before the data is even obtained from the device.
+Fix some bugs spotted by Andrea Arcangeli <andrea@suse.de>
 
-> -- 
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+- When we added /proc/sys/vm/vfs_cache_pressure we forgot to allow it to
+  tune the dquot and mbcache slabs as well.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+- Reduce lock contention in shrink_dqcache_memory().
+
+- Use dqstats.free_dquots in shrink_dqcache_memory(): this is the count of
+  reclaimable objects.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/fs/dquot.c   |   12 +++++-------
+ 25-akpm/fs/mbcache.c |    2 +-
+ 2 files changed, 6 insertions(+), 8 deletions(-)
+
+diff -puN fs/dquot.c~slab-shrinkers-use-vfs_cache_pressure fs/dquot.c
+--- 25/fs/dquot.c~slab-shrinkers-use-vfs_cache_pressure	2005-03-16 04:22:01.000000000 -0800
++++ 25-akpm/fs/dquot.c	2005-03-16 04:27:09.000000000 -0800
+@@ -505,14 +505,12 @@ static void prune_dqcache(int count)
+ 
+ static int shrink_dqcache_memory(int nr, unsigned int gfp_mask)
+ {
+-	int ret;
+-
+-	spin_lock(&dq_list_lock);
+-	if (nr)
++	if (nr) {
++		spin_lock(&dq_list_lock);
+ 		prune_dqcache(nr);
+-	ret = dqstats.allocated_dquots;
+-	spin_unlock(&dq_list_lock);
+-	return ret;
++		spin_unlock(&dq_list_lock);
++	}
++	return (dqstats.free_dquots / 100) * sysctl_vfs_cache_pressure;
+ }
+ 
+ /*
+diff -puN fs/mbcache.c~slab-shrinkers-use-vfs_cache_pressure fs/mbcache.c
+--- 25/fs/mbcache.c~slab-shrinkers-use-vfs_cache_pressure	2005-03-16 04:22:01.000000000 -0800
++++ 25-akpm/fs/mbcache.c	2005-03-16 04:24:43.000000000 -0800
+@@ -225,7 +225,7 @@ mb_cache_shrink_fn(int nr_to_scan, unsig
+ 						   e_lru_list), gfp_mask);
+ 	}
+ out:
+-	return count;
++	return (count / 100) * sysctl_vfs_cache_pressure;
+ }
+ 
+ 
+_
+

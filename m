@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293008AbSCJKMC>; Sun, 10 Mar 2002 05:12:02 -0500
+	id <S293010AbSCJKMC>; Sun, 10 Mar 2002 05:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293010AbSCJKLn>; Sun, 10 Mar 2002 05:11:43 -0500
-Received: from 1Cust48.tnt6.lax7.da.uu.net ([67.193.244.48]:52462 "HELO
+	id <S293012AbSCJKLm>; Sun, 10 Mar 2002 05:11:42 -0500
+Received: from 1Cust48.tnt6.lax7.da.uu.net ([67.193.244.48]:53230 "HELO
 	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S293008AbSCJKLl>; Sun, 10 Mar 2002 05:11:41 -0500
-Subject: Re: Suspend support for IDE
+	id <S293010AbSCJKLm>; Sun, 10 Mar 2002 05:11:42 -0500
+Subject: [PATCH] 2.2.21pre[234] misreports Pentium II model names
 To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sat, 9 Mar 2002 16:52:13 -0800 (PST)
-Cc: pavel@ucw.cz (Pavel Machek), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        dalecki@evision-ventures.com,
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <E16joxm-0002g6-00@the-village.bc.nu> from "Alan Cox" at Mar 09, 2002 10:05:14 PM
+Date: Sun, 10 Mar 2002 00:16:54 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16jWBa-0008Nc-00@the-village.bc.nu> from "Alan Cox" at Mar 09, 2002 02:02:14 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20020310005213.1D8BB8959A@cx518206-b.irvn1.occa.home.com>
+Message-Id: <20020310081654.1D8C789680@cx518206-b.irvn1.occa.home.com>
 From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why should I tell the drive to power down? It is going to loose its
-> > power, anyway (I believe in both S3 and S4).
-> 
-> So it can shut itself down nicely and do any housework it wants to do
-> (like flushing the cache if the cache flush command isnt supported.. its
->  optional in older ATA standards)
+In 2.2.21-pre2 through -pre4, many Intel CPUs are misreported in
+/proc/cpuinfo and dmesg as Mobile Pentium II's, even when they are
+Celerons in desktops or whatever.
 
-Or, in the case of newer IBM TravelStars, so that the drive can unload
-its head properly instead of having to do an uncontrolled emergency unload
-that shortens the drive's life and makes an awful screeching noise.
+In init_intel, the correct CPU name is being assigned to p, but p isn't
+being copied into c->x86_model_id. As a result, the name from the tables,
+"Mobile Pentium II", is always being used.
+
+This patch (backported from 2.4) fixes the problem. Alan, please apply.
 
 -Barry K. Nathan <barryn@pobox.com>
+
+--- linux-2.2.21-pre4/arch/i386/kernel/setup.c	Sat Mar  9 03:58:57 2002
++++ linux-2.2.21-pre4-bknA-2/arch/i386/kernel/setup.c	Sat Mar  9 22:31:34 2002
+@@ -1232,6 +1232,9 @@
+ 				break;
+ 		}
+ 	}
++
++	if ( p )
++		strcpy(c->x86_model_id, p);
+ }
+ 
+ struct cpu_model_info {

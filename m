@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292263AbSBBKZy>; Sat, 2 Feb 2002 05:25:54 -0500
+	id <S292264AbSBBKk2>; Sat, 2 Feb 2002 05:40:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292264AbSBBKZo>; Sat, 2 Feb 2002 05:25:44 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:63238 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S292263AbSBBKZd>; Sat, 2 Feb 2002 05:25:33 -0500
-Message-ID: <3C5BBE96.1080408@namesys.com>
-Date: Sat, 02 Feb 2002 13:25:26 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
-X-Accept-Language: en-us
+	id <S292265AbSBBKkT>; Sat, 2 Feb 2002 05:40:19 -0500
+Received: from mail.gmx.net ([213.165.64.20]:15079 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S292264AbSBBKkG>;
+	Sat, 2 Feb 2002 05:40:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "Yven J. Leist" <leist@gmx.li>
+Reply-To: leist@beldesign.de
+Organization: beldesign
+To: linux-kernel@vger.kernel.org
+Subject: Re: Documentation
+Date: Sat, 2 Feb 2002 11:39:58 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <5.0.2.1.0.20020202041351.00b434f8@courriel.ift.ulaval.ca>
+In-Reply-To: <5.0.2.1.0.20020202041351.00b434f8@courriel.ift.ulaval.ca>
+Cc: Guillaume Chamberland-Larose 
+	<Guillaume.Chamberland-Larose@ift.ulaval.ca>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Steve Lord <lord@sgi.com>, Andrew Morton <akpm@zip.com.au>,
-        Ricardo Galli <gallir@uib.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Chris Mason <mason@suse.com>, green@thebsh.namesys.com
-Subject: Re: O_DIRECT fails in some kernel and FS
-In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au> <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020202103959.7E7832AD636@fastpage>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+On Saturday 02 February 2002 10:18, Guillaume Chamberland-Larose wrote:
+> Hi,
+>
+> I have some linux kernel programming experience from the 2.0 days and I'd
+> like to start programming it again, or at least understand the new
+> features. Is there any really up-to-date information on 2.5, what's changed
+> (build process, new VM, new this), what's new for developers eager to jump
+> into kernel programming again? :)
 
->On Fri, Feb 01, 2002 at 03:05:38PM -0600, Steve Lord wrote:
->
->    > ext2 is the only filesystem which has O_DIRECT support.
->
->    And XFS ;-)
->
->I sent reiserfs O_DIRECT support patches to someone a while ago.  I
->can look to ressurect these (assuming I can find them!)
->
->Chris Mason is always going to be a better source for these anyhow, he
->certainly understands any complex nuances there may be.  Chris, do you
->have any cycles to comment on this please?
->
->
->
->
->  --cw
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
-You might try sending them to me if you want them to be reviewed and 
-hopefully go in.
+http://www.kernelnewbies.org/status/status.html
+provides a nice overview of 2.5 changes.
+cheers,
+Yven
+-- 
 
-Cc green@namesys.com if you do, because I will be away until the 24th.
-
-Hans
-
-
+Yven J. Leist - leist@beldesign.de
+http://www.leist.beldesign.de

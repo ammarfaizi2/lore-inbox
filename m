@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUI0Dnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUI0Dnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUI0Dnx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 23:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUI0Dnw
+	id S265773AbUI0Dnu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 23:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUI0Dnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 23:43:52 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:37275 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265800AbUI0Dng convert rfc822-to-8bit
+	Sun, 26 Sep 2004 23:43:50 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:31387 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265773AbUI0Dna convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 23:43:36 -0400
+	Sun, 26 Sep 2004 23:43:30 -0400
 X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
@@ -16,30 +16,48 @@ Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Subject: RE: suspend/resume support for driver requires an external firmware
-Date: Mon, 27 Sep 2004 11:43:09 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD5791@pdsmsx403>
+Date: Mon, 27 Sep 2004 11:43:12 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD5792@pdsmsx403>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: suspend/resume support for driver requires an external firmware
-Thread-Index: AcSiT8oJvNp+q6/BTP2rS6I6CH1doAB7rSNA
+Thread-Index: AcSicrNk8qlP+PYtQXexEaxDauquDgBzLrtQ
 From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Oliver Neukum" <oliver@neukum.org>
+To: "Marcel Holtmann" <marcel@holtmann.org>
 Cc: "Patrick Mochel" <mochel@digitalimplant.org>,
        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Sep 2004 03:43:10.0456 (UTC) FILETIME=[1BCFEF80:01C4A444]
+X-OriginalArrivalTime: 27 Sep 2004 03:43:12.0503 (UTC) FILETIME=[1D084870:01C4A444]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> Am Freitag, 24. September 2004 08:16 schrieb Zhu, Yi:
->> Choice 3? or I missed something here?
-> 
-> If the user requests suspension, why can't he transfer the
-> firmware before he does so? Thus the firmware would be in ram
-> or part of the image read back from disk.
+Marcel Holtmann wrote:
+> it consumes extra runtime memory, but why not build a simple
+> firmware cache behind the request_firmware() interface. 
 
-Do you suggest before user echo 4 > /proc/acpi/sleep, [s]he must
-do something like cat /path/of/firmware > /proc/net/ipw2100/firmware?
+I think this could be another choice, but I'd rather call it as a
+firmware 
+suspend hook. Because when the system is running, the cache 
+should be purged to save memory. swsusp (or other implementations)
+is required to call the firmware hook before device_suspend. The 
+firmware hook is responsible to load all the necessary firmwares into
+memory before suspend so that they can be read from memory in the
+next request_firmware(). And we also need a firmware resume hook to
+free the memory.
+
+But how about drivers read firmware themselves? They don't rely on
+firmware_class.
+
+> In this case it can be transparent for the driver and we won't
+> have an extra workaround for suspend/resume stuff for every
+> driver.
+
+I don't think it is a workaround, drivers are supposed to know best
+how to "save their states". Firmware is one example for now.
+
+> How many firmwares do a normal system really have to
+> hold in memory for suspend/resume actions?
+
+I don't know either. ;-)
 
 Thanks,
 -yi

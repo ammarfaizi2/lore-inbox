@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbTINFjF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 01:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTINFjF
+	id S262308AbTINF3L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 01:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTINF3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 01:39:05 -0400
-Received: from codepoet.org ([166.70.99.138]:10922 "EHLO mail.codepoet.org")
-	by vger.kernel.org with ESMTP id S262310AbTINFjD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 01:39:03 -0400
-Date: Sat, 13 Sep 2003 23:39:02 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL  [was: Re: Driver Model]]
-Message-ID: <20030914053902.GA20198@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20030914043716.GA19223@codepoet.org> <Pine.LNX.4.10.10309132152510.16744-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10309132152510.16744-100000@master.linux-ide.org>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+	Sun, 14 Sep 2003 01:29:11 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:8687 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262308AbTINF3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 01:29:10 -0400
+Message-ID: <3F63FC82.8070008@nortelnetworks.com>
+Date: Sun, 14 Sep 2003 01:28:34 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+Cc: Jamie Lokier <jamie@shareable.org>, rusty@linux.co.intel.com,
+       riel@conectiva.com.br, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Enabling other oom schemes
+References: <200309120219.h8C2JANc004514@penguin.co.intel.com>	 <20030913174825.GB7404@mail.jlokier.co.uk> <1063476152.24473.30.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Sep 13, 2003 at 09:58:41PM -0700, Andre Hedrick wrote:
+Robert Love wrote:
+> On Sat, 2003-09-13 at 13:48, Jamie Lokier wrote:
 > 
-> Pretty Boy,
 > 
-> It is coming and the intent is to return all the stolen symbols.
-> It is free for anyone to use and enjoy the usage of Linux once again.
-> So everyone get in line and SUE ME for GPL'ed drivers.
+>>Also, when the OOM condition is triggered I'd like the system to
+>>reboot, but first try for a short while to unmount filesystems cleanly.
+>>
+>>Any chance of those things?
 
-Do whatever you want.  Its your life.  Laugh at people, mock
-people, rant, rave, violtate licenses, wantever you want.
+<snip>
 
-When you are done making noise, please explain how a closed
-source binary only product that runs within the context of the
-Linux kernel is not a derivitive work, per the very definition
-given in the kernel COPYING file that grants you your limited
-rights for copying, distribution and modification,
+> I do like all of this, however, and want to see some different OOM
+> killers.
 
- -Erik
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+One thing that we've done, and that others may find useful, is to allow 
+processes to become immune to the oom-killer as long as they stay under 
+a certain amount of memory allocated.
+
+We added a syscall that specifies a certain number of pages of memory. 
+As long as the process' memory utilization remains under that amount, 
+the oom-killer will not kill it.
+
+In our case we are on a mostly-embedded system, and have a pretty good 
+idea what will be running.  This lets us engineer the critical apps to 
+be immune, while still allowing memory to be freed up by killing 
+non-critical applications.
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

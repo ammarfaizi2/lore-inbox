@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130169AbRBWI6R>; Fri, 23 Feb 2001 03:58:17 -0500
+	id <S129983AbRBWI5R>; Fri, 23 Feb 2001 03:57:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130270AbRBWI6K>; Fri, 23 Feb 2001 03:58:10 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6148 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130169AbRBWI5y>;
-	Fri, 23 Feb 2001 03:57:54 -0500
-Message-ID: <20010222214650.C14395@bug.ucw.cz>
-Date: Thu, 22 Feb 2001 21:46:50 +0100
+	id <S129882AbRBWI5A>; Fri, 23 Feb 2001 03:57:00 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129315AbRBWI4x>;
+	Fri, 23 Feb 2001 03:56:53 -0500
+Date: Sat, 1 Jan 2000 00:43:02 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Andrzej Krzysztofowicz <ankry@pg.gda.pl>, zhaoway <zw@debian.org>
+To: Yuri Niyazov <yuricake@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Newbie ask for help: cramfs port to isofs
-In-Reply-To: <877l2lyk3j.fsf@debian.org> <200102200935.KAA29865@sunrise.pg.gda.pl>
+Subject: Re: What does the linux kernel need?
+Message-ID: <20000101004302.A45@(none)>
+In-Reply-To: <20010215171245.21445.qmail@web2301.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200102200935.KAA29865@sunrise.pg.gda.pl>; from Andrzej Krzysztofowicz on Tue, Feb 20, 2001 at 10:35:20AM +0100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010215171245.21445.qmail@web2301.mail.yahoo.com>; from yuricake@yahoo.com on Thu, Feb 15, 2001 at 09:12:45AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > --- vanilla-2.4.1/fs/isofs/dir.c	Sat Dec 30 01:13:45 2000
-> > +++ cisofs/fs/isofs/dir.c	Mon Feb 19 18:40:16 2001
-> > @@ -108,8 +111,7 @@
-> >  	unsigned int block, offset;
-> >  	int inode_number = 0;	/* Quiet GCC */
-> >  	struct buffer_head *bh = NULL;
-> > -	int len;
-> > -	int map;
-> > +	int len = 0;
-> 
-> This will be the most probably rejected.
-> Zero initializers are intentionally removed from the code to decrease
-> the kernel image size.
 
-Definitely not zero initializers of _auto_ variables!!!
-								Pavel
+> Hello, respected Linux kernel developers,
+>     I am currently a university student taking a "Advanced design of 
+> Operating Systems" class at
+> New York University. We are reviewing some basic and studying a few 
+> advanced issues with regards
+> to kernel design, mostly multithreading, scalability, performance 
+> improvement - its webpage is http://www.scs.cs.nyu.edu/G22.3033-010/
+> take a look if you please. The requirement of the class is a final 
+> project proposal and
+> implementation of a student's own choosing - I would really like to do 
+> something useful for the
+> linux kernel, but I do not know what kinds of issues are most imminent 
+> at the linux kernel and
+> have to be worked on. I would greatly appreciate it if people would 
+> send me ideas of what is
+
+Creating network character device (similar to nbd) would make some people
+happy.								Pavel 
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

@@ -1,91 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVAMTYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVAMTUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVAMTYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVAMTX3
+	id S261352AbVAMTUN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:20:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVAMTTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:23:29 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:29387 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261387AbVAMTWG (ORCPT
+	Thu, 13 Jan 2005 14:19:41 -0500
+Received: from mail.joq.us ([67.65.12.105]:45493 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261389AbVAMTQl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:22:06 -0500
-From: Norbert van Nobelen <norbert-kernel@edusupport.nl>
-Organization: EduSupport BV
-To: John Richard Moser <nigelenki@comcast.net>
-Subject: Re: thoughts on kernel security issues
-Date: Thu, 13 Jan 2005 20:22:03 +0100
-User-Agent: KMail/1.6.2
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org> <41E6C507.5050302@comcast.net>
-In-Reply-To: <41E6C507.5050302@comcast.net>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 13 Jan 2005 14:16:41 -0500
+To: Matt Mackall <mpm@selenic.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050110212019.GG2995@waste.org>
+	<200501111305.j0BD58U2000483@localhost.localdomain>
+	<20050111191701.GT2940@waste.org>
+	<20050111125008.K10567@build.pdx.osdl.net>
+	<20050111205809.GB21308@elte.hu>
+	<20050111131400.L10567@build.pdx.osdl.net>
+	<20050111212719.GA23477@elte.hu> <87fz15j325.fsf@sulphur.joq.us>
+	<20050113063446.GV2940@waste.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Thu, 13 Jan 2005 13:17:27 -0600
+In-Reply-To: <20050113063446.GV2940@waste.org> (Matt Mackall's message of
+ "Wed, 12 Jan 2005 22:34:46 -0800")
+Message-ID: <87is61b0l4.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501132022.03472.norbert-kernel@edusupport.nl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 January 2005 19:59, you wrote:
-> Linus Torvalds wrote:
-> > On Thu, 13 Jan 2005, Alan Cox wrote:
-> >>On Iau, 2005-01-13 at 16:38, Linus Torvalds wrote:
->
-> [...]
->
-> > Am I claiming that disallowing self-written ELF binaries gets rid of all
-> > security holes? Obviously not. I'm claiming that there are things that
-> > people can do that make it harder, and that _real_ security is not about
-> > trusting one subsystem, but in making it hard enough in many independent
-> > ways that it's just too effort-intensive to attack.
->
-> I think you can make it non-guaranteeable.
->
-> > It's the same thing with passwords. Clearly any password protected system
-> > can be broken into: you just have to guess the password. It then becomes
-> > a matter of how hard it is to "guess" - at some point you say a password
-> > is secure not because it is a password, but because it's too _expensive_
-> > to guess/break.
->
-> You can't guarantee you can guess a password.  You could for example
-> write a pam module that mandates a 3 second delay on failed
-> authentication for a user (it does it for the console currently; use 3
-> separate consoles and you can do the attack 3 times faster).  Now you
-> have to guess the password with one try every 3 seconds.
+Matt Mackall <mpm@selenic.com> writes:
 
-Already done, actually standard practice. This does not mean actually that you 
-can not guess a password, just that it will take longer (on average).
-Luck and some knowledge about the system and people speeds up the process, so 
-the standard procedure if you really want to get into a system with a 
-password is to get information.
+> If we can get high priority SCHED_OTHER working sufficiently well,
+> that will be preferable in the long run as the security implications
+> are slightly less dire. It's already been noted that it doesn't solve
+> your privilege problem, but it's still interesting to us because it
+> has potential to address the deadlock issue.
 
+True.  
 
->
-> aA1# 96 possible values per character, 8 characters.  7.2139x10^15
-> combinations.  It takes 686253404.7 years to go through all those at one
-> every 3 seconds.  You've got a good chance at half that.
->
-> This isn't "hard," it's "infeasible."  I think the idea is to make it so
-> an attacker doesn't have to put lavish amounts of work into creating an
-> exploit that reliably re-exploits a hole over and over again; but to
-> make it so he can't make an exploit that actually works, unless it works
-> only by rediculously remote chance.
->
-> > So all security issues are about balancing cost vs gain. I'm convinced
-> > that the gain from openness is higher than the cost. Others will
-> > disagree.
->
-> Yes.  Nobody code audits your binaries.  You need source code to do
-> source code auditing.  :)
->
-> > 		Linus
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+But there may be other, better solutions to the deadlock problem.
+Several years ago, Roger Larsson wrote a completely user-space
+realtime monitor program that works perfectly well for revoking
+realtime privileges when it detects CPU starvation.  I still use it
+occasionally to help debug problems if the built-in JACK watchdog
+timer doesn't catch them.
 
+In my view, Con Kolivas' SCHED_ISO prototype is a good avenue to
+explore for mainstream kernel support.  With that approach, it is
+relatively easy to build in protection against programs that abuse
+their promised cycle reservations.  This appears to be similar to what
+Apple is doing.
+
+SCHED_OTHER is so timesharing oriented, that I seriously doubt its
+appropriateness for soft realtime.  I say this naively without any
+first-hand study of the current Linux implementation.  I do understand
+traditional Unix schedulers (at one time in detail).  The general idea
+was to punish CPU-bound processes and reward I/O-bound processes.
+
+> Doesn't mean you have to use it (though you'll probably want to give
+> your users the option).
+
+We already do.  That's why I was able to experiment with nice --20 so
+quickly.  In fact, SCHED_OTHER is the default.  Users have to specify
+-R (--realtime) before JACK requests SCHED_FIFO privileges.
+
+> On Wed, Jan 12, 2005 at 11:44:34PM -0600, Jack O'Quin wrote:
+>> This whole approach seems like a "dry well" to me.
+>
+> It may turn out to be. Please continue testing it though - you've got
+> a good test case handy.
+
+Sure.
+
+I didn't write that test script, BTW.  (I'd like to know who did.)
+IIUC, it is one Lee Revell and Rui Nuno Capela have been using to test
+Ingo's RP patches.  I got it from Rui.  I chose it because it was
+handy and I figured Ingo would be familiar with its output.
+
+We are considering including it (or some variant) in the JACK sources,
+so any interested user can download JACK, configure, compile, and then
+run `make test'.
+
+It is a fairly heavy test.  The system takes an interrupt from the
+audio card every 1.45 msec, then must schedule 22 realtime threads
+belonging to 21 different processes (the JACK server and twenty
+clients) before the next interrupt arrives.  An XRUN means the system
+was late servicing the interrupt (very bad).  The "DSP load" indicates
+that these threads are using a little over 1/3 of the total bandwidth
+of my 1.5GHz Athlon XP.
+
+>> Tomorrow, I'll try the test again after making a new kernel with
+>> STARVATION_LIMIT set to zero.  
+>> 
+>> Anything else I should try?
+>
+> Testing feedback on the bits from Ingo that have gone to -mm will
+> probably help speed their acceptance in mainline.
+
+Several people continue working with him on that.  Lee and Rui have
+been instrumental in testing with Ingo's kernels and in developing
+JACK patches to gather needed information.  Much of their
+instrumentation will be included in the next JACK release.
+
+We are all highly motivated to help.  We want Linux to have the best
+soft realtime possible, while working within the very real constraints
+of what it is practical to do in a general-purpose OS.  
+
+I hate for the OSX folks to do better.
 -- 
-<a href="http://www.edusupport.nl">EduSupport: Linux Desktop for schools and 
-small to medium business in The Netherlands and Belgium</a>
+  joq

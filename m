@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129028AbRBGEMd>; Tue, 6 Feb 2001 23:12:33 -0500
+	id <S129031AbRBGEWZ>; Tue, 6 Feb 2001 23:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129031AbRBGEMX>; Tue, 6 Feb 2001 23:12:23 -0500
-Received: from hnlmail2.hawaii.rr.com ([24.25.227.35]:42507 "EHLO
-	hawaii.rr.com") by vger.kernel.org with ESMTP id <S129028AbRBGEMG>;
-	Tue, 6 Feb 2001 23:12:06 -0500
-Message-ID: <001901c090bb$ff965420$0200a8c0@halfcomp>
-From: "Ray Strode" <halfline@hawaii.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "jeff covey" <jeff.covey@pobox.com>
-In-Reply-To: <20010206215610.T22705@jeffcovey.net>
-Subject: Re: freshmeat editorial on journaling filesystems
-Date: Tue, 6 Feb 2001 18:11:06 -1000
+	id <S129129AbRBGEWP>; Tue, 6 Feb 2001 23:22:15 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26126 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129031AbRBGEWE>; Tue, 6 Feb 2001 23:22:04 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: CPU error codes
+Date: 6 Feb 2001 20:21:40 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <95qigk$bje$1@cesium.transmeta.com>
+In-Reply-To: <Pine.SOL.4.21.0101250913590.15936-100000@orange.csi.cam.ac.uk> <E14Nz6N-0002Vj-00@the-village.bc.nu> <14976.24819.276892.26475@hoggar.fisica.ufpr.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->We'd like to run an editorial this coming Saturday about the
->journaling filesystems available for Linux.  We'd like an author who
->isn't a developer on any of them so he/she can give an object analysis
->of the pros and cons of each and share thoughts on his/her opinions
->about which should be eventually be supported by the kernel.
-I disagree.  I think you should ask someone who works on more than 
-one of the filesystems.  That person will know the pros and cons of all
-of them, and surely will be objective.
+Followup to:  <14976.24819.276892.26475@hoggar.fisica.ufpr.br>
+By author:    Carlos Carvalho <carlos@fisica.ufpr.br>
+In newsgroup: linux.dev.kernel
+> 
+> Really? I thought it could be because of RAM. Here's the story:
+> 
+> The kernel is 2.2.18pre24.
+> 
+> I'm having VERY frequent of this (sometimes once a day, sometimes once
+> a week, sometimes twice a day, on a much used machine)
+> 
+> CPU 1: Machine Check Exception: 0000000000000004
+> Bank 4: b200000000040151<0>Kernel panic: CPU context corrupt
+> 
+> CPU 0: Machine Check Exception: 0000000000000004
+> Bank 4: b200000000040151<0>Kernel panic: CPU context corrupt
+> 
+> CPU 0: Machine Check Exception: 0000000000000004
+> Bank 4: b200000000040151<0>Kernel panic: CPU context corrupt
+> 
+> This is on an ASUS P2B-DS with two PIII 700MHz and 100MHz FSB, 1GB of
+> RAM. The mce happens with both processors (the above is just part of
+> it).
+> 
+> I've already changed the motherboard and processors, and it continued.
+> Then I changed the memory, and it continues. I also changed the
+> power supply just in case, to no avail...
+> 
+> It happens with PC100 and PC133 memory. I increased the memory latency
+> (the SPD says it's cl2, I put it 3T and 10T DRAM) but the problem
+> persists.
+> 
+> Since I changed the main board and processor, I think the most likely
+> cause is ram. It seems the x86 can access ram directly, so if there's
+> a NMI there what will happen?
+> 
 
---Ray Strode
+Much more likely is that your CPU is bad, or overclocked.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

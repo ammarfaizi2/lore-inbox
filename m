@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265281AbUHCL1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUHCLwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265281AbUHCL1B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 07:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUHCL1B
+	id S265799AbUHCLwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 07:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUHCLwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 07:27:01 -0400
-Received: from host-ip82-243.crowley.pl ([62.111.243.82]:16138 "HELO
-	software.com.pl") by vger.kernel.org with SMTP id S265281AbUHCL07
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 07:26:59 -0400
-From: Karol Kozimor <kkozimor@aurox.org>
-Organization: Aurox Sp. z o.o.
-To: linux-kernel@vger.kernel.org
-Subject: Re: -mm swsusp: do not default to platform/firmware
-Date: Tue, 3 Aug 2004 13:28:14 +0200
-User-Agent: KMail/1.6.2
-References: <20040728222445.GA18210@elf.ucw.cz> <Pine.LNX.4.50.0408012313350.4359-100000@monsoon.he.net> <20040802153021.354C9AF200@voldemort.scrye.com>
-In-Reply-To: <20040802153021.354C9AF200@voldemort.scrye.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 3 Aug 2004 07:52:38 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:28346 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265799AbUHCLwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 07:52:37 -0400
+Subject: Re: PATCH: Add support for IT8212 IDE controllers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Elmar Hinz <elmar.hinz@vcd-berlin.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <410F7407.8070903@vcd-berlin.de>
+References: <2obsK-5Ni-13@gated-at.bofh.it> <410F7407.8070903@vcd-berlin.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408031328.14595.kkozimor@aurox.org>
+Message-Id: <1091530208.3573.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 03 Aug 2004 11:50:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 of August 2004 17:30, Kevin Fenzi wrote:
-> Patrick> I'd rather leave it, and put pressure on the platform
-> Patrick> implementations to be made to work. If you want to shutdown,
-> Patrick> then specify it on the command line before you suspend (or
-> Patrick> add it to the suspend script).
->
-> Does _anyone_ have a machine where platform works?
->
-> I can't recally anyone posted on the acpi/swsusp2/kernel lists that
-> they had a platform implementation that worked.
->
-> Perhaps they had no reason to post? Anyone out there with a laptop
-> with a suspend to disk in formware/platform using ACPI that works?
-> I'd love to be proven wrong...
+On Maw, 2004-08-03 at 12:16, Elmar Hinz wrote:
+> Alan Cox wrote:
+> > There is a messy scsi faking vendor driver for this card but this instead
+> > is a standard Linux IDE layer driver.
+> > 
+> 
+> I try to answer to this post. As I newly subscribed to this list, I 
+> probably won't catch the original thread.
 
-I guess you mean most users of the original pmdisk code, as it originally 
-defaulted to platform (which in most cases should be ACPI S4). I mean, S4 
-is not even remotely as obscure as S3. Then again, S4BIOS or other 
-firmware methods are different beasts.
+Not your fault - I missed out an include file update when I posted it -
+PCI_DEVICE_ID_ITE_8212 is 0x8212..
 
-For the reference, original pmdisk code worked fine with platform on my 
-laptop the last time I checked (several months ago).
-
-Best regards,
--- 
-Karol 'sziwan' Kozimor
-kkozimor@aurox.org

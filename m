@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbULRC1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262817AbULRCdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbULRC1R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 21:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbULRC1R
+	id S262817AbULRCdj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 21:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbULRCdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 21:27:17 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:3233 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261164AbULRC1M (ORCPT
+	Fri, 17 Dec 2004 21:33:39 -0500
+Received: from thunk.org ([69.25.196.29]:53707 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262817AbULRCdi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 21:27:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ClMHt3FFrldBlN1Cuwt97M3RondPEIfEkB+BV1mJ/nq5Cd5xmH8PjXblUUcdxo+qrSSvYEjUTRN4k42E3NUeU7LmWZXaE89FvJXavTU+kmnscsU3tDVp/7MpHKBNpxfzbGAbDIYYzFDNLOUoy4URSkOcBAbJAvOo7DcnBhwjWvI=
-Message-ID: <41C3B546.2040105@gmail.com>
-Date: Sat, 18 Dec 2004 04:42:46 +0000
-From: Mikkel Krautz <krautz@gmail.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 17 Dec 2004 21:33:38 -0500
+Date: Fri, 17 Dec 2004 21:33:35 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
 To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling
- Interval
-References: <1103335970.15567.15.camel@localhost> <20041218012725.GB25628@kroah.com>
-In-Reply-To: <20041218012725.GB25628@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] debugfs for 2.6.10-rc3
+Message-ID: <20041218023335.GA19699@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+References: <20041216213645.GA9710@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216213645.GA9710@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Thu, Dec 16, 2004 at 01:36:45PM -0800, Greg KH wrote:
+> I've added debugfs to my bk driver tree (located at
+> bk://kernel.bkbits.net/gregkh/linux/driver-2.6) so it will show up in
+> the next -mm release.  
 
->On Sat, Dec 18, 2004 at 02:12:50AM +0000, Mikkel Krautz wrote:
->  
->
->>Hi!
->>
->>This patch adds the option "USB HID Mouse Interrupt Polling Interval"
->>to drivers/usb/input/Kconfig, and a few lines of code to
->>drivers/usb/input/hid-core.c, to make the config option function.
->>
->>It allows people to change the interval, at which their USB HID mice
->>are polled at. This is extremely useful for people who require high
->>precision, or just likes the feeling of a very precise mouse. ;)
->>
->>As the Kconfig help implies, setting a lower polling interval is known
->>to work on several mice produced by Logitech and Microsoft. I only
->>have a Logitech MX500 to test it on. My results have been positive,
->>and so have many other people's.
->>    
->>
->
->Why not just make it a sysfs file, so you can tune it per device?  That
->way you also don't have to make it a Kconfig option.
->
->thanks,
->
->greg k-h
->
->  
->
-I'm not too familiar with sysfs, so I really don't know.
+Debugfs is a very natural name, but it will undoubtedly cause
+confusion since we already have debugfs(8) in e2fsprogs.  One is a
+filesystem, and the other is a user-mode command, so it's not a total
+name collision, but it could cause some communication mixups.  
 
-The interval is set when the device is configured - that's only once.
+On the other hand, I couldn't think of a better name, so perhaps we
+should just live with it.  I did want to point out the potential
+problem now while there's still a chance to change it, though....
 
-Therefore I think a static value in Kconfig is fine. Wouldn't a sysfs 
-entry be a little overkill for this?
-
-
-Mikkel Krautz
-
+						- Ted

@@ -1,111 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268333AbUHTRHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267670AbUHTRJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268333AbUHTRHb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUHTRHb
+	id S267670AbUHTRJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268352AbUHTRJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:07:31 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:37036 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268333AbUHTRG7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:06:59 -0400
-Subject: [PATCH] ketchup - support new -post releases
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-gZ8WFLu87uRU5N3xii/B"
-Message-Id: <1093021608.15662.1228.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 10:06:48 -0700
+	Fri, 20 Aug 2004 13:09:28 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:9106 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267670AbUHTRJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:09:07 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.8.1-mm3
+Date: Fri, 20 Aug 2004 13:08:30 -0400
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org> <200408201144.49522.jbarnes@engr.sgi.com> <200408201257.42064.jbarnes@engr.sgi.com>
+In-Reply-To: <200408201257.42064.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408201308.30662.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, August 20, 2004 12:57 pm, Jesse Barnes wrote:
+> I applied wli's per-cpu profiling patch, added some tweaks that he and I
+> discussed on irc and things look pretty good.  We can now profile all 512
+> CPUs in the system w/o livelocking :)
+>
+> Here's the output part way through a kernbench run:
 
---=-gZ8WFLu87uRU5N3xii/B
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+In the interest of consistency with my last run and to see if marcelo and 
+akpm's fixes made a difference, here's the top 30 profile hits:
 
-Since 2.6.8.1 came out, I'm sure a lot of automated tools stopped
-working, ketchup included. 
+[root@ascender root]# time readprofile -n -m System.map-2.6.8.1-mm3 | sort -nr 
+| head -30
+120535656 total                                     18.6877
+53156327 ia64_pal_call_static                     276855.8698
+52716600 default_idle                             137282.8125
+6122150 ia64_save_scratch_fpregs                 95658.5938
+6118803 ia64_load_scratch_fpregs                 95606.2969
+1918154 ia64_spinlock_contention                 19980.7708
+ 92550 collate_per_cpu_profiles                 192.8125
+ 22281 rcu_check_quiescent_state                 58.0234
+ 19673 file_move                                 87.8259
+ 15470 file_kill                                 69.0625
+ 15417 clear_page                                96.3563
+ 14668 __d_lookup                                16.3705
+ 12638 clear_page_tables                          9.6326
+ 12616 copy_page                                 49.2812
+ 11772 atomic_dec_and_lock                       45.9844
+ 11690 memset                                    11.0701
+ 11415 del_timer_sync                            22.2949
+ 10952 __copy_user                                4.6884
+  9090 xfs_ilock                                 17.7539
+  9087 zap_pte_range                              4.7328
+  8122 finish_task_switch                        28.2014
+  7125 find_get_page                             17.1274
+  6288 link_path_walk                             0.6318
+  6047 get_zone_counts                           15.7474
+  6045 __down_trylock                            18.8906
+  5745 _pagebuf_find                              3.9896
+  4873 xfs_trans_push_ail                         3.1725
+  4613 current_kernel_time                       24.0260
+  4200 xfs_iaccess                                4.1016
+  4199 fd_install                                14.5799
 
-I'm sure this patch isn't complete, but it does work to patch from 2.6.8
--> 2.6.8.1 or 2.6.8.1-mm*, so it is at least a start. 
-
--- Dave
-
---=-gZ8WFLu87uRU5N3xii/B
-Content-Disposition: attachment; filename=ketchup-postvers.patch
-Content-Type: text/x-patch; name=ketchup-postvers.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
---- ketchup-0.8.orig	2004-08-16 15:42:28.000000000 -0700
-+++ ketchup-0.8	2004-08-20 10:03:05.000000000 -0700
-@@ -126,35 +126,42 @@
-     return r
- 
- def pre(ver):
--    try: return re.match(r'\d+\.\d+\.\d+-((rc|pre)\d+)', ver).group(1)
-+    try: return re.match(r'\d+\.\d+\.\d+(\.\d+)?-((rc|pre)\d+)', ver).group(2)
-+    except: return None
-+
-+def post(ver):
-+    try: return re.match(r'(\d+\.\d+\.\d+\.\d+)', ver).group(1)
-     except: return None
- 
- def pretype(ver):
--    try: return re.match(r'\d+\.\d+\.\d+-((rc|pre)\d+)', ver).group(2)
-+    try: return re.match(r'\d+\.\d+\.\d+(\.\d+)?-((rc|pre)\d+)', ver).group(3)
-     except: return None
- 
- def prenum(ver):
--    try: return int(re.match(r'\d+\.\d+\.\d+-((rc|pre)(\d+))', ver).group(3))
-+    try: return int(re.match(r'\d+\.\d+\.\d+-((rc|pre)(\d+))', ver).group(4))
-     except: return None
- 
- def prebase(ver):
--    return re.match(r'(\d+\.\d+\.\d+(-(rc|pre)\d+)?)', ver).group(1)
-+    return re.match(r'(\d+\.\d+\.\d+((-(rc|pre)|\.)\d+)?)', ver).group(1)
- 
- def base(ver):
--    return "%s.%s" % (tree(ver), rev(ver))
-+    if post(ver):
-+	return prebase(ver)
-+    else:
-+    	return "%s.%s" % (tree(ver), rev(ver))
- 
- def forkname(ver):
--    try: return re.match(r'\d+.\d+.\d+(-(rc|pre)\d+)?(-(\w+?)\d+)?',
--                         ver).group(4)
-+    try: return re.match(r'\d+.\d+.\d+(\.\d+)?(-(rc|pre)\d+)?(-(\w+?)\d+)?',
-+                         ver).group(5)
-     except: return None
- 
- def forknum(ver):
--    try: return int(re.match(r'\d+.\d+.\d+(-(rc|pre)\d+)?(-(\w+?)(\d+))?',
--                             ver).group(5))
-+    try: return int(re.match(r'\d+.\d+.\d+(\.\d+)?(-(rc|pre)\d+)?(-(\w+?)(\d+))?',
-+                             ver).group(6))
-     except: return None
- 
- def fork(ver):
--    try: return re.match(r'\d+.\d+.\d+(-(rc|pre)\d+)?(-(\w+))?', ver).group(4)
-+    try: return re.match(r'\d+.\d+.\d+(\.\d+)?(-(rc|pre)\d+)?(-(\w+))?', ver).group(4)
-     except: return None
- 
- def get_ver(makefile):
-@@ -484,6 +491,11 @@
-         if pre(a):
-             apply_patch(a, 1)
-             a = base(a)
-+	# need a loop here to apply all of the post patches
-+	if post(b):
-+	    apply_patch(prebase(b), 0)
-+	# need a loop here to back out any a post patches
-+	    
-         ra, rb = rev(a), rev(b)
-         if ra > rb:
-             for r in range(ra, rb, -1):
-
---=-gZ8WFLu87uRU5N3xii/B--
-
+real    1m32.766s
+user    0m0.191s
+sys     1m32.592s

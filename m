@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314340AbSGUVyL>; Sun, 21 Jul 2002 17:54:11 -0400
+	id <S315120AbSGUV44>; Sun, 21 Jul 2002 17:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSGUVyL>; Sun, 21 Jul 2002 17:54:11 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:51609 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S314340AbSGUVyK>;
-	Sun, 21 Jul 2002 17:54:10 -0400
-Date: Sun, 21 Jul 2002 23:56:11 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@tech9.net>
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
-In-Reply-To: <20020721234619.A10561@lst.de>
-Message-ID: <Pine.LNX.4.44.0207212345490.29913-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315168AbSGUV44>; Sun, 21 Jul 2002 17:56:56 -0400
+Received: from revdns.flarg.info ([213.152.47.18]:8840 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S315120AbSGUV4z>;
+	Sun, 21 Jul 2002 17:56:55 -0400
+Date: Sun, 21 Jul 2002 22:58:45 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.27-dj1
+Message-ID: <20020721215845.GA23019@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mostly resyncing with the various trees that have sprouted in
+the last week, and applying obvious stuff that didn't take much thinking.
+Syncing with 4 new releases is no small feat, so this patchset is
+*mostly* just a standing still release.
+I'll start digging through the *huge* backlog of patches next time.
 
-On Sun, 21 Jul 2002, Christoph Hellwig wrote:
+As usual,..
 
-> > the genhd.c bit is safe as well, removed the comment.
-> 
-> Is there any reason the sti is there at all?  In -dj almost all drivers
-> use module_init() now so it becomes increasingly useless..
+Patch against 2.5.27 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-well, indeed. While the sti() can be understood to a certain degree - we
-used to boot with the IRQ lock on and accidentally leaving it enabled can
-cause problems - but otherwise preceeding code should not disable
-interrupts in an unbalanced way. I've removed the __sti() from my tree.
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
 
-there's even more ancient code in the block driver init path, eg. in
-drivers/block/ll_rw_blk.c:blk_dev_init():
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
 
-        outb_p(0xc, 0x3f2);
+ -- Davej.
 
-i suspect this is ancient Linux code. 0x3f2 is one of the floppy
-controller ports - many modern x86 boxes do not even have a floppy
-controller! I've removed this from my tree as well - if this is needed at
-all then it belongs into the floppy driver. Latest patch is at:
-    
-  http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-B0
+2.5.27-dj1
+o   Drop 99% of input layer changes in favour of mainline.
+o   Merge selected bits of 2.4.19rc2 & rc3.
+    | Plus some fixes from Christoph Hellwig and others.
+o   Fix 64 bit compile issues with uptime wrap patch	(Tim Schmielau)
+o   Additional Intel cache descriptors.			(Andy Grover)
+o   Update CPU frequency scaling to latest CVS.		(Dominik Brodowski)
+    | Missing the ARM bits which rejected.
+o   Allow building of serio related drivers as modules.	(Craig Kysela)
+o   Restrict frobbing of escd.				(Zwane Mwaikambo)
+o   Fix set_bit abuse in epca & specialix drivers.	(Alan Cox)
+o   Q40 keyboards only appear on a Q40.			(Alan Cox)
+o   Correct headers so miropcm-rds builds.		(Alan Cox)
+o   Missing tqueue inclusion in aironet driver.		(Alan Cox)
 
-	Ingo
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

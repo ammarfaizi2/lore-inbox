@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284842AbRLFAQT>; Wed, 5 Dec 2001 19:16:19 -0500
+	id <S284896AbRLFAQ3>; Wed, 5 Dec 2001 19:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284860AbRLFAQK>; Wed, 5 Dec 2001 19:16:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15624 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284890AbRLFAP7>; Wed, 5 Dec 2001 19:15:59 -0500
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-To: pavel@suse.cz (Pavel Machek)
-Date: Thu, 6 Dec 2001 00:20:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
-        davidel@xmailserver.org (Davide Libenzi),
-        lm@bitmover.com (Larry McVoy),
-        phillips@bonn-fries.net (Daniel Phillips),
-        hps@intermeta.de (Henning Schmiedehausen),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <20011204232240.A117@elf.ucw.cz> from "Pavel Machek" at Dec 04, 2001 11:22:41 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284860AbRLFAQT>; Wed, 5 Dec 2001 19:16:19 -0500
+Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:36597 "EHLO
+	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S284893AbRLFAQB>; Wed, 5 Dec 2001 19:16:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: root@chaos.analogic.com, Dave Jones <davej@suse.de>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Date: Wed, 5 Dec 2001 09:54:44 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.3.95.1011204151449.1672A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1011204151449.1672A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BmHS-00089l-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011206001600.OQCW485.femail3.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> that was just before 2.4 because that was when I got it... Don't flush
-> drivers too fast, please... If you kill drivers during 2.5, people
-> will not notice, and even interesting drivers will get killed. Killing
-> them during 2.6.2 might be better.
+On Tuesday 04 December 2001 03:20 pm, Richard B. Johnson wrote:
 
-They need to die before 2.6. I'm all for leaving the code present and the
-ability to select
+> FYI, I have never known a problem that python has solved, only
+> changed.
 
-	Expert
-		Drivers that need fixing
-			Clockwork scsi controller, windup mark 2
+The same could be said of C.  By definition, any program that can be 
+expressed in C could have been done on paper in binary.
 
-in 2.6 so that people do fix them
-
-Alan
+Rob

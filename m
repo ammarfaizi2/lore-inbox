@@ -1,34 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264161AbUENCRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264424AbUENCUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbUENCRE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 22:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbUENCRE
+	id S264424AbUENCUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 22:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUENCUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 22:17:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61578 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264161AbUENCRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 22:17:02 -0400
-Date: Thu, 13 May 2004 19:16:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Cc: linux-kernel@vger.kernel.org, will_dyson@pobox.com
-Subject: Re: [PATCH] befs (1/5): LBD support
-Message-Id: <20040513191633.3d0f3492.akpm@osdl.org>
-In-Reply-To: <200405132232.09816.rathamahata@php4.ru>
-References: <200405132232.09816.rathamahata@php4.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 May 2004 22:20:31 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:27007 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264424AbUENCUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 22:20:31 -0400
+Message-ID: <40A42CEB.2000007@yahoo.com.au>
+Date: Fri, 14 May 2004 12:20:27 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] truncate vs add_to_page_cache race
+References: <40A42892.5040802@yahoo.com.au>
+In-Reply-To: <40A42892.5040802@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
->
-> fs/befs/linuxvfs.c
+Nick Piggin wrote:
+> Hi,
+> I think there is a race between truncate and do_generic_mapping_read.
 
-Wow, BeFS maintenance.
+> Comments? Too ugly? Have I've missed something?
 
-Are you regularly testing BeFS?  If so, do you think it still deserves to
-be labelled "experimental"?
+Hmm, no I think the right timing can still cause readpage to see
+the shortened i_size and fill the page with zeros.

@@ -1,97 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317326AbSHOTAq>; Thu, 15 Aug 2002 15:00:46 -0400
+	id <S317194AbSHOS7t>; Thu, 15 Aug 2002 14:59:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317329AbSHOTAq>; Thu, 15 Aug 2002 15:00:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27659 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317326AbSHOTAo>;
-	Thu, 15 Aug 2002 15:00:44 -0400
-Date: Thu, 15 Aug 2002 20:04:36 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: James Morris <jmorris@intercode.com.au>
-Cc: "David S. Miller" <davem@redhat.com>, kuznet@ms2.inr.ac.ru,
-       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       Matthew Wilcox <willy@debian.org>
-Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
-Message-ID: <20020815200436.E29958@parcelfarce.linux.theplanet.co.uk>
-References: <Mutt.LNX.4.44.0208160302100.28909-100000@blackbird.intercode.com.au>
+	id <S317326AbSHOS7t>; Thu, 15 Aug 2002 14:59:49 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:15522
+	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S317194AbSHOS7s>; Thu, 15 Aug 2002 14:59:48 -0400
+Date: Thu, 15 Aug 2002 12:03:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: henrique <henrique@cyclades.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with random.c and PPC
+Message-ID: <20020815190336.GN22974@opus.bloom.county>
+References: <200208151514.51462.henrique@cyclades.com> <20020815182556.GV9642@clusterfs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Mutt.LNX.4.44.0208160302100.28909-100000@blackbird.intercode.com.au>; from jmorris@intercode.com.au on Fri, Aug 16, 2002 at 03:16:57AM +1000
+In-Reply-To: <20020815182556.GV9642@clusterfs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 03:16:57AM +1000, James Morris wrote:
-> This patch is a clean up of the sigurg and sigio related code, for 
-> the 2.5.31 kernel.
+On Thu, Aug 15, 2002 at 12:25:56PM -0600, Andreas Dilger wrote:
 
-In general, this is good... I think it could be better:
+> On Aug 15, 2002  15:14 +0000, henrique wrote:
+> > Hello !!!
+> > 
+> > I am trying to use a program (ipsec newhostkey) that uses the random device 
+> > provided by the linux-kernel. In a x86 machine the program works fine but 
+> > when I tried to run the program in a PPC machine it doesn't work.
+> > 
+> > Looking carefully I have discovered that the problem is in the driver 
+> > random.c. When the program tries to read any amount of data it locks and 
+> > never returns. It happens because the variable  "random_state->entropy_count" 
+> > is always zero, that is, any random number is generated at all !!!??.
+> > 
+> > Does anyone know anything about this problem ? Any sort of help is very 
+> > welcomed.
+> 
+> Maybe the PPC keyboard/mouse drivers do not add randomness?
 
-> +	lock_kernel();
-> +	error = f_setown(filp, current->pid);
-> +	unlock_kernel();
-
-There are a lot of these, and you even batch it up as sock_setown()
-later.  May I suggest renaming f_setown to __setown and sock_setown
-to f_setown?
-
-> @@ -306,19 +334,11 @@
->  			break;
->  		case F_SETOWN:
->  			lock_kernel();
-> -
-> -			err = security_ops->file_set_fowner(filp);
-> +			err = f_setown(filp, arg);
->  			if (err) {
->  				unlock_kernel();
->  				break;
->  			}
-> -
-> -			filp->f_owner.pid = arg;
-> -			filp->f_owner.uid = current->uid;
-> -			filp->f_owner.euid = current->euid;
-> -			err = 0;
-> -			if (S_ISSOCK (filp->f_dentry->d_inode->i_mode))
-> -				err = sock_fcntl (filp, F_SETOWN, arg);
->  			unlock_kernel();
->  			break;
->  		case F_GETSIG:
-
-this one's particularly silly -- now you've done the good job of wrapping
-the security_ops up inside f_setown this can simply be:
-
-			lock_kernel();
-			err = f_setown(filp, arg);
-			unlock_kernel();
-			break;
-
-though if you accept my suggestion above, it's even easier.
-
-> +int sk_send_sigurg(struct sock *sk)
-> +{
-> +	if (sk->socket && sk->socket->file)
-> +		return send_sigurg(&sk->socket->file->f_owner);
-> +	return 0;
-> +}
-> +
-
-I notice that both the callers of this do:
-
->  	/* Tell the world about our new urgent pointer. */
-> +	if (sk_send_sigurg(sk))
->  		sk_wake_async(sk, 3, POLL_PRI);
-
-Might make more sense to refactor as:
-
-void sk_send_sigurg(struct sock *sk)
-{
-	if (!sk->socket || !sk->socket->file)
-		return;
-	if (send_sigurg(&sk->socket->file->f_owner))
-		sk_wake_async(sk, 3, POLL_PRI);
-}
+Well, how is this set for the i386 ones?  I grepped around and I didn't
+really see anything, so I'm sort-of confused.
 
 -- 
-Revolutions do not require corporate support.
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

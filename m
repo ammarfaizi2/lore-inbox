@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313707AbSDHRSA>; Mon, 8 Apr 2002 13:18:00 -0400
+	id <S313713AbSDHRiI>; Mon, 8 Apr 2002 13:38:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313708AbSDHRR7>; Mon, 8 Apr 2002 13:17:59 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:63247 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313707AbSDHRR6>; Mon, 8 Apr 2002 13:17:58 -0400
-Message-ID: <3CB1C1A3.2040206@evision-ventures.com>
-Date: Mon, 08 Apr 2002 18:13:23 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313714AbSDHRiH>; Mon, 8 Apr 2002 13:38:07 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46853 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S313713AbSDHRiG>; Mon, 8 Apr 2002 13:38:06 -0400
+Date: Mon, 8 Apr 2002 13:35:35 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Anssi Saari <as@sci.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+In-Reply-To: <20020408154732.GA10271@sci.fi>
+Message-ID: <Pine.LNX.3.96.1020408133036.22155A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Oliver Neukum <oliver@neukum.org>, nahshon@actcom.co.il,
-        Pavel Machek <pavel@suse.cz>, Benjamin LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-        joeja@mindspring.com, linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu>	<200204080048.g380mt514749@lmail.actcom.co.il>	<200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca>	<16uSEQ-1XziYCC@fmrl04.sul.t-online.com> <200204081706.g38H62N14879@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> Oliver Neukum writes:
-> 
->>>>and spin-up on any operation that writes to the disk (and block that
->>>>operation).
->>>
->>>Absolutely not! I don't want my writes to spin up the drive.
->>
->>Even if you sync ?
-> 
-> 
-> I'm undecided. I think it's good to have a way to let the user force a
-> flush, but I don't like the same mechanism being used by applications
-> which think they know better. So flushing on sync(2) or f*sync(2) is
-> perhaps undesirable. Maybe the way to deal with this is to have:
-> 
-> - tunable flush time (i.e. how long to wait after a write(2) before
->   flushing, if the drive is currently unspun)
-> 
-> - tunable dirty pages limit (i.e. how many dirty pages allowed before
->   flushing)
-> 
-> - tunable "ignore *sync(2)" option. Default value is 0 (don't
->   ignore). When set to 1, ignore all calls to *sync(2).
-> 
-> So then on my 256 MiB laptop, I'd probably set the flush time to 3
-> hours, the dirty page limit to 64 MiB, and ignore *sync(2). I'd write
-> a suid-root programme which did:
-> 	enable_sync ();
-> 	sync ();
-> 	disable_sync ();
+On Mon, 8 Apr 2002, Anssi Saari wrote:
 
-Quite frankly the spin-up-down-up-down-up behaviour of linux on
-notbooks even if I let them entierly alone is to say the leasy annoying...
-And noflushd didn't help me a jota on this issue. Second I don't
-think that going though this cycle even on desktop systems does
-really help the reliability of the wearings of the driver. For
-some reaons I wasn't able to find all the 1000 parameters one has
-to set before the whole thing does shut properly. Curing this by
-settign some "low water mark" for the number of allowed dirty pages
-is curing the symptoms - if there are no system activities there
-simply should be no chance for some crepping dirty pages if this is
-still the case there are just chances that there are simple bugs out
-there. kflushd should by no chance flush the caches just in case
-without checking whatever there was some activity in an ideal world.
+> On Mon, Apr 08, 2002 at 10:54:29AM -0400, Bill Davidsen wrote:
+> > On Mon, 8 Apr 2002, Anssi Saari wrote:
+> > 
+> > > [1.] One line summary of the problem:    
+> > > CD burning at 16x uses excessive CPU, although DMA is enabled
+> > 
+> >   That's a hint things are not working as you expect...
+> >  
+> > > [2.] Full description of the problem/report:
+> > > My system seems to use a lot of CPU time when writing CDs at 16x. The
+> > > system is unable to feed the burning software's buffer fast enough when
+> > > burning software (cdrecord 1.11a20, cdrdao 1.1.5) is run as normal user.
+> > > If run as root, system is almost unresponsive during the burn.
+> > 
+> >   With all the information you provided, you have totally not quatified
+> > how much CPU you find "excessive."
+> 
+> I didn't really know how to put it. Maybe system load would be better. But
+> the actual problem is, I effectively can't burn audio and other types
+> at 16x in Linux, while there is no problem in some other operating systems
+> with the same hardware and applications.
+> 
+> Here're some time figures from cdrdao:
+> 
+> cdrdao simulate -n --speed 8 foo.cue  2.62s user 3.37s system 1% cpu 6:41.86 total
+> cdrdao simulate -n --speed 12 foo.cue  2.78s user 29.91s system 12% cpu 4:31.71 total
+> cdrdao simulate -n --speed 16 foo.cue  2.67s user 128.77s system 52% cpu 4:10.68 total
+> 
+> So yes, system time goes up quite steeply.
+
+
+  Okay, this is good information. At the risk of asking a dumb question,
+are you sure that both the burner and the source drive ar using DMA? And
+that they are on separate cables (controllers)? Usually the high system
+time indicated either PIO in use or some path looping in the kernel.
+ 
+> cdrdao simulate -n --speed 16 foo.cue  2.75s user 75.18s system 58% cpu
+> 2:13.22 total
+
+  That's still high. My only fast burners are in the office, if I get back
+during the week I'll run a test at 16 and 24x and see what I find.
+
+  This would be a good question for the CD writing list,
+cdwrite@other.debian.org.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

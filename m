@@ -1,93 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUBTQ71 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 11:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUBTQ71
+	id S261345AbUBTRDw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 12:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUBTRDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 11:59:27 -0500
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:33521 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S261340AbUBTQ7J convert rfc822-to-8bit (ORCPT
+	Fri, 20 Feb 2004 12:03:52 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:39833 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261345AbUBTRDn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 11:59:09 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Still have build error on 2.6.2 fc/proc/array.c
-Date: Fri, 20 Feb 2004 09:59:07 -0700
-Message-ID: <0A78D025ACD7C24F84BD52449D8505A15A80DD@wcosmb01.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Still have build error on 2.6.2 fc/proc/array.c
-Thread-Index: AcP3sgtZlWklGICiSh6HE3K2Xohf4AAH4vUw
-From: <yiding_wang@agilent.com>
-To: <marco.roeland@xs4all.nl>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Feb 2004 16:59:08.0679 (UTC) FILETIME=[DB0D7170:01C3F7D2]
+	Fri, 20 Feb 2004 12:03:43 -0500
+Date: Fri, 20 Feb 2004 18:04:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
+Message-ID: <20040220170438.GA19722@elte.hu>
+References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marco,
 
-I got things straighten up by changing the code array.c, followed your example on web.  I also downloaded gcc 3.3.3 but dare to try it now. The gcc 2.96 bug should be described in 2.6.2 Changes file which only mentioned the gcc 2.95 and beyond will be OK,
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-Thanks!
+> Your version is also not multi-threaded: you can never allow more than
+> one thread doing the "sys_mark_dir_clean()". That was the reason for
+> having two bits: so that anybody can do a lookup in parallell, and
+> only the "filldir" part needs to be serialized.
+> 
+> So I do believe you'd want two bits anyway.
 
-Eddie
+hm, right. So for the lookup to be lockless, it would have to be managed
+via a syscall variant similar in mechanism to the two-bit approach you 
+suggested:
 
-> -----Original Message-----
-> From: Marco Roeland 
-> [mailto:marco@localhost.cos.agilent.com]On Behalf Of
-> Marco Roeland
-> Sent: Friday, February 20, 2004 5:03 AM
-> To: WANG,YIDING (A-SanJose,ex1)
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Still have build error on 2.6.2 fc/proc/array.c
-> 
-> 
-> On Tuesday February 17th yiding_wang@agilent.com wrote:
-> 
-> > Based on README and requirement of Changes in linux-2.6.2, 
-> I have updated needed utilities and other files with the following:
-> > binnutils 2.14
-> > e2fsprogs-1.34
-> > module-init-tools-3.0-pre10
-> > procps 3.1.15
-> > 
-> > Everything is installed OK.
-> > 
-> > Then compiling new 2.6.2 kernel still fails wi the 
-> following.  What is the upgrade file for this problem?
-> 
-> Your kernel sources and all the mentioned tools are now OK, 
-> and probably
-> were OK already. The only thing that is giving you the error is the
-> version of the gcc compiler that you use (2.96).
-> 
-> > make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-> >   CHK     include/linux/compile.h
-> >   CC      fs/proc/array.o
-> > fs/proc/array.c: In function `proc_pid_stat':
-> > fs/proc/array.c:398: Unrecognizable insn:
-> > (insn/i 727 1015 1009 (parallel[ 
-> > ...
-> 
-> It is the *compiler* (gcc-2.96) that has a bug here. As this 
-> version of
-> gcc has many other bugs developers no longer work around difficulties
-> this specific version of gcc has.
-> 
-> What you can do is upgrade your gcc package to a later 
-> version (3.2.x or
-> 3.3.x or even later from your distribution). As a workaround 
-> I've made a
-> little patch that you can apply to fs/proc/array.c if you 
-> still want to
-> keep using gcc 2.96 for a little while. It's archived here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107567013416122&w=2
-> -- 
-> Marco Roeland
-> 
+	ret = sys_manage_dir_cache(fd, op);
+
+where the following cache states are defined:
+
+	(invalid, refill_in_progress, valid)
+
+the following type of cache ops are defined:
+
+	(lookup, cache_filled)
+
+the semantics of the sys_manage_dir_cache() syscall are the following:
+
+- op is 'lookup': the syscall returns 'valid' if state is valid. If the 
+  state is 'refill_in_progress' then lookup returns refill_in_progress. 
+  If the state is 'invalid', then the state goes to 'refill_in_progress' 
+  and 'invalid' is returned.
+
+- op is 'cache_filled': the syscall moves the state to 'valid' if state
+  is still 'refill_in_progress'. It goes to 'refill_in_progress' if the
+  state was 'invalid'.
+
+the kernel does the valid->invalid and refill_in_progress->invalid
+transitions automatically, when relevant VFS events occur. All dentries
+start out in state invalid.
+
+there's another class of problems: is it an issue that directory renames
+that move this directory (higher up in the directory hierarchy of this
+directory) do not invalidate the cache? In that case there's no dnotify
+event either.
+
+	Ingo

@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285499AbRLGUQi>; Fri, 7 Dec 2001 15:16:38 -0500
+	id <S285497AbRLGUQI>; Fri, 7 Dec 2001 15:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285500AbRLGUQ3>; Fri, 7 Dec 2001 15:16:29 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:48133 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S285499AbRLGUQX>;
-	Fri, 7 Dec 2001 15:16:23 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200112072016.fB7KGIF402108@saturn.cs.uml.edu>
-Subject: Re: vma->vm_end > 0x60000000
-To: schwab@suse.de (Andreas Schwab)
-Date: Fri, 7 Dec 2001 15:16:17 -0500 (EST)
-Cc: wli@holomorphy.com (William Lee Irwin III),
-        geert@linux-m68k.org (Geert Uytterhoeven),
-        linux-kernel@vger.kernel.org (Linux Kernel Development),
-        linux-m68k@lists.linux-m68k.org (Linux/m68k)
-In-Reply-To: <jevgfj8m5z.fsf@sykes.suse.de> from "Andreas Schwab" at Dec 07, 2001 09:33:12 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285499AbRLGUP7>; Fri, 7 Dec 2001 15:15:59 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:47011 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S285497AbRLGUPs>;
+	Fri, 7 Dec 2001 15:15:48 -0500
+Message-Id: <m16CRP4-000OWoC@amadeus.home.nl>
+Date: Fri, 7 Dec 2001 20:15:26 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: <whitney@math.berkeley.edu>
+Subject: Re: Maximizing brk() space on stock ia32 Linux 2.4.x
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112071128500.440-100000@mf1.private>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, it is a leftover from the a.out times.  IMHO it should be removed
-> completely.  "Library pages" has no meaning for ELF.
+In article <Pine.LNX.4.33.0112071128500.440-100000@mf1.private> you wrote:
+> Hello,
 
-"Library pages" == unmodified execute-only pages mapped from a
-file that is not the executable.
+> Given the limitation of running under a stock ia32 Linux 2.4.x kernel
+> (e.g. TASK_UNMAPPED_BASE = 0x40000000 and __PAGE_OFFSET = 0xC0000000), how
+> can one write a program in a way to maximize the address space available
+> for brk()?  For example:
+
+Try using the "hoard" preload library for malloc() 
+Does wonders...

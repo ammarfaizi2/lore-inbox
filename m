@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268575AbTBYVgm>; Tue, 25 Feb 2003 16:36:42 -0500
+	id <S268434AbTBYVb1>; Tue, 25 Feb 2003 16:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268576AbTBYVgm>; Tue, 25 Feb 2003 16:36:42 -0500
-Received: from cs666873-16.austin.rr.com ([66.68.73.16]:51208 "EHLO
-	raptor.int.mccr.org") by vger.kernel.org with ESMTP
-	id <S268575AbTBYVgl>; Tue, 25 Feb 2003 16:36:41 -0500
-Date: Tue, 25 Feb 2003 15:46:26 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: zilvinas@gemtek.lt, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.62-mm3 - no X for me
-Message-ID: <359700000.1046209586@[10.1.1.5]>
-In-Reply-To: <20030225132755.241e85ac.akpm@digeo.com>
-References: <20030223230023.365782f3.akpm@digeo.com>
- <3E5A0F8D.4010202@aitel.hist.no><20030224121601.2c998cc5.akpm@digeo.com>
- <20030225094526.GA18857@gemtek.lt><20030225015537.4062825b.akpm@digeo.com>
- <131360000.1046195828@[10.1.1.5]> <20030225132755.241e85ac.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S268435AbTBYVb1>; Tue, 25 Feb 2003 16:31:27 -0500
+Received: from holomorphy.com ([66.224.33.161]:54199 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S268434AbTBYVbZ>;
+	Tue, 25 Feb 2003 16:31:25 -0500
+Date: Tue, 25 Feb 2003 13:40:43 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpu-2.5.63-1
+Message-ID: <20030225214043.GG10411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+References: <20030225175456.GE10396@holomorphy.com> <20030225133207.2352bb9a.rddunlap@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030225133207.2352bb9a.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 25, 2003 at 01:32:07PM -0800, Randy.Dunlap wrote:
+-	if (target_cpu_mask & allowed_mask) {
++	if (cpus_empty(tmp)) {
+# ?	if (!cpus_empty(tmp)) {
+
+Yep, that's a bug.
 
 
---On Tuesday, February 25, 2003 13:27:55 -0800 Andrew Morton
-<akpm@digeo.com> wrote:
+On Tue, Feb 25, 2003 at 01:32:07PM -0800, Randy.Dunlap wrote:
+-#define BITS_TO_LONGS(bits) \
+-	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
+# keep this and use it.  (but moved from another file)
++#define DECLARE_BITMAP(name,bits) \
++	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
+#	unsigned long name[BITS_TO_LONGS(bits)]
++#define CLEAR_BITMAP(name,bits) \
++	memset(name, 0, ((bits)+BITS_PER_LONG-1)/8)
+#	memset(name, 0, BITS_TO_LONGS(bits) * (BITS_PER_LONG / 8))
+# This clears all longs in <name>, so that extra code below can disappear.
 
->> Or I could set the anon flag based on that test.  I know page flags are
->> getting scarce, so I'm leaning toward removing the flag entirely.
->> 
->> What would you recommend?
-> 
-> Keep the flag for now, find the escaped page under X, remove the flag
-> later?
+Header ordering stuff. A wee bit brute-force. All good cleanups.
+You originally spotted the bitmap_fill() typo too.
 
-It occurred to me I'm already using (abusing?) the flag for nonlinear
-pages, so I have to keep it.  I'll chase solutions for X.
+Looks like time for a cpu-2.5.63-2 with your changes.
 
-Dave McCracken
+
+-- wli

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbTLaKS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 05:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbTLaKS0
+	id S264129AbTLaKdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 05:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbTLaKdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 05:18:26 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:16516 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264147AbTLaKSZ (ORCPT
+	Wed, 31 Dec 2003 05:33:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51433 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264129AbTLaKdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 05:18:25 -0500
-Date: Wed, 31 Dec 2003 11:17:41 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Andy Isaacson <adi@hexapodia.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-Message-ID: <20031231101741.GA4378@k3.hellgate.ch>
-Mail-Followup-To: Thomas Molina <tmolina@cablespeed.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Andy Isaacson <adi@hexapodia.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain> <20031230132145.B32120@hexapodia.org> <20031230194051.GD22443@holomorphy.com> <20031230222403.GA8412@k3.hellgate.ch> <Pine.LNX.4.58.0312301921510.3193@localhost.localdomain>
+	Wed, 31 Dec 2003 05:33:14 -0500
+Date: Wed, 31 Dec 2003 11:32:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: Andrew Morton <akpm@osdl.org>, Miquel van Smoorenburg <miquels@cistron.nl>,
+       linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: System hangs after echo value > /sys/block/dm-0/queue/nr_requests
+Message-ID: <20031231103258.GT3086@suse.de>
+References: <20031229130055.GA30647@cistron.nl> <20031230034239.27950054.akpm@osdl.org> <3FF21BE1.9070603@cs.wisc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312301921510.3193@localhost.localdomain>
-X-Operating-System: Linux 2.6.0-test11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <3FF21BE1.9070603@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Dec 2003 19:33:06 -0500, Thomas Molina wrote:
-> If I am understanding you, you would like data on 2.5.27, 2.5.38, and 
-> 2.5.39.  I'll do it if it will help something.  I'll look at it in the 
+On Tue, Dec 30 2003, Mike Christie wrote:
+> Andrew Morton wrote:
+> 
+> >Where queue_requests_store() does wake_up(&rl->wait[READ]);
+> >
+> >It looks like nobody has called blk_init_queue() for this queue and the
+> >waitqueue head is uninitialised.
+> >
+> 
+> DM, MD, rd and loop use blk_alloc_queue and blk_queue_make_request to 
+> initialize their queue, because they only use the make_request_fn. The 
+> attached patch prevents the queue from being registered if only 
+> blk_alloc_queue was called.
 
-Thanks. 2.5.39 alone will do, actually. I'm just curious how far the
-similarity between qsbench and bk export goes.
+I'm fine with that patch since we don't have any attributes in there
+that apply to just remappers.
 
-Roger
+-- 
+Jens Axboe
+

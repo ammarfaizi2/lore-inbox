@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276732AbRJKTVa>; Thu, 11 Oct 2001 15:21:30 -0400
+	id <S276750AbRJKTV3>; Thu, 11 Oct 2001 15:21:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276736AbRJKTTc>; Thu, 11 Oct 2001 15:19:32 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:32402 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S276702AbRJKTS5>; Thu, 11 Oct 2001 15:18:57 -0400
-Date: Thu, 11 Oct 2001 21:18:16 +0200 (CEST)
-From: eduard.epi@t-online.de (Peter Bornemann)
-To: Andris Pavenis <pavenis@latnet.lv>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11: mount flag noexec still broken for VFAT partition
-In-Reply-To: <Pine.LNX.4.21.0110110828290.29091-100000@gulbis.latnet.lv>
-Message-ID: <Pine.LNX.4.33.0110112112530.966-100000@eduard.t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276732AbRJKTUm>; Thu, 11 Oct 2001 15:20:42 -0400
+Received: from bzq-240-21.red.bezeqint.net ([212.179.240.21]:260 "EHLO
+	darkstar") by vger.kernel.org with ESMTP id <S276751AbRJKTTr>;
+	Thu, 11 Oct 2001 15:19:47 -0400
+Date: Thu, 11 Oct 2001 21:20:15 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.12 fails to compile with IEEE 1284 parport enabled
+Message-ID: <20011011212015.A7983@darkstar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
+From: Koby Kahane <kobyk@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+while attempting to compile 2.4.12, during the module compilation phase, the following errors occur:
 
-> Yes I cannot really execute them (or some Linux executable if I copy it
-> there). I didn't verify it earlier. Anyway I better liked behaviour of 2.2
-> kernels and also 2.4 kernels up to rather recent time when
-> 'ls -l' listed files as not executable (the same with mc)
+...
+make -C parport modules
+make[2]: Entering directory `/usr/src/linux/drivers/parport'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux/include/linux/modversions.h   -c -o share.o share.c
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux/include/linux/modversions.h   -c -o ieee1284.o ieee1284.c
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux/include/linux/modversions.h   -c -o ieee1284_ops.o ieee1284_ops.c
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
+make[2]: *** [ieee1284_ops.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/drivers/parport'
+make[1]: *** [_modsubdir_parport] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
-Somebody on this list posted a rather clean solution: there is a
-"showexec"-flag for MS-filesystems, which shows only files .exe, .com or
-.bat extensions as executable. This is a better thing than to play with
-umask I think. Umask will give problems with wine and (maybe) dosemu.
+The following configuration options which appear to be related are enabled:
 
-Best wishes
+...
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_SERIAL=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+# CONFIG_PARPORT_PC_PCMCIA is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+...
 
-Peter B
+This configuration worked fine with 2.4.11.
 
-
-Microsoft is not the solution, it is the problem.
+  Koby Kahane
 

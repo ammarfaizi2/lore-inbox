@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVBQRtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVBQR47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbVBQRtM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 12:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVBQRrz
+	id S261167AbVBQR47 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 12:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBQR47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 12:47:55 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:54487 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262348AbVBQRqi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 12:46:38 -0500
-Message-ID: <4214D878.7020804@tiscali.de>
-Date: Thu, 17 Feb 2005 18:46:32 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Deepti Patel <pateldeepti@lycos.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 
-References: <20050217171449.CDB483384C@ws7-3.us4.outblaze.com>
-In-Reply-To: <20050217171449.CDB483384C@ws7-3.us4.outblaze.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 17 Feb 2005 12:56:59 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:21041 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261167AbVBQR4w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 12:56:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=SBeGfEQWJLTw/gT5WDTYdiMBrHp6MJQDHxPxmmqJZxTdC0gfUgiaCr+oXheMtEvWQ9ECTPL5TPCSed0zMhuGbb1XMKxsojHwoif+ZEfsIpUK6JMC/E6tyljoqxRMQHUqi7cQcr2cTjtOVnfxB3GYrfgunJsS+sE/EQTFXmqOVuI=
+Message-ID: <9e4733910502170956e00a869@mail.gmail.com>
+Date: Thu, 17 Feb 2005 12:56:51 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200502170945.30536.jbarnes@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200502151557.06049.jbarnes@sgi.com>
+	 <200502170929.54100.jbarnes@sgi.com>
+	 <9e47339105021709321dc72ab2@mail.gmail.com>
+	 <200502170945.30536.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepti Patel wrote:
+On Thu, 17 Feb 2005 09:45:30 -0800, Jesse Barnes <jbarnes@sgi.com> wrote:
+> Ok, how does this one look to you guys?  The r128 driver would need similar
+> fixes.
 
->Hi 
->I am getting an error while inserting an hello world program. 
->
->[deepti@marieke deepti]$ /sbin/insmod hello-2.ko
->insmod: error inserting 'hello-2.ko': -1 Operation not permitted
->
->I haven't logged in as root. For inserting a module do I need to logged in as root?
->I will really appretiate any suggestions.
->
->Thanks in advance
->
->
->
->  
->
-Jep you need to be root.
+Do any of the radeon ROMs store multiple images in different formats?
+Should the radeon driver loop throught the ROM images looking for one
+that it can understand, or is there alway only a single image? If ATI
+wanted to they could make ROMs with both x86 and OpenFirmware images
+on them.
 
-Matthias-Christian Ott
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbTKHRqk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 12:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTKHRqk
+	id S261895AbTKHRnC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 12:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTKHRnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 12:46:40 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:54534 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261901AbTKHRqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 12:46:38 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+	Sat, 8 Nov 2003 12:43:02 -0500
+Received: from galileo.bork.org ([66.11.174.156]:47531 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261895AbTKHRm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 12:42:59 -0500
+Subject: [PATCH 2.6] Number of proc entries based on NR_CPUS ?
+From: Martin Hicks <mort@wildopensource.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6-test6: nanosleep+SIGCONT weirdness
-Date: Sat, 8 Nov 2003 19:46:28 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200311081946.28808.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Organization: Wild Open Source Inc.
+Message-Id: <1068313378.685.7.camel@socrates>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 08 Nov 2003 12:42:58 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I observe some strange behaviour in 2.6-test6 with this small program:
 
-n.c
-===
-#include <sys/time.h>
-#include <errno.h>
-int main(int argc, char* argv[]) {
-    struct timespec t = { 5000,0};
-    while(nanosleep(&t,&t)<0) {
-        puts("Yeah");
-        if(errno!=EINTR) break;
-    }
-    return 0;
-}
+Here is a patch that makes the number of /proc entries be based on
+NR_CPUS instead of just having a fixed number.  I think it is a good
+idea now that big Linux machines are starting to appear.
 
-In 2.4 stracing it while doing killall -CONT ./n works fine:
+The proper constant and slope of increase are up for argument too.
 
-# strace ./n
-execve("./n", ["./n", "5000"], [/* 23 vars */]) = 0
-nanosleep({5000, 0}, 0xbffffd54)        = -1 EINTR (Interrupted system 
-call)
---- SIGCONT (Continued) ---
-write(1, "Yeah", 4Yeah)                     = 4
-write(1, "\n", 1
-)                       = 1
-nanosleep({4994, 730000000}, 0xbffffd54) = -1 EINTR (Interrupted system 
-call)
---- SIGCONT (Continued) ---
-write(1, "Yeah", 4Yeah)                     = 4
-write(1, "\n", 1
-)                       = 1
-nanosleep({4994, 280000000}, 0xbffffd54) = -1 EINTR (Interrupted system 
-call)
---- SIGCONT (Continued) ---
-write(1, "Yeah", 4Yeah)                     = 4
-write(1, "\n", 1
-)                       = 1
-nanosleep({4993, 930000000}, 
+Patch is against the latest linux-2.5 bk tree.
 
-But in 2.6 it does this:
+Opinions?
+mh
 
-# strace ./n
-execve("./n", ["./n", "400"], [/* 26 vars */]) = 0
-nanosleep({5000, 0}, 0xbffffc44)        = -1 ERRNO_516 (errno 516)
---- SIGCONT (Continued) ---
-setup()                                 = -1 EFAULT (Bad address)
---- SIGCONT (Continued) ---
-write(1, "Yeah", 4Yeah)                     = 4
-write(1, "\n", 1
-)                       = 1
-_exit(0)                                = ?
 -- 
-vda
+Martin Hicks                Wild Open Source Inc.
+mort@wildopensource.com     613-266-2296
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1359  -> 1.1360 
+#	include/linux/proc_fs.h	1.27    -> 1.28   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/11/08	mort@green.i.bork.org	1.1360
+# Make PROC_NDYNAMIC based on NR_CPUS.
+# --------------------------------------------
+#
+diff -Nru a/include/linux/proc_fs.h b/include/linux/proc_fs.h
+--- a/include/linux/proc_fs.h	Sat Nov  8 12:38:34 2003
++++ b/include/linux/proc_fs.h	Sat Nov  8 12:38:34 2003
+@@ -27,7 +27,7 @@
+ /* Finally, the dynamically allocatable proc entries are reserved: */
+ 
+ #define PROC_DYNAMIC_FIRST 4096
+-#define PROC_NDYNAMIC      16384
++#define PROC_NDYNAMIC      (4096+32*NR_CPUS)
+ 
+ #define PROC_SUPER_MAGIC 0x9fa0
+ 
+
+

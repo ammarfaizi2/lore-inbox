@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUF2Lu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265727AbUF2MCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbUF2Lu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 07:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265727AbUF2LuZ
+	id S265727AbUF2MCv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 08:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUF2MCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 07:50:25 -0400
-Received: from cantor.suse.de ([195.135.220.2]:60346 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265722AbUF2LuY (ORCPT
+	Tue, 29 Jun 2004 08:02:51 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:24200 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265727AbUF2MCt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 07:50:24 -0400
-Date: Tue, 29 Jun 2004 13:45:23 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Bart Hartgers <bart@etpmod.phys.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: hwscan hangs on USB2 disk - SCSI_IOCTL_SEND_COMMAND
-Message-ID: <20040629114523.GY4732@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Bart Hartgers <bart@etpmod.phys.tue.nl>, linux-kernel@vger.kernel.org
-References: <20040629093739.40243364C@etpmod.phys.tue.nl> <20040629094557.GR4732@tpkurt.garloff.de>
+	Tue, 29 Jun 2004 08:02:49 -0400
+Date: Tue, 29 Jun 2004 14:02:01 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Edgar Toernig <froese@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] signal handler defaulting fix ...
+Message-ID: <20040629120201.GA24075@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.58.0406281430470.18879@bigblue.dev.mdolabs.com> <20040628144003.40c151ff.akpm@osdl.org> <Pine.LNX.4.58.0406281446460.28764@ppc970.osdl.org> <Pine.LNX.4.58.0406281453250.18879@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0406281507090.28764@ppc970.osdl.org> <20040629032441.403163dd.froese@gmx.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3a/Z8KDuKqDOIvAo"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040629094557.GR4732@tpkurt.garloff.de>
-X-Operating-System: Linux 2.6.5-17-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040629032441.403163dd.froese@gmx.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 June 2004 03:24:41 +0200, Edgar Toernig wrote:
+> Linus Torvalds wrote:
+> > 
+> > So? That program is buggy.
+> 
+> Not the signal part.  It was written for libc5.  There, signals set
+> with signal(2) were reset when raised (SysV-style).  Leaving such a
+> signal handler with longjmp was perfectly valid.
 
---3a/Z8KDuKqDOIvAo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But has a very distinct problem.  A segmentation fault is usually a
+bug and deserves a core dump.  Sane default behaviour.  If the program
+tells the kernel, it can handle segmentation faults on it's own, fine.
+But if - while handling the fault - it creates a second one, the claim
+was obviously false.  Coredump, done.
 
-On Tue, Jun 29, 2004 at 11:45:57AM +0200, Kurt Garloff wrote:
-> Does it work if you send the INQUIRY with 36 bytes allocation length?
-> scsi_cmd_buf[8 + 4] =3D 0x26;
+Now, how can the kernel tell, whether a second segmentation fault
+happened inside the handler or after successfully handling the first
+one?  Right, with longjmp it can't.  Coredump, done.
 
-I mean 0x24 of course ...
---=20
-Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
-SUSE LINUX AG / Novell, Nuernberg, DE               Director SUSE Labs
+Jörn
 
---3a/Z8KDuKqDOIvAo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA4VZTxmLh6hyYd04RAo39AKCg4/OjSj3cH9MEfdB+rinTMft45gCgxFqt
-xLOoB9kSVdR0USShLtf67DA=
-=xpzt
------END PGP SIGNATURE-----
-
---3a/Z8KDuKqDOIvAo--
+-- 
+Victory in war is not repetitious.
+-- Sun Tzu

@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266962AbUBGPS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 10:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266961AbUBGPRl
+	id S266961AbUBGPU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 10:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266964AbUBGPU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 10:17:41 -0500
-Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:16079 "EHLO
-	gate2.perex.cz") by vger.kernel.org with ESMTP id S266958AbUBGPRj convert rfc822-to-8bit
+	Sat, 7 Feb 2004 10:20:29 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:10191 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S266961AbUBGPUX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 10:17:39 -0500
-Date: Sat, 7 Feb 2004 17:17:27 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: jjluza <jjluza@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.6.3-rc1: No sound with nforce2 sound system
-In-Reply-To: <200402071610.04856.jjluza@free.fr>
-Message-ID: <Pine.LNX.4.58.0402071716200.2460@pnote.perex-int.cz>
-References: <200402071357.35566.jjluza@free.fr> <Pine.LNX.4.58.0402071602580.2460@pnote.perex-int.cz>
- <200402071610.04856.jjluza@free.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso8859-2
-Content-Transfer-Encoding: 8BIT
+	Sat, 7 Feb 2004 10:20:23 -0500
+Date: Sat, 7 Feb 2004 09:20:08 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Clay Haapala <chaapala@cisco.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib routines
+Message-ID: <20040207092008.A29036@lists.us.dell.com>
+References: <yquj4qu8je1m.fsf@chaapala-lnx2.cisco.com> <Xine.LNX.4.44.0402031213120.939-100000@thoron.boston.redhat.com> <20040203175006.GA19751@chaapala-lnx2.cisco.com> <20040203185111.GA31138@waste.org> <yqujad40j7rn.fsf@chaapala-lnx2.cisco.com> <20040203172508.B26222@lists.us.dell.com> <20040203233737.GD31138@waste.org> <yquj4qu6g6ui.fsf@chaapala-lnx2.cisco.com> <20040204172116.GF31138@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040204172116.GF31138@waste.org>; from mpm@selenic.com on Wed, Feb 04, 2004 at 11:21:16AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004, jjluza wrote:
-
-> Le Saturday 07 February 2004 16:06, vous avez écrit :
-> > We know about this bug. It's related to VRA detection which is failing for
-> > multichannel codecs in some cases. You may try to force your game to
-> > 48000Hz/16-bit/stereo audio parameters until we can fix this bug - or look
-> > to Documentation/sound/alsa/OSS-Emulation.txt for hints to make quake
-> > working. Unfortunately no primary ALSA developer has access to this
-> > type of hardware so debugging is quite slow using e-mails.
+On Wed, Feb 04, 2004 at 11:21:16AM -0600, Matt Mackall wrote:
+> As has been pointed out, _not_ putting some sort of license on it
+> potentially opens people who ship it up to liability. Arguably, by
+> compiling it into the kernel, you're accepting the GPL liability terms
+> for that use. But that doesn't stop someone from taking crc32.c,
+> incorporating it into something else, having it blow up disastrously,
+> and then suing whoever sold them the kernel tarball. Sounds
+> outlandish, but crazier things have happened.
 > 
-> ok, in fact I thought that it's strange because I've never get this type of 
-> problem before
-> I'll try what you said and hope that it will work
-> thanks
-> 
-> PS: maybe I can help to debug the problem with devel by mail ? do you know who 
-> I should contact to help ?
+> As "dual GPL/public domain license" is an oxymoron, the best thing to
+> do is probably to slap a dual GPL/2-clause BSD license on it to
+> disclaim liability while minimally limiting all other rights. Matt,
+> since you're the last one to touch this, I'll let you make the call,
+> but here's what I would suggest (still needs an actual copyright
+> notice):
 
-See http://www.mail-archive.com/alsa-devel@lists.sourceforge.net/
-'intel8x0 has stopped working' thread (last e-mails).
+Thanks for the dual-license BSD/GPL patch Matt.
+Before proceeding with accepting your patch, I'm asking our Dell IP
+legal team for advice, just to be safe.  IANAL, most of us aren't,
+they are.  I'll send a follow-up soon as I hear back, probably early
+next week.
 
-						Jaroslav
+Thanks,
+Matt
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268567AbTBZBUo>; Tue, 25 Feb 2003 20:20:44 -0500
+	id <S268557AbTBZBTX>; Tue, 25 Feb 2003 20:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268571AbTBZBUn>; Tue, 25 Feb 2003 20:20:43 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:3333
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S268567AbTBZBUi>; Tue, 25 Feb 2003 20:20:38 -0500
-Subject: Re: Preemptive kernel
-From: Robert Love <rml@tech9.net>
-To: henrique.gobbi@cyclades.com
+	id <S268562AbTBZBTX>; Tue, 25 Feb 2003 20:19:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:44720 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268557AbTBZBTW>;
+	Tue, 25 Feb 2003 20:19:22 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E5BA48C.2020602@cyclades.com>
-References: <Pine.LNX.4.33.0301211141580.8730-100000@pcz-madhavis.sasken.com>
-	 <3E2CF0A1.5030203@ToughGuy.net>  <3E5BA48C.2020602@cyclades.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046223051.1346.130.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 25 Feb 2003 20:30:52 -0500
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Modules race fix
+Date: Wed, 26 Feb 2003 12:25:13 +1100
+Message-Id: <20030226012938.DB6662C2D2@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-25 at 12:14, Henrique Gobbi wrote:
+Linus, please apply.
 
-> Where's the official repository for preemptive kernel patches. I'm 
-> looking the patch for the kernel 2.4.17 for the ppc arch.
+Name: Fix two module races
+Author: Bob Miller, Rusty Russell
+Status: Trivial
 
-http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/
+D: Bob Miller points out that the try_module_get in use_module() can,
+D: of course, fail.  Secondly, there is a race between setting the module
+D: live, and a simultaneous removal of it.
 
-Not sure how well supported PPC was back in 2.4.17.  A newer patch, or
-2.5, is recommended.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.62-bk6/kernel/module.c working-2.5.62-bk6-modraces/kernel/module.c
+--- linux-2.5.62-bk6/kernel/module.c	2003-02-18 11:18:57.000000000 +1100
++++ working-2.5.62-bk6-modraces/kernel/module.c	2003-02-24 13:42:44.000000000 +1100
+@@ -173,16 +173,19 @@ static int use_module(struct module *a, 
+ 	struct module_use *use;
+ 	if (b == NULL || already_uses(a, b)) return 1;
+ 
++	if (!strong_try_module_get(b))
++		return 0;
++
+ 	DEBUGP("Allocating new usage for %s.\n", a->name);
+ 	use = kmalloc(sizeof(*use), GFP_ATOMIC);
+ 	if (!use) {
+ 		printk("%s: out of memory loading\n", a->name);
++		module_put(b);
+ 		return 0;
+ 	}
+ 
+ 	use->module_which_uses = a;
+ 	list_add(&use->list, &b->modules_which_use_me);
+-	try_module_get(b); /* Can't fail */
+ 	return 1;
+ }
+ 
+@@ -1456,10 +1459,12 @@ sys_init_module(void *umod,
+ 	}
+ 
+ 	/* Now it's a first class citizen! */
++	down(&module_mutex);
+ 	mod->state = MODULE_STATE_LIVE;
+ 	module_free(mod, mod->module_init);
+ 	mod->module_init = NULL;
+ 	mod->init_size = 0;
++	up(&module_mutex);
+ 
+ 	return 0;
+ }
 
-	Robert Love
 
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

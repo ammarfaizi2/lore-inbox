@@ -1,75 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135217AbRECVLp>; Thu, 3 May 2001 17:11:45 -0400
+	id <S135239AbRECVRp>; Thu, 3 May 2001 17:17:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135226AbRECVLg>; Thu, 3 May 2001 17:11:36 -0400
-Received: from fjordland.nl.linux.org ([131.211.28.101]:8970 "EHLO
-	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S135217AbRECVLZ>; Thu, 3 May 2001 17:11:25 -0400
-From: Daniel Phillips <phillips@nl.linux.org>
-To: ac9410@bellsouth.net
-Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20010503211046Z92199-3530+25@humbolt.nl.linux.org>
-Date: Thu, 3 May 2001 23:10:45 +0200
+	id <S135240AbRECVRg>; Thu, 3 May 2001 17:17:36 -0400
+Received: from web4402.mail.yahoo.com ([216.115.105.32]:64273 "HELO
+	web4402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135239AbRECVRY>; Thu, 3 May 2001 17:17:24 -0400
+Message-ID: <20010503211723.28010.qmail@web4402.mail.yahoo.com>
+Date: Thu, 3 May 2001 14:17:23 -0700 (PDT)
+From: techorix <techorix@yahoo.com>
+Subject: Kernel-Error with my Chipset/HD-Combination using DMA
+To: linux-kernel@vger.kernel.org
+Cc: andre@linux-ide.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This combination against 2.4.4 won't allow directories to be moved.
-> Ex: mv a b #fails with I/O error.  See attached strace.
-> But with ext2-dir-patch-S4 by itself, mv works as it should.
+Hi,
+after changing from 2.2.17 - kernel (where no such
+issues were noticeable) to 2.2.19 (with 'enable
+dma-support' etc compiled into kernel) 
+Would be very nice if you could tell me if the error
+is related to my harddrive (hardware) or is maybe a
+kernel-bug and at which version it should be fixed.
+Regards,
+Michael
 
-Now it also works with my index patch as it should:
+ps. here all relevant information i could gather/think
+of:
 
-    http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-3
+Here's the error's output (get it at bootup):
 
-It was just an uninitialized *err return.  Next patch I'll follow Al
-Viro's suggestion and change ext2_getblk (used *only* in the directory  
-code) to use ERR_PTR instead of *err, saving an argument and eliminating
-the chance for this kind of dumb error.
-    
-ext2_getblk now looks like:
+hda: dma_intr: status=0x51 { DriveReady SeekComplete
+Error }
+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-struct buffer_head *ext2_getblk (struct inode *inode, u32 block, int create, int *err)
-{
-	unsigned blockshift = inode->i_sb->s_blocksize_bits;
-	unsigned blocksize = 1 << blockshift;
-	unsigned pshift = PAGE_CACHE_SHIFT - blockshift;
-	struct buffer_head *bh;
-	struct page *page;
+Well
+hdparm -d 1 -c 1 works (were disabled after bootup)
+BUT: error seems to be more often then
 
-	if (!(page = grab_cache_page(inode->i_mapping, block >> pshift)))
-		goto fail_page;
-	if (!page->buffers)
-		create_empty_buffers (page, inode->i_dev, blocksize);
-	bh = page_buffer (page, block & ((1 << pshift) - 1));
-	atomic_inc(&bh->b_count);
-	UnlockPage(page);
-	page_cache_release(page);
-	*err = 0;
-	if (buffer_mapped(bh))
-		return bh;
-	if ((*err = ext2_get_block(inode, block, bh, create)))
-		goto out_null;
-	if (!buffer_mapped(bh))
-		goto out_null;
-	if (!buffer_new(bh))
-		return bh;
-	lock_buffer(bh);
-	memset(bh->b_data, 0, blocksize);
-	mark_buffer_uptodate(bh, 1);
-	mark_buffer_dirty_inode(bh, inode);
-	unlock_buffer(bh);
-	return bh;
-out_null:
-	brelse(bh);
-	return NULL;
-fail_page:
-	*err = -EIO;
-	return NULL;
-}
+lspci shows this:
 
-A little longer, somewhat clearer and much more correct.
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi]
+M1541 (rev 04)
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243
+(rev 04)
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi]
+M5229 IDE (rev c1)
 
---
-Daniel
+hdparm -i this:
+/dev/hda:
+
+ Model=ST330630A, FwRev=3.21, SerialNo=3CK0EYZM
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs
+RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=2048kB, MaxMultSect=16,
+MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes,
+LBAsects=59777640
+ IORDY=on/off, tPIO={min:240,w/IORDY:120},
+tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3
+udma4 
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

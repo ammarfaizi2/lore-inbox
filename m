@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUFQPrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266565AbUFQPww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUFQPrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 11:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUFQPqe
+	id S266565AbUFQPww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 11:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266559AbUFQPwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 11:46:34 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:17085 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266549AbUFQPqL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 11:46:11 -0400
-Date: Thu, 17 Jun 2004 17:46:08 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Bruce Marshall <bmarsh@bmarsh.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Use of Moxa serial card with SMP kernels
-Message-ID: <20040617154608.GM20632@lug-owl.de>
-Mail-Followup-To: Bruce Marshall <bmarsh@bmarsh.com>,
-	linux-kernel@vger.kernel.org
-References: <200406171112.39485.bmarsh@bmarsh.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9a90ueqXKpg1SWhp"
-Content-Disposition: inline
-In-Reply-To: <200406171112.39485.bmarsh@bmarsh.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Thu, 17 Jun 2004 11:52:51 -0400
+Received: from omr4.netsolmail.com ([216.168.230.140]:30892 "EHLO
+	omr4.netsolmail.com") by vger.kernel.org with ESMTP id S266566AbUFQPwO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 11:52:14 -0400
+Message-ID: <40D1BE1C.2010507@vzavenue.net>
+Date: Thu, 17 Jun 2004 11:51:56 -0400
+From: Vincent van de Camp <vncnt@vzavenue.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.6/7: sym0:0:0:M_REJECT to send for : 1-2-3-1. in syslog
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a pretty old but still very usable machine using a Symbios Logic 
+53c810 SCSI card that started spewing out these messages in kernel 2.6.6:
 
---9a90ueqXKpg1SWhp
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Jun 17 11:36:21 localhost kernel: sym0:0:0:M_REJECT to send for : 1-2-3-1.
+Jun 17 11:36:52 localhost last message repeated 159 times
+Jun 17 11:36:59 localhost last message repeated 11 times
 
-On Thu, 2004-06-17 11:12:39 -0400, Bruce Marshall <bmarsh@bmarsh.com>
-wrote in message <200406171112.39485.bmarsh@bmarsh.com>:
-> Moxa serial card option not available when requesting an SMP kernel  (2.6=
-=2E7)
+Over and over again. 2.6.5 didn't do this. I hoped 2.6.7 would fix it, 
+but apparently it doesn't. Information on the card:
 
-> My question:   Is this a permanent problem which will never be fixed or a=
-=20
-> temporary situation?
+00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic 53c810 (rev 11)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (2000ns min, 16000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at b400 [size=256]
+        Region 1: Memory at e4000000 (32-bit, non-prefetchable) [size=256]
 
-It seems the Moxa driver is known-broken when running on a SMP system.
-So this is permanent until somebody hacks it to work on multi-processor
-machines...
+it's configered in .config as:
 
-MfG, JBG
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+Does anyone have pointers to stop this?
 
---9a90ueqXKpg1SWhp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA0bzAHb1edYOZ4bsRApiDAJ0Y/ZkMZqfHTK0XWh2lBtXam6DvpACfemZV
-fUJyIcqpws0MSW2+djrXbuk=
-=w/mg
------END PGP SIGNATURE-----
-
---9a90ueqXKpg1SWhp--
+TIA,
+Vincent

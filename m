@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUDQKA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 06:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUDQKA7
+	id S263778AbUDQJ5b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 05:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263780AbUDQJ5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 06:00:59 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:45755 "EHLO
+	Sat, 17 Apr 2004 05:57:31 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:48059 "EHLO
 	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263777AbUDQJtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 05:49:23 -0400
+	id S263778AbUDQJt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 05:49:26 -0400
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] Consolidate sys32_select
-Date: Fri, 16 Apr 2004 18:05:55 +0200
+Subject: [PATCH 4/4] Consolidate =?iso-8859-1?q?sys32=5Fnfsservctl=0A?=
+Date: Fri, 16 Apr 2004 18:08:34 +0200
 User-Agent: KMail/1.6.1
 References: <200404161800.22367.arnd@arndb.de>
 In-Reply-To: <200404161800.22367.arnd@arndb.de>
@@ -21,1446 +21,1590 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404161805.55224.arnd@arndb.de>
+Message-Id: <200404161808.35003.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sys32_select has seven mostly but not exactly identical versions,
-so consolidate them as compat_sys_select. Based on the ppc64
-implementation, which most closely resembles sys_select.
-One bug that was not caught by LTP has been fixed since the
-first version of this patch.
+sys32_nfsservctl is the largest remaining syscall emulation handler that
+can be consolidated. mips and ia64 currently don't use this at all,
+parisc has a simpler implementation than the one used by s390, sparc
+ppc and that the new compat_sys_nfsservctl is based on.
 
-tested x86_64, ia64 and s390.
+The user access checks in the code are inconsistant at least, which
+should be fixed here.
 
- arch/ia64/ia32/ia32_entry.S        |    2
- arch/ia64/ia32/sys_ia32.c          |  108 ---------------------
- arch/mips/kernel/linux32.c         |  161 -------------------------------
- arch/mips/kernel/scall64-n32.S     |    2
- arch/mips/kernel/scall64-o32.S     |    2
- arch/parisc/kernel/sys_parisc32.c  |  121 -----------------------
+Compile tested only due to lack of proper test setup.
+
+ arch/ia64/ia32/sys_ia32.c          |  170 --------------------------
+ arch/parisc/kernel/sys_parisc32.c  |   88 -------------
  arch/parisc/kernel/syscall_table.S |    2
- arch/ppc64/kernel/sys_ppc32.c      |  163 --------------------------------
- arch/s390/kernel/compat_linux.c    |  154 ------------------------------
- arch/s390/kernel/compat_wrapper.S  |   14 +-
+ arch/ppc64/kernel/misc.S           |    2
+ arch/ppc64/kernel/sys_ppc32.c      |  239 -------------------------------------
+ arch/s390/kernel/compat_linux.c    |  220 ----------------------------------
+ arch/s390/kernel/compat_wrapper.S  |   10 -
  arch/s390/kernel/syscalls.S        |    2
- arch/sparc64/kernel/sys_sparc32.c  |  152 -----------------------------
- arch/sparc64/kernel/sys_sunos32.c  |    9 -
- arch/sparc64/kernel/systbls.S      |    4
+ arch/sparc64/kernel/sys_sparc32.c  |  226 ----------------------------------
+ arch/sparc64/kernel/systbls.S      |    2
  arch/x86_64/ia32/ia32entry.S       |    2
- arch/x86_64/ia32/sys_ia32.c        |  105 --------------------
- fs/compat.c                        |  188 +++++++++++++++++++++++++++++++++++++
- include/linux/compat.h             |    4
- 18 files changed, 218 insertions(+), 977 deletions(-)
+ arch/x86_64/ia32/sys_ia32.c        |  227 -----------------------------------
+ fs/compat.c                        |  239 +++++++++++++++++++++++++++++++++++++
+ 13 files changed, 249 insertions(+), 1180 deletions(-)
 
-===== arch/ia64/ia32/ia32_entry.S 1.36 vs edited =====
---- 1.36/arch/ia64/ia32/ia32_entry.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/ia64/ia32/ia32_entry.S	Thu Apr 15 17:30:49 2004
-@@ -350,7 +350,7 @@
- 	data8 sys_setfsgid	/* 16-bit version */
- 	data8 sys_llseek	  /* 140 */
- 	data8 sys32_getdents
--	data8 sys32_select
-+	data8 compat_sys_select
- 	data8 sys_flock
- 	data8 sys32_msync
- 	data8 compat_sys_readv	  /* 145 */
-===== arch/ia64/ia32/sys_ia32.c 1.95 vs edited =====
---- 1.95/arch/ia64/ia32/sys_ia32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/ia64/ia32/sys_ia32.c	Thu Apr 15 17:30:49 2004
-@@ -776,110 +776,6 @@
- 	return error;
+===== arch/ia64/ia32/sys_ia32.c 1.96 vs edited =====
+--- 1.96/arch/ia64/ia32/sys_ia32.c	Thu Apr 15 19:30:49 2004
++++ edited/arch/ia64/ia32/sys_ia32.c	Thu Apr 15 17:37:01 2004
+@@ -2200,176 +2200,6 @@
+ 	return sys_setresgid(srgid, segid, ssgid);
  }
  
--/*
-- * We can actually return ERESTARTSYS instead of EINTR, but I'd
-- * like to be certain this leads to no problems. So I return
-- * EINTR just for safety.
-- *
-- * Update: ERESTARTSYS breaks at least the xview clock binary, so
-- * I'm trying ERESTARTNOHAND which restart only when you want to.
-- */
--#define MAX_SELECT_SECONDS \
--	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--#define ROUND_UP_TIME(x,y) (((x)+(y)-1)/(y))
+-/* Stuff for NFS server syscalls... */
+-struct nfsctl_svc32 {
+-	u16			svc32_port;
+-	s32			svc32_nthreads;
+-};
 -
--asmlinkage long
--sys32_select (int n, fd_set *inp, fd_set *outp, fd_set *exp, struct compat_timeval *tvp32)
+-struct nfsctl_client32 {
+-	s8			cl32_ident[NFSCLNT_IDMAX+1];
+-	s32			cl32_naddr;
+-	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
+-	s32			cl32_fhkeytype;
+-	s32			cl32_fhkeylen;
+-	u8			cl32_fhkey[NFSCLNT_KEYMAX];
+-};
+-
+-struct nfsctl_export32 {
+-	s8			ex32_client[NFSCLNT_IDMAX+1];
+-	s8			ex32_path[NFS_MAXPATHLEN+1];
+-	compat_dev_t	ex32_dev;
+-	compat_ino_t	ex32_ino;
+-	s32			ex32_flags;
+-	compat_uid_t	ex32_anon_uid;
+-	compat_gid_t	ex32_anon_gid;
+-};
+-
+-struct nfsctl_arg32 {
+-	s32			ca32_version;	/* safeguard */
+-	union {
+-		struct nfsctl_svc32	u32_svc;
+-		struct nfsctl_client32	u32_client;
+-		struct nfsctl_export32	u32_export;
+-		u32			u32_debug;
+-	} u;
+-#define ca32_svc	u.u32_svc
+-#define ca32_client	u.u32_client
+-#define ca32_export	u.u32_export
+-#define ca32_debug	u.u32_debug
+-};
+-
+-union nfsctl_res32 {
+-	struct knfs_fh		cr32_getfh;
+-	u32			cr32_debug;
+-};
+-
+-static int
+-nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
 -{
--	fd_set_bits fds;
--	char *bits;
--	long timeout;
--	int ret, size;
+-	int err;
 -
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp32) {
--		time_t sec, usec;
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
+-	err |= __get_user(karg->ca_svc.svc_nthreads,
+-			  &arg32->ca32_svc.svc32_nthreads);
+-	return err;
+-}
 -
--		ret = -EFAULT;
--		if (get_user(sec, &tvp32->tv_sec) || get_user(usec, &tvp32->tv_usec))
--			goto out_nofds;
+-static int
+-nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
 -
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_client.cl_ident[0],
+-			  &arg32->ca32_client.cl32_ident[0],
+-			  NFSCLNT_IDMAX);
+-	err |= __get_user(karg->ca_client.cl_naddr,
+-			  &arg32->ca32_client.cl32_naddr);
+-	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
+-			  &arg32->ca32_client.cl32_addrlist[0],
+-			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
+-	err |= __get_user(karg->ca_client.cl_fhkeytype,
+-		      &arg32->ca32_client.cl32_fhkeytype);
+-	err |= __get_user(karg->ca_client.cl_fhkeylen,
+-		      &arg32->ca32_client.cl32_fhkeylen);
+-	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
+-			  &arg32->ca32_client.cl32_fhkey[0],
+-			  NFSCLNT_KEYMAX);
+-	return err;
+-}
+-
+-static int
+-nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_export.ex_client[0],
+-			  &arg32->ca32_export.ex32_client[0],
+-			  NFSCLNT_IDMAX);
+-	err |= copy_from_user(&karg->ca_export.ex_path[0],
+-			  &arg32->ca32_export.ex32_path[0],
+-			  NFS_MAXPATHLEN);
+-	err |= __get_user(karg->ca_export.ex_dev,
+-		      &arg32->ca32_export.ex32_dev);
+-	err |= __get_user(karg->ca_export.ex_ino,
+-		      &arg32->ca32_export.ex32_ino);
+-	err |= __get_user(karg->ca_export.ex_flags,
+-		      &arg32->ca32_export.ex32_flags);
+-	err |= __get_user(karg->ca_export.ex_anon_uid,
+-		      &arg32->ca32_export.ex32_anon_uid);
+-	err |= __get_user(karg->ca_export.ex_anon_gid,
+-		      &arg32->ca32_export.ex32_anon_gid);
+-	return err;
+-}
+-
+-static int
+-nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
+-{
+-	int err;
+-
+-	err = copy_to_user(&res32->cr32_getfh,
+-			&kres->cr_getfh,
+-			sizeof(res32->cr32_getfh));
+-	err |= __put_user(kres->cr_debug, &res32->cr32_debug);
+-	return err;
+-}
+-
+-int asmlinkage
+-sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
+-{
+-	struct nfsctl_arg *karg = NULL;
+-	union nfsctl_res *kres = NULL;
+-	mm_segment_t oldfs;
+-	int err;
+-
+-	karg = kmalloc(sizeof(*karg), GFP_USER);
+-	if(!karg)
+-		return -ENOMEM;
+-	if(res32) {
+-		kres = kmalloc(sizeof(*kres), GFP_USER);
+-		if(!kres) {
+-			kfree(karg);
+-			return -ENOMEM;
+-		}
+-	}
+-	switch(cmd) {
+-	case NFSCTL_SVC:
+-		err = nfs_svc32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_ADDCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_DELCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_EXPORT:
+-		err = nfs_exp32_trans(karg, arg32);
+-		break;
+-	default:
+-		err = -EINVAL;
+-		break;
+-	}
+-	if(err)
+-		goto done;
+-	oldfs = get_fs();
+-	set_fs(KERNEL_DS);
+-	err = sys_nfsservctl(cmd, karg, kres);
+-	set_fs(oldfs);
+-
+-	if(!err && cmd == NFSCTL_GETFS)
+-		err = nfs_getfh32_res_trans(kres, res32);
+-
+-done:
+-	if(karg)
+-		kfree(karg);
+-	if(kres)
+-		kfree(kres);
+-	return err;
+-}
+-
+ /* Handle adjtimex compatibility. */
+ 
+ struct timex32 {
+===== arch/parisc/kernel/sys_parisc32.c 1.27 vs edited =====
+--- 1.27/arch/parisc/kernel/sys_parisc32.c	Thu Apr 15 19:30:49 2004
++++ edited/arch/parisc/kernel/sys_parisc32.c	Thu Apr 15 17:37:01 2004
+@@ -564,94 +564,6 @@
+         return ret;
+ }
+ 
+-/* EXPORT/UNEXPORT */
+-struct nfsctl_export32 {
+-	char		ex_client[NFSCLNT_IDMAX+1];
+-	char		ex_path[NFS_MAXPATHLEN+1];
+-	__kernel_old_dev_t ex_dev;
+-	compat_ino_t	ex_ino;
+-	int		ex_flags;
+-	__kernel_uid_t	ex_anon_uid;
+-	__kernel_gid_t	ex_anon_gid;
+-};
+-
+-struct nfsctl_arg32 {
+-	int			ca_version;	/* safeguard */
+-	/* wide kernel places this union on 8-byte boundary, narrow on 4 */
+-	union {
+-		struct nfsctl_svc	u_svc;
+-		struct nfsctl_client	u_client;
+-		struct nfsctl_export32	u_export;
+-		struct nfsctl_fdparm	u_getfd;
+-		struct nfsctl_fsparm	u_getfs;
+-	} u;
+-};
+-
+-asmlinkage int sys32_nfsservctl(int cmd, void *argp, void *resp)
+-{
+-	int ret, tmp;
+-	struct nfsctl_arg32 n32;
+-	struct nfsctl_arg n;
+-
+-	ret = copy_from_user(&n, argp, sizeof n.ca_version);
+-	if (ret != 0)
+-		return ret;
+-
+-	/* adjust argp to point at the union inside the user's n32 struct */
+-	tmp = (unsigned long)&n32.u - (unsigned long)&n32;
+-	argp = (void *)((unsigned long)argp + tmp);
+-	switch(cmd) {
+-	case NFSCTL_SVC:
+-		ret = copy_from_user(&n.u, argp, sizeof n.u.u_svc);
+-		break;
+-
+-	case NFSCTL_ADDCLIENT:
+-	case NFSCTL_DELCLIENT:
+-		ret = copy_from_user(&n.u, argp, sizeof n.u.u_client);
+-		break;
+-
+-	case NFSCTL_GETFD:
+-		ret = copy_from_user(&n.u, argp, sizeof n.u.u_getfd);
+-		break;
+-
+-	case NFSCTL_GETFS:
+-		ret = copy_from_user(&n.u, argp, sizeof n.u.u_getfs);
+-		break;
+-
+-	case NFSCTL_UNEXPORT:		/* nfsctl_export */
+-	case NFSCTL_EXPORT:		/* nfsctl_export */
+-		ret = copy_from_user(&n32.u, argp, sizeof n32.u.u_export);
+-#undef CP
+-#define CP(x)	n.u.u_export.ex_##x = n32.u.u_export.ex_##x
+-		memcpy(n.u.u_export.ex_client, n32.u.u_export.ex_client, sizeof n32.u.u_export.ex_client);
+-		memcpy(n.u.u_export.ex_path, n32.u.u_export.ex_path, sizeof n32.u.u_export.ex_path);
+-		CP(dev);
+-		CP(ino);
+-		CP(flags);
+-		CP(anon_uid);
+-		CP(anon_gid);
+-		break;
+-
+-	default:
+-		/* lockd probes for some other values (0x10000);
+-		 * so don't BUG() */
 -		ret = -EINVAL;
--		if (sec < 0 || usec < 0)
--			goto out_nofds;
+-		break;
+-	}
 -
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = ROUND_UP_TIME(usec, 1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
+-	if (ret == 0) {
+-		unsigned char rbuf[NFS_FHSIZE + sizeof (struct knfsd_fh)];
+-		KERNEL_SYSCALL(ret, sys_nfsservctl, cmd, &n, &rbuf);
+-		if (cmd == NFSCTL_GETFD) {
+-			ret = copy_to_user(resp, rbuf, NFS_FHSIZE);
+-		} else if (cmd == NFSCTL_GETFS) {
+-			ret = copy_to_user(resp, rbuf, sizeof (struct knfsd_fh));
 -		}
 -	}
 -
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words.
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = kmalloc(6 * size, GFP_KERNEL);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	if ((ret = get_fd_set(n, inp, fds.in)) ||
--	    (ret = get_fd_set(n, outp, fds.out)) ||
--	    (ret = get_fd_set(n, exp, fds.ex)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp32 && !(current->personality & STICKY_TIMEOUTS)) {
--		time_t sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		if (put_user(sec, &tvp32->tv_sec) || put_user(usec, &tvp32->tv_usec)) {
--			ret = -EFAULT;
--			goto out;
--		}
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set(n, inp, fds.res_in);
--	set_fd_set(n, outp, fds.res_out);
--	set_fd_set(n, exp, fds.res_ex);
--
--out:
--	kfree(bits);
--out_nofds:
 -	return ret;
 -}
 -
- struct sel_arg_struct {
- 	unsigned int n;
- 	unsigned int inp;
-@@ -895,8 +791,8 @@
+ typedef long __kernel_loff_t32;		/* move this to asm/posix_types.h? */
  
- 	if (copy_from_user(&a, arg, sizeof(a)))
- 		return -EFAULT;
--	return sys32_select(a.n, (fd_set *) A(a.inp), (fd_set *) A(a.outp), (fd_set *) A(a.exp),
--			    (struct compat_timeval *) A(a.tvp));
-+	return compat_sys_select(a.n, compat_ptr(a.inp), compat_ptr(a.outp),
-+				 compat_ptr(a.exp), compat_ptr(a.tvp));
- }
- 
- #define SEMOP		 1
-===== arch/mips/kernel/linux32.c 1.23 vs edited =====
---- 1.23/arch/mips/kernel/linux32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/mips/kernel/linux32.c	Thu Apr 15 17:30:49 2004
-@@ -519,167 +519,6 @@
- bad_file:
- 	return ret;
- }
--/*
-- * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
-- * 64-bit unsigned longs.
-- */
--
--static inline int
--get_fd_set32(unsigned long n, unsigned long *fdset, u32 *ufdset)
--{
--	if (ufdset) {
--		unsigned long odd;
--
--		if (verify_area(VERIFY_WRITE, ufdset, n*sizeof(u32)))
--			return -EFAULT;
--
--		odd = n & 1UL;
--		n &= ~1UL;
--		while (n) {
--			unsigned long h, l;
--			__get_user(l, ufdset);
--			__get_user(h, ufdset+1);
--			ufdset += 2;
--			*fdset++ = h << 32 | l;
--			n -= 2;
--		}
--		if (odd)
--			__get_user(*fdset, ufdset);
--	} else {
--		/* Tricky, must clear full unsigned long in the
--		 * kernel fdset at the end, this makes sure that
--		 * actually happens.
--		 */
--		memset(fdset, 0, ((n + 1) & ~1)*sizeof(u32));
--	}
--	return 0;
--}
--
--static inline void
--set_fd_set32(unsigned long n, u32 *ufdset, unsigned long *fdset)
--{
--	unsigned long odd;
--
--	if (!ufdset)
--		return;
--
--	odd = n & 1UL;
--	n &= ~1UL;
--	while (n) {
--		unsigned long h, l;
--		l = *fdset++;
--		h = l >> 32;
--		__put_user(l, ufdset);
--		__put_user(h, ufdset+1);
--		ufdset += 2;
--		n -= 2;
--	}
--	if (odd)
--		__put_user(*fdset, ufdset);
--}
--
--/*
-- * We can actually return ERESTARTSYS instead of EINTR, but I'd
-- * like to be certain this leads to no problems. So I return
-- * EINTR just for safety.
-- *
-- * Update: ERESTARTSYS breaks at least the xview clock binary, so
-- * I'm trying ERESTARTNOHAND which restart only when you want to.
-- */
--#define MAX_SELECT_SECONDS \
--	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--
--asmlinkage int sys32_select(int n, u32 *inp, u32 *outp, u32 *exp, struct compat_timeval *tvp)
--{
--	fd_set_bits fds;
--	char *bits;
--	unsigned long nn;
--	long timeout;
--	int ret, size;
--
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp) {
--		time_t sec, usec;
--
--		if ((ret = verify_area(VERIFY_READ, tvp, sizeof(*tvp)))
--		    || (ret = __get_user(sec, &tvp->tv_sec))
--		    || (ret = __get_user(usec, &tvp->tv_usec)))
--			goto out_nofds;
--
--		ret = -EINVAL;
--		if(sec < 0 || usec < 0)
--			goto out_nofds;
--
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = (usec + 1000000/HZ - 1) / (1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
--		}
--	}
--
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words.
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = kmalloc(6 * size, GFP_KERNEL);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	nn = (n + 8*sizeof(u32) - 1) / (8*sizeof(u32));
--	if ((ret = get_fd_set32(nn, fds.in, inp)) ||
--	    (ret = get_fd_set32(nn, fds.out, outp)) ||
--	    (ret = get_fd_set32(nn, fds.ex, exp)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
--		time_t sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		put_user(sec, &tvp->tv_sec);
--		put_user(usec, &tvp->tv_usec);
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set32(nn, inp, fds.res_in);
--	set_fd_set32(nn, outp, fds.res_out);
--	set_fd_set32(nn, exp, fds.res_ex);
--
--out:
--	kfree(bits);
--out_nofds:
--	return ret;
--}
--
- 
- asmlinkage int sys32_sched_rr_get_interval(compat_pid_t pid,
- 	struct compat_timespec *interval)
-===== arch/mips/kernel/scall64-n32.S 1.3 vs edited =====
---- 1.3/arch/mips/kernel/scall64-n32.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/mips/kernel/scall64-n32.S	Thu Apr 15 17:30:49 2004
-@@ -132,7 +132,7 @@
- 	PTR	compat_sys_writev
- 	PTR	sys_access			/* 6020 */
- 	PTR	sys_pipe
--	PTR	sys32_select
-+	PTR	compat_sys_select
- 	PTR	sys_sched_yield
- 	PTR	sys_mremap
- 	PTR	sys_msync			/* 6025 */
-===== arch/mips/kernel/scall64-o32.S 1.3 vs edited =====
---- 1.3/arch/mips/kernel/scall64-o32.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/mips/kernel/scall64-o32.S	Thu Apr 15 17:30:49 2004
-@@ -397,7 +397,7 @@
- 	sys	sys_setfsgid	1
- 	sys	sys32_llseek	5			/* 4140 */
- 	sys	sys32_getdents	3
--	sys	sys32_select	5
-+	sys	compat_sys_select	5
- 	sys	sys_flock	2
- 	sys	sys_msync	3
- 	sys	compat_sys_readv	3		/* 4145 */
-===== arch/parisc/kernel/sys_parisc32.c 1.26 vs edited =====
---- 1.26/arch/parisc/kernel/sys_parisc32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/parisc/kernel/sys_parisc32.c	Thu Apr 15 17:30:49 2004
-@@ -488,126 +488,6 @@
- 		__put_user(*fdset, ufdset);
- }
- 
--/*** This is a virtual copy of sys_select from fs/select.c and probably
-- *** should be compared to it from time to time
-- ***/
--static inline void *select_bits_alloc(int size)
--{
--	return kmalloc(6 * size, GFP_KERNEL);
--}
--
--static inline void select_bits_free(void *bits, int size)
--{
--	kfree(bits);
--}
--
--/*
-- * We can actually return ERESTARTSYS instead of EINTR, but I'd
-- * like to be certain this leads to no problems. So I return
-- * EINTR just for safety.
-- *
-- * Update: ERESTARTSYS breaks at least the xview clock binary, so
-- * I'm trying ERESTARTNOHAND which restart only when you want to.
-- */
--#define MAX_SELECT_SECONDS \
--	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--#define DIVIDE_ROUND_UP(x,y) (((x)+(y)-1)/(y))
--
--asmlinkage long
--sys32_select(int n, u32 *inp, u32 *outp, u32 *exp, struct compat_timeval *tvp)
--{
--	fd_set_bits fds;
--	char *bits;
--	long timeout;
--	int ret, size, err;
--
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp) {
--		struct compat_timeval tv32;
--		time_t sec, usec;
--
--		if ((ret = copy_from_user(&tv32, tvp, sizeof tv32)))
--			goto out_nofds;
--
--		sec = tv32.tv_sec;
--		usec = tv32.tv_usec;
--
--		ret = -EINVAL;
--		if (sec < 0 || usec < 0)
--			goto out_nofds;
--
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = DIVIDE_ROUND_UP(usec, 1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
--		}
--	}
--
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words. 
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = select_bits_alloc(size);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	if ((ret = get_fd_set32(n, inp, fds.in)) ||
--	    (ret = get_fd_set32(n, outp, fds.out)) ||
--	    (ret = get_fd_set32(n, exp, fds.ex)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
--		time_t sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		err = put_user(sec, &tvp->tv_sec);
--		err |= __put_user(usec, &tvp->tv_usec);
--		if (err)
--			ret = -EFAULT;
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set32(n, inp, fds.res_in);
--	set_fd_set32(n, outp, fds.res_out);
--	set_fd_set32(n, exp, fds.res_ex);
--
--out:
--	select_bits_free(bits, size);
--out_nofds:
--	return ret;
--}
--
- struct msgbuf32 {
-     int mtype;
-     char mtext[1];
-@@ -664,7 +544,6 @@
- 	kfree(mb);
- 	return err;
- }
--
- 
- asmlinkage int sys32_sendfile(int out_fd, int in_fd, compat_off_t *offset, s32 count)
- {
-===== arch/parisc/kernel/syscall_table.S 1.5 vs edited =====
---- 1.5/arch/parisc/kernel/syscall_table.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/parisc/kernel/syscall_table.S	Thu Apr 15 17:30:49 2004
-@@ -232,7 +232,7 @@
- 	ENTRY_DIFF(getdents)
- 	/* it is POSSIBLE that select will be OK because even though fd_set
- 	 * contains longs, the macros and sizes are clever. */
--	ENTRY_DIFF(select)
-+	ENTRY_COMP(select)
- 	ENTRY_SAME(flock)
- 	ENTRY_SAME(msync)
- 	/* struct iovec contains pointers */
-===== arch/ppc64/kernel/sys_ppc32.c 1.87 vs edited =====
---- 1.87/arch/ppc64/kernel/sys_ppc32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/ppc64/kernel/sys_ppc32.c	Thu Apr 15 17:30:49 2004
-@@ -226,167 +226,12 @@
- 	return error;
- }
- 
--/*
-- * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
-- * 64-bit unsigned longs.
-- */
--static inline int
--get_fd_set32(unsigned long n, unsigned long *fdset, u32 *ufdset)
--{
--	if (ufdset) {
--		unsigned long odd;
--
--		if (verify_area(VERIFY_WRITE, ufdset, n*sizeof(u32)))
--			return -EFAULT;
--
--		odd = n & 1UL;
--		n &= ~1UL;
--		while (n) {
--			unsigned long h, l;
--			__get_user(l, ufdset);
--			__get_user(h, ufdset+1);
--			ufdset += 2;
--			*fdset++ = h << 32 | l;
--			n -= 2;
--		}
--		if (odd)
--			__get_user(*fdset, ufdset);
--	} else {
--		/* Tricky, must clear full unsigned long in the
--		 * kernel fdset at the end, this makes sure that
--		 * actually happens.
--		 */
--		memset(fdset, 0, ((n + 1) & ~1)*sizeof(u32));
--	}
--	return 0;
--}
--
--static inline void
--set_fd_set32(unsigned long n, u32 *ufdset, unsigned long *fdset)
--{
--	unsigned long odd;
--
--	if (!ufdset)
--		return;
--
--	odd = n & 1UL;
--	n &= ~1UL;
--	while (n) {
--		unsigned long h, l;
--		l = *fdset++;
--		h = l >> 32;
--		__put_user(l, ufdset);
--		__put_user(h, ufdset+1);
--		ufdset += 2;
--		n -= 2;
--	}
--	if (odd)
--		__put_user(*fdset, ufdset);
--}
--
--
--
--#define MAX_SELECT_SECONDS ((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--
--asmlinkage long sys32_select(int n, u32 *inp, u32 *outp, u32 *exp, u32 tvp_x)
--{
--	fd_set_bits fds;
--	struct compat_timeval *tvp = (struct compat_timeval *)AA(tvp_x);
--	char *bits;
--	unsigned long nn;
--	long timeout;
--	int ret, size, max_fdset;
--
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp) {
--		time_t sec, usec;
--		if ((ret = verify_area(VERIFY_READ, tvp, sizeof(*tvp)))
--		    || (ret = __get_user(sec, &tvp->tv_sec))
--		    || (ret = __get_user(usec, &tvp->tv_usec)))
--			goto out_nofds;
--
--		ret = -EINVAL;
--		if(sec < 0 || usec < 0)
--			goto out_nofds;
--
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = (usec + 1000000/HZ - 1) / (1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
--		}
--	}
--
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--
--	/* max_fdset can increase, so grab it once to avoid race */
--	max_fdset = current->files->max_fdset;
--	if (n > max_fdset)
--		n = max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words. 
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = kmalloc(6 * size, GFP_KERNEL);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	nn = (n + 8*sizeof(u32) - 1) / (8*sizeof(u32));
--	if ((ret = get_fd_set32(nn, fds.in, inp)) ||
--	    (ret = get_fd_set32(nn, fds.out, outp)) ||
--	    (ret = get_fd_set32(nn, fds.ex, exp)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
--		time_t sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		put_user(sec, &tvp->tv_sec);
--		put_user(usec, &tvp->tv_usec);
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set32(nn, inp, fds.res_in);
--	set_fd_set32(nn, outp, fds.res_out);
--	set_fd_set32(nn, exp, fds.res_ex);
--  
--out:
--	kfree(bits);
--
--out_nofds:
--	return ret;
--}
--
--int ppc32_select(u32 n, u32* inp, u32* outp, u32* exp, u32 tvp_x)
-+asmlinkage long ppc32_select(u32 n, compat_ulong_t __user *inp,
-+		compat_ulong_t __user *outp, compat_ulong_t __user *exp,
-+		compat_uptr_t tvp_x)
- {
- 	/* sign extend n */
--	return sys32_select((int)n, inp, outp, exp, tvp_x);
-+	return compat_sys_select((int)n, inp, outp, exp, compat_ptr(tvp_x));
- }
- 
- int cp_compat_stat(struct kstat *stat, struct compat_stat *statbuf)
-===== arch/s390/kernel/compat_linux.c 1.20 vs edited =====
---- 1.20/arch/s390/kernel/compat_linux.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/s390/kernel/compat_linux.c	Thu Apr 15 17:30:49 2004
-@@ -503,160 +503,6 @@
- 
- /* end of readdir & getdents */
- 
--/*
-- * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
-- * 64-bit unsigned longs.
-- */
--
--static inline int
--get_fd_set32(unsigned long n, unsigned long *fdset, u32 *ufdset)
--{
--	if (ufdset) {
--		unsigned long odd;
--
--		if (verify_area(VERIFY_WRITE, ufdset, n*sizeof(u32)))
--			return -EFAULT;
--
--		odd = n & 1UL;
--		n &= ~1UL;
--		while (n) {
--			unsigned long h, l;
--			__get_user(l, ufdset);
--			__get_user(h, ufdset+1);
--			ufdset += 2;
--			*fdset++ = h << 32 | l;
--			n -= 2;
--		}
--		if (odd)
--			__get_user(*fdset, ufdset);
--	} else {
--		/* Tricky, must clear full unsigned long in the
--		 * kernel fdset at the end, this makes sure that
--		 * actually happens.
--		 */
--		memset(fdset, 0, ((n + 1) & ~1)*sizeof(u32));
--	}
--	return 0;
--}
--
--static inline void
--set_fd_set32(unsigned long n, u32 *ufdset, unsigned long *fdset)
--{
--	unsigned long odd;
--
--	if (!ufdset)
--		return;
--
--	odd = n & 1UL;
--	n &= ~1UL;
--	while (n) {
--		unsigned long h, l;
--		l = *fdset++;
--		h = l >> 32;
--		__put_user(l, ufdset);
--		__put_user(h, ufdset+1);
--		ufdset += 2;
--		n -= 2;
--	}
--	if (odd)
--		__put_user(*fdset, ufdset);
--}
--
--#define MAX_SELECT_SECONDS \
--	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--
--asmlinkage long sys32_select(int n, u32 *inp, u32 *outp, u32 *exp,
--				struct compat_timeval *tvp)
--{
--	fd_set_bits fds;
--	char *bits;
--	unsigned long nn;
--	long timeout;
--	int ret, size;
--
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp) {
--		int sec, usec;
--
--		if ((ret = verify_area(VERIFY_READ, tvp, sizeof(*tvp)))
--		    || (ret = __get_user(sec, &tvp->tv_sec))
--		    || (ret = __get_user(usec, &tvp->tv_usec)))
--			goto out_nofds;
--
--		ret = -EINVAL;
--		if(sec < 0 || usec < 0)
--			goto out_nofds;
--
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = (usec + 1000000/HZ - 1) / (1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
--		}
--	}
--
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words. 
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = kmalloc(6 * size, GFP_KERNEL);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	nn = (n + 8*sizeof(u32) - 1) / (8*sizeof(u32));
--	if ((ret = get_fd_set32(nn, fds.in, inp)) ||
--	    (ret = get_fd_set32(nn, fds.out, outp)) ||
--	    (ret = get_fd_set32(nn, fds.ex, exp)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
--		int sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		put_user(sec, &tvp->tv_sec);
--		put_user(usec, &tvp->tv_usec);
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set32(nn, inp, fds.res_in);
--	set_fd_set32(nn, outp, fds.res_out);
--	set_fd_set32(nn, exp, fds.res_ex);
--
--out:
--	kfree(bits);
--out_nofds:
--	return ret;
--}
--
- int cp_compat_stat(struct kstat *stat, struct compat_stat *statbuf)
- {
- 	int err;
-===== arch/s390/kernel/compat_wrapper.S 1.10 vs edited =====
---- 1.10/arch/s390/kernel/compat_wrapper.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/s390/kernel/compat_wrapper.S	Thu Apr 15 17:30:49 2004
-@@ -641,14 +641,14 @@
- 	llgfr	%r4,%r4			# unsigned int
- 	jg	sys32_getdents		# branch to system call
- 
--	.globl  sys32_select_wrapper 
--sys32_select_wrapper:
-+	.globl  compat_sys_select_wrapper 
-+compat_sys_select_wrapper:
- 	lgfr	%r2,%r2			# int
--	llgtr	%r3,%r3			# fd_set *
--	llgtr	%r4,%r4			# fd_set *
--	llgtr	%r5,%r5			# fd_set *
--	llgtr	%r6,%r6			# struct timeval_emu31 *
--	jg	sys32_select		# branch to system call
-+	llgtr	%r3,%r3			# compat_fd_set *
-+	llgtr	%r4,%r4			# compat_fd_set *
-+	llgtr	%r5,%r5			# compat_fd_set *
-+	llgtr	%r6,%r6			# struct compat_timeval *
-+	jg	compat_sys_select	# branch to system call
- 
- 	.globl  sys32_flock_wrapper 
- sys32_flock_wrapper:
-===== arch/s390/kernel/syscalls.S 1.10 vs edited =====
---- 1.10/arch/s390/kernel/syscalls.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/s390/kernel/syscalls.S	Thu Apr 15 17:30:49 2004
-@@ -150,7 +150,7 @@
- SYSCALL(sys_setfsgid16,sys_ni_syscall,sys32_setfsgid16_wrapper)	/* old setfsgid16 syscall */
- SYSCALL(sys_llseek,sys_llseek,sys32_llseek_wrapper)		/* 140 */
- SYSCALL(sys_getdents,sys_getdents,sys32_getdents_wrapper)
--SYSCALL(sys_select,sys_select,sys32_select_wrapper)
-+SYSCALL(sys_select,sys_select,compat_sys_select_wrapper)
- SYSCALL(sys_flock,sys_flock,sys32_flock_wrapper)
- SYSCALL(sys_msync,sys_msync,sys32_msync_wrapper)
- SYSCALL(sys_readv,sys_readv,compat_sys_readv_wrapper)		/* 145 */
-===== arch/sparc64/kernel/sys_sparc32.c 1.96 vs edited =====
---- 1.96/arch/sparc64/kernel/sys_sparc32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/sparc64/kernel/sys_sparc32.c	Thu Apr 15 17:30:49 2004
-@@ -964,158 +964,6 @@
- 
- /* end of readdir & getdents */
- 
--/*
-- * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
-- * 64-bit unsigned longs.
-- */
--
--static int get_fd_set32(unsigned long n, unsigned long *fdset, u32 *ufdset)
--{
--	if (ufdset) {
--		unsigned long odd;
--
--		if (verify_area(VERIFY_WRITE, ufdset, n*sizeof(u32)))
--			return -EFAULT;
--
--		odd = n & 1UL;
--		n &= ~1UL;
--		while (n) {
--			unsigned long h, l;
--			__get_user(l, ufdset);
--			__get_user(h, ufdset+1);
--			ufdset += 2;
--			*fdset++ = h << 32 | l;
--			n -= 2;
--		}
--		if (odd)
--			__get_user(*fdset, ufdset);
--	} else {
--		/* Tricky, must clear full unsigned long in the
--		 * kernel fdset at the end, this makes sure that
--		 * actually happens.
--		 */
--		memset(fdset, 0, ((n + 1) & ~1)*sizeof(u32));
--	}
--	return 0;
--}
--
--static void set_fd_set32(unsigned long n, u32 *ufdset, unsigned long *fdset)
--{
--	unsigned long odd;
--
--	if (!ufdset)
--		return;
--
--	odd = n & 1UL;
--	n &= ~1UL;
--	while (n) {
--		unsigned long h, l;
--		l = *fdset++;
--		h = l >> 32;
--		__put_user(l, ufdset);
--		__put_user(h, ufdset+1);
--		ufdset += 2;
--		n -= 2;
--	}
--	if (odd)
--		__put_user(*fdset, ufdset);
--}
--
--#define MAX_SELECT_SECONDS \
--	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--
--asmlinkage int sys32_select(int n, u32 *inp, u32 *outp, u32 *exp, u32 tvp_x)
--{
--	fd_set_bits fds;
--	struct compat_timeval *tvp = (struct compat_timeval *)AA(tvp_x);
--	char *bits;
--	unsigned long nn;
--	long timeout;
--	int ret, size;
--
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp) {
--		time_t sec, usec;
--
--		if ((ret = verify_area(VERIFY_READ, tvp, sizeof(*tvp)))
--		    || (ret = __get_user(sec, &tvp->tv_sec))
--		    || (ret = __get_user(usec, &tvp->tv_usec)))
--			goto out_nofds;
--
--		ret = -EINVAL;
--		if(sec < 0 || usec < 0)
--			goto out_nofds;
--
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = (usec + 1000000/HZ - 1) / (1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
--		}
--	}
--
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words. 
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = kmalloc(6 * size, GFP_KERNEL);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	nn = (n + 8*sizeof(u32) - 1) / (8*sizeof(u32));
--	if ((ret = get_fd_set32(nn, fds.in, inp)) ||
--	    (ret = get_fd_set32(nn, fds.out, outp)) ||
--	    (ret = get_fd_set32(nn, fds.ex, exp)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
--		time_t sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		put_user(sec, &tvp->tv_sec);
--		put_user(usec, &tvp->tv_usec);
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set32(nn, inp, fds.res_in);
--	set_fd_set32(nn, outp, fds.res_out);
--	set_fd_set32(nn, exp, fds.res_ex);
--
--out:
--	kfree(bits);
--out_nofds:
--	return ret;
--}
--
- int cp_compat_stat(struct kstat *stat, struct compat_stat *statbuf)
- {
- 	int err;
-===== arch/sparc64/kernel/sys_sunos32.c 1.40 vs edited =====
---- 1.40/arch/sparc64/kernel/sys_sunos32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/sparc64/kernel/sys_sunos32.c	Thu Apr 15 17:30:49 2004
-@@ -528,18 +528,15 @@
+ asmlinkage int sys32_sendfile64(int out_fd, int in_fd, __kernel_loff_t32 *offset, s32 count)
+===== arch/parisc/kernel/syscall_table.S 1.6 vs edited =====
+--- 1.6/arch/parisc/kernel/syscall_table.S	Thu Apr 15 19:30:49 2004
++++ edited/arch/parisc/kernel/syscall_table.S	Thu Apr 15 17:37:01 2004
+@@ -266,7 +266,7 @@
+ 	ENTRY_SAME(ni_syscall)		/* query_module */
+ 	ENTRY_SAME(poll)
+ 	/* structs contain pointers and an in_addr... */
+-	ENTRY_DIFF(nfsservctl)
++	ENTRY_COMP(nfsservctl)
+ 	ENTRY_SAME(setresgid)		/* 170 */
+ 	ENTRY_SAME(getresgid)
+ 	ENTRY_SAME(prctl)
+===== arch/ppc64/kernel/misc.S 1.76 vs edited =====
+--- 1.76/arch/ppc64/kernel/misc.S	Thu Apr 15 17:25:08 2004
++++ edited/arch/ppc64/kernel/misc.S	Thu Apr 15 17:37:01 2004
+@@ -740,7 +740,7 @@
+ 	.llong .sys_getresuid	        /* 165 */
+ 	.llong .sys_ni_syscall		/* old query_module syscall */
+ 	.llong .sys_poll
+-	.llong .sys32_nfsservctl
++	.llong .compat_sys_nfsservctl
+ 	.llong .sys_setresgid
+ 	.llong .sys_getresgid	        /* 170 */
+ 	.llong .sys32_prctl
+===== arch/ppc64/kernel/sys_ppc32.c 1.88 vs edited =====
+--- 1.88/arch/ppc64/kernel/sys_ppc32.c	Thu Apr 15 19:30:49 2004
++++ edited/arch/ppc64/kernel/sys_ppc32.c	Thu Apr 15 17:37:01 2004
+@@ -351,245 +351,6 @@
  	return ret;
  }
  
--/* SunOS mount system call emulation */
--extern asmlinkage int
--sys32_select(int n, u32 inp, u32 outp, u32 exp, u32 tvp);
+-/* Stuff for NFS server syscalls... */
+-struct nfsctl_svc32 {
+-	u16			svc32_port;
+-	s32			svc32_nthreads;
+-};
 -
- asmlinkage int sunos_select(int width, u32 inp, u32 outp, u32 exp, u32 tvp_x)
- {
- 	int ret;
+-struct nfsctl_client32 {
+-	s8			cl32_ident[NFSCLNT_IDMAX+1];
+-	s32			cl32_naddr;
+-	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
+-	s32			cl32_fhkeytype;
+-	s32			cl32_fhkeylen;
+-	u8			cl32_fhkey[NFSCLNT_KEYMAX];
+-};
+-
+-struct nfsctl_export32 {
+-	s8			ex32_client[NFSCLNT_IDMAX+1];
+-	s8			ex32_path[NFS_MAXPATHLEN+1];
+-	compat_dev_t	ex32_dev;
+-	compat_ino_t	ex32_ino;
+-	s32			ex32_flags;
+-	compat_uid_t	ex32_anon_uid;
+-	compat_gid_t	ex32_anon_gid;
+-};
+-
+-struct nfsctl_fdparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_version;
+-};
+-
+-struct nfsctl_fsparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_maxlen;
+-};
+-
+-struct nfsctl_arg32 {
+-	s32			ca32_version;	/* safeguard */
+-	union {
+-		struct nfsctl_svc32	u32_svc;
+-		struct nfsctl_client32	u32_client;
+-		struct nfsctl_export32	u32_export;
+-		struct nfsctl_fdparm32	u32_getfd;
+-		struct nfsctl_fsparm32	u32_getfs;
+-	} u;
+-#define ca32_svc	u.u32_svc
+-#define ca32_client	u.u32_client
+-#define ca32_export	u.u32_export
+-#define ca32_getfd	u.u32_getfd
+-#define ca32_getfs	u.u32_getfs
+-};
+-
+-union nfsctl_res32 {
+-	__u8			cr32_getfh[NFS_FHSIZE];
+-	struct knfsd_fh		cr32_getfs;
+-};
+-
+-static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
+-	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
+-	return err;
+-}
+-
+-static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_client.cl_ident[0],
+-			  &arg32->ca32_client.cl32_ident[0],
+-			  NFSCLNT_IDMAX);
+-	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
+-	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
+-			  &arg32->ca32_client.cl32_addrlist[0],
+-			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
+-	err |= __get_user(karg->ca_client.cl_fhkeytype,
+-		      &arg32->ca32_client.cl32_fhkeytype);
+-	err |= __get_user(karg->ca_client.cl_fhkeylen,
+-		      &arg32->ca32_client.cl32_fhkeylen);
+-	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
+-			  &arg32->ca32_client.cl32_fhkey[0],
+-			  NFSCLNT_KEYMAX);
+-
+-	if(err) return -EFAULT;
+-	return 0;
+-}
+-
+-static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_export.ex_client[0],
+-			  &arg32->ca32_export.ex32_client[0],
+-			  NFSCLNT_IDMAX);
+-	err |= copy_from_user(&karg->ca_export.ex_path[0],
+-			  &arg32->ca32_export.ex32_path[0],
+-			  NFS_MAXPATHLEN);
+-	err |= __get_user(karg->ca_export.ex_dev,
+-		      &arg32->ca32_export.ex32_dev);
+-	err |= __get_user(karg->ca_export.ex_ino,
+-		      &arg32->ca32_export.ex32_ino);
+-	err |= __get_user(karg->ca_export.ex_flags,
+-		      &arg32->ca32_export.ex32_flags);
+-	err |= __get_user(karg->ca_export.ex_anon_uid,
+-		      &arg32->ca32_export.ex32_anon_uid);
+-	err |= __get_user(karg->ca_export.ex_anon_gid,
+-		      &arg32->ca32_export.ex32_anon_gid);
+-	karg->ca_export.ex_anon_uid = karg->ca_export.ex_anon_uid;
+-	karg->ca_export.ex_anon_gid = karg->ca_export.ex_anon_gid;
+-
+-	if(err) return -EFAULT;
+-	return 0;
+-}
+-
+-static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfd.gd_addr,
+-			  &arg32->ca32_getfd.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfd.gd_path,
+-			  &arg32->ca32_getfd.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= __get_user(karg->ca_getfd.gd_version,
+-		      &arg32->ca32_getfd.gd32_version);
+-
+-	if(err) return -EFAULT;
+-	return 0;
+-}
+-
+-static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfs.gd_addr,
+-			  &arg32->ca32_getfs.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfs.gd_path,
+-			  &arg32->ca32_getfs.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= __get_user(karg->ca_getfs.gd_maxlen,
+-		      &arg32->ca32_getfs.gd32_maxlen);
+-
+-	if(err) return -EFAULT;
+-	return 0;
+-}
+-
+-/* This really doesn't need translations, we are only passing
+- * back a union which contains opaque nfs file handle data.
+- */
+-static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
+-{
+-	int err;
+-
+-	err = copy_to_user(res32, kres, sizeof(*res32));
+-
+-	if(err) return -EFAULT;
+-	return 0;
+-}
+-
+-/* Note: it is necessary to treat cmd_parm as an unsigned int, 
+- * with the corresponding cast to a signed int to insure that the 
+- * proper conversion (sign extension) between the register representation of a signed int (msr in 32-bit mode)
+- * and the register representation of a signed int (msr in 64-bit mode) is performed.
+- */
+-int asmlinkage sys32_nfsservctl(u32 cmd_parm, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
+-{
+-  int cmd = (int)cmd_parm;
+-	struct nfsctl_arg *karg = NULL;
+-	union nfsctl_res *kres = NULL;
+-	mm_segment_t oldfs;
+-	int err;
+-
+-	karg = kmalloc(sizeof(*karg), GFP_USER);
+-	if(!karg)
+-		return -ENOMEM;
+-	if(res32) {
+-		kres = kmalloc(sizeof(*kres), GFP_USER);
+-		if(!kres) {
+-			kfree(karg);
+-			return -ENOMEM;
+-		}
+-	}
+-	switch(cmd) {
+-	case NFSCTL_SVC:
+-		err = nfs_svc32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_ADDCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_DELCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_EXPORT:
+-	case NFSCTL_UNEXPORT:
+-		err = nfs_exp32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFD:
+-		err = nfs_getfd32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFS:
+-		err = nfs_getfs32_trans(karg, arg32);
+-		break;
+-	default:
+-		err = -EINVAL;
+-		break;
+-	}
+-	if(err)
+-		goto done;
+-	oldfs = get_fs();
+-	set_fs(KERNEL_DS);
+-	err = sys_nfsservctl(cmd, karg, kres);
+-	set_fs(oldfs);
+-
+-	if (err)
+-		goto done;
+-
+-	if((cmd == NFSCTL_GETFD) ||
+-	   (cmd == NFSCTL_GETFS))
+-		err = nfs_getfh32_res_trans(kres, res32);
+-
+-done:
+-	if(karg)
+-		kfree(karg);
+-	if(kres)
+-		kfree(kres);
+-	return err;
+-}
+-
+-
  
- 	/* SunOS binaries expect that select won't change the tvp contents */
--	ret = sys32_select (width, inp, outp, exp, tvp_x);
-+	ret = compat_sys_select(width, compat_ptr(inp), compat_ptr(outp),
-+				compat_ptr(exp), compat_ptr(tvp_x));
- 	if (ret == -EINTR && tvp_x) {
--		struct compat_timeval *tvp = (struct compat_timeval *)A(tvp_x);
-+		struct compat_timeval *tvp = compat_ptr(tvp_x);
- 		time_t sec, usec;
+ /* These are here just in case some old sparc32 binary calls it. */
+ asmlinkage long sys32_pause(void)
+===== arch/s390/kernel/compat_linux.c 1.21 vs edited =====
+--- 1.21/arch/s390/kernel/compat_linux.c	Thu Apr 15 19:30:49 2004
++++ edited/arch/s390/kernel/compat_linux.c	Thu Apr 15 17:37:01 2004
+@@ -815,226 +815,6 @@
  
- 		__get_user(sec, &tvp->tv_sec);
-===== arch/sparc64/kernel/systbls.S 1.53 vs edited =====
---- 1.53/arch/sparc64/kernel/systbls.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/sparc64/kernel/systbls.S	Thu Apr 15 17:30:49 2004
-@@ -37,7 +37,7 @@
- 	.word sys_madvise, sys_vhangup, sys32_truncate64, sys_mincore, sys32_getgroups16
- /*80*/	.word sys32_setgroups16, sys_getpgrp, sys_setgroups, compat_sys_setitimer, sys32_ftruncate64
- 	.word sys_swapon, compat_sys_getitimer, sys_setuid, sys_sethostname, sys_setgid
--/*90*/	.word sys_dup2, sys_setfsuid, compat_sys_fcntl, sys32_select, sys_setfsgid
-+/*90*/	.word sys_dup2, sys_setfsuid, compat_sys_fcntl, compat_sys_select, sys_setfsgid
- 	.word sys_fsync, sys_setpriority32, sys_nis_syscall, sys_nis_syscall, sys_nis_syscall
- /*100*/ .word sys_getpriority, sys32_rt_sigreturn, sys32_rt_sigaction, sys32_rt_sigprocmask, sys32_rt_sigpending
- 	.word sys32_rt_sigtimedwait, sys32_rt_sigqueueinfo, sys32_rt_sigsuspend, sys_setresuid, sys_getresuid
-@@ -65,7 +65,7 @@
- 	.word sys32_ipc, sys32_sigreturn, sys_clone, sys_nis_syscall, sys32_adjtimex
- /*220*/	.word compat_sys_sigprocmask, sys_ni_syscall, sys32_delete_module, sys_ni_syscall, sys_getpgid
- 	.word sys32_bdflush, sys32_sysfs, sys_nis_syscall, sys32_setfsuid16, sys32_setfsgid16
--/*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, compat_statfs64
-+/*230*/	.word compat_sys_select, sys_time, sys_nis_syscall, sys_stime, compat_statfs64
+ #endif  /* CONFIG_MODULES */
+ 
+-/* Stuff for NFS server syscalls... */
+-struct nfsctl_svc32 {
+-	u16			svc32_port;
+-	s32			svc32_nthreads;
+-};
+-
+-struct nfsctl_client32 {
+-	s8			cl32_ident[NFSCLNT_IDMAX+1];
+-	s32			cl32_naddr;
+-	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
+-	s32			cl32_fhkeytype;
+-	s32			cl32_fhkeylen;
+-	u8			cl32_fhkey[NFSCLNT_KEYMAX];
+-};
+-
+-struct nfsctl_export32 {
+-	s8			ex32_client[NFSCLNT_IDMAX+1];
+-	s8			ex32_path[NFS_MAXPATHLEN+1];
+-	compat_dev_t	ex32_dev;
+-	compat_ino_t	ex32_ino;
+-	s32			ex32_flags;
+-	compat_uid_t	ex32_anon_uid;
+-	compat_gid_t	ex32_anon_gid;
+-};
+-
+-struct nfsctl_fdparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_version;
+-};
+-
+-struct nfsctl_fsparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_maxlen;
+-};
+-
+-struct nfsctl_arg32 {
+-	s32			ca32_version;	/* safeguard */
+-	union {
+-		struct nfsctl_svc32	u32_svc;
+-		struct nfsctl_client32	u32_client;
+-		struct nfsctl_export32	u32_export;
+-		struct nfsctl_fdparm32	u32_getfd;
+-		struct nfsctl_fsparm32	u32_getfs;
+-	} u;
+-#define ca32_svc	u.u32_svc
+-#define ca32_client	u.u32_client
+-#define ca32_export	u.u32_export
+-#define ca32_getfd	u.u32_getfd
+-#define ca32_getfs	u.u32_getfs
+-#define ca32_authd	u.u32_authd
+-};
+-
+-union nfsctl_res32 {
+-	__u8			cr32_getfh[NFS_FHSIZE];
+-	struct knfsd_fh		cr32_getfs;
+-};
+-
+-static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
+-	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
+-	return err;
+-}
+-
+-static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_client.cl_ident[0],
+-			  &arg32->ca32_client.cl32_ident[0],
+-			  NFSCLNT_IDMAX);
+-	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
+-	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
+-			  &arg32->ca32_client.cl32_addrlist[0],
+-			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
+-	err |= __get_user(karg->ca_client.cl_fhkeytype,
+-		      &arg32->ca32_client.cl32_fhkeytype);
+-	err |= __get_user(karg->ca_client.cl_fhkeylen,
+-		      &arg32->ca32_client.cl32_fhkeylen);
+-	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
+-			  &arg32->ca32_client.cl32_fhkey[0],
+-			  NFSCLNT_KEYMAX);
+-	return err;
+-}
+-
+-static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_export.ex_client[0],
+-			  &arg32->ca32_export.ex32_client[0],
+-			  NFSCLNT_IDMAX);
+-	err |= copy_from_user(&karg->ca_export.ex_path[0],
+-			  &arg32->ca32_export.ex32_path[0],
+-			  NFS_MAXPATHLEN);
+-	err |= __get_user(karg->ca_export.ex_dev,
+-		      &arg32->ca32_export.ex32_dev);
+-	err |= __get_user(karg->ca_export.ex_ino,
+-		      &arg32->ca32_export.ex32_ino);
+-	err |= __get_user(karg->ca_export.ex_flags,
+-		      &arg32->ca32_export.ex32_flags);
+-	err |= __get_user(karg->ca_export.ex_anon_uid,
+-		      &arg32->ca32_export.ex32_anon_uid);
+-	err |= __get_user(karg->ca_export.ex_anon_gid,
+-		      &arg32->ca32_export.ex32_anon_gid);
+-	karg->ca_export.ex_anon_uid = high2lowuid(karg->ca_export.ex_anon_uid);
+-	karg->ca_export.ex_anon_gid = high2lowgid(karg->ca_export.ex_anon_gid);
+-	return err;
+-}
+-
+-static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfd.gd_addr,
+-			  &arg32->ca32_getfd.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfd.gd_path,
+-			  &arg32->ca32_getfd.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= __get_user(karg->ca_getfd.gd_version,
+-		      &arg32->ca32_getfd.gd32_version);
+-	return err;
+-}
+-
+-static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfs.gd_addr,
+-			  &arg32->ca32_getfs.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfs.gd_path,
+-			  &arg32->ca32_getfs.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= __get_user(karg->ca_getfs.gd_maxlen,
+-		      &arg32->ca32_getfs.gd32_maxlen);
+-	return err;
+-}
+-
+-/* This really doesn't need translations, we are only passing
+- * back a union which contains opaque nfs file handle data.
+- */
+-static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
+-{
+-	return copy_to_user(res32, kres, sizeof(*res32)) ? -EFAULT : 0;
+-}
+-
+-long asmlinkage sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
+-{
+-	struct nfsctl_arg *karg = NULL;
+-	union nfsctl_res *kres = NULL;
+-	mm_segment_t oldfs;
+-	int err;
+-
+-	karg = kmalloc(sizeof(*karg), GFP_USER);
+-	if(!karg)
+-		return -ENOMEM;
+-	if(res32) {
+-		kres = kmalloc(sizeof(*kres), GFP_USER);
+-		if(!kres) {
+-			kfree(karg);
+-			return -ENOMEM;
+-		}
+-	}
+-	switch(cmd) {
+-	case NFSCTL_SVC:
+-		err = nfs_svc32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_ADDCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_DELCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_EXPORT:
+-	case NFSCTL_UNEXPORT:
+-		err = nfs_exp32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFD:
+-		err = nfs_getfd32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFS:
+-		err = nfs_getfs32_trans(karg, arg32);
+-		break;
+-	default:
+-		err = -EINVAL;
+-		break;
+-	}
+-	if(err)
+-		goto done;
+-	oldfs = get_fs();
+-	set_fs(KERNEL_DS);
+-	err = sys_nfsservctl(cmd, karg, kres);
+-	set_fs(oldfs);
+-
+-	if (err)
+-		goto done;
+-
+-	if((cmd == NFSCTL_GETFD) ||
+-	   (cmd == NFSCTL_GETFS))
+-		err = nfs_getfh32_res_trans(kres, res32);
+-
+-done:
+-	if(karg)
+-		kfree(karg);
+-	if(kres)
+-		kfree(kres);
+-	return err;
+-}
+-
+ /* Translations due to time_t size differences.  Which affects all
+    sorts of things, like timeval and itimerval.  */
+ 
+===== arch/s390/kernel/compat_wrapper.S 1.11 vs edited =====
+--- 1.11/arch/s390/kernel/compat_wrapper.S	Thu Apr 15 19:30:49 2004
++++ edited/arch/s390/kernel/compat_wrapper.S	Thu Apr 15 17:37:01 2004
+@@ -786,12 +786,12 @@
+ 	lgfr	%r4,%r4			# long 
+ 	jg	sys_poll		# branch to system call
+ 
+-	.globl  sys32_nfsservctl_wrapper 
+-sys32_nfsservctl_wrapper:
++	.globl  compat_sys_nfsservctl_wrapper 
++compat_sys_nfsservctl_wrapper:
+ 	lgfr	%r2,%r2			# int 
+-	llgtr	%r3,%r3			# struct nfsctl_arg_emu31 * 
+-	llgtr	%r4,%r4			# union nfsctl_res_emu31 * 
+-	jg	sys32_nfsservctl	# branch to system call
++	llgtr	%r3,%r3			# struct compat_nfsctl_arg* 
++	llgtr	%r4,%r4			# union compat_nfsctl_res* 
++	jg	compat_sys_nfsservctl	# branch to system call
+ 
+ 	.globl  sys32_setresgid16_wrapper 
+ sys32_setresgid16_wrapper:
+===== arch/s390/kernel/syscalls.S 1.11 vs edited =====
+--- 1.11/arch/s390/kernel/syscalls.S	Thu Apr 15 19:30:49 2004
++++ edited/arch/s390/kernel/syscalls.S	Thu Apr 15 17:37:01 2004
+@@ -177,7 +177,7 @@
+ NI_SYSCALL							/* for vm86 */
+ NI_SYSCALL							/* old sys_query_module */
+ SYSCALL(sys_poll,sys_poll,sys32_poll_wrapper)
+-SYSCALL(sys_nfsservctl,sys_nfsservctl,sys32_nfsservctl_wrapper)
++SYSCALL(sys_nfsservctl,sys_nfsservctl,compat_sys_nfsservctl_wrapper)
+ SYSCALL(sys_setresgid16,sys_ni_syscall,sys32_setresgid16_wrapper)	/* 170 old setresgid16 syscall */
+ SYSCALL(sys_getresgid16,sys_ni_syscall,sys32_getresgid16_wrapper)	/* old getresgid16 syscall */
+ SYSCALL(sys_prctl,sys_prctl,sys32_prctl_wrapper)
+===== arch/sparc64/kernel/sys_sparc32.c 1.97 vs edited =====
+--- 1.97/arch/sparc64/kernel/sys_sparc32.c	Thu Apr 15 19:30:49 2004
++++ edited/arch/sparc64/kernel/sys_sparc32.c	Thu Apr 15 17:37:01 2004
+@@ -1392,232 +1392,6 @@
+ 
+ #endif  /* CONFIG_MODULES */
+ 
+-#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
+-/* Stuff for NFS server syscalls... */
+-struct nfsctl_svc32 {
+-	u16			svc32_port;
+-	s32			svc32_nthreads;
+-};
+-
+-struct nfsctl_client32 {
+-	s8			cl32_ident[NFSCLNT_IDMAX+1];
+-	s32			cl32_naddr;
+-	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
+-	s32			cl32_fhkeytype;
+-	s32			cl32_fhkeylen;
+-	u8			cl32_fhkey[NFSCLNT_KEYMAX];
+-};
+-
+-struct nfsctl_export32 {
+-	s8			ex32_client[NFSCLNT_IDMAX+1];
+-	s8			ex32_path[NFS_MAXPATHLEN+1];
+-	compat_dev_t	ex32_dev;
+-	compat_ino_t	ex32_ino;
+-	s32			ex32_flags;
+-	compat_uid_t	ex32_anon_uid;
+-	compat_gid_t	ex32_anon_gid;
+-};
+-
+-struct nfsctl_fdparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_version;
+-};
+-
+-struct nfsctl_fsparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_maxlen;
+-};
+-
+-struct nfsctl_arg32 {
+-	s32			ca32_version;	/* safeguard */
+-	union {
+-		struct nfsctl_svc32	u32_svc;
+-		struct nfsctl_client32	u32_client;
+-		struct nfsctl_export32	u32_export;
+-		struct nfsctl_fdparm32	u32_getfd;
+-		struct nfsctl_fsparm32	u32_getfs;
+-	} u;
+-#define ca32_svc	u.u32_svc
+-#define ca32_client	u.u32_client
+-#define ca32_export	u.u32_export
+-#define ca32_getfd	u.u32_getfd
+-#define ca32_getfs	u.u32_getfs
+-};
+-
+-union nfsctl_res32 {
+-	__u8			cr32_getfh[NFS_FHSIZE];
+-	struct knfsd_fh		cr32_getfs;
+-};
+-
+-static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
+-	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
+-	return err;
+-}
+-
+-static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_client.cl_ident[0],
+-			  &arg32->ca32_client.cl32_ident[0],
+-			  NFSCLNT_IDMAX);
+-	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
+-	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
+-			  &arg32->ca32_client.cl32_addrlist[0],
+-			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
+-	err |= __get_user(karg->ca_client.cl_fhkeytype,
+-		      &arg32->ca32_client.cl32_fhkeytype);
+-	err |= __get_user(karg->ca_client.cl_fhkeylen,
+-		      &arg32->ca32_client.cl32_fhkeylen);
+-	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
+-			  &arg32->ca32_client.cl32_fhkey[0],
+-			  NFSCLNT_KEYMAX);
+-	return (err ? -EFAULT : 0);
+-}
+-
+-static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_export.ex_client[0],
+-			  &arg32->ca32_export.ex32_client[0],
+-			  NFSCLNT_IDMAX);
+-	err |= copy_from_user(&karg->ca_export.ex_path[0],
+-			  &arg32->ca32_export.ex32_path[0],
+-			  NFS_MAXPATHLEN);
+-	err |= __get_user(karg->ca_export.ex_dev,
+-		      &arg32->ca32_export.ex32_dev);
+-	err |= __get_user(karg->ca_export.ex_ino,
+-		      &arg32->ca32_export.ex32_ino);
+-	err |= __get_user(karg->ca_export.ex_flags,
+-		      &arg32->ca32_export.ex32_flags);
+-	err |= __get_user(karg->ca_export.ex_anon_uid,
+-		      &arg32->ca32_export.ex32_anon_uid);
+-	err |= __get_user(karg->ca_export.ex_anon_gid,
+-		      &arg32->ca32_export.ex32_anon_gid);
+-	karg->ca_export.ex_anon_uid = high2lowuid(karg->ca_export.ex_anon_uid);
+-	karg->ca_export.ex_anon_gid = high2lowgid(karg->ca_export.ex_anon_gid);
+-	return (err ? -EFAULT : 0);
+-}
+-
+-static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfd.gd_addr,
+-			  &arg32->ca32_getfd.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfd.gd_path,
+-			  &arg32->ca32_getfd.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= __get_user(karg->ca_getfd.gd_version,
+-		      &arg32->ca32_getfd.gd32_version);
+-	return (err ? -EFAULT : 0);
+-}
+-
+-static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = __get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfs.gd_addr,
+-			  &arg32->ca32_getfs.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfs.gd_path,
+-			  &arg32->ca32_getfs.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= __get_user(karg->ca_getfs.gd_maxlen,
+-		      &arg32->ca32_getfs.gd32_maxlen);
+-	return (err ? -EFAULT : 0);
+-}
+-
+-/* This really doesn't need translations, we are only passing
+- * back a union which contains opaque nfs file handle data.
+- */
+-static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
+-{
+-	return (copy_to_user(res32, kres, sizeof(*res32)) ? -EFAULT : 0);
+-}
+-
+-int asmlinkage sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
+-{
+-	struct nfsctl_arg *karg = NULL;
+-	union nfsctl_res *kres = NULL;
+-	mm_segment_t oldfs;
+-	int err;
+-
+-	karg = kmalloc(sizeof(*karg), GFP_USER);
+-	if(!karg)
+-		return -ENOMEM;
+-	if(res32) {
+-		kres = kmalloc(sizeof(*kres), GFP_USER);
+-		if(!kres) {
+-			kfree(karg);
+-			return -ENOMEM;
+-		}
+-	}
+-	switch(cmd) {
+-	case NFSCTL_SVC:
+-		err = nfs_svc32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_ADDCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_DELCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_EXPORT:
+-	case NFSCTL_UNEXPORT:
+-		err = nfs_exp32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFD:
+-		err = nfs_getfd32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFS:
+-		err = nfs_getfs32_trans(karg, arg32);
+-		break;
+-	default:
+-		err = -EINVAL;
+-		break;
+-	}
+-	if(err)
+-		goto done;
+-	oldfs = get_fs();
+-	set_fs(KERNEL_DS);
+-	err = sys_nfsservctl(cmd, karg, kres);
+-	set_fs(oldfs);
+-
+-	if (err)
+-		goto done;
+-
+-	if((cmd == NFSCTL_GETFD) ||
+-	   (cmd == NFSCTL_GETFS))
+-		err = nfs_getfh32_res_trans(kres, res32);
+-
+-done:
+-	if(karg)
+-		kfree(karg);
+-	if(kres)
+-		kfree(kres);
+-	return err;
+-}
+-#else /* !NFSD */
+-int asmlinkage sys32_nfsservctl(int cmd, void *notused, void *notused2)
+-{
+-	return sys_ni_syscall();
+-}
+-#endif
+-
+ /* Translations due to time_t size differences.  Which affects all
+    sorts of things, like timeval and itimerval.  */
+ 
+===== arch/sparc64/kernel/systbls.S 1.54 vs edited =====
+--- 1.54/arch/sparc64/kernel/systbls.S	Thu Apr 15 19:30:49 2004
++++ edited/arch/sparc64/kernel/systbls.S	Thu Apr 15 17:37:01 2004
+@@ -69,7 +69,7 @@
  	.word compat_fstatfs64, sys_llseek, sys_mlock, sys_munlock, sys_mlockall
  /*240*/	.word sys_munlockall, sys_sched_setparam, sys_sched_getparam, sys_sched_setscheduler, sys_sched_getscheduler
  	.word sys_sched_yield, sys_sched_get_priority_max, sys_sched_get_priority_min, sys32_sched_rr_get_interval, compat_sys_nanosleep
-===== arch/x86_64/ia32/ia32entry.S 1.32 vs edited =====
---- 1.32/arch/x86_64/ia32/ia32entry.S	Thu Apr 15 17:25:08 2004
-+++ edited/arch/x86_64/ia32/ia32entry.S	Thu Apr 15 17:30:49 2004
-@@ -447,7 +447,7 @@
- 	.quad sys_setfsgid16
- 	.quad sys_llseek		/* 140 */
- 	.quad sys32_getdents
--	.quad sys32_select
-+	.quad compat_sys_select
- 	.quad sys_flock
- 	.quad sys_msync
- 	.quad compat_sys_readv		/* 145 */
-===== arch/x86_64/ia32/sys_ia32.c 1.58 vs edited =====
---- 1.58/arch/x86_64/ia32/sys_ia32.c	Thu Apr 15 17:25:08 2004
-+++ edited/arch/x86_64/ia32/sys_ia32.c	Thu Apr 15 17:30:49 2004
-@@ -606,107 +606,6 @@
- 	return error;
+-/*250*/	.word sys32_mremap, sys32_sysctl, sys_getsid, sys_fdatasync, sys32_nfsservctl
++/*250*/	.word sys32_mremap, sys32_sysctl, sys_getsid, sys_fdatasync, compat_sys_nfsservctl
+ 	.word sys_ni_syscall, compat_clock_settime, compat_clock_gettime, compat_clock_getres, compat_clock_nanosleep
+ /*260*/	.word compat_sys_sched_getaffinity, compat_sys_sched_setaffinity, compat_timer_settime, compat_timer_gettime, sys_timer_getoverrun
+ 	.word sys_timer_delete, sys32_timer_create, sys_ni_syscall, compat_sys_io_setup, sys_io_destroy
+===== arch/x86_64/ia32/ia32entry.S 1.33 vs edited =====
+--- 1.33/arch/x86_64/ia32/ia32entry.S	Thu Apr 15 19:30:49 2004
++++ edited/arch/x86_64/ia32/ia32entry.S	Thu Apr 15 17:37:01 2004
+@@ -474,7 +474,7 @@
+ 	.quad sys32_vm86_warning	/* vm86 */ 
+ 	.quad quiet_ni_syscall	/* query_module */
+ 	.quad sys_poll
+-	.quad sys32_nfsservctl
++	.quad compat_sys_nfsservctl
+ 	.quad sys_setresgid16	/* 170 */
+ 	.quad sys_getresgid16
+ 	.quad sys_prctl
+===== arch/x86_64/ia32/sys_ia32.c 1.59 vs edited =====
+--- 1.59/arch/x86_64/ia32/sys_ia32.c	Thu Apr 15 19:30:49 2004
++++ edited/arch/x86_64/ia32/sys_ia32.c	Thu Apr 15 17:37:01 2004
+@@ -1166,233 +1166,6 @@
  }
+  
  
--/*
-- * We can actually return ERESTARTSYS instead of EINTR, but I'd
-- * like to be certain this leads to no problems. So I return
-- * EINTR just for safety.
-- *
-- * Update: ERESTARTSYS breaks at least the xview clock binary, so
-- * I'm trying ERESTARTNOHAND which restart only when you want to.
-- */
--#define MAX_SELECT_SECONDS \
--	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
--#define ROUND_UP_TIME(x,y) (((x)+(y)-1)/(y))
+-#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
+-/* Stuff for NFS server syscalls... */
+-struct nfsctl_svc32 {
+-	u16			svc32_port;
+-	s32			svc32_nthreads;
+-};
 -
--asmlinkage long
--sys32_select(int n, fd_set *inp, fd_set *outp, fd_set *exp, struct compat_timeval *tvp32)
+-struct nfsctl_client32 {
+-	s8			cl32_ident[NFSCLNT_IDMAX+1];
+-	s32			cl32_naddr;
+-	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
+-	s32			cl32_fhkeytype;
+-	s32			cl32_fhkeylen;
+-	u8			cl32_fhkey[NFSCLNT_KEYMAX];
+-};
+-
+-struct nfsctl_export32 {
+-	s8			ex32_client[NFSCLNT_IDMAX+1];
+-	s8			ex32_path[NFS_MAXPATHLEN+1];
+-	compat_dev_t	ex32_dev;
+-	compat_ino_t	ex32_ino;
+-	s32			ex32_flags;
+-	compat_pid_t	ex32_anon_uid;
+-	compat_gid_t	ex32_anon_gid;
+-};
+-
+-struct nfsctl_fdparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_version;
+-};
+-
+-struct nfsctl_fsparm32 {
+-	struct sockaddr		gd32_addr;
+-	s8			gd32_path[NFS_MAXPATHLEN+1];
+-	s32			gd32_maxlen;
+-};
+-
+-struct nfsctl_arg32 {
+-	s32			ca32_version;	/* safeguard */
+-	union {
+-		struct nfsctl_svc32	u32_svc;
+-		struct nfsctl_client32	u32_client;
+-		struct nfsctl_export32	u32_export;
+-		struct nfsctl_fdparm32	u32_getfd;
+-		struct nfsctl_fsparm32	u32_getfs;
+-	} u;
+-#define ca32_svc	u.u32_svc
+-#define ca32_client	u.u32_client
+-#define ca32_export	u.u32_export
+-#define ca32_getfd	u.u32_getfd
+-#define ca32_getfs	u.u32_getfs
+-};
+-
+-union nfsctl_res32 {
+-	__u8			cr32_getfh[NFS_FHSIZE];
+-	struct knfsd_fh		cr32_getfs;
+-};
+-
+-static int nfs_svc32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
 -{
--	fd_set_bits fds;
--	char *bits;
--	long timeout;
--	int ret, size;
--
--	timeout = MAX_SCHEDULE_TIMEOUT;
--	if (tvp32) {
--		time_t sec, usec;
--
--		get_user(sec, &tvp32->tv_sec);
--		get_user(usec, &tvp32->tv_usec);
--
--		ret = -EINVAL;
--		if (sec < 0 || usec < 0)
--			goto out_nofds;
--
--		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
--			timeout = ROUND_UP_TIME(usec, 1000000/HZ);
--			timeout += sec * (unsigned long) HZ;
--		}
--	}
--
--	ret = -EINVAL;
--	if (n < 0)
--		goto out_nofds;
--
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
--
--	/*
--	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
--	 * since we used fdset we need to allocate memory in units of
--	 * long-words. 
--	 */
--	ret = -ENOMEM;
--	size = FDS_BYTES(n);
--	bits = kmalloc(6 * size, GFP_KERNEL);
--	if (!bits)
--		goto out_nofds;
--	fds.in      = (unsigned long *)  bits;
--	fds.out     = (unsigned long *) (bits +   size);
--	fds.ex      = (unsigned long *) (bits + 2*size);
--	fds.res_in  = (unsigned long *) (bits + 3*size);
--	fds.res_out = (unsigned long *) (bits + 4*size);
--	fds.res_ex  = (unsigned long *) (bits + 5*size);
--
--	if ((ret = get_fd_set(n, inp, fds.in)) ||
--	    (ret = get_fd_set(n, outp, fds.out)) ||
--	    (ret = get_fd_set(n, exp, fds.ex)))
--		goto out;
--	zero_fd_set(n, fds.res_in);
--	zero_fd_set(n, fds.res_out);
--	zero_fd_set(n, fds.res_ex);
--
--	ret = do_select(n, &fds, &timeout);
--
--	if (tvp32 && !(current->personality & STICKY_TIMEOUTS)) {
--		time_t sec = 0, usec = 0;
--		if (timeout) {
--			sec = timeout / HZ;
--			usec = timeout % HZ;
--			usec *= (1000000/HZ);
--		}
--		put_user(sec, (int *)&tvp32->tv_sec);
--		put_user(usec, (int *)&tvp32->tv_usec);
--	}
--
--	if (ret < 0)
--		goto out;
--	if (!ret) {
--		ret = -ERESTARTNOHAND;
--		if (signal_pending(current))
--			goto out;
--		ret = 0;
--	}
--
--	set_fd_set(n, inp, fds.res_in);
--	set_fd_set(n, outp, fds.res_out);
--	set_fd_set(n, exp, fds.res_ex);
--
--out:
--	kfree(bits);
--out_nofds:
--	return ret;
+-	int err;
+-	
+-	err = get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= __get_user(karg->ca_svc.svc_port, &arg32->ca32_svc.svc32_port);
+-	err |= __get_user(karg->ca_svc.svc_nthreads, &arg32->ca32_svc.svc32_nthreads);
+-	return err;
 -}
 -
- struct sel_arg_struct {
- 	unsigned int n;
- 	unsigned int inp;
-@@ -722,8 +621,8 @@
- 
- 	if (copy_from_user(&a, arg, sizeof(a)))
- 		return -EFAULT;
--	return sys32_select(a.n, (fd_set *)A(a.inp), (fd_set *)A(a.outp), (fd_set *)A(a.exp),
--			    (struct compat_timeval *)A(a.tvp));
-+	return compat_sys_select(a.n, compat_ptr(a.inp), compat_ptr(a.outp),
-+				 compat_ptr(a.exp), compat_ptr(a.tvp));
+-static int nfs_clnt32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_client.cl_ident[0],
+-			  &arg32->ca32_client.cl32_ident[0],
+-			  NFSCLNT_IDMAX);
+-	err |= __get_user(karg->ca_client.cl_naddr, &arg32->ca32_client.cl32_naddr);
+-	err |= copy_from_user(&karg->ca_client.cl_addrlist[0],
+-			  &arg32->ca32_client.cl32_addrlist[0],
+-			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
+-	err |= __get_user(karg->ca_client.cl_fhkeytype,
+-		      &arg32->ca32_client.cl32_fhkeytype);
+-	err |= __get_user(karg->ca_client.cl_fhkeylen,
+-		      &arg32->ca32_client.cl32_fhkeylen);
+-	err |= copy_from_user(&karg->ca_client.cl_fhkey[0],
+-			  &arg32->ca32_client.cl32_fhkey[0],
+-			  NFSCLNT_KEYMAX);
+-	return err;
+-}
+-
+-static int nfs_exp32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_export.ex_client[0],
+-			  &arg32->ca32_export.ex32_client[0],
+-			  NFSCLNT_IDMAX);
+-	err |= copy_from_user(&karg->ca_export.ex_path[0],
+-			  &arg32->ca32_export.ex32_path[0],
+-			  NFS_MAXPATHLEN);
+-	err |= __get_user(karg->ca_export.ex_dev,
+-		      &arg32->ca32_export.ex32_dev);
+-	err |= __get_user(karg->ca_export.ex_ino,
+-		      &arg32->ca32_export.ex32_ino);
+-	err |= __get_user(karg->ca_export.ex_flags,
+-		      &arg32->ca32_export.ex32_flags);
+-	err |= __get_user(karg->ca_export.ex_anon_uid,
+-		      &arg32->ca32_export.ex32_anon_uid);
+-	err |= __get_user(karg->ca_export.ex_anon_gid,
+-		      &arg32->ca32_export.ex32_anon_gid);
+-	SET_UID(karg->ca_export.ex_anon_uid, karg->ca_export.ex_anon_uid);
+-	SET_GID(karg->ca_export.ex_anon_gid, karg->ca_export.ex_anon_gid);
+-	return err;
+-}
+-
+-
+-static int nfs_getfd32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfd.gd_addr,
+-			  &arg32->ca32_getfd.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfd.gd_path,
+-			  &arg32->ca32_getfd.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= get_user(karg->ca_getfd.gd_version,
+-		      &arg32->ca32_getfd.gd32_version);
+-	return err;
+-}
+-
+-static int nfs_getfs32_trans(struct nfsctl_arg *karg, struct nfsctl_arg32 *arg32)
+-{
+-	int err;
+-	
+-	err = get_user(karg->ca_version, &arg32->ca32_version);
+-	err |= copy_from_user(&karg->ca_getfs.gd_addr,
+-			  &arg32->ca32_getfs.gd32_addr,
+-			  (sizeof(struct sockaddr)));
+-	err |= copy_from_user(&karg->ca_getfs.gd_path,
+-			  &arg32->ca32_getfs.gd32_path,
+-			  (NFS_MAXPATHLEN+1));
+-	err |= get_user(karg->ca_getfs.gd_maxlen,
+-		      &arg32->ca32_getfs.gd32_maxlen);
+-	return err;
+-}
+-
+-/* This really doesn't need translations, we are only passing
+- * back a union which contains opaque nfs file handle data.
+- */
+-static int nfs_getfh32_res_trans(union nfsctl_res *kres, union nfsctl_res32 *res32)
+-{
+-	return copy_to_user(res32, kres, sizeof(*res32)) ? -EFAULT : 0;
+-}
+-
+-long asmlinkage sys32_nfsservctl(int cmd, struct nfsctl_arg32 *arg32, union nfsctl_res32 *res32)
+-{
+-	struct nfsctl_arg *karg = NULL;
+-	union nfsctl_res *kres = NULL;
+-	mm_segment_t oldfs;
+-	int err;
+-
+-	karg = kmalloc(sizeof(*karg), GFP_USER);
+-	if(!karg)
+-		return -ENOMEM;
+-	if(res32) {
+-		kres = kmalloc(sizeof(*kres), GFP_USER);
+-		if(!kres) {
+-			kfree(karg);
+-			return -ENOMEM;
+-		}
+-	}
+-	switch(cmd) {
+-	case NFSCTL_SVC:
+-		err = nfs_svc32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_ADDCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_DELCLIENT:
+-		err = nfs_clnt32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_EXPORT:
+-	case NFSCTL_UNEXPORT:
+-		err = nfs_exp32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFD:
+-		err = nfs_getfd32_trans(karg, arg32);
+-		break;
+-	case NFSCTL_GETFS:
+-		err = nfs_getfs32_trans(karg, arg32);
+-		break;
+-	default:
+-		err = -EINVAL;
+-		break;
+-	}
+-	if(err)
+-		goto done;
+-	oldfs = get_fs();
+-	set_fs(KERNEL_DS);
+-	err = sys_nfsservctl(cmd, karg, kres);
+-	set_fs(oldfs);
+-
+-	if (err)
+-		goto done;
+-
+-	if((cmd == NFSCTL_GETFD) ||
+-	   (cmd == NFSCTL_GETFS))
+-		err = nfs_getfh32_res_trans(kres, res32);
+-
+-done:
+-	if(karg)
+-		kfree(karg);
+-	if(kres)
+-		kfree(kres);
+-	return err;
+-}
+-#else /* !NFSD */
+-long asmlinkage sys32_nfsservctl(int cmd, void *notused, void *notused2)
+-{
+-	return sys_ni_syscall();
+-}
+-#endif
+-
+ long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)
+ { 
+ 	long ret; 
+===== fs/compat.c 1.24 vs edited =====
+--- 1.24/fs/compat.c	Thu Apr 15 19:31:49 2004
++++ edited/fs/compat.c	Thu Apr 15 17:37:01 2004
+@@ -1399,3 +1399,242 @@
+ 	return ret;
  }
  
- /*
-===== fs/compat.c 1.23 vs edited =====
---- 1.23/fs/compat.c	Thu Apr 15 17:25:08 2004
-+++ edited/fs/compat.c	Thu Apr 15 17:31:49 2004
-@@ -1211,3 +1211,191 @@
- 
- 	return retval;
- }
++#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
++/* Stuff for NFS server syscalls... */
++struct compat_nfsctl_svc {
++	u16			svc32_port;
++	s32			svc32_nthreads;
++};
 +
-+#define __COMPAT_NFDBITS       (8 * sizeof(compat_ulong_t))
++struct compat_nfsctl_client {
++	s8			cl32_ident[NFSCLNT_IDMAX+1];
++	s32			cl32_naddr;
++	struct in_addr		cl32_addrlist[NFSCLNT_ADDRMAX];
++	s32			cl32_fhkeytype;
++	s32			cl32_fhkeylen;
++	u8			cl32_fhkey[NFSCLNT_KEYMAX];
++};
 +
-+#define ROUND_UP(x,y) (((x)+(y)-1)/(y))
++struct compat_nfsctl_export {
++	char		ex32_client[NFSCLNT_IDMAX+1];
++	char		ex32_path[NFS_MAXPATHLEN+1];
++	compat_dev_t	ex32_dev;
++	compat_ino_t	ex32_ino;
++	compat_int_t	ex32_flags;
++	compat_uid_t	ex32_anon_uid;
++	compat_gid_t	ex32_anon_gid;
++};
 +
-+/*
-+ * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
-+ * 64-bit unsigned longs.
++struct compat_nfsctl_fdparm {
++	struct sockaddr		gd32_addr;
++	s8			gd32_path[NFS_MAXPATHLEN+1];
++	compat_int_t		gd32_version;
++};
++
++struct compat_nfsctl_fsparm {
++	struct sockaddr		gd32_addr;
++	s8			gd32_path[NFS_MAXPATHLEN+1];
++	compat_int_t		gd32_maxlen;
++};
++
++struct compat_nfsctl_arg {
++	compat_int_t		ca32_version;	/* safeguard */
++	union {
++		struct compat_nfsctl_svc	u32_svc;
++		struct compat_nfsctl_client	u32_client;
++		struct compat_nfsctl_export	u32_export;
++		struct compat_nfsctl_fdparm	u32_getfd;
++		struct compat_nfsctl_fsparm	u32_getfs;
++	} u;
++#define ca32_svc	u.u32_svc
++#define ca32_client	u.u32_client
++#define ca32_export	u.u32_export
++#define ca32_getfd	u.u32_getfd
++#define ca32_getfs	u.u32_getfs
++};
++
++union compat_nfsctl_res {
++	__u8			cr32_getfh[NFS_FHSIZE];
++	struct knfsd_fh		cr32_getfs;
++};
++
++static int compat_nfs_svc_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
++{
++	int err;
++
++	err = access_ok(VERIFY_READ, &arg->ca32_svc, sizeof(arg->ca32_svc));
++	err |= get_user(karg->ca_version, &arg->ca32_version);
++	err |= __get_user(karg->ca_svc.svc_port, &arg->ca32_svc.svc32_port);
++	err |= __get_user(karg->ca_svc.svc_nthreads, &arg->ca32_svc.svc32_nthreads);
++	return (err) ? -EFAULT : 0;
++}
++
++static int compat_nfs_clnt_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
++{
++	int err;
++
++	err = access_ok(VERIFY_READ, &arg->ca32_client, sizeof(arg->ca32_client));
++	err |= get_user(karg->ca_version, &arg->ca32_version);
++	err |= __copy_from_user(&karg->ca_client.cl_ident[0],
++			  &arg->ca32_client.cl32_ident[0],
++			  NFSCLNT_IDMAX);
++	err |= __get_user(karg->ca_client.cl_naddr, &arg->ca32_client.cl32_naddr);
++	err |= __copy_from_user(&karg->ca_client.cl_addrlist[0],
++			  &arg->ca32_client.cl32_addrlist[0],
++			  (sizeof(struct in_addr) * NFSCLNT_ADDRMAX));
++	err |= __get_user(karg->ca_client.cl_fhkeytype,
++		      &arg->ca32_client.cl32_fhkeytype);
++	err |= __get_user(karg->ca_client.cl_fhkeylen,
++		      &arg->ca32_client.cl32_fhkeylen);
++	err |= __copy_from_user(&karg->ca_client.cl_fhkey[0],
++			  &arg->ca32_client.cl32_fhkey[0],
++			  NFSCLNT_KEYMAX);
++
++	return (err) ? -EFAULT : 0;
++}
++
++static int compat_nfs_exp_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
++{
++	int err;
++
++	err = access_ok(VERIFY_READ, &arg->ca32_export, sizeof(arg->ca32_export));
++	err |= get_user(karg->ca_version, &arg->ca32_version);
++	err |= __copy_from_user(&karg->ca_export.ex_client[0],
++			  &arg->ca32_export.ex32_client[0],
++			  NFSCLNT_IDMAX);
++	err |= __copy_from_user(&karg->ca_export.ex_path[0],
++			  &arg->ca32_export.ex32_path[0],
++			  NFS_MAXPATHLEN);
++	err |= __get_user(karg->ca_export.ex_dev,
++		      &arg->ca32_export.ex32_dev);
++	err |= __get_user(karg->ca_export.ex_ino,
++		      &arg->ca32_export.ex32_ino);
++	err |= __get_user(karg->ca_export.ex_flags,
++		      &arg->ca32_export.ex32_flags);
++	err |= __get_user(karg->ca_export.ex_anon_uid,
++		      &arg->ca32_export.ex32_anon_uid);
++	err |= __get_user(karg->ca_export.ex_anon_gid,
++		      &arg->ca32_export.ex32_anon_gid);
++	SET_UID(karg->ca_export.ex_anon_uid, karg->ca_export.ex_anon_uid);
++	SET_GID(karg->ca_export.ex_anon_gid, karg->ca_export.ex_anon_gid);
++
++	return (err) ? -EFAULT : 0;
++}
++
++static int compat_nfs_getfd_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
++{
++	int err;
++	
++	err = access_ok(VERIFY_READ, &arg->ca32_getfd, sizeof(arg->ca32_getfd));
++	err |= get_user(karg->ca_version, &arg->ca32_version);
++	err |= __copy_from_user(&karg->ca_getfd.gd_addr,
++			  &arg->ca32_getfd.gd32_addr,
++			  (sizeof(struct sockaddr)));
++	err |= __copy_from_user(&karg->ca_getfd.gd_path,
++			  &arg->ca32_getfd.gd32_path,
++			  (NFS_MAXPATHLEN+1));
++	err |= __get_user(karg->ca_getfd.gd_version,
++		      &arg->ca32_getfd.gd32_version);
++
++	return (err) ? -EFAULT : 0;
++}
++
++static int compat_nfs_getfs_trans(struct nfsctl_arg *karg, struct compat_nfsctl_arg *arg)
++{
++	int err;
++
++	err = access_ok(VERIFY_READ, &arg->ca32_getfs, sizeof(arg->ca32_getfs));
++	err |= get_user(karg->ca_version, &arg->ca32_version);
++	err |= __copy_from_user(&karg->ca_getfs.gd_addr,
++			  &arg->ca32_getfs.gd32_addr,
++			  (sizeof(struct sockaddr)));
++	err |= __copy_from_user(&karg->ca_getfs.gd_path,
++			  &arg->ca32_getfs.gd32_path,
++			  (NFS_MAXPATHLEN+1));
++	err |= __get_user(karg->ca_getfs.gd_maxlen,
++		      &arg->ca32_getfs.gd32_maxlen);
++
++	return (err) ? -EFAULT : 0;
++}
++
++/* This really doesn't need translations, we are only passing
++ * back a union which contains opaque nfs file handle data.
 + */
-+static inline
-+int compat_get_fd_set(unsigned long nr, compat_ulong_t __user *ufdset,
-+			unsigned long *fdset)
++static int compat_nfs_getfh_res_trans(union nfsctl_res *kres, union compat_nfsctl_res *res)
 +{
-+	nr = ROUND_UP(nr, __COMPAT_NFDBITS);
-+	if (ufdset) {
-+		unsigned long odd;
++	int err;
 +
-+		if (verify_area(VERIFY_WRITE, ufdset, nr*sizeof(compat_ulong_t)))
-+			return -EFAULT;
++	err = copy_to_user(res, kres, sizeof(*res));
 +
-+		odd = nr & 1UL;
-+		nr &= ~1UL;
-+		while (nr) {
-+			unsigned long h, l;
-+			__get_user(l, ufdset);
-+			__get_user(h, ufdset+1);
-+			ufdset += 2;
-+			*fdset++ = h << 32 | l;
-+			nr -= 2;
-+		}
-+		if (odd)
-+			__get_user(*fdset, ufdset);
-+	} else {
-+		/* Tricky, must clear full unsigned long in the
-+		 * kernel fdset at the end, this makes sure that
-+		 * actually happens.
-+		 */
-+		memset(fdset, 0, ((nr + 1) & ~1)*sizeof(compat_ulong_t));
-+	}
-+	return 0;
++	return (err) ? -EFAULT : 0;
 +}
 +
-+static inline
-+void compat_set_fd_set(unsigned long nr, compat_ulong_t __user *ufdset,
-+			unsigned long *fdset)
++asmlinkage long compat_sys_nfsservctl(int cmd, struct compat_nfsctl_arg *arg,
++					union compat_nfsctl_res *res)
 +{
-+	unsigned long odd;
-+	nr = ROUND_UP(nr, __COMPAT_NFDBITS);
++	struct nfsctl_arg *karg;
++	union nfsctl_res *kres;
++	mm_segment_t oldfs;
++	int err;
 +
-+	if (!ufdset)
-+		return;
-+
-+	odd = nr & 1UL;
-+	nr &= ~1UL;
-+	while (nr) {
-+		unsigned long h, l;
-+		l = *fdset++;
-+		h = l >> 32;
-+		__put_user(l, ufdset);
-+		__put_user(h, ufdset+1);
-+		ufdset += 2;
-+		nr -= 2;
-+	}
-+	if (odd)
-+		__put_user(*fdset, ufdset);
-+}
-+
-+
-+/*
-+ * This is a virtual copy of sys_select from fs/select.c and probably
-+ * should be compared to it from time to time
-+ */
-+static void *select_bits_alloc(int size)
-+{
-+	return kmalloc(6 * size, GFP_KERNEL);
-+}
-+
-+static void select_bits_free(void *bits, int size)
-+{
-+	kfree(bits);
-+}
-+
-+/*
-+ * We can actually return ERESTARTSYS instead of EINTR, but I'd
-+ * like to be certain this leads to no problems. So I return
-+ * EINTR just for safety.
-+ *
-+ * Update: ERESTARTSYS breaks at least the xview clock binary, so
-+ * I'm trying ERESTARTNOHAND which restart only when you want to.
-+ */
-+#define MAX_SELECT_SECONDS \
-+	((unsigned long) (MAX_SCHEDULE_TIMEOUT / HZ)-1)
-+
-+asmlinkage long
-+compat_sys_select(int n, compat_ulong_t __user *inp, compat_ulong_t __user *outp,
-+		compat_ulong_t __user *exp, struct compat_timeval __user *tvp)
-+{
-+	fd_set_bits fds;
-+	char *bits;
-+	long timeout;
-+	int ret, size, max_fdset;
-+
-+	timeout = MAX_SCHEDULE_TIMEOUT;
-+	if (tvp) {
-+		time_t sec, usec;
-+
-+		if ((ret = verify_area(VERIFY_READ, tvp, sizeof(*tvp)))
-+		    || (ret = __get_user(sec, &tvp->tv_sec))
-+		    || (ret = __get_user(usec, &tvp->tv_usec)))
-+			goto out_nofds;
-+
-+		ret = -EINVAL;
-+		if (sec < 0 || usec < 0)
-+			goto out_nofds;
-+
-+		if ((unsigned long) sec < MAX_SELECT_SECONDS) {
-+			timeout = ROUND_UP(usec, 1000000/HZ);
-+			timeout += sec * (unsigned long) HZ;
-+		}
++	karg = kmalloc(sizeof(*karg), GFP_USER);
++	kres = kmalloc(sizeof(*kres), GFP_USER);
++	if(!karg || !kres) {
++		err = -ENOMEM;
++		goto done;
 +	}
 +
-+	ret = -EINVAL;
-+	if (n < 0)
-+		goto out_nofds;
++	switch(cmd) {
++	case NFSCTL_SVC:
++		err = compat_nfs_svc_trans(karg, arg);
++		break;
 +
-+	/* max_fdset can increase, so grab it once to avoid race */
-+	max_fdset = current->files->max_fdset;
-+	if (n > max_fdset)
-+		n = max_fdset;
++	case NFSCTL_ADDCLIENT:
++		err = compat_nfs_clnt_trans(karg, arg);
++		break;
 +
-+	/*
-+	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
-+	 * since we used fdset we need to allocate memory in units of
-+	 * long-words. 
-+	 */
-+	ret = -ENOMEM;
-+	size = FDS_BYTES(n);
-+	bits = select_bits_alloc(size);
-+	if (!bits)
-+		goto out_nofds;
-+	fds.in      = (unsigned long *)  bits;
-+	fds.out     = (unsigned long *) (bits +   size);
-+	fds.ex      = (unsigned long *) (bits + 2*size);
-+	fds.res_in  = (unsigned long *) (bits + 3*size);
-+	fds.res_out = (unsigned long *) (bits + 4*size);
-+	fds.res_ex  = (unsigned long *) (bits + 5*size);
++	case NFSCTL_DELCLIENT:
++		err = compat_nfs_clnt_trans(karg, arg);
++		break;
 +
-+	if ((ret = compat_get_fd_set(n, inp, fds.in)) ||
-+	    (ret = compat_get_fd_set(n, outp, fds.out)) ||
-+	    (ret = compat_get_fd_set(n, exp, fds.ex)))
-+		goto out;
-+	zero_fd_set(n, fds.res_in);
-+	zero_fd_set(n, fds.res_out);
-+	zero_fd_set(n, fds.res_ex);
++	case NFSCTL_EXPORT:
++	case NFSCTL_UNEXPORT:
++		err = compat_nfs_exp_trans(karg, arg);
++		break;
 +
-+	ret = do_select(n, &fds, &timeout);
++	case NFSCTL_GETFD:
++		err = compat_nfs_getfd_trans(karg, arg);
++		break;
 +
-+	if (tvp && !(current->personality & STICKY_TIMEOUTS)) {
-+		time_t sec = 0, usec = 0;
-+		if (timeout) {
-+			sec = timeout / HZ;
-+			usec = timeout % HZ;
-+			usec *= (1000000/HZ);
-+		}
-+		if (put_user(sec, &tvp->tv_sec) ||
-+		    put_user(usec, &tvp->tv_usec))
-+			ret = -EFAULT;
++	case NFSCTL_GETFS:
++		err = compat_nfs_getfs_trans(karg, arg);
++		break;
++
++	default:
++		err = -EINVAL;
++		goto done;
 +	}
 +
-+	if (ret < 0)
-+		goto out;
-+	if (!ret) {
-+		ret = -ERESTARTNOHAND;
-+		if (signal_pending(current))
-+			goto out;
-+		ret = 0;
-+	}
++	oldfs = get_fs();
++	set_fs(KERNEL_DS);
++	err = sys_nfsservctl(cmd, karg, kres);
++	set_fs(oldfs);
 +
-+	compat_set_fd_set(n, inp, fds.res_in);
-+	compat_set_fd_set(n, outp, fds.res_out);
-+	compat_set_fd_set(n, exp, fds.res_ex);
++	if (err)
++		goto done;
 +
-+out:
-+	select_bits_free(bits, size);
-+out_nofds:
-+	return ret;
++	if((cmd == NFSCTL_GETFD) ||
++	   (cmd == NFSCTL_GETFS))
++		err = compat_nfs_getfh_res_trans(kres, res);
++
++done:
++	kfree(karg);
++	kfree(kres);
++	return err;
 +}
-+
-===== include/linux/compat.h 1.21 vs edited =====
---- 1.21/include/linux/compat.h	Thu Apr 15 17:25:08 2004
-+++ edited/include/linux/compat.h	Thu Apr 15 17:30:49 2004
-@@ -126,5 +126,9 @@
- int compat_do_execve(char * filename, compat_uptr_t __user *argv,
- 	        compat_uptr_t __user *envp, struct pt_regs * regs);
- 
-+asmlinkage long compat_sys_select(int n, compat_ulong_t __user *inp,
-+		compat_ulong_t __user *outp, compat_ulong_t __user *exp,
-+		struct compat_timeval __user *tvp);
-+
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
-
-> 
++#else /* !NFSD */
++long asmlinkage compat_sys_nfsservctl(int cmd, void *notused, void *notused2)
++{
++	return sys_ni_syscall();
++}
++#endif
 

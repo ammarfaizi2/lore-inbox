@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264928AbRFUIIz>; Thu, 21 Jun 2001 04:08:55 -0400
+	id <S264929AbRFUILP>; Thu, 21 Jun 2001 04:11:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264929AbRFUIIp>; Thu, 21 Jun 2001 04:08:45 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36257 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S264928AbRFUIIc>; Thu, 21 Jun 2001 04:08:32 -0400
-Date: Thu, 21 Jun 2001 17:08:24 +0900
-Message-ID: <66dq45mv.wl@nisaaru.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx oops with 2.4.5-ac13
-In-Reply-To: <20010621072142Z264883-17720+6265@vger.kernel.org>
-In-Reply-To: <20010621072142Z264883-17720+6265@vger.kernel.org>
-User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 (Art is long, life is
- short) SLIM/1.14.7 (=?ISO-2022-JP?B?GyRCPHIwZjpMTD4bKEI=?=) APEL/10.3 MULE
- XEmacs/21.2 (beta46) (Urania) (i386-kondara-linux)
+	id <S264931AbRFUILF>; Thu, 21 Jun 2001 04:11:05 -0400
+Received: from www.wen-online.de ([212.223.88.39]:41222 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S264929AbRFUIKu>;
+	Thu, 21 Jun 2001 04:10:50 -0400
+Date: Thu, 21 Jun 2001 10:10:14 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac15
+In-Reply-To: <Pine.LNX.4.21.0106210226330.14247-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0106210934460.1243-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
 
-Hello,
+> On Thu, 21 Jun 2001, Mike Galbraith wrote:
+>
+> > On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
+> >
+> > > >  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   198   1
+> >                                                                    ^^^^^
+> > > Ok, I suspect that GFP_BUFFER allocations are fucking up here (they can't
+> > > block on IO, so they loop insanely).
+> >
+> > Why doesn't the VM hang the syncing of queued IO on these guys via
+> > wait_event or such instead of trying to just let the allocation fail?
+>
+> Actually the VM should limit the amount of data being queued for _all_
+> kind of allocations.
 
-At Thu, 21 Jun 2001 08:15:10,
-Trevor Hemsley wrote:
-> 
-> On Thu, 21 Jun 2001 03:05:02, "Jeff V. Merkey" 
-> <jmerkey@vger.timpanogas.org> wrote:
-> 
-> > Ditto.  I am also seeing this oops calling the sg driver for a 
-> > robotic tape library, and it also seems to happen on 2.4.4.
-> 
-> In my case it appears that it was the symptom of severe bus problems. 
-> About 5 minutes after I posted the initial report I discovered that 
-> the cable from the back of the Nikon to the MO drive had fallen off so
-> the bus was running unterminated. Replugging it fixed teh bus error 
-> and the oops. 
-> 
-> Looks like error handling is all fscked up...
-> 
+Limiting the amount of data being queued for IO will make things less
+ragged, but you can't limit the IO.. pages returning to service upon
+completion is the only thing keeping you alive.  That's why I hate not
+seeing my disk utterly saturated when things get hot and heavy.  The
+only thing that I can see that's possible is to let tasks proceed in
+an ordered fashion as pages return.. take a number and wait.  IMHO,
+right now we try to maintain low latency way too long and end up with
+the looping problem because of that.  We need a more controlled latency
+roll-down to the full disk speed wall.  We hit it and go splat ;-)
 
-  I saw this oops too. The following patch is working for me, but I don't
-know this is a correct fix.
+> The problem is the lack of a mechanism which allows us to account the
+> approximated amount of queued IO by the VM. (except for swap pages)
 
+Ingo once mentioned an io thingy for vm, but I got kind of dizzy trying
+to figure out exactly how I'd impliment, what with clustering and getting
+information to seperate io threads and back ;-)
 
-diff -r -N -u linux.org/drivers/scsi/aic7xxx/aic7xxx_linux.c linux/drivers/scsi/aic7xxx/aic7xxx_linux.c
---- linux.org/drivers/scsi/aic7xxx/aic7xxx_linux.c	Fri Mar 16 13:47:01 2001
-+++ linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Fri Mar 16 13:54:34 2001
-@@ -1872,7 +1872,9 @@
- 		break;
-         case AC_BUS_RESET:
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,0)
--		scsi_report_bus_reset(ahc->platform_data->host, channel - 'A');
-+		if (ahc->platform_data->host) {
-+			scsi_report_bus_reset(ahc->platform_data->host, channel - 'A');
-+		}
- #endif
-                 break;
-         default:
+> You can see it this way: To get free memory we're "polling" instead of
+> waiting on the IO completion of pages.
+>
+> > (which seems to me will only cause the allocation to be resubmitted,
+> > effectively changing nothing but adding overhead)
+>
+> Yes.
+
+(not that overhead really matters once you are well and truely iobound)
+
+	-Mike
+

@@ -1,693 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263327AbVCDWgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263342AbVCDWsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263327AbVCDWgw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 17:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbVCDWdF
+	id S263342AbVCDWsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 17:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbVCDWjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 17:33:05 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:13773 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263166AbVCDVHL (ORCPT
+	Fri, 4 Mar 2005 17:39:40 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:62925 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263167AbVCDVH0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:07:11 -0500
-Message-ID: <4228CDEF.1080002@us.ltcfwd.linux.ibm.com>
-Date: Fri, 04 Mar 2005 16:06:55 -0500
+	Fri, 4 Mar 2005 16:07:26 -0500
+Message-ID: <4228CE01.40401@us.ltcfwd.linux.ibm.com>
+Date: Fri, 04 Mar 2005 16:07:13 -0500
 From: Wen Xiong <wendyx@us.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [ patch 1/7] drivers/serial/jsm: new serial device driver
-References: <422259EF.90104@us.ltcfwd.linux.ibm.com> <42226387.3090702@pobox.com>
-In-Reply-To: <42226387.3090702@pobox.com>
+To: Greg KH <greg@kroah.com>
+CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ patch 2/7] drivers/serial/jsm: new serial device driver
+References: <42225A04.7080505@us.ltcfwd.linux.ibm.com> <20050228063757.GA23595@kroah.com>
+In-Reply-To: <20050228063757.GA23595@kroah.com>
 Content-Type: multipart/mixed;
- boundary="------------050004040008010006050201"
+ boundary="------------000901080208030305040707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050004040008010006050201
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--------------000901080208030305040707
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Jeff Garzik wrote:
+Greg KH wrote:
 
-> Wen Xiong wrote:
+>On Sun, Feb 27, 2005 at 06:38:44PM -0500, Wen Xiong wrote:
 >
+>  
 >
-> General comment:  This driver has -way- too many global variables.
->
-> Normal drivers should associate state information with each instance 
-> of a device (e.g. each struct pci_dev), not globally.
->
->
->> +/*
->> + * Globals
->> + */
->> +uint        jsm_NumBoards,current_NumBoards;
->> +struct board_t    *jsm_Board[MAXBOARDS];
->> +char        *jsm_board_slot[MAXBOARDS];
->> +spinlock_t    jsm_global_lock = SPIN_LOCK_UNLOCKED;
->> +int        jsm_driver_state = DRIVER_INITIALIZED;
->> +ulong        jsm_poll_counter;
->> +uint        jsm_Major;
->> +int        jsm_debug;
->> +int        jsm_rawreadok;
->> +int        jsm_trcbuf_size;
->
->
-> Eliminate MAXBOARDS.  Such static limits are completely unnecessary.
->
->
->> +/*
->> + * Static vars.
->> + */
->> +static uint    jsm_major_control_registered = FALSE;
->> +static uint    jsm_driver_start = FALSE;
->
->
-> Eliminate jsm_driver_start.  This is unnecessary also.
->
->
->
->> +/*
->> + * Poller stuff
->> + */
->> +static spinlock_t    jsm_poll_lock = SPIN_LOCK_UNLOCKED;
->> +static ulong        jsm_poll_time;                /* Time of next 
->> poll */
->> +static ulong        jsm_poll_tick = 50;            /* Poll interval 
->> - 20 ms */
->> +
->> +static struct timer_list jsm_poll_timer = {
->> +    .function =    jsm_poll_handler
->> +};
->> +
->> +static struct pci_device_id jsm_pci_tbl[] = {
->> +    {    DIGI_VID, PCI_DEVICE_NEO_4_DID, PCI_ANY_ID, PCI_ANY_ID, 0, 
->> 0,        0 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_8_DID, PCI_ANY_ID, PCI_ANY_ID, 0, 
->> 0,        1 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_2DB9_DID, PCI_ANY_ID, PCI_ANY_ID, 
->> 0, 0,    2 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_2DB9PRI_DID, PCI_ANY_ID, 
->> PCI_ANY_ID, 0, 0,    3 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_2RJ45_DID, PCI_ANY_ID, PCI_ANY_ID, 
->> 0, 0,    4 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_2RJ45PRI_DID, PCI_ANY_ID, 
->> PCI_ANY_ID, 0, 0,    5 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_1_422_DID, PCI_ANY_ID, PCI_ANY_ID, 
->> 0, 0,    6 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_1_422_485_DID, PCI_ANY_ID, 
->> PCI_ANY_ID, 0, 0,    7 },
->> +    {    DIGI_VID, PCI_DEVICE_NEO_2_422_485_DID, PCI_ANY_ID, 
->> PCI_ANY_ID, 0, 0,    8 },
->> +    {0,}                        /* 0 terminated list. */
->
->
-> Don't create your own constants, use standard linux/pci_ids.h ones.
->
->
->> +MODULE_DEVICE_TABLE(pci, jsm_pci_tbl);
->> +
->> +struct board_id {
->> +    uchar *name;
->> +    uint maxports;
->> +};
->> +
->> +static struct board_id jsm_Ids[] = {   
->> +    {    PCI_DEVICE_NEO_4_PCI_NAME,        4    },
->> +    {    PCI_DEVICE_NEO_8_PCI_NAME,        8    },
->> +    {    PCI_DEVICE_NEO_2DB9_PCI_NAME,        2    },
->> +    {    PCI_DEVICE_NEO_2DB9PRI_PCI_NAME,    2    },
->> +    {    PCI_DEVICE_NEO_2RJ45_PCI_NAME,        2    },
->> +    {    PCI_DEVICE_NEO_2RJ45PRI_PCI_NAME,    2    },
->> +    {    PCI_DEVICE_NEO_1_422_PCI_NAME,        1    },
->> +    {    PCI_DEVICE_NEO_1_422_485_PCI_NAME,    1    },
->> +    {    PCI_DEVICE_NEO_2_422_485_PCI_NAME,    2    },
->> +    {    NULL,                    0    }
->> +};
->> +
->> +struct pci_driver jsm_driver = {
->> +    .name        = "jsm",
->> +    .probe        = jsm_init_one,
->> +    .id_table    = jsm_pci_tbl,
->> +    .remove        = __devexit_p(jsm_remove_one),
->> +};
->> +
->> +char *jsm_state_text[] = {
->> +    "Board Failed",
->> +    "Board Found",
->> +    "Board READY",
->> +};
->> +
->> +char *jsm_driver_state_text[] = {
->> +    "Driver Initialized",
->> +    "Driver Ready."
->> +};
->> +
->> +/*
->> + * jsm_init_globals()
->> + *
->> + * This is where we initialize the globals from the static insmod
->> + * configuration variables.  These are declared near the head of
->> + * this file.
->> + */
->> +static void jsm_init_globals(void)
->> +{
->> +    int i = 0;
->> +
->> +    jsm_rawreadok        = rawreadok;
->> +    jsm_trcbuf_size        = trcbuf_size;
->> +    jsm_debug        = debug;
->> +
->> +    for (i = 0; i < MAXBOARDS; i++) {
->> +        jsm_Board[i] = NULL;
->> +        jsm_board_slot[i] = (char *)kmalloc(20, GFP_KERNEL);
->> +        memset(jsm_board_slot[i], 0, 20);
->> +    }
->> +
->> +    init_timer(&jsm_poll_timer);
->> +}
->
->
-> When MAXBOARDS is eliminated, and the poll timer is made per-device, 
-> this code will go away.
->
->
->> +/*
->> + * jsm_poll_handler
->> + *
->> + *    As each timer expires, it determines (a) whether the "transmit"
->> + * waiter needs to be woken up, and (b) whether the poller needs to
->> + * be rescheduled.
->> + */
->> +static void jsm_poll_handler(ulong dummy)
->> +{
->> +    struct board_t *brd;
->> +    unsigned long lock_flags;
->> +    int i;
->> +
->> +    jsm_poll_counter++;
->> +
->> +    /*
->> +     * Do not start the board state machine until
->> +     * driver tells us its up and running, and has
->> +     * everything it needs.
->> +     */
->> +    if (jsm_driver_state != DRIVER_READY)
->> +        goto schedule_poller;
->> +
->> +    /* Go thru each board, kicking off a tasklet for each if needed */
->> +    for (i = 0; i < jsm_NumBoards; i++) {
->> +        if (jsm_Board[i] == NULL) continue;
->> +        brd = jsm_Board[i];
->> +
->> +        spin_lock_irqsave(&brd->bd_lock, lock_flags);
->> +
->> +        /* If board is in a failed state, don't bother scheduling a 
->> tasklet */
->> +        if (brd->state == BOARD_FAILED) {
->> +            spin_lock_irqsave(&brd->bd_lock, lock_flags);
->> +            continue;
->> +        }
->> +
->> +        spin_unlock_irqrestore(&brd->bd_lock, lock_flags);
->> +    }
->> +
->> +schedule_poller:
->> +
->> +    /*
->> +     * Schedule ourself back at the nominal wakeup interval.
->> +     */
->> +    if (current_NumBoards >= 0) {
->> +        ulong time;
->> +
->> +        spin_lock_irqsave(&jsm_poll_lock, lock_flags);
->> +        jsm_poll_time += jsm_jiffies_from_ms(jsm_poll_tick);
->> +
->> +        time = jsm_poll_time - jiffies;
->> +
->> +        if ((ulong) time >= 2 * jsm_poll_tick)
->> +            jsm_poll_time = jiffies +  
->> jsm_jiffies_from_ms(jsm_poll_tick);
->> +
->> +        jsm_poll_timer.expires = jsm_poll_time;
->> +        spin_unlock_irqrestore(&jsm_poll_lock, lock_flags);
->> +
->> +        add_timer(&jsm_poll_timer);
->> +    }
->> +}
->
->
-> Don't use a single timer for all boards.  This makes information 
-> needlessly global.
->
->
->> +/*
->> + * Start of driver.
->> + */
->> +static int jsm_start(void)
->> +{
->> +    int rc = 0;
->> +    unsigned long lock_flags;
->> +
->> +    if (!jsm_driver_start) {
->> +        jsm_driver_start = TRUE;
->
->
-> As noted earlier, jsm_driver_start is completely pointless.
->
-> jsm_start() is the first function called in module_init(), and is 
-> never called from anywhere else.
->
->
->> +        /* make sure that the globals are init'd before we do 
->> anything else */
->> +        jsm_init_globals();
->> +        jsm_NumBoards = 0;
->> +        current_NumBoards = -1;
->> +
->> +        APR(("For the tools package or updated drivers please visit 
->> http://www.digi.com\n"));
->> +
->> +        /*
->> +         * Register our base character device into the kernel.
->> +         * This allows the download daemon to connect to the downld 
->> device
->> +         * before any of the boards are init'ed.
->> +         */
->> +        if (!jsm_major_control_registered) {
->> +            /*
->> +             * Register management/dpa devices
->> +             */
->> +            rc = register_chrdev(0, "jsm", &jsm_BoardFops);
->> +            if (rc <= 0) {
->> +                APR(("Can't register jsm driver device (%d)\n", rc));
->> +                return -ENXIO;
->> +            }
->> +            jsm_Major = rc;
->> +            jsm_major_control_registered = TRUE;
->> +        }
->> +
->> +        /*
->> +         * Register our basic stuff in /proc/jsm
->> +         */
->> +        jsm_proc_register_basic_prescan();
->> +
->> +        if (rc < 0) {
->> +            APR(("tty preinit - not enough memory (%d)\n", rc));
->> +            return rc;
->> +        }
->
->
-> Why is this not in sysfs?
->
->
->> +        /* Start the poller */
->> +        spin_lock_irqsave(&jsm_poll_lock, lock_flags);
->> +        jsm_poll_time = jiffies + jsm_jiffies_from_ms(jsm_poll_tick);
->> +        jsm_poll_timer.expires = jsm_poll_time;
->> +        spin_unlock_irqrestore(&jsm_poll_lock, lock_flags);
->> +
->> +        add_timer(&jsm_poll_timer);
->
->
-> It's silly to add a timer and start polling, when you have nothing to 
-> poll.
->
-> But that's ok... this code will go away when the poll timer is made 
-> per-device.
->
->
->> +        jsm_driver_state = DRIVER_READY;
->> +    }
->> +    return rc;
->> +}
->> +
->> +static int jsm_finalize_board_init(struct board_t *brd) +{
->> +    int rc = 0;
->> +
->> +    DPR_INIT(("jsm_finalize_board_init() - start\n"));
->> +
->> +    if (!brd || brd->magic != JSM_BOARD_MAGIC)
->> +        return -ENODEV;
->> +
->> +    DPR_INIT(("jsm_finalize_board_init() - start #2\n"));
->> +
->> +    if (brd->irq) {
->> +        rc = request_irq(brd->irq, brd->bd_ops->intr, 
->> SA_INTERRUPT|SA_SHIRQ, "JSM", brd);
->> +
->> +        if (rc) {
->> +            printk(KERN_WARNING "Failed to hook IRQ %d\n",brd->irq);
->> +            brd->state = BOARD_FAILED;
->> +            brd->dpastatus = BD_NOFEP;
->> +            rc = -ENODEV;
->> +        } else {
->> +            DPR_INIT(("Requested and received usage of IRQ %d\n", 
->> brd->irq));
->> +        }
->> +    }
->> +    return rc;
->> +}
->> +
->> +/*
->> + * jsm_found_board()
->> + *
->> + * A board has been found, init it.
->> + */
->> +static int jsm_found_board(struct pci_dev *pdev, int id)
->> +{
->> +    struct board_t *brd;
->> +    unsigned int pci_irq;
->> +    int i = 0;
->> +    int rc = 0;
->> +    int index;
->> +    int wen_board;
->> +    int hotplug = 0;
->> +
->> +    wen_board = jsm_NumBoards;
->> +    for (index = 0; index < jsm_NumBoards; index++) {
->> +        if (!strcmp(jsm_board_slot[index], pdev->slot_name)) {
->> +            wen_board = index;
->> +            hotplug = 1;
->> +            break;
->> +        }
->> +    }
->
->
-> It is very wrong to store boards based on pdev->slot_name.
->
-> However, this goes away when more state is made per-device.
->
->
->
->> +    brd = jsm_Board[wen_board] =
->> +    (struct board_t *)kmalloc(sizeof(struct board_t), GFP_KERNEL);
->> +    if (!brd) {
->> +        APR(("memory allocation for board structure failed\n"));
->> +        return -ENOMEM;
->> +    }
->> +    memset(brd, 0, sizeof(struct board_t));
->> +
->> +    /* store the info for the board we've found */
->> +    brd->magic = JSM_BOARD_MAGIC;
->> +    brd->boardnum = wen_board;
->> +    brd->vendor = jsm_pci_tbl[id].vendor;
->> +    brd->device = jsm_pci_tbl[id].device;
->> +    brd->pci_bus = pdev->bus->number;
->> +    brd->pci_slot = PCI_SLOT(pdev->devfn);
->
->
-> You should not need this information.
->
->
->> +    brd->pci_dev = pdev;
->> +    brd->name = jsm_Ids[id].name;
->> +    brd->maxports = jsm_Ids[id].maxports;
->> +    brd->dpastatus = BD_NOFEP;
->> +    strcpy(jsm_board_slot[wen_board],pdev->slot_name);
->> +    init_waitqueue_head(&brd->state_wait);
->> +
->> +    spin_lock_init(&brd->bd_lock);
->> +    spin_lock_init(&brd->bd_intr_lock);
->> +
->> +    brd->state = BOARD_FOUND;
->> +
->> +    for (i = 0; i < MAXPORTS; i++) +        brd->channels[i] = NULL;
->> +
->> +    /* store which card & revision we have */
->> +    pci_read_config_word(pdev, PCI_SUBSYSTEM_VENDOR_ID, 
->> &brd->subvendor);
->> +    pci_read_config_word(pdev, PCI_SUBSYSTEM_ID, &brd->subdevice);
->
->
-> Obtain this information from struct pci_dev.  Do not read it manually.
->
->
->> +    pci_irq = pdev->irq;
->> +    brd->irq = pci_irq;
->> +
->> +    switch(brd->device) {
->> +
->> +    case PCI_DEVICE_NEO_4_DID:
->> +    case PCI_DEVICE_NEO_8_DID:
->> +    case PCI_DEVICE_NEO_2DB9_DID:
->> +    case PCI_DEVICE_NEO_2DB9PRI_DID:
->> +    case PCI_DEVICE_NEO_2RJ45_DID:
->> +    case PCI_DEVICE_NEO_2RJ45PRI_DID:
->> +    case PCI_DEVICE_NEO_1_422_DID:
->> +    case PCI_DEVICE_NEO_1_422_485_DID:
->> +    case PCI_DEVICE_NEO_2_422_485_DID:
->
->
-> use standard pci_ids.h constants.
->
->
+>>diff -Nuar linux-2.6.9.orig/drivers/serial/jsm/jsm_tty.c linux-2.6.9.new/drivers/serial/jsm/jsm_tty.c
+>>--- linux-2.6.9.orig/drivers/serial/jsm/jsm_tty.c	1969-12-31 18:00:00.000000000 -0600
+>>+++ linux-2.6.9.new/drivers/serial/jsm/jsm_tty.c	2005-02-27 17:09:43.456960832 -0600
+>>@@ -0,0 +1,1273 @@
+>>+/*
+>>+ * Copyright 2003 Digi International (www.digi.com)
+>>+ *	Scott H Kilau <Scott_Kilau at digi dot com>
+>>    
 >>
->> +     *
->> +     * Okay to malloc with GFP_KERNEL, we are not at interrupt
->> +     * context, and there are no locks held.
->> +     */
->> +    brd->flipbuf = kmalloc(MYFLIPLEN, GFP_KERNEL);
->> +    if (!brd->flipbuf) {
->> +        APR(("memory allocation for flipbuf failed\n"));
->> +        return -ENOMEM;
->> +    }
 >
+>But didn't you do a lot of work on this code too?  Shouldn't you be
+>adding your copyright?
 >
-> leak on error
+>  
 >
->
+>>+ *	NOTE TO LINUX KERNEL HACKERS:  DO NOT REFORMAT THIS CODE! 
+>>+ *
+>>+ *	This is shared code between Digi's CVS archive and the
+>>+ *	Linux Kernel sources.
+>>+ *	Changing the source just for reformatting needlessly breaks
+>>+ *	our CVS diff history.
+>>+ *
+>>+ *	Send any bug fixes/changes to:  Eng.Linux at digi dot com. 
+>>+ *	Thank you. 
+>>    
 >>
->> +{
->> +    return jsm_found_board(pdev, card_type);
->> +}
+>
+>Is this still true?  The formatting looks sane, so you can probably take
+>this all out.  And put a real email address in there please...
 >
 >
-> eliminate this needless function.
+>  
 >
->
->
->
->
->> +/*
->> + * jsm_cleanup_board()
->> + *
->> + * Free all the memory associated with a board
->> + */
->> +static void jsm_cleanup_board(struct board_t *brd)
->> +{
->> +    int i = 0;
->> +
->> +    if (!brd || brd->magic != JSM_BOARD_MAGIC)
->> +        return ;
->> +
->> +    if (brd->irq)
->> +        free_irq(brd->irq, brd);
->> +
->> +    tasklet_kill(&brd->helper_tasklet);
->> +
->> +    if (brd->re_map_membase) {
->> +        iounmap(brd->re_map_membase);
->> +        brd->re_map_membase = NULL;
->> +    }
->
->
-> When will this 'if' test ever fail?
->
->
+>>+ * $Id: jsm_tty.c,v 1.79 2004/09/25 07:01:46 scottk Exp $
+>>    
 >>
->> +
->> +    if (brd->flipbuf)
->> +        kfree(brd->flipbuf);
->> +
->> +    jsm_Board[brd->boardnum] = NULL;
->> +
->> +    kfree(brd);
->> +    current_NumBoards--;
->> +}
->> +
->> +static void jsm_remove_one(struct pci_dev *dev)
->> +{
->> +    int i;
->> +
->> +    for (i = 0; i < jsm_NumBoards; i++) {
->> +        if ((jsm_Board[i] != NULL) && (jsm_Board[i]->pci_dev == dev)) {
->> +            jsm_proc_unregister_brd(i);
->> +            jsm_remove_uart_port(jsm_Board[i]);
->> +            jsm_tty_uninit(jsm_Board[i]);
->> +            jsm_cleanup_board(jsm_Board[i]);
->> +        }
->> +    }
->> +}
 >
+>Take these out, not needed.
 >
-> pci_disable_device(), pci_release_regions()
+>  
 >
+>>+#include <linux/device.h>	/* For udelay */
+>>    
+>>
 >
->> +/*
->> + * jsm_init_module()
->> + *
->> + * Module load.  This is where it all starts.
->> + */
->> +static int __init
->> +jsm_init_module(void)
->> +{
->> +    int rc = 0;
->> +
->> +    APR(("%s, Digi International Part Number %s\n", "jsm: 
->> 1.1-1-INKERNEL", "40002438_A-INKERNEL"));
->> +
->> +    /*
->> +     * Initialize global stuff
->> +     */
->> +    rc = jsm_start();
->> +    if (rc < 0) +        return rc;
->> +
->> +    rc = uart_register_driver(&jsm_uart_driver);
->> +    if (rc)
->> +        return rc;
+>Comment is incorrect.  What do you need device.h for?
 >
+>  
 >
-> leak on error
+>>+	DPR_IOCTL(("jsm_getmstat start\n"));
+>>    
+>>
 >
+>You have odd macros with two "((", what's up with that?  Please use the
+>standard macros dev_dbg() and friends.  It's a way to get a standard
+>message out of the kernel.
 >
->> +    rc = pci_register_driver(&jsm_driver);
->> +    if (rc < 0)
->> +        uart_unregister_driver(&jsm_uart_driver);
+>  
 >
+>>+static void jsm_tty_set_mctrl(struct uart_port *port, unsigned int mctrl)
+>>+{
+>>+	DPR_IOCTL(("jsm_set_modem_info() start\n"));
+>>    
+>>
 >
-> leak on error
+>Oh, and why not just use __FUNCTION__?
 >
+>  
 >
->> +    return rc;
->> +}
->> +
->> +module_init(jsm_init_module);
->> +
->> +/*
->> + * jsm_exit_module()
->> + *
->> + * Module unload.  This is where it all ends.
->> + */
->> +static void __exit
->> +jsm_exit_module(void)
->> +{
->> +    int i;
->> +
->> +    del_timer_sync(&jsm_poll_timer);
->> +
->> +    if (jsm_major_control_registered)
->> +        unregister_chrdev(jsm_Major, "jsm");
->> +
->> +    pci_unregister_driver(&jsm_driver);
->> +
->> +    jsm_proc_unregister_all();
->> +
->> +    for (i = 0; i < MAXBOARDS; i++) {
->> +        jsm_board_slot[i] = NULL;
->> +        kfree(jsm_board_slot[i]);
->> +    }
->> +    uart_unregister_driver(&jsm_uart_driver);
->> +}
->> +module_exit(jsm_exit_module);
->> +MODULE_LICENSE("GPL");
->> +
->> +/*
->> + * jsm_ioctl_name()
->> + *
->> + * Returns a text version of each ioctl value.
->> + */
->> +char *jsm_ioctl_name(int cmd)
->> +{
->> +    switch(cmd) {
->> +
->> +    case TCGETA:        return("TCGETA");
->> +    case TCGETS:        return("TCGETS");
->> +    case TCSETA:        return("TCSETA");
->> +    case TCSETS:        return("TCSETS");
->> +    case TCSETAW:        return("TCSETAW");
->> +    case TCSETSW:        return("TCSETSW");
->> +    case TCSETAF:        return("TCSETAF");
->> +    case TCSETSF:        return("TCSETSF");
->> +    case TCSBRK:        return("TCSBRK");
->> +    case TCXONC:        return("TCXONC");
->> +    case TCFLSH:        return("TCFLSH");
->> +    case TIOCGSID:        return("TIOCGSID");
->> +
->> +    case TIOCGETD:        return("TIOCGETD");
->> +    case TIOCSETD:        return("TIOCSETD");
->> +    case TIOCGWINSZ:    return("TIOCGWINSZ");
->> +    case TIOCSWINSZ:    return("TIOCSWINSZ");
->> +
->> +    case TIOCMGET:        return("TIOCMGET");
->> +    case TIOCMSET:        return("TIOCMSET");
->> +    case TIOCMBIS:        return("TIOCMBIS");
->> +    case TIOCMBIC:        return("TIOCMBIC");
->> +
->> +    /* from digi.h */
->> +    case DIGI_SETA:        return("DIGI_SETA");
->> +    case DIGI_SETAW:    return("DIGI_SETAW");
->> +    case DIGI_SETAF:    return("DIGI_SETAF");
->> +    case DIGI_SETFLOW:    return("DIGI_SETFLOW");
->> +    case DIGI_SETAFLOW:    return("DIGI_SETAFLOW");
->> +    case DIGI_GETFLOW:    return("DIGI_GETFLOW");
->> +    case DIGI_GETAFLOW:    return("DIGI_GETAFLOW");
->> +    case DIGI_GETA:        return("DIGI_GETA");
->> +    case DIGI_GEDELAY:    return("DIGI_GEDELAY");
->> +    case DIGI_SEDELAY:    return("DIGI_SEDELAY");
->> +    case DIGI_GETCUSTOMBAUD: return("DIGI_GETCUSTOMBAUD");
->> +    case DIGI_SETCUSTOMBAUD: return("DIGI_SETCUSTOMBAUD");
->> +    case TIOCMODG:        return("TIOCMODG");
->> +    case TIOCMODS:        return("TIOCMODS");
->> +    case TIOCSDTR:        return("TIOCSDTR");
->> +    case TIOCCDTR:        return("TIOCCDTR");
->> +
->> +    default:        return("unknown");
->> +    }
+>>+static void jsm_tty_stop_rx(struct uart_port *port)
+>>+{
+>>+
+>>+	JSM_CHANNEL->ch_bd->bd_ops->disable_receiver(JSM_CHANNEL);
+>>+
+>>+}
+>>    
+>>
 >
+>I think you can drop the extra lines here...
 >
-> Eliminate this, or make it debug-only.
+>And what's with the all uppercase JSM_CHANNEL?  Why not just use the
+>structure pointer.
 >
->     Jeff
+>thanks,
 >
+>greg k-h
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >
+>  
 >
-Hi All.
+Hi All,
+For patch2, the major changes are debug informaion.
 
-Based on very detail comments from Jeff, Greg, Christoph Hellwig, Rik 
-and Nish, I modified these codes and tested it succesfully in our lab.
-For patch1, major changes included:
-1. removed static board limit to use dynamic list to control board 
-structure.
-2. leak on errors.
-3. removed some global variables
-lots of others.
-
-Thanks for all your help!
+Thanks for your help!
 wendy
 
 Signed-off-by: Wen Xiong <wendyx@us.ltcfwd.linux.ibm.com>
 
 
 
-
-
-
---------------050004040008010006050201
+--------------000901080208030305040707
 Content-Type: text/plain;
- name="patch1.jasmine"
+ name="patch2.jasmine"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="patch1.jasmine"
+ filename="patch2.jasmine"
 
-diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_driver.c linux-2.6.11.new/drivers/serial/jsm/jsm_driver.c
---- linux-2.6.11.org/drivers/serial/jsm/jsm_driver.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.11.new/drivers/serial/jsm/jsm_driver.c	2005-03-04 11:41:38.699999352 -0600
-@@ -0,0 +1,489 @@
+diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_tty.c linux-2.6.11.new/drivers/serial/jsm/jsm_tty.c
+--- linux-2.6.11.org/drivers/serial/jsm/jsm_tty.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.11.new/drivers/serial/jsm/jsm_tty.c	2005-03-04 11:39:47.423875624 -0600
+@@ -0,0 +1,1113 @@
 +/************************************************************************
 + * Copyright 2003 Digi International (www.digi.com)
 + *
@@ -713,470 +176,1094 @@ diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_driver.c linux-2.6.11.new/dri
 + * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
 + *
 + ***********************************************************************/
++
++/************************************************************************
++ * 
++ * This file implements the tty driver functionality for the
++ * Neo and ClassicBoard PCI based product lines.
++ * 
++ ************************************************************************
++ */
++
++#include <linux/sched.h>	/* For jiffies, task states */
++#include <linux/interrupt.h>	/* For tasklet and interrupt structs/defines */
++#include <linux/ctype.h>
++#include <linux/tty.h>
++#include <linux/tty_flip.h>
++#include <linux/delay.h>	/* For udelay */
++#include <asm/uaccess.h>	/* For copy_from_user/copy_to_user */
++
 +#include "jsm_driver.h"
 +
-+MODULE_AUTHOR("Digi International, http://www.digi.com");
-+MODULE_DESCRIPTION("Driver for the Digi International Neo and Classic PCI based product line");
-+MODULE_SUPPORTED_DEVICE("jsm");
++/*Begin Serial_core API*/
 +
-+#define JSM_DRIVER_NAME "jsm"
-+#define NR_PORTS	32 
-+#define JSM_MINOR_START	0 
-+
-+struct uart_driver jsm_uart_driver = {
-+	.owner		= THIS_MODULE,
-+	.driver_name	= JSM_DRIVER_NAME,
-+	.dev_name	= "ttyn", 
-+	.major		= 253,
-+	.minor		= JSM_MINOR_START, 
-+	.nr		= NR_PORTS,
-+	.cons		= NULL,
-+};
-+
-+int debug;
-+int rawreadok;
-+module_param(debug, int, 0);
-+module_param(rawreadok, int, 1);
-+MODULE_PARM_DESC(debug, "Driver debugging level");
-+MODULE_PARM_DESC(rawreadok, "Bypass flip buffers on input");
-+
-+/*
-+ * File operations permitted on Control/Management major.
-+ */
-+static struct file_operations jsm_BoardFops =
++static inline int jsm_get_mstat(struct jsm_channel *ch)
 +{
-+	.owner		= THIS_MODULE,
-+	.ioctl		= jsm_mgmt_ioctl,
-+	.open		= jsm_mgmt_open,
-+	.release	= jsm_mgmt_close
-+};
++	unsigned char mstat;
++	unsigned char result;
 +
-+/*
-+ * Globals
-+ */
-+int		jsm_driver_state = DRIVER_INITIALIZED;
-+u32		jsm_mgmt_major;
-+static u32	jsm_mgmt_control_registered = 0; 
-+spinlock_t	jsm_board_head_lock = SPIN_LOCK_UNLOCKED;
++	DPRINTK(IOCTL, INFO, "start\n");
 +
-+static struct pci_device_id jsm_pci_tbl[] = {
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_4),		0,	0,	0 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_8),		0,	0,	1 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9),	0,	0,	2 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9PRI),	0,	0,	3 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45),	0,	0,	4 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45PRI),	0,	0,	5 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_1_422),	0,	0,	6 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_1_422_485),	0,	0,	7 },
-+	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2_422_485), 0,	0,	8 },
-+	{ 0,}						/* 0 terminated list. */
-+};
-+MODULE_DEVICE_TABLE(pci, jsm_pci_tbl);
++	mstat = (ch->ch_mostat | ch->ch_mistat);
 +
-+static struct board_id jsm_Ids[] = {	
-+	{ PCI_DEVICE_NEO_4_PCI_NAME,		4 },
-+	{ PCI_DEVICE_NEO_8_PCI_NAME,		8 },
-+	{ PCI_DEVICE_NEO_2DB9_PCI_NAME,		2 },
-+	{ PCI_DEVICE_NEO_2DB9PRI_PCI_NAME,	2 },
-+	{ PCI_DEVICE_NEO_2RJ45_PCI_NAME,	2 },
-+	{ PCI_DEVICE_NEO_2RJ45PRI_PCI_NAME,	2 },
-+	{ PCI_DEVICE_NEO_1_422_PCI_NAME,	1 },
-+	{ PCI_DEVICE_NEO_1_422_485_PCI_NAME,	1 },
-+	{ PCI_DEVICE_NEO_2_422_485_PCI_NAME,	2 },
-+	{ NULL,					0 }
-+};
++	result = 0;
 +
-+char *jsm_driver_state_text[] = {
-+	"Driver Initialized",
-+	"Driver Ready."
-+};
++	if (mstat & UART_MCR_DTR)
++		result |= TIOCM_DTR;
++	if (mstat & UART_MCR_RTS)
++		result |= TIOCM_RTS;
++	if (mstat & UART_MSR_CTS)
++		result |= TIOCM_CTS;
++	if (mstat & UART_MSR_DSR)
++		result |= TIOCM_DSR;
++	if (mstat & UART_MSR_RI)
++		result |= TIOCM_RI;
++	if (mstat & UART_MSR_DCD)
++		result |= TIOCM_CD;
 +
-+/*
-+ * Start of driver.
-+ */
-+static int jsm_start(void)
++	DPRINTK(IOCTL, INFO, "finish\n");
++	return result;
++}
++
++static unsigned int jsm_tty_tx_empty(struct uart_port *port)
 +{
++	return TIOCSER_TEMT;
++}
++
++/*
++ * Return modem signals to ld.
++ */
++static unsigned int jsm_tty_get_mctrl(struct uart_port *port)
++{
++	int result;
++
++	DPRINTK(IOCTL, INFO, "start\n");
++
++	result = jsm_get_mstat((struct jsm_channel *)port);
++
++	if (result < 0)
++		return -ENXIO;
++
++	DPRINTK(IOCTL, INFO, "finish\n");
++
++	return result;
++}
++
++/*
++ * jsm_set_modem_info()
++ *
++ * Set modem signals, called by ld.
++ */
++static void jsm_tty_set_mctrl(struct uart_port *port, unsigned int mctrl)
++{
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	DPRINTK(IOCTL, INFO, "start\n");
++
++	if (mctrl & TIOCM_RTS)
++		channel->ch_mostat |= UART_MCR_RTS;
++	else
++		channel->ch_mostat &= ~UART_MCR_RTS;
++
++	if (mctrl & TIOCM_DTR)
++		channel->ch_mostat |= UART_MCR_DTR;
++	else
++		channel->ch_mostat &= ~UART_MCR_DTR;
++
++	channel->ch_bd->bd_ops->assert_modem_signals(channel);
++
++	DPRINTK(IOCTL, INFO, "finish\n");
++	udelay(10);
++}
++
++static void jsm_tty_start_tx(struct uart_port *port, unsigned int tty_start)
++{
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	DPRINTK(IOCTL, INFO, "start\n");
++
++	channel->ch_flags &= ~(CH_STOP);
++	jsm_tty_write(port);
++
++	DPRINTK(IOCTL, INFO, "finish\n");
++}
++
++static void jsm_tty_stop_tx(struct uart_port *port, unsigned int tty_stop)
++{
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++	DPRINTK(IOCTL, INFO, "start\n");
++
++	channel->ch_flags |= (CH_STOP);
++
++	DPRINTK(IOCTL, INFO, "finish\n");
++}
++
++static void jsm_tty_send_xchar(struct uart_port *port, char ch)
++{
++	unsigned long lock_flags;
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	spin_lock_irqsave(&port->lock, lock_flags);
++	if (ch == port->info->tty->termios->c_cc[VSTART])
++		channel->ch_bd->bd_ops->send_start_character(channel);
++
++	if (ch == port->info->tty->termios->c_cc[VSTOP])
++		channel->ch_bd->bd_ops->send_stop_character(channel);
++	spin_unlock_irqrestore(&port->lock, lock_flags);
++}
++
++static void jsm_tty_stop_rx(struct uart_port *port)
++{
++	struct jsm_channel *channel =  (struct jsm_channel *)port;
++
++	channel->ch_bd->bd_ops->disable_receiver(channel);
++}
++
++static void jsm_tty_break(struct uart_port *port, int break_state)
++{
++	unsigned long lock_flags;
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	spin_lock_irqsave(&port->lock, lock_flags);
++	if (break_state == -1)
++		channel->ch_bd->bd_ops->send_break(channel);
++	else
++		channel->ch_bd->bd_ops->clear_break(channel, 0);
++
++	spin_unlock_irqrestore(&port->lock, lock_flags);
++}
++
++static int jsm_tty_open(struct uart_port *port)
++{
++	struct jsm_board *brd;
 +	int rc = 0;
++	struct jsm_channel *channel = (struct jsm_channel *)port;
 +
-+	printk(KERN_INFO "For the tools package or updated drivers please visit http://www.digi.com\n");
++	/* Get board pointer from our array of majors we have allocated */
++	brd = channel->ch_bd;
 +
 +	/*
-+	 * Register our base character device into the kernel.
-+	 * This allows the download daemon to connect to the downld device
-+	 * before any of the boards are init'ed.
++	 * Allocate channel buffers for read/write/error.
++	 * Set flag, so we don't get trounced on.
 +	 */
-+	if (!jsm_mgmt_control_registered) {
-+		/*
-+		 * Register management/dpa devices
-+		 */
-+		rc = register_chrdev(0, "jsm", &jsm_BoardFops);
-+		if (rc <= 0) {
-+			printk(KERN_ERR "Can't register jsm driver device (%d)\n", rc);
-+			return -ENXIO;
++	channel->ch_flags |= (CH_OPENING);
++
++	/* Drop locks, as malloc with GFP_KERNEL can sleep */
++
++	if (!channel->ch_rqueue) {
++		channel->ch_rqueue = (u8 *) kmalloc(RQUEUESIZE, GFP_KERNEL);
++		if (!channel->ch_rqueue) {
++			DPRINTK(INIT, ERR, "unable to allocate read queue buf");
++			return -ENOMEM;
 +		}
-+		jsm_mgmt_major = rc;
-+		jsm_mgmt_control_registered = 1;
++		memset(channel->ch_rqueue, 0, RQUEUESIZE);
++	}
++	if (!channel->ch_equeue) {
++		channel->ch_equeue = (u8 *) kmalloc(EQUEUESIZE, GFP_KERNEL);
++		if (!channel->ch_equeue) {
++			DPRINTK(INIT, ERR, "unable to allocate error queue buf");
++			return -ENOMEM;
++		}
++		memset(channel->ch_equeue, 0, EQUEUESIZE);
++	}
++	if (!channel->ch_wqueue) {
++		channel->ch_wqueue = (u8 *) kmalloc(WQUEUESIZE, GFP_KERNEL);
++		if (!channel->ch_wqueue) {
++			DPRINTK(INIT, ERR, "unable to allocate write queue buf");
++			return -ENOMEM;
++		}
++		memset(channel->ch_wqueue, 0, WQUEUESIZE);
 +	}
 +
-+	jsm_driver_state = DRIVER_READY;
++	channel->ch_flags &= ~(CH_OPENING);
++	/*
++	 * Initialize if neither terminal is open.
++	 */
++	DPRINTK(OPEN, INFO, "jsm_open: initializing channel in open...\n");
 +
++	/*
++	 * Flush input queues.
++	 */
++	channel->ch_r_head = channel->ch_r_tail = 0;
++	channel->ch_e_head = channel->ch_e_tail = 0;
++	channel->ch_w_head = channel->ch_w_tail = 0;
++
++	brd->bd_ops->flush_uart_write(channel);
++	brd->bd_ops->flush_uart_read(channel);
++
++	channel->ch_flags = 0;
++	channel->ch_cached_lsr = 0;
++	channel->ch_stops_sent = 0;
++
++	channel->ch_c_cflag	= port->info->tty->termios->c_cflag;
++	channel->ch_c_iflag	= port->info->tty->termios->c_iflag;
++	channel->ch_c_oflag	= port->info->tty->termios->c_oflag;
++	channel->ch_c_lflag	= port->info->tty->termios->c_lflag;
++	channel->ch_startc = port->info->tty->termios->c_cc[VSTART];
++	channel->ch_stopc  = port->info->tty->termios->c_cc[VSTOP];
++
++	/* Tell UART to init itself */
++	brd->bd_ops->uart_init(channel);
++
++	/*
++	 * Run param in case we changed anything
++	 */
++	brd->bd_ops->param(channel);
++
++	jsm_carrier(channel);
++
++	channel->ch_open_count++;
++
++	DPRINTK(OPEN, INFO, "finished\n");
 +	return rc;
 +}
 +
-+static int jsm_finalize_board_init(struct jsm_board *brd) 
++static void jsm_tty_close(struct uart_port *port)
++{
++	struct jsm_board *bd;
++	struct termios *ts;
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	DPRINTK(CLOSE, INFO, "start \n");
++
++	bd = channel->ch_bd;
++	ts = channel->uart_port.info->tty->termios;
++
++	channel->ch_flags &= ~(CH_STOPI);
++
++	channel->ch_open_count--;
++
++	/*
++	 * If we have HUPCL set, lower DTR and RTS
++	 */
++	if (channel->ch_c_cflag & HUPCL) {
++		DPRINTK(CLOSE, INFO, "Close. HUPCL set, dropping DTR/RTS\n");
++
++		/* Drop RTS/DTR */
++		channel->ch_mostat &= ~(UART_MCR_DTR | UART_MCR_RTS);
++		bd->bd_ops->assert_modem_signals(channel);
++	}
++
++	channel->ch_old_baud = 0;
++
++	/* Turn off UART interrupts for this port */
++	channel->ch_bd->bd_ops->uart_off(channel);
++
++	DPRINTK(CLOSE, INFO, "finish\n");
++}
++
++static void jsm_tty_set_termios(struct uart_port *port,
++				 struct termios *termios,
++				 struct termios *old_termios)
++{
++	unsigned long lock_flags;
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	spin_lock_irqsave(&port->lock, lock_flags);
++	channel->ch_c_cflag	= termios->c_cflag;
++	channel->ch_c_iflag	= termios->c_iflag;
++	channel->ch_c_oflag	= termios->c_oflag;
++	channel->ch_c_lflag	= termios->c_lflag;
++	channel->ch_startc	= termios->c_cc[VSTART];
++	channel->ch_stopc	= termios->c_cc[VSTOP];
++
++	channel->ch_bd->bd_ops->param(channel);
++	jsm_carrier(channel);
++	spin_unlock_irqrestore(&port->lock, lock_flags);
++}
++
++static const char *jsm_tty_type(struct uart_port *port)
++{
++	return "jsm";
++}
++
++static void jsm_tty_release_port(struct uart_port *port)
++{
++}
++
++static int jsm_tty_request_port(struct uart_port *port)
++{
++	return 0;
++}
++
++static void jsm_config_port(struct uart_port *port, int flags)
++{
++	port->type = PORT_JSM;
++}
++
++static struct uart_ops jsm_ops = {
++	.tx_empty	= jsm_tty_tx_empty,
++	.set_mctrl	= jsm_tty_set_mctrl,
++	.get_mctrl	= jsm_tty_get_mctrl,
++	.stop_tx	= jsm_tty_stop_tx,
++	.start_tx	= jsm_tty_start_tx,
++	.send_xchar	= jsm_tty_send_xchar,
++	.stop_rx	= jsm_tty_stop_rx,
++	.break_ctl	= jsm_tty_break,
++	.startup	= jsm_tty_open,
++	.shutdown	= jsm_tty_close,
++	.set_termios	= jsm_tty_set_termios,
++	.type		= jsm_tty_type,
++	.release_port	= jsm_tty_release_port,
++	.request_port	= jsm_tty_request_port,
++	.config_port	= jsm_config_port,
++};
++
++/*
++ * jsm_tty_register()
++ *
++ * Init the tty subsystem for this board.
++ */
++int jsm_tty_register(struct jsm_board *brd)
 +{
 +	int rc = 0;
 +
 +	DPRINTK(INIT, INFO, "start\n");
 +
-+	if (brd->irq) {
-+		rc = request_irq(brd->irq, brd->bd_ops->intr, SA_INTERRUPT|SA_SHIRQ, "JSM", brd);
-+
-+		if (rc) {
-+			printk(KERN_WARNING "Failed to hook IRQ %d\n",brd->irq);
-+			brd->state = BOARD_FAILED;
-+			brd->dpastatus = BD_NOFEP;
-+			rc = -ENODEV;
-+		} else
-+			DPRINTK(INIT, INFO, "Requested and received usage of IRQ %d\n", brd->irq);
++	if (!brd->jsm_major_serial_registered) {
++		if (rc < 0) {
++			printk(KERN_ERR "Can't register tty device (%d)\n", rc);
++			return rc;
++		}
++		brd->jsm_major_serial_registered = 1;
++		brd->jsm_serial_major = jsm_uart_driver.major;
 +	}
++
++	DPRINTK(INIT, INFO, "JSM REGISTER TTY: MAJOR: %d\n", jsm_uart_driver.major);
++
 +	return rc;
 +}
 +
 +/*
-+ * jsm_found_board()
++ * jsm_tty_init()
 + *
-+ * A board has been found, init it.
++ * Init the tty subsystem.  Called once per board after board has been
++ * downloaded and init'ed.
 + */
-+static int jsm_found_board(struct pci_dev *pdev, int id)
-+{
-+	struct jsm_board *brd;
-+	int i = 0;
-+	int rc = 0;
-+	struct list_head *tmp;
-+	struct jsm_board *cur_board_entry;
-+	unsigned long lock_flags;
-+	int adapter_count = 0;
-+
-+	brd = (struct jsm_board *)kmalloc(sizeof(struct jsm_board), GFP_KERNEL);
-+	if (!brd) {
-+		dev_err(&pdev->dev, "memory allocation for board structure failed\n");
-+		return -ENOMEM;
-+	}
-+	memset(brd, 0, sizeof(struct jsm_board));
-+
-+	spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
-+	list_for_each(tmp, &jsm_board_head) {
-+		cur_board_entry = 
-+			list_entry(tmp, struct jsm_board,
-+				jsm_board_entry);
-+		if (cur_board_entry->boardnum != adapter_count) {
-+			break;
-+		}
-+		adapter_count++;
-+	}
-+
-+	list_add_tail(&brd->jsm_board_entry, &jsm_board_head);
-+	spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
-+
-+	/* store the info for the board we've found */
-+	brd->boardnum = adapter_count;
-+	brd->pci_dev = pdev;
-+	brd->name = jsm_Ids[id].name;
-+	brd->maxports = jsm_Ids[id].maxports;
-+	brd->dpastatus = BD_NOFEP;
-+	init_waitqueue_head(&brd->state_wait);
-+
-+	spin_lock_init(&brd->bd_lock);
-+	spin_lock_init(&brd->bd_intr_lock);
-+
-+	brd->state = BOARD_FOUND;
-+
-+	for (i = 0; i < brd->maxports; i++) 
-+		brd->channels[i] = NULL;
-+
-+	/* store which revision we have */
-+	pci_read_config_byte(pdev, PCI_REVISION_ID, &brd->rev);
-+
-+	brd->irq = pdev->irq;
-+
-+	switch(brd->pci_dev->device) {
-+
-+	case PCI_DEVICE_ID_NEO_4:
-+	case PCI_DEVICE_ID_NEO_8:
-+	case PCI_DEVICE_ID_NEO_2DB9:
-+	case PCI_DEVICE_ID_NEO_2DB9PRI:
-+	case PCI_DEVICE_ID_NEO_2RJ45:
-+	case PCI_DEVICE_ID_NEO_2RJ45PRI:
-+	case PCI_DEVICE_ID_NEO_1_422:
-+	case PCI_DEVICE_ID_NEO_1_422_485:
-+	case PCI_DEVICE_ID_NEO_2_422_485:
-+
-+		/*
-+		 * This chip is set up 100% when we get to it.
-+		 * No need to enable global interrupts or anything. 
-+		 */
-+		brd->dpatype = T_NEO | T_PCIBUS;
-+
-+		DPRINTK(INIT, INFO, "jsm_found_board - NEO adapter\n");
-+
-+		/* get the PCI Base Address Registers */
-+		brd->membase	= pci_resource_start(pdev, 0);
-+		brd->membase_end = pci_resource_end(pdev, 0);
-+
-+		if (brd->membase & 1)
-+			brd->membase &= ~3;
-+		else
-+			brd->membase &= ~15;
-+
-+		/* Assign the board_ops struct */
-+		brd->bd_ops = &jsm_neo_ops;
-+
-+		brd->bd_uart_offset = 0x200;
-+		brd->bd_dividend = 921600;
-+
-+		brd->re_map_membase = ioremap(brd->membase, 0x1000);
-+		DPRINTK(INIT, INFO, "remapped mem: 0x%p\n", brd->re_map_membase);
-+		if (!brd->re_map_membase) {
-+			kfree(brd);
-+			dev_err(&pdev->dev, "card has no PCI Memory resources, failing board.\n");
-+			return -ENOMEM;
-+		}
-+		break;
-+
-+	default:
-+		dev_err(&pdev->dev, "Did not find any compatible Neo or Classic PCI boards in system.\n");
-+		kfree(brd);
-+		return -ENXIO;
-+	}
-+
-+	/*
-+	 * Do tty device initialization.
-+	 */
-+	rc = jsm_finalize_board_init(brd);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "Can't finalize board init (%d)\n", rc);
-+		brd->state = BOARD_FAILED;
-+		brd->dpastatus = BD_NOFEP;
-+		goto failed;
-+	}
-+
-+	rc = jsm_tty_register(brd);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "Can't register tty devices (%d)\n", rc);
-+		brd->state = BOARD_FAILED;
-+		brd->dpastatus = BD_NOFEP;
-+		free_irq(brd->irq, brd);
-+		goto failed;
-+	}
-+
-+	rc = jsm_tty_init(brd);
-+	if (rc < 0) {
-+		jsm_tty_uninit(brd);
-+		dev_err(&pdev->dev, "Can't init tty devices (%d)\n", rc);
-+		brd->state = BOARD_FAILED;
-+		brd->dpastatus = BD_NOFEP;
-+		free_irq(brd->irq, brd);
-+		goto failed;
-+	}
-+
-+	rc = jsm_uart_port_init(brd);
-+	if (rc < 0) {
-+		free_irq(brd->irq, brd);
-+		goto failed;
-+	}
-+
-+	brd->state = BOARD_READY;
-+	brd->dpastatus = BD_RUNNING;
-+
-+	/* Log the information about the board */
-+	dev_info(&pdev->dev, "board %d: %s (rev %d), irq %d\n",adapter_count, brd->name, brd->rev, brd->irq);
-+
-+	/*
-+	 * allocate flip buffer for board.
-+	 *
-+	 * Okay to malloc with GFP_KERNEL, we are not at interrupt
-+	 * context, and there are no locks held.
-+	 */
-+	brd->flipbuf = kmalloc(MYFLIPLEN, GFP_KERNEL);
-+	if (!brd->flipbuf) {
-+		dev_err(&pdev->dev, "memory allocation for flipbuf failed\n");
-+		free_irq(brd->irq, brd);
-+		kfree(brd);
-+		iounmap((void *) brd->re_map_membase);
-+		return -ENOMEM;
-+	}
-+	memset(brd->flipbuf, 0, MYFLIPLEN);
-+
-+	jsm_create_driver_sysfiles(pdev->dev.driver);
-+	jsm_create_ports_sysfiles(brd, &pdev->dev);
-+	for (i = 0; i < brd->maxports; i++)
-+		jsm_tty_register_device(brd->channels[i], &pdev->dev);
-+
-+	wake_up_interruptible(&brd->state_wait);
-+	return 0;
-+
-+failed:
-+	kfree(brd);
-+	iounmap((void *) brd->re_map_membase);
-+	return -ENXIO;
-+}
-+
-+/* returns count (>= 0), or negative on error */
-+static int jsm_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
-+{
-+	int rc;
-+
-+	rc = pci_enable_device(pdev);
-+	if (rc) {
-+		dev_err(&pdev->dev, "Device enable FAILED\n");
-+		return rc;
-+	} 
-+
-+	if ((rc = pci_request_regions(pdev, "jsm"))) {
-+	dev_err(&pdev->dev, "pci_request_region FAILED\n");
-+		pci_disable_device(pdev);
-+		return rc;
-+	}
-+
-+	if ((rc = jsm_found_board(pdev, ent->driver_data))) {
-+		dev_err(&pdev->dev, "jsm_found_board  FAILED\n");
-+		pci_release_regions(pdev);
-+		pci_disable_device(pdev);
-+	 	return rc;
-+	}
-+	return rc;
-+}
-+
-+
-+/*
-+ * jsm_cleanup_board()
-+ *
-+ * Free all the memory associated with a board
-+ */
-+static void jsm_cleanup_board(struct jsm_board *brd)
-+{
-+	int i = 0;
-+
-+	free_irq(brd->irq, brd);
-+	iounmap(brd->re_map_membase);
-+
-+	/* Free all allocated channels structs */
-+	for (i = 0; i < brd->maxports; i++) {
-+		if (brd->channels[i]) {
-+			if (brd->channels[i]->ch_rqueue)
-+				kfree(brd->channels[i]->ch_rqueue);
-+			if (brd->channels[i]->ch_equeue)
-+				kfree(brd->channels[i]->ch_equeue);
-+			if (brd->channels[i]->ch_wqueue)
-+				kfree(brd->channels[i]->ch_wqueue);
-+
-+			kfree(brd->channels[i]);
-+			brd->channels[i] = NULL;
-+		}
-+	}
-+
-+	pci_release_regions(brd->pci_dev);
-+	pci_disable_device(brd->pci_dev);
-+	kfree(brd->flipbuf);
-+	kfree(brd);
-+}
-+
-+static void jsm_remove_one(struct pci_dev *dev)
++int jsm_tty_init(struct jsm_board *brd)
 +{
 +	int i;
-+	unsigned long lock_flags;
-+	struct list_head *tmp;
-+	struct jsm_board *brd;
++	u8 *vaddr;
++	struct jsm_channel *ch;
 +
-+	spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
-+	list_for_each(tmp, &jsm_board_head) {
-+		brd = list_entry(tmp, struct jsm_board,
-+					jsm_board_entry);
-+		if ( brd != NULL && brd->pci_dev == dev) {
-+			jsm_remove_uart_port(brd);
-+			jsm_tty_uninit(brd);
-+			jsm_remove_ports_sysfiles(brd, &dev->dev);
-+			for (i = 0; i < brd->maxports; i++)
-+				jsm_tty_unregister_device(brd->channels[i]);
-+			jsm_cleanup_board(brd);
-+			list_del(&brd->jsm_board_entry);
-+			break;
-+		}
-+	}
-+	spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
-+	return;
-+}
++	if (!brd)
++		return -ENXIO;
 +
-+struct pci_driver jsm_driver = {
-+	.name		= "jsm",
-+	.probe		= jsm_init_one,
-+	.id_table	= jsm_pci_tbl,
-+	.remove		= __devexit_p(jsm_remove_one),
-+};
-+
-+/*
-+ * jsm_init_module()
-+ *
-+ * Module load.  This is where it all starts.
-+ */
-+static int __init
-+jsm_init_module(void)
-+{
-+	int rc = 0;
-+
-+	printk(KERN_INFO "%s, Digi International Part Number %s\n",
-+			"jsm: 1.1-1-INKERNEL", "40002438_A-INKERNEL");
++	DPRINTK(INIT, INFO, "start\n");
 +
 +	/*
-+	 * Initialize global stuff
++	 * Initialize board structure elements.
 +	 */
-+	rc = jsm_start();
-+	if (rc < 0) { 
-+		return rc;
++
++	vaddr = brd->re_map_membase;
++
++	brd->nasync = brd->maxports;
++
++	/*
++	 * Allocate channel memory that might not have been allocated
++	 * when the driver was first loaded.
++	 */
++	for (i = 0; i < brd->nasync; i++) {
++		if (!brd->channels[i]) {
++
++			/*
++			 * Okay to malloc with GFP_KERNEL, we are not at
++			 * interrupt context, and there are no locks held.
++			 */
++			brd->channels[i] = kmalloc(sizeof(struct jsm_channel), GFP_KERNEL);
++			if (!brd->channels[i]) {
++				DPRINTK(CORE, ERR, "%s:%d Unable to allocate memory for channel struct\n",
++							 __FILE__, __LINE__);
++			}
++			memset(brd->channels[i], 0, sizeof(struct jsm_channel));
++		}
 +	}
 +
-+	rc = uart_register_driver(&jsm_uart_driver);
-+	if (rc < 0) {
-+		unregister_chrdev(jsm_mgmt_major, "jsm");
-+		return rc;
++	ch = brd->channels[0];
++	vaddr = brd->re_map_membase;
++
++	/* Set up channel variables */
++	for (i = 0; i < brd->nasync; i++, ch = brd->channels[i]) {
++
++		if (!brd->channels[i])
++			continue;
++
++		spin_lock_init(&ch->ch_lock);
++
++		if (brd->bd_uart_offset == 0x200)
++			ch->ch_neo_uart = (struct neo_uart_struct *) ((u64) vaddr 
++						+ (brd->bd_uart_offset * i));
++
++		ch->ch_bd = brd;
++		ch->ch_portnum = i;
++
++		/* .25 second delay */
++		ch->ch_close_delay = 250;
++
++		init_waitqueue_head(&ch->ch_flags_wait);
 +	}
 +
-+	jsm_tty_class_init();
-+	rc = pci_register_driver(&jsm_driver);
-+	if (rc < 0) {
-+		unregister_chrdev(jsm_mgmt_major, "jsm");
-+		uart_unregister_driver(&jsm_uart_driver);
-+		jsm_tty_class_destroy();
-+		return rc;
-+	}
-+
-+	return rc;
++	DPRINTK(INIT, INFO, "finish\n");
++	return 0;
 +}
 +
-+module_init(jsm_init_module);
++int jsm_uart_port_init(struct jsm_board *brd)
++{
++	int i;
++	u8 *vaddr;
++	struct jsm_channel *ch;
++
++	if (!brd)
++		return -ENXIO;
++
++	DPRINTK(INIT, INFO, "start\n");
++
++	/*
++	 * Initialize board structure elements.
++	 */
++
++	vaddr = brd->re_map_membase;
++	brd->nasync = brd->maxports;
++
++	/* Set up channel variables */
++	for (i = 0; i < brd->nasync; i++, ch = brd->channels[i]) {
++
++		if (!brd->channels[i])
++			continue;
++
++		brd->channels[i]->uart_port.irq = brd->irq;
++		brd->channels[i]->uart_port.type = PORT_JSM;
++		brd->channels[i]->uart_port.iotype = UPIO_MEM;
++		brd->channels[i]->uart_port.membase = brd->re_map_membase;
++		brd->channels[i]->uart_port.fifosize = 16;
++		brd->channels[i]->uart_port.ops = &jsm_ops;
++		brd->channels[i]->uart_port.line = brd->channels[i]->ch_portnum + brd->boardnum * 2;
++		if (uart_add_one_port (&jsm_uart_driver, &brd->channels[i]->uart_port)) 
++			printk(KERN_INFO "Added device failed\n");
++		else
++			printk(KERN_INFO "Added device \n");
++	}
++
++	DPRINTK(INIT, INFO, "finish\n");
++	return 0;
++}
++
++int jsm_remove_uart_port(struct jsm_board *brd)
++{
++	int i;
++	struct jsm_channel *ch;
++
++	if (!brd)
++		return -ENXIO;
++
++	DPRINTK(INIT, INFO, "start\n");
++
++	/*
++	 * Initialize board structure elements.
++	 */
++
++	brd->nasync = brd->maxports;
++
++	/* Set up channel variables */
++	for (i = 0; i < brd->nasync; i++) {
++
++		if (!brd->channels[i])
++			continue;
++
++		ch = brd->channels[i];
++
++		uart_remove_one_port(&jsm_uart_driver, &brd->channels[i]->uart_port);  
++	}
++
++	DPRINTK(INIT, INFO, "finish\n");
++	return 0;
++}
 +
 +/*
-+ * jsm_exit_module()
++ * jsm_tty_uninit()
 + *
-+ * Module unload.  This is where it all ends.
++ * Uninitialize the TTY portion of this driver.  Free all memory and
++ * resources. 
 + */
-+static void __exit
-+jsm_exit_module(void)
++
++void jsm_tty_uninit(struct jsm_board *brd)
 +{
-+	if (jsm_mgmt_control_registered)
-+		unregister_chrdev(jsm_mgmt_major, "jsm");
-+
-+	jsm_remove_driver_sysfiles(&(jsm_driver.driver));
-+
-+	jsm_tty_class_destroy();
-+
-+	pci_unregister_driver(&jsm_driver);
-+
-+	uart_unregister_driver(&jsm_uart_driver);
++	if (brd->jsm_major_serial_registered)
++		brd->jsm_major_serial_registered = 1;
 +}
-+module_exit(jsm_exit_module);
-+MODULE_LICENSE("GPL");
++
++/*
++ *
++ *jsm_input - Process received data.
++ * 
++ *ch - Pointer to channel structure.
++ * 
++ */
++
++void jsm_input(struct jsm_channel *ch)
++{
++	struct jsm_board *bd;
++	struct tty_struct *tp;
++	u32 rmask;
++	u16 head;
++	u16 tail;
++	int data_len;
++	u64 lock_flags;
++	int flip_len;
++	int len = 0;
++	int n = 0;
++	char *buf = NULL;
++	char *buf2 = NULL;
++	int s = 0;
++	int i = 0;
++
++	DPRINTK(READ, INFO, "strat\n");
++	if (!ch)
++		return;
++
++	tp = ch->uart_port.info->tty;
++
++	bd = ch->ch_bd;
++	if(!bd)
++		return;
++
++	spin_lock_irqsave(&ch->ch_lock, lock_flags);
++
++	/* 
++	 *Figure the number of characters in the buffer.
++	 *Exit immediately if none.
++	 */
++
++	rmask = RQUEUEMASK;
++
++	head = ch->ch_r_head & rmask;
++	tail = ch->ch_r_tail & rmask;
++
++	data_len = (head - tail) & rmask;
++	if (data_len == 0) {
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++		return;
++	}
++
++	DPRINTK(READ, INFO, "start\n");
++
++	/*
++	 *If the device is not open, or CREAD is off, flush
++	 *input data and return immediately.
++	 */
++	if (!tp || 
++		!(tp->termios->c_cflag & CREAD) ) {
++
++		DPRINTK(READ, INFO, "input. dropping %d bytes on port %d...\n", data_len, ch->ch_portnum);
++		ch->ch_r_head = tail;
++
++		/* Force queue flow control to be released, if needed */
++		jsm_check_queue_flow_control(ch);
++
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++		return;
++	}
++
++	/*
++	 * If we are throttled, simply don't read any data.
++	 */
++	if (ch->ch_flags &  CH_STOPI) {
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++		DPRINTK(READ, INFO, "Port %d throttled, not reading any data. head: %x tail: %x\n",
++			ch->ch_portnum, head, tail);
++		return;
++	}
++
++	DPRINTK(READ, INFO, "start 2\n");
++
++	/*
++	 * If the rxbuf is empty and we are not throttled, put as much
++	 * as we can directly into the linux TTY flip buffer.  
++	 * The jsm_rawreadok case takes advantage of carnal knowledge that
++	 * the char_buf and the flag_buf are next to each other and
++	 * are each of (2 * TTY_FLIPBUF_SIZE) size.
++	 *
++	 * NOTE: if(!tty->real_raw), the call to ldisc.receive_buf
++	 *actually still uses the flag buffer, so you can't
++	 *use it for input data
++	 */
++	if (rawreadok) {
++		if (tp->real_raw)
++			flip_len = MYFLIPLEN;
++		else
++			flip_len = 2 * TTY_FLIPBUF_SIZE;
++	} else
++		flip_len = TTY_FLIPBUF_SIZE - tp->flip.count;
++
++	len = min(data_len, flip_len);
++	len = min(len, (N_TTY_BUF_SIZE - 1) - tp->read_cnt);
++
++	if (len <= 0) {
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++		DPRINTK(READ, INFO, "jsm_input 1 - finish\n");
++		return;
++	}
++
++	/*
++	 * If we're bypassing flip buffers on rx, we can blast it
++	 * right into the beginning of the buffer.
++	 */ 
++	if (rawreadok) {
++		if (tp->real_raw) {
++			if (ch->ch_flags & CH_FLIPBUF_IN_USE) {
++				DPRINTK(READ, INFO, "JSM - FLIPBUF in use. delaying input\n");
++				spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++				return;
++			}
++			ch->ch_flags |= CH_FLIPBUF_IN_USE;
++			buf = ch->ch_bd->flipbuf;
++			buf2 = NULL;
++		} else {
++			buf  = tp->flip.char_buf;
++			buf2 = tp->flip.flag_buf;
++		}
++	} else {
++		buf  = tp->flip.char_buf_ptr;
++		buf2 = tp->flip.flag_buf_ptr;
++	}
++
++	n = len;
++
++	/*
++	 * n now contains the most amount of data we can copy,
++	 * bounded either by the flip buffer size or the amount
++	 * of data the card actually has pending...
++	 */
++	while (n) {
++		s = ((head >= tail) ? head : RQUEUESIZE) - tail;
++		s = min(s, n);
++
++		if (s <= 0)
++			break;
++
++		memcpy(buf, ch->ch_rqueue + tail, s);
++
++		/* buf2 is only set when port isn't raw */
++		if (buf2)
++			memcpy(buf2, ch->ch_equeue + tail, s);
++
++		tail += s;
++		buf += s;
++		if (buf2)
++			buf2 += s;
++		n -= s;
++		/* Flip queue if needed */
++		tail &= rmask;
++	}
++
++	/*  
++	 * In high performance mode, we don't have to update
++	 * flag_buf or any of the counts or pointers into flip buf.
++	 */
++	if (!rawreadok) {
++		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
++			for (i = 0; i < len; i++) {
++				/*
++				 * Give the Linux ld the flags in the
++				 * format it likes.
++				 */
++				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
++					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
++				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
++					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
++				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
++					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
++				else 
++					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
++			}
++		} else  {
++			memset(tp->flip.flag_buf_ptr, 0, len);
++		}
++
++		tp->flip.char_buf_ptr += len;
++		tp->flip.flag_buf_ptr += len;
++		tp->flip.count += len;
++	}
++	else if (!tp->real_raw) {
++		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
++			for (i = 0; i < len; i++) {
++				/*
++				 * Give the Linux ld the flags in the
++				 * format it likes.
++				 */
++				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
++					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
++				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
++					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
++				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
++					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
++				else 
++					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
++			}
++		} else
++			memset(tp->flip.flag_buf, 0, len);
++	}
++
++	/*
++	 * If we're doing raw reads, jam it right into the
++	 * line disc bypassing the flip buffers.
++	 */
++	if (rawreadok) {
++		if (tp->real_raw) {
++			ch->ch_r_tail = tail & rmask;
++			ch->ch_e_tail = tail & rmask;
++
++			jsm_check_queue_flow_control(ch);
++
++			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
++
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++
++			DPRINTK(READ, INFO, 
++				"jsm_input. %d real_raw len:%d calling receive_buf for board %d\n",
++				__LINE__, len, ch->ch_bd->boardnum);
++			tp->ldisc.receive_buf(tp, ch->ch_bd->flipbuf, NULL, len);
++
++			/* Allow use of channel flip buffer again */
++			spin_lock_irqsave(&ch->ch_lock, lock_flags);
++			ch->ch_flags &= ~CH_FLIPBUF_IN_USE;
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++
++		} else {
++			ch->ch_r_tail = tail & rmask;
++			ch->ch_e_tail = tail & rmask;
++
++			jsm_check_queue_flow_control(ch);
++
++			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
++			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++
++			DPRINTK(READ, INFO,
++				"jsm_input. %d not real_raw len:%d calling receive_buf for board %d\n", 
++				__LINE__, len, ch->ch_bd->boardnum);
++
++			tp->ldisc.receive_buf(tp, tp->flip.char_buf, tp->flip.flag_buf, len);
++		}
++	} else  {
++		ch->ch_r_tail = tail & rmask;
++		ch->ch_e_tail = tail & rmask;
++
++		jsm_check_queue_flow_control(ch);
++
++		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
++
++		DPRINTK(READ, INFO, "jsm_input. %d not jsm_read raw okay scheduling flip\n", __LINE__); 
++		tty_schedule_flip(tp);
++	}
++
++	DPRINTK(READ, INFO, "finish\n");
++}
++
++void jsm_carrier(struct jsm_channel *ch)
++{
++	struct jsm_board *bd;
++
++	int virt_carrier = 0;
++	int phys_carrier = 0;
++ 
++	DPRINTK(CARR, INFO, "start...\n");
++	if (!ch)
++   		return;
++
++	bd = ch->ch_bd;
++
++	if (!bd)
++		return;
++
++	if (ch->ch_mistat & UART_MSR_DCD) {
++		DPRINTK(CARR, INFO, "mistat: %x  D_CD: %x\n", ch->ch_mistat, ch->ch_mistat & UART_MSR_DCD);
++		phys_carrier = 1;
++	}
++
++	if (ch->ch_c_cflag & CLOCAL)
++		virt_carrier = 1;
++
++	DPRINTK(CARR, INFO, "DCD: physical: %d virt: %d\n", phys_carrier, virt_carrier);
++
++	/*
++	 * Test for a VIRTUAL carrier transition to HIGH.
++	 */
++	if (((ch->ch_flags & CH_FCAR) == 0) && (virt_carrier == 1)) {
++
++		/*
++		 * When carrier rises, wake any threads waiting
++		 * for carrier in the open routine.
++		 */
++
++		DPRINTK(CARR, INFO, "carrier: virt DCD rose\n");
++
++		if (waitqueue_active(&(ch->ch_flags_wait)))
++			wake_up_interruptible(&ch->ch_flags_wait);
++	}
++
++	/*
++	 * Test for a PHYSICAL carrier transition to HIGH.
++	 */
++	if (((ch->ch_flags & CH_CD) == 0) && (phys_carrier == 1)) {
++
++		/*
++		 * When carrier rises, wake any threads waiting
++		 * for carrier in the open routine.
++		 */
++
++		DPRINTK(CARR, INFO, "carrier: physical DCD rose\n");
++
++		if (waitqueue_active(&(ch->ch_flags_wait)))
++			wake_up_interruptible(&ch->ch_flags_wait);
++	}
++
++	/*
++	 *  Test for a PHYSICAL transition to low, so long as we aren't
++	 *  currently ignoring physical transitions (which is what "virtual
++	 *  carrier" indicates).
++	 *
++	 *  The transition of the virtual carrier to low really doesn't
++	 *  matter... it really only means "ignore carrier state", not
++	 *  "make pretend that carrier is there".
++	 */
++	if ((virt_carrier == 0) && ((ch->ch_flags & CH_CD) != 0) 
++			&& (phys_carrier == 0)) {
++		/*
++		 *	When carrier drops:
++		 *
++		 *	Drop carrier on all open units.
++		 *
++		 *	Flush queues, waking up any task waiting in the
++		 *	line discipline.
++		 *
++		 *	Send a hangup to the control terminal.
++		 *
++		 *	Enable all select calls.
++		 */
++		if (waitqueue_active(&(ch->ch_flags_wait)))
++			wake_up_interruptible(&ch->ch_flags_wait);
++	}
++
++	/*
++	 *  Make sure that our cached values reflect the current reality.
++	 */
++	if (virt_carrier == 1)
++		ch->ch_flags |= CH_FCAR;
++	else
++		ch->ch_flags &= ~CH_FCAR;
++
++	if (phys_carrier == 1)
++		ch->ch_flags |= CH_CD;
++	else
++		ch->ch_flags &= ~CH_CD;
++}
++
++
++void jsm_check_queue_flow_control(struct jsm_channel *ch)
++{
++	int qleft = 0;
++
++	/* Store how much space we have left in the queue */
++	if ((qleft = ch->ch_r_tail - ch->ch_r_head - 1) < 0)
++		qleft += RQUEUEMASK + 1;
++
++	/*
++	 * Check to see if we should enforce flow control on our queue because
++	 * the ld (or user) isn't reading data out of our queue fast enuf.
++	 *
++	 * NOTE: This is done based on what the current flow control of the
++	 * port is set for.
++	 *
++	 * 1) HWFLOW (RTS) - Turn off the UART's Receive interrupt.
++	 *	This will cause the UART's FIFO to back up, and force
++	 *	the RTS signal to be dropped.
++	 * 2) SWFLOW (IXOFF) - Keep trying to send a stop character to
++	 *	the other side, in hopes it will stop sending data to us.
++	 * 3) NONE - Nothing we can do.  We will simply drop any extra data
++	 *	that gets sent into us when the queue fills up.
++	 */
++	if (qleft < 256) {
++		/* HWFLOW */
++		if (ch->ch_c_cflag & CRTSCTS) {
++			if(!(ch->ch_flags & CH_RECEIVER_OFF)) {
++				ch->ch_bd->bd_ops->disable_receiver(ch);
++				ch->ch_flags |= (CH_RECEIVER_OFF);
++				DPRINTK(READ, INFO, "Internal queue hit hilevel mark (%d)! Turning off interrupts.\n",
++					qleft);
++			}
++		}
++		/* SWFLOW */
++		else if (ch->ch_c_iflag & IXOFF) {
++			if (ch->ch_stops_sent <= MAX_STOPS_SENT) {
++				ch->ch_bd->bd_ops->send_stop_character(ch);
++				ch->ch_stops_sent++;
++				DPRINTK(READ, INFO, "Sending stop char!  Times sent: %x\n", ch->ch_stops_sent);
++			}
++		}
++	}
++
++	/*
++	 * Check to see if we should unenforce flow control because
++	 * ld (or user) finally read enuf data out of our queue.
++	 *
++	 * NOTE: This is done based on what the current flow control of the
++	 * port is set for.
++	 *
++	 * 1) HWFLOW (RTS) - Turn back on the UART's Receive interrupt.
++	 *	This will cause the UART's FIFO to raise RTS back up,
++	 *	which will allow the other side to start sending data again.
++	 * 2) SWFLOW (IXOFF) - Send a start character to
++	 *	the other side, so it will start sending data to us again.
++	 * 3) NONE - Do nothing. Since we didn't do anything to turn off the
++	 *	other side, we don't need to do anything now.
++	 */
++	if (qleft > (RQUEUESIZE / 2)) {
++		/* HWFLOW */
++		if (ch->ch_c_cflag & CRTSCTS) {
++			if (ch->ch_flags & CH_RECEIVER_OFF) {
++				ch->ch_bd->bd_ops->enable_receiver(ch);
++				ch->ch_flags &= ~(CH_RECEIVER_OFF);
++				DPRINTK(READ, INFO, "Internal queue hit lowlevel mark (%d)! Turning on interrupts.\n",
++					qleft);
++			}
++		}
++		/* SWFLOW */
++		else if (ch->ch_c_iflag & IXOFF && ch->ch_stops_sent) {
++			ch->ch_stops_sent = 0;
++			ch->ch_bd->bd_ops->send_start_character(ch);
++			DPRINTK(READ, INFO, "Sending start char!\n");
++		}
++	}
++}
++
++/*
++ * jsm_tty_write()
++ *
++ * Take data from the user or kernel and send it out to the FEP.
++ * In here exists all the Transparent Print magic as well.
++ */
++int jsm_tty_write(struct uart_port *port)
++{
++	int bufcount = 0, n = 0;
++	int data_count = 0,data_count1 =0;
++	u16 head;
++	u16 tail;
++	u16 tmask;
++	u32 remain;
++	int temp_tail = port->info->xmit.tail;
++	struct jsm_channel *channel = (struct jsm_channel *)port;
++
++	tmask = WQUEUEMASK;
++	head = (channel->ch_w_head) & tmask;
++	tail = (channel->ch_w_tail) & tmask;
++
++	if ((bufcount = tail - head - 1) < 0)
++		bufcount += WQUEUESIZE;
++
++	n = bufcount;
++
++	n = min(n, 56);
++	remain = WQUEUESIZE - head;
++
++	data_count = 0;
++	if (n >= remain) {
++		n -= remain;
++		while ((port->info->xmit.head != temp_tail) &&
++		(data_count < remain)) {
++			channel->ch_wqueue[head++] =
++			port->info->xmit.buf[temp_tail];
++
++			temp_tail++;
++			temp_tail &= (UART_XMIT_SIZE - 1);
++			data_count++;
++		}
++		if (data_count == remain) head = 0;
++	}
++
++	data_count1 = 0;
++	if (n > 0) {
++		remain = n;
++		while ((port->info->xmit.head != temp_tail) &&
++			(data_count1 < remain)) {
++			channel->ch_wqueue[head++] =
++				port->info->xmit.buf[temp_tail];
++
++			temp_tail++;
++			temp_tail &= (UART_XMIT_SIZE - 1);
++			data_count1++;
++
++		}
++	}
++
++	port->info->xmit.tail = temp_tail;
++
++	data_count += data_count1;
++	if (data_count) {
++		head &= tmask;
++		channel->ch_w_head = head;
++	}
++
++	if (data_count) {
++		channel->ch_bd->bd_ops->copy_data_from_queue_to_uart(channel);
++	}
++
++	return data_count;
++}
++#if TRC_TO_IOCTL
++/*
++ * jsm_ioctl_name()
++ *
++ * Returns a text version of each ioctl value.
++ */
++char *jsm_ioctl_name(int cmd)
++{
++	switch(cmd) {
++
++	case TCGETA:		return("TCGETA");
++	case TCGETS:		return("TCGETS");
++	case TCSETA:		return("TCSETA");
++	case TCSETS:		return("TCSETS");
++	case TCSETAW:		return("TCSETAW");
++	case TCSETSW:		return("TCSETSW");
++	case TCSETAF:		return("TCSETAF");
++	case TCSETSF:		return("TCSETSF");
++	case TCSBRK:		return("TCSBRK");
++	case TCXONC:		return("TCXONC");
++	case TCFLSH:		return("TCFLSH");
++	case TIOCGSID:		return("TIOCGSID");
++
++	case TIOCGETD:		return("TIOCGETD");
++	case TIOCSETD:		return("TIOCSETD");
++	case TIOCGWINSZ:	return("TIOCGWINSZ");
++	case TIOCSWINSZ:	return("TIOCSWINSZ");
++
++	case TIOCMGET:		return("TIOCMGET");
++	case TIOCMSET:		return("TIOCMSET");
++	case TIOCMBIS:		return("TIOCMBIS");
++	case TIOCMBIC:		return("TIOCMBIC");
++
++	/* from digi.h */
++	case DIGI_SETA:		return("DIGI_SETA");
++	case DIGI_SETAW:	return("DIGI_SETAW");
++	case DIGI_SETAF:	return("DIGI_SETAF");
++	case DIGI_SETFLOW:	return("DIGI_SETFLOW");
++	case DIGI_SETAFLOW:	return("DIGI_SETAFLOW");
++	case DIGI_GETFLOW:	return("DIGI_GETFLOW");
++	case DIGI_GETAFLOW:	return("DIGI_GETAFLOW");
++	case DIGI_GETA:		return("DIGI_GETA");
++	case DIGI_GEDELAY:	return("DIGI_GEDELAY");
++	case DIGI_SEDELAY:	return("DIGI_SEDELAY");
++	case DIGI_GETCUSTOMBAUD: return("DIGI_GETCUSTOMBAUD");
++	case DIGI_SETCUSTOMBAUD: return("DIGI_SETCUSTOMBAUD");
++	case TIOCMODG:		return("TIOCMODG");
++	case TIOCMODS:		return("TIOCMODS");
++	case TIOCSDTR:		return("TIOCSDTR");
++	case TIOCCDTR:		return("TIOCCDTR");
++
++	default:		return("unknown");
++	}
++}
++#endif
 
---------------050004040008010006050201--
+--------------000901080208030305040707--
 

@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290232AbSAOSUh>; Tue, 15 Jan 2002 13:20:37 -0500
+	id <S290222AbSAOS0H>; Tue, 15 Jan 2002 13:26:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290222AbSAOSU2>; Tue, 15 Jan 2002 13:20:28 -0500
-Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:27043
-	"EHLO server.home.at") by vger.kernel.org with ESMTP
-	id <S290232AbSAOSUO>; Tue, 15 Jan 2002 13:20:14 -0500
-Subject: Re: floating point exception
-From: Christian Thalinger <e9625286@student.tuwien.ac.at>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.33.0201151633300.2080-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0201151633300.2080-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain
+	id <S290233AbSAOSZ5>; Tue, 15 Jan 2002 13:25:57 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:32261 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290222AbSAOSZu>; Tue, 15 Jan 2002 13:25:50 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 15 Jan 2002 19:19:13 +0100
-Message-Id: <1011118755.13266.0.camel@sector17.home.at>
-Mime-Version: 1.0
+Message-ID: <15428.33303.441511.278523@laputa.namesys.com>
+Date: Tue, 15 Jan 2002 22:25:11 +0300
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
+        "David L. Parsley" <parsley@roanoke.edu>
+Subject: Re: [BUG] symlink problem with knfsd and reiserfs
+In-Reply-To: <20020115181430.78CE11435@shrek.lisa.de>
+In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
+	<20020115163208.785831435@shrek.lisa.de>
+	<15428.27801.724105.557093@laputa.namesys.com>
+	<20020115181430.78CE11435@shrek.lisa.de>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-15 at 15:34, Zwane Mwaikambo wrote:
-> On 14 Jan 2002, Christian Thalinger wrote:
-> 
-> > It seems the floating point exception is only raised with a new data
-> > package. Is there a simple way to raise such a exception?
-> 
-> New data package? And does the same behaviour re-occur after the fpu
-> exception? ie programs start segfaulting etc. Can you try doing a "dmesg"
-> after the segfaults and fpu exception and see if there is anything in the
-> kernel ring buffer too.
-> 
-> Regards,
-> 	Zwane Mwaikambo
-> 
+Hans-Peter Jansen writes:
+ > On Tuesday, 15. January 2002 18:53, Nikita Danilov wrote:
+ > > Hans-Peter Jansen writes:
+ > >  > On Tuesday, 15. January 2002 17:47, Nikita Danilov wrote:
 
-There are .sah files, in which the data is stored to analyse. So i
-deleted these files and the client downloads a new package -> new data
-package.
+[...]
 
-Yes, it did happen that the segfault reoccured and there is nothing in
-the dmesg. This was also my first thought, then checked
-/var/log/messages with a tail and it stucked. No ctrl-c.
+ > 
+ > If I use notail mount option on a already populated partition, what happens
+ > to the "tailed" files? I expect, only newly created ones get there own block.
 
-Tried this:
+Right.
 
-#define _GNU_SOURCE 1
-#include <fenv.h>
+ > 
+ > >
 
-main() {
-    double zero=0.0;
-    double one=1.0;
-    
-    feenableexcept(FE_ALL_EXCEPT);
-    
-    one /=zero;
-}
+Nikita.
 
-...but nothing happens.
-
+ > >
+ > Cheers,
+ >   Hans-Peter
+ > 

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbTBLSdN>; Wed, 12 Feb 2003 13:33:13 -0500
+	id <S267426AbTBLSfX>; Wed, 12 Feb 2003 13:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267394AbTBLSdN>; Wed, 12 Feb 2003 13:33:13 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:4100 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267350AbTBLSdM>;
-	Wed, 12 Feb 2003 13:33:12 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302121844.h1CIi3P1012455@darkstar.example.net>
-Subject: Re: 2.5.60 cheerleading...
-To: davej@codemonkey.org.uk (Dave Jones)
-Date: Wed, 12 Feb 2003 18:44:03 +0000 (GMT)
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030212180749.GB19921@codemonkey.org.uk> from "Dave Jones" at Feb 12, 2003 06:07:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S267454AbTBLSfX>; Wed, 12 Feb 2003 13:35:23 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:42257 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267426AbTBLSfX>; Wed, 12 Feb 2003 13:35:23 -0500
+Date: Wed, 12 Feb 2003 18:45:08 +0000
+From: "'Christoph Hellwig'" <hch@infradead.org>
+To: "Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>
+Cc: "'Christoph Hellwig'" <hch@infradead.org>,
+       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030212184507.A15023@infradead.org>
+Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
+	"Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>,
+	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+	linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se>; from Makan.Pourzandi@ericsson.ca on Wed, Feb 12, 2003 at 11:58:52AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Just to counteract all the 2.5.60 bug reports...
-> 
-> /me tries to blank vision of Jeff in cheerleader outfit.
-> 
-> 8-)
-
-That reminds me, I used this as a placeholder on my website for a
-while, why don't we use it as an oops graphic!?
-
-root@darkstar:~# cat cheerleader
-
-      |\/|           |\/|
-     /****\ /|||||\ /****\
-     \****/// ^.^ \\\****/
-      |/\\//|  V  |\\//\|
-         \\|\_____/|//
-        /|\\|     |//|\
-        |||\\|   |//|||
-        ||||\     /||||
-             |   |
-            /     \
-           /       \
-           WWWWWWWWW
-            | | | |
-            | | | |
-            | | | |
-            | | | |
-           / /   \ \
-          /_/     \_\
-
-John.
+do you have any technical argument on the current implementation of
+security hooks?  the whole discussion is on removing the current mess
+until a proper design can be implemented.

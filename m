@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315717AbSHAQ1j>; Thu, 1 Aug 2002 12:27:39 -0400
+	id <S315760AbSHAQjH>; Thu, 1 Aug 2002 12:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315720AbSHAQ1j>; Thu, 1 Aug 2002 12:27:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:62704 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315717AbSHAQ1i>; Thu, 1 Aug 2002 12:27:38 -0400
-Subject: Re: [patch] vm86: Clear AC on INT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Cc: root@chaos.analogic.com, stas.orel@mailcity.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D496019.88237C6@daimi.au.dk>
-References: <Pine.LNX.3.95.1020801105021.26692A-100000@chaos.analogic.com>
-	<1028220750.15022.67.camel@irongate.swansea.linux.org.uk> 
-	<3D4959EF.15022EE8@daimi.au.dk>
-	<1028222900.14871.77.camel@irongate.swansea.linux.org.uk> 
-	<3D496019.88237C6@daimi.au.dk>
-Content-Type: text/plain
+	id <S315762AbSHAQjG>; Thu, 1 Aug 2002 12:39:06 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:46045 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S315760AbSHAQjF>; Thu, 1 Aug 2002 12:39:05 -0400
+Message-ID: <3D4964AE.891F9878@nortelnetworks.com>
+Date: Thu, 01 Aug 2002 12:41:18 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for2.5.29)
+References: <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 18:47:16 +0100
-Message-Id: <1028224036.14871.83.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 17:21, Kasper Dupont wrote:
-> Ehrm, that wasn't my point. My point was that if the feature exist
-> in virtual 86 mode but not in real mode, the kernel should prevent
-> it from being used in virtual 86 mode because it is supposed to
-> emulate real mode.
+Linus Torvalds wrote:
 
-That would prevent people wanting to run real virtualised 8086 stuff
-that does use the AC trap, and other vm86 extensions to the basic real
-mode stuff.
+> The only thing that I think makes it less than wonderful is really the
+> fact that we cannot give an accurate measure for it. We can _say_ that
+> what we count in microseconds, but it might turn out that instead of the
+> perfect 1000000 ticks a second ther would really be 983671 ticks.
 
-If you want an accurate real mode emulation you are stuck with Bochs,
-not down to the kernel but down to the fact vm86 is a mode for running
-8086 applications under a 32bit system, not a mode for emulation of real
-mode.
+Would there be any benefit to using processor timestamps (rdtsc and friends) for
+this if they are available?  I don't know the complexities of the interaction
+with power management, that might make it infeasable.
 
+Chris
 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

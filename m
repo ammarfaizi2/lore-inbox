@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTIRS24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 14:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbTIRS24
+	id S261470AbTIRSVq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 14:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTIRSVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 14:28:56 -0400
-Received: from mail.kroah.org ([65.200.24.183]:41649 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262040AbTIRS2x (ORCPT
+	Thu, 18 Sep 2003 14:21:46 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:16080 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261470AbTIRSVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 14:28:53 -0400
-Date: Thu, 18 Sep 2003 11:29:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Paco Ros <switch@tiscali.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: visor module and Palm Zire 71 problem.
-Message-ID: <20030918182903.GC1846@kroah.com>
-References: <200309132008.17716.switch@tiscali.es>
+	Thu, 18 Sep 2003 14:21:44 -0400
+Date: Thu, 18 Sep 2003 20:21:43 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: edouardino@ifrance.com
+Cc: Bernhard Rosenkraenzer <bero@arklinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre4-pac1
+Message-ID: <20030918182143.GB25907@DUK2.13thfloor.at>
+Mail-Followup-To: edouardino@ifrance.com,
+	Bernhard Rosenkraenzer <bero@arklinux.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0309151411010.14486@dot.kde.org> <wazza.87znh6t891.fsf@message.id>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309132008.17716.switch@tiscali.es>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <wazza.87znh6t891.fsf@message.id>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 08:08:17PM +0200, Paco Ros wrote:
-> Hi!
+On Mon, Sep 15, 2003 at 04:51:38PM +0200, edouardino@ifrance.com wrote:
 > 
-> I bought one of these nice Palm handhelds with integrated camera.
-> I was running 2.4.20 kernel at that time and I modified the following files:
-> - drivers/usb/serial/visor.h
->  added #define PALM_ZIRE71_ID			0x0060
+> Hi,
 > 
-> - drivers/usb/serial/visor.c
->  added id_table and id_table_combined definitions.
+> Could you send me the Device Mapper patch you used ?
+> Or could you make -pac available as splitted patches too ?
+> I fact I'd like to use a recent dm.
+
+a splitted up version would be
+apreciated ...
+
+TIA,
+Herbert
+
+> Thanks in advance.
 > 
-> You have both modified from 2.4.20 files here:
-> http://bulmalug.net/~pacoros/articulos/visor.c
-> http://bulmalug.net/~pacoros/articulos/visor.h
-
-This device has been supported for a while now, just upgrade your kernel
-please.
-
-> They were working fine with pilot-link software.
-> 
-> Some weeks ago I compiled a 2.4.22-ac1 kernel and I saw that a new version of visor was released.
-> I haven't been able to make my Zire 71 work with this kernel version.
-> 
-> The trick of adding PALM_ZIRE71_ID definition does not work anymore
-> and I get a Oops! when the module tries to be removed.  Here is the
-> log:
-
-This device should just work with this kernel, the driver does not need
-to be modified.
-
-> I've been googling and looking for visor project and seems to be
-> completely integrated in kernel tree and no news or movement is
-> appreciated at usbvisor web site.
-
-The usbvisor web site is dead as the maintainer for it has disappeared.
-The kernel driver is kept quite up to date.
-
-thanks,
-
-greg k-h
+> -- 
+> E.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267416AbTACGNJ>; Fri, 3 Jan 2003 01:13:09 -0500
+	id <S267425AbTACGRW>; Fri, 3 Jan 2003 01:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267418AbTACGNJ>; Fri, 3 Jan 2003 01:13:09 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:5549 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S267416AbTACGNG>;
-	Fri, 3 Jan 2003 01:13:06 -0500
-Date: Fri, 3 Jan 2003 17:21:18 +1100
+	id <S267426AbTACGRV>; Fri, 3 Jan 2003 01:17:21 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:24749 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S267425AbTACGRU>;
+	Fri, 3 Jan 2003 01:17:20 -0500
+Date: Fri, 3 Jan 2003 17:25:33 +1100
 From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: davem@redhat.com
+To: ak@muc.de
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH][COMPAT] move struct flock32 3/8 sparc64
-Message-Id: <20030103172118.59b24934.sfr@canb.auug.org.au>
+Subject: [PATCH][COMPAT] move struct flock32 4/8 x86_64
+Message-Id: <20030103172533.048fee08.sfr@canb.auug.org.au>
 In-Reply-To: <20030103164106.21e65093.sfr@canb.auug.org.au>
 References: <20030103164106.21e65093.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
@@ -21,21 +21,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+Hi Andi,
 
-Here is the sparc64 specific part.  This patch is against Linus' recent
-2.5.54 BK plus the previous patch I sent you.
+Here is the x86_64 specific patch.  This is against Linus' recent 2.5.54
+BK tree plus the previous patch I sent you.
 
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.54-200301031304-32bit.1/arch/sparc64/kernel/sys_sparc32.c 2.5.54-200301031304-32bit.2/arch/sparc64/kernel/sys_sparc32.c
---- 2.5.54-200301031304-32bit.1/arch/sparc64/kernel/sys_sparc32.c	2003-01-03 16:24:15.000000000 +1100
-+++ 2.5.54-200301031304-32bit.2/arch/sparc64/kernel/sys_sparc32.c	2003-01-03 16:24:56.000000000 +1100
-@@ -804,30 +804,6 @@
- 	return err;
+diff -ruN 2.5.54-200301031304-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.54-200301031304-32bit.2/arch/x86_64/ia32/sys_ia32.c
+--- 2.5.54-200301031304-32bit.1/arch/x86_64/ia32/sys_ia32.c	2003-01-02 15:13:46.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/arch/x86_64/ia32/sys_ia32.c	2003-01-03 16:24:56.000000000 +1100
+@@ -1066,30 +1066,6 @@
+ 	return ret;
  }
  
 -static inline int get_flock(struct flock *kfl, struct flock32 *ufl)
@@ -63,9 +63,9 @@ diff -ruN 2.5.54-200301031304-32bit.1/arch/sparc64/kernel/sys_sparc32.c 2.5.54-2
 -}
 -
  extern asmlinkage long sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg);
+ asmlinkage long sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg);
  
- asmlinkage long sys32_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
-@@ -841,13 +817,13 @@
+@@ -1105,13 +1081,13 @@
  			mm_segment_t old_fs;
  			long ret;
  			
@@ -81,11 +81,11 @@ diff -ruN 2.5.54-200301031304-32bit.1/arch/sparc64/kernel/sys_sparc32.c 2.5.54-2
  				return -EFAULT;
  			return 0;
  		}
-diff -ruN 2.5.54-200301031304-32bit.1/include/asm-sparc64/compat.h 2.5.54-200301031304-32bit.2/include/asm-sparc64/compat.h
---- 2.5.54-200301031304-32bit.1/include/asm-sparc64/compat.h	2003-01-03 16:24:15.000000000 +1100
-+++ 2.5.54-200301031304-32bit.2/include/asm-sparc64/compat.h	2003-01-03 16:24:56.000000000 +1100
-@@ -55,4 +55,13 @@
- 	u32		__unused4[2];
+diff -ruN 2.5.54-200301031304-32bit.1/include/asm-x86_64/compat.h 2.5.54-200301031304-32bit.2/include/asm-x86_64/compat.h
+--- 2.5.54-200301031304-32bit.1/include/asm-x86_64/compat.h	2003-01-03 16:24:15.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/include/asm-x86_64/compat.h	2003-01-03 16:24:56.000000000 +1100
+@@ -60,4 +60,12 @@
+ 	u32		__unused5;
  };
  
 +struct compat_flock {
@@ -94,30 +94,26 @@ diff -ruN 2.5.54-200301031304-32bit.1/include/asm-sparc64/compat.h 2.5.54-200301
 +	compat_off_t	l_start;
 +	compat_off_t	l_len;
 +	compat_pid_t	l_pid;
-+	short		__unused;
 +};
 +
- #endif /* _ASM_SPARC64_COMPAT_H */
-diff -ruN 2.5.54-200301031304-32bit.1/include/asm-sparc64/fcntl.h 2.5.54-200301031304-32bit.2/include/asm-sparc64/fcntl.h
---- 2.5.54-200301031304-32bit.1/include/asm-sparc64/fcntl.h	2003-01-03 16:24:15.000000000 +1100
-+++ 2.5.54-200301031304-32bit.2/include/asm-sparc64/fcntl.h	2003-01-03 16:24:56.000000000 +1100
-@@ -79,19 +79,6 @@
- };
+ #endif /* _ASM_X86_64_COMPAT_H */
+diff -ruN 2.5.54-200301031304-32bit.1/include/asm-x86_64/ia32.h 2.5.54-200301031304-32bit.2/include/asm-x86_64/ia32.h
+--- 2.5.54-200301031304-32bit.1/include/asm-x86_64/ia32.h	2003-01-03 16:24:15.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/include/asm-x86_64/ia32.h	2003-01-03 16:24:56.000000000 +1100
+@@ -11,16 +11,6 @@
+  * 32 bit structures for IA32 support.
+  */
  
- #ifdef __KERNEL__
--#include <linux/compat.h>
--
+-/* fcntl.h */
 -struct flock32 {
--	short l_type;
--	short l_whence;
--	compat_off_t l_start;
--	compat_off_t l_len;
--	compat_pid_t l_pid;
--	short __unused;
+-       short l_type;
+-       short l_whence;
+-       compat_off_t l_start;
+-       compat_off_t l_len;
+-       compat_pid_t l_pid;
 -};
--#endif
 -
--#ifdef __KERNEL__
- #define flock64	flock
- #endif
- 
+-
+ struct ia32_flock64 {
+ 	short  l_type;
+ 	short  l_whence;

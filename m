@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S274977AbUKASW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S286987AbUKASbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274977AbUKASW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 13:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbUKARbn
+	id S286987AbUKASbP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 13:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S280158AbUKARa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 12:31:43 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:35767 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S281280AbUKAR3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 12:29:02 -0500
-Message-Id: <200411011728.iA1HSu5m022380@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: Jesus Delgado <jdelgado@gmail.com>
-Cc: Alexander Gran <alex@zodiac.dnsalias.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working 
-In-Reply-To: Your message of "Mon, 01 Nov 2004 09:30:13 CST."
-             <5786143704110107302e1722d8@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200410311903.06927@zodiac.zodiac.dnsalias.org>
-            <5786143704110107302e1722d8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-328228590P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 01 Nov 2004 12:28:54 -0500
+	Mon, 1 Nov 2004 12:30:56 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:54474 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S268361AbUKAR17 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 12:27:59 -0500
+Date: Mon, 1 Nov 2004 18:27:56 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: John M Collins <jmc@xisl.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fchown on unix domain sockets?
+In-Reply-To: <200411011543.04881.jmc@xisl.com>
+Message-ID: <Pine.LNX.4.53.0411011825010.5419@yvahk01.tjqt.qr>
+References: <200410312255.00621.jmc@xisl.com> <200411011441.56524.jmc@xisl.com>
+ <Pine.LNX.4.53.0411011546050.30106@yvahk01.tjqt.qr> <200411011543.04881.jmc@xisl.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-328228590P
-Content-Type: text/plain; charset=us-ascii
+>> >When I connect to it is the point. I want to set the permissions etc so
+>> > that only the progams that are supposed to be talking to it talk to it.
+>>
+>> How about setting the permissions beforehand?
+>
+>We're talking about fchown not fchmod. Obviously you can set "umask" so that
+>the appropriate permissions are on or off.
 
-On Mon, 01 Nov 2004 09:30:13 CST, Jesus Delgado said:
+Whoops. Well, you said "permissions" in the topmost quoted thing.
+Anyway, you could use ACLs to restrict connecting to a PF_UNIX
+socket on a per user/group basis.
 
->     Iam have is the same problems, kernel 2.6.10-rc1 keryboard and
-> mouse OK ( emachines M6709), both running kernel 2.6.10-rc1-mm2 the
-> keyboard and mouse NOT WORKING.
+>I just thought it would be worth drawing attention to the fact that "fchown"
+>silently does nothing and the whole thing is not documented anywhere (even on
+>OSes which give an error code). It just seemed a gap worth plugging.
 
-I had issues in 2.6.10-rc1-mm2 and no keyboard input at all, I tracked
-it down to CONFIG_ACPI_CONTAINER - haven't checked if i8042.noacpi
-fixes the problem also.
+Now the message is clear. Glibc info pages maintained by
+glibc-bugs@gnu.org (IIRC), man pages now maintained by (sorry forgot
+the addr, but take a look on LKML archive for this day).
 
---==_Exmh_-328228590P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBhnJVcC3lWbTT17ARAsRiAKDVZP4RjhRolecibOSIscJPEICNRACg/a8H
-caNudB0ViSuqG833GG32ccA=
-=JOWf
------END PGP SIGNATURE-----
-
---==_Exmh_-328228590P--
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

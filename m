@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUJWOfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbUJWOfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbUJWOfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUJWOey
+	id S261251AbUJWOfy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUJWOfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:34:54 -0400
-Received: from holomorphy.com ([207.189.100.168]:39372 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261205AbUJWOep (ORCPT
+	Sat, 23 Oct 2004 10:35:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:11227 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261200AbUJWOfl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:34:45 -0400
-Date: Sat, 23 Oct 2004 07:34:39 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041023143439.GO17038@holomorphy.com>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <20041023013518.GI31237@waste.org>
+	Sat, 23 Oct 2004 10:35:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mbfDHx0jpt8xxRaIP9OBa1FS6t7lQ69uTZx7/Apwfzf582dpaRrrtDC++ie4EIDpBfV7704EsisuPimvt+ZRakFNwC8zNieXYatz8L34ll/0Wmaf0ZXJ3gHtKLK0NoXW8qnWmI7GNAU1awNmU7bLtj3b9wkc3leSEGoZ73fD8PE=
+Message-ID: <9e473391041023073578b11eb6@mail.gmail.com>
+Date: Sat, 23 Oct 2004 10:35:41 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>
+Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
+In-Reply-To: <20041023095644.GC30137@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041023013518.GI31237@waste.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e473391041022214570eab48a@mail.gmail.com>
+	 <20041023095644.GC30137@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 06:15:49PM -0700, William Lee Irwin III wrote:
->> It would be nice if this were qualified with something that distinguished
->> the outlandish idealizations you're actually criticizing from real math,
->> which makes no presumption that its axioms or hypotheses have any
->> connection to reality, observations, or predictions thereof. The abuse
->> you're speaking of is poor modelling for the sake of tractability of
->> symbolic calculations, which has nothing to do with proof or logic.
+How do I deal with something like a Redhat kernel where CONFIG_AGP is
+set but the kernel may be running on hardware without AGP present. In
+this case the AGP modules will not be loaded but DRM will still have
+symbol references to the AGP symbols. You have to have some kind of
+weak symbol reference in this case.
 
-On Fri, Oct 22, 2004 at 08:35:18PM -0500, Matt Mackall wrote:
-> Actually just the opposite. It's more about Godel and Whitehead than
-> Feynmann in my interpretation.
-
-"The notion of a perfectly modellable world is dead" and branding a
-field with the sins of those who misapplied it is not difficult to
-understand. Worse yet, it's even arguable that even the idealizations
-were done in full cognizance of their limited validity. Whatever else
-you're reading into it is not there. I suppose in this and the instance
-of some religiously-oriented .sig's there is little or no recourse.
-
-
--- wli
+-- 
+Jon Smirl
+jonsmirl@gmail.com

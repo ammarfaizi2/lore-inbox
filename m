@@ -1,50 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269685AbTGaWGu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270413AbTGaWGb
+	id S270553AbTGaWD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269659AbTGaWDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:06:31 -0400
-Received: from AMarseille-201-1-5-189.w217-128.abo.wanadoo.fr ([217.128.250.189]:41255
-	"EHLO gaston") by vger.kernel.org with ESMTP id S270530AbTGaWF6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:05:58 -0400
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
-       Dominik Brugger <ml.dominik83@gmx.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <3F299069.1010905@pacbell.net>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org>
-	 <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net>
-	 <20030726210123.GD266@elf.ucw.cz>  <3F288CAB.6020401@pacbell.net>
-	 <1059686596.7187.153.camel@gaston>  <3F299069.1010905@pacbell.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059689105.2417.195.camel@gaston>
+	Thu, 31 Jul 2003 18:03:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35509 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274883AbTGaWDW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 18:03:22 -0400
+Date: Thu, 31 Jul 2003 14:51:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mremap sleeping in incorrect context
+Message-Id: <20030731145132.64ab1574.akpm@osdl.org>
+In-Reply-To: <1059658728.2417.112.camel@gaston>
+References: <1059586337.2420.44.camel@gaston>
+	<20030730153439.7df44a69.akpm@osdl.org>
+	<1059658728.2417.112.camel@gaston>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 01 Aug 2003 00:05:06 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>
+> 
+> > oops.  What are your CONFIG_HIGHMEM and CONFIG_HIGHPTE settings there?
+> 
+> this is on ppc32, HIGHPTE doesn't exist, HIGHMEM is enabled (1Gb of
+> RAM)
+> 
 
-> I suspect that USB should do some non-global PM stuff too.
-> Hub ports can be suspended when the devices connected to them
-> are idle for long enough ... that's not something I'd expect
-> system-wide PM policies to address.
+OK, thanks.  Seems that I made a little bug.  This should fix it.  With a
+changelog like this, it _has_ to be right ;)
 
-Indeed, this is not addressed, though it may sense to have
-a way in the device model to call the suspend/resume callbacks
-of "childs" of a given hub only for that purpose, I don't think
-this is implemented yet. Maybe talk to Patrick about it.
 
-In general "local" power management (automatic disk spin down,
-chipset idle-pm, etc...) is ... local to the driver, though you
-can probably use the power state field of struct device to
-store your current state if it maps to those semantics.
 
-Ben.
+
+
+
+move_one_page() is awkward.  It grabs an atomic_kmap of the source pte
+(because it needs to know if there's really a page there) and then it needs
+to allocate a pte for the dest.  But it cannot allocate the dest pte while
+holding the src's atomic kmap.
+
+So it performs this little dance peeking at pagetables to predict if
+alloc_one_pte_map() might need to perform a pte page allocation.
+
+When I wrote this code I made it conditional on CONFIG_HIGHPTE.  But that was
+bogus: even in the !CONFIG_HIGHPTE case, get_one_pte_map_nested() will run
+atomic_kmap() against the pte page, which disables preemption.
+
+Net effect: with CONFIG_HIGHMEM && !CONFIG_HIGHPTE we can end up performing a
+GFP_KERNEL pte page allocation while preemption is disabled.  It triggers a
+might_sleep() warning and indeed is buggy.
+
+So the patch removes the conditionality: even in the !CONFIG_HIGHPTE case we
+still do the pagetable peek and drop the kmap if necessary.
+
+(Arguably, we shouldn't be performing the atomic_kmap() at all if
+!CONFIG_HIGHPTE: all it does is a pointless preemption disable).
+
+(Arguably, kmap_atomic() should not be disabling preemption if the target
+page is not highmem.  But we're doing it anyway at present for consistency
+(ie: debug coverage) and because the filemap.c pagecache copying functions
+rely on kmap_atomic() disabling do_no_page() for all pages: see
+do_no_page()'s use of in_atomic()).
+
+
+
+ 25-akpm/mm/mremap.c |    4 ----
+ 1 files changed, 4 deletions(-)
+
+diff -puN mm/mremap.c~mremap-atomicity-fix mm/mremap.c
+--- 25/mm/mremap.c~mremap-atomicity-fix	Thu Jul 31 14:37:05 2003
++++ 25-akpm/mm/mremap.c	Thu Jul 31 14:37:15 2003
+@@ -56,7 +56,6 @@ end:
+ 	return pte;
+ }
+ 
+-#ifdef CONFIG_HIGHPTE	/* Save a few cycles on the sane machines */
+ static inline int page_table_present(struct mm_struct *mm, unsigned long addr)
+ {
+ 	pgd_t *pgd;
+@@ -68,9 +67,6 @@ static inline int page_table_present(str
+ 	pmd = pmd_offset(pgd, addr);
+ 	return pmd_present(*pmd);
+ }
+-#else
+-#define page_table_present(mm, addr)	(1)
+-#endif
+ 
+ static inline pte_t *alloc_one_pte_map(struct mm_struct *mm, unsigned long addr)
+ {
+
+_
 

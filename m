@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261845AbREYUYv>; Fri, 25 May 2001 16:24:51 -0400
+	id <S261837AbREYUbm>; Fri, 25 May 2001 16:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261837AbREYUYl>; Fri, 25 May 2001 16:24:41 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:9511
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S261840AbREYUY1>; Fri, 25 May 2001 16:24:27 -0400
-Date: Fri, 25 May 2001 22:24:19 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: gadio@netvision.net.il
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] __idetape_kmalloc_stage return code check in ide-tape.c (244-ac16)
-Message-ID: <20010525222419.G851@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261854AbREYUbb>; Fri, 25 May 2001 16:31:31 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41153 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261837AbREYUb2>;
+	Fri, 25 May 2001 16:31:28 -0400
+Date: Fri, 25 May 2001 16:31:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+cc: linux-fsdevel@vger.kernel.org
+Subject: [CFT][PATCH] namespaces patch (2.4.5-pre6)
+Message-ID: <Pine.GSO.4.21.0105251621400.28097-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+	Folks, new version of the patch is on
+ftp.math.psu.edu/pub/viro/namespaces-c-S5-pre6.gz
 
-This trivial patch adds a kmalloc check to ide-tape.c::
-idetape_onstream_read_back_buffer as per the Stanford team's report
-way back. It applies against 244ac16.
+	News:
+* ported to 2.4.5-pre6
+* new (cleaner) locking mechanism
+* lock_super() is starting to become fs-private thing - first steps to
+  removing it from VFS code are done.
 
-Reading the code I was not sure if it was OK to just return
-or more should be done. Please sanity check this.
+Please, help with testing. I'm feeding the pieces suitable for 2.4 into
+the Linus' tree, so patch got smaller.
 
---- linux-244-ac11-clean/drivers/ide/ide-tape.c	Sat May 19 21:06:35 2001
-+++ linux-244-ac11/drivers/ide/ide-tape.c	Sun May 20 14:58:44 2001
-@@ -3472,6 +3472,11 @@
- 	printk(KERN_INFO "ide-tape: %s: reading back %d frames from the drive's internal buffer\n", tape->name, frames);
- 	for (i = 0; i < frames; i++) {
- 		stage = __idetape_kmalloc_stage(tape, 0, 0);
-+                if(!stage) {
-+                        printk(KERN_WARNING "(idetape:) Failed to allocate memory for buffer\n");
-+                        return;
-+                }
-+                        
- 		if (!first)
- 			first = stage;
- 		aux = stage->aux;
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+It works here(tm). It had survived rather sadistic tortu^Wtesting, but I
+am _very_ interested in more eyes going through the thing and more people
+giving it a beating.
+							Al
 
-'Xenix is the pinnacle of modern UNIX design, and will be used for many
-years to come' -Xenix OS API manual 

@@ -1,101 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUHWO3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUHWOb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUHWO3y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 10:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUHWO3y
+	id S264685AbUHWOb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 10:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUHWOb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 10:29:54 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50306 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264665AbUHWO3t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 10:29:49 -0400
-Date: Mon, 23 Aug 2004 10:29:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Lei Yang <leiyang@nec-labs.com>
-cc: Lee Revell <rlrevell@joe-job.com>, Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems compiling kernel modules
-In-Reply-To: <4129FAC8.3040502@nec-labs.com>
-Message-ID: <Pine.LNX.4.53.0408231018001.7732@chaos>
-References: <4127A15C.1010905@nec-labs.com>  <20040821214402.GA7266@mars.ravnborg.org>
- <4127A662.2090708@nec-labs.com>  <20040821215055.GB7266@mars.ravnborg.org>
-  <4127B49A.6080305@nec-labs.com> <1093121824.854.167.camel@krustophenia.net>
- <4129FAC8.3040502@nec-labs.com>
+	Mon, 23 Aug 2004 10:31:26 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43946 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264697AbUHWOas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 10:30:48 -0400
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Support for HIGHMEM ...can any one explain my Q&A ..
+References: <4EE0CBA31942E547B99B3D4BFAB348110B1385@mail.esn.co.in>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Aug 2004 08:29:28 -0600
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348110B1385@mail.esn.co.in>
+Message-ID: <m18yc6x707.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Aug 2004, Lei Yang wrote:
+"Mukund JB." <mukundjb@esntechnologies.co.in> writes:
 
-> Hi friends,
->
-> I've askeed questions about errors compiling kernel modules caused by
-> including <stdio.h> and got some very helpful info here.
->
-> I changed those I/O stream and file operation in the code and get the
-> module compiled, however, there would be warnings like
->
-> In file included from /home/lei/modules/test.c:49:
-> /home/lei/modules/Kcomp.h:21: warning: function declaration isn't a
-> prototype
-> /home/lei/modules/Kcomp.h:27: warning: function declaration isn't a
-> prototype
-> /home/lei/modules/Kcomp.h:69: warning: function declaration isn't a
-> prototype
->
-> And the no prototype fuction looks like
->
-> int preset() // with no arguments
-> {
-> 	p = &nodes[0][0];
-> 	return 0;
-> }
->
+> Hi all,
+> Sorry if I asked any thing that basic level stuff?
+> This is the paasge I found in the net while surfing for details about
+> HIGHMEM stuff.
+> 
+> During 2.3 kernel development (I think), "HIGHMEM" support was added.
+> Normally, the kernel can only address (4GB-PAGE_OFFSET)/PAGE_SIZE pages
+> of RAM, since all physical pages must be mapped to kernel addresses
+> between PAGE_OFFSET and 4GB. (So if PAGE_OFFSET is 3GB, only 1GB of
+> physical RAM can be used - not even that, in practice, due to fixed
+> kernel mappings and so forth.) The HIGHMEM patches allow the kernel to
+> use more than 1G of memory by mapping the additional pages into the high
+> part of the kernel address space just below 4GB as necessary. They also
+> allow high-memory pages to be mapped into user process address space.
+> 
+> 
+> ***) Does the above passage mean that PAGE_OFFSET is the starting
+> address of my RAM ?
 
-A function looks like this:
+No.  PAGE_OFFSET is the virtual address at which physical address
+0 is mapped into an arch/i386 kernel.  
 
-int present()
-{
+> I understood so from the below line
+> "since all physical pages must be mapped to kernel addresses between
+> PAGE_OFFSET and 4GB".
+> 
+> ***) Does it mean that the lowest portion of the 4GB os nothing but RAM
+> ?
 
-}
+No.  0-PAGE_OFFSET is the virtual address space provided to user space.
+So it has an arbitrary mapping to virtual memory.
 
-A prototype for the same function looks like this:
-
-int present(void);
-
-Functions always have "{}". Prototypes never do.
--- Yes there's some troll who might cite some obscure
-case... ignore them.
-
-If you compile above a certain warning-level, then prototypes
-are required. The prototype usually goes in header files
-and the function (the actual code) goes in the source files.
-
->
-> So when I tried to install the module with insmod ./test.ko ,
-> there would be an error,
->
-> insmod: error inserting './test.ko': -1 Unknown symbol in module
->
-> Could anyone tell me what is wrong here? Is that because of the no
-> prototype function declaration?
->
-
-Do `depmod -e test.ko` to see what it's complaining about. You
-can see all the symbols by using `nm`. Try it. Your code
-probably didn't define the necessary stuff to make a module.
-You need to look at a typical module (driver) that comes with the
-kernel. Just find one of the shortest ".c" files in the driver
-tree.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+Eric

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265442AbUBBMIS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 07:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbUBBMIS
+	id S265465AbUBBMYx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 07:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUBBMYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 07:08:18 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:20609 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265442AbUBBMIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 07:08:16 -0500
-Date: Mon, 2 Feb 2004 12:17:19 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402021217.i12CHJdP001539@81-2-122-30.bradfords.org.uk>
-To: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040202120120.GC570@DervishD>
-References: <20040202120120.GC570@DervishD>
-Subject: Re: Problem with IDE taskfile
+	Mon, 2 Feb 2004 07:24:53 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:6277 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265465AbUBBMYw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 07:24:52 -0500
+Date: Mon, 2 Feb 2004 13:25:10 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andries.Brouwer@cwi.nl
+Cc: aebr@win.tue.nl, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 input drivers FAQ
+Message-ID: <20040202122510.GA1265@ucw.cz>
+References: <UTC200402021134.i12BY0601230.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200402021134.i12BY0601230.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> <28>Feb  2 12:18:41 kernel: hdb: task_no_data_intr: status=3D0x51 { Dri=
-> veReady SeekComplete Error }
-> <28>Feb  2 12:18:41 kernel: hdb: task_no_data_intr: error=3D0x04 { Driv=
-> eStatusError }
-> <30>Feb  2 12:18:41 kernel: hdb: 8420832 sectors (4311 MB) w/512KiB Cac=
-> he, CHS=3D524/255/63, UDMA(33)
+On Mon, Feb 02, 2004 at 12:34:00PM +0100, Andries.Brouwer@cwi.nl wrote:
+
+> > Well, I think it's a bad idea to have the userspace tool know about the
+> > e0 thing at all. It should be just opaque numbers to it.
 > 
->     The problem is that message from function 'task_no_data_intr'.
-> What can be the problem?
+> But how is the user to invent these opaque numbers?
+> She uses showkey -s to see what scancodes a key produces,
+> and then setkeycodes to assign a keycode to them.
 
-The drive doesn't understand the command it was sent.
+That's another problem. showkey -s will show nothing if the keys don't
+work in 2.6, and nothing useful for setkeycodes usage if they do.
 
-> Should I worry about it?
+I'm planning to add a new event type to report the raw scancodes through
+the event interface, though I'm still yet not decided about how exactly
+to do it and whether to use this to do real raw mode instead of the
+simulated one where possible. I don't think the later is a good idea.
 
-No.
+> > I don't have a problem with swapping the set3 table, if setkeycodes
+> > works reasonably now for scancodes above 128.
+> 
+> Above 128, yes. Above 256, no.
+> The interface is a char - 8 bits only.
 
-> Is the drive
-> damaged?
+Even for scancodes? Well, in that case I'll have to keep the kludge as
+it is. Or have setkeycodes use EVIOCSKEYCODE.
 
-No.
+> (So, right now, NR_KEYS > 256 is not useful.)
 
->     I've tested with another hard disk from the same time (the same
-> model but 3GB) and the same messages appear. They doesn't appear with
-> a disk of 10GB, same brand, a bit newer than the other two. And
-> obviously, it doesn't happen with the 40GB disk which is my hda...
-
-Old drives don't support all of the commands that new drives do.  It's
-a diagnostic message.
-
-John.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

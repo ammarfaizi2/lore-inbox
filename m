@@ -1,86 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269027AbUHXAmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUHXAjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269027AbUHXAmU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 20:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUHXAkh
+	id S266892AbUHXAjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 20:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUHWThk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 20:40:37 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:32511 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S267516AbUHWTpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 15:45:09 -0400
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: "cramerj" <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
-       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>,
-       <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [broken?] Add MSI support to e1000
-X-Message-Flag: Warning: May contain useful information
-References: <C7AB9DA4D0B1F344BF2489FA165E50240619D9DA@orsmsx404.amr.corp.intel.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 23 Aug 2004 12:39:01 -0700
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50240619D9DA@orsmsx404.amr.corp.intel.com> (Tom
- L. Nguyen's message of "Mon, 23 Aug 2004 12:09:36 -0700")
-Message-ID: <521xhxve3u.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 23 Aug 2004 19:39:01.0670 (UTC) FILETIME=[D7577460:01C48948]
+	Mon, 23 Aug 2004 15:37:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:56003 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266892AbUHWSgc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:36:32 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1093286087164@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:47 -0700
+Message-Id: <10932860871097@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Tom> MSI is an edge trigger, which requires the synchronization
-    Tom> handshake between the hardware device and its software device
-    Tom> driver. For the MSI-X capability structure, the kernel
-    Tom> handles the synchronization by masking and unmasking the MSI
-    Tom> maskbits. For the MSI capability structure, the MSI maskbits
-    Tom> is optional. If the e1000 hardware does not support the MSI
-    Tom> maskbits in its MSI capability structure, I guess it could be
-    Tom> a race condition in e1000 hardware, which results an
-    Tom> unpredictable behavior.
+ChangeSet 1.1807.56.28, 2004/08/06 15:31:43-07:00, johnpol@2ka.mipt.ru
 
-It seems e1000 does not support the per-vector masking feature of MSI
-(see full PCI header dump below).
+[PATCH] w1: Netlink update - changed event generating/processing.
 
-However if I understand the x86 APIC properly, even without masking,
-edge-triggered MSI interrupts should work OK.  As I understand it,
-when the interrupt is dispatched, its bit is moved from the IRR to the
-ISR.  If the same interrupt is received while the interrupt handler is
-running, its bit will be set again in the IRR and it will be
-dispatched again as soon as the handler exits.
+Added following self-explanatory netlink events.
 
-It seems this should work OK for e1000 -- the chip should not generate
-another MSI until the driver reads the ICR in the interrupt handler,
-although it might generate an interrupt immediately afterward (while
-the interrupt handler is still running).
+        W1_SLAVE_ADD = 0,
+        W1_SLAVE_REMOVE,
+        W1_MASTER_ADD,
+        W1_MASTER_REMOVE,
 
-Am I misunderstanding something?  Or is there something in the
-chipset's interrupt handling, outside of the CPU, that will break in
-this case?
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Thanks,
-  Roland
 
-0000:02:0c.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Controller (rev 02)        Subsystem: Dell: Unknown device 0151
-        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 185
-        Memory at fcfe0000 (32-bit, non-prefetchable) [size=128K]
-        I/O ports at df40 [size=64]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
-00: 86 80 0e 10 17 01 30 02 02 00 00 02 10 40 00 00
-10: 00 00 fe fc 00 00 00 00 41 df 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 51 01
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 09 01 ff 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 e4 22 c8
-e0: 00 20 00 1b 07 f0 02 00 00 00 40 04 00 00 00 00
-f0: 05 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00
+ drivers/w1/w1.c         |   21 ++++++++++++---------
+ drivers/w1/w1_int.c     |   13 +++++++++++++
+ drivers/w1/w1_netlink.h |   15 ++++++++++++++-
+ 3 files changed, 39 insertions(+), 10 deletions(-)
+
+
+diff -Nru a/drivers/w1/w1.c b/drivers/w1/w1.c
+--- a/drivers/w1/w1.c	2004-08-23 11:03:57 -07:00
++++ b/drivers/w1/w1.c	2004-08-23 11:03:57 -07:00
+@@ -383,6 +383,7 @@
+ 	struct w1_slave *sl;
+ 	struct w1_family *f;
+ 	int err;
++	struct w1_netlink_msg msg;
+ 
+ 	sl = kmalloc(sizeof(struct w1_slave), GFP_KERNEL);
+ 	if (!sl) {
+@@ -427,11 +428,17 @@
+ 
+ 	dev->slave_count++;
+ 
++	msg.id.id = *rn;
++	msg.type = W1_SLAVE_ADD;
++	w1_netlink_send(dev, &msg);
++
+ 	return 0;
+ }
+ 
+ static void w1_slave_detach(struct w1_slave *sl)
+ {
++	struct w1_netlink_msg msg;
++	
+ 	dev_info(&sl->dev, "%s: detaching %s.\n", __func__, sl->name);
+ 
+ 	while (atomic_read(&sl->refcnt))
+@@ -441,6 +448,10 @@
+ 	device_remove_file(&sl->dev, &w1_slave_attribute);
+ 	device_unregister(&sl->dev);
+ 	w1_family_put(sl->family);
++
++	msg.id.id = sl->reg_num;
++	msg.type = W1_SLAVE_REMOVE;
++	w1_netlink_send(sl->master, &msg);
+ }
+ 
+ static void w1_search(struct w1_master *dev)
+@@ -452,12 +463,9 @@
+ 	struct list_head *ent;
+ 	struct w1_slave *sl;
+ 	int family_found = 0;
+-	struct w1_netlink_msg msg;
+ 
+ 	dev->attempts++;
+ 
+-	memset(&msg, 0, sizeof(msg));
+-
+ 	search_bit = id_bit = comp_bit = 0;
+ 	rn = tmp = last = 0;
+ 	last_device = last_zero = last_family_desc = 0;
+@@ -483,8 +491,6 @@
+ 		}
+ 
+ #if 1
+-		memset(&msg, 0, sizeof(msg));
+-
+ 		w1_write_8(dev, W1_SEARCH);
+ 		for (i = 0; i < 64; ++i) {
+ 			/*
+@@ -528,9 +534,6 @@
+ 
+ 		}
+ #endif
+-		msg.id.w1_id = rn;
+-		msg.val = w1_calc_crc8((u8 *) & rn, 7);
+-		w1_netlink_send(dev, &msg);
+ 
+ 		if (desc_bit == last_zero)
+ 			last_device = 1;
+@@ -558,7 +561,7 @@
+ 		}
+ 
+ 		if (slave_count == dev->slave_count &&
+-		    msg.val && (*((__u8 *) & msg.val) == msg.id.id.crc)) {
++		    ((rn >> 56) & 0xff) == w1_calc_crc8((u8 *)&rn, 7)) {
+ 			w1_attach_slave_device(dev, (struct w1_reg_num *) &rn);
+ 		}
+ 	}
+diff -Nru a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
+--- a/drivers/w1/w1_int.c	2004-08-23 11:03:57 -07:00
++++ b/drivers/w1/w1_int.c	2004-08-23 11:03:57 -07:00
+@@ -24,6 +24,7 @@
+ 
+ #include "w1.h"
+ #include "w1_log.h"
++#include "w1_netlink.h"
+ 
+ static u32 w1_ids = 1;
+ 
+@@ -118,6 +119,7 @@
+ {
+ 	struct w1_master *dev;
+ 	int retval = 0;
++	struct w1_netlink_msg msg;
+ 
+ 	dev = w1_alloc_dev(w1_ids++, w1_max_slave_count, &w1_driver, &w1_device);
+ 	if (!dev)
+@@ -144,6 +146,11 @@
+ 	list_add(&dev->w1_master_entry, &w1_masters);
+ 	spin_unlock(&w1_mlock);
+ 
++	msg.id.mst.id = dev->id;
++	msg.id.mst.pid = dev->kpid;
++	msg.type = W1_MASTER_ADD;
++	w1_netlink_send(dev, &msg);
++
+ 	return 0;
+ 
+ err_out_kill_thread:
+@@ -163,6 +170,7 @@
+ void __w1_remove_master_device(struct w1_master *dev)
+ {
+ 	int err;
++	struct w1_netlink_msg msg;
+ 
+ 	dev->need_exit = 1;
+ 	err = kill_proc(dev->kpid, SIGTERM, 1);
+@@ -173,6 +181,11 @@
+ 
+ 	while (atomic_read(&dev->refcnt))
+ 		schedule_timeout(10);
++
++	msg.id.mst.id = dev->id;
++	msg.id.mst.pid = dev->kpid;
++	msg.type = W1_MASTER_REMOVE;
++	w1_netlink_send(dev, &msg);
+ 
+ 	w1_free_dev(dev);
+ }
+diff -Nru a/drivers/w1/w1_netlink.h b/drivers/w1/w1_netlink.h
+--- a/drivers/w1/w1_netlink.h	2004-08-23 11:03:57 -07:00
++++ b/drivers/w1/w1_netlink.h	2004-08-23 11:03:57 -07:00
+@@ -26,14 +26,27 @@
+ 
+ #include "w1.h"
+ 
++enum w1_netlink_message_types {
++	W1_SLAVE_ADD = 0,
++	W1_SLAVE_REMOVE,
++	W1_MASTER_ADD,
++	W1_MASTER_REMOVE,
++};
++
+ struct w1_netlink_msg 
+ {
++	__u8				type;
++	__u8				reserved[3];
+ 	union
+ 	{
+ 		struct w1_reg_num 	id;
+ 		__u64			w1_id;
++		struct
++		{
++			__u32		id;
++			__u32		pid;
++		} mst;
+ 	} id;
+-	__u64				val;
+ };
+ 
+ #ifdef __KERNEL__
+

@@ -1,34 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSLVKIw>; Sun, 22 Dec 2002 05:08:52 -0500
+	id <S264903AbSLVKQJ>; Sun, 22 Dec 2002 05:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbSLVKIw>; Sun, 22 Dec 2002 05:08:52 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:20353 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264919AbSLVKIw>;
-	Sun, 22 Dec 2002 05:08:52 -0500
-Date: Sun, 22 Dec 2002 11:23:08 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Ulrich Drepper <drepper@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212211858240.8783-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212221114490.31068-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264925AbSLVKQJ>; Sun, 22 Dec 2002 05:16:09 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:6795 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S264903AbSLVKQI>; Sun, 22 Dec 2002 05:16:08 -0500
+Date: Sun, 22 Dec 2002 11:22:08 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: [PATCH 2.5] cpufreq: deprecated use of CPUFREQ_ALL_CPUS (ACPI)
+Message-ID: <20021222102208.GB3222@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+CPUFREQ_ALL_CPUS isn't a valid argument for the cpufreq_driver->setpolicy
+call - so some code paths can be removed.
 
-while reviewing the sysenter trampoline code i started wondering about the
-HT case. Dont HT boxes share the MSRs between logical CPUs? This pretty
-much breaks the concept of per-logical-CPU sysenter trampolines. It also
-makes context-switch time sysenter MSR writing impossible, so i really
-hope this is not the case.
+	Dominik
 
-	Ingo
-
-
-
-
+diff -ruN linux-original/drivers/acpi/processor.c linux/drivers/acpi/processor.c
+--- linux-original/drivers/acpi/processor.c	2002-12-21 14:53:47.000000000 +0100
++++ linux/drivers/acpi/processor.c	2002-12-22 11:01:51.000000000 +0100
+@@ -1670,23 +1670,10 @@
+ 		return_VALUE(-EINVAL);
+ 
+ 	/* get a present, initialized CPU */
+-	if (policy->cpu == CPUFREQ_ALL_CPUS)
+-	{
+-		for (i=0; i<NR_CPUS; i++) {
+-			if (processors[i] != NULL) {
+-				cpu = i;
+-				pr = processors[cpu];
+-				break;
+-			}
+-		}
+-	}
+-	else
+-	{
+-		cpu = policy->cpu;
+-		pr = processors[cpu];
+-		if (!pr)
+-			return_VALUE(-EINVAL);
+-	}
++	cpu = policy->cpu;
++	pr = processors[cpu];
++	if (!pr)
++		return_VALUE(-EINVAL);
+ 
+ 	/* select appropriate P-State */
+ 	if (policy->policy == CPUFREQ_POLICY_POWERSAVE)
+@@ -1715,19 +1702,9 @@
+ 	}
+ 
+ 	/* set one or all CPUs to the new state */
+-	if (policy->cpu == CPUFREQ_ALL_CPUS) {
+-		for (i=0; i<NR_CPUS; i++)
+-		{
+-			pr = processors[cpu];
+-			if (!pr || !cpu_online(cpu))
+-				continue;
+-			result = acpi_processor_set_performance (pr, next_state);
+-		}
+-	} else {
+-		result = acpi_processor_set_performance (pr, next_state);
+-	}
++	result = acpi_processor_set_performance (pr, next_state);
+ 
+-	return_VALUE(0);
++	return_VALUE(result);
+ }
+ 
+ 
+@@ -1747,23 +1724,10 @@
+ 		return_VALUE(-EINVAL);
+ 
+ 	/* get a present, initialized CPU */
+-	if (policy->cpu == CPUFREQ_ALL_CPUS)
+-	{
+-		for (i=0; i<NR_CPUS; i++) {
+-			if (processors[i] != NULL) {
+-				cpu = i;
+-				pr = processors[cpu];
+-				break;
+-			}
+-		}
+-	}
+-	else
+-	{
+-		cpu = policy->cpu;
+-		pr = processors[cpu];
+-		if (!pr)
+-			return_VALUE(-EINVAL);
+-	}
++	cpu = policy->cpu;
++	pr = processors[cpu];
++	if (!pr)
++		return_VALUE(-EINVAL);
+ 
+ 	/* first check if min and max are within valid limits */
+ 	cpufreq_verify_within_limits(

@@ -1,100 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264405AbRFHXx3>; Fri, 8 Jun 2001 19:53:29 -0400
+	id <S264320AbRFHXxJ>; Fri, 8 Jun 2001 19:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264408AbRFHXxU>; Fri, 8 Jun 2001 19:53:20 -0400
-Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:58869 "EHLO
-	jcwren.com") by vger.kernel.org with ESMTP id <S264405AbRFHXxP>;
-	Fri, 8 Jun 2001 19:53:15 -0400
-Reply-To: <jcwren@jcwren.com>
-From: "John Chris Wren" <jcwren@jcwren.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: temperature standard - global config option?
-Date: Fri, 8 Jun 2001 19:53:06 -0400
-Message-ID: <NDBBKBJHGFJMEMHPOPEGMEOOCIAA.jcwren@jcwren.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010608191600.A12143@alcove.wittsend.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+	id <S264405AbRFHXw7>; Fri, 8 Jun 2001 19:52:59 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:40086 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S264320AbRFHXwv>; Fri, 8 Jun 2001 19:52:51 -0400
+Date: Fri, 8 Jun 2001 19:50:50 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Leif Sawyer <lsawyer@gci.com>
+Cc: "L. K." <lk@Aniela.EU.ORG>, linux-kernel@vger.kernel.org
+Subject: Re: temperature standard - global config option?
+Message-ID: <20010608195050.A13136@alcove.wittsend.com>
+Mail-Followup-To: Leif Sawyer <lsawyer@gci.com>, "L. K." <lk@Aniela.EU.ORG>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA315053E0AFB@berkeley.gci.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA315053E0AFB@berkeley.gci.com>; from lsawyer@gci.com on Fri, Jun 08, 2001 at 01:33:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Snip] (Mike writes a bunch a good stuff)
+On Fri, Jun 08, 2001 at 01:33:44PM -0800, Leif Sawyer wrote:
+> > From: L. K. [mailto:lk@Aniela.EU.ORG]
+> > I really do not belive that for a CPU or a motherboard +- 1 
+> > degree would make any difference.
 
-> 	Yes, bits are free, sort of...  That's why an extra decimal
-> place is "ok".  Keeping precision within an order of magnitude of
-> accuracy is within the realm of reasonable.  Running out to two decimal
-> places for this particular application is just silly.  If it were for
-> calibrated lab equipment, fine.  But not for CPU temperatures.
->
-> 	Yes, APIs are difficult to change.  But can you honestly say
-> that, even if we magically get off the shelf economical
-> temperature sensors
-> that are two orders of magnitude more accurate (without need of constant
-> tracible recalibration - these things DO drift), that this level of
-> precision would have any real meaning at all?  I would expect the
-> CPU temperature to vary by a few hundreths of a degree just by how
-> many people were sweating in the cube next to me.
->
-[snip]
->
-> 	Now...  That I can agree with and it would make absolute sense.
-> Especially if we were discussing lab grade or scientific grade measure
-> equipment and measurements.  In fact, that would be a requirement for
-> any validity to be attached to measurements of that level of precision.
-> But that's not what we are talking about here, is it?  We're not talking
-> about a lab grade instrumentation API here, are we?  If we are, then
-> everything changes.
->
-> 	Mike
+> You haven't pushed your system, or run it in a hostile
+> environment then.  There are many places where systems are run
+> right up to the edge of thermal breakdown, and it's a firm
+> requirement to know exactly what that edge is.
 
-As someone who has been intimately involved in temperature measurement of
-electronics, Mike has pretty much thoroughly addressed the issue.  Allow me
-to add this:  You can go buy 12 "calibrated" temperature sensors
-(commercial, not lab quality), and you will get 12 different temperatures.
 
-When sampling the sensor (usually a thermocouple) in a motherboard, you have
-at best 1% resistors being used in the surrounding support components,
-+20%/-10% capacitors, A/Ds with +-1 LSB resolution, and worst of all, a
-coupling to the CPU that is about as bad as it can get.  You've got an epoxy
-housing of an inconsistent shape in contact with ceramic.  The actual
-contact point is miniscule.  There's no thermal paste, and often, I've seen
-the sensors not quite raised high enough to contact the chip (you should be
-able to rack a business card across the empty socket and feel a slight
-"bump" as you touch the sensor.  If not, you need to bend it up slightly, to
-give better physical contact to the CPU).
+> > If a CPU runs fine at, say, 37 degrees C, I do not belive it 
+> > will have any problems running at 38 or 36 degrees. I support
+> > the ideea of having very good sensors for temperature
+> > monitoring, but CPU and motherboard temperature do not depend
+> > on the rise of the temperature of 1 degree, but when the
+> > temperature rises 10 or more degrees. I hope you understand
+> > what I want to say.
 
-But in spite of all this, you're not really measure the critical
-temperature, which is junction tempature.  Yes, case tempature has *some*
-correlation, but it's not ratiometric.  It can be affected by the mounting
-of the motherboard (believe it or not, you can see over 1C different in
-temperature between a vertical and horizontally mounted motherboard just
-because of convection out from under the socket.
+> I have a CPU that runs great up to 43C, and shuts down hard at 44C
+> so I obviously want to know how close I am to that.  I don't want
+> rounding errors to get in the way, and I don't want changes
+> between kernel revs to affect it either.
 
-Yea, we would all love to truly know the CPU tempature down to a fraction of
-a degree.  But it's useless information.  Kinda of like knowing your fan
-speed to less than 100 RPM.  Voltages fluctuations of .1 volts can cause a
-100+ RPM change in the fan speed.  All you really need to know that it's
-turning a lot less than when it first was.  But I digress.
+	If the rounding errors are less than the accuracy and the
+reproducibility of your sensor, and you operate in that range and
+depend on those values, then you have no clue where you are, no
+matter what your granularity.  You sound like the classic example
+of why we should NOT do this.  You are foolish enough to depend on
+that precision and think that it's accuracy and think that it means
+something in comparision to the identical measurement 15 minutes later.
+It does not.
 
-Temperature measurement is an art.  It requires having good sensors, good
-conversion electronics, and good mechanical coupling (if you really doubt
-this, look at the networks required to properly compensate any standard JK
-thermocouple).  On top of ALL this mess, you have values being passed back
-from the hardware that are improperly converted.  Ever wonder why the  BIOS
-never exactly matches what you see from the 'sensors' program?  It's because
-the adjustment factors in the config file are a best guess.
+> If we've got the bitspace, keep the counters as granular as
+> possible within the useable range that we're designing for.
 
-For the record, in the course of a normal day, I see my temperatures
-fluctuate from 48C with the house A/C set to 73, to 56C when I open the
-doors, and let it get up to 76 in the house.  That's 8C (14.4F) over a 3F
-change in ambient.
+> counter = .01 * degrees kelvin
 
---John
+	Then you are being foolish.
+
+	Your sensors are neither accurate to that degree nor are they
+reproducible to that degree.  What you are describing is jibberish.
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 

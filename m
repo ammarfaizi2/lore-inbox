@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264096AbUDOOZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 10:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbUDOOZZ
+	id S264164AbUDOOdX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 10:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbUDOOdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 10:25:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54913 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264114AbUDOOZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 10:25:12 -0400
-Date: Thu, 15 Apr 2004 07:19:58 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: bgerst@didntduck.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] more i386 head.S cleanups
-Message-Id: <20040415071958.27dbdd59.rddunlap@osdl.org>
-In-Reply-To: <407E98BB.5070502@greatcn.org>
-References: <406ECAE7.1020407@quark.didntduck.org>
-	<407E98BB.5070502@greatcn.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 15 Apr 2004 10:33:23 -0400
+Received: from tench.street-vision.com ([212.18.235.100]:42679 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S262022AbUDOOdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 10:33:21 -0400
+Subject: Re: poor sata performance on 2.6
+From: Justin Cormack <justin@street-vision.com>
+To: kos@supportwizard.com
+Cc: Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <200404151826.54488.kos@supportwizard.com>
+References: <200404150236.05894.kos@supportwizard.com>
+	 <200404151734.03786.kos@supportwizard.com>
+	 <1082037632.19567.72.camel@lotte.street-vision.com>
+	 <200404151826.54488.kos@supportwizard.com>
+Content-Type: text/plain
+Message-Id: <1082039593.19568.75.camel@lotte.street-vision.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Apr 2004 15:33:13 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Apr 2004 22:14:19 +0800 Coywolf Qi Hunt wrote:
+On Thu, 2004-04-15 at 15:26, Konstantin Sobolev wrote:
+> On Thursday 15 April 2004 18:00, Justin Cormack wrote:
+> > hmm, odd. I get 50MB/s or so from normal (7200, 8MB cache) WD disks, and
+> > Seagate from the same controller. Can you send lspci, /proc/interrupts
+> > and dmesg...
+> 
+> Attached are files for 2.6.5-mm5 with highmem, ACPI and APIC turned off.
 
-| Brian Gerst wrote:
-| 
-| > - Move empty_zero_page and swapper_pg_dir to BSS.  This requires that 
-| > BSS is cleared earlier, but reclaims over 3k that was lost due to page 
-| > alignment.
-| > - Move stack_start, ready, and int_msg, boot_gdt_descr, idt_descr, and 
-| > cpu_gdt_descr to .data.  They were interfering with disassembly while in 
-| > .text.
-| > 
-| 
-| Interesting, two years ago in 2002, you sent a patch basically of the
-| same idea.
-| 
-| http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.0/0850.html
+ah. Make a filesystem on it and mount it and try again. I see you have
+no partition table and so probably no filesystem. This means the block
+size is set to default 512byte not 4k which makes disk operations slow.
+Any filesystem should default to block size of 4k, eg ext2.
 
-and your point is??
+Justin
 
---
-~Randy
+

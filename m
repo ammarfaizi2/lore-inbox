@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUCXCrT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 21:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUCXCrT
+	id S262981AbUCXCuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 21:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbUCXCuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 21:47:19 -0500
-Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:5702
-	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S262983AbUCXCrP (ORCPT
+	Tue, 23 Mar 2004 21:50:05 -0500
+Received: from main.gmane.org ([80.91.224.249]:28037 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262981AbUCXCt6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 21:47:15 -0500
-From: "Shawn Starr" <shawn.starr@rogers.com>
-To: "'Kai Makisara'" <Kai.Makisara@kolumbus.fi>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PANIC][2.6.5-rc2-bk1] st_probe - Detection of a SCSI tape drive (HP Colorado T4000s) - Dump included now - Resolved
-Date: Tue, 23 Mar 2004 21:50:43 -0500
-Message-ID: <000001c4114a$cd3bb1b0$030aa8c0@PANIC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.58.0403222004170.1092@kai.makisara.local>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep01-mail.bloor.is.net.cable.rogers.com from [67.60.40.239] using ID <shawn.starr@rogers.com> at Tue, 23 Mar 2004 21:46:36 -0500
+	Tue, 23 Mar 2004 21:49:58 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: missing files in bk trees?
+Date: Tue, 23 Mar 2004 18:50:16 -0800
+Message-ID: <pan.2004.03.24.02.50.16.373654@triplehelix.org>
+References: <Pine.LNX.4.58.0403232140160.7713@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-186-145.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I can confirm this is fixed in -bk2,-bk3
+On Tue, 23 Mar 2004 21:41:46 -0500, ameer armaly wrote:
+> Hi all.
+> I got the latest kernel tree from linux.bkbits.net, and I try to make
+> config, and it complains about a missing zconf.tab.h.  However, it has
+> decrypted the other sccs files, but for some oodd reason it can't find
+> this particular one.  Suggestions would be appriciated.
+> Thanks,
 
------Original Message-----
-From: Kai Makisara [mailto:Kai.Makisara@kolumbus.fi] 
-Sent: Monday, March 22, 2004 01:05 PM
-To: Shawn Starr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PANIC][2.6.5-rc2-bk1] st_probe - Detection of a SCSI tape
-drive (HP Colorado T4000s) - Dump included now
-
-
-On Sun, 21 Mar 2004, Shawn Starr wrote:
-
-> Here is the captured dump, the st driver appears to be broken:
-> 
-Please try 2.6.5-rc2-bk2, it includes a change that should fix this.
+you need to do 'bk -r get' in the root of your checkout
 
 -- 
-Kai
+Joshua Kwan
+
 

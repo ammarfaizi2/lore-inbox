@@ -1,99 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266384AbSKGGj3>; Thu, 7 Nov 2002 01:39:29 -0500
+	id <S266391AbSKGGrv>; Thu, 7 Nov 2002 01:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266385AbSKGGj3>; Thu, 7 Nov 2002 01:39:29 -0500
-Received: from thunk.org ([140.239.227.29]:19107 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S266384AbSKGGj2>;
-	Thu, 7 Nov 2002 01:39:28 -0500
-Date: Thu, 7 Nov 2002 01:46:05 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Miles Lane <miles.lane@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EXT2 corruption -- After running 2.5.46, my root partition cannot be mounted by older kernels
-Message-ID: <20021107064605.GA12519@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Miles Lane <miles.lane@attbi.com>, linux-kernel@vger.kernel.org
-References: <3DC9D145.6040109@attbi.com> <20021107041325.GB11010@think.thunk.org> <3DCA086E.8000802@attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266392AbSKGGrv>; Thu, 7 Nov 2002 01:47:51 -0500
+Received: from 205-158-62-92.outblaze.com ([205.158.62.92]:19914 "HELO
+	ws3-2.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S266391AbSKGGrs>; Thu, 7 Nov 2002 01:47:48 -0500
+Message-ID: <20021107065421.20283.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
-In-Reply-To: <3DCA086E.8000802@attbi.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 07 Nov 2002 01:54:21 -0500
+Subject: Re: [2.4.19] read(2) and page aligned buffers
+X-Originating-Ip: 172.173.167.54
+X-Originating-Server: ws3-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 10:30:06PM -0800, Miles Lane wrote:
-> I do also have initrd support compiled into the kernel:
-> 
-> # Block devices
-> #
-> ...
-> CONFIG_BLK_DEV_RAM=y
-> CONFIG_BLK_DEV_RAM_SIZE=4096
-> CONFIG_BLK_DEV_INITRD=y
-> 
-> I added this because I have been basing my latest kernel configs
-> off if the default Redhat 8.0 configuration.  Hmm.  
+(It's not an alignment issue. Still broken read()ing whole file
+into page-aligned malloc() buffers and MAP_PRIVATE|MAP_ANONYMOUS mmap()
+buffers, while not broken mmap()ing the file directly.)
 
-... and you no doubt are compiling ext3 as a module.  Don't do that,
-or make sure your initrd image includes the ext3.o module.
+Ok, bizarrely enough (or not), I couldn't reproduce it with a
+test program that isolates the functions that return error
+in my program in a program of their own that just reads a
+dir, open()s files, malloc()s space, read()s the file into the space,
+free()s the buffer, and close()s the file. I even incorporated
+the sha1 checksum functions from textutils that I use in the actual
+program seeing the error into the test program and ran the buffers
+through them, still without reproducing the error. I used one of the dirs
+where I actually see the errors with malloc() + read() that I originally
+reported.
 
-> I have, indeed, compiled my 2.5.46 kernel with ACL support.
-> Mea culpa for not studying the effect on the filesystem 
-> before testing this new code.  I usually try to do compile 
-> testing on a lot of options, whether or not I exercize the 
-> code.  I didn't realise that ACL support would modify the 
-> filesystem whether or not I applied ACLs to a particular file.
-> Or is that what has happened?
+But the test program isn't significantly different from the would-be
+production code that sees the error. I've posted it below in case
+it is informative.
 
-No, it has nothing to do with ACL support.
+(preliminaries: the file size is ok, it's an lstat() st_size that
+ mmap(...MAP_SHARED...) has no issues with. The open() in the
+ caller of gethash() is merely 
 
-Look at your dumpe2fs output:
+     fd = open(fdata->name, O_RDONLY);
+     if (fd >= 0) {
 
-> >>dumpe2fs -h /dev/hda12
-> dumpe2fs 1.27 (8-Mar-2002)
-> Filesystem volume name:   /
-> Last mounted on:          <not available>
-> Filesystem UUID:          0a3ccf38-e09c-4ce8-af56-4c086b7adce4
-> Filesystem magic number:  0xEF53
-> Filesystem revision #:    1 (dynamic)
-> Filesystem features:      has_journal filetype needs_recovery sparse_super
-                                                 ^^^^^^^^^^^^^^
+followed by an fcntl() read lock, etc. Eventually it gets down to
 
-There are no ACL or extended attribute features listed in the
-dumpe2fs's output.  The only feature which would give ext2 filesystems
-heartburn is the needs_recovery feature.  This means either (a) the
-filesystem was mounted (using the ext3 filesystem) when you ran
-dumpe2fs, or (b) the filesystem was mounted using ext3, but the system
-wasn't cleanly shutdown.
+     if (gethash(fd, fdata->size, fdata->name,
+		 REC_CHKSUM(*current)) == NULL) {
+       return -1;
+     }
 
-This needs_recovery feature is set when the filesystem is mounted as
-ext3, and indicates that there may be commited metadata blocks in the
-journal which must be copied to their final place on disk before the
-filesystem canbe considered consistent.  This feature will stop ext2
-filesystems from mounting the filesystem (since the ext2 filesystem
-code will check the feature flags, and will stop because it doesn't
-understand the needs_revoery flag).
+Here is gethash(), the version that sees the error from read():
 
-> >(1) tends to be the most likely cause, given the confused users who
-> >ask these sorts of questions on th ext3-users mailing list.  As a
-> >result, I've developed a very strong distaste for initrd, and
-> >generally strongly encourage people to compile ext3 and whatever
-> >device drivers you require into the kernel, and to not try to use
-> >initrd.  initrd turns out to be a confusing stumbling block for far
-> >too many users.
+/*****
+ * gethash():
+ *
+ * args: const int fd            open file descriptor for file to checksum
+ *       const off_t len         length of file
+ *       const char * pathname   for error reporting
+ *       void * outsum           where to put checksum
+ *
+ * returns:  void * (outsum) or NULL
+ *
+ * Notes: Takes a file and size as args, and returns the address of
+ *        outsum with the checksum in the first sizeof(checksum)
+ *        bytes (outsum can point to the tail of an f_rec or to some
+ *        other buffer with sufficient space). sizeof(checksum)
+ *        is 20 bytes for sha1 checksums.
+ *
+ *        Calls sha1 code lifted from gnu sha.c in gnu textutils-2.0.21.
+ *****/
 
-And yup, once again, the confusing initrd feature strikes **again**.
+/* assume that the appropriate #includes are up here */
 
-The problem is that your initrd image doesn't include the ext3 module,
-and so when you boot your system, the initrd scripts try to mount your
-filesystem as ext2, but because it wasn't cleanly shutdown, there the
-ext2 filesystem code complains because the needs_recovery feature flag
-is set.
+void * gethash(const int, const off_t, const char *, void *);
 
-Just recompile your 2.4 kernel with ext3 and all device drivers needed
-to mount your root filesystem compiled into the kernel, and abandon
-using initrd altogether, and you will be a much happier camper.
+/* extern prototypes; see headers */
 
-						- Ted
+void * gethash(const int fd, const off_t len, const char * pathname,
+	       void * outsum)
+{
+  const char * funcname = "gethash()";
+  struct sha_ctx bchk_ctx;
+  void * filebuf;
+
+#ifndef NDEBUG
+  if (!len || !pathname || !outsum) {
+    bchk_err(funcname, nullarg);
+    return NULL;
+  }
+#endif
+
+  sha_init_ctx(&bchk_ctx);
+
+  filebuf = xmalloc((size_t) len);
+  if (!filebuf) {
+    return NULL;
+  }
+
+  if (wrap_read(fd, filebuf, (size_t) len) != (ssize_t) len) {
+    rpt_syserr(funcname, read_err, pathname, NULL);
+    return NULL;
+  }
+
+  /* (from the version that works fine)
+  filebuf = wrap_mmap((size_t) len, PROT_READ, (int) fd);
+  if (filebuf == NULL) {
+    rpt_syserr(funcname, mmap_err, pathname, NULL);
+    return NULL;
+  }
+  */
+
+  /* sha_process_bytes() does its own % 64 check and calls
+     sha_process_block() internally to process chunks that are
+     a multiple of 64 bytes before handling any remainder < 64 */
+
+  sha_process_bytes(filebuf, (size_t) len, &bchk_ctx);
+  (void) sha_finish_ctx(&bchk_ctx, outsum);
+  free(filebuf);
+  /*  (void) munmap(filebuf, (size_t) len); */
+
+  return outsum;
+}
+
+Here is wrap_read() (assume that the appropriate #includes are there):
+
+/* read() wrapper with incremental retry on interrupt */
+
+ssize_t wrap_read(int fd, void * buf, size_t count)
+{
+  ssize_t retval;
+  ssize_t tmpret;
+
+#ifndef NDEBUG
+  const char * funcname = "wrap_read()";
+  if (!buf || !count || fd < 0) {
+    bchk_err(funcname, nullarg);
+    return -1;
+  }
+#endif
+
+  retval = 0;
+  errno = 0;
+  do {
+    tmpret = read(fd, ((char *) buf + retval), count - retval);
+    if (tmpret + retval == (ssize_t) count) {
+      return (ssize_t) count;
+    }
+    else {
+      switch (tmpret) {
+      case -1:
+	switch(errno) {
+	case EINTR:
+	case EAGAIN:
+	  break;
+
+	default:  /* real error */
+	  return retval;
+	  break;
+	}
+	break;
+
+      case 0:
+	return retval;
+	break;
+
+      default: /* partial read */
+	switch(errno) {
+	case EINTR:    /* interrupted by signal */
+	case EAGAIN:   /* O_NONBLOCK ? */
+	  retval += tmpret;
+	  break;
+
+	default:  /* real error */
+	  return (tmpret + retval);
+	  break;
+	}
+	break;
+      }
+    }
+  } while (retval < count);
+
+  return retval;
+}
+
+And that's bloody it.
+
+?
+
+(I thought, "stack", but what's downstream? 2 sha1 calls that
+don't seem to do anything evil in the test program that attempted
+to isolate the error and free(). Doesn't add up.)
+
+Regards,
+
+Clayton Weaver
+<mailto: cgweav@email.com>
+
+
+-- 
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Single & ready to mingle? lavalife.com:  Where singles click. Free to Search!
+http://www.lavalife.com/mailcom.epl?a=2116
+

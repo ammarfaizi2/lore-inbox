@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbTH0PzB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTH0PzA
+	id S263526AbTH0Pxr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTH0Pxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:55:00 -0400
-Received: from webmail2.vsnl.net ([203.197.12.44]:62428 "EHLO bom6.vsnl.net.in")
-	by vger.kernel.org with ESMTP id S263343AbTH0PyJ (ORCPT
+	Wed, 27 Aug 2003 11:53:46 -0400
+Received: from webmail2.vsnl.net ([203.197.12.44]:39900 "EHLO bom6.vsnl.net.in")
+	by vger.kernel.org with ESMTP id S263526AbTH0Pxn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:54:09 -0400
-Date: Wed, 27 Aug 2003 21:25:56 -0500 (GMT)
-Message-Id: <200308280225.h7S2PuM26198@webmail2.vsnl.net>
+	Wed, 27 Aug 2003 11:53:43 -0400
+Date: Wed, 27 Aug 2003 21:25:23 -0500 (GMT)
+Message-Id: <200308280225.h7S2PNa26057@webmail2.vsnl.net>
 Content-Type: text/plain
 Content-Disposition: inline
 Content-Transfer-Encoding: binary
@@ -18,7 +18,6 @@ MIME-Version: 1.0
 X-Mailer: MIME-tools 5.411 (Entity 5.404)
 From: warudkar@vsnl.net
 To: kernel@kolivas.org, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: RE:2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
 X-Mailer: VSNL, Web based email
 X-Sender-Ip: 203.197.141.34
 Cc: Andrew Morton <akpm@osdl.org>

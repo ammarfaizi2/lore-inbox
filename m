@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbUBDQz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 11:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUBDQz1
+	id S262652AbUBDQzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 11:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUBDQzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 11:55:27 -0500
-Received: from www.piratehaven.org ([204.253.162.40]:29123 "EHLO
-	skull.piratehaven.org") by vger.kernel.org with ESMTP
-	id S262687AbUBDQzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 11:55:22 -0500
-Date: Wed, 4 Feb 2004 08:55:21 -0800
-From: Dale Harris <rodmur@maybe.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
-Message-ID: <20040204165521.GG27523@maybe.org>
-Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org> <9cf4qu6nbw5.fsf@rogue.ncsl.nist.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9cf4qu6nbw5.fsf@rogue.ncsl.nist.gov>
-User-Agent: Mutt/1.4i
+	Wed, 4 Feb 2004 11:55:25 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:11951 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262652AbUBDQzU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 11:55:20 -0500
+Date: Wed, 4 Feb 2004 14:46:01 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 15/42]
+In-Reply-To: <20040202194631.GO6785@dreamland.darkstar.lan>
+Message-ID: <Pine.LNX.4.58L.0402041445480.1324@logos.cnet>
+References: <20040130204956.GA21643@dreamland.darkstar.lan>
+ <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
+ <20040202194631.GO6785@dreamland.darkstar.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 09:43:22AM -0500, Ian Soboroff elucidated:
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > I just pushed out the BK trees, and the tar-ball/patches are going out as
-> > I write this, for Linux 2.6.2. The honor of naming it goes to Gernot
-> > Heiser, for reasons that are largely alcoholic, I suspect. Good job!
-> 
-> For the benefit of those of you who, like me, didn't know what a
-> dunnart is, from http://library.thinkquest.org/28994/dunnart.html:
-> 
 
 
-So is this going to be a new mascot for Linux?  Is favor turning to
-Dunnarts rather than Penguins?  ;-)
+On Mon, 2 Feb 2004, Kronos wrote:
+
+>
+> ../fdomain.c:565: warning: `fdomain_setup' defined but not used
+>
+> fdomain_setup isn't used when the driver is modular.
+>
+> diff -Nru -X dontdiff linux-2.4-vanilla/drivers/scsi/fdomain.c linux-2.4/drivers/scsi/fdomain.c
+> --- linux-2.4-vanilla/drivers/scsi/fdomain.c	Sat Jan 31 15:54:42 2004
+> +++ linux-2.4/drivers/scsi/fdomain.c	Sat Jan 31 17:21:13 2004
+> @@ -561,6 +561,7 @@
+>     printk( "\n" );
+>  }
+>
+> +#ifndef MODULE
+>  static int __init fdomain_setup( char *str )
+>  {
+>  	int ints[4];
+> @@ -584,6 +585,7 @@
+>  }
+>
+>  __setup("fdomain=", fdomain_setup);
+> +#endif
+>
+>
+>  static void do_pause( unsigned amount )	/* Pause for amount*10 milliseconds */
+
+What?
+
+from fdomain.c:
+
+#ifdef MODULE
+        if (fdomain)
+                fdomain_setup(fdomain);
+#endif
 
 
---
-Dale Harris   
-rodmur@maybe.org
-/.-)

@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTFKJt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 05:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTFKJt4
+	id S264292AbTFKJ5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 05:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTFKJ5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 05:49:56 -0400
-Received: from quechua.inka.de ([193.197.184.2]:4240 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264281AbTFKJtz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 05:49:55 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cachefs on linux
-In-Reply-To: <200306101515.53464.rob@landley.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19Q2S2-0001J0-00@calista.inka.de>
-Date: Wed, 11 Jun 2003 12:03:30 +0200
+	Wed, 11 Jun 2003 05:57:38 -0400
+Received: from catv-50622120.szolcatv.broadband.hu ([80.98.33.32]:31428 "EHLO
+	catv-50622120.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S264292AbTFKJ5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 05:57:37 -0400
+Message-ID: <3EE70045.8000609@externet.hu>
+Date: Wed, 11 Jun 2003 12:11:17 +0200
+From: Boszormenyi Zoltan <zboszor@externet.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, hu
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Cyrix ARR problem in split MTRR code
+Content-Type: multipart/mixed;
+ boundary="------------000300070500000403050802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200306101515.53464.rob@landley.net> you wrote:
-> On Tuesday 10 June 2003 04:29, Sean Hunter wrote:
-...
->> Its particularly handy for fast read-only NFS stuff.  We have thousands
->> of linux hosts and distributing software to all of them is a pain.  With
->> cachefs with NFS as the "back" filesystem, you push to the masters and
->> the clients get the changes over NFS and then store them in their local
->> cache so your software distribution nightmare becomes no problem at all.
+This is a multi-part message in MIME format.
+--------------000300070500000403050802
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 
-This is not a good idea, unless you have a transactional semantic for the
-fetches from the backend. Otherwise you have a mixture of old and new files.
+Hi,
 
->> Clients read off the local disk if they can, but fetch over NFS as
->> required.  You can tune the cache size on all of the client machines so
->> they can cache more or less of the most recently used NFS junk on its
->> local disk.
+I noticed a problem in the split MTRR code that is special casing
+ARR #3 on Cyrix 6x86(MX) / MII CPUs. I wrote the code for the
+original (monolithic) mtrr.c, but I don't have my old Cyrix 6x86MX
+mainboard anymore. The problem is obvious though, one liner fix is
+attached.  Patrick Mochel should have been more careful. :-)
 
-This is btw exactly what CODA and AFS does best.
+Best regards,
+Zoltán Böszörményi
 
-> Technically cachefs is just a union mount with tmpfs or ramfs as the overlay 
-> on the underlying filesystem.  Doing a seperate cachefs is kind of pointless 
-> in Linux.
 
-I think it is a bit different, since the cache is on disk and can be larger.
-If you want to put that in swap space, you may quickly exceed some VM
-limits. So there is a difference.
+--------------000300070500000403050802
+Content-Type: text/plain;
+ name="mtrr.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mtrr.diff"
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+--- arch/i386/kernel/cpu/mtrr/main.c.old	2003-06-11 11:09:43.000000000 +0200
++++ arch/i386/kernel/cpu/mtrr/main.c	2003-06-11 12:03:48.000000000 +0200
+@@ -64,7 +64,7 @@
+ static void set_mtrr(unsigned int reg, unsigned long base,
+ 		     unsigned long size, mtrr_type type);
+ 
+-static unsigned int arr3_protected;
++extern int arr3_protected;
+ 
+ void set_mtrr_ops(struct mtrr_ops * ops)
+ {
+
+--------------000300070500000403050802--
+

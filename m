@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbUL0OtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbUL0O50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbUL0OtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 09:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUL0OtS
+	id S261882AbUL0O50 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 09:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUL0O50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 09:49:18 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:31131 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261746AbUL0OtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 09:49:16 -0500
-Subject: RE: the patch of restore-pci-config-space-on-resume break S1 on
-	ASUS2400 NE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Li, Shaohua" <shaohua.li@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net, "Fu, Michael" <michael.fu@intel.com>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8406A26924@pdsmsx403>
-References: <3ACA40606221794F80A5670F0AF15F8406A26924@pdsmsx403>
-Content-Type: text/plain
+	Mon, 27 Dec 2004 09:57:26 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:42250 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261882AbUL0O5Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 09:57:24 -0500
+Message-ID: <41D022D1.8060107@domdv.de>
+Date: Mon, 27 Dec 2004 15:57:21 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-ac1
+References: <1104103881.16545.2.camel@localhost.localdomain> <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de> <200412271536.29783.rjw@sisk.pl>
+In-Reply-To: <200412271536.29783.rjw@sisk.pl>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104155089.20693.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 27 Dec 2004 13:44:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-12-27 at 10:14, Yu, Luming wrote:
->  Actually, the kernel (after removing restore-pci-config-space-on-resume patch) with option "ide=nodma" 
-> can work with S1 suspend/resume without any hang so far.
->   So my suggestion for IDE driver is to disable DMA before entering S1, and enable
-> DMA after resuming from S1 if DMA was enabled.  I need help from IDE guys to confirm it.
+Rafael J. Wysocki wrote:
+> AFAIK, you can't disable the io-apic on these boards.
 
-The IDE layer has no problem doing this, although it raises interesting
-questions about why it would be neccessary. 
+Hmm, boot with noapic and /proc/interrupts only shows XT-PIC entries.
 
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315442AbSHBRoE>; Fri, 2 Aug 2002 13:44:04 -0400
+	id <S315919AbSHBRyK>; Fri, 2 Aug 2002 13:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315627AbSHBRoE>; Fri, 2 Aug 2002 13:44:04 -0400
-Received: from pat.uio.no ([129.240.130.16]:48113 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315442AbSHBRoD>;
-	Fri, 2 Aug 2002 13:44:03 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15690.50598.11204.868852@charged.uio.no>
-Date: Fri, 2 Aug 2002 19:47:18 +0200
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Hans Reiser <reiser@namesys.com>, Steve Lord <lord@sgi.com>,
-       Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
-       "Peter J. Braam" <braam@clusterfs.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BIG files & file systems
-In-Reply-To: <15690.49267.930478.333263@laputa.namesys.com>
-References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
-	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
-	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>
-	<1028246981.11223.56.camel@snafu>
-	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>
-	<1028297194.30192.25.camel@jen.americas.sgi.com>
-	<3D4AA0E6.9000904@namesys.com>
-	<shslm7pclrx.fsf@charged.uio.no>
-	<3D4ABAE7.6000709@namesys.com>
-	<15690.49267.930478.333263@laputa.namesys.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S316088AbSHBRyK>; Fri, 2 Aug 2002 13:54:10 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:43276 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S315919AbSHBRyJ>; Fri, 2 Aug 2002 13:54:09 -0400
+X-mailer: xrn 9.02
+From: Paul Menage <pmenage@ensim.com>
+Subject: Re: manipulating sigmask from filesystems and drivers
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, pmenage@ensim.com
+X-Newsgroups: 
+In-reply-to: <0C01A29FBAE24448A792F5C68F5EA47D2D3E2B@nasdaq.ms.ensim.com>
+Message-Id: <E17agg9-0001vK-00@pmenage-dt.ensim.com>
+Date: Fri, 02 Aug 2002 10:57:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
+In article <0C01A29FBAE24448A792F5C68F5EA47D2D3E2B@nasdaq.ms.ensim.com>,
+ you write:
+>
+>With write(), you have to make a judgement call. Unlike read, a truncated
+>write _is_ visible outside the killed process. But exactly like read()
+>there _are_ system management reasons why you may really need to kill
+>writers. So the debatable point comes from whether you want to consider a
+>killing signal to be "exceptional enough" to warrant the partial write.
+>
 
-     > But there still is a problem with applications (if any) calling
-     > seekdir/telldir directly...
+How about a sysctl that lets the user specify the size threshold at
+which writes use a killable wait state rather than
+TASK_UNINTERRUPTIBLE? (Probably defaulting to never.)
 
-Agreed. Note however that the semantics for seekdir/telldir as
-specified by SUSv2 are much weaker than those in our current
-getdents()+lseek().
-
->From the Opengroup documentation for seekdir, it states that:
-
-  On systems that conform to the Single UNIX Specification, Version 2,
-  a subsequent call to readdir() may not be at the desired position if
-  the value of loc was not obtained from an earlier call to telldir(),
-  or if a call to rewinddir() occurred between the call to telldir()
-  and the call to seekdir().
-
-IOW assigning a unique offset to each and every entry in the directory
-is overkill (unless the user is calling telldir() for all those
-entries).
-
-Cheers,
-  Trond
+Paul

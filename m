@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261400AbSJMCL6>; Sat, 12 Oct 2002 22:11:58 -0400
+	id <S261403AbSJMCwV>; Sat, 12 Oct 2002 22:52:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261402AbSJMCL6>; Sat, 12 Oct 2002 22:11:58 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:49552 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S261400AbSJMCL5>;
-	Sat, 12 Oct 2002 22:11:57 -0400
-Date: Sun, 13 Oct 2002 12:17:19 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andreas Gruenbacher <agruen@suse.de>, "Theodore Ts'o" <tytso@mit.edu>,
-       Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2][RESEND] Applying the umask in the VFS optionally
-Message-ID: <20021013121719.A276740@wobbly.melbourne.sgi.com>
+	id <S261404AbSJMCwV>; Sat, 12 Oct 2002 22:52:21 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:41481 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261403AbSJMCwU>;
+	Sat, 12 Oct 2002 22:52:20 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How does ide-scsi get loaded? 
+In-reply-to: Your message of "12 Oct 2002 12:01:19 -0400."
+             <m37kgn3auo.fsf@varsoon.wireboard.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Sun, 13 Oct 2002 12:57:59 +1000
+Message-ID: <13355.1034477879@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On 12 Oct 2002 12:01:19 -0400, 
+Doug McNaught <doug@mcnaught.org> wrote:
+>Alan Chandler <alan@chandlerfamily.org.uk> writes:
+>
+>> so isn't /etc/lilo.conf in /etc.
+>> 
+>> I keep saying - the string ide-scsi is not used anywhere in /etc
+>> 
+>> [and believe me, I have also looked manually at all these sorts of places]
+>
+>Why not wrap /sbin/modprobe in a script that logs the module name to
+>the console?
 
-Here's a patch based on Andreas' recent mail describing a stumbling
-block in the VFS which prevents filesystems that wish to implement
-POSIX ACLs from doing so.  Details here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102831541509385&w=2
+man insmod, see /var/log/ksymoops.  insmod/modprobe not only record the
+symbols, they also append to the daily log.
 
-cheers.
+# cat /var/log/ksymoops/20021012.log 
+20021012 103139 start modprobe -r 3c589_cs safemode=0
+20021012 103139 rmmod returned 0
+20021012 103141 start /sbin/modprobe ide-probe-mod safemode=0
+20021012 103141 probe ended
+20021012 103141 start /sbin/modprobe ide-probe safemode=0
+20021012 103141 probe ended
+20021012 103141 start /sbin/modprobe -k -C /etc/modules.devfs /dev/fd1 safemode=0
+20021012 103141 probe ended
+20021012 103141 start /sbin/modprobe -k -C /etc/modules.devfs /dev/fd2 safemode=0
+20021012 103141 probe ended
+20021012 103141 start /sbin/modprobe -k -C /etc/modules.devfs /dev/fd3 safemode=0
+20021012 103141 probe ended
 
--- 
-Nathan
+... lots more devfs probes deleted.
 
- fs/namei.c         |   13 ++++++++-----
- include/linux/fs.h |    2 ++
- 2 files changed, 10 insertions(+), 5 deletions(-)
-
-diff -Naur linux-2.5.42-pristine/fs/namei.c linux-2.5.42-posixacl/fs/namei.c
---- linux-2.5.42-pristine/fs/namei.c	Sat Oct 12 14:21:39 2002
-+++ linux-2.5.42-posixacl/fs/namei.c	Sun Oct 13 11:03:55 2002
-@@ -1279,8 +1279,9 @@
- 
- 	/* Negative dentry, just create the file */
- 	if (!dentry->d_inode) {
--		error = vfs_create(dir->d_inode, dentry,
--				   mode & ~current->fs->umask);
-+		if (!IS_POSIXACL(dir->d_inode))
-+			mode &= ~current->fs->umask;
-+		error = vfs_create(dir->d_inode, dentry, mode);
- 		up(&dir->d_inode->i_sem);
- 		dput(nd->dentry);
- 		nd->dentry = dentry;
-@@ -1442,7 +1443,8 @@
- 	dentry = lookup_create(&nd, 0);
- 	error = PTR_ERR(dentry);
- 
--	mode &= ~current->fs->umask;
-+	if (!IS_POSIXACL(nd.dentry->d_inode))
-+		mode &= ~current->fs->umask;
- 	if (!IS_ERR(dentry)) {
- 		switch (mode & S_IFMT) {
- 		case 0: case S_IFREG:
-@@ -1508,8 +1510,9 @@
- 		dentry = lookup_create(&nd, 1);
- 		error = PTR_ERR(dentry);
- 		if (!IS_ERR(dentry)) {
--			error = vfs_mkdir(nd.dentry->d_inode, dentry,
--					  mode & ~current->fs->umask);
-+			if (!IS_POSIXACL(nd.dentry->d_inode))
-+				mode &= ~current->fs->umask;
-+			error = vfs_mkdir(nd.dentry->d_inode, dentry, mode);
- 			dput(dentry);
- 		}
- 		up(&nd.dentry->d_inode->i_sem);
-diff -Naur linux-2.5.42-pristine/include/linux/fs.h linux-2.5.42-posixacl/include/linux/fs.h
---- linux-2.5.42-pristine/include/linux/fs.h	Sat Oct 12 14:21:35 2002
-+++ linux-2.5.42-posixacl/include/linux/fs.h	Sun Oct 13 11:03:55 2002
-@@ -110,6 +110,7 @@
- #define MS_MOVE		8192
- #define MS_REC		16384
- #define MS_VERBOSE	32768
-+#define MS_POSIXACL	65536	/* VFS does not apply the umask */
- #define MS_ACTIVE	(1<<30)
- #define MS_NOUSER	(1<<31)
- 
-@@ -164,6 +165,7 @@
- #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
- #define IS_NOATIME(inode)	(__IS_FLG(inode, MS_NOATIME) || ((inode)->i_flags & S_NOATIME))
- #define IS_NODIRATIME(inode)	__IS_FLG(inode, MS_NODIRATIME)
-+#define IS_POSIXACL(inode)	__IS_FLG(inode, MS_POSIXACL)
- 
- #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
- 

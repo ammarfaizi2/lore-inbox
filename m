@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318141AbSHDKGd>; Sun, 4 Aug 2002 06:06:33 -0400
+	id <S318140AbSHDKJ5>; Sun, 4 Aug 2002 06:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318140AbSHDKGd>; Sun, 4 Aug 2002 06:06:33 -0400
-Received: from jalon.able.es ([212.97.163.2]:45780 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S318141AbSHDKGc>;
-	Sun, 4 Aug 2002 06:06:32 -0400
-Date: Sun, 4 Aug 2002 12:09:21 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 make allyesconfig - errors and warnings
-Message-ID: <20020804100921.GA1353@junk>
-References: <28360.1028454667@ocs3.intra.ocs.com.au>
+	id <S318142AbSHDKJ5>; Sun, 4 Aug 2002 06:09:57 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:27657 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S318140AbSHDKJ5>;
+	Sun, 4 Aug 2002 06:09:57 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19 make allmodconfig - undefined symbols
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <28360.1028454667@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on dom, ago 04, 2002 at 11:51:07 +0200
-X-Mailer: Balsa 1.3.6
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 04 Aug 2002 20:13:20 +1000
+Message-ID: <29906.1028456000@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
+wanting proc_get_inode, there was only one undefined symbol.  In the
+extremely unlikely event that binfmt_elf is a module (how do you load
+modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
 
-On 20020804 Keith Owens wrote:
-> 2.4.19 make allyesconfig got two errors and lots of warnings.
-> 
-> CONFIG_JFFS2_FS - duplicate symbols between jffs2 and ppp_deflate - an
-> oldy but goody.
-> 
+Index: 19.1/arch/i386/kernel/i386_ksyms.c
+--- 19.1/arch/i386/kernel/i386_ksyms.c Wed, 17 Jul 2002 12:08:06 +1000 kaos (linux-2.4/S/c/7_i386_ksyms 1.2.1.21 644)
++++ 19.1(w)/arch/i386/kernel/i386_ksyms.c Sun, 04 Aug 2002 20:09:37 +1000 kaos (linux-2.4/S/c/7_i386_ksyms 1.2.1.21 644)
+@@ -129,6 +129,7 @@ EXPORT_SYMBOL(mmx_copy_page);
+ EXPORT_SYMBOL(cpu_data);
+ EXPORT_SYMBOL(kernel_flag_cacheline);
+ EXPORT_SYMBOL(smp_num_cpus);
++EXPORT_SYMBOL(smp_num_siblings);
+ EXPORT_SYMBOL(cpu_online_map);
+ EXPORT_SYMBOL_NOVERS(__write_lock_failed);
+ EXPORT_SYMBOL_NOVERS(__read_lock_failed);
 
-The only way to clean that for future is to include David Woodhouse's 
-shared zlib patch. It cleans jffs2 and some more things.
-
--- 
-J.A. Magallon                           \                 Software is like sex:
-junk.able.es                             \           It's better when it's free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.19-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

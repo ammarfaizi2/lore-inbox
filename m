@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261588AbSJIM3y>; Wed, 9 Oct 2002 08:29:54 -0400
+	id <S261669AbSJIM1z>; Wed, 9 Oct 2002 08:27:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261616AbSJIM3y>; Wed, 9 Oct 2002 08:29:54 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:47306 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261588AbSJIM3x> convert rfc822-to-8bit; Wed, 9 Oct 2002 08:29:53 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.41 s390.
-Date: Wed, 9 Oct 2002 14:33:30 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210091425.36762.schwidefsky@de.ibm.com>
+	id <S261671AbSJIM1z>; Wed, 9 Oct 2002 08:27:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23056 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261669AbSJIM1y>;
+	Wed, 9 Oct 2002 08:27:54 -0400
+Date: Wed, 9 Oct 2002 13:33:37 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: willy@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Second round of ioctl cleanups
+Message-ID: <20021009133337.Y18545@parcelfarce.linux.theplanet.co.uk>
+References: <20021008000948.O18545@parcelfarce.linux.theplanet.co.uk> <20021008.212052.61268086.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021008.212052.61268086.davem@redhat.com>; from davem@redhat.com on Tue, Oct 08, 2002 at 09:20:52PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-the latest s/390 changes for 2.5.41. Most of it is adaptions to recent changes,
-only the last three contain "real" changes:
+On Tue, Oct 08, 2002 at 09:20:52PM -0700, David S. Miller wrote:
+> This patch is ok _except_ you cannot remove contribution credits
+> at the top of a file just because you deleted the whole of what
+> they had fixed in the past.
+> 
+> Please redo this patch without those changes, thanks.
 
-01: Use the generic method to generate asm-offsets.h, fix some inclues and
-    fix signal dequeueing in the 31 bit emulation code.
-02: Remove last traces of tq_struct from the s390 drivers.
-03: Work queues can't be use for 3215 and 3270 at the moment because they
-    get initialized to late for the console. Therefore I replaced them
-    by tasklets. This works but if the tasklets are supposed to go away
-    then I have a problem.
-04: A typo in vmlinus.lds.S
-05: A superfluous memset.
-06: A fix for strace. We noticed that some svcs didn't show up correctly
-    in the strace output. Heiko debugged this an found that executed svcs
-    are not handled properly. The execute instruction is an odd one, it
-    points to another instruction to be executed in place of the execute
-    instruction. In this case strace does not see an svc instruction but
-    an execute at the current ip. Unluckily the two instruction have a
-    different length. strace can't reliably distinguish between these
-    two cases because the execute instruction could end just like an
-    svc instruction. So the kernel has to provide the svc number to
-    strace.
-07: 3270 update from Richard Hitt.
-08: A patch to remove duplicated code in the 31 bit emulation and use
-    the generic code in kernel/uid16.c instead. This patch might be
-    a bit problematic because it adds the __UID16 define to common
-    code files which is ugly.
+would it be ok to move these credits to net/socket.c?  it shows false
+positives when grepping otherwise.
 
-Just for info: hwc, lcs and tape are currently rewritten. So don't worry
-about uglyness in their current implementation. At the moment its enough
-that they compile.
-
-blue skies,
-  Martin.
-
-
+-- 
+Revolutions do not require corporate support.

@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266175AbTAJTIC>; Fri, 10 Jan 2003 14:08:02 -0500
+	id <S267057AbTAJS7v>; Fri, 10 Jan 2003 13:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265800AbTAJTHE>; Fri, 10 Jan 2003 14:07:04 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:54552
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S266627AbTAJS4f>; Fri, 10 Jan 2003 13:56:35 -0500
-Message-ID: <3E1F1963.500@rackable.com>
-Date: Fri, 10 Jan 2003 11:05:07 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S267039AbTAJS65>; Fri, 10 Jan 2003 13:58:57 -0500
+Received: from web20510.mail.yahoo.com ([216.136.226.145]:3882 "HELO
+	web20510.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266257AbTAJSzS>; Fri, 10 Jan 2003 13:55:18 -0500
+Message-ID: <20030110190403.2127.qmail@web20510.mail.yahoo.com>
+Date: Fri, 10 Jan 2003 11:04:03 -0800 (PST)
+From: Manish Lachwani <m_lachwani@yahoo.com>
+Subject: Re: FW: Fastest possible UDMA - how?
+To: linux-kernel@vger.kernel.org, Michael.Knigge@set-software.de
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1B88@xch-a.win.zambeel.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: John Jasen <jjasen@realityfailure.org>, Philip Dodd <smpcomputing@free.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: UnitedLinux violating GPL?
-References: <3E1DFB8E.9050805@free.fr> <Pine.LNX.4.44.0301092139450.4282-100000@geisha.realityfailure.org> <20030110024710.GA19760@gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jan 2003 19:05:10.0188 (UTC) FILETIME=[3259A6C0:01C2B8DB]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Take a look at the drive IDENTIFY data. From the ATA
+spec, it can be seen that word# 88 in the IDENTIFY
+data can help you find out the UDMA mode selected and
+UDMA mode supported. 
 
->On Thu, Jan 09, 2003 at 09:40:50PM -0500, John Jasen wrote:
->  
->
->>On Thu, 9 Jan 2003, Philip Dodd wrote:
->>
->>    
->>
->>>Jeff Garzik wrote:
->>>      
->>>
->>>>Anybody know where the source rpm for UnitedLinux kernel is?
->>>>[to be distinguished from kernel-source rpm]
->>>>        
->>>>
->>if they supply the kernel source rpm, how are they in violation? Since you 
->>can compile a kernel from the source rpm.
->>    
->>
->
->Read the GPL :)  The source code "preferred form" is clearly not an
->on-disk kernel tree with no information about the changes [patches]
->that were processed in a specific sequence, to produce that end result.
->
->  
->
+The UDMA mode supported is the maximum supported by
+the drive. 
 
-  Actually the reverse could be much more easily said to be true.  If 
-they only supplied the src.rpm,  and not the source rpm more people 
-would scream than the reverse.   The number of people who know how to 
-produce a custom kernel from a src.rpm is fairly limited.  Keep in mind 
-most of UL's customer are not kernel hackers.
+Thanks
+Manish
+
+> Hi all,
+> 
+> is it somehow possible to determine what is the
+> fastest UDMA-Mode my 
+> IDE-Controller supports - independant of the
+> chipset?
+> 
+> Thanks,
+>   Michael
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-   Of course the correct thing to do is simply provide both and make 
-people happy.  A determined person can still get what ever they want out 
-of either form.  Making it hard just leads to your customers and the 
-community hating you.
-
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

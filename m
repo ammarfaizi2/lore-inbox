@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263957AbRFRNnu>; Mon, 18 Jun 2001 09:43:50 -0400
+	id <S263963AbRFRNpL>; Mon, 18 Jun 2001 09:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263963AbRFRNnk>; Mon, 18 Jun 2001 09:43:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:19474 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S263957AbRFRNnW>;
-	Mon, 18 Jun 2001 09:43:22 -0400
-Date: Mon, 18 Jun 2001 10:43:14 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: German Gomez Garcia <german@piraos.com>,
-        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-In-Reply-To: <20010618143559.A23006@athlon.random>
-Message-ID: <Pine.LNX.4.21.0106181041470.2056-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S263964AbRFRNpA>; Mon, 18 Jun 2001 09:45:00 -0400
+Received: from cmr1.ash.ops.us.uu.net ([198.5.241.39]:64501 "EHLO
+	cmr1.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S263963AbRFRNor>; Mon, 18 Jun 2001 09:44:47 -0400
+Message-ID: <3B2E0592.B5B6D1A3@uu.net>
+Date: Mon, 18 Jun 2001 09:43:46 -0400
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@suse.cz>
+CC: linux-kernel@vger.kernel.org, acpi@phobos.fachschaften.tu-muenchen.de
+Subject: Re: APM, ACPI, and Wake on LAN - the bane of my existance
+In-Reply-To: <3B28F68C.BA9D83DA@uu.net> <20010615155621.D37@toy.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
 
-> either apply this patch to 2.4.5ac15:
+
+Pavel Machek wrote:
 > 
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.5aa3/00_fix-unusable-vm-on-alpha-1
+> Hi!
+> 
+> > anything.  So I removed the three pin cross connect that connects the
+> > card to the WOL header on the motherboard.  That fixed it for a few
+> > days, but now it's doing it again, even without the cable installed.
+> > the only fix is to unplug the ethernet cable when I turn it off.
+> 
+> So turn it off by unplugging AC cord. If it comes up *without* AC plugged
+> in.... Welll... Call GhostBusters.
+>                                                                 Pavel
 
-That one has already been fixed in -pre3 and I think also
-in -ac14+ kernels (haven't verified the -ac kernels, though).
+True, but I'd like to have work without having to unplug the power
+everyday :)
 
-The "bug" exists because of a change in refill_inactive(),
-which is now a lot closer to being balanced. It's not a bug,
-but with the way the statistics are generated it sure look
-funny ;)
 
-regards,
+> PS: I is possible that machine comes up after powerfail. This might be
+> your proble. Without 3pin cable installed, it really should not come up
+> itself.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Actually apparently it is possible with PCI 2.2 compliant cards and
+motherboards.  The 3 pin wire is for backwards compatiblity with old
+cards.
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+> --
+> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
+
+Thanks for you input,
+
+Alex

@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131393AbRCNOff>; Wed, 14 Mar 2001 09:35:35 -0500
+	id <S131385AbRCNOjF>; Wed, 14 Mar 2001 09:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131385AbRCNOfZ>; Wed, 14 Mar 2001 09:35:25 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:46096 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S131384AbRCNOfS>; Wed, 14 Mar 2001 09:35:18 -0500
-Message-ID: <3AAF811F.9C4F83E2@didntduck.org>
-Date: Wed, 14 Mar 2001 09:33:03 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mshiju@in.ibm.com
-CC: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ISAPNP :driver not recognized when compiled in kernel
-In-Reply-To: <CA256A0F.004A726A.00@d73mta05.au.ibm.com>
+	id <S131386AbRCNOiz>; Wed, 14 Mar 2001 09:38:55 -0500
+Received: from dsl-64-129-179-177.telocity.com ([64.129.179.177]:32014 "HELO
+	mail.ovits.net") by vger.kernel.org with SMTP id <S131385AbRCNOir>;
+	Wed, 14 Mar 2001 09:38:47 -0500
+Date: Wed, 14 Mar 2001 09:41:44 -0500
+From: Mordechai Ovits <movits@ovits.net>
+To: Alex Baretta <alex@baretta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 5Mb missing...
+Message-ID: <20010314094144.A18669@ovits.net>
+In-Reply-To: <Pine.LNX.4.33.0103070958110.1424-100000@mikeg.weiden.de> <3AAF7AD1.D24E526C@baretta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3AAF7AD1.D24E526C@baretta.com>; from alex@baretta.com on Wed, Mar 14, 2001 at 03:06:09PM +0100
+X-Satellite-Tracking: 0x4B305AFF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mshiju@in.ibm.com wrote:
+On Wed, Mar 14, 2001 at 03:06:09PM +0100, Alex Baretta wrote:
+> Mike Galbraith wrote:
+> > 
+> > If crashes are routine on this machine, I'd recommend that you take
+> > a serious look at your ram. (or if you're overclocking, don't)
 > 
-> Hello,
->            I have a basic question. Can we build a PnP ISA driver in kernel
-> with ISAPNP kernel option enabled so that kernel PnP does the job of
-> allocating the resources for the driver. The problem being that the
-> /etc/isapnp.conf should be executed before the device driver. I tried this
-> and was unsuccessful but worked fine when the driver was compiled as a
-> module. I read somewhere that ISAPNP drivers with ISAPNP enabled in kernel
-> should only be build as modules so that we can keep the order of execution
-> . Is this true.? Have any one of you tried this .
+> Crashes were routine, and I was not overclocking, so I took Mike's
+> advice and bought a new 256MB DIMM. The computer hasn't crashed
+> once since I installed it. Now, though, I have a curious though
+> fairly irrelevant problem. My kernel apparently sees less RAM than
+> I have.
 > 
-> Thanks & Regards
-> Shiju
+> 
+> [alex@localhost /home]$ free -m
+>              total       used       free     shared    buffers    
+> cached
+> Mem:           251        209         42         60        
+> 61         92
+> -/+ buffers/cache:         55        196
+> 
+> 
+> I strongly doubt this can be a bug in the kernel. Could anyone
+> explain to me why this might happen?
 
-If you build ISAPnP support into the kernel you should not be using the
-isapnp userspace tools.  Use on or the other, but not both.  The ISAPnP
-system when non-modular is initialized before built-in drivers, so they
-do not have to be modular.  With the old userspace tools they must be
-modular.
+when you boot, your bios decides how much ram is "really" available,
+usually for  good reasons.  If the bios knows that its power management
+routines need a few meg off the top it'll report a few less meg to the OS
+that is to be booted.  You can tell linux to ignore the bios with the kernel
+parameter mem=256, but I highly recommend *against* it in this case.  Look
+into it.
 
---
-
-				Brian Gerst
+Mordy
+ 
+> Alex
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

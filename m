@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbUAPRDo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 12:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUAPRDo
+	id S263475AbUAPRKh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 12:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUAPRKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 12:03:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39335 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265352AbUAPRDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 12:03:43 -0500
-Date: Fri, 16 Jan 2004 09:03:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Fabian Fenaut <fabian.fenaut@free.fr>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: 2.6.1-mm4
-Message-Id: <20040116090349.73b1fad4.akpm@osdl.org>
-In-Reply-To: <200401161449.i0GEnoAv026627@fire-1.osdl.org>
-References: <20040115225948.6b994a48.akpm@osdl.org>
-	<200401161449.i0GEnoAv026627@fire-1.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Jan 2004 12:10:36 -0500
+Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:31481 "EHLO
+	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S263475AbUAPRKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 12:10:32 -0500
+Message-ID: <40081AF0.5060907@borgerding.net>
+Date: Fri, 16 Jan 2004 12:10:08 -0500
+From: Mark Borgerding <mark@borgerding.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
+References: <Xine.LNX.4.44.0401161039480.20623-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0401161039480.20623-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabian Fenaut <fabian.fenaut@free.fr> wrote:
+James Morris wrote:
+
+>On Fri, 16 Jan 2004, Mark Borgerding wrote:
 >
-> I got an error compiling -mm4 :
-> 
->     [...]
->     CC [M]  drivers/media/video/ir-kbd-gpio.o
->  drivers/media/video/ir-kbd-gpio.c:185: unknown field `name' specified in
->  initializer
->  drivers/media/video/ir-kbd-gpio.c:185: warning: missing braces around
->  initializer
->  drivers/media/video/ir-kbd-gpio.c:185: warning: (near initialization for
->  `driver.drv')
->  drivers/media/video/ir-kbd-gpio.c:186: unknown field `drv' specified in
->  initializer
->  drivers/media/video/ir-kbd-gpio.c:187: unknown field `drv' specified in
->  initializer
->  drivers/media/video/ir-kbd-gpio.c:188: unknown field `gpio_irq'
->  specified in initializer
+>  
+>
+>> From looking through the cryptoloop code, it looks like the IV for CBC
+>>mode is always the sector index.  It seems this could be weak against
+>>chosen plaintext attacks, as well as allowing an attacker to know which
+>>cipher blocks started any changes between two snapshots of the
+>>ciphertext.  I discuss ECB, since I wouldn't consider using it.
+>>    
+>>
+>
+>Eli Biham has suggested encrypting the sector numbers, see
+>http://people.redhat.com/jmorris/crypto/cryptoloop_eli_biham.txt
+>
+>
+>
+>- James
+>  
+>
 
-You must be using an elderly gcc.
+This does not defend against a dictionary attack.
+
+The IV is still deterministic for a given sector and hypothesized 
+password. 
+Thus the ciphertext for a given plaintext at that sector is still 
+deterministic.
+
+Thinking of it another way, this is equivalent to CBC mode having two 
+IVs: the first one being the sector number, the second a block of zeros.
 
 
-diff -puN drivers/media/video/ir-kbd-gpio.c~ir-kbd-gpio-build-fix drivers/media/video/ir-kbd-gpio.c
---- 25/drivers/media/video/ir-kbd-gpio.c~ir-kbd-gpio-build-fix	2004-01-16 09:01:59.000000000 -0800
-+++ 25-akpm/drivers/media/video/ir-kbd-gpio.c	2004-01-16 09:02:17.000000000 -0800
-@@ -182,9 +182,11 @@ static int ir_probe(struct device *dev);
- static int ir_remove(struct device *dev);
- 
- static struct bttv_sub_driver driver = {
--	.drv.name	= DEVNAME,
--	.drv.probe	= ir_probe,
--	.drv.remove	= ir_remove,
-+	.drv = {
-+		.name	= DEVNAME,
-+		.probe	= ir_probe,
-+		.remove	= ir_remove,
-+	},
- 	.gpio_irq       = ir_irq,
- };
- 
-
-_
+- Mark
 

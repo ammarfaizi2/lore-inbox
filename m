@@ -1,102 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131544AbRCQDia>; Fri, 16 Mar 2001 22:38:30 -0500
+	id <S131546AbRCQEhc>; Fri, 16 Mar 2001 23:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131538AbRCQDiV>; Fri, 16 Mar 2001 22:38:21 -0500
-Received: from smtp4vepub.gte.net ([206.46.170.25]:38740 "EHLO
-	smtp4ve.mailsrvcs.net") by vger.kernel.org with ESMTP
-	id <S131531AbRCQDiJ>; Fri, 16 Mar 2001 22:38:09 -0500
-Message-ID: <3AB2DBF2.D5F23507@neuronet.pitt.edu>
-Date: Fri, 16 Mar 2001 22:37:22 -0500
-From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S131547AbRCQEhX>; Fri, 16 Mar 2001 23:37:23 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:57618 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S131546AbRCQEhK>;
+	Fri, 16 Mar 2001 23:37:10 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200103170435.f2H4ZnB65925@saturn.cs.uml.edu>
+Subject: Re: [PATCH] Improved version reporting
+To: Andries.Brouwer@cwi.nl
+Date: Fri, 16 Mar 2001 23:35:49 -0500 (EST)
+Cc: acahalan@cs.uml.edu, viro@math.psu.edu, alan@lxorguk.ukuu.org.uk,
+        linus@transmeta.com, linux-kernel@vger.kernel.org, rhw@memalpha.cx,
+        seberino@spawar.navy.mil
+In-Reply-To: <UTC200103150952.KAA451302.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Mar 15, 2001 10:52:25 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: scsi_scan problem.
-In-Reply-To: <200103170012.f2H0C8s01133@eng2.sequent.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield wrote:
-> 
-> If your testing Doug's patch, it might be a good idea to run with/without
-> your adapter built as a module, as the kernel is inconsistent in its setting
-> of "online" in scsi.c: it sets online TRUE after an attach in
-> scsi_register_device_module(), but leaves online as is after an
-> attach in scsi_register_host().
-> 
-> So, if the scan_scsis set online FALSE, it sometimes is set back to TRUE;
-> otherwise, I don't think any other code will set online to TRUE (once it
-> is set to FALSE after its scanned, no one can even open the device, not even sg).
-> 
-> The online = TRUE should probably be removed from scsi_register_device_module(),
-> as disks with peripheral qualifier 1 (like Doug's the Clariion storage)
-> ususally complain when sent a READ CAPACITY. I got such errors when running with
-> a Clariion DASS (DGC RAID/DISK, scsi attached disk array).
+Andries.Brouwer writes:
+>> From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+>>> On Wed, 14 Mar 2001 Andries.Brouwer@cwi.nl wrote:
 
-In my first post everything but the aic7xxx_old driver was builtin. With
-it built into the kernel the output is as follows:
+>>>>> +o  Console Tools      #   0.3.3        # loadkeys -V
+>>>>> +o  Mount              #   2.10e        # mount --version
+>>>>
+>>>> Concerning mount: (i) the version mentioned is too old,
+>>
+>> Exactly why? Mere missing features don't make for a required
+>> upgrade. Version number inflation should be resisted.
+...
+> These days you can mount several filesystems at the same mount point.
+> The old mount does not understand this at all.
+> Recent versions of mount act better in this respect,
+> even though it is still easy to confuse them.
 
-SCSI subsystem driver Revision: 1.00
-(scsi0) <Adaptec AIC-7895 Ultra SCSI host adapter> found at PCI 0/14/1
-(scsi0) Wide Channel B, SCSI ID=7, 32/255 SCBs
-(scsi0) Downloading sequencer code... 383 instructions downloaded
-(scsi1) <Adaptec AIC-7895 Ultra SCSI host adapter> found at PCI 0/14/0
-(scsi1) Wide Channel A, SCSI ID=7, 32/255 SCBs
-(scsi1) Downloading sequencer code... 383 instructions downloaded
-scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.2.1/5.2.0
-       <Adaptec AIC-7895 Ultra SCSI host adapter>
-scsi1 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.2.1/5.2.0
-       <Adaptec AIC-7895 Ultra SCSI host adapter>
-(scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 8.
-  Vendor: SEAGATE   Model: ST39173LW         Rev: 6246
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-(scsi1:0:2:0) Synchronous at 10.0 Mbyte/sec, offset 15.
-  Vendor: SEAGATE   Model: ST15150N          Rev: 4611
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-(scsi1:0:4:0) Synchronous at 10.0 Mbyte/sec, offset 15.
-  Vendor: NAKAMICH  Model: MJ-5.16S          Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: NAKAMICH  Model: MJ-5.16S          Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: NAKAMICH  Model: MJ-5.16S          Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: NAKAMICH  Model: MJ-5.16S          Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: NAKAMICH  Model: MJ-5.16S          Rev: 1.02
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-(scsi1:0:5:0) Synchronous at 10.0 Mbyte/sec, offset 15.
-  Vendor: TEAC      Model: CD-R56S4          Rev: 1.0P
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-Detected scsi disk sdb at scsi1, channel 0, id 2, lun 0
-SCSI device sda: 17783240 512-byte hdwr sectors (9105 MB)
- sda: sda1 sda2 sda3 sda4
-SCSI device sdb: 8388315 512-byte hdwr sectors (4295 MB)
- sdb: sdb1
-Detected scsi CD-ROM sr0 at scsi1, channel 0, id 4, lun 0
-Detected scsi CD-ROM sr1 at scsi1, channel 0, id 4, lun 1
-Detected scsi CD-ROM sr2 at scsi1, channel 0, id 4, lun 2
-Detected scsi CD-ROM sr3 at scsi1, channel 0, id 4, lun 3
-Detected scsi CD-ROM sr4 at scsi1, channel 0, id 4, lun 4
-Detected scsi CD-ROM sr5 at scsi1, channel 0, id 5, lun 0
-sr0: scsi3-mmc drive: 16x/16x xa/form2 changer
-sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
-sr1: scsi3-mmc drive: 16x/16x xa/form2 changer
-sr1: CDROM (ioctl) reports ILLEGAL REQUEST.
-sr2: scsi3-mmc drive: 16x/16x xa/form2 changer
-sr2: CDROM (ioctl) reports ILLEGAL REQUEST.
-sr3: scsi3-mmc drive: 16x/16x xa/form2 changer
-sr3: CDROM (ioctl) reports ILLEGAL REQUEST.
-sr4: scsi3-mmc drive: 16x/16x xa/form2 changer
-sr4: CDROM (ioctl) reports ILLEGAL REQUEST.
-sr5: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+The rule should be like this:
 
--- 
-     Rafael
+   List the lowest version number required to get
+   2.2.xx-level features while running a 2.4.xx kernel.
 
-PS. By the way, it's not necessary to cc me.
+Remember what the purpose of the table is. It is a list of REQUIRED
+upgrades. Failure to upgrade should result in a broken system. So pppd
+must be listed, since somebody changed the kernel API for 2.4.1.
+
+If I run the mount command from Red Hat 6.2, using it as intended
+for a 2.2.xx kernel, doesn't everything work? There won't be any
+multi-mount confusion because 2.2.xx can't do that anyway. There
+isn't any problem with NFSv3 either, since 2.2.xx lacks NFSv3.
+
+Basically I ask: would existing scripts for a 2.2.xx kernel break?
+If the old mount can still do what it used to do, then "mount" need
+not be listed at all.
+

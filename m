@@ -1,135 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314093AbSEISoy>; Thu, 9 May 2002 14:44:54 -0400
+	id <S314094AbSEISqi>; Thu, 9 May 2002 14:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314094AbSEISox>; Thu, 9 May 2002 14:44:53 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:48887 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S314093AbSEISow>; Thu, 9 May 2002 14:44:52 -0400
-Message-Id: <200205091840.g49Ie3C02733@w-gaughen.des.beaverton.ibm.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Christoph Hellwig <hch@infradead.org>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] discontigmem support for ia32 NUMA box against 2.4.19pre8 
-In-Reply-To: Message from Christoph Hellwig <hch@infradead.org> 
-   of "Thu, 09 May 2002 10:28:01 BST." <20020509102801.A9548@infradead.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 May 2002 11:40:03 -0700
-From: Patricia Gaughen <gone@us.ibm.com>
+	id <S314095AbSEISqh>; Thu, 9 May 2002 14:46:37 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:61831 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314094AbSEISqg>; Thu, 9 May 2002 14:46:36 -0400
+Date: Thu, 9 May 2002 13:46:28 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Patrick Mochel <mochel@osdl.org>
+cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+        James Bottomley <James.Bottomley@steeleye.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] PCI reorg fix
+In-Reply-To: <Pine.LNX.4.33.0205091121450.762-100000@segfault.osdl.org>
+Message-ID: <Pine.LNX.4.44.0205091338170.11642-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 9 May 2002, Patrick Mochel wrote:
 
+> Actually, the point _is_ to break everything. 
+> 
+> The fact that there are wrappers emulating old PCI behavior is the reason 
+> the SCSI drivers don't use the 2.4 interface. If we provide wrappers for 
+> alloc_consistent, they'll never change those, either. 
 
-  > > The discontigmem patch is available at:
-  > > 
-  > > http://prdownloads.sourceforge.net/lse/x86_discontigmem-2.4.19pre8.patch
-  > 
-  > Urgg, sourceforge seems to have turned these nice links into some download
-  > selector crap.  I think it's really time to stop using it as it gets worse
-  > all time..
-  > Any chance you could post links directly to one of the mirrors next time?
+I surely can see your point there. However, new-style and old-style PCI 
+init are conceptually different, and there's no easy way to emulate the 
+old behavior on top of the new one. That is equivalent to saying that 
+converting drivers is in many cases non-trivial. It's painful, and that's 
+why it doesn't happen (or only slowly), unless you force people to do so.
 
-Do you want something like this:
+However, the issue here is IMO different. Not having the wrappers only
+means lots of trivial changes to the drivers, along the lines of
 
-http://prdownloads.sourceforge.net/lse/x86_discontigmem-2.4.19pre8.patch?use_mi
-rror=unc
+pci_set_dma_mask(pdev,) -> device_set_dma_mask(&pdev->dev,)
 
-  > 
-  > >  if [ "$CONFIG_SMP" = "y" -a "$CONFIG_X86_CMPXCHG" = "y" ]; then
-  > > --- linux-2.4.19pre8-cleanup/arch/i386/kernel/Makefile	Fri Nov  9 14:2
-  > 1:21 2001
-  > > +++ linux-2.4.19pre8-multi/arch/i386/kernel/Makefile	Wed May  8 11:0
-  > 9:21 2002
-  > > @@ -40,5 +40,7 @@
-  > >  obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
-  > >  obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o acpitable.o
-  > >  obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
-  > > +obj-$(CONFIG_X86_NUMAQ)		+= core_ibmnumaq.o
-  > 
-  > The core_ibmnumaq.* naming looks strange to me.  It seems derived from the
-  > alpha naming where we support many different cores.  I think numaq.c
-  > would fit much better in the naming of the other files in arch/i386/kernel/
-  > .
-  > Please also note that the ifdef around the whole file body in core_ibmnumaq
-  > .c
-  > is superflous as we already have the kbuild conditional.
+which is pointless IMO. Actually, as far as I understood things, the plan 
+with the device tree is not expose it to drivers, but let them still
+act on pci_dev / usb_dev / whatever, and only base the implementation of
+struct pci_dev / usb/dev / ... on struct device.
 
-oh man, and I just added that in to core_ibmnumaq.c :-)
+So keeping these pci_* functions makes sense to me, only base the 
+implementation on struct device.
 
-you're right, the naming was based on alpha's naming scheme, will change it.
-
-  > 
-  > > +obj-$(CONFIG_DISCONTIGMEM)	+= numa.o
-  > 
-  > Okay, this comes to the next issue, you seem to use CONFIG_DISCONTIGMEM
-  > and CONFIG_X86_DISCONTIGMEM interchangable in arch/i386/* and numa.c in
-  > fact has a big #ifdef CONFIG_X86_DISCONTIGMEM around all of the code.
-  > AFAICS CONFIG_X86_DISCONTIGMEM is really the selector for the bootmem
-  > workarounds and I think it shouldn't be used anywhere else, or even better
-  > replaced by and HAVE_ARCH_BOOTMEM_NODE #define in asm/pgtable.h.
-
-yes, I agree and that was my intention with CONFIG_X86_DISCONTIGMEM.  I'll fix 
-them.
-
-Let me make sure I understand what you mean, you're thing that 
-HAVE_ARCH_BOOTMEM_NODE should be turned on in asm/pgtable.h when 
-CONFIG_DISCONTIGMEM is defined?  If that's so, I'll make the change.
-
-
-  > 
-  > Also why is this file named numa.c and depends on CONFIG_DISCONTIGMEM?
-  > Either it is NUMA-specific and depends on CONFIG_NUMA or it is dicontig
-  > code and should be named discontig.c or something like that.  This file
-  > is completly about memory managment, btw so I wonder why it isn't placed
-  > in arch/i386/mm/..
-
-will change this.
-
-  > 
-  > 
-  > > -static inline int page_is_ram (unsigned long pagenr)
-  > > +inline int page_is_ram (unsigned long pagenr)
-  > 
-  > What about makeing this a static inline in one of the asm/ headers?
-  > This way the external users also have it inline and I know besides
-  > NUMAQ at least the LKCD people also want it.
-
-okay, can do that.  I'm planning on moving it to page.h.  
-
-  > 
-  > > --- linux-2.4.19pre8-cleanup/include/asm-i386/mmzone.h	Wed Dec 31 16:0
-  > 0:00 1969
-  > > +++ linux-2.4.19pre8-multi/include/asm-i386/mmzone.h	Wed May  8 11:0
-  > 9:21 2002
-  > > @@ -0,0 +1,103 @@
-  > > +/*
-  > > + * Written by Pat Gaughen (gone@us.ibm.com) Mar 2002
-  > > + *
-  > > + */
-  > > +
-  > > +#ifndef _ASM_MMZONE_H_
-  > > +#define _ASM_MMZONE_H_
-  > > +
-  > > +#ifdef CONFIG_DISCONTIGMEM
-  > <snip>
-  > > +#endif /* CONFIG_X86_DISCONTIGMEM */
-  > 
-  > hmm?
-
-whoops!
-
-I'll try to have a new patch out later today.
-
-BTW, thanks for the feedback, I really appreciate it.
-
--Pat
-
-
--- 
-Patricia Gaughen (gone@us.ibm.com)
-IBM Linux Technology Center
-http://www.ibm.com/linux/ltc/
+--Kai
 
 

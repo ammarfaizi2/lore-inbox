@@ -1,92 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284573AbRLES4Q>; Wed, 5 Dec 2001 13:56:16 -0500
+	id <S284580AbRLES70>; Wed, 5 Dec 2001 13:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284572AbRLES4G>; Wed, 5 Dec 2001 13:56:06 -0500
-Received: from alageremail1.agere.com ([192.19.192.106]:32708 "EHLO
-	alageremail1.agere.com") by vger.kernel.org with ESMTP
-	id <S284565AbRLESz6>; Wed, 5 Dec 2001 13:55:58 -0500
-From: "Michael Smith" <smithmg@agere.com>
-To: <rddunlap@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Unresolved symbol memset
-Date: Wed, 5 Dec 2001 13:55:56 -0500
-Organization: Agere Systems
-Message-ID: <00a501c17dbe$7a6fa580$4d129c87@agere.com>
+	id <S284574AbRLES7Q>; Wed, 5 Dec 2001 13:59:16 -0500
+Received: from ns0.dhm-systems.de ([195.126.154.163]:269 "EHLO
+	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
+	id <S284575AbRLES7K>; Wed, 5 Dec 2001 13:59:10 -0500
+Message-ID: <3C0E6E77.A5365331@web-systems.net>
+Date: Wed, 05 Dec 2001 19:59:03 +0100
+From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
+Reply-To: Ado.Arnolds@dhm-systems.de
+Organization: DHM GmbH & Co. KG
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en, fr, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16: running *really* short on DMA buffers
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <Pine.LNX.4.33L2.0112051024340.22241-100000@dragon.pdx.osdl.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That particular header is included.  As I mentioned, I am using memset
-in other areas of the code, as well as the same file.  If I take this
-one call out of the source, it compiles, links and I am able to perform
-and insmod correctly.  Below are the headers that are included in the
-file, and the area of the code that is causing the problem.  Let me say
-that the code, even with this particular call in, compiles and links.
-The problem happens when I go to perform the insmod on it.
+Hi all,
 
-#include <memory.h>
-#include <string.h>
-#include "myownheaders.h"
+I get the message "kernel: Warning - running *really* short on DMA
+buffers" frequently with medium to heavy disk i/o (running several
+tar and/or moving huge directories).
 
+Can anybody give me some hints what the reason for this might be
+and how to avoid this condition.
 
-void myfunction( void *a, int len )
-{
-....
-Mymemmove() //used because NdisMoveMemory can not be used
-memset( &a->WORD[NUMWORDS-len], 0, len*4);
-...
-}
+Do you need more information (I'm using only SCSI disks attached
+to a Symbios controller: <875> rev 0x26 on pci bus 0 device 11 func
+tion 0 irq 15)? I even can't find this error string in the kernel
+sources.
 
+Thanks for your help.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
-rddunlap@osdl.org
-Sent: Wednesday, December 05, 2001 1:27 PM
-To: Michael Smith
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbol memset
-
-On Wed, 5 Dec 2001, Michael Smith wrote:
-
-| Hello all,
-|      I am new the Linux world and have a problem which is somewhat
-| confusing.  I am using the system call memset() in kernel code written
-| for Red Hat 7.1(kernel 2.4).  I needed to make this code compatible
-with
-| Red Hat 6.2(kernel 2.2) and seem to be getting a unresolved symbol.
-| This is only happening in one place of the code in one file.  I am
-using
-| memset() in other areas of the code which does not lead to the
-problem.
-| If anyone can clue me in to what this possible can be, it would
-greatly
-| be appreciated.
-
-um, memset() isn't actually a system call.
-However-- does the problem source file have
-#include <linux/string.h>
-in it?  It should.
-Or perhaps you could post the problem source file and/or
-gcc messages.
+Ado
 
 -- 
-~Randy
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+------------------------------------------------------------------------
+  Heinz-Ado Arnolds                        Ado.Arnolds@web-systems.net
+  Websystems GmbH                              +49 2234 1840-0 (voice)
+  Max-Planck-Strasse 2, 50858 Koeln, Germany   +49 2234 1840-40  (fax)

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311193AbSCVLEF>; Fri, 22 Mar 2002 06:04:05 -0500
+	id <S311203AbSCVLIf>; Fri, 22 Mar 2002 06:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311171AbSCVLDr>; Fri, 22 Mar 2002 06:03:47 -0500
-Received: from mons.uio.no ([129.240.130.14]:49378 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S310646AbSCVLD2>;
-	Fri, 22 Mar 2002 06:03:28 -0500
+	id <S311211AbSCVLIZ>; Fri, 22 Mar 2002 06:08:25 -0500
+Received: from pat.uio.no ([129.240.130.16]:24565 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S311203AbSCVLIP>;
+	Fri, 22 Mar 2002 06:08:15 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15515.3958.533172.840461@charged.uio.no>
-Date: Fri, 22 Mar 2002 12:03:18 +0100
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@ton.iguana.be (Ton Hospel), linux-kernel@vger.kernel.org
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client) 
-In-Reply-To: <24969.1016793219@redhat.com>
+Message-ID: <15515.4235.679887.998891@charged.uio.no>
+Date: Fri, 22 Mar 2002 12:07:55 +0100
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: green@namesys.com, sneakums@zork.net, linux-kernel@vger.kernel.org
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+In-Reply-To: <20020322120010.16a53cc9.skraw@ithnet.com>
 X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Reply-To: trond.myklebust@fys.uio.no
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David Woodhouse <dwmw2@infradead.org> writes:
+>>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
 
-     > trond.myklebust@fys.uio.no said:
-    >> As for re-exporting: that can be done pretty easily too unless
-    >> of course you actually expect it to be reliable. The tough
-    >> cookie is to get it to survive server reboots.
+     > This is a knfsd setup.
 
-     > The problem here is that we're using the anonymous device which
-     > the NFS mount happens to have as sb->s_dev as the device ID in
-     > our exported file handles. We don't have to do that; we could
-     > use something slightly more useful, based on the root fh we got
-     > from the _real_ server, surely?
- 
-That is an issue, but it is really only a minor one.
+Good...
 
-The real problem is that whereas the tuple (sb->s_dev,i_ino) suffices
-in order to be able to iget() a typical ext2 file, you require the the
-tuple (sb->s_dev, 32/64 byte opaque filehandle) if you want to
-iget() an NFS file.
+    >> The client will only return ESTALE if the server has first told
+    >> it to do so. For knfsd, this is only supposed to occur if the
+    >> file has actually been deleted on the server (knfsd is supposed
+    >> to be able to retrieve ReiserFS file that have fallen out of
+    >> cache).
 
-Basically, if you want to be able to recover gracefully from the
-situation in which the re-exporting server reboots, you would need to
-compress the entire filehandle from the original server + the
-sb->s_dev (in some manner that survives a reboot, I'll grant you) and
-fit that into the filehandle that the NFS client uses.
+     > The files are obviously not deleted from the server. Can you
+     > give me a short hint in where to look after this specific case
+     > (source location). I will try to do some debugging around the
+     > place to see what is going on.
 
+Those decisions are supposed to be made in the fh_to_dentry()
+'struct super_operations' method. For ReiserFS, that would be in
+fs/reiserfs/inode.c:reiserfs_fh_to_dentry().
 
-To complicate matters a bit further, you have the fact that NFSv3
-filehandles are 0-64 bytes long, and NFSv2 filehandles are always 32
-bytes long...
+It would indeed be a good idea to try sticking some debugging
+'printk's in there in order to see what is failing...
 
 Cheers,
   Trond
+

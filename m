@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVBXABk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVBXABl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVBXABk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 19:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVBWX7X
+	id S261705AbVBXABl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 19:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVBWX6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:59:23 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:11193 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261717AbVBWX4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:56:10 -0500
-Message-ID: <421D1811.3060705@ens-lyon.org>
-Date: Thu, 24 Feb 2005 00:56:01 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1
-References: <20050223014233.6710fd73.akpm@osdl.org> <421CC959.3070405@ens-lyon.org> <20050223212433.GA31281@isilmar.linta.de>
-In-Reply-To: <20050223212433.GA31281@isilmar.linta.de>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+	Wed, 23 Feb 2005 18:58:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:17056 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261727AbVBWXru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 18:47:50 -0500
+Date: Wed, 23 Feb 2005 15:32:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Telemaque Ndizihiwe <telendiz@eircom.net>
+Cc: duncan.sands@free.fr, linux-usb-devel@lists.sourceforge.net,
+       torvalds@osdl.org, akpm@osdl.org, trivial@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replaces (2 * HZ) with DATA_TIMEOUT in /drivers/usb/atm/speedtch.c
+Message-ID: <20050223233243.GA6807@kroah.com>
+References: <421CCE98.4090406@eircom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421CCE98.4090406@eircom.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski a écrit :
->>>+pcmcia-bridge-resource-management-fix.patch
+On Wed, Feb 23, 2005 at 06:42:32PM +0000, Telemaque Ndizihiwe wrote:
+> This Patch replaces "(2 * HZ)" with "DATA_TIMEOUT" which is defined as
+>     #define DATA_TIMEOUT (2 * HZ)
+> in /drivers/usb/atm/speedtch.c in kernel 2.6.10.
 > 
-> is responsible for this "no resource available" message, because the other
-> ones relate to other areas.
+> Signed-off-by: Telemaque Ndizihiwe <telendiz@eircom.net>
 
-This line from dmesg-2.6.11-rc4 is no longer present in -rc4-mm1:
-PCI: Transparent bridge - 0000:00:1e.0
+This has already been fixed in my tree, due to the change in time value
+for the usb_bulk_msg() call.  See the latest -mm release to validate
+this.
 
-This is probably due to this patch too, right ?
-Was it supposed to changed that ?
+thanks,
 
-lspci -tv says that the PCMCIA bridge whose resources are broken
-is behind this no-longer transparent bridge.
-
--[00]-+-00.0  Intel Corp. 82830 830 Chipset Host Bridge
-       +-01.0-[01]----00.0  ATI Technologies Inc Radeon Mobility M6 LY
-       +-1d.0  Intel Corp. 82801CA/CAM USB (Hub #1)
-       +-1d.1  Intel Corp. 82801CA/CAM USB (Hub #2)
-       +-1d.2  Intel Corp. 82801CA/CAM USB (Hub #3)
-       +-1e.0-[02-04]--+-03.0  Texas Instruments PCI1420
-       |               +-03.1  Texas Instruments PCI1420
-       |               +-04.0  Agere Systems (former Lucent Microelectronics) LT WinModem
-       |               +-08.0  Intel Corp. 82801CAM (ICH3) PRO/100 VM (KM) Ethernet Controller
-       |               \-09.0  ESS Technology ES1988 Allegro-1
-       +-1f.0  Intel Corp. 82801CAM ISA Bridge (LPC)
-       \-1f.1  Intel Corp. 82801CAM IDE U100
-
-Hope this helps.
-
-Brice
+greg k-h

@@ -1,99 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267183AbTBLRMW>; Wed, 12 Feb 2003 12:12:22 -0500
+	id <S267185AbTBLRMi>; Wed, 12 Feb 2003 12:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267185AbTBLRMW>; Wed, 12 Feb 2003 12:12:22 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:30150 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267183AbTBLRMU>;
-	Wed, 12 Feb 2003 12:12:20 -0500
-Date: Wed, 12 Feb 2003 09:19:16 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: bgerst@didntduck.org, ambx1@neo.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
-Message-Id: <20030212091916.1989c531.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0302121110570.211-100000@coredump.sh0n.net>
-References: <3E4A6BF0.1000004@didntduck.org>
-	<Pine.LNX.4.44.0302121110570.211-100000@coredump.sh0n.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267243AbTBLRMi>; Wed, 12 Feb 2003 12:12:38 -0500
+Received: from packet.digeo.com ([12.110.80.53]:11485 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267185AbTBLRMg>;
+	Wed, 12 Feb 2003 12:12:36 -0500
+Date: Wed, 12 Feb 2003 09:22:24 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Panic `cat /proc/ioports`
+Message-Id: <20030212092224.27aa4723.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.3.95.1030212081934.6864A-100000@chaos.analogic.com>
+References: <20030211154413.19a172f4.akpm@digeo.com>
+	<Pine.LNX.3.95.1030212081934.6864A-100000@chaos.analogic.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Feb 2003 17:22:19.0034 (UTC) FILETIME=[4BB007A0:01C2D2BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(see an answer at bottom)
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>
+> On Tue, 11 Feb 2003, Andrew Morton wrote:
+> 
+> > "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+> > >
+> > > Linux version 2.4.18, after it runs for a few days, will panic
+> > > if I do `cat /proc/ioports`. Has this been reported/fixed in
+> > > later versions?
+> > > 
+> > > : Unable to handle kernel paging request at virtual address d48e2fa0 
+> > 
+> > This means that some driver which was previously loaded forgot to do a
+> > release_region().  Later, the /proc code tries to read stuff from within the
+> > driver which isn't there any more and oopses.
+> > 
+> 
+> Yes. I just noticed that most network board drivers in version 2.4.18
+> do not execute release_region() after they have done a request_region(),
+> if they fail to install because of some error.
 
-On Wed, 12 Feb 2003 11:12:02 -0500 (EST)
-Shawn Starr <spstarr@sh0n.net> wrote:
+Fairly common error.
 
-| 
-| Right, but this wasn't a problem in 2.4? I had a PS/2 mouse before in 2.4
-| and this didnt have the problem.
-| 
-| 
-| On Wed, 12 Feb 2003, Brian Gerst wrote:
-| 
-| > Shawn Starr wrote:
-| > > 2.4:
-| > >            CPU0
-| > >   0:    2576292          XT-PIC  timer
-| > >   1:        661          XT-PIC  keyboard
-| > >   2:          0          XT-PIC  cascade
-| > >   3:         10          XT-PIC  serial
-| > >   5:    1104824          XT-PIC  soundblaster
-| > >   8:          1          XT-PIC  rtc
-| > >   9:          0          XT-PIC  acpi
-| > >  10:          7          XT-PIC  aic7xxx
-| > >  11:      15167          XT-PIC  usb-uhci, eth0
-| > >  14:       7554          XT-PIC  ide0
-| > >  15:          3          XT-PIC  ide1
-| > >
-| > > 2.5:
-| > >
-| > >            CPU0
-| > >   0:      36281          XT-PIC  timer
-| > >   1:         15          XT-PIC  i8042
-| > >   2:          0          XT-PIC  cascade
-| > >   3:        149          XT-PIC  serial
-| > >   5:          0          XT-PIC  soundblaster
-| > >   8:          1          XT-PIC  rtc
-| > >   9:          0          XT-PIC  acpi
-| > >  10:         20          XT-PIC  aic7xxx
-| > >  11:        324          XT-PIC  uhci-hcd, eth0
-| > >  12:         60          XT-PIC  i8042 <--???
-| > >  14:        723          XT-PIC  ide0
-| > >  15:          9          XT-PIC  ide1
-| > > NMI:          0
-| > > LOC:      35547
-| > > ERR:          0
-| > > MIS:          0
-| > >
-| > > Interesting, why are we using two interrupts for the i8042 (keyboard).
-| >
-| > IRQ12 is for the PS/2 mouse port.
-| >
-| > --
-| > 				Brian Gerst
+> The error in this case was
+> the failure to allocate memory because I told the kernel I only had 4
+> megabytes (exprimental ioremap() of the rest in another module).
+> 
+> Is somebody fixing these drivers (do you know).
 
-Do you have a PS/2 mouse enabled/configured in 2.4?
-I do, and it shows this on 2.4.20:
+There is ongoing janitorial work, and things are getting better.
+But I'm not aware of anyone specifically auditing for missing
+release_region()s.  And given that it is a box-killer rather than
+just a memory leak, yes, it is worth an audit.
 
-  0:   78505022          XT-PIC  timer
-  1:     305438          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:    2013477          XT-PIC  xirc2ps_cs
-  5:          0          XT-PIC  usb-uhci
-  8:          1          XT-PIC  rtc
- 10:          4          XT-PIC  i82365
- 11:    2188569          XT-PIC  i82365, cs46xx
- 12:    1555382          XT-PIC  PS/2 Mouse
- 14:     872963          XT-PIC  ide0
- 15:          3          XT-PIC  ide1
-
-and the driver code certainly requests IRQ 12 for the PS/2 mouse
-when it's configured.
-
---
-~Randy

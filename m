@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263726AbTE3OpN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 10:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263727AbTE3OpM
+	id S263738AbTE3OxM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 10:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTE3OxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 10:45:12 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:32787 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263726AbTE3OpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 10:45:11 -0400
-Date: Fri, 30 May 2003 15:58:20 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs !
-Message-ID: <20030530155820.A11144@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>,
-	root@chaos.analogic.com, linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <Pine.LNX.4.53.0305281612160.13968@chaos> <200305282052.h4SKqUBw016537@verdi.et.tudelft.nl> <20030530132112.GA9572@redhat.com>
-Mime-Version: 1.0
+	Fri, 30 May 2003 10:53:12 -0400
+Received: from cs.rice.edu ([128.42.1.30]:25343 "EHLO cs.rice.edu")
+	by vger.kernel.org with ESMTP id S263738AbTE3OxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 10:53:10 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: alexander.riesen@synopsys.COM, linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+References: <oyd3cixc9ev.fsf@bert.cs.rice.edu>
+	<20030529.232440.122068039.davem@redhat.com>
+	<20030530085901.GB11885@Synopsys.COM>
+	<20030530.020040.52897577.davem@redhat.com>
+From: Scott A Crosby <scrosby@cs.rice.edu>
+Organization: Rice University
+Date: 30 May 2003 10:05:51 -0500
+In-Reply-To: <20030530.020040.52897577.davem@redhat.com>
+Message-ID: <oydd6i04gq8.fsf@bert.cs.rice.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030530132112.GA9572@redhat.com>; from sct@redhat.com on Fri, May 30, 2003 at 02:21:12PM +0100
+X-DCC--Metrics: cs.rice.edu 1066; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 02:21:12PM +0100, Stephen C. Tweedie wrote:
-> +void update_mctime (struct inode *inode)
-> +{
-> +	if (inode->i_mtime == CURRENT_TIME && inode->i_ctime == CURRENT_TIME)
-> +		return;
-> +	if ( IS_RDONLY (inode) ) return;
-> +	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-> +	mark_inode_dirty (inode);
-> +}   /*  End Function update_mctime  */
-> +
+On Fri, 30 May 2003 02:00:40 -0700 (PDT), "David S. Miller" <davem@redhat.com> writes:
 
-Yikes, this looks like devfs code!  Please try to use proper kernel style..
+>    From: Alex Riesen <alexander.riesen@synopsys.COM>
+>    Date: Fri, 30 May 2003 10:59:01 +0200
+> 
+>        static
+>        int hash_3(int hi, int c)
+>        {
+>    	return (hi + (c << 4) + (c >> 4)) * 11;
+>        }
+>    
+>    gcc-3.2.1 -O2 -march=pentium
+>  ...   
+>    It is not guaranteed to be this way on all architectures, of course.
+>    But still - no multiplications.
+> 
+> Indeed, I'd missed this.  GCC will emit the constant multiply
+> expansion unless the multiply cost is set VERY low.
 
+It may still be a win. This does a bit under a dozen instructions per
+byte. However, jenkin's does many bytes at a time.
+
+Scott

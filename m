@@ -1,30 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbQKCNNA>; Fri, 3 Nov 2000 08:13:00 -0500
+	id <S129076AbQKCNRu>; Fri, 3 Nov 2000 08:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129088AbQKCNMk>; Fri, 3 Nov 2000 08:12:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55154 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129066AbQKCNMc>; Fri, 3 Nov 2000 08:12:32 -0500
-Subject: Re: so vesafb doesn't work in i815
-To: narancs1@externet.hu (Narancs 1)
-Date: Fri, 3 Nov 2000 13:13:12 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.02.10011030852170.2786-100000@prins.externet.hu> from "Narancs 1" at Nov 03, 2000 09:00:06 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129116AbQKCNRk>; Fri, 3 Nov 2000 08:17:40 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:61848 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S129076AbQKCNRc>; Fri, 3 Nov 2000 08:17:32 -0500
+Message-ID: <3A02BAE9.153858BB@haque.net>
+Date: Fri, 03 Nov 2000 08:17:29 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: That Dirty Son of a Bitch, Bill Gates!!!
+In-Reply-To: <Pine.LNX.3.95.1001103081033.24503B-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13rgef-0003Vf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > want 2.4test or 2.2.18pre18 + ide patch
-> how?
-> which driver?
+Relax everyone. Andre has not gone insane from coding (or is he even
+sane to begin with?). He knows the site is a joke.
 
-2.2.18pre19 or 2.4.0test10 + the codec init patch
+Like he said earlier. He just wanted a reason to say "That Dirty Son of
+a Bitch, Bill Gates!!!"
+
+"Richard B. Johnson" wrote:
+> 
+> On Thu, 2 Nov 2000, Andre Hedrick wrote:
+> It's a joke, man. read it!
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
+> 
+> "Memory is like gasoline. You use it up when you are running. Of
+> course you get it all back when you reboot..."; Actual explanation
+> obtained from the Micro$oft help desk.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVCIIge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVCIIkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVCIIge (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 03:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCIIge
+	id S262126AbVCIIkM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 03:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVCIIkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 03:36:34 -0500
-Received: from granny.lievin.net ([81.56.184.74]:1996 "EHLO granny.lievin.net")
-	by vger.kernel.org with ESMTP id S261643AbVCIIgb (ORCPT
+	Wed, 9 Mar 2005 03:40:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:45237 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261651AbVCIIkD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 03:36:31 -0500
-Date: Wed, 9 Mar 2005 09:36:12 +0100
-From: Romain Lievin <lkml@lievin.net>
+	Wed, 9 Mar 2005 03:40:03 -0500
+Date: Wed, 9 Mar 2005 00:39:23 -0800
+From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: zippel@linux-m68k.org
-Subject: [PATCH] Fix warning in gkc (make gconfig) {Scanned}
-Message-ID: <20050309083612.GA15812@lievin.net>
+Cc: chrisw@osdl.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Linux 2.6.11.2
+Message-ID: <20050309083923.GA20461@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6+20040907i
-X-FamilleLievin-MailScanner-Information: Please contact postmaster@lievin.net for more information
-X-FamilleLievin-MailScanner: Found to be clean
-X-MailScanner-From: lkml@lievin.net
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+And to further test this whole -stable system, I've released 2.6.11.2.
+It contains one patch, which is already in the -bk tree, and came from
+the security team (hence the lack of the longer review cycle).
 
-this patch against 2.6.11-rc3 fixes some warnings about GtkToolButton in gkc
-(the GTK Kernel Configurator).
+It's available now in the normal kernel.org places:
+	kernel.org/pub/linux/kernel/v2.6/patch-2.6.11.2.gz
+which is a patch against the 2.6.11.1 release.  If consensus arrives
+that this patch should be against the 2.6.11 tree, it will be done that
+way in the future.
 
-Please apply.
+A detailed changelog can be found at:
+ 	kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.11.2
 
-Thanks, Romain.
+A bitkeeper tree for the 2.6.11.y releases can be found at:
+	bk://linux-release.bkbits.net/linux-2.6.11
 
-Signed-off-by: Romain Liévin <lkml@lievin.net>
-================[cut here]====================
-diff -Naur linux-2.6.11-rc3/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
---- linux-2.6.11-rc3/scripts/kconfig/gconf.c	2005-02-11 20:41:34.000000000 +0100
-+++ linux/scripts/kconfig/gconf.c	2005-02-11 20:43:23.000000000 +0100
-@@ -222,15 +222,15 @@
- 	switch (view_mode) {
- 	case SINGLE_VIEW:
- 		widget = glade_xml_get_widget(xml, "button4");
--		gtk_button_clicked(GTK_BUTTON(widget));
-+		g_signal_emit_by_name(widget, "clicked");
- 		break;
- 	case SPLIT_VIEW:
- 		widget = glade_xml_get_widget(xml, "button5");
--		gtk_button_clicked(GTK_BUTTON(widget));
-+		g_signal_emit_by_name(widget, "clicked");
- 		break;
- 	case FULL_VIEW:
- 		widget = glade_xml_get_widget(xml, "button6");
--		gtk_button_clicked(GTK_BUTTON(widget));
-+		g_signal_emit_by_name(widget, "clicked");
- 		break;
- 	}
+The diffstat and short summary of the fixes are below.  
+
+I'll also be replying to this message with a copy of the patch itself,
+as it is small enough to do so.
+
+thanks,
  
-================[cut here]====================
--- 
-Romain Liévin :		<roms@lievin.net>
-Web site :		http://www.lievin.net
-"Linux, y'a moins bien mais c'est plus cher !"
+greg k-h
+
+-------
 
 
+ Makefile       |    2 +-
+ fs/eventpoll.c |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
 
+Summary of changes from v2.6.11.1 to v2.6.11.2
+============================================
+
+Greg Kroah-Hartman:
+  o Linux 2.6.11.2
+
+Linus Torvalds:
+  o epoll: return proper error on overflow condition
 
 

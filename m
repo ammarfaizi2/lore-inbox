@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbTKMLNH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 06:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263956AbTKMLNH
+	id S263909AbTKMLR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 06:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263934AbTKMLR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 06:13:07 -0500
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:3989 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S263953AbTKMLNE
+	Thu, 13 Nov 2003 06:17:28 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:21645 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263909AbTKMLRX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 06:13:04 -0500
-Date: Thu, 13 Nov 2003 13:12:58 +0200 (EET)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0test9 + 2 * P IV Xeon 2.4GHz with HT + SATA + RAID1 = scheduler
- problems
-Message-ID: <Pine.LNX.4.58.0311131303500.4183@hosting.rdsbv.ro>
+	Thu, 13 Nov 2003 06:17:23 -0500
+Date: Thu, 13 Nov 2003 09:07:05 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Beau E. Cox" <beau@beaucox.com>, <linux-kernel@vger.kernel.org>,
+       <netfilter-devel@lists.netfilter.org>
+Subject: Re: PROBLEM: 2.4.23-rc4 -> rc1 hang with change to ip_nat_core.c
+ made in pre4
+In-Reply-To: <20031112212025.5eb29f52.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0311130850030.3878-100000@logos.cnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I want to tell you that 2.6.0-test gets better and better. It works very
-very well on several systems. Thank you very much, guys.
 
-I have an server (like in the subject). The problem is that the scheduler
-seems to behave weird. Sometimes a program just do nothing. There is no
-disk activity, interrupts are a little over 1000, no disk requests,
-context switches are ~40. The system is idle but it has work to do!
-Can I provide more info?
+On Wed, 12 Nov 2003, David S. Miller wrote:
 
-I tried to put elevator=deadline and things seems worse.
+> On Wed, 12 Nov 2003 19:24:38 -1000
+> "Beau E. Cox" <beau@beaucox.com> wrote:
+> 
+> > On Wednesday 12 November 2003 05:59 pm, David S. Miller wrote:
+> > > Marcelo has reverted the change in question, so his current
+> > > 2.4.x tree should be fine.
+> > 
+> > Thank you so much.
+> > 
+> > I guess this makes me an honary Linux kernel contribitor, er...
+> > uncontributor... :)
+> 
+> I take what I said back temporarily, Marcelo didn't revert the
+> change yet but I have just reminded him to do so.
+> 
+> It should be fixed by the time 2.4.23 final rolls out.
 
-If I'm not mistaken, the processes are in D state. Bt I'm not sure, I must
-check again and right now I can't.
+The mentioned change is already in bkbits.net.
 
-Also I suspect that scheduler doesn't pay special attention to virtual
-(HT) processors. Is this true?
 
-I have not seen this problem on other machines.
 
-Thank you.
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+

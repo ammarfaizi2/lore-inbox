@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbUK2To0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbUK2ToZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbUK2To0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUK2TnN
+	id S261766AbUK2ToZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUK2Tnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:43:13 -0500
-Received: from av1-2-sn3.vrr.skanova.net ([81.228.9.106]:62632 "EHLO
-	av1-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S261575AbUK2Tdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:33:42 -0500
-To: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/pktcdvd.c: make two functions static
-References: <20041124231055.GN19873@stusta.de>
-	<20041125101220.GC29539@infradead.org>
-	<20041129123307.GN9722@stusta.de>
-From: Peter Osterlund <petero2@telia.com>
-Date: 29 Nov 2004 20:33:39 +0100
-In-Reply-To: <20041129123307.GN9722@stusta.de>
-Message-ID: <m3d5xw30x8.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Mon, 29 Nov 2004 14:43:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30345 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261772AbUK2TjZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 14:39:25 -0500
+Date: Mon, 29 Nov 2004 20:36:15 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] noop-iosched.c: make some functions static
+Message-ID: <20041129193615.GE11102@suse.de>
+References: <20041124231055.GN19873@stusta.de> <20041125101220.GC29539@infradead.org> <20041129123135.GM9722@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041129123135.GM9722@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
-
-> The patch below makes two needlessly global functions static.
-
-Looks good to me.
-
+On Mon, Nov 29 2004, Adrian Bunk wrote:
+> The patch below makes some needlessly global functions static.
+> 
+> 
 > diffstat output:
->  drivers/block/pktcdvd.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
+>  drivers/block/noop-iosched.c |   12 ++++++------
+>  1 files changed, 6 insertions(+), 6 deletions(-)
 > 
 > 
 > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.10-rc1-mm3-full/drivers/block/pktcdvd.c.old	2004-11-06 20:16:55.000000000 +0100
-> +++ linux-2.6.10-rc1-mm3-full/drivers/block/pktcdvd.c	2004-11-06 20:17:22.000000000 +0100
-> @@ -2627,7 +2627,7 @@
->  	.fops  		= &pkt_ctl_fops
->  };
->  
-> -int pkt_init(void)
-> +static int pkt_init(void)
+
+Acked-by: Jens Axboe <axboe@suse.de>
+
+> --- linux-2.6.10-rc1-mm3-full/drivers/block/noop-iosched.c.old	2004-11-06 20:10:24.000000000 +0100
+> +++ linux-2.6.10-rc1-mm3-full/drivers/block/noop-iosched.c	2004-11-06 20:11:23.000000000 +0100
+> @@ -17,7 +17,7 @@
+>  /*
+>   * See if we can find a request that this buffer can be coalesced with.
+>   */
+> -int elevator_noop_merge(request_queue_t *q, struct request **req,
+> +static int elevator_noop_merge(request_queue_t *q, struct request **req,
+>  			struct bio *bio)
 >  {
->  	int ret;
->  
-> @@ -2663,7 +2663,7 @@
->  	return ret;
+>  	struct list_head *entry = &q->queue_head;
+> @@ -50,13 +50,13 @@
+>  	return ELEVATOR_NO_MERGE;
 >  }
 >  
-> -void pkt_exit(void)
-> +static void pkt_exit(void)
+> -void elevator_noop_merge_requests(request_queue_t *q, struct request *req,
+> +static void elevator_noop_merge_requests(request_queue_t *q, struct request *req,
+>  				  struct request *next)
 >  {
->  	remove_proc_entry("pktcdvd", proc_root_driver);
->  	misc_deregister(&pkt_misc);
+>  	list_del_init(&next->queuelist);
+>  }
+>  
+> -void elevator_noop_add_request(request_queue_t *q, struct request *rq,
+> +static void elevator_noop_add_request(request_queue_t *q, struct request *rq,
+>  			       int where)
+>  {
+>  	struct list_head *insert = q->queue_head.prev;
+> @@ -75,7 +75,7 @@
+>  		q->last_merge = rq;
+>  }
+>  
+> -struct request *elevator_noop_next_request(request_queue_t *q)
+> +static struct request *elevator_noop_next_request(request_queue_t *q)
+>  {
+>  	if (!list_empty(&q->queue_head))
+>  		return list_entry_rq(q->queue_head.next);
+> @@ -94,12 +94,12 @@
+>  	.elevator_owner = THIS_MODULE,
+>  };
+>  
+> -int noop_init(void)
+> +static int noop_init(void)
+>  {
+>  	return elv_register(&elevator_noop);
+>  }
+>  
+> -void noop_exit(void)
+> +static void noop_exit(void)
+>  {
+>  	elv_unregister(&elevator_noop);
+>  }
+> 
+> 
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Jens Axboe
+

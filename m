@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130151AbRBAIX2>; Thu, 1 Feb 2001 03:23:28 -0500
+	id <S130169AbRBAIZI>; Thu, 1 Feb 2001 03:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129409AbRBAIXS>; Thu, 1 Feb 2001 03:23:18 -0500
-Received: from mr14.vic-remote.bigpond.net.au ([24.192.1.29]:20198 "EHLO
-	mr14.vic-remote.bigpond.net.au") by vger.kernel.org with ESMTP
-	id <S130151AbRBAIW6>; Thu, 1 Feb 2001 03:22:58 -0500
-From: Darren Tucker <dtucker@zip.com.au>
-Message-Id: <200102010822.f118Mlu02001@gate.dodgy.net.au>
-Subject: Etherworks3 driver now obsolete?
-To: linux-kernel@vger.kernel.org
-Date: Thu, 1 Feb 2001 19:22:46 +1100 (EST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S130150AbRBAIY6>; Thu, 1 Feb 2001 03:24:58 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:32777 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130095AbRBAIYk>;
+	Thu, 1 Feb 2001 03:24:40 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@melbourne.sgi.com>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Power usage Q and parallel make question (separate issues) 
+In-Reply-To: Your message of "Thu, 01 Feb 2001 00:13:17 -0800."
+             <3A791A9D.1B2D0EEA@sgi.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 01 Feb 2001 19:24:32 +1100
+Message-ID: <15262.981015872@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Thu, 01 Feb 2001 00:13:17 -0800, 
+LA Walsh <law@sgi.com> wrote:
+>Keith Owens wrote:
+>> It works, until somebody does this
+>> 
+>>  make -j 4 modules modules_install
+>---
+>	But that doesn't work now.  
 
-I decided to try a shiny new 2.4.0 kernel but I couldn't configure the driver
-for my etherworks3 ISA ethernet card (AMD K6III PC hardware).
+Agreed, but letting modules_install parallel run increases the risk of
+somebody doing that.  Most users will think that they can combine two
+parallel runs into a single command, but if they are forced to single
+thread modules_install it reduces the risk of user error.
 
-A bit of grepping showed that it only appears if CONFIG_OBSOLETE is defined
-but nothing in the configuration tools seems to set it (at least for i386).
+>	A bit of documentation at the beginning of the Makefile would do wonders
+>for kernel-developer (not end user, please!) clarity.  I've oft'asked the question
+>as to what really is supported.  I've tried things like make dep bzImage modules --
+>I noticed it didn't work fairly quickly.  Same with modules/modules_install -- 
+>people would probably figure that one out, but just a bit of documentation would
+>help even that.  
 
-CONFIG_OBSOLETE is checked for by Config.in for a couple of drivers (net and
-char), but the only place it seems to be defined is for the ARM architecture. 
-
-Is this deliberate? Are some of the older drivers to be phased out?
-Should there be a "bool 'Prompt for obsolete code/drivers' CONFIG_OBSOLETE"
-in the config.in for other architectures, too?
-
-Thanks.
-
-		-Daz.
+The 2.5 kbuild system will be fully documented, all the way from
+reasons for doing things down to how they are down.  Trust me on this!
+I have had too many problems with undocumented changes in kbuild.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbULOKuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbULOKwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbULOKuM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 05:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbULOKuM
+	id S262321AbULOKwR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 05:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbULOKwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 05:50:12 -0500
-Received: from gw.goop.org ([64.81.55.164]:54168 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S262318AbULOKuI (ORCPT
+	Wed, 15 Dec 2004 05:52:17 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:61151 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S262321AbULOKwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 05:50:08 -0500
-Subject: Re: 32-bit syscalls from 64-bit process on x86-64?
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041215042704.GE27225@wotan.suse.de>
-References: <380350F3EC1@vcnet.vc.cvut.cz>
-	 <20041215042704.GE27225@wotan.suse.de>
-Content-Type: text/plain
-Date: Wed, 15 Dec 2004 02:50:07 -0800
-Message-Id: <1103107807.24540.23.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-0.mozer.2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 05:52:12 -0500
+Date: Wed, 15 Dec 2004 11:52:08 +0100 (CET)
+From: Jirka Kosina <jikos@jikos.cz>
+To: ramos_fabiano@yahoo.com.br
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: help with access_process_vm
+In-Reply-To: <5afb2c65041214125270170a1@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0412151149330.26342@twin.jikos.cz>
+References: <5afb2c65041214112577ff4a18@mail.gmail.com> 
+ <20041214123124.R469@build.pdx.osdl.net> <5afb2c65041214125270170a1@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-15 at 05:27 +0100, Andi Kleen wrote:
-> From 64bit-from-32bit the lcall is needed agreed. However as a 
-> warning it will not work for all calls since a few check a bit
-> in task_struct that says if the process is 32bit or 64bit
-> (rather rare though, most prominent is signal handling) 
+On Tue, 14 Dec 2004, Fabiano Ramos wrote:
 
-When delivering a signal to a 64-bit process (ie, without TIF_IA32 set),
-do you think it should always set cs to be USER_CS?  At the moment, if
-cs is something else (ie, USER32_CS), it tries to deliver the signal
-with that current...
+> Is it possible to put the process that caused the trap to sleep, call
+> schedule and defer this access_process_vm to later on with irqs enabled
+> and only than resume the faulty process?
 
-	J
+How would you ever reschedule that? There is no way scheduler can schedule 
+interrupt contexts.
 
+Try thinking about using some bottom half mechanisms which is kernel 
+providing. Also consider this as offtopic here, should go to linux kernel 
+newbies malinglist.
+
+Cheers,
+
+-- 
+JiKos.

@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313796AbSDPR5c>; Tue, 16 Apr 2002 13:57:32 -0400
+	id <S313797AbSDPSAP>; Tue, 16 Apr 2002 14:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313799AbSDPR5b>; Tue, 16 Apr 2002 13:57:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51861 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313796AbSDPR5a>;
-	Tue, 16 Apr 2002 13:57:30 -0400
-Date: Tue, 16 Apr 2002 10:49:21 -0700 (PDT)
-Message-Id: <20020416.104921.95902105.davem@redhat.com>
-To: haveblue@us.ibm.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ips driver compile problems
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CBC3DB5.7020709@us.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313798AbSDPSAO>; Tue, 16 Apr 2002 14:00:14 -0400
+Received: from dragon.flightlab.com ([206.169.119.102]:13064 "EHLO
+	dragon.flightlab.com") by vger.kernel.org with ESMTP
+	id <S313797AbSDPSAN>; Tue, 16 Apr 2002 14:00:13 -0400
+Message-Id: <200204161800.g3GI06f22193@dragon.flightlab.com>
+To: linux-kernel@vger.kernel.org
+Subject: MODULE_LICENSE string for LGPL drivers?
+Date: Tue, 16 Apr 2002 11:00:06 -0700
+From: Joe English <jenglish@flightlab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dave Hansen <haveblue@us.ibm.com>
-   Date: Tue, 16 Apr 2002 08:05:25 -0700
 
-      This patch has been floating inside IBM for a bit, but it appears 
-   that no one passed it back up to you, yet.  I don't know who wrote it, 
-   but it applies to 2.5.8 and the ServeRAID driver works just fine with it 
-   applied.  Without it, the driver fails to compile.
+Hello all,
 
-Alan commented today on this list why these changes are not
-acceptable.
+What should I use for the MODULE_LICENSE() string in a driver
+that is distributed under the LGPL?  "LGPL" isn't listed in
+include/linux/module.h as an "untainted" license, so should I
+use "GPL and additional rights" instead?
+
+I don't *think* I'm running into problems with EXPORT_SYMBOL_GPL --
+the driver has been working fine under 2.4 kernels
+and I only recently found out about MODULE_LICENSE and
+*that* whole mess -- but am not sure, since I've also
+got an older version of modutils which probably isn't
+performing the taint check.
+
+Unfortunately switching to the GPL is not an option;
+the driver was written for a third party and must be
+distributed with firmware (proprietary, binary-only)
+and client libraries (source available but still proprietary)
+over whose license terms I have no control.
+
+Alternately, I could just let it taint the kernel.
+
+
+Thanks for any advice.  Cc:'s to jenglish@flightlab.com
+will be appreciated; I am not subscribed to this list, but
+will try to keep up via the web archives.
+
+
+--Joe English
+
+  jenglish@flightlab.com

@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278941AbRJ2B3C>; Sun, 28 Oct 2001 20:29:02 -0500
+	id <S278943AbRJ2B5b>; Sun, 28 Oct 2001 20:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278943AbRJ2B2x>; Sun, 28 Oct 2001 20:28:53 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:63502 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S278941AbRJ2B2n>; Sun, 28 Oct 2001 20:28:43 -0500
-Message-ID: <3BDCAFC4.EBA4E785@zip.com.au>
-Date: Sun, 28 Oct 2001 17:24:20 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
-X-Accept-Language: en
+	id <S278945AbRJ2B5V>; Sun, 28 Oct 2001 20:57:21 -0500
+Received: from rosebud.imaginos.net ([64.173.180.66]:29829 "EHLO
+	rosebud.imaginos.net") by vger.kernel.org with ESMTP
+	id <S278943AbRJ2B5J> convert rfc822-to-8bit; Sun, 28 Oct 2001 20:57:09 -0500
+Date: Sun, 28 Oct 2001 17:57:36 -0800 (PST)
+From: Jim Hull <imaginos@imaginos.net>
+X-X-Sender: <imaginos@rosebud>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Intel EEPro 100 with kernel drivers
+In-Reply-To: <20011029021339.B23985@stud.ntnu.no>
+Message-ID: <Pine.LNX.4.33.0110281751180.15693-100000@rosebud>
 MIME-Version: 1.0
-To: Robert Kuebel <kuebelr@email.uc.edu>
-CC: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 8139too reparent_to_init() race
-In-Reply-To: <20011028200153.A331@cartman>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kuebel wrote:
-> 
-> hello all,
-> 
-> lately i noticed this message during boot-up (when the network
-> interfaces were being configured) ...
-> 
-> "task `ifconfig' exit_signal 17 in reparent_to_init"
-> 
-> this happens only about 1/2 of the time.
-> 
-> after some digging this is what i found...
-> sometimes ifconfig's parent exits before ifconfig reaches
-> rtl8139_thread().  when this happens, ifconfig's exit_signal is set to
-> SIGCHLD (in forget_original_parent), because its new parent is init.
-> then rlt8139_thread() is reached it calls reparent_to_init(), which
-> complains that exit_signal is already non-zero.
-> 
-> basically this patch stops rtl8139_thread() from calling
-> reparent_to_init() when its parent is already init.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks - that's a useful analysis.
+I actually have the same issue but I am not seeing any performance
+loss. I do extensive NFS transfers as this box also stores a software raid
+array, and aside from the kernel message, I am unaffected.
 
-The check in reparent_to_init() was to warn about the situation
-where someone had deliberately set the exit signal to some
-non-zero value and then the child calls reparent_to_init() - it's
-telling you that we're about to stomp on your chosen exit signal.
-I hadn't thought about the forget_original_parent() case.
+- From what I understand the problem is a hardware bug, and I believe I read
+somewhere that by forcing the network card to use its own IRQ and not
+having it share an IRQ will alleviate this problem.
 
-So the fix should be to change the debug code in reparent_to_init()
-so it doesn't complain if the exit signal is already SIGCHLD.  Or
-just kill it off altogether.
+Hope this helps ....
+
+On a side note I run this nic on about 10 production web servers running
+fbsd 3.5 receiving extensive traffic loads and have no problems with them
+at all.
 
 
---- linux-2.4.14-pre3/kernel/sched.c	Tue Oct 23 23:09:48 2001
-+++ linux-akpm/kernel/sched.c	Sun Oct 28 17:23:26 2001
-@@ -1250,11 +1250,6 @@ void reparent_to_init(void)
- 	SET_LINKS(this_task);
- 
- 	/* Set the exit signal to SIGCHLD so we signal init on exit */
--	if (this_task->exit_signal != 0) {
--		printk(KERN_ERR "task `%s' exit_signal %d in "
--				__FUNCTION__ "\n",
--			this_task->comm, this_task->exit_signal);
--	}
- 	this_task->exit_signal = SIGCHLD;
- 
- 	/* We also take the runqueue_lock while altering task fields
+				Jim
 
--
+
+============================
+They that give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety.
+
+- --Benjamin Franklin,
+Historical Review of Pennyslvania, 1759
+
+
+
+On Mon, 29 Oct 2001, [iso-8859-1] Thomas Langås wrote:
+
+Hi!
+
+We've got a lot of machines with the eepro 100 from intel onboard, and when
+we try to stress-test the network (running bonnie++ on a nfs-shared
+directory on a machine), the network-card says "eth0: Card reports no
+resources" to dmesg, and then the "line" appear dead for some time (one
+minutte or more). What can be done to remove this error? NFS timesout with
+this error (obviously)...
+
+- -- 
+Thomas
+- -
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE73LeWdygyS8O4zQ0RAnB8AJ4xqGShA8xlANM9pFmbvNWf4Ia2GgCgusjL
+ZgmY6+MW8+vzzYIHCdSRDts=
+=ql0B
+-----END PGP SIGNATURE-----
+
+

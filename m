@@ -1,66 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSG2I44>; Mon, 29 Jul 2002 04:56:56 -0400
+	id <S314077AbSG2JHu>; Mon, 29 Jul 2002 05:07:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314085AbSG2I44>; Mon, 29 Jul 2002 04:56:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7172 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313638AbSG2I4z>; Mon, 29 Jul 2002 04:56:55 -0400
-Date: Mon, 29 Jul 2002 10:00:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-Subject: Re: Serial core problems on embedded PPC
-Message-ID: <20020729100009.A23843@flint.arm.linux.org.uk>
-References: <20020729040824.GA2351@zax>
+	id <S314080AbSG2JHu>; Mon, 29 Jul 2002 05:07:50 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:7133 "EHLO core.arrancar.com")
+	by vger.kernel.org with ESMTP id <S314077AbSG2JHt>;
+	Mon, 29 Jul 2002 05:07:49 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Federico Ferreres <fferreres@ojf.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Daniel Mose <imcol@unicyclist.com>,
+       Larry McVoy <lm@work.bitmover.com>,
+       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, openpatentfunds@home.se
+In-Reply-To: <3D44F136.8060202@namesys.com>
+References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu> 
+	<3D44F136.8060202@namesys.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Jul 2002 06:07:02 -0300
+Message-Id: <1027933632.4472.88.camel@fede>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020729040824.GA2351@zax>; from david@gibson.dropbear.id.au on Mon, Jul 29, 2002 at 02:08:24PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 02:08:24PM +1000, David Gibson wrote:
-> I've been trying to get the new serial core stuff working on a PPC 4xx
-> machine (an EP405 board, specifically).  This is proving more
-> difficult than I expected.
+On Mon, 2002-07-29 at 04:39, Hans Reiser wrote:
 
-It's vital that you mention the kernel version you're using; some of
-these problems sound like 2.5.28.
+> Your idea has some merit in my opinion. I think that my version of it 
+> that I presented at linuxworld some years ago, which is called an "Open 
+> Sale", has some advantages.
 
-> In 8250.c, it appears that in order for a port to be used for the
-> serial console it must be defined "old style" with SERIAL_PORT_DFNS,
-> rather than being registered with register_serial() (because
-> serial8250_console_setup() indexs into the serial8250_ports array)).
-> This presents a small problem for 4xx, since it's serial ports are
-> memory mapped and the new old_serial_port structure can't represent
-> these.
+Your description of the problem is perfect. The solution, though, is
+difficult to enforce as there's not a single incentive for OEMs to fund
+anyone else that MS (reinstalling Windows).
 
-There is no easy solution for this.  Alan said we must not drop support
-for serial console initialisation early on in the kernel setup, which
-means before the memory subsystems are initialised.
+> My approach has the advantage that the fee scales with hardware costs, 
+> and that it is set by users.
 
-> I added support for these into 8250.c, but ran into further troubles.
+That's really an improvement over my idea (in the corporate area mostly.
+In the home user area it doesn't matter, as he will probably use 1
+computer at a time).
 
-I suspect a 2.5.28 kernel; please confirm and we'll that it from there.
+I can clearly see that a combination of both schemes would be needed,
+because they are opposite sides of the same coin (your idea could be
+though as an x% tax on hardware to fund developement, mine as a direct
+payment from the users).
 
-> The current plethora of similar-but-not-the-same structures describing
-> serial ports (serial_state, serial_struct, uart_port, old_serial_port)
-> is also rather confusing.  I'm guessing some of these are deprecated
-> and remain only as an aid to transition, but I'm not sure which.
+So one natural way of getting the best of both worlds would be:
 
-I don't see there being an easy way to kill this off:
+- Hardware EOM could pay an x% per machine to the fGPL foundation, and
+that would grant the buyer of that hardware a permanent license to all
+fGPLd software. Users could request the OEM (IBM, etc) to offer them
+that non-expiring (per machine) license instead of a preinstaled MS
+Windows. This would mean OSS remains totaly free as in freedom and
+_beer_.
 
-1. serial_struct is a userspace API.
-2. old_serial_port glues asm/serial.h into 8250.c; asm/serial.h can't be
-   changed because (mainly) ppc uses it elsewhere.  Other architectures
-   seem to do the same sort of thing.
+- Hardware manufacturers that do NOT want to offer their customers that
+option will be penalized because the user will have to pay the regular 1
+year fGPL I have already described or get their hardware somewhere else.
+This would create a great incentive for OEM to offer the fGPL license
+instead of a preinstaled MS Windows. 
 
-Unless ppc and others are willing to put up with major breakage when I
-change asm/serial.h, I don't see this getting cleaned up.  Comments on
-this area welcome.
+- If desired, all past hardware sales could be granted a free
+non-expiring "per-machine" fGPL license (so you'll see funds starting
+low and growing every year in size) so that there can be NO complains
+from anyone. Maybe the grant (for old hardware) could be limited to
+individuals, non-profit organizations, goverments and educational
+institutions.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+- Manufacturers will be granted the right to claim to be GNU, Linux or
+OSS ready ONLY if they actively offer the fGPL license as choice to 
+customers (instead of the preinstaled Windows). They could also be
+required to include a "GNU/Linux ready" sticker in their hardware.
+
+I believe this can be made to work in reasonable time, with minimun
+effort and minimun hassle. There are problems, but they could be worked
+out if there's support.
+
+Everything else remains the same (as Hans and I have said, the users
+will have a limited ability to chose what they need. I say limited
+because for an Office application to work the core must remain funded
+even though the user may not notice it).
+ 
+> However, you should understand that an idea is not enough, you must have 
+> sufficient sociological mass to pull it off.  Neither you nor I are in 
+> that position at this time.   Most people will be hostile to you if you 
+> propose an idea that you lack the sociological position to effectuate.....
+
+Makes sense. But if the idea is good, the ones that can make a
+difference will support it, assuming they analized what is being
+proposed. 
+
+> -- 
+> Hans
+>
+
+I will (silently) put some resources on polishing the hard edges of
+idea. It believe it may be worth it.
+
+Federico
+
+PS: I probably never reach the needed sociological position in OSS, so
+at some point someone will have to help (if they believe it's a good
+thing).
+
 

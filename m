@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267278AbTBISBo>; Sun, 9 Feb 2003 13:01:44 -0500
+	id <S267333AbTBISPM>; Sun, 9 Feb 2003 13:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267333AbTBISBo>; Sun, 9 Feb 2003 13:01:44 -0500
-Received: from ip68-101-124-193.oc.oc.cox.net ([68.101.124.193]:16003 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S267278AbTBISBn>; Sun, 9 Feb 2003 13:01:43 -0500
-Date: Sun, 9 Feb 2003 10:11:26 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: MaxF <maxer1@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Firewire Buslink dirve incorrectly detected as a LiteOn in 2.4.20
-Message-ID: <20030209181126.GA2732@ip68-4-86-174.oc.oc.cox.net>
-References: <3E466E84.3060907@xmission.com>
+	id <S267408AbTBISPM>; Sun, 9 Feb 2003 13:15:12 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:23427 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S267333AbTBISPL>;
+	Sun, 9 Feb 2003 13:15:11 -0500
+Date: Sun, 9 Feb 2003 21:22:51 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre4 comparison bugs (Even More Again)
+Message-ID: <20030209182251.GA21226@linuxhacker.ru>
+References: <20030208171838.GA2230@linuxhacker.ru> <1044752320.18908.18.camel@irongate.swansea.linux.org.uk> <20030209175349.GA20635@linuxhacker.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E466E84.3060907@xmission.com>
+In-Reply-To: <20030209175349.GA20635@linuxhacker.ru>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 09, 2003 at 08:06:44AM -0700, MaxF wrote:
-> All kernels post 2.4.20-xx are detecting my firewire Buslink CD-RW
-> as:
-> 
-> Feb  9 07:54:19 maxer kernel:   Vendor: LITE-ON   Model: 
-> LTR-48125W        Rev: VS06
-> 
-> Buslink model #RW4848FE
-> 
-> I do have however a second drive that is a Lite-On, but is not firewire.
-> 
-> Any ideas?
+Hello!
 
-Many of the Buslink FireWire drives have Lite-On drives inside. The
-output you pasted is exactly what I'd expect from a BusLink FireWire
-CD-RW.
+    Ok. In addition to "unsigned_var < 0" kind of error checks that
+    never work, there is different non-working kind of checks:
+    "pointer < 0".
+    We can see these at:
+drivers/char/joystick/tmdc.c:318	if (tmdc->abs[i] < 0) continue;
+drivers/char/epca.c:3758		if (board.port <= 0)
+drivers/char/epca.c:3770		if (board.membase <= 0)
+drivers/media/radio/radio-cadet.c:541	if(request_region(io,2, "cadet-probe")>=0) {
+drivers/net/wan/dscc4.c:1760		if (dscc4_init_dummy_skb(dpriv) < 0)
 
-Is this a change in behavior from previous kernels (i.e., did it show
-something different in the past?) If so, what did an older kernel show?
-If there's a difference, that could indeed be a bug.
+     Given the fact that you seem not to like casts to signed int,
+     how do you propose to fix these?
 
-Conversely, if you're merely surprised that one company manufactured the
-drive and a different company put the drive into a FireWire enclosure, I
-wouldn't consider that to be a bug in Linux.
-
--Barry K. Nathan <barryn@pobox.com>
+Bye,
+    Oleg

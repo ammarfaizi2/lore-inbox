@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317540AbSFRSaX>; Tue, 18 Jun 2002 14:30:23 -0400
+	id <S317542AbSFRSfP>; Tue, 18 Jun 2002 14:35:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317542AbSFRSaW>; Tue, 18 Jun 2002 14:30:22 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:59100 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S317540AbSFRSaW>;
-	Tue, 18 Jun 2002 14:30:22 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200206181829.WAA13590@sex.inr.ac.ru>
-Subject: Re: [PATCH] Replace timer_bh with tasklet
-To: george@mvista.com (george anzinger)
-Date: Tue, 18 Jun 2002 22:29:31 +0400 (MSD)
+	id <S317544AbSFRSfO>; Tue, 18 Jun 2002 14:35:14 -0400
+Received: from web12302.mail.yahoo.com ([216.136.173.100]:18037 "HELO
+	web12302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317542AbSFRSfN>; Tue, 18 Jun 2002 14:35:13 -0400
+Message-ID: <20020618183515.13963.qmail@web12302.mail.yahoo.com>
+Date: Tue, 18 Jun 2002 11:35:15 -0700 (PDT)
+From: Myrddin Ambrosius <imipak@yahoo.com>
+Subject: Re: Drivers, Hardware, and their relationship to Bagels.
+To: root@chaos.analogic.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D0F79CA.A0FAC230@mvista.com> from "george anzinger" at Jun 18, 2 11:19:54 am
-X-Mailer: ELM [version 2.4 PL24]
+In-Reply-To: <Pine.LNX.3.95.1020618111156.3808B-100000@chaos.analogic.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> > But this is impossible, timers must not race with another BHs,
-> > all the code using BHs depends on this. That's why they are BHs.
-> 
-> If indeed they do "race" the old code had the timer_bh being first.
-> So does this patch.
+--- "Richard B. Johnson" <root@chaos.analogic.com>
+wrote:
+> No hole you can drive through. A process with a UID
+> of 0 and
+> a GID of 0 can do anything it wants. It can execute
+> iopl(3)
+> and set an I/O permission level that allows it to
+> directly access
+> hardware I/O ports, etc. It can also turn off
+> interrupts. Basically,
+> it can do anything, since such a process can also
+> memory-map anything.
 
-I do not understand what you mean here.
+But since it is the kernel that permits that (by
+definition, since somebody has to check the UID & GID!
+:) then the kernel can also restrict that.
 
-I feel you misunderstand my comment. I said the patch is one pure big bug,
-because tasklets are not serialized wrt BHs. Timer MUST. If you are going
-to get rid of this must, start from editing all the code which makes this
-assumption.
+The system admin account (UID/GID 0) could just as
+easily access a virtual memory map, virtual I/O ports,
+etc, with the kernel then handling how that maps onto
+the physical world, and even IF it does.
+
+> Users are not supposed to execute as 'root'. Also,
+> only certain
+> priviliged tasks execute as root. Ignore that this
+
+The problem with priviliged tasks is that (in general)
+they run with absolute privilige. Sure, some of these
+priviliges can be turned off, but if /dev/mem is
+reachable, then they can be turned back on again,
+precicely for the reasons you give.
+
+I guess that my understanding for having kernels the
+size and complexity of Linux, as opposed to, say,
+CP/M, is that the kernel can reduce the need for
+userspace apps to have dangerous powers.
 
 
-> This is one of the most hard to control paths in the system as ALL it 
-> does is execute functions that are unknown as to size, duration, etc.
-> One would hope that they never run for long, but...
-
-Pardon, your code has an effect only after this "but..." happens
-and this effect is insane.
-
-
-> Not really.  One REALLY expects timers to expire in timed order :)  Using
-> a separate procedure to deliver a timer just because it is of a different
-> resolution opens one up to a world of pathology.
-
-Are you going to mix use of hires and lores timers for one task?
-
-Alexey
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

@@ -1,85 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbUBZKl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 05:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbUBZKl7
+	id S262763AbUBZKyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 05:54:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbUBZKyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 05:41:59 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:34782 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S262763AbUBZKlx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 05:41:53 -0500
-Message-Id: <rt-1568908-5568162.8.87986483550399@freetelecom.fr>
-From: adsl <adsl@rt.freetelecom.fr>
-RT-Ticket: freetelecom.fr #1568908
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-Reply-To: adsl@rt.freetelecom.fr
-RT-Originator: linux-kernel@vger.kernel.org
-X-RT-Loop-Prevention: freetelecom.fr
+	Thu, 26 Feb 2004 05:54:04 -0500
+Received: from gruby.cs.net.pl ([62.233.142.99]:27155 "EHLO gruby.cs.net.pl")
+	by vger.kernel.org with ESMTP id S262763AbUBZKx7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 05:53:59 -0500
+Date: Thu, 26 Feb 2004 11:53:57 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: i2c on alpha - used but not available in 2.6.3
+Message-ID: <20040226105357.GF19602@gruby.cs.net.pl>
+References: <20040225160833.GA5803@gruby.cs.net.pl> <20040225161441.A6161@infradead.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
 Content-Disposition: inline
-Content-Type: text/plain; charset="iso-8859-1"
-Subject: [freetelecom.fr #1568908]  =?ISO-8859-1?Q?=20R=E9ponse?= Automatique: fake
-In-Reply-To: <rt-1568908@freetelecom.fr>
-Managed-BY: Request Tracker 2.0.9 (http://www.fsck.com/projects/rt/)
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: linux-kernel@vger.kernel.org
-Date: Thu, 26 Feb 2004 11:41:51 +0100 (MET)
+In-Reply-To: <20040225161441.A6161@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Bonjour,
+On Wed, Feb 25, 2004 at 04:14:41PM +0000, Christoph Hellwig wrote:
+> On Wed, Feb 25, 2004 at 05:08:33PM +0100, Jakub Bogusz wrote:
+> > I checked that adding including of drivers/i2c/Kconfig to arch/alpha/Kconfig
+> > everything build and all remaining unresolved symbols fade away.
+> 
+> I'd just switch alpha to use drivers/Kconfig
 
-Ce message est envoyé automatiquement suite au mail que vous avez
-adressé au services Hotline de l'offre Haut Débit de FreeTelecom
-    "fake".
+Like in the attached patch?
 
-Malheureusement, le succès de notre offre ADSL a quelque peu submergé
-le support et nous ne pouvons pas répondre aux messages aussi
-rapidement que nous le souhaiterions.
+I found few more differences:
 
-Aussi, nous vous invitons à vérifier que le probleme que vous
-rencontrez ne serait pas déjà couvert par le site web de support :
-http://adsl.free.fr/
+- beside drivers/i2c there was no drivers/misc and drivers/telephony in
+  alpha/Kconfig - was this intentional or accidental?
 
-En particulier, vous y trouverez des infos concernant :
-- des questions générales sur le forfait, les boites emails, le
-modem fourni et la connexion
+  drivers/misc currently contains only IBM_ASM, which looks like some
+  hardware-specific driver - maybe it should be available only on some
+  arch(s)?
 
-    http://adsl.free.fr/faq/gen.html
+- on alpha drivers/parport was placed in "System setup" menu - but
+  I suppose it can be moved to standard location without problems
 
-- des questions liées à l'inscriptions et les conditions
-d'inscriptions
-
-    http://adsl.free.fr/faq/inscription.html
-
-- les problemes techniques que vous pouvez rencontrer lors du
-branchement de votre modem
-
-    http://adsl.free.fr/faq/tech.html
-
-- les messages d'erreurs renvoyés par Windows lors de tentatives
-de connexions
-
-    http://adsl.free.fr/faq/erreur.html
-
-Si vous y trouvez votre bonheur ou au moins des informations liées
-à votre probleme, merci de le préciser en répondant à ce message
-(cela simplifira le travail des personnes qui vous répondront).
+- drivers/message/fusion was included only conditionaly, depending on
+  PCI option (in drivers/Kconfig it's unconditional).
+  If message/fusion requires PCI, maybe it should have "depends on PCI"
+  in its Kconfig?
 
 
-Nous avons attribué le numéro d'identification [freetelecom.fr #1568908]
-à votre demande.
+-- 
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+PLD Team        http://www.pld-linux.org/
 
-Merci d'ajouter la mention (en incluant les crochets):
-     [freetelecom.fr #1568908]
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-alpha-use-device-Kconfig.patch"
 
-dans le sujet des prochaines correspondances que vous pourriez nous
-adresser sur ce sujet.
+--- linux-2.6.3/arch/alpha/Kconfig.orig	2004-02-24 11:07:49.000000000 +0100
++++ linux-2.6.3/arch/alpha/Kconfig	2004-02-26 11:13:49.000000000 +0100
+@@ -596,51 +596,12 @@
+ 
+ source "fs/Kconfig.binfmt"
+ 
+-source "drivers/parport/Kconfig"
+-
+ endmenu
+ 
+-source "drivers/base/Kconfig"
+-
+-source "drivers/mtd/Kconfig"
+-
+-source "drivers/pnp/Kconfig"
+-
+-source "drivers/block/Kconfig"
+-
+-source "drivers/md/Kconfig"
+-
+-source "drivers/ide/Kconfig"
+-
+-source "drivers/scsi/Kconfig"
+-
+-if PCI
+-source "drivers/message/fusion/Kconfig"
+-endif
+-
+-source "drivers/ieee1394/Kconfig"
+-
+-source "net/Kconfig"
+-
+-source "drivers/isdn/Kconfig"
+-
+-source "drivers/cdrom/Kconfig"
+-
+-source "drivers/input/Kconfig"
+-
+-source "drivers/char/Kconfig"
+-
+-#source drivers/misc/Config.in
+-source "drivers/media/Kconfig"
++source "drivers/Kconfig"
+ 
+ source "fs/Kconfig"
+ 
+-source "drivers/video/Kconfig"
+-
+-source "sound/Kconfig"
+-
+-source "drivers/usb/Kconfig"
+-
+ source "arch/alpha/oprofile/Kconfig"
+ 
+ menu "Kernel hacking"
 
-Merci.
-
-Le Service Hotline Haut débit de FreeTelecom
-    <hautdebit@freetelecom.fr>
+--gKMricLos+KVdGMg--

@@ -1,68 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264244AbUEDGNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUEDGag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264244AbUEDGNz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 02:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUEDGNz
+	id S263574AbUEDGag (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 02:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264247AbUEDGad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 02:13:55 -0400
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:22945 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S264244AbUEDGNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 02:13:52 -0400
-Date: Tue, 4 May 2004 08:12:34 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: john stultz <johnstul@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, george@mvista.com,
-       kaukasoi@elektroni.ee.tut.fi, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-In-Reply-To: <1083638458.9664.134.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.53.0405040804180.2215@gockel.physik3.uni-rostock.de>
-References: <403D0F63.3050101@mvista.com>  <1077760348.2857.129.camel@cog.beaverton.ibm.com>
-  <403E7BEE.9040203@mvista.com>  <1077837016.2857.171.camel@cog.beaverton.ibm.com>
-  <403E8D5B.9040707@mvista.com>  <1081895880.4705.57.camel@cog.beaverton.ibm.com>
-  <Pine.LNX.4.53.0404141353450.21779@gockel.physik3.uni-rostock.de> 
- <1081967295.4705.96.camel@cog.beaverton.ibm.com>  <20040415103711.GA320@elektroni.ee.tut.fi>
-  <Pine.LNX.4.53.0404151302140.28278@gockel.physik3.uni-rostock.de> 
- <20040415161436.GA21613@elektroni.ee.tut.fi> 
- <Pine.LNX.4.53.0405011540390.25435@gockel.physik3.uni-rostock.de> 
- <20040501184105.2cd1c784.akpm@osdl.org>  <Pine.LNX.4.53.0405020352480.26994@gockel.physik3.uni-rostock.de>
- <1083638458.9664.134.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 May 2004 02:30:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8080 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263574AbUEDGab (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 02:30:31 -0400
+Date: Mon, 3 May 2004 23:29:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: nickpiggin@yahoo.com.au, peter@mysql.com, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Random file I/O regressions in 2.6
+Message-Id: <20040503232928.1b13037c.akpm@osdl.org>
+In-Reply-To: <1083631804.4544.16.camel@localhost.localdomain>
+References: <200405022357.59415.alexeyk@mysql.com>
+	<409629A5.8070201@yahoo.com.au>
+	<20040503110854.5abcdc7e.akpm@osdl.org>
+	<1083615727.7949.40.camel@localhost.localdomain>
+	<20040503135719.423ded06.akpm@osdl.org>
+	<1083620245.23042.107.camel@abyss.local>
+	<20040503145922.5a7dee73.akpm@osdl.org>
+	<4096DC89.5020300@yahoo.com.au>
+	<20040503171005.1e63a745.akpm@osdl.org>
+	<4096E1A6.2010506@yahoo.com.au>
+	<1083631804.4544.16.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 May 2004, john stultz wrote:
+Ram Pai <linuxram@us.ibm.com> wrote:
+>
+> Sorry, If I am saying this again. I have checked the behaviour of the
+>  readahead code using my user level simulator as well as running some
+>  DSS benchmark and iozone benchmark. It generates a steady stream of
+>  large i/o for large-random-reads and should not exhibit the bad behavior
+>  that we are seeing.  I feel this bad behavior is because of interleaved
+>  access by multiple thread. 
 
-> On Sat, 2004-05-01 at 18:59, Tim Schmielau wrote:
-> >
-> > Yep, we'd need to include timex.h for it. This get's messy. 
-> 
-> Well, not too messy. Including timex.h looks to resolve the issue
-> without trouble. Let me know if I somehow stepped over an issue. 
+you're right - the benchmark has multiple threads issuing concurrent
+pread()s against the same fd.  For some reason this mucks up the 2.6
+readahead state more than 2.4's.
 
-It looks ok, but somehow defeats the whole purpose of having separate
-include files. Someday we may consolidate all the time related things
-into just one ore two header files then.
+Putting a semaphore around do_generic_file_read() or maintaining the state
+as below fixes it up.
 
-> jiffies-to-clockt-fix_A1:
-> -------------------------
+I wonder if we should bother fixing this?  I guess as long as the app is
+using pread() it is a legitimate thing to be doing, so I guess we should...
 
-Thanks, John!
 
-> All, 
-> 	This patch polishes up Tim Schmielau's (tim@physik3.uni-rostock.de) fix
-> for jiffies_to_clock_t() and jiffies_64_to_clock_t(). The issues
-> observed was w/ /proc output not matching up to wall time due to
-> accumulated error caused by HZ not being exactly 1000 on i386 systems.
-> The solution is to correct that error by using the more accurate
-> TICK_NSEC in our calculation. 
 
-I wonder whether it's conceptually correct to use jiffies for accurate 
-long-time measurements at all. ntpd is there for a reason. Using both
-corrected, accurate and freely running clocks IMHO is calling for trouble. 
-This might be something to think about for 2.7.
+--- 25/mm/filemap.c~readahead-seralisation	2004-05-03 23:14:43.399947720 -0700
++++ 25-akpm/mm/filemap.c	2004-05-03 23:14:43.404946960 -0700
+@@ -612,7 +612,7 @@ EXPORT_SYMBOL(grab_cache_page_nowait);
+  * - note the struct file * is only passed for the use of readpage
+  */
+ void do_generic_mapping_read(struct address_space *mapping,
+-			     struct file_ra_state *ra,
++			     struct file_ra_state *_ra,
+ 			     struct file * filp,
+ 			     loff_t *ppos,
+ 			     read_descriptor_t * desc,
+@@ -622,6 +622,7 @@ void do_generic_mapping_read(struct addr
+ 	unsigned long index, offset;
+ 	struct page *cached_page;
+ 	int error;
++	struct file_ra_state ra = *_ra;
+ 
+ 	cached_page = NULL;
+ 	index = *ppos >> PAGE_CACHE_SHIFT;
+@@ -644,13 +645,13 @@ void do_generic_mapping_read(struct addr
+ 		}
+ 
+ 		cond_resched();
+-		page_cache_readahead(mapping, ra, filp, index);
++		page_cache_readahead(mapping, &ra, filp, index);
+ 
+ 		nr = nr - offset;
+ find_page:
+ 		page = find_get_page(mapping, index);
+ 		if (unlikely(page == NULL)) {
+-			handle_ra_miss(mapping, ra, index);
++			handle_ra_miss(mapping, &ra, index);
+ 			goto no_cached_page;
+ 		}
+ 		if (!PageUptodate(page))
+@@ -752,6 +753,8 @@ no_cached_page:
+ 		goto readpage;
+ 	}
+ 
++	*_ra = ra;
++
+ 	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
+ 	if (cached_page)
+ 		page_cache_release(cached_page);
 
-Thanks,
-Tim
+_
+

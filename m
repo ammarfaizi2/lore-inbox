@@ -1,91 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUI2Jat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268278AbUI2JgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268279AbUI2Jat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 05:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUI2Jat
+	id S268278AbUI2JgV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 05:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268280AbUI2JgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 05:30:49 -0400
-Received: from styx.suse.cz ([82.119.242.94]:9091 "EHLO shadow.suse.cz")
-	by vger.kernel.org with ESMTP id S268282AbUI2Jag (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 05:30:36 -0400
-Date: Wed, 29 Sep 2004 11:31:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 7/8] Psmouse - add packet size
-Message-ID: <20040929093103.GB3150@ucw.cz>
-References: <200409290140.53350.dtor_core@ameritech.net> <200409290147.35864.dtor_core@ameritech.net> <20040929071504.GB2648@ucw.cz> <200409290229.28652.dtor_core@ameritech.net>
+	Wed, 29 Sep 2004 05:36:21 -0400
+Received: from 217-114-210-112.kunde.vdserver.de ([217.114.210.112]:61705 "EHLO
+	old-fsckful.ath.cx") by vger.kernel.org with ESMTP id S268278AbUI2JgT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 05:36:19 -0400
+Date: Wed, 29 Sep 2004 11:36:13 +0200
+From: Andreas Happe <andreashappe@flatline.ath.cx>
+To: Michal Ludvig <michal@logix.cz>
+Cc: James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, Andreas Happe <crow@old-fsckful.ath.cx>
+Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
+Message-ID: <20040929093613.GB3969@final-judgement.ath.cx>
+References: <20040831175449.GA2946@final-judgement.ath.cx> <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com> <20040901082819.GA2489@final-judgement.ath.cx> <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz> <20040907143509.GA30920@old-fsckful.ath.cx> <Pine.LNX.4.53.0409071659070.19015@maxipes.logix.cz> <20040910105502.GA4663@final-judgement.ath.cx> <20040927084149.GA3625@final-judgement.ath.cx> <Pine.LNX.4.53.0409271046280.12238@maxipes.logix.cz> <20040928123426.GA21069@final-judgement.ath.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <200409290229.28652.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040928123426.GA21069@final-judgement.ath.cx>
+X-Request-PGP: subkeys.pgp.net
+X-Hangover: none
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 02:29:28AM -0500, Dmitry Torokhov wrote:
-> On Wednesday 29 September 2004 02:15 am, Vojtech Pavlik wrote:
-> > On Wed, Sep 29, 2004 at 01:47:34AM -0500, Dmitry Torokhov wrote:
-> > 
-> > > -int alps_detect(struct psmouse *psmouse)
-> > > +int alps_detect(struct psmouse *psmouse, int set_properties)
-> > >  {
-> > > -	return alps_get_model(psmouse) < 0 ? 0 : 1;
-> > > +	if (alps_get_model(psmouse) < 0)
-> > > +		return 0;
-> > > +
-> > > +	if (set_properties) {
-> > > +		psmouse->vendor = "ALPS";
-> > > +		psmouse->name = "TouchPad";
-> > > +	}
-> > > +	return 1;
-> > >  }
-> > 
-> > I think we should return -1 (or -errno) on failure and 0 on success,
-> > like everybody else does.
-> >
-> 
-> All *detect functions return boolean value - either the device was detected or
-> not. I think it makes most sense. Negative error is convenient when function
-> normally returns some other meaningful value, like length. *detect is a simple
-> yes/no question, it is not really an error at all.
+just took a glance at preferences for algorithms yesterday. came up with
+the attached code (does compile, don't think that it will boot, just
+attached to illustrade my thinkings).
 
-psmouse_probe() is very similar in its use, as are a lot of other
-functions in the serio framework - and they return 0 on success, and -1
-on failure.
+I inserted a cra_family list into cra_alg which stores all algorithms
+which share the same name but different module names. When selecting an
+algorithm the preference is looked after (it should be made a writeable
+sysfs attribute - would make runtime user selection of prefered
+algorithm very intuitive).
 
-I see it as "detected/initialized" = success (0) and "not detected / failed
-to initialize" = fail (-1).
+Main problems are removal of algorithms (havn't covered that yet) and
+the display of different algorithms with same names in sysfs as cra_name
+is the name of the directory (not module_name(alg->cra_module)).
 
-I agree that your view also makes sense, however I'd like to keep the
-driver return values consistent to make it easier to read.
+Creating a hierarchie cra_alg <>- cra_implementation would be the most
+clean solution. Just add a kset with the different cra_implementations
+(which would contain a kobject, preference, module pointer) to any
+given algorithm (which would contain all blocksize, blah data).
 
-Maybe renaming the *_detect functions to *_probe would make it more
-obvious.
-
-> > This should be:
-> > 
-> > 	if (param[0] != 3) 
-> > 		return -1;
-> > 	if (set_properties) {
-> > 		set_bit(REL_WHEEL, psmouse->dev.relbit);
-> > 		if (!psmouse->vendor) psmouse->vendor = "Generic";
-> > 		if (!psmouse->name) psmouse->name = "Wheel Mouse";
-> > 		psmouse->pktsize = 4;
-> > 	}
-> > 	return 0;
-> > 
-> > ... and similarly elsewhere. You save one level of nesting and it makes
-> > more sense.
-> > 
-> 
-> Ok, will change.
-> 
-> -- 
-> Dmitry
-> 
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+	--Andreas

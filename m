@@ -1,116 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284191AbRLFUVL>; Thu, 6 Dec 2001 15:21:11 -0500
+	id <S284242AbRLFUYZ>; Thu, 6 Dec 2001 15:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284182AbRLFUSE>; Thu, 6 Dec 2001 15:18:04 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:32376 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284189AbRLFUQz>;
-	Thu, 6 Dec 2001 15:16:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian Roth <xsebbi@gmx.de>
-Reply-To: xsebbi@gmx.de
-Message-Id: <200112062048.45316@xsebbi.de>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: spurious interrupt with 2.4.10 and higher ?
-Date: Thu, 6 Dec 2001 20:58:04 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S284218AbRLFUYI>; Thu, 6 Dec 2001 15:24:08 -0500
+Received: from mail209.mail.bellsouth.net ([205.152.58.149]:8466 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284235AbRLFUWu>; Thu, 6 Dec 2001 15:22:50 -0500
+Message-ID: <3C0FD394.D98BB866@mandrakesoft.com>
+Date: Thu, 06 Dec 2001 15:22:44 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre5
+In-Reply-To: <Pine.LNX.4.33L.0112061813420.2283-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all!
+Rik van Riel wrote:
+> 
+> On Thu, 6 Dec 2001, Matthias Andree wrote:
+> > On Thu, 06 Dec 2001, Marcelo Tosatti wrote:
+> >
+> > > pre5:
+> > ...
+> > > - Networking updates                                (David S. Miller)
+> >
+> > Would you deem it feasible to elaborate on these?
+> > Or is there a place I haven't known of until know where I can
+> > get that information?
+> 
+> Wait for Dave at the lokal Krispy Kream and don't allow
+> him access to the donuts until he writes a changelog ?
 
-For a long time, I receive at boot time (and in /var/log/warn) the following 
-message from the kernel:
+Or maybe "rc2log | fmt -72 | less"
 
-Spurious 8259A interrupt: IRQ7
+changelog is in cvs after all... http://vger.samba.org/
 
-Could you tell me please, what is it? My System works fine but I hate this 
-message. :-)
-
-Do you need more information?
-
-/proc/cpuinfo says :
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 2
-model name      : AMD Athlon(tm) Processor
-stepping        : 1
-cpu MHz         : 701.619
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 1399.19
-
-/proc/devices says :
-
-Character devices:
-  1 mem
-  2 pty
-  3 ttyp
-  4 ttyS
-  5 cua
-  7 vcs
- 10 misc
- 13 input
- 14 sound
- 29 fb
-108 ppp
-109 lvm
-128 ptm
-136 pts
-162 raw
-180 usb
-
-Block devices:
-  1 ramdisk
-  2 fd
-  3 ide0
-  7 loop
-  9 md
- 22 ide1
- 58 lvm
-
-/proc/dma :
-
- 1: SoundBlaster8
- 2: floppy
- 4: cascade
- 5: SoundBlaster16
-
-/proc/interrupt :
-
-           CPU0       
-  0:    2825799          XT-PIC  timer
-  1:      14178          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:    1206018          XT-PIC  soundblaster
-  6:         58          XT-PIC  floppy
-  8:          2          XT-PIC  rtc
- 11:        238          XT-PIC  eth0, usb-uhci, usb-uhci
- 12:    1177362          XT-PIC  PS/2 Mouse
- 14:     148838          XT-PIC  ide0
- 15:     284100          XT-PIC  ide1
-NMI:          0 
-LOC:    2825758 
-ERR:       1550
-MIS:          0
-
-information enough?
-my actual kernel is 2.4.10 with 2.4.16 I've got the same message..
-
-Thank you and
-Bye,
-Sebastian
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

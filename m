@@ -1,72 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264810AbTGCFrH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 01:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTGCFrH
+	id S265453AbTGCGAd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 02:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbTGCGAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 01:47:07 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:25807 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S264810AbTGCFrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 01:47:04 -0400
-Subject: PATCH] fix current->user->__count leak for processes
-From: Arvind Kandhare <arvind.kan@wipro.com>
-To: linux-kernel@vger.kernel.org
-Cc: eric@lammerts.org
+	Thu, 3 Jul 2003 02:00:33 -0400
+Received: from defout.telus.net ([199.185.220.240]:33706 "EHLO
+	priv-edtnes47.telusplanet.net") by vger.kernel.org with ESMTP
+	id S265453AbTGCGAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 02:00:31 -0400
+Subject: 2.5.74 Stalls
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jul 2003 11:34:19 +0530
-Message-Id: <1057212259.6028.6.camel@m2-arvind>
+Organization: 
+Message-Id: <1057212906.6346.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-OriginalArrivalTime: 03 Jul 2003 06:01:21.0785 (UTC) FILETIME=[871D5690:01C34128]
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 03 Jul 2003 00:15:07 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I am trying to test a patch for limiting maximum number of users on the
-system(refer: [RFC][PATCH 2.5.70] Dynamically tunable maxusers, maxuprc
-and max_pt_cnt on 06 Jun 2003). 
+I was happy to see that I might not get bit with scheduling_while_atomic
+so I got 2.5.74 and built away (after saving a few files from / as
+2.5.73 ate / (three times,...I tried modifying the build script and a
+few other things).   2.5.74 didn't eat anything, but it did stall.
+What I got was:
 
-I stumbled across this problem : when switch_uid is called, 
-the reference count of the new user is incremented twice. I think the
-increment in the switch_uid is done because of the reparent_to_init()
-function which does not increase the __count for root user. 
-
-But if switch_uid is called from any other function, the reference count
-is already incremented by the caller by calling alloc_uid for the new
-user. Hence the count is incremented twice. The user struct will not be
-deleted even when there are no processes holding a reference count for
-it. This does not cause any problem currently because nothing is
-dependent on timely deletion of the user struct. 
-
-Here is a small patch to solve this problem. 
-
-Thanks and regards, 
-Arvind 
-
-diff -Naur linux-2.5.73/kernel/exit.c linux-2.5.73.n/kernel/exit.c
---- linux-2.5.73/kernel/exit.c	2003-06-23 00:03:15.000000000 +0530
-+++ linux-2.5.73.n/kernel/exit.c	2003-07-03 10:48:32.000000000 +0530
-@@ -230,6 +230,7 @@
- 	/* signals? */
- 	security_task_reparent_to_init(current);
- 	memcpy(current->rlim, init_task.rlim, sizeof(*(current->rlim)));
-+	atomic_inc(&(INIT_USER->__count));
- 	switch_uid(INIT_USER);
- 
- 	write_unlock_irq(&tasklist_lock);
-diff -Naur linux-2.5.73/kernel/user.c linux-2.5.73.n/kernel/user.c
---- linux-2.5.73/kernel/user.c	2003-06-23 00:02:41.000000000 +0530
-+++ linux-2.5.73.n/kernel/user.c	2003-07-03 10:46:59.000000000 +0530
-@@ -126,7 +126,6 @@
- 	 * we should be checking for it.  -DaveM
- 	 */
- 	old_user = current->user;
--	atomic_inc(&new_user->__count);
- 	atomic_inc(&new_user->processes);
- 	atomic_dec(&old_user->processes);
- 	current->user = new_user;
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIC conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1889.0774 MHz.
+..... host bus clock speed is 104.0985 MHz.
+Initializing RT netlink socket
+EISA bus registered
+PCI: PCI BIOS revision 2.10 entry at 0xfb2c0, last bus=1
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+BIO: pool of 256 setup, 14Kb (56 bytes/bio)
+biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
+biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
+biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
+biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
+biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
+biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
+ACPI: Subsystem revision 20030619
 
 
+...and that's all folks.  Any ideas on why it is stalling on/after ACPI?
+My ACPI is set to suspend to standby (in my BIOS).
+  
+The ACPI section of my build script is:
+#
+# ACPI Support
+#
+CONFIG_ACPI=y
+# CONFIG_ACPI_HT_ONLY is not set
+CONFIG_ACPI_BOOT=y
+# CONFIG_ACPI_AC is not set
+# CONFIG_ACPI_BATTERY is not set
+# CONFIG_ACPI_BUTTON is not set
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+# CONFIG_ACPI_ASUS is not set
+# CONFIG_ACPI_TOSHIBA is not set
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+# CONFIG_APM_CPU_IDLE is not set
+# CONFIG_APM_DISPLAY_BLANK is not set
+# CONFIG_APM_RTC_IS_GMT is not set
+# CONFIG_APM_ALLOW_INTS is not set
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+
+
+Thanks in advance,
+
+Bob
+
+-- 
+Bob Gill <gillb4@telusplanet.net>
 

@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129035AbQJ3HCH>; Mon, 30 Oct 2000 02:02:07 -0500
+	id <S129060AbQJ3HDR>; Mon, 30 Oct 2000 02:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129060AbQJ3HB5>; Mon, 30 Oct 2000 02:01:57 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:59397 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129035AbQJ3HBo>; Mon, 30 Oct 2000 02:01:44 -0500
-Date: Sun, 29 Oct 2000 23:58:21 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Andi Kleen <ak@suse.de>
+	id <S129045AbQJ3HDH>; Mon, 30 Oct 2000 02:03:07 -0500
+Received: from slc1179.modem.xmission.com ([166.70.8.163]:51474 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129030AbQJ3HCz>; Mon, 30 Oct 2000 02:02:55 -0500
+To: joeja@mindspring.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001029235821.A19076@vger.timpanogas.org>
-In-Reply-To: <39FCB09E.93B657EC@timpanogas.org> <E13q2R7-0006S7-00@the-village.bc.nu> <20001029183531.A7155@vger.timpanogas.org> <20001030074700.A31783@gruyere.muc.suse.de>
-Mime-Version: 1.0
+Subject: Re: /proc & xml data
+In-Reply-To: <39FCDB16.B0955558@mindspring.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Oct 2000 23:54:24 -0700
+In-Reply-To: Joe's message of "Sun, 29 Oct 2000 21:21:11 -0500"
+Message-ID: <m1n1fmhl9b.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001030074700.A31783@gruyere.muc.suse.de>; from ak@suse.de on Mon, Oct 30, 2000 at 07:47:00AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 07:47:00AM +0100, Andi Kleen wrote:
-> On Sun, Oct 29, 2000 at 06:35:31PM -0700, Jeff V. Merkey wrote:
-> > On Mon, Oct 30, 2000 at 12:04:23AM +0000, Alan Cox wrote:
-> > > > It's still got some problems with NFS (I am seeing a few RPC timeout
-> > > > errors) so I am backreving to 2.2.17 for the Ute-NWFS release next week,
-> > > > but it's most impressive.
-> > > 
-> > > Can you send a summary of the NFS reports to nfs-devel@linux.kernel.org
-> > 
-> > Yes.  I just went home, so I am emailing from my house.  I'll post late 
-> > tonight or in the morning.  Performance on 100Mbit with NFS going 
-> > Linux->Linux is getting better throughput than IPX NetWare Client -> 
-> > NetWare 5.x on the same network by @ 3%.  When you start loading up a 
-> > Linux server, it drops off sharply and NetWare keeps scaling, however, 
-> > this does indicate that the LAN code paths are equivalent relative to 
-> > latency vs. MSM/TSM/HSM in NetWare.  NetWare does better caching 
-> > (but we'll fix this in Linux next).  I think the ring transitions to 
-> > user space daemons are what are causing the scaling problems 
-> > Linux vs. NetWare.
+Joe <joeja@mindspring.com> writes:
+
+> I remember hearing about various debates about the /proc structure.  I
+> was wondering if anyone had ever considered storing some of the data in
+> xml format rather than its current format?  Things like /proc/meminfo
+> and cpuinfo may work good in this format as then it would be easy to
+> write a generic xml parser that could then be used to parse any of the
+> data. "MemTotal:  %8lu kB\n"
 > 
-> There are no user space daemons involved in the knfsd fast path, only in slow paths
-> like mounting.
-
-So why is it spawning off nfsd servers in user space?  I did notice that all
-the connect logic is down in the kernel with the RPC stuff in xprt.c, and this
-looks to be pretty fast.  I know about the checksumming problem with TCPIP.
-But cycles are cheap on todays processors, so even with this overhead, it 
-could still get faster.  IPX uses small packets that are less wire efficient 
-since the ratio of header size to payload is larger than what NFS in Linux
-is doing, plus there's more of them for an equivalent data transfer, even
-with packet burst.   IPX would tend to be faster if there were multiple 
-routers involved, since the latency of smaller packets would be less and
-IPX never has to deal with the problem of fragmentation.
-
-Is there any CR3 reloading or tasking switching going on for each interrupt
-that comes in you know of, BTW?  EMON stats show the server's bus utilization
-to get disproportiantely higher in Linux than NetWare 5.x and when it hits
-60% of total clock cycles, Linux starts dropping off.  NetWare 5.x is 1/8 
-the bus utilitization, which would suggest clocks are being used for something
-other than pushing packets in and out of the box (the checksumming is done 
-in the tcp code when it copies the fragments, which is very low overhead).
-
-Jeff  
-
-
-> The main problem I think in knfsd are the numerous copies of the data (e.g. 2+checksumming for
-> RX with fragments, upto 4 in some specific configurations). They're unfortunately 
-> not trivial to fix. TX is a bit better, it does only one copy usually out of
-> the page cache. For RX it also helps to have a network card that supports hardware
-> checksumming.
+> In the case of the meminfo it would be a matter of changing the lines in
+> fs/proc/array.c  function get_meminfo(char * buffer) from
 > 
+> "MemTotal:  %8lu kB\n"
 > 
+> to something like
 > 
-> -Andi
+> "<memtotal>%8lu kB</memtotal>\n"
+
+The general consensus is that if we have a major reorganization, in proc
+the rule will be one value per file.  And let directories do the grouping.
+
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

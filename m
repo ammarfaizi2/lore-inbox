@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbUK3C0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUK3C0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUK3C0G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 21:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUK3CZ7
+	id S261932AbUK3C0I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 21:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUK3CZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 21:25:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33173 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261944AbUK3CWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 21:22:04 -0500
-Date: Mon, 29 Nov 2004 18:22:00 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4.29-pre1] proc_tty.c warning fix
-Message-ID: <20041129182159.H14339@build.pdx.osdl.net>
-References: <200411281426.iASEQjDt001350@harpo.it.uu.se>
+	Mon, 29 Nov 2004 21:25:39 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:19924 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261932AbUK3CVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 21:21:22 -0500
+Date: Tue, 30 Nov 2004 03:21:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org
+Subject: Re: [1/7] Xen VMM #3: add ptep_establish_new to make va available
+Message-ID: <20041130022105.GL4365@dualathlon.random>
+References: <E1CYxP0-0005Hy-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200411281426.iASEQjDt001350@harpo.it.uu.se>; from mikpe@csd.uu.se on Sun, Nov 28, 2004 at 03:26:45PM +0100
+In-Reply-To: <E1CYxP0-0005Hy-00@mta1.cl.cam.ac.uk>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mikael Pettersson (mikpe@csd.uu.se) wrote:
-> The /proc/tty/driver/serial vulnerability fix in 2.4.29-pre1
-> calls a function without a prototype in scope, resulting in:
+On Tue, Nov 30, 2004 at 02:06:02AM +0000, Ian Pratt wrote:
 > 
-> proc_tty.c: In function `proc_tty_init':
-> proc_tty.c:183: warning: implicit declaration of function `proc_mkdir_mode'
-> proc_tty.c:183: warning: assignment makes pointer from integer without a cast
-> 
-> Fixed by the trivial patch below.
-> 
-> Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+> This patch adds 'ptep_establish_new', in keeping with the
+> existing 'ptep_establish', but for use where a mapping is being
+> established where there was previously none present. This
+> function is useful (rather than just using set_pte) because
+> having the virtual address available enables a very important
+> optimisation for arch-xen. We introduce
+> HAVE_ARCH_PTEP_ESTABLISH_NEW and define a generic implementation
+> in asm-generic/pgtable.h, following the pattern of the existing
+> ptep_establish.
 
-Yes, oversight, please apply.  Well, here's an insignificant variation
-which comes straight from 2.6 to minimize divergence.
-
-===== include/linux/proc_fs.h 1.10 vs edited =====
---- 1.10/include/linux/proc_fs.h	2004-10-05 11:22:37 -07:00
-+++ edited/include/linux/proc_fs.h	2004-11-29 18:17:37 -08:00
-@@ -144,6 +144,8 @@ extern struct proc_dir_entry *proc_symli
- extern struct proc_dir_entry *proc_mknod(const char *,mode_t,
- 		struct proc_dir_entry *,kdev_t);
- extern struct proc_dir_entry *proc_mkdir(const char *,struct proc_dir_entry *);
-+extern struct proc_dir_entry *proc_mkdir_mode(const char *name, mode_t mode,
-+			struct proc_dir_entry *parent);
- 
- static inline struct proc_dir_entry *create_proc_read_entry(const char *name,
- 	mode_t mode, struct proc_dir_entry *base, 
+this certainly is correct.

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318017AbSGRGbl>; Thu, 18 Jul 2002 02:31:41 -0400
+	id <S318018AbSGRGdl>; Thu, 18 Jul 2002 02:33:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318018AbSGRGbl>; Thu, 18 Jul 2002 02:31:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49170 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318017AbSGRGbk>; Thu, 18 Jul 2002 02:31:40 -0400
-Message-ID: <3D366103.8010403@zytor.com>
-Date: Wed, 17 Jul 2002 23:32:35 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
+	id <S318019AbSGRGdk>; Thu, 18 Jul 2002 02:33:40 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:14001 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318018AbSGRGdk> convert rfc822-to-8bit; Thu, 18 Jul 2002 02:33:40 -0400
+Message-ID: <3D2A78FA00479A2C@mel-rta7.wanadoo.fr> (added by
+	    postmaster@wanadoo.fr)
+Date: Thu, 18 Jul 2002 09:36:33 +0200 (MET DST)
+From: "Pierre ROUSSELET" <pierre.rousselet@wanadoo.fr>
+To: <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <3D308A30.7070702@wanadoo.fr> <20020717213332.GA10227@kroah.com> <3D2A7916004B5024@mel-rta10.wanadoo.fr>   <20020718060551.GB12626@kroah.com>
+Subject: Re: 2.5.25  uhci-hcd  very bad  
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org, viro@math.psu.edu,
-       trond.myklebust@fys.uio.no, Matija Nalis <mnalis-umsdos@voyager.hr>,
-       aia21@cantab.net, al@alarsen.net, asun@cobaltnet.com,
-       bfennema@falcon.csc.calpoly.edu, dave@trylinux.com, braam@clusterfs.com,
-       chaffee@cs.berkeley.edu, dwmw2@infradead.org, eric@andante.org,
-       hch@infradead.org, jaharkes@cs.cmu.edu, jakub@redhat.com,
-       jffs-dev@axis.com, mikulas@artax.karlin.mff.cuni.cz,
-       quinlan@transmeta.com, reiserfs-dev@namesys.com,
-       Chris Mason <mason@suse.com>, rgooch@atnf.csiro.au,
-       rmk@arm.linux.org.uk, shaggy@austin.ibm.com, tigran@veritas.com,
-       urban@teststation.com, vandrove@vc.cvut.cz, vl@kki.org,
-       zippel@linux-m68k.org, Art Haas <ahaas@neosoft.com>
-Subject: Re: Remain Calm: Designated initializer patches for 2.5
-References: <20020718032331.5A36644A8@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Hi all,
-> 
-> 	I just sent about 40 reasonable-size patches through the
-> Trivial Patch Monkey to Linus: these patches replace the (deprecated)
-> "foo: " designated initializers with the ISO-C ".foo =" initializers.
-> GCC has understood both since forever, but the kernel took a wrong
-> bet, and we're better off setting a good example for 2.6 before we
-> start getting about 10,000 warnings.
-> 
-> 	So far, Art Haas has done all the fs code, and will presumably
-> be working through the other code on dir at a time.
-> 
+The driver is OK with usb-uhci-hcd up to 2.5.24, you might as well suggest to un-plug it...
 
-As far as I could tell, *ALL* of these changes broke text alignment in 
-columns.  It would have been a lot better if they had maintained 
-spacing; I find the new code much more cluttered and hard to read.
 
-	-hpa
-
+>Messsage du 18/07/2002 08:05
+>De : Greg KH <greg@kroah.com>
+>A : Pierre ROUSSELET <pierre.rousselet@wanadoo.fr>
+>Copie à :  <linux-kernel@vger.kernel.org>
+>Objet : Re: 2.5.25  uhci-hcd  very bad  
+>
+> On Thu, Jul 18, 2002 at 08:35:37AM +0200, Pierre ROUSSELET wrote:
+> > The driver is made of a kernel module speedtch.o (built outside of the
+> > tree) and of userspace modem firmware loader and management daemon
+> > speedmgt.
+> 
+> I'd suggest asking the authors of the driver about this.
+> 
+> Good luck,
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292583AbSB0XdB>; Wed, 27 Feb 2002 18:33:01 -0500
+	id <S293059AbSB0XiH>; Wed, 27 Feb 2002 18:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293057AbSB0Xb1>; Wed, 27 Feb 2002 18:31:27 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:43913 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S293055AbSB0XbE>;
-	Wed, 27 Feb 2002 18:31:04 -0500
-Date: Wed, 27 Feb 2002 15:32:23 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@zip.com.au>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
-Message-ID: <31490000.1014852743@w-hlinder.des>
-In-Reply-To: <Pine.GSO.4.21.0202271645560.12074-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0202271645560.12074-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S293017AbSB0XgV>; Wed, 27 Feb 2002 18:36:21 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61970 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293063AbSB0XdO>; Wed, 27 Feb 2002 18:33:14 -0500
+Subject: Re: Linux 2.4.19pre1-ac1
+To: jonathan@daria.co.uk (Jonathan Hudson)
+Date: Wed, 27 Feb 2002 23:48:05 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5fe3.3c7d6393.7ac52@trespassersw.daria.co.uk> from "Jonathan Hudson" at Feb 27, 2002 10:54:11 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E16gDnp-0006PU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---On Wednesday, February 27, 2002 16:48:07 -0500 Alexander Viro <viro@math.psu.edu> wrote:
-
+> >> With 19-pre1-ac1 on a reiserfs partition I cannot patch a kernel. Patch
+> >> fails with "Invalid cross-device link" or "Out of disk space".
+> AF> 
+> AF> I can reproduce this too on ext2, so this does not seem to be FS related. 
 > 
-> ed mm/vmscan.c <<EOF
-> /shrink_icache_memory/s/priority/1/
-> w
-> q
-> EOF
-> 
-> and repeat the tests.  Unreferenced inodes == useless inodes.  Aging is
-> already taken care of in dcache and anything that had fallen through
-> is fair game.
-> 
+> Likewise (reiserfs here). Numerous fuzz or outright patch failures
+> with 2.4.19-pre1-ac1.
 
-FYI:
+See the other mail for the questions - and reply to that too if you can. 
+Right now I've not managed to reproduce it. Do you see the problem on
+2.4.19-pre1 (non -ac) [that has the same reiserfs changes in as -ac does]
 
-The patch does this:
-
-*** vmscan.c.orig	Wed Feb 27 14:09:49 2002
---- vmscan.c	Wed Feb 27 14:10:16 2002
-***************
-*** 578,584 ****
-  		return 0;
-  
-  	shrink_dcache_memory(priority, gfp_mask);
-! 	shrink_icache_memory(priority, gfp_mask);
-  #ifdef CONFIG_QUOTA
-  	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
-  #endif
---- 578,584 ----
-  		return 0;
-  
-  	shrink_dcache_memory(priority, gfp_mask);
-! 	shrink_icache_memory(1, gfp_mask);
-  #ifdef CONFIG_QUOTA
-  	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
-  #endif
-
+Alan

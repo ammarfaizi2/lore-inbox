@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262245AbSIZIUy>; Thu, 26 Sep 2002 04:20:54 -0400
+	id <S262246AbSIZIWu>; Thu, 26 Sep 2002 04:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262246AbSIZIUy>; Thu, 26 Sep 2002 04:20:54 -0400
-Received: from flaxian.hitnet.RWTH-Aachen.DE ([137.226.181.79]:42249 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S262245AbSIZIUx>;
-	Thu, 26 Sep 2002 04:20:53 -0400
-Date: Thu, 26 Sep 2002 10:26:06 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMART *causing* disk lossage?
-Message-ID: <20020926082606.GA12918@gondor.com>
-References: <Pine.LNX.4.44.0209252246390.26506-100000@twinlark.arctic.org>
-Mime-Version: 1.0
+	id <S262248AbSIZIWt>; Thu, 26 Sep 2002 04:22:49 -0400
+Received: from m029-045.nv.iinet.net.au ([203.217.29.45]:20363 "EHLO localhost")
+	by vger.kernel.org with ESMTP id <S262246AbSIZIWt>;
+	Thu, 26 Sep 2002 04:22:49 -0400
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com>
+	<20020926064455.GC12862@suse.de>
+In-Reply-To: <20020926064455.GC12862@suse.de> (Jens Axboe's message of "Thu,
+ 26 Sep 2002 08:44:55 +0200")
+From: Daniel Pittman <daniel@rimspace.net>
+Organization: Not today, thank you, Mother.
+Date: Thu, 26 Sep 2002 18:28:01 +1000
+Message-ID: <87k7l95f5a.fsf@enki.rimspace.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
+ i686-pc-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209252246390.26506-100000@twinlark.arctic.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 10:51:37PM -0700, dean gaudet wrote:
-> in 4 of the instances, smartd was the first to log anything about a dead
-> disk -- it didn't log any change in the smart parameters, just that it
-> couldn't reach the drive.  following smartd's complaint were kernel
-> messages about resetting the bus, and so forth.
+On Thu, 26 Sep 2002, Jens Axboe wrote:
+> On Wed, Sep 25 2002, Andrew Morton wrote:
 
-It may be completely unrelated, but we had similar problems in one
-server after installing a new gigabit ethernet card. The server ran fine
-for several days, and then the disk became unreachable. After a reboot
-all was fine for a few days, and then the problem showed up again.
+[...]
 
-We 'solved' the problem by moving the ethernet card to a different pci
-slot where it didn't share it's interrupt with the ide controler.
+> writes_starved. This controls how many times reads get preferred over
+> writes. The default is 2, which means that we can serve two batches of
+> reads over one write batch. A value of 4 would mean that reads could
+> skip ahead of writes 4 times. A value of 1 would give you 1:1
+> read:write, ie no read preference. A silly value of 0 would give you
+> write preference, always.
 
-The mainboard was an asus a7v-133, and the NIC uses the tg3 driver.
+Actually, a value of zero doesn't sound completely silly to me, right
+now, since I have been doing a lot of thinking about video capture
+recently.
 
-Jan
+How much is it going to hurt a filesystem like ext[23] if that value is
+set to zero while doing large streaming writes -- something like
+(almost) uncompressed video at ten to twenty meg a second, for
+gigabytes?
 
+This is a situation where, for a dedicated machine, delaying reads
+almost forever is actually a valuable thing. At least, valuable until it
+stops the writes from being able to proceed.
+
+      Daniel
+
+-- 
+The best way to get a bad law repealed is to enforce it strictly.
+        -- Abraham Lincoln

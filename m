@@ -1,111 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSEKA5D>; Fri, 10 May 2002 20:57:03 -0400
+	id <S316186AbSEKBBu>; Fri, 10 May 2002 21:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316187AbSEKA5C>; Fri, 10 May 2002 20:57:02 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:11016 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S316185AbSEKA44>; Fri, 10 May 2002 20:56:56 -0400
-Date: Fri, 10 May 2002 17:56:48 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.15 warnings
-Message-ID: <20020510175648.C14698@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <26013.1021001169@kao2.melbourne.sgi.com> <26949.1021006885@kao2.melbourne.sgi.com> <15579.46584.447522.360378@kim.it.uu.se> <20020510142038.A7165@flint.arm.linux.org.uk> <15579.54308.729464.625414@kim.it.uu.se> <3CDBE92E.5060307@linuxhq.com> <20020510165124.D7165@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S316187AbSEKBBt>; Fri, 10 May 2002 21:01:49 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13752 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S316186AbSEKBBt>; Fri, 10 May 2002 21:01:49 -0400
+Date: Sat, 11 May 2002 02:04:02 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BUG() disassembly tweak
+In-Reply-To: <Pine.LNX.4.33.0205101457120.22516-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0205110122430.1215-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 04:51:24PM +0100, Russell King wrote:
-> On Fri, May 10, 2002 at 11:37:18AM -0400, John Weber wrote:
-> > Mikael Pettersson wrote:
-> > > Russell King writes:
-> > >  > On Fri, May 10, 2002 at 01:58:48PM +0200, Mikael Pettersson wrote:
-> > >  > > This patch silences the sound/oss/emu10k1 warnings.
-> > >  > 
-> > >  > You probably want to think about these in context of 32bit vs 64bit
-> > >  > machines.
-> > >  > 
-> > >  > > --- linux-2.5.15/sound/oss/emu10k1/efxmgr.h.~1~	Wed Feb 20 03:11:02 2002
-> > >  > > +++ linux-2.5.15/sound/oss/emu10k1/efxmgr.h	Fri May 10 01:54:43 2002
-> > >  > > @@ -50,10 +50,10 @@
-> > >  > >          u16 code_start;
-> > >  > >          u16 code_size;
-> > >  > >  
-> > >  > > -        u32 gpr_used[NUM_GPRS / 32];
-> > >  > > -        u32 gpr_input[NUM_GPRS / 32];
-> > >  > > -        u32 route[NUM_OUTPUTS];
-> > >  > > -        u32 route_v[NUM_OUTPUTS];
-> > >  > > +        unsigned long gpr_used[NUM_GPRS / 32];
-> > >  > > +        unsigned long gpr_input[NUM_GPRS / 32];
-> > >  > > +        unsigned long route[NUM_OUTPUTS];
-> > >  > > +        unsigned long route_v[NUM_OUTPUTS];
-> > >  > >  };
-> > > 
-> > > Ideally the emu10k1 maintainer should have fixed this by now. I'm just an emu10k user.
-> > > 
-> > > The problem is: 3 archs (i386, ppc, ppc64) require "unsigned long *" as the
-> > > parameter type in bitops (set_bit et al), the others take "void *".
-> > > "unsigned int *" triggers compiler warnings: on the 32-bitters the warnings
-> > > are just portability hints, but for ppc64 I imagine int != long. (And
-> > > consequently emu10k1 is already broken on ppc64.)
-> > > 
-> > > So what emu10k1 needs here is either
-> > > (a) a fix to make these arrays work even if the element type is 64 bits
-> > >     (I can't claim to understand the code so I don't want to do that), or
-> > > (b) a typedef for a 32-bit type which is "unsigned long" on 32-bitters and
-> > >     "unsigned int" on 64-bitters; I couldn't find a standard one but I could
-> > >     certainly invent one for emu10k1's private use.
-> > > 
-> > > Suggestions?
-> > > 
-> > > /Mikael
-> > 
-> > Why wouldn't something like this be handled by declaring the variable as 
-> > "void *"?  If the function is declared as taking "unsigned long *" then 
-> > the cast is implicit, while if the function is declared as taking "void 
-> > *" then it must explicitly cast the value anyway.  Either way, a "void 
-> > *" would work.
+On Fri, 10 May 2002, Linus Torvalds wrote:
+> On Fri, 10 May 2002, Hugh Dickins wrote:
+> >
+> > Could we change the i386 BUG() macro slightly again?
 > 
-> Umm, 'void *gpr_used' is a pointer to some undefined data.
-> 'u32 gpr_used[NUM_GPRS / 32]' is an array of 'u32's, where 'u32' is
-> defined to be 32-bits.  Therefore, there are NUM_GPRS bits in the array.
-> 
-> 'unsigned long gpr_used[NUM_GPRS / 32]' is an array of 'unsigned long's,
-> where 'unsigned long' is a platform defined number of bits.  Therefore
-> you can't say anything about the number of bits in the array.  Typically,
-> it's either 32bit or 64bit, but doesn't have to be.  You therefore should
-> to adjust the 'NUM_GPRS / 32' according to the size of 'unsigned long'.
-> 
-> This is only a minor point I'm highlighting - the worst that will happen
-> is the arrays will take up twice as much memory with an Alpha machine
-> than they really need to.
-> 
-> Note that the change of type for the bitops occurred because they are
-> defined to operate on 'unsigned long' quantities only.  Passing any
-> other type into them is a bug.
-> 
+> If it wants to be changed, I'd actually personally prefer it to be changed
+> to take an explicit string instead of using the filename/linenr at all.
 
-As for the array size, how about something like this:
--        unsigned long gpr_input[NUM_GPRS / 32];
-+        unsigned long gpr_input[NUM_GPRS / (sizeof(long) * 8 )];
+Aaargh, rerun!  Last time I suggested a tiny mod to get BUG() working
+right (not losing the registers in its message display), you had new
+ideas of how it could work, saving kernel space; and Andrew implemented
+that magnificently.
 
-Then you can sort out what type it needs to be and as long
-as you the sizeof arg matches the declaration gcc will get
-it right regardless of the target platform.  If it looks too
-ugly for you use a marcro
-+#define BITARRAY(type, var, size) type var[size /(sizeof(type) * 8)]
--       unsigned long gpr_input[NUM_GPRS / 32];
-+	BITARRAY(unsigned long, gpr_input, NUM_GPRS);
+I thought I was the only one dissatisfied (that a disassembler cannot
+make sense of this line number and filename pointer dumped into the
+instruction stream after the ud2: laugh at the ingenious instructions
+ksymoops shows after the ud2 these days).
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+> The filename/linenr one has the size problem (those absolute file names
+> are _long_), and sucks when you have slight kernel version skew and 
+> suddenly the information isn't obviously unambiguous at all.
 
-		Remember Cernan and Schmitt
+Absolute filenames are long, yes, but (in 2.4 anyway) few remain:
+the .c filenames never came out absolute, always just leafname,
+and Andrew has dealt with the vast majority of the .h filenames
+from inlines (e.g. by using out_of_line_bug for them).  Does the
+2.5 build not work out like that?
+
+It's really 2.4.19 that's worrying me, that a small tweak now
+(exchanging line and file) can make the new style much more palatable
+to disassemblers; once 2.4.19 is out, it'll be confusing to change
+(disassemblers don't ususally need to know the version of what they
+are disassembling: no problem for kdb, but a problem for objdump).
+
+> It also sucks for inline functions or other users of BUG that would
+> potentially want to have different output.
+> 
+> In short, I suspect it would be nicer with 
+> 
+> 	kernel BUG: release_task(current)
+
+Sure there's a case for more info; but maybe that's something else
+than the simple BUG() we're used to dropping in wherever; let's fix
+up what we've got now, and muse at leisure on what else to provide.
+
+> instead of
+> 
+> 	kernel BUG at /home/torvalds/v2.5/linux/exit.c:59
+
+I don't see those - exit.c:59 would be all you see in 2.4.19-pre.
+"strings vmlinux | grep /home" currently shows me just:
+
+/home/hugh/1908H/include/linux/raid/md_k.h
+/home/hugh/1908H/include/linux/nfs_page.h
+/home/hugh/1908H/include/linux/nfs_page.h
+/home/hugh/1908H/include/linux/nfs_page.h
+/home/hugh/1908H/include/linux/nfs_page.h
+
+> (the exact point where the BUG happens _is_ given by the EIP, so in that
+> sense file and linenr are not actually all that useful. A descriptive
+> string would be more readable, and equally useful at pinpointing at a
+> source level).
+
+Hackers have better things to concentrate upon than dreaming up
+descriptive strings: the beauty of BUG() is that you can just drop
+it in (oops, I was about to say "without thinking").  I don't deny
+the case for assertions, but what Andrew provided last time around
+is really pretty good, and slips down more easily with the line<->file.
+
+Hugh
+

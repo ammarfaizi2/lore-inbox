@@ -1,45 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272244AbRJEVZY>; Fri, 5 Oct 2001 17:25:24 -0400
+	id <S273818AbRJEVml>; Fri, 5 Oct 2001 17:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271712AbRJEVZO>; Fri, 5 Oct 2001 17:25:14 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:28546 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S272244AbRJEVZA>; Fri, 5 Oct 2001 17:25:00 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200110052124.WAA20832@mauve.demon.co.uk>
-Subject: Re: Odd keyboard related crashes.
-To: nikberry@med.umich.edu (Nicholas Berry)
-Date: Fri, 5 Oct 2001 22:24:11 +0100 (BST)
-Cc: root@mauve.demon.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <sbbd8e9c.095@mail-02.med.umich.edu> from "Nicholas Berry" at Oct 05, 2001 10:42:16 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S273819AbRJEVmb>; Fri, 5 Oct 2001 17:42:31 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:15329 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id <S273818AbRJEVmT>; Fri, 5 Oct 2001 17:42:19 -0400
+Message-ID: <3BBE29DF.A5DECF12@oracle.com>
+Date: Fri, 05 Oct 2001 23:45:03 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.11-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dan Merillat <harik@chaos.ao.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Wierd /proc/cpuinfo with 2.4.11-pre4
+In-Reply-To: <200110051816.f95IGRW2008474@vulpine.ao.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>> Ian Stirling <root@mauve.demon.co.uk> 10/05/01 05:01AM >>>
-> >I'm running 2.4.10, and the ps/2 keyboard came out of it's socket.
+Dan Merillat wrote:
 > 
-> >On plugging back in, all worked fine, until 10 seconds later there was a
-> >crash. (the keyboard worked after being plugged in)
-> >No oops, just a reboot.
-<snip>
-> When the keyboard is powered up (or plugged in), it goes through a self =
-> test, and reports the status back to the PC. Normally, a start up dialogue =
-> takes place between the PC and the keyboard at this point.
-> That's fine when you boot your PC, but if you unplug then re-plug the =
-> keyboard, the PC will be sent data it's really not expecting, and the BIOS =
-> will be very confused.
+> From dmesg:
+> CPU: Before vendor init, caps: 000001bf 00000000 00000000, vendor = 0
+> Intel Pentium with F0 0F bug - workaround enabled.
+> Intel old style machine check architecture supported.
+> Intel old style machine check reporting enabled on CPU#0.
+> CPU: After vendor init, caps: 000001bf 00000000 00000000 00000000
+> CPU:     After generic, caps: 000001bf 00000000 00000000 00000000
+> CPU:             Common caps: 000001bf 00000000 00000000 00000000
+> CPU: Intel Pentium 75 - 200 stepping 0b
+> Checking 'hlt' instruction... OK.
+> 
+> Looks normal.  Let's see /proc/cpuinfo...
+> 
+> processor       : 0
 
-I should have said.
-Both times this happened, the keyboard was working fine after being
-plugged in, correctly recognising 30 or so keypresses before the crash.
+[snip]
 
-It happened ~10 seconds after the keyboard was plugged in, with the
-system and keyboard remaining functional, with no keyboard related messages
-sysloged (remote syslog, so I'm sure), which is why I suspect it may
-not be hardware.
+> processor       : 7
+> vendor_id       : unknown
+> cpu family      : 0
+> model           : 0
+> model name      : unknown
+> stepping        : 0
+> cache size      : 515 KB
+> fdiv_bug        : no
+> hlt_bug         : yes
+> f00f_bug        : yes
+> coma_bug        : yes
+> fpu             : no
+> fpu_exception   : no
+> cpuid level     : 0
+> wp              : no
+> flags           :
+> bogomips        : 644464.70
+> 
+> Wow!  That's pretty impressive, a new kernel build gives me an
+> additional _7_ CPUs!
+> 
+> Interesting bits of .config:
+> 
+> CONFIG_M586TSC=y
+> CONFIG_X86_MSR=y
+> CONFIG_X86_CPUID=y
+> CONFIG_NOHIGHMEM=y
+> # CONFIG_HIGHMEM4G is not set
+> # CONFIG_HIGHMEM64G is not set
+> # CONFIG_MATH_EMULATION is not set
+> CONFIG_MTRR=y
+> # CONFIG_SMP is not set
+> # CONFIG_X86_UP_APIC is not set
+> # CONFIG_X86_UP_IOAPIC is not set
+> 
+> Won't compile with UP APIC turned on, as others have noted.
+> 
+> Aside from /bin/ps getting confused about the system capabilities, it
+> seems stable.
 
+Same 8-processor incorrect info on my PIII Dell laptop - 
+ redirecting '/usr/bin/top' stderr gets this:
+
+[asuardi@dolphin linux]$ cat x
+fscanf failed on /proc/stat for cpu 1
+fscanf failed on /proc/stat for cpu 2
+fscanf failed on /proc/stat for cpu 3
+fscanf failed on /proc/stat for cpu 4
+fscanf failed on /proc/stat for cpu 5
+fscanf failed on /proc/stat for cpu 6
+fscanf failed on /proc/stat for cpu 7
+fscanf failed on /proc/stat for cpu 1
+
+So I'd assume anything touching /proc/cpuinfo is hosed.
+
+--alessandro
+
+ "this is no time to get cute, it's a mad dog's promenade
+  so walk tall, or baby don't walk at all"
+                (Bruce Springsteen, 'New York City Serenade')

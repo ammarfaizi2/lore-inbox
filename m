@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbTE2HAF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 03:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTE2HAF
+	id S261939AbTE2HCX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 03:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTE2HCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 03:00:05 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37902 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261944AbTE2HAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 03:00:04 -0400
-Date: Thu, 29 May 2003 08:13:15 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: zippel@linux-m68k.org, mika.penttila@kolumbus.fi, akpm@digeo.com,
-       hugh@veritas.com, LW@karo-electronics.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at least))
-Message-ID: <20030529081315.A12513@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	zippel@linux-m68k.org, mika.penttila@kolumbus.fi, akpm@digeo.com,
-	hugh@veritas.com, LW@karo-electronics.de,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0305281827290.5042-100000@serv> <20030528.154720.74745668.davem@redhat.com> <Pine.LNX.4.44.0305290151470.5042-100000@serv> <20030528.183700.104033543.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030528.183700.104033543.davem@redhat.com>; from davem@redhat.com on Wed, May 28, 2003 at 06:37:00PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Thu, 29 May 2003 03:02:23 -0400
+Received: from netmail01.services.quay.plus.net ([212.159.14.219]:47088 "HELO
+	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S261939AbTE2HCV (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Thu, 29 May 2003 03:02:21 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Marc Wilson" <msw@cox.net>
+Cc: "Linux Kernel List" <Linux-Kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.21-rc6
+Date: Thu, 29 May 2003 08:15:39 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAMEAPECAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030529055735.GB1566@moonkingdom.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 06:37:00PM -0700, David S. Miller wrote:
-> Specifically, flush_dcache_page() is called any time the kernel makes
-> cpu stores into a page cache page that might be mapped into a user's
-> address space.
+Hi Marc.
 
-Presumably then the two in drivers/block/rd.c (ramdisk_readpage and
-ramdisk_prepare_write) are out of spec then?
+ >> The basic problem there is that any mail client needs to know
+ >> just how many messages are in a particular folder to handle that
+ >> folder, and the only way to do this is to count them all. That's
+ >> what takes the time when one opens a large folder.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+ > No, the basic problem there is that the kernel is deadlocking.
+ > Read the VERY long thread for the details.
+ >
+ > I think I have enough on the ball to be able to tell the difference
+ > between mutt opening a folder and counting messages, with a counter
+ > and percentage indicator advancing, and mutt sitting there
+ > deadlocked with the HD activity light stuck on and all the rest of
+ > X stuck tight.
+
+I thought I was on the ball when a similar situation happened to me.
+What I observed was that the counters and percentage indicators were
+NOT advancing for about 30 seconds, and both would then jump up by
+about 70 messages and the relevant percent rather than counting
+smoothly through. It was only when I noticed those jumps that I went
+back to basics and analysed the folder rather than the kernel.
+
+However, I apologise profusely for assuming that my experience in what
+to me appear to be similar circumstances to yours could have any sort
+of bearing on the problem you are seeing.
+
+ > And it just happened again, so -rc6 is no sure fix. What did y'all
+ > that reported the problem had gone away do, patch -rc4 with the
+ > akpm patches?
+
+In my case, I fixed the problem by splitting the relevant folder up,
+as stated in my previous message. However, such a solution apparently
+doesn't work for you, so I'm unable to help any further.
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.484 / Virus Database: 282 - Release Date: 27-May-2003
 

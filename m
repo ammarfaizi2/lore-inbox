@@ -1,29 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262466AbSI2M4E>; Sun, 29 Sep 2002 08:56:04 -0400
+	id <S262461AbSI2Mv3>; Sun, 29 Sep 2002 08:51:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262467AbSI2M4E>; Sun, 29 Sep 2002 08:56:04 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:23813 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S262466AbSI2M4D>;
-	Sun, 29 Sep 2002 08:56:03 -0400
-Message-ID: <3D96FAF4.ED1559EB@tv-sign.ru>
-Date: Sun, 29 Sep 2002 17:07:00 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	id <S262465AbSI2Mv2>; Sun, 29 Sep 2002 08:51:28 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:33298 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S262461AbSI2Mv2>; Sun, 29 Sep 2002 08:51:28 -0400
+Date: Sun, 29 Sep 2002 22:56:33 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Greg KH <greg@kroah.com>
+cc: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
+       <linux-kernel@vger.kernel.org>, <linux-security-module@wirex.com>
+Subject: Re: [PATCH] accessfs v0.6 ported to 2.5.35-lsm1 - 1/2
+In-Reply-To: <20020927214642.GS12909@kroah.com>
+Message-ID: <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [UPATCH] force_sig_info()
-References: <3D96F771.E6D7B2B0@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Fri, 27 Sep 2002, Greg KH wrote:
 
-Just browsed marc.theaimsgroup.com, it is fixed already.
-Sorry for noise.
+> On Fri, Sep 27, 2002 at 08:55:52PM +0200, Olaf Dietsche wrote:
+> >  
+> > +static int cap_ip_prot_sock (int port)
+> > +{
+> > +	if (port && port < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
+> > +		return -EACCES;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> 
+> Do we really want to force all of the security modules to implement this
+> logic (yes, it's the same discussion again...)
+> 
+> As for the ip_prot_sock hook in general, does it look ok to the other
+> developers?
+> 
 
-Oleg.
+This hook is not necessary: any related access control decision can be
+made via the more generic and flexible socket_bind() hook (like SELinux).
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+

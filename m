@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135821AbREIXfp>; Wed, 9 May 2001 19:35:45 -0400
+	id <S135841AbREIXgO>; Wed, 9 May 2001 19:36:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135841AbREIXfe>; Wed, 9 May 2001 19:35:34 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:11990 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S135821AbREIXfU>; Wed, 9 May 2001 19:35:20 -0400
+	id <S135854AbREIXgF>; Wed, 9 May 2001 19:36:05 -0400
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:24583 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S135841AbREIXfv>; Wed, 9 May 2001 19:35:51 -0400
+Date: Thu, 10 May 2001 00:35:45 +0100 (BST)
+From: Chris Evans <chris@scary.beasts.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Andrew M. Theurer" <atheurer@austin.ibm.com>,
+        Mike Kravetz <mkravetz@sequent.com>, <lse-tech@lists.sourceforge.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        samba-technical <samba-technical@samba.org>
 Subject: Re: Linux 2.4 Scalability, Samba, and Netbench
-To: lse-tech@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, samba-technical@samba.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF59641CC4.CEBD69DC-ON88256A47.007BCFFD@LocalDomain>
-From: "Bruce Allan" <bruce.allan@us.ibm.com>
-Date: Wed, 9 May 2001 16:34:48 -0700
-X-MIMETrack: Serialize by Router on D03NM104/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 05/09/2001 05:35:14 PM
+In-Reply-To: <E14xXvT-0002ri-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0105100033510.23676-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andrew Theurer wrote:
-> I do have kernprof ACG and lockmeter for a 4P run.  We saw no
-> significant problems with lockmeter.  csum_partial_copy_generic was the
-> highest % in profile, at 4.34%.  I'll see if we can get some space on
-> http://lse.sourceforge.net to post the test data.
+On Wed, 9 May 2001, Alan Cox wrote:
 
-The Netfinity system that you are using has two different supported GigE
-adapters.  I assume you are using one of these types - Netfinity Gigabit
-Ethernet Adapter (19K4401) and the Netfinity Gigabit Ethernet SX Server
-Adapter (06P3701); using the acenic.c and e1000.c drivers, respectively.
->From what I understand after initial perusal of the two drivers, the former
-has receive checksumming support on the adapter itself while the latter,
-the one you are using, does not support hardware checksumming (at least, it
-is not enabled by the driver).
+> > significant problems with lockmeter.  csum_partial_copy_generic was the
+> > highest % in profile, at 4.34%.  I'll see if we can get some space on
+>
+> Are you using Antons optimisations to samba to use sendfile ?
 
-Are you able to re-run your tests with GigE adapters that support
-checksumming on the hardware instead of doing it in the kernel?  If not, I
-will be running similar tests in a very similar configuration (with the
-19K4401 adapters) in the near future and can share results if you'd like.
+And you might like to try 2.4.4 (I saw 2.4.0 and 2.4.3 mentioned). 2.4.4
+has the zerocopy TCP stuff (or was it 2.4.3 :)
 
-Bruce Allan/Beaverton/IBM
-IBM Linux Technology Center - OS Gold
-503-578-4187   T/L 775-4187
-bruce.allan@us.ibm.com
+Also, if the load is not disk limited, you might like to try Mingo's
+pagecache/timers scalability patches. etc.
 
+Cheers
+Chris
 

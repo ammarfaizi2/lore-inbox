@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266634AbUBMA4l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 19:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266637AbUBMA4l
+	id S266584AbUBMA62 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 19:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266638AbUBMA61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 19:56:41 -0500
-Received: from wacom-nt2.wacom.com ([204.119.25.126]:25608 "EHLO
-	wacom_nt2.WACOM.COM") by vger.kernel.org with ESMTP id S266634AbUBMA4k
+	Thu, 12 Feb 2004 19:58:27 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:45215 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266584AbUBMA6O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 19:56:40 -0500
-Message-ID: <28E6D16EC4CCD71196610060CF213AEB065BCA@wacom-nt2.wacom.com>
-From: Ping Cheng <pingc@wacom.com>
-To: "'Vojtech Pavlik'" <vojtech@suse.cz>
-Cc: "'Pete Zaitcev'" <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: RE: Wacom USB driver patch
-Date: Thu, 12 Feb 2004 16:55:47 -0800
+	Thu, 12 Feb 2004 19:58:14 -0500
+Message-ID: <402C2105.1030905@cyberone.com.au>
+Date: Fri, 13 Feb 2004 11:57:41 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Rudo Thomas <rudo@matfyz.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bug, or is it? - SCHED_RR and FPU related
+References: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz> <402C050B.2040803@cyberone.com.au> <20040213004727.GA20680@ss1000.ms.mff.cuni.cz>
+In-Reply-To: <20040213004727.GA20680@ss1000.ms.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The wacom.c at http://linux.bkbits.net:8080/linux-2.4 is way out of date and
-people are still working on/using 2.4 releases. Should I make a patch for
-2.4?
-
-Ping
-
------Original Message-----
-From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
-Sent: Wednesday, February 11, 2004 12:05 PM
-To: Ping Cheng
-Cc: 'Pete Zaitcev'; linux-kernel@vger.kernel.org
-Subject: Re: Wacom USB driver patch
 
 
-On Wed, Feb 11, 2004 at 11:47:19AM -0800, Ping Cheng wrote:
-> Nice catch, Pete. The Two "return"s should be replaced by "goto exit".
-> 
-> Vojtech, should I make another patch or you can handle it with my 
-> previous one?
+Rudo Thomas wrote:
 
-It's okay, you don't need to make another patch.
+>Hi.
+>
+>
+>>xmms probably goes into an infinite loop, preventing anything else
+>>from being scheduled, right?
+>>
+>
+>Nope. When I turn the suid bit off, xmms (does not run with SCHED_RR and) just
+>hangs consuming no CPU cycles. Strange.
+>
+>I will look into it tomorrow, the invalid FP division was not the problem, its
+>results are.
+>
+>
+
+I think xmms changes the way it runs depending on whether realtime
+scheduling is set or not, but I could be wrong.
+
+Programs using realtime scheduling need to be coded pretty
+carefully. Xmms is not something I'd bet my system's stability on.
 

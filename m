@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbUBOOhl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 09:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbUBOOhl
+	id S264927AbUBOOrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 09:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUBOOrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 09:37:41 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:42144 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S261837AbUBOOhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 09:37:39 -0500
-Message-ID: <402F83D4.3080605@oracle.com>
-Date: Sun, 15 Feb 2004 15:36:04 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
-X-Accept-Language: en-us, en
+	Sun, 15 Feb 2004 09:47:22 -0500
+Received: from mail4-141.ewetel.de ([212.6.122.141]:960 "EHLO mail4.ewetel.de")
+	by vger.kernel.org with ESMTP id S264927AbUBOOrV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 09:47:21 -0500
+Date: Sun, 15 Feb 2004 15:48:42 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Jamie Lokier <jamie@shareable.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior
+Message-ID: <Pine.LNX.4.58.0402151545030.443@neptune.local>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.3-rc3: radeon blanks screen
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my Dell Latitude C640 as on Peter Osterlund's laptop - blind-typing
-  login/password and startx gets me a visible X desktop.
 
-Old driver with Peter's patch works as before.
+>>    Then I did unicode_stop.  Guess what: it put the display back in
+>>    iso-8859-1 for that virtual terminal, but the keyboard remained
+>>    stuck in UTF-8 for _all_ virtual terminals.
+> kbd_mode -a to reset to ASCII mode.
 
-Note - this is the same laptop you tried I gave up using framebuffer on
-  in the 2.4 series because after 2.4.22-pre4 it would send my screen in
-  a crazed-up state (X didn't work either) [that was July 2003].
+And as I just figured out, loadkeys has to be invoked again, also.
 
+I can go to utf-8 with:
 
-2.6.3-rc3 new driver messages:
+	setfont lat0-16
+	kbd_mode -u
+	loadkeys de-latin1-nodeadkeys
 
-radeonfb: Invalid ROM signature 0 should be 0xaa55
-radeonfb: Retreived PLL infos from BIOS
-radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=230.00 Mhz, System=166.00 MHz
-Non-DDC laptop panel detected
-radeonfb: Monitor 1 type LCD found
-radeonfb: Monitor 2 type no found
-radeonfb: panel ID string: 1024x768
-radeonfb: detected LVDS panel size from BIOS: 1024x768
-radeondb: BIOS provided dividers will be used
-radeonfb: Power Management enabled for Mobility chipsets
-radeonfb: ATI Radeon LW  DDR SGRAM 32 MB
+and return to latin-1 with:
 
-2.6.3-rc3 old driver messages:
+	setfont lat1-16
+	kbd_mode -a
+	loadkeys de-latin1-nodeadkeys
 
-radeonfb_pci_register BEGIN
-radeonfb: ref_clk=2700, ref_div=12, xclk=16600 from BIOS
-radeonfb: probed DDR SGRAM 32768k videoram
-radeon_get_moninfo: bios 4 scratch = 1000004
-radeonfb: panel ID string: 1024x768
-radeonfb: detected DFP panel size from BIOS: 1024x768
-radeonfb: ATI Radeon M7 LW DDR SGRAM 32 MB
-radeonfb: DVI port LCD monitor connected
-radeonfb: CRT port no monitor connected
-radeonfb_pci_register END
-[drm] Initialized radeon 1.9.0 20020828 on minor 0
+Without the loadkeys after returning to latin-1 mode, I can no longer
+input umlauts and other special characters correctly.
 
-
-Please CC me on replies as I'm not on the list. Thanks in advance,
-
---alessandro
-
-  "Two rivers run too deep
-   The seasons change and so do I"
-       (U2, "Indian Summer Sky")
-
+-- 
+Ciao,
+Pascal

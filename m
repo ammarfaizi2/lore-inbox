@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVCDLL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVCDLFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbVCDLL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVCDLFz
+	id S262747AbVCDLFm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbVCDLFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:05:55 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39868 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262785AbVCDLE0 (ORCPT
+	Fri, 4 Mar 2005 06:05:16 -0500
+Received: from ns.suse.de ([195.135.220.2]:31409 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262747AbVCDLCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:04:26 -0500
-Date: Fri, 4 Mar 2005 12:04:08 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
-Message-ID: <20050304110408.GL1345@elf.ucw.cz>
-References: <200502252237.04110.rjw@sisk.pl> <200503030047.43625.rjw@sisk.pl> <20050302235456.GB1439@elf.ucw.cz> <200503030902.48038.rjw@sisk.pl>
+	Fri, 4 Mar 2005 06:02:22 -0500
+Date: Fri, 4 Mar 2005 12:02:15 +0100
+From: Olaf Hering <olh@suse.de>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for openfirmware	devices
+Message-ID: <20050304110215.GC14408@suse.de>
+References: <20050301211824.GC16465@locomotive.unixthugs.org> <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com> <20050303202319.GA30183@suse.de> <42277ED8.6050500@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <200503030902.48038.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <42277ED8.6050500@suse.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ On Thu, Mar 03, Jeff Mahoney wrote:
 
-> > IIRC kernel code/data is marked as PageReserved(), that's why we need
-> > to save that :(. Not sure what to do with data e820 marked as
-> > reserved...
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Perhaps we need another page flag, like PG_readonly, and mark the pages
-> reserved by the e820 as PG_reserved | PG_readonly (the same for the areas
-> that are not returned by e820 at all).  Would that be acceptable?
+> Olaf Hering wrote:
+> >  On Thu, Mar 03, Jeff Mahoney wrote:
+> > 
+> > 
+> >>Is whitespace (in any form) allowed in the compatible value?
+> > 
+> > 
+> > Yes, whitespace is used at least in the toplevel compatible file, like
+> > 'Power Macintosh' in some Pismo models.
+> > 
+> 
+> Oh well, it was wishful thinking anyway. ;)
 
-This flags are little in the short supply, but being able to tell
-kernel code from memory hole seems like "must have", so yes, that
-looks ok.
-
-You could get subtle and reuse some other pageflag. I do not think
-PG_reserved can have PG_locked... So using for example PG_locked for
-this purpose should be okay.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+The same thing needs to be solved for vio devices, the properties can
+contain spaces. depmod and modprobe have to deal with it to generate a
+valid module.alias file.

@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318332AbSH0CD4>; Mon, 26 Aug 2002 22:03:56 -0400
+	id <S318348AbSH0Cpd>; Mon, 26 Aug 2002 22:45:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318333AbSH0CD4>; Mon, 26 Aug 2002 22:03:56 -0400
-Received: from dp.samba.org ([66.70.73.150]:15327 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S318332AbSH0CDz>;
-	Mon, 26 Aug 2002 22:03:55 -0400
-Date: Tue, 27 Aug 2002 12:08:55 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [TRIVIAL] Compile fix for magic sysrq and !CONFIG_VT
-Message-ID: <20020827020855.GW18818@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S318355AbSH0Cpd>; Mon, 26 Aug 2002 22:45:33 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:21511 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S318348AbSH0Cpc>; Mon, 26 Aug 2002 22:45:32 -0400
+Date: Tue, 27 Aug 2002 10:49:13 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] initrd >24MB corruption (fwd)
+Message-ID: <Pine.LNX.4.44.0208271038450.25059-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
+ 10:49:45 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2002
+ 10:49:48 AM,
+	Serialize complete at 08/27/2002 10:49:48 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  This fixes compilation of the magic sysrq code
-when compiled without CONFIG_VT.
 
-diff -urN /home/dgibson/kernel/linuxppc-2.5/drivers/char/sysrq.c linux-bluefish/drivers/char/sysrq.c
---- /home/dgibson/kernel/linuxppc-2.5/drivers/char/sysrq.c	2002-07-16 09:13:58.000000000 +1000
-+++ linux-bluefish/drivers/char/sysrq.c	2002-08-02 16:36:30.000000000 +1000
-@@ -76,7 +76,7 @@
- };
- #endif
- 
--
-+#ifdef CONFIG_VT
- /* unraw sysrq handler */
- static void sysrq_handle_unraw(int key, struct pt_regs *pt_regs,
- 			       struct tty_struct *tty) 
-@@ -91,7 +91,7 @@
- 	help_msg:	"unRaw",
- 	action_msg:	"Keyboard mode set to XLATE",
- };
--
-+#endif /* CONFIG_VT */
- 
- /* reboot sysrq handler */
- static void sysrq_handle_reboot(int key, struct pt_regs *pt_regs,
-@@ -371,7 +371,11 @@
- 		 as 'Off' at init time */
- /* p */	&sysrq_showregs_op,
- /* q */	NULL,
-+#ifdef CONFIG_VT
- /* r */	&sysrq_unraw_op,
-+#else
-+/* r */ NULL,
-+#endif
- /* s */	&sysrq_sync_op,
- /* t */	&sysrq_showstate_op,
- /* u */	&sysrq_mountro_op,
+Alan,
+
+Who else can help with this problem? I tried to write to Werner
+Almesberger <werner.almesberger@epfl.ch> (no such email) and Hans Lermen
+<lermen@fgan.de>, but no response from either.
+
+I'm suspecting that somehow part of initrd is being corrupted during boot
+up or may be ungzip is not working properly, because I can definitely
+gzip/ungzip on all versions of running Linux for the ram.gz filesystem I
+created.  Again, the only difference between ram-18mb.gz (6MB) and
+ram-24mb.gz (8MB) is ram24.gz contains one extra file to fill up the
+filesystem to 90%.
+
+Same bzImage, same ramdisk_size=28000, just different initrd files.
+ram-18mb.gz boots, ram-24mb.gz hangs.
+
+gzip 1.3.3
+
+I noticed that lib/inflate.c says gzip is based on gzip-1.0.3
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+
+---------- Forwarded message ----------
+Date: Tue, 27 Aug 2002 08:05:14 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] initrd >24MB corruption
 
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+On 26 Aug 2002, Alan Cox wrote:
+
+> > 	RAMDISK: Compressed image found at block 0 ... then stuck!
+> Force a 1K block size when you make the fs
+
+That was the default for mke2fs.
+
+Tried compress instead of gzip. Same problem. I guess the compressed file
+is too big for the kernel. The 8MB compressed (from 24MB) didn't work. 6MB
+compressed from 18MB worked. The 24MB filesystem has just one extra junk
+file in /tmp to fill up the filesystem to 90% and this caused the system
+to hang.
+
+I'm thinking it could be the ungzip function in the kernel that's causing
+the problem.
+
+
+Jeff.
+
+

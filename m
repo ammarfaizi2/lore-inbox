@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbULFS0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbULFS3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbULFS0p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 13:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbULFS0o
+	id S261602AbULFS3t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 13:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbULFS3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 13:26:44 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:18959 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261601AbULFS0a
+	Mon, 6 Dec 2004 13:29:49 -0500
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:27828 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S261602AbULFS3s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 13:26:30 -0500
-From: "David Schwartz" <davids@webmaster.com>
+	Mon, 6 Dec 2004 13:29:48 -0500
+From: "Niel Lambrechts" <antispam@telkomsa.net>
 To: <linux-kernel@vger.kernel.org>
-Subject: RE: Correctly determine amount of "free memory"
-Date: Mon, 6 Dec 2004 10:26:20 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKELNAEAB.davids@webmaster.com>
+Subject: kernel panic after changing processor arch
+Date: Mon, 6 Dec 2004 20:29:44 +0200
+Message-ID: <000001c4dbc1$8fdc0a30$0a00000a@MERCKX>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <06EF4EE36118C94BB3331391E2CDAAD9CD060A@exil1.paradigmgeo.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook, Build 10.0.2627
 Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 06 Dec 2004 10:02:36 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 06 Dec 2004 10:02:39 -0800
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm hoping someone can help:
 
-> Assuming that I define "free memory" as maximum memory that can be
-> allocated without causing swapping, is there a way I can give the best
-> "free memory" amount estimate?
+I am trying to recompile using processor architecture PENTIUMM instead
+of i586/i686.
 
-	That's not really a meaningful question. In fact, technically, no matter
-how much memory you allocate you won't change the amount of swapping because
-allocation has no affect on the working set size.
+Mkinitrd is used to create an initial ramdisk, but upon reboot I get:
 
-> I've tried to play with /proc/meminfo values with some progress, but I'd
-> like to get a qualified answer from people working with VM bits and
-> bytes.
+reiserfs: version magic '2.6.8-24.5-default PENTIUMM REGPARM gcc-3.3'
+should be '2.6.8-24.5-default 586 REGPARM gcc-3.3'
+insmod: error inserting
+'/lib/modules/2.6.8-24.5-default/kernel/fs/reiserfs/reiserfs.ko': -1
+invalid module format
+Waiting for device /dev/hda3 to appear: ok
+rootfs: major=3 minor=3 devn=771
+Kernel panic - not syncing: VFS: Unable to mount root fs on
+unknown-block(3,3)
 
-	The qualified answer is that /proc/meminfo gives you the available
-information and what number you want depends upon what you plan to do with
-it. Swapping is not necessarily the right metric for two reasons. First, a
-system might swap even though it's under a perfectly normal (or even low)
-load. Second, there are bad memory situations a system can get in even if
-it's not swapping, for example, a system with no buffer cache for file I/O
-wouldn't be swapping, but it wouldn't perform well either.
+I have tried other mailing-lists to no avail. Any ideas?
 
-	DS
-
+-Niel
 

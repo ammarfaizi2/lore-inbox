@@ -1,57 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUGVI7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266838AbUGVJCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUGVI7O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 04:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266836AbUGVI7O
+	id S266838AbUGVJCR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 05:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266836AbUGVJCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 04:59:14 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:44184 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S266835AbUGVI7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 04:59:13 -0400
-Date: Thu, 22 Jul 2004 10:59:15 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH 2.6] new sony_acpi driver
-Message-ID: <20040722085915.GB3372@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Willy Tarreau <willy@w.ods.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	acpi-devel@lists.sourceforge.net
-References: <20040721150008.GF3560@crusoe.alcove-fr> <20040722044417.GE1545@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040722044417.GE1545@alpha.home.local>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jul 2004 05:02:16 -0400
+Received: from web21110.mail.yahoo.com ([216.136.227.112]:21018 "HELO
+	web21110.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266838AbUGVJBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 05:01:07 -0400
+Message-ID: <20040722090106.36880.qmail@web21110.mail.yahoo.com>
+Date: Thu, 22 Jul 2004 11:01:06 +0200 (CEST)
+From: =?iso-8859-1?q?Eva=20Dominguez?= <evadom2002@yahoo.es>
+Subject: aditional parallel port problems
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 06:44:17AM +0200, Willy Tarreau wrote:
-> Hi Stelian,
-> 
-> On Wed, Jul 21, 2004 at 05:00:09PM +0200, Stelian Pop wrote:
->  
-> > The screen is one of the most important power consumers in a laptop,
-> > so being able to set its brightness is very important for many users, 
-> > making this driver useful even if it does only that.
-> 
-> It's more than welcome, but too late for me. 
+Hi everybody!
 
-You mean sonypi didn't work for you ?
+ Firstable, I have to say that my problem is a
+Hardware problem, so, if you think this is not the
+proper forum,tell me please.
 
-> My vaio's backlight finally
-> died after 18 months of daily use at full brightness.
+ My situation is like this: I have a "hand-made"
+circuit that works with the orders of a parallel port
+from PC. With this orders, the circuit turn on/off
+several devices connected to it. 
 
-I guess it depends on the model, but I use my laptop daily too,
-with the brightness close to maximum, and it still works after
-3 years of use... (but the brightness is not very powerful on this
-model - a PCG-C1VE, maybe this explains the longer life... or I am 
-just being lucky).
+ I work with a PC with Suse9.0 (kernel
+2.4.21-226-default) with an aditional parallel port in
+a PCI Multio I/O card with NM9835CV chip.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    
+ Besides, I have a C program that send (outb, iopl,
+ioperm...)the orders to the address of the parallel
+port I say.
+
+ My problem is: when I run this C program with the
+motherboard paralell port (lp0) the circuit works
+properly. But, it doesnt work with the aditional
+parallel port of the card (lp1)
+
+ I write in this list because I have changed de
+operating system some days ago. I had RedHat6.2
+(kernel 2.2) and everything worked perfectly with the
+same card. I have bought other cards but nothing.
+
+ I have seen some things:
+
+  1. With de PC TURNED ON and TURNED OFF, if I conect
+the circuit with the motherboard parallel port (lp0) 
+some devices turn on and other turn off. But when if
+connect the circuit with the parallel port of the card
+(lp1) different devices turn on/off. All of this
+happens without executing eny program, only connecting
+the ports and the circuit with a bus.
+ It seems to be the internal circuits of eacb port.
+ Could it be the cause that nothing works? in this
+case...how can I change that?
+
+  2. The card is "Multi-mode (SPP, EPP, ECP, PS2)". Is
+possible that the circuit only works with SPP mode. I
+can change the motherboard parallel port mode (with
+BIOS) but , how can I change the parallel port mode of
+the card?
+
+  3. Before all this, I have tested the parallel port
+address of the card and the irq of the slot and I have
+added to /etc/modules.conf the line:
+    "options parport_pc io=0x378,0x8800 irq=7,5"
+     Later, I have connected a printer to the
+pararallel port of the card and it prints right.
+     Could the printer force the parallel port of the
+card to change its own mode to ECP or EPP? If I
+connect a SPP device, could it force that port to
+change its mode to SPP and everything works?
+
+  4. I have changed the slot of the card and nothing
+happens.
+
+  5. The command "dmesg | grep parport" displays:
+
+    "parport0: PC-style at 0x378 irq 7 [PCSPP,
+TRISTATE, EPP]" (Is this line telling me the mode of
+the parallel port?? in this case...what does it mean?)
+    "parport1: PC-style at 0x8800 irq 5 [PCSPP,
+TRISTATE, EPP]"
+    "lp0: using parport0 (interrupt-driven)"
+    "lp1: using parport1 (polling)"
+    
+  6. I have seen in this mailing list an email about
+two patches (00_parport and 01_netmos) to work with
+this kind of chips. I have never installed patches and
+I dont find help about it. I am not so sure that this
+patches are the solution of my problem
+
+
+  This is the end of my "little" email.
+  Thank you very much!!
+
+  Eva
+
+
+
+
+
+
+
+		
+______________________________________________
+Yahoo! lanza su nueva tecnología de búsquedas
+¿te atreves a comparar?
+http://busquedas.yahoo.es

@@ -1,371 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317020AbSFQVGy>; Mon, 17 Jun 2002 17:06:54 -0400
+	id <S317022AbSFQVN1>; Mon, 17 Jun 2002 17:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317018AbSFQVGx>; Mon, 17 Jun 2002 17:06:53 -0400
-Received: from pD9530B5B.dip.t-dialin.net ([217.83.11.91]:42580 "EHLO
-	pc1.geisel.info") by vger.kernel.org with ESMTP id <S317016AbSFQVGs> convert rfc822-to-8bit;
-	Mon, 17 Jun 2002 17:06:48 -0400
-Date: Mon, 17 Jun 2002 23:06:45 +0200 (CEST)
-From: Dominik Geisel <devnull@geisel.info>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.5.22 fails to compile, constants.c
-Message-ID: <Pine.LNX.4.44.0206172304100.14277-100000@pc1.geisel.info>
+	id <S317023AbSFQVNW>; Mon, 17 Jun 2002 17:13:22 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:13745 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id <S317022AbSFQVNS>;
+	Mon, 17 Jun 2002 17:13:18 -0400
+From: richard.brunner@amd.com
+X-Server-Uuid: 18a6aeba-11ae-11d5-983c-00508be33d6d
+Message-ID: <39073472CFF4D111A5AB00805F9FE4B609BA6713@txexmta9.amd.com>
+To: ebiederm@xmission.com, ak@suse.de
+cc: andrea@suse.de, bcrl@redhat.com, linux-kernel@vger.kernel.org
+Subject: RE: another new version of pageattr caching conflict fix for
+ 2.4
+Date: Mon, 17 Jun 2002 16:13:11 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 11108F63495323-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-with gcc-3.1.1, kernel 2.5.22 fails to compile with the following output:
-
------------------------------------------------------------------
-fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -nostdinc 
--iwithprefix include    -DKBUILD_BASENAME=hosts   -c -o hosts.o hosts.c
-  gcc -Wp,-MD,./.scsi_ioctl.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.22/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=scsi_ioctl   -c -o scsi_ioctl.o scsi_ioctl.c
-  gcc -Wp,-MD,./.constants.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.22/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=constants   -c -o constants.o constants.c
-constants.c: In function `print_sense_internal':
-constants.c:997: `i' undeclared (first use in this function)
-constants.c:997: (Each undeclared identifier is reported only once
-constants.c:997: for each function it appears in.)
-make[3]: *** [constants.o] Fehler 1
-make[3]: Verlassen des Verzeichnisses Verzeichnis 
-»/usr/src/linux-2.5.22/drivers/scsi«
-make[2]: *** [scsi] Fehler 2
-make[2]: Verlassen des Verzeichnisses Verzeichnis 
-»/usr/src/linux-2.5.22/drivers«
-make[1]: *** [drivers] Fehler 2
-make[1]: Verlassen des Verzeichnisses Verzeichnis »/usr/src/linux-2.5.22«
-make: *** [make_with_config] Fehler 2
------------------------------------------------------------------
-
-my .config follows:
-
------------------------------------------------------------------
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-
-CONFIG_EXPERIMENTAL=y
-
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_CPUID=m
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PREEMPT=y
-CONFIG_HAVE_DEC_LOCK=y
-
-
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-
-
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-
-CONFIG_PNP=m
-CONFIG_ISAPNP=m
-
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-
-
-CONFIG_PACKET=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IPV6=m
-
-
-
-
-
-CONFIG_IDE=y
-
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_ATAPI=y
-CONFIG_IDEDMA_AUTO=y
-
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_BLK_DEV_SR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-
-
-
-
-
-CONFIG_NETDEVICES=y
-
-CONFIG_DUMMY=m
-
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=m
-
-
-
-
-
-
-
-
-
-
-CONFIG_INPUT=m
-CONFIG_INPUT_KEYBDEV=m
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=m
-CONFIG_INPUT_EVDEV=m
-CONFIG_SOUND_GAMEPORT=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_PHILIPSPAR=m
-CONFIG_I2C_ELV=m
-CONFIG_I2C_VELLEMAN=m
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ELEKTOR=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_PROC=m
-
-CONFIG_BUSMOUSE=m
-CONFIG_LOGIBUSMOUSE=m
-CONFIG_MS_BUSMOUSE=m
-CONFIG_MOUSE=m
-CONFIG_PSMOUSE=y
-
-CONFIG_RTC=y
-
-CONFIG_AGP=m
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-
-CONFIG_VIDEO_DEV=m
-
-CONFIG_VIDEO_PROC_FS=y
-
-
-CONFIG_REISERFS_FS=m
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=m
-CONFIG_UDF_FS=m
-
-CONFIG_SMB_FS=m
-
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_737=m
-CONFIG_NLS_CODEPAGE_775=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_857=m
-CONFIG_NLS_CODEPAGE_860=m
-CONFIG_NLS_CODEPAGE_861=m
-CONFIG_NLS_CODEPAGE_862=m
-CONFIG_NLS_CODEPAGE_863=m
-CONFIG_NLS_CODEPAGE_864=m
-CONFIG_NLS_CODEPAGE_865=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_869=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_874=m
-CONFIG_NLS_ISO8859_8=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_3=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_ISO8859_6=m
-CONFIG_NLS_ISO8859_7=m
-CONFIG_NLS_ISO8859_9=m
-CONFIG_NLS_ISO8859_13=m
-CONFIG_NLS_ISO8859_14=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_KOI8_U=m
-CONFIG_NLS_UTF8=m
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-
-
-CONFIG_SOUND=m
-
-
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=m
-CONFIG_SND_RTCTIMER=m
-
-
-
-CONFIG_SND_EMU10K1=m
-
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_UHCI_HCD_ALT=m
-CONFIG_USB_BLUETOOTH_TTY=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=m
-CONFIG_USB_KBD=m
-CONFIG_USB_MOUSE=m
-CONFIG_USB_PWC=m
-
-
-CONFIG_BLUEZ=m
-CONFIG_BLUEZ_L2CAP=m
-CONFIG_BLUEZ_SCO=m
-
-CONFIG_BLUEZ_HCIUSB=m
-CONFIG_BLUEZ_USB_FW_LOAD=y
-CONFIG_BLUEZ_HCIUART=m
------------------------------------------------------------------
-
-Thanks for your attention and bye.
-Dominik Geisel
-
--- 
-It shall be unlawful for any suspicious person to be within the
-municipality.
--Local ordinance, Euclid Ohio
-907D F135 0EF8 5A4D 633B  805D 25E7 478B 1322 4688
+I have to agree with Eric, that from an architectural perspective,
+PAT was invented to address the coarse granularity of the MTRRs
+in assigning memory cacheability types.
+
+The power-of-2 sizes and alignments for MTRRs 
+make them clumsy for page-based
+or region-based assignment.
+
+Running out of MTRRs was a real porblem before PAT. MTRRS are best used
+to set the "default" for all of memory and then use PAT
+to override it on a page-by-page basis as needed.
+
+Using MTRRdef for the actual Aperture is generally ok, because
+it is mapped above the top-of-DRAM.
+
+
+-Rich ...
+[richard.brunner@amd.com    --               ]
+[Senior Member, Technical Staff, SW R&D @ AMD]
+
+> -----Original Message-----
+> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com]
+> Sent: Sunday, June 16, 2002 9:06 PM
+> To: Andi Kleen
+> Cc: Andrea Arcangeli; Benjamin LaHaise; linux-kernel@vger.kernel.org;
+> Brunner, Richard; Langsdorf, Mark
+> Subject: Re: another new version of pageattr caching conflict fix for
+> 2.4
+> 
+> 
+> Andi Kleen <ak@suse.de> writes:
+> 
+> > > > MTRRs work on physical, not virtual memory, so they 
+> have no aliasing
+> > > > issues.
+> > > 
+> > > Doesn't the AGP aperture cause a physical alias?  Leading 
+> to strange
+> > 
+> > Yes. That's what this patch is all about.
+> > 
+> > > the same problems if the agp aperture was marked 
+> write-back, and the
+> > 
+> > AGP aperture is uncacheable, not write-back.
+> > 
+> > > memory was marked uncacheable.  My gut impression is to 
+> just make the
+> > > agp aperture write-back cacheable, and then we don't have 
+> to change
+> > > the kernel page table at all.  Unfortunately I don't 
+> expect the host
+> > 
+> > That would violate the AGP specification.
+> > 
+> > > bridge with the memory and agp controllers to like that mode,
+> > > especially as there are physical aliasing issues.
+> > 
+> > exactly.
+> 
+> All of which is an AGP design bug, if you want performance you don't
+> cripple your caches, but we have to live with it so no use tilting at
+> windmills.
+> 
+> > > > Fixing the MTRRs is fine, but it is really outside the 
+> scope of my patch.
+> > > > Just changing the kernel map wouldn't be enough to fix 
+> wrong MTRRs,
+> > > > because it wouldn't cover highmem. 
+> > > 
+> > > My preferred fix is to use PAT, to override the buggy 
+> mtrrs.  Which
+> > > brings up the same aliasing issues.  Which makes it related but
+> > > outside the scope of the problem.
+> > 
+> > I don't follow you here. IMHO it is much easier to fix the 
+> MTRRs in the
+> > MTRR driver for those rare buggy BIOS (if they exist - I've 
+> never seen one)
+> 
+> I've heard of several and dealt with one.  The problem was 
+> essentially they
+> ran out of mtrrs, the edges of free memory were to rough.
+> 
+> > than to hack up all of memory management just to get the 
+> right bits set.
+> > I see no disadvantage of using the MTRRs and it is lot simpler than
+> > PAT and pte bits.
+> 
+> There are not enough MTRRs.  And using the PAT bits to say memory is
+> write-back can be a constant.  It just takes a little work to get in
+> place.  Plus the weird assortment of consistency issues.
+> 
+> For most purposes PAT makes memory easier to deal with because you
+> can be as fine grained as you like.  The difficulty is that you must
+> have consistent attributes across all of your virtual mappings.  
+> 
+> The other case PAT should help is when a machine has multiple cards
+> that can benefit from write-combining.  Currently running out of mtrrs
+> is a problem.
+> 
+> Eric
+> 
 

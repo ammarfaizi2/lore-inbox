@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318078AbSGZTVV>; Fri, 26 Jul 2002 15:21:21 -0400
+	id <S318086AbSGZTfW>; Fri, 26 Jul 2002 15:35:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318086AbSGZTVV>; Fri, 26 Jul 2002 15:21:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:21632 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318078AbSGZTVU>; Fri, 26 Jul 2002 15:21:20 -0400
-Date: Fri, 26 Jul 2002 15:25:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Russell Lewis <spamhole-2001-07-16@deming-os.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
-In-Reply-To: <3D418DFD.8000007@deming-os.org>
-Message-ID: <Pine.LNX.3.95.1020726151940.3338A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318437AbSGZTfV>; Fri, 26 Jul 2002 15:35:21 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:35569 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S318086AbSGZTfV>; Fri, 26 Jul 2002 15:35:21 -0400
+Subject: Re: [PATCH] lock assertion macros for 2.5.28
+From: Robert Love <rml@tech9.net>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020726174258.GC793866@sgi.com>
+References: <20020725233047.GA782991@sgi.com>
+	<20020726120918.GA22049@reload.namesys.com> 
+	<20020726174258.GC793866@sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 26 Jul 2002 12:38:37 -0700
+Message-Id: <1027712317.2442.45.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jul 2002, Russell Lewis wrote:
+On Fri, 2002-07-26 at 10:42, Jesse Barnes wrote:
 
-> I have spent some time working on AIX, which pages its kernel memory. 
->  It pins the interrupt handler functions, and any data that they access, 
-> but does not pin the other code.
-> 
-> I'm looking for links as to why (unless I'm mistaken) Linux doesn't do 
-> this, so I can better understand the system.
-> 
-> Thanks, and sorry for the broadcast message.  My web search turned up 
-> nothing.
-> 
-> Russ Lewis
+> Well, I had that in one version of the patch, but people didn't think
+> it would be useful.  Maybe you'd like to check out Oliver's comments
+> at http://marc.theaimsgroup.com/?l=linux-kernel&m=102644431806734&w=2
+> and respond?  If there's demand for MUST_NOT_HOLD, I'd be happy to add
+> it since it should be easy.  But if you're using it to enforce lock
+> ordering as Oliver suggests, then there are probably more robust
+> solutions.
 
-You'll probably get a zillion replies on this.
-Paging is expensive. The fastest kernel will not be paged.
-Also, the kernel is very small, you gain a few pages, maybe
-80 to 90 at the expense of paging CPU cycles. 85 * 4096 = 348,160
-1/3 megabyte gained, hardly worth the cost.
+Two other suggestions you could implement are CAN_SLEEP and
+CANNOT_SLEEP.  You can implement them via the preempt_count.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+Even if CONFIG_PREEMPT is not set, you will get preempt_count values
+representing whether or not you are in an interrupt or softirq (and thus
+atomic and cannot sleep).  If CONFIG_PREEMPT is set, you get a counter
+that represents exactly the atomicity of the code including locks held.
+
+E.g.,
+
+	#define CAN_SLEEP	do { \
+		assert(unlikely(!preempt_count())); \
+	} while (0)
+
+	#define CANNOT_SLEEP	do { \
+		assert(unlikely(preempt_count())); \
+	} while (0)
+
+This works great because after the IRQ changes in 2.5.28, preempt_count
+is a universal "are we atomic" count.
+
+	Robert Love
 

@@ -1,170 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbSBSSdX>; Tue, 19 Feb 2002 13:33:23 -0500
+	id <S285829AbSBSSfv>; Tue, 19 Feb 2002 13:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285829AbSBSScl>; Tue, 19 Feb 2002 13:32:41 -0500
-Received: from FW.E-SA.COM ([208.151.48.2]:1185 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S286447AbSBSSbC>;
-	Tue, 19 Feb 2002 13:31:02 -0500
-Subject: atyfb compile fix
-From: "Samuel M. Stringham" <sams@e-sa.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-/0mUhm0WQo3TPezkMBxw"
-X-Mailer: Evolution/1.0.2 (1.0.2-1) 
-Date: 19 Feb 2002 13:19:38 -0500
-Message-Id: <1014142778.19056.9.camel@linux-admin.esa-hq.e-sa.com>
+	id <S286336AbSBSSfr>; Tue, 19 Feb 2002 13:35:47 -0500
+Received: from zok.sgi.com ([204.94.215.101]:55190 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S286687AbSBSSf2>;
+	Tue, 19 Feb 2002 13:35:28 -0500
+Date: Tue, 19 Feb 2002 10:35:06 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: David Mosberger <davidm@hpl.hp.com>
+Cc: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Ben Collins <bcollins@debian.org>
+Subject: Re: readl/writel and memory barriers
+Message-ID: <20020219103506.A1511175@sgi.com>
+Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
+	Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Ben Collins <bcollins@debian.org>
+In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase> <15474.34580.625864.963930@napali.hpl.hp.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15474.34580.625864.963930@napali.hpl.hp.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 19, 2002 at 09:10:44AM -0800, David Mosberger wrote:
+> On ia64, the fact that readl()/writel() are accessing uncached space
+> ensures the CPU doesn't reorder the accesses.  Furthermore, the
+> accesses are performed through "volatile" pointers, which ensures that
+> the compiler doesn't reorder them (and, as a side-effect, such
+> pointers also generate ordered loads/stores, but this isn't strictly
+> needed, due to accessing uncached space).
 
---=-/0mUhm0WQo3TPezkMBxw
-Content-Type: multipart/mixed; boundary="=-xyhgsRv2JF+2Nf5aJiBi"
+Making a variable volatile doesn't guarantee that the compiler won't
+reorder references to it, AFAIK.  And on some platforms, even uncached
+I/O references aren't necessarily ordered.
 
+To avoid the overhead of having I/O flushed on every memory barrier
+and readX/writeX operation, we've introduced mmiob() on ia64, which
+explicity orders I/O space accesses.  Some ports have chosen to take
+the performance hit in every readX/writeX, memory barrier, and
+spinlock however (e.g. PPC64, MIPS).
 
---=-xyhgsRv2JF+2Nf5aJiBi
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Is this a reasonable approach?  Is it acceptable to have a seperate
+barrier operation for I/O space?  If so, perhaps other archs would be
+willing to add mmiob() ops?
 
-__initdata is rw not ro, so the const's in atyfb_base.c won't compile
-for me without patch below.  This is my first patch post, so any
-pointers are welcome.
-
-Samuel Stringham
-Network Administrator
-www.e-sa.com
-
---=-xyhgsRv2JF+2Nf5aJiBi
-Content-Description: 
-Content-Disposition: inline; filename=atyfb.patch
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
---- linux/drivers/video/aty/atyfb_base.c	Tue Feb 19 12:51:46 2002
-+++ linux/drivers/video/aty/atyfb_base.c	Tue Feb 19 12:24:50 2002
-@@ -251,7 +251,7 @@
- static int default_mclk __initdata =3D 0;
-=20
- #ifndef MODULE
--static const char *mode_option __initdata =3D NULL;
-+static char *mode_option __initdata =3D NULL;
- #endif
-=20
- #ifdef CONFIG_PPC
-@@ -271,33 +271,33 @@
- static unsigned long phys_guiregbase[FB_MAX] __initdata =3D { 0, };
- #endif
-=20
--static const char m64n_gx[] __initdata =3D "mach64GX (ATI888GX00)";
--static const char m64n_cx[] __initdata =3D "mach64CX (ATI888CX00)";
--static const char m64n_ct[] __initdata =3D "mach64CT (ATI264CT)";
--static const char m64n_et[] __initdata =3D "mach64ET (ATI264ET)";
--static const char m64n_vta3[] __initdata =3D "mach64VTA3 (ATI264VT)";
--static const char m64n_vta4[] __initdata =3D "mach64VTA4 (ATI264VT)";
--static const char m64n_vtb[] __initdata =3D "mach64VTB (ATI264VTB)";
--static const char m64n_vt4[] __initdata =3D "mach64VT4 (ATI264VT4)";
--static const char m64n_gt[] __initdata =3D "3D RAGE (GT)";
--static const char m64n_gtb[] __initdata =3D "3D RAGE II+ (GTB)";
--static const char m64n_iic_p[] __initdata =3D "3D RAGE IIC (PCI)";
--static const char m64n_iic_a[] __initdata =3D "3D RAGE IIC (AGP)";
--static const char m64n_lt[] __initdata =3D "3D RAGE LT";
--static const char m64n_ltg[] __initdata =3D "3D RAGE LT-G";
--static const char m64n_gtc_ba[] __initdata =3D "3D RAGE PRO (BGA, AGP)";
--static const char m64n_gtc_ba1[] __initdata =3D "3D RAGE PRO (BGA, AGP, 1x=
- only)";
--static const char m64n_gtc_bp[] __initdata =3D "3D RAGE PRO (BGA, PCI)";
--static const char m64n_gtc_pp[] __initdata =3D "3D RAGE PRO (PQFP, PCI)";
--static const char m64n_gtc_ppl[] __initdata =3D "3D RAGE PRO (PQFP, PCI, l=
-imited 3D)";
--static const char m64n_xl[] __initdata =3D "3D RAGE (XL)";
--static const char m64n_ltp_a[] __initdata =3D "3D RAGE LT PRO (AGP)";
--static const char m64n_ltp_p[] __initdata =3D "3D RAGE LT PRO (PCI)";
--static const char m64n_mob_p[] __initdata =3D "3D RAGE Mobility (PCI)";
--static const char m64n_mob_a[] __initdata =3D "3D RAGE Mobility (AGP)";
-+static char m64n_gx[] __initdata =3D "mach64GX (ATI888GX00)";
-+static char m64n_cx[] __initdata =3D "mach64CX (ATI888CX00)";
-+static char m64n_ct[] __initdata =3D "mach64CT (ATI264CT)";
-+static char m64n_et[] __initdata =3D "mach64ET (ATI264ET)";
-+static char m64n_vta3[] __initdata =3D "mach64VTA3 (ATI264VT)";
-+static char m64n_vta4[] __initdata =3D "mach64VTA4 (ATI264VT)";
-+static char m64n_vtb[] __initdata =3D "mach64VTB (ATI264VTB)";
-+static char m64n_vt4[] __initdata =3D "mach64VT4 (ATI264VT4)";
-+static char m64n_gt[] __initdata =3D "3D RAGE (GT)";
-+static char m64n_gtb[] __initdata =3D "3D RAGE II+ (GTB)";
-+static char m64n_iic_p[] __initdata =3D "3D RAGE IIC (PCI)";
-+static char m64n_iic_a[] __initdata =3D "3D RAGE IIC (AGP)";
-+static char m64n_lt[] __initdata =3D "3D RAGE LT";
-+static char m64n_ltg[] __initdata =3D "3D RAGE LT-G";
-+static char m64n_gtc_ba[] __initdata =3D "3D RAGE PRO (BGA, AGP)";
-+static char m64n_gtc_ba1[] __initdata =3D "3D RAGE PRO (BGA, AGP, 1x only)=
-";
-+static char m64n_gtc_bp[] __initdata =3D "3D RAGE PRO (BGA, PCI)";
-+static char m64n_gtc_pp[] __initdata =3D "3D RAGE PRO (PQFP, PCI)";
-+static char m64n_gtc_ppl[] __initdata =3D "3D RAGE PRO (PQFP, PCI, limited=
- 3D)";
-+static char m64n_xl[] __initdata =3D "3D RAGE (XL)";
-+static char m64n_ltp_a[] __initdata =3D "3D RAGE LT PRO (AGP)";
-+static char m64n_ltp_p[] __initdata =3D "3D RAGE LT PRO (PCI)";
-+static char m64n_mob_p[] __initdata =3D "3D RAGE Mobility (PCI)";
-+static char m64n_mob_a[] __initdata =3D "3D RAGE Mobility (AGP)";
-=20
-=20
--static const struct {
-+static struct {
-     u16 pci_id, chip_type;
-     u8 rev_mask, rev_val;
-     const char *name;
-@@ -357,24 +357,24 @@
- #endif /* CONFIG_FB_ATY_CT */
- };
-=20
--static const char ram_dram[] __initdata =3D "DRAM";
--static const char ram_vram[] __initdata =3D "VRAM";
--static const char ram_edo[] __initdata =3D "EDO";
--static const char ram_sdram[] __initdata =3D "SDRAM";
--static const char ram_sgram[] __initdata =3D "SGRAM";
--static const char ram_wram[] __initdata =3D "WRAM";
--static const char ram_off[] __initdata =3D "OFF";
--static const char ram_resv[] __initdata =3D "RESV";
-+static char ram_dram[] __initdata =3D "DRAM";
-+static char ram_vram[] __initdata =3D "VRAM";
-+static char ram_edo[] __initdata =3D "EDO";
-+static char ram_sdram[] __initdata =3D "SDRAM";
-+static char ram_sgram[] __initdata =3D "SGRAM";
-+static char ram_wram[] __initdata =3D "WRAM";
-+static char ram_off[] __initdata =3D "OFF";
-+static char ram_resv[] __initdata =3D "RESV";
-=20
- #ifdef CONFIG_FB_ATY_GX
--static const char *aty_gx_ram[8] __initdata =3D {
-+static char *aty_gx_ram[8] __initdata =3D {
-     ram_dram, ram_vram, ram_vram, ram_dram,
-     ram_dram, ram_vram, ram_vram, ram_resv
- };
- #endif /* CONFIG_FB_ATY_GX */
-=20
- #ifdef CONFIG_FB_ATY_CT
--static const char *aty_ct_ram[8] __initdata =3D {
-+static char *aty_ct_ram[8] __initdata =3D {
-     ram_off, ram_dram, ram_edo, ram_edo,
-     ram_sdram, ram_sgram, ram_wram, ram_resv
- };
-
---=-xyhgsRv2JF+2Nf5aJiBi--
-
---=-/0mUhm0WQo3TPezkMBxw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8cpc6AHsuhBrdlT0RAlxnAJ4yGAcBSPzma8edJnPd/7BBF+zOlQCdEOiv
-kC0fS8OqqKQZhbeAztG02sU=
-=XPXX
------END PGP SIGNATURE-----
-
---=-/0mUhm0WQo3TPezkMBxw--
+Thanks,
+Jesse

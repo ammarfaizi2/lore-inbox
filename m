@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270520AbRHNI3U>; Tue, 14 Aug 2001 04:29:20 -0400
+	id <S270519AbRHNI3U>; Tue, 14 Aug 2001 04:29:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270519AbRHNI3K>; Tue, 14 Aug 2001 04:29:10 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:41482 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S270521AbRHNI3C>; Tue, 14 Aug 2001 04:29:02 -0400
-Message-ID: <3B78E10A.E8772B79@idb.hist.no>
-Date: Tue, 14 Aug 2001 10:27:54 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
-X-Accept-Language: no, en
+	id <S270524AbRHNI3K>; Tue, 14 Aug 2001 04:29:10 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:58630 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S270519AbRHNI3B>; Tue, 14 Aug 2001 04:29:01 -0400
+To: linux-kernel@vger.kernel.org
+Subject: problem with PCMCIA and kernel 2.4.x
+Message-ID: <997777753.3b78e159b004c@imp.free.fr>
+Date: Tue, 14 Aug 2001 10:29:13 +0200 (MEST)
+From: benjilr@free.fr
 MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM nuisance
-In-Reply-To: <Pine.LNX.4.33.0108130716321.20672-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.42
+X-Originating-IP: 172.190.136.142
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-[...]
-> so why not just use the most simple OOM around:  shoot the first app which
-> can't get its page.  app writers won't like it, and users won't like it
-> until the app writers fix their bugs, but then nobody likes the current
-> situation, so what's the difference?
+I've a problem Because when the PCMCIA start, I've the message :
+PCI : NO IRQ known for interrupt pin A of device 01:02.0 please try
+using pci=bios, but when this parametre, IRQ is always unknow.
 
-It used to be like that.  Unfortunately, the first app unable to
-get its page might very well be init, and then the entire system goes
-down in flames.  You might as well kill the kernel at that point.
+But when kernel Start, I've this message : 
+PCI : Probing PCI hardware
+Unknow bridge ressource 2: assuming transparent
+PCI : Using IRQ router PIIX [8086/244c] at 00:1f.0
 
-Fix that, and people start complaining that the X server goes, taking
-all X apps with it when killing one would suffice.  Fix that,
-and you almost have today's OOM killer.  
+Thank in advance for help.
 
-The real solution is to have enough memory for the task at hand. 
-Failing
-that, get so much swap space that people will be happy when the OOM
-killer kicks in and limits the trashing.
+PS:I've a laptop sony PCG-FX203
+   PCMCIA work with kernel 2.2.19, but with this kernel there's no
+usb-storage (for usb zip) support
 
-Helge Hafting
+Benjamin

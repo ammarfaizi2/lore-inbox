@@ -1,28 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130608AbRBUXtl>; Wed, 21 Feb 2001 18:49:41 -0500
+	id <S129381AbRBUXwB>; Wed, 21 Feb 2001 18:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRBUXtc>; Wed, 21 Feb 2001 18:49:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51212 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129669AbRBUXtS>; Wed, 21 Feb 2001 18:49:18 -0500
-Message-ID: <3A9453E9.4457668C@transmeta.com>
-Date: Wed, 21 Feb 2001 15:48:57 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@innominate.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz> <3A94470C.2E54EB58@transmeta.com> <20010222000755.A29061@atrey.karlin.mff.cuni.cz> <3A944C05.FC2B623A@transmeta.com> <3A945081.E6EB78F4@innominate.de>
+	id <S129693AbRBUXvw>; Wed, 21 Feb 2001 18:51:52 -0500
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:58835 "HELO
+	localdomain") by vger.kernel.org with SMTP id <S129381AbRBUXvT>;
+	Wed, 21 Feb 2001 18:51:19 -0500
+Message-ID: <XFMail.20010221155213.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3A945272.F13610AB@innominate.de>
+Date: Wed, 21 Feb 2001 15:52:13 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Daniel Phillips <phillips@innominate.de>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Cc: Martin Mares <mj@suse.cz>, linux-kernel@vger.kernel.org,
+        "H. Peter Anvin" <hpa@transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+
+On 21-Feb-2001 Daniel Phillips wrote:
+> "H. Peter Anvin" wrote:
+>> 
+>> Martin Mares wrote:
+>> >
+>> > > True.  Note too, though, that on a filesystem (which we are, after all,
+>> > > talking about), if you assume a large linear space you have to create a
+>> > > file, which means you need to multiply the cost of all random-access
+>> > > operations with O(log n).
+>> >
+>> > One could avoid this, but it would mean designing the whole filesystem in
+>> > a
+>> > completely different way -- merge all directories to a single gigantic
+>> > hash table and use (directory ID,file name) as a key, but we were
+>> > originally
+>> > talking about extending ext2, so such massive changes are out of question
+>> > and your log n access argument is right.
+>> 
+>> It would still be tricky since you have to have actual files in the
+>> filesystem as well.
 > 
 > Have you looked at the structure and algorithms I'm using?  I would not
 > call this a hash table, nor is it a btree.  It's a 'hash-keyed
@@ -30,16 +50,6 @@ Daniel Phillips wrote:
 > worthwhile compacting it at some point).  It also never needs to be
 > rebalanced - it's only two levels deep for up to 50 million files.
 > 
-
-I'm curious how you do that.  It seems each level would have to be 64K
-large in order to do that, with a minimum disk space consumption of 128K
-for a directory.  That seems extremely painful *except* in the case of
-hysterically large directories, which tend to be the exception even on
-filesystems where they occur.
-
-I think I'd rather take the extra complexity and rebalancing cost of a
-B-tree.
-
 > This thing deserves a name of its own.  I call it an 'htree'.  The
 > performance should speak for itself - 150 usec/create across 90,000
 > files and still a few optmizations to go.
@@ -50,9 +60,14 @@ B-tree.
 > BTW, the discussion in this thread has been very interesting, it just
 > isn't entirely relevant to my patch :-)
 
-	-hpa
+Daniel,
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+I'm all but saying that Your algo is not good.
+I use something very like to it in my mail server ( XMail ) to index mail queue
+files that has a two level depth fs splitting.
+The mine was only an hint to try different types of directory indexing.
+
+
+
+- Davide
+

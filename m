@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVCCFST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVCCF0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVCCFST (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 00:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVCCFN7
+	id S261484AbVCCF0m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVCCFYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 00:13:59 -0500
-Received: from h80ad24bc.async.vt.edu ([128.173.36.188]:782 "EHLO
-	h80ad24bc.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261465AbVCCFLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 00:11:55 -0500
-Message-Id: <200503030511.j235BTWS015097@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-Subject: Re: RFD: Kernel release numbering 
-In-Reply-To: Your message of "Wed, 02 Mar 2005 15:53:36 MST."
-             <422643F0.8050603@utah-nac.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-            <422643F0.8050603@utah-nac.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1109826682_4346P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 03 Mar 2005 00:11:26 -0500
+	Thu, 3 Mar 2005 00:24:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31677 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261489AbVCCFRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 00:17:52 -0500
+Date: Wed, 2 Mar 2005 21:17:01 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+In-Reply-To: <20050302205612.451d220b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0503022110280.4083@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+ <20050302174507.7991af94.akpm@osdl.org> <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+ <20050302185508.4cd2f618.akpm@osdl.org> <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+ <20050302201425.2b994195.akpm@osdl.org> <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
+ <20050302205612.451d220b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1109826682_4346P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 2 Mar 2005, Andrew Morton wrote:
 
-On Wed, 02 Mar 2005 15:53:36 MST, "Jeff V. Merkey" said:
-> __Stable__ would be a good thing. The entire 2.6 development has been a 
-> disaster from
-> a stability viewpoint. I have to maintain a huge tree of patches in 
-> order to ship appliance
-> builds due to the lack of stability for 2.6. I think that the even 
-> number releases will take longer
-> but it's worth the wait.
+> Have the ppc64 and sparc64 people reviewed and acked the change?  (Not a
+> facetious question - I just haven't been following the saga sufficiently
+> closely to remember).
 
-Remember - each patch you successfully push upstream is one less patch
-you have to maintain.  So re-read Documentation/SubmittingPatches, beat
-the patches into shape, and send them on their way. ;)
+There should be no change to these arches
 
---==_Exmh_1109826682_4346P
-Content-Type: application/pgp-signature
+> > Because if a pte is locked it should not be used.
+>
+> Confused.  Why not just spin on the lock in the normal manner?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I thought you wanted to lock the pte? This is realized through a lock bit
+in the pte. If that lock bit is set one should not use the pte. Otherwise
+the lock is bypassed. Or are you proposing a write lock only?
 
-iD8DBQFCJpx6cC3lWbTT17ARAhiyAJ9VL738wrWiT6mSK2+H7jlbv/5KPwCfbu3K
-zw93vPOj6W+BgBIJ+uclG3s=
-=mFjZ
------END PGP SIGNATURE-----
+> If the other relvant architecture people say "we can use this" then perhaps
+> we should grin and bear it.  But one does wonder whether some more sweeping
+> design change is needed.
 
---==_Exmh_1109826682_4346P--
+Could we at least get the first two patches in? I can then gradually
+address the other issues piece by piece.
+
+The necessary more sweeping design change can be found at
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110922543030922&w=2
+
+but these may be a long way off. These patches address an urgent issue
+that we have with higher CPU counts for a long time and the method used
+here has been used for years in our ProPack line.

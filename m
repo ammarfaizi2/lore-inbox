@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288008AbSAHMvY>; Tue, 8 Jan 2002 07:51:24 -0500
+	id <S288007AbSAHM6Y>; Tue, 8 Jan 2002 07:58:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288007AbSAHMvP>; Tue, 8 Jan 2002 07:51:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29966 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S288008AbSAHMvD>; Tue, 8 Jan 2002 07:51:03 -0500
-Date: Tue, 8 Jan 2002 10:47:05 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@redhat.com>
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        hch@ns.caldera.de (Christoph Hellwig), perex@suse.cz (Jaroslav Kysela),
-        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
-Message-ID: <20020108124705.GA1336@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@redhat.com>, torvalds@transmeta.com (Linus Torvalds),
-	alan@lxorguk.ukuu.org.uk (Alan Cox),
-	hch@ns.caldera.de (Christoph Hellwig),
-	perex@suse.cz (Jaroslav Kysela), sound-hackers@zabbo.net,
-	linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20020107181038.GB1026@conectiva.com.br> <200201080213.g082DTD26512@devserv.devel.redhat.com>
+	id <S288001AbSAHM6O>; Tue, 8 Jan 2002 07:58:14 -0500
+Received: from mxzilla4.xs4all.nl ([194.109.6.48]:45573 "EHLO
+	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288007AbSAHM6I>; Tue, 8 Jan 2002 07:58:08 -0500
+Date: Tue, 8 Jan 2002 13:58:06 +0100
+From: jtv <jtv@xs4all.nl>
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Tim Hollebeek <tim@hollebeek.com>,
+        Bernard Dautrevaux <Dautrevaux@microprocess.com>,
+        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020108135806.I11855@xs4all.nl>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl> <20020107172832.A1728@cj44686-b.reston1.va.home.com> <20020107231620.H8157@xs4all.nl> <20020108012734.E23665@werewolf.able.es> <20020108124151.E11855@xs4all.nl> <ory9j9uihs.fsf@free.redhat.lsd.ic.unicamp.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200201080213.g082DTD26512@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <ory9j9uihs.fsf@free.redhat.lsd.ic.unicamp.br>; from aoliva@redhat.com on Tue, Jan 08, 2002 at 10:36:47AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Jan 07, 2002 at 09:13:29PM -0500, Alan Cox escreveu:
-> > One ring^Wlayout to rule them all <stops here ;)> I would not be unhappy if
-> > drivers/net became net/drivers, etc 8)
+On Tue, Jan 08, 2002 at 10:36:47AM -0200, Alexandre Oliva wrote:
 > 
-> Then where do you put the drivers categorized in other ways (multifunction
-> devices like i2o for example) ?
+> > Yes, thank you, that part was obvious already.  The question pertained
+> > to the fact that nobody outside compiler-visible code was being handed
+> > an address for b, and so the compiler could (if it wanted to) prove
+> > under pretty broad assumptions that nobody could *find* b to make the
+> > change in the first place.
+> 
+> How about a debugger?
 
-misc? Nah, too much work for little gain, and Linus is not willing to
-accept patches for such a big change, even if it was interesting, so I think
-that the approach you suggested (i.e. sound/{core,oss,alsa}, drivers/sound)
-is the way to go.
+True.  I just figured that actually modifying auto variables that were
+assigned only once and used only once in a debugger fell under the heading
+of *very* broad assumptions.  :-)
 
-- Arnaldo
+As it turns out, the discussion is now moot since volatile does indeed
+imply here what I dared not assume it would, and so it might even solve
+the RELOC problem.
+
+
+Jeroen
+

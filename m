@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262186AbSJFUzL>; Sun, 6 Oct 2002 16:55:11 -0400
+	id <S262187AbSJFVCy>; Sun, 6 Oct 2002 17:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262184AbSJFUzK>; Sun, 6 Oct 2002 16:55:10 -0400
-Received: from [213.187.195.158] ([213.187.195.158]:24302 "EHLO
-	kokeicha.ingate.se") by vger.kernel.org with ESMTP
-	id <S262183AbSJFUzJ>; Sun, 6 Oct 2002 16:55:09 -0400
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-net@vger.kernel.org,
-       edward_peng@dlink.com.tw
-Subject: DFE-580TX packet drop persist (Re: Linux 2.4.20-pre9)
-References: <Pine.LNX.4.44L.0210032203570.6478-100000@freak.distro.conectiva>
-From: Marcus Sundberg <marcus@ingate.com>
-Date: 06 Oct 2002 23:00:40 +0200
-In-Reply-To: <Pine.LNX.4.44L.0210032203570.6478-100000@freak.distro.conectiva>
-Message-ID: <veu1jze0zr.fsf@inigo.ingate.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262188AbSJFVCy>; Sun, 6 Oct 2002 17:02:54 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:14345
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262187AbSJFVCx>; Sun, 6 Oct 2002 17:02:53 -0400
+Subject: Re: [PATCH] 2.4: introduce get_cpu() and put_cpu()
+From: Robert Love <rml@tech9.net>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <3DA09EBE.D9E2E148@daimi.au.dk>
+References: <1033933547.743.4472.camel@phantasy> 
+	<3DA09EBE.D9E2E148@daimi.au.dk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Oct 2002 17:08:24 -0400
+Message-Id: <1033938505.26955.16.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+On Sun, 2002-10-06 at 16:36, Kasper Dupont wrote:
 
-> Summary of changes from v2.4.20-pre8 to v2.4.20-pre9
-> ============================================
+> To me it really looks like you are missing a put_cpu() call somewhere.
+> I know it is a no-op, but since you intend to show how to use it, I
+> it really ought to be there.
 
->   o sundance net drvr: fix DFE-580TX packet drop issue, further reset_tx fixes (contributed by Edward Peng @ D-Link)
+Whoops, you are right.
 
-Hi,
+> Does this look right?
 
-I'm sorry to say that the packet drop issue is still not solved
-with a DF580-TX using four of these chips:
-        Class 0200: 1186:1002 (rev 12)
-        Subsystem: 1186:1012
+Yep, thanks.
 
-Sending bi-directional streams of UDP-packets with 200-byte payload
-through the machine I get zero packet loss and 15% CPU usage with
-either eepro100 or tulip-based cards. Using the DFE-580TX I get
-15% packet loss and 25% CPU usage. Ifconfig also shows packets
-being dropped:
+Marcelo, attached patch is a resend with the missing put_cpu()
+included.  Please, apply.
 
-eth1      Link encap:Ethernet  HWaddr 00:05:5D:E6:14:BE  
-          inet addr:10.230.0.1  Bcast:10.230.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:2439797 errors:0 dropped:287381 overruns:0 frame:0
-          TX packets:2461746 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          Interrupt:18 Base address:0xa400 
+	Robert Love
 
-eth2      Link encap:Ethernet  HWaddr 00:05:5D:E6:14:BF  
-          inet addr:10.230.1.1  Bcast:10.230.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:2463601 errors:0 dropped:286106 overruns:0 frame:0
-          TX packets:2437637 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          Interrupt:19 Base address:0xa000 
+diff -urN linux-2.4.20-pre9/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
+--- linux-2.4.20-pre9/arch/i386/kernel/ioport.c	2002-10-06 14:58:01.000000000 -0400
++++ linux/arch/i386/kernel/ioport.c	2002-10-06 16:53:04.000000000 -0400
+@@ -55,12 +55,15 @@
+ asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
+ {
+ 	struct thread_struct * t = &current->thread;
+-	struct tss_struct * tss = init_tss + smp_processor_id();
++	struct tss_struct * tss;
+ 
+ 	if ((from + num <= from) || (from + num > IO_BITMAP_SIZE*32))
+ 		return -EINVAL;
+ 	if (turn_on && !capable(CAP_SYS_RAWIO))
+ 		return -EPERM;
++
++	tss = init_tss + get_cpu();
++
+ 	/*
+ 	 * If it's the first ioperm() call in this thread's lifetime, set the
+ 	 * IO bitmap up. ioperm() is much less timing critical than clone(),
+@@ -84,6 +87,8 @@
+ 	set_bitmap(t->io_bitmap, from, num, !turn_on);
+ 	set_bitmap(tss->io_bitmap, from, num, !turn_on);
+ 
++	put_cpu();
++
+ 	return 0;
+ }
+ 
+diff -urN linux-2.4.20-pre9/include/linux/smp.h linux/include/linux/smp.h
+--- linux-2.4.20-pre9/include/linux/smp.h	2002-10-06 14:57:20.000000000 -0400
++++ linux/include/linux/smp.h	2002-10-06 16:52:45.000000000 -0400
+@@ -87,5 +87,9 @@
+ #define smp_call_function(func,info,retry,wait)	({ 0; })
+ #define cpu_online_map				1
+ 
+-#endif
+-#endif
++#endif /* !CONFIG_SMP */
++
++#define get_cpu()	smp_processor_id()
++#define put_cpu()	do { } while(0)
++
++#endif /* __LINUX_SMP_H */
 
-//Marcus
--- 
----------------------------------------+--------------------------
-  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
- Firewall Developer, Ingate Systems AB |  http://www.ingate.com/

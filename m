@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293756AbSCFTGG>; Wed, 6 Mar 2002 14:06:06 -0500
+	id <S293755AbSCFTKS>; Wed, 6 Mar 2002 14:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310123AbSCFTF4>; Wed, 6 Mar 2002 14:05:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:517 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293756AbSCFTFp>;
-	Wed, 6 Mar 2002 14:05:45 -0500
-Message-ID: <3C866821.6DF3F65C@zip.com.au>
-Date: Wed, 06 Mar 2002 11:04:01 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
+	id <S310123AbSCFTKG>; Wed, 6 Mar 2002 14:10:06 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45062 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S293755AbSCFTJ6>; Wed, 6 Mar 2002 14:09:58 -0500
+Date: Wed, 6 Mar 2002 14:08:19 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Tim Waugh <twaugh@redhat.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.18-pre/rc broke PLIP
+In-Reply-To: <20020305220359.B8959@redhat.com>
+Message-ID: <Pine.LNX.3.96.1020306135913.386C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Bulent Abali <abali@us.ibm.com>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct page shrinkage
-In-Reply-To: <OFC19C560E.A00F9111-ON85256B74.006633D4@pok.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bulent Abali wrote:
+On Tue, 5 Mar 2002, Tim Waugh wrote:
+
+> On Tue, Mar 05, 2002 at 04:20:25PM -0500, Bill Davidsen wrote:
 > 
-> extern struct page_state {
->              unsigned long nr_dirty;
->              unsigned long nr_locked;
-> } ____cacheline_aligned page_states[NR_CPUS];
+> > 1 - didn't try, I checked that the patch had not been reverted, and
+> >     assumed that if it was broken and not changed it was broken still.
+> >     And I only looked in pre2-ac2, if it was fixed and Alan patched it
+> >     back broken.
 > 
-> This is perfect.   Looks like, if a run summation over all the CPUs I will
-> get the total locked and dirty pages, provided mm.h macros are respected.
+> Well, try it.  The correct patch is in there.
 
-That's correct.  And the mm.h macros *are* respected.  That patch
-ensures that they are.
+  Interesting, doesn't work for me, and I have a note from Alan Cox which
+seems to indicate it doesn't work for him, either.
+ 
+> > 2 - understanding vast stretches of uncommented code you may need to
+> >     change is worthwhile reading. The corolary is that comments are worthwhile
+> >     typing.
+> 
+> (You must have missed the ChangeLog.)
 
-It goes as far as to rename PG_locked and PG_dirty to PG_locked_dontuse
-and PG_dirty_dontuse.
+I have looked in the changelog in the driver directory, for ac2, and for
+19-pre2, and find nothing about the bits used in the control registers.
+Nor would I expect it to, this is in the chip spec sheets, and if I had
+written the code would be in very terse form in the definition of the data
+structure as well.
 
-I'll be adding page_cache_size to the above struct, at least.
+I'm still looking for the spec sheets, somewhat limited by time. I found
+only the definition of the 0x20 bit in the writable mask, and the problem
+seems to stem from the change in init from "0xff" to "~0x10" at least on
+one machine. Before I go offering that as a solution I want to understand
+what the bits are doing (or at least intended to do). I try very hard not
+to offer "this works for me but I don't know why" fixes.
 
-The "run summation" function is already there, btw: get_page_state().
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-> What is the outlook for inclusion of this patch in the main kernel?  Do you
-> plan to submit or have been included yet?
-
-Well it's all a part of a work to aggressively improve the efficiency
-of regular file I/O.  I don't know if the big grand plan will be successful
-yet.  At this time, it's thumbs up - way up.
-
-Nor do I know if this is a direction in which Linus wishes to take
-his kernel.
-
-But this change, the readahead changes, the pdflush pool and a few other
-pieces I have planned are probably appropriate for the base kernel
-irrespective of the end outcome.
-
-We'll see...
-
--

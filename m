@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279939AbRKIWgM>; Fri, 9 Nov 2001 17:36:12 -0500
+	id <S280246AbRKIWkw>; Fri, 9 Nov 2001 17:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280246AbRKIWgC>; Fri, 9 Nov 2001 17:36:02 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:34577 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S279939AbRKIWfm>; Fri, 9 Nov 2001 17:35:42 -0500
-To: "Ben Israel" <ben@genesis-one.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Disk Performance
-In-Reply-To: <000201c16963$365e19e0$5101a8c0@pbc.adelphia.net>
-From: Doug McNaught <doug@wireboard.com>
-Date: 09 Nov 2001 17:35:31 -0500
-In-Reply-To: "Ben Israel"'s message of "Fri, 9 Nov 2001 16:04:19 -0500"
-Message-ID: <m3ofmbr2rw.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S280255AbRKIWkn>; Fri, 9 Nov 2001 17:40:43 -0500
+Received: from [63.146.149.19] ([63.146.149.19]:44787 "EHLO
+	mailessentials.wagweb.com") by vger.kernel.org with ESMTP
+	id <S280246AbRKIWkc> convert rfc822-to-8bit; Fri, 9 Nov 2001 17:40:32 -0500
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <3BEC5B59.7D29E401@wagweb.com>
+Date: Fri, 09 Nov 2001 17:40:25 -0500
+From: "Madhav Diwan" <mdiwan@wagweb.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: <linux-kernel@vger.kernel.org>, "Madhav Diwan" <mdiwan@wagweb.com>
+Subject: RedHat 2.4.7 & 2.4.9-13 Poweroff failure
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 09 Nov 2001 22:41:26.0453 (UTC) FILETIME=[AA6B4E50:01C1696F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ben Israel" <ben@genesis-one.com> writes:
+Hi 
 
-> Why does my 40 Megabyte per second IDE drive, transfer files at best at 1-2
-> Megabytes per second? Can anyone prove that this must be the case? What is
-> the most efficient way to convince anyone who reads this that it can't be
-> proven because a counter example exists?
+I Just put RedHats 7.2 on my Compaq Presario 1200-xl106 laptop .. Im
+running an AMD 450 with 151 meg ram
 
-I had a drive that did something this (it was really slow on reads and 
-normal speed on writes, funnily enough).  I finally compared it to
-another drive in the same machine which worked normally and decided
-that it was a failing drive (after trying many different kernels).
-The replacement works fine.
+I was running Mandrake 8 on it before .. I had upgraded to kernel 2.4.8
+on Mandrake and when Redhat released its newest I swithed OS for the
+laptop .. 
 
-So don't rule out hardware, either a bad drive or an incompatibility
-between your drive and your IDE controller. 
+ Mandrake's kernel 2.4.8 had no problems releasing my laptops battery.
 
-> I wish to be personally CC'ed the answers/comments posted to the list in
-> response to this posting.
+RedHats newest kernels  2.4.7, and 2.4.9-13 seem to have the same
+problem that RedHat had in 2.4.2 .. they will do everything  including
+shutting down the backlight and .. it sound like they release the drive
+as well.. but they do not let go of the battery.. on a laptop that is a
+BAD thing.
 
-Say "please" next time.
+ any hints?
 
-> This is my first attempt at being part of the process. Please give me some
-> time to adjust.
+is this patchable ?.. is this a consistent error or just a mistake that
+got back into the mix after 2.4.2 were fixed in 2.4.3 ?
 
-A less arrogant tone would be a good start.
+yes i know.. compile and use linus kernels.. i just want to know if i
+should scrap the laptops os and not bother..:)
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+Thanks for any help
+
+
+Madhav Diwan
+
+
+Note: The information contained in this message may be privileged and confidential and protected from disclosure.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please notify us immediately by replying to the message and deleting it from your computer.  Thank you.  Wagner Weber & Williams

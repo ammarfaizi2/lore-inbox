@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135198AbRDLPIH>; Thu, 12 Apr 2001 11:08:07 -0400
+	id <S135199AbRDLPLH>; Thu, 12 Apr 2001 11:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135199AbRDLPH5>; Thu, 12 Apr 2001 11:07:57 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:2319 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135198AbRDLPHw>;
-	Thu, 12 Apr 2001 11:07:52 -0400
-Date: Thu, 12 Apr 2001 12:07:39 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Andreas Dilger <adilger@turbolinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Fwd: Re: memory usage - dentry_cacheg
-In-Reply-To: <Pine.GSO.4.21.0104121044020.19944-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0104121202090.18260-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S135200AbRDLPK6>; Thu, 12 Apr 2001 11:10:58 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21765 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135199AbRDLPKo>; Thu, 12 Apr 2001 11:10:44 -0400
+Subject: Re: scheduler went mad?
+To: Valdis.Kletnieks@vt.edu
+Date: Thu, 12 Apr 2001 16:12:55 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200104121457.f3CEv8o09656@foo-bar-baz.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Apr 12, 2001 10:57:08 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14nimI-0000oY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, Alexander Viro wrote:
-> On Thu, 12 Apr 2001, Jan Harkes wrote:
-> 
-> > But the VM pressure on the dcache and icache only comes into play once
-> > the system still has a free_shortage _after_ other attempts of freeing
-> > up memory in do_try_to_free_pages.
-> 
-> I don't think that it's necessary bad.
+> I've seen the same scenario about 2-3 times a week.  kswapd and one or
+> more processes all CPU bound, totalling to 100%.  I've had 'esdplay' hung
+> on several occasions, and 2-3 times it's been xscreensaver (3.29) hung.
+> The 'hung' processes are consistently immune to kill -9, even as root, which
+> indicates to me that they're hung inside a kernel call or something.
 
-Please take a look at Ed Tomlinson's patch. It also puts pressure
-on the dcache and icache independent of VM pressure, but it does
-so based on the (lack of) pressure inside the dcache and icache
-themselves.
+Do you have > 800Mb of RAM ?
 
-The patch looks simple, sane and it might save us quite a bit of
-trouble in making the prune_{icache,dcache} functions both able
-to avoid low-memory deadlocks *AND* at the same time able to run
-fast under low-memory situations ... we'd just prune from the
-icache and dcache as soon as a "large portion" of the cache isn't
-in use.
+> In page_alloc.c, __alloc_pages() has a 'goto try_again;' which will
+> cause it to loop around and try to get more memory.  I'm wondering if
 
-regards,
+Even outside of that certain drivers also loop on alloc failures as does 
+TCP.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+> would explain the high context-switch rate.  I'm not clear on how kswapd
+> can end up getting stuck and failing to free up something - unless it ends
+> up calling __alloc_pages itself indirectly and the PF_MEMALLOC bit isn't
+> enough to get it the memory it needs, causing a deadlock/loop between
+> kswapd and __alloc_pages/wakeup_kswapd().
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+bounce buffers for one
 

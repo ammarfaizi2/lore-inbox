@@ -1,97 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272591AbTHEI2O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 04:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272592AbTHEI2O
+	id S272597AbTHEIYD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 04:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272574AbTHEIYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 04:28:14 -0400
-Received: from angband.namesys.com ([212.16.7.85]:41119 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S272591AbTHEI2I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 04:28:08 -0400
-Date: Tue, 5 Aug 2003 12:28:07 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2: resiserfs BUG on Alt-SysRq-U
-Message-ID: <20030805082807.GB14521@namesys.com>
-References: <200308042056.15413.arvidjaar@mail.ru>
+	Tue, 5 Aug 2003 04:24:03 -0400
+Received: from mail.gmx.de ([213.165.64.20]:21635 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272597AbTHEIX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 04:23:27 -0400
+Message-Id: <5.2.1.1.2.20030805102719.01a06d48@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 05 Aug 2003 10:27:30 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O13int for interactivity
+Cc: Oliver Neukum <oliver@neukum.org>, Andrew Morton <akpm@osdl.org>,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       felipe_alfaro@linuxmail.org
+In-Reply-To: <200308051820.59266.kernel@kolivas.org>
+References: <200308051012.12951.oliver@neukum.org>
+ <200308050207.18096.kernel@kolivas.org>
+ <200308051726.14501.kernel@kolivas.org>
+ <200308051012.12951.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308042056.15413.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+At 06:20 PM 8/5/2003 +1000, Con Kolivas wrote:
+>On Tue, 5 Aug 2003 18:12, Oliver Neukum wrote:
+> > Am Dienstag, 5. August 2003 09:26 schrieb Con Kolivas:
+> > > On Tue, 5 Aug 2003 16:03, Andrew Morton wrote:
+> > > > We do prefer that TASK_UNINTERRUPTIBLE processes are woken promptly so
+> > > > they can submit more IO and go back to sleep.  Remember that we are
+> > > > artificially leaving the disk head idle in the expectation that the
+> > > > task will submit more I/O.  It's pretty sad if the CPU scheduler leaves
+> > > > the anticipated task in the doldrums for five milliseconds.
+> > >
+> > > Indeed that has been on my mind. This change doesn't affect how long it
+> > > takes to wake up. It simply prevents tasks from getting full interactive
+> > > status during the period they are doing unint. sleep.
+> >
+> > If you take that to its logical conclusion, such tasks should be woken
+> > immediately. Likewise, the io scheduler should be notified when you know
+> > that the task won't do io or will do other io, like waiting on character
+> > devices, go paging out or terminate.
+>
+>Every experiment I've tried at putting tasks at the start of the queue 
+>instead
+>of the end has resulted in some form of starvation so should not be possible
+>for any user task and I've abandoned it.
 
-On Mon, Aug 04, 2003 at 08:56:15PM +0400, Andrey Borzenkov wrote:
+(ditto:) 
 
-> this has been around since 2.5.75 at least and may be before it as well.
-> kernel BUG at fs/reiserfs/journal.c:409!
-
-Hm, indeed.
-So they are calling ->remount() without lock_kernel these days.
-The patch below should help, please verify.
-
-Thank you.
-
-Bye,
-    Oleg
-===== fs/reiserfs/super.c 1.66 vs edited =====
---- 1.66/fs/reiserfs/super.c	Sat Jun 21 00:16:06 2003
-+++ edited/fs/reiserfs/super.c	Tue Aug  5 12:22:10 2003
-@@ -761,6 +761,7 @@
-   if (!reiserfs_parse_options(s, arg, &mount_options, &blocks, NULL))
-     return -EINVAL;
-   
-+  reiserfs_write_lock(s);
-   handle_attrs(s);
- 
-   /* Add options that are safe here */
-@@ -778,17 +779,22 @@
- 
-   if(blocks) {
-     int rc = reiserfs_resize(s, blocks);
--    if (rc != 0)
-+    if (rc != 0) {
-+      reiserfs_write_unlock(s);
-       return rc;
-+    }
-   }
- 
-   if (*mount_flags & MS_RDONLY) {
-     /* remount read-only */
--    if (s->s_flags & MS_RDONLY)
-+    if (s->s_flags & MS_RDONLY) {
-       /* it is read-only already */
-+      reiserfs_write_unlock(s);
-       return 0;
-+    }
-     /* try to remount file system with read-only permissions */
-     if (sb_umount_state(rs) == REISERFS_VALID_FS || REISERFS_SB(s)->s_mount_state != REISERFS_VALID_FS) {
-+      reiserfs_write_unlock(s);
-       return 0;
-     }
- 
-@@ -800,8 +806,10 @@
-     s->s_dirt = 0;
-   } else {
-     /* remount read-write */
--    if (!(s->s_flags & MS_RDONLY))
-+    if (!(s->s_flags & MS_RDONLY)) {
-+        reiserfs_write_unlock(s);
- 	return 0; /* We are read-write already */
-+    }
- 
-     REISERFS_SB(s)->s_mount_state = sb_umount_state(rs) ;
-     s->s_flags &= ~MS_RDONLY ; /* now it is safe to call journal_begin */
-@@ -824,6 +832,7 @@
-   if (!( *mount_flags & MS_RDONLY ) )
-     finish_unfinished( s );
- 
-+  reiserfs_write_unlock(s);
-   return 0;
- }
- 

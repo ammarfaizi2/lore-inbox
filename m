@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314486AbSD1U1S>; Sun, 28 Apr 2002 16:27:18 -0400
+	id <S314491AbSD1U2R>; Sun, 28 Apr 2002 16:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314491AbSD1U1S>; Sun, 28 Apr 2002 16:27:18 -0400
-Received: from [200.241.52.3] ([200.241.52.3]:2564 "EHLO
-	estancia.infonet.com.br") by vger.kernel.org with ESMTP
-	id <S314486AbSD1U1R>; Sun, 28 Apr 2002 16:27:17 -0400
-From: Kiss The Blade <thiagop@stampede.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Roman Zippel <zippel@linux-m68k.org>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Date: Sun, 28 Apr 2002 17:40:00 -0300
-X-Priority: 3 (Normal)
-In-Reply-To: <3CCC5759.463E6C57@linux-m68k.org>
-Message-Id: <FCYTRNJE041Y54TSRNOMZTEAG1Z3VTR.3ccc5e20@kingston>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
+	id <S314492AbSD1U2Q>; Sun, 28 Apr 2002 16:28:16 -0400
+Received: from viruswall2.epcnet.de ([62.132.156.25]:11278 "HELO
+	viruswall.epcnet.de") by vger.kernel.org with SMTP
+	id <S314491AbSD1U2P>; Sun, 28 Apr 2002 16:28:15 -0400
+Date: Sun, 28 Apr 2002 22:28:06 +0200
+From: jd@epcnet.de
+To: davem@redhat.com
+Subject: Re: VLAN and Network Drivers 2.4.x
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-Mailer: Opera 6.01 build 1041
+Message-ID: <467685860.avixxmail@nexxnet.epcnet.de>
+In-Reply-To: <20020427.194302.02285733.davem@redhat.com>
+X-Priority: 3
+X-Mailer: avixxmail 1.2.2.8
+X-MAIL-FROM: <jd@epcnet.de>
+Content-Type: text/plain; charset="iso-8859-1";
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-28/4/2002 17:11:05, Roman Zippel <zippel@linux-m68k.org> wrote:
->Linus Torvalds wrote:
+> Von: <davem@redhat.com>
+> Gesendet: 28.04.2002 04:54
 >
->> I don't want a kernel howto quoting the FSF.
->
->Would you please explain then, what you want?
+>    I don't know how many cards won't support VLAN nowadays. But i will test
+>    these changes with my third party driver (just recompile it against pre-2.4.19)
+>    and report the results.
+>    
+> This will tell us exactly nothing.  It will continue to tell us
+> nothing until I make the change whereby NETIF_F_VLAN_CHALLENGED is set
+> by default and devices known to work are updated to clear it.
 
-I'm not Linus, but i think he does not want nothing of this at all. He cares about 
-the kernel. The kernel does not know about politics, the kernel knows about 
-HARDWARE.
+Then i understood it right. I hope your change is made in this way only for the 2.5 tree.
+Changing all drivers is ok for 2.5, but most third party driver supplier update their drivers
+only rarely.
 
-Why people continue bitching about this? It's just a tool. Maybe we should 
-just start flaming Coca-Cola because it does not open source the formula of the 
-soft drink.
+> Please don't bother posting the results, we know what will happen.
 
---
-Fast, cheap, good. Pick two.
+I think your solution is ok for 2.5 but not for 2.4. On the 2.4 series it would be easier to
+add a flag which is set if the driver is VLAN ready. This wouldn't break third party drivers,
+which are not VLAN ready. And vconfig would report the right thing without changing any
+driver code (as it was intended by one of my former postings).
 
+Greetings
+
+   Jochen Dolze
 

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbUBUAWe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 19:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUBUAWe
+	id S261446AbUBUAYV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 19:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUBUAYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 19:22:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59819 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261445AbUBUAWd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 19:22:33 -0500
-Subject: Re: fb_console_init fix.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040220235410.GB17771@kroah.com>
-References: <Pine.LNX.4.44.0402202156340.6798-100000@phoenix.infradead.org>
-	 <1077317816.9623.20.camel@gaston>  <20040220235410.GB17771@kroah.com>
-Content-Type: text/plain
-Message-Id: <1077322606.10864.1.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 21 Feb 2004 11:16:47 +1100
+	Fri, 20 Feb 2004 19:24:20 -0500
+Received: from m013-078.nv.iinet.net.au ([203.217.13.78]:2320 "EHLO
+	mail.adixein.com") by vger.kernel.org with ESMTP id S261446AbUBUAYQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 19:24:16 -0500
+From: "Elliot Mackenzie" <macka@adixein.com>
+To: "'Randy.Dunlap'" <rddunlap@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
+Date: Sat, 21 Feb 2004 10:25:09 +1000
+Keywords: macka@adixein.com
+Message-ID: <001401c3f811$29a57e70$4301a8c0@waverunner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <20040220161139.3bd95852.rddunlap@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-02-21 at 10:54, Greg KH wrote:
+c03e46c9 t do_initcalls, if I got the one you are looking for...
 
-> What's wrong with the current range of init call sections?  Can't that
-> work for fb devices today?
+Cheers,
+Elliot.
 
-We can probably work with those. I just don't fell like changing that
-part of fbdev right now. More important fixes to get in first (and
-there's a shitload of crap related to calling the setup functions in
-fbdev's that need fixing too if/when we change that init stuff).
 
-My idea about adding an initcall level was for pure convenience, but
-may be wrong. It's handy to have the console inited before the rest
-that's all ;) We can leave that out for now, maybe just linking
-drivers/video before the rest is enough to get that anyway.
-
-Ben.
-
+| Duh, I forgot.  Please look up these initcall addresses in your
+| System.map file (or post it on the web or mail it).
+|
+| But that size=0xedeb0000 is a problem... just to figure out where
+| it's coming from, using the initcall symbols.
+<snip>
 

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268974AbRHWQw2>; Thu, 23 Aug 2001 12:52:28 -0400
+	id <S269081AbRHWQ7R>; Thu, 23 Aug 2001 12:59:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269081AbRHWQwH>; Thu, 23 Aug 2001 12:52:07 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:40322 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S268974AbRHWQwC>;
-	Thu, 23 Aug 2001 12:52:02 -0400
-Message-Id: <200108231653.f7NGrOl32250@www.2ka.mipt.ru>
-Date: Thu, 23 Aug 2001 20:56:02 +0400
-From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] this patch add a possibility to add a random offset to the stack on exec.
-In-Reply-To: <E15ZttT-0003kI-00@the-village.bc.nu>
-In-Reply-To: <200108230130.f7N1Uol14698@www.2ka.mipt.ru>
-	<E15ZttT-0003kI-00@the-village.bc.nu>
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.9; i686)
-Organization: MIPT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	id <S269099AbRHWQ7I>; Thu, 23 Aug 2001 12:59:08 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:48391 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S269081AbRHWQ6z>;
+	Thu, 23 Aug 2001 12:58:55 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200108231658.UAA07224@ms2.inr.ac.ru>
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 23 Aug 2001 20:58:38 +0400 (MSK DST)
+Cc: kraxel@bytesex.org, alan@lxorguk.ukuu.org.uk, Gunther.Mayer@t-online.de,
+        alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E15Zu68-0003nE-00@the-village.bc.nu> from "Alan Cox" at Aug 23, 1 02:00:35 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hello!
 
-On Thu, 23 Aug 2001 13:47:31 +0100 (BST)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> We will see what happens. Certainly if someone wants to provide pnpbios code
+> patches for -ac that grab and reserve the motherboard resources from the PCI
+> code go ahead.
 
->> "Add a possibility to add a random offset to the stack on exec. This
-makes
->> it slightly harder to write generic buffer overflows. This doesn't
-really
->> give any real security, but it raises the bar for script-kiddies and
-it's
->> really cheap."
+Khm... this does not look simple. Seems, right way involves modification
+of each place, where the same ports are used by kernel.
+pcmcia-cs had completely private resource manager, so that it just
+did not worry about other subsystems and they still were able to allocate
+the same resources.
 
-AC> Its so slight its useless, and the randomness makes it hard to verify
-AC> you
-AC> fixed a problem. Remember once an exploit appears a box will get
-scanned
-AC> hundreds of times - someone will get the right offset 8)
+Look f.e. at extermal example, pnpbios announces as "system" resource
+all the memory. :-)
 
-You want to tell, that running 2 process one directky after another( like
-exploits do),
-and esp will be the same, even with random addition? It's impossible.
+Pallaitive soultions, sort of reserving of ports >= 0x1000 using
+this information do not look cool too. 
 
-But i quite understand your position in this question :(.
-
-AC> There is another good reason for offseting stacks within the page -
-AC> especially the kernel stacks which is to avoid things like each apache
-AC> task sleeping with wait queues on the same cache colour
-
----
-WBR. //s0mbre
+Alexey

@@ -1,86 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269216AbTGUFRT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 01:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269259AbTGUFRT
+	id S269259AbTGUFfV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 01:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269266AbTGUFfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 01:17:19 -0400
-Received: from mail.gmx.net ([213.165.64.20]:39326 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269216AbTGUFRP (ORCPT
+	Mon, 21 Jul 2003 01:35:20 -0400
+Received: from smtp1.att.ne.jp ([165.76.15.137]:35770 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S269259AbTGUFfP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 01:17:15 -0400
-Message-Id: <5.2.1.1.2.20030721064532.01bfc600@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 21 Jul 2003 07:36:31 +0200
-To: Davide Libenzi <davidel@xmailserver.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O6int for interactivity 
-Cc: Valdis.Kletnieks@vt.edu,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0307201715130.3548@bigblue.dev.mcafeelabs.co
- m>
-References: <5.2.1.1.2.20030719184847.01ad4ce8@pop.gmx.net>
- <5.2.1.1.2.20030718221052.01a88eb8@pop.gmx.net>
- <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
- <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <200307170030.25934.kernel@kolivas.org>
- <200307170030.25934.kernel@kolivas.org>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
- <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net>
- <Pine.LNX.4.55.0307180951050.5608@bigblue.dev.mcafeelabs.com>
- <Pine.LNX.4.55.0307181004200.5608@bigblue.dev.mcafeelabs.com>
- <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
- <5.2.1.1.2.20030718221052.01a88eb8@pop.gmx.net>
- <5.2.1.1.2.20030719184847.01ad4ce8@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Mon, 21 Jul 2003 01:35:15 -0400
+Message-ID: <0be401c34f4b$e33775b0$64ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: <linux-kernel@vger.kernel.org>
+References: <081701c34ed0$5be60070$64ee4ca5@DIAMONDLX60> <200307201526.h6KFQs9K003972@turing-police.cc.vt.edu>
+Subject: Re: Tried to run 2.6.0-test1 
+Date: Mon, 21 Jul 2003 14:48:59 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:21 PM 7/20/2003 -0700, Davide Libenzi wrote:
->On Sat, 19 Jul 2003, Mike Galbraith wrote:
->
-> > >Everything that will make the scheduler to say "ok, I gave enough time to
-> > >interactive tasks, now I'm really going to spin one from the masses" will
-> > >work. Having a clean solution would not be an option here.
-> >
-> > ... just as soon as I get my decidedly unclean work-around functioning at
-> > least as well as it did for plain old irman.   irman2 is _much_ more evil
-> > than irman ever was (wow, good job!).  I thought it'd be a half an hour
-> > tops.  This little bugger shows active starvation, expired starvation,
-> > priority inflation, _and_ interactive starvation (i have to keep inventing
-> > new terms to describe things i see.. jeez this is a good testcase).
->
->Yes, the problem is not only the expired tasks starvation. Anything in
->the active array that reside underneath the lower priority value of the
->range irman2 tasks oscillate inbetween, will experience a "CPU time eclipse".
->And you do not even need a smoked glass to look at it :)
+Again I cannot keep up with the mailing list.  If anyone wishes to advise or
+has questions, please kindly contact me directly.
 
-Here there's no oscillation that I can see.  It climbs steadily to prio 16 
-and stays there forever, with the hog running down at the bottom.  I did a 
-quick requirement that a non-interactive task must run every HZ ticks at 
-least, with a sliding "select non-interactive" window staying open for 
-HZ/10 ticks, and retrieving an expired task if necessary instead of 
-expiring interactive tasks (or forcing the array switch) thinking it'd be 
-enough.
+1.  Trying to upgrade modutils.
 
-Wrong answer.  For most things, it would be good enough I think, but with 
-the hog being part of irman2, I have to not only pull from the expired 
-array if no non-interactive task is available, I have to always pull once 
-the deadline is hit.  I'm also going to have to put another check for queue 
-runtime to beat the darn thing.  I ran irman2 with a bonnie -s 300 and a 
-kernel compile...  After a half an hour, the compile was making steady (but 
-too slow because the irman2 periodic cpu hog was getting too much of what 
-gcc was intended to get;) progress, but the poor bonnie was starving at 
-prio 17.  A sleep_avg vs cpu%*100 sanity check will help that, but not cure.
+I've downloaded modutils-2.4.21-18.src.rpm from Rusty Russell's directory on
+ftp.kernel.org.  Not being an rpm expert, I tried "rpm --rebuild" on it.
+The compilation steps assume -mcpu=i686.  I need to specify that the cpu is
+an i586.
 
-All this to avoid the pain (agony actually) of an array switch.
+"man rpm" and "info rpm" both say that arch-vendor-os can be designated,
+but -march=i486 is already fine with me, the problem is the cpu not the
+arch.  I'm not sure what it would mean to try specifying a vendor (Intel) or
+OS (Linux).  There seems to be no way to specify the cpu in "rpm --rebuild".
 
-         -Mike
+I also tried rpm -ivh and finally found where three files got installed to.
+Two gzipped tarballs and one spec file.  The spec file doesn't specify the
+cpu, as far as I can tell.
 
-(someone should wrap me upside the head with a clue-x-4. this darn thing 
-shouldn't be worth more than 10 lines of ugliness.  i'm obviously past 
-that... and headed toward the twilight-zone at warp 9.  wheee;) 
+Odds are I can probably gunzip and tar and compile the new modutils, but
+will the resulting executables get installed into the right places without
+using the rpm command and its spec file, I'm not sure I want to chance it.
+
+My .config file for the kernel sources correctly designates the cpu as an
+i586mmx, but I guess modutils shouldn't be expected to guess which kernel
+sources to find and extract the cpu type from it.
+
+2.  Blank screen during/after boot.
+
+Two people recommended alternative locations for the "post-halloween"
+document and I got one.
+
+> Known gotchas.
+> Certain known bugs are being reported over and over. Here are the
+>     workarounds.
+> - Blank screen after decompressing kernel?
+>   Make sure your .config has
+>   CONFIG_INPUT=y, CONFIG_VT=y, CONFIG_VGA_CONSOLE=y and
+>     CONFIG_VT_CONSOLE=y
+
+It has.  The screen is still blank after decompressing the kernel.  In SuSE
+8.1 the screen goes completely blank and never recovers.  In Red Hat  the
+screen continues displaying the message about decompressing the kernel but
+freezes there until X comes up, and then returns to that same frozen text
+screen during shutdown, so I have to guess when it's OK to turn off the
+power.
 

@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIWW4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUIWW4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUIWW4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 18:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIWW4R
+	id S267509AbUIWW4v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 18:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUIWW4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 18:56:17 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51423 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267515AbUIWW1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 18:27:40 -0400
-Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Roland Dreier <roland@topspin.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040923152530.GA9377@vana.vc.cvut.cz>
-References: <1095758630.3332.133.camel@gaston>
-	 <1095761113.30931.13.camel@localhost.localdomain>
-	 <1095766919.3577.138.camel@gaston> <523c1bpghm.fsf@topspin.com>
-	 <Pine.LNX.4.58.0409211237510.25656@ppc970.osdl.org>
-	 <52mzzjnuq7.fsf@topspin.com>
-	 <Pine.LNX.4.58.0409211510150.25656@ppc970.osdl.org>
-	 <1095816897.21231.32.camel@gaston> <20040922185851.GA11017@vana.vc.cvut.cz>
-	 <1095900539.6359.46.camel@gaston>  <20040923152530.GA9377@vana.vc.cvut.cz>
-Content-Type: text/plain
-Message-Id: <1095978205.10865.30.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 08:23:25 +1000
+	Thu, 23 Sep 2004 18:56:48 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:50863 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267511AbUIWW1q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 18:27:46 -0400
+Date: Thu, 23 Sep 2004 15:28:41 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+cc: greg@kroah.com, hannal@us.ibm.com, hpa@zytor.com, davej@codemonkey.org.uk
+Subject: [PATCH 2.6.9-rc2-mm2] Change irq.c driver to use new pci_dev_present
+Message-ID: <2800000.1095978521@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-24 at 01:25, Petr Vandrovec wrote:
 
-> 
-> Ok.  Can somebody tell me what byte order should be used for framebuffer
-> and for MMIO on PPC/PPC64 then?  From cfb* it seems that framebuffer
-> have to be in big-endian mode, and from Xorg code it seems that MMIO should 
-> be always in little-endian.  Yes?
+This code previously used the pci_get_device function only to find out if the
+device was present, it did not use the pci_dev* that was returned. That was
+what the new pci_dev_present function was created for.  I was able to compile
+and boot this code to show it did not break anything.
 
-I don't know exactly what X.org does ...
+Please consider for inclusion.
 
-In general, on a PCI bus, we expect MMIO to be little endian. Some cards
-try to be "smart" and have an endian swap facility for MMIO (like nvidia,
-and I think matrox) but I tend to consider that useless since it force us
-to have different IO accessors or to add an "un-byteswap" macro. The PPC
-is very good at doing byteswapped accesses with one instruction so it
-isn't really a waste to do all MMIOs littel endian anyway.
+Hanna Linder
+IBM Linux Technology Center
 
-For the framebuffer, it's common practice to have it in big endian format
-(and using the proper byteswap register for the access bit depth)
-
-Ben.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+---
+diff -Nrup linux-2.6.9-rc2-mm2cln/arch/i386/pci/irq.c linux-2.6.9-rc2-mm2patch2/arch/i386/pci/irq.c
+--- linux-2.6.9-rc2-mm2cln/arch/i386/pci/irq.c	2004-09-23 11:48:52.000000000 -0700
++++ linux-2.6.9-rc2-mm2patch2/arch/i386/pci/irq.c	2004-09-23 14:20:41.376755760 -0700
+@@ -455,18 +455,15 @@ static int pirq_bios_set(struct pci_dev 
  
+ static __init int intel_router_probe(struct irq_router *r, struct pci_dev *router, u16 device)
+ {
+-	struct pci_dev *dev1, *dev2;
+-
++	int ret1, ret2 = -1;
++	
+ 	/* 440GX has a proprietary PIRQ router -- don't use it */
+-	dev1 = pci_get_device(PCI_VENDOR_ID_INTEL,
++	ret1 = pci_dev_present(PCI_VENDOR_ID_INTEL,
+ 				PCI_DEVICE_ID_INTEL_82443GX_0, NULL);
+-	dev2 = pci_get_device(PCI_VENDOR_ID_INTEL,
++	ret2 = pci_dev_present(PCI_VENDOR_ID_INTEL,
+ 				PCI_DEVICE_ID_INTEL_82443GX_2, NULL);
+-	if ((dev1 != NULL) || (dev2 != NULL)) {
+-		pci_dev_put(dev1);
+-		pci_dev_put(dev2);
++	if (ret1 || ret2) 
+ 		return 0;
+-	}
+ 
+ 	switch(device)
+ 	{
+
+
 

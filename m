@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278833AbRJZSyX>; Fri, 26 Oct 2001 14:54:23 -0400
+	id <S278839AbRJZS4m>; Fri, 26 Oct 2001 14:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278837AbRJZSyO>; Fri, 26 Oct 2001 14:54:14 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:43172 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S278833AbRJZSyC>;
-	Fri, 26 Oct 2001 14:54:02 -0400
-Date: Fri, 26 Oct 2001 16:49:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Fabian Svara <svara@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <20011026222649.6fdbe58d.svara@gmx.net>
-Message-ID: <Pine.LNX.4.33L.0110261646180.22127-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S278840AbRJZS4d>; Fri, 26 Oct 2001 14:56:33 -0400
+Received: from cs181145.pp.htv.fi ([213.243.181.145]:4224 "EHLO
+	cs181145.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S278839AbRJZS4W>; Fri, 26 Oct 2001 14:56:22 -0400
+Message-ID: <3BD9B066.57EDDDAB@welho.com>
+Date: Fri, 26 Oct 2001 21:50:14 +0300
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Golds <jgolds@resilience.com>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Deadlock with linux kernel
+In-Reply-To: <Pine.LNX.4.33L.0110261537170.22127-100000@duckman.distro.conectiva> <3BD9AE9D.53D53936@resilience.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Oct 2001, Fabian Svara wrote:
+Jeff Golds wrote:
+> No, it only hung just after boot one time.  However, I was doing a
+> kernel build when it hung (I was trying to make a new kernel to try out
+> as I had just rebooted).
+> 
+> Most times, the machine will stay up for a day or two then lock during a
+> kernel build.
 
-> Does all that actually mean that pages on the net which are
-> generally accessible are subject to all the world's laws? That
-> would actually make sense (as the net itself is ubiquitious),
-> but is of course impossible...
+Hi Jeff,
 
-Usually you only get arrested when you travel to the
-country in question (eg. Dmitry Skylarov or people
-criticising the chinese government), but sometimes a
-country manages to get somebody extradited for things
-which are put on a website (eg. Germany convicted an
-Australian for putting neo-nazi stuff on his website).
+I have the exact same symptoms on my PII SMP, 440BX chipset machine, and
+I believe it started around version 2.4.6 as you say. Prior to that, my
+machine would reboot randomly without warning. The latest kernel that
+neither reboots nor locks up is 2.4.0-test9. Sometimes it takes two
+hours, sometimes it takes two days, sometimes it takes longer.
 
-Both the laws themselves and the legal precedents are
-extremely unpredictable, the most sensible thing seems
-to be to just not publish things to the country where
-they are outlawed by putting some access control in
-front of the goodies ;)
+The machine just freezes solid, nothing appears on the console, sysrq
+won't work, leds won't blink, and I suspect the CPUs are spinning (I can
+hear the CPU fans pick up speed, when it happens). The lockups don't
+seem to have any relation to what the machine is doing at the time. An
+idle machine seems to lock up just as readily as a busy one.
 
-regards,
+Regards,
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+	MikaL

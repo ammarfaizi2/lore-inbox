@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267499AbSIRQ5N>; Wed, 18 Sep 2002 12:57:13 -0400
+	id <S267911AbSIRQv3>; Wed, 18 Sep 2002 12:51:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268250AbSIRQ4T>; Wed, 18 Sep 2002 12:56:19 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:57103 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268149AbSIRQzb>; Wed, 18 Sep 2002 12:55:31 -0400
-Date: Wed, 18 Sep 2002 14:00:19 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
+	id <S267844AbSIRQuX>; Wed, 18 Sep 2002 12:50:23 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:19453
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267883AbSIRQuA>; Wed, 18 Sep 2002 12:50:00 -0400
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
+	elimination, 2.5.35-BK
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
        William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
- elimination, 2.5.35-BK
-In-Reply-To: <Pine.LNX.4.44.0209180950010.1913-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0209181358470.1519-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209180906460.1913-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0209180906460.1913-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Sep 2002 17:55:16 +0100
+Message-Id: <1032368116.20498.129.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, Linus Torvalds wrote:
-> On Wed, 18 Sep 2002, Rik van Riel wrote:
-> >
-> > On second thought ... yes there's a reason.  Suppose you have
-> > 100000 threads on your box already, how long is it going to
-> > take to walk them all to figure out the pid distribution ?
+On Wed, 2002-09-18 at 17:15, Linus Torvalds wrote:
+> Give me one reason for why these two added lines aren't better than all
+> the complexity we've discussed? I can pretty much _guarantee_ that it's
+> faster, and it sure as hell is simpler
 
-> The pid space is not a uniform distribution, which your made-up-example
-> depends on. So you usually walk the 100000 threads _once_, and then you
-> don't have to walk them again for quite a long time.
+Add a constraint against a hard maximum (tweakable in proc) and I'd
+agree.
 
-Agreed, you're right there.  On the other hand, walking the threads
-_once_ will take 1.5 minutes on a 500 MHz PII (according to Ingo's
-measurements).
-
-That's about 18 times the timeout for the NMI oopser and will cause
-people real trouble.
-
-cheers,
-
-Rik
--- 
-Spamtrap of the month: september@surriel.com
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

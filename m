@@ -1,87 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTFTNrN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 09:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTFTNrN
+	id S262093AbTFTNwb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 09:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTFTNwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 09:47:13 -0400
-Received: from sark.cc.gatech.edu ([130.207.7.23]:58290 "EHLO
-	sark.cc.gatech.edu") by vger.kernel.org with ESMTP id S261825AbTFTNrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 09:47:07 -0400
-Date: Fri, 20 Jun 2003 10:00:51 -0400 (EDT)
-From: Jiantao Kong <jiantao@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-cc: jkong@us.ibm.com
-Subject: Improper parameter for refill_inactive_zone in 2.5 kernel
-Message-ID: <Pine.GSO.4.50.0306200959160.28060-100000@gaia.cc.gatech.edu>
+	Fri, 20 Jun 2003 09:52:31 -0400
+Received: from nobody.lpr.e-technik.tu-muenchen.de ([129.187.151.1]:41427 "EHLO
+	nobody.lpr.e-technik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S262093AbTFTNw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 09:52:28 -0400
+Message-ID: <3EF314E4.6090201@lpr.e-technik.tu-muenchen.de>
+Date: Fri, 20 Jun 2003 16:06:28 +0200
+From: Uygur Savasar Sinan <uygur@lpr.e-technik.tu-muenchen.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Need help!: Writing raw data with IDE PIO
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear developers,
 
-The following description is based on the 2.5.69 kernel. But it seems that
-the 2.5.72 kernel is the same.
+I am a student working in a realtime systems project at the Technical 
+University of
+Munich. In the time being i have to be able to write a certain data of 
+one sector on
+a certain CHS (actually LBA) on the hard disk. I am trying to do it with 
+inserting and
+removing a module which i write in C.
 
-PROBLEM 1: refill_counter becomes extreme large.
+Please send your comments or reference codes regarding to the info given 
+below.
 
-In 2.5 kernel, the number of pages that are moved from the active list to
-the inactive list is determined in two steps. First, it is calculated
-using the same formula as 2.4 kernel.
-  ratio = nr_pages * nr_active /((nr_inactive|1*2);
-Then, this ratio value is added to a refill_counter. If the refill_counter
-is larger than SWAP_CLUSTER_MAX, min{refill_counter, 4*SWAP_CLUSTER_MAX}
-pages are examined in the active list to refill the inactive list. The
-number of pages examined is reduced from the refill_counter.
+Kindly regards.
 
-However, the refill_counter may become extreme large in some cases. I ran
-test under UML with 160M memory and 512M swap space. A process allocates
-190M memory using malloc and accesses the memory continuously. The
-refill_counter becomes very large after a while.
-(My printk output: refill counter = 1263227753)
+Sinan UYGUR
 
-Basically, the formula tells us the number of pages to examine based on
-the distance from current state to the ideal state. So there is no need to
-consider anything from any old state. The only purpose to maintain the
-refill_counter is to avoid doing refill_inactive_zone when the number of
-pages which need to be examined is too small. So, instead of subtracting
-the number of pages examined from the refill_counter, it should be better
-to reset it to zero every time refill_inactive_zone is called.
 
-PROBLEM 2: try_to_free_pages/balance_pgdat is more likely to fail to
-reclaim enough pages.
+My uname -a is
+ >>Linux bert 2.4.21-rthal5 #2 SMP Tue May 27 16:15:22 CEST 2003 i686 
+unknown
+in Red Hat Linux
 
-When the inactive list is almost empty, pages must be moved from the
-active list to the inactive list first to reclaim. The upper bound for
-refill_inactive_zone limits the number of pages to examine to
-4*(DEF_PRIORITY+1)*SWAP_CLUSTER_MAX for try_to_free_pages and
-balance_pgdat. It is possible that there is not enough pages moved to the
-inactive list because that 'page_referenced' returns true for many of
-those examined pages.
+My IDE interface after lspci -vxx is:
+00:01.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II] 
+(prog-if 80 [Master])
+       Flags: bus master, medium devsel, latency 32
+       I/O ports at e800 [size=16]
+00: 86 80 10 70 05 00 80 0a 00 80 01 01 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-The effect of this behavior is not clear for me. Will it affect the
-responsiveness of the system?
 
-Is it better to determine the upper bound for refill_inactive_zone based
-on the 'priority' parameter for shrink_zone just like the way that
-controls the number of pages to scan for shrink_cache?
+bert:~# cat /proc/ide/ide1/hdc/model
+ST51080A
 
-			-Jiantao Kong (jiantao@cc.gatech.edu)
 
-P.S.:
+and my hard disk settings via
+bert:~# cat /proc/ide/ide1/hdc/settings are:
+name                    value           min             max             
+mode
+----                         -----              ---                
+---                ----
+acoustic                   0                 0                254        
+      rw
+address                    0                 0                  2       
+         rw
+bios_cyl               2100              0               
+65535            rw
+bios_head               16                0                255       
+      rw
+bios_sect                63                0                 63        
+      rw
+breada_readahead   8                 0                255               rw
+bswap                      0                 0                  
+1                 r
+current_speed        34                0                 
+70               rw
+failures                   0                  0               
+65535           rw
+file_readahead      124               0               16384           rw
+init_speed              34                 0                  
+70              rw
+io_32bit                  0                  0                   
+3               rw
+keepsettings            0                  0                   
+1               rw
+lun                           0                 0                    
+7               rw
+max_failures          1                  0                
+65535           rw
+max_kb_per_request     128        1               255         rw
+multcount               0                  0                  
+32              rw
+nice1                       1                  0                  
+1               rw
+nowerr                    0                  0                   
+1               rw
+number                   2                  0                   
+3               rw
+pio_mode          write-only        0                 255              w
+slow                        0                  0                   
+1               rw
+unmaskirq              0                   0                  1  
+             rw
+using_dma              0                  0                   
+1               rw
+wcache                    0                  0                   
+1               rw
 
-One simple example can show why the counter becomes so large. Considering
-the worse case scenario that the inactive list is empty, then the ratio is
-(nr_pages*nr_active)/2. Here the nr_pages is the number of pages to
-reclaim, which is usually SWAP_CLUSTER_MAX=32 in 2.5 kernel if calling
-from try_to_free_pages or even larger if calling from balance_pgdat. Now
-the ratio may be 16N where N is the number of active pages. In 2.4 kernel,
-this number causes the refill_inactive to scan more pages then necessary.
-In 2.5 kernel, this number is still accumulated into the refill_counter.
-Moreover, the speed of feeding the refill_counter may be quicker than the
-speed of consuming. For example, the refill_inactive_zone may move fewer
-pages then expected so that the inactive list is still empty after the
-shrink_cache. Then the next time when shrink_zone is called, another 16N
-is added to the refill counter.
+and finally my
+
+bert:~# hdparm -v /dev/hdc
+/dev/hdc:
+multcount    =  0 (off)
+I/O support  =  0 (default 16-bit)
+unmaskirq    =  0 (off)
+using_dma    =  0 (off)
+keepsettings =  0 (off)
+nowerr       =  0 (off)
+readonly     =  0 (off)
+readahead    =  8 (on)
+geometry     = 2100/16/63, sectors = 2116800, start = 0
+busstate     =  1 (on)
+bert:~#
+
+
+
 

@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbULABOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbULABNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbULABOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 20:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbULABMu
+	id S261221AbULABNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 20:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbULABMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 20:12:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42131 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261173AbULAA5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:57:31 -0500
-Date: Tue, 30 Nov 2004 16:57:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Alexandre Oliva <aoliva@redhat.com>, dhowells <dhowells@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <1101862057.4574.67.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0411301656051.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> 
- <19865.1101395592@redhat.com>  <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
-  <1101406661.8191.9390.camel@hades.cambridge.redhat.com> 
- <20041127032403.GB10536@kroah.com>  <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
-  <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> 
- <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>  <8219.1101828816@redhat.com>
-  <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org> 
- <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org> 
- <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br> 
- <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org> 
- <1101854061.4574.4.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0411301447570.22796@ppc970.osdl.org> 
- <1101858657.4574.33.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0411301605500.22796@ppc970.osdl.org> 
- <1101860688.4574.50.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0411301636050.22796@ppc970.osdl.org>
- <1101862057.4574.67.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Nov 2004 20:12:55 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:37536 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261252AbULABKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 20:10:39 -0500
+Date: Wed, 1 Dec 2004 02:10:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Benoit Boissinot <bboissin@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Mike Kirk <mike.kirk@sympatico.ca>
+Subject: Re: 2.6.10-rc2-mm3 [was: Re: 2.6.9-rc2: "kernel BUG at mm/rmap.c:473!"]
+Message-ID: <20041201011046.GY4365@dualathlon.random>
+References: <20041130150639.GA11294@ens-lyon.fr> <Pine.LNX.4.44.0412010028460.3344-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0412010028460.3344-100000@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 01, 2004 at 12:49:39AM +0000, Hugh Dickins wrote:
+> The atomic counter underflow in do_exit does suggest corruption
+> elsewhere than in transcode's page table (though I'm not at all
+> sure that is corrupt) - as always, it is worth giving memtest86
+> a thorough run to check your memory.
 
-
-On Wed, 1 Dec 2004, David Woodhouse wrote:
->
-> > I really disagree. That's kind of my point. We _can_ make sure that there 
-> > is abzolutely zero semantic content change.
-> 
-> We've _never_ made sure that there's absolutely zero semantic content
-> change in our private headers.
-
-Not true. For example, I don't take spelling fixes that do semantic 
-content changes.
-
-See? The more trivial the fix, the more obviously correct it has to be.
-
-This isn't even a "fix". It's a cleanup. It goes under the same rules a 
-spelling fix does.
-
-		Linus
+Transcode should be 99% cpu bound in userspace and it shouldn't be
+kernel intensive at all. It's one of the few desktop apps 99% cpu bound,
+in turn the reasoning that the cpu is overheating sounds reasonable to
+me. It might also be using sse2 to compress faster etc...

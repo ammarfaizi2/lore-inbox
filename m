@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbTJBSZL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 14:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTJBSZL
+	id S263457AbTJBSdl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 14:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJBSdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 14:25:11 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:15631 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S263411AbTJBSZH (ORCPT
+	Thu, 2 Oct 2003 14:33:41 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:43021 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S263457AbTJBSdj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 14:25:07 -0400
-Date: Thu, 2 Oct 2003 20:24:57 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: linux-hfsplus-devel@lists.sourceforge.net, <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] new HFS(+) driver
-In-Reply-To: <20031002180645.GG7665@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0310022019090.8124-100000@serv>
-References: <Pine.LNX.4.44.0310021029110.17548-100000@serv>
- <20031002180645.GG7665@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Oct 2003 14:33:39 -0400
+Subject: Re: 2.6.0-test6-mm2
+From: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20031002080335.0f75fade.akpm@osdl.org>
+References: <20031002022341.797361bc.akpm@osdl.org>
+	 <1065102346.14567.12.camel@telecentrolivre>
+	 <20031002080335.0f75fade.akpm@osdl.org>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Governo Eletronico - SP
+Message-Id: <1065119384.20375.1.camel@telecentrolivre>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 02 Oct 2003 15:29:44 -0300
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Em Qui, 2003-10-02 às 12:03, Andrew Morton escreveu:
+> Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br> wrote:
+> >
+> > Em Qui, 2003-10-02 às 06:23, Andrew Morton escreveu:
+> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm2/
+> > 
+> >  getting this with gcc-3.2:
+> > 
+> >  net/core/flow.c:406: warning: type defaults to `int' in declaration of `EXPORT_SYMBOL'
+> >  net/core/flow.c:406: warning: parameter names (without types) in function declaration
+> >  net/core/flow.c:406: warning: data definition has no type or storage class
+> >  net/core/flow.c:407: warning: type defaults to `int' in declaration of `EXPORT_SYMBOL'
+> >  net/core/flow.c:407: warning: parameter names (without types) in function declaration
+> >  net/core/flow.c:407: warning: data definition has no type or storage class
+> 
+> It works OK for me, and flow.c correctly includes module.h.  Could you
+> double-check that your tree is not damaged in some manner?
 
-On Thu, 2 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+ yes, you right.
 
-> What the devil are you doing with get_gendisk() in there?  Neither 2.4
-> nor 2.6 should be messing with it.
+ sorry for the bad report.
 
-In 2.6 it's only a debugging check and will be removed. In 2.4 it's 
-currently needed to get the correct size. The backup volume sector is in 
-the second last (512 byte) sector, but bd_inode->i_size is truncated to 
-BLOCK_SIZE.
-
-bye, Roman
-
+-- 
+Luiz Fernando N. Capitulino
+<lcapitulino@prefeitura.sp.gov.br>
+<http://www.telecentros.sp.gov.br>
 

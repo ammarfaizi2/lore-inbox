@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130432AbRCPIX5>; Fri, 16 Mar 2001 03:23:57 -0500
+	id <S130383AbRCPIXR>; Fri, 16 Mar 2001 03:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130438AbRCPIXr>; Fri, 16 Mar 2001 03:23:47 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:12560 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130432AbRCPIXf>;
-	Fri, 16 Mar 2001 03:23:35 -0500
-Date: Fri, 16 Mar 2001 09:21:52 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Reserved memory for highmem bouncing (fwd)
-In-Reply-To: <Pine.LNX.4.21.0103152155120.4383-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0103160917420.807-100000@elte.hu>
+	id <S130432AbRCPIW5>; Fri, 16 Mar 2001 03:22:57 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:47040 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130383AbRCPIWp>; Fri, 16 Mar 2001 03:22:45 -0500
+Message-ID: <3AB1CD91.7C70CD49@uow.edu.au>
+Date: Fri, 16 Mar 2001 19:23:45 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dawson Engler <engler@csl.Stanford.EDU>
+CC: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] big stack variables
+In-Reply-To: <200103160256.VAA02335@karaya.com> from "Jeff Dike" at Mar 15, 2001 09:56:10 PM <200103160719.XAA04602@csl.Stanford.EDU>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dawson Engler wrote:
+> 
+> Turns out we didn't have CONFIG_DEVFS_FS defined.  Big time fun when it is:
+> 
+> /u2/engler/mc/2.4.1/drivers/char/tty_io.c:1996:tty_register_devfs: ERROR:VAR:1996:1996: suspicious var 'tty' = 3112 bytes
 
-On Thu, 15 Mar 2001, Marcelo Tosatti wrote:
-
-> The old create_bounce code used to set PF_MEMALLOC on the task flags
-> and call wakeup_bdflush(1) in case GFP_BUFFER page allocation failed.
-> That was broken because flush_dirty_buffers() could try to flush a
-> buffer pointing to highmem page, which would end up in create_bounce
-> again, but with PF_MEMALLOC.
->
-> Have you tried to make flush_dirty_buffers() only flush buffers
-> pointing to lowmem pages in case the caller wants it to do so?
-
-this makes sense too - although an emergency pool of some sort never
-hurts, given that highmem buffers cannot be written out without allocating
-bounce buffers. (this makes them more volatile wrt. resource shortages
-than lowmem buffers.) Also, there is no guarantee that flushing lowmem
-buffers yields any free pages.
-
-> This way you can call flush_dirty_buffers() with the guarantee you're
-> going to free useful (lowmem) memory. This also throttles high mem
-> writes giving priority to low mem ones.
-
-yep, i think we should do this in addition to the emergency pool thing, it
-should improve balance.
-
-	Ingo
-
+I've got my nose stuck in tty_io.c at present - I'll fix this this one.

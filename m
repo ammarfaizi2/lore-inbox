@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268712AbRG3XJR>; Mon, 30 Jul 2001 19:09:17 -0400
+	id <S268739AbRG3XMr>; Mon, 30 Jul 2001 19:12:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268730AbRG3XJH>; Mon, 30 Jul 2001 19:09:07 -0400
-Received: from [207.195.147.16] ([207.195.147.16]:49167 "EHLO
-	MAILCLUSTER.lith.com") by vger.kernel.org with ESMTP
-	id <S268712AbRG3XJA>; Mon, 30 Jul 2001 19:09:00 -0400
-Message-ID: <AF020C5FC551DD43A4958A679EA16A1501349556@mailcluster.lith.com>
-From: Erik De Bonte <erikd@lithtech.com>
-To: linux-kernel@vger.kernel.org
-Subject: Determining IP:port corresponding to an ICMP port unreachable
-Date: Mon, 30 Jul 2001 16:08:56 -0700
+	id <S268733AbRG3XMh>; Mon, 30 Jul 2001 19:12:37 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:56069 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268739AbRG3XMe>; Mon, 30 Jul 2001 19:12:34 -0400
+Message-ID: <3B65E9E6.E6444256@namesys.com>
+Date: Tue, 31 Jul 2001 03:12:38 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <Pine.LNX.4.33L.0107301946380.5582-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-When an ICMP port unreachable message is received and corresponds to a UDP
-socket, is there a way to determine the corresponding unreachable IP and
-port?  I'm able to retrieve the IP, but not the port.  From looking through
-the kernel source, it appears that the port is never extracted from the
-payload section of the ICMP message.  If this is indeed a limitation of the
-kernel, is there a plan to "fix" it in the future?
+Rik van Riel wrote:
 
-Here are the details on my particular situation:
+> > If you could halve linux memory manager performance and check as
+> > many things as reiserfs checks, would you do it.
+> 
+> I haven't removed a single debugging check from the
+> 2.4 VM. Performance is MUCH more reliant on things
+> like evicting the right page from RAM or reading in
+> the right page at the right time.
+> 
+> CPU usage is only secondary.
+> 
+> > .. You made the right choice.
+> 
+> Thanks ;)    [yeah, yeah ... flame me about out-of-context]
+> 
+> > Now, if you add a #define, you can check as many things as
+> > ReiserFS checks, and still go just as fast....
+> 
+> I'm sure these checks make reiserfs a tad more CPU hungry,
+> but isn't the real win in reiserfs supposed to come from
+> superior disk layout, readahead across files, etc... ?
+> 
+> Or is that all just a myth ?
+> 
+> regards,
+> 
+> Rik
+> --
+> Executive summary of a recent Microsoft press release:
+>    "we are concerned about the GNU General Public License (GPL)"
+> 
+>                 http://www.surriel.com/
+> http://www.conectiva.com/       http://distro.conectiva.com/
 
-I'm working on a game server which interacts with a large number of clients
-via a single UDP socket.  Occasionally, one of the clients will die without
-sending a disconnect message.  When this happens, I'd like to remove the
-client as quickly as possible to avoid leaving a ghost in the world that
-other players will see.  In the worst case scenario, the session will time
-out after the server hasn't heard from the client in x seconds.  However, if
-I watch for ICMP port unreachable messages, I should frequently be able to
-react more quickly.
 
-With Winsock, this is easy to do.  Recvfrom fails, an error code tells me
-that an ICMP port unreachable was received, and the address parameter of
-recvfrom is filled in with the dead client's IP and port.  On Linux (I'm
-using 2.2.16, but 2.4.x code appears to be the same in this respect),
-recvfrom fails and errno is set to ECONNREFUSED indicating an ICMP port
-unreachable was received.  However, the address is not filled in.  I'm able
-to retrieve the IP via recvmsg with the MSG_ERRQUEUE flag (and the
-IP_RECVERR sockopt), but the port that it gives me is bogus.
+A tree is a complex structure.  You can check it, and the temporary structures
+involved in balancing it, quite a lot of ways while balancing it.  I believe you
+that the checks you need for your code have no significant performance impact. 
+Ours sometimes do.  Consistency checks can be quite a bit more than a tad
+consumptive of CPU.  Like I said, there were a few checks we removed after the
+bug was gone because we got tired waiting for our debugging iterations taking so
+long because of them.
 
-I apologize if this seems too application specific for linux-kernel, but
-this appears to be a limitation of the kernel, and I haven't been able to
-find any info elsewhere.
+Using the #define means we don't have to think about the effect on performance
+of a check, we just leave it in.  Some checks belong outside the #define
+(checking to see if garbage came back from disk is left outside the define
+nowadays.)  Distros should trust the developers in these tradeoff decisions. 
+Otherwise, things just get stupid.
 
-Thanks,
-Erik
-
-Erik L. De Bonte
-Lead Server Programmer
-LithTech, Inc. - http://www.lithtech.com
+Hans

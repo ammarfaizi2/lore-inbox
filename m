@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTDUTcF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 15:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTDUTcF
+	id S261722AbTDUT37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 15:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbTDUT37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 15:32:05 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:32467 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261876AbTDUTcE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 15:32:04 -0400
-Date: Mon, 21 Apr 2003 15:44:07 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Christoph Hellwig <hch@lst.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
-In-Reply-To: <20030421210020.A29421@lst.de>
-Message-ID: <Pine.LNX.4.55.0304211539350.2462@marabou.research.att.com>
-References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com>
- <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de>
- <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>
- <20030421210020.A29421@lst.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Apr 2003 15:29:59 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:64778 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261722AbTDUT36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 15:29:58 -0400
+Date: Mon, 21 Apr 2003 20:42:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
+       "torvalds@transmeta.com" <torvalds@transmeta.com>
+Subject: Re: [PATCH] n_hdlc.c 2.5.68 (try 2)
+Message-ID: <20030421204200.A12475@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Paul Fulghum <paulkf@microgate.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
+	"torvalds@transmeta.com" <torvalds@transmeta.com>
+References: <1050952852.1841.41.camel@diemos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1050952852.1841.41.camel@diemos>; from paulkf@microgate.com on Mon, Apr 21, 2003 at 02:20:53PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Apr 2003, Christoph Hellwig wrote:
+On Mon, Apr 21, 2003 at 02:20:53PM -0500, Paul Fulghum wrote:
+> Attempt 2 with suggestions from Chritoph Hellwig
+> 
+> * Remove MODULE_USE_COUNT macros
+> * Add owner member to struct tty_ldisc
+> * Init tty_ldisc at compile time
+> * make some functions static
 
-> On Mon, Apr 21, 2003 at 02:53:54PM -0400, Pavel Roskin wrote:
-> > On Mon, 21 Apr 2003, Christoph Hellwig wrote:
-> >
-> > > On Mon, Apr 21, 2003 at 07:55:55PM +0200, Christoph Hellwig wrote:
-> > > > Could you please try this patch?
-> > >
-> > > Better this one :)  Sorry.
-> >
-> > No, it doesn't help, although the stack trace is different this time:
->
-> Hmm.  Can you please apply the following patch in addition and
-> see what the printk I added sais?
+.oO(I guess you'll have me for moaning again, but..)
 
-Following is happening.  The system boots, /dev/pts is a directory (I can
-see it by logging on the serial console).  devpts is mounted on /dev/pts.
+>  
+>  static int __init n_hdlc_init(void)
+>  {
+> -	static struct tty_ldisc	n_hdlc_ldisc;
+> +	static struct tty_ldisc	n_hdlc_ldisc = {
 
-I log in by ssh.  It works.  /dev/pts/0 appears.  I log out.  /dev/pts
-directory disappears!
+Usual Linux style is to have this outside of any function scope.
+That'll get important once we get a saner tty_unregister_ldisc
+prototype.
 
-I log in by ssh again.  I get this message on the console:
+> +		TTY_LDISC_MAGIC,    /* magic */
+> +		"hdlc",             /* name */
 
-devfs_remove: no entry for pts!
+Please use C99 named initializers.
 
-ssh hangs.  I can recreate /dev/pts by mkdir, umount it and mount it
-again.  Then ssh works again, but again only once.  /dev/pts disappears on
-logout.
+> +		0,                  /* num */
+> +		0,                  /* flags */
 
--- 
-Regards,
-Pavel Roskin
+And no need to initialize anything to 0/NULL.
+
+It should look like:
+
+static struct tty_ldisc n_hdlc_ldisc = {
+	.owner		= THIS_MODULE,
+	.magic		= TTY_LDISC_MAGIC,
+	.name		= "hdlc",
+	.open		= n_hdlc_tty_open,
+	.close		= n_hdlc_tty_close,
+	.read		= n_hdlc_tty_read,
+	.write		= n_hdlc_tty_write,
+	.ioctl		= n_hdlc_tty_ioctl,
+	.poll		= n_hdlc_tty_poll,
+	.receive_buf	= n_hdlc_tty_receive,
+	.receive_room	= n_hdlc_tty_room,
+	.write_wakeup	= n_hdlc_tty_wakeup,
+};

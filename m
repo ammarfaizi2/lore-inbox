@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261756AbSJMXpr>; Sun, 13 Oct 2002 19:45:47 -0400
+	id <S261755AbSJMXoo>; Sun, 13 Oct 2002 19:44:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261767AbSJMXpr>; Sun, 13 Oct 2002 19:45:47 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:62472 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S261756AbSJMXpq>; Sun, 13 Oct 2002 19:45:46 -0400
-Message-ID: <3DAA0708.1030701@namesys.com>
-Date: Mon, 14 Oct 2002 03:51:36 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S261756AbSJMXoo>; Sun, 13 Oct 2002 19:44:44 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30327 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261755AbSJMXon>; Sun, 13 Oct 2002 19:44:43 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+References: <200210132214.PAA00953@adam.yggdrasil.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Oct 2002 17:49:09 -0600
+In-Reply-To: <200210132214.PAA00953@adam.yggdrasil.com>
+Message-ID: <m11y6tnbm2.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
- 3.0 - (NUMA))
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <20021012012807.1BB5B635@merlin.webofficenow.com> <3DA7F385.3040409@namesys.com> <200210132242.g9DMgVng334662@pimout3-ext.prodigy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
 
->On Saturday 12 October 2002 06:03 am, Hans Reiser wrote:
->  
->
->>Rob Landley wrote:
->>    
->>
->>>I'm also looking for an "unmount --force" option that works on something
->>>other than NFS.  Close all active filehandles (the programs using it can
->>>just deal with EBADF or whatever), flush the buffers to disk, and
->>>unmount.  None of this "oh I can't do that, you have a zombie process
->>>with an open file...", I want  "guillotine this filesystem pronto,
->>>capice?" behavior.
->>>      
->>>
->>This sounds useful.  It would be nice if umount prompted you rather than
->>refusing.
->>    
->>
->
->The problem here is that umount(2) doesn't take a flag.  I'd be happy to have 
->it fail unless called with the WITH_EXTREME_PREJUDICE flag or some such, but 
->that's an API change.
->
->Of course I haven't gotten that far yet, but eventually this will have to be 
->dealt with...
->
->Rob
->
->
->  
->
-Call it forcedumount().
+O.k.  After having been away from active development on the kernel
+for a while I have now reviewed what you are seeing and I have a much
+firmer grasp of what is going on.
 
-What apps need to know about how to call it besides umount anyway?
+The change that merged device_shutdown and device_suspend was buggy.
+There really should have been a second state added so no behaviour
+would change.  This does not affect the reboot case, but it does
+affect the other users of SUSPEND_POWER_DOWN which does request
+devices be powered off.  Which is noticeably from what you want in
+device_shutdown() which is the preparation for reboot/halt.
 
-Not a lot that need a lot of worry.....
-
-Hans
+The change that went into 2.5.42 was the behavior of the ide
+driver changed.  device_shutdown has always called device->remove,
+and it has been in the reboot path for a very long time.  The ide
+driver just implemented a remove method, replacing it's reboot
+notifier, and in that change the ide driver started spinning down disk
+on reboot as well as shutdown.  So please talk to the author of the
+ide change if you do not like the current ide behaviour.  
 
 
+machine_restart returns control to the BIOS.  
+It works this way on both x86 and alpha.  And the BIOS does
+not always toggle the RESET line on the machine.  The frequent case
+of devices not working in Linux after rebooting from windows, and
+visa versa is evidence of this.  On alpha the SRM doesn't even
+pretend to reset the machine.
+
+Therefore the reboot code needs to put devices in a sane state, and
+given the general perversity of hardware and that there is not a
+defined way to do this generically except resetting the pci bus
+the device drivers need to be involved.  A reboot notifier is an ugly
+way to do this, and walking the power management tree is a much
+cleaner way to accomplish this.  Additionally it was decided quite a
+while ago that calling device->remove() was the correct way to
+accomplish this.
+
+Reboot problems show up more clearly when booting linux from linux but
+that just makes it more explicit.  It does not introduce any new
+potentials for problems, in this area.
+
+Eric

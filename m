@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbTHYCpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 22:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbTHYCpP
+	id S261385AbTHYCgo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 22:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbTHYCgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 22:45:15 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:64430 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261393AbTHYCpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 22:45:12 -0400
-Date: Mon, 25 Aug 2003 11:45:58 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: cache limit
-In-reply-to: <20030821234709.GD1040@matchmail.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <AC36AB3038685indou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.04 (WinNT,501)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <20030821234709.GD1040@matchmail.com>
+	Sun, 24 Aug 2003 22:36:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41964 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261385AbTHYCgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 22:36:43 -0400
+Message-ID: <3F497614.4090600@pobox.com>
+Date: Sun, 24 Aug 2003 22:36:04 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steve French <smfrench@austin.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: via rhine network failure on 2.6.0-test4
+References: <3F491E69.5090206@austin.rr.com>
+In-Reply-To: <3F491E69.5090206@austin.rr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003 16:47:09 -0700, Mike Fedyk wrote:
+Steve French wrote:
+> The via rhine driver fails to get a dhcp address on my test system on 
+> 2.6.0-test4.   ethereal shows no dhcp request leaving the box but 
+> ifconfig does show the device and it is detected in /proc/pci.   
+> Switching from the test3 vs.  test4 snapshots built with equivalent 
+> configure options on the same system (SuSE 8.2) - test3 works but test4 
+> does not.   This is using essentially the default config for both the 
+> test3 and test4 cases - the only changes are SMP disabled, scsi devices 
+> disabled, Athlon, via-rhine enabled in network devices and a handful of 
+> additional filesystems enabled, debug memory allocations enabled.   This 
+> is the first time in many months that I have seen problems with the 
+> via-rhine driver on 2.6
+> 
+> Analyzing the code differences between 2.6.0-test3 and test4 (in 
+> via-rhine.c) is not very promising since the only line that has changed 
+> (kfree to free_netdev) is in the routine via_rhine_remove_one that seems 
+> unlikely to cause problems sending data on the network.
+> 
+> Ideas as to what could have caused the regression?
 
->On Thu, Aug 21, 2003 at 09:49:45AM +0900, Takao Indoh wrote:
->> Actually, in the system I constructed(RedHat AdvancedServer2.1, kernel
->> 2.4.9based), the problem occurred due to pagecache. The system's maximum
->> response time had to be less than 4 seconds, but owing to the pagecache,
->> response time get uneven, and maximum time became 10 seconds.
->
->Please try the 2.4.18 based redhat kernel, or the 2.4-aa kernel.
 
-I need a tuning parameter which can control pagecache
-like /proc/sys/vm/pagecache, which RedHat Linux has.
-The latest 2.4 or 2.5 standard kernel does not have such a parameter.
-2.4.18 kernel or 2.4-aa kernel has a alternative method?
+Does /proc/interrupts show any interrupts being received on your eth 
+device?  Does dmesg report any irq assignment problems, or similar?
 
---------------------------------------------------
-Takao Indoh
- E-Mail : indou.takao@soft.fujitsu.com
+This sounds like ACPI or irq routing related.
+
+	Jeff
+
+
+

@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130689AbQKQF5J>; Fri, 17 Nov 2000 00:57:09 -0500
+	id <S130111AbQKQGAl>; Fri, 17 Nov 2000 01:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131748AbQKQF47>; Fri, 17 Nov 2000 00:56:59 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:26129 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130689AbQKQF4u>;
-	Fri, 17 Nov 2000 00:56:50 -0500
-Message-ID: <3A14C167.5A9144A9@mandrakesoft.com>
-Date: Fri, 17 Nov 2000 00:25:59 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+	id <S129314AbQKQGAb>; Fri, 17 Nov 2000 01:00:31 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:58635 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130111AbQKQGAT>; Fri, 17 Nov 2000 01:00:19 -0500
+Message-ID: <3A14C179.445941F0@timpanogas.org>
+Date: Thu, 16 Nov 2000 22:26:17 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Pete Clements <clem@clem.digital.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.0-test11-pre6 fails compile (dev.c)
-In-Reply-To: <200011170256.VAA10669@clem.digital.net> <14868.41234.444045.421346@notabene.cse.unsw.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: MANOS/Ring 0 Linux lists back up
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> 
-> On Thursday November 16, clem@clem.digital.net wrote:
-> > FYI:
-> >
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
-> > dev.c: In function `run_sbin_hotplug':
-> > dev.c:2736: `hotplug_path' undeclared (first use in this function)
-> > dev.c:2736: (Each undeclared identifier is reported only once
-> > dev.c:2736: for each function it appears in.)
-> > make[3]: *** [dev.o] Error 1
-> > make[3]: Leaving directory `/sda3/usr/src/linux-2.4.0-test11/net/core'
-> > make[2]: *** [first_rule] Error 2
 
-> The following works for me.... and even looks right.
+Now that sendmail/load average  problems have been nailed for 2.2.18>
+2.4, the mailing lists are working.  We apologize, but the server was
+upgraded and during the upgrade, most folks addresses got zapped in the
+var/lib/majordomo/lists directory, so folks who want to track Andre and
+our work on the ring 0 Linux on the MANOS kernel will need to sign back
+up at majordomo@timpanogas.org again.   As much as this has happened in
+the past on LKML,
+everyone is probably used to ir already anyway.  
 
-Thanks for taking care of one of my "fix after applying" items :)
+Thanks,
 
-Looks ok to me, though I prefer that #endif include a comment following
-it that names the cpp symbol it encloses.  Applied...
-
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

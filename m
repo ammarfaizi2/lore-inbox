@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263201AbSJCI1n>; Thu, 3 Oct 2002 04:27:43 -0400
+	id <S263190AbSJCI0t>; Thu, 3 Oct 2002 04:26:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263209AbSJCI1n>; Thu, 3 Oct 2002 04:27:43 -0400
-Received: from dial-ctb0563.webone.com.au ([210.9.245.63]:24583 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S263201AbSJCI1l>;
-	Thu, 3 Oct 2002 04:27:41 -0400
-Message-ID: <3D9C00B4.8080502@cyberone.com.au>
-Date: Thu, 03 Oct 2002 18:32:52 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+	id <S263208AbSJCI0t>; Thu, 3 Oct 2002 04:26:49 -0400
+Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:274 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S263190AbSJCI0t>;
+	Thu, 3 Oct 2002 04:26:49 -0400
+Message-ID: <3D9C004A.3080006@corvil.com>
+Date: Thu, 03 Oct 2002 09:31:06 +0100
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: colpatch@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] kernel/sched.c oddness?
-References: <Pine.LNX.4.44.0210030840110.4477-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: [OT] backtrace
+References: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain> <E17wmTG-0001Zn-00@starship>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> On Wednesday 02 October 2002 11:22, Ingo Molnar wrote:
+> 
+>>The attached (tested) patch modifies x86's dump_stack() to print out the
+>>much friendlier backtrace.
+> 
+> How about calling it backtrace(), since that's now what it is.
 
-         * Make sure nothing changed since we checked the
-         * runqueue length.
-         */
--       if (busiest->nr_running <= nr_running + 1) {
-+       if (busiest->nr_running <= nr_running) {
-                spin_unlock(&busiest->lock);
-                busiest = NULL;
-        }
+Sorry to go off topic but this tip is just too useful IMHO.
+You can do the same in userspace with glibc. Details here:
+http://www.iol.ie/~padraiga/backtrace.c
 
-OK, thanks for the explanation, then disregard this part of the patch, the
-other two are still valid I think.
-
-Ingo Molnar wrote:
-
->>[...] However, I noticed on my 2xSMP system that quite unbalanced loads
->>weren't getting even CPU time best example - 3 processes in busywait
->>loops - one would get 100% of one cpu while two would get 50% each of
->>the other.
->>
->
->this was done intentionally, and this scenario (1+2 tasks) is the very
->worst scenario. The problem is that by trying to balance all 3 tasks we
->now have 3 tasks that trash their cache going from one CPU to another.  
->(this is what happens with your patch - even with another approach we'd
->have to trash at least one task)
->
->By keeping 2 tasks on one CPU and 1 task on the other CPU we avoid
->cross-CPU migration of threads. Think about the 2+3 or 4+5 tasks case
->rather, do we want absolutely perfect balancing, or good SMP affinity and
->good combined performance?
->
->	Ingo
->
->
->
->
-
+Pádraig.
 

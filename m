@@ -1,97 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131289AbRC3KVj>; Fri, 30 Mar 2001 05:21:39 -0500
+	id <S131275AbRC3KWj>; Fri, 30 Mar 2001 05:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131275AbRC3KVa>; Fri, 30 Mar 2001 05:21:30 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:51461 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S131273AbRC3KVV>;
-	Fri, 30 Mar 2001 05:21:21 -0500
-Date: Fri, 30 Mar 2001 12:20:28 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: kernel apm code
-To: John Fremlin <chief@bandits.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-   linux-laptop@vger.kernel.org, apm@linuxcare.com.au,
-   apenwarr@worldvisions.ca, sfr@linuxcare.com.au
-Message-id: <3AC45DEC.4ABCC94B@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3AC0A679.DFA9F74B@uni-mb.si> <"m28zlr58w9.fsf"@boreas.yi.org>
- <3AC1C406.652D0207@uni-mb.si> <"m2bsqmlyrh.fsf"@boreas.yi.org>
- <3AC2FF70.CA2317B6@uni-mb.si> <"m24rwcjziu.fsf"@boreas.yi.org>
+	id <S131305AbRC3KWa>; Fri, 30 Mar 2001 05:22:30 -0500
+Received: from arbi.informatik.uni-oldenburg.de ([134.106.1.7]:22790 "EHLO
+	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
+	id <S131275AbRC3KWT>; Fri, 30 Mar 2001 05:22:19 -0500
+From: "Jochen Hoenicke" <Jochen.Hoenicke@Informatik.Uni-Oldenburg.DE>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15044.24107.858836.866924@huxley.Informatik.Uni-Oldenburg.DE>
+Date: Fri, 30 Mar 2001 12:21:31 +0200 (MET DST)
+To: linux-kernel@vger.kernel.org
+CC: andre@linux-ide.org
+Subject: Bug in EZ-Drive remapping code (ide.c)
+X-Mailer: VM 6.75 under 20.0 XEmacs Lucid (beta28)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin wrote:
-> 
->  David Balazic <david.balazic@uni-mb.si> writes:
-> 
-> > John Fremlin wrote:
-> 
-> [...]
-> 
-> > > > To implement off-button you only need the APM_IOC_REJECT ioctl and
-> > >
-> > > The problem on my computer with my (re)implementation of
-> > > APM_IOC_REJECT is that the screen goes into powersaving when the user
-> > > suspend is received, then turns it back on when APM_IOC_REJECT is sent
-> > > by apmd.
-> >
-> > What is wrong with that ?
-> 
-> > Suspend is requested -> suspend is executed
-> 
-> > Suspend is canceled (rejected) -> suspend is canceled
-> >
-> > Seems perfectly OK to me.
-> 
-> The sequence is in fact: suspend requested by BIOS -> suspend accepted
-> by kernel -> SUSPEND -> suspend rejected by apmd which is passed on by
-> kernel to BIOS -> REJECT=RESUME (if I understand correctly, this is
-> what seems to happen).
-> 
-> Sequence should be as in pmpolicy patch: suspend requested by BIOS ->
-> /sbin/powermanger decides to reject -> REJECT
+Hello,
 
-AFAICT , the kernel does not accept(*) any APM_EVENT until all userspace
-"listeners" say it is OK. So until apmd doesn't reply, the kernel does
-not accept the SUSPEND. If apmd says OK, kernel says OK to BIOS and SUSPEND
-is activated, but if apmd says NO-NO, then the kernel rejects the SUSPEND
-request and "nothing happens"
+The EZ-Drive remapping code remaps to many sectors, if they are read
+together with sector 0 in one bunch.  This is even documented:
 
-This is of course with a proper implementation of REJECT functionality
-in the kernel apm driver. I don't know if it behaves like this in the
-current IOC_AOM_REJECT version, but  it should :-)
+>From linux-2.4.0/drivers/ide/ide.c line 1165:
+/* Yecch - this will shift the entire interval,
+   possibly killing some innocent following sector */
 
-* - by accept I mean : it receives a notification from BIOS and replies
-OK to the BIOS. the BIOS doesn't change the powerstate until the kernel
-responds with OK , IIRC
+This problem hit a GRUB user using linux-2.4.2 but it exists for a
+long time; the remapping code is already in 2.0.xx.  The reason that
+nobody cares is probably because there are only a few programs that
+access /dev/hda directly.
 
-> 
-> [...]
-> 
-> > > Anyway it is fixed in my pmpolicy patch, and I don't need no
-> > > daemon so the code is a lot cleaner and simpler (no binary magic
-> > > number interfaces).
-> >
-> > But there should be no policy in the kernel ! ;-)
-> 
-> Read the patch. Read the webpage:
-> 
->         http://john.snoop.dk/programs/linux/offbutton
-> 
-> There is no policy in kernel.
-> 
-> --
-> 
->         http://www.penguinpowered.com/~vii
+GRUB is a boot loader that normally runs under plain BIOS but there is
+also a wrapper to run it under linux and other unixes.  Because it
+shares most code with its BIOS derivate it accesses the disk the hard
+way, reading directly from /dev/hda and interpreting the file system
+with its own (read-only) file system drivers.
 
+This is what happened: Grub reads the first track in one bunch and
+since a track has an odd number of sectors, linux adds the first
+sector of the next track to this bunch.  This sector contains the boot
+sector of the first FAT partition.  The result of the remapping is
+that grub can't access that partition.
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+Please CC me on reply.
+
+  Jochen

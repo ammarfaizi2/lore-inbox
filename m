@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267621AbTALW6g>; Sun, 12 Jan 2003 17:58:36 -0500
+	id <S267627AbTALXEs>; Sun, 12 Jan 2003 18:04:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267620AbTALW6g>; Sun, 12 Jan 2003 17:58:36 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:7623 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267621AbTALW5h> convert rfc822-to-8bit; Sun, 12 Jan 2003 17:57:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: robw@optonline.net, Aaron Lehmann <aaronl@vitelus.com>
-Subject: Re: any chance of 2.6.0-test*?
-Date: Mon, 13 Jan 2003 00:06:14 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <20030112221802.GN31238@vitelus.com> <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+	id <S267628AbTALXEs>; Sun, 12 Jan 2003 18:04:48 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:2054 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267627AbTALXEq>;
+	Sun, 12 Jan 2003 18:04:46 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301122311.h0CNBkE1001677@darkstar.example.net>
+Subject: Coding style - (Was Re: any chance of 2.6.0-test*?)
+To: robw@optonline.net
+Date: Sun, 12 Jan 2003 23:11:46 +0000 (GMT)
+Cc: torvalds@transmeta.com, hch@infradead.org, greg@kroah.com,
+       alan@lxorguk.ukuu.org.uk, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1042404503.1208.95.camel@RobsPC.RobertWilkens.com> from "Rob Wilkens" at Jan 12, 2003 03:48:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301130006.14180.oliver@neukum.name>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 12. Januar 2003 23:34 schrieb Rob Wilkens:
-> On Sun, 2003-01-12 at 17:18, Aaron Lehmann wrote:
-> > These are usually error conditions. If you inline them, you will have
-> > to jump *over* them as part of the normal code path. You don't save
->
-> You're wrong.  You wouldn't have to jump over them any more than you
-> have to jump over the "goto" statement.  They would be where the goto
-> statement is.  Instead of the goto you would have the function.
+[Most of a discussion about coding style removed]
 
-That exactly is the problem. If they are where the goto would be
-they needlessly fill the CPU's pipeline, take up space in L1 and use
-up bandwidth on the busses.
-A goto is much shorter than a cleanup.
+> As someone else pointed out, it's provable that goto isn't needed, and
+> given that C is a minimalist language, I'm not sure why it was included.
 
-And you would have to jump. Any control structure will result in one
-or more conditional jumps in the assembler code (or conditional instructions)
+It's worth keeping in mind, when coding in *any* language, that
+concepts such as loops, functions, and any kind of 'structured'
+programming, are all completely artificial concepts.
 
-Turning "if (a) goto b;"  into a single branch instruction is trivial.
-The best the compiler can do with
-if (a) {
-	cleanup();
-	return err;
-}
-is putting the conditional code on the end of the function.
+Microprocessors are essentially based around:
 
-So in the best case the compiler can generate almost equivalent code
-at a cost of maintainability.
+Loading discrete values to registers.
+Loading discrete values into memory locations.
+Copying a value from a register or a memory location, to another
+register or a memory location.
+Pushing and poping values on to and off of the stack.
+Jumping to another location based on whether a register contains zero
+or a non zero value.
 
-> > any instructions, and you end up with a kernel which has much more
-> > duplicated code and thus thrashes the cache more. It also makes the
->
-> If that argument was taken to it's logical conclusion (and I did, in my
-> mind just now), no one should add any code the grows the kernel at all.
+The only thing that can really be considered anything like structured
+programming is the stack, (and possibly interupts).
 
-Correct. If you mean that literally, you've grasped an important concept.
-You grow the kernel only with good cause.
+> But at least the code is "readable" when you do that.
 
-And you look where you add the code. Additional device drivers don't hurt.
-A computed jump is still only one computed jump. Additional code in common
-code paths of the core hurts a lot.
-For the inner loops of core code there are two considerations, size and
-reducing jumps.
+Assember for a simple microprocessor such as a Z80 is arguable easier
+to understand than C source code for something like the Linux kernel.
 
-	Regards
-		Oliver
+It's not the language, or how it is indented, that determines how
+difficult code is to read.  It's the logic in the code.
 
+John.

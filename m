@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264559AbTFTUCm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 16:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTFTUCl
+	id S264569AbTFTUKw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 16:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbTFTUKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 16:02:41 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21003 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264559AbTFTUCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 16:02:40 -0400
-Date: Fri, 20 Jun 2003 21:16:40 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Eivind Tagseth <eivindt@multinet.no>
+	Fri, 20 Jun 2003 16:10:52 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:48343 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264569AbTFTUKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 16:10:51 -0400
+Date: Fri, 20 Jun 2003 22:24:44 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andrew Morton <akpm@digeo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with PCMCIA Compact Flash adapter in 2.5.72
-Message-ID: <20030620211640.B913@flint.arm.linux.org.uk>
-Mail-Followup-To: Eivind Tagseth <eivindt@multinet.no>,
-	linux-kernel@vger.kernel.org
-References: <20030620081846.GB2451@tagseth-trd.consultit.no>
+Subject: [Must-fix] Keyboard occasionally endlessly repeating keys
+Message-ID: <20030620202444.GD22732@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030620081846.GB2451@tagseth-trd.consultit.no>; from eivindt@multinet.no on Fri, Jun 20, 2003 at 10:18:46AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 10:18:46AM +0200, Eivind Tagseth wrote:
-> I've got a Kingston Compact Flash adapter that I use to mount the flash
-> card of my digital camera.  I've had several problems with the kernel
-> with this, both 2.4.20, 2.5.69 and 2.5.72.
+Hi!
 
-Hmm, you mention pcmcia-cs 3.2.4 later in your mail.  Are you trying to
-get pcmcia-cs modules to work with the 2.5.72 pcmcia subsystem?
+After having upgraded my notebook to 2.5.72, I noticed a rare problem,
+that occurs about twice a day, maybe more.  After pressing a key, it
+gets repeated endlessly until the next key is pressed.  When typing
+fast, it is quite possible to cover up a couple of these, as the
+repeats appear to happen at the set keyboard rates.  Problem never
+occured with any 2.4 kernel.
 
-> I always seem to forget some vital information when reporting bugs, 
-> please don't hesitate to ask for more info.  I'll be happy to try any
-> patches to the kernel and/or cardmgr if needed.
+I remember having read about this problem on the list before, but
+didn't search my archive yet.  Also, I consider this to be a show
+stopper, as the bug is already nasty when hitting 'q' inside mutt once
+and might have worse effects with other programs.  YMMV.
 
-There is this which fixes some people problems, and is already in Linus'
-recent bk tree.  Does this solve your problem?
-
---- orig/drivers/pcmcia/cs.c	Tue Jun 17 12:56:30 2003
-+++ linux/drivers/pcmcia/cs.c	Wed Jun 18 09:47:39 2003
-@@ -816,7 +816,8 @@
- 				if ((skt->state & SOCKET_PRESENT) &&
- 				     !(status & SS_DETECT))
- 					socket_shutdown(skt);
--				if (status & SS_DETECT)
-+				if (!(skt->state & SOCKET_PRESENT) &&
-+				    status & SS_DETECT)
- 					socket_insert(skt);
- 			}
- 			if (events & SS_BATDEAD)
+Jörn
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Rules of Optimization:
+Rule 1: Don't do it.
+Rule 2 (for experts only): Don't do it yet.
+-- M.A. Jackson 

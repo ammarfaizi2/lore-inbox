@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281783AbRK0WwM>; Tue, 27 Nov 2001 17:52:12 -0500
+	id <S281806AbRK0W5o>; Tue, 27 Nov 2001 17:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282984AbRK0WwD>; Tue, 27 Nov 2001 17:52:03 -0500
-Received: from pikus.o2.pl ([212.126.20.2]:44044 "HELO pikus.o2.pl")
-	by vger.kernel.org with SMTP id <S281809AbRK0Wvs>;
-	Tue, 27 Nov 2001 17:51:48 -0500
-From: "Fryderyk Mazurek" <dedyk@go2.pl>
-To: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: kernel-2.4.16 - quota bug!!!
-Date: Tue, 27 Nov 2001 23:51:39 +0100
-Message-ID: <MABBKNJEGFKAKLDKHMHDEEHHCAAA.dedyk@go2.pl>
+	id <S281807AbRK0W5e>; Tue, 27 Nov 2001 17:57:34 -0500
+Received: from mail016.mail.bellsouth.net ([205.152.58.36]:52056 "EHLO
+	imf16bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281806AbRK0W5V>; Tue, 27 Nov 2001 17:57:21 -0500
+Message-ID: <3C041A4B.454E18E1@mandrakesoft.com>
+Date: Tue, 27 Nov 2001 17:57:15 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: Dax Kelson <dax@gurulabs.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: onboard ethernet/sound on Soyo SY-K7V?
+In-Reply-To: <Pine.LNX.4.33.0111271514320.28301-100000@mooru.gurulabs.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quota don't work on kernel 2.4.16
+Dax Kelson wrote:
+> 
+> I'm looking a purchasing a dozen computers with the Soyo SY-K7V Dragon
+> Plus motherboard.  It has the KT266A chipset.
+> 
+> My question is Linux support for the onboard ethernet and sound.  I've
+> googled all over and haven't come up with a definitive answer.
+> 
+> They are described as "VIA 10/100 Ethernet" and "CMI 8738 Audio chip".
+
+what does 'lspci -vn' show for your system?
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271910AbRIQRT0>; Mon, 17 Sep 2001 13:19:26 -0400
+	id <S271935AbRIQRUq>; Mon, 17 Sep 2001 13:20:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271921AbRIQRTR>; Mon, 17 Sep 2001 13:19:17 -0400
-Received: from mailhost.opengroup.fr ([62.160.165.1]:20874 "EHLO
-	mailhost.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S271911AbRIQRTL>; Mon, 17 Sep 2001 13:19:11 -0400
-Date: Mon, 17 Sep 2001 19:19:31 +0200 (CEST)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: Dave Jones <davej@suse.de>
-cc: <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
-Subject: Re: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
-In-Reply-To: <Pine.LNX.4.30.0109171821340.27689-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.31.0109171912000.26090-100000@sisley.ri.silicomp.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271931AbRIQRUn>; Mon, 17 Sep 2001 13:20:43 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:20744 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S271918AbRIQRUE>;
+	Mon, 17 Sep 2001 13:20:04 -0400
+Date: Mon, 17 Sep 2001 19:20:22 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, ast@domdv.de
+Subject: Re: broken VM in 2.4.10-pre9
+Message-Id: <20010917192022.313ddd5f.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33.0109170942161.8900-100000@penguin.transmeta.com>
+In-Reply-To: <20010917183433.5b992e74.skraw@ithnet.com>
+	<Pine.LNX.4.33.0109170942161.8900-100000@penguin.transmeta.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Dave Jones wrote:
+On Mon, 17 Sep 2001 09:46:28 -0700 (PDT) Linus Torvalds
+<torvalds@transmeta.com> wrote:
 
-> On Mon, 17 Sep 2001, Jean-Marc Saffroy wrote:
->
-> > What is the intent behind this "rep;nop" ? Does it really rely on an
-> > undocumented behaviour ?
->
-> Its used to stop Pentium 4's from cooking themselves.
-> See the P4 manuals for more info.
+> "Looks cleaner" is very important for me for maintenance reasons - having
+> behaviour that you cannot explain tends to result in more and more ad-hoc
+> hacks over time, and it just tends to get worse and worse.
 
-Ok, I found it: actually it is the PAUSE opcode in the P4 instruction set,
-and the doc for PAUSE mentions that it is equivalent to a NOP on older
-IA-32 processors.
+Agreed.
 
-So no black magic here, except that "rep;nop" is a bit misleading, since
-the Intel docs for REP and NOP do not mention PAUSE...
+> However, at the same time I'd really like to hear about improved
+> behaviour, not just "feels the same". And certainly not "(maybe even
+> worse.."
 
-Thanks all for you help.
+Hm, sorry for that. But that's what I see. Maybe the problem is now on a
+different field.
 
+> The problematic part is that I suspect that _because_ there's a lot of
+> inactive pages, the VM layer won't even try to age the active ones.
+> Which will result in the inactive pages being re-circulated reasonably
+> quickly..
+
+Do you think this re-circulation is _fast_ in current code? Maybe performance
+loss comes from this point?
+
+BTW: I tried Andrea's brand new patch and have to admit it has a _big_
+performance gain, though I understand you dislike the design very much. 
 
 Regards,
-
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:saffroy@ri.silicomp.fr
-
+Stephan

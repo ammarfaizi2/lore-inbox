@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUIZKee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269507AbUIZKht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268861AbUIZKee (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 06:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269503AbUIZKeC
+	id S269507AbUIZKht (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 06:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269505AbUIZKht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 06:34:02 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:12548 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S268861AbUIZKd7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 06:33:59 -0400
-Date: Sun, 26 Sep 2004 13:32:54 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Update 'noapic' description
-Message-ID: <Pine.LNX.4.53.0409260354020.2849@musoma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 26 Sep 2004 06:37:49 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:53253 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S269503AbUIZKhq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 06:37:46 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: James.Bottomley@SteelEye.com (James Bottomley)
+Subject: Re: [RFC] put symbolic links between drivers and modules in the	sysfs tree
+Cc: viro@parcelfarce.linux.theplanet.co.uk, greg@kroah.com,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Organization: Core
+In-Reply-To: <1096118081.1715.3.camel@mulgrave>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.scsi
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1CBWOq-0007t6-00@gondolin.me.apana.org.au>
+Date: Sun, 26 Sep 2004 20:37:00 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 'noapic' kernel parameter only disables IOAPIC use and not all the 
-APICs (which would include local APICs) in the system.
+James Bottomley <James.Bottomley@steeleye.com> wrote:
+>
+>> So what will your userland code do when you run it on a system with
+>> non-modular kernel currently running?
+> 
+> Not put a module in the initial ramdisk, since it would be unnecessary. 
+> The only information the patch seeks to add is the linkage between
+> driver and module.  So you can work back from sysfs to know which
+> devices have which modules
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
-
-Index: linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 kernel-parameters.txt
---- linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt	24 Sep 2004 14:26:39 -0000	1.1.1.1
-+++ linux-2.6.9-rc2-mm3/Documentation/kernel-parameters.txt	26 Sep 2004 00:53:36 -0000
-@@ -758,8 +758,8 @@ running once the system is up.
- 
- 	noalign		[KNL,ARM] 
-  
--	noapic		[SMP,APIC] Tells the kernel not to make use of any
--			APIC that may be present on the system.
-+	noapic		[SMP,APIC] Tells the kernel to not make use of any
-+			IOAPICs that may be present in the system.
- 
- 	noasync		[HW,M68K] Disables async and sync negotiation for
- 			all devices.
+You're assuming that the kernel before/after the reboot have the same
+configuration.  This is false in general.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

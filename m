@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267174AbUBSK1U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUBSK1U
+	id S267179AbUBSKaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUBSKaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:27:20 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:50360 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S267174AbUBSK1S (ORCPT
+	Thu, 19 Feb 2004 05:30:06 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:47277 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S267179AbUBSKaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:27:18 -0500
-Date: Thu, 19 Feb 2004 11:29:00 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
-Cc: paulmck@us.ibm.com, arjanv@redhat.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040219102900.GC14000@marowsky-bree.de>
-References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org>
+	Thu, 19 Feb 2004 05:30:01 -0500
+Date: Thu, 19 Feb 2004 11:29:58 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: dan carpenter <error27@email.com>
+Cc: ltp-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Announce] Strace Test
+Message-ID: <20040219102958.GG17140@khan.acc.umu.se>
+Mail-Followup-To: dan carpenter <error27@email.com>,
+	ltp-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040218145132.460214b5.akpm@osdl.org>
+In-Reply-To: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
 User-Agent: Mutt/1.4.1i
-X-Ctuhulu: HASTUR
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-02-18T14:51:32,
-   Andrew Morton <akpm@osdl.org> said:
-
-> a) Does the export make technical sense?  Do filesystems have
->    legitimate need for access to this symbol?
+On Mon, Feb 16, 2004 at 12:22:57AM -0500, dan carpenter wrote:
+> Good evening,
 > 
-> (really, a) is sufficient grounds, but for real-world reasons:)
+> I'm happy to announce the initial public release of 
+> Strace Test.  I believe Strace Test is the most 
+> aggressive general purpose kernel tester available.
+> Strace Test generally crashes my system within 
+> 5 minutes (2.6.1-rc2).
 
-Technically, I assume both OCFS, Lustre, (OpenGFS), PolyServe and
-basically /everyone/ doing a cluster file system, proprietary or not,
-will eventually need this capability. Vendors have included hooks for
-this in 2.4 already anyway.
-
-So on technical grounds, I'm strongly inclined to support it, but I
-would like to suggest that it is ensured that the hook is sufficient for
-all of the named CFS.
-
-Paul, have you spoken with them?
-
-> b) Does the IBM filsystem meet the kernel's licensing requirements?
-
-If you are worried about this one, you can export it GPL-only, which as
-an Open Source developer I'd appreciate, but from a real-world business
-perspective would be unhappy about ;-)
+Pretty please with sprinkles upon, could you stress test a 2.0.40 kernel
+and report your results to me?  While I do not expect the 2.0-kernel to
+be the paramount of stability, it would be nice to fix any obvious
+bugs...
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
+Regards: David Weinehall
 -- 
-High Availability & Clustering	      \ ever tried. ever failed. no matter.
-SUSE Labs			      | try again. fail again. fail better.
-Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
-
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

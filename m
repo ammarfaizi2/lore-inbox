@@ -1,50 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbTBXLAZ>; Mon, 24 Feb 2003 06:00:25 -0500
+	id <S266868AbTBXLCK>; Mon, 24 Feb 2003 06:02:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266535AbTBXLAZ>; Mon, 24 Feb 2003 06:00:25 -0500
-Received: from angband.namesys.com ([212.16.7.85]:22401 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S266527AbTBXLAY>; Mon, 24 Feb 2003 06:00:24 -0500
-Date: Mon, 24 Feb 2003 14:10:36 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  comments on st_blksize and f_bsize for 2.5
-Message-ID: <20030224141036.A11501@namesys.com>
-References: <3E526C94.3020109@namesys.com> <20030224102009.GB14024@win.tue.nl>
-Mime-Version: 1.0
+	id <S266886AbTBXLCK>; Mon, 24 Feb 2003 06:02:10 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:57874 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S266868AbTBXLCH>;
+	Mon, 24 Feb 2003 06:02:07 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200302241112.h1OBCBX273068@saturn.cs.uml.edu>
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+To: procps-list@redhat.com
+Date: Mon, 24 Feb 2003 06:12:11 -0500 (EST)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+       alexl@redhat.com, viro@math.psu.edu, mingo@elte.hu
+In-Reply-To: <Pine.LNX.4.44.0302241020010.20069-100000@localhost.localdomain> from "Ingo Molnar" at Feb 24, 2003 10:28:06 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224102009.GB14024@win.tue.nl>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Ingo Molnar writes:
+> On Sun, 23 Feb 2003, Albert D. Cahalan wrote:
 
-On Mon, Feb 24, 2003 at 11:20:09AM +0100, Andries Brouwer wrote:
+>> Surely you realize that I have seen this code?
+>
+> have you actually tried it?
+>
+>> Proper "ps m" behavior groups threads in the output. The hacked-up
+>> procps being used by Red Hat fails to do this. You chould change that...
+>> at the cost of reading all processes and sorting them. There goes all of
+>> your performance improvement.
+>
+> Albert, the new code properly reads all threads and sorts them, in the
+> "ps m" case. Had you truly read my emails you'd notice where the overhead
+> lies, and what steps were taken to get rid of it.
 
-> The trivial part is st_blksize: all agree.
-> Quoting the man page:
->        The value st_blksize gives the "preferred" blocksize
->        for efficient file system I/O.  (Writing to a file in
->        smaller chunks may cause an inefficient read-modify-rewrite.)
+I see that for default output, unpatched procps-2.x.xx is
+forced to read and sort all tasks. Ignoring fault counts
+and wchan for the moment, you made this work unnecessary by
+adding some whole-process values. You also sped up /proc
+directory operations in general, so not "all" I guess.
 
-> The nontrivial part is f_bsize. As far as I can see
-> BSD and SYSV and SUS all differ. And there are the use
-> in struct statfs and the use in struct statvfs that are
-> nonequivalent.
-> Maybe BSD f_iosize, f_bsize in statfs corresponds to
-> SYSV f_bsize, f_frsize in statfs. Linux is again a
-> bit different.
+In the "ps m" and "ps -m" cases, you revert to the
+"loose tasks" behavior. Neither "ps -L" nor "ps -T"
+have been implemented. In some of these cases, the
+threads should be grouped. Without subdirectories,
+user code must do something bloated and slow to get
+the grouping. (unless you care to guarantee the order
+of tasks in a /proc directory listing, and relying on
+such an ordering would prevent some other optimizations)
 
-Traditionally in Linux f_bsize in struct statfs is used as FS block size.
-(e.g. df calculates fs capacity by multiplying amount of blocks on
-fs by f_bsize).
-Actually, this is the only field in struct statfs that holds any data regarding
-fs blocksize. (well, some arches have f_frsize, but it is marked as unused).
+By grouping I mean something roughly like this:
 
-Bye,
-    Oleg
+PID TID
+123 123
+123 222
+444 444
+444 456
+
+Not this:
+
+PID TID
+123 123
+444 444
+123 222
+444 456
+
+Header names and meanings may vary, etc. I'm not about to
+dig out my notes regarding correct behavior for this email.
+
+Anyway, to quote Linus:
+
+----- begin -----
+Well, part of the problem (I think) is that you added all the threads to 
+the same main directory.
+
+Putting a "." in front of the name doesn't fix the /proc level directory
+scalability issues, it only means that you can avoid some of the user- 
+level scalability ones.
+
+So to offset that bad design, you then add other cruft, like the lookup
+cursor and the "." marker. Which is not a bad idea in itself, but I claim
+that if you'd made the directory structure saner you wouldn't have needed
+it in the first place.
+
+It would just be _so_ much nicer if the threads would show up as 
+subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable, 
+and just generally more sane.
+----- end -----
+

@@ -1,100 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263585AbTJQUF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 16:05:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbTJQUF3
+	id S263602AbTJQUFp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 16:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbTJQUFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 16:05:29 -0400
-Received: from mtaw4.prodigy.net ([64.164.98.52]:49332 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S263585AbTJQUFU (ORCPT
+	Fri, 17 Oct 2003 16:05:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41406 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263602AbTJQUFm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 16:05:20 -0400
-Message-ID: <3F904B61.3020400@pacbell.net>
-Date: Fri, 17 Oct 2003 13:04:49 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Peter Matthias <espi@epost.de>, Jamie Lokier <jamie@shareable.org>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-References: <3F8851A7.3000105@pacbell.net>
-In-Reply-To: <3F8851A7.3000105@pacbell.net>
-Content-Type: multipart/mixed;
- boundary="------------000103050000030705060606"
+	Fri, 17 Oct 2003 16:05:42 -0400
+Date: Fri, 17 Oct 2003 13:05:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kevin Corry <kevcorry@us.ibm.com>
+Cc: thornber@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: online resizing of devices/filesystems (2.6)
+Message-Id: <20031017130543.0e01d862.akpm@osdl.org>
+In-Reply-To: <200310171116.07362.kevcorry@us.ibm.com>
+References: <200310171116.07362.kevcorry@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000103050000030705060606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-David Brownell wrote:
+Kevin Corry <kevcorry@us.ibm.com> wrote:
+>
+> On August 21, 2003, Joe Thornber wrote:
+> > Hi,
+> > 
+> > Should genhd.h:set_capacity() find and update the i_size field of the
+> > inode for the device ?
+> > 
+> > The BLKGETSIZE and BLKGETSIZE64 ioctls report the size in the devices
+> > inode:
+> > 
+> > 	case BLKGETSIZE:
+> > 		if ((bdev->bd_inode->i_size >> 9) > ~0UL)
+> > 			return -EFBIG;
+> > 		return put_ulong(arg, bdev->bd_inode->i_size >> 9);
+> > 	case BLKGETSIZE64:
+> > 		return put_u64(arg, bdev->bd_inode->i_size);
+> > 
+> > Currently people have to close and reopen the device in order for a
+> > size change to take effect.  This is a problem if people want to do
+> > online resizing of a filesystem (supported by xfs and resier).
 > 
-> Hmm ... maybe usbcore would be better off with a less
-> naive algorithm for choosing defaults.  Like, preferring
-> configurations without proprietary device protocols.
-> That'd solve every cdc-acm case, and likely others.
+> Has anyone had any thoughts about this issue?
 
-In fact, here's a patch with that very change.  Does
-it make current 2.6.0-test kernels work "out of the box"
-again with your USB modems?
+Resizing a blockdev while someone has a filesystem mounted on it is a bit
+rude, but I guess that as long as it is being expanded, not much can go
+wrong.
 
-- Dave
+bd_set_size() isn't quite what you want because it fiddles with the
+blocksize as well.
 
+So one approach would be to do what NBD does, and just write i_size directly.
 
-
-
---------------000103050000030705060606
-Content-Type: text/plain;
- name="Diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Diff"
-
---- 1.143/drivers/usb/core/usb.c	Thu Sep 25 03:59:51 2003
-+++ edited/drivers/usb/core/usb.c	Fri Oct 17 12:18:16 2003
-@@ -991,6 +997,7 @@
- 	int err = -EINVAL;
- 	int i;
- 	int j;
-+	int config;
- 
- 	/*
- 	 * Set the driver for the usb device to point to the "generic" driver.
-@@ -1105,15 +1112,27 @@
- 
- 	/* choose and set the configuration. that registers the interfaces
- 	 * with the driver core, and lets usb device drivers bind to them.
-+	 * NOTE:  should interact with hub power budgeting.
- 	 */
-+	config = dev->config[0].desc.bConfigurationValue;
- 	if (dev->descriptor.bNumConfigurations != 1) {
-+		for (i = 0; i < dev->descriptor.bNumConfigurations; i++) {
-+			/* heuristic:  Linux is more likely to have class
-+			 * drivers, so avoid vendor-specific interfaces.
-+			 */
-+			if (dev->config[i].interface[0]->altsetting
-+						->desc.bInterfaceClass
-+					== USB_CLASS_VENDOR_SPEC)
-+				continue;
-+			config = dev->config[i].desc.bConfigurationValue;
-+			break;
-+		}
- 		dev_info(&dev->dev,
- 			"configuration #%d chosen from %d choices\n",
--			dev->config[0].desc.bConfigurationValue,
-+			config,
- 			dev->descriptor.bNumConfigurations);
- 	}
--	err = usb_set_configuration(dev,
--			dev->config[0].desc.bConfigurationValue);
-+	err = usb_set_configuration(dev, config);
- 	if (err) {
- 		dev_err(&dev->dev, "can't set config #%d, error %d\n",
- 			dev->config[0].desc.bConfigurationValue, err);
-
---------------000103050000030705060606--
-
+You could create a little helper library function which takes i_sem and
+then writes i_size.  But the VFS tends to avoid taking i_sem on blockdevs
+because it doesn't expect i_size to change ;)
 

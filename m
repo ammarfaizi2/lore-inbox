@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUKGHc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbUKGHtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbUKGHc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 02:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbUKGHc3
+	id S261553AbUKGHtX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 02:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKGHtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 02:32:29 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:15266 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261552AbUKGHcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 02:32:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=aJdylnKgNiYfmpJCpUIpVUcKALlj6UHcy/v+ImuUmMxJBlbUv1viICiVWWO2pRMkxnMn1IarebzBDp6M8vMAGHrkPRtoBp3bCAf0YO7u6a05gFpvJ4BoV6HVLvvYRN5S830VPYxzTDD+Dku1b8/nBcqcahqRwTiMBTJ/HufgJJg=
-Message-ID: <aad1205e041106233274e78428@mail.gmail.com>
-Date: Sun, 7 Nov 2004 15:32:23 +0800
-From: andyliu <liudeyan@gmail.com>
-Reply-To: andyliu <liudeyan@gmail.com>
-To: James Tabor <jimtabor@adsl-64-217-116-74.dsl.hstntx.swbell.net>
-Subject: Re: [PATCH]tar filesystem for 2.6.10-rc1-mm3(easily access tar file)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <418DCB2F.2030303@adsl-64-217-116-74.dsl.hstntx.swbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <aad1205e0411062306690c21f8@mail.gmail.com>
-	 <418DCB2F.2030303@adsl-64-217-116-74.dsl.hstntx.swbell.net>
+	Sun, 7 Nov 2004 02:49:22 -0500
+Received: from potato.cts.ucla.edu ([149.142.36.49]:5533 "EHLO
+	potato.cts.ucla.edu") by vger.kernel.org with ESMTP id S261553AbUKGHtT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 02:49:19 -0500
+Date: Sat, 6 Nov 2004 23:49:14 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: deadlock with 2.6.9
+In-Reply-To: <200411070058_MC3-1-8E27-AAEF@compuserve.com>
+Message-ID: <Pine.LNX.4.61.0411062342400.29373@potato.cts.ucla.edu>
+References: <200411070058_MC3-1-8E27-AAEF@compuserve.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oh,sorry.it's a readonly filesystem now.i will try to make it writeable.
-but i use tar file as loop device.
+On Sun, 7 Nov 2004, Chuck Ebbert wrote:
 
-by the way,if we mount an iso file it's a readonly filesystem too.
-i think maybe we should do something on the loop device to support
-this kind of write.
+> Chris Stromsoe wrote:
+>
+>> I had a third lockup, this time not related to burning a dvd.  As 
+>> before, the bulk of the processes that were hung were cron
+>
+> Why so many cron processes?  Is this normal on your system, or does it 
+> look like cron keeps spawning processes because it gets no response on 
+> the sockets?
 
-On Sun, 07 Nov 2004 07:13:51 +0000, James Tabor
-<jimtabor@adsl-64-217-116-74.dsl.hstntx.swbell.net> wrote:
-> andyliu wrote:
-> 
-> 
-> > hi
-> >
-> >   let's think about the way we access the file which contained in a tar file
-> > may we can untar the whole thing and we find the file we want to access
-> > or we can use the t option with tar to list all the files in the tar
-> > and then untar the only one file we want to access.
-> >
-> >   but with the help of the tarfs,we can mount a tar file to some dir and access
-> > it easily and quickly.it's like the tarfs in mc.
-> >
-> >  just mount -t tarfs tarfile.tar /dir/to/mnt -o loop
-> > then access the files easily.
-> >
-> > it was writen by Kazuto Miyoshi (kaz@earth.email.ne.jp) Hirokazu
-> > Takahashi (h-takaha@mub.biglobe.ne.jp) for linux 2.4.0
-> >
-> > and i make it work for linux 2.6.0. now a patch for linux 2.6.10-rc1-mm3
-> >
-> > the patch is to big to send it as plain text, so i can only send it as
-> > an attachment
-> >
-> > thanks
-> > 
-> Wow! How cool is this! Can you copy files into a tarfs subsystem? Just like
-> we do with iso's?
-> Cool,
-> James
-> 
+I'm guessing so many processes because every time one gets started, it 
+ends up getting stuck in schedule_timeout(), until the system stops 
+spawning new processes.  There are many of them because the system was 
+running for a day or so before it became unresponsive.
+
+>> The box is P3 SMP
+>
+> Can you try a uniprocessor kernel?
+
+Boot with nosmp or boot a kernel compiled for up?
+
+>> syslog logs to a stripe of two mirrors, built with mdadm.
+>
+> Get a real RAID controller (3Ware, not some crappy pseudo-RAID junk.) 
+> They are much more reliable than software RAID.
+
+I've had more problems with reliable hardware raid controllers than I have 
+with software raid.  Your mileage may vary.
 
 
--- 
-Yours andyliu
+-Chris

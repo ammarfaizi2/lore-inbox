@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267167AbSKTBVq>; Tue, 19 Nov 2002 20:21:46 -0500
+	id <S267276AbSKTBe3>; Tue, 19 Nov 2002 20:34:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267276AbSKTBVq>; Tue, 19 Nov 2002 20:21:46 -0500
-Received: from mtl.slowbone.net ([213.237.73.175]:24449 "EHLO
-	leeloo.slowbone.net") by vger.kernel.org with ESMTP
-	id <S267167AbSKTBVp>; Tue, 19 Nov 2002 20:21:45 -0500
-Message-ID: <3DDAE54F.4010808@slowbone.net>
-Date: Wed, 20 Nov 2002 02:28:47 +0100
-From: =?ISO-8859-1?Q?Thorbj=F8rn_Lind?= <mtl@slowbone.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-X-Accept-Language: en
+	id <S267288AbSKTBe3>; Tue, 19 Nov 2002 20:34:29 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:6355 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP
+	id <S267276AbSKTBe1>; Tue, 19 Nov 2002 20:34:27 -0500
+Message-ID: <3DDAE846.6080503@lemur.sytes.net>
+Date: Tue, 19 Nov 2002 20:41:26 -0500
+From: Mathias Kretschmer <mathias@lemur.sytes.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en, zh-tw
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.48-bk, md raid0 fix
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE:  PATCH: Recognize Tualatin cache size in 2.4.x
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out001.verizon.net from [151.198.132.245] at Tue, 19 Nov 2002 19:41:27 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes the 'BUG at drivers/block/ll_rw_blk.c:19xx' when using raid0 md devices since 2.5.45...
+ > > I tested it in a Compaq Proliant 330ML-G2 (P3 1.4) and a kernel
+ > compilation is 100% faster if the patch is applied.
 
-/tul
+ > <raises eyebrows>. The SMP weighting used by various parts of the
+ > kernel will be slightly off, but I'd be amazed if it made *that much*
+ > difference.
 
---- a/drivers/md/raid0.c	2002-11-18 05:29:46.000000000 +0100
-+++ b/drivers/md/raid0.c	2002-11-20 01:12:08.000000000 +0100
-@@ -173,15 +173,14 @@
-  static int raid0_mergeable_bvec(request_queue_t *q, struct bio *bio, struct bio_vec *biovec)
-  {
-  	mddev_t *mddev = q->queuedata;
--	sector_t block;
--	unsigned int chunk_size;
--	unsigned int bio_sz;
--
--	chunk_size = mddev->chunk_size >> 10;
--	block = bio->bi_sector >> 1;
--	bio_sz = (bio->bi_size + biovec->bv_len) >> 10;
--
--	return (chunk_size - ((block & (chunk_size - 1)) + bio_sz)) << 10;
-+	unsigned int max_size;
-+
-+	max_size = mddev->chunk_size - ((bio->bi_sector % (mddev->chunk_size >> 9)) << 9);
-+
-+	if(biovec->bv_len <= (max_size - bio->bi_size))
-+	    return biovec->bv_len;
-+
-+	return max_size - bio->bi_size;
-  }
+I just patched my 2.4.20rc2 kernel. Now, it reports
+512K cache for my 2 Tualatin 1.26 GHz CPUs.
 
-  static int raid0_run (mddev_t *mddev)
+'time make -j4 bzImage' went down from 3:30 to 3:04.
+Not too bad.
+
+Cheers,
+
+Mathias
 

@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUG2Tg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUG2Thx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUG2Tg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 15:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUG2Tg1
+	id S265044AbUG2Thx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbUG2Thw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 15:36:27 -0400
-Received: from mail.convergence.de ([212.84.236.4]:24461 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S265027AbUG2Tf7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 15:35:59 -0400
-Message-ID: <4109519A.1000201@convergence.de>
-Date: Thu, 29 Jul 2004 21:35:54 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Johannes Stezenbach <js@convergence.de>
-CC: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Thu, 29 Jul 2004 15:37:52 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:26631 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S263980AbUG2Tho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 15:37:44 -0400
 Subject: Re: 2.6.8-rc2-mm1
-References: <20040728020444.4dca7e23.akpm@osdl.org> <20040728222455.GC5878@convergence.de> <20040728224423.GJ12308@parcelfarce.linux.theplanet.co.uk> <20040728232453.GA6377@convergence.de>
-In-Reply-To: <20040728232453.GA6377@convergence.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jffs-dev@axis.com
+In-Reply-To: <20040729143606.GB2349@fs.tum.de>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
+	 <20040729143606.GB2349@fs.tum.de>
+Content-Type: text/plain
+Date: Thu, 29 Jul 2004 15:36:32 -0400
+Message-Id: <1091129792.4133.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.8 (1.5.8-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2004-07-29 at 16:36 +0200, Adrian Bunk wrote:
+> The following issue comes from Linus' tree:
+> 
+> JFFS2_COMPRESSION_OPTIONS is asked even if JFFS2_FS support isn't 
+> selected.
+> 
+> The patch below adds a dependency on JFFS2_FS to 
+> JFFS2_COMPRESSION_OPTIONS.
 
-On 07/29/04 01:24, Johannes Stezenbach wrote:
-> On Wed, Jul 28, 2004 at 11:44:23PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
->>On Thu, Jul 29, 2004 at 12:24:55AM +0200, Johannes Stezenbach wrote:
->>
->>>Signed-off-by: Johannes Stezenbach <js@convergence.de>
->>>
->>>--- linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c.orig	2004-07-29 00:19:50.000000000 +0200
->>>+++ linux-2.6.8-rc2/drivers/media/dvb/dvb-core/dvb_functions.c	2004-07-29 00:20:05.000000000 +0200
->>>@@ -36,7 +36,7 @@ int dvb_usercopy(struct inode *inode, st
->>>         /*  Copy arguments into temp kernel buffer  */
->>>         switch (_IOC_DIR(cmd)) {
->>>         case _IOC_NONE:
->>>-                parg = NULL;
->>>+                parg = (void *) arg;
->>
->>Mind explaining why it is the right thing to do?  You are creating a kernel
->>pointer out of value passed to you by userland and feed it to a function
->>that expects a kernel pointer.  Which is an invitation for trouble - if
->>it ends up dereferenced, we are screwed and won't notice that.
-> 
-> 
-> This is a hack introduced by someone years ago. The "pointer" is
-> actually an integer argument, e.g. in include/linux/dvb/audio.h:
-> 
-> #define AUDIO_SET_MUTE             _IO('o', 6)
-> 
-> actually takes an integer argument (!0 mute, 0 unmute), so one can write
-> 
-> 	if (ioctl(fd, AUDIO_SET_MUTE, 1) == -1)
-> 		perror("mute");
-> 
-> It is unusual (maybe even wrong?), but we cannot change it without
-> losing binary API compatibility. However, I see that sparse might
-> flag this as a possible bug :-(
+That was already at bk://linux-mtd.bkbits.net/mtd-2.6 for Linus to pull.
 
-Is this convenient trick considered harmful?
-Or is it a creative way of using ioctls?
+> I've also added a dependency on EXPERIMENTAL which seemed to be logical 
+> after reading the description of this option (but even if you disagree 
+> with this, please add the dependency on JFFS2_FS).
 
-We're currently using this stuff in the overhauled DVB v4 API, too. So 
-before we finally establish the DVB v4 API, I'd like to know if this is 
-a no-no.
+Not correct.
 
-Comments?
-
-CU
-Michael.
+-- 
+dwmw2
 

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbSLZJh2>; Thu, 26 Dec 2002 04:37:28 -0500
+	id <S262826AbSLZJqa>; Thu, 26 Dec 2002 04:46:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262826AbSLZJh2>; Thu, 26 Dec 2002 04:37:28 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:3521 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262824AbSLZJh1>; Thu, 26 Dec 2002 04:37:27 -0500
-Message-ID: <20021226094537.20498.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: akpm@digeo.com, ciarrocchi@linuxmail.org
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, conman@kolivas.net,
-       riel@conectiva.com.br, linux-kernel@vger.kernel.org
-Date: Thu, 26 Dec 2002 17:45:37 +0800
-Subject: Re: Poor performance with 2.5.52, load and process in D state
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-2.us4.outblaze.com
+	id <S262859AbSLZJq3>; Thu, 26 Dec 2002 04:46:29 -0500
+Received: from dp.samba.org ([66.70.73.150]:65242 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262826AbSLZJq3>;
+	Thu, 26 Dec 2002 04:46:29 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: "Marco d'Itri" <md@Linux.IT>, Roger Luethi <rl@hellgate.ch>
+Subject: [RELEASE] module-init-tools 0.9.6
+Date: Thu, 26 Dec 2002 20:50:00 +1100
+Message-Id: <20021226095444.F2A3B2C06D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@digeo.com>
+I'm not announcing every release, but we're coming up to 1.0 sometime
+soon, as the TODO list is shrinking rapidly: top is man pages, which
+I'll be working on now.
 
-> Paolo Ciarrocchi wrote:
-> > 
-> > > it appears that this benefit came from the special usercopy code.
-> > > What sort of CPU are you using?
-> > 
-> > It is a PIII@800.
-> 
-> hm, don't know.  I built the latest postgres locally.  Perhaps the
-> alignment of some application buffer is different.
+http://www.[COUNTRY].kernel.org/pub/linux/kernel/people/rusty/modules/module-init-tools-0.9.6.tar.gz
+http://www.[COUNTRY].kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-10.src.rpm
 
-I don't know. 
-I've built the osdb test while I've just installed postgres
-from the Mandrake 9 standard installation (so i586.rpm).
+Significant improvements this release:
+o Implemented "remove", "--ignore-install" and "--ignore-remove", and
+  use them in modprobe.conf2modules.conf.
+o Loop reporting improved.
+o Warn about lines in config file which aren't understood.
+o Workaround for devfsd (which calls modprobe -C /etc/modules.conf).
+o Testsuite implemented (also available above)
+o Lotsa little bugfixes.
 
-May be we are using different version of postgres...
+Special thanks to Roger Luethi for all his hard bugreporting!
 
-Anyway, my test show that there is a lack of performance 
-in 2.5.* is the kernel fits in a machine with low memory,
-any hint ?
-
-And probably the "standard" swappiness value is not the 
-optimal, I'd like to see a few tests with the contest
-tool ;-)
-
-
-      Ciao,
-               Paolo
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
-
-Powered by Outblaze
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

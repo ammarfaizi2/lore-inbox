@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136037AbRDVLPD>; Sun, 22 Apr 2001 07:15:03 -0400
+	id <S136036AbRDVLMN>; Sun, 22 Apr 2001 07:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136038AbRDVLOx>; Sun, 22 Apr 2001 07:14:53 -0400
-Received: from mx2.port.ru ([194.67.23.33]:45842 "EHLO mx2.port.ru")
-	by vger.kernel.org with ESMTP id <S136037AbRDVLOr>;
-	Sun, 22 Apr 2001 07:14:47 -0400
+	id <S136037AbRDVLLy>; Sun, 22 Apr 2001 07:11:54 -0400
+Received: from mx1.port.ru ([194.67.23.32]:35593 "EHLO mx1.port.ru")
+	by vger.kernel.org with ESMTP id <S136036AbRDVLLj>;
+	Sun, 22 Apr 2001 07:11:39 -0400
 From: "Samium Gromoff" <_deepfire@mail.ru>
 To: linux-kernel@vger.kernel.org
 Subject: Re: Delivery 2.4.x serial corruption
@@ -16,8 +16,8 @@ In-Reply-To: <20010422110551Z136036-683+2202@vger.kernel.org>
 Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E14rHpF-0002UD-00@f3.mail.ru>
-Date: Sun, 22 Apr 2001 15:14:45 +0400
+Message-Id: <E14rHmD-0002NB-00@f3.mail.ru>
+Date: Sun, 22 Apr 2001 15:11:37 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

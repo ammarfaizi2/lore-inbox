@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbRE2Vcj>; Tue, 29 May 2001 17:32:39 -0400
+	id <S261881AbRE2ViT>; Tue, 29 May 2001 17:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262052AbRE2Vc3>; Tue, 29 May 2001 17:32:29 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:39797 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S262036AbRE2VcP>; Tue, 29 May 2001 17:32:15 -0400
-Message-ID: <001a01c0e886$5be3eea0$3303a8c0@pnetz>
-From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= <christian@borntraeger.net>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: PROMISE+ATHLON crashes with 2.4.3ac7 or higher. workaround?
-Date: Tue, 29 May 2001 23:28:49 +0200
-MIME-Version: 1.0
+	id <S262052AbRE2ViJ>; Tue, 29 May 2001 17:38:09 -0400
+Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:16512 "EHLO
+	quark.localdomain") by vger.kernel.org with ESMTP
+	id <S261881AbRE2Vhw>; Tue, 29 May 2001 17:37:52 -0400
+From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
+Date: Tue, 29 May 2001 16:36:37 -0500
+X-Mailer: KMail [version 1.1.99]
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linuxkernel@AdvancedResearch.org (Vincent Stemen)
+In-Reply-To: <E154pvH-0004q1-00@the-village.bc.nu>
+In-Reply-To: <E154pvH-0004q1-00@the-village.bc.nu>
+Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
+MIME-Version: 1.0
+Message-Id: <01052916363700.00493@quark>
 Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tuesday 29 May 2001 15:16, Alan Cox wrote:
+> > a reasonably stable release until 2.2.12.  I do not understand why
+> > code with such serious reproducible problems is being introduced into
+> > the even numbered kernels.  What happened to the plan to use only the
+>
+> Who said it was introduced ?? It was more 'lurking' than introduced. And
+> unfortunately nobody really pinned it down in 2.4test.
+>
 
-I faced several system hangs with an ASUS A7V133 using a kernel 2.4.3ac7 or
-higher. (I reported this some time ago)
-Now I removed the 2 hard drives from the promise controller and attached
-them an to the via controller.
-After that step I could not reproduced the system freeze at least with
-2.4.5.
-So I __guess__ that the promise controller in combination with the VIA PCI
-Interface leads to some trouble. I will do some further investigations, to
-find out, if the promise controller was my problem.
+I fail to see the distinction.  First of all, why was it ever released
+as 2.4-test?  That question should probably be directed at Linus.  If
+it is not fully tested, then it should be released it as an odd
+number.  If it already existed in the odd numbered development kernel
+and was known, then it should have never been released as a production
+kernel until it was resolved.  Otherwise, it completely defeats the
+purpose of having the even/odd numbering system.
 
-Just ask if you need more information.
+I do not expect bugs to never slip through to production kernels, but
+known bugs that are not trivial should not, and serious bugs like
+these VM problems especially should not.
 
-greetings
 
-Christian Bornträger
+> > By the way,  The 2.4.5-ac3 kernel still fills swap and runs out of
+> > memory during my morning NFS incremental backup.  I got this message
+> > in the syslog.
+>
+> 2.4.5-ac doesn't do some of the write throttling. Thats one thing I'm
+> still working out. Linus 2.4.5 does write throttling but Im not convinced
+> its done the right way
+>
+> > completely full.  By that time the memory was in a reasonable state
+> > but the swap space is still never being released.
+>
+> It wont be, its copied of memory already in apps. Linus said 2.4.0 would
+> need more swap than ram when he put out 2.4.0.
+>
 
+I do not like that at all.  I should not have to have to tie up a
+bunch of extra hard drive space for swap if I have plenty of RAM for
+90% of my usage.  During the 2.0.x days I was always able to run with
+a small swap or no swap at all when I had 80-128Mb RAM and it was
+always rock solid.  It seems to me that the swap space should just add
+to your virtual memory and the size ratio between swap and RAM should
+not matter.
+
+- Vincent Stemen

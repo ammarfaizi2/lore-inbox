@@ -1,40 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289556AbSAOMzY>; Tue, 15 Jan 2002 07:55:24 -0500
+	id <S289559AbSAONDX>; Tue, 15 Jan 2002 08:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289555AbSAOMzL>; Tue, 15 Jan 2002 07:55:11 -0500
-Received: from ns.suse.de ([213.95.15.193]:26636 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289556AbSAOMzF>;
-	Tue, 15 Jan 2002 07:55:05 -0500
-Date: Tue, 15 Jan 2002 13:55:04 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        kern0201@siscom.net
-Subject: Re: Significant Slowdown Occuring in 2.2 starting with 19pre2
-Message-ID: <20020115135504.A13012@wotan.suse.de>
-In-Reply-To: <200201150402.XAA08887@leros.siscom.net.suse.lists.linux.kernel> <E16QSuJ-0004y1-00@the-village.bc.nu.suse.lists.linux.kernel> <p733d17kcdv.fsf@oldwotan.suse.de> <20020115.045244.64225720.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115.045244.64225720.davem@redhat.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S289561AbSAONDI>; Tue, 15 Jan 2002 08:03:08 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:15289 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S289559AbSAONCw>;
+	Tue, 15 Jan 2002 08:02:52 -0500
+Message-ID: <3C4427F6.3010703@debian.org>
+Date: Tue, 15 Jan 2002 14:00:38 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, esr@thyrsus.com
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+In-Reply-To: <fa.fslncfv.r6o11i@ifi.uio.no> <fa.hqe5uev.c60cjs@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Jan 2002 13:02:51.0131 (UTC) FILETIME=[F026CCB0:01C19DC4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 04:52:44AM -0800, David S. Miller wrote:
->    From: Andi Kleen <ak@suse.de>
->    Date: 15 Jan 2002 13:49:16 +0100
-> 
->    Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
->    > 
->    > The only change in 2.2.19pre2 is the merge of Andrea Arcangeli's VM. Please
->    > talk to Andrea and see if he can work out why
->    
->    Also the merge of blkdev-in-pagecache.
-> 
-> Andi, 2.2.x not 2.4.x :-)
 
-Oops. Thank you David. 
+T. A. wrote:
 
--Andi
+ 
+>     1. Don't see any reason for the kernel hardware autoconfigurator to be
+> included in the kernel.
+
+
+Linus and Alan last year (end Dec 2000), told that it would nice to have
+some kind of autoconfiguration.
+The problem was the bug report about non running kernel, because of
+false configuration (CPU configuration).
+How many people try new kernel with the wrong CPU configuration?
+(and mornally user know the name of own CPU, with netcards this is
+more difficult).
+
+[ We don't reduce trafic on lkml, because the fewer bug reports
+are hidden by this huge flamewar]
+
+> 
+>     2. Don't see any reason the kernel hardware autoconfigurator cannot be
+> run as root.  Actually see one very good reason why it shouldn't be able to
+> be run as a regular user.  Probing certain hardware is inherently dangerous.
+> Machine can hang.  Hardware could be probed to death.  Heck a clever coder
+> could even make use of the user level access required to allow user hardware
+> autoconfiguration.  Wiping disks, destroying flash roms, finding system
+> backdoors, etc, etc.
+
+
+Root will help, but AFAIK, not needed. Forget DMI.
+Out detection is 'hang' free. (so a soft detection, but with some
+tests, I can say that with this soft detection we can detect nearly
+all, without the difficult to write hard probes).
+
+> 
+>     3. ISA is pretty much dead outside of certain standard PC equipment.
+> And of the remaining ISA out there, most in any machine than can still run a
+> Linux kernel effectively is most likely PNP ISA.  Plus there are a few
+> fairly common ISA cards that can also be found easily.  It seams that the
+> vast majority of Aunt Tillies will be served with just PCI autoconfiguration
+> and maybe PNP ISA configuration.
+
+PCI, USB and ISAPNP detection works well.
+ISA is a further step.
+I will send Eric the new detections and database for new probes (for ISA
+and others) drivers. So I hope also the ISA thread will end.
+
+	giacomo
+

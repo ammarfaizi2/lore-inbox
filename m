@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVANVYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVANVYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVANVYK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVANVGl
+	id S262181AbVANVYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVANVWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:06:41 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:64229 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262169AbVANVE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:04:56 -0500
-Date: Fri, 14 Jan 2005 13:04:38 -0800
-From: Dave Jiang <dave.jiang@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux@arm.linux.org.uk, smaurer@teja.com,
-       dsaxena@plexity.net, mporter@kernel.crashing.org,
-       drew.moseley@intel.com
-Subject: Re: [PATCH 1/5] resource: core changes to update u64 to unsigned long
-Message-ID: <20050114210438.GA21248@plexity.net>
-Reply-To: dave.jiang@gmail.com
-References: <20050114200103.GA19386@plexity.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114200103.GA19386@plexity.net>
-Organization: Intel Corp.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 14 Jan 2005 16:22:30 -0500
+Received: from mailhost.ntl.com ([212.250.162.8]:37628 "EHLO
+	mta09-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S262123AbVANVWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 16:22:11 -0500
+Message-ID: <41E8565A.4050707@gentoo.org>
+Date: Fri, 14 Jan 2005 23:31:38 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Andres Salomon <dilinger@voxel.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-as1
+References: <1105605448.7316.13.camel@localhost> <41E7F44C.5010702@bio.ifi.lmu.de>
+In-Reply-To: <41E7F44C.5010702@bio.ifi.lmu.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14 2005, at 12:01, Dave Jiang was caught saying:
-> Here's the rework per Andrew and others' comments. Attempt to change
-> resource.start and resource.end to u64 from unsigned long.
+Frank Steiner wrote:
+> When I take an unpatched 2.6.10 and apply only the 033 patch, it fails,
+> too. Is it possible that the rlimit patch needs some more patches from
+> the bitkeeper repository to work correctly? And that those patches
+> are missing in the -as1?  Or is the patch just wrong?
 > 
-> Signed-off-by: Dave Jiang <dave.jiang@gmail.com>
-> 
+> Can anyone confirm this problem? I attach my config for the full -as1
+> tree kernel and a strace log for some segfaulting mount. Hope this helps!
 
-Oops, I left out the part where Andrew suggested to cast the vars in
-printk to (unsigned long long). I will put out applicable patches with
-those updates. Sorry about that.....
+I can confirm this. For me, fsck exits with sig11 during bootup sequence, 
+which causes my init scripts to think my root partition is dead. Investigating 
+now...
+
+Daniel

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136092AbRDVM71>; Sun, 22 Apr 2001 08:59:27 -0400
+	id <S136094AbRDVNA5>; Sun, 22 Apr 2001 09:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136090AbRDVM7R>; Sun, 22 Apr 2001 08:59:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48143 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136092AbRDVM7E>; Sun, 22 Apr 2001 08:59:04 -0400
-Subject: Re: Linux 2.4.3-ac12
-To: jjasen1@umbc.edu (John Jasen)
-Date: Sun, 22 Apr 2001 14:00:29 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), manuel@mclure.org (Manuel McLure),
+	id <S136097AbRDVNAr>; Sun, 22 Apr 2001 09:00:47 -0400
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:39299 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S136094AbRDVNAg>; Sun, 22 Apr 2001 09:00:36 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: junio@siamese.dhis.twinsun.com, manuel@mclure.org (Manuel McLure),
         linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.4.31L.02.0104220854380.5115910-100000@irix2.gl.umbc.edu> from "John Jasen" at Apr 22, 2001 08:55:09 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: Linux 2.4.3-ac12 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Sun, 22 Apr 2001 13:54:28 BST." <E14rJNn-0005mh-00@the-village.bc.nu> 
+In-Reply-To: <E14rJNn-0005mh-00@the-village.bc.nu> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJTa-0005nJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 22 Apr 2001 14:00:19 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14rJTP-0005jL-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 22 Apr 2001, Alan Cox wrote:
-> 
-> > This is from Linus tree. You currently need gcc 2.96 or higher to build
-> > the 2.4.x kernel.
-> 
-> Is this going to be a permanent change, or just temporary?
+>> >Why ? It works in the 2.96 snapshots. So 2.96+ is fine.
+>> 
+>> GCC snapshots have called themselves 2.97 since last September.  "2.96" just
+>> means that it's some random old version.  Yours happens to work; there's no 
+>> guarantee that everybody else's will too.
+>
+>2.97+ are also all random snapshots most of which dont actually work. Im 
+>obviously missing a point here.
 
-I'd hope and assume temporary
+Are you being deliberately obtuse?  2.97+ snapshots do all support 
+builtin_expect, which is what we were discussing.
+
+p.
+
+

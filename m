@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270804AbTGPJPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 05:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTGPJPR
+	id S270808AbTGPJc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 05:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTGPJc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 05:15:17 -0400
-Received: from tazz.wtf.dk ([80.199.6.58]:38016 "EHLO sokrates")
-	by vger.kernel.org with ESMTP id S270804AbTGPJPP (ORCPT
+	Wed, 16 Jul 2003 05:32:26 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:18663 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S270808AbTGPJcZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 05:15:15 -0400
-Date: Wed, 16 Jul 2003 11:30:37 +0200
-From: Michael Kristensen <michael@wtf.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Unable to boot linux-2.6-test1
-Message-ID: <20030716093037.GA1686@sokrates>
-References: <200307160904.08524.christian@borntraeger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200307160904.08524.christian@borntraeger.net>
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Jul 2003 05:32:25 -0400
+Date: Wed, 16 Jul 2003 11:47:08 +0200 (MEST)
+Message-Id: <200307160947.h6G9l8iW007259@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: andrew.grover@intel.com, hugh@veritas.com, len.brown@intel.com
+Subject: RE: ACPI patches updated (20030714)
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christian Bornträger <christian@borntraeger.net> [2003-07-16 10:34:13]:
-> No, you have not.
-> from your first mail:
-> 
->   module-init-tools      2.4.21
-> 
-> This version belongs to modutils.
+On Tue, 15 Jul 2003 12:11:17 -0700, "Grover, Andrew" wrote:
+>> From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
+>> I would like to see HT_ONLY generalized to parsing the MADT for
+>> I/O-APICs. The problem I have is that some mainboards, like my
+>> i850 ASUS P4T-E, have I/O-APICs but no MP tables. The only way for
+>> the Linux kernel to discover the I/O-APICs on these mainboard is
+>> through MADT parsing.
+>> 
+>> However, this currently requires me to enable all of ACPI, which
+>> I don't need or want for many reasons, including code bloat and
+>> behavioural side-effects.
+>> 
+>> Replacing "HT_ONLY" with "MADT_PARSING_ONLY" would be ideal, IMO.
+>
+>This won't help you. If you have *no* MPS tables, then you need ACPI
+>(and specifically the ability to execute the _PRT control methods) for
+>interrupt routing information, in addition to ioapic and local apic
+>(CPU) enumeration. If this wasn't the case, I'm sure someone would have
+>implemented ioapic MADT enumeration code long ago.
 
-Yes, that was back then :-) Later, after I installed the Debian package
-module-init-tools, everything worked fine. I only thought the package
-was needed to *load* the modules, not create them. So, everything works
-now. Thanks to everyone who answered to this thread and of course to the
-Linux kernel team for creating, maintaining and developing the kernel
-:-)
+:-(
 
--- 
-Med Venlig Hilsen/Best Regards/Mit freundlichen Grüßen
-Michael Kristensen <michael@wtf.dk>
+>Also, nothing is going to fundamentally change the size of the ACPI code
+>(but we do keep chipping away at it, as evidenced by the dynamic SDT
+>patch, -Os, etc.) but I'd like to hear more about the behavioral
+>side-effects you'd mentioned, with an eye towards fixing them.
+
+The main side-effect _was_ seeing the interpreter being run.
+I didn't know it was needed for figuring out IRQ routing.
+
+Concerning code size, the 70K number in ACPI's Kconfig help is
+out of date. A minimal ACPI (all user-selectable suboptions
+disabled) adds 145K to my 2.6.0-test1 kernel.
+
+/Mikael

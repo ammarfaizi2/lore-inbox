@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135994AbRAJRjH>; Wed, 10 Jan 2001 12:39:07 -0500
+	id <S135238AbRAJRst>; Wed, 10 Jan 2001 12:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135996AbRAJRi6>; Wed, 10 Jan 2001 12:38:58 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24326 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135972AbRAJRio>; Wed, 10 Jan 2001 12:38:44 -0500
-Date: Wed, 10 Jan 2001 18:38:52 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010110183852.N22197@athlon.random>
-In-Reply-To: <20010110160359.E19503@athlon.random> <Pine.GSO.4.21.0101101216370.13614-100000@weyl.math.psu.edu>
+	id <S135335AbRAJRsi>; Wed, 10 Jan 2001 12:48:38 -0500
+Received: from host156.207-175-42.redhat.com ([207.175.42.156]:53767 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S135238AbRAJRsa>; Wed, 10 Jan 2001 12:48:30 -0500
+Date: Wed, 10 Jan 2001 12:48:30 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 umount problem
+Message-ID: <20010110124830.G31455@devserv.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <F237SHmFF4y07520vKE000060af@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0101101216370.13614-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Jan 10, 2001 at 12:28:38PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <F237SHmFF4y07520vKE000060af@hotmail.com>; from hyponephele@hotmail.com on Wed, Jan 10, 2001 at 11:03:06AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 12:28:38PM -0500, Alexander Viro wrote:
-> That's precisely what I've already done. grep for IS_DEADDIR() and notice
+M T (hyponephele@hotmail.com) said: 
+> I'm running redhat 6.2 halt scripts and strange problem appears when 
+> shutting system down with kernel-2.4.0. I get message that "/ device is 
+> busy". I've updated util-linux (kill,mount,umount) according to 
+> documentation without any success. I've got no problems with 2.2.18.
+> Any ideas?
 
-Fine ;)
+Are you using devfs?
 
-Andrea
+Bill
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318141AbSHZQiA>; Mon, 26 Aug 2002 12:38:00 -0400
+	id <S318130AbSHZQfZ>; Mon, 26 Aug 2002 12:35:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318142AbSHZQiA>; Mon, 26 Aug 2002 12:38:00 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:59400 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318141AbSHZQiA>;
-	Mon, 26 Aug 2002 12:38:00 -0400
-Date: Mon, 26 Aug 2002 09:42:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Status Report
-Message-ID: <20020826164203.GB18046@kroah.com>
-References: <Pine.LNX.4.44.0208250617520.4958-100000@dad.molina>
+	id <S318128AbSHZQfY>; Mon, 26 Aug 2002 12:35:24 -0400
+Received: from ppp-217-133-221-128.dialup.tiscali.it ([217.133.221.128]:20697
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S318123AbSHZQfY>; Mon, 26 Aug 2002 12:35:24 -0400
+Subject: Re: Broken inlines all over the source tree
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Kernel Janitors ML 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+In-Reply-To: <20020826162204.GB17819@kroah.com>
+References: <1030232838.1451.99.camel@ldb> 
+	<20020826162204.GB17819@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-Tf/t6WnEgnjN44Kjb6lD"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 26 Aug 2002 18:39:35 +0200
+Message-Id: <1030379975.1886.39.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208250617520.4958-100000@dad.molina>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 25, 2002 at 06:21:46AM -0500, Thomas Molina wrote:
+
+--=-Tf/t6WnEgnjN44Kjb6lD
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+> > ./drivers/usb/serial/whiteheat.c
 > 
->    Notes:
+> False positive, those functions are never even called :)
+Remove them :)
+ 
+> > ./drivers/usb/host/hc_simple.h
 > 
->    Off-list  email  sent to me regarding these reports is much 
-> appreciated. Relevant comments to a problem report will be
->    added to the discussion thread unless specifically requested not to. If 
-> you do send me a comment, please CC the list.
+> Hm, these also need to be fixed, but there doesn't seem to be a
+> maintainer for the code.  I'll just take the inline marking off of them,
+> if no one minds.
+Or you could fix them by removing the declarations and moving the
+definitions where the declarations were (if they use something declared
+between the declaration and the definition more changes are required).
 
-Do you have a pointer to the web page you are using to keep these
-threads?  You might want to add it to your post :)
 
-thanks,
+--=-Tf/t6WnEgnjN44Kjb6lD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-greg k-h
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9alnHdjkty3ft5+cRAlSIAKCwnqzXKPHOu3r+E4PY++S0OXNYhwCdFV9x
+5DRdK8BAn0Wj5qK1ONpb6m4=
+=khNU
+-----END PGP SIGNATURE-----
+
+--=-Tf/t6WnEgnjN44Kjb6lD--

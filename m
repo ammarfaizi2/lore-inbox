@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129349AbQKBXI7>; Thu, 2 Nov 2000 18:08:59 -0500
+	id <S129319AbQKBXKt>; Thu, 2 Nov 2000 18:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129319AbQKBXIu>; Thu, 2 Nov 2000 18:08:50 -0500
-Received: from c100.clearway.com ([199.103.231.100]:5394 "EHLO
-	mercury.clearway.com") by vger.kernel.org with ESMTP
-	id <S129349AbQKBXIk>; Thu, 2 Nov 2000 18:08:40 -0500
-From: Paul Marquis <pmarquis@iname.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <3A01F3EF.59761C8E@iname.com>
-Date: Thu, 02 Nov 2000 18:08:31 -0500
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.15pre3 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: Re: select() bug
-In-Reply-To: <E13rTJQ-00021U-00@the-village.bc.nu>
+	id <S129609AbQKBXKj>; Thu, 2 Nov 2000 18:10:39 -0500
+Received: from 3dyn134.com21.casema.net ([212.64.94.134]:9225 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129319AbQKBXK1>;
+	Thu, 2 Nov 2000 18:10:27 -0500
+Date: Fri, 3 Nov 2000 01:04:31 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dual XEON - >>SLOW<< on SMP
+Message-ID: <20001103010431.A3977@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0011021408040.2508-100000@saturn.homenet> <Pine.LNX.4.21.0011021738010.24579-100000@springhead.px.uk.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <Pine.LNX.4.21.0011021738010.24579-100000@springhead.px.uk.com>; from dg@px.uk.com on Thu, Nov 02, 2000 at 05:39:03PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not exactly sure what you mean by this statement.  Would you mind
-explaining further?
+On Thu, Nov 02, 2000 at 05:39:03PM +0000, Dr. David Gilbert wrote:
 
-Alan Cox wrote:
-> Most fast devices wake up when buffers are half empty for example.
+> > So, here is David's mtrr patch. Although in his case ("only" 4G) it
+> > shouldn't be needed.... it is for 36bit MTRRs I assume.
+> 
+> Thanks! That patch did the trick - our machine is now running lovely.
+
+Your very rare problem was solved in 3 hours and 50 minutes. Most commercial
+support shops try and fail to deliver 4 hour response times - this makes me
+feel warm inside :-)
+
+Regards,
+
+bert hubert
 
 -- 
-Paul Marquis
-pmarquis@iname.com
-
-If it's tourist season, why can't we shoot them?
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

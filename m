@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUHXFW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUHXFXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUHXFW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 01:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHXFW3
+	id S266555AbUHXFXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 01:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUHXFXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 01:22:29 -0400
-Received: from relay01.kbs.net.au ([203.220.32.149]:2696 "EHLO
-	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S263117AbUHXFWX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 01:22:23 -0400
-Subject: Re: config language shortcomings in 2.4
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <412ACC56.1020902@triplehelix.org>
-References: <20040819071229.GA7598@darjeeling.triplehelix.org>
-	 <20040819072826.GA16709@alpha.home.local>
-	 <412ACC56.1020902@triplehelix.org>
-Content-Type: text/plain
-Message-Id: <1093324742.8567.38.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 24 Aug 2004 15:19:02 +1000
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Aug 2004 01:23:39 -0400
+Received: from svr1.intas.net.au ([203.221.41.1]:40624 "EHLO svr1.intas.net.au")
+	by vger.kernel.org with ESMTP id S266555AbUHXFXf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 01:23:35 -0400
+Date: Tue, 24 Aug 2004 15:26:11 +1000
+Message-Id: <200408240526.i7O5QBOT025006@svr1.intas.net.au>
+From: "Ben Skeggs" <d4rk74m4@intas.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: HDD LED doesn't light.
+X-Mailer: NeoMail 1.25
+X-IPAddress: 147.109.250.25
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hello,
 
-On Tue, 2004-08-24 at 15:04, Joshua Kwan wrote:
-> Sorry for the belated response, but certainly it should not be necessary 
-> to do:
-> 
-> if [ "$CONFIG_FW_LOADER" = "m" -o "$CONFIG_FW_LOADER" = "y" ]; then
-> 	HAVE_SOME_FW_LOADER=y
-> fi
-> if [ "$CONFIG_CRC32" = "m" -o "$CONFIG_CRC32" = "m" ]; then
-> 	HAVE_SOME_CRC32=y
-> fi
-> 
-> if [ "$HAVE_SOME_CRC32" = "y" -a "$HAVE_SOME_FW_LOADER" = "y" ]; then
-> 	dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI 
-> $HAVE_SOME_FW_LOADER $HAVE_SOME_CRC32
-> fi
+No matter how much harddisk activity is occuring on my system, the 
+harddisk LED stays off.  At first I thought I'd misconnected the lead, 
+but under Windows the light is functional.
 
-Just in case someone goes to copy and paste the above, there's a typo:
-CONFIG_CRC32 = m or = m.
+This occurs on both my SATA harddisk and my PATA harddisk.
 
-> Anyway, it's all very disgusting and I'm inclined to just ignore it and 
-> maybe some benevolent soul will one day port Kconfig back to 2.4.
+SATA controller: Silicon Image sil3112
+PATA controller: NForce2
+Motherboard    : Abit NF7-S 2.0
+CPU            : AthlonXP 3000+
 
-Hehe. I had to do something similar when I made suspend 2 able to be
-compiled as modules. It could certainly be more elegant.
+The earliest kernel I've used with this hardware is 2.6.6, and the 
+problem occurs right up to 2.6.8.1.
 
-Nigel
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+I'm completely clueless as I was under the impression that the hardware 
+controlled the LED.
 
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
+Could I please be CC'd any replies as I'm not subscribed to the list.
 
+Regards,
+Ben Skeggs

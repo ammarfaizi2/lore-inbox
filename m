@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVBRTNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVBRTNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVBRTNF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 14:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVBRTNE
+	id S261462AbVBRTNw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 14:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVBRTNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 14:13:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:28045 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261453AbVBRTMo (ORCPT
+	Fri, 18 Feb 2005 14:13:52 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:5092 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261453AbVBRTNo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 14:12:44 -0500
-Message-ID: <42163E2D.8050106@osdl.org>
-Date: Fri, 18 Feb 2005 11:12:45 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 18 Feb 2005 14:13:44 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: joern@wohnheim.fh-wedel.de, lkml <linux-kernel@vger.kernel.org>
-Subject: checkstack.pl <large_number>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6 patch] drivers/net/ixgb/: possible cleanups
+Date: Fri, 18 Feb 2005 10:38:36 -0800
+Message-ID: <468F3FDA28AA87429AD807992E22D07E0450779A@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] drivers/net/ixgb/: possible cleanups
+Thread-Index: AcUVMp+hOg6VVQ75RSKguCzDBKvcWwAtdvdw
+From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>,
+       "Veeraiyan, Ayyappan" <ayyappan.veeraiyan@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>
+Cc: <jgarzik@pobox.com>, <linux-net@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Feb 2005 18:38:40.0240 (UTC) FILETIME=[10BE5700:01C515E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+>This patch contains the following possible cleanups:
 
-In checkstack.pl, do you recall the reason for this code snippet:
+Thanks for the comments. Although all your comments are valid, we will
+not be able to apply your patch as is. This is because of the way we
+have set up our source code (some of which is shared with non-GPL code).
+We will submit a patch that addresses all the issues you've raised here.
 
-		if ($size > 0x80000000) {
-			$size = - $size;
-			$size += 0x80000000;
-			$size += 0x80000000;
-		}
+We will apply your patch to ixgb_main.c as is.
 
-There is one (unusual:) case where it fails.  Is it needed?
+Thanks,
+Ganesh.
 
-For arch/i386/kernel/efi_stub.S, checkstack reports:
-
-0xc0116f5d efi_call_phys:				1073741824
-which is 0x4000_0000 (_ added for readability only), however the
-actual change in %esp there is __PAGE_OFFSET (0xc000_0000 on ia32),
-
-so if I alter the "if" test above to check for > 0xf000_0000,
-checkstack reports the correct value:
-0xc0116f5d efi_call_phys:				3221225472
-which is 0xc000_0000.
-
-
-from objdump of efi_stub.o:
-    5:	81 ea 00 00 00 c0    	sub    $0xc0000000,%edx
-
-or I can just ignore it, like I've been doing for awhile...
-
--- 
-~Randy

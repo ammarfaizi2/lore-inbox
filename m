@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264596AbTLTKMn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 05:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264602AbTLTKMn
+	id S263866AbTLTK30 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 05:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTLTK30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 05:12:43 -0500
-Received: from slimnet.xs4all.nl ([194.109.194.192]:32147 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S264596AbTLTKMl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 05:12:41 -0500
-Subject: Re: [2.6.0 cpufreq] longhaul trouble
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: Dave Jones <davej@redhat.com>
+	Sat, 20 Dec 2003 05:29:26 -0500
+Received: from 50.69-93-3.reverse.theplanet.com ([69.93.3.50]:58523 "EHLO
+	spring.persianhosted.com") by vger.kernel.org with ESMTP
+	id S263866AbTLTK3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 05:29:25 -0500
+From: Armin <Zoup@zoup.org>
+Organization: Zoup
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: FrameBuffer Problem With 2.6.0
+Date: Sat, 20 Dec 2003 13:54:25 -0900
+User-Agent: KMail/1.5.4
+References: <2CA1166592F@vcnet.vc.cvut.cz>
+In-Reply-To: <2CA1166592F@vcnet.vc.cvut.cz>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031219180406.GA24413@redhat.com>
-References: <1071851531.9835.5.camel@paragon.slim>
-	 <20031219180406.GA24413@redhat.com>
-Content-Type: text/plain
-Message-Id: <1071915226.10008.7.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 20 Dec 2003 11:13:46 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312201354.25476.Zoup@zoup.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - spring.persianhosted.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - zoup.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes it does!
-
-from dmesg:
-
-longhaul: VIA C3 'Ezra' [C5C] CPU detected. Longhaul v1 supported.
-longhaul: MinMult=3.0x MaxMult=6.0x
-longhaul: FSB: 133MHz Lowestspeed=399MHz Highestspeed=798MHz
-
-from /sys/devices/system/cpu/cpu0/cpufreq:
-
-::::::::::::::
-cpuinfo_max_freq
-::::::::::::::
-798
-::::::::::::::
-cpuinfo_min_freq
-::::::::::::::
-399
-::::::::::::::
-scaling_available_governors
-::::::::::::::
-performance
-::::::::::::::
-scaling_driver
-::::::::::::::
-longhaul
-::::::::::::::
-scaling_governor
-::::::::::::::
-performance
-::::::::::::::
-scaling_max_freq
-::::::::::::::
-798
-::::::::::::::
-scaling_min_freq
-::::::::::::::
-399
-
-Next step is to actually change the frequency. I am not really sure how
-to do that with sysfs yet.
-
-Cheers,
-
-Jurgen
+On Friday 19 December 2003 03:29, Petr Vandrovec wrote:
+> I'm not aware about any problems with matroxfb driver in Linus kernel
+> except that you should use 'video=matroxfb:nopan' to avoid problems
+> with default resolution XXXx65536 (or clip vyres yourself to reasonable
+> value). Of course all 2.6.x fbdev limits apply also to matroxfb driver.
+> If you want interface compatible with 2.4.x, you'll have to get patch
+> from ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.6.0.gz
+> (only vgacon, matroxfb and vesafb are tested).
+>
 
 
+Just enable VesaFB and set vga to 791 , without compiling anything else , now 
+frame buffer are working perfectly :)
 
+thanks everyone who helped ;) 
+
+-- 
+Kissing a fish is like smoking a bicycle.
 

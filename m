@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbUKZX5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbUKZX5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbUKZX5q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbUKZX5N
+	id S262468AbUKZX5r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbUKZX5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 18:57:13 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:35233 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263081AbUKZTmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:42:09 -0500
-Subject: Re: Suspend 2 merge: 9/51: init/* changes.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041125214524.GE2488@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101293918.5805.221.camel@desktop.cunninghams>
-	 <20041125170718.GA1417@openzaurus.ucw.cz>
-	 <1101418614.27250.21.camel@desktop.cunninghams>
-	 <20041125214524.GE2488@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101419500.27250.41.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 26 Nov 2004 08:51:41 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 18:57:22 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:9413 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263076AbUKZTlf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:41:35 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: where do packet Capture Drivers fit? 
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Thu, 25 Nov 2004 19:06:34 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348111ED723@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: where do packet Capture Drivers fit? 
+Thread-Index: AcTS1WYLUyqKxK/ETwOfXB1H6o3l+wAGk5ww
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Fri, 2004-11-26 at 08:45, Pavel Machek wrote:
-> Hi!
-> 
-> > > And if you really want to make it changeable, pass major:minor from userland; once
-> > > userland is running getting them is easy.
-> > 
-> > Yes, but that's also far uglier, and who thinks in terms of major and
-> > minor numbers anyway? I think of my harddrive as /dev/sda, not 08:xx.
-> > The parsing accepts majors and minors, of course, but shouldn't we make
-> > these things easier to do, not harder? (Would we insist on using majors
-> > and minors for root=?).
-> 
-> Kernel interface is not supposed to be "easy". root= has exception,
-> that's init code, and you can't easily ls -al /dev at that point. If
-> you want easy interface, create userland program that looks up
-> minor/major in /dev/ and uses them.
+Hello all,
 
-That's a fair possibility, but is it really worth it when all we need to
-do is make two routines not be init? We would still have to duplicate
-some of this code elsewhere anyway, because we need to parse the major
-and minor numbers.
+I am studying & planning to implement the packet capture drivers.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+According what info I gathered from the net and other sources, I
+visualize it as follows:-
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+When interested in specific traffic i.e. to sniff on port 23 (telnet) in
+search of passwords or perhaps we want to highjack a file being sent
+over port 21 (FTP), whatever the case, rarely do we just want to blindly
+sniff all network traffic. Then we enter pcap_compile() and
+pcap_setfilter().
+
+First, pcap's filter is more efficient, because it does it directly with
+the BPF filter.
+
+So, I imagine the calls to pcap_compile() and pcap_setfilter() functions
+will invoke the packet capture driver.
+
+Am I right? How & where do I get the Architecture of the packet capture
+driver & where exactly it fits?
+
+Sorry, if I have posted in a wrong place. In such case, do guide me with
+the right maillists or site address.
+
+Thanks for the help in advance.
+
+Regards,
+Mukund jampala
+
 

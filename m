@@ -1,143 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbTABVHm>; Thu, 2 Jan 2003 16:07:42 -0500
+	id <S266528AbTABVSZ>; Thu, 2 Jan 2003 16:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266528AbTABVHm>; Thu, 2 Jan 2003 16:07:42 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:13316 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S266514AbTABVHk>;
-	Thu, 2 Jan 2003 16:07:40 -0500
-Message-ID: <3E14ABF8.2050304@walrond.org>
-Date: Thu, 02 Jan 2003 21:15:36 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S266535AbTABVSZ>; Thu, 2 Jan 2003 16:18:25 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11782
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S266528AbTABVSY>; Thu, 2 Jan 2003 16:18:24 -0500
+Date: Thu, 2 Jan 2003 13:26:24 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Schwartz <davids@webmaster.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL and Nvidia
+In-Reply-To: <20030102204808.AAA9757@shell.webmaster.com@whenever>
+Message-ID: <Pine.LNX.4.10.10301021315170.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: pci problems (was e1000 not detected in 2.5.53
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.53 and 2.5.54 do not seem to find everything on the pci bus on this 
-asus pr-dls m/b
+On Thu, 2 Jan 2003, David Schwartz wrote:
 
-With 2.4.20+ I see
+> 
+> On Thu, 2 Jan 2003 12:21:59 -0500 (EST), Gerhard Mack wrote:
+> 
+> >There are strong reasons why GPL is a good thing and I prefer it to BSD.
+> >IMO GPL makes it easier to add code to a common base without risking
+> >someone taking the code and adding code+theircode and releasing a
+> >proprietary competing project what's always 3 steps ahead of the open
+> >source version.  For all the complaints it gets the GPL does what it's
+> >designed to do and that's  a good thing.
+> 
+> 	I don't understand why making proprietary software better and cheaper than 
+> it would otherwise be is a bad thing.
+> 
+> 	It will be better because it will have a stronger base to build on. It will 
+> be cheaper both because it will be easier to construct and because it will 
+> have to compete with free software that is more similar to it.
+> 
+> 	And, believe it or not, free software benefits as much from competition as 
+> proprietary software does.
+> 
+> 	DS
 
-hal3 root # cat /proc/pci
-PCI devices found:
-...
+AH!  A man of reason here!
 
-   Bus  0, device   0, function  0:
-     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 19).
-   Bus  0, device   0, function  1:
-     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 0).
-   Bus  0, device   0, function  2:
-     Host bridge: PCI device 1166:0000 (ServerWorks) (rev 0).
-   Bus  0, device   2, function  0:
-     Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 16).
-       IRQ 18.
-       Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-       Non-prefetchable 32 bit memory at 0xfd800000 [0xfd800fff].
-       I/O at 0xd800 [0xd83f].
-       Non-prefetchable 32 bit memory at 0xfd000000 [0xfd01ffff].
-   Bus  0, device   3, function  0:
-     VGA compatible controller: ATI Technologies Inc Rage XL (rev 39).
-       IRQ 46.
-       Master Capable.  Latency=32.  Min Gnt=8.
-       Non-prefetchable 32 bit memory at 0xfc000000 [0xfcffffff].
-       I/O at 0xd400 [0xd4ff].
-       Non-prefetchable 32 bit memory at 0xfb800000 [0xfb800fff].
-   Bus  0, device  15, function  0:
-     ISA bridge: ServerWorks CSB5 South Bridge (rev 147).
-       Master Capable.  Latency=32.
-   Bus  0, device  15, function  3:
-     Host bridge: ServerWorks GCLE Host Bridge (rev 0).
-   Bus  0, device  16, function  0:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus  0, device  16, function  2:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus  0, device  17, function  0:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus  0, device  17, function  2:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus 14, device   4, function  0:
-     SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
-53c1030 (rev 7).
-       IRQ 22.
-       Master Capable.  Latency=32.  Min Gnt=17.Max Lat=18.
-       I/O at 0xa000 [0xa0ff].
-       Non-prefetchable 64 bit memory at 0xfa000000 [0xfa00ffff].
-       Non-prefetchable 64 bit memory at 0xf9800000 [0xf980ffff].
-   Bus 14, device   4, function  1:
-     SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
-53c1030 (#2) (rev 7).
-       IRQ 23.
-       Master Capable.  Latency=32.  Min Gnt=17.Max Lat=18.
-       I/O at 0x9800 [0x98ff].
-       Non-prefetchable 64 bit memory at 0xf9000000 [0xf900ffff].
-       Non-prefetchable 64 bit memory at 0xf8800000 [0xf880ffff].
-   Bus 18, device   2, function  0:
-     Ethernet controller: Intel Corp. 82544GC Gigabit Ethernet 
-Controller (rev 2).
-       IRQ 19.
-       Master Capable.  Latency=32.  Min Gnt=255.
-       Non-prefetchable 64 bit memory at 0xf8000000 [0xf801ffff].
-       Non-prefetchable 64 bit memory at 0xf7800000 [0xf781ffff].
-       I/O at 0x9400 [0x941f].
+It would be nice if "LI" got in the business of issuing license
+subscriptions for binary only modules.  Where the binary vendor must
+register and pay a royality fee.  This fee would be used to support "LI"
+and defend Linux in a court case if needed.
 
+I personally would gladly pay a reasonable (usual and customary) fee for
+the service and right to sell binary models with out having to pay a
+lawyer to write a "position" and be prepared to sue every snot nose brat
+in the world.
 
-But with 2.5.53/2.5.54 bus 14 and bus 18 are missing:
+Otherwise, one has to deal with unreasonable people.
 
-hal3 root # cat /proc/pci
-PCI devices found:
-   Bus  0, device   0, function  0:
-     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 19).
-   Bus  0, device   0, function  1:
-     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 0).
-   Bus  0, device   0, function  2:
-     Host bridge: PCI device 1166:0000 (ServerWorks) (rev 0).
-   Bus  0, device   2, function  0:
-     Ethernet controller: Intel Corp. 82557/8/9 [Ethernet  (rev 16).
-       IRQ 18.
-       Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-       Non-prefetchable 32 bit memory at 0xfd800000 [0xfd800fff].
-       I/O at 0xd800 [0xd83f].
-       Non-prefetchable 32 bit memory at 0xfd000000 [0xfd01ffff].
-   Bus  0, device   3, function  0:
-     VGA compatible controller: ATI Technologies Inc Rage XL (rev 39).
-       IRQ 46.
-       Master Capable.  Latency=32.  Min Gnt=8.
-       Non-prefetchable 32 bit memory at 0xfc000000 [0xfcffffff].
-       I/O at 0xd400 [0xd4ff].
-       Non-prefetchable 32 bit memory at 0xfb800000 [0xfb800fff].
-   Bus  0, device  15, function  0:
-     ISA bridge: ServerWorks CSB5 South Bridge (rev 147).
-       Master Capable.  Latency=32.
-   Bus  0, device  15, function  3:
-     Host bridge: PCI device 1166:0225 (ServerWorks) (rev 0).
-   Bus  0, device  16, function  0:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus  0, device  16, function  2:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus  0, device  17, function  0:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
-   Bus  0, device  17, function  2:
-     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
-       Master Capable.  Latency=64.
+There are people who do not work for distros or have found that other
+companies want to control their contributions to GPL, but need a means to
+support themselves with there other works related to emerging
+technologies.
 
+Obviously I am being way to sensible about the issue, and should go use
+NetBSD instead and give them the license money.
 
-ACPI is enabled in both cases (Won't boot with pci=noacpi)
+Regards,
 
-Any help solving this apprieciated (Just got a gigabit switch for this 
-cluster and keen to get it working with 2.5 as I'm using Uli's nptl)
-
-Andrew Walrond
+Andre Hedrick
+LAD Storage Consulting Group
 

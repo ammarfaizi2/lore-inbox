@@ -1,88 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129105AbQKIREB>; Thu, 9 Nov 2000 12:04:01 -0500
+	id <S129239AbQKIRHL>; Thu, 9 Nov 2000 12:07:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129239AbQKIRDl>; Thu, 9 Nov 2000 12:03:41 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:21259 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129181AbQKIRDV>;
-	Thu, 9 Nov 2000 12:03:21 -0500
-Message-ID: <3A0AD8B5.9BB73A7D@mandrakesoft.com>
-Date: Thu, 09 Nov 2000 12:02:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129459AbQKIRHB>; Thu, 9 Nov 2000 12:07:01 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:37649 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129239AbQKIRGw>; Thu, 9 Nov 2000 12:06:52 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC82@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'David Ford'" <david@linux.com>, Greg KH <greg@wirex.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [bug] usb-uhci locks up on boot half the time
+Date: Thu, 9 Nov 2000 09:06:31 -0800 
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@caldera.de>
-CC: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>,
-        nils@kernelconcepts.de
-Subject: Re: OOPS loading cs46xx module, test11-pre1
-In-Reply-To: <200011091239.NAA05580@ns.caldera.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have an (untested) update for the cs46xx driver in Linux 2.4.
-> It includes Nils' 2.2 changes, use of initcalls (so compiled-in
-> should work) and use of the 2.4 PCI interface.
+> From: David Ford [mailto:david@linux.com]
+> 
+[snip]
+> > Is the external hub a externally powered hub, or self 
+> powered hub (does
+> > it get it's power from a plug in the wall, or from the USB 
+> bus)?  Self
+> > powered hubs are notoriously flaky and have been known to 
+> > evil things to the USB bus.
+> 
+> Either.  Currently bus (self) powered.  This hub has worked 
+> fine on my other
+> computers without any adverse affect.
 
-Patch Generally looks ok.  Comments:
+Bus-powered != self-powered.
 
-1) This code is weird:
->                if (copy_to_user(buffer, dmabuf->rawbuf + swptr, cnt)) {
->-                       if (!ret) ret = -EFAULT;
->-                       return ret;
->+                       if (!ret)
->+                               ret = -EFAULT;
->+                       break;
->                }
+Self-powered means that it has its own power cord.
 
-If you have an error condition (ret != 0), then you should not attempt
-the copy_to_user at all.
-If you do not have an error condition, you should unconditionally assign
--EFAULT to 'ret'.
+Bus-powered means that it gets its power from the USB cable.
 
-There is code like this around calls to copy_{to,from}_user and
-signal_pending that I see at a quick glance.
+Unlike Greg, I would have said that bus-powered hubs
+can be a problem -- especially when you plug too many
+devices into them that need lots of power.  What we saw
+at the USB PlugFest was hubs just shutting down when
+we did this.  :(
 
+~Randy
 
-2) this patch enabled cs_mmap, and removes a check for vma->vm_offset !=
-0.  Also that is clearly 2.2.x code, simply removing the check is
-wrong.  You should replace the check with one that checks vma->vm_pgoff
-!= 0.
-
-3) is there method or madness to the delay changes?  they are not
-explained, just changed...
-
-4) cs_probe is marked __init but cs_remove is marked __devexit.  on
-hotplug, cs_probe simply doesn't exist in the kernel anymore... boom.
-
-5) there is no need to appear zeroes to the end of these cs_pci_tbl
-entries.  Just end each with "PCI_ANY_ID,"...
-+       { PCI_VENDOR_ID_CIRRUS, 0x6001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0
-},
-+       { PCI_VENDOR_ID_CIRRUS, 0x6003, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0
-},
-+       { PCI_VENDOR_ID_CIRRUS, 0x6004, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0
-},
-
-6) remove check for pci_present(), redundant
-
-7) use pci_module_init for hotplug. quite simply:
-
-	init_module() { return pci_module_init(&my_driver); }
-
-of course for cs46xx, you will want to keep the version printk...
-
-8) xxx_MODULE_NAME was a dumb and overly-lengthy creation of mine.  Use
-instead MODNAME.
-
-
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264559AbTFQEnf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 00:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTFQEnf
+	id S264551AbTFQFOI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 01:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTFQFOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 00:43:35 -0400
-Received: from dp.samba.org ([66.70.73.150]:19172 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264559AbTFQEne (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 00:43:34 -0400
-Date: Tue, 17 Jun 2003 14:52:07 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, Matthew Wilcox <willy@debian.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: pci_domain_nr vs. /sys/devices
-Message-ID: <20030617045207.GB1172@krispykreme>
-References: <1055341842.754.3.camel@gaston> <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk> <20030611164040.E16643@flint.arm.linux.org.uk> <1055347252.612.4.camel@gaston>
+	Tue, 17 Jun 2003 01:14:08 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:10486 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S264551AbTFQFOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 01:14:05 -0400
+Date: Mon, 16 Jun 2003 22:27:12 -0700
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.71-lsm1
+Message-ID: <20030616222712.C15289@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1055347252.612.4.camel@gaston>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Now, we should also fix pci_setup_device to make this naming
-> generic to the entire kernel don't you think ? This won't
-> affect /proc/bus/pci as it doesn't use the slot_name field
-> in pci_dev, but at least it will make naming consistent.
-> 
-> (That also mean increasing slot_name size in pci.h)
+The Linux Security Modules project provides a lightweight, general purpose
+framework for access control.  The LSM interface enables developing
+security policies as loadable kernel modules.  See http://lsm.immunix.org
+for more information.
 
-Agreed. I did that in my patch since its important to be able to
-uniquely identify a device:
+2.5.71-lsm1 patch released.  This is an update up to 2.5.71 as well as
+some module updates, and various cleanups.  In line with other struct
+sock changes in 2.5.71, the sock->security field is now called
+sk_security.
 
-PCI: Enabling device: (0000:21:01.0), cmd 143
-PCI: Enabling bus mastering for device 0000:21:01.0
-e100: selftest OK.
-...
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.71/patch-2.5.71-lsm1.gz
+
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.71/ChangeLog-2.5.71-lsm1
+
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
+
+ChangeLog summary:
+
+Chris Wright:
+  o [SELINUX] update to new struct sock (struct members now prefixed with sk_)
+    TAG: v2.5.71-lsm1
+  o [LIDS] update to new struct sock (struct members now prefixed with sk_)
+  o update to new struct sock (->security becomes ->sk_security)
+  o trigger update.  Update to newer SendMail.pm, and set ReplyTo
+  o merge with 2.5.71
+  o [TPE] various cleanups
+  o [LIDS] delete lids_check_scan.c, leftover from previous lids patch
+
+Huagang Xie:
+  o [LIDS] merge 2.0.3rc1 patch
+
+Niki Rahimi:
+  o [TPE] Update doc to reflect use of sysfs
+  o [TPE] move to sysfs and fix bug in tpe_search
+  o Updates to spin lock code
+  o Added spin locks to tpe_acl
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

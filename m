@@ -1,91 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276329AbRJCObu>; Wed, 3 Oct 2001 10:31:50 -0400
+	id <S276330AbRJCOfT>; Wed, 3 Oct 2001 10:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276328AbRJCObk>; Wed, 3 Oct 2001 10:31:40 -0400
-Received: from pat.uio.no ([129.240.130.16]:47252 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S276327AbRJCObd>;
-	Wed, 3 Oct 2001 10:31:33 -0400
+	id <S276332AbRJCOfJ>; Wed, 3 Oct 2001 10:35:09 -0400
+Received: from smtp1.us.dell.com ([143.166.224.25]:47447 "EHLO
+	smtp1.us.dell.com") by vger.kernel.org with ESMTP
+	id <S276330AbRJCOfE>; Wed, 3 Oct 2001 10:35:04 -0400
+Date: Wed, 3 Oct 2001 09:35:33 -0500 (CDT)
+From: Robert Macaulay <robert_macaulay@dell.com>
+X-X-Sender: <robert@ping.us.dell.com>
+Reply-To: Robert Macaulay <robert_macaulay@dell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.10-ac4 panics when starting Oracle
+Message-ID: <Pine.LNX.4.33.0110030932530.13876-100000@ping.us.dell.com>
 MIME-Version: 1.0
-Message-ID: <15291.8540.950034.832350@charged.uio.no>
-Date: Wed, 3 Oct 2001 16:31:56 +0200
-To: jstrand1@rochester.rr.com (James D Strandboge)
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
-Subject: Re: status of nfs and tcp with 2.4
-In-Reply-To: <20011003083326.A12840@rochester.rr.com>
-In-Reply-To: <20010927105321.A15128@rochester.rr.com>
-	<shssnd88xae.fsf@charged.uio.no>
-	<20010927131030.A15669@rochester.rr.com>
-	<shslmizaejh.fsf@charged.uio.no>
-	<20011003083326.A12840@rochester.rr.com>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == James D Strandboge <jstrand1@rochester.rr.com> writes:
-
-     > By 'when a client gets congested' my understanding is you mean
-     > 'when a client is sending a lot to the server, and the server
-     > can't respond quickly enough.'  Therefore, dropping udp replies
-
-There are several scenarios. The one that worries me most on TCP
-connections is when the TCP socket on the server gets swamped for some
-reason, and the call to sendmsg() sleeps. This means that if one
-client has fired off a load of requests, and then doesn't listen for
-the reply, we can end up sleeping for a long time (and being
-unavailable to other clients).
-
-OTOH under UDP, we use nonblocking I/O, so the sendmsg() returns, and
-the server can just drop the request (as the UDP allows for quick
-resends). The thread in this scenario therefore never sleeps if a
-client is unavailable. It can only sleep on (relatively fast) disk
-I/O.
+2.4.10-ac4 will panic when starting Oracle. Oracle mounts the database, 
+and causes the following panic before it finishes with the opening. The 
+kernel is pure 2.4.10-ac4 with the qla2x00 driver patched in. The box has 
+8GB of RAM.
 
 
-     > is ok, since the client will just send it again, however, with
-     > tcp, the client will only resend every 60 seconds and that is
-     > too slow, and it blocks the socket in the meantime.  Is my
-     > understanding correct?
+ksymoops 2.4.3 on i686 2.4.10-ac4.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10-ac4/ (default)
+     -m linux-2.4.10ac4/System.map (specified)
 
-That is correct. TCP is designed to be a reliable protocol, so clients
-are allowed to assume that the server will reply to a request once it
-has been sent.
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c01d1d00, System.map says c015c090.  Ignoring ksyms_base entry
+Unable to handle kernel paging request at virtual address 00023384
+00023384
+*pde = 2f631001
+Oops: 0000
+CPU:    3
+EIP:    0010:[<00023384>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010206
+eax: 00023384   ebx: ef5fc020   ecx: 00000001   edx: ef611900
+esi: ef877200   edi: fffe4000   ebp: ef8f00e0   esp: c3ff7df8
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c3ff7000)
+Stack: c014f4fd ef5fc020 c0004f18 c0137947 ef5fc020 00000001 00000202 eec7f618 
+       00000202 c01b18f5 00000202 00000001 e83d7eac ef8f00e0 e83d7e00 c01b1a56 
+       ef8f00e0 00000001 00000000 00000000 ef877000 e83d7e00 c01b1d9f e83d7e00 
+Call Trace: [<c014f4fd>] [<c0137947>] [<c01b18f5>] [<c01b1a56>] [<c01b1d9f>] 
+   [<c01b9acb>] [<c01aee0f>] [<c01b1074>] [<f893c2e1>] [<f8934ba2>] [<f8934493>] 
+   [<c010899e>] [<c0108ba4>] [<c01053d0>] [<c01053d0>] [<c010af34>] [<c01053d0>] 
+   [<c01053d0>] [<c01053fc>] [<c0105482>] [<c0118fa8>] 
+Code:  Bad EIP value.
 
-    >> There are 2 possible strategies:
-    >>
-    >> 1 Allocate 1 thread per TCP connection
+>>EIP; 00023384 Before first symbol   <=====
+Trace; c014f4fc <end_kio_request+3c/60>
+Trace; c0137946 <bounce_end_io_read+b6/170>
+Trace; c01b18f4 <scsi_queue_next_request+44/110>
+Trace; c01b1a56 <__scsi_end_request+96/150>
+Trace; c01b1d9e <scsi_io_completion+1be/440>
+Trace; c01b9aca <rw_intr+1ca/1e0>
+Trace; c01aee0e <scsi_delete_timer+e/50>
+Trace; c01b1074 <scsi_old_done+624/640>
+Trace; f893c2e0 <[qla2x00]qla2100_callback+60/70>
+Trace; f8934ba2 <[qla2x00]qla2100_done+132/160>
+Trace; f8934492 <[qla2x00]qla2100_intr_handler+b2/130>
+Trace; c010899e <handle_IRQ_event+5e/90>
+Trace; c0108ba4 <do_IRQ+a4/f0>
+Trace; c01053d0 <default_idle+0/40>
+Trace; c01053d0 <default_idle+0/40>
+Trace; c010af34 <call_do_IRQ+6/e>
+Trace; c01053d0 <default_idle+0/40>
+Trace; c01053d0 <default_idle+0/40>
+Trace; c01053fc <default_idle+2c/40>
+Trace; c0105482 <cpu_idle+52/70>
+Trace; c0118fa8 <printk+128/140>
 
-     > This seems to be the easier of the two to implement, however
-     > you opted against this because we are putting an eventual limit
-     > on the number of clients we can serve based on NFSD_MAXSERVS.
-     > Is this correct?
+ <0>Kernel panic: Aiee, killing interrupt handler!
 
-Well... Thread limits can be changed. My main objection is that it is
-ugly. Why allocate a thread when what you want to do is to be able to
-cope with sleeping? We have non-blocking I/O, and the tcp
-'write_space()' socket routine (see the client use in
-net/sunrpc/xprt.c) that was designed to enable a thread to get called
-back once a socket is free.
+1 warning issued.  Results may not be reliable.
 
-    >> 2 Use non-blocking I/O, but allow TCP connections to defer
-    >> sending the reply until the socket is available (and allow the
-    >> thread to service other requests while the socket is busy).
-    >>
-    >> I started work on (2) last autumn, <snip>
-
-     > Are there patches for this that I could look at?
-
-  http://www.fys.uio.no/~trondmy/src/pre_alpha/linux-2.4.0-test6-rpctcp.dif
-
-It's a patch against linux-2.4.0-test6 and is basically at the 'toy'
-stage. Definitely nowhere near ready for release. IIRC though it did
-actually run fairly reliably.
-
-Cheers,
-   Trond

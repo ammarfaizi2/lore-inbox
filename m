@@ -1,32 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264875AbTANSFM>; Tue, 14 Jan 2003 13:05:12 -0500
+	id <S264730AbTANSKH>; Tue, 14 Jan 2003 13:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbTANSFM>; Tue, 14 Jan 2003 13:05:12 -0500
-Received: from mail-gw1.credit-suisse.com ([198.240.212.28]:473 "EHLO
-	mail-gw1.credit-suisse.com") by vger.kernel.org with ESMTP
-	id <S264875AbTANSFL>; Tue, 14 Jan 2003 13:05:11 -0500
-Message-ID: <F12E8D9F1EA37D4E9165C8D13ECA695201367303@sxchs017.csintra.net>
-From: "Capaul Giachen F (KADA 12)" <flurin.capaul@csfs.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [Question] Assinging of IRQ to an ethernet card
-Date: Tue, 14 Jan 2003 19:13:50 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain; charset="iso-8859-1"
-X-Security: Prun-O-Matic by Gromit
-To: unlisted-recipients:; (no To-header on input)
+	id <S264877AbTANSKH>; Tue, 14 Jan 2003 13:10:07 -0500
+Received: from in02-fes2.whowhere.com ([209.202.220.219]:15868 "HELO
+	whowhere.com") by vger.kernel.org with SMTP id <S264730AbTANSKG>;
+	Tue, 14 Jan 2003 13:10:06 -0500
+To: "Cris" <luthwyn@telefonica.net>,
+       "corrupt ppl" <linux-kernel@vger.kernel.org>
+Date: Tue, 14 Jan 2003 18:18:44  0000
+From: "Dean McEwan" <dean.mcewan@eudoramail.com>
+Message-ID: <PJJCKNAHEFNKIAAA@whowhere.com>
+Mime-Version: 1.0
+Cc: "I made some of it too, its not fair" <rms@gnu.org>
+X-Sent-Mail: off
+Reply-To: dean.mcewan@eudoramail.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Re: [ANNOUNCE] New modem driver made [CANCELLED]
+X-Sender-Ip: 62.7.146.91
+Organization: Lycos Mail  (http://www.mail.eudoramail.com)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> My ethernet card is unfortunately being assigned IRQ 19 instead of IRQ 
->> 11. 
+Thanks for your email unfortunately I/My company no longer support or
+endorse the use of any OS INCLUDING Linux, this is because of a 
+recent spat (IM also known as Hell.Surfers@cwctv.net) please use the 
+proprietary drivers available at www.mbsi.ca/cnxtlindrv, I believe
+Mr. Hedrick would say. The source code is not safe under the GPL...
+---
+Cheers, Dean.
+DM. Technologies, UK.
 
->It could be your irq line wiring to the IOAPIC, can you try booting with 
->the 'noapic' kernel parameter?
+P.S There was a nice V.90 stack for open use I made, anyone want it?
+Im now selling the license to use it as a part of a winmodem driver 
+for £9,999.99, only binary use in the community, ah revenge is sweet..
 
-Thanks, but I've tried this. It didn't work.
+Go suck a lemon Richard.
 
-Cheers,
+On Sun, 29 Dec 2002 00:14:21  A innocent bystander said...
+ Cris wrote:
+>Hi,
 
-Flurin
+>I have a Diamond Supra SST modem and I have many problems with the
+>configuration of GNU/[plz use GNU in words of this kind -DM]LiNUX (I
+>have SuSE 7.3). So, I'd be very grateful if you
+>sent me a copy of your driver.
+
+>
+
+>Thanks a lot! [DONT MENTION IT]
+
+>
+
+>luthwyn(at)telefonica.net
+
+
+Need a new email address that people can remember
+Check out the new EudoraMail at
+http://www.eudoramail.com

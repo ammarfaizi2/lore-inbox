@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVBGW0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVBGW3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVBGW0S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVBGW0R
+	id S261254AbVBGW3l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVBGW3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:26:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29113 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261281AbVBGW0H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:26:07 -0500
-Date: Mon, 7 Feb 2005 14:26:03 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8)
-Message-ID: <20050207142603.A469@build.pdx.osdl.net>
-References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050207193129.GB834@halcrow.us>; from mhalcrow@us.ibm.com on Mon, Feb 07, 2005 at 01:31:30PM -0600
+	Mon, 7 Feb 2005 17:29:41 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:32235 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261254AbVBGW3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:29:38 -0500
+Message-ID: <4207EBD4.9090104@comcast.net>
+Date: Mon, 07 Feb 2005 17:29:40 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: =?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Filesystem linking protections
+References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <4207C4C7.8080704@comcast.net> <20050207120516.A24171@build.pdx.osdl.net>
+In-Reply-To: <20050207120516.A24171@build.pdx.osdl.net>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael Halcrow (mhalcrow@us.ibm.com) wrote:
-> This is the third in a series of eight patches to the BSD Secure
-> Levels LSM.  It moves the claim on the block device from the inode
-> struct to the file struct in order to address a potential
-> circumvention of the control via hard links to block devices.  Thanks
-> to Serge Hallyn for pointing this out.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hard links still point to same inode, what's the issue that this
-addresses?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+Chris Wright wrote:
+> * John Richard Moser (nigelenki@comcast.net) wrote:
+> 
+>>I've yet to see this break anything on Ubuntu or Gentoo; Brad Spengler
+>>claims this breaks nothing on Debian.  On the other hand, this could
+>>potentially squash the second most prevalent security bug.
+> 
+> 
+> Yes I know, I've worked on distro with it as well in the past.  And it
+> has broken atd and courier in the past.  This is something that also
+> can be done in userspace using sane subdirs in +t world writable dirs,
+> or O_EXCL so there's work to be done in userspace.
+> 
+
+Yes, mkdtemp() and mkstemp().
+
+Of course we can't always rely on programmers to get it right, so the
+idea here is to make sure we ask broken code to behave nicely, and stab
+it in the face if it doesn't.  Please try to examine this in that scope.
+
+> thanks,
+> -chris
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCB+vThDd4aOud5P8RAssCAJ9L7Cf5pnvI8GdKs1P4cpM2lJvtYACZAXee
+a5kkPkxXm9YK0DFSfvDd6fQ=
+=00DK
+-----END PGP SIGNATURE-----

@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265033AbUFAQAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264904AbUFAQBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265033AbUFAQAN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbUFAQAN
+	id S264904AbUFAQBT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFAQBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:00:13 -0400
-Received: from dns1.vodatel.hr ([217.14.208.29]:29845 "EHLO dns1.vodatel.hr")
-	by vger.kernel.org with ESMTP id S265033AbUFAQAJ (ORCPT
+	Tue, 1 Jun 2004 12:01:19 -0400
+Received: from main.gmane.org ([80.91.224.249]:12943 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264904AbUFAQBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:00:09 -0400
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko.ursulin@zg.htnet.hr>
-To: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-Subject: Re: Question about IDE disk shutdown
-Date: Tue, 1 Jun 2004 17:57:13 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200406011713.59904.tvrtko.ursulin@zg.htnet.hr> <20040601154739.GA17208@bounceswoosh.org>
-In-Reply-To: <20040601154739.GA17208@bounceswoosh.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406011757.13969.tvrtko.ursulin@zg.htnet.hr>
+	Tue, 1 Jun 2004 12:01:14 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gabriel Ebner <ge@gabrielebner.at>
+Subject: Re: 2.6.7-rc2-mm1
+Date: Tue, 01 Jun 2004 17:58:46 +0200
+Message-ID: <2801394.4xBL5sa4j5@schnecke2.gabrielebner.at>
+References: <22dBi-3Hb-27@gated-at.bofh.it> <22exj-4ty-15@gated-at.bofh.it> <22fjG-56P-11@gated-at.bofh.it> <22i80-7v8-41@gated-at.bofh.it> <m34qpvjog0.fsf@averell.firstfloor.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: chello212186175067.4.14.vie.surfer.at
+User-Agent: KNode/0.7.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 June 2004 17:47, Eric D. Mudama wrote:
-> On Tue, Jun  1 at 17:13, Tvrtko A. Ur?ulin wrote:
-> >According to my hard disk manual, it is absolutely recommended to put the
-> >drive in STANDBY or SLEEP mode before power cut-off because in that way
-> > heads are nicely parked. In that way it is guaranteed to have 300000 head
-> > load/unload cycles minimum, while in other case it is just 20000 cycles.
->
-> All "modern" drives have plenty of back-EMF to park the heads properly
-> when power fails.
+Hello,
 
-Yes, but this is a kind of uncontrollable parking with much greater mechanical 
-stress. 
+Andi Kleen wrote:
+> This patch should fix it.
+> 
+> -------------------------------------------------------------
+> 
+> Fix compilation of x86-64 with NUMA off
 
-> Remember that even if you are limited to 20,000 power cycles reliably,
-> that's over 5 reboots every day for 10 years, well over the expected
-> lifetime of the drive. (unless you run windows yuk yuk)
+Thanks Andi, that fix fixed 1 error, so 2 still remain:
 
-Good point, I missed that. :) Although it would be nice if we could park the 
-heads nicely. You never know which premature failure emergency parking can 
-produce.
+  LD      .tmp_vmlinux1
+arch/x86_64/kernel/built-in.o(.init.text+0x4236): In function
+`dmi_disable_acpi':
+: undefined reference to `acpi_force'
+arch/x86_64/kernel/built-in.o(.init.text+0x42a7): In function
+`force_acpi_ht':
+: undefined reference to `acpi_force'
+make: *** [.tmp_vmlinux1] Fehler 1
+
+        Gabriel.
+
+-- 
+Gabriel Ebner - reverse "ta.renbeleirbag@eg"
+

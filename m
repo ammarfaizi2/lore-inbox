@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUKNWwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUKNXFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbUKNWwh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 17:52:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUKNWuO
+	id S261366AbUKNXFr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 18:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUKNXFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 17:50:14 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:8929 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261363AbUKNWst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 17:48:49 -0500
-Subject: Re: Compiling RHEL WS Kernels
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Paul G. Allen" <pgallen@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <bd8e30a404111407527403c134@mail.gmail.com>
-References: <200411141210.iAECAIgd011479@harpo.it.uu.se>
-	 <bd8e30a404111407527403c134@mail.gmail.com>
-Content-Type: text/plain
+	Sun, 14 Nov 2004 18:05:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27820 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261360AbUKNXFo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 18:05:44 -0500
+Message-ID: <4197E4B7.3050008@pobox.com>
+Date: Sun, 14 Nov 2004 18:05:27 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI -rc1 fixes
+References: <1100467267.23710.7.camel@mulgrave>
+In-Reply-To: <1100467267.23710.7.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1100468745.25624.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 14 Nov 2004 21:45:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-11-14 at 15:52, Paul G. Allen wrote:
-> Stupid, stupid, stupid....
-> 
-> ....I forgot mrproper. I'm so used to not having to use it that I
-> forgot. /me feels like an idiot. That said, the stock kernel should
-> have recognized my USB devices, LCD resolution, and touchpad like RH
-> 9.0 did without having to re-compile (but that's RH's problem, not
-> this list).
+James Bottomley wrote:
+> This is my first set of -rc fixes for SCSI.  The patch is available at
 
-Install kernel-unsupported. Note LCD reading is an X matter
+thankyou thankyou :)
+
 

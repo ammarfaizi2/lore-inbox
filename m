@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277933AbRJRScL>; Thu, 18 Oct 2001 14:32:11 -0400
+	id <S277945AbRJRSbl>; Thu, 18 Oct 2001 14:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277924AbRJRScC>; Thu, 18 Oct 2001 14:32:02 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:36109 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S277933AbRJRSbl>; Thu, 18 Oct 2001 14:31:41 -0400
-Date: Thu, 18 Oct 2001 11:32:08 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Chip Salzenberg <chip@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        linuxconsole-dev@lists.sourceforge.net
-Subject: Re: [PATCH] input-ps2: sprintf() params missing
-In-Reply-To: <20011017202343.A5079@perlsupport.com>
-Message-ID: <Pine.LNX.4.10.10110181131210.32143-100000@transvirtual.com>
+	id <S277924AbRJRSbW>; Thu, 18 Oct 2001 14:31:22 -0400
+Received: from web1.guha.com ([140.174.164.125]:51974 "HELO alpiri.com")
+	by vger.kernel.org with SMTP id <S277933AbRJRSbR>;
+	Thu, 18 Oct 2001 14:31:17 -0400
+Message-ID: <3BCF209A.7010609@robm.com>
+Date: Thu, 18 Oct 2001 11:34:02 -0700
+From: Rob McCool <robm@robm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: disk lockup after suspend with RH 2.4.9-0.18 and 2.4.12
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an Acer Travelmate 721 laptop on which I was running kernel 2.2.18, and have 
+upgraded first to Red Hat's rawhide 2.4.9-0.18 kernel, and then to 2.4.12 from the 
+sources. I put it back to 2.4.9 for the moment. I've been seeing the same behavior on both 
+kernels, which I hadn't seen under 2.2.
 
-> The recently advertised input-ps2 patch has a minor repeated bug, in
-> that sprintf() calls are made without enough parameters.  I'm not sure
-> what the right fix is, but the attached patch at least calls sprintf()
-> correctly.
+After the disk goes into standby or sleep mode, the system gets into a wedged state. If I 
+do something that hits the drive, I can hear it spin up again, but the kernel doesn't seem 
+to notice. At that point, any process that tries to access the disk gets wedged. This is 
+reproducible by either doing an APM suspend/resume, or by using hdparm -S1 ..., or by 
+using hdparm -y ... and doing something to awaken it. After awakening, processes which 
+only access the CPU are fine but anything which accesses the disk wedges. This means 
+things like new network connections are accepted (but not acted upon), shell processes 
+run, and the X server works for a while, but eventually all hang.
 
-Oops. It was a quick fix to deal with the extra field we have in struct
-serio whcih is not in the standard kernel. Thank you for the fix. 
+I've tried changing configuration options in the APM module, including the ones related to 
+interrupts during APM operations, but nothing seems to help. I have a copy of 2.4.2 lying 
+around which I didn't use because I needed the Orinoco driver, so I don't know yet if this 
+problem happens with 2.4.2.
+
+Does anybody know what might cause this, or have any pointers of how I can narrow this 
+down further? If someone can point me to which part of the kernel this may be happening 
+in, or give any suggestions about what might be happening and how specifically to diagnose 
+it, it would help.
+
+Thanks, Rob
 

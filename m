@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRALGz1>; Fri, 12 Jan 2001 01:55:27 -0500
+	id <S129183AbRALHaU>; Fri, 12 Jan 2001 02:30:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRALGzS>; Fri, 12 Jan 2001 01:55:18 -0500
-Received: from katarina.atri.curtin.edu.au ([134.7.130.73]:44187 "EHLO
-	katarina.atri.curtin.edu.au") by vger.kernel.org with ESMTP
-	id <S129267AbRALGzJ>; Fri, 12 Jan 2001 01:55:09 -0500
-Date: Fri, 12 Jan 2001 14:55:14 +0800 (WST)
-From: Anders Johansson <ajh@atri.curtin.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Question regarding driver developement
-Message-ID: <Pine.LNX.4.10.10101121427280.3589-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129267AbRALHaK>; Fri, 12 Jan 2001 02:30:10 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:58126 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S129183AbRALH37>;
+	Fri, 12 Jan 2001 02:29:59 -0500
+Date: Thu, 11 Jan 2001 23:26:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+Cc: linux-usb-devel@lists.sourceforge.net, f5ibh <f5ibh@db0bm.ampr.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] [PATCH] USB Config fix for 2.2.19-pre7
+Message-ID: <20010111232632.A19723@kroah.com>
+In-Reply-To: <20010110002639.B26680@wirex.com> <20010110164451.A16985@kroah.com> <5.0.2.1.2.20010111175414.03377210@mail.lauterbach.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.0.2.1.2.20010111175414.03377210@mail.lauterbach.com>; from Franz.Sirl-kernel@lauterbach.com on Thu, Jan 11, 2001 at 06:01:19PM +0100
+X-Operating-System: Linux 2.2.16-immunix (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Jan 11, 2001 at 06:01:19PM +0100, Franz Sirl wrote:
+> Why do the input handlers depend on CONFIG_USB_HID? On PPC we already have 
+> trouble with them depending on CONFIG_USB, so everybody has to select 
+> CONFIG_USB even if he just has ADB hardware.
 
-I am very sorry for disturbing the kernel development with this question
-which I suspect might be off topic. If I am totally off topic please tell
-me where to find help in your flame mails.
+Don't these input drivers _require_ the USB HID driver core to work
+properly?  
 
-I am developing a device driver (will be GPL) for a PCI board hosting two
-Digital Signal Processors (DSPs). The software running on the DSPs needs
-disk access (~10Mb/s). The board has DMA engines built in to it's PCI
-bridges which are capable of bus mastering. The Software running on the
-DSPs requires soft realtime response from the disk access.
+Or am I mistaken, and this is the 2.4.0 input core code, but
+not in a separate directory, like 2.4.0 has it?
 
-What I want to do is to stream data directly to a file on the hard drive if
-possible.
+thanks,
 
-The only way I have found so far is to write have two FIFO buffers in the
-driver (in and out) and use a daemon running in user space to manage the
-disk access. 
+greg k-h
 
-This is quite inefficient however since it requires at least 5 memcopy
-operations before the data reaches the hard drive. 
-
-I could dedicate one complete SCSI bus for the disk I/O.
-
-Is it possible to write to a file from within a device driver? 
-If it is it would save 3 memcopy operations (if I am correct :). 
-Is it advisable?
-
-I am not subscribed to this list so please reply to me personally.
-
-Thank you very much for your help.
-Best Regards,
-//Anders
-
-______________________________________________________________________
-Anders Johansson    Room 314,113  Australian Telecommunications .-_|\
-Visiting Research Associate       Research Institute (ATRI)    /     \
-telephone:  +61 8 9266 3268       Curtin Uni of Technology     P_.-._/
-e-mail: ajh@atri.curtin.edu.au            Bentley WA, 6102.         o
-______________________________________________________________________
-
+-- 
+greg@(kroah|wirex).com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,237 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310806AbSCHKst>; Fri, 8 Mar 2002 05:48:49 -0500
+	id <S293554AbSCHLHP>; Fri, 8 Mar 2002 06:07:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310807AbSCHKsk>; Fri, 8 Mar 2002 05:48:40 -0500
-Received: from gateway2.ensim.com ([65.164.64.250]:38156 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S310806AbSCHKse>; Fri, 8 Mar 2002 05:48:34 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: [PATCH] More user-space path handling cleanups 
-cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
-In-Reply-To: Your message of "Fri, 08 Mar 2002 04:25:36 EST."
-             <Pine.GSO.4.21.0203080424040.28257-100000@weyl.math.psu.edu> 
+	id <S310808AbSCHLHG>; Fri, 8 Mar 2002 06:07:06 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:14235 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S293554AbSCHLGy>; Fri, 8 Mar 2002 06:06:54 -0500
+Date: Fri, 8 Mar 2002 12:06:53 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: tw@webit.com
+Cc: linux-kernel@vger.kernel.org
+Subject: new sisfb driver 2.5.6 compile fix
+Message-ID: <20020308120653.A28906@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, tw@webit.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Mar 2002 02:48:24 -0800
-Message-Id: <E16jHvE-0005lk-00@pmenage-dt.ensim.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Broken.  __user_walk() frees the temporary name it had created, leaving
->nd->last.name pointing nowhere (BTW, that's how I fucked up in the first
->version of patch that went into -pre3).
->
+Thomas, 
 
-Oops. I guess I was wondering why you'd missed some of the getname()/
-path_lookup() instances. How about this one instead? It adds a function
-getname_walk() that returns the temporary buffer if the lookup is
-successful, or else frees the buffer and returns the error. Caller is
-responsible for freeing the buffer if it is returned. (Could maybe use a
-better name than getname_walk().)
+This patch makes your most recent work (as found on
+http://www.webit.at/~twinny/linuxsis630.shtml) compile & work on 2.5.6.
 
-namei.c |   66 +++++++++++++++++++++++++---------------------------------------
-1 files changed, 26 insertions(+), 40 deletions(-)
+Regards,
+
+bert
 
 
---- linux-2.5.6-pre3/fs/namei.c	Thu Mar  7 17:12:11 2002
-+++ linux-2.5.6-pre3.new/fs/namei.c	Fri Mar  8 02:29:47 2002
-@@ -817,16 +817,27 @@
-  * that namei follows links, while lnamei does not.
-  * SMP-safe
-  */
--int __user_walk(const char *name, unsigned flags, struct nameidata *nd)
-+static inline char *getname_walk(const char *name, unsigned flags, struct nameidata *nd)
- {
- 	char *tmp = getname(name);
--	int err = PTR_ERR(tmp);
+diff -urBb sis-orig/sis_main.c sis/sis_main.c
+--- sis-orig/sis_main.c	Wed Mar  6 19:47:21 2002
++++ sis/sis_main.c	Fri Mar  8 11:09:58 2002
+@@ -2286,7 +2286,7 @@
+ 	if (boot_cpu_data.x86 > 3)
+ 		pgprot_val(vma->vm_page_prot) |= _PAGE_PCD;
+ #endif
+-	if (io_remap_page_range(vma->vm_start, off, vma->vm_end - vma->vm_start,
++	if (io_remap_page_range(vma, vma->vm_start, off, vma->vm_end - vma->vm_start,
+ 				vma->vm_page_prot)) 
+ 		return -EAGAIN;
+ 	return 0;
+@@ -2994,7 +2994,7 @@
+ 		sisfb_crtc_to_var(&default_var);
  
- 	if (!IS_ERR(tmp)) {
--		err = path_lookup(tmp, flags, nd);
--		putname(tmp);
-+		int err = path_lookup(tmp, flags, nd);
-+		if(err) {
-+			putname(tmp);
-+			tmp = ERR_PTR(err);
-+		}
- 	}
--	return err;
-+	return tmp;
-+}
-+
-+int __user_walk(const char *name, unsigned flags, struct nameidata *nd)
-+{
-+ 	char *tmp = getname_walk(name, flags, nd);
-+	if(IS_ERR(tmp)) 
-+		return PTR_ERR(tmp);
-+	putname(tmp);
-+	return 0;
- }
- 
- /*
-@@ -1265,13 +1276,10 @@
- 
- 	if (S_ISDIR(mode))
- 		return -EPERM;
--	tmp = getname(filename);
-+	tmp = getname_walk(filename, LOOKUP_PARENT, &nd);
- 	if (IS_ERR(tmp))
- 		return PTR_ERR(tmp);
- 
--	error = path_lookup(tmp, LOOKUP_PARENT, &nd);
--	if (error)
--		goto out;
- 	dentry = lookup_create(&nd, 0);
- 	error = PTR_ERR(dentry);
- 
-@@ -1294,7 +1302,6 @@
- 	}
- 	up(&nd.dentry->d_inode->i_sem);
- 	path_release(&nd);
--out:
- 	putname(tmp);
- 
- 	return error;
-@@ -1322,16 +1329,13 @@
- {
- 	int error = 0;
- 	char * tmp;
-+	struct nameidata nd;
- 
--	tmp = getname(pathname);
-+	tmp = getname_walk(pathname, LOOKUP_PARENT, &nd);
- 	error = PTR_ERR(tmp);
- 	if (!IS_ERR(tmp)) {
- 		struct dentry *dentry;
--		struct nameidata nd;
- 
--		error = path_lookup(tmp, LOOKUP_PARENT, &nd);
--		if (error)
--			goto out;
- 		dentry = lookup_create(&nd, 1);
- 		error = PTR_ERR(dentry);
- 		if (!IS_ERR(dentry)) {
-@@ -1341,7 +1345,6 @@
- 		}
- 		up(&nd.dentry->d_inode->i_sem);
- 		path_release(&nd);
--out:
- 		putname(tmp);
- 	}
- 
-@@ -1416,14 +1419,10 @@
- 	struct dentry *dentry;
- 	struct nameidata nd;
- 
--	name = getname(pathname);
-+	name = getname_walk(pathname, LOOKUP_PARENT, &nd);
- 	if(IS_ERR(name))
- 		return PTR_ERR(name);
- 
--	error = path_lookup(name, LOOKUP_PARENT, &nd);
--	if (error)
--		goto exit;
--
- 	switch(nd.last_type) {
- 		case LAST_DOTDOT:
- 			error = -ENOTEMPTY;
-@@ -1445,7 +1444,6 @@
- 	up(&nd.dentry->d_inode->i_sem);
- exit1:
- 	path_release(&nd);
--exit:
- 	putname(name);
- 	return error;
- }
-@@ -1487,13 +1485,10 @@
- 	struct dentry *dentry;
- 	struct nameidata nd;
- 
--	name = getname(pathname);
-+	name = getname_walk(pathname, LOOKUP_PARENT, &nd);
- 	if(IS_ERR(name))
- 		return PTR_ERR(name);
- 
--	error = path_lookup(name, LOOKUP_PARENT, &nd);
--	if (error)
--		goto exit;
- 	error = -EISDIR;
- 	if (nd.last_type != LAST_NORM)
- 		goto exit1;
-@@ -1511,7 +1506,6 @@
- 	up(&nd.dentry->d_inode->i_sem);
- exit1:
- 	path_release(&nd);
--exit:
- 	putname(name);
- 
- 	return error;
-@@ -1544,19 +1538,16 @@
- 	int error = 0;
- 	char * from;
- 	char * to;
-+	struct nameidata nd;
- 
- 	from = getname(oldname);
- 	if(IS_ERR(from))
- 		return PTR_ERR(from);
--	to = getname(newname);
-+	to = getname_walk(newname, LOOKUP_PARENT, &nd);
- 	error = PTR_ERR(to);
- 	if (!IS_ERR(to)) {
- 		struct dentry *dentry;
--		struct nameidata nd;
- 
--		error = path_lookup(to, LOOKUP_PARENT, &nd);
--		if (error)
--			goto out;
- 		dentry = lookup_create(&nd, 0);
- 		error = PTR_ERR(dentry);
- 		if (!IS_ERR(dentry)) {
-@@ -1565,7 +1556,6 @@
- 		}
- 		up(&nd.dentry->d_inode->i_sem);
- 		path_release(&nd);
--out:
- 		putname(to);
- 	}
- 	putname(from);
-@@ -1622,19 +1612,16 @@
- 	int error;
- 	char * to;
- 
--	to = getname(newname);
-+	to = getname_walk(newname, LOOKUP_PARENT, &nd);
- 	if (IS_ERR(to))
- 		return PTR_ERR(to);
- 
- 	error = __user_walk(oldname, 0, &old_nd);
- 	if (error)
- 		goto exit;
--	error = path_lookup(to, LOOKUP_PARENT, &nd);
--	if (error)
--		goto out;
- 	error = -EXDEV;
- 	if (old_nd.mnt != nd.mnt)
--		goto out_release;
-+		goto out;
- 	new_dentry = lookup_create(&nd, 0);
- 	error = PTR_ERR(new_dentry);
- 	if (!IS_ERR(new_dentry)) {
-@@ -1642,11 +1629,10 @@
- 		dput(new_dentry);
- 	}
- 	up(&nd.dentry->d_inode->i_sem);
--out_release:
--	path_release(&nd);
- out:
- 	path_release(&old_nd);
- exit:
-+	path_release(&nd);
- 	putname(to);
- 
- 	return error;
+ 		fb_info.changevar = NULL;
+-		fb_info.node = -1;
++		fb_info.node = NODEV;
+ 		fb_info.fbops = &sisfb_ops;
+ 		fb_info.disp = &disp;
+ 		fb_info.switch_con = &sisfb_switch;
 
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

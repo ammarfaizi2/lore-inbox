@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267372AbTBFRdL>; Thu, 6 Feb 2003 12:33:11 -0500
+	id <S267377AbTBFRfo>; Thu, 6 Feb 2003 12:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbTBFRdL>; Thu, 6 Feb 2003 12:33:11 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:58584 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S267372AbTBFRdK>; Thu, 6 Feb 2003 12:33:10 -0500
-Message-ID: <3E429E5C.8060503@google.com>
-Date: Thu, 06 Feb 2003 09:41:48 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PATCH: add framework for ndelay (nanoseconds)
-References: <200302040533.h145Xqq19457@hera.kernel.org>	 <Pine.GSO.4.21.0302051533320.16681-100000@vervain.sonytel.be>	 <20030206174944.A17905@jurassic.park.msu.ru> <1044546783.10374.4.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267382AbTBFRfn>; Thu, 6 Feb 2003 12:35:43 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:51723 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267377AbTBFRfn>; Thu, 6 Feb 2003 12:35:43 -0500
+Date: Thu, 6 Feb 2003 17:45:20 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030206174520.A13827@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Wagner <daw@mozart.cs.berkeley.edu>,
+	linux-kernel@vger.kernel.org
+References: <200302061502.KAA06538@moss-shockers.ncsc.mil> <20030206151820.A11019@infradead.org> <b1u59n$lhl$1@abraham.cs.berkeley.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <b1u59n$lhl$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Thu, Feb 06, 2003 at 05:16:39PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+[it would be really nice if you at least Cc'ed me when replying to my mails..
+  *sigh*]
 
->Why waste 500nS every IDE command as opposed to doing the job right ? The initial
->ndelay() is a quick implementation. If you don't like it implement a better one,
->if your box isnt fast implement it as udelay.
->  
->
-The delay should be made controller specific.  On most controllers the 
-reading of the alt status we need to do to flush the write command to 
-the drive will also cause enough of a delay so that the ndelay isn't 
-needed at all.  For example the on the Promise 20265 and 20267 the alt 
-status read will always take at least 600ns.
+On Thu, Feb 06, 2003 at 05:16:39PM +0000, David Wagner wrote:
+> Christoph Hellwig  wrote:
+> >Well, selinux is still far from a mergeable shape and even needed additional
+> >patches to the LSM tree last time I checked.  This think of submitting hooks
+> >for code that obviously isn't even intende to be merged in mainline is what
+> >I really dislike, and it's the root for many problems with LSM.
+> 
+> You keep bringing up SELinux.  Maybe you dislike SELinux; I don't know.
+> In any case, LSM is not there just to support SELinux.  It's intended
+> to support a broad range of security modules and security policies.
+> LSM is bigger than just SELinux.
 
-    Ross
+I bring up selinux because it's the only module in the lsm patches that I
+consider more than just a bunch of hacks.  So, no it's not a dislike but
+they only thing I actually consider worth mentioning.
 

@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbSJ3OHV>; Wed, 30 Oct 2002 09:07:21 -0500
+	id <S264687AbSJ3OKD>; Wed, 30 Oct 2002 09:10:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264682AbSJ3OHV>; Wed, 30 Oct 2002 09:07:21 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:32994 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S264675AbSJ3OHS>; Wed, 30 Oct 2002 09:07:18 -0500
-Date: Wed, 30 Oct 2002 15:13:38 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux1394-devel@lists.sourceforge.net
-Subject: [PATCH 2.5.bk] allow sbp2 driver to compile again
-Message-ID: <20021030141338.GF17103@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux1394-devel@lists.sourceforge.net
+	id <S264685AbSJ3OKD>; Wed, 30 Oct 2002 09:10:03 -0500
+Received: from [80.247.74.2] ([80.247.74.2]:17828 "EHLO foradada.isolaweb.it")
+	by vger.kernel.org with ESMTP id <S264684AbSJ3OJy>;
+	Wed, 30 Oct 2002 09:09:54 -0500
+Message-Id: <5.1.1.6.0.20021030151220.03830ec0@mail.isolaweb.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 30 Oct 2002 15:14:50 +0100
+To: root@chaos.analogic.com
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: SDT-9000 Problem [was Re: your mail]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1021030090019.5487A-100000@chaos.analogic.co
+ m>
+References: <5.1.1.6.0.20021030132848.03a12ec0@mail.isolaweb.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-scanner: scanned by Antivirus Service IsolaWeb Agency - (http://www.isolaweb.it)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 09.04 30/10/02 -0500, you wrote:
+>On Wed, 30 Oct 2002, Roberto Fichera wrote:
+>
+> > I've a problem with a DAT on a Compaq Proliant ML350 with PIII 1GHz,
+> > 1Gb RAM, RAID controller Smart Array 451 with 3 x HDD 9Gb RAID 5
+> > and an internal SCSI controller Adaptec 7899 Ultra160 where is connected
+> > only a DAT 12/24 Gb. Current installed distribution is RH7.3 with its 
+> kernel
+> > 2.4.18-10 but I've tryed the standard 2.4.19 with the same problem.
+> > The problem is that the DAT don't work any more with Linux. This DAT work
+> > well on Win2K :-(! Below  there is some logs and a 'ps fax' showing a 
+> tar in
+> > D state.
+> >
+> > Does anyone know a solution ?
+>
+> >
+> > Adaptec AIC7xxx driver version: 6.2.6
+> > aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+> > Corrupted Serial EEPROM
+>^^^^^^^^^^^^^^^^^^^^^^^^^
+>
+>I think your controller has fallen-back into survival mode
+>because it lost it's mind. You may want to upgrade the
+>controller BIOS to fix this problem. Then, see if it handles
+>tapes okay.
 
-The attached patch is required to make the sbp2 compile again.
+Grrr!!! I haven't see this one! I must look better the dmesg output ;-)
+Thanks I'll try to upgrade the controller BIOS to see if this fix the
+problem.
 
-Note however that, until 2.5.45 is released, one should tweak 
-the Makefile to manually change the version in order to get
-the KERNEL_VERSION tests work...
 
-Stelian.
 
-===== drivers/ieee1394/sbp2.h 1.10 vs edited =====
---- 1.10/drivers/ieee1394/sbp2.h	Sat Oct 12 23:40:06 2002
-+++ edited/drivers/ieee1394/sbp2.h	Wed Oct 30 12:32:39 2002
-@@ -549,10 +549,11 @@
- static int sbp2scsi_detect (Scsi_Host_Template *tpnt);
- static const char *sbp2scsi_info (struct Scsi_Host *host);
- void sbp2scsi_setup(char *str, int *ints);
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,28)
--static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]);
-+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,44)
-+static int sbp2scsi_biosparam (struct scsi_device *sdev,
-+		struct block_device *dev, sector_t capacity, int geom[]);
- #else
--static int sbp2scsi_biosparam (Scsi_Disk *disk, struct block_device *dev, int geom[]);
-+static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]);
- #endif
- static int sbp2scsi_abort (Scsi_Cmnd *SCpnt); 
- static int sbp2scsi_reset (Scsi_Cmnd *SCpnt); 
-===== drivers/ieee1394/sbp2.c 1.16 vs edited =====
---- 1.16/drivers/ieee1394/sbp2.c	Tue Oct 29 01:27:33 2002
-+++ edited/drivers/ieee1394/sbp2.c	Wed Oct 30 12:32:58 2002
-@@ -3139,12 +3139,12 @@
-  */
- #if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,44)
- static int sbp2scsi_biosparam (struct scsi_device *sdev,
--		struct block_device *dev, sector_t capacy, int geom[]) 
-+		struct block_device *dev, sector_t capacity, int geom[]) 
- {
- #else
- static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]) 
- {
--	sector_t capacy = disk->capacity;
-+	sector_t capacity = disk->capacity;
- #endif
- 	int heads, sectors, cylinders;
- 
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+>    Bush : The Fourth Reich of America
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+Roberto Fichera.
+
+
+______________________________________
+E-mail protetta dal servizio antivirus di IsolaWeb Agency & ISP
+http://wwww.isolaweb.it

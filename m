@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbTLVHPo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 02:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTLVHPo
+	id S264333AbTLVHh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 02:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTLVHh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 02:15:44 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:19215 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264322AbTLVHPn (ORCPT
+	Mon, 22 Dec 2003 02:37:58 -0500
+Received: from imr1.ericy.com ([198.24.6.9]:9949 "EHLO imr1.ericy.com")
+	by vger.kernel.org with ESMTP id S264333AbTLVHh5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 02:15:43 -0500
-Date: Sun, 21 Dec 2003 23:19:18 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ioe-lkml@rameria.de
-Subject: Re: [PATCH] another minor bit of cpumask cleanup
-Message-Id: <20031221231918.34fcca86.pj@sgi.com>
-In-Reply-To: <20031221224745.268db46d.akpm@osdl.org>
-References: <20031221180044.0f27eca1.pj@sgi.com>
-	<20031221224745.268db46d.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 Dec 2003 02:37:57 -0500
+From: Frederic Rossi <frederic.rossi@ericsson.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16358.40543.878289.421591@localhost.localdomain>
+Date: Mon, 22 Dec 2003 02:33:51 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Frederic Rossi <frederic.rossi@ericsson.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] AEM v0.5.3 on kernel 2.6.0
+In-Reply-To: <3FE2203A.7090608@pobox.com>
+References: <16354.4831.508501.934390@localhost.localdomain>
+	<3FE2203A.7090608@pobox.com>
+X-Mailer: VM 7.07 under Emacs 21.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please, hang onto it until we get things synced up a bit more.
 
-Ok - good idea.  I'll resend later on.  There is no hurry on this one.
+Jeff Garzik wrote:
+> Frederic Rossi wrote:
+> > 
+> > AEM (Asynchronous Event Mechanism) is an extension providing a native 
+> > support for asynchronous events in the Linux kernel. 
+> 
+> 
+> The kernel already supports this, 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+this? you mean crossing the kernel to user space right?
+
+> via netlink.
+> 
+
+I can imagine many ways to solve "this", netlink, write data
+to the file system, /proc or whatever system calls (read ()?)
+
+For this specific part AEM is using a memory based scheme.
+Unless you have something very specific in mind, I don't see
+how netlink could be of any help to solve the problem efficiently.
+
+> 	Jeff
+
+Frederic

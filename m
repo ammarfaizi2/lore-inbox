@@ -1,124 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267110AbSL3Xtn>; Mon, 30 Dec 2002 18:49:43 -0500
+	id <S267136AbSL3X4M>; Mon, 30 Dec 2002 18:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267090AbSL3XsO>; Mon, 30 Dec 2002 18:48:14 -0500
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:3593 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S267104AbSL3Xps>; Mon, 30 Dec 2002 18:45:48 -0500
-Message-Id: <5.1.1.6.2.20021231003031.03333370@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Tue, 31 Dec 2002 00:54:17 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: system_lists@nullzone.org
-Subject: Re: Highpoint HPT370 not working in 2.4.18+ versions
-Cc: Scott McDermott <vaxerdec@frontiernet.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1041253856.13076.5.camel@irongate.swansea.linux.org.uk>
-References: <5.1.1.6.2.20021230100446.03168ec8@192.168.2.131>
- <5.1.1.6.2.20021226012834.037b9558@192.168.2.131>
- <5.1.1.6.2.20021226012834.037b9558@192.168.2.131>
- <5.1.1.6.2.20021230100446.03168ec8@192.168.2.131>
+	id <S267141AbSL3X4M>; Mon, 30 Dec 2002 18:56:12 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:64271 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267136AbSL3X4H>;
+	Mon, 30 Dec 2002 18:56:07 -0500
+Date: Mon, 30 Dec 2002 15:59:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pnp & pci structure cleanups
+Message-ID: <20021230235934.GE814@kroah.com>
+References: <Pine.LNX.4.33.0212291228200.532-100000@pnote.perex-int.cz> <20021230221212.GE32324@kroah.com> <1041289960.13684.180.camel@irongate.swansea.linux.org.uk> <20021230225012.GA19633@gtf.org> <20021230225134.GD814@kroah.com> <20021230231436.GA20810@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021230231436.GA20810@gtf.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:10 30/12/2002 +0000, Alan Cox wrote:
->On Mon, 2002-12-30 at 09:10, system_lists@nullzone.org wrote:
-> >
-> > Hi there Scott,
-> >
-> >     my card (which not need any patch for working on in 2.4.18 but doesnt
-> > work (its simply not detected) on next versions) is:
-> >
-> > HighPoint Technologies, Inc.
-> > HPT370 UDMA/ATA100 RAID Controller BIOS v1.0.3b1
-> >
-> > have u any idea?
->
->Make sure you have the HPT driver compiled into your kernel
+On Mon, Dec 30, 2002 at 06:14:36PM -0500, Jeff Garzik wrote:
+> On Mon, Dec 30, 2002 at 02:51:34PM -0800, Greg KH wrote:
+> > On Mon, Dec 30, 2002 at 05:50:12PM -0500, Jeff Garzik wrote:
+> > > Note that we need a way to do field replacement of PCI id tables.
+> > > 
+> > > I've been harping on that to various ears for years :)
+> > 
+> > And USB id tables.  A number of usb drivers are slowly adding module
+> > paramater hacks to get around this, but it would be really nice to do
+> > this "correctly" for all drivers.  Somehow...
+> 
+> Surely there is a sysfs path we can devise to do
+> 
+> 	echo "add <pci_device_id line>" > /sys/pci/driver/tulip
+> 
+> (or replace that with a file-oriented interface that inputs an entire
+> table)
+> 
+> and internally just refer to, and update, a kmalloc'd copy of the
+> original driver's pci (or usb) table.
 
-Yes,
+Yes, that would be a good thing to have, I sure would like that.
 
-   i will rewrite my original mail:
+(hint, hint, hint, for anyone wanting a way to contribute...)
 
-----------
+> > > <tangent>
+> > > I also want to add PCI revision id and mask to struct pci_device_id.
+> > > </tangent>
+> > 
+> > Do any drivers need that today?  It shouldn't be that hard to do it, and
+> > now is the time :)
+> 
+> Yes.  tulip driver could find this useful, but that's currently a small
+> case worked around in the driver.
+> 
+> The big and annoying case is 8139C+ (8139cp.c), which has the same
+> PCI id as old 8139 boards, but additionally includes dramatically new
+> and better functionality.  The distinguishing characteristic at the
+> probe phase is the PCI revision id, as the PCI id is the same as another
+> driver.
 
+Ok, sounds like a good enough reason to add these fields :)
 
-* BOOTing using 2.4.18 (All ok here)
---------
-VP_IDE: not 100% native mode: will probe irqs later
-ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
-ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:pio, hdd:pio
-HPT370A: IDE controller on PCI bus 00 dev 50
-PCI: Found IRQ 11 for device 00:0a.0
-HPT370A: chipset revision 4
-HPT370A: not 100% native mode: will probe irqs later
-ide2: BM-DMA at 0xc000-0xc007, BIOS settings: hde:pio, hdf:pio
-ide3: BM-DMA at 0xc008-0xc00f, BIOS settings: hdg:pio, hdh:pio
-hda: FUJITSU MPA3026ATU, ATA DISK drive
-hde: ST380020A, ATA DISK drive
-hdf: ST360020A, ATA DISK drive
-hdg: ST380020A, ATA DISK drive
-hdh: ST360020A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide2 at 0xb000-0xb007,0xb402 on irq 11
-ide3 at 0xb800-0xb807,0xbc02 on irq 11
-hda: 5126964 sectors (2625 MB), CHS=635/128/63
-hde: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
-hdf: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
-hdg: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
-hdh: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
-Partition check:
-hda: hda1 hda2 hda3 hda4
-hde: unknown partition table
-hdf: unknown partition table
-hdg: [PTBL] [9729/255/63] hdg1
-hdh: unknown partition table
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 96M
-agpgart: Detected Via Apollo Pro chipset
-agpgart: AGP aperture is 64M @ 0xd8000000
-ataraid/d0: ataraid/d0p1
-Highpoint HPT370 Softwareraid driver for linux version 0.01
-Drive 0 is 76319 Mb
-Drive 1 is 57241 Mb
-Raid array consists of 2 drives.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
---------
+thanks,
 
-
-* BOOTing using 2.4.20 (or 2.4.21-pre2)
---------------------
-...
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 96M
-agpgart: Detected Via Apollo Pro chipset
-agpgart: AGP aperture is 64M @ 0xd8000000
-Highpoint HPT370 Softwareraid driver for linux version ...
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-...
-
-You can notice how the driver for HPT is loaded but nothing is found.
-OF COURSE hde hdf etc is NOT found .. (at the begining of the boot).
-
-Let me know what exactly u need for a good debug and i will get u all 
-notes/files u need.
-
---------
-
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
+greg k-h

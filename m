@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314340AbSFXQCH>; Mon, 24 Jun 2002 12:02:07 -0400
+	id <S314381AbSFXQIW>; Mon, 24 Jun 2002 12:08:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSFXQCG>; Mon, 24 Jun 2002 12:02:06 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:8699 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S314340AbSFXQCF>; Mon, 24 Jun 2002 12:02:05 -0400
-Date: Mon, 24 Jun 2002 18:02:26 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Frank Davis <fdavis@si.rr.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.24 : drivers/net/defxx.c
-In-Reply-To: <3D173755.8030806@si.rr.com>
-Message-ID: <Pine.GSO.3.96.1020624175539.22509O-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314395AbSFXQIV>; Mon, 24 Jun 2002 12:08:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43230 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314381AbSFXQIV>;
+	Mon, 24 Jun 2002 12:08:21 -0400
+Date: Mon, 24 Jun 2002 09:02:06 -0700 (PDT)
+Message-Id: <20020624.090206.44274295.davem@redhat.com>
+To: roy@karlsbakk.net
+Cc: jes@trained-monkey.org, haveblue@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: acenic >4gig sendfile problem
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200206241755.00082.roy@karlsbakk.net>
+References: <3D05204B.4010103@us.ibm.com>
+	<m3r8iwvgl8.fsf@trained-monkey.org>
+	<200206241755.00082.roy@karlsbakk.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002, Frank Davis wrote:
+   From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+   Date: Mon, 24 Jun 2002 17:54:59 +0200
 
-> According to 
-> http://www.compaq.com/products/quickspecs/10477_na/10477_na.HTML
-> 
-> it explictly states 32-bit DMA addressing. It doesn't state anything to 
-> suggest 48-bit addressing, which I would think it would if it were possible.
+   sendfile() doesn't support >4gig anyway - does it?
+   that's the (yet unimplemented) sendfile64()
 
- The page seems to refer to 32-bit data tranfers only, which is what an
-average customer is about to understand.  They don't even claim Linux
-support anymore, like Digital used to for the A and B versions. 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Nothing to do with file offsets.  It has to do with what physical page
+the file data ends up in which can be anywhere.

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264944AbTBEWCl>; Wed, 5 Feb 2003 17:02:41 -0500
+	id <S265037AbTBEWGl>; Wed, 5 Feb 2003 17:06:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbTBEWCl>; Wed, 5 Feb 2003 17:02:41 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:60943 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264944AbTBEWCk>;
-	Wed, 5 Feb 2003 17:02:40 -0500
-Date: Wed, 5 Feb 2003 14:07:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, torvalds@transmeta.com,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Message-ID: <20030205220755.GA21652@kroah.com>
-References: <200302051647.LAA05940@moss-shockers.ncsc.mil> <20030205164948.A22628@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030205164948.A22628@infradead.org>
-User-Agent: Mutt/1.4i
+	id <S265063AbTBEWGl>; Wed, 5 Feb 2003 17:06:41 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:37895
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S265037AbTBEWGk>; Wed, 5 Feb 2003 17:06:40 -0500
+Message-ID: <3E418CDF.7020001@rackable.com>
+Date: Wed, 05 Feb 2003 14:14:55 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Larson <plars@linuxtestproject.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Cerberus
+References: <1044475584.30331.135.camel@plars>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Feb 2003 22:16:07.0547 (UTC) FILETIME=[2E3564B0:01C2CD64]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 04:49:48PM +0000, Christoph Hellwig wrote:
-> No it seems not pointless.  You add tons of undesigned cruft to 2.5 that
-> will have to be maintained through all of 2.6. unless Linus hopefully
-> pulls the plug soon enough.
+Paul Larson wrote:
 
-I'm tired of reading this crap every time I submit a LSM patch.
+>I saw a comment late last week that someone was seeing cerberus crash
+>instantaneously with 2.5 on UP machines, so I decided to try to
+>reproduce this problem.  I got the latest version of ceerbuerus and put
+>it on a single processor pIII-866 256MB ram, linux-2.5.59 kernel. 
+>Newburn has been running for just under 5 days now without so much as a
+>hiccup.
+>
+>1. Has anyone had first hand experience with this instability?
+>
+>2. If so, were you just running the default newburn, or something else? 
+>Please let me know if you did something different that caused it to
+>crash.
+>  
+>
 
-I'll say it for the last time...  LSM was designed and didn't just plop
-into existence.  The group has published numerous design documents both
-explaining the decisions and rational behind the design and
-implementation of the project.  They are available at lsm.immunix.org,
-as you probably already know.  I know you don't like the implementation
-we currently have, but as no one has stepped up with a different
-implementation, that has been designed and tested to work for an
-extremely wide range of different security models, I suggest you stop
-this kind of attack.
+  I've run Cerberus on a number of smp 2.5 kernels without issue.  You 
+might try "./newburn -t -p 2".  Remember that you can fine tune your 
+test by editing the newburn.tcf file.
 
-However, concrete criticism of specific implementation details, like you
-have done in the past is welcome, and encouraged.  I'll look into your
-comment about coding style issues that you mentioned earlier in this
-thread.
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-> You still haven't even submitted a single example that actually uses
-> LSM into mainline.
 
-Um, what's security/root_plug.c then?  :)
 
-greg k-h

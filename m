@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUIBQlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268337AbUIBQlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUIBQlG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 12:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268337AbUIBQlG
+	id S268337AbUIBQlu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 12:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIBQlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 12:41:06 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:31631 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268248AbUIBQlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 12:41:02 -0400
-Subject: Re: The argument for fs assistance in handling archives
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Stoffel <stoffel@lucent.com>
-Cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <16695.11572.597617.419870@gargle.gargle.HOWL>
-References: <20040826150202.GE5733@mail.shareable.org>
-	 <200408282314.i7SNErYv003270@localhost.localdomain>
-	 <20040901200806.GC31934@mail.shareable.org>
-	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-	 <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com>
-	 <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
-	 <4136A14E.9010303@slaphack.com>
-	 <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
-	 <4136C876.5010806@namesys.com>
-	 <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-	 <4136E0B6.4000705@namesys.com>
-	 <16695.11572.597617.419870@gargle.gargle.HOWL>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094139369.5574.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 16:36:13 +0100
+	Thu, 2 Sep 2004 12:41:49 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:63021 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id S268337AbUIBQlo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 12:41:44 -0400
+Date: Thu,  2 Sep 2004 18:33:43 +0200
+Message-Id: <I3FA07$B9F95F5CA36EF25F266ACB2FFDF85E62@tiscali.fr>
+Subject: =?iso-8859-1?Q?INVESTING_IN_YOUR_COUNTRY_FROM_MRS_SUZZAN?=
+MIME-Version: 1.0
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "=?iso-8859-1?Q?mrssuzzan@tiscali.fr?=" <mrssuzzan@tiscali.fr>
+To: "=?iso-8859-1?Q?mrssuzzan?=" <mrssuzzan@tiscali.fr>
+X-XaM3-API-Version: 3.2 R30 (B58 pl4)
+X-type: 0
+X-SenderIP: 192.115.106.236
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-02 at 15:24, John Stoffel wrote:
-> This is all pure marketing speak and economic theory. 
-
-I wouldn't grace it with the label economic theory. Lets be honest about
-this.. its pure -research-. Research is good but don't screw around with
-Linux semantics until you've done the research, figured out how to also
-make it useful to real users and proved its a good idea despite the past
-evidence from things like MacOS
+FROM: SUZZAN SAINOVIC
+EMAILS: mrssuzzan@rediffmail.com
 
 
-Alan
+Dear sir,
+
+             I need your help 
+I am the wife of Mr. Nicolai Sainovic one of the
+people of the former Yugoslavia indicted at the
+War Crime Tribunal in Hague.
+
+The indictment was politically motivated we must
+say, but there is nothing we can do now but to
+answer according to the law.
+The whole set-up we believe was a package some of
+the the western world has provided former
+Yugoslavia to contend with. 
+
+Mr. Slobodan Milutinovic and my husband had kept
+some funds, American currencies in cash to enable
+them take care of rebel problems.
+However, now that the country they seeked to
+protect has turned against them, We need to
+transfer the money out for safety from where
+it has been lodged somewhere in Europe.
+
+The fund is in excess of 75million (Seventy Five
+Million Dollars).
+It can be transferred to you under diplomatic
+immunity or be paid into offshore accounts
+through which you will lay possession of it to
+foster some investment on our behalf.
+
+Can you help? Are you capable of handling funds?
+Are you trustworthy? I have been asked to offer
+you 25%,for your assistance, Will that be ok? 
+
+Please reply to me at the earliest to enable me
+stop contacting other persons for assistance.
+Please reply me using only this e-mail address
+below because it's my personal email account:
+mrssuzzan@rediffmail.com
+
+
+
+MRS SUZZAN MARIE SAINOVIC
+
+
+
+
+
+************************ ADSL ILLIMITE TISCALI + TELEPHONE GRATUIT ************************ 
+Surfez 40 fois plus vite pour 30EUR/mois seulement !  Et téléphonez partout en France gratuitement,  
+vers les postes fixes (hors numéros spéciaux). Tarifs très avantageux vers les mobiles et l'international !
+Pour profiter de cette offre exceptionnelle, cliquez ici : http://register.tiscali.fr/adsl  (voir conditions sur le site)
+
 

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVBHPbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVBHPgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVBHPbA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 10:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBHPa7
+	id S261490AbVBHPgD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 10:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVBHPgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 10:30:59 -0500
-Received: from adsl-67-64-210-234.dsl.stlsmo.swbell.net ([67.64.210.234]:47028
-	"EHLO SpacedOut.fries.net") by vger.kernel.org with ESMTP
-	id S261399AbVBHPay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 10:30:54 -0500
-Date: Tue, 8 Feb 2005 09:29:49 -0600
-From: David Fries <dfries@mail.win.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
-Message-ID: <20050208152949.GA4203@spacedout.fries.net>
-References: <20041123212813.GA3196@spacedout.fries.net> <d120d500050201072413193c62@mail.gmail.com> <20050206131241.GA19564@ucw.cz> <200502062021.13726.dtor_core@ameritech.net> <20050207122033.GA16959@ucw.cz>
-Mime-Version: 1.0
+	Tue, 8 Feb 2005 10:36:03 -0500
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:40865 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S261490AbVBHPgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 10:36:00 -0500
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+References: <20050203033459.GA29409@bitmover.com>
+	<20050203193220.GB29712@sd291.sivit.org>
+	<20050203202049.GC20389@bitmover.com>
+	<20050203220059.GD5028@deep-space-9.dsnet>
+	<20050203222854.GC20914@bitmover.com>
+	<20050204130127.GA3467@crusoe.alcove-fr>
+	<20050204160631.GB26748@bitmover.com>
+	<Pine.LNX.4.61.0502060025020.6118@scrub.home>
+	<20050206173910.GB24160@bitmover.com>
+	<Pine.LNX.4.61.0502061859000.30794@scrub.home>
+	<20050207021030.GA25673@bitmover.com>
+	<Pine.LNX.4.61.0502071516100.30794@scrub.home>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Tue, 08 Feb 2005 15:36:02 +0000
+In-Reply-To: <Pine.LNX.4.61.0502071516100.30794@scrub.home> (Roman Zippel's
+ message of "Tue, 8 Feb 2005 15:57:14 +0100 (CET)")
+Message-ID: <tnxu0on3vz1.fsf@arm.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050207122033.GA16959@ucw.cz>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 01:20:33PM +0100, Vojtech Pavlik wrote:
-> On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
-> 
-> This should do it:
-> 
-> ChangeSet@1.2130, 2005-02-07 13:19:59+01:00, vojtech@suse.cz
->   input: Do a kill_fasync() in input handlers on device disconnect
->          to notify a client using poll() that the device is gone.
->   
->   Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-...
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
+Roman Zippel <zippel@linux-m68k.org> wrote:
+> Did you know, there are other scm systems out 
+> there? Once one studied a few of them, one basically also knows how bk 
+> works and it certainly helps to put your "facts" into perspective.
 
-I just checked it against my joystick_select test program which I
-included in an earlier e-mail and the blocking read, poll, and select
-return when I unplug the joystick.  Thanks for fixing the other
-drivers, I didn't think of looking at them.
+On the same line of ideas, a script that some people might find useful:
 
--- 
-David Fries <dfries@mail.win.org>
-http://fries.net/~david/pgpkey.txt
+http://wiki.gnuarch.org/moin.cgi/BKCVS_20to_20Arch_20Script_20for_20Linux_20Kernel
+
+Catalin
+

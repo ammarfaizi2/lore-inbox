@@ -1,250 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292979AbSCDXEn>; Mon, 4 Mar 2002 18:04:43 -0500
+	id <S292964AbSCDXHd>; Mon, 4 Mar 2002 18:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292978AbSCDXEi>; Mon, 4 Mar 2002 18:04:38 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:38893 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S292964AbSCDXEW>;
-	Mon, 4 Mar 2002 18:04:22 -0500
-Date: Mon, 4 Mar 2002 15:03:19 -0800 (PST)
-From: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Stephan von Krawczynski <skraw@ithnet.com>, <riel@conectiva.com.br>,
-        <phillips@bonn-fries.net>, <davidsen@tmr.com>, <mfedyk@matchmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020304230603.O20606@dualathlon.random>
-Message-ID: <Pine.LNX.4.33.0203041447450.17847-100000@dbear.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292970AbSCDXHX>; Mon, 4 Mar 2002 18:07:23 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:34650 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S292964AbSCDXHM>; Mon, 4 Mar 2002 18:07:12 -0500
+Date: Tue, 5 Mar 2002 00:07:40 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Diego Calleja <DiegoCG@teleline.es>
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre1-aa1 problems
+Message-ID: <20020305000740.T20606@dualathlon.random>
+In-Reply-To: <20020303214135.7fb8f07c.DiegoCG@teleline.es> <20020303233952.A11129@suse.de> <20020304224211.12c5e271.DiegoCG@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020304224211.12c5e271.DiegoCG@teleline.es>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
+On Mon, Mar 04, 2002 at 10:42:11PM +0100, Diego Calleja wrote:
+> Another X hangup today, after leaving the machine with screensaver -just as the first report of my previous message-
+> In the screen there is the image of the screensaver stopped.
+> Same modules, same 2.4.19-pre1aa1 kernel.
 
-> On Mon, Mar 04, 2002 at 10:46:54AM -0800, Martin J. Bligh wrote:
-> > >> 2) We can do local per-node scanning - no need to bounce
-> > >> information to and fro across the interconnect just to see what's
-> > >> worth swapping out.
-> > >
-> > > Well, you can achieve this by "attaching" the nodes' local memory
-> > > (zone) to its cpu and let the vm work preferably only on these attached
-> > > zones (regarding the list scanning and the like). This way you have no
-> > > interconnect traffic generated. But this is in no way related to rmap.
-> > >
-> > >> I can't see any way to fix this without some sort of rmap - any
-> > >> other suggestions as to how this might be done?
-> > >
-> > > As stated above: try to bring in per-node zones that are preferred by their cpu. This can work equally well for UP,SMP and NUMA (maybe even for cluster).
-> > > UP=every zone is one or more preferred zone(s)
-> > > SMP=every zone is one or more preferred zone(s)
-> > > NUMA=every cpu has one or more preferred zone(s), but can walk the whole zone-list if necessary.
-> > >
-> > > Preference is implemented as simple list of cpu-ids attached to every
-> > > memory zone.  This is for being able to see the whole picture. Every
-> > > cpu has a private list of (preferred) zones which is used by vm for the
-> > > scanning jobs (swap et al). This way there is no need to touch interconnection.
-> > > If you are really in a bad situation you can alway go back to the global
-> > > list and do whatever is needed.
-> >
-> > As I understand the current code (ie this may be totally wrong ;-) ) I think
-> > we already pretty much have what you're suggesting. There's one (or more)
-> > zone per node chained off the pgdata_t, and during memory allocation we
-> > try to scan through the zones attatched to the local node first. The problem
->
-> yes, also make sure to keep this patch from SGI applied, it's very
-> important to avoid memory balancing if there's still free memory in the
-> other zones:
->
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1/20_numa-mm-1
-This patch is included (in a slightly different form) in the 2.4.17
-discontig patch (http://sourceforge.net/projects/discontig).
-But martin may need another patch to apply. With the current
-implementation of __alloc_pages, we have 2 problems :
-1) A node is not emptied before moving to the following node
-2) If none of the zones on a node have more freepages than min(defined as
-   min+= z->pages_low), we start looking on the following node, instead of
-   trying harder on the same node.
+Never seen this one and I changed nothing in select and af_unix. can you
+send me the output of objdump -d fs/select.o too so I can find exactly
+which line of C code is oopsing? (make fs/select.lst and sending me
+select.lst would be fine too)
 
-I have a patch that tries to fix these problems. Of course this patch
-makes sense only with either the discontig patch or the SGI patch Andrea
-mentioned applied. I'd appreciate your feedback on this piece of code.
-
-This patch is against 2.4.19-pre2:
-
---- linux-2.4.19-pre2/mm/page_alloc.c	Mon Mar  4 14:35:27 2002
-+++ linux-2.4.19-pre2-sam/mm/page_alloc.c	Mon Mar  4 14:38:53 2002
-@@ -339,68 +339,110 @@
-  */
- struct page * __alloc_pages(unsigned int gfp_mask, unsigned int order, zonelist_t *zonelist)
- {
--	unsigned long min;
--	zone_t **zone, * classzone;
-+	unsigned long min_low, min_min;
-+	zone_t **zone, **current_zone, * classzone, *z;
- 	struct page * page;
- 	int freed;
--
-+	struct pglist_data* current_node;
-+
- 	zone = zonelist->zones;
--	classzone = *zone;
--	min = 1UL << order;
--	for (;;) {
--		zone_t *z = *(zone++);
--		if (!z)
-+	z = *zone;
-+	for(;;){
-+		/*
-+		 * This loops scans all the zones
-+		 */
-+		min_low = 1UL << order;
-+		current_node = z->zone_pgdat;
-+		current_zone = zone;
-+		classzone = z;
-+		do{
-+			/*
-+			 * This loops scans all the zones of
-+			 * the current node.
-+			 */
-+			min_low += z->pages_low;
-+			if (z->free_pages > min_low) {
-+				page = rmqueue(z, order);
-+				if (page)
-+					return page;
-+			}
-+			z = *(++zone);
-+		}while(z && (z->zone_pgdat == current_node));
-+		/*
-+		 * The node is low on memory.
-+		 * If this is the last node, then the
-+		 * swap daemon is awaken.
-+		 */
-+
-+		classzone->need_balance = 1;
-+		mb();
-+		if (!z && waitqueue_active(&kswapd_wait))
-+			wake_up_interruptible(&kswapd_wait);
-+
-+		min_min = 1UL << order;
-+
-+		/*
-+		 * We want to try again in the current node.
-+		 */
-+		zone = current_zone;
-+		z = *zone;
-+		do{
-+			unsigned long local_min;
-+			local_min = z->pages_min;
-+			if (!(gfp_mask & __GFP_WAIT))
-+				local_min >>= 2;
-+			min_min += local_min;
-+			if (z->free_pages > min_min) {
-+				page = rmqueue(z, order);
-+				if (page)
-+					return page;
-+			}
-+			z = *(++zone);
-+		}while(z && (z->zone_pgdat == current_node));
-+
-+		/*
-+		 * If we are on the last node, and the current
-+		 * process has not the correct flags, then it is
-+		 * not allowed to empty the machine.
-+		 */
-+		if(!z && !(current->flags & (PF_MEMALLOC | PF_MEMDIE)))
- 			break;
-
--		min += z->pages_low;
--		if (z->free_pages > min) {
-+		zone = current_zone;
-+		z = *zone;
-+		do{
- 			page = rmqueue(z, order);
- 			if (page)
- 				return page;
--		}
--	}
--
--	classzone->need_balance = 1;
--	mb();
--	if (waitqueue_active(&kswapd_wait))
--		wake_up_interruptible(&kswapd_wait);
--
--	zone = zonelist->zones;
--	min = 1UL << order;
--	for (;;) {
--		unsigned long local_min;
--		zone_t *z = *(zone++);
--		if (!z)
-+			z = *(++zone);
-+		}while(z && (z->zone_pgdat == current_node));
-+
-+		if(!z)
- 			break;
--
--		local_min = z->pages_min;
--		if (!(gfp_mask & __GFP_WAIT))
--			local_min >>= 2;
--		min += local_min;
--		if (z->free_pages > min) {
--			page = rmqueue(z, order);
--			if (page)
--				return page;
--		}
- 	}
--
--	/* here we're in the low on memory slow path */
--
-+
- rebalance:
-+	/*
-+	 * We were not able to find enough memory.
-+	 * Since the swap daemon has been waken up,
-+	 * we might be able to find some pages.
-+	 * If not, we need to balance the entire memory.
-+	 */
-+	classzone = *zonelist->zones;
- 	if (current->flags & (PF_MEMALLOC | PF_MEMDIE)) {
- 		zone = zonelist->zones;
- 		for (;;) {
- 			zone_t *z = *(zone++);
- 			if (!z)
- 				break;
--
-+
- 			page = rmqueue(z, order);
- 			if (page)
- 				return page;
- 		}
- 		return NULL;
- 	}
--
-+
- 	/* Atomic allocations - we can't balance anything */
- 	if (!(gfp_mask & __GFP_WAIT))
- 		return NULL;
-@@ -410,14 +452,14 @@
- 		return page;
-
- 	zone = zonelist->zones;
--	min = 1UL << order;
-+	min_min = 1UL << order;
- 	for (;;) {
- 		zone_t *z = *(zone++);
- 		if (!z)
- 			break;
-
--		min += z->pages_min;
--		if (z->free_pages > min) {
-+		min_min += z->pages_min;
-+		if (z->free_pages > min_min) {
- 			page = rmqueue(z, order);
- 			if (page)
- 				return page;
+Did it ever happened to you on older kernels or with different X server?
+I guess the hardware, X or some driver is giving you problems, I doubt
+the problem is really in the poll afunix path.
 
 
+> 
+> 
+> ksymoops 2.4.3 on i686 2.4.19pre1.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.19pre1/ (default)
+>      -m /boot/System.map-2.4.19pre1 (default)
+> 
+> Warning: You did not tell me where to find symbol information.  I will
+> assume that the log matches the kernel and modules that are running
+> right now and I'll use the default options above for symbol resolution.
+> If the current kernel and/or modules do not match the log, you can get
+> more accurate output by telling me the kernel version and where to find
+> map, modules, ksyms etc.  ksymoops -h explains the options.
+> 
+> Mar  4 21:10:56 localhost kernel: CPU:    0
+> Mar  4 21:10:56 localhost kernel: EIP:    0010:[__pollwait+108/140]    Tainted: P
+> Mar  4 21:10:56 localhost kernel: EFLAGS: 00013286
+> Mar  4 21:10:56 localhost kernel: eax: c15d4000   ebx: c1f52000   ecx: c0206690   edx: ffffffff
+> Mar  4 21:10:56 localhost kernel: esi: c15d5f68   edi: c15e1ee0   ebp: c1289ebc   esp: c15d5f00
+> Mar  4 21:10:56 localhost kernel: ds: 0018   es: 0018   ss: 0018
+> Mar  4 21:10:56 localhost kernel: Process XFree86 (pid: 316, stackpage=c15d5000)
+> Mar  4 21:10:56 localhost kernel: Stack: c1340740 c15e1ee0 00000000 c15d5f70 c01d7d43 c15e1ee0 c1289ebc c15d5f68
+> Mar  4 21:10:56 localhost kernel:        c15e1ee0 c01a078f c15e1ee0 c1289ea0 c15d5f68 00000000 c013aec6 c15e1ee0
+> Mar  4 21:10:56 localhost kernel:        c15d5f68 00000100 00000020 c0a95a20 00000145 00000002 c15d4000 7fffffff
+> Mar  4 21:10:57 localhost kernel: Call Trace: [unix_poll+35/132] [sock_poll+35/40] [do_select+226/476] [sys_select+820/1156] [system_call+51/64]
+> Mar  4 21:10:57 localhost kernel: Code: 89 3a 89 6a 14 8d 4a 04 c7 42 04 00 00 00 00 89 41 04 89 ca
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> 
+> Code;  00000000 Before first symbol
+> 00000000 <_EIP>:
+> Code;  00000000 Before first symbol
+>    0:   89 3a                     mov    %edi,(%edx)
+> Code;  00000002 Before first symbol
+>    2:   89 6a 14                  mov    %ebp,0x14(%edx)
+> Code;  00000004 Before first symbol
+>    5:   8d 4a 04                  lea    0x4(%edx),%ecx
+> Code;  00000008 Before first symbol
+>    8:   c7 42 04 00 00 00 00      movl   $0x0,0x4(%edx)
+> Code;  0000000e Before first symbol
+>    f:   89 41 04                  mov    %eax,0x4(%ecx)
+> Code;  00000012 Before first symbol
+>   12:   89 ca                     mov    %ecx,%edx
+> 
+> 
+> 1 warning issued.  Results may not be reliable.
 
 
-
+Andrea

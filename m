@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265712AbTFSGkd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 02:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbTFSGkd
+	id S265713AbTFSGih (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 02:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265712AbTFSGih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 02:40:33 -0400
-Received: from dsl-213-023-225-224.arcor-ip.net ([213.23.225.224]:50053 "EHLO
-	server1.intern.kubla.de") by vger.kernel.org with ESMTP
-	id S265712AbTFSGk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 02:40:29 -0400
-From: Dominik Kubla <dominik@kubla.de>
-To: Martin List-Petersen <martin@list-petersen.dk>,
-       Scott Robert Ladd <coyote@coyotegulch.com>
-Subject: Re: Sco vs. IBM
-Date: Thu, 19 Jun 2003 08:54:21 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <3EF0ABB8.40007@coyotegulch.com> <1055960244.16828.18.camel@loke>
-In-Reply-To: <1055960244.16828.18.camel@loke>
+	Thu, 19 Jun 2003 02:38:37 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:55256 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265713AbTFSGig convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 02:38:36 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780DD16DB3@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'Andrew Morton'" <akpm@digeo.com>,
+       "'george anzinger'" <george@mvista.com>,
+       "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "Li, Adam" <adam.li@intel.com>
+Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
+	 sks
+Date: Wed, 18 Jun 2003 23:52:29 -0700
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306190854.21768.dominik@kubla.de>
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 18. Juni 2003 20:17 schrieb Martin List-Petersen:
->
-> I see no reason to panic yet, either.
->
-> In Europe this is taken very relaxed, also if you see the court rulings
-> that have been done (in Germany etc.). Sco get's no foot on the ground
-> before they show us some legitimate proof.
->
 
-Exactly.
+> From: Ingo Molnar [mailto:mingo@elte.hu]
+> 
+> On Wed, 18 Jun 2003, Perez-Gonzalez, Inaky wrote:
+> 
+> > My point here is: I am trying to trace where this program is making use
+> > of workqueues inside of the kernel, and I can find none. The only place
+> > where I need to look some more is inside the timer code, but in a quick
+> > glance, it seems it is not being used, so why is it affected by the
+> > reprioritization of the events/0 thread? George, can you help me here?
+> 
+> well, printk (console input/output) can already make use of keventd.
 
-There might also be some unexpected benefit for us in Europe lurking there 
-since it sheds a very unfavourable light on US IP and SW patent law which the 
-EU is currently being trying to adopt. So all of you living in the EU, please  
-point your MEP (and your state and national MP for that matter) towards this 
-mess and explain to him/her why software patents and all the other crap the 
-EU commission wants to inflict on us is not in the interest of EU consumers 
-and companies alike and let's see what happens...
+Then some output would show on my serial console when events/0 is
+reprioritized...
 
-Regards,
-  Dominik
--- 
-Those who can make you believe absurdities can make you commit
-atrocities.    (Francois Marie Arouet aka Voltaire, 1694-1778)
+OTOH, what do you think of Robert's idea of adding 20 levels of
+priorities for the kernel's sole use?
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)
 

@@ -1,95 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267607AbSLSKS4>; Thu, 19 Dec 2002 05:18:56 -0500
+	id <S267595AbSLSKQO>; Thu, 19 Dec 2002 05:16:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267608AbSLSKSz>; Thu, 19 Dec 2002 05:18:55 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:31409 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267607AbSLSKSy>;
-	Thu, 19 Dec 2002 05:18:54 -0500
-Date: Thu, 19 Dec 2002 11:26:40 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: John Reiser <jreiser@BitWagon.com>, AnonimoVeneziano <voloterreno@tin.it>,
-       Patrick Petermair <black666@inode.at>,
-       Roland Quast <rquast@hotshed.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: vt8235 fix, hopefully last variant
-Message-ID: <20021219112640.A21164@ucw.cz>
+	id <S267597AbSLSKQO>; Thu, 19 Dec 2002 05:16:14 -0500
+Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:26343
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S267595AbSLSKQN>; Thu, 19 Dec 2002 05:16:13 -0500
+Subject: NMI: IOCK error (debug interrupt?) - nope
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tqv+OxIwApaHi/NtAaRE"
+Organization: 
+Message-Id: <1040293420.12106.13.camel@lemsip>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 19 Dec 2002 10:23:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-tqv+OxIwApaHi/NtAaRE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi!
+Hello,
 
-Can you guys try out this last take on a fix for your ATAPI device
-problems? Applies against clean 2.4.20.
+A firewall of ours recently went tits up (2.4.19). It was still routing
+traffic but when I connected to SSH for example the SSH banner would not
+appear, it looked like all userspace was dead.
 
-Please report failure/success.
+When we looked in the logs there was this. Presumably the hardware is
+broken. But I wonder if anyone can confirm this? Thanks!
 
-Thanks.
+NMI: IOCK error (debug interrupt?)
+CPU:    0
+EIP:    0010:[default_idle+34/48] Not tainted
+EIP:    0010:[<c0106e12>] Not tainted
+EFLAGS: 00000246
+eax: 00000000   ebx: c0106df0   ecx: 00000032   edx: 00000019
+esi: c02f6000   edi: c02f6000   ebp: c0106df0   esp: c02f7fcc
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=3Dc02f7000)
+Stack: c0106e92 00000002 00098700 c0105000 0008e000 c02f8759 c028e6c0
+0001ffc0
+0001ffc0 0001ffc0 0001ffc0 c03404c0 c0100191
+Call Trace:    [cpu_idle+82/112] [_stext+0/48]
+Call Trace:    [<c0106e92>] [<c0105000>]
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Code: f4 c3 fb c3 8d 76 00 8d bc 27 00 00 00 00 fb b8 ff ff ff ff
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=vt8235-atapi
+--=20
+// Gianni Tedesco (gianni at ecsc dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
-ChangeSet@1.884, 2002-12-19 11:23:11+01:00, vojtech@suse.cz
-  VIA IDE: Always use slow address setup timings for ATAPI devices.
+--=-tqv+OxIwApaHi/NtAaRE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
- via82cxxx.c |   19 ++++++-------------
- 1 files changed, 6 insertions(+), 13 deletions(-)
+iD8DBQA+AZ4rkbV2aYZGvn0RAja0AKCDxDCwaZWcLTh7W/Rwv895FZWXgACeL7bD
+QK4TPJJXXcCXfEFAoSEM0BY=
+=rT05
+-----END PGP SIGNATURE-----
 
+--=-tqv+OxIwApaHi/NtAaRE--
 
-diff -Nru a/drivers/ide/pci/via82cxxx.c b/drivers/ide/pci/via82cxxx.c
---- a/drivers/ide/pci/via82cxxx.c	Thu Dec 19 11:23:42 2002
-+++ b/drivers/ide/pci/via82cxxx.c	Thu Dec 19 11:23:42 2002
-@@ -1,16 +1,5 @@
- /*
-- * $Id: via82cxxx.c,v 3.35-ac2 2002/09/111 Alan Exp $
-- *
-- *  Copyright (c) 2000-2001 Vojtech Pavlik
-- *
-- *  Based on the work of:
-- *	Michel Aubry
-- *	Jeff Garzik
-- *	Andre Hedrick
-- */
--
--/*
-- * Version 3.35
-+ * Version 3.36
-  *
-  * VIA IDE driver for Linux. Supported southbridges:
-  *
-@@ -152,7 +141,7 @@
- 	via_print("----------VIA BusMastering IDE Configuration"
- 		"----------------");
- 
--	via_print("Driver Version:                     3.35-ac");
-+	via_print("Driver Version:                     3.36");
- 	via_print("South Bridge:                       VIA %s",
- 		via_config->name);
- 
-@@ -351,6 +340,10 @@
- 		ide_timing_compute(peer, peer->current_speed, &p, T, UT);
- 		ide_timing_merge(&p, &t, &t, IDE_TIMING_8BIT);
- 	}
-+
-+	/* Always use 4 address setup clocks on ATAPI devices */
-+	if (drive->media != ide_disk)
-+		t.setup = 4;
- 
- 	via_set_speed(HWIF(drive)->pci_dev, drive->dn, &t);
- 
-
---vtzGhvizbBRQ85DL--

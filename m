@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264409AbTCXUo1>; Mon, 24 Mar 2003 15:44:27 -0500
+	id <S264413AbTCXVAi>; Mon, 24 Mar 2003 16:00:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264406AbTCXUo1>; Mon, 24 Mar 2003 15:44:27 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:10763 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264409AbTCXUo0>; Mon, 24 Mar 2003 15:44:26 -0500
-Date: Mon, 24 Mar 2003 21:55:29 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] revert register_chrdev_region change
-In-Reply-To: <UTC200303241907.h2OJ75619479.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0303242032310.5042-100000@serv>
-References: <UTC200303241907.h2OJ75619479.aeb@smtp.cwi.nl>
+	id <S264415AbTCXVAh>; Mon, 24 Mar 2003 16:00:37 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:45994 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264413AbTCXVAh>; Mon, 24 Mar 2003 16:00:37 -0500
+Date: Mon, 24 Mar 2003 13:01:52 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 496] New: No ataraid support in 2.5.65? 
+Message-ID: <539260000.1048539712@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+http://bugme.osdl.org/show_bug.cgi?id=496
 
-On Mon, 24 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+           Summary: No ataraid support in 2.5.65?
+    Kernel Version: 2.5.65
+            Status: NEW
+          Severity: high
+             Owner: alan@lxorguk.ukuu.org.uk
+         Submitter: zhen@gentoo.org
 
-> > I'm personally not yet completly happy with his interface either
-> > because he still uses the major/minor split
-> 
-> Yes, it is more elegant to register one or more ranges.
-> (But ranges of what? Ranges in dev_t space? Or in kdev_t space?
 
-Ok, I'm slightly confused now, what is the difference between the "dev_t 
-space" and the "kdev_t space"? The answer I'd like to hear is: none.
-A difference might be the encoding, that's why I mentioned the ext2 
-example. How will be e.g. 0x0301 encoded on disk with your changes?
-So far I understood kdev_t as a marker, which has to be replaced with 
-either struct block_device or char_device, so that at some point kdev_t 
-goes away completely. (Especially Al did some great work here with the 
-block layer.) You removed now part of this work by removing the i_cdev 
-pointer from the inode. What will you replace it with?
+Distribution: Gentoo 1.4_rc3
+Hardware Environment: AMD Athlon XP 1900+
+Software Environment: gcc 3.2.2/ GLIBC 2.3.2
+Problem Description:
 
-> Also, you'll notice that the current simple hash scheme is insufficient
-> if we want to have subranges that override larger ranges.
-> But life is easier if we postpone that discussion a bit.
+This may not actually be a problem, but I have not seen anything in the kernel
+config or the source itself for ataraid under x86. I have checked the mailing
+lists, but there is no pertinent information there. I am using a HighPoint 370
+PCI RAID controller. Either I am missing this, or the support is just not there.
+Any information?
 
-I'd prefer to have the discussion now, as I still don't know what we need 
-ranges or even subranges for. What problem are you trying to solve?
+Steps to reproduce: Look for ataraid support in the kernel config. It is not
+there. A `grep -irn ataraid *` in the kernel source tree returns ataraid only in
+non-x86 architectures.
 
-> # It would help a lot if you would explain what the next stages are.
-> 
-> - Polish the kernel until a change of the size of dev_t is possible.
-> - Agree on a new size for dev_t, major, minor.  Make the change.
-> - Ask Ulrich to update glibc.
-
-I don't care much about the specific major/minor encoding, I want to know 
-how it will be used at the kernel level.
-
-bye, Roman
 

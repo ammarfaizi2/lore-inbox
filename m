@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268941AbTCDBRC>; Mon, 3 Mar 2003 20:17:02 -0500
+	id <S268952AbTCDBZQ>; Mon, 3 Mar 2003 20:25:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268945AbTCDBRC>; Mon, 3 Mar 2003 20:17:02 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:4512 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S268941AbTCDBRB>;
-	Mon, 3 Mar 2003 20:17:01 -0500
-Message-Id: <200303040127.h241RNuW010735@eeyore.valparaiso.cl>
-To: Pavel Roskin <proski@gnu.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mkdep patch in 2.4.21-pre4-ac7 breaks pci/drivers 
-In-Reply-To: Your message of "Mon, 03 Mar 2003 03:32:55 CDT."
-             <Pine.LNX.4.51.0303030313450.26129@localhost.localdomain> 
-Date: Mon, 03 Mar 2003 22:27:23 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S268953AbTCDBZQ>; Mon, 3 Mar 2003 20:25:16 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:4351 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S268952AbTCDBZQ>;
+	Mon, 3 Mar 2003 20:25:16 -0500
+Date: Tue, 4 Mar 2003 02:35:30 +0100 (MET)
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+Message-Id: <200303040135.h241ZUkf019356@harpo.it.uu.se>
+To: pavel@ucw.cz
+Subject: Re: Switch APIC to driver model
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Roskin <proski@gnu.org> said:
-> On Sat, 1 Mar 2003, Horst von Brand wrote:
-> > Pavel Roskin <proski@gnu.org> said:
-> > > If I compile linux 2.4.21-pre4-ac7, then run "make depend" and "make
-> > > clean", then "make bzImage" fails in pci/drivers:
+On Mon, 3 Mar 2003 23:48:01 +0100, Pavel Machek wrote:
+>This switches to driver model, making suspend-to-ram possible. Please
+>apply,
+>								Pavel
+>
+>--- clean/arch/i386/kernel/apic.c	2003-02-28 15:10:01.000000000 +0100
+>+++ linux/arch/i386/kernel/apic.c	2003-02-28 15:33:45.000000000 +0100
 
-> > make drivers/pci/gen-devlist; pushd drivers/pci; ./gen-devlist < pci.ids; popd
+This version works a lot better than the previous one(s). My P4,
+which suspends/resumes via apm just fine with UP_APIC, survived
+two suspend/resume cycles with this patch: one synchronous
+(apm --suspend), and one asynchronous (short press on power button).
+Not having IDE oops in a BUG_ON() is a definite improvement.
 
-> > Needed for all 2.4.x I've seen (lately at least).
+I had to add an #include <linux/device.h> to apm.c, a patch hunk
+failed in oprofile, and there are some cosmetic things I don't like.
+I'll merge this with my previous version tomorrow.
 
-> That shouldn't be needed unless you skip "make depend" completely or do
-> something else wrong, or your "make" is buggy.  It shouldn't be necessary.
-
-I have been doing this for ages:
-
-   make oldconfig dep clean
-
-and it breaks here (Red Hat 8.0)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+/Mikael

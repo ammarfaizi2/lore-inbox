@@ -1,145 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVCaHa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVCaHa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVCaHa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 02:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVCaH3J
+	id S262538AbVCaHa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 02:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCaH3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 02:29:09 -0500
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:43136 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262539AbVCaH0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 02:26:03 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Date: Thu, 31 Mar 2005 02:26:02 -0500
-User-Agent: KMail/1.8
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Isaacson <adi@hexapodia.org>
-References: <20050329181831.GB8125@elf.ucw.cz> <1112135477.29392.16.camel@desktop.cunningham.myip.net.au> <20050329223519.GI8125@elf.ucw.cz>
-In-Reply-To: <20050329223519.GI8125@elf.ucw.cz>
+	Thu, 31 Mar 2005 02:29:20 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6404 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262540AbVCaH0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 02:26:24 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: AMD64 Machine hardlocks when using memset
+Date: Thu, 31 Mar 2005 10:25:56 +0300
+User-Agent: KMail/1.5.4
+References: <3NTHD-8ih-1@gated-at.bofh.it> <424B7ECD.6040905@shaw.ca>
+In-Reply-To: <424B7ECD.6040905@shaw.ca>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200503310226.03495.dtor_core@ameritech.net>
+Message-Id: <200503311025.56871.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 March 2005 17:35, Pavel Machek wrote:
-> Hi!
-> 
-> > > We currently freeze processes for suspend-to-ram, too. I guess that
-> > > disable_usermodehelper is probably better and that in_suspend() should
-> > > only be used for sanity checks... go with disable_usermodehelper and
-> > > sorry for the noise.
+On Thursday 31 March 2005 07:38, Robert Hancock wrote:
+> Philip Lawatsch wrote:
+> > Hi,
 > > 
-> > Here's another possibility: Freeze the workqueue that
-> > call_usermodehelper uses (remember that code I didn't push hard enough
-> > to Andrew?), and let invocations of call_usermodehelper block in
-> > TASK_UNINTERRUPTIBLE. In refrigerating processes, don't choke on
+> > 
+> > I do have a very strange problem:
+> > 
+> > If I memset a ~1meg buffer some thousand times (in the userspace) it
+> > will hardlock my machine.
 > 
-> There may be many devices in the system, and you are going to need
-> quite a lot of RAM for all that... That's why they do not queue it
-> during boot, IIRC. Disabling usermode helper seems right.
+> I thought that this must be impossible, but I tried it on my machine 
+> which is very similar (Asus A8N-SLI, Athlon 64 3500+, 2GB RAM) and to my 
+> surprise it breaks on mine too with kernel 2.6.11. I tested using the 
+> program below. After about a minute or so of this, the machine either 
+> locked hard or rebooted spontaneously. When it locked, there was no oops 
+> message, the NMI watchdog was not triggered and there was no response to 
+>   SysRq commands. (I tested it with and without the NVIDIA module loaded.)
+> 
+> This seems pretty terrible, a perfectly legal program running as a 
+> normal user is hard-locking the machine. Anyone have any suggestions to 
+> debug this? Also, can somebody else on an x86_64 try and duplicate this?
+> 
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <string.h>
+> 
+> int main( int argc, char* argv[] )
+> {
+> 	char* test = malloc(512*1024*1024);
+> 	int i;
+> 	for( i=0; i<1000000; i++ )
+> 	{
+> 		memset( test, 0, 512*1024*1024);
+> 	}
+> 	free(test);
+> 	return 0;
+> }
 
-Ok, what do you think about this one?
+This reminds me on VIA northbridge problem when BIOS enabled
+a feature which was experimental and turned out to be buggy.
+Was causing oopses ONLY on K7 optimized kernels because
+of movntq stores used. They seem to put an awful lot of writes
+on the bus.
+--
+vda
 
-===================================================================
-
-swsusp: disable usermodehelper after generating memory snapshot and
-        before resuming devices, so when device fails to resume we
-        won't try to call hotplug - userspace stopped anyway.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-
- include/linux/kmod.h  |    3 +++
- kernel/kmod.c         |   14 +++++++++++++-
- kernel/power/disk.c   |    2 ++
- kernel/power/swsusp.c |    1 -
- 4 files changed, 18 insertions(+), 2 deletions(-)
-
-Index: dtor/kernel/power/disk.c
-===================================================================
---- dtor.orig/kernel/power/disk.c
-+++ dtor/kernel/power/disk.c
-@@ -205,6 +205,8 @@ int pm_suspend_disk(void)
- 
- 	if (in_suspend) {
- 		pr_debug("PM: writing image.\n");
-+		usermodehelper_disable();
-+		device_resume();
- 		error = swsusp_write();
- 		if (!error)
- 			power_down(pm_disk_mode);
-Index: dtor/kernel/power/swsusp.c
-===================================================================
---- dtor.orig/kernel/power/swsusp.c
-+++ dtor/kernel/power/swsusp.c
-@@ -853,7 +853,6 @@ static int suspend_prepare_image(void)
- int swsusp_write(void)
- {
- 	int error;
--	device_resume();
- 	lock_swapdevices();
- 	error = write_suspend_image();
- 	/* This will unlock ignored swap devices since writing is finished */
-Index: dtor/kernel/kmod.c
-===================================================================
---- dtor.orig/kernel/kmod.c
-+++ dtor/kernel/kmod.c
-@@ -124,6 +124,8 @@ struct subprocess_info {
- 	int retval;
- };
- 
-+static int usermodehelper_disabled;
-+
- /*
-  * This is the task which runs the usermode application
-  */
-@@ -240,7 +242,7 @@ int call_usermodehelper(char *path, char
- 	if (!khelper_wq)
- 		return -EBUSY;
- 
--	if (path[0] == '\0')
-+	if (usermodehelper_disabled || path[0] == '\0')
- 		return 0;
- 
- 	queue_work(khelper_wq, &work);
-@@ -249,6 +251,16 @@ int call_usermodehelper(char *path, char
- }
- EXPORT_SYMBOL(call_usermodehelper);
- 
-+void usermodehelper_enable(void)
-+{
-+	usermodehelper_disabled = 0;
-+}
-+
-+void usermodehelper_disable(void)
-+{
-+	usermodehelper_disabled = 1;
-+}
-+
- void __init usermodehelper_init(void)
- {
- 	khelper_wq = create_singlethread_workqueue("khelper");
-Index: dtor/include/linux/kmod.h
-===================================================================
---- dtor.orig/include/linux/kmod.h
-+++ dtor/include/linux/kmod.h
-@@ -34,7 +34,10 @@ static inline int request_module(const c
- #endif
- 
- #define try_then_request_module(x, mod...) ((x) ?: (request_module(mod), (x)))
-+
- extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
- extern void usermodehelper_init(void);
-+extern void usermodehelper_enable(void);
-+extern void usermodehelper_disable(void);
- 
- #endif /* __LINUX_KMOD_H__ */

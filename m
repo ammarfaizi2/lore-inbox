@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269432AbUJLD46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269425AbUJLECS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269432AbUJLD46 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 23:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJLD45
+	id S269425AbUJLECS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 00:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJLECS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 23:56:57 -0400
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:9088 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S269432AbUJLD4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 23:56:39 -0400
-Date: Tue, 12 Oct 2004 06:56:34 +0300
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: Andrew Morton <akpm@osdl.org>
-Cc: roland@redhat.com, joshk@triplehelix.org, linux-kernel@vger.kernel.org
-Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
-Message-ID: <20041012035634.GB665@elektroni.ee.tut.fi>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, roland@redhat.com,
-	joshk@triplehelix.org, linux-kernel@vger.kernel.org
-References: <20041010211507.GB3316@triplehelix.org> <200410112055.i9BKt5LI031359@magilla.sf.frob.com> <20041012033934.GA275@elektroni.ee.tut.fi> <20041011205233.5fe4f99f.akpm@osdl.org>
+	Tue, 12 Oct 2004 00:02:18 -0400
+Received: from holomorphy.com ([207.189.100.168]:33156 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269425AbUJLECQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 00:02:16 -0400
+Date: Mon, 11 Oct 2004 21:02:02 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andre Tomt <andre@tomt.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+Message-ID: <20041012040202.GV9106@holomorphy.com>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org> <416A53D3.9020002@tomt.net> <Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org> <1097507381.2029.40.camel@mulgrave> <416ACF5E.80407@tomt.net> <1097522974.2029.161.camel@mulgrave> <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041011205233.5fe4f99f.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 08:52:33PM -0700, Andrew Morton wrote:
-> Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi> wrote:
-> >
-> > On Mon, Oct 11, 2004 at 01:55:05PM -0700, Roland McGrath wrote:
-> > > > wait4(-1073750280, NULL, 0, NULL)       = -1 ECHILD (No child processes)
-> > > 
-> > > That is a clearly bogus argument.
-> > 
-> > Hi. I see it too:
-> > 
-> > wait4(-1073750328, NULL, 0, NULL)       = -1 ECHILD (No child processes)
-> > 
-> > But the whole problem goes away if I switch CONFIG_REGPARM off. To reproduce
-> > it needs CONFIG_REGPARM=y.
-> > 
-> 
-> And what compiler version are you using?
-> 
+On Mon, 11 Oct 2004, James Bottomley wrote:
+>> Yes, well, that's one of the things that worries me slightly ... no-one
+>> has reported the data corruption that the patch claims to fix.  That's
+>> one of the reasons I was planning to take it through the normal cycle.
 
-gcc 3.4.2.
+On Mon, Oct 11, 2004 at 04:35:50PM -0700, Linus Torvalds wrote:
+> Well, as far as I can tell from the patch, the only way to get data 
+> corruption from the bug is when you use the SCSI ioctl's at the same time 
+> as the disk is busy.
+> In other words, I think you'd have to do some special disk management, or
+> possibly try to burn a CD on a SCSI CD-ROM (or other special device that
+> uses the SCSI ioctl's) on the same controller. And nobody uses SCSI
+> CD-burners any more, I'd think.
+
+Hey! I do. For some reason I've not hit this data corruption. I guess
+it's a good question as to why; maybe I trail mainline by long enough
+on my "desktop" to have missed where it was introduced.
+
+
+-- wli

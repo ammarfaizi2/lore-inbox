@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263067AbUKTCni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUKTDSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263067AbUKTCni (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 21:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbUKTCnK
+	id S263095AbUKTDSV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 22:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbUKTDSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:43:10 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:14725 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S263070AbUKTCey
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:34:54 -0500
-Subject: [patch 09/10]  mtd/cfi_cmdset_0002: 	replace schedule_timeout() with msleep()
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Sat, 20 Nov 2004 03:34:53 +0100
-Message-ID: <E1CVL5R-0001an-Vb@sputnik>
+	Fri, 19 Nov 2004 22:18:17 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:20866 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263076AbUKTDR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 22:17:29 -0500
+Subject: Re: Kernel thoughts of a Linux user
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Tomas Carnecky <tom@dbservice.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <419DE0F3.9000806@grupopie.com>
+References: <200411181859.27722.gjwucherpfennig@gmx.net>
+	 <419CFF73.3010407@dbservice.com>
+	 <Pine.LNX.4.53.0411182146060.29376@yvahk01.tjqt.qr>
+	 <419D10DF.4040902@nortelnetworks.com>
+	 <Pine.LNX.4.53.0411182216160.16465@yvahk01.tjqt.qr>
+	 <419DE0F3.9000806@grupopie.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100916839.9399.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 20 Nov 2004 02:14:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-11-19 at 12:02, Paulo Marques wrote:
+> Nowadays the power consumption of a CPU is more than the rest of the 
+> machine altogether (including hard disks, etc.).
+
+This depends hugely on the hardware. A 1Ghz Geode NX (Athlon 1Ghz ish)
+is 
+under 10W. The Pentium-M is also stunningly more efficient than the last
+Intel attempt (Pentium IV) and performs remarkly for its power level.
 
 
-
-Any comments would be appreciated.
-
-Description: Use msleep() instead of schedule_timeout()
-to guarantee the task delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
----
-
- linux-2.6.10-rc2-bk4-max/drivers/mtd/chips/cfi_cmdset_0002.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
-
-diff -puN drivers/mtd/chips/cfi_cmdset_0002.c~msleep-drivers_mtd_chips_cfi_cmdset_0002 drivers/mtd/chips/cfi_cmdset_0002.c
---- linux-2.6.10-rc2-bk4/drivers/mtd/chips/cfi_cmdset_0002.c~msleep-drivers_mtd_chips_cfi_cmdset_0002	2004-11-19 17:15:36.000000000 +0100
-+++ linux-2.6.10-rc2-bk4-max/drivers/mtd/chips/cfi_cmdset_0002.c	2004-11-19 17:15:36.000000000 +0100
-@@ -1173,8 +1173,7 @@ static inline int do_erase_chip(struct m
- 	chip->in_progress_block_addr = adr;
- 
- 	cfi_spin_unlock(chip->mutex);
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout((chip->erase_time*HZ)/(2*1000));
-+	msleep(chip->erase_time/2);
- 	cfi_spin_lock(chip->mutex);
- 
- 	timeo = jiffies + (HZ*20);
-@@ -1259,8 +1258,7 @@ static inline int do_erase_oneblock(stru
- 	chip->in_progress_block_addr = adr;
- 	
- 	cfi_spin_unlock(chip->mutex);
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout((chip->erase_time*HZ)/(2*1000));
-+	msleep(chip->erase_time/2);
- 	cfi_spin_lock(chip->mutex);
- 
- 	timeo = jiffies + (HZ*20);
-_

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281266AbRKTSvY>; Tue, 20 Nov 2001 13:51:24 -0500
+	id <S281270AbRKTSyD>; Tue, 20 Nov 2001 13:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281261AbRKTSu4>; Tue, 20 Nov 2001 13:50:56 -0500
-Received: from [194.65.152.209] ([194.65.152.209]:37772 "EHLO
-	criticalsoftware.com") by vger.kernel.org with ESMTP
-	id <S281234AbRKTSuJ>; Tue, 20 Nov 2001 13:50:09 -0500
-Message-Id: <200111201849.fAKInr205178@criticalsoftware.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: =?iso-8859-1?q?Lu=EDs=20Henriques?= 
-	<lhenriques@criticalsoftware.com>
-To: Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: copy to suer space
-Date: Tue, 20 Nov 2001 18:44:08 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111201714.fAKHEc276467@criticalsoftware.com> <20011120114124.T1308@lynx.no>
-In-Reply-To: <20011120114124.T1308@lynx.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S281262AbRKTSxx>; Tue, 20 Nov 2001 13:53:53 -0500
+Received: from adsl-63-194-247-216.dsl.lsan03.pacbell.net ([63.194.247.216]:22201
+	"EHLO www.vinyltribe.com") by vger.kernel.org with ESMTP
+	id <S281225AbRKTSxk>; Tue, 20 Nov 2001 13:53:40 -0500
+Subject: 2.4.13 and above causes many "Invalidate: Busy Buffer" messages.
+From: Emiliano Garcia <emi@vinyltribe.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 20 Nov 2001 10:51:38 -0800
+Message-Id: <1006282299.2189.0.camel@workstation>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Maybe if you describe the actual problem that you are trying to solve, and
-> not the actual way you are trying to solve it, there may be a better
-> method. Usually, if something you are trying to do is very hard to do,
-> there is a different (much better) way of doing it.
->
-> Cheers, Andreas
 
-OK, here it goes:
+My web server is running software raid 5 on two promise ultra66 cards
+with an ALi alladin 5 chipset and a k6-2-500 with 300 megs of ram. The
+setup is 2 20 gig Maxtor 5400 RPM drives and one WD 30 gig 7200 rpm
+drive.. the raid size is 40 gigs, the chunks are 64kb, and I formated
+with stride = 16. 
 
-I'm developping a kernel module that needs to delay a process, that is, he 
-receives a PID and, when a specific event occurs, that process shall be 
-delayed. This delay shall be done in a way that the process keeps burning CPU 
-time (it can not be, e.g., put in a waiting-list...).
-The solution I found was to change its code segment, putting a loop in it. 
-After a specified period of time, the original code must be restored and the 
-process must keep going as nothing happened.
-The main problem I found was already explained: can't write to the CS!
+ I've noticed great improvements in the throughput of my raid with
+hdparm -Tt /dev/md0 but now I get "Invalidate: Busy Buffer" hundreds of
+times showing up in my dmesg. It only happens under heavy disk I/O and I
+really need to figure out if this is just a warning or causing damage. A
+dump causes this message to pop up at least 200 times. 
 
--- 
-Luís Henriques
+Please advise as to what I need to do to help troubleshoot or what the
+fix is.
+
+Emi.
+

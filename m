@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262937AbSJDR6q>; Fri, 4 Oct 2002 13:58:46 -0400
+	id <S262013AbSJDSl6>; Fri, 4 Oct 2002 14:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262960AbSJDR6q>; Fri, 4 Oct 2002 13:58:46 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:22799 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262937AbSJDR6p>;
-	Fri, 4 Oct 2002 13:58:45 -0400
-Date: Fri, 4 Oct 2002 11:01:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
-Message-ID: <20021004180120.GA7576@kroah.com>
-References: <1033750426.31839.45.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.33.0210041023060.1917-100000@penguin.transmeta.com>
+	id <S261954AbSJDSlt>; Fri, 4 Oct 2002 14:41:49 -0400
+Received: from 3512-780200-170.dialup.surnet.ru ([212.57.170.170]:50702 "EHLO
+	zzz.zzz") by vger.kernel.org with ESMTP id <S262013AbSJDSlp>;
+	Fri, 4 Oct 2002 14:41:45 -0400
+Date: Fri, 4 Oct 2002 22:43:43 +0600
+From: Denis Zaitsev <zzz@cd-club.ru>
+To: davej@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] 2.5.40 APM module: unresolved cpu_gdt_table 
+Message-ID: <20021004224343.A346@natasha.zzz.zzz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0210041023060.1917-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 10:30:41AM -0700, Linus Torvalds wrote:
-> 
-> On 4 Oct 2002, Alan Cox wrote:
-> > 
-> > Ermm Greg fixed the drivers using it too.
-> 
-> Ehhmm... The patch description says "remove pci_find_device()", which is 
-> used all over the map and isn't even deprecated (even though it probably 
-> should be, and people should just register their drivers correctly).
+This patch fixes the "unresolved cpu_gdt_table" error for the APM
+module.  Please, apply it.  (I suspect that smth. like is already
+applied...)
 
-Argh, that's a typo.  It should say:
-	"remove pcibios_find_device()"
-as that's what I did.
 
-That function has been depreciated for some time.  I did look into
-trying to get rid of pci_find_device() but that's just too much work to
-do right now (and there are a few places in the kernel that seem to
-really need to use that function, as there's no other way to do some
-fixups.)
-
-So yes, removing pci_find_device() should be a 2.7 thing, not a 2.5
-thing.
-
-thanks,
-
-greg k-h
+--- arch/i386/kernel/i386_ksyms.c.orig	Thu Oct  3 23:34:55 2002
++++ arch/i386/kernel/i386_ksyms.c	Fri Oct  4 10:00:28 2002
+@@ -38,6 +38,8 @@
+ EXPORT_SYMBOL(machine_real_restart);
+ extern void default_idle(void);
+ EXPORT_SYMBOL(default_idle);
++extern struct desc_struct cpu_gdt_table[][];
++EXPORT_SYMBOL(cpu_gdt_table);
+ #endif
+ 
+ #ifdef CONFIG_SMP

@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUEXBi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263807AbUEXBrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUEXBi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 21:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUEXBiz
+	id S263807AbUEXBrv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 21:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUEXBrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 21:38:55 -0400
-Received: from web90006.mail.scd.yahoo.com ([66.218.94.64]:3999 "HELO
-	web90006.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S263806AbUEXBip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 21:38:45 -0400
-Message-ID: <20040524013840.82422.qmail@web90006.mail.scd.yahoo.com>
-Date: Sun, 23 May 2004 18:38:40 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: 4g/4g for 2.6.6
-To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <331270000.1085362383@[10.10.2.4]>
+	Sun, 23 May 2004 21:47:51 -0400
+Received: from lakermmtao11.cox.net ([68.230.240.28]:22963 "EHLO
+	lakermmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S263807AbUEXBrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 21:47:49 -0400
+Message-ID: <32786.192.168.0.243.1085363267.squirrel@webmail.rtwsecurenet.com>
+In-Reply-To: <20040522172724.6c804068.akpm@osdl.org>
+References: <32847.192.168.0.243.1085236590.squirrel@webmail.rtwsecurenet.com>
+    <20040522172724.6c804068.akpm@osdl.org>
+Date: Sun, 23 May 2004 20:47:47 -0500 (CDT)
+Subject: Re: 2.6 high CPU utilization with multimedia apps {Scanned}
+From: rettw@rtwnetwork.com
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
+X-rtwnetwork.com-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I will work with that patch and see if I can it
-to apply.
+Hi Andrew,
 
-Thanks!
-Phy
---- "Martin J. Bligh" <mbligh@aracnet.com> wrote:
-> > I have been researching the 4g patches for
-> kernels. 
-> > Seems there was a rift between people over this. 
-> Is
-> > there any plan to resume publishing 4g patches for
-> > developing kernels?
-> > 
-> > I am currently trying to get 4g to work with
-> 2.6.6-mm5
-> > but of course running into issues,so any help on
-> this
-> > would be great!
-> 
-> It's in -mjb tree - the update from 2.6.6-rc3 to
-> 2.6.6 should be trivial.
-> 
-> M.
-> 
+> This could be an artifact from the instrumentation - if
+> the application is
+> doing short bursts of work the 1000Hz clock may be
+> providing more accurate
+> sampling.
+>
+> In 2.6, edit include/asm/param.h and set HZ to 100 and
+> then redo the
+> measurement.
+>
+That did it - the CPU utilization is back down to what I
+am used to seeing on 2.4. - Now, the question is - what
+was more accurate?  Was 2.4 producing abnormally low
+numbers?  Or 2.6 abnormally high?  One interesting thing,
+just below the define statements in the file mentioned
+above is a conditional define that sets HZ to 100 anyway,
+if not already defined - it almost seems that the 1000
+value is bogus to begin with.
 
+Thanks again for the help - this has been quite a mystery....
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Domains – Claim yours for only $14.70/year
-http://smallbusiness.promotions.yahoo.com/offer 
+Thanks,
+
+Rett Walters
+

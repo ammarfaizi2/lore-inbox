@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbVDANJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVDANM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbVDANJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 08:09:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVDANJ6
+	id S262755AbVDANM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 08:12:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVDANMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 08:09:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:56527 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262745AbVDANIE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 08:08:04 -0500
-Date: Fri, 1 Apr 2005 15:07:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-Message-ID: <20050401130713.GA3802@elte.hu>
-References: <424D373F.1BCBF2AC@tv-sign.ru> <424D37B2.2CE24C67@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424D37B2.2CE24C67@tv-sign.ru>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 1 Apr 2005 08:12:55 -0500
+Received: from alog0297.analogic.com ([208.224.222.73]:45260 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262742AbVDANKV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 08:10:21 -0500
+Date: Fri, 1 Apr 2005 08:09:53 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from
+ kernel.
+In-Reply-To: <11123574931907@2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
+References: <11123574931907@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+[PATCH snipped]
 
-> struct timer_list {
-> 	...
-> 	timer_base_t *_base;
-> };
+Cruel joke. Now 80 percent of the Intel clones won't boot.
+Those are the ones that run industry, you know, the stuff that
+is necessary to earn money.
 
-namespace cleanliness: i'd suggest s/_base/base.
+Without i386 support, you don't have any embedded systems. You
+need to use the garbage Motorola CPUs and the proprietary
+operating systems in embedded stuff.
 
-another detail:
 
-> int __mod_timer(struct timer_list *timer, unsigned long expires)
-[...]
-> 		/* Ensure the timer is serialized. */
-> 		if (base != &new_base->t_base
-> 			&& base->running_timer == timer)
-> 			goto unlock;
-
-> unlock:
-> 		spin_unlock_irqrestore(&base->lock, flags);
-> 	} while (ret < 0);
-
-so we keep looping in __mod_timer() when the timer is running? Couldnt 
-this be a performance hit?
-
-	Ingo
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

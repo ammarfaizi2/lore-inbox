@@ -1,87 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTFZWra (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 18:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTFZWqq
+	id S263428AbTFZWzO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 18:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTFZWzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 18:46:46 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:22034 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S264067AbTFZWk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 18:40:59 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Timothy Miller" <miller@techsource.com>
-Cc: "David Woodhouse" <dwmw2@infradead.org>, "Larry McVoy" <lm@bitmover.com>,
-       "Werner Almesberger" <wa@almesberger.net>,
-       "Stephan von Krawczynski" <skraw@ithnet.com>,
-       <miquels@cistron-office.nl>, <linux-kernel@vger.kernel.org>
-Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Date: Thu, 26 Jun 2003 15:55:03 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGKEGMDBAA.rwhite@casabyte.com>
+	Thu, 26 Jun 2003 18:55:12 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:63249 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S263428AbTFZWy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 18:54:26 -0400
+Message-ID: <3EFB7D70.8010602@techsource.com>
+Date: Thu, 26 Jun 2003 19:10:40 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: Mike Galbraith <efault@gmx.de>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: O(1) scheduler & interactivity improvements
+References: <20030623164743.GB1184@hh.idb.hist.no> <5.2.0.9.2.20030624215008.00ce73b8@pop.gmx.net> <3EFAC408.4020106@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3EFB74E7.3030401@techsource.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
------Original Message-----
-From: Timothy Miller [mailto:miller@techsource.com]
-Sent: Thursday, June 26, 2003 3:34 PM
+Helge Hafting wrote:
 
-> Robert White wrote:
-> >
-> > 2) If software is the only thing you do, you are screwed because that
-> > immense return on investment is payment in kind so there is no "cash
-margin"
-> > from which to draw profit.
+> How about _removing_ the io-wait bonus for waiting on pipes then?
+> If you wait for disk io, someone else gets to use
+> the cpu for their work.  So you get a boost for
+> giving up your share of time, waiting
+> for that slow device.
+> 
+> But if you wait for a pipe, you wait for some other
+> cpu hog to do the first part of _your_ work.
+> I.e. nobody else benefitted from your waiting,
+> so you don't get any boost either.
+> 
+> This solves the problem of someone artifically
+> dividing up a job, using token passing
+> to get unfair priority.
+> 
+> 
+> This can be fine-tuned a bit: We may want the pipe-waiter
+> to get a _little_ bonus at times, but that has to be
+> subtracted from whatever bonus the process at the
+> other end of the pipe has.  I.e. no new bonus
+> created, just shift some the existing bonus around.
+> The "other end" may, after all, have gained legitimate
+> bonus from waiting on the disk/network/paging/os, and passing
+> some of that on to "clients" might make sense.
 >
->
-> No, if the software economy changes so that you can't sell it then,
-> you'll be screwed.  Until then, people see software as something which
-> can be sold, so they're going to do it.
 
-I guess I was a bit vague there on number 2.  What I was aiming at was the,
-I thought implicit (like that helps 8-) point in the context, question of
-"pure software sales" in the age/realm/reality of software derived from or
-participant in the OSS domain.  I guess I lost that in my urge to get my
-word-count down.  8-)
+In other words:
 
-> There are some types of software that are very difficult to organize in
-> the bazaar fashion.  Only a full-time, focused team can do the job in a
-> reasonable time period, if at all.  Sometimes, free software developers
-> receive the necessary funding, but much more often, only a company which
-> is bringing in revenue as a capitalist entity would be able to succeed.
+Don't give pipe-waiting any kind of boost or penalty, but do balance the 
+interactivity points between entities at each end of the pipe.
 
-I agree.
+So, if you're waiting on a pipe, but the other end is a CPU hog, then 
+since you don't get a boost (pipe wait), you don't give a boost to the 
+CPU hog, but since he's a CPU hog, he DOES share negative points with 
+you, lowering your priority.
 
-In fact that particular "focus" then becomes, in the OSS model, the
-_whatever_ that is being provided "along with" the software.  Focus,
-commitment, service, responsiveness and so on are *all* primary examples of
-the "other than just software" that makes a company feasible.  The current
-business models really only value that other when it is hardware or similar
-tangible feature, which is ridiculous in our so called "services economy".
+Conversely, if a process is waiting on real I/O (disk, user input, 
+etc.), then it gets an interactivity boost that it can share with other 
+processes it's connected to via pipe.
 
-The question then, for each company, in an OSS model, can a particular
-_whatever_ or combination thereof support the company.  After all, the
-software itself is free.
+Since most X clients only do pipe waiting on the server, then it's the X 
+server that gets the interactivity boost by waiting on user input, which 
+it can share with clients.
 
-There are contra positives like is OSS the only means to disentangle the IP
-claims of what are, for all real purposes, idea squatters?  Can any company
-claim sacrosanct autonomy of their software if they use the common public
-paradigms of programming like menus and "chrome" and array processing, and
-multi-processing and such?  If a company can not "morally" make such claims
-because they themselves are engaged in mimicry, how seriously should we take
-their claims that they need protection from the mimicry perpetrated by
-others?
+And since there is no effect from pipe wait, you can still judge a 
+process as interactive or not based on what it does when it's NOT 
+waiting on a pipe -- if it becomes a CPU hog THEN, you deduct points, etc.
 
+Here's an interesting question:  Would you often have a situation where 
+a process at one end of a pipe is a CPU hog, and the process at the 
+other end is interactive?  Is that a problem?
 
+If you're always adding or subtracting points, that situation could be 
+less than optimal, but you'll never get to the point where the 
+interactive process is believed to be a cpu hog or vice versa.  The 
+points each process would be assessed at a faster rate than the sharing 
+between processes.
+
+Do you want to always share points, or do you share only when something 
+wakes up from a pipe wait?
 

@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264056AbUDGSOb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 14:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264172AbUDGSOa
+	id S264182AbUDGSRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 14:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264173AbUDGSOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:14:30 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16010 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264056AbUDGSNr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:13:47 -0400
-Date: Wed, 7 Apr 2004 11:10:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Pittman <daniel@rimspace.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB/BlueTooth oops in 2.6.5
-Message-ID: <20040407181015.GA20173@kroah.com>
-References: <877jwse1pl.fsf@enki.rimspace.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877jwse1pl.fsf@enki.rimspace.net>
-User-Agent: Mutt/1.5.6i
+	Wed, 7 Apr 2004 14:14:52 -0400
+Received: from fork1.mail.Virginia.EDU ([128.143.2.191]:16100 "EHLO
+	cms.mail.virginia.edu") by vger.kernel.org with ESMTP
+	id S264142AbUDGSMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 14:12:47 -0400
+Message-ID: <40744481.7050002@virginia.edu>
+Date: Wed, 07 Apr 2004 14:12:17 -0400
+From: Aaron Smith <aws4y@virginia.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Rewrite Kernel
+References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com> <1081348038.5049.6.camel@redeeman.linux.dk> <200404071455.i37EtOn8000182@81-2-122-30.bradfords.org.uk> <20040407150516.GC23517@marowsky-bree.de>
+In-Reply-To: <20040407150516.GC23517@marowsky-bree.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 07, 2004 at 04:33:58PM +1000, Daniel Pittman wrote:
-> When I try to turn on the BlueTooth interface in my laptop, it turns on
-> a USB device.  Doing that with 2.6.5 generates the following error.
+Lars Marowsky-Bree wrote:
 
-It's being worked on:
+>Guys, gals,
+>
+>you are all missing the point.
+>
+>It is obvious that what we really need is a hand-optimized in-kernel
+>core LISP machine written in >i386 assembly, then we need to port the
+>rest of the kernel to run as LISP bytecode on top of that in ring1 (in
+>particular the security policies).
+>
+>Of course, important privileged user-space such as glibc should be
+>ported to this highly efficient non-recursive LISP machine too for
+>efficiency and run on ring 2 for speed and security.
+>  
+>
+What you are talking about is a LISP machine micro-kernel in Ring0 which 
+sort of defeats the whole point of Linux being monolithic kernel. Also 
+couldn't we just run HURD, or for that matter EMACS ;-), as a kernel. I, 
+personally have come around to Linus point of view on the whole 
+micro-kernel thing so I don't see much of a advantage to this, as there 
+are other micro kernel projects ( HURD, Darwin/*BSD?).
 
-	http://bugme.osdl.org/show_bug.cgi?id=2423
-
-thanks,
-
-greg k-h
+-Aaron

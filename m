@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279036AbRJVWrU>; Mon, 22 Oct 2001 18:47:20 -0400
+	id <S279037AbRJVWrN>; Mon, 22 Oct 2001 18:47:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279035AbRJVWrQ>; Mon, 22 Oct 2001 18:47:16 -0400
-Received: from deepthought.blinkenlights.nl ([62.58.162.228]:4868 "EHLO
-	mail.blinkenlights.nl") by vger.kernel.org with ESMTP
-	id <S279034AbRJVWpe>; Mon, 22 Oct 2001 18:45:34 -0400
-Date: Tue, 23 Oct 2001 01:00:54 +0200 (CEST)
-From: Sten <sten@blinkenlights.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: INIT_MMAP on sparc64
-In-Reply-To: <20011022.153947.48529984.davem@redhat.com>
-Message-ID: <Pine.LNX.4.40-blink.0110230056450.20416-100000@deepthought.blinkenlights.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279032AbRJVWof>; Mon, 22 Oct 2001 18:44:35 -0400
+Received: from sal.qcc.sk.ca ([198.169.27.3]:33294 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S279031AbRJVWme>;
+	Mon, 22 Oct 2001 18:42:34 -0400
+Date: Mon, 22 Oct 2001 16:43:02 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+Message-ID: <20011022164302.C4012@qcc.sk.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be> <E15vlcJ-0003E5-00@the-village.bc.nu> <20011022172742.B445@virtucon.warpcore.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011022172742.B445@virtucon.warpcore.org>; from drevil@warpcore.org on Mon, Oct 22, 2001 at 05:27:42PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, David S. Miller wrote:
+drevil@warpcore.org <drevil@warpcore.org> wrote:
+> On Mon, Oct 22, 2001 at 09:24:11PM +0100, Alan Cox wrote:
+> > Only Nvidia can help you 
+> 
+> With a problem caused by someone else and not them? Interesting viewpoint.
 
->    From: Sten <sten@blinkenlights.nl>
->    Date: Tue, 23 Oct 2001 00:50:42 +0200 (CEST)
->
->    Well the thing is that I like todo evil things,
->    like connecting sgi flatpanels to creator3d's, using
->    non sun blessed ( aka sub 1000$ ) ethernet cards or
->    sticking in wierd raid cards.
->
->    Which is why I like linux ;)
->
->    Having source is great because I can break it,
->    and maybe learn something in the process.
->
-> All of this is irrelevant to going over the 3.5MB mark,
-> I contend that your machine simply does not need it no matter
-> what obscure stuff you stick into it :-)
+No, just pragmatism.  If you have a binary-only module loaded and
+encounter any sort of bug (whether apparently related to that module or
+not), the module author/publisher is the only one who can help.
 
-I wonder if pci to isa adaptors exist ;)
+It's a matter of who has the source code.
 
-> Turn off the PCI device names, that is usually what eats up a
-> lot of space and lspci provides the same info anyways...
-
-jup, that's what I came up with as well.
-
-Off to bed now, many more boxen to upgrade tomorrow,
-gotta love ptrace. Especially when they annouce the hole
-on friday 16:30 just when you prepare for going home.
-
---
-
-Sten Spans
-
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

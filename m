@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132925AbRDRAKu>; Tue, 17 Apr 2001 20:10:50 -0400
+	id <S132928AbRDRARL>; Tue, 17 Apr 2001 20:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132926AbRDRAKk>; Tue, 17 Apr 2001 20:10:40 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:20490 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S132925AbRDRAK0>; Tue, 17 Apr 2001 20:10:26 -0400
-Date: Tue, 17 Apr 2001 17:10:22 -0700 (PDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Tim Waugh <twaugh@redhat.com>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Is printing broke on sparc ?
-In-Reply-To: <20010417134257.J29490@redhat.com>
-Message-ID: <Pine.LNX.4.32.0104171707310.22166-100000@filesrv1.baby-dragons.com>
+	id <S132932AbRDRARB>; Tue, 17 Apr 2001 20:17:01 -0400
+Received: from eschelon.gamesquad.net ([216.115.239.45]:34323 "HELO
+	eschelon.gamesquad.net") by vger.kernel.org with SMTP
+	id <S132928AbRDRAQs>; Tue, 17 Apr 2001 20:16:48 -0400
+From: "Vibol Hou" <vhou@khmer.cc>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Date: Tue, 17 Apr 2001 17:15:34 -0700
+Message-ID: <NDBBKKONDOBLNCIOPCGHIEHBGDAA.vhou@khmer.cc>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001, Tim Waugh wrote:
-> On Mon, Apr 16, 2001 at 05:54:41PM -0700, Mr. James W. Laferriere wrote:
-> > # /etc/printcap
-> > # Please don't edit this file directly unless you know what you are doing!
-> > # Be warned that the control-panel printtool requires a very strict format!
-> > # Look at the printcap(5) man page for more info.
-> > # This file can be edited with the printtool in the control-panel.
-> > ##PRINTTOOL3## LOCAL POSTSCRIPT 300x300 letter {} PostScript Default {}
-> > lp:\
-> > 	:sd=/var/spool/lpd/lp:\
-> > 	:mx#0:\
-> > 	:sh:\
-> > 	:lp=/dev/lp0:\
-> > 	:if=/var/spool/lpd/lp/filter:
-> [...]
-> > /c#eodiecnyotai rhernili s to rpaemn
-> >                                     s eehpo o-.ROLPR0 roif{\=sl:x
-> >                                                                  	/p:ao/lr
+Hi,
 
-> This looks like characters are getting missed out, rather than
-> anything getting garbled.  The above characters all appear in
-> /etc/printcap in the order shown.  Obviously there isn't enough
-> redundancy in /etc/printcap for the print-out to be useful despite
-> that. :-)
-	;-) .
+I'm using 2.4.4-pre3 and get this message occasionally when the system is
+loaded:
 
-> Please try adjusting the 'udelay (1)' lines in
-> drivers/parport/ieee1284_ops.c:parport_ieee1284_write_compat to be
-> larger delays (for example, try replacing the 1s with 2s, or 5s, and
-> see if that makes things better).
-	I am going to look and see if there might be a ioctl for that
-	function .  Failing that I shall recompile the kernel with each
-	of those values & test until successful or it seems futile .
+Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, status e401.
+Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, status e401.
 
-> Let me know what you need to change to get it working.
-> Thanks,
-> Tim.
-> */
-		Tnx ,  JimL
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+The nic is a 3Com 3c905B. Is this a bad thing?
+
+/proc/interrupts:
+           CPU0       CPU1
+  0:   13167527   12036422    IO-APIC-edge  timer
+  1:          0          2    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  4:      22773      19820    IO-APIC-edge
+  8:          1          0    IO-APIC-edge  rtc
+ 15:          1          4    IO-APIC-edge  ide1
+ 17:   50001929   49606064   IO-APIC-level  eth0
+ 18:    2459038    2364252   IO-APIC-level  aic7xxx
+NMI:          0          0
+LOC:   25202946   25202942
+ERR:          0
+
+--
+Vibol Hou
+KhmerConnection
+http://khmer.cc
 

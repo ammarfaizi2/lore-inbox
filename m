@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVCSTRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVCSTTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261708AbVCSTRN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 14:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVCSTRN
+	id S262653AbVCSTTV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 14:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVCSTTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 14:17:13 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:56514 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261708AbVCSTRJ (ORCPT
+	Sat, 19 Mar 2005 14:19:20 -0500
+Received: from 64-30-195-78.dsl.linkline.com ([64.30.195.78]:7609 "EHLO
+	jg555.com") by vger.kernel.org with ESMTP id S262653AbVCSTRZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 14:17:09 -0500
-Date: Sat, 19 Mar 2005 20:17:03 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Baruch Even <baruch@ev-en.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Relayfs question
-In-Reply-To: <423C78E8.3040200@ev-en.org>
-Message-ID: <Pine.LNX.4.61.0503192014520.14144@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0503191852520.21324@yvahk01.tjqt.qr>
- <423C78E8.3040200@ev-en.org>
+	Sat, 19 Mar 2005 14:17:25 -0500
+Message-ID: <423C7AB5.2010200@jg555.com>
+Date: Sat, 19 Mar 2005 11:17:09 -0800
+From: Jim Gifford <maillist@jg555.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Build issue current MIPS - RaQ2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have not been able to build kernels since 2.6.9 on my RaQ2 for some 
+time. I have tried the linux-mips.org port and the current 2.6.11.5 
+release. I keep getting the same error.
 
->[...]
-> The current method is to just manage buffers and enable applications to mmap
-> the buffers to read them with some signalling on when a buffer is to be read
-> and when the kernel can overwrite it.
->
-> A character device is unlikely to need such interface since you do want 16
-> bytes of random data and not several pages of mapped random numbers. If you
-> really need a lot of random numbers you need something in user-space anyway
-> since you'll deplete the kernel entropy pool pretty fast anyway.
->
-> If you have a device that needs to transfer lots of data doesn't mind it being
-> batched and doesn't really need the character device interface then relayfs
-> could be useful.
+  Building modules, stage 2.
+  MODPOST
+*** Warning: "pci_iounmap" [drivers/net/tulip/tulip.ko] undefined!
+*** Warning: "pci_iomap" [drivers/net/tulip/tulip.ko] undefined!
 
-Ok, urandom was a bad example. I have my tty logger (ttyrpld.sf.net) which 
-moves a lot of data (depends) to userspace. It uses a ring buffer of "fixed" 
-size (set at module load time). Apart from that relayfs could use a dynamic 
-sized ring buffer, I would not see any need to move it to relayfs, would you?
+with Make V=1
+  Building modules, stage 2.
+make -rR -f /usr/src/linux-2.6.11.5/scripts/Makefile.modpost
+  scripts/mod/modpost   -o /usr/src/linux-2.6.11.5/Module.symvers 
+vmlinux drivers/block/loop.o drivers/block/rd.o drivers/cdrom/cdrom.o 
+drivers/char/rtc.o drivers/net/tulip/tulip.o drivers/scsi/scsi_mod.o 
+drivers/scsi/scsi_transport_spi.o drivers/scsi/sd_mod.o 
+drivers/scsi/sr_mod.o drivers/scsi/st.o 
+drivers/scsi/sym53c8xx_2/sym53c8xx.o fs/exportfs/exportfs.o 
+fs/isofs/isofs.o fs/lockd/lockd.o fs/nfs/nfs.o fs/nfsd/nfsd.o 
+fs/nls/nls_ascii.o fs/nls/nls_base.o fs/nls/nls_cp437.o 
+fs/nls/nls_iso8859-1.o fs/nls/nls_utf8.o fs/smbfs/smbfs.o lib/crc32.o 
+lib/zlib_inflate/zlib_inflate.o net/key/af_key.o 
+net/netlink/netlink_dev.o net/packet/af_packet.o net/sunrpc/sunrpc.o 
+net/unix/unix.o
+*** Warning: "pci_iounmap" [drivers/net/tulip/tulip.ko] undefined!
+*** Warning: "pci_iomap" [drivers/net/tulip/tulip.ko] undefined!
 
+Now it seems to me that the Makefile.modpost would need to include 
+arch/mips/lib/iomap.o file to correct this issue, but that doesn't seem 
+like the correct thing to do, and I have no clue on how to do that.
 
-
-Jan Engelhardt
 -- 
+----
+Jim Gifford
+maillist@jg555.com
+

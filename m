@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUKONo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbUKONqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUKONo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 08:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKONo3
+	id S261603AbUKONqf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 08:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUKONqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 08:44:29 -0500
-Received: from ip126.globalintech.pl ([62.89.81.126]:31989 "EHLO
-	MAILSERVER.dmz.globalintech.pl") by vger.kernel.org with ESMTP
-	id S261595AbUKONoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 08:44:23 -0500
-Message-ID: <4198B2B6.9050803@globalintech.pl>
-Date: Mon, 15 Nov 2004 14:44:22 +0100
-From: Blizbor <kernel@globalintech.pl>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 native IPsec implementation question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2004 13:44:22.0458 (UTC) FILETIME=[36A461A0:01C4CB19]
+	Mon, 15 Nov 2004 08:46:34 -0500
+Received: from blackhole.sk ([212.89.236.103]:44697 "EHLO
+	blackhole.websupport.sk") by vger.kernel.org with ESMTP
+	id S261600AbUKONqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 08:46:21 -0500
+Date: Mon, 15 Nov 2004 14:46:15 +0100
+From: stanojr@blackhole.websupport.sk
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: quota deadlock
+Message-ID: <20041115134615.GA10269@blackhole.websupport.sk>
+References: <20041112173118.GC17928@blackhole.websupport.sk> <20041115122050.GA1442@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041115122050.GA1442@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+hello,
+i tried your patch using reiserfs and ext2 with 2.6.10-rc2 and it works like a charm :)
+thanks
+stanojr
 
-I hope, this is right place to ask my questions.
+On Mon, Nov 15, 2004 at 01:20:50PM +0100, Jan Kara wrote:
+>   Hello,
+> 
+> > my english sucks, so i'll be brief.                        
+> > heavy write access to partition with quota enabled causes deadlock. if
+> > processes try to access the deadlocked partition they                    
+> > simply have no response and cannot be killed with SIGKILL. i've been
+> > testing with reiserfs and ext2 on 2.6.9 kernel.
+>   Could you try attached patch? Can you reproduce the deadlock with it
+> (if so, please send me the dump of the processes). The patch reworks
+> substantially the locking and should solve the problems you observe.
+> It is against current -linus tree but should probably apply well to
+> 2.6.10-rc1. 
+> 
+> 						Thanks for testing
+> 								Honza
 
-1. Why IPsec in 2.6 doesn't uses separate interface ?
-It makes impossible to implement firewall logic like this (or I'm 
-missing something):
-
-incoming from eth0 allow AH
-incoming from eth0 allow ESP
-incoming from eth0 allow udp 500
-incoming from eth0 allow udp 53
-incoming from eth0 allow ICMP related
-incoming from eth0 deny all
-
-then set of filters restricting traffic incoming via IPsec for examle:
-incoming from ipsec0 allow tcp 389
-incoming from ipsec0 allow ICMP related
-incoming from ipsec0 deny all
-
-(please consider roadwarrior client with not known IP address)
-
-2. Why IPsec in 2.6 doesn't creates entries in the route tables ?
-It's a bit confusing when 'ip route list' doesnt makes you aware that
-some traffic is going somwhere else than defined in route tables.
-
-(you must know that there is IPsec in use on the host, then you are using
-setkey to list rules, and then you must analyse rules to catch routes - 
-ugly solution.)
-
-
-Reards,
-Blizbor

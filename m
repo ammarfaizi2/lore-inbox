@@ -1,139 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269377AbUJFTUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269373AbUJFTVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269377AbUJFTUo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 15:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJFTSq
+	id S269373AbUJFTVd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 15:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269381AbUJFTVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 15:18:46 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:22722 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269367AbUJFTSJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:18:09 -0400
-Subject: Re: [patch 3/3] lsm: add bsdjail documentation
-From: Serge Hallyn <serue@us.ibm.com>
-To: akpm@osdl.org
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       serue@us.ibm.com
-In-Reply-To: <1097094103.6939.5.camel@serge.austin.ibm.com>
-References: <1097094103.6939.5.camel@serge.austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1097094358.6939.13.camel@serge.austin.ibm.com>
+	Wed, 6 Oct 2004 15:21:32 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:48301 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269373AbUJFTU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 15:20:57 -0400
+Date: Wed, 6 Oct 2004 21:20:48 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20041006192048.GG10153@wohnheim.fh-wedel.de>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com> <20041006180145.GC10153@wohnheim.fh-wedel.de> <20041006181836.GA27300@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 06 Oct 2004 15:25:58 -0500
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041006181836.GA27300@kroah.com>
+User-Agent: Mutt/1.3.28i
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Rcpt-To: greg@kroah.com, alan@lxorguk.ukuu.org.uk, rmk+lkml@arm.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
+X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
+X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 6 October 2004 11:18:36 -0700, Greg KH wrote:
+> 
+> Care to send a patch to do this?
 
-Attached is a patch carrying the documentation for the bsdjail LSM.
+Below.  Never tried udev and/or hotplug, never even looked at the code
+yet.  So you better don't trust me.
 
-Please apply.
+Jörn
 
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+-- 
+A defeated army first battles and then seeks victory.
+-- Sun Tzu
 
-diff -Nrup linux-2.6.9-rc3-bk6/Documentation/bsdjail.txt linux-2.6.9-rc3-bk6-jail/Documentation/bsdjail.txt
---- linux-2.6.9-rc3-bk6/Documentation/bsdjail.txt	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.9-rc3-bk6-jail/Documentation/bsdjail.txt	2004-10-06 10:51:46.000000000 -0500
-@@ -0,0 +1,99 @@
-+BSD Jail Linux Security Module
-+Serge E. Hallyn <serue@us.ibm.com>
-+
-+Description:
-+
-+Implements a subset of the BSD Jail functionality as a Linux LSM.
-+What is currently implemented:
-+
-+  If a proces is in a jail, it:
-+
-+    1. Is locked under a chroot (as are all children) which is not
-+         vulnerable to the well-known chdir(..)(etc)chroot(.) escape.
-+    2. Cannot mount or umount
-+    3. Cannot send signals outside of jail
-+    4. Cannot ptrace processes outside of jail
-+    5. Cannot create devices
-+    6. Cannot renice processes
-+    7. Cannot load or unload modules
-+    8. Cannot change network settings
-+    9. May be assigned a specific ip address which will be used
-+         for all it's socket binds.
-+   10. Cannot see contents of /proc/<pid> entries of processes not in the
-+         same jail.  (We hide their existence for convenience's sake, but
-+         their existance can still be detected using, for instance, statfs)
-+   11. Has no CAP_SYS_RAWIO capability (no ioperm/iopl)
-+   12. May not share IPC resources with processes outside its own jail.
-+   13. May find it's valid network address (if restricted) under
-+       /proc/$$/attr/current.
-+
-+WARNINGS:
-+The security of this module is very much dependent on the security
-+of the rest of the system.  You must carefully think through your
-+use of the system.
-+
-+Some examples:
-+	1. If you leave /dev/hda1 in the jail, processes in the
-+	jail can access that filesystem (i.e. /sbin/debugfs).
-+	2. If you provide root access within a jail, this can of
-+	course be used to setuid binaries in the jail.  Combined
-+	with an unjailed regular user account, this gives jailed
-+	users unjailed root access.  (thanks to Brad Spender for
-+	pointing this out).  To protect against this, use jails
-+	in private namespaces, with the jail filesystems mounted
-+	ONLY within the jail namespaces.  For instance:
-+
-+$ # (Make sure /dev/hdc5 is not mounted anywhere)
-+$ new_namespace_shell /bin/bash
-+$ mount /dev/hdc5 /opt
-+$ mount -t proc proc /opt/proc
-+$ echo -n "root /opt" > /proc/$$/attr/exec
-+$ echo -n "ip 9.53.94.111" > /proc/$$/attr/exec
-+$ exec /bin/sh
-+$ sshd
-+$ apachectl start
-+$ exit
-+
-+How to use:
-+    1. modprobe bsdjail
-+    [ 1.5 /sbin/ifconfig eth0:0 2.2.2.2;
-+      1.6 /sbin/route add -host 2.2.2.2 dev eth0:0
-+      (optional) ]
-+    2. Make sure the root filesystem (ie /dev/hdc5) is not mounted
-+       anywhere else.
-+    3. exec_private_namespace /bin/sh
-+    4. mount /dev/hdc5 /opt
-+    5. mount -t proc proc /opt/proc
-+    6. echo -n "root /opt" > /proc/$$/attr/exec
-+       echo -n "ip 2.2.2.2" > /proc/$$/attr/exec (optional)
-+    7. exec /bin/sh
-+    8. sshd
-+    9. exit
-+
-+The new shell will now run in a private jail on the filesystem on
-+/dev/hdc5. If proc has been mounted under /dev/hdc5, then a "ps -auxw"
-+under the jailed shell will show only entries for processes started under
-+that jail.
-+
-+If a private IP was specified for the jail, then 
-+		cat /proc/$$/attr/current
-+will show the address for the private network device.  Other network
-+devices will be visible through /sbin/ifconfig -a, but not usable.
-+
-+If the reading process is not in a jail, then
-+		cat /proc/$$/attr/current
-+returns information about the root and ip * for the target process,
-+or "Not Jailed" if the target process is not jailed.
-+
-+Cat /proc/$$/attr/exec gives a list of the valid keywords to cat into
-+/proc/$$/attr/exec when starting a jail.
-+
-+Current valid keywords for creating a jail are:
-+
-+     root: Root of jail's fs
-+     ip: Ip addr for this jail
-+     nrtask: Number of tasks in this jail
-+     nice: The nice level for this jail.  (maybe should be min/max?)
-+     slice: Max timeslice per process
-+     data: Max size of DATA segment per process
-+     memlock: Max size of memory which can be locked per process
+Open the standard fds 0, 1 and 2 for usermode helpers.  Or at least
+try to do so.
 
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+---
 
+ kmod.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
+
+--- linux-2.6.8cow/kernel/kmod.c~hotplug	2004-09-04 22:59:14.000000000 +0200
++++ linux-2.6.8cow/kernel/kmod.c	2004-10-06 21:16:16.000000000 +0200
+@@ -166,6 +166,13 @@
+ 	/* We can run anywhere, unlike our parent keventd(). */
+ 	set_cpus_allowed(current, CPU_MASK_ALL);
+ 
++	/* Try to open either /dev/console or /dev/null for fds 0, 1 and 2 */
++	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
++		(void) sys_open("/dev/null", O_RDWR, 0);
++
++	(void) sys_dup(0);
++	(void) sys_dup(0);
++
+ 	retval = -EPERM;
+ 	if (current->fs->root)
+ 		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);

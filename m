@@ -1,65 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317022AbSG1Shy>; Sun, 28 Jul 2002 14:37:54 -0400
+	id <S317030AbSG1Sij>; Sun, 28 Jul 2002 14:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317030AbSG1Shy>; Sun, 28 Jul 2002 14:37:54 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:13068 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S317022AbSG1Shw>;
-	Sun, 28 Jul 2002 14:37:52 -0400
-Message-ID: <3D443B8C.7C2028B0@tv-sign.ru>
-Date: Sun, 28 Jul 2002 22:44:28 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [announce, patch] Thread-Local Storage (TLS) support for Linux, 
- 2.5.28
+	id <S317035AbSG1Sij>; Sun, 28 Jul 2002 14:38:39 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:17157 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317030AbSG1Sih>; Sun, 28 Jul 2002 14:38:37 -0400
+Date: Sun, 28 Jul 2002 19:41:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 11/13] don't hold i_sem during O_DIRECT writes to blockdevs
+Message-ID: <20020728194157.A15466@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3D439E43.5F2DEE3D@zip.com.au> <20020728120611.A7332@infradead.org> <3D44302C.1082D6DC@zip.com.au> <20020728190544.A14314@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020728190544.A14314@infradead.org>; from hch@infradead.org on Sun, Jul 28, 2002 at 07:05:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sun, Jul 28, 2002 at 07:05:44PM +0100, Christoph Hellwig wrote:
+> And I think we can expect reasonable ulimits for root nowdays, although
+> I'm open for discussions on that one.
 
-I thought, that gdt entry consulted only while
-loading its index into the segment register.
+Forget about this one - I remembered the code wrongly.
 
-So load_TLS_desc(next, cpu) must be called before
-loading next->fs,next->gs in __switch_to() ?
-
---- linux-2.5.29/arch/i386/kernel/process.c~	Sun Jul 28 21:44:35 2002
-+++ linux-2.5.29/arch/i386/kernel/process.c	Sun Jul 28 21:46:07 2002
-@@ -675,6 +675,14 @@
- 	tss->esp0 = next->esp0;
- 
- 	/*
-+	 * Load the per-thread Thread-Local Storage descriptor.
-+	 *
-+	 * NOTE: it's faster to do the two stores unconditionally
-+	 * than to branch away.
-+	 */
-+	load_TLS_desc(next, cpu);
-+
-+	/*
- 	 * Save away %fs and %gs. No need to save %es and %ds, as
- 	 * those are always kernel segments while inside the kernel.
- 	 */
-@@ -688,14 +696,6 @@
- 		loadsegment(fs, next->fs);
- 		loadsegment(gs, next->gs);
- 	}
--
--	/*
--	 * Load the per-thread Thread-Local Storage descriptor.
--	 *
--	 * NOTE: it's faster to do the two stores unconditionally
--	 * than to branch away.
--	 */
--	load_TLS_desc(next, cpu);
- 
- 	/*
- 	 * Now maybe reload the debug registers
-
-Oleg.

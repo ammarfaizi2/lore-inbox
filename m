@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131616AbRBATAB>; Thu, 1 Feb 2001 14:00:01 -0500
+	id <S131707AbRBATAb>; Thu, 1 Feb 2001 14:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131639AbRBAS7v>; Thu, 1 Feb 2001 13:59:51 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:61188 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S131616AbRBAS7i>;
-	Thu, 1 Feb 2001 13:59:38 -0500
-Date: Thu, 1 Feb 2001 10:59:33 -0800
-From: David Gould <dg@suse.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: David Gould <dg@suse.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] vma limited swapin readahead
-Message-ID: <20010201105933.A12074@archimedes.oak.suse.com>
-In-Reply-To: <Pine.LNX.4.21.0101310636530.16408-100000@freak.distro.conectiva> <m18znrcxx7.fsf@frodo.biederman.org> <20010131162424.E9053@archimedes.oak.suse.com> <20010201112601.K11607@redhat.com>
+	id <S131639AbRBATAX>; Thu, 1 Feb 2001 14:00:23 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:37903 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S131707AbRBATAM>;
+	Thu, 1 Feb 2001 14:00:12 -0500
+Date: Thu, 1 Feb 2001 11:59:41 -0700
+From: yodaiken@fsmlabs.com
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@caldera.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201115941.B6715@hq.fsmlabs.com>
+In-Reply-To: <E14ONzo-0004kq-00@the-village.bc.nu> <Pine.LNX.4.21.0102011628590.1321-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010201112601.K11607@redhat.com>; from sct@redhat.com on Thu, Feb 01, 2001 at 11:26:01AM +0000
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <Pine.LNX.4.21.0102011628590.1321-100000@duckman.distro.conectiva>; from Rik van Riel on Thu, Feb 01, 2001 at 04:32:48PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 01, 2001 at 11:26:01AM +0000, Stephen C. Tweedie wrote:
-> On Wed, Jan 31, 2001 at 04:24:24PM -0800, David Gould wrote:
+On Thu, Feb 01, 2001 at 04:32:48PM -0200, Rik van Riel wrote:
+> On Thu, 1 Feb 2001, Alan Cox wrote:
+> 
+> > > Sure.  But Linus saing that he doesn't want more of that (shit, crap,
+> > > I don't rember what he said exactly) in the kernel is a very good reason
+> > > for thinking a little more aboyt it.
 > > 
-> > I am skeptical of the argument that we can win by replacing "the least
-> > desirable" pages with pages were even less desireable and that we have
-> > no recent indication of any need for. It seems possible under heavy swap
-> > to discard quite a portion of the useful pages in favor of junk that just
-> > happenned to have a lucky disk address.
+> > No. Linus is not a God, Linus is fallible, regularly makes mistakes and
+> > frequently opens his mouth and says stupid things when he is far too busy.
 > 
-> When readin clustering was added to 2.2 for swap and paging,
-> performance for a lot of VM-intensive tasks more than doubled.  Disk
-> seeks are _expensive_.  If you read in 15 neighbouring pages on swapin
-> and on average only one of them turns out to be useful, you have still
-> halved the number of swapin IOs required.  The performance advantages
-> are so enormous that easily compensate for the cost of holding the
-> other, unneeded pages in memory for a while.
-> 
-> Also remember that the readahead pages won't actually get mapped into
-> memory, so they can be recycled easily.  So, under swapping you tend
-> to find that the extra readin pages are going to be replacing old,
-> unneeded readahead pages to some extent, rather than swapping out
-> useful pages.
+> People may remember Linus saying a resolute no to SMP
+> support in Linux ;)
 
-Ok. I am convinced. I would have even thought of this myself eventually...
+And perhaps he was right!
 
-Thanks
-
--dg
- 
 -- 
-David Gould                                                 dg@suse.com
-SuSE, Inc.,  580 2cd St. #210,  Oakland, CA 94607          510.628.3380
-You left them alone in a room with a penguin?!  Mr Gates, your men are
-already dead.
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267154AbTBDIkp>; Tue, 4 Feb 2003 03:40:45 -0500
+	id <S267187AbTBDIol>; Tue, 4 Feb 2003 03:44:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267155AbTBDIkp>; Tue, 4 Feb 2003 03:40:45 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:44806 "EHLO pazke")
-	by vger.kernel.org with ESMTP id <S267154AbTBDIko>;
-	Tue, 4 Feb 2003 03:40:44 -0500
-Date: Tue, 4 Feb 2003 11:45:26 +0300
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] pci: make pci_direct_conf1 structure nonstatic
-Message-ID: <20030204084526.GA361@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="u3/rZRmxL6MmkK24"
+	id <S267183AbTBDIol>; Tue, 4 Feb 2003 03:44:41 -0500
+Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:48027 "EHLO
+	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id <S267184AbTBDIok> convert rfc822-to-8bit; Tue, 4 Feb 2003 03:44:40 -0500
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.5.59: ATI framebuffer compilation error
+Date: Tue, 4 Feb 2003 03:55:56 -0500
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+Message-Id: <200302040356.12614.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+2.5.59 bitkeeper (as of 3:50 am Feb. 4 US Eastern time, changeset 1.973)
 
-Hi,
+  Generating include/linux/compile.h (updated)
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
+- -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+- -mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default 
+- -fomit-frame-pointer -nostdinc -iwithprefix include    
+- -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -o init/version.o 
+init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
+init/do_mounts.o init/initramfs.o init/vermagic.o
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o 
+- --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  
+mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  
+crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  
+sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o 
+.tmp_vmlinux1
+drivers/built-in.o(.text+0xa441a): In function `atyfb_copyarea':
+: undefined reference to `cfb_copyarea'
+make: *** [.tmp_vmlinux1] Error 1
+[root@cobra linux]# grep ATY ./include/linux/autoconf.h
+#undef CONFIG_FB_ATY128
+#define CONFIG_FB_ATY 1
+#define CONFIG_FB_ATY_CT 1
+#undef CONFIG_FB_ATY_GX
+[root@cobra linux]# 
 
-this triial patch is needed to use pci access functions from 
-i386/pci/direct.c by the visws pci code. To achieve this patch
-makes pci_direct_conf1 structure (which hold pci pointers of access 
-functions) nonstatic. PCI id for SGI lithium hostbridge is added also.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-SGI visws supports pci type 1 pci access, but needs different 
-bus and irq enumeration logic.
+iD8DBQE+P4ApXQ/AjixQzHcRApN3AJ9RP1QP3BNe5pdEEUu7KqF438ybMwCfcYLA
+Y1cvH99glMb+SoiKMme+XIc=
+=o4PQ
+-----END PGP SIGNATURE-----
 
-Please consider applying.
-
-Best regards.
- 
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
-
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-pci
-
-diff -urN -X /usr/share/dontdiff linux-2.5.59.vanilla/arch/i386/pci/direct.c linux-2.5.59/arch/i386/pci/direct.c
---- linux-2.5.59.vanilla/arch/i386/pci/direct.c	Wed Jan 15 20:37:20 2003
-+++ linux-2.5.59/arch/i386/pci/direct.c	Mon Feb  3 15:55:11 2003
-@@ -83,7 +83,7 @@
- 		PCI_FUNC(devfn), where, size, value);
- }
- 
--static struct pci_ops pci_direct_conf1 = {
-+struct pci_ops pci_direct_conf1 = {
- 	.read =		pci_conf1_read,
- 	.write =	pci_conf1_write,
- };
-diff -urN -X /usr/share/dontdiff linux-2.5.59.vanilla/include/linux/pci_ids.h linux-2.5.59/include/linux/pci_ids.h
---- linux-2.5.59.vanilla/include/linux/pci_ids.h	Wed Jan 15 20:28:37 2003
-+++ linux-2.5.59/include/linux/pci_ids.h	Mon Feb  3 15:55:12 2003
-@@ -844,6 +844,7 @@
- 
- #define PCI_VENDOR_ID_SGI		0x10a9
- #define PCI_DEVICE_ID_SGI_IOC3		0x0003
-+#define PCI_VENDOR_ID_SGI_LITHIUM	0x1002
- 
- #define PCI_VENDOR_ID_ACC		0x10aa
- #define PCI_DEVICE_ID_ACC_2056		0x0000
-
---u3/rZRmxL6MmkK24--

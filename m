@@ -1,103 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269014AbUJENG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269018AbUJENPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269014AbUJENG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 09:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUJENG7
+	id S269018AbUJENPD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 09:15:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUJENPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 09:06:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25052 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269014AbUJENGv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 09:06:51 -0400
-Date: Tue, 5 Oct 2004 08:27:52 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, sct@redhat.com
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-Message-ID: <20041005112752.GA21094@logos.cnet>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
+	Tue, 5 Oct 2004 09:15:03 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24328 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269018AbUJENO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 09:14:57 -0400
+Date: Tue, 5 Oct 2004 14:14:52 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Richard Earnshaw <Richard.Earnshaw@arm.com>
+Cc: linux-kernel@vger.kernel.org, Catalin Marinas <Catalin.Marinas@arm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+Message-ID: <20041005141452.B6910@flint.arm.linux.org.uk>
+Mail-Followup-To: Richard Earnshaw <Richard.Earnshaw@arm.com>,
+	linux-kernel@vger.kernel.org,
+	Catalin Marinas <Catalin.Marinas@arm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <20040927210305.A26680@flint.arm.linux.org.uk> <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com> <1096931899.32500.37.camel@localhost.localdomain> <loom.20041005T130541-400@post.gmane.org> <20041005125324.A6910@flint.arm.linux.org.uk> <1096981035.14574.20.camel@pc960.cambridge.arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16733.50382.569265.183099@segfault.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1096981035.14574.20.camel@pc960.cambridge.arm.com>; from Richard.Earnshaw@arm.com on Tue, Oct 05, 2004 at 01:57:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 04:57:50PM -0400, Jeff Moyer wrote:
-> This patch makes an attempt at supporting the O_NONBLOCK flag for regular
-> files.  It's pretty straight-forward.  One limitation is that we still call
-> into the readahead code, which I believe can block.  However, if we don't
-> do this, then an application which only uses non-blocking reads may never
-> get it's data.
+On Tue, Oct 05, 2004 at 01:57:15PM +0100, Richard Earnshaw wrote:
+> On Tue, 2004-10-05 at 12:53, Russell King wrote:
+> > diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/scripts/kallsyms.c linux/scripts/kallsyms.c
+> > --- orig/scripts/kallsyms.c	Sun Jul 11 22:56:39 2004
+> > +++ linux/scripts/kallsyms.c	Tue Oct  5 12:51:26 2004
+> > @@ -32,6 +32,17 @@ usage(void)
+> >  	exit(1);
+> >  }
+> >  
+> > +/*
+> > + * This ignores the intensely annoying "mapping symbols" found
+> > + * in ARM ELF files: $a, $t and $d.
+> > + */
+> > +static inline int
+> > +is_arm_mapping_symbol(const char *str)
+> > +{
+> > +	return str[0] == '$' && strchr("atd", str[1]) &&
+> > +	       (str[2] == '\0' || str[2] == '.');
+> > +}
+> > +
+> >  static int
+> >  read_symbol(FILE *in, struct sym_entry *s)
+> >  {
+> > @@ -56,7 +67,8 @@ read_symbol(FILE *in, struct sym_entry *
+> >  		_sinittext = s->addr;
+> >  	else if (strcmp(str, "_einittext") == 0)
+> >  		_einittext = s->addr;
+> > -	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U')
+> > +	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U' ||
+> > +		 is_arm_mapping_symbol(str))
+> >  		return -1;
+> >  
+> >  	s->sym = strdup(str);
 > 
-> Comments welcome.
+> Why don't you pass s to is_arm_mapping_symbol and have it do the same
+> thing as you've done in get_ksymbol?
 
-Hi Jeff,
+"sym_entry" is not an ELF symtab structure - it's a parsed version
+of the `nm' output, and as such does not contain the symbol type nor
+binding information.
 
-Curiosity: Is this defined in any UNIX standard?
+> ----------------------------------------------------------------
+> This e-mail message is intended for the addressee(s) only and may
+> contain information that is the property of, and/or subject to a
+> confidentiality agreement between the intended recipient(s), their
+> organisation and/or the ARM Group of Companies. If you are not an
+> intended recipient of this e-mail message, you should not read, copy,
+> forward or otherwise distribute or further disclose the information in
+> it; misuse of the contents of this e-mail message may violate various
+> laws in your state, country or jurisdiction. If you have received this
+> e-mail message in error, please contact the originator of this e-mail
+> message via e-mail and delete all copies of this message from your
+> computer or network, thank you.
+> ----------------------------------------------------------------
 
-Adv. Programming in the UNIX environment says:
+Does this apply to your message?  It would appear that third parties
+subscribed to linux-kernel are not allowed to read your messages
+because they're not an "intended recipient" !
 
-12.2 Nonblocking I/O
-
-"Nonblocking I/O lets us issue an I/O operation, such as open, read,
-or write and not have it block forever. If the operation cannot be 
-completed, return is made immediately with an error noting that 
-the operation would have blocked."
-
-He is talking about read's on descriptors (pipe's, devices, etc) which 
-block in case of no data present, not about filesystem IO.
-
-But here we create our own semantics of O_NONBLOCK on read() of 
-fs IO. As you say page_cache_readahead can block for one
-trying to allocate pages, possibly while submitting IO too.
-
-The patch is cool - might be nice to check if SuS or someone else
-specificies behaviour and try to match if so?
-
-> 
-> -Jeff
-> 
-> --- linux-2.6.8/mm/filemap.c.orig	2004-09-30 16:33:46.881129560 -0400
-> +++ linux-2.6.8/mm/filemap.c	2004-09-30 16:34:12.109294296 -0400
-> @@ -720,7 +720,7 @@ void do_generic_mapping_read(struct addr
->  	unsigned long index, end_index, offset;
->  	loff_t isize;
->  	struct page *cached_page;
-> -	int error;
-> +	int error, nonblock = filp->f_flags & O_NONBLOCK;
->  	struct file_ra_state ra = *_ra;
->  
->  	cached_page = NULL;
-> @@ -755,10 +755,20 @@ find_page:
->  		page = find_get_page(mapping, index);
->  		if (unlikely(page == NULL)) {
->  			handle_ra_miss(mapping, &ra, index);
-> +			if (nonblock) {
-> +				desc->error = -EWOULDBLOCK;
-> +				break;
-> +			}
->  			goto no_cached_page;
->  		}
-> -		if (!PageUptodate(page))
-> +		if (!PageUptodate(page)) {
-> +			if (nonblock) {
-> +				page_cache_release(page);
-> +				desc->error = -EWOULDBLOCK;
-> +				break;
-> +			}
->  			goto page_not_up_to_date;
-> +		}
->  page_ok:
->  
->  		/* If users can be writing to this page using arbitrary
-> @@ -1004,7 +1014,7 @@ __generic_file_aio_read(struct kiocb *io
->  			desc.error = 0;
->  			do_generic_file_read(filp,ppos,&desc,file_read_actor);
->  			retval += desc.written;
-> -			if (!retval) {
-> +			if (!retval || desc.error) {
->  				retval = desc.error;
->  				break;
->  			}
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

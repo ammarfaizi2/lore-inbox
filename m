@@ -1,158 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266594AbUBLU7O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 15:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUBLU5l
+	id S266589AbUBLU4r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 15:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUBLU4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 15:57:41 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:58426 "EHLO
-	shaggy.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S266594AbUBLU5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 15:57:05 -0500
-Date: Thu, 12 Feb 2004 14:57:03 -0600
-From: shaggy@austin.ibm.com
-Message-Id: <200402122057.i1CKv3tt006265@kleikamp.dyn.webahead.ibm.com>
-To: akpm@osdl.org
-Subject: [PATCH] JFS: sane file name handling (1 of 2)
-Cc: linux-kernel@vger.kernel.org
+	Thu, 12 Feb 2004 15:56:47 -0500
+Received: from gate.crashing.org ([63.228.1.57]:46999 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266589AbUBLU4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 15:56:42 -0500
+Subject: [PATCH] Fix a link conflict between radeonfb and the radeon DRI
+	driver
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1076619198.12431.20.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 13 Feb 2004 07:53:18 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/02/11 13:35:46-06:00 shaggy@austin.ibm.com 
-#   JFS: get_UCSname does not need nls_tab argument
-#   
-#   This is a minor code cleanup.  get_UCSname can get nls_tab by
-#   following the dentry to the superblock.  This makes the calling code
-#   simpler and prettier.
-# 
-diff -Nru a/fs/jfs/jfs_unicode.c b/fs/jfs/jfs_unicode.c
---- a/fs/jfs/jfs_unicode.c	Thu Feb 12 14:43:25 2004
-+++ b/fs/jfs/jfs_unicode.c	Thu Feb 12 14:43:25 2004
-@@ -18,7 +18,7 @@
+They both define radeon_engine_reset. Here's a fix (from Panagiotis Papadakos).
+
+
+diff -ruN linux/drivers/video/aty_orig/radeon_accel.c linux/drivers/video/aty/radeon_accel.c
+--- linux/drivers/video/aty_orig/radeon_accel.c	2004-02-12 17:46:43.000000000 +0200
++++ linux/drivers/video/aty/radeon_accel.c	2004-02-12 18:10:47.000000000 +0200
+@@ -126,7 +126,7 @@
+ 	return 0;
+ }
  
- #include <linux/fs.h>
- #include <linux/slab.h>
--#include "jfs_types.h"
-+#include "jfs_incore.h"
- #include "jfs_filsys.h"
- #include "jfs_unicode.h"
- #include "jfs_debug.h"
-@@ -82,9 +82,9 @@
-  * FUNCTION:	Allocate and translate to unicode string
-  *
-  */
--int get_UCSname(struct component_name * uniName, struct dentry *dentry,
--		struct nls_table *nls_tab)
-+int get_UCSname(struct component_name * uniName, struct dentry *dentry)
+-void radeon_engine_reset(struct radeonfb_info *rinfo)
++void radeonfb_engine_reset(struct radeonfb_info *rinfo)
  {
-+	struct nls_table *nls_tab = JFS_SBI(dentry->d_sb)->nls_tab;
- 	int length = dentry->d_name.len;
+ 	u32 clock_cntl_index, mclk_cntl, rbbm_soft_reset;
+ 	u32 host_path_cntl;
+@@ -222,14 +222,14 @@
+ 		R300_cg_workardound(rinfo);
+ }
  
- 	if (length > JFS_NAME_MAX)
-diff -Nru a/fs/jfs/jfs_unicode.h b/fs/jfs/jfs_unicode.h
---- a/fs/jfs/jfs_unicode.h	Thu Feb 12 14:43:25 2004
-+++ b/fs/jfs/jfs_unicode.h	Thu Feb 12 14:43:25 2004
-@@ -30,8 +30,7 @@
+-void radeon_engine_init (struct radeonfb_info *rinfo)
++void radeonfb_engine_init (struct radeonfb_info *rinfo)
+ {
+ 	unsigned long temp;
  
- extern signed char UniUpperTable[512];
- extern UNICASERANGE UniUpperRange[];
--extern int get_UCSname(struct component_name *, struct dentry *,
--		       struct nls_table *);
-+extern int get_UCSname(struct component_name *, struct dentry *);
- extern int jfs_strfromUCS_le(char *, const wchar_t *, int, struct nls_table *);
+ 	/* disable 3D engine */
+ 	OUTREG(RB3D_CNTL, 0);
  
- #define free_UCSname(COMP) kfree((COMP)->name)
-diff -Nru a/fs/jfs/namei.c b/fs/jfs/namei.c
---- a/fs/jfs/namei.c	Thu Feb 12 14:43:25 2004
-+++ b/fs/jfs/namei.c	Thu Feb 12 14:43:25 2004
-@@ -78,7 +78,7 @@
- 	 * search parent directory for entry/freespace
- 	 * (dtSearch() returns parent directory page pinned)
- 	 */
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(dip->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&dname, dentry)))
- 		goto out1;
+-	radeon_engine_reset(rinfo);
++	radeonfb_engine_reset(rinfo);
  
- 	/*
-@@ -204,7 +204,7 @@
- 	 * search parent directory for entry/freespace
- 	 * (dtSearch() returns parent directory page pinned)
- 	 */
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(dip->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&dname, dentry)))
- 		goto out1;
- 
- 	/*
-@@ -332,7 +332,7 @@
- 		goto out;
+ 	radeon_fifo_wait (1);
+ 	if ((rinfo->family != CHIP_FAMILY_R300) &&
+diff -ruN linux/drivers/video/aty_orig/radeon_base.c linux/drivers/video/aty/radeon_base.c
+--- linux/drivers/video/aty_orig/radeon_base.c	2004-02-12 17:46:43.000000000 +0200
++++ linux/drivers/video/aty/radeon_base.c	2004-02-12 18:10:47.000000000 +0200
+@@ -1662,7 +1662,7 @@
+ 		radeon_write_mode (rinfo, &newmode);
+ 		/* (re)initialize the engine */
+ 		if (!radeon_accel_disabled())
+-			radeon_engine_init (rinfo);
++			radeonfb_engine_init (rinfo);
+ 	
+ 	}
+ 	/* Update fix */
+diff -ruN linux/drivers/video/aty_orig/radeon_pm.c linux/drivers/video/aty/radeon_pm.c
+--- linux/drivers/video/aty_orig/radeon_pm.c	2004-02-12 17:46:43.000000000 +0200
++++ linux/drivers/video/aty/radeon_pm.c	2004-02-12 18:10:47.000000000 +0200
+@@ -862,7 +862,7 @@
+ 	if (!radeon_accel_disabled()) {
+ 		/* Make sure engine is reset */
+ 		radeon_engine_idle();
+-		radeon_engine_reset(rinfo);
++		radeonfb_engine_reset(rinfo);
+ 		radeon_engine_idle();
  	}
  
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(dip->i_sb)->nls_tab))) {
-+	if ((rc = get_UCSname(&dname, dentry))) {
- 		goto out;
- 	}
+diff -ruN linux/drivers/video/aty_orig/radeonfb.h linux/drivers/video/aty/radeonfb.h
+--- linux/drivers/video/aty_orig/radeonfb.h	2004-02-12 17:46:43.000000000 +0200
++++ linux/drivers/video/aty/radeonfb.h	2004-02-12 18:10:47.000000000 +0200
+@@ -556,8 +556,8 @@
+ extern void radeonfb_copyarea(struct fb_info *info, const struct fb_copyarea *area);
+ extern void radeonfb_imageblit(struct fb_info *p, const struct fb_image *image);
+ extern int radeonfb_sync(struct fb_info *info);
+-extern void radeon_engine_init (struct radeonfb_info *rinfo);
+-extern void radeon_engine_reset(struct radeonfb_info *rinfo);
++extern void radeonfb_engine_init (struct radeonfb_info *rinfo);
++extern void radeonfb_engine_reset(struct radeonfb_info *rinfo);
  
-@@ -451,7 +451,7 @@
- 
- 	jfs_info("jfs_unlink: dip:0x%p name:%s", dip, dentry->d_name.name);
- 
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(dip->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&dname, dentry)))
- 		goto out;
- 
- 	IWRITE_LOCK(ip);
-@@ -786,7 +786,7 @@
- 	/*
- 	 * scan parent directory for entry/freespace
- 	 */
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(ip->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&dname, dentry)))
- 		goto out;
- 
- 	if ((rc = dtSearch(dir, &dname, &ino, &btstack, JFS_CREATE)))
-@@ -866,7 +866,7 @@
- 	 * (dtSearch() returns parent directory page pinned)
- 	 */
- 
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(dip->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&dname, dentry)))
- 		goto out1;
- 
- 	/*
-@@ -1069,12 +1069,10 @@
- 	old_ip = old_dentry->d_inode;
- 	new_ip = new_dentry->d_inode;
- 
--	if ((rc = get_UCSname(&old_dname, old_dentry,
--			      JFS_SBI(old_dir->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&old_dname, old_dentry)))
- 		goto out1;
- 
--	if ((rc = get_UCSname(&new_dname, new_dentry,
--			      JFS_SBI(old_dir->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&new_dname, new_dentry)))
- 		goto out2;
- 
- 	/*
-@@ -1329,7 +1327,7 @@
- 
- 	jfs_info("jfs_mknod: %s", dentry->d_name.name);
- 
--	if ((rc = get_UCSname(&dname, dentry, JFS_SBI(dir->i_sb)->nls_tab)))
-+	if ((rc = get_UCSname(&dname, dentry)))
- 		goto out;
- 
- 	ip = ialloc(dir, mode);
-@@ -1411,8 +1409,7 @@
- 	else if (strcmp(name, "..") == 0)
- 		inum = PARENT(dip);
- 	else {
--		if ((rc =
--		     get_UCSname(&key, dentry, JFS_SBI(dip->i_sb)->nls_tab)))
-+		if ((rc = get_UCSname(&key, dentry)))
- 			return ERR_PTR(rc);
- 		rc = dtSearch(dip, &key, &inum, &btstack, JFS_LOOKUP);
- 		free_UCSname(&key);
+ /* Other functions */
+ extern int radeonfb_blank(int blank, struct fb_info *info);
+
+

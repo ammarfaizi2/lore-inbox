@@ -1,59 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbTEIAm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 20:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbTEIAm2
+	id S262263AbTEIAmd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 20:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbTEIAmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 20:42:28 -0400
+	Thu, 8 May 2003 20:42:33 -0400
 Received: from mrt-aod.iram.es ([150.214.224.146]:21255 "EHLO mrt-lx16.iram.es")
-	by vger.kernel.org with ESMTP id S262262AbTEIAm1 (ORCPT
+	by vger.kernel.org with ESMTP id S262263AbTEIAm2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 20:42:27 -0400
-From: paubert <paubert@mrt-lx16.iram.es>
-Date: Thu, 8 May 2003 22:54:57 +0000
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: desc v0.61 found a 2.5 kernel bug
-Message-ID: <20030508225457.A11862@mrt-lx16.iram.es>
-References: <200304301610_MC3-1-36BC-C42@compuserve.com>
+	Thu, 8 May 2003 20:42:28 -0400
+Date: Fri, 9 May 2003 00:42:01 +0000
+From: paubert <paubert@iram.es>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>,
+       David Mosberger <davidm@hpl.hp.com>
+Subject: [PATCH] Mask mxcsr according to cpu features.
+Message-ID: <20030509004200.A22795@mrt-lx16.iram.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304301610_MC3-1-36BC-C42@compuserve.com>
 User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 04:08:05PM -0400, Chuck Ebbert wrote:
-[Sorry for the delay I've been extremely busy on other things]
-> 
->  Looks like the only clean way is to follow the TSS back link and manually
-> validate the segment registers before returning:
-> 
->   invalid FS,GS -> 0
->      "    DS,ES -> __USER_DS
->           CS,SS -> panic?
 
-It's still racy on SMP if a thread with the same MM is modifying the LDT
-between the time you check whether the selectors are valid and the iret
-instruction restoring the previous stack.
+[CC'ed to x86_64 and ia64 maintainers because they might have the 
+same issues. For existing x86_64 processors, s/0xffbf/0xffff/ in 
+arch/x86-64/ia32/{fpu32,ptrace32}.c might be sufficient]
 
-> 
->  Bad things can happen if a debug fault happens in certain places... for now
-> the solution is to only support int3 breakpoints and avoid those places.
+With SSE2, mxcsr bit 6 is defined as controlling whether
+denormals should be treated as zeroes or not. Setting it
+no more causes an exception, but with the current code it 
+would be cleared at every signal return which is a bit harsh.
 
-Can you elaborate a bit, in which places?
+The following patch fixes this (2.5, but easily ported to 2.4).
 
-> 
->  Given the above, I hope to be able to put int3 instructions in either
-> kernel or user code and get snapshots of CPU state in the kernel TSS.
-
-And what about the little bit called TS in CR0 which is always set by 
-a task switch. That's one bit of state which will be always set when
-the debug interrupt returns, and the current code for FPU will be
-confused by this AFAICT. Things become even more interesting if you 
-want to allow debug traps between in the kernel routines using the
-FPU, between kernel_fpu_begin() and kernel_fpu_end().
+===== arch/i386/kernel/i387.c 1.16 vs edited =====
+--- 1.16/arch/i386/kernel/i387.c	Wed Apr  9 05:45:37 2003
++++ edited/arch/i386/kernel/i387.c	Thu May  8 23:30:23 2003
+@@ -25,6 +25,12 @@
+ #define HAVE_HWFP 1
+ #endif
+ 
++/* mxcsr bits 31-16 must be zero for security reasons,
++ * bit 6 depends on cpu features.
++ */
++#define MXCSR_MASK (cpu_has_sse2 ? 0xffff : 0xffbf)
++
++
+ /*
+  * The _current_ task is using the FPU for the first time
+  * so initialize it and set the mxcsr to its default
+@@ -208,7 +214,7 @@
+ void set_fpu_mxcsr( struct task_struct *tsk, unsigned short mxcsr )
+ {
+ 	if ( cpu_has_xmm ) {
+-		tsk->thread.i387.fxsave.mxcsr = (mxcsr & 0xffbf);
++		tsk->thread.i387.fxsave.mxcsr = (mxcsr & MXCSR_MASK);
+ 	}
+ }
+ 
+@@ -356,8 +362,7 @@
+ 	clear_fpu( tsk );
+ 	err = __copy_from_user( &tsk->thread.i387.fxsave, &buf->_fxsr_env[0],
+ 				sizeof(struct i387_fxsave_struct) );
+-	/* mxcsr bit 6 and 31-16 must be zero for security reasons */
+-	tsk->thread.i387.fxsave.mxcsr &= 0xffbf;
++	tsk->thread.i387.fxsave.mxcsr &= MXCSR_MASK;
+ 	return err ? 1 : convert_fxsr_from_user( &tsk->thread.i387.fxsave, buf );
+ }
+ 
+@@ -455,8 +460,7 @@
+ 	if ( cpu_has_fxsr ) {
+ 		__copy_from_user( &tsk->thread.i387.fxsave, buf,
+ 				  sizeof(struct user_fxsr_struct) );
+-		/* mxcsr bit 6 and 31-16 must be zero for security reasons */
+-		tsk->thread.i387.fxsave.mxcsr &= 0xffbf;
++		tsk->thread.i387.fxsave.mxcsr &= MXCSR_MASK;
+ 		return 0;
+ 	} else {
+ 		return -EIO;
 
 	Gabriel
-

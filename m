@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbSKCApv>; Sat, 2 Nov 2002 19:45:51 -0500
+	id <S261539AbSKCA7Q>; Sat, 2 Nov 2002 19:59:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbSKCApv>; Sat, 2 Nov 2002 19:45:51 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48327 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261529AbSKCApv>;
-	Sat, 2 Nov 2002 19:45:51 -0500
-Date: Sat, 2 Nov 2002 19:52:17 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
+	id <S261540AbSKCA7Q>; Sat, 2 Nov 2002 19:59:16 -0500
+Received: from oak.sktc.net ([208.46.69.4]:43214 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S261539AbSKCA7Q>;
+	Sat, 2 Nov 2002 19:59:16 -0500
+Message-ID: <3DC47659.4060006@sktc.net>
+Date: Sat, 02 Nov 2002 19:05:29 -0600
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021012
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rik van Riel <riel@conectiva.com.br>, "Theodore Ts'o" <tytso@mit.edu>,
+CC: Rik van Riel <riel@conectiva.com.br>, "Theodore Ts'o" <tytso@mit.edu>,
        Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
        linux-kernel@vger.kernel.org, davej@suse.de
 Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <Pine.GSO.4.21.0211021926540.25010-100000@steklov.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0211021951490.25010-100000@steklov.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <Pine.LNX.4.44.0211021619580.2221-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0211021619580.2221-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
+>
+> And pathnames are a _hell_ of a lot better and straightforward interface
+> than inode numbers are. It's confusing when you change the permission on
+> one path to notice that another path magically changed too.
 
-On Sat, 2 Nov 2002, Alexander Viro wrote:
+Would this not allow a user to add permissions to a file, by creating a 
+new directory entry and linking it to an existing inode?
 
-> Folks, seriously - it might be very tempting to add features in that
-> area, but more features actually increase overall security.  Just look
-
-Arrgh.  s/increase/decrease/, obviously
+Would that not be a greater security hole?
 

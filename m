@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278025AbRJOFCt>; Mon, 15 Oct 2001 01:02:49 -0400
+	id <S270619AbRJOFPt>; Mon, 15 Oct 2001 01:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278027AbRJOFCk>; Mon, 15 Oct 2001 01:02:40 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:34211 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S278025AbRJOFC2>; Mon, 15 Oct 2001 01:02:28 -0400
-Date: Mon, 15 Oct 2001 07:07:16 +0200 (CEST)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: Andi Kleen <ak@muc.de>
-cc: Tommy Faasen <tommy@vuurwerk.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: SMP processor rework help needed
-In-Reply-To: <k2wv1yhsh4.fsf@zero.aec.at>
-Message-ID: <Pine.LNX.4.33.0110150706250.1463-100000@neptune.sol.net>
+	id <S277527AbRJOFPU>; Mon, 15 Oct 2001 01:15:20 -0400
+Received: from cp1s4p1.dashmail.net ([216.36.32.37]:39688 "EHLO sr71.net")
+	by vger.kernel.org with ESMTP id <S273588AbRJOFPM>;
+	Mon, 15 Oct 2001 01:15:12 -0400
+Message-ID: <3BCA70DD.524D0D1@sr71.net>
+Date: Sun, 14 Oct 2001 22:15:09 -0700
+From: "David C. Hansen" <dave@sr71.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Abhishek Rai <abbashake007@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Question : spinlock
+In-Reply-To: <20011013140756.24222.qmail@web11401.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Oct 2001, Andi Kleen wrote:
-
-> I used to have such an AMP machine too: a dual PII-300 with one Katmai and
-> one Deschutes. It's technically a violation of the specs; the Intel SMP
-> spec requires that the non boot cpus need to have a superset of the
-> features of the boot CPU. One CPU died, so it is symmetric now.
-Errrrm, excuse me, but why not simply swap the two CPUs so that the one
-with less features becomes the boot CPU?
-
+Abhishek Rai wrote:
+> 
+> > Can anybody tell me/ direct me to some tutorial/web
+> > site/manual etc/ where i can gather the concepts of
+> > Spin locks in linux, and get a good idea of the
+> > commonly used functions like : spin_lock_irqsave()
+> > etc.
+> > abhishek
+This is a pretty comprehensive list of all global spinlocks in the
+kernel.  It simply summarizes how they are used.  
+http://lse.sourceforge.net/lockhier/
 -- 
-Ciao, Pascal
-
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
-
+David C. Hansen
+dave@sr71.net
+ICQ: 7785546
+AIM: HansenDC79

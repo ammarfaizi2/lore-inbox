@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265822AbUEULYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUEUL0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265822AbUEULYf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 07:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265824AbUEULYf
+	id S265823AbUEUL0U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 07:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265829AbUEUL0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 07:24:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:33454 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265822AbUEULY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 07:24:28 -0400
-Date: Fri, 21 May 2004 13:24:11 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Etienne Vogt <etienne.vogt@obspm.fr>, linux-kernel@vger.kernel.org
-Subject: Re: aic79xx trouble
-Message-ID: <20040521112410.GO1952@suse.de>
-References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de> <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de> <Pine.LNX.4.58.0405161930260.2851@siolinb.obspm.fr> <3436150000.1084731012@aslan.btc.adaptec.com> <20040520203004.GD20953@logos.cnet> <320270000.1085086159@aslan.btc.adaptec.com>
+	Fri, 21 May 2004 07:26:19 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:15625 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265823AbUEULZm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 07:25:42 -0400
+Date: Fri, 21 May 2004 21:25:18 +1000
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: swsusp vs. pmdisk [was Re: swsusp: fix swsusp with intel-agp]
+Message-ID: <20040521112518.GA1014@gondor.apana.org.au>
+References: <20040521100734.GA31550@elf.ucw.cz> <E1BR7pl-0000Br-00@gondolin.me.apana.org.au> <20040521111612.GA976@elf.ucw.cz> <20040521112306.GC976@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <320270000.1085086159@aslan.btc.adaptec.com>
+In-Reply-To: <20040521112306.GC976@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 20 2004, Justin T. Gibbs wrote:
-> > Are distros using your updates ?
+On Fri, May 21, 2004 at 01:23:06PM +0200, Pavel Machek wrote:
 > 
-> I believe that SuSE is merging these drivers into their next 2.6.X
-> based release.
+> What about killing pmdisk code, instead?
+> 
+> Its old, its not maintained any more, and it is unneccessary duplicity
+> of swsusp code.
+> 
+> Patrick, in middle of april you claimed you'll have something "by the
+> end of month". Can you either start looking after your code or give up
+> and let me remove it?
 
-I don't think so. There will be an update disk for support for newly
-added hardware.
+Well if Patrick doesn't have the time to do it, I'd like to maintain
+pmdisk.  It might be a bit out-of-date, by with a bit of work, it
+can easily catch up again since the underlying structure is quite nice.
 
+Cheers,
 -- 
-Jens Axboe
-
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,57 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbTEARQg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 13:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTEARQg
+	id S261500AbTEAR1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 13:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEAR1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 13:16:36 -0400
-Received: from dhcp93-dsl-usw3.w-link.net ([206.129.84.93]:2716 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id S261497AbTEARQf
+	Thu, 1 May 2003 13:27:46 -0400
+Received: from mbox1.netikka.net ([213.250.81.202]:6322 "EHLO
+	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261500AbTEAR1m convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 13:16:35 -0400
-Message-ID: <3EB15946.4000506@candelatech.com>
-Date: Thu, 01 May 2003 10:28:38 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
+	Thu, 1 May 2003 13:27:42 -0400
+From: Thomas Backlund <tmb@iki.fi>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Date: Thu, 1 May 2003 20:39:58 +0300
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EB0413D.2050200@superonline.com> <200305011801.39014.tmb@iki.fi> <1051800568.21442.16.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051800568.21442.16.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: Balram Adlakha <b_adlakha@softhome.net>
-CC: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel source tree splitting
-References: <200305010756_MC3-1-36E1-623@compuserve.com> <20030501172238.GA13756@localhost.localdomain>
-In-Reply-To: <20030501172238.GA13756@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200305012039.58321.tmb@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balram Adlakha wrote:
-> On Thu, May 01, 2003 at 07:54:03AM -0400, Chuck Ebbert wrote:
+Viestissä Torstai 1. Toukokuuta 2003 17:49, Alan Cox kirjoitti:
+> On Iau, 2003-05-01 at 16:01, Thomas Backlund wrote:
+> > You mean the patch that only looks at videomode, dont you...
+>
+> I do
+>
+> > Well maybe it's best to use it as default, to avoid this bug
+> > "out of the box"...
+> >
+> > But I will remake a patch to ovverride it so that the users who
+> > need/want the extra memory to be able to allocate it...
+> > since I like the idea of giving the user the choice...
+>
+> Sounds right to me
 
->> I have seven source trees on disk right now.  Getting rid off all
->>the archs but i386 would not only save tons of space, it would also
->>make 'grep -r' go faster and stop spewing irrelevant hits for archs
->>that I couldn't care less about.
+Yeah, so merging the two patches ends up like this:
+----- cut -----
+--- tmb3/Documentation/fb/vesafb.txt	2003-05-01 19:53:26.000000000 +0300
++++ tmb3/Documentation/fb/vesafb.txt.vram	2003-05-01 20:11:08.000000000 
++0300
+@@ -146,6 +146,11 @@
 
-> 
-> I agree with you. Making different trees for different archs will make the tarball much smaller. Usually people only use one architecture and the other code lies waste. I think this has been discussed many times but It really is worth doing.
+ mtrr	setup memory type range registers for the vesafb framebuffer.
 
-How about a script to just prune it once you download it.  That will at least fix your
-disk space & grep issue, and will not affect those of us who like to see it all.
++vram:n  remap 'n' MiB of video RAM. If 0 or not specified, remap memory
++        according to video mode. (2.5.66 patch/idea by Antonino Daplas
++	reversed to give override possibility (allocate more fb memory
++	than the kernel would) to 2.4 by tmb@iki.fi)
++  
+ 
+ Have fun!
+ 
+--- tmb3/drivers/video/vesafb.c	2003-05-01 19:49:34.000000000 +0300
++++ tmb3/drivers/video/vesafb.c.vram	2003-05-01 20:07:57.000000000 +0300
+@@ -94,6 +94,7 @@
 
-If you want to save download bandwidth, just use incremental diffs and/or something
-like bk or one of the cvs exports.
+ static int             inverse   = 0;
+ static int             mtrr      = 0;
++static int	 vram __initdata = 0;	/* needed for vram boot option */
+ static int             currcon   = 0;
 
-Ben
+ static int             pmi_setpal = 0;	/* pmi for palette changes ??? */
+@@ -479,6 +480,10 @@
+ 			pmi_setpal=1;
+ 		else if (! strcmp(this_opt, "mtrr"))
+ 			mtrr=1;
++		/* checks for vram boot option */
++		else if (! strncmp(this_opt, "vram:", 5))
++			vram = simple_strtoul(this_opt+5, NULL, 0);
++
+ 		else if (!strncmp(this_opt, "font:", 5))
+ 			strcpy(fb_info.fontname, this_opt+5);
+ 	}
+@@ -520,7 +525,10 @@
+ 	video_width         = screen_info.lfb_width;
+ 	video_height        = screen_info.lfb_height;
+ 	video_linelength    = screen_info.lfb_linelength;
+-	video_size          = screen_info.lfb_size * 65536;
++	video_size          = screen_info.lfb_size * screen_info.lfb_height * 
+video_bpp;
++	/* sets video_size according to boot option */
++        if (vram && vram * 1024 * 1024 > video_size)
++                video_size = vram * 1024 * 1024;
+ 	video_visual = (video_bpp == 8) ?
+ 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+----- cut -----
 
+And yes...
+This is still without a "failsafe" since I don't have an upper limit,
+but it occurred to me that maybe it isn't that easy after all...
+ - I can't trust the videocard memory probe...,
+ - to just calculate the video_size * 3 (for tripple buffering) is bad ;-)
+ - videocards with everyhing between 256k and 256 MB of memory,
+   makes choosing the limit somewhat impossible...
+ - of course there is also endless range of installed system memory...
 
-> -- 
+So, any thoughts...?
+Or should one just leave it open due to:
+" it's your system, feel free to break it..." ;-)
 
+Oh well,
+I'm building my testkernel now with the above patch, 
+and will be testing different vram options to "kill" my system...
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Thomas Backlund
 
+tmb@iki.fi
+www.iki.fi/tmb
 

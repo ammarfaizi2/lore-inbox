@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUH1VfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267776AbUH1VkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268086AbUH1VfK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 17:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267851AbUH1Vco
+	id S267776AbUH1VkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 17:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUH1VkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 17:32:44 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:54175 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S267974AbUH1VaT (ORCPT
+	Sat, 28 Aug 2004 17:40:25 -0400
+Received: from gprs214-50.eurotel.cz ([160.218.214.50]:28032 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267974AbUH1VkG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 17:30:19 -0400
-Date: Sat, 28 Aug 2004 23:30:14 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] ext2 mount options doc
-Message-ID: <20040828213014.GA2079@apps.cwi.nl>
-References: <UTC200408271606.i7RG6tV27596.aeb@smtp.cwi.nl> <Pine.LNX.4.58.0408271104300.14196@ppc970.osdl.org> <20040828011959.GC16444@apps.cwi.nl> <Pine.LNX.4.58.0408271856071.14196@ppc970.osdl.org>
+	Sat, 28 Aug 2004 17:40:06 -0400
+Date: Sat, 28 Aug 2004 23:35:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: benh@kernel.crashing.org, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: radeonfb: do not blank during swsusp snapshot
+Message-ID: <20040828213535.GA1418@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408271856071.14196@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Updated mount.8, and in the process added a few words to
-Documentation/filesystems/ext2.txt too.
+With display blanked, it is hard to debug anything. And display
+blanking is not really needed there... Does it look okay?
 
-Andries
+								Pavel
 
+--- clean-mm.middle/drivers/video/aty/radeon_pm.c	2004-08-15 19:15:01.000000000 +0200
++++ linux-mm/drivers/video/aty/radeon_pm.c	2004-08-28 23:26:46.000000000 +0200
+@@ -880,12 +880,14 @@
+ 		radeon_engine_idle();
+ 	}
+ 
+-	/* Blank display and LCD */
+-	radeonfb_blank(VESA_POWERDOWN, info);
+-
+-	/* Sleep */
+-	rinfo->asleep = 1;
+-	rinfo->lock_blank = 1;
++	if (system_state != SYSTEM_SNAPSHOT) {
++		/* Blank display and LCD */
++		radeonfb_blank(VESA_POWERDOWN, info);
++
++		/* Sleep */
++		rinfo->asleep = 1;
++		rinfo->lock_blank = 1;
++	}
+ 
+ 	/* Suspend the chip to D2 state when supported
+ 	 */
 
-diff -uprN -X /linux/dontdiff a/Documentation/filesystems/ext2.txt b/Documentation/filesystems/ext2.txt
---- a/Documentation/filesystems/ext2.txt	2003-12-18 03:58:28.000000000 +0100
-+++ b/Documentation/filesystems/ext2.txt	2004-08-28 23:17:15.000000000 +0200
-@@ -12,29 +12,47 @@ Options
- =======
- 
- When mounting an ext2 filesystem, the following options are accepted.
--Defaults are marked with (*).
-+Most defaults are determined by the filesystem superblock, and can be
-+set using tune2fs(8). Kernel-determined defaults are indicated by (*).
- 
- bsddf			(*)	Makes `df' act like BSD.
- minixdf				Makes `df' act like Minix.
- 
-+check				Check block and inode bitmaps at mount time
-+				(requires CONFIG_EXT2_CHECK).
- check=none, nocheck	(*)	Don't do extra checking of bitmaps on mount
- 				(check=normal and check=strict options removed)
- 
- debug				Extra debugging information is sent to the
- 				kernel syslog.  Useful for developers.
- 
--errors=continue		(*)	Keep going on a filesystem error.
-+errors=continue			Keep going on a filesystem error.
- errors=remount-ro		Remount the filesystem read-only on an error.
- errors=panic			Panic and halt the machine if an error occurs.
- 
- grpid, bsdgroups		Give objects the same group ID as their parent.
--nogrpid, sysvgroups	(*)	New objects have the group ID of their creator.
-+nogrpid, sysvgroups		New objects have the group ID of their creator.
- 
- resuid=n			The user ID which may use the reserved blocks.
- resgid=n			The group ID which may use the reserved blocks. 
- 
- sb=n				Use alternate superblock at this location.
- 
-+nouid32				Use 16-bit UIDs and GIDs.
-+
-+oldalloc			Use old allocator for new inodes.
-+orlov			(*)	Use Orlov allocator.
-+
-+nobh				Do not attach buffer_heads to file pagecache.
-+
-+user_xattr			Support "user." extended attributes
-+				(requires CONFIG_EXT2_FS_XATTR).
-+nouser_xattr			Don't support "user." extended attributes.
-+
-+acl				Support POSIX Access Control Lists
-+				(requires CONFIG_EXT2_FS_POSIX_ACL).
-+noacl				Don't support POSIX ACLs.
-+
- grpquota,noquota,quota,usrquota	Quota options are silently ignored by ext2.
- 
- 
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

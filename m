@@ -1,140 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbTHXVpP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 17:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbTHXVpP
+	id S261325AbTHXWDb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 18:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTHXWDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 17:45:15 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:48036 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S261333AbTHXVpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 17:45:04 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: David van Hoose <david.vanhoose@comcast.net>,
-       Peter Lieverdink <linux@cafuego.net>
-Subject: Re: 2.6.0-test4: ACPI breaks IDE/USB
-Date: Sun, 24 Aug 2003 23:44:49 +0200
-User-Agent: KMail/1.5.9
-References: <1061613751.897.12.camel@kahlua> <3F478636.3060002@cox.net> <3F492601.7090405@comcast.net>
-In-Reply-To: <3F492601.7090405@comcast.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Sun, 24 Aug 2003 18:03:31 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38795
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261325AbTHXWDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 18:03:30 -0400
+Date: Mon, 25 Aug 2003 00:03:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: TeJun Huh <tejun@aratech.co.kr>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+Subject: Re: Possible race condition in i386 global_irq_lock handling.
+Message-ID: <20030824220357.GF1460@dualathlon.random>
+References: <3F44FAF3.8020707@colorfullife.com> <20030821172721.GI29612@dualathlon.random> <20030821234824.37497c08.skraw@ithnet.com> <20030822011840.GA14540@atj.dyndns.org> <20030822162546.GQ29612@dualathlon.random> <20030824030651.GA13292@atj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_SHTS/08T3+SOTAs"
-Message-Id: <200308242344.50883.schlicht@uni-mannheim.de>
+In-Reply-To: <20030824030651.GA13292@atj.dyndns.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 24, 2003 at 12:06:51PM +0900, TeJun Huh wrote:
+>  As now I know that test_and_set_bit() implies memory barrier,
+> smb_mb__after_clear_bit() can be removed.  I'll make and post a patch
 
---Boundary-00=_SHTS/08T3+SOTAs
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+;) right
 
-Am Sunday 24 August 2003 22:54 schrieb David van Hoose:
-> Kevin P. Fleming wrote:
-> > Peter Lieverdink wrote:
-> >> When I enable ACPI on 2.6.0-test4 (also on 2.6.0-test3-*), the kernel no
-> >> longer recognises my IDE controller and drops down to PIO mode for
-> >> harddisk access. Additionally, USB devices don't get detected.
-> >
-> > I'm running -test4 here with ACPI and have no trouble with USB devices.
->
-> I'm running test4 here with ACPI and have no USB following a call trace
-> with "IRQ 20: nobody cared". ACPI seems to make odd reports. I've been
-> having this problem since 2.5.70'ish. Posted numerous times, but nobody
-> seems to care about it. I also have a PS/2 mouse detection when I have
-> no mice attached to my system.
->
-> >> The system is an Athlon 2400+ on a Gibabyte GA-7VAXP mainboard. (KT400)
-> >
-> > My system is an Athlon 1000 on an MSI KT266-based board.
->
-> I have a Pentium 4 2.53 GHz on a Asus P4S8X mainboard.
->
-> -David
->
-> PS. dmesg is attached with ACPI debug and USB debug enabled.
+> which fixes this race and the bh race of the other thread.
 
-I had similar problems with my Epox 8K9A (KT400) Board.
+thanks,
 
-If I wanted to use my USB ports I had to boot wiht 'acpi=off'. But with the 
-patch attached it is possible for me to boot with 'pci=noacpi'. It has the 
-advantage that ACPI stays enabled...
-
-You are free to give it a try...
-
-  Thomas
-
---Boundary-00=_SHTS/08T3+SOTAs
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="fix_noacpi.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="fix_noacpi.diff"
-
---- linux-2.6.0-test4/arch/i386/kernel/acpi/boot.c.orig	Sat Aug 23 01:59:02 2003
-+++ linux-2.6.0-test4/arch/i386/kernel/acpi/boot.c	Sat Aug 23 16:39:57 2003
-@@ -41,6 +41,7 @@
- #define PREFIX			"ACPI: "
- 
- extern int acpi_disabled;
-+extern int acpi_irq;
- extern int acpi_ht;
- 
- int acpi_lapic = 0;
-@@ -407,7 +408,7 @@
- 	 * If MPS is present, it will handle them,
- 	 * otherwise the system will stay in PIC mode
- 	 */
--	if (acpi_disabled) {
-+	if (acpi_disabled || !acpi_irq) {
- 		return 1;
-         }
- 
-@@ -450,14 +451,13 @@
- 	acpi_irq_model = ACPI_IRQ_MODEL_IOAPIC;
- 
- 	acpi_ioapic = 1;
--#endif /*CONFIG_X86_IO_APIC*/
- 
- #ifdef CONFIG_X86_LOCAL_APIC
--	if (acpi_lapic && acpi_ioapic) {
--		smp_found_config = 1;
--		clustered_apic_check();
--	}
-+	smp_found_config = 1;
-+	clustered_apic_check();
- #endif
-+
-+#endif /*CONFIG_X86_IO_APIC*/
- 
- 	return 0;
- }
---- linux-2.6.0-test4/arch/i386/kernel/setup.c.orig	Sat Aug 23 01:55:38 2003
-+++ linux-2.6.0-test4/arch/i386/kernel/setup.c	Sat Aug 23 16:34:21 2003
-@@ -71,6 +71,7 @@
- EXPORT_SYMBOL(acpi_disabled);
- 
- #ifdef	CONFIG_ACPI_BOOT
-+	int acpi_irq __initdata = 1;	/* enable IRQ */
- 	int acpi_ht __initdata = 1;	/* enable HT */
- #endif
- 
-@@ -542,6 +543,11 @@
- 		else if (!memcmp(from, "acpi=ht", 7)) {
- 			acpi_ht = 1;
- 			if (!acpi_force) acpi_disabled = 1;
-+		}
-+
-+		/* "pci=noacpi" disables ACPI interrupt routing */
-+		else if (!memcmp(from, "pci=noacpi", 10)) {
-+			acpi_irq = 0;
- 		}
- 
- #ifdef CONFIG_X86_LOCAL_APIC
-
---Boundary-00=_SHTS/08T3+SOTAs--
+Andrea

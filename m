@@ -1,95 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131232AbRCUHVB>; Wed, 21 Mar 2001 02:21:01 -0500
+	id <S131221AbRCUHIi>; Wed, 21 Mar 2001 02:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131233AbRCUHUv>; Wed, 21 Mar 2001 02:20:51 -0500
-Received: from aeon.tvd.be ([195.162.196.20]:1194 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S131232AbRCUHUd>;
-	Wed, 21 Mar 2001 02:20:33 -0500
-Date: Wed, 21 Mar 2001 08:19:29 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Gérard Roudier <groudier@club-internet.fr>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: st corruption with 2.4.3-pre4
-In-Reply-To: <Pine.LNX.4.10.10103202029370.1698-100000@linux.local>
-Message-ID: <Pine.LNX.4.05.10103210815560.577-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S131232AbRCUHI2>; Wed, 21 Mar 2001 02:08:28 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:61704 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131221AbRCUHIW>; Wed, 21 Mar 2001 02:08:22 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Wed, 21 Mar 2001 18:06:07 +1100
+To: linux-kernel@vger.kernel.org
+Subject: spinlock usage - ext2_get_block, lru_list_lock
+Message-ID: <20010321180607.A11941@linuxcare.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001, Gérard Roudier wrote:
-> On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
-> > On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
-> > > On Mon, 19 Mar 2001, Jeff Garzik wrote:
-> > > > Is the corruption reproducible?  If so, does the corruption go away if
-> > > 
-> > > Yes, it is reproducible. In all my tests, I tarred 16 files of 16 MB each to
-> > > tape (I used a new one).
-> > >   - test 1: 4 files with failed md5sum (no further investigation on type of
-> > > 	    corruption)
-> > >   - test 2: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
-> > > 	    corrupted, all starting at an offset of the form 32*x+1.
-> > >   - test 3: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
-> > > 	    corrupted, all starting at an offset of the form 32*x+1.
-> > > 
-> > > The files seem to be corrupted during writing only, as reading always gives the
-> > > exact same (corrupted) data back.
-> > > 
-> > > Copying files from the disk on the MESH to a disk on the Sym53c875 (which also
-> > > has the tape drive) shows no corruption.
-> > 
-> > I did some more tests:
-> >   - The problem also occurs when tarring up files from a disk on the Sym53c875.
-> >   - The corrupted data always occurs at offset 32*x (the `+1' above was caused
-> >     by hexdump, starting counting at 1).
-> >   - The 32 bytes of corrupted data at offset 32*x are always a copy of the data
-> >     at offset 32*x-10240.
-> >   - Since 10240 is the default blocksize of tar (bug in tar?), I made a tarball
-> >     on disk instead of on tape, but no corruption.
-> >   - 32 is the size of a cacheline on PPC. Is there a missing cacheflush
-> >     somewhere in the Sym53c875 driver? But then it should happen on disk as
-> >     well?
-> 
-> The only PCI transaction that requires the cache line size to be correctly
-> configured is PCI WRITE and INVALIDATE. This transaction may be used by
-> the 875 only for data read from a SCSI device and DMAed to memory.
 
-So if this would be the problem, I should see the corruption when reading files
-from disks too? But my tests indicate it happens when writing to tape only, not
-when reading from tape, nor when copying between disks.
+Hi,
 
-> Note that the controller may use optimized PCI transactions only if the 
-> cache line size is configured in its PCI device configuration space.
-> Otherwise only normal PCI memory read and PCI memory write transactions 
-> will be used.
-> 
-> Could you check if the cache line size is configured for your 875?
-> 
-> Let me imagine it is so. Btw, I may be wasting my time if it is not ...
-> Then the 875 may also use PCI read multiple transactions and/or PCI read
-> line transactions when reading data from memory. If the corruption is due
-> to the use of these transactions, the the PCI-HOST bridges may well be the
-> culprit, in my opinion.
-> 
-> Anyway, since the sym53c8xx driver does not try to change the configured
-> cache line size on PPC, I would suggest to try again the same tests with
-> the cache line size set to zero for the 875. You may hack the driver code
-> or the PPC pci code if needed, for example, for value zero to be written
-> in the proper place in the PCI configuration space of the 875.
+I ported lockmeter to PPC and ran a few dbench runs on a quad CPU F50 here.
+These runs were made to never hit the disk. The full results can be found
+here:
 
-I'll try that.
+http://samba.org/~anton/ppc/lockmeter/2.4.3-pre3_hacked/
 
-Gr{oetje,eeting}s,
+It was not surprising the BKL was one of the main offenders. Looking at the
+stats ext2_get_block was the bad guy (UTIL is % of time lock was busy for,
+WAIT is time spent waiting for lock):
 
-						Geert
+SPINLOCKS         HOLD           WAIT
+  UTIL  CON    MEAN(  MAX )  MEAN(  MAX )( %CPU)   TOTAL NAME
+ 38.8% 41.0%  7.6us(  31ms)  15us(  18ms)( 7.7%) 1683368 kernel_flag
+ 0.87%  9.1%   13ms(  31ms) 129us( 231us)(0.00%)      22  do_exit+0x120
+  2.6% 21.6%   45us(2103us)  79us(  18ms)(0.25%)   19240  ext2_delete_inode+0x34
+ 0.32% 24.8%  1.2us(  46us)  14us( 992us)(0.25%)   92415  ext2_discard_prealloc+0x34
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ 29.2% 50.9%   10us( 400us)  15us( 892us)( 5.4%)  957740  ext2_get_block+0x64
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+ 0.40% 32.8%   18us( 208us)  31us(  11ms)(0.06%)    7435  lookup_hash+0xb0
+ 0.09% 17.3%   11us( 139us)  17us( 237us)(0.01%)    2560  notify_change+0x8c
+ 0.01% 17.3%   34us( 138us) 912us(  11ms)(0.01%)      81  real_lookup+0x94
+ 0.02% 39.5%   34us( 344us)  47us( 331us)(0.00%)     172  schedule+0x4fc
+ 0.00% 15.4%   11us(  37us)  14us(  22us)(0.00%)      26  sys_ioctl+0x50
+  1.1% 28.7%  0.7us( 131us)  12us( 910us)( 1.5%)  559700  sys_lseek+0x90
+ 0.56% 25.8%   48us( 245us)  12us( 162us)(0.01%)    3900  sys_rename+0x1fc
+ 0.03% 25.0%   24us(  43us)  64us(1004us)(0.00%)     400  tty_read+0xd4
+ 0.07% 24.1%   31us(  64us)  17us( 293us)(0.00%)     776  tty_write+0x234
+  2.0% 32.5%   35us( 267us)  13us( 504us)(0.06%)   19220  vfs_create+0xd0
+ 0.29% 76.5%  437us( 533us)  25us( 456us)(0.00%)     221  vfs_mkdir+0xd0
+ 0.05% 19.2%   65us( 285us) 460us(9017us)(0.02%)     240  vfs_rmdir+0x208
+  1.1% 23.2%   19us( 236us)  17us( 819us)(0.06%)   19220  vfs_unlink+0x188
 
+It can be also seen that do_exit grabbed the BKL for way too long. Another
+large waster of cpu time was the lru_list_lock:
+
+SPINLOCKS         HOLD           WAIT
+  UTIL  CON    MEAN(  MAX )  MEAN(  MAX )( %CPU)   TOTAL NAME
+ 25.8% 27.0%  1.6us( 169us) 8.9us( 446us)( 9.5%) 5281025 lru_list_lock
+ 0.07% 33.0%  2.9us(  34us)  11us( 293us)(0.02%)    8051  __bforget+0x20
+  1.7% 14.6%  0.3us(  44us) 5.2us( 265us)( 1.1%) 1870792  buffer_insert_inode_queue+0x24
+  7.3% 13.6%  1.9us( 169us) 5.5us( 278us)(0.70%) 1239163  getblk+0x28
+ 0.00% 58.8%  1.0us( 4.5us)  13us( 142us)(0.00%)     221  invalidate_inode_buffers+0x20
+ 10.0% 45.5%  1.7us( 134us)  10us( 446us)( 6.6%) 1920438  refile_buffer+0x20
+  6.7% 45.2%  9.2us( 149us)  14us( 330us)( 1.2%)  242360  try_to_free_buffers+0x44
+
+I began smashing up lru_list_lock but found a few problems. With a name
+like lru_list_lock, you would expect it to only synchronise operations to
+lru_list[]. However I find things like:
+
+int inode_has_buffers(struct inode *inode)
+{
+        int ret;
+
+        spin_lock(&lru_list_lock);
+        ret = !list_empty(&inode->i_dirty_buffers);
+        spin_unlock(&lru_list_lock);
+
+        return ret;
+}
+
+It also looks to be protecting some of the items in the buffer_head struct.
+Is the lru_list_lock spinlock usage documented anywhere?
+
+Cheers,
+Anton

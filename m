@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTFIU6q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 16:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTFIU6q
+	id S262073AbTFIU7o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 16:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFIU7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 16:58:46 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:48574 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262063AbTFIU6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 16:58:44 -0400
-Date: Mon, 9 Jun 2003 14:08:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70 (virgin) hangs running SDET
-Message-Id: <20030609140834.11ad0d63.akpm@digeo.com>
-In-Reply-To: <60380000.1055188542@flay>
-References: <60380000.1055188542@flay>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 9 Jun 2003 16:59:44 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:47634 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S262073AbTFIU7l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 16:59:41 -0400
+Date: Mon, 09 Jun 2003 15:13:18 +0000
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
+Subject: Re: huge file drivers/scsi/aic78xx/CHANGELOG in 2.4.21-rc7?
+Message-ID: <14350000.1055171597@caspian.scsiguy.com>
+In-Reply-To: <3EE2D38B.5000006@kegel.com>
+References: <3EE2D38B.5000006@kegel.com>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jun 2003 21:12:24.0564 (UTC) FILETIME=[D2C17B40:01C32ECB]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> I thought this was specific to the -mjb tree for a while, but I can
-> reproduce it pretty easily on virgin 2.5.70 (but 2.5.69 didn't do
-> this). Andrew looked and pointed out it seems to be an i_sem (ISTR
-> some mention of /proc somewhere too?). Got a good sysrq+t trace out
-> of the virgin kernel (on 16x NUMA-Q) ... below:
+--On Saturday, June 07, 2003 23:11:23 -0700 Dan Kegel <dank@kegel.com> wrote:
 
-The ps instance which is spinning on kernel_flag in proc_root_lookup is
-what's holding things up.
+> Do we really need 23000 lines of "perforce describe" output
+> in the kernel source tree?
 
-Or is it spinning in proc_lookup() or proc_pid_lookup()?  I have a vague
-feeling that I've seen these traces miss out the innermost stack slot...
+The CHANGELOG has never been in the BK files that I submit.  My guess
+is that when the driver was last updated, the CHANGELOG file from the
+tar distribution was included.  I don't think it should be especially
+if the BK files are used for the next update.  In my merges with 2.4.X,
+I have maintained file history even when duplicate changes were integrated
+via "patch" instead of via BK.
 
-Suggest:
-
-a) Use CONFIG_SPINLINE, get a new sysrq-T trace
-
-b) Enable spinlock debugging
-
-c) Try disabling the sched_balance_exec() code.
-
+--
+Justin
 

@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263925AbRFJJkP>; Sun, 10 Jun 2001 05:40:15 -0400
+	id <S264513AbRFJKKr>; Sun, 10 Jun 2001 06:10:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264513AbRFJJkF>; Sun, 10 Jun 2001 05:40:05 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:38063 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S263925AbRFJJjw>;
-	Sun, 10 Jun 2001 05:39:52 -0400
-Message-Id: <m1591h9-000OpFC@amadeus.home.nl>
-Date: Sun, 10 Jun 2001 10:39:43 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: rmk@arm.linux.org.uk (Russell King)
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010610093838.A13074@flint.arm.linux.org.uk>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S264514AbRFJKKg>; Sun, 10 Jun 2001 06:10:36 -0400
+Received: from ppp-127-134.15-151.iol.it ([151.15.134.127]:13442 "HELO
+	igor.opun.it") by vger.kernel.org with SMTP id <S264513AbRFJKKV>;
+	Sun, 10 Jun 2001 06:10:21 -0400
+Message-ID: <3B23477F.443D5FC8@alsa-project.org>
+Date: Sun, 10 Jun 2001 12:10:07 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: Zach Brown <zab@zabbo.net>
+Cc: Ben Pfaff <pfaffben@msu.edu>, Lukas Schroeder <lukas@edeal.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] ess maestro, support for hardware volume control
+In-Reply-To: <200106091931.f59JVw731673@devserv.devel.redhat.com> <87elst2vr2.fsf@pfaffben.user.msu.edu> <20010609185240.A23980@erasmus.off.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010610093838.A13074@flint.arm.linux.org.uk> you wrote:
-> Is this a change of requirements for ethernet drivers?  Many other drivers
-> do exactly the same (drop the first few packets while they're negotiating
-> with a hub), unless they're using 10base2, even back to the days of 2.0
-> kernels.
+Zach Brown wrote:
+> 
+> > I now have a patch that will output the hwv buttons pressed (up,
+> > down, mute) to a new dynamically allocated misc device as letters
+> > u, d, m, instead of directly modifying the mixer.  Anyone want
+> > that?  It's more flexible than either the patch that's currently
+> > in -ac or Lukas's patch, but you need a little userspace daemon
+> > for it to do anything useful.
+> 
+> hmm.. how do the alsa guys deal with hw volume?  I'm not sure I like
+> adding more stuff to the OSS API.
 
-I think it would make sense, from the other sides perspective, to only return 
-from the "up" function when you actually can send packets[1]. Sure, pump show
-this most of all because it does
+It's a control separated from master volume. Often there is another
+control that control if the two are linked.
 
-"up"
-send DHCP req
-wait
-if failed "down"
-	  wait
-	  repeat
+Application may ask notification for controls changes (like the hw
+volume one). This imply that an interrupt is related to this event.
 
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-and that sucks if you always eat the first packets after an up...
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
-xircom had this bug for a loooong time, 8139too just got it a few weeks ago
-and, well, from an applications point of view expecting to be able to send
-packets when the interface is up makes sense.
-
-Applications like pump must be robust against "random" packetloss, and,
-well, pump is. Just not against the "targeted" packetloss of loosing every
-first few packets.
-
-Greetings,
-   Arjan van de Ven
-
-
-[1] I know this is not always easy for the driverwrite. For one, xircom
-    will eat every first few packets, so the driver would have to send a few
-    fake packets to get going.
+ALSA project               http://www.alsa-project.org
+It sounds good!

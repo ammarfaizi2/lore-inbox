@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266786AbUIOQ0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUIOQav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266786AbUIOQ0a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266737AbUIOQNq
+	id S266775AbUIOQav (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUIOQ3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:13:46 -0400
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:37018
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S266725AbUIOQMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:12:12 -0400
-Message-ID: <414869CE.3050208@ppp0.net>
-Date: Wed, 15 Sep 2004 18:11:58 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: Karol Kozimor <kkozimor@aurox.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-References: <20040911165300.GA17028@kroah.com> <20040915062129.GA9230@hockin.org> <4147E525.4000405@ppp0.net> <200409151019.50592.kkozimor@aurox.org> <20040915154836.GA4691@hockin.org>
-In-Reply-To: <20040915154836.GA4691@hockin.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Sep 2004 12:29:38 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:12585 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S266775AbUIOQ0r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 12:26:47 -0400
+Subject: Re: PATCH: tty locking for 2.6.9rc2
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040914163426.GA29253@devserv.devel.redhat.com>
+References: <20040914163426.GA29253@devserv.devel.redhat.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095265595.2924.27.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Sep 2004 11:26:35 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
-> On Wed, Sep 15, 2004 at 10:19:50AM +0200, Karol Kozimor wrote:
-> 
->>On Wednesday 15 of September 2004 08:45, Jan Dittmer wrote:
->>
->>>What's wrong about fixing acpi to have something like
->>>/sys/devices/acpi/buttons/power/, that spits out the event?
->>>Just curious...
->>
->>Well, the fact that you'd have to somehow:
->>1) pass the list of all the drivers that register notify handlers to the 
->>userspace
->>2) make userspace daemons hold ~10 sysfs nodes open
-> 
-> 
-> I *think* the suggestion was to add sysfs nodes for ACPI objects so that
-> the assosicated kobject could be the "source" argument to the uevent API.
-> Not that each kobject would have an event stream of it's own :)
+On Tue, 2004-09-14 at 11:34, Alan Cox wrote:
+> This updates the ldisc locking patch for the 2.6.9rc2 changes.
 
-Yepp.
+I tried this patch and can't change line disciplines.
+The user program waits forever on ioctl(TIOCSETD).
+I am going to add printk statements to
+find out more.
 
-> I'm not deeply into ACPI, so I'm not sure if it is possible to enumerate
-> all event sources, or if GPEs would come from nowhere...
+Looking at your patch I have a question:
 
-Well if you do a find /sys | grep acpi, there are basically all nodes
-already there - just no values in there :-(
-I think Andrew's suggestions (in this same thread) make more sense, ie.
-deliver button events via the input layer...
+Each line discipline has a refcount.
+This single refcount is modified by all
+entities using that line discipline.
 
-Jan
+tty_set_ldisc() in tty_io.c waits until the
+old ldisc refcount goes to zero before setting
+the new ldisc. This seems to cause a problem
+in the following situation:
+
+1. two tty instances start with the same ldisc
+2. first tty instance holds reference to ldisc
+3. second tty instance tries to change ldisc
+
+The second tty instance must wait for the first
+tty instance to drop the ldisc reference before
+it can change to a new ldisc.
+
+Each tty instance should be able to change
+line discipline independant of other tty instances.
+
+Or am I not understanding this correctly?
+
+--
+Paul Fulghum
+paulkf@microgate.com
+
+

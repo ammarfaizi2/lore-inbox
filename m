@@ -1,79 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264178AbTE0UeB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTE0Ucm
+	id S264135AbTE0Uj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbTE0Uj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:32:42 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34459
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264146AbTE0UcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:32:08 -0400
-Date: Tue, 27 May 2003 22:45:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	Tue, 27 May 2003 16:39:26 -0400
+Received: from adsl-67-122-203-155.dsl.snfc21.pacbell.net ([67.122.203.155]:44492
+	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
+	id S264135AbTE0UiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 16:38:23 -0400
+Message-ID: <3ED3CFAF.5040604@storadinc.com>
+Date: Tue, 27 May 2003 13:50:55 -0700
+From: manish <manish@storadinc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
        Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       manish <manish@storadinc.com>,
        Christian Klose <christian.klose@freenet.de>,
        William Lee Irwin III <wli@holomorphy.com>
 Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030527204519.GQ3767@dualathlon.random>
-References: <3ED2DE86.2070406@storadinc.com> <200305272032.03645.m.c.p@wolk-project.de> <20030527201028.GJ3767@dualathlon.random> <200305272224.22567.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305272224.22567.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+References: <3ED2DE86.2070406@storadinc.com> <3ED3BDCE.4010200@storadinc.com> <20030527202047.GM3767@dualathlon.random> <200305272225.27720.m.c.p@wolk-project.de> <3ED3CDB8.3000500@storadinc.com> <20030527204743.GR3767@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 10:24:22PM +0200, Marc-Christian Petersen wrote:
-> I try to backport BIO and then AS for quite over 2 weeks now, but it seems, at 
-> least for me, that it's an impossible mission ;(
+Andrea Arcangeli wrote:
 
-bio breaks all drivers, not a good idea to backport ;)
+>On Tue, May 27, 2003 at 01:42:32PM -0700, manish wrote:
+>
+>>Marc-Christian Petersen wrote:
+>>
+>>>On Tuesday 27 May 2003 22:20, Andrea Arcangeli wrote:
+>>>
+>>>Hi Andrea,
+>>>
+>>>
+>>>>>1. Stock 2.4.20
+>>>>>2. 2.4.20 with the io_request_lock removed.
+>>>>>The tests on the first one are still going. The tests on the second one
+>>>>>showed processes getting stuck for long times (> 5 minutes) and not
+>>>>>paused ...
+>>>>>
+>>>>sorry if it's a dumb question but what is the "io_request_lock removed"
+>>>>thing? Hope you didn't delete any io_request_lock, if you did you can
+>>>>get worse things than crashes (i.e. mm/fs corruption). the pausing bug
+>>>>was a genuine race (quite innocent, if you could trigger a disk unplug
+>>>>you could recover from it)
+>>>>
+>>>>Andrea
+>>>>
+>>>funny. I asked him the same ;)
+>>>
+>>>see his response:
+>>>
+>>>-----------------------------------------------------------------------
+>>>
+>>>>what is this io_request_lock patch you are talking about?
+>>>>
+>>>>ciao, Marc
+>>>>
+>>>We made some changes to the 2.4.20 kernel to remove the io_request_lock 
+>>>and replace with queue_lock and host_lock.
+>>>-----------------------------------------------------------------------
+>>>
+>>>ciao, Marc
+>>>
+>>We made a change in the 2.4.20 kernel to remove the io_request_lock and 
+>>replace with the host_lock and the queue_lock.  Probably, not a right 
+>>thing to do
+>>
+>
+>right you are, but never mind, only remeber e2fsck the fs before
+>booting the box so you don't risk fs corruption later with the solid
+>kernels.
+>
+>Andrea
+>
+So, does it imply that we cannot remove the io_request_lock in 2.4 at all?
 
-note that the anticipatory scheduler generates very bad results with the
-winmark. it certainly has merits but it has large downsides too.
+Thanks
+Manish
 
-I would be also curious if you could compare anticipatory with CFQ. The
-CFQ was designed to provide the highest possible degree of fariness.
 
-> > I'll try to find what's the precise reason of the interactivity drop
-> cool. Thanks.
-> 
-> > with the 2.4.18->2.4.19 blkdev changes on Thu. I think I shortly looked
-> > into it once but there was no definitive answer, or anyways going back
-> > to the 2.4.18 code didn't appeal or make much sense.
-> Yeah, that's not an option. The throughput has been increased in 2.4.19 
-> compared to 2.4.18.
 
-agreed.
-
-> 
-> > However I suspect this responsiveness issue could be storage hardware
-> > dependent.
-> Hmm, I am quite sure that it isn't. I have ton's of mostly totally different 
-> hardware in my company, also test machines for WOLK at freenet.de (the 
-> biggest I had was a QUAD Xeon 1GHz with 16GB memory and hardware RAID (Compaq 
-> ML570 to be exact (f*cking nice machine btw. ;) and I even hit it on that 
-> machine. Friends of mine having also different hardware then me, also hitting 
-> that bug. _If_ it's the case of storage hardware, then many storage hardware 
-> is affected ;)
-
-;)
-
-> > The sentence by Linus in the last few days while talking with Jens,
-> > about storage that reorders stuff and starve requests at the two ends of
-> > the platter was very scary, maybe you're really bitten by something like
-> > that. Linux does the right thing but your hardware keeps posting stuff
-> > under the os and mine doesn't.
-> Oh, did I miss something at lkml or was it privately?
-
-I read it on l-k yesterday a few days ago, search emails from Linus with
-Jens somewhere in CC and you should find it.
-
-Andrea

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288997AbSAKRP4>; Fri, 11 Jan 2002 12:15:56 -0500
+	id <S290027AbSAKROx>; Fri, 11 Jan 2002 12:14:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290024AbSAKRPr>; Fri, 11 Jan 2002 12:15:47 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58886 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288997AbSAKRPf>; Fri, 11 Jan 2002 12:15:35 -0500
-Subject: Re: Big patch: linux-2.5.2-pre11/drivers/scsi compilation fixes
-To: adam@yggdrasil.com (Adam J. Richter)
-Date: Fri, 11 Jan 2002 17:27:11 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <200201111659.IAA10274@adam.yggdrasil.com> from "Adam J. Richter" at Jan 11, 2002 08:59:42 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S290028AbSAKROn>; Fri, 11 Jan 2002 12:14:43 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:71 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290027AbSAKROd>; Fri, 11 Jan 2002 12:14:33 -0500
+Date: Fri, 11 Jan 2002 12:14:31 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch for ymfpci in 2.5.x
+Message-ID: <20020111121431.A10147@devserv.devel.redhat.com>
+In-Reply-To: <20020111004423.A22316@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16P5SS-0008FV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020111004423.A22316@devserv.devel.redhat.com>; from zaitcev@redhat.com on Fri, Jan 11, 2002 at 12:44:23AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	I imagine that would be annoying, but I think you are
-> misremembering.  Searching my mail since January 16, 2001, for
-> "NCR5380" and "53C80", I do not see any note remotely like that.
-> I don't think I have posted a patch or said anything about the
-> Linux scsi drivers on linux-kernel for years.
+I am terribly sorry, but an additional fixup is needed,
+as identified by Anders Rune Jensen (mental note - always
+cc submissions to linux-kernel. So many good eyeballs).
 
-Maybe I got the wrong person - if so I apologise.
+--- linux-2.4.17-niph/drivers/sound/ymfpci.c.bak	Fri Jan 11 07:41:39 2002
++++ linux-2.4.17-niph/drivers/sound/ymfpci.c	Fri Jan 11 07:39:10 2002
+@@ -832,7 +832,7 @@
+ 	u32 lpfK = ymfpci_calc_lpfK(rate);
+ 	ymfpci_playback_bank_t *bank;
+ 	int nbank;
+-	unsigned le_0x40000000 = 0x40;
++	unsigned le_0x40000000 = cpu_to_le32(0x40000000);
+ 
+ 	format = (stereo ? 0x00010000 : 0) | (w_16 ? 0 : 0x80000000);
+ 	if (stereo)
 
-> 	Now that I am aware of your request regarding using the 2.4.18pre
-> version of the NCR driver for future maintenance of the 2.5 driver,
-> I am happy to follow it.
+Humbled
+-- Pete
 
-I think you'll find it a lot easier to follow too. The thing to watch is
-that the queue of devices to process on an IRQ is not per host but driver
-global. The rest should be obvious, but watch the co-routine locking. If
-you get that wrong the driver does occasionally recurse down the stack and
-explode mysteriously.
+> Date: Fri, 11 Jan 2002 00:44:23 -0500
+> From: Pete Zaitcev <zaitcev@redhat.com>
+> To: torvalds@transmeta.com
+> Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
 
-Alan
+> While 2.5.x was a bit unstable, ymfpci in 2.4 moved ahead a bit.
+> Most of it is cleanup, but there is a real fix for artsd as well.
+> ALSA is supposed to supersede this code, but unless it's happening
+> tomorrow we better update it before the patch grows too big.
+> 
+> -- Pete
+> 
+> diff -ur -X dontdiff linux-2.5.2-pre11/drivers/sound/ymfpci.c linux-2.5.2-pre11-p3/drivers/sound/ymfpci.c
+> --- linux-2.5.2-pre11/drivers/sound/ymfpci.c	Thu Jan 10 15:52:17 2002
+> +++ linux-2.5.2-pre11-p3/drivers/sound/ymfpci.c	Thu Jan 10 21:17:13 2002
+>[...]

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262137AbSJAQf6>; Tue, 1 Oct 2002 12:35:58 -0400
+	id <S261710AbSJAQa7>; Tue, 1 Oct 2002 12:30:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262138AbSJAQf6>; Tue, 1 Oct 2002 12:35:58 -0400
-Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:2460 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262137AbSJAQf5>;
-	Tue, 1 Oct 2002 12:35:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Dave McCracken <dmccr@us.ibm.com>,
-       "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Page table sharing
-Date: Tue, 1 Oct 2002 18:28:52 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <E17wMl3-0005tY-00@starship> <851859439.1033463169@[10.10.2.3]>
-In-Reply-To: <851859439.1033463169@[10.10.2.3]>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17wPtF-0005uu-00@starship>
+	id <S261732AbSJAQa6>; Tue, 1 Oct 2002 12:30:58 -0400
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:52492 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S261710AbSJAQa5>; Tue, 1 Oct 2002 12:30:57 -0400
+Date: Tue, 1 Oct 2002 17:35:08 +0100
+To: Jens Axboe <axboe@suse.de>
+Cc: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+Message-ID: <20021001163508.GA30457@fib011235813.fsnet.co.uk>
+References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it> <20021001154808.GD126@suse.de> <20021001160608.GX3867@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021001160608.GX3867@suse.de>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 October 2002 18:06, Martin J. Bligh wrote:
-> > I'm not sure how relevant page table sharing has to the halloween 
-> > deadline since it's not a feature per se, just an optimization.   
-> > It has more to do with getting numa ia32 boxes to survive, so it's 
-> > an ideal out-of-tree patch.
+On Tue, Oct 01, 2002 at 06:06:08PM +0200, Jens Axboe wrote:
+> On Tue, Oct 01 2002, Dave Jones wrote:
+> > Consider it patch 1/2 of the device mapper merge 8-)
 > 
-> Any large 32 bit box with significant numbers of processes will need 
-> it to cope with the bloat that rmap introduced - this has nothing to
-> do with NUMA (some apps may be saved by large pages, some not). 
-> Avoiding hangs from ZONE_NORMAL oom is not an "optimisation", and I 
-> doubt optimisations involving major VM changes would be very welcome
-> after the freeze. This is something we need to get working ASAP ...
+> Indeed, the patches are also arriving out of order though, LVM remove
+> patch should be 2/2 not 1/2. IMO.
 
-Any reason why page table swapping wouldn't deliver just as much bang
-for the buck?  Same argument re VM changes.
+If LVM remotely worked I would agree with you.
 
-Anyway, I don't necessarily buy the VM change argument.  I've already
-established that turning sharing off either at compile time or run
-time is trivial, so there is no element of risk.  I'd suggest: take
-a deep breath, relax, go slow and get it right.
-
-What we should be coding right now is the patch Linus already asked
-for, to recover page table pages as soon as possible instead of in
-clear_page_tables.  With that in place the locking for shared page
-tables gets a lot nicer, as Linus showed.
-
--- 
-Daniel
+Joe Thornber

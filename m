@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129414AbRBSLyq>; Mon, 19 Feb 2001 06:54:46 -0500
+	id <S130062AbRBSMAq>; Mon, 19 Feb 2001 07:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129384AbRBSLyh>; Mon, 19 Feb 2001 06:54:37 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:30244 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129170AbRBSLy1>; Mon, 19 Feb 2001 06:54:27 -0500
-Date: Mon, 19 Feb 2001 05:54:11 -0600 (CST)
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-Reply-To: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, prumpf@parcelfarce.linux.theplanet.co.uk,
-        rusty@linuxcare.com
-Subject: Re: Linux 2.4.1-ac15
-In-Reply-To: <E14Uob0-0003Cs-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1010219054120.16489F-100000@mandrakesoft.mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130056AbRBSMAg>; Mon, 19 Feb 2001 07:00:36 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:15366 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130037AbRBSMA2>;
+	Mon, 19 Feb 2001 07:00:28 -0500
+Date: Mon, 19 Feb 2001 13:00:22 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [LONG RANT] Re: Linux stifles innovation...
+Message-ID: <20010219130022.G6494@almesberger.net>
+In-Reply-To: <20010219115314.A6724@almesberger.net> <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Feb 19, 2001 at 05:07:02AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Feb 2001, Alan Cox wrote:
->         mod->next = module_list;
+Jeff Garzik wrote:
+> FWIW, -every single- Windows driver source code I've seen has been
+> bloody awful.  Asking them to release that code would probably result in
+> embarrassment.
 
-put_mod_name() here.
+Maybe a good analogy is that drivers are to hardware companies like
+excrements are to living creatures: in order to stay alive, they have
+to produce them, but you don't put much love into their production,
+and their internals (like their development) may be a little
+disgusting.
 
->         module_list = mod;      /* link it in */
-> 
-> Note no write barrier.
+>  Same reasoning why many companies won't release hardware
+> specifications...  The internal docs are bad.  Really bad.
 
-put_mod_name calls free_page which always implies a memory barrier.  This
-isn't beautiful but it won't blow up either.
+A fair number of hardware documents I have came with "here's all the
+material you'll need, but please don't show this to anyone" (but no
+NDA), which is fine with me: it doesn't complicate development in any
+way, and in those few cases where I really needed to share a document,
+they were flexible enough to allow this.
 
-Actually that isn't relevant since the actual table is copied _after_
-ex_table_{start,end}.  We'll scan uninitialized memory and if some word
-happens to match the fault EIP we jump to the bogus fixup.
+Of course, it's better if documentation is entirely in the public too,
+but considering the typical overhead of clearing a document for public
+release, I can understand why companies frequently don't do it.
 
-> Delete is even worse
-> 
-> We unlink the module
-> We free the memory
-> 
-> At the same time another cpu may be walking the exception table that we free.
+- Werner
 
-True.
-
-Rusty had a patch that locked the module list properly IIRC.
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

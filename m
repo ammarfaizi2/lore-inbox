@@ -1,93 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283252AbRK2Otf>; Thu, 29 Nov 2001 09:49:35 -0500
+	id <S283256AbRK2Ozf>; Thu, 29 Nov 2001 09:55:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283254AbRK2OtZ>; Thu, 29 Nov 2001 09:49:25 -0500
-Received: from jakorasia.nic.fi ([212.38.224.80]:22458 "EHLO jakorasia.nic.fi")
-	by vger.kernel.org with ESMTP id <S283252AbRK2OtP>;
-	Thu, 29 Nov 2001 09:49:15 -0500
-Message-Id: <200111291449.QAA29670@jakorasia.nic.fi>
-Content-Type: text/plain; charset=US-ASCII
-From: jarmo kettunen <oh1mrr@nic.fi>
-To: linux-kernel@vger.kernel.org
-Subject: My previous question about iwlib
-Date: Thu, 29 Nov 2001 16:49:56 +0200
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S283263AbRK2OzZ>; Thu, 29 Nov 2001 09:55:25 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:54287 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S283256AbRK2OzT>; Thu, 29 Nov 2001 09:55:19 -0500
+Date: Thu, 29 Nov 2001 15:55:12 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "Michael C. B. Ashley" <mcba@phys.unsw.edu.au>,
+        Bob Donnelly <rdonnel2@csc.com>
+Subject: [PATCH 2.4.16/2.5.0] sonypi driver update
+Message-ID: <20011129155512.B1488@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry,if my previous message was incorrect about iwlib maintaining...
-Suppose this example lights more than my words what I want to ask.
+Hi Marcelo, Linus and everybody else.
 
-gcc -O2 -Wall -DGLIBC_HEADERS  -c iwlib.c
-In file included from iwlib.c:11:
-iwlib.h:91:8: warning: extra tokens at end of #endif directive
-iwlib.h:96:8: warning: extra tokens at end of #endif directive
-In file included from iwlib.h:42,
-                 from iwlib.c:11:
-/usr/include/linux/in.h:25: conflicting types for `IPPROTO_IP'
-/usr/include/netinet/in.h:32: previous declaration of `IPPROTO_IP'
-/usr/include/linux/in.h:26: conflicting types for `IPPROTO_ICMP'
-/usr/include/netinet/in.h:36: previous declaration of `IPPROTO_ICMP'
-/usr/include/linux/in.h:27: conflicting types for `IPPROTO_IGMP'
-/usr/include/netinet/in.h:38: previous declaration of `IPPROTO_IGMP'
-/usr/include/linux/in.h:28: conflicting types for `IPPROTO_IPIP'
-/usr/include/netinet/in.h:40: previous declaration of `IPPROTO_IPIP'
-/usr/include/linux/in.h:29: conflicting types for `IPPROTO_TCP'
-/usr/include/netinet/in.h:42: previous declaration of `IPPROTO_TCP'
-/usr/include/linux/in.h:30: conflicting types for `IPPROTO_EGP'
-/usr/include/netinet/in.h:44: previous declaration of `IPPROTO_EGP'
-/usr/include/linux/in.h:31: conflicting types for `IPPROTO_PUP'
-/usr/include/netinet/in.h:46: previous declaration of `IPPROTO_PUP'
-/usr/include/linux/in.h:32: conflicting types for `IPPROTO_UDP'
-/usr/include/netinet/in.h:48: previous declaration of `IPPROTO_UDP'
-/usr/include/linux/in.h:33: conflicting types for `IPPROTO_IDP'
-/usr/include/netinet/in.h:50: previous declaration of `IPPROTO_IDP'
-/usr/include/linux/in.h:34: conflicting types for `IPPROTO_RSVP'
-/usr/include/netinet/in.h:60: previous declaration of `IPPROTO_RSVP'
-/usr/include/linux/in.h:35: conflicting types for `IPPROTO_GRE'
-/usr/include/netinet/in.h:62: previous declaration of `IPPROTO_GRE'
-/usr/include/linux/in.h:37: conflicting types for `IPPROTO_IPV6'
-/usr/include/netinet/in.h:54: previous declaration of `IPPROTO_IPV6'
-/usr/include/linux/in.h:39: conflicting types for `IPPROTO_PIM'
-/usr/include/netinet/in.h:78: previous declaration of `IPPROTO_PIM'
-/usr/include/linux/in.h:41: conflicting types for `IPPROTO_ESP'
-/usr/include/netinet/in.h:64: previous declaration of `IPPROTO_ESP'
-/usr/include/linux/in.h:42: conflicting types for `IPPROTO_AH'
-/usr/include/netinet/in.h:66: previous declaration of `IPPROTO_AH'
-/usr/include/linux/in.h:43: conflicting types for `IPPROTO_COMP'
-/usr/include/netinet/in.h:80: previous declaration of `IPPROTO_COMP'
-/usr/include/linux/in.h:45: conflicting types for `IPPROTO_RAW'
-/usr/include/netinet/in.h:82: previous declaration of `IPPROTO_RAW'
-/usr/include/linux/in.h:47: conflicting types for `IPPROTO_MAX'
-/usr/include/netinet/in.h:85: previous declaration of `IPPROTO_MAX'
-/usr/include/linux/in.h:51: redefinition of `struct in_addr'
-/usr/include/linux/in.h:92: redefinition of `struct ip_mreq'
-/usr/include/linux/in.h:98: redefinition of `struct ip_mreqn'
-/usr/include/linux/in.h:105: redefinition of `struct in_pktinfo'
-/usr/include/linux/in.h:113: redefinition of `struct sockaddr_in'
-iwlib.c: In function `iw_sockets_open':
-iwlib.c:46: warning: implicit declaration of function `socket'
-make: [iwlib.o] Error 1 (ignored)
-rm -f libiw.a
-ar cru libiw.a iwlib.o
-ar: iwlib.o: No such file or directory
-make: [libiw.a] Error 1 (ignored)
-ranlib libiw.a
-ranlib: libiw.a: No such file or directory
-make: [libiw.a] Error 9 (ignored)
-gcc -O2 -shared -o libiw.so.22 -Wl,-soname,libiw.so.22 -lm -lc iwlib.o
-gcc: iwlib.o: No such file or directory
+The following patch (which should apply cleanly on all recent
+kernels) corrects a small bug which prevented a Sony VAIO 
+laptop to be put in APM sleep once the sonypi driver was used
+(and could have interfered with ACPI code if compiled in...).
 
-As I have no knowledge of code,asked wireless-tools maintainer what's wrong 
-got answer,what I wrote in my previous message.....
+Please apply to both kernel branches.
 
-So coul someone enlight me what to do....
+Credits for this patch go to Michael C. B. Ashley & Bob Donnelly.
 
-jarmo
-oh1mrr@nic.fi
+Stelian.
 
 
+diff -uNr --exclude-from=dontdiff linux-2.4.16.orig/Documentation/sonypi.txt linux-2.4.16/Documentation/sonypi.txt
+--- linux-2.4.16.orig/Documentation/sonypi.txt	Mon Oct 15 17:38:31 2001
++++ linux-2.4.16/Documentation/sonypi.txt	Thu Nov 29 14:52:23 2001
+@@ -58,6 +58,10 @@
+ 			get enabled unless you set this parameter to 1.
+ 			Do not use this option unless it's actually necessary,
+ 			some Vaio models don't deal well with this option.
++			This option is available only if the kernel is 
++			compiled without ACPI support (since it conflicts
++			with it and it shouldn't be required anyway if 
++			ACPI is already enabled).
+ 
+ 	verbose:	print unknown events from the sonypi device
+ 
+@@ -93,7 +97,10 @@
+ 	- some users reported that the laptop speed is lower (dhrystone
+ 	  tested) when using the driver with the fnkeyinit parameter. I cannot
+ 	  reproduce it on my laptop and not all users have this problem.
+-	  Still under investigation.
++	  This happens because the fnkeyinit parameter enables the ACPI 
++	  mode (but without additionnal ACPI control, like processor 
++	  speed handling etc). Use ACPI instead of APM if it works on your
++	  laptop.
+ 	
+ 	- since all development was done by reverse engineering, there is
+ 	  _absolutely no guarantee_ that this driver will not crash your
+diff -uNr --exclude-from=dontdiff linux-2.4.16.orig/drivers/char/sonypi.c linux-2.4.16/drivers/char/sonypi.c
+--- linux-2.4.16.orig/drivers/char/sonypi.c	Mon Oct 15 17:38:31 2001
++++ linux-2.4.16/drivers/char/sonypi.c	Thu Nov 29 12:01:01 2001
+@@ -617,8 +617,11 @@
+ 		goto out3;
+ 	}
+ 
++#if !defined(CONFIG_ACPI)
++	/* Enable ACPI mode to get Fn key events */
+ 	if (fnkeyinit)
+ 		outb(0xf0, 0xb2);
++#endif
+ 
+ 	if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2)
+ 		sonypi_type2_srs();
+@@ -666,6 +669,11 @@
+ 		sonypi_type2_dis();
+ 	else
+ 		sonypi_type1_dis();
++#if !defined(CONFIG_ACPI)
++	/* disable ACPI mode */
++	if (fnkeyinit)
++		outb(0xf1, 0xb2);
++#endif
+ 	free_irq(sonypi_device.irq, sonypi_irq);
+ 	release_region(sonypi_device.ioport1, sonypi_device.region_size);
+ 	misc_deregister(&sonypi_misc_device);
+diff -uNr --exclude-from=dontdiff linux-2.4.16.orig/drivers/char/sonypi.h linux-2.4.16/drivers/char/sonypi.h
+--- linux-2.4.16.orig/drivers/char/sonypi.h	Mon Oct 15 17:38:31 2001
++++ linux-2.4.16/drivers/char/sonypi.h	Thu Nov 29 14:52:42 2001
+@@ -35,7 +35,7 @@
+ #ifdef __KERNEL__
+ 
+ #define SONYPI_DRIVER_MAJORVERSION	1
+-#define SONYPI_DRIVER_MINORVERSION	7
++#define SONYPI_DRIVER_MINORVERSION	8
+ 
+ #include <linux/types.h>
+ #include <linux/pci.h>
 
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

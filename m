@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbULIUzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbULIU7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbULIUzn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 15:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbULIUzm
+	id S261621AbULIU7r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 15:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbULIU7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 15:55:42 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:52402 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261617AbULIUz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 15:55:29 -0500
-Message-Id: <200412092055.iB9KtMOb024671@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: linux-kernel@vger.kernel.org
-Subject: Re: initrd and fc3 
-In-Reply-To: Your message of "Thu, 09 Dec 2004 15:48:05 EST."
-             <200412092048.iB9Km5gq012308@turing-police.cc.vt.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <1102620480.19320.8.camel@rich>
-            <200412092048.iB9Km5gq012308@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1217466558P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 9 Dec 2004 15:59:47 -0500
+Received: from mail00hq.adic.com ([63.81.117.10]:14928 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261621AbULIU6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 15:58:52 -0500
+Message-ID: <41B8BB96.4040006@xfs.org>
+Date: Thu, 09 Dec 2004 14:54:46 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: negative dentry_stat.nr_unused causes aggressive dcache pruning
+References: <41B77D54.4080909@xfs.org> <20041209020919.6f17e322.akpm@osdl.org>
+In-Reply-To: <20041209020919.6f17e322.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 09 Dec 2004 15:55:19 -0500
+X-OriginalArrivalTime: 09 Dec 2004 20:58:47.0997 (UTC) FILETIME=[E0D3FED0:01C4DE31]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1217466558P
-Content-Type: text/plain; charset=us-ascii
+Andrew Morton wrote:
+> Steve Lord <lord@xfs.org> wrote:
+> 
+>>I have seen this stat go negative (just from booting up a multi cpu box),
+>> and looking at the code, it is manipulated without locking in a number
+>> of places. I have only seen this in real life on a 2.4 kernel, but 2.6
+>> also looks vulnerable.
+> 
+> 
+> In 2.6, both dentry_stat.nr_unused and dentry_stat.nr_dentry are covered
+> by dcache_lock.  I just double-checked and all seems well.
+> 
 
-On Thu, 09 Dec 2004 15:48:05 EST, Valdis.Kletnieks@vt.edu said:
+I still do not know exactly how the count gets negative, but I tracked it
+down to a user space app from emulex called HBAanywhere. The only thing I
+can see this doing which might be related is attempting to open a lot of
+non-existant /proc entries:
 
-> (off-list reply)
+	/proc/scsi//120
+	/proc/scsi//121
+	etc...
 
-Or it would have been, if I had hit "reply" instead of "reply all".
+Yes there is a // in there.
 
-And barring that, it *still* would have been, if I hadn't noticed the
-cc:, removed it, and then managed to paste it back in again.
+I ran with a BUG call if we manipulate nr_unused without the dcache lock
+and it never tripped. All very wierd.
 
-Argh.  Good thing I'm not trying to write code today. :)
+Steve
 
---==_Exmh_1217466558P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBuLu2cC3lWbTT17ARAk5VAJ4venOQ7hE5fZn/Xl9qMLQzooSnuwCeKQDb
-PYsF0Hi9p1uMMSFdc2rsC2M=
-=rMOp
------END PGP SIGNATURE-----
-
---==_Exmh_1217466558P--

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261974AbSJKIXc>; Fri, 11 Oct 2002 04:23:32 -0400
+	id <S262318AbSJKI0r>; Fri, 11 Oct 2002 04:26:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262114AbSJKIXb>; Fri, 11 Oct 2002 04:23:31 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:44265 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S261974AbSJKIX2> convert rfc822-to-8bit; Fri, 11 Oct 2002 04:23:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: Andrew Theurer <habanero@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
-Date: Fri, 11 Oct 2002 10:27:59 +0200
-User-Agent: KMail/1.4.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200210091826.20759.efocht@ess.nec.de> <200210101234.34345.habanero@us.ibm.com> <200210110947.11714.efocht@ess.nec.de>
-In-Reply-To: <200210110947.11714.efocht@ess.nec.de>
+	id <S262354AbSJKI0q>; Fri, 11 Oct 2002 04:26:46 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:5905 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262318AbSJKI0p>; Fri, 11 Oct 2002 04:26:45 -0400
+Message-ID: <3DA68CAF.8F4EC88C@aitel.hist.no>
+Date: Fri, 11 Oct 2002 10:32:47 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.40mm1 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210111027.59589.efocht@ess.nec.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: linux-kernel@vger.kernel.org, pochini@shiny.it,
+       Robert Love <rml@tech9.net>, Mark Mielke <mark@mark.mielke.cc>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>, andersen@codepoet.org
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+References: <1034221067.794.505.camel@phantasy> <XFMail.20021010153919.pochini@shiny.it> <20021010225050.GC2673@matchmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 October 2002 09:47, Erich Focht wrote:
-> Hi Andrew,
->
-> On Thursday 10 October 2002 19:34, Andrew Theurer wrote:
-> > Thanks very much Erich.  I did come across another problem here on
-> > numa-q. In task_to_steal() there is a divide by cache_decay_ticks, which
-> > apparantly is 0 on my system.  This may have to do with notsc, but I am
-> > not sure.  I set cache_decay_ticks to 8, (I cannot boot without using
-> > notsc) which is probably not correct, but I can now boot 16 processor
-> > numa-q on 2.5.40-mm1 with your patches!  I'll get some benchmark results
-> > soon.
->
-> oops... This is a bug in 2.5-i386. It means that the O(1) scheduler in
-> 2.5 doesn't work well either because it doesn't take into account cache
-> coolness. I'll post a fix to LKML in a few minutes.
+Mike Fedyk wrote:
+> 
+> On Thu, Oct 10, 2002 at 03:39:19PM +0200, Giuliano Pochini wrote:
+[...]
+> > When a process opens a file with O_STREAMING, it tells the kernel
+> > it will use the data only once, but it tells nothing about other
+> > tasks. If that process reads something which is already cached,
+> > then it must not drop it because someone other used it recently
+> > and IMHO pagecache only should be allowed to drop it.
+> >
+> 
+> You are missing the point.  If the app thinks that might happen, it
+> shouldn't use O_STREAMING.
 
-Sorry, I thought the smp_tune_scheduling() call went lost during the
-transition to the new cpu boot scheme. But it's there. And the problem
-is indeed "notsc". So you'll have to fix it, I can't.
+The app _can't_ know, so nothing should use O_STREAMING?
 
-If you set the cache_decay_ticks to something non-zero, you should
-_really_ do this for all the scheduler tests, otherwise your measurements
-will not be comparable.
+I think the idea seems good - if a page requested for streaming
+happens to be in cache already, don't mark it for early eviction.
 
-Regards,
-Erich
+This approach ensures that streaming apps don't affect the caches
+of other apps at all.  There are way too many cases where
+streaming is useful but we don't know if others might be using
+the pages - perhaps in other ways.
 
+Consider searching _all_ files on disk for some string.  Clearly
+a cache-killer that would benefit from streaming, without
+streaming this pushes everything else from cache except
+for the last files searched.
+But streaming that unconditionally marks pages for eviction
+will also kill all cache in this case.  Both data and binaries.
+
+Streaming that only evicts pages it _brought in_ can 
+search the entire disk (or some reasonable but large subset)
+leaving almost all other cache intact.
+
+Now, if we could make updatedb use this kind of streaming
+for its directory traversals... :-)
+
+Helge Hafting

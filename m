@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267512AbUHSXIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUHSXJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267512AbUHSXIm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 19:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267509AbUHSXGX
+	id S267509AbUHSXJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 19:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267493AbUHSXJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 19:06:23 -0400
-Received: from sophie.6s.nl ([82.192.75.250]:51108 "EHLO sophie.6s.nl")
-	by vger.kernel.org with ESMTP id S267493AbUHSXCn (ORCPT
+	Thu, 19 Aug 2004 19:09:01 -0400
+Received: from opersys.com ([64.40.108.71]:36623 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S267510AbUHSXIM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 19:02:43 -0400
-Subject: Re: network regression using 2.6.8.x behind Cisco 1712
-From: Bastiaan Spandaw <lkml@becobaf.com>
-To: =?iso-8859-2?Q?Ond=F8ej_Sur=FD?= <ondrej@sury.org>
-Cc: solt@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-In-Reply-To: <1092899789.5191.1.camel@ondrej.sury.org>
-References: <1092817247.5178.6.camel@ondrej.sury.org>
-	 <1092849905.26056.17.camel@localhost.localdomain>
-	 <1092899789.5191.1.camel@ondrej.sury.org>
-Content-Type: text/plain; charset=iso-8859-2
-Message-Id: <1092956561.3760.7.camel@louise3.6s.nl>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 01:02:41 +0200
-Content-Transfer-Encoding: 8bit
+	Thu, 19 Aug 2004 19:08:12 -0400
+Message-ID: <4125312F.7020108@opersys.com>
+Date: Thu, 19 Aug 2004 19:01:03 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Miles Lane <miles.lane@comcast.net>
+CC: linux-kernel@vger.kernel.org, Thomas Zanussi <trz@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Robert Wisniewski <bob@watson.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+References: <200408191822.48297.miles.lane@comcast.net>
+In-Reply-To: <200408191822.48297.miles.lane@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-19 at 09:16, Ondøej Surý wrote: 
-> On Wed, 2004-08-18 at 18:25 +0100, Alan Cox wrote:
-> > On Mer, 2004-08-18 at 09:20, Ondøej Surý wrote:
-> > > It could be some bug in IOS, but it is triggered by some change between
-> > > 2.6.7 and 2.6.8.  Any hints what should I try or where to look?
-> > > I could try some -pre and -rc kernel to locate where this was
-> > > introduced, but at least try to hint me which version should be
-> > > considered, I am not so willing to compile all -preX and -rcX, but could
-> > > do that if neccessary to hunt this regression.
-> > 
-> > echo "0" >/proc/sys/net/ipv4/tcp_window_scaling see if that helps.
+
+Miles Lane wrote:
+> http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
 > 
-> Yep, that helped.  Thanks a lot.
-> 
-> > If so then suspect something like the cisco or upstream router.
-> 
-> I will report this to my local Cisco support partner.
+> "Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
+> and Linux."
 
-I too have this problem. (cisco 837 running
-c837-k9o3sy6-mz.123-4.XG1.bin)
+We've been pushing for the inclusion of the Linux Trace Toolkit in the kernel
+for the past 5 years. As of late, it seems that the pending argument against
+its inclusion is: How is this useful to end users? In answer to that, I had
+already posted the same pointer as above:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108938594031379&w=2
 
-Adjusting the window scaling helped me too.
+Since then, I've had the chance to discuss this matter at the Kernel Summit,
+and again I was told that this was a sales problem (i.e. it must be
+demonstrated that this is actually useful to users.) So, as the developers
+of the Linux Trace Toolkit, it would help us a lot if you could explain to
+this list why the sort of functionality provided by DTrace is something you
+would personally find useful.
 
-If you get an answer from cisco I'd greatly appreciate hearing about it.
+Thanks,
 
-Regards,
-
-Bastiaan
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

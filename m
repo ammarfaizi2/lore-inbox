@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTLWR4b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLWR4a
+	id S262098AbTLWR7J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTLWR7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:56:30 -0500
-Received: from CPE-24-163-213-80.mn.rr.com ([24.163.213.80]:14223 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S262063AbTLWR41
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:56:27 -0500
-Subject: reiser4 breaks vmware
-From: Shawn <core@enodev.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1072202167.8127.15.camel@localhost>
+	Tue, 23 Dec 2003 12:59:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3248 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262098AbTLWR7F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 12:59:05 -0500
+Date: Tue, 23 Dec 2003 12:58:48 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: various issues with ACPI sleep and 2.6
+Message-ID: <20031223175848.GA30037@devserv.devel.redhat.com>
+Mail-Followup-To: Kronos <kronos@kronoz.cjb.net>,
+	linux-kernel@vger.kernel.org
+References: <20031223165739.GA28356@devserv.devel.redhat.com> <20031223173556.GA9412@dreamland.darkstar.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 11:56:07 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223173556.GA9412@dreamland.darkstar.lan>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgive my line-wraps, but the following (among other do_mmap_pgoff
-related snippets) break vmware.
+Kronos (kronos@kronoz.cjb.net) said: 
+> > - DRI being loaded at all causes X to fail on resume
+> 
+> Known issue. See
+> http://dri.sourceforge.net/cgi-bin/moin.cgi/PowerManagement
 
-Couple questions out of this:
-1. Does anyone care enough to produce a patch for vmware's module?
-2. What does this change accomplish for reiser4?
+Yes, with the patch there, suspend/resume of running DRI apps works
+fine, even without switching VTs as suggested. 
 
-diff -ruN linux-2.6.0-test9/arch/i386/kernel/sys_i386.c
-linux-2.6.0-test9-reiser4/arch/i386/kernel/sys_i386.c 
---- linux-2.6.0-test9/arch/i386/kernel/sys_i386.c       Sat Oct 25
-22:44:51 2003 
-+++ linux-2.6.0-test9-reiser4/arch/i386/kernel/sys_i386.c       Thu Nov
-13 15:39:47 2003 
-@@ -56,7 +56,7 @@ 
-        } 
+> > - MCE on resume:
+> >
+> >  MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+> >  Bank 1: f200000000000175
+> 
+> Hum, this is strange. I saw similar  messages on my laptop but they were
+> related to bank0-issue on athlon CPUs. No idea of what's going on there.
 
-        down_write(&current->mm->mmap_sem); 
--       error = do_mmap_pgoff(file, addr, len, prot, flags, pgoff); 
-+       error = do_mmap_pgoff(current->mm, file, addr, len, prot, flags,
-pgoff); 
-        up_write(&current->mm->mmap_sem); 
+I saw a report of this occuring with APM suspend as well for one person
+on a T40; may or may not be related.
 
-        if (file)
+Bill

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267427AbSKQB1J>; Sat, 16 Nov 2002 20:27:09 -0500
+	id <S267428AbSKQBaf>; Sat, 16 Nov 2002 20:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267428AbSKQB1J>; Sat, 16 Nov 2002 20:27:09 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:41980 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S267427AbSKQB1J>;
-	Sat, 16 Nov 2002 20:27:09 -0500
-Date: Sat, 16 Nov 2002 20:34:00 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-Message-ID: <20021117013400.GA27127@www.kroptech.com>
-References: <3DD5D93F.8070505@kegel.com> <3DD5DC77.2010406@pobox.com> <20021116151102.GI19015@higherplane.net> <3DD6B2C5.3010303@pobox.com>
-Mime-Version: 1.0
+	id <S267429AbSKQBaf>; Sat, 16 Nov 2002 20:30:35 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:18565 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267428AbSKQBae>; Sat, 16 Nov 2002 20:30:34 -0500
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+References: <87d6p63ui2.fsf@goat.bogus.local>
+	<20021117000806.GB443@tapu.f00f.org>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [PATCH] 2.5.47: strdup()
+Date: Sun, 17 Nov 2002 02:37:27 +0100
+Message-ID: <873cq1nfhk.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD6B2C5.3010303@pobox.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 04:04:05PM -0500, Jeff Garzik wrote:
-> john slee wrote:
-> 
-> >>If people want to get rivafb or an ancient ISA net driver building
-> >>again... patches welcome.  But I don't think calls for the kernel to
-> >
-> >
-> >yep, someone is maintaining ewrk3 again now :-), or at least i have seen
-> >a couple of patches submitted
-> 
-> 
-> hehe, yep, in fact there is an ewrk3 patch I still need to merge :)
+Chris Wedgwood <cw@f00f.org> writes:
 
-Hehe, so my mailer *isn't* broken. And all along I've been trying to
-figure out why mails to pobox.com aren't getting thru... ;)
+> On Sat, Nov 16, 2002 at 07:21:09AM +0100, Olaf Dietsche wrote:
+>
+>> This *untested* patch adds strdup(). There are about five or six
+>> different strdup() implementations in various parts of the kernel.
+>
+> How many users of these functions are there?  I really don't like
+> certain functions which allocate memory in nebulous ways and almost
+> would prefer all users of this are fixed to specifically allocate and
+> str[n]cpy copy themselves making it clear who is allocating memory and
+> also who should free it.
 
-BTW, I'd be willing to work on some other drivers if there are some
-you'd like to see fixed. Probably won't have the hardware here to test
-them but other listees can help out with that...
+So you like duplicate code? Well, to each his own.
 
---Adam
-
+Regards, Olaf.

@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130011AbQLTEdN>; Tue, 19 Dec 2000 23:33:13 -0500
+	id <S130069AbQLTEhX>; Tue, 19 Dec 2000 23:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130069AbQLTEdE>; Tue, 19 Dec 2000 23:33:04 -0500
-Received: from quechua.inka.de ([212.227.14.2]:20024 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S130011AbQLTEcy>;
-	Tue, 19 Dec 2000 23:32:54 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Cc: khaled@pacificpost.com
-Subject: Re: Presentation Layer in TCP/IP linux implementation
-Message-Id: <E148aSL-0001cH-00@calista.inka.de>
-Date: Wed, 20 Dec 2000 05:02:21 +0100
+	id <S131135AbQLTEhN>; Tue, 19 Dec 2000 23:37:13 -0500
+Received: from [216.136.130.52] ([216.136.130.52]:3077 "HELO
+	web10102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130069AbQLTEhE>; Tue, 19 Dec 2000 23:37:04 -0500
+Message-ID: <20001220040634.26347.qmail@web10102.mail.yahoo.com>
+Date: Tue, 19 Dec 2000 20:06:34 -0800 (PST)
+From: Al Peat <al_kernel@yahoo.com>
+Subject: Purging the Buffer Cache
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: myself <al_peat@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A3F57A0.32A6F34D@pacificpost.com> you wrote:
-> Hello Linux World,
+  Is there any way to completely purge the buffer
+cache -- not just the write requests (ala 'sync' or
+'update'), but the whole thing?  Can I just call
+invalidate_buffers() or destroy_buffers()?
 
-> Is there a way to add a generic and transparent presenation layer in the
-> path of TCP/IP packets. I am speaking about something probably in the
-> path between the user space mechanims (send/recv/read/write) and the
-> actual sock_sendmsg/sock_recvmsg (and their proto counterparts).
+  I know, why in the world would a person do such a
+thing?  Research.  It'd be easier for me to write a
+little program or add it to a module than wait for a
+reboot each time I need a clean buffer cache.
 
-In User mode you can use a dynamically pre-loaded lib, like socks is doing.
+  Thanks in advance,
+	Al
+  
 
-Greetings
-Bernd
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

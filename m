@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbTEGQGm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264114AbTEGQGm
+	id S264120AbTEGQMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbTEGQMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:06:42 -0400
-Received: from elin.scali.no ([62.70.89.10]:58528 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id S264113AbTEGQGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:06:40 -0400
-Date: Wed, 7 May 2003 18:18:56 +0200 (CEST)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: petter wahlman <petter@bluezone.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052321673.3727.737.camel@badeip>
-Message-ID: <Pine.LNX.4.44.0305071807250.3573-100000@sp-laptop.isdn.scali.no>
+	Wed, 7 May 2003 12:12:15 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:9935 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S264120AbTEGQMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:12:13 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Date: Wed, 7 May 2003 18:20:31 +0200
+User-Agent: KMail/1.5.1
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+References: <20030507104008$12ba@gated-at.bofh.it> <200305071746.15908.arnd@arndb.de> <20030507160726.GM823@suse.de>
+In-Reply-To: <20030507160726.GM823@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="euc-jp"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305071820.31898.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 May 2003, petter wahlman wrote:
+On Wednesday 07 May 2003 18:07, Jens Axboe wrote:
+> On Wed, May 07 2003, Arnd Bergmann wrote:
+> > No, it has indeed been possible to build scsi as a module for a long
+> > time and in that case, scsi_ioctl becomes part of that module. The same
+> > problem also exists for any user of register_ioctl32_conversion(), e.g.
+> > ieee1394.
+>
+> drivers/block/scsi_ioctl.c is not part of the scsi layer, it provides
+> generic SG_IO functionality for scsi-like block drivers.
 
->  
-> It seems like nobody belives that there are any technically valid
-> reasons for hooking system calls, but how should e.g anti virus
-> on-access scanners intercept syscalls?
-> Preloading libraries, ptracing init, patching g/libc, etc. are
-> obviously not the way to go.
-> 
+Ok, sorry about the confusion. I was thinking of drivers/scsi/scsi_ioctl.c
+all the time. However, the problem I meant is still present in the patch
+for drivers/serial/core.c, which does get built as a module, and potentially
+in any other module. Note that the whole purpose of
+register_ioctl32_conversion() is to be able to put the wrappers in modules:
+If you put your wrapper function in a file that is never a module, you
+can simply put HANDLE_IOCTL(FOO, compat_foo) in include/linux/compat_ioctl.h.
 
-Well, for a system wide system call hook, a kernel mechanism is necessary 
-(and useful too IMHO). However for our usage (MPI) it is enough to know 
-when the current process calls either sbrk(-n) or munmap glibc functions, 
-thus it is sufficient to implement some kind of callback functionality for 
-certain glibc functions, sort of like the malloc/free hooks but on a more 
-general basis since some applications doesn't use malloc/free but 
-implement their own alloc/free algorithms using the syscalls (one example 
-is f90 apps).
-
-Ideas anyone ?
-
-Regards,
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
-
+	Arnd <><

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbTI3TIM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 15:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbTI3TIM
+	id S261670AbTI3TJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 15:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbTI3TJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 15:08:12 -0400
-Received: from ns.suse.de ([195.135.220.2]:51603 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261662AbTI3TIE (ORCPT
+	Tue, 30 Sep 2003 15:09:16 -0400
+Received: from codepoet.org ([166.70.99.138]:17798 "EHLO mail.codepoet.org")
+	by vger.kernel.org with ESMTP id S261670AbTI3TJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 15:08:04 -0400
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
-References: <20030930073814.GA26649@mail.jlokier.co.uk.suse.lists.linux.kernel>
-	<20030930132211.GA23333@redhat.com.suse.lists.linux.kernel>
-	<20030930133936.GA28876@mail.shareable.org.suse.lists.linux.kernel>
-	<20030930135324.GC5507@redhat.com.suse.lists.linux.kernel>
-	<20030930144526.GC28876@mail.shareable.org.suse.lists.linux.kernel>
-	<20030930150825.GD5507@redhat.com.suse.lists.linux.kernel>
-	<20030930165450.GF28876@mail.shareable.org.suse.lists.linux.kernel>
-	<20030930172618.GE5507@redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Sep 2003 21:08:01 +0200
-In-Reply-To: <20030930172618.GE5507@redhat.com.suse.lists.linux.kernel>
-Message-ID: <p73pthiyu0e.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 30 Sep 2003 15:09:10 -0400
+Date: Tue, 30 Sep 2003 13:09:08 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, Andreas Steinmetz <ast@domdv.de>,
+       schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+Subject: Re: Kernel includefile bug not fixed after a year :-(
+Message-ID: <20030930190908.GC5407@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jens Axboe <axboe@suse.de>, "David S. Miller" <davem@redhat.com>,
+	Andreas Steinmetz <ast@domdv.de>, schilling@fokus.fraunhofer.de,
+	linux-kernel@vger.kernel.org
+References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930052337.444fdac4.davem@redhat.com> <20030930122832.GO2908@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930122832.GO2908@suse.de>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
+On Tue Sep 30, 2003 at 02:28:32PM +0200, Jens Axboe wrote:
+> Well then change that to 'if you include kernel headers from your user
+> apps, be prepared to pick fix the breakage'.
 > 
->  > Anyway, it should complain about lack of cmov not crash :)
-> 
-> not easy, given we execute cmov instructions before we even hit
-> a printk. Such a test & output needs to be done in assembly in early
-> startup.
+> Surely the kernel doesn't move at such an accelerated pace that it's
+> impossible to keep kernel headers uptodate.
 
-I implemented it for long mode on x86-64.
+A classic recent example is iproute, which uses kernel headers
+all over the place.  It compiled with earlier 2.4.x kernels, but
+it no longer compiles 2.4.22.  I've not bothered to try and fix
+it, but if it included its own set of sanitized kernel headers,
+it would not have had a problem.
 
-It has to be done before the vesafb is initialized too, otherwise
-you cannot see the error message.
+ -Erik
 
-You could copy the code from arch/x86_64/boot/setup.S 
-(starting with /* check for long mode. */) and change it to
-check for the CPUID bits you want. x86-64 checks a basic collection
-that has been determined to be the base set of x86-64 supporting CPUs.
-But it could be less or more.
-
--Andi
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

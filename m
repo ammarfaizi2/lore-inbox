@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265893AbTGDIlr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 04:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbTGDIkW
+	id S265999AbTGDItO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 04:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265929AbTGDItO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 04:40:22 -0400
-Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:5600
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265886AbTGDIig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 04:38:36 -0400
-Date: Fri, 4 Jul 2003 01:53:03 -0700
-To: Ben Collins <bcollins@debian.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New fbdev updates.
-Message-ID: <20030704085303.GB26432@triplehelix.org>
-References: <Pine.LNX.4.44.0307031847570.16727-100000@phoenix.infradead.org> <20030703235039.GB502@phunnypharm.org>
+	Fri, 4 Jul 2003 04:49:14 -0400
+Received: from home.wiggy.net ([213.84.101.140]:35969 "EHLO
+	tornado.home.wiggy.net") by vger.kernel.org with ESMTP
+	id S265999AbTGDItC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 04:49:02 -0400
+Date: Fri, 4 Jul 2003 11:03:29 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: 2.4.21 and 2.5.74 freeze on cardmgr start
+Message-ID: <20030704090329.GA1975@wiggy.net>
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030703235039.GB502@phunnypharm.org>
 User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I bought a new laptop recently (dell latitude d600) which seems to be
+working reasonably well with Linux, with PCMCIA as the big exception.
 
---KFztAG8eRSV9hGtP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+When I start cardmgr I see log messages for IO port probes and than the
+machine is completely frozen:
 
-On Thu, Jul 03, 2003 at 07:50:39PM -0400, Ben Collins wrote:
-> Seems my old corrupt cursor is fixed, but with your new code I am
-> getting ghost cursors left behind while moving around in vim over ssh
-> with syntax on.
+Starting PCMCIA services: cardmgr[309]: watching 2 sockets
+cs: IO port probe 0x0c00-0x0cff: clean
+cs: IO probt probe 0x0800-0x08ff:
 
-I am noticing too, but this is local. In fact I am seeing a bunch of
-ghost cursors as I edit this message :)
+At this point neither magic sysrq nor the hangtimer work. This
+behaviour occurs with all of 2.4.18 (debian boot-floppies kernel), 
+2.4.21, 2.5.73 and 2.5.74 (all unpatched).
 
--Josh
+Obligatory lspci output:
 
---=20
-"Notice that, written there, rather legibly, in the Baroque style common=20
-to New York subway wall writers, was, uhm... was the old familiar=20
-suggestion. And rather beautifully illustrated, as well..."
+00:00.0 Host bridge: Intel Corp.: Unknown device 3340 (rev 03)
+00:01.0 PCI bridge: Intel Corp.: Unknown device 3341 (rev 03)
+00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 01)
+00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 01)
+00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 01)
+00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 01)
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 81)
+00:1f.0 ISA bridge: Intel Corp.: Unknown device 24cc (rev 01)
+00:1f.1 IDE interface: Intel Corp.: Unknown device 24ca (rev 01)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 01)
+00:1f.6 Modem: Intel Corp. 82801DB AC'97 Modem (rev 01)
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 01)
+02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702 Gigabit Ethernet (rev 02)
+02:01.0 CardBus bridge: O2 Micro, Inc.: Unknown device 7113 (rev 20)
+02:01.1 CardBus bridge: O2 Micro, Inc.: Unknown device 7113 (rev 20)
+02:03.0 Network controller: Intel Corp.: Unknown device 1043 (rev 04)
 
-       -- Art Garfunkel on the inspiration for "A Poem On The Underground W=
-all"
+Wichert.
 
---KFztAG8eRSV9hGtP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-- 
+Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
+http://www.wiggy.net/                     It is hard to make things simple.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/BUBvT2bz5yevw+4RArXMAJ90Fyx5ciMV0Ivu2LVEiYbIonp3BQCeIwz1
-L8JYeFCpfHPguwNRLVqK0w4=
-=0ZI4
------END PGP SIGNATURE-----
-
---KFztAG8eRSV9hGtP--

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264959AbRGADSr>; Sat, 30 Jun 2001 23:18:47 -0400
+	id <S264958AbRGADcA>; Sat, 30 Jun 2001 23:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264958AbRGADS1>; Sat, 30 Jun 2001 23:18:27 -0400
-Received: from [130.130.68.25] ([130.130.68.25]:25845 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S264957AbRGADSZ>; Sat, 30 Jun 2001 23:18:25 -0400
-Message-ID: <3B3E95F5.5AFCF5DD@uow.edu.au>
-Date: Sun, 01 Jul 2001 13:16:05 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S264960AbRGADbk>; Sat, 30 Jun 2001 23:31:40 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:61571
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S264958AbRGADbb>; Sat, 30 Jun 2001 23:31:31 -0400
+Date: Sat, 30 Jun 2001 20:35:12 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@gw.soze.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] broken cs46xx in 2.4.6-pre8
+Message-ID: <Pine.LNX.4.33.0106302032270.26036-100000@gw.soze.net>
 MIME-Version: 1.0
-To: Joshua Schmidklofer <menion@fmtc.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 - IpConfig, BOOTP not functioning.
-In-Reply-To: <3B3D0B4A.9040603@fmtc.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Schmidklofer wrote:
-> 
-> Kernel developers,
->    I hate to burden you with menial quetions, but:   How does ipconfig
-> get called & initialized?
+prototypes weren't updated.
 
-The magic happens right at the end of ipconfig.c:
+--- linux/drivers/sound/cs46xx.c.orig	Sat Jun 30 20:16:06 2001
++++ linux/drivers/sound/cs46xx.c	Sat Jun 30 20:26:57 2001
+@@ -383,8 +383,8 @@
+ static int cs46xx_powerup(struct cs_card *card, unsigned int type);
+ static int cs461x_powerdown(struct cs_card *card, unsigned int type, int suspendflag);
+ static void cs461x_clear_serial_FIFOs(struct cs_card *card, int type);
+-static void cs46xx_suspend_tbl(struct pci_dev *pcidev);
+-static void cs46xx_resume_tbl(struct pci_dev *pcidev);
++static int cs46xx_suspend_tbl(struct pci_dev *pcidev, u32 state);
++static int cs46xx_resume_tbl(struct pci_dev *pcidev);
 
-__setup("ip=", ip_auto_config_setup);
-__setup("nfsaddrs=", nfsaddrs_config_setup);
+ static inline unsigned ld2(unsigned int x)
+ {
 
-When the kernel boots it runs init/main.c:parse_options() to parse
-the kernel boot command line.  The function init/main.c:checksetup()
-will call ip_auto_config_setup() when it sees an argument of the
-form "ip=XXXX" on the command line.
-
-If there is no `ip=' argument then ip_auto_config_setup() will
-not be called at all.
-
--

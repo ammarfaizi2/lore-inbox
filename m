@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbTL2XEY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 18:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265126AbTL2XEY
+	id S265126AbTL2XEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 18:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265129AbTL2XEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 18:04:24 -0500
-Received: from viefep14-int.chello.at ([213.46.255.13]:15714 "EHLO
-	viefep14-int.chello.at") by vger.kernel.org with ESMTP
-	id S265112AbTL2XEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 18:04:22 -0500
-From: Andreas Theofilu <noreply@TheosSoft.net>
-Subject: Re: 2.6.0 with frame buffer problems?
-To: linux-kernel@vger.kernel.org
-Newsgroups: linux.kernel
-Date: Tue, 30 Dec 2003 00:04:18 +0100
-References: <181SV-7V5-1@gated-at.bofh.it> <188KU-2z8-29@gated-at.bofh.it>
-Organization: Theos Soft
-User-Agent: KNode/0.7.2
+	Mon, 29 Dec 2003 18:04:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43704 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265126AbTL2XEf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 18:04:35 -0500
+Date: Mon, 29 Dec 2003 15:04:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Molina <tmolina@cablespeed.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 performance problems
+In-Reply-To: <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0312291502210.1586@home.osdl.org>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
+ <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
+ <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
-Message-Id: <20031229230420.A488924002@chello062178157104.9.14.vie.surfer.at>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<veröffentlicht & per Mail versendet>
 
-Gene Heskett wrote:
 
-> # Graphics support
-> #
-> CONFIG_FB=y
-[...]
+On Mon, 29 Dec 2003, Thomas Molina wrote:
 > 
-> Way too many frame buffers enabled.  Pick the one that works with your
-> card and disable the vesa.  You may have to say y to the usual fonts
-> too.
-> 
-Thanks for that hint. I did it and it's a lot better now, but unfortunately
-not completely gone. Particularly the text modus is working perfect now and
-I got the penguin back while booting :-).
-I will spend more time to this problem, because I'm not so sure that it
-belongs only to the kernel, even if someone at XFree told this.
+> It certainly looks like DMA is enabled.
 
-This is what I've configured currently:
-CONFIG_FB=y
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-# CONFIG_FB_VESA is not set
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_MATROX is not set
-CONFIG_FB_RADEON=y
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
+Indeed. Can you do a simple kernel profile? Either using oprofile or just
+even the old profiler. It should show something (hopefully obvious), since
+your load seems to have a _huge_ system load.
 
--- 
-Andreas Theofilu
-http://www.TheosSoft.net
-E-Mail: andreas at TheosSoft dot net
+			Linus

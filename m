@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263214AbREMSAr>; Sun, 13 May 2001 14:00:47 -0400
+	id <S263212AbREMR75>; Sun, 13 May 2001 13:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbREMSAl>; Sun, 13 May 2001 14:00:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48556 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263214AbREMSAZ>;
-	Sun, 13 May 2001 14:00:25 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263214AbREMR7h>; Sun, 13 May 2001 13:59:37 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:57605 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S263212AbREMR7a>;
+	Sun, 13 May 2001 13:59:30 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200105131759.VAA27768@ms2.inr.ac.ru>
+Subject: Re: IPv6: the same address can be added multiple times
+To: pekkas@netcore.FI (Pekka Savola)
+Date: Sun, 13 May 2001 21:59:07 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105031202080.13012-100000@netcore.fi> from "Pekka Savola" at May 3, 1 01:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15102.52141.725459.804694@pizda.ninka.net>
-Date: Sun, 13 May 2001 11:00:13 -0700 (PDT)
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105131455090.5468-100000@imladris.rielhome.conectiva>
-In-Reply-To: <15102.51701.679466.475230@pizda.ninka.net>
-	<Pine.LNX.4.21.0105131455090.5468-100000@imladris.rielhome.conectiva>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Rik van Riel writes:
- > Then I'd rather check this in a visible place in page_launder()
- > itself. Granted, this is a special case, but I don't think this
- > one is worth obfuscating the code for...
+> It appears you can add _exactly_ same IPv6 address on an interface many
+> times:
 
-I think Linus's scheme is just fine, controlling the new 'priority'
-argument to writepage() using the referenced bit as an input.
+Yes. BTW, look here:
 
-Later,
-David S. Miller
-davem@redhat.com
+kuznet@dust:~ # ip -6 a ls sit0
+7: sit0@NONE: <NOARP,UP> mtu 1480 qdisc noqueue
+    inet6 ::127.0.0.1/96 scope host
+    inet6 ::193.233.7.100/96 scope global
+    inet6 ::193.233.7.100/96 scope global
+
+I have two equal addresses inherited from one IPv4 address
+on two interfaces. Nothing illegal.
+
+
+
+> FWIW, KAME stack adds the address only once(, but BSD ifconfig(8)
+> doesn't show errors when you try to do it again; just doesn't add the
+> second one).
+
+8)
+
+> It looks like a check or two in kernel is missing, or is there some
+> reasoning to this behaviour?
+
+Well, it is one of well defined approaches (unlike KAME's one).
+Alternative is to implement full set of options NLM_F_* like used
+in IPv4 routing to block undefined cases. In IPv6 flags are hardwired
+to NLM_F_CREATE|NLM_F_APPEND both for addresses and routes.
+
+Alexey

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTIBA0l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 20:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbTIBA0l
+	id S263397AbTIBAec (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 20:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTIBAeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 20:26:41 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:52621 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S263387AbTIBA0k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 20:26:40 -0400
-Message-ID: <3F53E3AB.7070604@zytor.com>
-Date: Mon, 01 Sep 2003 17:26:19 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: mfedyk@matchmail.com, superchkn@sbcglobal.net, solt@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org, webmaster@kernel.org
+	Mon, 1 Sep 2003 20:34:31 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:26631
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S263397AbTIBAeZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 20:34:25 -0400
 Subject: Re: -mm patches on www.kernel.org ?
-References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv>	<20030901211108.GE31760@matchmail.com>	<3F53B937.10103@sbcglobal.net>	<20030901225339.GH31760@matchmail.com>	<3F53DEE1.5000709@zytor.com> <20030901171435.1ef05cc8.akpm@osdl.org>
-In-Reply-To: <20030901171435.1ef05cc8.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Robert Love <rml@tech9.net>
+To: Matt Heler <lkml@lpbproductions.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Mike Fedyk <mfedyk@matchmail.com>,
+       Wes Janzen <superchkn@sbcglobal.net>,
+       Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org
+In-Reply-To: <200309011728.44977.lkml@lpbproductions.com>
+References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv>
+	 <20030901225339.GH31760@matchmail.com> <3F53DEE1.5000709@zytor.com>
+	 <200309011728.44977.lkml@lpbproductions.com>
+Content-Type: text/plain
+Message-Id: <1062463428.8206.5.camel@boobies.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Mon, 01 Sep 2003 20:43:48 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, 2003-09-01 at 20:28, Matt Heler wrote:
 
-> 
-> Well I always have a full rollup there, such as
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm4/2.6.0-test4-mm4.gz
-> 
-> Is that what you mean?
-> 
-> (It would be good to add -aa patchsets too).
- >
+> What are you smoking ?? It's a single patch .. that you can apply on top of 
+> the 2.6 tree, SINGLE..  And why can't it be done ? the ac tree and dj tree 
+> were done.
 
-I might be able to do this.  However, please understand, everyone, that 
-having to write individual scripts for each kernel author is turning 
-into a horrible pain in the ass.  I think the only sane way to do this 
-is to come up with a standard directory layout for specific user patches.
+Dude, manic much?  You seriously need to relax.
 
-	-hpa
+hpa can do whatever he wants - he admins the damn thing.  But it is
+obvious he was just unclear that the -mm patches are in fact available
+in a single patch.
+
+	Robert Love
+
 

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263738AbTE0Tbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 15:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTE0Ta1
+	id S264095AbTE0TaU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTE0TaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 15:30:27 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:52127 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S264094AbTE0TaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 15:30:01 -0400
-Date: Tue, 27 May 2003 16:41:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-rc5
-Message-ID: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 May 2003 15:30:18 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:18309 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264095AbTE0TaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:30:07 -0400
+Date: Tue, 27 May 2003 21:43:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] add ata scsi driver
+Message-ID: <20030527194322.GV845@suse.de>
+References: <20030527065436.GX845@suse.de> <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 27 2003, Linus Torvalds wrote:
+> 
+> On Tue, 27 May 2003, Jens Axboe wrote:
+> > 
+> > Here's something ridicolously simple, that just wont start a new tag if
+> > the oldest tag is older than 100ms. Clearly nothing for submission, but
+> > it gets the point across.
+> 
+> Yes, I think something like this should work very well.
 
-Hi,
+Agree, it should take the edge of crappy hardware at least.
 
-Mainly due to a IDE DMA problem which would happen on boxes with lots of
-RAM, here is -rc5.
+> In fact, it might fit in very well indeed with AS - and in general it
+> might be a good idea to have some nice interface for the IO scheduler to
+> give this kind of ordering hints down to the hardware.
 
-As I always ask, please test.
+And deadline, they share the same request expire mechanism. But I read
+your hint, I'll add the hint and fix this for real. Was waiting for the
+other tcq patch to be comitted as they overlap, but I see that is in
+so...
 
-
-Summary of changes from v2.4.21-rc4 to v2.4.21-rc5
-============================================
-
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o 1: (trivial) Fix the formatting of your ide hack
-  o 2: =scsi option fails in some cases
-  o 3: IDE DMA
-  o add the via ide ident
-  o fix the siimage mmio stuff
-
-Andi Kleen <ak@muc.de>:
-  o Fix 32bit ioctl holes
-  o Fix context switch bug on x86-64
-  o Prefetch workaround for csum-copy
-
-Benjamin Herrenschmidt <benh@kernel.crashing.org>:
-  o PPC Documentation/Configure.help fix
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Changed EXTRAVERSION to -rc5
+-- 
+Jens Axboe
 

@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbULPCHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbULPCHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbULPCHt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 21:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbULPCFt
+	id S262567AbULPCHv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 21:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbULPCES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 21:05:49 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:45780 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S262567AbULPCCT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 21:02:19 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB making time drift [was Re: dynamic-hz]
-Date: Wed, 15 Dec 2004 21:02:17 -0500
-User-Agent: KMail/1.7
-Cc: Pavel Machek <pavel@suse.cz>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>
-References: <20041213002751.GP16322@dualathlon.random> <200412151144.38785.gene.heskett@verizon.net> <20041215201618.GA5797@elf.ucw.cz>
-In-Reply-To: <20041215201618.GA5797@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 15 Dec 2004 21:04:18 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:37249 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262601AbULPAxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 19:53:23 -0500
+Subject: Re: [2.6.10-rc2+] ide1=ata66 -- OBSOLETE OPTION, WILL BE REMOVED
+	SOON!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Rene Herman <rene.herman@keyaccess.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e04121313473057143b@mail.gmail.com>
+References: <41B36021.5050600@keyaccess.nl>
+	 <58cb370e04121313473057143b@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412152102.17888.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.42.94] at Wed, 15 Dec 2004 20:02:18 -0600
+Message-Id: <1103154772.3585.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 15 Dec 2004 23:52:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 December 2004 15:16, Pavel Machek wrote:
->Hi!
+On Llu, 2004-12-13 at 21:47, Bartlomiej Zolnierkiewicz wrote:
+> > I do need a way to force an 80c cable on this AMD756 (ATA66 max) board,
+> > since the BIOS doesn't seem to be setting the cable bits correctly.
+> 
+> Ugh, I checked AMD datasheets and AMD756 doesn't support host
+> side cable detection.  Well, we can try doing disk side only for it.
+> [ ATi and ITE (in -ac kernels) drivers are also doing this. ]
 
-Hi Pavel;
+That is probably a good change but not sufficient for things like
+bladeservers where some vendors use short 40c cables which are within
+specification but break drive side detection. Removing ata66 forcing
+doesn't work because of these although perhaps it could be done using
+subvendor ids so it is automatic ?
 
->> >> Which way?  I was running quite fast here, several minutes an
->
->Try idle=poll. That noise may be commig from cpu switching between
->powersave and full speed.
->        Pavel
+Right now I plan to keep ata66 overrides in -ac.
 
-I don't think I have that option set/enabled at all, and these
-machines are running seti so the cpu stays at 100% anyway.
-
-Where would I set that if I wanted to try it?
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Alan
 

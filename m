@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTHOK6R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 06:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTHOK6Q
+	id S275907AbTHOLLy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 07:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275908AbTHOLLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 06:58:16 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:62901 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262254AbTHOK6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 06:58:14 -0400
-Date: Fri, 15 Aug 2003 11:57:33 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jonathan Morton <chromi@chromatix.demon.co.uk>
-Cc: Robert Toole <tooler@tooleweb.homelinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: agpgart failure on KT400
-Message-ID: <20030815105733.GC22433@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jonathan Morton <chromi@chromatix.demon.co.uk>,
-	Robert Toole <tooler@tooleweb.homelinux.com>,
-	linux-kernel@vger.kernel.org
-References: <3F3C2DA0.1030504@tooleweb.homelinux.com> <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Aug 2003 07:11:53 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:2500 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id S275905AbTHOLLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 07:11:50 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: 2.6.0: Bad udp checksum in loopback interface
+Date: Fri, 15 Aug 2003 13:11:48 +0200
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308151311.48831.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 02:42:33AM +0100, Jonathan Morton wrote:
+tcpdump -v shows bad udp checksum in the loopback interface. But I'm not sure 
+if the packets is discarded or the error is ignored.
 
- > Surely it's not too big a job to get basic, generic AGP3 support into 
- > 2.4, even if it's not optimised?  If it's non-trivial to make all AGP3 
- > features work in 2.4, then it's reasonable to require 2.6 for "better 
- > performance".
+ponti:~# tcpdump -i lo -n -v
 
-It's more a maintenance burden. The 2.4 code is *shit*.
-If I was to be doing any amount of work on that code, I'd want the
-cleanups that came with the work I did in 2.6 too.
-Bending all the infrastructure in 2.6 to fit 2.4, testing, debugging etc
-is at least a few evenings work.  I'm just one guy.  Unless Red Hat
-decide that AGP3 is something they really really must have for some
-future 2.4 release, it isn't going to happen by me. Period.
-I'm just up to my eyes in other work.
+ponti:~# dig @192.168.0.3 gallimedina.net
 
- > To be honest, I'd at least expect a fallback to AGP2 for hardware that 
- > can support it, such as KT400.  The Windows drivers for my ATI card can 
- > tell the hardware to drop to "AGP 4x" (which I believe implies AGP2 - I 
- > could be wrong), and the card *did* work correctly with the KT266A 
- > chipset I was using before.
+13:02:12.360728 192.168.0.3.32827 > 192.168.0.3.53: [bad udp cksum 5e6d!]  
+35220+ A? gallimedina.net. (33) (DF) [ttl 0] (id 0, len 61)
+13:02:12.364470 192.168.0.3.53 > 192.168.0.3.32827:  35220* 1/1/1 
+gallimedina.net. A 192.168.0.10 (85) (DF) [ttl 0] (id 12492, len 113)
 
-Nope. You can do X4 in AGP3 mode, which is different from X4 in AGP2.
+ponti:~# dig @127.0.0.1 gallimedina.net
 
- > However, I did encounter a compilation problem with one of the USB 
- > device drivers - not a major problem at present since that particular 
- > device is attached to a different machine - but it does show that 2.6 
- > isn't ready for primetime yet.  The major distros aren't going to make 
- > that switch for a while.
 
-Several distros (Red Hat included) have 2.6 based kernel packages for
-people to test with, which takes the pain off of compilation issues
-for most users.
+13:03:53.299883 127.0.0.1.32827 > 127.0.0.1.53: [bad udp cksum 167d!]  32901+ 
+A? gallimedina.net. (33) (DF) [ttl 0] (id 0, len 61)
+13:03:53.303448 127.0.0.1.53 > 127.0.0.1.32827:  32901* 1/1/1 gallimedina.net. 
+A 192.168.0.10 (85) (DF) [ttl 0] (id 7725, len 113)
 
-		Dave
+
+
+This machine has a bridge, but I also tried in another one with netcat (nc -l 
+-u localhost -p 2000 and nc -u localhost 2000)
+
+antoli:~# tcpdump -i lo -n -v
+tcpdump: listening on lo
+13:09:04.125385 127.0.0.1.32890 > 127.0.0.1.2000: [bad udp cksum 5a0!] udp 14 
+(DF) [ttl 0] (id 32006, len 42)
+13:09:12.472940 127.0.0.1.2000 > 127.0.0.1.32890: [bad udp cksum 837!] udp 7 
+(DF) [ttl 0] (id 34086, len 35)
+
+
+I saw the short message does arrive to the listening netcat, but tcpdump still 
+gives the bad udp error message.
+
+Regards,
 
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSEYVvt>; Sat, 25 May 2002 17:51:49 -0400
+	id <S315417AbSEYV4P>; Sat, 25 May 2002 17:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSEYVvs>; Sat, 25 May 2002 17:51:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15366 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315416AbSEYVvs>; Sat, 25 May 2002 17:51:48 -0400
-Message-ID: <3CF0075A.6030906@zytor.com>
-Date: Sat, 25 May 2002 14:51:22 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: isofs unhide option:  troubles with Wine
-In-Reply-To: <1022301029.2443.28.camel@jwhiteh> <acopak$1th$1@penguin.transmeta.com> <acosbi$2lr$1@cesium.transmeta.com> <20020525232044.B18560@bouton.inet6-interne.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315419AbSEYV4O>; Sat, 25 May 2002 17:56:14 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:36772 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315417AbSEYV4N>; Sat, 25 May 2002 17:56:13 -0400
+To: Larry McVoy <lm@bitmover.com>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        rtai@rtai.org
+From: Wolfgang Denk <wd@denx.de>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)] 
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: Your message of "Sat, 25 May 2002 14:33:33 PDT."
+             <20020525143333.A17889@work.bitmover.com> 
+Date: Sat, 25 May 2002 23:55:42 +0200
+Message-Id: <20020525215547.6912411972@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton wrote:
-> On Sat, May 25, 2002 at 01:31:46PM -0700, H. Peter Anvin wrote:
+In message <20020525143333.A17889@work.bitmover.com> Larry McVoy wrote:
+> On Sat, May 25, 2002 at 05:22:43PM -0400, Albert D. Cahalan wrote:
+> > To get a free patent license, EVERYTHING must be GPL.
+> > Not just the real-time part! So that would be:
+> > 
+> > 1. the RT microkernel (OK)
+> > 2. the RT "app"       (OK)
+> > 3. Linux itself       (OK)
+> > 4. normal Linux apps  (ouch!)
 > 
->>[...]
->>I think we should just dump the hidden bit; if someone wants it they
->>can ioctl() for it.
->>
-> 
-> 
-> I didn't know we could and couldn't find how from a quick look-through in
-> fs/. Is the ioctl really implemented ? If so where should I look ?
-> That would be good news for Wine as they would have a way to populate the
-> flags member of the struct.
-> 
+> Whether that is true or not I don't know.  But I do know that if all the
+> stuff was GPLed, then you are safe no matter what, right?  In other words,
+> there is a path you can take which makes it safe.  And according to all the
+> RTAI people, that path should be completely acceptable, they all are quick
+> to tell you that everything they do (now) is GPLed and that's how they want
+> it.  If that's true, no worries.  I suspect the reality is that some/most
+> of the code is GPLed but there is some critical chunk that is not GPLed 
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> and you don't get source and that's the revenue stream.  If I'm wrong, the
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> RTAI folks have nothing to worry about.
 
-I don't think it's there now.  We should add it, though.
+We do have to worry something about: people like  you  who  not  only
+spread FUD, but also lies and insults.
 
-	-hpa
+Larry, I consider this a personal insult, and hereby request you  (1)
+to withdraw this statement in public and (2) to apologize to the RTAI
+comunity for it.
 
+Wolfgang Denk
 
+-- 
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+If ignorance is bliss, why aren't there more happy people?

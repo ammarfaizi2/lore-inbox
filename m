@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271501AbTGQPil (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271508AbTGQPil
+	id S271505AbTGQPlL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271506AbTGQPlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:38:41 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:38314 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S271501AbTGQPik (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:38:40 -0400
-Date: Thu, 17 Jul 2003 17:52:58 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: John Bradford <john@grabjohn.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Fix IDE initialization when we don't probe for interrupts.
-In-Reply-To: <200307171558.h6HFwvju003135@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.GSO.4.21.0307171752040.10372-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 11:41:11 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:11526 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271505AbTGQPlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:41:10 -0400
+Date: Thu, 17 Jul 2003 16:56:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ro0tSiEgE LKML <lkml@ro0tsiege.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfsd
+Message-ID: <20030717165603.A8369@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ro0tSiEgE LKML <lkml@ro0tsiege.org>, linux-kernel@vger.kernel.org
+References: <20030715214610.GA21238@core.citynetwireless.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030715214610.GA21238@core.citynetwireless.net>; from lkml@ro0tsiege.org on Tue, Jul 15, 2003 at 04:46:10PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003, John Bradford wrote:
-> > Another trick is the `IDE doubler' for Amiga (but I guess you can make it work
-> > on any IDE interface): with a few diodes you can map the second bank of 8 IDE
-> > registers to a second IDE chain, doubling the number of devices you can
-> > attach.
-> 
-> Does Linux actually support that, (on any architecture)?
+On Tue, Jul 15, 2003 at 04:46:10PM -0500, Ro0tSiEgE LKML wrote:
+> Why is devfsd still tagged as EXPERIMENTAL even in 2.6.0-test1 ? Is
+> there something wrong with it, or has it just not been changed?
 
-Yes, that's why there are tests for CONTROL_REG in the code in the first place.
-Check out CONFIG_BLK_DEV_IDEDOUBLER in drivers/ide/.
-
-> I was just imagining a RAID array on laptops which only have one IDE controller...
-
-Cool ;-)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+It's still there because we don't have a BROKEN tag.
 

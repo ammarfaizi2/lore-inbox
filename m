@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261489AbSJYQvN>; Fri, 25 Oct 2002 12:51:13 -0400
+	id <S261493AbSJYRBz>; Fri, 25 Oct 2002 13:01:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSJYQvN>; Fri, 25 Oct 2002 12:51:13 -0400
-Received: from 1-116.ctame701-1.telepar.net.br ([200.181.137.116]:43191 "EHLO
-	1-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261489AbSJYQvM>; Fri, 25 Oct 2002 12:51:12 -0400
-Date: Fri, 25 Oct 2002 14:57:09 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: James Cleverdon <jamesclv@us.ibm.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Kswapd madness in 2.4 kernels
-In-Reply-To: <200210242026.13071.jamesclv@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0210251456210.1995-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44L.0210251456212.1995@imladris.surriel.com>
+	id <S261492AbSJYRBz>; Fri, 25 Oct 2002 13:01:55 -0400
+Received: from rth.ninka.net ([216.101.162.244]:53153 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261493AbSJYRBy>;
+	Fri, 25 Oct 2002 13:01:54 -0400
+Subject: Re: 2.5.xx kernel performance issue...
+From: "David S. Miller" <davem@redhat.com>
+To: "Pavan Kumar Reddy N.S." <pavan.kumar@wipro.com>
+Cc: "'Linux-Kernel'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <000a01c27c28$0baa6e50$6009720a@wipro.com>
+References: <000a01c27c28$0baa6e50$6009720a@wipro.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 10:20:42 -0700
+Message-Id: <1035566442.19155.8.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Oct 2002, James Cleverdon wrote:
+On Fri, 2002-10-25 at 06:11, Pavan Kumar Reddy N.S. wrote:
+> TCP and AF_UNIX socket stream bandwidth has also got drastic change.
 
-> We have some customers with some fairly beefy servers.  They can get the
-> system into an unusable state that has been reported on lkml before.
+There is debugging code enabled for the loopback interface
+in 2.5.x to test out some new features in the networking stack.
 
-> The two attached patches applied to 2.4.19 fix the problem on our test boxes.
->
-> Are these patches still considered a good idea for 2.4?  Is there something
-> better I should be using?
+Once that debugging code is removed (say in 2.6.0) these performance
+drops will drop.
 
-Yes, these patches are a good idea.  I'm curious why they
-haven't been submitted to Marcelo yet ;)
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+I have to post this every time someone complains about lmbench
+performance loss in 2.5.x
 

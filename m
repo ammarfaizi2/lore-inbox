@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbTLJP7u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 10:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbTLJP7u
+	id S263662AbTLJP4M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 10:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLJP4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 10:59:50 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:29596 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263692AbTLJP7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 10:59:47 -0500
-Subject: Re: Linux GPL and binary module exception clause?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, karim@opersys.com,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20031210151110.GA6896@work.bitmover.com>
-References: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org>
-	 <1071066315.5712.344.camel@hades.cambridge.redhat.com>
-	 <20031210144612.GA19357@work.bitmover.com>
-	 <1071068703.5712.398.camel@hades.cambridge.redhat.com>
-	 <20031210151110.GA6896@work.bitmover.com>
-Content-Type: text/plain
-Message-Id: <1071071955.5712.428.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
-Date: Wed, 10 Dec 2003 15:59:15 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 10 Dec 2003 10:56:12 -0500
+Received: from hibernia.jakma.org ([213.79.33.168]:27784 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263662AbTLJP4G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 10:56:06 -0500
+Date: Wed, 10 Dec 2003 15:55:53 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
+Subject: Re: Device-mapper submission for 2.4
+In-Reply-To: <1258280000.1071024272@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.56.0312101547590.1218@fogarty.jakma.org>
+References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet>
+ <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org> <1258280000.1071024272@[10.10.2.4]>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-10 at 07:11 -0800, Larry McVoy wrote:
-> You may license *your* work under whatever terms you want.  Those terms
-> can't extend to things that aren't your work in a copyright license.
+On Tue, 9 Dec 2003, Martin J. Bligh wrote:
 
-Please elaborate. We're talking about a situation in which I grant a
-licence for you to copy and use my work, in exchange for something I
-desire from you. In the absence of a contract, this is limited to me
-effectively saying "You may copy and use my work if and only if you do
-XXX".
+> Some form of backward compatibility from 2.6 would seem a much more
+> sensible thing to fight for. Foisting forward comaptibility on an
+> older release seems like a bad road to go down.
 
-If you do not do 'XXX' then you may not use my work.
+I dont really care, but some kind of (long-term, ie lifetime of 
+either 2.4 or 2.6) compatibility is needed.
 
-Are you saying that there are things which I may not ask for? Could you
-elaborate?
+LVM1 kernel support was recently removed from 2.6.0, so it would have 
+to be added back in. 
 
-Certainly criminal law prohibits me from actually inciting you to murder
-by really asking for the sacrifice of your first-born; I'll grant you
-that one.
+One argument for adding forward compatibility in 2.4 is that it will 
+/force/ people to move to DM before going to 2.6, which might be a 
+good thing as, AIUI, LVM1 has problems. 
 
-But what's wrong with postcardware, where I ask you to send me a
-postcard in exchange for permission to use my work?
+Its a choice between:
 
-What's wrong with shareware, where you have permission to copy my work
-and use it for evaluation purposes, but you're asked to pay me if you
-continue to use it?
+- 2.6 backwards compatibility, adding back in LVM1 support, LVM1 
+users will then quite possibly continue to use the problematical LVM1 
+interfaces even after migrating to 2.6.
 
-What's wrong with a licence which requires you to bathe daily in
-creosote in order to receive my permission?
+- 2.4 forwards compatibility, add DM support - which appears (IMVU)  
+to drop in cleanly alongside MD - and hence 2.6 can remain 'clean'.
 
-What's wrong with a licence on my software which requires you to
-relinquish copyright on any musical score you ever write?
+I dont know, but it would be nice to have /something/ and to have it 
+in stock kernel rather than /hope/ to have upstreams include the 
+required backward or forward compatibility.
 
-What's wrong with a licence which requires you to release any unrelated
-software you ever write under the same licence?
+> M.
 
-It may be increasingly unlikely that you'll _accept_ some of the above
-licences, but there's no fundamental problem with them.
- 
-> You need a contract to do that and even then there are limits to what
-> you can do.
-
-I need a contract to force you to do anything; this is true.
-
-Without a contract, all I can do if you don't abide by my conditions is
-observe that you don't have my permission to copy my work, and hence
-that if you do so you are committing a criminal offence.
-
+regards,
 -- 
-dwmw2
-
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+But it does move!
+		-- Galileo Galilei

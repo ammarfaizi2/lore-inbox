@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267649AbSKTH2P>; Wed, 20 Nov 2002 02:28:15 -0500
+	id <S267643AbSKTHdL>; Wed, 20 Nov 2002 02:33:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267648AbSKTHUN>; Wed, 20 Nov 2002 02:20:13 -0500
-Received: from dp.samba.org ([66.70.73.150]:56275 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267637AbSKTHTt>;
-	Wed, 20 Nov 2002 02:19:49 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] mii module broken under new scheme 
-In-reply-to: Your message of "Tue, 19 Nov 2002 12:51:44 CDT."
-             <3DDA7A30.4010403@pobox.com> 
-Date: Wed, 20 Nov 2002 08:38:52 +1100
-Message-Id: <20021120072654.1B6192C07A@lists.samba.org>
+	id <S267650AbSKTHcV>; Wed, 20 Nov 2002 02:32:21 -0500
+Received: from mtl.slowbone.net ([213.237.73.175]:3968 "EHLO
+	leeloo.slowbone.net") by vger.kernel.org with ESMTP
+	id <S267643AbSKTHbY>; Wed, 20 Nov 2002 02:31:24 -0500
+Message-ID: <009101c29067$d470f900$0201a8c0@mtl>
+From: =?iso-8859-1?Q?Thorbj=F8rn_Lind?= <mtl@slowbone.net>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <3DDAE54F.4010808@slowbone.net> <3DDB353F.33D826C8@digeo.com>
+Subject: Re: [patch] 2.5.48-bk, md raid0 fix
+Date: Wed, 20 Nov 2002 08:38:33 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DDA7A30.4010403@pobox.com> you write:
-> Matt Reppert wrote:
-> 
-> > drivers/net/mii.c doesn't export module init/cleanup functions. That 
-> > means it
-> > can't be loaded under the new module scheme. This patch adds do-nothing
-> > functions for it, which allows it to load. (8139too depends on mii, so
-> > without this I don't have network.)
-> 
-> ahhh!   I was wondering what was up, but since I was busy with other 
-> things I just compiled it into the kernel and continued on my way.
-> 
-> That's a bug in the new module loader.
+> The mod operator on a 64-bit quantity won't work with
+> CONFIG_LBD=y, will it?
 
-Yes.  But the workaround of calling the module "unknown" isn't nice
-either: just put "no_module_init;" in and be done with it (it's also a
-big hint that the module doesn't do anything itself).
+Ohh.. there is such a thing.. let's use & :)
 
-Richard Henderson, Kai and myself are discussing a post-link stage for
-modules, which will allow us to add the .modname section at that time,
-but 99% of the cases are already fixed.
 
-Sorry for any trouble,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

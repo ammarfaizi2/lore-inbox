@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130389AbQLGGwV>; Thu, 7 Dec 2000 01:52:21 -0500
+	id <S129581AbQLGHPY>; Thu, 7 Dec 2000 02:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130387AbQLGGwC>; Thu, 7 Dec 2000 01:52:02 -0500
-Received: from adsl-63-194-89-126.dsl.snfc21.pacbell.net ([63.194.89.126]:34052
-	"HELO skull.piratehaven.org") by vger.kernel.org with SMTP
-	id <S129464AbQLGGvz>; Thu, 7 Dec 2000 01:51:55 -0500
-Date: Wed, 6 Dec 2000 22:16:39 -0800
-From: Brian Pomerantz <bapper@piratehaven.org>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Reto Baettig <baettig@scs.ch>,
-        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: 64bit offsets for block devices ?
-Message-ID: <20001206221639.A18257@skull.piratehaven.org>
-Mail-Followup-To: Peter Samuelson <peter@cadcamlab.org>,
-	Reto Baettig <baettig@scs.ch>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org
-In-Reply-To: <3A2E5227.693121F@scs.ch> <20001206220757.N6567@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20001206220757.N6567@cadcamlab.org>
-X-homepage: http://www.piratehaven.org/~bapper/
+	id <S129636AbQLGHPO>; Thu, 7 Dec 2000 02:15:14 -0500
+Received: from smtp.lax.megapath.net ([216.34.237.2]:9994 "EHLO
+	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
+	id <S129581AbQLGHPB>; Thu, 7 Dec 2000 02:15:01 -0500
+Message-ID: <3A2F3174.60205@megapathdsl.net>
+Date: Wed, 06 Dec 2000 22:43:00 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001202
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The horrible hack from hell called A20
+In-Reply-To: <Pine.LNX.4.10.10012061814020.7391-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 10:07:57PM -0600, Peter Samuelson wrote:
+Linus Torvalds wrote:
+
 > 
-> > Don't you think that we will run into problems anyway because soon
-> > there will be raid systems with a couple of Terrabytes of space to
-> > waste for mp3's ;-)
+> On Wed, 6 Dec 2000, Miles Lane wrote:
 > 
-> A couple of terabytes is fine.  That's 32 bits of blocks.  *More* than
-> that, now, we've got a problem.
+>> Here is what goes wrong:
+>> 
+>> Dec  6 04:21:32 agate kernel: eth0: Host error, FIFO diagnostic register  0000.
 > 
+> 
+> But it continues to work, right?
 
-Which is exactly what we're going to be dealing with "real soon now".
-I'm going to be putting together a RAID system with between 1.7-5.1TB
-by February.  This will be seen as a single block device to clients
-via a network block device (more than likely it will be 16 Ciprico
-Rimfire 7000's spread across 4 nodes via a Quadrics switch).  So, what
-I'm seeing right now is that I won't be able to address this amount of
-space with a single block device.  By the summer of 2001 we could be
-looking at putting together 10-150TB (depends on budget and need) of
-disk space for a production cluster and it would be nice if our
-parallel filesystem could span that entire space with a single image.
+I'll check.  My system only has 80MB RAM, and I run Mozilla, which
+pushes a lot of information into the swap space.  When I encounter
+this "Host error" problem, tons of messages start spewing into my
+logs.  This bogs my entire system down horribly.
 
-That being said, has anyone started making changes to accommodate large
-devices like this in the block layer, at least on 64bit architectures?
-I don't think we are seriously considering anything other than Alphas
-at this point.
+<great educational material snipped>
 
+I have reproduced this problem with all the drivers built
+into the kernel.
 
-BAPper
+I have also just tried a test pass with 3c59x built in and
+USB built as modules.  I booted with only the 3c575 inserted.
+I got eth0 running and then loaded usb-ohci (with the enable
+bus mastering change added).  This resulted in modprobe hanging
+again.
+
+Now I'll try with all modules again and check to see whether eth0
+is still usable.
+
+Thanks,
+
+	Miles
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

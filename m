@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129947AbRBSQPY>; Mon, 19 Feb 2001 11:15:24 -0500
+	id <S129847AbRBSQOo>; Mon, 19 Feb 2001 11:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129913AbRBSQPO>; Mon, 19 Feb 2001 11:15:14 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:16409 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129947AbRBSQPF>; Mon, 19 Feb 2001 11:15:05 -0500
-Date: Mon, 19 Feb 2001 10:14:31 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [LONG RANT] Re: Linux stifles innovation... 
-In-Reply-To: <Pine.LNX.3.95.1010219101720.30581A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.96.1010219100655.17842N-100000@mandrakesoft.mandrakesoft.com>
+	id <S129947AbRBSQOf>; Mon, 19 Feb 2001 11:14:35 -0500
+Received: from [193.120.224.170] ([193.120.224.170]:55428 "EHLO
+	florence.itg.ie") by vger.kernel.org with ESMTP id <S129847AbRBSQOX>;
+	Mon, 19 Feb 2001 11:14:23 -0500
+Date: Mon, 19 Feb 2001 16:13:44 +0000 (GMT)
+From: Paul Jakma <paulj@itg.ie>
+To: Ansari <mike@khi.sdnpk.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Running Bind 9 on Redhat 7
+In-Reply-To: <3A913520.3011C7D6@khi.sdnpk.org>
+Message-ID: <Pine.LNX.4.32.0102191607400.3627-100000@rossi.itg.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Feb 2001, Richard B. Johnson wrote:
-> One of the latest module killers was the opaque type, "THIS_MODULE",
-> put at the beginning of struct file_operations. This happened between
-> 2.4.0 and 2.4.x.  So it's not "imagination".
+On Mon, 19 Feb 2001, Ansari wrote:
 
-Richard,
+> Hi !!
+>
+> I am configuring Bind 9 on Redhat 7 but unable to start the named.
+> Here is my /var/log message log:
 
-Time to join the rest of us on planet Earth.
+you have a config problem i think.
 
-That was added in 2.4.0-test2, and was most definitely in 2.4.0 release.
+> Feb 20 09:49:58 ns2 named[2005]: loading zones: no ttl
 
-	Jeff
+you need to put:
 
+$TTL <ttl, eg 1D>
+
+at the beginning of each zone file.
+
+oh, you're probably better off asking your questions on a bind
+specific list, rather than linux-kernel.
+
+regards,
+
+--paulj
 
 
 

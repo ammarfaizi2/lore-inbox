@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264965AbUFOEb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264983AbUFOEen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264965AbUFOEb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 00:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbUFOEb0
+	id S264983AbUFOEen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 00:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbUFOEen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 00:31:26 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:4103 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S264965AbUFOEbY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 00:31:24 -0400
-Date: Tue, 15 Jun 2004 06:40:20 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] kbuild: default kernel image
-Message-ID: <20040615044020.GC16664@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204405.GB15243@mars.ravnborg.org> <20040614220549.L14403@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614220549.L14403@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Jun 2004 00:34:43 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:26052 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S264983AbUFOEel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 00:34:41 -0400
+Message-ID: <40CE7C5F.2070405@tomt.net>
+Date: Tue, 15 Jun 2004 06:34:39 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Nuno Monteiro <nuno@itsari.org>, Gianni Tedesco <gianni@scaramanga.co.uk>,
+       marcelo.tosatti@cyclades.com
+Subject: Re: Local DoS attack on i386
+References: <200406121159.28406.manuel@todo-linux.com> <1087221517.3375.3.camel@sherbert> <20040614142001.GA3032@hobbes.itsari.int>
+In-Reply-To: <20040614142001.GA3032@hobbes.itsari.int>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 10:05:49PM +0100, Russell King wrote:
+Nuno Monteiro wrote:
+> The same fix should be applied to 2.4. I'm running locally a very
+> hacked version of 2.4.22 with it and it survives that crash.c program.
 > 
-> I'm slightly scared of this.  Historically, there's already pressure
-> from boot loader people on ARM to include random file formats to suit
-> their own boot loaders.
+> Here's the diff. Marcelo, please merge.
 > 
-> In the first place, ARM had Image and zImage and that was it.  It was
-> well defined.  Then people decided that gzipped Image would be nice
-> and they'd merge the zlib code into their boot loader.  I think there's
-> even some people who use gzipped zImage...!
 > 
-> Then ARMboot came along and we eventually ended up with uboot-style
-> wrappings to support uboot / ARMboot, which require an external program
-> to be installed on the host system called "mkimage" (which, incidentally
-> is an incredibly bad choice of name.)
-> 
-> People also came up with the idea of using the ELF file directly and
-> having the boot loader parse the ELF file.  I wouldn't put it past
-> someone to want gzipped ELF as well.
-> 
-> There's also srec to support serially downloaded images as well.
-> 
-> So, in total, we have boot loaders which want:
-> 
->   - Image
->   - zImage
->   - gzipped Image
->   - gzipped zImage
->   - uboot
->   - ELF
->   - srec
-> 
-> Basically this is somewhere I don't want to go.  My position is that
-> if boot loaders want to have their own proprietary formats, they
-> should do whatever manipulation to the kernel image is necessary as
-> a post processing step themselves from one of the two standard kernel
-> formats - Image or zImage.
-> 
-> However, the problem of offering users all these options is that their
-> first question will be "huh, which one of these 7 do I want?" rather
-> than everyone knowing that they need the kernel build to produce either
-> an Image or zImage and the boot loader documentation telling them what
-> to do with it next.
+> --- linux-2.4.27-pre5/include/asm-i386/i387.h~fix-x86-clear_fpu-macro	2004-06-14 15:12:13.909059344 +0100
+> +++ linux-2.4.27-pre5/include/asm-i386/i387.h	2004-06-14 15:12:45.970185312 +0100
+> @@ -34,7 +34,7 @@ extern void kernel_fpu_begin(void);
+>  
+>  #define clear_fpu( tsk ) do { \
+>  	if ( tsk->flags & PF_USEDFPU ) { \
+> -		asm volatile("fwait"); \
+> +		asm volatile("fnclex ; fwait"); \
+>  		tsk->flags &= ~PF_USEDFPU; \
+>  		stts(); \
+>  	} \
 
-The advantage is that you now have a good place to document all of
-these formats - your Kconfig file.
-And you select the default target for the user.
+You're missing x86-64.
 
-How did I know uboot required mkimage before - now it can be documented
-in Kconfig.
-So the situation above is actually a good example why it is whortwhile
-to move the kernel image selection to the config stage.
+Complete patches are up at <http://tomt.net/kernel/clear_fpu/> - these 
+covers 2.4 and 2.6, plus i386 and x86-64.
 
-If they all should be part of the kernel build is another discussion.
+But I guess Marcelo would want the x86-64 part to come through ak.
 
-	Sam
+-- 
+Cheers,
+André Tomt

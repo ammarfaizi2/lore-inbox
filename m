@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUACWee (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 17:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUACWee
+	id S264321AbUACWmE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 17:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbUACWmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 17:34:34 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:26003 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S263788AbUACWeb (ORCPT
+	Sat, 3 Jan 2004 17:42:04 -0500
+Received: from mail.gmx.net ([213.165.64.20]:15078 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264321AbUACWl7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 17:34:31 -0500
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 Heads-up
-References: <bsgav5$4qh$1@cesium.transmeta.com>
-	<Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
-	<3FF5E952.70308@tmr.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 03 Jan 2004 22:11:36 +0100
-In-Reply-To: <3FF5E952.70308@tmr.com> (Bill Davidsen's message of "Fri, 02
- Jan 2004 16:57:38 -0500")
-Message-ID: <m365fsu48n.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jan 2004 17:41:59 -0500
+X-Authenticated: #15238641
+Date: Sat, 3 Jan 2004 23:42:43 +0100
+From: Gregor Paul <pute@gmx.at>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6 USB-Mouse
+Message-Id: <20040103234243.343cc843.pute@gmx.at>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+First of all something to my system.
+Mandrake 9.2 @ Kernel 2.6.0-1md (the one from the cooker but the problem consists even with a self-made Kernel from www.kernel.org)
 
-> I would probably write
->    ( a ? b : c ) = d;
-> instead, having learned C when some compilers parsed ? wrong without
-> parens. Actually I can't imagine writing that at all, but at least
-> with parens humans can read it easily. Ugly code.
->
-> Your suggestion is not portable, if b or c are declared "register"
-> there are compilers which will not allow taking the address, and gcc
-> will give you a warning.
 
-One can write as well:
+I have a problem with 2.6 and my optical USB-Mouse.
+I started my new 2.6 for the first time and my mandrake said by booting the kernel:
+usbmouse removed     psaux added
+The mouse was neither connected to PS/2 nor to the serial port.
+My mouse didn't light anymore and that results that she isn't working.
+So I connected my mouse on PS/2 and she works perfect, though that is no real solution for me because the light is on even if my computer is turned off. I checked my X-Configuration -> everything the same as 2.4.22
 
-if (a)
-        b = d;
-else
-        c = d;
+Section "InputDevice"
+Identifier "Mouse1"
+Driver "mouse"
+Option "Protocol" "IMPS/2"
+Option "Device" "/dev/usbmouse"
+Option "ZAxisMapping" "5 6"
+EndSection 
 
-Might be more readable and it is what the compiler does.
--- 
-Krzysztof Halasa, B*FH
+I started to modprobe some things.
+modprobe usb-ohci
+My mouse started to "shake" (didn't found a appropriate word ) when i move it on the usb -Port, but I know that I need uhci because I have a VIA Board.
+[root@chello080110200043 gregor]# lspci -v|grep USB
+00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1b) (prog-if 00 [UHCI])
+Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 1b) (prog-if 00 [UHCI])
+Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+00:11.4 USB Controller: VIA Technologies, Inc. USB (rev 1b) (prog-if 00 [UHCI])
+Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller 
+
+
+This guy has (had) the same problem like me: 
+http://kerneltrap.org/node/view/1620
+
+I changed my modules.conf like the guy suggested:
+ probeall usb-interface usb-uhci
+to
+probeall usb-interface uhci-hcd
+
+Now a weird thing happened:
+Only in one case, when I boot with PS/2 and change then to USB my mouse starts to move. She is shaking but she moves.
+dmesg
+hub 1-0:1.0: new USB device on port 2, assigned address 2
+
+When I boot with USB-mouse my dmesg says:
+usb 1.2:control timeout on ep0out
+uhci_hcd 0000:00:11.2: Unlink after no-IRC? Different ACPI or APIC settings may help.
+
+Please help me I'm really frustrated and in despair.
+Thank you 
+
+

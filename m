@@ -1,92 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264921AbSJPNpV>; Wed, 16 Oct 2002 09:45:21 -0400
+	id <S262859AbSJPNov>; Wed, 16 Oct 2002 09:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264922AbSJPNpT>; Wed, 16 Oct 2002 09:45:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36875 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264921AbSJPNpR>;
-	Wed, 16 Oct 2002 09:45:17 -0400
-Date: Wed, 16 Oct 2002 14:51:13 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] Allow compilation with -ffunction-sections
-Message-ID: <20021016145113.E15163@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S264922AbSJPNov>; Wed, 16 Oct 2002 09:44:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58080 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262859AbSJPNot>; Wed, 16 Oct 2002 09:44:49 -0400
+Message-ID: <3DAD6C6F.2080908@watson.ibm.com>
+Date: Wed, 16 Oct 2002 09:41:03 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Janet Morgan <janetmor@us.ibm.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Christoph Hellwig <hch@sgi.com>,
+       akpm@digeo.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: [RFC] iovec in ->aio_read/->aio_write
+References: <20021015153427.A16156@redhat.com> <200210160651.g9G6pMm17385@eng4.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-If you compile the kernel with -ffunction-sections, each function gets
-put in a section .text.function_name.  This collides with our current use
-of .text.init.  So here's a patch which converts x86 to use .init.text
-instead.
+Janet Morgan wrote:
 
-I've tested it on x86 and it still frees 120k of ram, so it seems to work.
-Other architectures will need to change their vmlinux.lds appropriately,
-and may need other changes (arm, m68k seem to use .text.init verbatim).
+> Here's a patch for aio readv/writev support.  Basically it adds:
+> 
+> - two new opcodes (IOCB_CMD_PREADV and IOCB_CMD_PWRITEV)
+> - a field to the iocb for the user vector
+> - aio_readv/writev methods to the file_operations structure
 
-diff -urpNX dontdiff linux-2.5.43/arch/i386/vmlinux.lds.S linux-2.5.43-willy/arch/i386/vmlinux.lds.S
---- linux-2.5.43/arch/i386/vmlinux.lds.S	2002-10-11 05:23:56.000000000 -0700
-+++ linux-2.5.43-willy/arch/i386/vmlinux.lds.S	2002-10-16 06:34:00.000000000 -0700
-@@ -41,11 +41,11 @@ SECTIONS
- 
-   . = ALIGN(4096);		/* Init code and data */
-   __init_begin = .;
--  .text.init : { *(.text.init) }
--  .data.init : { *(.data.init) }
-+  .init.text : { *(.init.text) }
-+  .init.data : { *(.init.data) }
-   . = ALIGN(16);
-   __setup_start = .;
--  .setup.init : { *(.setup.init) }
-+  .init.setup : { *(.init.setup) }
-   __setup_end = .;
-   __initcall_start = .;
-   .initcall.init : {
-@@ -89,8 +89,8 @@ SECTIONS
- 
-   /* Sections to be discarded */
-   /DISCARD/ : {
--	*(.text.exit)
--	*(.data.exit)
-+	*(.exit.text)
-+	*(.exit.data)
- 	*(.exitcall.exit)
- 	}
- 
-diff -urpNX dontdiff linux-2.5.43/include/linux/init.h linux-2.5.43-willy/include/linux/init.h
---- linux-2.5.43/include/linux/init.h	2002-08-13 19:54:03.000000000 -0700
-+++ linux-2.5.43-willy/include/linux/init.h	2002-10-16 06:00:22.000000000 -0700
-@@ -93,18 +93,18 @@ extern struct kernel_param __setup_start
-  * Mark functions and data as being only used at initialization
-  * or exit time.
-  */
--#define __init		__attribute__ ((__section__ (".text.init")))
--#define __exit		__attribute__ ((unused, __section__(".text.exit")))
--#define __initdata	__attribute__ ((__section__ (".data.init")))
--#define __exitdata	__attribute__ ((unused, __section__ (".data.exit")))
--#define __initsetup	__attribute__ ((unused,__section__ (".setup.init")))
-+#define __init		__attribute__ ((__section__ (".init.text")))
-+#define __exit		__attribute__ ((unused, __section__(".exit.text")))
-+#define __initdata	__attribute__ ((__section__ (".init.data")))
-+#define __exitdata	__attribute__ ((unused, __section__ (".exit.data")))
-+#define __initsetup	__attribute__ ((unused,__section__ (".init.setup")))
- #define __init_call(level)  __attribute__ ((unused,__section__ (".initcall" level ".init")))
- #define __exit_call	__attribute__ ((unused,__section__ (".exitcall.exit")))
- 
- /* For assembly routines */
--#define __INIT		.section	".text.init","ax"
-+#define __INIT		.section	".init.text","ax"
- #define __FINIT		.previous
--#define __INITDATA	.section	".data.init","aw"
-+#define __INITDATA	.section	".init.data","aw"
- 
- /**
-  * module_init() - driver initialization entry point
+I presume f_op->aio_readv could point to __generic_file_aio_read for most
+filesystems.
 
--- 
-Revolutions do not require corporate support.
+Would f_op->aio_writev need a new wrapper function for 2.5.42 ?
+f_op->aio_write eventually calls generic_file_write which uses a different inode
+from generic_file_writev. So f_op->aio_writev might need to point to a function
+like generic_file_writev but using the same inode as generic_file_write.
+
+
+> - routine aio.c/io_readv_writev, which borrows heavily from do_readv_writev. 
+> 
+> I tested this using the aio dio patch that Badari submitted a while back. 
+> I compared:
+>                 readv/writev io_submit for a vector of N iovecs 
+>                 vs read/write io_submit for N iocbs.
+> 
+> My performance data is only preliminary at this point, but aio readv/writev 
+> appears to outperform aio read/write -- twice as fast in some cases.  The 
+> results generally make sense to me:  while there is only one io_submit in both 
+> cases, aio readv/writev shortens codepath (one instead of N calls to the 
+> underlying filesystem routine) and should normally result in fewer 
+
+Twice as fast looks good !
+
+> bios/callbacks (at least for direct-io).  As importantly, aio readv/writev 
+> in my testing also reduces the number of (system) calls to io_getevents.
+
+It would be interesting to see the performance boost when <iov length> events
+are retrieved at once, using the min_nr parameter of io_getevents.
+
+
+--Shailabh
+

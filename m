@@ -1,43 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263579AbTHWNQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTHWNQ4
+	id S263356AbTHWNRH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbTHWNRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:16:56 -0400
-Received: from main.gmane.org ([80.91.224.249]:4998 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263579AbTHWNQy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:16:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
-	<lgcdutra@terra.com.br>
-Subject: Re: SCO's "proof"
-Date: Sat, 23 Aug 2003 15:16:29 +0200
-Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
-Message-ID: <pan.2003.08.23.13.16.29.3307@terra.com.br>
-References: <3F458064.4070409@unix-zone.org> <Pine.GSO.4.21.0308221032450.12543-100000@waterleaf.sonytel.be> <yw1xsmnux9nq.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+	Sat, 23 Aug 2003 09:17:07 -0400
+Received: from mta06bw.bigpond.com ([144.135.24.156]:18155 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP id S263376AbTHWNRB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 09:17:01 -0400
+Date: Sat, 23 Aug 2003 23:20:15 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Subject: [PATCH]: linux-2.6.0-test4-uc0 (MMU-less fix ups)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <3F476A0F.2030007@snapgear.com>
+Organization: SnapGear
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Aug 2003 12:35:05 +0200, Måns Rullgård wrote:
 
-> AFAIK, C source code doesn't contain any font information, not even in
-> comments.
+Hi All,
 
-	Good morning, the font was applied in the PowerPoint slides...
+An update of the uClinux (MMU-less) fixups against linux-2.6.0-test4.
+No real change from the test3-uc0 release.
+
+You can get it at:
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.6.0-test4-uc0.patch.gz
+
+Changelog:
+
+. port up to 2.6.0-test4             me
+. use -Os optimization level         Bernardo Innocenti
+
+Regards
+Greg
 
 
--- 
- _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
-/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
-\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
-/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+Snapgear Pty Ltd                            PHONE:       +61 7 3279 1822
+825 Stanley St,                             FAX:         +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

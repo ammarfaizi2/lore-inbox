@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbSKIVv6>; Sat, 9 Nov 2002 16:51:58 -0500
+	id <S262712AbSKIVs1>; Sat, 9 Nov 2002 16:48:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262750AbSKIVv6>; Sat, 9 Nov 2002 16:51:58 -0500
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:64697 "HELO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with SMTP
-	id <S262730AbSKIVv5>; Sat, 9 Nov 2002 16:51:57 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] Clean up scsi documentation
-Date: Sat, 9 Nov 2002 23:01:23 +0100
-User-Agent: KMail/1.4.3
+	id <S262721AbSKIVs1>; Sat, 9 Nov 2002 16:48:27 -0500
+Received: from 200-168-14-149.dsl.telesp.net.br ([200.168.14.149]:29195 "EHLO
+	kelly") by vger.kernel.org with ESMTP id <S262712AbSKIVs0>;
+	Sat, 9 Nov 2002 16:48:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Fernando Fraga e Silva <fernando.fraga@poli.usp.br>
+To: Ognen Duzlevski <ognen@kc.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: parport question
+Date: Sun, 10 Nov 2002 19:52:00 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44.0211091258440.1456-100000@gemelli.dyndns.org>
+In-Reply-To: <Pine.LNX.4.44.0211091258440.1456-100000@gemelli.dyndns.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211092301.23115@bilbo.math.uni-mannheim.de>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E18B02T-0000eO-00@kelly>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Saturday 09 November 2002 17:10, Ognen Duzlevski wrote:
 
-currently the documentation for scsi is not completely located where it should 
-IMHO be: in Documentation/
+> I have a printer that worked fine under linux (redhat/lexmark 3200) for a
+> long time, then I switched over to 2.4.18 and debian and it stopped
+> working. I compiled the parport support into the kernel, I did that with
+> 2.4.19, I did it also as modules, I tried 2.5.45, still won't work, not
+> even a cat test.txt > /dev/lp0
 
-There are a few files in Documentation and much more files in drivers/scsi/ . 
-I think this should be fixed. Any thougts?
+I have a similar situation, I couldn't program the SPP parallel interface on 
+a Debian/Woody + kernel 2.x + M810 Motherboard. It simply doesn't give me any 
+(electrically) anwser. 
 
-My way would be:
+A question please, what is your motherboard and processor ? 
 
-1) create a directory Documentation/scsi/
-2) move everything to this location
-3) rename some of the docs (currently the names look like "README.drivername" 
-but "drivername.txt" is more common in Documentation/*)
-4) fix up the references
-5) add a 00-INDEX file to Documentation/scsi
+If I have any news I'll give a anwser.
 
-Linus, Marcello: would you apply such a patch? In which form would you like to 
-get them? One big patch? One patch that moves the files and one to fix the 
-references? A patch to move the files and a patch for the references?
-
-I found also some minor bugs in some docs: trailing newlines, strange 
-characters etc. This will be an extra patch.
-
-Eike
+bye.

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131157AbRC0KIN>; Tue, 27 Mar 2001 05:08:13 -0500
+	id <S131205AbRC0LWC>; Tue, 27 Mar 2001 06:22:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131171AbRC0KIE>; Tue, 27 Mar 2001 05:08:04 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:32940
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S131079AbRC0KHv>; Tue, 27 Mar 2001 05:07:51 -0500
-Message-ID: <3AC06651.1ECB7B5@math.ethz.ch>
-Date: Tue, 27 Mar 2001 12:07:13 +0200
-From: Giacomo Catenazzi <cate@math.ethz.ch>
-Reply-To: cate@dplanet.ch
-X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: manfred@colorfullife.com
-CC: puckwork@madz.net, linux-kernel@vger.kernel.org
-Subject: Re: URGENT : System hands on "Freeing unused kernel memory: "
+	id <S131209AbRC0LVx>; Tue, 27 Mar 2001 06:21:53 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:39126 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131205AbRC0LVn>; Tue, 27 Mar 2001 06:21:43 -0500
+Message-Id: <l03130331b6e6277ea3bd@[192.168.239.101]>
+In-Reply-To: <3AC06651.1ECB7B5@math.ethz.ch>
 In-Reply-To: <fa.it9nv9v.g08l8a@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 27 Mar 2001 12:19:35 +0100
+To: cate@dplanet.ch, manfred@colorfullife.com
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: URGENT : System hands on "Freeing unused kernel memory: "
+Cc: puckwork@madz.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Studierende der Universitaet des Saarlandes wrote:
-> 
-> I have 2 ideas:
-> * glibc corrupted
-> * did you downgrade the cpu?
+>> I have 2 ideas:
+>> * glibc corrupted
+>> * did you downgrade the cpu?
+>
+>These happen frequently to me (when compiling and installing a
+>new glibc)
+>But in this case you would have other messages (IIRC something
+>like
+>respawn too fast).
+>Thus the problem is not this!
 
-These happen frequently to me (when compiling and installing a
-new glibc)
-But in this case you would have other messages (IIRC something
-like
-respawn too fast).
-Thus the problem is not this!
+How about running memtest86 - could be that a RAM module blew up or worked
+loose and caused the initial crash and this misbehaviour both at once.
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
+
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
 
-Possible problem:
-
-1) permition of /sbin/init
-2) unable to exec ELF binary (or a.out, which init do you
-have?)
-3) problems with the root partition. (check it with an
-emergency disk)
-4) once I had strange problem with init and /dev (init was
-continuosly
-killed, but after some init.d scripts). Check your /dev/
-
-
-	giacomo

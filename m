@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbTCUCkd>; Thu, 20 Mar 2003 21:40:33 -0500
+	id <S263260AbTCUCuS>; Thu, 20 Mar 2003 21:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263252AbTCUCkc>; Thu, 20 Mar 2003 21:40:32 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:49598 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S263249AbTCUCj4>; Thu, 20 Mar 2003 21:39:56 -0500
-Date: Thu, 20 Mar 2003 18:50:46 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: george anzinger <george@mvista.com>
-Cc: john stultz <johnstul@us.ibm.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Clock monotonic  a suggestion
-Message-ID: <20030321025045.GX2835@ca-server1.us.oracle.com>
-References: <3E7A59CD.8040700@mvista.com>
+	id <S263269AbTCUCuS>; Thu, 20 Mar 2003 21:50:18 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:60544 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S263260AbTCUCuH>; Thu, 20 Mar 2003 21:50:07 -0500
+Date: Fri, 21 Mar 2003 12:00:19 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH 2.5.65-ac1] Support PC-9800 subarchitecture (12/14) PCMCIA
+Message-ID: <20030321030019.GL1847@yuzuki.cinet.co.jp>
+References: <20030321022850.GA1767@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E7A59CD.8040700@mvista.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030321022850.GA1767@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 04:16:13PM -0800, george anzinger wrote:
-> Define CLOCK_MONOTONIC to be the same as
-> (gettimeofday() + wall_to_monotonic).
-> ...
-> Both clocks will tick at the same rate, even under NTP corrections.
-> The conversion is a simple (well almost simple) add.
-> Both clocks will have the same resolution.
+This is the patch to support NEC PC-9800 subarchitecture
+against 2.5.65-ac1. (12/14)
 
-	The issue for CLOCK_MONOTONIC isn't one of resolution.  The
-issue is one of accuracy.  If the monotonic clock is ever allowed to
-have an offset or a fudge factor, it is broken.  Asking the monotonic
-clock for time must always, without fail, return the exact, accurate
-time since boot (or whatever sentinal time) in the the units monotonic
-clock is using.  This precludes gettimeofday().
-	If the system is delayed (udelay() or such) by a driver or 
-something for 10 seconds, then you have this (assume gettimeofday is
-in seconds for simplicity):
+Small change for PCMCIA (16bits) support.
+For fix usable IRQ number.
 
-1    gettimeofday = 1000000000
-2    driver delays 10s
-3    gettimeofday = 1000000000
-4    timer notices lag and adjusts
-5    gettimeofday = 1000000010
+Regards,
+Osamu Tomita
 
-	In the usual case, if a program calls gettimeofday() between 3
-and 4, the program gets the wrong time.  For most programs, this doesn't
-matter.  CLOCK_MONOTONIC is designed for those uses where it absolutely
-matters.  If an application queries CLOCK_MONOTONIC at 3.5, it must
-return 1000000010, not 1000000000.
-
-Joel
--- 
-
-"A narcissist is someone better looking than you are."  
-         - Gore Vidal
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
+--- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
++++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
+@@ -188,7 +188,11 @@
+ };
+ 
+ /* Default ISA interrupt mask */
++#ifndef CONFIG_X86_PC9800
+ #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
++#else
++#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
++#endif
+ 
+ #ifdef CONFIG_ISA
+ static int grab_irq;

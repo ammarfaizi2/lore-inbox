@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131275AbRC0NRb>; Tue, 27 Mar 2001 08:17:31 -0500
+	id <S131290AbRC0N1v>; Tue, 27 Mar 2001 08:27:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131290AbRC0NRV>; Tue, 27 Mar 2001 08:17:21 -0500
-Received: from 8.ylenurme.ee ([193.40.6.8]:11780 "EHLO ns.linking.ee")
-	by vger.kernel.org with ESMTP id <S131275AbRC0NRT>;
-	Tue, 27 Mar 2001 08:17:19 -0500
-Message-ID: <3AC092A6.8C3F045C@linking.ee>
-Date: Tue, 27 Mar 2001 15:16:22 +0200
-From: Elmer Joandi <elmer@linking.ee>
-Organization: Linking OÜ
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+	id <S131292AbRC0N1l>; Tue, 27 Mar 2001 08:27:41 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:37258 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131290AbRC0N1e>;
+	Tue, 27 Mar 2001 08:27:34 -0500
+Message-ID: <3AC0951D.3C02A5F2@mandrakesoft.com>
+Date: Tue, 27 Mar 2001 08:26:53 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.16, 2.4.*, harddeadlocks with XFree86 and framebuffer
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrew Morton <andrewm@uow.edu.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Compile-time versus run-time
+In-Reply-To: <3ABF2F8E.B212A96B@uow.edu.au> <9186.985698979@ocs3.ocs-net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens wrote:
+> Andrew Morton wrote:
+> > CONFIG_8139TOO_TUNE_TWISTER
+> > (And wouldn't it be nice to be able to get the same functionality
+> > which module options give us when using a statically linked driver?)
+> 
+> On my todo list for 2.5.  MODULE_PARM will be promoted to
+> module_name.parm when the object is built in.  insmod foo debug=1 or
+> boot with foo.debug=1.  It needs a mapping of source to module which is
+> not easy to get for multi object modules in 2.4, my 2.5 makefile
+> rewrite will make it easy.
 
+(redirect to lkml)
 
-So, the problem is on different hardware and kernel versions.
+Making MODULE_PARM work when compiled in will be nice, but I see two
+flaws right off:
 
-1. looks like VT switch with multiple X copies running  hangs  on
-certain conditions
-2. More critical: Matrox  G400  dualhead AGP 16M hangs immediately with
-fb.
+* passing multiple module parms is wasteful, because the module prefix
+must be repeated for each argument.  That strains cmdline limits (80
+chars in boot environments)  IMHO we can do better than that.
 
+* There are cases where you do not want MODULE_PARM options appearing as
+__setup, just like there are cases where options passed to __setup do
+not belong as a MODULE_PARM.  You should not unconditionally make
+MODULE_PARM available on the kernel command line, even though that is
+the simple solution.
 
-Tested computers:
-   1.  Tyan 230 SMP Dual PIII  667Mhz , 512MB
-   2. MSI  SMP Dual PIII 667Mhz 512MB
-   3. Tyan 1834  SMP Dual Celeron 256MB
-Software:
-  1  compiled: 2.4.0,2.4.2,.2.4.2-ac8
-   2  RH7 stock: 2.2.16
-
-1. True multihead hang on computers 2, 3, both software :
-     First,  to get it fly:
-     I must log in via network, because executing X behind
-X/console causes vt switch.
-    First I run USB keyboard patched X for ATI cards, non-fb.
-     That one I can run forever, normally, until:
-     if to execute matrox (two cards : Millenium + Mystique) server,
-    it hangs or wont work
-    if I modprobe  matrofb_base, then now I have single possibility
-    to run Xfree86-4  _once_ for matrox fb.
-     If either of X's(for two matroxes or ATIs) quits, there is
-hardlock.
-    ping stops, capslock doesnt work(for console keyboard, USB one
-    naturally doesnt work at all),
-
-2.  Single dualhed G400 hang, on computers 1 2 3, software 1,2 .
-    Well, it is simpler, it hangs with framebuffer and with normal X
-mode,
-    with 2.2.16 and with 2.4.*, quite soon.
-     inserting framebuffer module hangs the beast.
-    framebuffer matrox compiled into kernel does not hang until I try to
-
-    start X in some ways or do other console change/swtiching
-operations...
-
-      Actually, RedHat 7.0 doesnt install on SMP Matrox dualhead G400 as
-
-    XWindows setup probe lock the box up.
-
-
-
-It looks like I should tear it down and use old nfsroot based Xtermian
-again...
-And sell G400, with which there is nothing to do.
-
-Pity, everything works, but once a day ATI XFree86 sucks some dust in
-and
-gets killed and the whole box goes with it., cant stand it...
-
-
-
-Elmer.
-
-
-
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

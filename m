@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbRACIPU>; Wed, 3 Jan 2001 03:15:20 -0500
+	id <S129544AbRAaWwU>; Wed, 31 Jan 2001 17:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129507AbRACIPJ>; Wed, 3 Jan 2001 03:15:09 -0500
-Received: from sm10.texas.rr.com ([24.93.35.222]:27666 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S129415AbRACIPC>;
-	Wed, 3 Jan 2001 03:15:02 -0500
-Message-ID: <3A7BB6B1.ABF71834@austin.rr.com>
-Date: Sat, 03 Feb 2001 01:43:45 -0600
-From: Anwar Payyoorayil <anwar@austin.rr.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-prerelease i686)
-X-Accept-Language: en
+	id <S129543AbRAaWwK>; Wed, 31 Jan 2001 17:52:10 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:45356 "EHLO
+	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129542AbRAaWwA>; Wed, 31 Jan 2001 17:52:00 -0500
+Date: Thu, 1 Feb 2001 00:58:47 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Paul Powell <moloch16@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why isn't init PID 1?
+In-Reply-To: <20010131144038.26689.qmail@web118.yahoomail.com>
+Message-ID: <Pine.LNX.4.21.0102010057470.11152-100000@server.serve.me.nl>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.0-prerelease-ac4: i810_audio.c: Alternate VRA fix
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan -
+On Wed, 31 Jan 2001, Paul Powell wrote:
 
-Based on your suggestion, I looked again, and found that even though the kernel
-sets VRA, the bit is lost when the driver unnecessarily resets the CODEC. The
-patch below removes the unnecessary resetting of the CODEC. Nothing seems to be
-lost by removing the resetting, and the driver in 2.2 series (where VRA works
-fine) does not do this reset.
+> Hello,
+> 
+> I have a bootable linux CD that runs a custom init. 
+> Under most versions of linux init runs as process ID
+> one.  Under my bootable CD, it runs as process ID 15. 
+> I need it to run as PID 1 so that I can execute a
+> kill(-1,15) without killing init.
+> 
+> The boot CD uses and initrd image to load drivers. 
+> The linuxrc file looks like:
+> 
+> #!/bin/sash
+> 
+> aliasall
+> 
+> echo "Loading aic7xxx module"
+> insmod /lib/aic7xxx.o
+> echo "Loading ips module"
+> insmod /lib/ips.o ips=ioctlsize:512000
+> echo "Loading sg module"
+> insmod /lib/sg.o
+> echo "Loading FAT modules"
+> insmod /lib/fat.o
+> insmod /lib/vfat.o
+> 
+> echo "Mounting /proc"
+> mount -t proc /proc /proc
+> init
+> umount /proc
+> 
+> Does it run as PID 15 because I execute insmod and
+> mount before running init?
 
-If we find that somebody needs this reset, we can move the VRA enabling code
-after the codec reset code.
+Yes. First program to run get PID 1. 
 
-Anwar.
+Solution : fork() in init and load the modules in the child.
 
-Patch against 2.4.0-prerelease-ac4
 
---- linux/drivers/sound/i810_audio.c.ac4        Sat Feb  3 01:26:31 2001
-+++ linux/drivers/sound/i810_audio.c    Sat Feb  3 01:26:54 2001
-@@ -1898,11 +1898,6 @@
-        pci_dev->driver_data = card;
-        pci_dev->dma_mask = I810_DMA_MASK;
- 
--//     printk("resetting codec?\n");
--       outl(0, card->iobase + GLOB_CNT);
--       udelay(500);
--//     printk("bringing it back?\n");
--       outl(1<<1, card->iobase + GLOB_CNT);
-        return 0;
- }
+
+	Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

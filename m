@@ -1,42 +1,34 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157649-25206>; Sat, 27 Feb 1999 02:22:47 -0500
-Received: by vger.rutgers.edu id <157602-25206>; Sat, 27 Feb 1999 02:22:33 -0500
-Received: from mx2.sci.uni-klu.ac.at ([143.205.64.87]:31098 "HELO mx2.sci.uni-klu.ac.at" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <157603-25206>; Sat, 27 Feb 1999 02:22:08 -0500
-Date: Sat, 27 Feb 1999 09:33:26 +0100 (MET)
-From: Emanuel Pirker <epirker@edu.uni-klu.ac.at>
-To: lkml <linux-kernel@vger.rutgers.edu>
-Subject: Linux IEEE-1394 (FireWire) Subsystem News
-Message-ID: <Pine.OSF.4.05.9902270929530.28107-100000@edusrv.edu.uni-klu.ac.at>
+Received: by vger.rutgers.edu via listexpand id <157405-25206>; Tue, 2 Mar 1999 12:32:01 -0500
+Received: by vger.rutgers.edu id <157013-25206>; Tue, 2 Mar 1999 12:31:50 -0500
+Received: from mail.blox.se ([195.7.73.197]:64503 "EHLO lix.blox.se" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <157278-25208>; Tue, 2 Mar 1999 12:30:18 -0500
+From: Bjorn Ekwall <bj0rn@blox.se>
+Message-Id: <199903021837.TAA22258@lix.blox.se>
+Subject: Getting close: modutils-snap990302
+To: linux-kernel@vger.rutgers.edu
+Date: Tue, 2 Mar 1999 19:36:59 +0100 (CET)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+Hi all,
 
-Dear lkml members,
+After fixing (quite a few) problems, and after adding most Debian patches,
+it's time for me to recommend you all to look at:
 
-the Linux IEEE-1394 (FireWire) Subsystem Development project has a new
-homepage at
-   http://eclipt.uni-klu.ac.at/ieee1394
+	<http://www.pi.se/blox/modutils/modutils-snap990302.tar.gz>
 
-Development is going on, Developer Daniel reports IP-over-1394 working on
-a point-to-point basis. 
+There might be some more Debian patches added, and some documentation
+updates, otherwise I think it is done...
+For example, I think that "modprobe -r" now is usable for crontab
+to clean up "autoclean"-able modules while still performing the
+pre-/post-remove commands in /etc/conf.modules.
 
-If you are interested, download some code or just subscribe to the mailing
-list.
+Prove me wrong!
 
-
-I'll fly to LinuxWorldExpo tomorrow and will stay some time in the USA -
-so please don't be annoyed when I don't answer any emails for some time.
-
-
-Bye,
-Greetings from Austria!
-
-Emanuel
-
----------------------------------------------------------------------------
-  Emanuel Pirker                        
-  epirker@edu.uni-klu.ac.at 
+Björn Ekwall <bj0rn@blox.se>
 
 
 -

@@ -1,45 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275348AbTHSFGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 01:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHSFGG
+	id S275351AbTHSFRn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 01:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275340AbTHSFRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 01:06:06 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:34248 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S275348AbTHSFGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 01:06:03 -0400
-Subject: Re: scheduler interactivity: timeslice calculation seem wrong
-From: Eric St-Laurent <ericstl34@sympatico.ca>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1061267367.3f41a7a70f007@kolivas.org>
-References: <1061261666.2094.15.camel@orbiter>
-	 <200308191413.00135.kernel@kolivas.org> <1061267029.2900.54.camel@orbiter>
-	 <1061267367.3f41a7a70f007@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1061269559.5853.7.camel@orbiter>
+	Tue, 19 Aug 2003 01:17:43 -0400
+Received: from waste.org ([209.173.204.2]:4785 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S275351AbTHSFQD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 01:16:03 -0400
+Date: Tue, 19 Aug 2003 00:15:33 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] new scheduler policy
+Message-ID: <20030819051533.GL16387@waste.org>
+References: <3F4182FD.3040900@cyberone.com.au> <20030819023536.GZ32488@holomorphy.com> <3F418F7A.7090007@cyberone.com.au> <3F4192AD.1020305@cyberone.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 19 Aug 2003 01:06:00 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4192AD.1020305@cyberone.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 19, 2003 at 12:59:57PM +1000, Nick Piggin wrote:
+> 
+> 
+> Nick Piggin wrote:
+> 
+> >
+> >
+> >William Lee Irwin III wrote:
+> >
+> >>On Tue, Aug 19, 2003 at 11:53:01AM +1000, Nick Piggin wrote:
+> >>
+> >>>As per the latest trend these days, I've done some tinkering with
+> >>>the cpu scheduler. I have gone in the opposite direction of most
+> >>>of the recent stuff and come out with something that can be nearly
+> >>>as good interactivity wise (for me).
+> >>>I haven't run many tests on it - my mind blanked when I tried to
+> >>>remember the scores of scheduler "exploits" thrown around. So if
+> >>>anyone would like to suggest some, or better still, run some,
+> >>>please do so. And be nice, this isn't my type of scheduler :P
+> >>>It still does have a few things that need fixing but I thought
+> >>>I'd get my first hack a bit of exercise.
+> >>>Its against 2.6.0-test3-mm1
+> >>>
+> >>
+> >>Say, any chance you could spray out a brief explanation of your new
+> >>heuristics?
+> >>
+> >
+> >Oh alright. BTW, this one's not for your big boxes yet! It does funny
+> >things with timeslices. But they will be (pending free time) made much
+> >more dynamic, so it should _hopefully_ context switch even less than
+> >the normal scheduler in a compute intensive load.
+> >
+> >OK. timeslices: they are now dynamic. Full priority tasks will get
+> >100ms, minimum priority tasks 10ms (this is what needs fixing, but
+> >should be OK to test "interactiveness")
+> >
+> >interactivity estimator is gone: grep -i interactiv sched.c | wc -l
+> >gives 0.
+> >
+> >priorities are much the same, although processes are supposed to be
+> >able to change priority much more quickly.
+> >
+> >backboost is back. that is what (hopefully) prevents X from starving
+> >due to the quickly changing priorities thing.
+> 
+>  And lack of interactivity estimator.
 
-> There's a scheduler implementation dating pre 1970 that does this and I am led
-> to believe someone is working on an implementation for perhaps 2.7
+You forgot to mention fork() splitting its timeslice 2/3 to 1/3 parent
+to child.
 
-The first implementation is in 1962 with CTSS if i remember correctly.
-Multics initially had something like that too.
-
- http://www.multicians.org/mult-sched.html
-
-Anyway that's pretty standard CS stuff. Multi-level Queues with
-feedback, exponentially longer timeslices with lower priority.
-
-I was reading this recently, that's why i wondered why linux calculate
-timeslice "inversed" versus what is proposed in theory.
-
-
-
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

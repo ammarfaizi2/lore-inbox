@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVAMAqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVAMAuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbVAMAqp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 19:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVAMAoA
+	id S261454AbVAMAuH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 19:50:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVAMArJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 19:44:00 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:54253 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261406AbVAMAlJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 19:41:09 -0500
-Subject: [PATCH] release_pcibus_dev() crash
-From: John Rose <johnrose@austin.ibm.com>
-To: jbarnes@sgi.com, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1105576756.8062.17.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 12 Jan 2005 18:39:16 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 19:47:09 -0500
+Received: from mail.joq.us ([67.65.12.105]:24495 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261450AbVAMAnz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 19:43:55 -0500
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
+       Lee Revell <rlrevell@joe-job.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050111214152.GA17943@devserv.devel.redhat.com>
+	<200501112251.j0BMp9iZ006964@localhost.localdomain>
+	<20050111150556.S10567@build.pdx.osdl.net>
+	<87y8ezzake.fsf@sulphur.joq.us>
+	<20050112074906.GB5735@devserv.devel.redhat.com>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 12 Jan 2005 18:44:23 -0600
+In-Reply-To: <20050112074906.GB5735@devserv.devel.redhat.com> (Arjan van de
+ Ven's message of "Wed, 12 Jan 2005 08:49:06 +0100")
+Message-ID: <87oefuma3c.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During the course of a hotplug removal of a PCI bus, release_pcibus_dev()
-attempts to remove attribute files from a kobject directory that no longer
-exists.  The calls that cause the crash were recently added, and this patch
-removes them.  The partial oops traceback, observed on ppc64, is:
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-[c0000000ba1eb2d0] c0000000000f6eb4 .sysfs_remove_file+0x20/0x38
-[c0000000ba1eb350] c00000000024c564 .class_device_remove_file+0x28/0x40
-[c0000000ba1eb3d0] c0000000001dad5c .release_pcibus_dev+0x38/0x90
-[c0000000ba1eb460] c00000000024c884 .class_dev_release+0x50/0x84
-[c0000000ba1eb4e0] c0000000001cf4a8 .kobject_cleanup+0xec/0xf4
-[c0000000ba1eb580] c0000000001d02f8 .kref_put+0x90/0x98
-[c0000000ba1eb600] c0000000001cf500 .kobject_put+0x34/0x50
-[c0000000ba1eb680] c00000000024d2ac .class_device_put+0x1c/0x34
-[c0000000ba1eb700] c00000000024d194 .class_device_unregister+0x28/0x44
-[c0000000ba1eb790] c0000000001dc8d8 .pci_remove_bus+0x78/0x98
-...
+> On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
+>> Lexicographic ambiguity: Lee and Paul are using "trash" for things
+>> like installing a hidden suid root shell or co-opting sendmail into an
+>> open spam relay.  Arjan just means crashing the system which forces
+>> reboot to run fsck.
+>
+> I actually meant data corruption.
 
-The removal of the class device from sysfs is carried out explicitly by
-class_device_del(), which occurs prior to class_device_put().  The class device
-is gone from sysfs by the time class_device_put() is called.  As such, this
-release function should not carry out sysfs cleanups for the class device.
-
-I'm unsure how pci_remove_legacy_files() doesn't cause the same crash for those
-who implemented it, but I'll leave that alone for now.
-
-Thanks-
-John
-
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
-
-diff -puN drivers/pci/probe.c~01_release_pcibus_dev drivers/pci/probe.c
---- 2_6_linus_2/drivers/pci/probe.c~01_release_pcibus_dev	2005-01-12 18:22:00.000000000 -0600
-+++ 2_6_linus_2-johnrose/drivers/pci/probe.c	2005-01-12 18:22:29.000000000 -0600
-@@ -96,9 +96,6 @@ static void release_pcibus_dev(struct cl
- 	struct pci_bus *pci_bus = to_pci_bus(class_dev);
- 
- 	pci_remove_legacy_files(pci_bus);
--	class_device_remove_file(&pci_bus->class_dev,
--				 &class_device_attr_cpuaffinity);
--	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
- 	if (pci_bus->bridge)
- 		put_device(pci_bus->bridge);
- 	kfree(pci_bus);
-
-_
-
+Are you concerned about something different from the "normal" risk of
+data corruption when the kernel panics or someone trips over the power
+cord?
+-- 
+  joq

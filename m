@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261472AbSJ1Sgz>; Mon, 28 Oct 2002 13:36:55 -0500
+	id <S261435AbSJ1Rru>; Mon, 28 Oct 2002 12:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbSJ1Sgz>; Mon, 28 Oct 2002 13:36:55 -0500
-Received: from bozo.vmware.com ([65.113.40.131]:25095 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id <S261472AbSJ1Sgy>; Mon, 28 Oct 2002 13:36:54 -0500
-Date: Mon, 28 Oct 2002 10:44:20 -0800
-From: chrisl@vmware.com
-To: Christoph Rohland <cr@sap.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, chrisl@gnuchina.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: writepage return value check in vmscan.c
-Message-ID: <20021028184420.GB1454@vmware.com>
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com> <elabj7bt.fsf@sap.com>
-Mime-Version: 1.0
+	id <S261429AbSJ1Rr2>; Mon, 28 Oct 2002 12:47:28 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:43683 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261435AbSJ1Rej>;
+	Mon, 28 Oct 2002 12:34:39 -0500
+Date: Mon, 28 Oct 2002 09:35:37 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>
+cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
+       habanero@us.ibm.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
+Message-ID: <535130000.1035826537@flay>
+In-Reply-To: <200210281826.37451.efocht@ess.nec.de>
+References: <200210280132.33624.efocht@ess.nec.de> <200210281734.41115.efocht@ess.nec.de> <524720000.1035824241@flay> <200210281826.37451.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <elabj7bt.fsf@sap.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-They are the same as shmfs to linux kernel. Why does vmware not use it
-in the first place? It is possible due to some the history reason.
+> I'm puzzled about the initial load balancing impact and have to think
+> about the results I've seen from you so far... In the environments I am
+> used to, the frequency of exec syscalls is rather low, therefore I didn't
+> care too much about the sched_balance_exec performance and prefered to
+> try harder to achieve good distribution across the nodes.
 
-BTW, I have another question. For the 8G memory machine, do we need
-to setup 16G swap space? Think about the time it take to write 16G
-data, does it still make sense that swap space is twice  as big as
-memory?
+OK, but take a look at Michael's second patch. It still looks at
+nr_running on every queue in the system (with some slightly strange
+code to make a rotating choice on nodes on the case of equality),
+so should still be able to make the best decision .... *but* it
+seems to be much cheaper to execute. Not sure why at this point,
+given the last results I sent you last night ;-)
 
-And the swap partition has limit as 2G. So we need to setup 8 swap
-partitions if we want 16G swap.
-
-Thanks
-
-Chris
-
-On Mon, Oct 28, 2002 at 09:28:22AM +0100, Christoph Rohland wrote:
-> On Thu, 24 Oct 2002, chrisl@vmware.com wrote:
-> > Yes, shmfs seems to be the only choice so far.
-> 
-> So why don't you use Posix or SYSV shared mem?
-> 
-> Greetings
-> 		Christoph
-> 
-> 
-
+M.
 

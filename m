@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290301AbSAPAir>; Tue, 15 Jan 2002 19:38:47 -0500
+	id <S290299AbSAPAjH>; Tue, 15 Jan 2002 19:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290300AbSAPAii>; Tue, 15 Jan 2002 19:38:38 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:28860 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S290299AbSAPAiT>;
-	Tue, 15 Jan 2002 19:38:19 -0500
-Date: Wed, 16 Jan 2002 01:38:11 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, John Weber <weber@nyc.rr.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
-Message-ID: <20020116013811.E5235@khan.acc.umu.se>
-In-Reply-To: <20020115192048.G17477@redhat.com> <Pine.LNX.4.33.0201151628440.1140-100000@penguin.transmeta.com>
+	id <S290300AbSAPAi7>; Tue, 15 Jan 2002 19:38:59 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:44551 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S290299AbSAPAir>; Tue, 15 Jan 2002 19:38:47 -0500
+Date: Tue, 15 Jan 2002 18:38:39 -0600
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020116003839.GB2067@cadcamlab.org>
+In-Reply-To: <20020115145324.A5772@thyrsus.com> <20020115202518.G1822@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.33.0201151628440.1140-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 15, 2002 at 04:29:38PM -0800
+In-Reply-To: <20020115202518.G1822@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 04:29:38PM -0800, Linus Torvalds wrote:
-> 
-> On Tue, 15 Jan 2002, Benjamin LaHaise wrote:
-> >
-> > Hmm, this should fix that.
-> 
-> probably will, BUT..
-> 
-> > +#ifndef __ASM__ATOMIC_H
-> > +#include <asm/atomic.h>
-> > +#endif
-> 
-> Please do not assume knowdledge of what the different header files use to
-> define their re-entrancy.
-> 
-> Just do
-> 
-> 	#include <asm/atomic.h>
-> 
-> and be done with it.
 
-The lines below say:
+  [esr]
+> > 	* The `vitality' flag is gone from the language.  Instead, the 
+> > 	  autoprober detects the type of your root filesystem and forces
+> > 	  its symbol to Y.
 
-#ifndef _LINUX_POSIX_TYPES_H   /* __FD_CLR */
-#include <linux/posix_types.h>
-#endif
+[Russell King]
+> This seems like a backwards step.  What's the reasoning for breaking
+> the ability to configure the kernel for a completely different
+> machine to the one that you're running the configuration/build on?
 
+As Eric keeps saying - autoconfigure is OPTIONAL.  It is merely one way
+to generate a .config, not the only way.
 
-Maybe fix this while at it?!
+> Answers including Aunt Tillies or Penelopes won't be accepted. 8)
 
+(:
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Peter

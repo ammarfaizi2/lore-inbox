@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272253AbRIRPjX>; Tue, 18 Sep 2001 11:39:23 -0400
+	id <S272247AbRIRPke>; Tue, 18 Sep 2001 11:40:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272158AbRIRPjN>; Tue, 18 Sep 2001 11:39:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46598 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272253AbRIRPjI>; Tue, 18 Sep 2001 11:39:08 -0400
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-To: VDA@port.imtp.ilyichevsk.odessa.ua
-Date: Tue, 18 Sep 2001 16:43:37 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <11433641523.20010918175148@port.imtp.ilyichevsk.odessa.ua> from "VDA" at Sep 18, 2001 05:51:48 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272137AbRIRPkY>; Tue, 18 Sep 2001 11:40:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:30472 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S272158AbRIRPkG>;
+	Tue, 18 Sep 2001 11:40:06 -0400
+Date: Tue, 18 Sep 2001 17:40:29 +0200
+From: Hubert Mantel <mantel@suse.de>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/partitions hosed in 2.4.9-ac10
+Message-ID: <20010918174029.G6102@suse.de>
+In-Reply-To: <20010917151957.A26615@codepoet.org> <200109172240.f8HMel917969@ns.caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jN29-00017p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <200109172240.f8HMel917969@ns.caldera.de>; from hch@ns.caldera.de on Tue, Sep 18, 2001 at 12:40:47AM +0200
+Organization: SuSE Labs, Nuernberg, Germany
+X-Operating-System: SuSE Linux - Kernel 2.4.9-4GB
+X-GPG-Key: 1024D/B0DFF780
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> stomper, I think patch could be applied to
-> arch/i386/kernel/pci-pc.c in mainline kernel.
-> Diffed against 4.2.9.
-> BTW, there are similar fixup routines in drivers/pci/quirks.c
+Hi,
 
-arch/i386/kernel/pci-pc   PC specific fixups
+On Tue, Sep 18, Christoph Hellwig wrote:
 
-drivers/pci/quirks.c 	Cross platform fixes
+> Could you please try the attached patch agains 2.4.10-pre10?
+
+Tried it. Does not help.
+                                                                  -o)
+    Hubert Mantel              Goodbye, dots...                   /\\
+                                                                 _\_v

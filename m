@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268170AbTAKW15>; Sat, 11 Jan 2003 17:27:57 -0500
+	id <S268160AbTAKW0R>; Sat, 11 Jan 2003 17:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268167AbTAKW15>; Sat, 11 Jan 2003 17:27:57 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:33701 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S268172AbTAKW14>;
-	Sat, 11 Jan 2003 17:27:56 -0500
-Date: Sat, 11 Jan 2003 23:36:33 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Rob Wilkens <robw@optonline.net>
-Cc: Kurt Garloff <kurt@garloff.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030111233633.A17042@ucw.cz>
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com> <20030111020738.GC9373@work.bitmover.com> <1042251202.1259.28.camel@RobsPC.RobertWilkens.com> <20030111021741.GF9373@work.bitmover.com> <1042252717.1259.51.camel@RobsPC.RobertWilkens.com> <20030111214437.GD9153@nbkurt.casa-etp.nl> <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
-Mime-Version: 1.0
+	id <S268161AbTAKW0R>; Sat, 11 Jan 2003 17:26:17 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17427
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S268160AbTAKW0P>; Sat, 11 Jan 2003 17:26:15 -0500
+Date: Sat, 11 Jan 2003 14:19:34 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 patch] update help for hpt366.c
+In-Reply-To: <20030111220849.GK21826@fs.tum.de>
+Message-ID: <Pine.LNX.4.10.10301111418290.11839-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>; from robw@optonline.net on Sat, Jan 11, 2003 at 04:53:33PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 04:53:33PM -0500, Rob Wilkens wrote:
-> On Sat, 2003-01-11 at 16:44, Kurt Garloff wrote:
-> > You're new to Linux, aren't you?
-> > Or terribly presumptous.
+
+Adrian,
+
+It is fine.
+I just do not want to over represent the drivers capabilities.
+
+Cheers,
+
+On Sat, 11 Jan 2003, Adrian Bunk wrote:
+
+> On Sat, Jan 11, 2003 at 01:42:46PM -0800, Andre Hedrick wrote:
 > 
-> A little of both, but not too much of either.
+> > Caution!
+> > 
+> > I and Andrew Morton have hpt374's which do not behave will under U133.
+> > It could be a device - controller combination erratium but not sure
 > 
-> I'd say "New to linux" but I've been using it on and off since 1995 or
-> earlier.
+> This is an area where you have more knowledge than I do.
 > 
-> I'd say terribly presumptuous, but I don't think it is presumptuous to
-> say that if there are many patches (bug fixes, mostly) coming in that
-> the code that was originally there was of questionable quality.
+> I do only know people who don't have DMA support because you don't 
+> select "HPT366/368/370 chipset support" when you have a HPT374.
+> 
+> What about the patch below?
+> 
+> > Cheers,
+> 
+> cu
+> Adrian
+> 
+> --- linux-2.4.20/drivers/ide/Config.in.old	2003-01-11 20:58:01.000000000 +0100
+> +++ linux-2.4.20/drivers/ide/Config.in	2003-01-11 20:59:20.000000000 +0100
+> @@ -56,7 +56,7 @@
+>  	    dep_tristate '    Cyrix CS5530 MediaGX chipset support' CONFIG_BLK_DEV_CS5530 $CONFIG_BLK_DEV_IDEDMA_PCI
+>    	    dep_tristate '    HPT34X chipset support' CONFIG_BLK_DEV_HPT34X $CONFIG_BLK_DEV_IDEDMA_PCI
+>  	    dep_mbool    '      HPT34X AUTODMA support (WIP)' CONFIG_HPT34X_AUTODMA $CONFIG_BLK_DEV_HPT34X $CONFIG_IDEDMA_PCI_WIP
+> -	    dep_tristate '    HPT366/368/370 chipset support' CONFIG_BLK_DEV_HPT366 $CONFIG_BLK_DEV_IDEDMA_PCI
+> +	    dep_tristate '    HPT36X/37X chipset support' CONFIG_BLK_DEV_HPT366 $CONFIG_BLK_DEV_IDEDMA_PCI
+>  	    dep_tristate '    Intel PIIXn chipsets support' CONFIG_BLK_DEV_PIIX $CONFIG_BLK_DEV_IDEDMA_PCI
+>  	    if [ "$CONFIG_MIPS_ITE8172" = "y" -o "$CONFIG_MIPS_IVR" = "y" ]; then
+>  	       dep_mbool '    IT8172 IDE support' CONFIG_BLK_DEV_IT8172 $CONFIG_BLK_DEV_IDEDMA_PCI
+> --- linux-2.4.20/Documentation/Configure.help.old	2003-01-11 23:05:04.000000000 +0100
+> +++ linux-2.4.20/Documentation/Configure.help	2003-01-11 23:06:42.000000000 +0100
+> @@ -1161,11 +1161,14 @@
+>  
+>    If unsure, say N.
+>  
+> -HPT366/368/370 chipset support
+> +HPT36X/37X chipset support
+>  CONFIG_BLK_DEV_HPT366
+> -  HPT366 is an Ultra DMA chipset for ATA-66.
+> -  HPT368 is an Ultra DMA chipset for ATA-66 RAID Based.
+> -  HPT370 is an Ultra DMA chipset for ATA-100.
+> +  This driver includes support for the following chipsets:
+> +  - HPT366
+> +  - HPT368
+> +  - HPT370
+> +  - HPT372
+> +  - HPT374
+>  
+>    This driver adds up to 4 more EIDE devices sharing a single
+>    interrupt.
+> 
 
-Very interesting idea. But not correct.
+Andre Hedrick
+LAD Storage Consulting Group
 
-The reason is code rot(*). You have never to stop maintaining and patching
-and fixing the code to keep it working. A perfectly good and clean code,
-if you don't touch it, becomes crusty and smelly over time(**). This is why
-the number of patches daily entering the kernel is actually a sign of good
-overall code quality. ;)
-
-(*)
-	http://www.tuxedo.org/~esr/jargon/html/entry/software-rot.html
-	http://www.tuxedo.org/~esr/jargon/html/entry/bit-rot.html
-
-(**)
-	One of the reasons for this is that the hardware changes over
-	time. Another is that the requirements of what it is expected to
-	do change over time. And yet another is that due to the above
-	changes the rest of the code gets updated and the parts that
-	were not touched do not interoperate properly any more.
-
-Huh. And now I'll be getting all the e-mails following in this thread.
-
--- 
-Vojtech Pavlik
-SuSE Labs

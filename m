@@ -1,52 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290715AbSBOTe2>; Fri, 15 Feb 2002 14:34:28 -0500
+	id <S290730AbSBOTe1>; Fri, 15 Feb 2002 14:34:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290688AbSBOTdh>; Fri, 15 Feb 2002 14:33:37 -0500
-Received: from gateway2.ensim.com ([65.164.64.250]:29188 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S290721AbSBOTd0>; Fri, 15 Feb 2002 14:33:26 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Hanna Linder <hannal@us.ibm.com>
-cc: Paul Menage <pmenage@ensim.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.4.17] Your suggestions for fast path walk 
-In-Reply-To: Your message of "Thu, 14 Feb 2002 18:13:35 PST."
-             <16270000.1013739215@w-hlinder.des> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 15 Feb 2002 11:33:19 -0800
-Message-Id: <E16bo6h-0003si-00@pmenage-dt.ensim.com>
+	id <S290715AbSBOTd3>; Fri, 15 Feb 2002 14:33:29 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:41248 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290688AbSBOTdG>; Fri, 15 Feb 2002 14:33:06 -0500
+Date: Fri, 15 Feb 2002 14:33:01 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200202151933.g1FJX1S16673@devserv.devel.redhat.com>
+To: dalecki@evision-ventures.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cleanup for i810 chipset for 2.5.5-pre1. Second...
+In-Reply-To: <mailman.1013758321.20800.linux-kernel2news@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0202141819080.30210-100000@Expansa.sns.it> <mailman.1013758321.20800.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->	Thank you for taking the time to look over my patch and sending
->your comments. In response, Yes, there is a reason why I can't implement 
->path_lookup by calling path_init. path_init calls dget which increments 
->the d_count. The function I wrote holds the dcache_lock instead of 
->incrementing d_count at that point.
+> diff -ur linux-2.5.4/sound/oss/i810_audio.c linux/sound/oss/i810_audio.c
+> --- linux-2.5.4/sound/oss/i810_audio.c	Thu Feb 14 23:26:47 2002
+> +++ linux/sound/oss/i810_audio.c	Thu Feb 14 23:09:50 2002
+> @@ -66,7 +66,7 @@
+>   *
+>   *	This driver is cursed. (Ben LaHaise)
+>   */
+> - 
+> +
+>  #include <linux/module.h>
+>  #include <linux/version.h>
+>  #include <linux/string.h>
 
-OK, I see what you're doing now.
+Leave the syntax sugar out, will you? It's dledford's job to clean it.
 
-One obvious problem with it is that __emul_lookup_dentry()[1] calls
-path_walk() internally, and the nd passed has uncounted references and
-no LOOKUP_LOCKED flag - I suspect that this will cause reference counts
-to get mucked up.
+> @@ -135,14 +135,17 @@
+>  
+>  /* the 810's array of pointers to data buffers */
+>  
+> +/* Since this structure get's accessed by the AC'97 codec device, we fixup the
+> + * in core layout of it by adding the packed attribute here. */
+> +
+>  struct sg_item {
+>  #define BUSADDR_MASK	0xFFFFFFFE
+> -	u32 busaddr;	
+> -#define CON_IOC 	0x80000000 /* interrupt on completion */
+> +	u32 bus_addr;
+> +#define CON_IOC		0x80000000 /* interrupt on completion */
+>  #define CON_BUFPAD	0x40000000 /* pad underrun with last sample, else 0 */
+>  #define CON_BUFLEN_MASK	0x0000ffff /* buffer length in samples */
+>  	u32 control;
+> -};
+> +} __attribute__ ((packed));
+>  
+>  /* an instance of the i810 channel */
+>  #define SG_LEN 32
 
-Also:
+Sounds like a nonsense to me. Show me one architecture that
+does not pack the structure correctly without ((packed)).
+You got Linux on CRAY-1 going?
 
-1) you really need to fix the patch whitespace/formatting
+> -			sg->busaddr=virt_to_bus(dmabuf->rawbuf+dmabuf->fragsize*i);
+> +			sg->bus_addr= dmabuf->dma_handle + dmabuf->fragsize * i;
 
-2) Please again consider calling it path_lookup() rather than 
-path_init_walk() - the fact that since 2.3.x programmers have had to be 
-aware of the separate path_init()/path_walk() stages is an 
-implementation wrinkle that it would be nice to get rid of.
+Close, but no cigar, see below.
 
-Paul
+> @@ -954,7 +957,7 @@
+>  		}
+>  		spin_lock_irqsave(&state->card->lock, flags);
+>  		outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
+> -		outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
+> +		outl(isa_virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
+>  		outb(0, state->card->iobase+c->port+OFF_CIV);
+>  		outb(0, state->card->iobase+c->port+OFF_LVI);
+>  
 
-[1] Actually, __emul_lookup_dentry() probably ought to be simplified
-somewhat - it seems to be duplicating a fair chunk of code from
-path_init().
+Why not to use pci_alloc_consistent here? I did it in 10 minutes,
+even posted a patch here.
 
+> @@ -1669,7 +1672,7 @@
+>  	if (size > (PAGE_SIZE << dmabuf->buforder))
+>  		goto out;
+>  	ret = -EAGAIN;
+> -	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
+> +	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
+>  			     size, vma->vm_page_prot))
+>  		goto out;
+>  	dmabuf->mapped = 1;
 
+OK
+
+> -			outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
+> +			outl(isa_virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
+
+Same as above - must be reworked.
+
+-- Pete

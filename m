@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUKUMXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263214AbUKUMZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUKUMXW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 07:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbUKUMXW
+	id S263214AbUKUMZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 07:25:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbUKUMZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 07:23:22 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:62366 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261951AbUKUMXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 07:23:17 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200411211223.iALCNCTL005995@betty.it.uc3m.es>
-Subject: can kfree sleep?
-To: linux kernel <linux-kernel@vger.kernel.org>
-Date: Sun, 21 Nov 2004 13:23:12 +0100 (CET)
-Reply-To: ptb@inv.it.uc3m.es
-X-Anonymously-To: 
-X-Mailer: ELM [version 2.4ME+ PL121 (25)]
-MIME-Version: 1.0
+	Sun, 21 Nov 2004 07:25:28 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:44507 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263214AbUKUMZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 07:25:15 -0500
+Date: Sun, 21 Nov 2004 14:27:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+Message-ID: <20041121132732.GA16170@elte.hu>
+References: <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net> <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net> <20041120191403.GA16262@elte.hu> <1100977765.6879.53.camel@krustophenia.net> <20041121124720.GB7972@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041121124720.GB7972@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Just a question: can kfree sleep?
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-I believe so, but slab.c does not enlighten me immediately:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > > i only tried the !PREEMPT version though - does that one work for you? 
+> > > Also, please send me the .config that produces the failing kernel.
+> > 
+> > OK it allows me to set PREEMPT_NONE, PREEMPT_SOFTIRQS, and
+> > PREEMPT_HARDIRQS.  This should be an illegal combination, right?
+> 
+> in theory it should work just fine.
 
- void
- kfree (const void *objp)
- {
-        kmem_cache_t *c;
-        unsigned long flags;
+hm, in practice it doesnt work - this is that causes the boot-time hang
+you saw during PREEMPT_VOLUNTARY. I'll make irq threading depend on
+PREEMPT, for the time being.
 
-        if (!objp)
-                return;
-        local_irq_save (flags);
-        c = GET_PAGE_CACHE (virt_to_page (objp));
-        __cache_free (c, (void *) objp);
-        local_irq_restore (flags);
- }
-
- static inline void __cache_free (kmem_cache_t *cachep, void* objp)
- {
-        struct array_cache *ac = ac_data(cachep);
-
-        check_irq_off();
-        objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
-
-        if (likely(ac->avail < ac->limit)) {
-                STATS_INC_FREEHIT(cachep);
-                ac_entry(ac)[ac->avail++] = objp;
-                return;
-        } else {
-                STATS_INC_FREEMISS(cachep);
-                cache_flusharray(cachep, ac);
-                ac_entry(ac)[ac->avail++] = objp;
-        }
- }
-
- ...
-
-
-Peter
+	Ingo

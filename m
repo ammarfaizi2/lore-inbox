@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbTJUUWs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263330AbTJUUWr
+	id S263314AbTJUUU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:20:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTJUUU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:22:47 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8964 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263325AbTJUUWC
+	Tue, 21 Oct 2003 16:20:59 -0400
+Received: from wblv-241-59.telkomadsl.co.za ([165.165.241.59]:22656 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S263314AbTJUUUy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:22:02 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
-Date: 21 Oct 2003 20:12:00 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bn43ug$ii5$1@gatekeeper.tmr.com>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
-X-Trace: gatekeeper.tmr.com 1066767120 19013 192.168.12.62 (21 Oct 2003 20:12:00 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 21 Oct 2003 16:20:54 -0400
+Subject: Re: [ANNOUNCE] udev 003 release
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Greg KH <greg@kroah.com>
+Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
+       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
+In-Reply-To: <20031021174426.GA1497@kroah.com>
+References: <20031017055652.GA7712@kroah.com>
+	 <200310171757.h9HHvGiY006997@orion.dwf.com>
+	 <20031017181923.GA10649@kroah.com> <20031017182754.GA10714@kroah.com>
+	 <1066696767.10221.164.camel@nosferatu.lan>
+	 <20031021005025.GA28269@kroah.com>
+	 <1066698679.10221.178.camel@nosferatu.lan>
+	 <20031021024322.GA29643@kroah.com>
+	 <1066707482.10221.243.camel@nosferatu.lan>
+	 <20031021174426.GA1497@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6iDn4KJIlLH48DuphRO3"
+Message-Id: <1066767647.11872.152.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 21 Oct 2003 22:20:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>,
-Norman Diamond <ndiamond@wta.att.ne.jp> wrote:
-| Friends in the disk drive section at Toshiba said this:
-| 
-| When a drive tries to read a block, if it detects errors, it retries up to
-| 255 times.  If a retry succeeds then the block gets reallocated.  IF 255
-| RETRIES FAIL THEN THE BLOCK DOES NOT GET REALLOCATED.
-| 
-| This was so unbelievable to that I had to confirm this with them in
-| different words.  In case of a temporary error, the drive provides the
-| recovered data as the result of the read operation and the drive writes the
-| data to a reallocated sector.  In case of a permanent error, the block is
-| assumed bad, and of course the data are lost.  Since the data are assumed
-| lost, the drive keeps the defective LBA sector number associated with the
-| same defective physical block and it does not reallocate the defective
-| block.
 
-Sounds right to me. If you relocate the LBA sector then on retry I will
-(a) read {something} without error, and (b) it will NOT be my data, and
-(c) I will not get back an error to tell me I am reading crap. In other
-words, to do anything else would result in my silently getting back bad
-data!
+--=-6iDn4KJIlLH48DuphRO3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What should be done is to relocate after successful retry or after
-unsuccessful write, because in both cases the drive has valid data to
-relocate.
+On Tue, 2003-10-21 at 19:44, Greg KH wrote:
+> On Tue, Oct 21, 2003 at 05:38:02AM +0200, Martin Schlemmer wrote:
+> >=20
+> > Been in the tree for about a week - removed it though (0.2), so only
+> > have 003 presently.  I also missed the /etc/hotplug.d/default/ symlink,
+> > so initial integration needs tweaking.
+>=20
+> Do you also have the latest hotplug scripts in gentoo?
+>=20
 
-Blockbusting news, I think they're doing it just right. The object is
-not to do a read and get no error, the object is to read and get correct
-data, and if that doesn't happen, let the controller, o/s, or
-application know about it decide what to do then.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Yep.
+
+No, I installed the binary by hand for some reason at the time,
+so missed the creation in the makefile (my screwup =3D).
+
+> > So far have not had any complaints, except for minimal support at this
+> > stage, but hey, its still early in the game =3D)
+>=20
+> Nice.  Be sure to let me know if you do hear any.
+>=20
+> Remember, gentoo needs to wean itself off of devfs for 2.6...
+>=20
+
+Busy =3D)
+
+> > Also, I am using ramfs for now to do the device nodes, and have not
+> > looked at minimal /dev layout, although I guess it is not that minimal,
+> > as even the input drivers lack udev (sysfs) support currently it seems.
+> > Wat was the last eta for initramfs again ?
+>=20
+> initramfs is in the kernel, you use it to boot already :)
+>=20
+
+OK ... I do though remember you saying it should be possible to have
+initramfs get the initial /dev going ... any docs on that ?
+
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-6iDn4KJIlLH48DuphRO3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD4DBQA/lZUfqburzKaJYLYRAv7SAJ9TamL2nAas6UGi105yCTZ0LXlQDwCXcknY
+SCFxUo55rAZFmfxPheWYAA==
+=6905
+-----END PGP SIGNATURE-----
+
+--=-6iDn4KJIlLH48DuphRO3--
+

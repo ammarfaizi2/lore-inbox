@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbUKJOuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbUKJPST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbUKJOuL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbUKJOrK
+	id S261975AbUKJPST (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 10:18:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbUKJPPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:47:10 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:19842 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261919AbUKJNpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 08:45:39 -0500
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 20/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
-Message-Id: <E1CRsmu-0006Rr-P5@imp.csi.cam.ac.uk>
-Date: Wed, 10 Nov 2004 13:45:28 +0000
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Wed, 10 Nov 2004 10:15:21 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:54925 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261843AbUKJPNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 10:13:21 -0500
+Subject: Re: bk-commits: diff -p?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041110150646.GA10537@work.bitmover.com>
+References: <Pine.LNX.4.61.0411080940310.27771@anakin>
+	 <20041108164302.GA489@work.bitmover.com>
+	 <1100043712.21273.26.camel@baythorne.infradead.org>
+	 <20041110150646.GA10537@work.bitmover.com>
+Content-Type: text/plain
+Message-Id: <1100099597.8191.180.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 10 Nov 2004 15:13:17 +0000
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 20/26 in the series.  It contains the following ChangeSet:
+On Wed, 2004-11-10 at 07:06 -0800, Larry McVoy wrote:
+> OK, this is a hack but I think you can make it work.  Try moving
+> `bk bin`/diff `bk bin`/diff.orig and putting in a shell 
+> script for `bk bin`/diff that just adds $BK_GNU_DIFF_OPTS to the 
+> options and execs `bk bin`/diff.orig
 
-<aia21@cantab.net> (04/11/05 1.2026.1.55)
-   NTFS: Fix error handling in fs/ntfs/quota.c::ntfs_mark_quotas_out_of_date()
-         where we failed to release i_sem on the $Quota/$Q attribute inode.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+This would need to be done on kernel.org. Since it's a relatively low
+priority, I think I'd rather wait for it to be fixed (if you're actually
+going to fix it). 
 
-Best regards,
+I suppose I could install my own version of BK, but I'd rather just
+wait, to be honest.
 
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+dwmw2
 
-===================================================================
-
-diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	2004-11-10 13:45:32 +00:00
-+++ b/fs/ntfs/ChangeLog	2004-11-10 13:45:32 +00:00
-@@ -81,6 +81,8 @@
- 	  where we cannot access any of the ntfs records in a page when a
- 	  single one of them had an mst error.  (Thanks to Ken MacFerrin for
- 	  the bug report.)
-+	- Fix error handling in fs/ntfs/quota.c::ntfs_mark_quotas_out_of_date()
-+	  where we failed to release i_sem on the $Quota/$Q attribute inode.
- 
- 2.1.21 - Fix some races and bugs, rewrite mft write code, add mft allocator.
- 
-diff -Nru a/fs/ntfs/quota.c b/fs/ntfs/quota.c
---- a/fs/ntfs/quota.c	2004-11-10 13:45:32 +00:00
-+++ b/fs/ntfs/quota.c	2004-11-10 13:45:32 +00:00
-@@ -52,7 +52,7 @@
- 	ictx = ntfs_index_ctx_get(NTFS_I(vol->quota_q_ino));
- 	if (!ictx) {
- 		ntfs_error(vol->sb, "Failed to get index context.");
--		return FALSE;
-+		goto err_out;
- 	}
- 	err = ntfs_index_lookup(&qid, sizeof(qid), ictx);
- 	if (err) {
-@@ -108,7 +108,8 @@
- 	ntfs_debug("Done.");
- 	return TRUE;
- err_out:
--	ntfs_index_ctx_put(ictx);
-+	if (ictx)
-+		ntfs_index_ctx_put(ictx);
- 	up(&vol->quota_q_ino->i_sem);
- 	return FALSE;
- }

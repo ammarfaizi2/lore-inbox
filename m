@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUIVWlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUIVWqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268064AbUIVWlx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 18:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUIVWlw
+	id S268072AbUIVWqj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 18:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUIVWqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 18:41:52 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:45792 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268064AbUIVWld
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 18:41:33 -0400
-Date: Thu, 23 Sep 2004 00:39:27 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: David Woodhouse <dwmw2@redhat.com>,
-       linux-mtd <linux-mtd@lists.infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] attempt to fix warnings in dilnetpc.c
-Message-ID: <20040922223927.GB6889@thundrix.ch>
-References: <Pine.LNX.4.61.0409202320270.2729@dragon.hygekrogen.localhost>
+	Wed, 22 Sep 2004 18:46:39 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:29430 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S268072AbUIVWqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 18:46:36 -0400
+Subject: Re: [patch] inotify: locking
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1095881861.5090.59.camel@betsy.boston.ximian.com>
+References: <1095881861.5090.59.camel@betsy.boston.ximian.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095895360.29226.17.camel@vertex>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0409202320270.2729@dragon.hygekrogen.localhost>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 22 Sep 2004 19:22:40 -0400
+X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.22.3
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-09-22 at 15:37, Robert Love wrote:
+> Hey, John.
+> 
+> I went over the locking in drivers/char/inotify.c  Looks right.
+> 
+> I made two major changes:
+> 
+> 	- In a couple places you used irq-safe locks, but in most places
+> 	  you did not.  It has to be all or never.  We do not currently
+> 	  need protection from interrupts, so I changed the few
+> 	  irq-safe locks on dev->lock to normal spin_lock/spin_unlock
+> 	  calls.
+> 
+> 	- dev->event_count was an atomic_t, but it was never accessed
+> 	  outside of dev->lock.  I also did not see why ->event_count
+> 	  was atomic but not ->nr_watches.  So I made event_count an
+> 	  unsigned int and removed the atomic operations.
+> 
 
---R3G7APHDIzY6R/pk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Okay, this is my first kernel project so I didn't know/follow all of the
+rules, I admit it is a bit of a mishmash.
 
-Salut,
+> The rest of the (admittedly a bit large) patch is documenting the
+> locking rules.  I tried to put the locking assumptions in comments at
+> the top of each function.  I made some coding style cleanups as I went
+> along, too, but not too many (those come next).
+> 
 
-On Mon, Sep 20, 2004 at 11:26:38PM +0200, Jesper Juhl wrote:
-> diff -up linux-2.6.9-rc2-bk5-orig/drivers/mtd/maps/dilnetpc.c linux-2.6.9=
--rc2-bk5/drivers/mtd/maps/dilnetpc.c
-> --- linux-2.6.9-rc2-bk5-orig/drivers/mtd/maps/dilnetpc.c	2004-08-14 07:36=
-:32.000000000 +0200
-> +++ linux-2.6.9-rc2-bk5/drivers/mtd/maps/dilnetpc.c	2004-09-20 23:19:34.0=
-00000000 +0200
-> @@ -403,7 +403,7 @@ static int __init init_dnpc(void)
->  	printk(KERN_NOTICE "DIL/Net %s flash: 0x%lx at 0x%lx\n",=20
->  		is_dnp ? "DNPC" : "ADNP", dnpc_map.size, dnpc_map.phys);
-> =20
-> -	dnpc_map.virt =3D (unsigned long)ioremap_nocache(dnpc_map.phys, dnpc_ma=
-p.size);
-> +	dnpc_map.virt =3D (unsigned long *)ioremap_nocache(dnpc_map.phys, dnpc_=
-map.size);
+The patch and your previous patches look excellent. I have applied them
+to my tree and I will be making a new release this evening.
 
-This should be void *.
+> I do have one remaining concern: create_watcher() is called without the
+> lock on dev, but it later obtains the lock, before it touches dev.  So
+> it is safe in that regard, but what if dev is deallocated before it
+> grabs the lock?  dev is passed in, so, for example, dev could be freed
+> (or otherwise manipulated) and then the dereference of dev->lock would
+> oops.  A couple other functions do this.  We probably need proper ref
+> counting on dev. BUT, are all of these call chains off of VFS functions
+> on the device?  Perhaps so long as the device is open it is pinned?
+> 
 
-				    Tonnerre
+Yes, AFAIK the only places where we rely on the dev not going away are
+when we are handling a request from user space. As long as VFS
+operations are serialized I don't think we have to worry about that.
 
---R3G7APHDIzY6R/pk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBUf8e/4bL7ovhw40RAufeAJ9UN9KO2mPBT6wiq3baVb4knMfwOQCZAa4G
-EPjgwDNXT+cQOPKAKUMQBE4=
-=mvqF
------END PGP SIGNATURE-----
-
---R3G7APHDIzY6R/pk--
+John

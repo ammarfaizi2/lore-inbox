@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278624AbRJXPzd>; Wed, 24 Oct 2001 11:55:33 -0400
+	id <S278617AbRJXQAD>; Wed, 24 Oct 2001 12:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278604AbRJXPz1>; Wed, 24 Oct 2001 11:55:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26375 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278624AbRJXPyk>; Wed, 24 Oct 2001 11:54:40 -0400
-Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
-To: timtas@dplanet.ch (Tim Tassonis)
-Date: Wed, 24 Oct 2001 17:01:37 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <E15wQDj-0000HT-00@lttit> from "Tim Tassonis" at Oct 24, 2001 05:45:31 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278615AbRJXP7n>; Wed, 24 Oct 2001 11:59:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57610 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278603AbRJXP7c>; Wed, 24 Oct 2001 11:59:32 -0400
+Date: Wed, 24 Oct 2001 08:56:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
+        Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <E15wQRC-0001uV-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0110240855430.8049-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15wQTJ-0001v1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm using a Red Hat 6.2 system with glibc 2.1.3 (glibc-2.1.3-22), the
-> latest for Red Hat 6.2. Switching to 7.x would mean to upgrade the whole
-> system, I guess I can't just take the glibc rpm out of 7.x and everything
-> still runs fine?
-> 
-> So that means I'm really fucked?
 
-glibc 2.1.x has minimal support for 64bit file size handling. You probably
-need to build 64bit aware tools. You might also be hitting a device bug that
-seems to be in Linus kernel where devices are inheriting the file size limit
-of the underlying fs the /dev node is on. However I thought that was long
-fixed.
+On Wed, 24 Oct 2001, Alan Cox wrote:
+>
+> > call might block for some device information, that does not mean that it
+> > can allocate memory with GFP_KERNEL, for example: when we shut off device
+> > X, the disk may have been prepared for shutdown already, and the VM layer
+> > cannot do any IO. So the suspend (and resume) function have to use
+> > GFP_NOIO for their allocations - _regardless_ of any other device issues.
+>
+> So I have to write a whole extra set of code paths to duplicate normal
+> functionality during power off
+
+If that ends up being a problem, we can just make alloc_pages turn off the
+IO bits on suspend. Easy enough..
+
+Although I think you're making the problem bigger than it is. Most of the
+suspend stuff should not need any "normal functionality" at all.
+
+		Linus
 

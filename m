@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbTEVAZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 20:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTEVAZ6
+	id S262409AbTEVAd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 20:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTEVAd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 20:25:58 -0400
-Received: from imladris.surriel.com ([66.92.77.98]:13708 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S262410AbTEVAZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 20:25:57 -0400
-Date: Wed, 21 May 2003 20:38:56 -0400 (EDT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Mike Galbraith <efault@gmx.de>
-cc: davidm@hpl.hp.com, "" <linux-kernel@vger.kernel.org>,
-       "" <linux-ia64@linuxia64.org>
-Subject: Re: web page on O(1) scheduler
-In-Reply-To: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
-Message-ID: <Pine.LNX.4.50L.0305212038120.5425-100000@imladris.surriel.com>
-References: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	Wed, 21 May 2003 20:33:26 -0400
+Received: from pop.gmx.de ([213.165.64.20]:23264 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262409AbTEVAdZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 20:33:25 -0400
+Message-ID: <3ECC1DE0.3030707@gmx.net>
+Date: Thu, 22 May 2003 02:46:24 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert White <rwhite@casabyte.com>
+CC: root@chaos.analogic.com, Helge Hafting <helgehaf@aitel.hist.no>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: recursive spinlocks. Shoot.
+References: <PEEPIDHAKMCGHDBJLHKGGEHPCMAA.rwhite@casabyte.com>
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGGEHPCMAA.rwhite@casabyte.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 May 2003, Mike Galbraith wrote:
-> At 11:49 PM 5/20/2003 -0700, David Mosberger wrote:
-> >Recently, I started to look into some odd performance behaviors of the
-> >O(1) scheduler.  I decided to document what I found in a web page
-> >at:
-> >
-> >         http://www.hpl.hp.com/research/linux/kernel/o1.php
->
-> The page mentions persistent starvation.  My own explorations of this
-> issue indicate that the primary source is always selecting the highest
-> priority queue.
+Robert White wrote:
+> 
+> Here is a problem statement that is virtually unimplementable in the current
+> Linux kernel because of the simple-minded locking model.
+> 
+> Create a meta file-system that takes two existing (backing) file system
+> devices (or existing mounted directories) and aggregates them such that:
+> 
+> (Ladies, and Gentlemen, The "deltafs" file system...)
 
-It's deeper than that.  The O(1) scheduler doesn't consider
-actual CPU usage as a factor of CPU priority.
+Call it unionfs.
+
+> 1) It doesn't matter what types of file systems are used as the backing file
+> systems.
+> 2) The aggregate file system is fully read-write
+> 3) The base (first existing) file system is read-only
+> 4) The front (second existing) file system is read-write
+> 5) All operations are available on the aggregate file system (unlink,
+> rename, open for write, open for append, chown, set access time, etc.)
+> 6) The aggregate file system engine will transcribe all the modified files
+> from the base to the front file system if the file is modified.
+> 7) The aggregate file system will (probably using a reserved file name and a
+> journaling structure encoded therein) maintain a white-out list to hide
+> unlinked and renamed files.
+> 8) After unmount, the front file system should be a minimal delta of the
+> base file system
+> 9) Remounting the same combination of file systems should consistently
+> result in the same, consistent file system image.
+> 10) (you get the point... 8-)
+
+IIRC, Al Viro was working on this and we might have it in 2.6
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0201.0/0745.html
+
+Al?
 
 
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
+Regards,
+Carl-Daniel
+

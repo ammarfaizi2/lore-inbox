@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVAKKKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbVAKKN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbVAKKKr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 05:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVAKKKr
+	id S262675AbVAKKN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 05:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVAKKN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 05:10:47 -0500
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:64948 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S262673AbVAKKKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 05:10:40 -0500
-Date: Tue, 11 Jan 2005 11:10:38 +0100
-From: Bastian Blank <bastian@waldi.eu.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
-Subject: Re: removing bcopy... because it's half broken
-Message-ID: <20050111101010.GB27768@wavehammer.waldi.eu.org>
-Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
-References: <20050109192305.GA7476@infradead.org> <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org> <20050109203459.GA28788@infradead.org> <Pine.LNX.4.58.0501091240550.2339@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7qSK/uQB79J36Y4o"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501091240550.2339@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 11 Jan 2005 05:13:59 -0500
+Received: from smtp3.akamai.com ([63.116.109.25]:48575 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S262675AbVAKKN4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 05:13:56 -0500
+From: pmeda@akamai.com
+Date: Tue, 11 Jan 2005 02:17:05 -0800
+Message-Id: <200501111017.CAA00344@allur.sanmateo.akamai.com>
+To: akpm@osdl.org
+Subject: [patch] easily tweakable comm length
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7qSK/uQB79J36Y4o
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This change still keeps the comm length at 16, but allows easier patching for
+local modifications, and also introduces a macro to use instead of magic 16,
+where sizeof(comm) is not preferable to use.
+Not able to use killall, pidof etc. effectively, when long process names are
+used for scripts. Just changing the command length from 16 to 32 breaks a.out
+coredump logic. Deamonise and get_task_comm helped in other places in 2.6.10.
 
-On Sun, Jan 09, 2005 at 12:42:42PM -0800, Linus Torvalds wrote:
-> On Sun, 9 Jan 2005, Christoph Hellwig wrote:
-> > We're building with -ffreestanding now, so gcc isn't allowed to emit
-> > any calls to standard library functions.
-> Bzzt. It still emits calls to libgcc.=20
+Signed-off-by: Prasanna Meda <pmeda@akamai.com>
 
-Yes. This means IMHO that the image and every module needs to link
-against libgcc to include the required symbols. It is rather annoying to
-see modules asking for libgcc symbols.
-
-Bastian
-
---=20
-It would be illogical to assume that all conditions remain stable.
-		-- Spock, "The Enterprise Incident", stardate 5027.3
-
---7qSK/uQB79J36Y4o
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iEYEARECAAYFAkHjph4ACgkQnw66O/MvCNEz7gCfYeIPFZpuYuoi7ZFY48KEHpPX
-hl8An2akr0IBNzh/PHrRKrVYSThtFynV
-=xPLo
------END PGP SIGNATURE-----
-
---7qSK/uQB79J36Y4o--
+--- a/arch/sparc64/kernel/binfmt_aout32.c	Tue Jan 11 09:04:24 2005
++++ b/arch/sparc64/kernel/binfmt_aout32.c	Tue Jan 11 09:04:59 2005
+@@ -95,7 +95,7 @@
+ 	set_fs(KERNEL_DS);
+ 	has_dumped = 1;
+ 	current->flags |= PF_DUMPCORE;
+-       	strncpy(dump.u_comm, current->comm, sizeof(current->comm));
++       	strncpy(dump.u_comm, current->comm, sizeof(dump.u_comm));
+ 	dump.signal = signr;
+ 	dump_thread(regs, &dump);
+ 
+--- a/fs/binfmt_aout.c	Tue Jan 11 09:11:56 2005
++++ b/fs/binfmt_aout.c	Tue Jan 11 09:14:32 2005
+@@ -112,7 +112,7 @@
+ 	set_fs(KERNEL_DS);
+ 	has_dumped = 1;
+ 	current->flags |= PF_DUMPCORE;
+-       	strncpy(dump.u_comm, current->comm, sizeof(current->comm));
++       	strncpy(dump.u_comm, current->comm, sizeof(dump.u_comm));
+ #ifndef __sparc__
+ 	dump.u_ar0 = (void *)(((unsigned long)(&dump.regs)) - ((unsigned long)(&dump)));
+ #endif
+--- a/include/linux/sched.h	Tue Jan 11 09:23:56 2005
++++ b/include/linux/sched.h	Tue Jan 11 09:27:05 2005
+@@ -121,6 +121,9 @@
+ #define set_current_state(state_value)		\
+ 	set_mb(current->state, (state_value))
+ 
++/* Task command name length */
++#define TASK_COMM_LEN 16
++
+ /*
+  * Scheduling policies
+  */
+@@ -601,7 +604,7 @@
+ 	struct key *thread_keyring;	/* keyring private to this thread */
+ #endif
+ 	unsigned short used_math;
+-	char comm[16];
++	char comm[TASK_COMM_LEN];
+ /* file system info */
+ 	int link_count, total_link_count;
+ /* ipc stuff */

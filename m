@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263415AbRFNRQr>; Thu, 14 Jun 2001 13:16:47 -0400
+	id <S263419AbRFNRSh>; Thu, 14 Jun 2001 13:18:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263416AbRFNRQh>; Thu, 14 Jun 2001 13:16:37 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:60206 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263415AbRFNRQ2>; Thu, 14 Jun 2001 13:16:28 -0400
-Date: Thu, 14 Jun 2001 19:16:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@redhat.com>
-Subject: Re: unregistered changes to the user<->kernel API
-Message-ID: <20010614191634.B30567@athlon.random>
-In-Reply-To: <20010614191219.A30567@athlon.random>
-Mime-Version: 1.0
+	id <S263416AbRFNRS1>; Thu, 14 Jun 2001 13:18:27 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1549 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263419AbRFNRSK>; Thu, 14 Jun 2001 13:18:10 -0400
+Subject: Re: RFC: from FIBMAP to FIONDEV
+To: j@falooley.org (Jason Lunz)
+Date: Thu, 14 Jun 2001 18:16:36 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, almesber@lrc.di.epfl.ch
+In-Reply-To: <20010614100354.A2129@orr.falooley.org> from "Jason Lunz" at Jun 14, 2001 10:03:54 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010614191219.A30567@athlon.random>; from andrea@suse.de on Thu, Jun 14, 2001 at 07:12:19PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15AajU-0004wp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 14, 2001 at 07:12:19PM +0200, Andrea Arcangeli wrote:
-> is not definitive yet, O_DIRECTIO of tru64 is our O_NOFOLLOW so we're
-> just screwed as we just need a wrapper anyways to make complex programs like
+> I'm looking for a way to do FIBMAP on linux 2.4 without being root, and
+> I learned from the archive that it's restricted for security reasons,
+> and that it's obsolete anyway.  I found this discussion about a
+> replacement called FIONDEV:
 
-I just got the email from Richard that he prefers to break O_NOFOLLOW
-than to define O_DIRECT to something else than 0200000.  So probably
-there will be an incrmeental patch for the alpha later to apply on top
-of the previous ones.
-
-Also please folks remind to never choose random numbers for the alpha
-userspace visible kernel API.
-
-Andrea
+FIBMAP can be handled per fs by auditing the code paths. First job would be
+to push the security check into each fs, then audit the fs's and then change
+them. But its really a 2.5 job since any third party fs might spontaneously
+become insecure oitherwise

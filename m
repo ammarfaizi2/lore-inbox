@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270065AbTHQNRU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 09:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270093AbTHQNRU
+	id S270007AbTHQNJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 09:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270009AbTHQNJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 09:17:20 -0400
-Received: from main.gmane.org ([80.91.224.249]:10438 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270065AbTHQNRT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 09:17:19 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [BUG]  Serious scheduler starvation
-Date: Sun, 17 Aug 2003 15:17:17 +0200
-Message-ID: <yw1xada8v2xu.fsf@users.sourceforge.net>
-References: <yw1xekzkv5yv.fsf@users.sourceforge.net> <200308172252.52464.kernel@kolivas.org>
+	Sun, 17 Aug 2003 09:09:53 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:30092 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270007AbTHQNJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 09:09:51 -0400
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F3F7A79.1060404@softhome.net>
+References: <lg0i.6yo.11@gated-at.bofh.it> <lgjJ.6Oo.5@gated-at.bofh.it>
+	 <lilr.p2.7@gated-at.bofh.it> <lj7O.14a.1@gated-at.bofh.it>
+	 <3F3F7A79.1060404@softhome.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061125769.21885.4.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:Aj2Cb2WqtELktGdv0QJvUt1YuNQ=
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 17 Aug 2003 14:09:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+On Sul, 2003-08-17 at 13:52, Ihar 'Philips' Filipau wrote:
+>      "When  called  with the name of an existing file as argument, 
+> ccounting is turned on, records for each  terminating  process  are 
+> appended  to filename as it terminates.  An argument of NULL causes 
+> accounting to be turned off".
+> 
+>      I do not see how it relates to abends.
+>      It logs _everything_, what is not that useful. Having some kind of 
+> filter what to log - whould be just great. Or alternatively ability to 
+> pass file descriptor - not file name.
 
->> First the machine details.  It's a Pentium4 running at 2 GHz.  Linux
->> version 2.6.0-test3 + O16int + softrr.
->
-> Softrr ? Which patch? Davide's? Noone has tried to make them compatible 
-> (yet?). Even so, this may be unrelated to softrr.
+It generates a small record for each exit, its trivial to parse the exit
+codes for exits caused by an exception.
 
-Are there more than one.  I'm using something off xmailserver.org.
-Anyhow, no softrr tasks were running at the time.
+>      Sounds like acct() does reverse? No crashes are logged.
+>      Or it is about Linux crash?
 
->> What can I do to collect more information about the problem?
->
-> Run top in batch mode as root reniced to -11 so it doesn't get preempted and 
-> capture it happening before you kill XEmacs. Then try running XEmacs niced 
-> +10 and see if it doesn't happen there. Also if it was lucky enough that you 
-> booted with profiling enabled you could profile it, but top will
-> tell if it's a simple scheduler starvation error.
-
-I'll do that, it's easily reproducible, at least.
-
--- 
-Måns Rullgård
-mru@users.sf.net
+Linux crash
 

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271437AbRHOUvr>; Wed, 15 Aug 2001 16:51:47 -0400
+	id <S271441AbRHOU51>; Wed, 15 Aug 2001 16:57:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271439AbRHOUvh>; Wed, 15 Aug 2001 16:51:37 -0400
-Received: from mail.erisksecurity.com ([208.179.59.234]:14914 "EHLO
-	Tidal.eRiskSecurity.com") by vger.kernel.org with ESMTP
-	id <S271438AbRHOUvZ>; Wed, 15 Aug 2001 16:51:25 -0400
-Message-ID: <3B7AE0D6.2090804@erisksecurity.com>
-Date: Wed, 15 Aug 2001 16:51:34 -0400
-From: David Ford <david@erisksecurity.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
-X-Accept-Language: en-us
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
-In-Reply-To: <Pine.GSO.4.10.10108131229270.27903-100000@press-gopher.uchicago.edu>    <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva> <20010814220545.D31070@pasky.ji.cz> <Pine.LNX.4.33L.0108131451470.6118-100000@imladris.rielhome.conectiva>;    from riel@conectiva.com.br on Mon, Aug 13, 2001 at 02:55:42PM -0300 <9lc0ek$l5k$1@ns1.clouddancer.com> <20010815193521.4DDE8783F5@mail.clouddancer.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S271446AbRHOU5S>; Wed, 15 Aug 2001 16:57:18 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:44713 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S271441AbRHOU5O>; Wed, 15 Aug 2001 16:57:14 -0400
+Message-Id: <5.1.0.14.2.20010815214832.00ab9c40@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 15 Aug 2001 21:57:19 +0100
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: 2.4.8 Resource leaks + limits
+Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), mag@fbab.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E15X74U-0003va-00@the-village.bc.nu>
+In-Reply-To: <20010815215723.F9870@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also consider that many places use randomized pids. You can only assume 
-a few things about pids and that has to be done by evaluating kernel 
-threads and the init pid.
-
-David
-
-Colonel wrote:
-
->>I also propose to half badness of processes with pid < 1000 - those
->>processes are usually also important, because they are called during
->>boot-time and they usually handle important system affairs.
->>
+At 21:15 15/08/2001, Alan Cox wrote:
+> > Not really. Large installations use ACLs instead of groups.
 >
->The belief that boot started processes remain under a pid < 1000 is
->flawed.  Simple example: the postfix mail server.
->
+>Umm you can't use ACL's for resource management. You have to be able to
+>charge an entity. Its not a permission to access, its a "who is paying" and
+>that requires a real entity to charge to
 
+While we are on this topic, wouldn't it make sense to introduce unique 
+identifiers, which can be associated with users, groups, or any other 
+kernel object for that matter, then this is the entity you charge. The 
+kernel can then map the id to the user or group (or whatever object).
+
+When ACLs are introduced they would grant/deny permissions and in general 
+operate only on unique identifiers.
+
+This would have the benefit that the identifiers can be made sufficiently 
+unique to work on a whole network (or even larger scales), which would make 
+user management much easier for large corporations, much akin to what 
+Netware and Windows servers do in fact...
+
+Just my 2p.
+
+Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

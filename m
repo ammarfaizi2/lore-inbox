@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263098AbSJBKaM>; Wed, 2 Oct 2002 06:30:12 -0400
+	id <S263031AbSJBKcf>; Wed, 2 Oct 2002 06:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbSJBKaM>; Wed, 2 Oct 2002 06:30:12 -0400
-Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:44454 "EHLO
-	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id <S263098AbSJBKaL>; Wed, 2 Oct 2002 06:30:11 -0400
-Date: Wed, 2 Oct 2002 12:35:21 +0200 (CEST)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@anna
+	id <S263033AbSJBKcf>; Wed, 2 Oct 2002 06:32:35 -0400
+Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:29861 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id <S263031AbSJBKce>; Wed, 2 Oct 2002 06:32:34 -0400
+Date: Wed, 2 Oct 2002 12:38:02 +0200
+From: GOMBAS Gabor <gombasg@inf.elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: POSIX message queues
-Message-ID: <Pine.GSO.4.40.0210021234230.16975-100000@anna>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] default file permission for vfat
+Message-ID: <20021002103802.GC1099@boogie.lpds.sztaki.hu>
+References: <20021001173908.GA15838@atrey.karlin.mff.cuni.cz> <20021001185526.GA704@alpha.home.local> <3D9AB638.60209@corvil.com> <20021002094612.GA2587@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021002094612.GA2587@alpha.home.local>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello
+On Wed, Oct 02, 2002 at 11:46:12AM +0200, Willy Tarreau wrote:
 
-After getting some response from lkml we are ready for
-work on new version of POSIX message queues.
+> not when you want your customers to be able to edit their firewall config
+> with their M$ PC !
 
-Main difference (as Christoph Hellwig suggested) would be
-implementing it as a virtual filesystem (based on tmpfs and
-parts of Jakub Jelinek code).
-I think that we can agree that idea of moving whole stuff to
-user space isn't good. There is still a problem with SIGEV_THREAD
-version of notification but after (brief) looking into NPTL it
-should be possible to implement (in difference to NGPT)
+Copy them to tmpfs, do "chmod +x", execute them.
 
+Gabor
 
-So our question is:
-Is above version acceptable for Linux kernel?
-
-Main advantages of such approach are: no need for new
-system call and no mess in fork/exit.
-
-
- Krzysztof Benedyczak
-
+-- 
+Gabor Gombas                                       Eotvos Lorand University
+E-mail: gombasg@inf.elte.hu                        Hungary

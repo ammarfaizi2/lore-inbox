@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271746AbRHURG7>; Tue, 21 Aug 2001 13:06:59 -0400
+	id <S271749AbRHURTT>; Tue, 21 Aug 2001 13:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271747AbRHURGt>; Tue, 21 Aug 2001 13:06:49 -0400
-Received: from adsl-63-193-119-253.dsl.snfc21.pacbell.net ([63.193.119.253]:27813
-	"EHLO cowlabs.com") by vger.kernel.org with ESMTP
-	id <S271746AbRHURGd>; Tue, 21 Aug 2001 13:06:33 -0400
-From: <cfs+linux-kernel@cowlabs.com>
-To: "'Marco Colombo'" <marco@esi.it>,
-        "'Alex Bligh - linux-kernel'" <linux-kernel@alex.org.uk>
-Cc: "'David Wagner'" <daw@mozart.cs.berkeley.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: /dev/random in 2.4.6
-Date: Tue, 21 Aug 2001 10:06:24 -0700
-Message-ID: <000801c12a63$9c9d54d0$0a90a5c7@cowlabs.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.33.0108211212570.20625-100000@Megathlon.ESI>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S271748AbRHURTL>; Tue, 21 Aug 2001 13:19:11 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:27151 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S271749AbRHURTB>; Tue, 21 Aug 2001 13:19:01 -0400
+Message-Id: <200108211719.f7LHIvY95432@aslan.scsiguy.com>
+To: Sven Heinicke <sven@research.nj.nec.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P) 
+In-Reply-To: Your message of "Tue, 21 Aug 2001 12:48:17 EDT."
+             <15234.37073.974320.621770@abasin.nj.nec.com> 
+Date: Tue, 21 Aug 2001 11:18:57 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Marco Colombo
-> Sent: Tuesday, 21 August 2001 03:46
-> To: Alex Bligh - linux-kernel
-> Cc: David Wagner; linux-kernel@vger.kernel.org
-> Subject: Re: /dev/random in 2.4.6
-> 
-> A little question: I used to believe that crypto software 
-> requires strong random source to generate key pairs, but this 
-> requirement in not true for session keys.  You don't usually 
-> generate a key pair on a remote system, of course, so that's 
-> not a big issue. On low-entropy systems (headless servers) is 
-> /dev/urandom strong enough to generate session keys? I guess 
-> the little entropy collected by the system is enough to feed 
-> the crypto secure PRNG for /dev/urandom, is it correct?
+>Disk access is faster then before but still slower then the IDE
+>drive.  Any ideas?
 
-I dunno about you, but I want good random for session keys too!  You can
-still capture network traffic and decrypt at your leisure if you can
-determine what the "random" number was used in making the session key.
+It could be the occasionall ordered tag that is sent to the drive to
+prevent tag starvation.  If you search in drivers/scsi/aic7xxx/aic7xxx_linux.c
+for "OTAG_THRESH" and make that if test always fail (add an "&& 0") you will
+have effectively disabled this feature.  I should probably make it an option
+that defaults to off.
 
-cfs
-
+--
+Justin

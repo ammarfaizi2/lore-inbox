@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276116AbRI1PU6>; Fri, 28 Sep 2001 11:20:58 -0400
+	id <S276120AbRI1PWs>; Fri, 28 Sep 2001 11:22:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276118AbRI1PUs>; Fri, 28 Sep 2001 11:20:48 -0400
-Received: from hermes.toad.net ([162.33.130.251]:13954 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S276116AbRI1PUk>;
-	Fri, 28 Sep 2001 11:20:40 -0400
-Message-ID: <3BB49543.6A915332@mail.com>
-Date: Fri, 28 Sep 2001 11:20:35 -0400
-From: Thomas Hood <jdthood@mail.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac16 i686)
-X-Accept-Language: en
+	id <S276119AbRI1PWi>; Fri, 28 Sep 2001 11:22:38 -0400
+Received: from msgbas1x.net.europe.agilent.com ([192.25.19.109]:58054 "HELO
+	msgbas1.net.europe.agilent.com") by vger.kernel.org with SMTP
+	id <S276118AbRI1PWX>; Fri, 28 Sep 2001 11:22:23 -0400
+Message-ID: <3BB495C6.2B0A5ABB@hsgmed.com>
+Date: Fri, 28 Sep 2001 17:22:46 +0200
+From: Joachim Weller <Joachim_Weller@hsgmed.com>
+Organization: Philips Medical Systems Boeblingen - Cardiac and Monitoring Systems 
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: de-DE,fr,es
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
-In-Reply-To: <3BB48A34.E392B7BC@mail.com> <20010928165122.L21524@come.alcove-fr>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Joachim Weller <JoachimWeller@web.de>, axboe@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: BUG: cat /proc/partitions endless loop
+In-Reply-To: <200109281448.f8SEmvh08284@mailgate5.cinetic.de> <20010928170004.A14892@caldera.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> It works, kind of.
+Christoph Hellwig wrote:
 > 
-> The only remaining problem is that the DMI scan routines are
-> called _after_ the PnP BIOS scan, so the is_sony_vaio_laptop
-> variable will be always evaluated to 0 in your patch (causing
-> the same hang again).
+> On Fri, Sep 28, 2001 at 04:48:57PM +0200, Joachim Weller wrote:
+> > Christoph Hellwig <hch@ns.caldera.de> schrieb am 28.09.01:
+> > > I think the fix could be simpler.  What about:
+> > [...]
+> >
+> > > + for (gp = gendisk_head; gp != gendisk_head; gp = gp->next) {
+> >
+> > This will break your for loop immedeately, because the loop criteria
+> > is already violated by the initialization !
+> >
+> > But I tried another solution:
+> >   for (gp = gendisk_head; gp && (gp->next != gendisk_head); gp = gp->next) {
+> >
+> > with no success - the cat /proc/partition only printed the heading line.
+> > This proofed to me, that the pointered list is created the wrong way,
+> > in other words, gendisk_head->next is a pointer to itself.
+> > It looks to me, that the "next" field in
+> > /*static*/ struct gendisk *gendisk_head;
+> > is not initialized (by the compiler ?) correctly to NULL.
+>
+> That's odd, could you try initilazing gendisk_head to NULL explicitly and try
+> my proposed fix?  The gendisk list handling starts to smell _really_ funny.
+You would need to initialize gendisk_head->next to NULL *before* any call to 
+add_gendisk(struct gendisk *gp) takes place. The latter is used in many other 
+sources, to grow up the pointered list with additional partition info. 
+gendisk_head always points to the most recently added item. 
+When you step through the list, you reach the very first entry, which existed 
+before any call to add_gendisk() was made. And the "next" field of that should 
+point to NULL. 
+But instead of this, it points to itself, thus forming a ring pointered loop.
+I don't know in which part of the kernel sources, that pre-initialization 
+of gendisk_head->next to NULL should be made. Maybe it is expected to be done
+by the compiler.
 
-This is unfortunate.  :(
+But my fix works perfectly for me, resulting in exactly the same behaviour
+as 2.4.9.
 
-Alan:  Does this mean that we will have to use a new CONFIG_
-macro instead of testing is_sony_vaio_laptop?  If so then
-I will submit a new patch with "#ifdef CONFIG_SONY_PNPBIOS"s
-in it and I'll let you futz with the kernel configuration
-files required to set this up.
+I should point out, that my 2.4.9 was compiled under gcc 2.95.2 (SuSE-6.4) , whereas
+2.4.10 was compiled under 2.95.3 delivered by SuSE-7.2 ! Maybe that's the point.
 
-> After manually changing is_sony_vaio_laptop to 1 the
-> patched kernel boots ok, entries in /proc/bus/pnp are present
-> (not sure how to test if their contents are corect though).
+-- 
+Joachim Weller
 
-There should be no numerically named entries in /proc/bus/pnp;
-you should see only the "devices" file and the "boot" directory.
-You should see numerically named entries in /proc/bus/pnp/boot
-for each device.
+Philips Medizinsysteme Boeblingen GmbH          Mail:  joachim_weller@hsgmed.com
+Cardiac and Monitoring Systems (CMS)            Phone: {+49|0}-7031-463-1891
+New Product Engineering                         Fax:   {+49|0}-7031-463-2112
 
---
-Thomas
+Hewlett-Packard Str. 2, D 71034 Boeblingen      -GERMANY-

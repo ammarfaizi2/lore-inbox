@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269372AbRHCJK0>; Fri, 3 Aug 2001 05:10:26 -0400
+	id <S269388AbRHCJRG>; Fri, 3 Aug 2001 05:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269373AbRHCJKQ>; Fri, 3 Aug 2001 05:10:16 -0400
-Received: from weta.f00f.org ([203.167.249.89]:54415 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S269372AbRHCJJ7>;
-	Fri, 3 Aug 2001 05:09:59 -0400
-Date: Fri, 3 Aug 2001 21:10:46 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: john slee <indigoid@higherplane.net>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: booting SMP P6 kernel on P4 hangs.
-Message-ID: <20010803211046.A16299@weta.f00f.org>
-In-Reply-To: <20010803000043.F1183@higherplane.net> <E15SJnZ-0000lB-00@the-village.bc.nu>
+	id <S269385AbRHCJQr>; Fri, 3 Aug 2001 05:16:47 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:1796 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269375AbRHCJQl>; Fri, 3 Aug 2001 05:16:41 -0400
+Date: Fri, 3 Aug 2001 11:16:49 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+Message-ID: <20010803111649.A14189@emma1.emma.line.org>
+Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20010803002501.00ada0e0@pop.cus.cam.ac.uk> <200108022218.f72MIm8v028137@webber.adilger.int> <5.1.0.14.2.20010803002501.00ada0e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20010803025916.053e2ec0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <E15SJnZ-0000lB-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
-X-No-Archive: Yes
+In-Reply-To: <5.1.0.14.2.20010803025916.053e2ec0@pop.cus.cam.ac.uk>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001 at 03:50:05PM +0100, Alan Cox wrote:
+On Fri, 03 Aug 2001, Anton Altaparmakov wrote:
 
-    Which gives intel plenty of time to fix their bios problems. Right
-    now the situation is we are seeing Pentium IV boxes reporting
-    invalid MP 1.4 specs and dying. Reporting an invalid MP spec and
-    booting single user at least ensures people can boot their boxes
-    while intel fixes their problems
+[dirsync chattr/mount options]
+> Me neither. With regards to the parallel discussion on SUS compliance it is 
+> probably a good idea to have such a thing in some form anyway (although if 
+> I understood the discussion correctly, we really want this to happen by 
+> default, not just when some flag is set but then again I never read the 
+> standards...).
 
-I assume these things, even with busted MP tables will work under
-Win2k as it will use ACPI tables instead (I'm assuming they are
-available abd valid?).
+The standard doesn't really command the behaviour, as it seems, but we
+might want to look again after SUS v3 has been released (supposed to
+happen later this year) - the SUS compliance was rather on fsync than on
+rename/link.
 
-What about NT4?  If that can also use ACPI tables (I can't see how, it
-predates ACPI I think) then it may well be Linux is the only thing
-that stil uses MP tables and hence won't boot in such machines :(
+However, I'd rather not choose the default for somebody else, because he
+may have different requirements, a compile-time switch to set the
+default should be fine, THIS one might indeed default to dirsync/noasync
+unless changed by make {x,menu,}config.
 
-
-
-  --cw
+Assuming that the chattr +S is accompanied by a corresponding -o sync
+mount option, I'd expect that the dirsync option be available as chattr
+option and as mount option, and choosing default mount options should be
+rather easy.

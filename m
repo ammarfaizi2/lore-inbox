@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUGaTMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUGaTYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUGaTMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 15:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUGaTMF
+	id S261234AbUGaTYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 15:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUGaTYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 15:12:05 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:46091 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261300AbUGaTMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 15:12:02 -0400
-Date: Sat, 31 Jul 2004 21:11:55 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Steve French <smfrench@austin.rr.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, rddunlap@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: uid of user who mounts
-Message-ID: <20040731191155.GB5479@pclin040.win.tue.nl>
-References: <1091239509.3894.11.camel@smfhome.smfdom> <20040730190825.7a447429.rddunlap@osdl.org> <1091244841.2742.8.camel@smfhome1.smfdom> <E1BqqGd-0004fX-00@dorka.pomaz.szeredi.hu> <1091287308.2337.6.camel@smfhome.smfdom>
+	Sat, 31 Jul 2004 15:24:25 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:64233 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S261234AbUGaTYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 15:24:23 -0400
+Date: Sat, 31 Jul 2004 12:24:21 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][PPC32] Fix compilation with binutils-2.15
+Message-ID: <20040731192421.GT16468@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091287308.2337.6.camel@smfhome.smfdom>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 31, 2004 at 10:21:48AM -0500, Steve French wrote:
+Currently, ppc32 will not always compile with binutils-2.15.  The issue
+is that binutils has become even more strict about which opcodes can be
+used with which CPU flags.  The problem is that we have a number of
+cases where we compile with altivec instructions (with runtime checks to
+make sure we can actually run them) in code that's not altivec specific.
+The fix for this is to always pass in -maltivec on CONFIG_6xx.  To do
+this cleanly, we split our AFLAGS definition up into
+aflags-$(CONFIG_FOO).
 
-> I confirmed what Randy had mantioned about the user= entries in mtab
-> allowing umounts (at least it works that way for a few of the local
-> filesystems I tried) but did not seem to work so well on other
-> filesystems - I had odd results on umounting my cifs mounts e.g. - after
-> adding at mount time "user=someuser" to /etc/mtab (by a minor change to
-> the mount helper mount.cifs.c, when running mount.cifs suid).  umount of
-> those mounts failed and has been tricky to debug through a privately
-> built version of umount via ddd (although it is clearly not making it
-> down to the cifs filesystem on the user umount so the problem is in libc
-> or in fs/namespace.c) - so I am tracing through fs/namespace.c now.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-This discussion sounds as if you do think that this is somehow kernel-related.
-But it is not. Mount is suid and does certain things in a certain way.
-For filesystems that have their own private mount program, that private
-mount program is responsible for what happens.
+--- 1.57/arch/ppc/Makefile	2004-07-28 21:58:36 -07:00
++++ edited/arch/ppc/Makefile	2004-07-31 12:16:29 -07:00
+@@ -22,7 +22,7 @@
+ 
+ LDFLAGS_vmlinux	:= -Ttext $(KERNELLOAD) -Bstatic
+ CPPFLAGS	+= -Iarch/$(ARCH)
+-AFLAGS		+= -Iarch/$(ARCH)
++aflags-y	+= -Iarch/$(ARCH)
+ cflags-y	+= -Iarch/$(ARCH) -msoft-float -pipe \
+ 		-ffixed-r2 -Wno-uninitialized -mmultiple
+ CPP		= $(CC) -E $(CFLAGS)
+@@ -33,10 +33,16 @@
+ cflags-y	+= -mstring
+ endif
+ 
++aflags-$(CONFIG_4xx)		+= -m405
+ cflags-$(CONFIG_4xx)		+= -Wa,-m405
++aflags-$(CONFIG_6xx)		+= -maltivec
++cflags-$(CONFIG_6xx)		+= -Wa,-maltivec
++aflags-$(CONFIG_E500)		+= -me500
+ cflags-$(CONFIG_E500)		+= -Wa,-me500
++aflags-$(CONFIG_PPC64BRIDGE)	+= -mppc64bridge
+ cflags-$(CONFIG_PPC64BRIDGE)	+= -Wa,-mppc64bridge
+ 
++AFLAGS += $(aflags-y)
+ CFLAGS += $(cflags-y)
+ 
+ head-y				:= arch/ppc/kernel/head.o
 
-Andries
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbULYEU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbULYEkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbULYEU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 23:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbULYEU2
+	id S261487AbULYEkW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 23:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbULYEkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 23:20:28 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:54984 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261481AbULYEUY (ORCPT
+	Fri, 24 Dec 2004 23:40:22 -0500
+Received: from havoc.gtf.org ([63.115.148.101]:21974 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261487AbULYEkS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 23:20:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=Wj63bv0epTKFeyGYB3my3KHyJkZFzSixWS8HM6v4Zr3RudyXDqj+GqB1FeMt9OYFiKbdfz2j4LEp//1nckSK4Bc65JnWWa98aQhbBwJwNLPz2mN9onFrdEbOq0tkvObg74j2tPm5oHcorFioqqXDuB6ORF6KXoUFGvXfi5DcSBw=
-Message-ID: <72c6e3790412242020482eadbe@mail.gmail.com>
-Date: Sat, 25 Dec 2004 09:50:23 +0530
-From: linux lover <linux.lover2004@gmail.com>
-Reply-To: linux lover <linux.lover2004@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Understanding how kernel functions works and adding new one
+	Fri, 24 Dec 2004 23:40:18 -0500
+Date: Fri, 24 Dec 2004 23:40:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, akpm@osdl.org
+Subject: Re: VM fixes [1/4]
+Message-ID: <20041225044013.GA25088@havoc.gtf.org>
+References: <20041224173519.GB13747@dualathlon.random> <20041224100016.530a004c.davem@davemloft.net> <20041224182031.GG13747@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041224182031.GG13747@dualathlon.random>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ,
-         I want to know what things are require me to add my own
-function in kernel through modules?
-          Actually i  have 2 questions in my mind
-       1) Is it possible to write own user defined function in kernel
-modules and get in laoded in kernel and allow kernel to use it?
-       2) Is it possible to add my own function program in C file to
-kernel and allow my kernel module to use it?
-       I want to add own function not any system call(Am i
-misunderstanding between syscall and new function call in kernel?)
-         Can anybody correct me in above approaches?Also give me steps
-to do that adding functions in kernel/kernel module?
-Thanks in advance.
-regards,
-linux.lover
+On Fri, Dec 24, 2004 at 07:20:31PM +0100, Andrea Arcangeli wrote:
+> On Fri, Dec 24, 2004 at 10:00:16AM -0800, David S. Miller wrote:
+> > On Fri, 24 Dec 2004 18:35:19 +0100
+> > Andrea Arcangeli <andrea@suse.de> wrote:
+> > 
+> > > I made used_math a char at the light of later patches. per-cpu atomicity
+> > > with byte granularity is provided by all archs AFIK.
+> > 
+> > Older Alpha's need to read-modify-write a word to implement
+> > byte ops.
+> 
+> Yep, I remeber this was the case in some old alpha. But did they support
+> smp too? I can't see how that old hardware could support smp. If they're
+> UP they're fine.
+
+Sure... there were older Alpha SMP boxes without the BWX and CIX
+extensions.
+
+	Jeff
+
+
+

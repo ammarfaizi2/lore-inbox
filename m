@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316746AbSGZDa7>; Thu, 25 Jul 2002 23:30:59 -0400
+	id <S316750AbSGZDo7>; Thu, 25 Jul 2002 23:44:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316747AbSGZDa7>; Thu, 25 Jul 2002 23:30:59 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:44029 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S316746AbSGZDa7>;
-	Thu, 25 Jul 2002 23:30:59 -0400
-Date: Thu, 25 Jul 2002 23:34:10 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28: "bad: schedule() with irqs disabled!"
-Message-ID: <20020726033410.GA3354@www.kroptech.com>
-References: <20020726031914.GA32749@www.kroptech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020726031914.GA32749@www.kroptech.com>
-User-Agent: Mutt/1.3.28i
+	id <S316751AbSGZDo7>; Thu, 25 Jul 2002 23:44:59 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:37285 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S316750AbSGZDo6>;
+	Thu, 25 Jul 2002 23:44:58 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] new module interface 
+In-reply-to: Your message of "Thu, 25 Jul 2002 11:56:06 +0200."
+             <Pine.LNX.4.44.0207251121310.28515-100000@serv> 
+Date: Fri, 26 Jul 2002 13:43:39 +1000
+Message-Id: <20020726034921.368CE4575@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-...and another one appearing at the end of the boot process...
+In message <Pine.LNX.4.44.0207251121310.28515-100000@serv> you write:
+> Hi,
+> 
+> On Thu, 25 Jul 2002, Rusty Russell wrote:
+> 
+> > 	Firstly, I give up: what kernel is this patch against?  It's
+> > hard to read a patch this big which doesn't apply to any kernel I can find 
+8(
+> 
+> 2.4.18. Maybe pine garbled the patch... Here is a copy of the patch:
+> http://www.xs4all.nl/~zippel/mod.diff
 
---Adam
+Much better: thanks!
 
-ksymoops 2.4.1 on i686 2.5.28.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.28/ (default)
-     -m /boot/System.map-2.5.28 (default)
+> > Interesting approach.  Splitting init and start and stop and exit is
+> > normal, but encapsulating the usecount is different.  I made start
+> > and exit return void, though.
+> 
+> I introduced usecount() to gain more flexibility, currently one is forced
+> to pass the module pointer everywhere.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+Well, you substituted the module pointer for an atomic counter.  Bit
+of a wash, really.
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
-Warning (compare_maps): ksyms_base symbol GPLONLY___wake_up_sync not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_idle_cpu not found in System.map.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_set_cpus_allowed not found in System.map.  Ignoring ksyms_base entry
-c8cc5f44 c0285c20 c8da2ce0 c8cc5f70 c01146bf c8da2ce0 c0315e40 c0315e40 
-       c8cc4000 00000000 c8cc5fc4 c8da2ce0 c01186a7 00000000 c90818c0 00000000 
-       c8e31c60 c013e7d9 c90818c0 c8e31c60 c90818c0 c8e31c60 c8cc4000 00000000 
-Call Trace: [<c01146bf>] [<c01186a7>] [<c013e7d9>] [<c0105b45>] [<c010717f>] 
-Warning (Oops_read): Code line not seen, dumping what data is available
+> Allowing exit to fail simplifies the interface. Normal code doesn't has
+> to bother about the current state of the module, instead exit() is now the
+> synchronization point. This also means the unload_lock via
+> try_inc_mod_count is not needed anymore.
 
-Trace; c01146bf <wake_up_forked_process+17f/190>
-Trace; c01186a7 <do_fork+727/8c0>
-Trace; c013e7d9 <filp_close+a9/c0>
-Trace; c0105b45 <sys_fork+15/30>
-Trace; c010717f <syscall_call+7/b>
+Except that rmmod fails rather frequently on busy modules.  Which
+might be ok.
 
+> > I chose the more standard "INIT(init, start)" & "EXIT(stop, exit)" which
+> > makes it easier to drop the exit part if it's built-in.
+> 
+> I was thinking about it, but couldn't we just put these function in a
+> seperate section and discard them during init (maybe depending on some
+> hotplug switch)?
 
-6 warnings issued.  Results may not be reliable.
+No, if you drop them newer binutils notices the link problem, hence
+the __devexit_p(x) macro.
 
+> > My favorite part is including the builtin-modules.  I assume this means
+> > that "request_module("foo")" returns success if CONFIG_DRIVER_FOO=y now?
+> 
+> Not yet. The problem is the module name, e.g. ext2 is called
+> fs_ext2_super, it will need some kbuild changes to get the right module
+> name.
+
+I need that too: the mythical "KBUILD_MODNAME".  Both Keith and Kai
+promised it to me...
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

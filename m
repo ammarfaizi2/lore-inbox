@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266101AbUBLAG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 19:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUBLAG0
+	id S266311AbUBLAJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 19:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266301AbUBLAIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 19:06:26 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:56810 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S266101AbUBLADT
+	Wed, 11 Feb 2004 19:08:45 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:49821 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S266170AbUBLADo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 19:03:19 -0500
-Date: Wed, 11 Feb 2004 17:03:18 -0700
+	Wed, 11 Feb 2004 19:03:44 -0500
+Date: Wed, 11 Feb 2004 17:03:42 -0700
 From: Tom Rini <trini@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2/6] A different KGDB stub
-Message-ID: <20040212000318.GC19676@smtp.west.cox.net>
+Subject: [PATCH][4/6] A different KGDB stub
+Message-ID: <20040212000342.GE19676@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,628 +22,840 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following is the 8250 driver for this KGDB stub.
+The following is the i386-specific bits to this KGDB stub.
 
- drivers/serial/8250.c        |   39 +++
- drivers/serial/Kconfig       |    7 
- drivers/serial/Makefile      |    2 
- drivers/serial/kgdb_8250.c   |  506 +++++++++++++++++++++++++++++++++++++++++++
- drivers/serial/serial_core.c |    4 
- 5 files changed, 558 insertions(+)
---- a/drivers/serial/8250.c	Wed Feb 11 15:41:38 2004
-+++ b/drivers/serial/8250.c	Wed Feb 11 15:41:38 2004
-@@ -1198,12 +1198,17 @@
- 	spin_unlock_irqrestore(&up->port.lock, flags);
- }
+ arch/i386/Kconfig            |    2 
+ arch/i386/kernel/Makefile    |    1 
+ arch/i386/kernel/entry.S     |   39 +++
+ arch/i386/kernel/i386-stub.c |  442 +++++++++++++++++++++++++++++++++++++++++++
+ arch/i386/kernel/irq.c       |    9 
+ arch/i386/kernel/nmi.c       |   14 +
+ arch/i386/kernel/signal.c    |    3 
+ arch/i386/kernel/traps.c     |   20 +
+ arch/i386/mm/fault.c         |   15 +
+ include/asm-i386/kgdb.h      |   53 +++++
+ include/asm-i386/processor.h |    1 
+ 11 files changed, 586 insertions(+), 13 deletions(-)
+--- a/arch/i386/Kconfig	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/Kconfig	Wed Feb 11 15:41:51 2004
+@@ -1361,6 +1361,8 @@
+ 	  If you say Y here, various routines which may sleep will become very
+ 	  noisy if they are called with a spinlock held.	
  
-+static int released_irq = -1;
++source "kernel/Kconfig.kgdb"
 +
- static int serial8250_startup(struct uart_port *port)
- {
- 	struct uart_8250_port *up = (struct uart_8250_port *)port;
- 	unsigned long flags;
- 	int retval;
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+ 	help
+--- a/arch/i386/kernel/Makefile	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/kernel/Makefile	Wed Feb 11 15:41:51 2004
+@@ -32,6 +32,7 @@
+ obj-$(CONFIG_HPET_TIMER) 	+= time_hpet.o
+ obj-$(CONFIG_EFI) 		+= efi.o efi_stub.o
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
++obj-$(CONFIG_KGDB)		+= i386-stub.o
  
-+	if (up->port.irq == released_irq)
-+		return -EBUSY;
-+
- 	up->capabilities = uart_config[up->port.type].flags;
+ EXTRA_AFLAGS   := -traditional
  
- 	if (up->port.type == PORT_16C950) {
-@@ -1869,6 +1874,10 @@
- 	for (i = 0; i < UART_NR; i++) {
- 		struct uart_8250_port *up = &serial8250_ports[i];
+--- a/arch/i386/kernel/entry.S	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/kernel/entry.S	Wed Feb 11 15:41:51 2004
+@@ -330,7 +330,7 @@
+ 	jz restore_all
+ 	movl $PREEMPT_ACTIVE,TI_preempt_count(%ebp)
+ 	sti
+-	call schedule
++	call user_schedule
+ 	movl $0,TI_preempt_count(%ebp)
+ 	cli
+ 	jmp need_resched
+@@ -438,7 +438,7 @@
+ 	testb $_TIF_NEED_RESCHED, %cl
+ 	jz work_notifysig
+ work_resched:
+-	call schedule
++	call user_schedule
+ 	cli				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+@@ -545,7 +545,17 @@
+ 	ALIGN
+ common_interrupt:
+ 	SAVE_ALL
++	movl %esp, %eax
++/* Create a fake function call followed by a fake function prologue to fool
++ * gdb into believing that this is a normal function call. */
++	pushl EIP(%eax)
++
++common_interrupt_1:
++	pushl %ebp
++	movl %esp, %ebp
++	pushl %eax
+ 	call do_IRQ
++	addl $12, %esp
+ 	jmp ret_from_intr
  
-+		if (up->port.irq == released_irq) {
-+			continue;
-+		}
+ #define BUILD_INTERRUPT(name, nr)	\
+@@ -758,6 +768,31 @@
+ 	jmp error_code
+ 
+ .previous
 +
- 		up->port.line = i;
- 		up->port.ops = &serial8250_pops;
- 		init_timer(&up->timer);
-@@ -2136,6 +2145,36 @@
- void serial8250_resume_port(int line)
- {
- 	uart_resume_port(&serial8250_reg, &serial8250_ports[line].port);
-+}
-+
-+/*
-+ * Find all the ports using the given irq and shut them down.
-+ * Result should be that the irq will be released.
-+ * At most one irq can be released this way.
-+ * Once an irq is released, any attempts to initialize a port with that irq
-+ * will fail with EBUSY.
-+ */
-+
-+int serial8250_release_irq(int irq)
-+{
-+        struct uart_8250_port *up;
-+	int ttyS;
-+
-+	if (released_irq != -1) {
-+		return 1;
-+	}
-+	released_irq = irq;
-+	for (ttyS = 0; ttyS < UART_NR; ttyS++){
-+		up =  &serial8250_ports[ttyS];
-+		if (up->port.irq == irq && (irq_lists + irq)->head) {
-+#ifdef CONFIG_DEBUG_SPINLOCK   /* ugly business... */
-+			if(up->port.lock.magic != SPINLOCK_MAGIC)
-+				spin_lock_init(&up->port.lock);
++#ifdef CONFIG_KGDB_THREAD
++ENTRY(kern_schedule)
++	pushl	%ebp
++	movl	%esp, %ebp
++	pushl	%ss		
++	pushl	%ebp
++	pushfl
++	pushl	%cs
++	pushl	4(%ebp)
++	pushl	%eax		
++	pushl	%es
++	pushl	%ds
++	pushl	%eax
++	pushl	(%ebp)
++	pushl	%edi
++	pushl	%esi
++	pushl	%edx
++	pushl	%ecx
++	pushl	%ebx
++	call	kern_do_schedule
++	movl	%ebp, %esp
++	pop	%ebp
++	ret
 +#endif
-+			serial8250_shutdown(&up->port);
-+		}
-+        }
-+	return 0;
- }
  
- static int __init serial8250_init(void)
---- a/drivers/serial/Kconfig	Wed Feb 11 15:41:38 2004
-+++ b/drivers/serial/Kconfig	Wed Feb 11 15:41:38 2004
-@@ -6,6 +6,13 @@
- 
- menu "Serial drivers"
- 
-+config KGDB_8250
-+	bool "KGDB: On generic serial port (8250)"
-+	depends on KGDB
-+	help
-+	  Uses generic serial port (8250) for kgdb. This is independent of the
-+	  option 9250/16550 and compatible serial port.
-+
- #
- # The new 8250/16550 serial drivers
- config SERIAL_8250
---- a/drivers/serial/Makefile	Wed Feb 11 15:41:38 2004
-+++ b/drivers/serial/Makefile	Wed Feb 11 15:41:38 2004
-@@ -35,3 +35,5 @@
- obj-$(CONFIG_SERIAL_PMACZILOG) += pmac_zilog.o
- obj-$(CONFIG_SERIAL_AU1X00) += au1x00_uart.o
- obj-$(CONFIG_SERIAL_DZ) += dz.o
-+
-+obj-$(CONFIG_KGDB_8250) += kgdb_8250.o
+ .data
+ ENTRY(sys_call_table)
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/serial/kgdb_8250.c	Wed Feb 11 15:41:38 2004
-@@ -0,0 +1,506 @@
++++ b/arch/i386/kernel/i386-stub.c	Wed Feb 11 15:41:51 2004
+@@ -0,0 +1,442 @@
 +/*
-+ * 8250 interface for kgdb.
 + *
-+ * This is a merging of many different drivers, and all of the people have
-+ * had an impact in some form or another:
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
 + *
-+ * Amit Kale <amitkale@emsyssoft.com>
-+ * David Grothe <dave@gcom.com>
-+ * Scott Foehner <sfoehner@engr.sgi.com>
-+ * George Anzinger <george@mvista.com>
-+ * Robert Walsh <rjwalsh@durables.org>
-+ * wangdi <wangdi@clusterfs.com>
-+ * San Mehat
-+ * Tom Rini <trini@mvista.com>
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
 + */
 +
-+#include <linux/config.h>
++/*
++ * Copyright (C) 2000-2001 VERITAS Software Corporation.
++ */
++/****************************************************************************
++ *  Header: remcom.c,v 1.34 91/03/09 12:29:49 glenne Exp $
++ *
++ *  Module name: remcom.c $
++ *  Revision: 1.34 $
++ *  Date: 91/03/09 12:29:49 $
++ *  Contributor:     Lake Stevens Instrument Division$
++ *
++ *  Description:     low level support for gdb debugger. $
++ *
++ *  Considerations:  only works on target hardware $
++ *
++ *  Written by:      Glenn Engel $
++ *  Updated by:	     Amit Kale<akale@veritas.com>
++ *  ModuleState:     Experimental $
++ *
++ *  NOTES:           See Below $
++ *
++ *  Modified for 386 by Jim Kingdon, Cygnus Support.
++ *  Origianl kgdb, compatibility with 2.1.xx kernel by David Grothe <dave@gcom.com>
++ *  Integrated into 2.2.5 kernel by Tigran Aivazian <tigran@sco.com>
++ *      thread support,
++ *      support for multiple processors,
++ *  	support for ia-32(x86) hardware debugging,
++ *  	Console support,
++ *  	handling nmi watchdog
++ *  	Amit S. Kale ( amitkale@emsyssoft.com )
++ *
++ *
++ *  To enable debugger support, two things need to happen.  One, a
++ *  call to set_debug_traps() is necessary in order to allow any breakpoints
++ *  or error conditions to be properly intercepted and reported to gdb.
++ *  Two, a breakpoint needs to be generated to begin communication.  This
++ *  is most easily accomplished by a call to breakpoint().  Breakpoint()
++ *  simulates a breakpoint by executing an int 3.
++ *
++ *************
++ *
++ *    The following gdb commands are supported:
++ *
++ * command          function                               Return value
++ *
++ *    g             return the value of the CPU registers  hex data or ENN
++ *    G             set the value of the CPU registers     OK or ENN
++ *
++ *    mAA..AA,LLLL  Read LLLL bytes at address AA..AA      hex data or ENN
++ *    MAA..AA,LLLL: Write LLLL bytes at address AA.AA      OK or ENN
++ *
++ *    c             Resume at current address              SNN   ( signal NN)
++ *    cAA..AA       Continue at address AA..AA             SNN
++ *
++ *    s             Step one instruction                   SNN
++ *    sAA..AA       Step one instruction from AA..AA       SNN
++ *
++ *    k             kill
++ *
++ *    ?             What was the last sigval ?             SNN   (signal NN)
++ *
++ * All commands and responses are sent with a packet which includes a
++ * checksum.  A packet consists of
++ *
++ * $<packet info>#<checksum>.
++ *
++ * where
++ * <packet info> :: <characters representing the command or response>
++ * <checksum>    :: < two hex digits computed as modulo 256 sum of <packetinfo>>
++ *
++ * When a packet is received, it is first acknowledged with either '+' or '-'.
++ * '+' indicates a successful transfer.  '-' indicates a failed transfer.
++ *
++ * Example:
++ *
++ * Host:                  Reply:
++ * $m0,10#2a               +$00010203040506070809101112131415#42
++ *
++ ****************************************************************************/
++
++#include <linux/string.h>
 +#include <linux/kernel.h>
-+#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/smp.h>
 +#include <linux/spinlock.h>
++#include <linux/delay.h>
++#include <asm/vm86.h>
++#include <asm/system.h>
++#include <asm/ptrace.h>			/* for linux pt_regs struct */
 +#include <linux/kgdb.h>
-+#include <linux/interrupt.h>
-+#include <linux/tty.h>
-+#include <linux/serial.h>
-+#include <linux/serial_core.h>
-+#include <linux/serial_reg.h>
-+#include <linux/serialP.h>
++#ifdef CONFIG_GDB_CONSOLE
++#include <linux/console.h>
++#endif
++#include <linux/init.h>
++#include <linux/debugger.h>
 +
-+#include <asm/io.h>
-+#include <asm/serial.h>		/* For BASE_BAUD and SERIAL_PORT_DFNS */
++/* Put the error code here just in case the user cares.  */
++int gdb_i386errcode;
++/* Likewise, the vector number here (since GDB only gets the signal
++   number through the usual means, and that's not very specific).  */
++int gdb_i386vector = -1;
 +
-+#define GDB_BUF_SIZE	512	/* power of 2, please */
-+
-+#if defined(CONFIG_KGDB_9600BAUD)
-+#define SERIAL_BAUD 9600
-+#elif defined(CONFIG_KGDB_19200BAUD)
-+#define SERIAL_BAUD 19200
-+#elif defined(CONFIG_KGDB_38400BAUD)
-+#define SERIAL_BAUD 38400
-+#elif defined(CONFIG_KGDB_57600BAUD)
-+#define SERIAL_BAUD 57600
-+#elif defined(CONFIG_KGDB_115200BAUD)
-+#define SERIAL_BAUD 115200
-+#else
-+#define SERIAL_BAUD 115200	/* Start with this if not given */
++#if KGDB_MAX_NO_CPUS != 8
++#error change the definition of slavecpulocks
 +#endif
 +
-+#if defined(CONFIG_KGDB_TTYS0)
-+#define KGDB_PORT 0
-+#elif defined(CONFIG_KGDB_TTYS1)
-+#define KGDB_PORT 1
-+#elif defined(CONFIG_KGDB_TTYS2)
-+#define KGDB_PORT 2
-+#elif defined(CONFIG_KGDB_TTYS3)
-+#define KGDB_PORT 3
-+#else
-+#define KGDB_PORT 0		/* Start with this if not given */
++void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++    gdb_regs[_EAX] =  regs->eax;
++    gdb_regs[_EBX] =  regs->ebx;
++    gdb_regs[_ECX] =  regs->ecx;
++    gdb_regs[_EDX] =  regs->edx;
++    gdb_regs[_ESI] =  regs->esi;
++    gdb_regs[_EDI] =  regs->edi;
++    gdb_regs[_EBP] =  regs->ebp;
++    gdb_regs[ _DS] =  regs->xds;
++    gdb_regs[ _ES] =  regs->xes;
++    gdb_regs[ _PS] =  regs->eflags;
++    gdb_regs[ _CS] =  regs->xcs;
++    gdb_regs[ _PC] =  regs->eip;
++    gdb_regs[_ESP] =  (int) (&regs->esp) ;
++    gdb_regs[ _SS] =  __KERNEL_DS;
++    gdb_regs[ _FS] =  0xFFFF;
++    gdb_regs[ _GS] =  0xFFFF;
++}
++
++void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
++{
++	gdb_regs[_EAX] = 0;
++	gdb_regs[_EBX] = 0;
++	gdb_regs[_ECX] = 0;
++	gdb_regs[_EDX] = 0;
++	gdb_regs[_ESI] = 0;
++	gdb_regs[_EDI] = 0;
++	gdb_regs[_EBP] = *(int *)p->thread.esp;
++	gdb_regs[_DS]  = __KERNEL_DS;
++	gdb_regs[_ES]  = __KERNEL_DS;
++	gdb_regs[_PS]  = 0;
++	gdb_regs[_CS]  = __KERNEL_CS;
++	gdb_regs[_PC]  = p->thread.eip;
++	gdb_regs[_ESP] = p->thread.esp;
++	gdb_regs[_SS]  = __KERNEL_DS;
++	gdb_regs[_FS]  = 0xFFFF;
++	gdb_regs[_GS]  = 0xFFFF;
++}
++
++void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++    regs->eax	=     gdb_regs[_EAX] ;
++    regs->ebx	=     gdb_regs[_EBX] ;
++    regs->ecx	=     gdb_regs[_ECX] ;
++    regs->edx	=     gdb_regs[_EDX] ;
++    regs->esi	=     gdb_regs[_ESI] ;
++    regs->edi	=     gdb_regs[_EDI] ;
++    regs->ebp	=     gdb_regs[_EBP] ;
++    regs->xds	=     gdb_regs[ _DS] ;
++    regs->xes	=     gdb_regs[ _ES] ;
++    regs->eflags=     gdb_regs[ _PS] ;
++    regs->xcs	=     gdb_regs[ _CS] ;
++    regs->eip	=     gdb_regs[ _PC] ;
++#if 0					/* can't change these */
++    regs->esp	=     gdb_regs[_ESP] ;
++    regs->xss	=     gdb_regs[ _SS] ;
++    regs->fs	=     gdb_regs[ _FS] ;
++    regs->gs	=     gdb_regs[ _GS] ;
 +#endif
 +
-+int kgdb8250_baud = SERIAL_BAUD;
-+int kgdb8250_ttyS = KGDB_PORT;
-+
-+static char kgdb8250_buf[GDB_BUF_SIZE];
-+static int kgdb8250_buf_in_inx;
-+static atomic_t kgdb8250_buf_in_cnt;
-+static int kgdb8250_buf_out_inx;
-+
-+/* Determine serial information. */
-+static struct serial_state state = {
-+	.magic = SSTATE_MAGIC,
-+	.baud_base = BASE_BAUD,
-+	.custom_divisor = BASE_BAUD / SERIAL_BAUD,
-+};
-+
-+static struct async_struct gdb_async_info = {
-+	.magic = SERIAL_MAGIC,
-+	.state = &state,
-+	.tty = (struct tty_struct *) &state,
-+};
-+
-+/* Space between registers. */
-+static int reg_shift;
-+
-+/* Not all arches define this. */
-+#ifndef SERIAL_PORT_DFNS
-+#define SERIAL_PORT_DFNS
-+#endif
-+static struct serial_state rs_table[] = {
-+	SERIAL_PORT_DFNS	/* defined in <asm/serial.h> */
-+};
-+
-+/* Do we need to look in the rs_table? */
-+static int serial_from_rs_table = 0;
-+
-+static void (*serial_outb) (unsigned char val, unsigned long addr);
-+static unsigned long (*serial_inb) (unsigned long addr);
-+
-+int serial8250_release_irq(int irq);
-+
-+static int kgdb8250_init(void);
-+static unsigned long kgdb8250_port;
-+
-+static int initialized = -1;
-+
-+static unsigned long
-+direct_inb(unsigned long addr)
-+{
-+	return readb(addr);
 +}
 +
-+static void
-+direct_outb(unsigned char val, unsigned long addr)
++struct hw_breakpoint {
++	unsigned enabled;
++	unsigned type;
++	unsigned len;
++	unsigned addr;
++} breakinfo[4] = { {
++enabled:0}, {
++enabled:0}, {
++enabled:0}, {
++enabled:0}};
++
++void kgdb_correct_hw_break(void)
 +{
-+	writeb(val, addr);
-+}
++	int breakno;
++	int correctit;
++	int breakbit;
++	unsigned dr7;
 +
-+static unsigned long
-+io_inb(unsigned long port)
-+{
-+	return inb(port);
-+}
-+
-+static void
-+io_outb(unsigned char val, unsigned long port)
-+{
-+	outb(val, port);
-+}
-+
-+/*
-+ * Wait until the interface can accept a char, then write it.
-+ */
-+static void
-+kgdb8250_write_char(int chr)
-+{
-+	while (!(serial_inb(kgdb8250_port + (UART_LSR << reg_shift)) &
-+		UART_LSR_THRE))
-+		;
-+
-+	serial_outb(chr, kgdb8250_port + (UART_TX << reg_shift));
-+}
-+
-+/*
-+ * Get a byte from the hardware data buffer and return it
-+ */
-+static int
-+read_data_bfr(void)
-+{
-+	char it = serial_inb(kgdb8250_port + (UART_LSR << reg_shift));
-+
-+	if (it & UART_LSR_DR)
-+		return serial_inb(kgdb8250_port + (UART_RX << reg_shift));
-+
-+	/*
-+	 * If we have a framing error assume somebody messed with
-+	 * our uart.  Reprogram it and send '-' both ways...
-+	 */
-+	if (it & 0xc) {
-+		kgdb8250_init();
-+		kgdb8250_write_char('-');
-+		return '-';
-+	}
-+
-+	return -1;
-+}
-+
-+/*
-+ * Get a char if available, return -1 if nothing available.
-+ * Empty the receive buffer first, then look at the interface hardware.
-+ *
-+ * Locking here is a bit of a problem.	We MUST not lock out communication
-+ * if we are trying to talk to gdb about a kgdb entry.	ON the other hand
-+ * we can loose chars in the console pass thru if we don't lock.  It is also
-+ * possible that we could hold the lock or be waiting for it when kgdb
-+ * NEEDS to talk.  Since kgdb locks down the world, it does not need locks.
-+ * We do, of course have possible issues with interrupting a uart operation,
-+ * but we will just depend on the uart status to help keep that straight.
-+ */
-+
-+static spinlock_t uart_interrupt_lock = SPIN_LOCK_UNLOCKED;
-+#ifdef CONFIG_SMP
-+extern spinlock_t kgdb_spinlock;
-+#endif
-+
-+static int
-+kgdb8250_read_char(void)
-+{
-+	int retchr;
-+	unsigned long flags;
-+	local_irq_save(flags);
-+#ifdef CONFIG_SMP
-+	if (!spin_is_locked(&kgdb_spinlock)) {
-+		spin_lock(&uart_interrupt_lock);
-+	}
-+#endif
-+	/* intr routine has q'd chars */
-+	if (atomic_read(&kgdb8250_buf_in_cnt) != 0) {
-+		retchr = kgdb8250_buf[kgdb8250_buf_out_inx++];
-+		kgdb8250_buf_out_inx &= (GDB_BUF_SIZE - 1);
-+		atomic_dec(&kgdb8250_buf_in_cnt);
-+		goto out;
-+	}
-+
++	asm volatile ("movl %%db7, %0\n":"=r" (dr7)
++		      :);
 +	do {
-+		retchr = read_data_bfr();
-+	} while (retchr < 0);
++		unsigned addr0, addr1, addr2, addr3;
++		asm volatile ("movl %%db0, %0\n"
++			      "movl %%db1, %1\n"
++			      "movl %%db2, %2\n"
++			      "movl %%db3, %3\n":"=r" (addr0), "=r"(addr1),
++			      "=r"(addr2), "=r"(addr3):);
++	} while (0);
++	correctit = 0;
++	for (breakno = 0; breakno < 3; breakno++) {
++		breakbit = 2 << (breakno << 1);
++		if (!(dr7 & breakbit) && breakinfo[breakno].enabled) {
++			correctit = 1;
++			dr7 |= breakbit;
++			dr7 &= ~(0xf0000 << (breakno << 2));
++			dr7 |= (((breakinfo[breakno].len << 2) |
++				 breakinfo[breakno].type) << 16) <<
++			    (breakno << 2);
++			switch (breakno) {
++			case 0:
++				asm volatile ("movl %0, %%dr0\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
 +
-+out:
-+#ifdef CONFIG_SMP
-+	if (!spin_is_locked(&kgdb_spinlock)) {
-+		spin_unlock(&uart_interrupt_lock);
-+	}
-+#endif
-+	local_irq_restore(flags);
++			case 1:
++				asm volatile ("movl %0, %%dr1\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
 +
-+	return retchr;
-+}
++			case 2:
++				asm volatile ("movl %0, %%dr2\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
 +
-+/*
-+ * This is the receiver interrupt routine for the GDB stub.
-+ * It will receive a limited number of characters of input
-+ * from the gdb  host machine and save them up in a buffer.
-+ *
-+ * When kgdb8250_read_char() is called it
-+ * draws characters out of the buffer until it is empty and
-+ * then reads directly from the serial port.
-+ *
-+ * We do not attempt to write chars from the interrupt routine
-+ * since the stubs do all of that via kgdb8250_write_char() which
-+ * writes one byte after waiting for the interface to become
-+ * ready.
-+ *
-+ * The debug stubs like to run with interrupts disabled since,
-+ * after all, they run as a consequence of a breakpoint in
-+ * the kernel.
-+ *
-+ * Perhaps someone who knows more about the tty driver than I
-+ * care to learn can make this work for any low level serial
-+ * driver.
-+ */
-+static irqreturn_t
-+kgdb8250_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	int chr, iir;
-+	unsigned long flags;
-+
-+	if (irq != gdb_async_info.line)
-+		return IRQ_NONE;
-+
-+	/* If we get an interrupt, then KGDB is trying to connect. */
-+	if (!kgdb_connected) {
-+		kgdb_schedule_breakpoint();
-+		return IRQ_HANDLED;
-+	}
-+
-+	local_irq_save(flags);
-+	spin_lock(&uart_interrupt_lock);
-+
-+	do {
-+		chr = read_data_bfr();
-+		iir = serial_inb(kgdb8250_port + (UART_IIR << reg_shift));
-+		if (chr < 0)
-+			continue;
-+
-+		/* Check whether gdb sent interrupt */
-+		if (chr == 3) {
-+			breakpoint();
-+			continue;
++			case 3:
++				asm volatile ("movl %0, %%dr3\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++			}
++		} else if ((dr7 & breakbit) && !breakinfo[breakno].enabled) {
++			correctit = 1;
++			dr7 &= ~breakbit;
++			dr7 &= ~(0xf0000 << (breakno << 2));
 +		}
++	}
++	if (correctit) {
++		asm volatile ("movl %0, %%db7\n"::"r" (dr7));
++	}
++}
 +
-+		if (atomic_read(&kgdb8250_buf_in_cnt) >= GDB_BUF_SIZE) {
-+			/* buffer overflow, clear it */
-+			kgdb8250_buf_in_inx = 0;
-+			atomic_set(&kgdb8250_buf_in_cnt, 0);
-+			kgdb8250_buf_out_inx = 0;
++int kgdb_remove_hw_break(unsigned long addr, int type)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i ++) {
++		if (breakinfo[i].addr == addr && breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 0;
++	return 0;
++}
++
++int kgdb_set_hw_break(unsigned long addr, int type)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i ++) {
++		if (!breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 1;
++	breakinfo[idx].type = type;
++	breakinfo[idx].len = 1;
++	breakinfo[idx].addr = addr;
++	return 0;
++}
++
++int remove_hw_break(unsigned breakno)
++{
++	if (!breakinfo[breakno].enabled) {
++		return -1;
++	}
++	breakinfo[breakno].enabled = 0;
++	return 0;
++}
++
++int set_hw_break(unsigned breakno,
++		 unsigned type, unsigned len, unsigned addr)
++{
++	if (breakinfo[breakno].enabled) {
++		return -1;
++	}
++	breakinfo[breakno].enabled = 1;
++	breakinfo[breakno].type = type;
++	breakinfo[breakno].len = len;
++	breakinfo[breakno].addr = addr;
++	return 0;
++}
++
++void kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
++{
++	unsigned	dr6;
++	int		i;
++	switch (exceptionNo) {
++	case 1:		/* debug exception */
++		break;
++	case 3:		/* breakpoint */
++		sprintf(buffer, "Software breakpoint");
++		return;
++	default:
++		sprintf(buffer, "Details not available");
++		return;
++	}
++	asm volatile ("movl %%db6, %0\n":"=r" (dr6)
++		      :);
++	if (dr6 & 0x4000) {
++		sprintf(buffer, "Single step");
++		return;
++	}
++	for (i = 0; i < 4; ++i) {
++		if (dr6 & (1 << i)) {
++			sprintf(buffer, "Hardware breakpoint %d", i);
++			return;
++		}
++	}
++	sprintf(buffer, "Unknown trap");
++	return;
++}
++
++void kgdb_disable_hw_debug(struct pt_regs *regs) 
++{
++	/* Disable hardware debugging while we are in kgdb */
++	asm volatile("movl %0,%%db7": /* no output */ : "r"(0));
++}
++
++void kgdb_post_master_code(struct pt_regs *regs, int eVector, int err_code)
++{
++	/* Master processor is completely in the debugger */
++	gdb_i386vector = eVector;
++	gdb_i386errcode = err_code;
++}
++
++int kgdb_arch_handle_exception(int exceptionVector, int signo,
++		int err_code, char *remcomInBuffer, char *remcomOutBuffer,
++		struct pt_regs *linux_regs)
++{
++	long addr, length;
++	long breakno, breaktype;
++	char *ptr;
++	int newPC;
++	int dr6;
++	
++	switch (remcomInBuffer[0]) {
++	case 'c':
++	case 's':
++		if (kgdb_contthread && kgdb_contthread != current) {
++			strcpy(remcomOutBuffer, "E00");
 +			break;
 +		}
 +
-+		kgdb8250_buf[kgdb8250_buf_in_inx++] = chr;
-+		kgdb8250_buf_in_inx &= (GDB_BUF_SIZE - 1);
-+		atomic_inc(&kgdb8250_buf_in_cnt);
-+	} while (iir & UART_IIR_RDI);
++		kgdb_contthread = NULL;
 +
-+	spin_unlock(&uart_interrupt_lock);
-+	local_irq_restore(flags);
++		/* try to read optional parameter, pc unchanged if no parm */
++		ptr = &remcomInBuffer[1];
++		if (kgdb_hexToLong(&ptr, &addr)) {
++			linux_regs->eip = addr;
++		} 
++		newPC = linux_regs->eip;
++		
++		/* clear the trace bit */
++		linux_regs->eflags &= 0xfffffeff;
 +
-+	return IRQ_HANDLED;
++		/* set the trace bit if we're stepping */
++		if (remcomInBuffer[0] == 's') {
++			linux_regs->eflags |= 0x100;
++			debugger_step = 1;
++		}
++
++		asm volatile ("movl %%db6, %0\n" : "=r" (dr6));
++		if (!(dr6 & 0x4000)) {
++			for (breakno = 0; breakno < 4; ++breakno) {
++				if (dr6 & (1 << breakno)) {
++					if (breakinfo[breakno].type == 0) {
++						/* Set restore flag */
++						linux_regs->eflags |= 0x10000;
++						break;
++					}
++				}
++			}
++		}
++		kgdb_correct_hw_break();
++		asm volatile ("movl %0, %%db6\n"::"r" (0));
++
++		return (0);
++
++	case 'Y':
++		ptr = &remcomInBuffer[1];
++		kgdb_hexToLong(&ptr, &breakno);
++		ptr++;
++		kgdb_hexToLong(&ptr, &breaktype);
++		ptr++;
++		kgdb_hexToLong(&ptr, &length);
++		ptr++;
++		kgdb_hexToLong(&ptr, &addr);
++		if (set_hw_break(breakno & 0x3, breaktype & 0x3, 
++				 length & 0x3, addr) == 0) {
++			strcpy(remcomOutBuffer, "OK");
++		} else {
++			strcpy(remcomOutBuffer, "ERROR");
++		}
++		break;
++
++		/* Remove hardware breakpoint */
++	case 'y':
++		ptr = &remcomInBuffer[1];
++		kgdb_hexToLong(&ptr, &breakno);
++		if (remove_hw_break(breakno & 0x3) == 0) {
++			strcpy(remcomOutBuffer, "OK");
++		} else {
++			strcpy(remcomOutBuffer, "ERROR");
++		}
++		break;
++
++	}		/* switch */
++	return -1; /* this means that we do not want to exit from the handler */
 +}
 +
-+/* 
-+ *  Returns:
-+ *	0 on success, 1 on failure.
-+ */
-+static int
-+kgdb8250_init(void)
-+{
-+	unsigned cval;
-+	int bits = 8;
-+	int parity = 'n';
-+	int cflag = CREAD | HUPCL | CLOCAL;
-+
-+	/*
-+	 *      Now construct a cflag setting.
-+	 */
-+	switch (kgdb8250_baud) {
-+	case 1200:
-+		cflag |= B1200;
-+		break;
-+	case 2400:
-+		cflag |= B2400;
-+		break;
-+	case 4800:
-+		cflag |= B4800;
-+		break;
-+	case 19200:
-+		cflag |= B19200;
-+		break;
-+	case 38400:
-+		cflag |= B38400;
-+		break;
-+	case 57600:
-+		cflag |= B57600;
-+		break;
-+	case 115200:
-+		cflag |= B115200;
-+		break;
-+	default:
-+		kgdb8250_baud = 9600;
-+		/* Fall through */
-+	case 9600:
-+		cflag |= B9600;
-+		break;
-+	}
-+	switch (bits) {
-+	case 7:
-+		cflag |= CS7;
-+		break;
-+	default:
-+	case 8:
-+		cflag |= CS8;
-+		break;
-+	}
-+	switch (parity) {
-+	case 'o':
-+	case 'O':
-+		cflag |= PARODD;
-+		break;
-+	case 'e':
-+	case 'E':
-+		cflag |= PARENB;
-+		break;
-+	}
-+
-+	/*
-+	 *      Divisor, bytesize and parity
-+	 *
-+	 */
-+
-+	cval = cflag & (CSIZE | CSTOPB);
-+	cval >>= 4;
-+	if (cflag & PARENB)
-+		cval |= UART_LCR_PARITY;
-+	if (!(cflag & PARODD))
-+		cval |= UART_LCR_EPAR;
-+
-+	/*
-+	 *      Disable UART interrupts, set DTR and RTS high
-+	 *      and set speed.
-+	 */
-+	cval = 0x3;
-+	/* set DLAB */
-+	serial_outb(cval | UART_LCR_DLAB, kgdb8250_port +
-+			(UART_LCR << reg_shift));
-+	/* LS */
-+	serial_outb(gdb_async_info.state->custom_divisor & 0xff,
-+			kgdb8250_port + (UART_DLL << reg_shift));
-+	/* MS  */
-+	serial_outb(gdb_async_info.state->custom_divisor >> 8,
-+			kgdb8250_port + (UART_DLM << reg_shift));
-+	/* reset DLAB */
-+	serial_outb(cval, kgdb8250_port + (UART_LCR << reg_shift));
-+	/* turn on interrupts */
-+	serial_outb(UART_IER_RDI, kgdb8250_port + (UART_IER << reg_shift));
-+	serial_outb(UART_MCR_OUT2 | UART_MCR_DTR | UART_MCR_RTS,
-+		    kgdb8250_port + (UART_MCR << reg_shift));
-+
-+	/*
-+	 *      If we read 0xff from the LSR, there is no UART here.
-+	 */
-+	if (serial_inb(kgdb8250_port + (UART_LSR << reg_shift)) == 0xff)
-+		return -1;
-+	return 0;
-+}
-+
-+int
-+kgdb8250_hook(void)
-+{
-+	int retval;
-+
-+	/* Setup any serial port information we may need to */
-+#ifdef CONFIG_KGDB_SIMPLE_SERIAL
-+	/* We must look in the rs_table[]. */
-+	serial_from_rs_table = 1;
-+#endif
-+	/* If the user has overriden our definitions, or if we've only
-+	 * been told the ttyS to use, look at rs_table. */
-+	if (serial_from_rs_table) {
-+		/* The user has selected one of ttyS[0-3], which we pull
-+		 * from rs_table[].  If this doesn't exist, user error. */
-+		gdb_async_info.port = gdb_async_info.state->port =
-+		    rs_table[KGDB_PORT].port;
-+		gdb_async_info.line = gdb_async_info.state->irq =
-+		    rs_table[KGDB_PORT].irq;
-+		gdb_async_info.state->io_type = rs_table[KGDB_PORT].io_type;
-+		reg_shift = rs_table[KGDB_PORT].iomem_reg_shift;
-+	}
-+
-+	switch (gdb_async_info.state->io_type) {
-+	case SERIAL_IO_MEM:
-+		kgdb8250_port = (unsigned long)
-+		    rs_table[kgdb8250_ttyS].iomem_base;
-+		serial_outb = direct_outb;
-+		serial_inb = direct_inb;
-+		break;
-+	case SERIAL_IO_PORT:
-+	default:
-+		kgdb8250_port = rs_table[kgdb8250_ttyS].port;
-+		serial_outb = io_outb;
-+		serial_inb = io_inb;
-+	}
-+
-+#ifndef CONFIG_KGDB_SIMPLE_SERIAL
-+	/* The user has provided the IRQ and I/O location. */
-+	kgdb8250_port = gdb_async_info.port = gdb_async_info.state->port =
-+		CONFIG_KGDB_PORT;
-+	gdb_async_info.line = gdb_async_info.state->irq = CONFIG_KGDB_IRQ;
-+#endif
-+
-+#ifdef CONFIG_SERIAL_8250
-+	if (serial8250_release_irq(gdb_async_info.line))
-+		return -1;
-+#endif
-+
-+	if (kgdb8250_init() == -1)
-+		return -1;
-+
-+	retval = request_irq(gdb_async_info.line, kgdb8250_interrupt,
-+			     SA_INTERRUPT, "GDB-stub", NULL);
-+	if (retval == 0)
-+		initialized = 1;
-+	else
-+		initialized = 0;
-+
-+	return 0;
-+}
-+
-+void
-+kgdb8250_add_port(int i, struct uart_port *serial_req)
-+{
-+	rs_table[i].io_type = serial_req->iotype;
-+	rs_table[i].port = serial_req->line;
-+	rs_table[i].irq = serial_req->irq;
-+	rs_table[i].iomem_base = serial_req->membase;
-+	rs_table[i].iomem_reg_shift = serial_req->regshift;
-+
-+	/* We will want to look in the rs_table now. */
-+	serial_from_rs_table = 1;
-+}
-+
-+struct kgdb_serial kgdb8250_serial_driver = {
-+	.read_char = kgdb8250_read_char,
-+	.write_char = kgdb8250_write_char,
-+	.hook = kgdb8250_hook
++struct kgdb_arch arch_kgdb_ops =  {
++	.gdb_bpt_instr = {0xcc},
++	.flags = KGDB_HW_BREAKPOINT,
 +};
+--- a/arch/i386/kernel/irq.c	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/kernel/irq.c	Wed Feb 11 15:41:51 2004
+@@ -36,6 +36,7 @@
+ #include <linux/kallsyms.h>
+ #include <linux/notifier.h>
+ #include <linux/cpu.h>
++#include <linux/kgdb.h>
+ 
+ #include <asm/atomic.h>
+ #include <asm/io.h>
+@@ -412,7 +413,7 @@
+  * SMP cross-CPU interrupts have their own specific
+  * handlers).
+  */
+-asmlinkage unsigned int do_IRQ(struct pt_regs regs)
++asmlinkage unsigned int do_IRQ(struct pt_regs *regs)
+ {	
+ 	/* 
+ 	 * We ack quickly, we don't want the irq controller
+@@ -424,7 +425,7 @@
+ 	 * 0 return value means that this irq is already being
+ 	 * handled by some other CPU. (or is disabled)
+ 	 */
+-	int irq = regs.orig_eax & 0xff; /* high bits used in ret_from_ code  */
++	int irq = regs->orig_eax & 0xff; /* high bits used in ret_from_ code  */
+ 	irq_desc_t *desc = irq_desc + irq;
+ 	struct irqaction * action;
+ 	unsigned int status;
+@@ -490,7 +491,7 @@
+ 		irqreturn_t action_ret;
+ 
+ 		spin_unlock(&desc->lock);
+-		action_ret = handle_IRQ_event(irq, &regs, action);
++		action_ret = handle_IRQ_event(irq, regs, action);
+ 		spin_lock(&desc->lock);
+ 		if (!noirqdebug)
+ 			note_interrupt(irq, desc, action_ret);
+@@ -509,6 +510,8 @@
+ 	spin_unlock(&desc->lock);
+ 
+ 	irq_exit();
++
++	kgdb_process_breakpoint();
+ 
+ 	return 1;
+ }
+--- a/arch/i386/kernel/nmi.c	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/kernel/nmi.c	Wed Feb 11 15:41:51 2004
+@@ -25,6 +25,7 @@
+ #include <linux/module.h>
+ #include <linux/nmi.h>
+ #include <linux/sysdev.h>
++#include <linux/debugger.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/mtrr.h>
+@@ -420,14 +421,25 @@
+ 	int sum, cpu = smp_processor_id();
+ 
+ 	sum = irq_stat[cpu].apic_timer_irqs;
++	if (atomic_read(&debugger_active)) {
+ 
+-	if (last_irq_sums[cpu] == sum) {
++		/*
++		 * The machine is in debugger, hold this cpu if already
++		 * not held.
++		 */
++		debugger_nmihook(cpu, regs);
++		alert_counter[cpu] = 0;
++
++	} else if (last_irq_sums[cpu] == sum) {
+ 		/*
+ 		 * Ayiee, looks like this CPU is stuck ...
+ 		 * wait a few IRQs (5 seconds) before doing the oops ...
+ 		 */
+ 		alert_counter[cpu]++;
+ 		if (alert_counter[cpu] == 5*nmi_hz) {
++
++			CHK_DEBUGGER(2,SIGSEGV,0,regs,)
++
+ 			spin_lock(&nmi_print_lock);
+ 			/*
+ 			 * We are in trouble anyway, lets at least try
+--- a/arch/i386/kernel/signal.c	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/kernel/signal.c	Wed Feb 11 15:41:51 2004
+@@ -578,7 +578,8 @@
+ 		 * have been cleared if the watchpoint triggered
+ 		 * inside the kernel.
+ 		 */
+-		__asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
++		if (current->thread.debugreg[7])
++			__asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
+ 
+ 		/* Whee!  Actually deliver the signal.  */
+ 		handle_signal(signr, &info, oldset, regs);
+--- a/arch/i386/kernel/traps.c	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/kernel/traps.c	Wed Feb 11 15:41:51 2004
+@@ -51,6 +51,7 @@
+ 
+ #include <linux/irq.h>
+ #include <linux/module.h>
++#include <linux/debugger.h>
+ 
+ #include "mach_traps.h"
+ 
+@@ -258,6 +259,7 @@
+ 	static int die_counter;
+ 	int nl = 0;
+ 
++	CHK_DEBUGGER(1,SIGTRAP,err,regs,)
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
+ 	bust_spinlocks(1);
+@@ -346,6 +348,7 @@
+ #define DO_ERROR(trapnr, signr, str, name) \
+ asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
+ { \
++	CHK_DEBUGGER(trapnr,signr,error_code,regs,)\
+ 	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
+ }
+ 
+@@ -363,7 +366,9 @@
+ #define DO_VM86_ERROR(trapnr, signr, str, name) \
+ asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
+ { \
++	CHK_DEBUGGER(trapnr,signr,error_code,regs,goto skip_trap)\
+ 	do_trap(trapnr, signr, str, 1, regs, error_code, NULL); \
++skip_trap: \
+ 	return; \
+ }
+ 
+@@ -572,7 +577,7 @@
+ 	tsk->thread.debugreg[6] = condition;
+ 
+ 	/* Mask out spurious TF errors due to lazy TF clearing */
+-	if (condition & DR_STEP) {
++	if (condition & DR_STEP && !debugger_step) {
+ 		/*
+ 		 * The TF error should be masked out only if the current
+ 		 * process is not traced and if the TRAP flag has been set
+@@ -595,11 +600,13 @@
+ 	info.si_errno = 0;
+ 	info.si_code = TRAP_BRKPT;
+ 	
+-	/* If this is a kernel mode trap, save the user PC on entry to 
+-	 * the kernel, that's what the debugger can make sense of.
+-	 */
+-	info.si_addr = ((regs->xcs & 3) == 0) ? (void *)tsk->thread.eip : 
+-	                                        (void *)regs->eip;
++
++	/* If this is a kernel mode trap, we need to reset db7 to allow us
++	 * to continue sanely */
++	if ((regs->xcs & 3) == 0)
++		goto clear_dr7;
++
++	info.si_addr = (void *)regs->eip;
+ 	force_sig_info(SIGTRAP, &info, tsk);
+ 
+ 	/* Disable additional traps. They'll be re-enabled when
+@@ -609,6 +616,7 @@
+ 	__asm__("movl %0,%%db7"
+ 		: /* no output */
+ 		: "r" (0));
++	CHK_DEBUGGER(1,SIGTRAP,error_code,regs,)
+ 	return;
+ 
+ debug_vm86:
+--- a/arch/i386/mm/fault.c	Wed Feb 11 15:41:51 2004
++++ b/arch/i386/mm/fault.c	Wed Feb 11 15:41:51 2004
+@@ -2,6 +2,11 @@
+  *  linux/arch/i386/mm/fault.c
+  *
+  *  Copyright (C) 1995  Linus Torvalds
++ *
++ *  Change History
++ *
++ *	Tigran Aivazian <tigran@sco.com>	Remote debugging support.
++ *
+  */
+ 
+ #include <linux/signal.h>
+@@ -21,6 +26,7 @@
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
+ #include <linux/highmem.h>
+ #include <linux/module.h>
++#include <linux/debugger.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -289,6 +295,12 @@
+ 	if (in_atomic() || !mm)
+ 		goto bad_area_nosemaphore;
+ 
++	if (debugger_memerr_expected) {
++		/* This fault was caused by memory access through a debugger.
++		 * Don't handle it like user accesses */
++		goto no_context;
++	}
++
+ 	down_read(&mm->mmap_sem);
+ 
+ 	vma = find_vma(mm, address);
+@@ -426,12 +438,15 @@
+  	if (is_prefetch(regs, address))
+  		return;
+ 
++	CHK_DEBUGGER(14, SIGSEGV,error_code, regs,)
++
+ /*
+  * Oops. The kernel tried to access some bad page. We'll have to
+  * terminate things with extreme prejudice.
+  */
+ 
+ 	bust_spinlocks(1);
++
+ 
+ 	if (address < PAGE_SIZE)
+ 		printk(KERN_ALERT "Unable to handle kernel NULL pointer dereference");
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/kgdb.h	Wed Feb 11 15:41:51 2004
+@@ -0,0 +1,53 @@
++#ifndef _ASM_KGDB_H_
++#define _ASM_KGDB_H_
 +
 +/*
-+ * Syntax for this cmdline option is
-+ * kgdb8250=ttyno,baudrate
++ * Copyright (C) 2001-2004 Amit S. Kale
 + */
 +
-+static int __init
-+kgdb8250_opt(char *str)
-+{
-+	if (*str < '0' || *str > '3')
-+		goto errout;
-+	kgdb8250_ttyS = *str - '0';
-+	str++;
-+	if (*str != ',')
-+		goto errout;
-+	str++;
-+	kgdb8250_baud = simple_strtoul(str, NULL, 10);
-+	if (kgdb8250_baud != 9600 && kgdb8250_baud != 19200 &&
-+	    kgdb8250_baud != 38400 && kgdb8250_baud != 57600 &&
-+	    kgdb8250_baud != 115200)
-+		goto errout;
++#include <linux/ptrace.h>
 +
-+	/* Make the baud rate change happen. */
-+	gdb_async_info.state->custom_divisor = BASE_BAUD / kgdb8250_baud;
++/* gdb locks */
++#define KGDB_MAX_NO_CPUS 8
 +
-+	return 1;
++/************************************************************************/
++/* BUFMAX defines the maximum number of characters in inbound/outbound buffers*/
++/* at least NUMREGBYTES*2 are needed for register packets */
++/* Longer buffer is needed to list all threads */
++#define BUFMAX 1024
 +
-+      errout:
-+	printk("Invalid syntax for option kgdb8250=\n");
-+	return 0;
-+}
++/* Number of bytes of registers.  */
++#define NUMREGBYTES 64
++/*
++ *  Note that this register image is in a different order than
++ *  the register image that Linux produces at interrupt time.
++ *  
++ *  Linux's register image is defined by struct pt_regs in ptrace.h.
++ *  Just why GDB uses a different order is a historical mystery.
++ */
++enum regnames { _EAX,  /* 0 */
++	_ECX,  /* 1 */
++	_EDX,  /* 2 */
++	_EBX,  /* 3 */
++	_ESP,  /* 4 */
++	_EBP,  /* 5 */
++	_ESI,  /* 6 */
++	_EDI,  /* 7 */
++	_PC,   /* 8 also known as eip */
++	_PS,   /* 9 also known as eflags */
++	_CS,   /* 10 */
++	_SS,   /* 11 */
++	_DS,   /* 12 */
++	_ES,   /* 13 */
++	_FS,   /* 14 */
++	_GS    /* 15 */
++};
 +
-+__setup("kgdb8250=", kgdb8250_opt);
---- a/drivers/serial/serial_core.c	Wed Feb 11 15:41:38 2004
-+++ b/drivers/serial/serial_core.c	Wed Feb 11 15:41:38 2004
-@@ -1214,6 +1214,10 @@
- 	struct uart_state *state = tty->driver_data;
- 	struct uart_port *port;
++#define PC_REGNUM	_PC	/* Program Counter */
++#define SP_REGNUM	_ESP	/* Stack Pointer */
++#define PTRACE_PC	eip	/* Program Counter, in ptrace regs. */
++
++#define BREAKPOINT() asm("   int $3");
++#define BREAK_INSTR_SIZE       1
++
++#endif /* _ASM_KGDB_H_ */
+--- a/include/asm-i386/processor.h	Wed Feb 11 15:41:51 2004
++++ b/include/asm-i386/processor.h	Wed Feb 11 15:41:51 2004
+@@ -423,6 +423,7 @@
+ 	unsigned int		saved_fs, saved_gs;
+ /* IO permissions */
+ 	unsigned long	*io_bitmap_ptr;
++	void *		debuggerinfo;
+ };
  
-+	if (!state)
-+		return;
-+	port = state->port;
-+
- 	BUG_ON(!kernel_locked());
- 
- 	if (!state || !state->port)
+ #define INIT_THREAD  {							\
 
 -- 
 Tom Rini

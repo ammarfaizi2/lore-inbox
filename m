@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268450AbUIGTAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUIGTAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268450AbUIGTAb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 15:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUIGTAZ
+	id S267521AbUIGTAH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 15:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268528AbUIGS50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:00:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41624 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268289AbUIGS7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:59:49 -0400
-Subject: Re: [PATCH] unexport get_wchan
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094578157.9607.25.camel@localhost.localdomain>
-References: <20040907144539.GA8808@lst.de>
-	 <1094576868.9607.7.camel@localhost.localdomain>
-	 <20040907181130.GA12595@lst.de>
-	 <1094578157.9607.25.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vNapW7pNMRkWNTzcED1R"
-Organization: Red Hat UK
-Message-Id: <1094583570.2801.22.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 07 Sep 2004 20:59:31 +0200
+	Tue, 7 Sep 2004 14:57:26 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:52094 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S267521AbUIGSxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 14:53:50 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [patch 1/3] uml-ubd-no-empty-queue
+Date: Tue, 7 Sep 2004 20:50:25 +0200
+User-Agent: KMail/1.6.1
+Cc: Jens Axboe <axboe@suse.de>, akpm@osdl.org, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org
+References: <20040906174447.238788D1E@zion.localdomain> <20040907093559.GL6323@suse.de>
+In-Reply-To: <20040907093559.GL6323@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409072050.25814.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 07 September 2004 11:35, Jens Axboe wrote:
+> On Mon, Sep 06 2004, blaisorblade_spam@yahoo.it wrote:
 
---=-vNapW7pNMRkWNTzcED1R
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Patch is correct.
+Ok, thanks. Do you see anything else that needs fixing? The code the patch 
+below removes has hidden this bug, so there could be other serious bugs (and 
+by serious I mean Oopses or data loss).
 
-On Tue, 2004-09-07 at 19:29, Alan Cox wrote:
-> On Maw, 2004-09-07 at 19:11, Christoph Hellwig wrote:
-> > Which debuging tool?  Both kdb and xmon don't use it.
->=20
-> You broke my kgdb 8)=20
+Known issues:
+- need to port to BIOs (a bit hard because I need first to understand the 
+request mangling - see cowify_req. The code idea is to redirect each sector 
+independently either to the UBD backing file or to the COW file. COW stand 
+for Copy On Write: it allows to have the UBD read only and a COW file 
+containing just the changes).
 
-kgdb surely uses the kallsyms stuff instead... far more reliable...
+- Uml SMP support does not compile from sometimes so spinlocking is broken in 
+ubd_finish (only in some cases - when called by do_ubd_request and thread_fd 
+== -1). To see this, add ubd=sync on command line and turn spinlock debugging 
+on.
 
-
---=-vNapW7pNMRkWNTzcED1R
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBPgUSxULwo51rQBIRAjM3AJoDbpGuatnw1+nycN61fZk3EKpX1gCaA063
-Y3RjbES1FyFLYZd48B4LTVc=
-=tb87
------END PGP SIGNATURE-----
-
---=-vNapW7pNMRkWNTzcED1R--
-
+--- uml-linux-2.6.8.1/arch/um/drivers/ubd_kern.c~uml-ubd-any-elevator   
+2004-08-29 14:40:53.731043416 +0200
++++ uml-linux-2.6.8.1-paolo/arch/um/drivers/ubd_kern.c  2004-08-29 
+14:40:53.733043112 +0200
+@@ -749,8 +749,6 @@ int ubd_init(void)
+                return -1;
+        }
+                
+-       elevator_init(ubd_queue, &elevator_noop);
+-
+        if (fake_major != MAJOR_NR) {
+                char name[sizeof("ubd_nnn\0")];
+ 
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

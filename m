@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317017AbSHOO3D>; Thu, 15 Aug 2002 10:29:03 -0400
+	id <S317012AbSHOO2T>; Thu, 15 Aug 2002 10:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSHOO3D>; Thu, 15 Aug 2002 10:29:03 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:12294 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S317017AbSHOO3C>; Thu, 15 Aug 2002 10:29:02 -0400
-Message-ID: <3D5BBC06.D1BA147E@aitel.hist.no>
-Date: Thu, 15 Aug 2002 16:34:46 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
-X-Accept-Language: no, en, en
+	id <S317017AbSHOO2T>; Thu, 15 Aug 2002 10:28:19 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:10766 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S317012AbSHOO2S>; Thu, 15 Aug 2002 10:28:18 -0400
+Date: Thu, 15 Aug 2002 15:32:46 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: j-nomura@ce.jp.nec.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18(19) swapcache oops
+In-Reply-To: <20020815.213929.846960657.nomura@hpc.bs1.fc.nec.co.jp>
+Message-ID: <Pine.LNX.4.44.0208151515420.1610-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-References: <3D5A8C2C.9010700@yahoo.com> <200208150821.g7F8L6p19730@Port.imtp.ilyichevsk.odessa.ua> <E17fI5E-0002at-00@starship> <200208151137.g7FBbNp20417@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+On Thu, 15 Aug 2002 j-nomura@ce.jp.nec.com wrote:
+> 
+> I'm using 2.4.18 kernel and suspect there are swapcache race. 
+> I looked into 2.4.19 patch but could not find the fix to it.
 
-> It won't work well for everybody, then it won't live in mainline.
-Bad reason.  You can select IDE without the fixes for your
-particular buggy IDE adapter and have it eat the disks.  Still,
-turning off RZ1000 and CMDxxx fixes is possible for those
-that know they have a good adapter.
+I see a benign race but no oops.
 
-So, no need to reject the speaker driver for "crap sound".
-It'll be usable with a good speaker, and the config help
-text can simply state that it is a last-resort driver
-which might work badly because it pushes the hardware.
+> In the situation such as:
+>   - two processes (process A and B) sharing memory space
+>   - one of the pages in the space has been swapped out and
+>     not remained in swapcache
+>   - process A runs on cpu0, process B runs on cpu1
+> 
+> when process A reads the address corresponding to the page,
+> page fault occurs and the cpu0 reads swapped-out page into memory,
+> calls add_to_page_cache_unique() to add it to swapcache and then
+> calls lru_cache_add() to add it to lru list.
+> 
+> If process B reads the same address at that time, cpu1 calls
+> do_swap_page() and lookup_swap_cache() may succeed before cpu0
+> calls lru_cache_add() and cpu1 will set the page active by
+> following mark_page_accessed().
 
-> Because newcomers will enable it, be pissed off with crap sound etc...
-> "Political" reasons I'm afraid...
+I agree that B may get to mark_page_accessed before A gets to
+lru_cache_add, but B will just SetPageReferenced.  If there's a
+similar process C racing on the page too, its mark_page_accessed
+would call activate_page, but that will see !PageLRU and do nothing.
 
-The senseless cpu usage for something as simple as sound
-is worse.  Consider putting a old voice modem on a serial
-port and connect a speaker to the phone output...
+> lru_cache_add() checks if the page is active and if it is active,
+> it calls BUG().
 
-Helge Hafting
+It cannot be made PageActive until after lru_cache_add has set PageLRU.
+
+Hugh
+

@@ -1,115 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSJCNwn>; Thu, 3 Oct 2002 09:52:43 -0400
+	id <S261317AbSJCNij>; Thu, 3 Oct 2002 09:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263314AbSJCNwn>; Thu, 3 Oct 2002 09:52:43 -0400
-Received: from web9601.mail.yahoo.com ([216.136.129.180]:64418 "HELO
-	web9601.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263313AbSJCNwl>; Thu, 3 Oct 2002 09:52:41 -0400
-Message-ID: <20021003135756.88786.qmail@web9601.mail.yahoo.com>
-Date: Thu, 3 Oct 2002 06:57:56 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: [PATCH] 2.5.40 - remove IPV6_ADDRFORM
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021003.063256.84377325.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-673985185-1033653476=:88411"
+	id <S261351AbSJCNii>; Thu, 3 Oct 2002 09:38:38 -0400
+Received: from mbr.sphere.ne.jp ([210.150.254.228]:7165 "HELO mbr.sphere.ne.jp")
+	by vger.kernel.org with SMTP id <S261317AbSJCNig>;
+	Thu, 3 Oct 2002 09:38:36 -0400
+Date: Thu, 3 Oct 2002 22:44:06 +0900
+From: Bruce Harada <harada@mbr.sphere.ne.jp>
+To: jbradford@dial.pipex.com
+Cc: vojtech@suse.cz, tori@ringstrom.mine.nu, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40: AT keyboard input problem
+Message-Id: <20021003224406.77471ed6.harada@mbr.sphere.ne.jp>
+In-Reply-To: <200210031320.g93DKnqx000460@darkstar.example.net>
+References: <20021003144319.A38785@ucw.cz>
+	<200210031320.g93DKnqx000460@darkstar.example.net>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-673985185-1033653476=:88411
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, 3 Oct 2002 14:20:48 +0100 (BST)
+jbradford@dial.pipex.com wrote:
 
->then every one of those ipv6 options you change 
->which are being used by userspace breaks.
+> > Do you by any chance know the names of the unknown keys so that I could
+> > add them to the Set 3 default scancode map?
+> 
+> All I can tell you is a translation of what is written on the scancode 0x87
+> key on this particular keyboard:
+> 
+> 'Hiragana/Roma_characters'
+> 
+> I can't translate the characters on the other keys.
+> 
+> However, somebody else might be able to - I found this diagram of the
+> keyboard:
+> 
+> http://www.pfu.co.jp/hhkeyboard/kb_collection/ibm5576-002.gif
+> 
+> The legends on the bottom row of keys are exactly the same as on my
+> keyboard, and from left to right, they have the following functions:
+> 
+> Control
+> ALT, (it says, 'Kanji/Katakana/Kanji???', but works as ALT)
+> Scancode 0x85
+> Space bar
+> Scancode 0x86
+> Scancode 0x87, (it says, 'Hiragana/Roma characters')
+> ALT GR
+> Control
 
-I guess you're right. Smaller patch attached.
+In the order you gave above, they are:
 
--Steve Grubb
+- Control
+
+- Kanji/Hiragana (The smaller characters underneath are 'Kanji bango' [=
+ "Kanji number"])
+
+- Muhenkan [="No conversion"]  (The smaller characters underneath are
+ 'Bunsetsu yomi' [="Sentence fragment reading"])
+
+- Space
+
+- Zenkoho [="Previous candidate"] / Henkan (Jikoho) [="Conversion (Next
+ candidate)"] / Zenkoho [="All candidates"]
+
+- Hiragana (Underneath is 'Romaji', i.e. English characters)
+
+- Zenmen ki [="Next screen key"]
+
+- Control
 
 
+Hope that helps,
 
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
---0-673985185-1033653476=:88411
-Content-Type: text/plain; name="2.5-patch1.diff"
-Content-Description: 2.5-patch1.diff
-Content-Disposition: inline; filename="2.5-patch1.diff"
-
-diff -ur linux-2.5.40/net/ipv6/ipv6_sockglue.c linux-2.5.40a/net/ipv6/ipv6_sockglue.c
---- linux-2.5.40/net/ipv6/ipv6_sockglue.c	Tue Oct  1 03:06:16 2002
-+++ linux-2.5.40a/net/ipv6/ipv6_sockglue.c	Thu Oct  3 07:23:59 2002
-@@ -143,66 +143,6 @@
- 
- 	switch (optname) {
- 
--	case IPV6_ADDRFORM:
--		if (val == PF_INET) {
--			struct ipv6_txoptions *opt;
--			struct sk_buff *pktopt;
--
--			if (sk->protocol != IPPROTO_UDP &&
--			    sk->protocol != IPPROTO_TCP)
--				break;
--
--			if (sk->state != TCP_ESTABLISHED) {
--				retv = -ENOTCONN;
--				break;
--			}
--
--			if (!(ipv6_addr_type(&np->daddr) & IPV6_ADDR_MAPPED)) {
--				retv = -EADDRNOTAVAIL;
--				break;
--			}
--
--			fl6_free_socklist(sk);
--			ipv6_sock_mc_close(sk);
--
--			if (sk->protocol == IPPROTO_TCP) {
--				struct tcp_opt *tp = tcp_sk(sk);
--
--				local_bh_disable();
--				sock_prot_dec_use(sk->prot);
--				sock_prot_inc_use(&tcp_prot);
--				local_bh_enable();
--				sk->prot = &tcp_prot;
--				tp->af_specific = &ipv4_specific;
--				sk->socket->ops = &inet_stream_ops;
--				sk->family = PF_INET;
--				tcp_sync_mss(sk, tp->pmtu_cookie);
--			} else {
--				local_bh_disable();
--				sock_prot_dec_use(sk->prot);
--				sock_prot_inc_use(&udp_prot);
--				local_bh_enable();
--				sk->prot = &udp_prot;
--				sk->socket->ops = &inet_dgram_ops;
--				sk->family = PF_INET;
--			}
--			opt = xchg(&np->opt, NULL);
--			if (opt)
--				sock_kfree_s(sk, opt, opt->tot_len);
--			pktopt = xchg(&np->pktoptions, NULL);
--			if (pktopt)
--				kfree_skb(pktopt);
--
--			sk->destruct = inet_sock_destruct;
--#ifdef INET_REFCNT_DEBUG
--			atomic_dec(&inet6_sock_nr);
--#endif
--			MOD_DEC_USE_COUNT;
--			retv = 0;
--			break;
--		}
--		goto e_inval;
--
- 	case IPV6_PKTINFO:
- 		np->rxopt.bits.rxinfo = valbool;
- 		retv = 0;
-
---0-673985185-1033653476=:88411--
+Bruce

@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266096AbUHORLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUHOROH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266096AbUHORLa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 13:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUHORL3
+	id S266189AbUHOROH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 13:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUHOROH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 13:11:29 -0400
-Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:55458 "EHLO
-	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S266096AbUHORLW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 13:11:22 -0400
-From: Ryan Cumming <ryan@spitfire.gotdns.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1-ck1
-Date: Sun, 15 Aug 2004 10:11:18 -0700
-User-Agent: KMail/1.7
-References: <411F6679.5080008@kolivas.org>
-In-Reply-To: <411F6679.5080008@kolivas.org>
+	Sun, 15 Aug 2004 13:14:07 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:65413 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S266189AbUHOROE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 13:14:04 -0400
+Date: Sun, 15 Aug 2004 19:13:58 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: bunk@fs.tum.de, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let W1 select NET
+In-Reply-To: <20040813100040.3fce00db.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.61.0408151907540.12687@scrub.home>
+References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home>
+ <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home>
+ <20040813110137.GY13377@fs.tum.de> <Pine.LNX.4.58.0408131312390.20634@scrub.home>
+ <20040813100040.3fce00db.rddunlap@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3542866.fxhCqoiHQY";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408151011.20327.ryan@spitfire.gotdns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3542866.fxhCqoiHQY
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-On Sunday 15 August 2004 06:34, Con Kolivas wrote:
-> +1g_lowmem_i386.diff
-> Allows 1Gb of ram to be used without enabling highmem
+On Fri, 13 Aug 2004, Randy.Dunlap wrote:
 
-Note that valgrind 2.x (a fairly powerful memory debugger/profiler) hates=20
-this. It dies with:
+> | Abusing select is really the wrong answer. What is needed is an improved 
+> | user interface, which allows to search through the kconfig information or 
+> | even can match hardware information to a driver and aids the user in 
+> | selecting the required dependencies.
+> 
+> Nice idea.  So are there places where SELECT is the right thing to do,
+> i.e., it's required?  (examples, please)
 
-executable is mapped outside of range 0x80d7000-0xaffff000
-failed to load /usr/lib/valgrind/stage2: Cannot allocate memory
+Select should be used for utility functions like CRC32, which often don't 
+need their own prompt (except where some external module might need it, 
+and a "default m" might suffice here).
 
-Haven't looked in to how easy this is to hack around, just a heads up.
-
-=2DRyan
-
---nextPart3542866.fxhCqoiHQY
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBH5k4W4yVCW5p+qYRAs/jAJ9nnp+Q06Aa4I8nNBplW2SrdM9jOgCfbcty
-VfW56FitP60rdfe02BEUsaM=
-=O0/u
------END PGP SIGNATURE-----
-
---nextPart3542866.fxhCqoiHQY--
+bye, Roman

@@ -1,65 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263961AbTDIXnl (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 19:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbTDIXnk (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 19:43:40 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:62341 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S263961AbTDIXnh (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 19:43:37 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: davidm@hpl.hp.com
-Date: Thu, 10 Apr 2003 09:48:37 +1000
-MIME-Version: 1.0
+	id S263946AbTDJAFz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 20:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263958AbTDJAFz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 20:05:55 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:22014 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263946AbTDJAFy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 20:05:54 -0400
+Date: Wed, 9 Apr 2003 17:19:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Backport of USB speedtouch driver to 2.4
+Message-ID: <20030410001915.GB3542@kroah.com>
+References: <200304042115.00706.baldrick@wanadoo.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16020.45397.938754.806118@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFSD binary compatibility breakage
-In-Reply-To: message from David Mosberger on Tuesday April 8
-References: <200304090542.h395gHF5004000@napali.hpl.hp.com>
-X-Mailer: VM 7.13 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <200304042115.00706.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday April 8, davidm@napali.hpl.hp.com wrote:
-> Neil,
-> 
-> The removal of "struct nfsctl_uidmap" from "nfsctl_fdparm" broke
-> binary compatiblity on 64-bit platforms (strictly speaking: on all
-> platforms with alignof(void *) > alignof(int)).  The problem is that
-> nfsctl_uidmap contained a "char *", which forced the alignment of the
-> entire union to be 64 bits.  With the removal of the uidmap, the
-> required alignment drops to 32 bits.  Since the first member is only
-> 32 bits in size, this breaks compatibility with user-space.  Patch
-> below fixes the problem.
+On Fri, Apr 04, 2003 at 09:15:00PM +0200, Duncan Sands wrote:
+> Since the 2.5 crc library hasn't been backported
+> to the 2.4 tree yet, I included a crc routine in
+> the speedcrc files.
 
-Hmm... just another reason to get rid of these binary interfaces!  I
-plan to rip them all out in 2.7.1.  But for now I'll try to keep them
-going as best I can.  Thanks for the patch.
+Applied to my 2.4 tree, but I will hold off sending it to Marcelo until
+2.4.21 comes out.
 
-NeilBrown
+thanks,
 
-> 
-> Thanks,
-> 
-> 	--david
-> 
-> ===== include/linux/nfsd/syscall.h 1.4 vs edited =====
-> --- 1.4/include/linux/nfsd/syscall.h	Sun Mar 23 14:35:20 2003
-> +++ edited/include/linux/nfsd/syscall.h	Tue Apr  8 22:36:59 2003
-> @@ -91,6 +91,13 @@
->  		struct nfsctl_export	u_export;
->  		struct nfsctl_fdparm	u_getfd;
->  		struct nfsctl_fsparm	u_getfs;
-> +		/*
-> +		 * The following dummy member is needed to preserve binary compatibility
-> +		 * on platforms where alignof(void*)>alignof(int).  It's needed because
-> +		 * this union used to contain a member (u_umap) which contained a
-> +		 * pointer.
-> +		 */
-> +		void *u_ptr;
->  	} u;
->  #define ca_svc		u.u_svc
->  #define ca_client	u.u_client
+greg k-h

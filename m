@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTJOFKW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 01:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJOFKW
+	id S262362AbTJOFTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 01:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJOFTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 01:10:22 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:46563 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262366AbTJOFKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 01:10:18 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Date: Wed, 15 Oct 2003 15:10:10 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16268.54962.351518.471251@notabene.cse.unsw.edu.au>
+	Wed, 15 Oct 2003 01:19:18 -0400
+Received: from smtprelay01.ispgateway.de ([62.67.200.156]:22687 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S262362AbTJOFTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 01:19:17 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Andrew Morton <akpm@osdl.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Subject: Re: 2.6.0-test7: saa7134 breaks on gcc 2.95
+Date: Wed, 15 Oct 2003 07:16:58 +0200
+User-Agent: KMail/1.5.4
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange dcache memory pressure when highmem enabled
-In-Reply-To: message from Bryan O'Sullivan on Tuesday October 14
-References: <16268.52761.907998.436272@notabene.cse.unsw.edu.au>
-	<1066194345.16993.12.camel@camp4.serpentine.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+References: <3F8C9705.26CA0B63@eyal.emu.id.au> <20031014175938.04d94087.akpm@osdl.org>
+In-Reply-To: <20031014175938.04d94087.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310150716.58737.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday October 14, bos@serpentine.com wrote:
-> On Tue, 2003-10-14 at 21:33, Neil Brown wrote:
-> 
-> >  I have a fairly busy NFS server which has been having performance
-> >  problems lately.  I have managed to work around the problems, but
-> >  would really like to get the root problem fixed.
-> 
-> Funny, I have seen exactly the same problem, though with a Red Hat
-> 2.4.20 kernel, rather than a vanilla-ish 2.4.
-> 
-> I have a few thousand more entries in my dentry cache on a 2G machine,
-> but it's still a pitiful number.
-> 
-> What workarounds did you find?
+On Wednesday 15 October 2003 02:59, Andrew Morton wrote:
+> Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
+> > This compiler does not like dangling comma in funcs, so this patch
+> >  is needed. For:
+> >
+> >  #define dprintk(fmt, arg...)    if (core_debug) \
+> >  	printk(KERN_DEBUG "%s/core: " fmt, dev->name, ## arg)
+> >
+> >  Lines like this:
+> >
+> >  	dprintk("hwinit1\n");
+> >
+> >  should be hacked like this:
+> >
+> >  	dprintk("hwinit1\n", "");
+>
+> I couldn't find a sane way.  Ended up doing this:
+[splitting the printk]
 
- I just boot with "mem=900M" and effectively removed the highmem.
- It's not ideal, but it is the best I have found.
 
-NeilBrown
+GCC 2.95 doesn't like no space BEFORE AND AFTER the comma in the argument right
+before the "## arg".
+
+So just having a space there should work without splitting the printk. Not
+compile tested, since I need to go now.
+
+Regards
+
+Ingo Oeser
+
+

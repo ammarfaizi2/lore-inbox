@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262933AbSJ1HYx>; Mon, 28 Oct 2002 02:24:53 -0500
+	id <S262959AbSJ1Hfs>; Mon, 28 Oct 2002 02:35:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSJ1HYx>; Mon, 28 Oct 2002 02:24:53 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16875 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262933AbSJ1HYx>;
-	Mon, 28 Oct 2002 02:24:53 -0500
-Message-ID: <3DBCE7B9.C618781A@digeo.com>
-Date: Sun, 27 Oct 2002 23:31:05 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: landley@trommello.org
-CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+	id <S262977AbSJ1Hfs>; Mon, 28 Oct 2002 02:35:48 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:27094 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262959AbSJ1Hfr> convert rfc822-to-8bit; Mon, 28 Oct 2002 02:35:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Andrew Morton <akpm@digeo.com>
 Subject: Re: 2.5.44-mm6
-References: <3DBCD3D3.8DDA3982@digeo.com> <200210272024.10743.landley@trommello.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Oct 2002 07:31:06.0157 (UTC) FILETIME=[FA014DD0:01C27E53]
+Date: Sun, 27 Oct 2002 21:41:55 -0500
+User-Agent: KMail/1.4.3
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+References: <3DBCD3D3.8DDA3982@digeo.com> <200210272024.10743.landley@trommello.org> <3DBCE7B9.C618781A@digeo.com>
+In-Reply-To: <3DBCE7B9.C618781A@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210272041.55817.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> 
-> On Monday 28 October 2002 00:06, Andrew Morton wrote:
-> > url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.44/2.5.44-mm6/
-> 
-> Naturally. :)
-> 
+On Monday 28 October 2002 01:31, Andrew Morton wrote:
+> Rob Landley wrote:
+> > On Monday 28 October 2002 00:06, Andrew Morton wrote:
+> > > url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.44/2.5.44-mm6/
+> >
+> > Naturally. :)
+>
+> If you mean that putting the text "url" in front of a url was invented
+> by the deparment of redundancy department then yup.
 
-If you mean that putting the text "url" in front of a url was invented
-by the deparment of redundancy department then yup.  But if the linux-mm
-list sees a message starting with a url then it decides to hide it in
-the mail headers.
+No, just that the instant I put out the next-to-last 2.5 merge candidate list, 
+a new URL I should have included is in literally the next message I read.
 
-If you mean something else then I don't know what it is.
+Naturally.
 
-(And I'm tool old and cynical to use this "URI" stuff)
+Rob
+
+-- 
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262269AbSJLIds>; Sat, 12 Oct 2002 04:33:48 -0400
+	id <S262393AbSJLIf6>; Sat, 12 Oct 2002 04:35:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262393AbSJLIds>; Sat, 12 Oct 2002 04:33:48 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:23437 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262269AbSJLIdr>;
-	Sat, 12 Oct 2002 04:33:47 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: "duplicate const" compile warning in 2.5.42
-To: Reuben Farrelly <reuben-linux@reub.net>
-Cc: linux-kernel@vger.kernel.org, anton@samba.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF38E5DBB6.1DFD70C1-ON87256C50.002E73F2@boulder.ibm.com>
-From: "Steven French" <sfrench@us.ibm.com>
-Date: Sat, 12 Oct 2002 03:38:52 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/12/2002 02:38:55 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262397AbSJLIf5>; Sat, 12 Oct 2002 04:35:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:27523 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262393AbSJLIf5>;
+	Sat, 12 Oct 2002 04:35:57 -0400
+Date: Sat, 12 Oct 2002 01:35:07 -0700 (PDT)
+Message-Id: <20021012.013507.27779687.davem@redhat.com>
+To: dilinger@mp3revolution.net
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] sparc64 makefile dep fix for uart_console_init
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021012082405.GB10000@chunk.voxel.net>
+References: <20021012082405.GB10000@chunk.voxel.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andres Salomon <dilinger@mp3revolution.net>
+   Date: Sat, 12 Oct 2002 04:24:05 -0400
 
-Reuben,
-The "duplicate const" compile warning you mention seems to be a minor
-problem with the min/max macros.
+   drivers/serial/Config.in defines the following:
+   if [ "$CONFIG_SPARC32" = "y" -o "$CONFIG_SPARC64" = "y" ]; then
+   	define_bool CONFIG_SERIAL_SUNCORE y
+   	define_bool CONFIG_SERIAL_CORE_CONSOLE y
+   
+   There are no deps for CONFIG_SERIAL_CORE_CONSOLE in
+   drivers/serial/Makefile
 
-The fix for the 64 bit warnings for the cifs vfs are not going to affect
-the duplicate const minor warning caused by the min/max macro.  This
-warning does not show up on my i386 2.5.41 builds.
+Yeah that's weird.  Just enable one of the sun serial
+drivers for now and it will fix itself.
 
-
-
-Steve French
-Senior Software Engineer
-Linux Technology Center - IBM Austin
-phone: 512-838-2294
-email: sfrench@us.ibm.com
-
-
+Probably a fix could be to add CONFIG_SERIAL_SUNCORE to the
+checks that set CONFIG_SERIAL_CORE, I think that's how I'll
+fix this.

@@ -1,149 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131949AbRDKIDV>; Wed, 11 Apr 2001 04:03:21 -0400
+	id <S132517AbRDKIIb>; Wed, 11 Apr 2001 04:08:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132471AbRDKIDM>; Wed, 11 Apr 2001 04:03:12 -0400
-Received: from smtp01.web.de ([194.45.170.210]:17426 "HELO smtp.web.de")
-	by vger.kernel.org with SMTP id <S131949AbRDKIDE>;
-	Wed, 11 Apr 2001 04:03:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: juergen mischker <j_mischker@web.de>
-Reply-To: j_mischker@web.de
-To: linux-kernel@vger.kernel.org
-Subject: k 2.4.2; usb; handspring-visor
-Date: Wed, 11 Apr 2001 09:59:50 +0200
-X-Mailer: KMail [version 1.2]
-Cc: j_mischker@web.de
+	id <S132520AbRDKIIV>; Wed, 11 Apr 2001 04:08:21 -0400
+Received: from [194.8.76.131] ([194.8.76.131]:11279 "HELO imap.camline.com")
+	by vger.kernel.org with SMTP id <S132517AbRDKIIK>;
+	Wed, 11 Apr 2001 04:08:10 -0400
+Date: Wed, 11 Apr 2001 10:09:46 +0200 (CEST)
+From: Matthias Hanisch <matze@camline.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] some new __init functions in aha1542.c
+Message-ID: <Pine.LNX.4.10.10104111002550.21412-200000@homer.camline.com>
+Organization: camLine Datensysteme fuer die Mikroelektronik
 MIME-Version: 1.0
-Message-Id: <01041109595000.00940@horus.arge>
-Content-Transfer-Encoding: 7BIT
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463781119-1494034063-986976586=:21412"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello
-i made an kernelupdate 2.2.16 to 2.4.2 and i am using RH 7.0
-with the 2.2.16 kernel the usb-visor communication works perfekt.
-now with the 2.4.2 kernel my usb does want to connect to my handspring-visor
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
+---1463781119-1494034063-986976586=:21412
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-#dmesg
-...
-usb.c: registered new driver hub
-uhci.c: USB UHCI at I/O 0xd400, IRQ 9
-uhci.c: detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-uhci: host controller process error. something bad happened
-uhci: host controller halted. very bad
-hub.c: USB hub found
-hub.c: 2 ports detected
-uhci.c: USB UHCI at I/O 0xd800, IRQ 9
-uhci.c: detected 2 ports
-usb.c: new USB bus registered, assigned bus number 2
-uhci: host controller halted. very bad
-uhci: host controller process error. something bad happened
-uhci: host controller halted. very bad
-hub.c: USB hub found
-hub.c: 2 ports detected
-mice: PS/2 mouse device common for all mice
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 16384)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 216k freed
-uhci.c: root-hub INT complete: port1: 58a port2: 58a data: 6
-uhci.c: root-hub INT complete: port1: 58a port2: 58a data: 6
-uhci.c: root-hub INT complete: port1: 588 port2: 588 data: 6
-uhci.c: root-hub INT complete: port1: 588 port2: 588 data: 6
-Adding Swap: 136512k swap-space (priority -1)
-#
+Hi!
 
-this sounds a little strange to me.
-next thing:
+The attached patch puts the following functions into the .text.init
+section.
 
-#/sbin/modprobe visor
-# /sbin/lsmod
-Module                  Size  Used by
-visor                   4784   0  (unused)
-usbserial              12896   0  [visor]
-#
+aha1542_in
+        called by aha1542_getconfig, aha1542_query (all initfuncs)
 
-# tail -f  /var/log/messages
-...
-Apr  8 23:24:57 horus kernel: usbserial.c: USB Serial support registered
-for Generic
-Apr  8 23:24:57 horus kernel: usb.c: registered new driver serial
-Apr  8 23:24:57 horus kernel: usbserial.c: USB Serial support registered
-for Handspring Visor
+aha1542_mbenable
+        called by aha1542_query (initfunc)
 
-now i want to sync an i pressed the sync button (2 times):
+aha1542_in1
+        called in aha1542_mbenable (now also an initfunc)
 
-#tail -f /var/log/message
-...Apr  8 23:24:57 horus kernel: usbserial.c: USB Serial support registered 
-for Generic
-Apr  8 23:24:57 horus kernel: usb.c: registered new driver serial
-Apr  8 23:24:57 horus kernel: usbserial.c: USB Serial support registered
-for Handspring Visor
-Apr  8 23:25:30 horus kernel: hub.c: USB new device connect on bus1/1,
-assigned device number 3
-Apr  8 23:25:33 horus kernel: usb_control/bulk_msg: timeout
-Apr  8 23:25:33 horus kernel: usb.c: USB device not accepting new
-address=3 (error=-110)
-Apr  8 23:25:33 horus kernel: hub.c: USB new device connect on bus1/1,
-assigned device number 4
-Apr  8 23:25:36 horus kernel: usb_control/bulk_msg: timeout
-Apr  8 23:25:36 horus kernel: usb.c: USB device not accepting new
-address=4 (error=-110)
-Apr  8 23:26:25 horus PAM_unix[909]: (system-auth) session opened for
-user root by (uid=500)
-Apr  8 23:33:09 horus kernel: hub.c: USB new device connect on bus1/1,
-assigned device number 5
-Apr  8 23:33:12 horus kernel: usb_control/bulk_msg: timeout
-Apr  8 23:33:12 horus kernel: usb.c: USB device not accepting new
-address=5 (error=-110)
-Apr  8 23:33:13 horus kernel: hub.c: USB new device connect on bus1/1,
-assigned device number 6
-Apr  8 23:33:16 horus kernel: usb_control/bulk_msg: timeout
-Apr  8 23:33:16 horus kernel: usb.c: USB device not accepting new
-address=6 (error=-110)
+Patch is against 2.4.4pre1.
 
+Regards,
 
-#cat /proc/interrupts 
-           CPU0       
-  0:      23126          XT-PIC  timer
-  1:        468          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:       7624          XT-PIC  es1371
-  7:          0          XT-PIC  parport0
-  9:          2          XT-PIC  usb-uhci, usb-uhci
- 11:          0          XT-PIC  eth0
- 12:       8030          XT-PIC  PS/2 Mouse
- 14:       9979          XT-PIC  ide0
- 15:          9          XT-PIC  ide1
-NMI:          0 
-LOC:          0 
-ERR:          0
-#
+	Matze
 
-# /sbin/lspci -v
+-- 
+Matthias Hanisch    mailto:matze@camline.com    phone: +49 8137 935-219
 
-...
-00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10) 
-(prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Flags: bus master, medium devsel, latency 32, IRQ 9
-        I/O ports at d400 [size=32]
-        Capabilities: [80] Power Management version 2
+---1463781119-1494034063-986976586=:21412
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=init-aha1542
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10104111009460.21412@homer.camline.com>
+Content-Description: 
+Content-Disposition: attachment; filename=init-aha1542
 
-00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10) 
-(prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Flags: bus master, medium devsel, latency 32, IRQ 9
-        I/O ports at d800 [size=32]
-        Capabilities: [80] Power Management version 2
-...
-
-
-thanks for any help
-juergen
+ZGlmZiAtcnUgbGludXgtdmFuaWxsYS9kcml2ZXJzL3Njc2kvYWhhMTU0Mi5j
+IGxpbnV4L2RyaXZlcnMvc2NzaS9haGExNTQyLmMNCi0tLSBsaW51eC12YW5p
+bGxhL2RyaXZlcnMvc2NzaS9haGExNTQyLmMJTW9uIEFwciAgOSAyMjoxMzo1
+OCAyMDAxDQorKysgbGludXgvZHJpdmVycy9zY3NpL2FoYTE1NDIuYwlNb24g
+QXByICA5IDIyOjI2OjA0IDIwMDENCkBAIC0yNTQsNyArMjU0LDcgQEANCiAv
+KiBPbmx5IHVzZWQgYXQgYm9vdCB0aW1lLCBzbyB3ZSBkbyBub3QgbmVlZCB0
+byB3b3JyeSBhYm91dCBsYXRlbmN5IGFzIG11Y2gNCiAgICBoZXJlICovDQog
+DQotc3RhdGljIGludCBhaGExNTQyX2luKHVuc2lnbmVkIGludCBiYXNlLCB1
+bmNoYXIgKiBjbWRwLCBpbnQgbGVuKQ0KK3N0YXRpYyBpbnQgX19pbml0IGFo
+YTE1NDJfaW4odW5zaWduZWQgaW50IGJhc2UsIHVuY2hhciAqIGNtZHAsIGlu
+dCBsZW4pDQogew0KIAl1bnNpZ25lZCBsb25nIGZsYWdzOw0KIA0KQEAgLTI3
+Niw3ICsyNzYsNyBAQA0KIC8qIFNpbWlsYXIgdG8gYWhhMTU0Ml9pbiwgZXhj
+ZXB0IHRoYXQgd2Ugd2FpdCBhIHZlcnkgc2hvcnQgcGVyaW9kIG9mIHRpbWUu
+DQogICAgV2UgdXNlIHRoaXMgaWYgd2Uga25vdyB0aGUgYm9hcmQgaXMgYWxp
+dmUgYW5kIGF3YWtlLCBidXQgd2UgYXJlIG5vdCBzdXJlDQogICAgaWYgdGhl
+IGJvYXJkIHdpbGwgcmVzcG9uZCB0byB0aGUgY29tbWFuZCB3ZSBhcmUgYWJv
+dXQgdG8gc2VuZCBvciBub3QgKi8NCi1zdGF0aWMgaW50IGFoYTE1NDJfaW4x
+KHVuc2lnbmVkIGludCBiYXNlLCB1bmNoYXIgKiBjbWRwLCBpbnQgbGVuKQ0K
+K3N0YXRpYyBpbnQgX19pbml0IGFoYTE1NDJfaW4xKHVuc2lnbmVkIGludCBi
+YXNlLCB1bmNoYXIgKiBjbWRwLCBpbnQgbGVuKQ0KIHsNCiAJdW5zaWduZWQg
+bG9uZyBmbGFnczsNCiANCkBAIC04ODYsNyArODg2LDcgQEANCiAvKiBUaGlz
+IGZ1bmN0aW9uIHNob3VsZCBvbmx5IGJlIGNhbGxlZCBmb3IgMTU0MkMgYm9h
+cmRzIC0gd2UgY2FuIGRldGVjdA0KICAgIHRoZSBzcGVjaWFsIGZpcm13YXJl
+IHNldHRpbmdzIGFuZCB1bmxvY2sgdGhlIGJvYXJkICovDQogDQotc3RhdGlj
+IGludCBhaGExNTQyX21iZW5hYmxlKGludCBiYXNlKQ0KK3N0YXRpYyBpbnQg
+X19pbml0IGFoYTE1NDJfbWJlbmFibGUoaW50IGJhc2UpDQogew0KIAlzdGF0
+aWMgdW5jaGFyIG1iZW5hYmxlX2NtZFszXTsNCiAJc3RhdGljIHVuY2hhciBt
+YmVuYWJsZV9yZXN1bHRbMl07DQo=
+---1463781119-1494034063-986976586=:21412--

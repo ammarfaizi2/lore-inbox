@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbUAaCNf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 21:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUAaCNf
+	id S263679AbUAaCT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 21:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUAaCT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 21:13:35 -0500
-Received: from hera.kernel.org ([63.209.29.2]:63886 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262652AbUAaCNe (ORCPT
+	Fri, 30 Jan 2004 21:19:26 -0500
+Received: from hera.kernel.org ([63.209.29.2]:11663 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S263679AbUAaCTZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 21:13:34 -0500
+	Fri, 30 Jan 2004 21:19:25 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: raid6 badness
-Date: Sat, 31 Jan 2004 02:13:09 +0000 (UTC)
+Subject: Re: PATCH to access old-style FAT fs
+Date: Sat, 31 Jan 2004 02:19:16 +0000 (UTC)
 Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <bvf2vl$6pr$1@terminus.zytor.com>
-References: <Pine.LNX.4.58.0401301158340.8900@sapphire.newearth.org>
+Message-ID: <bvf3b3$6pr$2@terminus.zytor.com>
+References: <20040126173949.GA788@frodo.local> <20040128202443.GA9246@frodo.local> <87bron7ppd.fsf@devron.myhome.or.jp> <20040129105624.GA1072@frodo.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1075515189 6971 66.80.2.163 (31 Jan 2004 02:13:09 GMT)
+X-Trace: terminus.zytor.com 1075515556 6971 66.80.2.163 (31 Jan 2004 02:19:16 GMT)
 X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 31 Jan 2004 02:13:09 +0000 (UTC)
+NNTP-Posting-Date: Sat, 31 Jan 2004 02:19:16 +0000 (UTC)
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Originator: hpa@smyrno.(none) (H. Peter Anvin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.58.0401301158340.8900@sapphire.newearth.org>
-By author:    "Michael V. David" <michael@mvdavid.com>
+Followup to:  <20040129105624.GA1072@frodo.local>
+By author:    Frodo Looijaard <frodol@dds.nl>
 In newsgroup: linux.dev.kernel
->
-> This x86_64 system has dual Opteron CPUs on a Tyan 2880 board. Kernel
-> version string:
 > 
-> Linux version 2.6.2-bk4 (michael@sapphire) (gcc version 3.3.2 20040119 (Red Hat Linux 3.3.2-8)) #3 SMP Fri Jan 30
-> 08:56:11 EST 2004
+> I have run a small test in MS-DOS 5.00:
 > 
-> The same problem was produced with kernel versions 2.6.2-rc2 and
-> 2.6.2-rc2-bk4. Output reproduced here is from -bk4.
+>   1) Create a new directory
+>   2) Create five files in it
+>   3) Change the first character of the second filename to 0x00 with an editor
+>   4) Do a DIR listing: only one file is seen
+>      Linux shows four files!
+>   5) Create a new file
+>   6) Do a DIR listing: there are five files
 > 
-> If raid6 is compiled into the kernel, the kernel panics while
-> starting. In the present case, it was compiled as a module. On
-> loading, there is a segfault, and syslog gets what follows:
+> So MS-DOS 5.00 at least does stop when a 0x00 marker is found, but does
+> not write new 0x00 markers when a 0x00 marker is overwritten. 
 > 
-> ---<snip>---
-> raid6: int64x1   1175 MB/s
-> raid6: int64x2   1734 MB/s
-> raid6: int64x4   1773 MB/s
-> raid6: int64x8   1273 MB/s
-> general protection fault: 0000 [1]
-> CPU 1
-> Pid: 7310, comm: modprobe Not tainted
-> RIP: 0010:[<ffffffffa0186383>] <ffffffffa0186383>{:raid6:raid6_sse21_gen_syndrome+51}
-> RSP: 0018:0000010021825dd8  EFLAGS: 00010202
-                           ^
-                           
-It crashes because the stack is misaligned.  x86-64 requires that the
-stack is always aligned to a 16-byte boundary, but your stack pointer
-isn't.
 
-The RAID-6 code for x86-64 specifically assumes proper stack
-alignment, so a misaligned stack is fatal.
+This is of course dangerous, since it could create conflicts.
 
-I don't know what would cause the stack to be misaligned, however.
+Thus, I suggest we do write new 0x00 markers; even though it's not
+required (it only matters if the filesystem is out of spec and
+therefore by definition corrupt), it would help the Psion, and
+wouldn't cause any problems for in-spec filesystems.
 
 	-hpa

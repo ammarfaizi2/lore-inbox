@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTLOPzu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTLOPzu
+	id S263745AbTLOPwp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLOPwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:55:50 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:30955 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263809AbTLOPzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:55:46 -0500
-Date: Mon, 15 Dec 2003 07:55:42 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <2269690000.1071503741@[10.10.2.4]>
-In-Reply-To: <20031215154226.GD16554@work.bitmover.com>
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215154226.GD16554@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 15 Dec 2003 10:52:45 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:20710 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263745AbTLOPwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 10:52:43 -0500
+Message-ID: <3FDDD8C6.3080804@intel.com>
+Date: Mon, 15 Dec 2003 17:52:38 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Mares <mj@ucw.cz>
+Subject: Re: PCI Express support for 2.4 kernel
+References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Larry McVoy <lm@bitmover.com> wrote (on Monday, December 15, 2003 07:42:26 -0800):
+OK, I almost convinced it may be removed.
+My point is, this initialization with 0 cost nothing. Readability and 
+clearness of code do matter, on my opinion. I think when one states 
+explicitly he expect variable to have 0 value, it is better then use 
+implicit rules.
 
-> On Sun, Dec 14, 2003 at 10:31:04PM -0800, Martin J. Bligh wrote:
->> One thing that I've wished for in the past which looks like it *might*
->> be trivial to do is to grab a raw version of the patch you already
->> put out in HTML format, eg if I surf down changesets and get to a page
->> like this:
->> 
->> http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
-> 
-> We can do that and we will, it's just not hit the top of the priority list.
-> Given past discussions on this list I had thought there was a strong need 
-> for a way to trivially track any BK tree without BK, maybe I misunderstood
-> what was being asked.
+To illustrate zero cost, I did the following test:
+[tmp]$ cat t.c; gcc -S t.c; cat t.s
+static int a1=0;
+static int a2;
+/* EOF */
 
-I suspect different people have different needs ;-)
- 
-> There isn't any reason we can't do both.
+    .file    "t.c"
+    .local    a1
+    .comm    a1,4,4
+    .local    a2
+    .comm    a2,4,4
+    .section    .note.GNU-stack,"",@progbits
+    .ident    "GCC: (GNU) 3.3.1 20030811 (Red Hat Linux 3.3.1-1)"
 
-Thanks!
+As you can see, assembly code is identical, compiler did this trivial 
+optimization for me.
 
-M.
+Vladimir.
+
+Mark Hahn wrote:
+
+>>>>+static void* rrbar_virt=NULL;
+>>>>        
+>>>>
+>>>Do not bother initializing static variables to zero.  This just wastes 
+>>>bss space, since these variables are automatically zeroed for you, 
+>>>anyway.
+>>>      
+>>>
+>>I did not found this feature in standard. More, future versions of gcc 
+>>will give at least warning, if not error, like "use of uninitialized 
+>>variable". Many good sources also say it is good practice to initialize 
+>>all variables. I rely on its value later. I' ll keep it as is unless 
+>>really strong arguments provided.
+>>    
+>>
+>
+>it'll get your code rejected.  static variables are always, everywhere,
+>initialized to zero (OK, probably not embedded environments).  this is 
+>a code standard, not a matter of taste.
+>
+>  
+>
 

@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUELPzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265116AbUELQKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265114AbUELPzv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 11:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUELPzv
+	id S265116AbUELQKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbUELQKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 11:55:51 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50334 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S265115AbUELPzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 11:55:49 -0400
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@lists.osdl.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com> <40A243C8.401@redhat.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 May 2004 09:54:28 -0600
-In-Reply-To: <40A243C8.401@redhat.com>
-Message-ID: <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 12 May 2004 12:10:13 -0400
+Received: from mail.kroah.org ([65.200.24.183]:16572 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265116AbUELQKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 12:10:09 -0400
+Date: Wed, 12 May 2004 08:08:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: mochel@digitalimplant.org, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hotplug events for system suspend/resume
+Message-ID: <20040512150818.GE10924@kroah.com>
+References: <20040511010015.GA21831@dhcp193.mvista.com> <20040511230001.GA26569@kroah.com> <40A17251.2000500@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40A17251.2000500@mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper <drepper@redhat.com> writes:
-
-> Eric W. Biederman wrote:
+On Tue, May 11, 2004 at 05:39:45PM -0700, Todd Poynor wrote:
 > 
-> 
-> >>  sym = dlsym (RTLD_DEFAULT, "the_symbol_name")
-> > [...]
-> 
-> > 
-> > For the momen the only finished port is x86, so we should be able
-> > to do that, it would make the kernel patch a little bigger though.
-> > Last time I saw that conversation I thought you didn't like symbols in
-> > the vdso for syscalls because it slowed things down.
-> 
-> I don't want to  use this in glibc for every syscall.  But for your
-> random application in need of a syscall it's fine.
+> But again, I'll let the embedded system designers jump in here if they'd 
+> like to add some insight.  In both of the above cases, some ad-hoc 
+> method of kernel-to-userspace notification could be used, but I am 
+> trying to gauge interest in using hotplug as a generic notifier for these.
 
-The question that had come up earlier was fast path syscalls like
-gettimeofday.
+Ok, I'm not going to accept this until some people who would actually
+use it step up and want to push for its inclusion.  None of this "patch
+by proxy" stuff...
 
-> And there is one more thing: the above code is actually not what should
-> be used.  The symbol able entries should be position independent.  So
-> one will have to compute the final address (which will be fun for archs
-> with function descriptors).  I'll have to see how randomization is
-> actually implemented.  The __kernel_vsyscall symbol is probably not
-> changed, so we need an out-of-band mechanisms to report the load address
-> to the userlevel code.
+thanks,
 
-We currently have AT_SYSINFO_EHDR and AT_SYSINFO which should
-report the basic location information.
-
-As a first draft we should be able to use the standard ELF mechanisms
-for this.  It is not like PIC shared libraries were new.   Or is
-there some specific problem you are thinking of with respect to
-randomization?
-
-Eric
+greg k-h

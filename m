@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263077AbSJREkI>; Fri, 18 Oct 2002 00:40:08 -0400
+	id <S263045AbSJRFDB>; Fri, 18 Oct 2002 01:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbSJREjZ>; Fri, 18 Oct 2002 00:39:25 -0400
-Received: from web10508.mail.yahoo.com ([216.136.130.158]:43165 "HELO
-	web10508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262914AbSJREiC>; Fri, 18 Oct 2002 00:38:02 -0400
-Message-ID: <20021018044402.42069.qmail@web10508.mail.yahoo.com>
-Date: Thu, 17 Oct 2002 21:44:02 -0700 (PDT)
-From: Andy Tai <lichengtai@yahoo.com>
-Reply-To: atai@atai.org
-Subject: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
-To: linux-kernel@vger.kernel.org
+	id <S263152AbSJRFDB>; Fri, 18 Oct 2002 01:03:01 -0400
+Received: from moe.rice.edu ([128.42.5.4]:19161 "EHLO moe.rice.edu")
+	by vger.kernel.org with ESMTP id <S263045AbSJRFDA>;
+	Fri, 18 Oct 2002 01:03:00 -0400
+Message-ID: <004301c27664$9d224070$7e0c2a80@OMIT>
+From: "omit_ECE" <omit@rice.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Double & Integral don't match
+Date: Fri, 18 Oct 2002 00:10:01 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am having problem with the (ethernet) Tigon3
-driver with Linux kernel 2.4.20-pre10-ac2.  If a
-program busily sends packets out on a raw socket
-(PF_PACKET, SOCK_RAW) on a Tigon3-chipset-based
-ethernet card (Neargear GA302T), the machine (AMD
-Athlon CPU, KT333 motherboard) locks up hard after a
-while.  No kernel panic or other error messages.  If I
-use a Intel PRO1000 card with the e1000 driver and
-identical same hardware and program otherwise, no lock
-up problem and the packets are sent properly.  Thus
-this indicates the problem is in the Tigon3 driver.
+Hi,
 
-Thanks for any info on solving this problem.
+In tcp_input.c, I declare a variable,
+double t_owd_; 
+t_owd_ = rcv_tsecr - rcv_tsval;
 
- 
+But in this case, the right side in the equation are integrals,
+which is against to the left side of double.
+I tried, 
+t_owd_ = (double) rcv_tsecr - (double) rcv_tsval;
 
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+It didn't work. How could I do to make it?
+Thank you.
+
+YuZen

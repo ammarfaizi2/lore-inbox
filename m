@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269960AbUJHAbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269859AbUJHAVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269960AbUJHAbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 20:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269952AbUJHA1a
+	id S269859AbUJHAVL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUJGW5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 20:27:30 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:18857 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S267657AbUJGW5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:57:36 -0400
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Jeff V. Merkey'" <jmerkey@drdos.com>,
-       "'Chris Friesen'" <cfriesen@nortelnetworks.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <jonathan@jonmasters.org>,
-       <jmerkey@comcast.net>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Thu, 7 Oct 2004 15:57:32 -0700
-Organization: Cisco Systems
-Message-ID: <012101c4acc1$076cc150$b83147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <4165B3A0.3090003@drdos.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Importance: Normal
+	Thu, 7 Oct 2004 18:57:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34451 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267657AbUJGWls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:41:48 -0400
+Date: Thu, 7 Oct 2004 18:41:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+Message-ID: <20041007224108.GI12153@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Jeff V. Merkey" <jmerkey@drdos.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>,
+	"jmerkey@comcast.net" <jmerkey@comcast.net>,
+	jonathan@jonmasters.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com> <4165B265.2050506@drdos.com> <20041007221826.GB5302@redhat.com> <4165BA70.5050208@drdos.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4165BA70.5050208@drdos.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> $50,000 per copy -- that's a hell of a pricetag. Windows only 
-> goes for $100.00 a copy.
+On Thu, Oct 07, 2004 at 03:51:44PM -0600, Jeff V. Merkey wrote:
 
-Sure, I think Linux community could sell you a copy with
-*Windows* licenses and EULA. You get the binary of the kernel
-and use it on one computer only. For multiple accounts pay more. 
-Of course, you get no source code or the ability to modify it. :)
+ > >If you want to spend god alone knows how many hours tracking down
+ > >who wrote what and nuking the relevant bits, that's your time to throw
+ > >away. If you want the same featureset a little faster however, I
+ > >believe SCO are still selling Openserver licenses.
+ >
+ > We would spend the time or remove the code.
 
-> You guys should be flattered.
-> 
-> Let's see, 10,000 companies x $50,000.00 a pop = $500,000,000 
-> / year in license fees. What a deal. 500,000,000 / 300 developers 
-> = 1.1 million per year for each of you.
-> Sounds like good business to me.
-> 
-> Companies will line up to do this, and what's great is you will still 
-> get new licensees every year,
-> so long as you keep ahead of the curve with innovation.
+'we' ?
 
-Not good for Linux. Although I am not a conspiracy thoery person,
-this "proposal" could be sponsored by M$ to bribe the whole community..
+ > OpenServer??? Gag?? Puke??
+ > According to Carl "Mad Dog" McBride Linux is already his "product" (What a
+ > joke). OpenServer is not Linux.
 
-Hua
+nor did I claim it to be. I claimed that respecting the wishes of everyone
+who didn't want a part of your 'vision' would mean you'd end with something
+on a par feature-wise with some inferior UNIX.
+
+ > If I receive a confirmation from A) Linus or B) Alan then we will profer
+ > a license agreement for everyone to review and sign off on via PGP 
+ > secure email.
+
+It's not a "Linus and Alan" thing, the copyrights on a bulk of the code
+in the tree lies with other people.
+
+ > This can be done, and if there is a process in place, others can come 
+ > and give money as well.
+ > It's time ALL YOU GUYS got rewarded for your hard work, and not just 
+ > those who
+ > positioned themselves to get fat stock options and IPO preffered stock 
+ > for .com stock market
+ > Google style IPO scams. It can happen.
+
+You seem to be under the deluded illusion that all kernel hackers
+do what they do for the money[1].
+
+Please, either cut down the dosage, or increase it.
+
+		Dave
+
+
+[1] Whereas everyone knows, its all about the fast cars and chicks.
 

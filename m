@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbTJFNZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 09:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTJFNZu
+	id S262054AbTJFNYr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTJFNYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 09:25:50 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:46722 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262062AbTJFNZs
+	Mon, 6 Oct 2003 09:24:47 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:32731 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262054AbTJFNYq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 09:25:48 -0400
-Date: Mon, 6 Oct 2003 09:27:39 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Otavio Salvador <otavio@debian.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Normal Flopply should depend of ISA?
-In-Reply-To: <87he2n2gzq.fsf@retteb.casa>
-Message-ID: <Pine.LNX.4.53.0310060923510.8753@chaos>
-References: <87he2n2gzq.fsf@retteb.casa>
+	Mon, 6 Oct 2003 09:24:46 -0400
+Message-ID: <3F816DE5.8060009@terra.com.br>
+Date: Mon, 06 Oct 2003 10:28:05 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Cciss-discuss@lists.sourceforge.net
+Subject: [PATCH] release_region in cciss block driver
+Content-Type: multipart/mixed;
+ boundary="------------090809000708010909050602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, Otavio Salvador wrote:
+This is a multi-part message in MIME format.
+--------------090809000708010909050602
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hello folks,
->
-> I'm current have problem to use normal floppy disk in 2.6.0-test6-bk7
-> and looking at last patchset I found one possible cause.
->
-> --- a/drivers/block/Kconfig Thu Sep 25 11:33:27 2003
-> +++ b/drivers/block/Kconfig Thu Oct 2 00:12:22 2003
-> @@ -6,7 +6,7 @@
-> config BLK_DEV_FD
-> tristate "Normal floppy disk support"
-> - depends on !X86_PC9800 && !ARCH_S390
-> + depends on ISA || M68 || SPARC64
-> ---help---
-> If you want to use the floppy disk drive(s) of your PC under Linux,
-> say Y. Information about this driver, especially important for IBM
->
-> Is right normal floppy depends of ISA? I'll include this by the moment
-> but I doesn't have any ISA hardware in my system.
->
-> Thanks in Advance,
-> Otavio
+	Hi Andrew,
 
-Yes. "ISA" has become to mean more than that old 70's era socket
-on the motherboard. Basically, it's a catch-all for any I/O that
-doesn't use PCI or AGP. It should probably be renamed to GPIO or
-OTHER!
+	Patch against 2.6.0-test6.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+	Release a previous requested region if we're about the fail the board 
+initialization. Found by smatch.
 
+	Please review and consider applying,
+
+	Thanks.
+
+Felipe
+
+--------------090809000708010909050602
+Content-Type: text/plain;
+ name="cciss-region.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cciss-region.patch"
+
+--- linux-2.6.0-test6/drivers/block/cciss.c.orig	2003-10-06 10:18:01.000000000 -0300
++++ linux-2.6.0-test6/drivers/block/cciss.c	2003-10-06 10:25:04.000000000 -0300
+@@ -2185,6 +2185,7 @@
+ 		schedule_timeout(HZ / 10); /* wait 100ms */
+ 	}
+ 	if (scratchpad != CCISS_FIRMWARE_READY) {
++		release_io_mem (c);
+ 		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
+ 		return -1;
+ 	}
+
+--------------090809000708010909050602--
 

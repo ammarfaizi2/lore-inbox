@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316798AbSFVUv1>; Sat, 22 Jun 2002 16:51:27 -0400
+	id <S316608AbSFVUun>; Sat, 22 Jun 2002 16:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316893AbSFVUv0>; Sat, 22 Jun 2002 16:51:26 -0400
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:38109 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S316798AbSFVUvZ> convert rfc822-to-8bit; Sat, 22 Jun 2002 16:51:25 -0400
+	id <S316798AbSFVUun>; Sat, 22 Jun 2002 16:50:43 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:63663 "EHLO tsmtp3.ldap.isp")
+	by vger.kernel.org with ESMTP id <S316608AbSFVUum>;
+	Sat, 22 Jun 2002 16:50:42 -0400
+Date: Sat, 22 Jun 2002 22:52:29 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: piggy broken in 2.5.24 build
+Message-Id: <20020622225229.46805a91.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.44.0206221501430.7338-100000@chaos.physics.uiowa.edu>
+References: <3D14B6DA.7090609@hotmail.com>
+	<Pine.LNX.4.44.0206221501430.7338-100000@chaos.physics.uiowa.edu>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Skip Gaede <sgaede@attbi.com>
-Subject: Memory abuse with NFS Root filesystem?
-Date: Sat, 22 Jun 2002 16:48:36 -0400
-User-Agent: KMail/1.4.1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206221648.36450.sgaede@attbi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+Just a question about kbuild behaviour:
 
-I have a Mac client that's running 2.4.19-pre10, XFree86 
-(4.2.0) -query + Mozilla 1.0 and losing lots of size-2048 
-buffers. The rate loss is approximately 1000 buffers/hour, 
-no reaping of the cache is ever performed, and after 8 
-hours or so, the system is unusable. I'm seeing this loss 
-of memory after I boot with an initrd, get an IP address 
-with dhclient and do a pivot_root onto the read-only NFS 
-file system.
+I compiled 2.5.24, with make dep, make bzImage, make modules....
+After that, as usually, make dep; make bzImage ...doesn't change nor
+recompile anything After that, I changed an option with menuconfig,
+"VGA 16-color graphics console support",and "3DFX Banshee/Voodoo 3
+display support" (because i can't see somethnig when i boot with it)
+from built-in to module. Then I run make dep; and it did make some small
+changes, as expected.
 
-I can also boot the the client to a bash prompt on the
- local hard drive and then run XFree86 -query + Mozilla as
- before. Under these conditions, both with and without the
- local filesystem mounted RO, the size-2048 buffer
- utilization is nominal.
 
-Local boot: slabinfo after 30 minutes:
-size-2048      5   50  2048    3    25  1 
+Then make bzImage compiled the entier kernel again, or at less a big big
+part of it, not only the changes made in menuconfig. make modules
+recompiled things again, wich are not affected with the changes (ie:
+iptables modules).
 
-NFS Root: slabinfo after 15 & 60 minutes
-size-2048   187 228  2048  94  114  1  (15 min)
-size-2048   918 928  2048 460 464  1  (60 min)
+My questions is:
 
-Anyone ever seen or heard of this before? Any thoughts on
-how to isolate this to a root cause?
+It's not expected to do the same as 2.4 kernels, i mean, recompile only
+the changes made, not the entire thing?
 
-Thanks,
-Skip
 
--------------------------------------------------------
-
+PD: What are you doing with kbuild 2.5? What parts are you integrating?
+Wich parts you aren't going to integrate?

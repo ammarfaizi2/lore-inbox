@@ -1,94 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279976AbRJ3Pnn>; Tue, 30 Oct 2001 10:43:43 -0500
+	id <S279985AbRJ3Pvn>; Tue, 30 Oct 2001 10:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279989AbRJ3Pne>; Tue, 30 Oct 2001 10:43:34 -0500
-Received: from longsword.omniti.com ([216.0.51.134]:38666 "EHLO
-	longsword.omniti.com") by vger.kernel.org with ESMTP
-	id <S279985AbRJ3PnW>; Tue, 30 Oct 2001 10:43:22 -0500
-Message-ID: <3BDECBDD.DEE796EE@omniti.com>
-Date: Tue, 30 Oct 2001 10:48:45 -0500
-From: Robert Scussel <rscuss@omniti.com>
-Reply-To: rscuss@omniti.com
-Organization: OmniTI, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pablo Ninja <pablo.ninja@uol.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.13 high SWAP
-In-Reply-To: <3BDE3174.7718D64B@omniti.com> <20011030082806.14e60268.pablo.ninja@uol.com.br>
+	id <S279984AbRJ3PvY>; Tue, 30 Oct 2001 10:51:24 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:16756 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S279962AbRJ3PvQ>; Tue, 30 Oct 2001 10:51:16 -0500
+Date: Tue, 30 Oct 2001 16:51:19 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: please revert bogus patch to vmscan.c
+Message-ID: <20011030165119.I1340@athlon.random>
+In-Reply-To: <20011030162008.G1340@athlon.random> <Pine.LNX.4.33L.0110301324410.2963-100000@imladris.surriel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33L.0110301324410.2963-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Oct 30, 2001 at 01:34:50PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pablo Ninja wrote:
-> 
-> Hi Robert,
-> 
-> I'm just a regular user of sgi xfs on my desktop and I noted It eats up all memory (maybe cos it caches too much). Don't know if it matters but have you ever tried to umount/mount these partitions ?
->
-
-Yes, I have tried to unmount the partition, however, it is impossible
-once the machine gets into this state. 
-
-One thing that I have noticed is that when the load starts to increase,
-a manual sync, although it takes a long time, appears to keep off an
-immediate hang of the system. Once the load gets above 25 however, the
-machines spiral out of control.
-
-Robert
-
-
-> []'s
-> Pablo
-> 
-> On Mon, 29 Oct 2001 23:49:56 -0500
-> Robert Scussel <rscuss@omniti.com> wrote:
-> 
-> > Just thought that I would add our experience.
+On Tue, Oct 30, 2001 at 01:34:50PM -0200, Rik van Riel wrote:
+> On Tue, 30 Oct 2001, Andrea Arcangeli wrote:
+> > On Mon, Oct 29, 2001 at 09:25:46PM -0500, Benjamin LaHaise wrote:
+> > > I fully well expect it to be.  However, from the point of view of stability
+> > > we *want* to be conservative and correct.  If Al had to demonstrate with
 > >
-> > We have experienced the same kind of swap symptoms described, however we
-> > have no mounted tmpfs, or ramfs partitions. We have, in fact,
-> > experienced the same symptoms on the 2.4.2,2.4.5,2.4.7 and 2.4.12
-> > kernel, haven't yet tried the 2.4.13 kernel.  The symptoms include hung
-> > processes which can not be killed, system cannot right to disk, and
-> > files accessed during this time are filled with binary zeros.  As sync
-> > does not work as well, the only resolution is to do a reboot -f -n.
+> > Dave just told you what this change has to do with stability, not sure
+> > why you keep reiterating about stability and correctness.
 > >
-> > All systems are comprised of exclusively SGI XFS partitions, with dual
-> > pentium II/III processors.
-> >
-> > Any insight would be helpful,
-> >
-> > Robert Scussel
-> > --
-> > Robert Scussel
-> > 1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
+> > But of course going from page flush to the mm flush is fine from my part
+> > too. As Linus noted a few days ago during swapout we're going to block
+> > and reschedule all the time, so the range flush is going to be a noop in
 > 
-> =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-> Pablo Borges                                pablo.borges@uol.com.br
-> -------------------------------------------------------------------
->   ____                                               Tecnologia UOL
->  /    \    Debian:
->  |  =_/      The 100% suck free linux distro.
->   \
->     \      SETI is lame. http://www.distributed.net
->                                                      Dnetc is XNUG!
+> Only on architectures where the TLB (or equivalent) is
+> small and only capable of holding entries for one address
+> space at a time.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> It's simply not true on eg PPC.
 
---
-Robert Scussel
-1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959
+I thought at alpha of course but alpha doesn't provide an hardware
+accessed bit in first place :).
+
+my view was too x86-64/x86/alpha centric (incidentally the only archs I
+test personally :), I really didn't considered the case of tagged tlb +
+accessed bit both provided by the cpu while making that change, so we
+hurted ia64 and ppc, but it will be trivial to fix now that Ben promptly
+noticed the problem, thanks Ben, good catch, that's really appreciated!
+
+Anwyays this have _nothing_ to do at the very least with stability
+unlike the above subliminal messages are implying, see above, it can
+only potentially be less responsive under very heavy swap on ia64 and
+ppc (dunno sparc64?), period. mentioning real life workloads like Oracle
+and RHDB in relation to the tlb flush for the accessed bit is further
+subliminal bullshit, Oracle definitely isn't supposed to swap heavily
+during the benchmarks, and I'm sure it's not the case for mainline
+postrgres either (dunno about RHDB).
+
+Andrea

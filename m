@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUIPVcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUIPVeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUIPVcK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUIPVcK
+	id S266491AbUIPVeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 17:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUIPVeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:32:10 -0400
-Received: from mynah.mail.pas.earthlink.net ([207.217.120.228]:53931 "EHLO
-	mynah.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264530AbUIPVcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:32:08 -0400
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <DC307E9D-0827-11D9-81F8-000A95A0560C@penguinppc.org>
+	Thu, 16 Sep 2004 17:34:11 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:61148 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266491AbUIPVeA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 17:34:00 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc2-mm1: Setting IDE DMA fails
+Date: Fri, 17 Sep 2004 05:34:24 +0800
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-From: Hollis Blanchard <hollis@penguinppc.org>
-Subject: ppc & ppc64 development lists moved 
-Date: Thu, 16 Sep 2004 16:32:07 -0500
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.619)
-X-ELNK-Trace: 77a46389d001b1f223bcf3e39c2f8b5f1aa676d7e74259b7b3291a7d08dfec792e8ade0ac4ef45a9d63c1a48cfbdd5db350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 32.97.110.142
+Message-Id: <200409170534.24034.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The lists.linuxppc.org server which used to house the PPC development 
-lists went down a couple weeks ago and hasn't come back. So replacement 
-lists have been created at http://ozlabs.org/cgi-bin/mailman/listinfo/ 
-. Hopefully the old subscriber lists can be transferred at some point, 
-but in the meantime interested parties should subscribe manually.
+Hi,
 
-Please tell your friends. :)
+IDE DMA setting fails in 2.6.9-rc2-mm1 with the ff. dmesg:
+...
+VP_IDE: IDE controller at PCI slot 0000:00:11.1
+ACPI: PCI interrupt 0000:00:11.1[A]: no GSI
+ACPI: PCI interrupt 0000:00:11.1[A]: no GSI
+VP_IDE: (ide_setup_pci_device:) Could not enable device.
+...
 
--Hollis
+Reversing the following patches fixed it for me:
+
+incorrect-pci-interrupt-assignment-on-es7000-for-pin-zero.patch
+incorrect-pci-interrupt-assignment-on-es7000-for-platform-gsi-fix.patch
+incorrect-pci-interrupt-assignment-on-es7000-for-platform-gsi.patch
+
+Tony
+
 

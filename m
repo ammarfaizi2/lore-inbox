@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVAJPvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVAJPxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbVAJPvf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 10:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVAJPvd
+	id S262304AbVAJPxV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 10:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVAJPvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 10:51:33 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:63648 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262298AbVAJPvV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 10:51:21 -0500
-Subject: Re: [RFC/PATCH] add support for sysdev class attributes
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050108050729.GA7587@kroah.com>
-References: <1105136891.13391.20.camel@pants.austin.ibm.com>
-	 <20050108050729.GA7587@kroah.com>
+	Mon, 10 Jan 2005 10:51:43 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:2001 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262304AbVAJPvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 10:51:24 -0500
+Subject: RE: [PATCH 2.6] cciss typo fix
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC0188@cceexc23.americas.cpqcorp.net>
+References: <D4CFB69C345C394284E4B78B876C1CF107DC0188@cceexc23.americas.cpqcorp.net>
 Content-Type: text/plain
-Date: Mon, 10 Jan 2005 09:58:03 -0600
-Message-Id: <1105372684.27280.3.camel@localhost.localdomain>
+Date: Mon, 10 Jan 2005 09:50:38 -0600
+Message-Id: <1105372238.4477.5.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.2 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 21:07 -0800, Greg KH wrote:
-> On Fri, Jan 07, 2005 at 04:28:12PM -0600, Nathan Lynch wrote:
-> > @@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
-> >  	INIT_LIST_HEAD(&cls->drivers);
-> >  	cls->kset.subsys = &system_subsys;
-> >  	kset_set_kset_s(cls, system_subsys);
-> > +
-> > +	/* I'm not going to claim to understand this; see
-> > +	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
-> > +	 */
-> > +	cls->kset.kobj.ktype = &sysdev_class_ktype;
-> > +
-> 
-> I think you need to understand this, and then submit a patch without
-> such a comment :)
-> 
-> And probably without such code, as I don't think you need to do that.
+On Mon, 2005-01-10 at 09:45 -0600, Miller, Mike (OS Dev) wrote:
+> Even if it were added to the compat header; is using __be32 correct in this context?
 
-Sure, now I'm not sure how I convinced myself that bit was needed.
-Things work fine without it.
+They should be.  The __be annotations track unconverted big endian
+numbers.  be32_to_cpu checks that it's only taking __be annotated
+variables (at least when sparse tracks it), so the cast is correct and
+prevents sparse from warning.
 
-Before I repatch, does sysdev_class_ktype need a release function?
-
-
-Thanks,
-Nathan
+James
 
 

@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265246AbTLaT27 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 14:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbTLaT23
+	id S265252AbTLaTmL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 14:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbTLaTmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 14:28:29 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:14276 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265246AbTLaT2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 14:28:01 -0500
-From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Date: Wed, 31 Dec 2003 14:27:57 -0500
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: alsa, esd, mpg123
-Message-ID: <20031231192757.GB16909@butterfly.hjsoft.com>
-References: <20031230155358.GB23963@butterfly.hjsoft.com> <Pine.LNX.4.58.0312301724470.3189@pnote.perex-int.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312301724470.3189@pnote.perex-int.cz>
-User-Agent: Mutt/1.5.4i
+	Wed, 31 Dec 2003 14:42:11 -0500
+Received: from mail2.megatrends.com ([155.229.80.16]:44562 "EHLO
+	atl-ms1.megatrends.com") by vger.kernel.org with ESMTP
+	id S265252AbTLaTmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 14:42:09 -0500
+Message-ID: <8CCBDD5583C50E4196F012E79439B45C0568D80C@atl-ms1.megatrends.com>
+From: Srikumar Subramanian <SrikumarS@ami.com>
+To: "'arjanv@redhat.com'" <arjanv@redhat.com>,
+       Srikumar Subramanian <SrikumarS@ami.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       Boopathi Veerappan <BoopathiV@ami.com>
+Subject: RE: memory leak in call_usermodehelper()
+Date: Wed, 31 Dec 2003 14:43:18 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Basically, I am not intended to have my own syscall.
 
---K8nIJk4ghYZn606h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am generating a report on all deleted file and directory. For that I
+trapped sys_unlink() function and calling a external program using
+call_usermodehelper(). Since sys_unlink() is called very frequently in my
+case, memory leak caused by calling call_usermodehelper kills all the
+process in the system.
 
-On Tue, Dec 30, 2003 at 05:25:38PM +0100, Jaroslav Kysela wrote:
-> On Tue, 30 Dec 2003, John M Flinchbaugh wrote:
-> > on my debian (unstable) laptop newly running 2.6.0, i've noticed
-> > an irritating tendency for music to not pause, but instead to
-> > try to go too fast, skipping small parts of the song (fractions
-> > of a second).  this results in music with regular beats sounding
-> > erratic.
->=20
-> Could you try this patch?
-> ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-12-30.patch.gz
+Just to narrow down the problem, I introduced my own syscall.
 
-this patch built and the modules install just fine, but when i
-try to play music, i just hear garbage beeps and blips.  that's
-with or without esd.
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
+-----Original Message-----
+From: Arjan van de Ven [mailto:arjanv@redhat.com]
+Sent: Wednesday, December 31, 2003 7:13 AM
+To: Srikumar Subramanian
+Cc: 'Andrew Morton'; 'linux-kernel@vger.kernel.org'; Boopathi Veerappan
+Subject: RE: memory leak in call_usermodehelper()
 
---K8nIJk4ghYZn606h
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+On Wed, 2003-12-31 at 06:22, Srikumar Subramanian wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+>
+> Is there any alternative to call_usermodehelper in kernel 2.4.20?
+>
+most of all don't implement your own syscalls!
 
-iD8DBQE/8yM9CGPRljI8080RAr33AJ9ZhMmLWnBU0n1aih6BAu8LqfrDswCgiAVG
-B9VDiVC6kv5ulFZWsyUUtag=
-=ra0i
------END PGP SIGNATURE-----
+> Hi,
+> I am using 2.4.20-8 Redhat 9 kernel.
+>
 
---K8nIJk4ghYZn606h--
+well clearly not quite since you're adding syscalls to it.
+Also 2.4.20-8 isn't the current Red Hat Linux 9 kernel; 2.4.20-27.9 is.

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264268AbTEZFYc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 01:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTEZFYb
+	id S264269AbTEZF1l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 01:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbTEZF1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 01:24:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54152 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264268AbTEZFY3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 01:24:29 -0400
-Date: Sun, 25 May 2003 22:36:55 -0700 (PDT)
-Message-Id: <20030525.223655.123997551.davem@redhat.com>
-To: mika.penttila@kolumbus.fi
-Cc: rmk@arm.linux.org.uk, akpm@digeo.com, hugh@veritas.com,
-       LW@KARO-electronics.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3ED1A7E2.6080607@kolumbus.fi>
-References: <3ED1A0FE.3000101@kolumbus.fi>
-	<20030525.220852.42800415.davem@redhat.com>
-	<3ED1A7E2.6080607@kolumbus.fi>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 26 May 2003 01:27:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45841 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264269AbTEZF1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 01:27:40 -0400
+Date: Sun, 25 May 2003 22:40:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+In-Reply-To: <3ED1A664.1020307@pobox.com>
+Message-ID: <Pine.LNX.4.44.0305252236400.10183-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Mika Penttilä <mika.penttila@kolumbus.fi>
-   Date: Mon, 26 May 2003 08:36:34 +0300
 
-   ah, ok. so there are cache issues even if if the user pte is not 
-   established yet? Then it seems natural to couple flush_dcache_page
-   with pte establishing, not at the driver level.
+On Mon, 26 May 2003, Jeff Garzik wrote:
+> 
+> Direction:  SATA is much more suited to SCSI, because otherwise you wind 
+> up re-creating all the queueing and error handling mess that SCSI 
+> already does for you. 
 
-flush_dcache_page() or some architecture level equivalent belongs
-whereever the kernel uses CPU store instructions to modify a page's
-contents.
+Last I looked, the SCSI interfaces were much nastier than the native 
+queueing, and if there is anything missing I'd rather put it at that 
+layer, instead of making everything use the SCSI layer.
 
-When IDE uses PIO to do a data transfer, the flush belongs there.
-Right now this is occuring in the architecture defined IDE insw/outsw
-macros.  It very well might be more efficient to do this at a higher
-level where the total extent of the I/O is known.
+Because when you talk about error handling messes, you're talking SCSI. 
+THAT is messy. At least judging by the fact that a lot of SCSI drivers 
+don't seem to get it right.
+
+In other words: I'd really like to see what you can do with a _native_
+request queue driver, and what the probloems are. And maybe port _those_ 
+parts of SCSI to it.
+
+> And for specifically Intel SATA, drivers/ide flat out doesn't work (even 
+> though it claims to).
+
+Well, I don't think it claimed to, until today. Still doesn't work?
+
+		Linus
+

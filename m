@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSH0JyF>; Tue, 27 Aug 2002 05:54:05 -0400
+	id <S315458AbSH0KUN>; Tue, 27 Aug 2002 06:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSH0JyF>; Tue, 27 Aug 2002 05:54:05 -0400
-Received: from [195.185.133.146] ([195.185.133.146]:9739 "HELO
-	gateway.hottinger.de") by vger.kernel.org with SMTP
-	id <S315457AbSH0JyE> convert rfc822-to-8bit; Tue, 27 Aug 2002 05:54:04 -0400
-Message-ID: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDB@HBMNTX0.da.hbm.com>
-From: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: interrupt latency
-Date: Tue, 27 Aug 2002 11:58:12 +0200
+	id <S315483AbSH0KUN>; Tue, 27 Aug 2002 06:20:13 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:46255 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S315458AbSH0KUM>;
+	Tue, 27 Aug 2002 06:20:12 -0400
+Date: Tue, 27 Aug 2002 06:17:42 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Mala Anand <manand@us.ibm.com>
+cc: <davem@redhat.com>, <netdev@oss.sgi.com>,
+       Robert Olsson <Robert.Olsson@data.slu.se>,
+       Bill Hartner <bhartner@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
+In-Reply-To: <OFFFA46B92.252E5659-ON87256C21.000BB73B@boulder.ibm.com>
+Message-ID: <Pine.GSO.4.30.0208270605480.6895-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I am running and will in near future kernel 2.4.18 on an embedded system.
-
-I have to speed up interrupt latency and need to understand how in what
-timing tasklets are called and arbitraded.
-
-I have to dig deep, but the kernel tree is quiet huge. As a non kernel
-programmer I ask you, if anyone could give me a hint, where to start reading
-from and which kernel source to pick first.
-
-Any help highly appreaciated. 
-(BTW: I will not bother you personaly with further questions unless you give
-permission.)
 
 
-What's behind it: We patched NMI and do some stuff we have to do very
-regularly in there. After NMI we have to quiet fast start a kernel or even a
-user space function with low latency. Also I measured 8 milliseconds after a
-hardware interrupt before the corresponding interrupt function is called. At
-RTI time it is even longer (around 12 microseconds). Need to find a way to
-exactly understand why, and maybe speed up a bit.
+On Mon, 26 Aug 2002, Mala Anand wrote:
 
-Thank You.
-Siegfried.
+> Troy Wilson (who works with me) posted SPECweb99 results using my
+> skbinit patch to lkml on Friday:
+>  http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.2/1470.html
+> I know you don't subscribe to lkml. Have you seen these results?
+> On Numa machine it showed around 3% improvement using SPECweb99.
+>
 
+The posting you pointed to says 1% - not that it matters. It becomes more
+insignificant when skb recycling comes in play mostly because the alloc
+and freeing of skbs doesnt really show up as hotlist item within
+the profile.
+I am not saying it is totaly useless -- anything that will save a few
+cycles is good;
 
--------------
-HBM - Hottinger Baldwin Messtechnik GmbH
-Siegfried Wessler, Dipl.-Ing.
-Entwicklung Messverstärker T-V
-Im Tiefen See 45, D-64293 Darmstadt
-Fon: 06151/803-884, Fax: -524
-eMail: siegfried.wessler@hbm.com
- 
+cheers,
+jamal
+

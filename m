@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131341AbQLZJ7w>; Tue, 26 Dec 2000 04:59:52 -0500
+	id <S131579AbQLZKie>; Tue, 26 Dec 2000 05:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131504AbQLZJ7m>; Tue, 26 Dec 2000 04:59:42 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:140 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131341AbQLZJ72>; Tue, 26 Dec 2000 04:59:28 -0500
-To: Dave Gilbert <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: shmat returning NULL with 0 sized segment
-In-Reply-To: <Pine.LNX.4.10.10012250109450.666-100000@tardis.home.dave>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <Pine.LNX.4.10.10012250109450.666-100000@tardis.home.dave>
-Message-ID: <m3vgs8b9u5.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S131628AbQLZKiY>; Tue, 26 Dec 2000 05:38:24 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:4356 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131579AbQLZKiO>;
+	Tue, 26 Dec 2000 05:38:14 -0500
+Message-ID: <20001224212331.A531@bug.ucw.cz>
+Date: Sun, 24 Dec 2000 21:23:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andries Brouwer <aeb@veritas.com>, Manfred <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, tytso@mit.edu, torvalds@transmeta.com
+Subject: Re: minor bugs around fork_init
+In-Reply-To: <3A44D3F3.522AD08A@colorfullife.com> <20001223233806.A886@veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 26 Dec 2000 10:31:37 +0100
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20001223233806.A886@veritas.com>; from Andries Brouwer on Sat, Dec 23, 2000 at 11:38:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Gilbert <gilbertd@treblig.org> writes:
+Hi!
 
->   I'm trying to debug a weird problem with Xine - its screwing up its use
-> of shared memory for regions I haven't sussed yet.  One odd consequence is
-> that it has apparently successfully managed to allocate a 0 byte chunk of
-> shared memory; shmat is then called with shmaddr=0 and shmflg=0; the
-> result of shmat is 0
+> > * get_pid causes a deadlock when all pid numbers are in use.
+> > In the worst case, only 10900 threads are required to exhaust
+> > the 15 bit pid space.
 > 
->   Is this what shmat is supposed to do in this (admittedly odd)
-> circumstance? The error behaviour is defined in the man page as returning
-> -1 on error.
+> Yes. I posted a patch for 31-bit pids once or twice.
+> There is no great hurry, but on the other hand, it is always
+> better to make these changes long before it is really urgent.
 
-Yes, this should be competely legal and wanted. Some programs use
-shmget (..,0,..) to test if the segment is there. Apparently Xine does
-this while setting the IPC_CREATE flag. This is legal on 2.4 (wasn't
-in 2.2) and gives you a 0 byte segment.
-
-shmat will give you then the legal address 0 like mmap would.
-
-Greetings
-                Christoph
-
+On 2Gig machine, you should be able to overflow 16 bits. So it is
+quite urgent.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

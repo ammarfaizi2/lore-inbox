@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261514AbSJAHqf>; Tue, 1 Oct 2002 03:46:35 -0400
+	id <S261516AbSJAHzi>; Tue, 1 Oct 2002 03:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261516AbSJAHqf>; Tue, 1 Oct 2002 03:46:35 -0400
-Received: from 62-190-218-226.pdu.pipex.net ([62.190.218.226]:772 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261514AbSJAHqe>; Tue, 1 Oct 2002 03:46:34 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210010800.g9180Ip4000313@darkstar.example.net>
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-To: devilkin-lkml@blindguardian.org (DevilKin)
-Date: Tue, 1 Oct 2002 09:00:18 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210010939.53707.devilkin-lkml@blindguardian.org> from "DevilKin" at Oct 01, 2002 09:39:53 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261524AbSJAHzi>; Tue, 1 Oct 2002 03:55:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:46331 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261516AbSJAHzh>;
+	Tue, 1 Oct 2002 03:55:37 -0400
+Message-ID: <3D99561C.D391C6DD@mvista.com>
+Date: Tue, 01 Oct 2002 01:00:28 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com, dipankar@in.ibm.com,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
+References: <Pine.LNX.4.44.0210010723460.5969-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And if it wasn't clear to the non-2.5-development people out there, yes
-> > you _should_ also test this code out even before the freeze. The IDE layer
-> > shouldn't be all that scary any more, and while there are still silly
-> > things like trivially non-compiling setups etc, it's generally a good idea
-> > to try things out as widely as possible before it's getting too late to
-> > complain about things..
+Ingo Molnar wrote:
 > 
-> Basically: I would _love_ to test this kernel on my laptop here, but - 
-> unfortunately - i need the laptop for my work. Which means i need it to work.
+> On Mon, 30 Sep 2002, David S. Miller wrote:
 > 
-> So how much chance IS there to trash the filesystems? I guess a lot of ppl 
-> like me are just waiting to test it out, but aren't willing to screw their 
-> systems over it...
+> > I did some thinking, and I don't understand how this old code can be
+> > legal.  Doesn't this make do_gettimeofday() inaccurate?
+> 
+> it's a mostly bogus comment, dont think about it too much.
+> 
+>         Ingo
+Actually gettimeofday is fine.  It does not depend on the
+timer interrupt, but only on one happening every once in a
+while.  It make up any latency by using the TSC and time of
+last interrupt and is in no way dependent on any latency in
+the run_timer_list.
 
-There is not much chance.
+By the way, I have been lately impressed with the relative
+amount of time a cli/sti takes and have wondered if we might
+not get a "nice" improvement in system performance by moving
+the xtime read/write lock from an irq to a bh lock.  This
+would avoid the cli/sti in the read lock which is needed to
+read the time.  All this should take (aside from finding all
+the locks) is to move the write access of xtime to the bh
+code.  Since it does nothing if timer_jiffie == jiffie, it
+does not hurt to call it from each cpu.  The timer interrupt
+would then bump a shadow jiffie which would not appear in
+jiffies until the bh code runs.
 
-The only thing that can be guaranteed is that if nobody tests 2.5.x out, then 2.6.x will definitely have trivial bugs in it.
-
-John.
+On finding the locks, I suggest abstracting them to a macro,
+thus allowing the change to be made only one place.  Of
+course, we need to change the name of the lock to enlist the
+compilers help in finding them.  But then if we are sure
+this is the way to go, there is no need for the macro.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

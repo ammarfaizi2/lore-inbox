@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSGBKsN>; Tue, 2 Jul 2002 06:48:13 -0400
+	id <S316757AbSGBLCv>; Tue, 2 Jul 2002 07:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSGBKsM>; Tue, 2 Jul 2002 06:48:12 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:17924 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S316705AbSGBKsL>; Tue, 2 Jul 2002 06:48:11 -0400
-Date: Tue, 2 Jul 2002 03:50:36 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: hd_geometry question.
-Message-ID: <20020702035036.E28771@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <OF25B15FAC.FE67359D-ONC1256BEA.0032B6AA@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <OF25B15FAC.FE67359D-ONC1256BEA.0032B6AA@de.ibm.com>; from schwidefsky@de.ibm.com on Tue, Jul 02, 2002 at 11:16:06AM +0200
+	id <S316766AbSGBLCu>; Tue, 2 Jul 2002 07:02:50 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:26614 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S316757AbSGBLCt>;
+	Tue, 2 Jul 2002 07:02:49 -0400
+Date: Tue, 2 Jul 2002 13:05:01 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] bitops operate on unsigned long
+Message-ID: <Pine.GSO.4.21.0207021303460.25055-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 11:16:06AM +0200, Martin Schwidefsky wrote:
-> 
-> >About a partition one wants to know start and length.
-> >About a full disk one wants to know size, and perhaps a (fake) geometry.
-> >
-> >The vital partition data cannot depend on obscure hardware info.
-> >So, the units used must be well-known. Earlier, everything was in
-> >512-byte sectors, but there are a few places where that is inconvenient
-> >or unnatural, and now that one has more than 2^32 sectors and 64 bits
-> >are needed anyway, things are measured in bytes.
-> >
-> >That the start field comes with the HDIO_GETGEO ioctl and the size with
-> >the BLKGETSIZE ioctl is due to history. Both are given in 512-byte sectors.
-> >BLKGETSIZE64 gives bytes.
-> 
-> Just to make sure I got that right, HDIO_GETGEO delivers a FAKE geometry
-> based on the assumption that the sector size is 512 bytes ?
 
-Fake because almost all non-removable disks made in the last
-decade have not had a fixed number of sectors per track.  If
-the disk accepts positioning based on head,cylinder,sector
-it has to be translated by the controller (the circuit board
-attached to the drive) into a linear address and then into
-the real h,c,s values.
+Bitops must operate on unsigned long.
 
-Geometry info is mostly a relic from before zone recording
-when filesystems were tuned for geometry and when drives
-didn't accept linear addressing.  Andre will probably come
-back with a list of drives that still don't accept linear
-addresses ;-).
+--- linux-2.5.24/drivers/zorro/zorro.c	Mon May 13 10:55:35 2002
++++ linux-m68k-2.5.24/drivers/zorro/zorro.c	Tue Jul  2 12:59:34 2002
+@@ -80,7 +80,7 @@
+      *  FIXME: use the normal resource management
+      */
+ 
+-u32 zorro_unused_z2ram[4] = { 0, 0, 0, 0 };
++unsigned long zorro_unused_z2ram[128/BITS_PER_LONG];
+ 
+ 
+ static void __init mark_region(unsigned long start, unsigned long end,
+--- linux-2.5.24/include/linux/generic_serial.h	Mon Feb 11 13:14:29 2002
++++ linux-m68k-2.5.24/include/linux/generic_serial.h	Tue Jun 25 20:50:38 2002
+@@ -45,7 +45,7 @@
+   int                     count;
+   int                     blocked_open;
+   struct tty_struct       *tty;
+-  int                     event;
++  unsigned long           event;
+   unsigned short          closing_wait;
+   int                     close_delay;
+   struct real_driver      *rd;
+--- linux-2.5.24/include/linux/serial167.h	Sun May 16 00:05:37 1999
++++ linux-m68k-2.5.24/include/linux/serial167.h	Tue Jun 25 20:50:38 2002
+@@ -37,7 +37,7 @@
+ 	int			ignore_status_mask;
+ 	int			close_delay;
+ 	int			IER; 	/* Interrupt Enable Register */
+-	int			event;
++	unsigned long		event;
+ 	unsigned long		last_active;
+ 	int			count;	/* # of fd on device */
+ 	int                     x_char; /* to be pushed out ASAP */
+--- linux-2.5.24/include/linux/zorro.h	Mon May 13 10:55:40 2002
++++ linux-m68k-2.5.24/include/linux/zorro.h	Tue Jul  2 12:59:34 2002
+@@ -199,7 +199,7 @@
+      *  the corresponding bits.
+      */
+ 
+-extern __u32 zorro_unused_z2ram[4];
++extern unsigned long zorro_unused_z2ram[128/BITS_PER_LONG];
+ 
+ #define Z2RAM_START		(0x00200000)
+ #define Z2RAM_END		(0x00a00000)
 
-More on this fakeness of geometry belongs offline as it is OT.
+Gr{oetje,eeting}s,
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+						Geert
 
-		Remember Cernan and Schmitt
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbUKXXMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262926AbUKXXJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbUKXXMP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 18:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUKXXKO
+	id S262926AbUKXXJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 18:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbUKXXGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:10:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50586 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262894AbUKXXIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:08:19 -0500
-Date: Wed, 24 Nov 2004 15:12:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Phil Dier <phil@dier.us>
+	Wed, 24 Nov 2004 18:06:22 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:14824 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262894AbUKXXCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:02:33 -0500
+Date: Wed, 24 Nov 2004 23:02:32 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Rychter <jan@rychter.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm,
- and xfs
-Message-Id: <20041124151234.714f30d4.akpm@osdl.org>
-In-Reply-To: <20041124094549.4c51d6d5.phil@dier.us>
-References: <20041122130622.27edf3e6.phil@dier.us>
-	<20041122161725.21adb932.akpm@osdl.org>
-	<20041124094549.4c51d6d5.phil@dier.us>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+Message-ID: <20041124230232.GA22509@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101296414.5805.286.camel@desktop.cunninghams> <20041124132949.GB13145@infradead.org> <m2d5y23o61.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2d5y23o61.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phil Dier <phil@dier.us> wrote:
->
-> > Can you rebuild the kernel with CONFIG_4KSTACKS=n?
-> > 
+On Wed, Nov 24, 2004 at 01:57:58PM -0800, Jan Rychter wrote:
+> Obviously you have never actually tried to use software suspend in real
+> life.
 > 
-> 
-> Looks like 8k stacks did the trick, at least for the oops. Now I'm
-> seeing the stuff below.
-> 
-> I got a ton more of this with jfs and xfs, but it seems much less with
-> reiser. Should I be worried, or is this something I can safely ignore?
-> It doesn't lock the system..  Could files be getting corrupted?
-> 
-> 
-> Nov 23 17:38:20 calculon swapper: page allocation failure. order:0, mode:0x20
-> Nov 23 17:38:20 calculon [<c013c854>] __alloc_pages+0x1b9/0x35e
-> Nov 23 17:38:20 calculon [<c013ca1e>] __get_free_pages+0x25/0x3f
-> Nov 23 17:38:20 calculon [<c013fccb>] kmem_getpages+0x21/0xc9
-> Nov 23 17:38:20 calculon [<c0140813>] alloc_slabmgmt+0x55/0x5f
-> Nov 23 17:38:20 calculon [<c0140992>] cache_grow+0xab/0x14d
-> Nov 23 17:38:20 calculon [<c0140ba8>] cache_alloc_refill+0x174/0x219
-> Nov 23 17:38:20 calculon [<c0140ffe>] __kmalloc+0x85/0x8c
-> Nov 23 17:38:20 calculon [<c03f4f89>] alloc_skb+0x47/0xe0
-> Nov 23 17:38:20 calculon [<c032ebe5>] e1000_alloc_rx_buffers+0x44/0xe3
+> I would kindly suggest that you try to use it on your laptop for at
+> least several weeks in various circumstances. These features are a
+> result of years of user experience.
 
-You didn't mention the kernel version.  2.6.9 had problems in this area, so
-2.6.10-rc2 should be better.  And there are post-2.6.10-rc2 fixes which
-will provide more headroom.
+I tend to buy laptops that just suspend when closing the lid, and no, I never
+had the strange desired to immediately reverse my choice.  Neither do I want
+to stop the shutdown that I just initiated.
 
+But for those people who do shutdown has a nice option to delay the actual
+shutdown/reboot - I'm pretty sure the same can be done for swsusp without
+sprinkling hooks all over the kernel.

@@ -1,78 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUIEV4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUIEV4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUIEV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 17:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUIEV4M
+	id S267285AbUIEV4X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 17:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUIEV4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 17:56:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14777 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267278AbUIEV4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 17:56:08 -0400
-Date: Sun, 5 Sep 2004 14:53:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jhf@rivenstone.net (Joseph Fannin)
-Cc: albert_herranz@yahoo.es, roland@redhat.com, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: 2.6.9-rc1-mm1 ppc build broken
-Message-Id: <20040905145355.0cf48d5c.akpm@osdl.org>
-In-Reply-To: <20040904203715.GA3049@samarkand.rivenstone.net>
-References: <200408302348.i7UNmvw0006978@magilla.sf.frob.com>
-	<20040831105118.85292.qmail@web52306.mail.yahoo.com>
-	<20040904203715.GA3049@samarkand.rivenstone.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 5 Sep 2004 17:56:23 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:56478 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267285AbUIEV4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 17:56:19 -0400
+Subject: Re: New proposed DRM interface design
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+In-Reply-To: <9e47339104090514122ca3240a@mail.gmail.com>
+References: <20040904102914.B13149@infradead.org>
+	 <4139B03A.6040706@tungstengraphics.com> <20040904122057.GC26419@redhat.com>
+	 <4139C8A3.6010603@tungstengraphics.com>
+	 <9e47339104090408362a356799@mail.gmail.com>
+	 <4139FEB4.3080303@tungstengraphics.com>
+	 <9e473391040904110354ba2593@mail.gmail.com>
+	 <1094386050.1081.33.camel@localhost.localdomain>
+	 <9e47339104090508052850b649@mail.gmail.com>
+	 <1094398257.1251.25.camel@localhost.localdomain>
+	 <9e47339104090514122ca3240a@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1094417612.1936.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 05 Sep 2004 21:53:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jhf@rivenstone.net (Joseph Fannin) wrote:
->
->  > The #include <asm/io.h> comes from bk-ia64.patch time
->  > interpolation logic patch from Cristoph Lameter.
->  > 
->  > I've checked that at least for the embedded port I'm
->  > working on the linux/mm.h is *not* a must on ppc
->  > asm/io.h so we can get rid of it (commented out).
->  > Maybe this is also true for the rest of ppc platforms.
->  > 
->  > Now 2.6.9-rc1-mm1 builds fine.
-> 
->      This is still broken in -mm3.  This fix works for my powermac too,
->  except that arch/ppc/syslib/open_pic.c misses errno.h when it does not
->  get it through mm.h.  I can't speak for other platforms, but I'll
->  include the patch.
+On Sul, 2004-09-05 at 22:12, Jon Smirl wrote:
+> Sure you can use this to get around both fbdev and DRM trying to claim
+> the resource. But it doesn't help at all to fix the problem that fbdev
+> and DRM are programming the radeon chip in conflicting ways.
 
-OK, now I have an ordering problem.  If I understand you correctly, this
-patch fixes a ppc problem which was introduced by a patch from the bk-ia64
-tree, yes?
+Once you have the common structure the rest of the problems go away
+rather nicely over time.
 
-If so, my options are to ask Tony to add this patch to the bk-ia64 tree so
-they all go in at the same time, or to merge this patch into Linus's tree
-prior to the ia64 patch.  To do the latter, I'd need confirmation that your
-patch is safe against current -linus.  Can you please confirm this?
+> What is so awful about merging the code? I'm the one doing the all of
+> the work. I intend to use 95% of the code extracted from fbdev without
+> change. I'm not getting rid of fbdev capability in the merged code,
+> I'm just coordinating use of the hardware.
 
---- 25/arch/ppc/syslib/open_pic.c~ppc-build-fix	2004-09-05 14:50:54.250084104 -0700
-+++ 25-akpm/arch/ppc/syslib/open_pic.c	2004-09-05 14:50:54.266081672 -0700
-@@ -16,6 +16,7 @@
- #include <linux/irq.h>
- #include <linux/interrupt.h>
- #include <linux/sysdev.h>
-+#include <linux/errno.h>
- #include <asm/ptrace.h>
- #include <asm/signal.h>
- #include <asm/io.h>
-diff -puN include/asm-ppc/io.h~ppc-build-fix include/asm-ppc/io.h
---- 25/include/asm-ppc/io.h~ppc-build-fix	2004-09-05 14:50:54.262082280 -0700
-+++ 25-akpm/include/asm-ppc/io.h	2004-09-05 14:50:54.276080152 -0700
-@@ -4,7 +4,6 @@
- 
- #include <linux/config.h>
- #include <linux/types.h>
--#include <linux/mm.h>
- 
- #include <asm/page.h>
- #include <asm/byteorder.h>
-_
+It doesn't solve the problem. That is the fundamental part of it. I can
+put the code in the same place or in different places, the problem you
+have to fix is co-ordination, and when you fix that not suprisingly you
+still don't care where the code lives.
+
+Create a top level video device object to hold dri and fb info pointers.
+End of problem #1. Make that top level video object the one which is
+handling the pci device irrespective of DRI/fb loading first. You've now
+solved the load order problem. Make DRI tell fb about display layout in
+X and provide sync functions. You've now solved the Oops problem.
+
+After that you can begin to worry about dual head and memory management
+which is a *lot* harder than you seem to realise and much of which
+cannot be done user space side for performance reasons.
+
+Alan
 

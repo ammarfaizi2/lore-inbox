@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319636AbSIMNAi>; Fri, 13 Sep 2002 09:00:38 -0400
+	id <S319637AbSIMNDM>; Fri, 13 Sep 2002 09:03:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319637AbSIMNAi>; Fri, 13 Sep 2002 09:00:38 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:23803
+	id <S319638AbSIMNDM>; Fri, 13 Sep 2002 09:03:12 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:24827
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319636AbSIMNAh>; Fri, 13 Sep 2002 09:00:37 -0400
-Subject: Re: [PATCH] per-zone kswapd process
+	id <S319637AbSIMNDL>; Fri, 13 Sep 2002 09:03:11 -0400
+Subject: Re: Possible bug and question about ide_notify_reboot in
+	drivers/ide/ide.c (2.4.19)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20020913045938.GG2179@holomorphy.com>
-References: <3D815C8C.4050000@us.ibm.com> <3D81643C.4C4E862C@digeo.com> 
-	<20020913045938.GG2179@holomorphy.com>
+To: Alex Davis <alex14641@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020913023744.78077.qmail@web40510.mail.yahoo.com>
+References: <20020913023744.78077.qmail@web40510.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 13 Sep 2002 14:05:52 +0100
-Message-Id: <1031922352.9056.14.camel@irongate.swansea.linux.org.uk>
+Date: 13 Sep 2002 14:09:13 +0100
+Message-Id: <1031922553.9056.18.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 05:59, William Lee Irwin III wrote:
-> Machines without observable NUMA effects can benefit from it if it's
-> per-zone. It also follows that if there's more than one task doing this,
-> page replacement is less likely to block entirely. Last, but not least,
-> when I devised it, "per-zone" was the theme.
+> Second, why do we need to put the disks on standby before halting? I ask because putting
+> the disks on standby puts my hard drives into a coma!! When I power up after a halt, 
 
-It will also increase the amount of disk head thrashing surely ?
+To make sure they have written back their caches, put themselves into
+happy safe sleeping mode and are quiet.
+
+> I have
+> to go into the BIOS and force auto-detect to wake them back up. I've removed the "standby"
+> code and things seem to be functioning normally. I have an Epox 8K7A motherboard with two
+> Maxtor Hard drives (model 5T040H4).
+> 
+
+Congratulations your BIOS sucks 8)
 

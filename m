@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132053AbRDTWPH>; Fri, 20 Apr 2001 18:15:07 -0400
+	id <S132072AbRDTWZU>; Fri, 20 Apr 2001 18:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132054AbRDTWO4>; Fri, 20 Apr 2001 18:14:56 -0400
-Received: from [212.159.14.227] ([212.159.14.227]:8920 "HELO
-	warrior-outbound.servers.plus.net") by vger.kernel.org with SMTP
-	id <S132053AbRDTWOq>; Fri, 20 Apr 2001 18:14:46 -0400
-To: esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] CML2 1.1.3 is available
-In-Reply-To: <3ADB69BF.7040305@reutershealth.com>
-	<Pine.GSO.4.05.10104161622110.17365-100000@pipt.oz.cc.utah.edu>
-	<20010416205556.A22960@thyrsus.com>
-From: Adam Sampson <azz@gnu.org>
-Organization: The Campaign For The Writing Of "a lot" As Two Words
-Content-Type: text/plain; charset=US-ASCII
-Date: 20 Apr 2001 00:20:11 +0100
-In-Reply-To: <20010416205556.A22960@thyrsus.com>
-Message-ID: <87itk04gus.fsf@cartman.azz.us-lot.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
+	id <S132077AbRDTWY7>; Fri, 20 Apr 2001 18:24:59 -0400
+Received: from fe040.worldonline.dk ([212.54.64.205]:56337 "HELO
+	fe040.worldonline.dk") by vger.kernel.org with SMTP
+	id <S132072AbRDTWY7>; Fri, 20 Apr 2001 18:24:59 -0400
+Message-ID: <3AE0B8CD.2040704@eisenstein.dk>
+Date: Sat, 21 Apr 2001 00:31:41 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en, da
 MIME-Version: 1.0
+To: Wayne.Brown@altec.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Current status of NTFS support
+In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> writes:
 
-> If there were already a library in ths stock Python distribution to
-> digest .Xdefaults files I might consider this.  Perhaps I'll write
-> one.
 
-No, please don't! .Xdefaults files as loaded by xrdb can contain cpp
-directives which can depend on the arguments given to xrdb ("xrdb
--DBIGTERM .Xdefaults", for instance), so you can't assume that what
-you read from .Xdefaults is the user's setup, even if you emulate
-cpp. You also shouldn't assume that the user's HOME is on the machine
-where they loaded their resources from (suppose I start an X session
-on my workstation, then ssh over to a server and run CML2; it would
-then read server:~/.Xdefaults rather than workstation:~/.Xdefaults).
-It's much more sensible to use the normal X mechanisms for reading
-resources from the X server.
+Wayne.Brown@altec.com wrote:
 
-CML2 looks good---keep up the good work.
+> 
+> Where does write support for NTFS stand at the moment? 
 
--- 
-Adam Sampson <azz@gnu.org>                  <URL:http://azz.us-lot.org/>
+> 
+I'll let someone who knows about that answer that part ;)
+
+> Also, I'll have to recreate my Linux partitions after the upgrade.  Does anyone
+> know if FIPS can split a partition safely that was created under Windows
+> 2000/NT?  It worked fine for Windows 98, but I'm a little worried about what
+> might happen if I try to use it on an NTFS partition.
+> 
+Last time I checked (about 2 months ago) FIPS was not able to work with 
+NTFS partitions - you'll probably have to use Partition Magic or 
+something similar to modify the NTFS partition (but why not just create 
+the NTFS partition of a smaller size and then use the unpartitioned 
+space for a ext2 partition?).
+
+Best regards,
+Jesper Juhl - juhl@eisenstein.dk
+

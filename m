@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129896AbRAKU4F>; Thu, 11 Jan 2001 15:56:05 -0500
+	id <S130807AbRAKU4z>; Thu, 11 Jan 2001 15:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129631AbRAKUzz>; Thu, 11 Jan 2001 15:55:55 -0500
-Received: from nrg.org ([216.101.165.106]:26152 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129896AbRAKUzq>;
-	Thu, 11 Jan 2001 15:55:46 -0500
-Date: Thu, 11 Jan 2001 12:55:35 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: "David S. Miller" <davem@redhat.com>
-cc: andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <200101110519.VAA02784@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130805AbRAKU4g>; Thu, 11 Jan 2001 15:56:36 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:31988 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129631AbRAKU4R>; Thu, 11 Jan 2001 15:56:17 -0500
+Date: Thu, 11 Jan 2001 17:09:03 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Paul Powell <moloch16@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux driver:  __get_free_pages()
+Message-ID: <20010111170903.A9711@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Paul Powell <moloch16@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010111203933.17385.qmail@web119.yahoomail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010111203933.17385.qmail@web119.yahoomail.com>; from moloch16@yahoo.com on Thu, Jan 11, 2001 at 12:39:33PM -0800
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, David S. Miller wrote:
-> Opinion: Personally, I think the approach in Andrew's patch
-> 	 is the way to go.
-> 
-> 	 Not because it can give the absolute best results.
-> 	 But rather, it is because it says "here is where a lot
->          of time is spent".
-> 
-> 	 This has two huge benefits:
-> 	 1) It tells us where possible algorithmic improvements may
-> 	    be possible.  In some cases we may be able to improve the
-> 	    code to the point where the pre-emption points are no
-> 	    longer necessary and can thus be removed.
+Em Thu, Jan 11, 2001 at 12:39:33PM -0800, Paul Powell escreveu:
 
-This is definitely an important goal.  But lock-metering code in a fully
-preemptible kernel an also identify spots where algorithmic improvements
-are most important.
+> Our driver is trying to allocate a DMA buffer to flash an adapter's
+> firmware.  This can require as much as 512K ( of contiguous DMA memory ).
+> We are using the function __get_free_pages( GFP_KERNEL | GFP_DMA, order)
+> .  The call is failing if 'order' is greater than 6.  The problem is seen
+> on systems with system memory of only 64MB.  It works fine on systems
+> with more memory.  Does it make sense that a system with 64MB would not
+> have 512K ( contiguous ) available?  The most that can be allocated
+> successfully on the 64MB system appears to be 256K.  (Nothing else is
+> running that would eat up 64MB of memory).
+ 
+> Does this make sense and/or is there another way that the DMA memory
+> could be allocated successfully?
 
-> 	 2) It affects only code which can burn a lot of cpu without
-> 	    scheduling.  Compare this to schemes which make the kernel
-> 	    fully pre-emptable, causing _EVERYONE_ to pay the price of
-> 	    low-latency.  If we were to later fine algorithmic
-> 	    improvements to the high-latency pieces of code, we
->             couldn't then just "undo" support for pre-emption because
-> 	    dependencies will have swept across the whole kernel
-> 	    already.
-> 
->             Pre-emption, by itself, also doesn't help in situations
-> 	    where lots of time is spent while holding spinlocks.
-> 	    There are several other operating systems which support
-> 	    pre-emption where you will find hard coded calls to the
-> 	    scheduler in time-consuming code.  Heh, it's almost like,
-> 	    "what's the frigging point of pre-emption then if you
-> 	    still have to manually check in some spots?"
+look at mm/bootmem.c
 
-Spinlocks should not be held for lots of time.  This adversely affects
-SMP scalability as well as latency.  That's why MontaVista's kernel
-preemption patch uses sleeping mutex locks instead of spinlocks for the
-long held locks.  In a fully preemptible kernel that is implemented
-correctly, you won't find any hard-coded calls to the scheduler in time
-consuming code.  The scheduler should only be called in response to an
-interrupt (IO or timeout) when we know that a higher priority process
-has been made runnable, or when the running process sleeps (voluntarily
-or when it has to wait for something) or exits.  This is the case in
-both of the fully preemptible kernels which I've worked on (IRIX and
-REAL/IX).
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
+- Arnaldo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

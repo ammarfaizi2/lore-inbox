@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292401AbSBBWKM>; Sat, 2 Feb 2002 17:10:12 -0500
+	id <S286962AbSBBWTM>; Sat, 2 Feb 2002 17:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292402AbSBBWKA>; Sat, 2 Feb 2002 17:10:00 -0500
-Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:39929
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S292401AbSBBWJ6>; Sat, 2 Feb 2002 17:09:58 -0500
-Date: Sat, 2 Feb 2002 22:09:54 +0000
-From: Mark Zealey <mark@zealos.org>
+	id <S292402AbSBBWTC>; Sat, 2 Feb 2002 17:19:02 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:24988 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S286962AbSBBWSu>;
+	Sat, 2 Feb 2002 17:18:50 -0500
+Date: Sat, 2 Feb 2002 23:18:48 +0100
+From: Francois Romieu <romieu@cogenit.fr>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Qn: kernel_thread()
-Message-ID: <20020202220954.GB5032@itsolve.co.uk>
-In-Reply-To: <MCOPFDJKMGLLEBAA@mailcity.com>
+Subject: Re: SIOCDEVICE ?
+Message-ID: <20020202231848.A5644@fafner.intra.cogenit.fr>
+In-Reply-To: <200201311304.FAA00344@adam.yggdrasil.com> <20020131181241.A3524@fafner.intra.cogenit.fr> <m3665iqhqn.fsf@defiant.pm.waw.pl> <20020202154424.A5845@fafner.intra.cogenit.fr> <20020202154348.A26147@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <MCOPFDJKMGLLEBAA@mailcity.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux sunbeam 2.4.17-wli2 
-X-Homepage: http://zealos.org/
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020202154348.A26147@havoc.gtf.org>; from garzik@havoc.gtf.org on Sat, Feb 02, 2002 at 03:43:48PM -0500
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 10:46:20PM +0530, Alpha Beta wrote:
-
-> In the code of 
-> int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
-> in arch/i386/kernel/process.c
+Jeff Garzik <garzik@havoc.gtf.org> :
+> On Sat, Feb 02, 2002 at 03:44:24PM +0100, Francois Romieu wrote:
+> > Your patch doesn't apply against 2.5.3. I did a quick update and noticed the
+> > patch is the sole user of SIOCDEVICE (with dscc4) and SIOCDEVPRIVATE.
 > 
-> as can be seen in the code here, a system call is made by trigerring the 0x80 interrupt.
-> this function kernel_thread() is used to launch the init process during booting by
-> start_kernel()	//in init/main.c
-> But at that time, the process 0 which calls kernel_thread is executing in Kernel mode, so why should some process in kernel mode make a system call??
+> SIOCDEVPRIVATE is verboten in 2.5.x, it doesn't pass through ioctl
+> translation layers like that which exists on sparc64 and ia64; they are
+> untyped awful interfaces.
+> 
+> The correction would perhaps define a real command as needed...
 
-Easy way to get the registers dumped into memory
+Yes, I've seen the big fat comment in include/linux/sockios.h for
+SIOCDEVPRIVATE. I can only infer that SIOCDEVICE isn't allowed any more
+as it seems it sneakly escaped from the kernel sources. 
+
+<executive summary of Krzysztof Halasa's update>
+The struct hdlc_device_struct offers under an union the protocol specific 
+(raw hdlc, frame relay, cisco, pppsync (1)) parameters of the interface. 
+Those are set from userspace through ifreq.ifr_settings.data and an 
+ifreq.ifr_settings.type of IF_PROTO_{HDLC/CISCO/FR/X25},... resp. which 
+specifies the size of the expected data (2).
+You retrieve it from userspace with IF_GET_PROTO.
+Once an interface is configured for frame-relay, pvc creation/deletion is
+done with IF_PROTO_FR_{ADD/DEL}_PVC.
+
+(1) Let's forget pppsync and it's revolting games with net_device.priv for now.
+(2) ifr->ifr_settings.data_length checking duplication should be avoided imho.
+
+</summary>
+
+As this question was postponed until 2.5, I'd like someone to state what the 
+accepted api will be.
+
+Let's hope it's not too much on-topic. :o)
 
 -- 
-
-Mark Zealey
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)
+Ueimor

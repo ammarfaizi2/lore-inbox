@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268729AbUHTUiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268742AbUHTUhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268729AbUHTUiA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 16:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268735AbUHTUh7
+	id S268742AbUHTUhO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 16:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268734AbUHTUfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 16:37:59 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:36506 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S268729AbUHTUf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 16:35:26 -0400
-Subject: Re: 2.6.8.1-mm, programs crashing on x86_64
-From: Alexander Nyberg <alexn@telia.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1093023902.908.8.camel@boxen>
-References: <1093023902.908.8.camel@boxen>
-Content-Type: text/plain
-Message-Id: <1093034107.796.7.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 22:35:07 +0200
+	Fri, 20 Aug 2004 16:35:44 -0400
+Received: from sccimhc91.asp.att.net ([63.240.76.165]:26258 "EHLO
+	sccimhc91.asp.att.net") by vger.kernel.org with ESMTP
+	id S264973AbUHTUck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 16:32:40 -0400
+From: Steve Snyder <swsnyder@insightbb.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Audio volume poor in Linux, OK in Win2K
+Date: Fri, 20 Aug 2004 15:32:41 -0500
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408201532.41296.swsnyder@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This does not happen in linus -bk. I noticed it happens in
-> 2.6.8-mm2 also, but not sure about earlier. I'll try some earlier
-> -mm's and if noone knows what could be it I'll do a binary search.
-> 
-> Must be quite newly introduced though...
-> 
-> boxen:~# chroot /mnt/store/x86/ bash
-> bash[911] bad frame in 32bit signal deliver frame:00000000ffffd220 rip:556605d6 rsp:ffffd500 orax:ffffffffffffffff
-> bash[910] bad frame in 32bit signal deliver frame:00000000ffffd220 rip:556605d6 rsp:ffffd500 orax:ffffffffffffffff
-> bash[910]: segfault at 00000000ffffd51c rip 00000000556605d6 rsp 00000000ffffd500 error 7
-> bash[911]: segfault at 00000000ffffd51c rip 00000000556605d6 rsp 00000000ffffd500 error 7
-> 
+I can't seem to get much volume out of my audio controller.
 
-I forgot to tell you what environment I'm in; debian in a pure 64-bit
-environment. I've got a chroot at /mnt/store/x86 where I compile kernels
-for x86 boxes.
+I have a dual-boot system, Win2K/SP4 and Fedora Core 2 (FC2), both with 
+all updates applied.  The volume is fine in Win2K.  In FC2, even with the 
+volume turned up to 100%, audio output is barely loud enough for voices 
+to be understood.  This is true whether using the built-in speakers or 
+with headphones.  The lack of volume is *not* application dependant.
 
-.config snippet:
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_IA32_EMULATION=y
-CONFIG_IA32_AOUT=y
-CONFIG_COMPAT=y
-CONFIG_SYSVIPC_COMPAT=y
-CONFIG_UID16=y
+Prior to installing FC2, I ran RedHat Linux v9 with the most recent 2.4.x 
+kernel available at that time.  The audio volume was also inadaquate in 
+this environment, yet was still fine in Win2K.
 
+I see no errors or warning in my system logs that might indicate any 
+problems with the audio driver in use.
 
-Anyway, found the trouble-maker. Reverting below patch fixes issues.
+My hardware is a HP Presario 2570us notebook, which has an integrated ALi 
+M5451 audio controller.  More detail:
 
-diff -uprN linux-2.6.8-rc3-mm1/include/asm-x86_64/processor.h linux-2.6.8-rc3-mm2/include/asm-x86_64/processor.h
---- linux-2.6.8-rc3-mm1/include/asm-x86_64/processor.h	2004-08-20 21:10:01.739109232 +0200
-+++ linux-2.6.8-rc3-mm2/include/asm-x86_64/processor.h	2004-08-20 21:09:52.095575272 +0200
-@@ -164,9 +164,9 @@ static inline void clear_in_cr4 (unsigne
- 
- 
- /*
-- * User space process size: 512GB - 1GB (default).
-+ * User space process size.
-  */
--#define TASK_SIZE	(0x0000007fc0000000UL)
-+#define TASK_SIZE	(test_thread_flag(TIF_IA32) ? 0xffffd000 : 0x0000007fc0000000UL)
- 
- /* This decides where the kernel will search for a free chunk of vm
-  * space during mmap's.
+00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link 
+Controller Audio Device (rev 02)
+        Subsystem: Hewlett-Packard Company: Unknown device 0850
+        Flags: bus master, medium devsel, latency 64, IRQ 5
+        I/O ports at 1000
+        Memory at d4000000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [dc] Power Management version 2
 
+These are the audio-related (kernel v2.6.8) modules seen with lsmod:
+
+ snd_ali5451            18888  0
+ snd_ac97_codec         58500  1 snd_ali5451
+ snd_pcm                75912  1 snd_ali5451
+ snd_page_alloc          8584  1 snd_pcm
+ snd_timer              18692  1 snd_pcm
+ snd                    42596  4   
+snd_ali5451,snd_ac97_codec,snd_pcm,snd_timer
+ soundcore               6624  1 snd
+
+It seems that the Linux audio subsystem is incapable of producing the 
+audio volume that I get in Win2K, at least with this hardware.  Is there 
+anything I can do to get more volume in Linux?
+
+Thanks.
 

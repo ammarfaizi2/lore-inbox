@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVCJAGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVCJAMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVCJAGK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVCJAEc
+	id S262575AbVCJAMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCJAKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:04:32 -0500
-Received: from nacho.zianet.com ([216.234.192.105]:11537 "HELO
-	nacho.zianet.com") by vger.kernel.org with SMTP id S262431AbVCJAA0
+	Wed, 9 Mar 2005 19:10:45 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:18318 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262519AbVCJAIz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:00:26 -0500
-From: Steven Cole <elenstev@mesatop.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with PPPD on dialup with 2.6.11-bk1 and later; 2.6.11 is OK
-Date: Wed, 9 Mar 2005 16:57:37 -0700
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 9 Mar 2005 19:08:55 -0500
+Subject: Re: [PATCH] Support for GEODE CPUs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <422F8623.4030405@cantab.net>
+References: <200503081935.j28JZ433020124@hera.kernel.org>
+	 <1110387668.28860.205.camel@localhost.localdomain>
+	 <20050309173344.GD17865@csclub.uwaterloo.ca>
+	 <1110405563.3072.250.camel@localhost.localdomain>
+	 <422F8623.4030405@cantab.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503091657.37244.elenstev@mesatop.com>
+Message-Id: <1110413198.3116.278.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 10 Mar 2005 00:06:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier today, I reported "PPPD fails on recent 2.6.11-bk".  I've narrowed
-the problem down to between 2.6.11 and 2.6.11-bk1.
+On Mer, 2005-03-09 at 23:26, David Vrabel wrote:
+> Alan Cox wrote:
+> > - If you can't turn it off use solid areas of colour to speed the system
+> > up (The hardware uses RLE encoding to reduce ram fetch bandwidth)
+> 
+> How much of a difference does the compression make to performance?
 
-I get this with 2.6.11-bk1: (two attempts)
+Depends on the resolution but a display that is mostly solid can drop to
+1/10th of a fancy background for memory fetch cost. Big deal on 66MHz
+SDRAM
 
-Mar  9 16:34:32 spc pppd[1142]: pppd 2.4.1 started by steven, uid 501
-Mar  9 16:34:32 spc pppd[1142]: Using interface ppp0
-Mar  9 16:34:32 spc pppd[1142]: Connect: ppp0 <--> /dev/ttyS1
-Mar  9 16:34:56 spc pppd[1142]: Hangup (SIGHUP)
-Mar  9 16:34:56 spc pppd[1142]: Modem hangup
-Mar  9 16:34:56 spc pppd[1142]: Connection terminated.
-Mar  9 16:34:56 spc pppd[1142]: Exit.
-Mar  9 16:35:44 spc pppd[1143]: pppd 2.4.1 started by steven, uid 501
-Mar  9 16:35:44 spc pppd[1143]: Using interface ppp0
-Mar  9 16:35:44 spc pppd[1143]: Connect: ppp0 <--> /dev/ttyS1
-Mar  9 16:36:08 spc pppd[1143]: Hangup (SIGHUP)
-Mar  9 16:36:08 spc pppd[1143]: Modem hangup
-Mar  9 16:36:08 spc pppd[1143]: Connection terminated.
-Mar  9 16:36:08 spc pppd[1143]: Exit.
+> > - The onboard audio is a software SB emulation on older GX. It burns
+> > CPU.
+> 
+> Presumably one could write a native audio driver that didn't use the 
+> soundblaster emulation?
 
-2.6.11 works fine:
+The newer ones have native audio, the older ones you could but it would
+be hard as the native audio is chip dependant, undocumented and the IRQ
+it raises is hard coded to the SMI/SMM line.
 
-Mar  9 16:40:03 spc pppd[1106]: pppd 2.4.1 started by steven, uid 501
-Mar  9 16:40:03 spc pppd[1106]: Using interface ppp0
-Mar  9 16:40:03 spc pppd[1106]: Connect: ppp0 <--> /dev/ttyS1
-Mar  9 16:40:03 spc pppd[1106]: kernel does not support PPP filtering
-Mar  9 16:40:04 spc pppd[1106]: local  IP address 216.31.65.65
-Mar  9 16:40:04 spc pppd[1106]: remote IP address 216.31.65.1
-Mar  9 16:40:04 spc pppd[1106]: primary   DNS address 216.234.192.92
-Mar  9 16:40:04 spc pppd[1106]: secondary DNS address 216.234.213.130
-
-Steven

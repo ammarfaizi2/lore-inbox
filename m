@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131501AbRCNUIH>; Wed, 14 Mar 2001 15:08:07 -0500
+	id <S131510AbRCNUJr>; Wed, 14 Mar 2001 15:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131510AbRCNUH5>; Wed, 14 Mar 2001 15:07:57 -0500
-Received: from gear.torque.net ([204.138.244.1]:23824 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S131501AbRCNUHr>;
-	Wed, 14 Mar 2001 15:07:47 -0500
-Message-ID: <3AAFCFC1.B51C00D@torque.net>
-Date: Wed, 14 Mar 2001 15:08:33 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
+	id <S131513AbRCNUJj>; Wed, 14 Mar 2001 15:09:39 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:37294 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S131510AbRCNUJX>;
+	Wed, 14 Mar 2001 15:09:23 -0500
+Date: Wed, 14 Mar 2001 15:08:40 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Christoph Hellwig <hch@caldera.de>
+cc: <linux-kernel@vger.kernel.org>, AmNet Computers <amnet@amnet-comp.com>
+Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
+In-Reply-To: <200103141823.TAA11310@ns.caldera.de>
+Message-ID: <Pine.SGI.4.31L.02.0103141507230.3571740-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, david@2gen.com
-Subject: Re: Problems with SCSI on 2.4.X
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-david@2gen.com wrote:
+On Wed, 14 Mar 2001, Christoph Hellwig wrote:
 
-> I'm having some problems using SCSI-generic (sg loaded as module) to
-> access my scanner on linux 2.4 (using SANE).
+> In article <Pine.SGI.4.31L.02.0103141026460.532128-100000@irix2.gl.umbc.edu> you wrote:
 >
-> [snip output showing timeouts]
+> > The problem:
+>
+> > drivers change their detection schemes; and changes in the kernel can
+> > change the order in which devices are assigned names.
+> >
+> > For example, the DAC960(?) drivers changed their order of
+> > detecting controllers, and I did _not_ have fun, given that the machine in
+> > question had about 40 disks to deal with, spread across two controllers.
+>
+> Put LABEL=<label set with e2label> in you fstab in place of the device name.
 
-This is most likely caused by a bug in SANE 1.0.3 and 
-1.0.4 which sets timeouts on commands to 10 seconds 
-rather than 10 minutes. The SANE code detects the new 
-sg driver in lk 2.4.x and mistakenly shortens the 
-timeout. This has been fixed in SANE's CVS (and 
-RedHat's 7.1 beta (fisher)). 
+It solves the example, but not necessarily the problem.
 
-Fix for SANE 1.0.4 : in file
-sane-backends-1.0.4/sanei/sanei_scsi.c change line 1893 
-from:
-      req->sgdata.sg3.hdr.timeout = 10000;
-to
-      req->sgdata.sg3.hdr.timeout = 10 * 60 * 1000;
+We're still left with partitions that don't do labels, attached tape
+devices, scsi controllers, NICs, and so forth.
 
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
-If you look at the FAQ on the sg web site 
-( http://www.torque.net/sg ) under the SANE entry you will
-find the same information ...
-
-Doug Gilbert

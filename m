@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314637AbSEYO0z>; Sat, 25 May 2002 10:26:55 -0400
+	id <S314641AbSEYOsu>; Sat, 25 May 2002 10:48:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314641AbSEYO0y>; Sat, 25 May 2002 10:26:54 -0400
-Received: from jwhite-home.codeweavers.com ([209.240.253.22]:40816 "EHLO
-	jwhiteh.whitesen.org") by vger.kernel.org with ESMTP
-	id <S314637AbSEYO0x>; Sat, 25 May 2002 10:26:53 -0400
+	id <S314652AbSEYOst>; Sat, 25 May 2002 10:48:49 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35828 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314641AbSEYOss>; Sat, 25 May 2002 10:48:48 -0400
 Subject: Re: isofs unhide option:  troubles with Wine
-From: Jeremy White <jwhite@codeweavers.com>
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205251513280.10327-100000@sharra.ivimey.org>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeremy White <jwhite@codeweavers.com>
+Cc: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1022334596.1262.6.camel@jwhiteh>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 25 May 2002 09:25:03 -0500
-Message-Id: <1022336704.1655.3.camel@jwhiteh>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 25 May 2002 16:50:22 +0100
+Message-Id: <1022341822.11859.36.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AFAIK, Windows "hidden" files are supposed to behave much like Unix 'dot' 
-> files (.login, etc), so IMO the kernel should not use the hidden bit at all. 
-> Instead, it should be 'ls' et al that do this. Now, I guess this isn't 
-> particularly practical without changing fileutils and many other things, so I 
-> would suggest that the kernel is changed to pass on, if possible, but 
-> basically ignore the 'hidden' bit.
+On Sat, 2002-05-25 at 14:49, Jeremy White wrote:
+> Yes, that is what we have to do now.  So, when our product is
+> installed, a user is presented with a confusing, and highly technical
+> question, the gist of which is:  please give us your root password
+> so we can do something you don't understand.  It's okay, trust us,
+> really...<grin>
 
-To me, this seems like the best approach.  My solution offends my
-sensibilities in that we essentially 'throw away' the hidden
-bit information.  However, I am sufficiently ignorant of the
-filesystem such that I don't really know if this is feasible,
-or if there is even a reasonable place to park the hidden bit
-information.
+Sounds like a job for rpm triggers and install scripts.
 
-Cheers,
+> Further, I would argue that if you accept that unhide is a
+> reasonable default for me to force into the fstab, then
+> it is a reasonable default for the kernel to have.
 
-Jer
-
+I'd tend to agree, simply because the defaults ought to make things
+possible rather than impossible. Question is - why was hide the default
+and what was that decision based upon ?
 

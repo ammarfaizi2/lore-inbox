@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289796AbSAPAa1>; Tue, 15 Jan 2002 19:30:27 -0500
+	id <S289795AbSAPAfH>; Tue, 15 Jan 2002 19:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289794AbSAPAaS>; Tue, 15 Jan 2002 19:30:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15109 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289795AbSAPAaJ>; Tue, 15 Jan 2002 19:30:09 -0500
-Message-ID: <3C44C97D.9030106@zytor.com>
-Date: Tue, 15 Jan 2002 16:29:49 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
+	id <S290300AbSAPAe6>; Tue, 15 Jan 2002 19:34:58 -0500
+Received: from aldebaran.sra.com ([163.252.31.31]:35716 "EHLO
+	aldebaran.sra.com") by vger.kernel.org with ESMTP
+	id <S289795AbSAPAek>; Tue, 15 Jan 2002 19:34:40 -0500
+From: David Garfield <garfield@irving.iisd.sra.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: initramfs buffer spec -- second draft
-In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu> <E16Qa0W-0001kH-00@starship.berlin> <20020115140436.L11251@lynx.adilger.int> <E16Qcha-0001lF-00@starship.berlin> <20020115165951.R11251@lynx.adilger.int>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15428.51789.430278.700907@irving.iisd.sra.com>
+Date: Tue, 15 Jan 2002 19:33:17 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+In-Reply-To: <20020116000117.GD29020@kroah.com>
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com>
+	<20020115233437.GC29020@kroah.com>
+	<15428.49056.652466.414438@irving.iisd.sra.com>
+	<20020116000117.GD29020@kroah.com>
+X-Mailer: VM 6.96 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+Greg KH writes:
+ > But how do you always know what is "needed"?  Wouldn't it be nice to
+ > just select "compile all SCSI PCI and IEEE1394 and USB drivers as
+ > modules" and then have your "real" root partition's controller be
+ > automatically found before you try to mount your "real" root partition?
 
-> 
-> But the proposed cpio format (AFAIK) has ASCII numbers, which is what you
-> were originally complaining about.  I see that cpio(1) says that "by
-> default, cpio creates binary format archives... and can read archives
-> created on machines with a different byte-order".
-> 
-> Excluding alignment issues (which can also be handled relatively easily),
-> is there a reason why we chose the ASCII format over binary, especially
-> since the binary format _appears_ to be portable (assuming endian
-> conversions at decoding time), despite warnings to the contrary?
-> 
+One knows what is needed because one knows or determines what it takes
+to access ones real root partition.
 
+ > Say your SCSI PCI controller dies, and you buy a new one.  Plop it in,
+ > reboot, and everything works.  No having to build a new initrd, or build
+ > in _all possible_ SCSI PCI drivers.
 
-The "binary" format of cpio is *ancient*.  There is no binary equivalent
-to the "newc" (SVR4) format.
+Except that what you have just proposed requires that you "build in
+_all possible_ SCSI PCI drivers" as modules in the initramfs.  Little
+gain, except that some things won't be retained.
 
- 
-> The binary format reports lots of "truncating inode number", but for
-> the purpose of initramfs, that is not an issue as we don't anticipate
-> more than 64k files.  I don't know why the /sbin test is so heavily
-> in favour of the newc (ASCII) format, but I repeated it to confirm
-> the numbers.
-
-
-There are way too many other problems with the ancient cpio formats.  Not
-an option.
-
-	-hpa
+Further, I don't thing I would expect a system with a changed SCSI PCI
+controller to boot on a kernel specifically built for the previous
+controller.  I don't think I would even want it to boot.  Better I
+think to get out a rescue disk of some sort, boot from that,
+reconfigure a built kernel for the new hardware (in the new case,
+simply reconstructing the initramfs), and reboot from that.
 
 
+
+ > Right now you can't have your "real" root partition on a USB drive,
+ > without a horrible "let's wait forever" patch to your kernel.
+ > 
+ > This also solves the "coldplug" problem, where you need to load
+ > pci/usb/foobus drivers _after_ init has started.  To do this you need to
+ > rely on scanning the busses from userspace and loading the needed
+ > drivers.  Why reimplement this scanning logic, as the kernel already did
+ > all of this (and usually did a much better job at it) during the boot
+ > process before init started.
+ > 
+ > And this allows lots of horrible "boot over NFS" and other network
+ > code/hacks in the kernel to be moved out of kernel space, and into
+ > userspace, where it really belongs.
+
+Well, I agree that the new solution does solve some problems.
+
+
+What I am worried about is not *allowing* user mode code in the
+initramfs, but *requiring* it.
+
+
+--David Garfield

@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293510AbSDCJmZ>; Wed, 3 Apr 2002 04:42:25 -0500
+	id <S310201AbSDCKHl>; Wed, 3 Apr 2002 05:07:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293541AbSDCJmP>; Wed, 3 Apr 2002 04:42:15 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30477 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S293510AbSDCJmB>; Wed, 3 Apr 2002 04:42:01 -0500
-Message-Id: <200204030938.g339cnX16298@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: [OT] who's maintaining util-linux?
-Date: Wed, 3 Apr 2002 12:38:08 -0200
-X-Mailer: KMail [version 1.3.2]
+	id <S310206AbSDCKHb>; Wed, 3 Apr 2002 05:07:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50961 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S310201AbSDCKH1>; Wed, 3 Apr 2002 05:07:27 -0500
+Date: Wed, 3 Apr 2002 05:05:10 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jauder Ho <jauderho@carumba.com>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Ext2 vs. ext3 recovery after crash
+In-Reply-To: <Pine.LNX.4.44.0204022144310.21070-100000@twinlark.arctic.org>
+Message-ID: <Pine.LNX.3.96.1020403045517.11049B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Tue, 2 Apr 2002, Jauder Ho wrote:
 
-I'm using util-linux and have some problems with them.
-The biggest of promlems is that I am unable to contact
-maintainers of said utils :-(   Are they maintained?
---
-vda
+> 
+> Bill, you do know that it will do a full fsck every x mounts right?
+> 
+> [root@turtle /lib]# tune2fs -l /dev/hda6 | grep -i mount
+> Last mounted on:          <not available>
+> Last mount time:          Sun Mar  3 11:34:50 2002
+> Mount count:              1
+> Maximum mount count:      20
+
+I assure you I have not set my max-mount down to three or four, and since
+it crashes several times a day you can forget forced by date, too.
+
+C'mon, I've been doing this stuff since the MCC four floppy distribution
+was king, I've seen a max mount counts message before. This is purely a
+case of the *first* mount message being EXT2 instead of EXT3, as if the
+journal wasn't detected in the first place. However, the r/w mount is
+always ext3 per fstab.
+
+I never get close to max-mounts, this problem is in the 20-30% of the time
+range. No one knows why a lot of the Dells hang on X-logout, guess this is
+one more thing it does poorly.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284300AbSAZNbr>; Sat, 26 Jan 2002 08:31:47 -0500
+	id <S284794AbSAZNi5>; Sat, 26 Jan 2002 08:38:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284794AbSAZNbk>; Sat, 26 Jan 2002 08:31:40 -0500
-Received: from natwar.webmailer.de ([192.67.198.70]:38016 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S284300AbSAZNbe>; Sat, 26 Jan 2002 08:31:34 -0500
-Date: Sat, 26 Jan 2002 13:03:34 +0100
-From: Kristian <kristian.peters@korseby.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-Message-Id: <20020126130334.1d5bca71.kristian.peters@korseby.net>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
-X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S284890AbSAZNir>; Sat, 26 Jan 2002 08:38:47 -0500
+Received: from trantor.cosmic.com ([209.58.189.187]:271 "EHLO cosmic.com")
+	by vger.kernel.org with ESMTP id <S284794AbSAZNig>;
+	Sat, 26 Jan 2002 08:38:36 -0500
+From: mirian@cosmic.com (Mirian Crzig Lennox)
+X-Newsgroups: cosmic.linux.kernel
+Subject: Re: network hangs, NETDEV WATCHDOG messages, Dual AMD Duron, APIC
+Date: Sat, 26 Jan 2002 13:38:37 +0000 (UTC)
+Organization: The Cosmic Computing Corporation of Alpha Centauri
+Message-ID: <slrna55cat.h4s.mirian@trantor.cosmic.com>
+In-Reply-To: <Pine.LNX.4.44.0201240823470.28541-100000@netfinity.realnet.co.sz>
+X-Complaints-To: news@trantor.cosmic.com
+User-Agent: slrn/0.9.6.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Thu, 24 Jan 2002 08:25:05 +0200 (SAST), Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
+>Have you tested with another NIC? I've witnessed a problem similar to 
+>yours recently (specific machines could login to a Samba server and i 
+>could ssh out to/from the server but file copies from Samba failed after 
+>copying 20-30 files. Please test with another NIC (another Tulip maybe?) 
+>so that we can determine wether its a hardware/kernel issue.
 
-Works very fine here. I applied your patch on 2.4.18-pre3-ac2. System feels little smoother overall. Especially when I grab from 2 CD's simultaneously.
+The NIC I was using was a NetGear Lite-On PNIC.  I swapped it out with
+another one, and got exactly the same behavior.  Then I swapped in a
+3C905B, and the problem disappeared; the network works fine.
 
-Will it be included in 2.4.19 ?
+Just out of curiosity, I tried another NIC, a Kington KNE100TX.  That
+card didn't work at all, in fact, it somehow zapped my CMOS.  I went
+back to the 3C905B.
 
-*Kristian
+After reading some more reports of problems with AMDs, I should also
+mention that I'm using an AGP video card (an Asus GeForce3).  The card
+itself isn't giving me trouble, and I've experienced none of the hangs
+or Oopses that others have, but APIC issues do seem to manifest in
+bizarre ways.
 
-Andrew Morton <akpm@zip.com.au> wrote:
-> Reading audio from IDE CDROMs always uses PIO.  This patch
-> teaches the kernel to use DMA for the CDROMREADAUDIO ioctl.
-> [..]
+>Also consider that Duron SMP is not a supported configuration, and 
+>therefore CPU/PIC based issues like APIC problems aren't going to get you 
+>far with some of the kernel hackers.
 
-  :... [snd.science] ...:
- ::
- :: http://www.korseby.net
- :: http://gsmp.sf.net
-  :.........................:: ~/$ kristian@korseby.net :
+That's interesting.  Well, in that case, I can report that my Duron SMP
+works pretty well.  The only problem I've encountered has been the
+network problem with certain cards; everything else works a treat on the
+2.4 series kernels.
+
+Thanks for your help and advice,
+--Mirian
+

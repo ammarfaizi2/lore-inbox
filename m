@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263861AbTCUV7Y>; Fri, 21 Mar 2003 16:59:24 -0500
+	id <S263677AbTCUS3N>; Fri, 21 Mar 2003 13:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263860AbTCUV7G>; Fri, 21 Mar 2003 16:59:06 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:57841 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S263861AbTCUV5D>; Fri, 21 Mar 2003 16:57:03 -0500
-Date: Fri, 21 Mar 2003 14:06:54 -0800
-From: Chris Wright <chris@wirex.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, perex@suse.cz
-Subject: Re: [CHECKER] potential dereference of user pointer errors
-Message-ID: <20030321140654.E641@figure1.int.wirex.com>
-Mail-Followup-To: Junfeng Yang <yjf@stanford.edu>,
-	linux-kernel@vger.kernel.org, mc@cs.stanford.edu, perex@suse.cz
-References: <20030321134449.A646@figure1.int.wirex.com> <Pine.GSO.4.44.0303211355080.12835-100000@elaine24.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.44.0303211355080.12835-100000@elaine24.Stanford.EDU>; from yjf@stanford.edu on Fri, Mar 21, 2003 at 01:58:19PM -0800
+	id <S263698AbTCUS2f>; Fri, 21 Mar 2003 13:28:35 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56707
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263748AbTCUS0W>; Fri, 21 Mar 2003 13:26:22 -0500
+Date: Fri, 21 Mar 2003 19:41:37 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303211941.h2LJfbjE025899@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: sk98 typo fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Junfeng Yang (yjf@stanford.edu) wrote:
-> 
-> Thanks a lot for your confirmation! So actually the first copy_from_user
-> is meant to copy in what "*data" points to, not "data".
-
-That's how I read it, but I can't claim to know this code.  Sorry, I mistyped
-Jaroslav's address on the original email (fixed now), I expect he's the one
-to ask.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/net/sk98lin/skvpd.c linux-2.5.65-ac2/drivers/net/sk98lin/skvpd.c
+--- linux-2.5.65/drivers/net/sk98lin/skvpd.c	2003-03-06 17:04:27.000000000 +0000
++++ linux-2.5.65-ac2/drivers/net/sk98lin/skvpd.c	2003-03-20 18:48:07.000000000 +0000
+@@ -121,7 +121,7 @@
+  ******************************************************************************/
+ 
+ /*
+-	Please refer skvpd.txt for infomation how to include this module
++	Please refer skvpd.txt for information how to include this module
+  */
+ static const char SysKonnectFileId[] =
+ 	"@(#)$Id: skvpd.c,v 1.26 2000/06/13 08:00:01 mkarl Exp $ (C) SK" ;

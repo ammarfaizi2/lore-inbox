@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272997AbTHKTmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274907AbTHKTkj
+	id S274830AbTHKT5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274833AbTHKT5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:40:39 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:49808 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S274906AbTHKTkW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:40:22 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 11 Aug 2003 21:54:22 +0200
-From: Gerd Knorr <kraxel@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Christoph Bartelmus <columbus@hit.handshake.de>,
-       lirc-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
+	Mon, 11 Aug 2003 15:57:06 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:57063 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S274830AbTHKT5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:57:03 -0400
+Date: Mon, 11 Aug 2003 21:55:55 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@bytesex.org>,
+       Flameeyes <dgp85@users.sourceforge.net>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811195422.GA25598@bytesex.org>
-References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz> <1060334463.5037.13.camel@defiant.flameeyes> <20030808231733.GF389@elf.ucw.cz> <8rZ2nqa1z9B@hit-columbus.hit.handshake.de> <20030811124744.GB1733@elf.ucw.cz> <20030811183132.GB17777@bytesex.org> <20030811185914.GK2627@elf.ucw.cz>
+Message-ID: <20030811195554.GR2627@elf.ucw.cz>
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz> <20030811191709.GN2627@elf.ucw.cz> <20030811193401.GA8957@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811185914.GK2627@elf.ucw.cz>
-X-GPG-Fingerprint: 79C4 EE94 CC44 6DD4 58C6  3088 DBB7 EC73 8750 D2C4  [1024D/8750D2C4]
+In-Reply-To: <20030811193401.GA8957@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 08:59:14PM +0200, Pavel Machek wrote:
-> Hi!
+Hi!
+
+> > > > IMHO there's one problem:
+> > > > 
+> > > > If a remote control has e.g. a "1" key this doesn't mean that a user
+> > > > wants a "1" to be written into your editor while editing source code.
+> > > > The "1" key on a remote control simply has a differnt _meaning_ than
+> > > > the "1" key on your keyboard -- depending of course on what the user
+> > > > thinks this key should mean.
+> > > 
+> > > That's what BTN_1 is for. ;)
+> > 
+> > Ahha, I thought BTN_1 would be first mouse button ;-). Will fix that.
 > 
-> Yes, that might be even better. I'd like to have ir drivers at one
-> place, but if theres enough advantage the other way...
+> No, that'd be BTN_LEFT.
 
-Yes, there is:  I can just put the IR info into the card database.
-The poll thread can go away, instead I can hook gpio readouts into the
-IRQ handler.  Probing is just one or two lines in bttv-cards.c, ...
+Okay, then what about this:
 
-I'll have a look at this tomorrow.
+The control has keypad labeled 0..9 and at the same time it has arrows
+on it (its meant for mouse emulation). Then it has keys DISPLAY/L, and
+LOOP/R. If I mark DISPLAY/L as BTN_LEFT, will it be the "right thing"
+(tm)?
 
-  Gerd
-
+								Pavel
 -- 
-sigfault
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

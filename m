@@ -1,135 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbUKCJKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbUKCJkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbUKCJKz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 04:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbUKCJJe
+	id S261555AbUKCJkE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 04:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUKCJit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 04:09:34 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:26836 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261494AbUKCJHB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 04:07:01 -0500
-Date: Wed, 3 Nov 2004 14:45:49 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       wli@holomorphy.com
-Subject: Re: [PATCH 3/6] Interfaces to init and to test wait bit key
-Message-ID: <20041103091549.GC5737@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20041103091036.GA4041@in.ibm.com>
+	Wed, 3 Nov 2004 04:38:49 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:29329 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261503AbUKCJK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 04:10:57 -0500
+Date: Wed, 3 Nov 2004 01:10:39 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] deprecate pci_module_init
+Message-ID: <20041103091039.GA22469@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041103091036.GA4041@in.ibm.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 02:40:36PM +0530, Suparna Bhattacharya wrote:
-> 
-> The series of patches that follow integrate AIO with 
-> William Lee Irwin's wait bit changes, to support asynchronous
-> page waits.
-> 
-> [1] modify-wait-bit-action-args.patch
-> 	Add a wait queue arg to the wait_bit action() routine
-> 
-> [2] lock_page_slow.patch
-> 	Rename __lock_page to lock_page_slow
-> 
-> [3] init-wait-bit-key.patch
-> 	Interfaces to init and to test wait bit key
-> 
+A separate pci_module_init doesn't really exist anymore so we should
+deprecate this.  Whilst we are at it we should insist any (old) users
+of this and also users of pci_register_driver check their return
+codes.  Whilst doing this we may as well remove some old (unused)
+preprocessor tokens whilst we are at it.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
+---
 
--------------------------------------------------------------
-
-init_wait_bit_key() initializes the key field in an already 
-allocated wait bit structure, useful for async wait bit support.
-Also separate out the wait bit test to a common routine which
-can be used by different kinds of wakeup callbacks.
-
-Signed-off-by: Suparna Bhattacharya <suparna@in.ibm.com>
-
-diff -puN include/linux/wait.h~init-wait-bit-key include/linux/wait.h
+FWIW I have some cleanups for drivers that I'll post in the next day
+or so...
 
 
- linux-2.6.10-rc1-suparna/include/linux/wait.h |   30 +++++++++++++++++++++++---
- linux-2.6.10-rc1-suparna/kernel/wait.c        |   11 +--------
- 2 files changed, 29 insertions(+), 12 deletions(-)
-
-diff -puN include/linux/wait.h~init-wait-bit-key include/linux/wait.h
---- linux-2.6.10-rc1/include/linux/wait.h~init-wait-bit-key	2004-11-03 14:35:07.000000000 +0530
-+++ linux-2.6.10-rc1-suparna/include/linux/wait.h	2004-11-03 14:35:07.000000000 +0530
-@@ -103,6 +103,17 @@ static inline int waitqueue_active(wait_
- 	return !list_empty(&q->task_list);
- }
+===== Documentation/pci.txt 1.15 vs edited =====
+--- 1.15/Documentation/pci.txt	2004-10-06 09:47:03 -07:00
++++ edited/Documentation/pci.txt	2004-11-02 11:32:43 -08:00
+@@ -230,8 +230,6 @@ pci_find_slot()			Find pci_dev correspon
+ pci_set_power_state()		Set PCI Power Management state (0=D0 ... 3=D3)
+ pci_find_capability()		Find specified capability in device's capability
+ 				list.
+-pci_module_init()		Inline helper function for ensuring correct
+-				pci_driver initialization and error handling.
+ pci_resource_start()		Returns bus start address for a given PCI region
+ pci_resource_end()		Returns bus end address for a given PCI region
+ pci_resource_len()		Returns the byte length of a PCI region
+===== drivers/pci/pci-driver.c 1.42 vs edited =====
+--- 1.42/drivers/pci/pci-driver.c	2004-10-19 16:56:40 -07:00
++++ edited/drivers/pci/pci-driver.c	2004-11-02 11:32:44 -08:00
+@@ -400,7 +400,7 @@ pci_populate_driver_dir(struct pci_drive
+  * If no error occured, the driver remains registered even if 
+  * no device was claimed during registration.
+  */
+-int pci_register_driver(struct pci_driver *drv)
++int __must_check pci_register_driver(struct pci_driver *drv)
+ {
+ 	int error;
  
-+static inline int test_wait_bit_key(wait_queue_t *wait,
-+				struct wait_bit_key *key)
+===== include/linux/pci.h 1.139 vs edited =====
+--- 1.139/include/linux/pci.h	2004-10-05 15:56:26 -07:00
++++ edited/include/linux/pci.h	2004-11-02 11:32:44 -08:00
+@@ -41,13 +41,9 @@
+ #define PCI_STATUS		0x06	/* 16 bits */
+ #define  PCI_STATUS_CAP_LIST	0x10	/* Support Capability List */
+ #define  PCI_STATUS_66MHZ	0x20	/* Support 66 Mhz PCI 2.1 bus */
+-#define  PCI_STATUS_UDF		0x40	/* Support User Definable Features [obsolete] */
+ #define  PCI_STATUS_FAST_BACK	0x80	/* Accept fast-back to back */
+ #define  PCI_STATUS_PARITY	0x100	/* Detected parity error */
+ #define  PCI_STATUS_DEVSEL_MASK	0x600	/* DEVSEL timing */
+-#define  PCI_STATUS_DEVSEL_FAST	0x000	
+-#define  PCI_STATUS_DEVSEL_MEDIUM 0x200
+-#define  PCI_STATUS_DEVSEL_SLOW 0x400
+ #define  PCI_STATUS_SIG_TARGET_ABORT 0x800 /* Set on target abort */
+ #define  PCI_STATUS_REC_TARGET_ABORT 0x1000 /* Master ack of " */
+ #define  PCI_STATUS_REC_MASTER_ABORT 0x2000 /* Set on master abort */
+@@ -681,7 +677,13 @@ struct pci_driver {
+  * pci_module_init is obsolete, this stays here till we fix up all usages of it
+  * in the tree.
+  */
+-#define pci_module_init	pci_register_driver
++static inline __deprecated __must_check int pci_module_init(struct pci_driver *drv)
 +{
-+	struct wait_bit_queue *wait_bit
-+		= container_of(wait, struct wait_bit_queue, wait);
++	int __must_check pci_register_driver(struct pci_driver *drv);
 +
-+	return (wait_bit->key.flags == key->flags &&
-+			wait_bit->key.bit_nr == key->bit_nr &&
-+			!test_bit(key->bit_nr, key->flags));
++	return pci_register_driver(drv);
 +}
 +
- /*
-  * Used to distinguish between sync and async io wait context:
-  * sync i/o typically specifies a NULL wait queue entry or a wait
-@@ -348,9 +359,22 @@ int wake_bit_function(wait_queue_t *wait
  
- #define init_wait(wait)							\
- 	do {								\
--		wait->task = current;					\
--		wait->func = autoremove_wake_function;			\
--		INIT_LIST_HEAD(&wait->task_list);			\
-+		(wait)->task = current;					\
-+		(wait)->func = autoremove_wake_function;		\
-+		INIT_LIST_HEAD(&(wait)->task_list);			\
-+	} while (0)
-+
-+#define init_wait_bit_key(waitbit, word, bit)				\
-+	do {								\
-+		(waitbit)->key.flags = word;				\
-+		(waitbit)->key.bit_nr = bit;				\
-+	} while (0)
-+
-+#define init_wait_bit_task(waitbit, tsk)				\
-+	do {								\
-+		(waitbit)->wait.task = tsk;				\
-+		(waitbit)->wait.func = wake_bit_function;		\
-+		INIT_LIST_HEAD(&(waitbit)->wait.task_list);		\
- 	} while (0)
+ /* these external functions are only available when PCI support is enabled */
+ #ifdef CONFIG_PCI
+@@ -816,7 +818,7 @@ int pci_bus_alloc_resource(struct pci_bu
+ void pci_enable_bridges(struct pci_bus *bus);
  
- /**
-diff -puN kernel/wait.c~init-wait-bit-key kernel/wait.c
---- linux-2.6.10-rc1/kernel/wait.c~init-wait-bit-key	2004-11-03 14:35:07.000000000 +0530
-+++ linux-2.6.10-rc1-suparna/kernel/wait.c	2004-11-03 14:35:07.000000000 +0530
-@@ -132,16 +132,9 @@ EXPORT_SYMBOL(autoremove_wake_function);
- 
- int wake_bit_function(wait_queue_t *wait, unsigned mode, int sync, void *arg)
- {
--	struct wait_bit_key *key = arg;
--	struct wait_bit_queue *wait_bit
--		= container_of(wait, struct wait_bit_queue, wait);
--
--	if (wait_bit->key.flags != key->flags ||
--			wait_bit->key.bit_nr != key->bit_nr ||
--			test_bit(key->bit_nr, key->flags))
-+	if (!test_wait_bit_key(wait, arg))
- 		return 0;
--	else
--		return autoremove_wake_function(wait, mode, sync, key);
-+	return autoremove_wake_function(wait, mode, sync, arg);
- }
- EXPORT_SYMBOL(wake_bit_function);
- 
+ /* New-style probing supporting hot-pluggable devices */
+-int pci_register_driver(struct pci_driver *);
++int __must_check pci_register_driver(struct pci_driver *);
+ void pci_unregister_driver(struct pci_driver *);
+ void pci_remove_behind_bridge(struct pci_dev *);
+ struct pci_driver *pci_dev_driver(const struct pci_dev *);
+@@ -907,7 +909,7 @@ static inline void pci_disable_device(st
+ static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
+ static inline int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
+ static inline int pci_assign_resource(struct pci_dev *dev, int i) { return -EBUSY;}
+-static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
++static inline int __must_check pci_register_driver(struct pci_driver *drv) { return 0;}
+ static inline void pci_unregister_driver(struct pci_driver *drv) { }
+ static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
+ static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
 
-_

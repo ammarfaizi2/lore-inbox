@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266053AbSKTNDJ>; Wed, 20 Nov 2002 08:03:09 -0500
+	id <S266081AbSKTNKp>; Wed, 20 Nov 2002 08:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266064AbSKTNDJ>; Wed, 20 Nov 2002 08:03:09 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:38134 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S266053AbSKTNDJ>; Wed, 20 Nov 2002 08:03:09 -0500
-Date: Wed, 20 Nov 2002 14:10:03 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [RFC/CFT] Separate obj/src dir
-Message-ID: <20021120131003.GB16412@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-References: <20021119201110.GA11192@mars.ravnborg.org>
-Mime-Version: 1.0
+	id <S266091AbSKTNKp>; Wed, 20 Nov 2002 08:10:45 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58476 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266081AbSKTNKm>; Wed, 20 Nov 2002 08:10:42 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200211201317.gAKDHgZ08017@devserv.devel.redhat.com>
+Subject: Linux 2.2.23-rc1
+To: linux-kernel@vger.kernel.org
+Date: Wed, 20 Nov 2002 08:17:42 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021119201110.GA11192@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 09:11:10PM +0100, Sam Ravnborg wrote:
-> The kbuild shell script takes a verbatim copy of all Makefiles,
-> all Kconfig files and all defconfigs. I did not even look into
-> using symlinks, I was not sure how they work across NFS
-> and the like.
 
-But Kconfigs and defconfigs belong to the sources, don't they?
+2.2.23-rc1
+o	Gameport support for ALi 5451			(Pascal Schmidt)
+	| Just missing PCI idents
+o	IP options IPOPT_END padding fix		(Jeff DeFouw)
+o	Make APM check more paranoid			(Solar Designer)
+o	Sanity check ixj requests as in 2.4		(Solar Designer)
+o	Fix printk warning in fat			(Solar Designer)
+o	Fix other print warnings in 2.2.22		(Solar Designer)
+o	Backport NT iret denial of service bugfix    (Marc-Christian Petersen)
+o	ISDN multichannel ppp locking fix		(Herbert Xu)
+o	Fix sx driver compiled into kernel case		(Martin Pool)
+o	Backport ipfw sleep in spinlock in firewall	(James Morris)
+o	Update dmi_scan code to match 2.4/2.5		(Jean Delvare)
+o	Make agp debugging printk clearer		(Neale Banks)
 
-Suppose you have a main source tree and multiple objdirs with a
-purpose to test different .configs. Now if you update the main
-tree (including it's Kconfigs), objdirs are broken. The copies
-of Kconfigs are obsoleted and maybe unrelated at all. Also makefiles.
+2.2.22
+o	Fix HDLC bugs causing kernel printk warns	(Pavel)
 
+2.2.22-rc3
+o	3ware IDE raid small update			(Adam Radford)
+o	Fix incorrect comments				(Solar Designer)
+o	Sanity check in isdn 				(Solar Designer)
+o	Type fixes for usb				(Solar Designer)
+o	Vmalloc corner case fix 			(Dave Miller)
 
+2.2.22-rc2
+o	Fix isofs over loopback problems		(Balazs Takacs)
+o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
+o	Fix error reporting in OOM cases		(Julian Anastasov)
+o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
+o	Set atime on AF_UNIX sockets			(Solar Designer)
+o	Restore SPARC MD boot configuration		(Tomas Szepe)
+o	Multiple further sign/overflow fixes		(Solar Designer)
+o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
+
+2.2.22-rc1
+o	Backport 2.4 neighbour sending fix		(Chris Friesen)
+o	Fix a sign handling slackness in apm		(Silvio Cesare)
+o	Fix a sign handling error in rio500		(Silvio Cesare)
+o	Indent depca ready for cleanups			(me)
+o	Update VIA C3 recognition			(Diego Rodriguez)
+o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
+o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
+o	3ware IDE RAID update				(Adam Radford)
+o	Note ioctl clash on 0x5402			(Pavel Machek)
+o	Typo fix					(Dan Aloni)
+o	Update Riley's contact info			(Riley Williams)
+o	Alpha ptrace fixes				(Solar Designer)
+o	Multiple security fix backports			(Solar Designer)

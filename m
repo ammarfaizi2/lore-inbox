@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbRAFFT1>; Sat, 6 Jan 2001 00:19:27 -0500
+	id <S129655AbRAFFZv>; Sat, 6 Jan 2001 00:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRAFFTR>; Sat, 6 Jan 2001 00:19:17 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:22157 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129655AbRAFFS6>;
-	Sat, 6 Jan 2001 00:18:58 -0500
-Date: Sat, 6 Jan 2001 00:18:56 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Stefan Traby <stefan@hello-penguin.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <20010106060846.A770@stefan.sime.com>
-Message-ID: <Pine.GSO.4.21.0101060015540.25336-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129994AbRAFFZk>; Sat, 6 Jan 2001 00:25:40 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:55281 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S129655AbRAFFZZ>;
+	Sat, 6 Jan 2001 00:25:25 -0500
+Date: Sat, 6 Jan 2001 06:24:48 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
+Subject: modprobe ipv6 gives -1 usage count was [ramfs problem...]
+Message-ID: <20010106062448.A968@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <20010106060846.A770@stefan.sime.com> <Pine.GSO.4.21.0101060015540.25336-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0101060015540.25336-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Jan 06, 2001 at 12:18:56AM -0500
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 6 Jan 2001, Stefan Traby wrote:
-
-> On Fri, Jan 05, 2001 at 11:52:31PM -0500, Alexander Viro wrote:
-> > On Sat, 6 Jan 2001, Stefan Traby wrote:
-> > 
-> > > Then I tried to unlink the file by running rm lfs.file log.
-> > > 
-> > > The rm process (and an ls process that I started after that)
-> > > are now in "D" state...
-> > > 
-> > > root      2934  0.0  0.2  1292  452 pts/5    D    05:38   0:00 ls /ramfs
-> > > root      2952  0.0  1.5  4028 2384 pts/3    S    05:40   0:00 vi sdlkhfd
-> > 
-> > Add UnlockPage(page) at the end of ramfs_writepage().
+On Sat, Jan 06, 2001 at 12:18:56AM -0500, Alexander Viro wrote:
 > 
-> Shit. You are quite fast. Works.
+> 
+> On Sat, 6 Jan 2001, Stefan Traby wrote:
+> 
+> > On Fri, Jan 05, 2001 at 11:52:31PM -0500, Alexander Viro wrote:
+> > > On Sat, 6 Jan 2001, Stefan Traby wrote:
+> > > 
+> > > > Then I tried to unlink the file by running rm lfs.file log.
+> > > > 
+> > > > The rm process (and an ls process that I started after that)
+> > > > are now in "D" state...
+> > > > 
+> > > > root      2934  0.0  0.2  1292  452 pts/5    D    05:38   0:00 ls /ramfs
+> > > > root      2952  0.0  1.5  4028 2384 pts/3    S    05:40   0:00 vi sdlkhfd
+> > > 
+> > > Add UnlockPage(page) at the end of ramfs_writepage().
+> > 
+> > Shit. You are quite fast. Works.
+> 
+> 	Sure, especially considering the fact that patch was sent to
+> Linus about a month ago (several times, actually)... ;-/
 
-	Sure, especially considering the fact that patch was sent to
-Linus about a month ago (several times, actually)... ;-/
+I bet that a fix for the following exists, too: :)
 
+[0]--(06:19:49)-(root@stefan)-(~)-> lsmod |grep -i ipv6
+[1]--(06:22:33)-(root@stefan)-(~)-> modprobe ipv6
+[0]--(06:22:38)-(root@stefan)-(~)-> lsmod |grep -i ipv6
+ipv6                  117424  -1 
+[0]--(06:22:46)-(root@stefan)-(~)->
+
+usage count: -1
+
+-- 
+
+    Stefan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

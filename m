@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267720AbUIPGxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUIPG4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267720AbUIPGxs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 02:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUIPGxs
+	id S267734AbUIPG4D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 02:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267799AbUIPG4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 02:53:48 -0400
-Received: from cantor.suse.de ([195.135.220.2]:61584 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267720AbUIPGxn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 02:53:43 -0400
-Date: Thu, 16 Sep 2004 08:53:42 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Zwane Mwaikambo <zwane@fsmlabs.com>, linux-kernel@vger.kernel.org,
-       wli@holomorphy.com
-Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
-Message-ID: <20040916065342.GE12915@wotan.suse.de>
-References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com> <20040915144523.0fec2070.akpm@osdl.org> <20040916061359.GA12915@wotan.suse.de> <20040916062759.GA10527@elte.hu> <20040916064428.GD12915@wotan.suse.de> <20040916065101.GA11726@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Sep 2004 02:56:03 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:12549 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S267734AbUIPGzh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 02:55:37 -0400
+From: "Bc. Michal Semler" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD-ROM can't be ejected
+Date: Thu, 16 Sep 2004 08:55:35 +0200
+User-Agent: KMail/1.6.2
+References: <200409160025.35961.cijoml@volny.cz> <c93051e804091517017ff9f29f@mail.gmail.com>
+In-Reply-To: <c93051e804091517017ff9f29f@mail.gmail.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040916065101.GA11726@elte.hu>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409160855.35083.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 08:51:01AM +0200, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > I think the idea was that the spinlock functions should be small
-> > enough that they don't have any stack local variables. [...]
-> 
-> this might work for x64, but even there, are you sure it works even with
-> CONFIG_PREEMPT enabled (there the spinlocks are more complex)? It sure
+No, it is not that problem :((( Any other idea?
 
-I would expect so. x86-64 should have enough callee clobbered registers
-by default to handle it.  Unless someone makes them complex enough that it
-needs more than 4 variables or so or adds another function call. But I hope 
-this won't happen.
+M.
 
-> wont work on x86 so i think we need a generic 'soft PC' solution.
-> 
-> the alternative would be to unwind the stack - quite some task on some 
-> platforms ...
-
-Sometimes call graph profiling would be very useful, but I wouldn't 
-want the profiler to do it by default, especially not for this silly
-simple case. dwarf2 unwinding is complex enough that just requiring 
-frame pointers for the CG case would look attractive.
-
--Andi
-
+Dne èt 16. záøí 2004 02:01 Edward Angelo Dayao napsal(a):
+> ha... well there's a way around it... sometimes the cdrom won't eject
+> because you're still accessing it.
+>
+> try leaving that directory (including all terminals, nautilus
+> windows,etc.) ... and then eject.
+>
+> hope this helps
+>
+> edward
+>
+> On Thu, 16 Sep 2004 00:25:35 +0200, Bc. Michal Semler <cijoml@volny.cz> 
+wrote:
+> > Hi,
+> >
+> > it's almost half a year, when I filled this bug report:
+> > http://bugme.osdl.org/show_bug.cgi?id=2951
+> >
+> > and it still don't work :)
+> >
+> > Can anybody help me?
+> >
+> > Thanks
+> >
+> > Michal
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/

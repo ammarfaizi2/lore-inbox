@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132585AbRAVQUa>; Mon, 22 Jan 2001 11:20:30 -0500
+	id <S132569AbRAVQUa>; Mon, 22 Jan 2001 11:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132674AbRAVQUU>; Mon, 22 Jan 2001 11:20:20 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:60434 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S132585AbRAVQUP>;
-	Mon, 22 Jan 2001 11:20:15 -0500
-Date: Mon, 22 Jan 2001 17:20:10 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Freeze: atyfb & XFree4.0.1
-Message-ID: <20010122172009.A1437@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+	id <S132585AbRAVQUV>; Mon, 22 Jan 2001 11:20:21 -0500
+Received: from srv01s4.cas.org ([134.243.50.9]:62649 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S132569AbRAVQUL>;
+	Mon, 22 Jan 2001 11:20:11 -0500
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200101221619.LAA11557@mah21awu.cas.org>
+Subject: Re: [OT?] Coding Style
+To: jearle@nortelnetworks.com (Jonathan Earle)
+Date: Mon, 22 Jan 2001 11:19:53 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org ('Linux Kernel List')
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com> from "Jonathan Earle" at Jan 22, 2001 11:04:50 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> > -----Original Message-----
+> > From: profmakx.fmp [mailto:profmakx.fmp@gmx.de]
+> > 
+> > So, every good programmer
+> > should know where to put comments. And it is unnecessary to 
+> > put comments to
+> > explain what code does. One should see this as stated in the 
+> > CodingStyle doc.
+> > Ok, there are points where a comment is good, but for example 
+> > at university
+> > we are to comment on every single line of code ...
+> 
+> WRONG!!!
+> 
+> Not documenting your code is not a sign of good coding, but rather shows
+> arrogance, laziness and contempt for "those who would dare tamper with your
+> code after you've written it".  Document and comment your code thoroughly.
+> Do it as you go along.  I was also taught to comment nearly every line - as
+> part of the coding style used by a large, international company I worked for
+> several years ago.  It brings the logic of the programmer into focus and
+> makes code maintenance a whole lot easier.  It also helps one to remember
+> the logic of your own code when you revisit it a year or more hence.
+> 
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is an old programmer's rule.
 
-Hi!
+"Documentation? Too bad. If the code was damned hard to write, it should
+be damned hard to understand."
 
-I just discovered a solid freeze:
-jbglaw@jbglaw-sid:~$ uname -r
-2.4.1-pre8
-jbglaw@jbglaw-sid:~$ grep aty /etc/lilo.conf
-        append=3D"video=3Datyfb:800x600
+:)
 
-Parts of /etc/X11/XF86Config-4:
-
-	Section "Device"
-		Identifier	"Generic Video Card"
-		Driver		"ati"
-	EndSection
-        SubSection "Display"
-                Depth           24
-                Modes           "1024x768"
-        EndSubSection
-
-
-Now, when I switch from X to a configured virtual console (eg. tty1),
-everything is okay. But if I press <Ctrl><Alt><F12> (for example)
-the system just dies. I've not yet attached a serial console,
-but SysRq keys seem to not be functional, as well as the NumLock
-LED doesn't change when pressing the NumLock key...
-
-MfG, JBG
-
-
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjpsXbkACgkQHb1edYOZ4buFMwCfYz0QcPcrkC+E7WZv/GxcvEDN
-W/8An2YGOBH43BIAVAuNKgHdeWZCkKUf
-=3SZA
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--
+/Mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

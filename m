@@ -1,65 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261846AbSJIPsS>; Wed, 9 Oct 2002 11:48:18 -0400
+	id <S261783AbSJIPuu>; Wed, 9 Oct 2002 11:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261847AbSJIPsS>; Wed, 9 Oct 2002 11:48:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15749 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261846AbSJIPsR>; Wed, 9 Oct 2002 11:48:17 -0400
-Date: Wed, 9 Oct 2002 11:56:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andreas Schwab <schwab@suse.de>
-cc: "J.A. Magallon" <jamagallon@able.es>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Writable global section?
-In-Reply-To: <jen0pn1wj4.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.3.95.1021009114700.6928B-100000@chaos.analogic.com>
+	id <S261796AbSJIPut>; Wed, 9 Oct 2002 11:50:49 -0400
+Received: from mons.uio.no ([129.240.130.14]:37005 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261783AbSJIPur>;
+	Wed, 9 Oct 2002 11:50:47 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15780.20890.390171.863200@charged.uio.no>
+Date: Wed, 9 Oct 2002 17:56:10 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix NFS locking over TCP
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, Andreas Schwab wrote:
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> 
-> |> If a variable is in the ".data" section, it is "seen" by all procedures
-> |> that are linked to the shared library, but any attempt to write to this
-> |> variable will seg-fault the task that attempts to modify it.
-> 
-> Your tests must be flawed, because a .data section *is* writable.  The
-> only difference between .data and .bss is that the latter has no
-> allocation in the image file, but they are mapped to the same, writable
-> segment.
-> 
-> Andreas.
+The 2.5.x RPC code is currently broken in that it demands that all
+tasks that call xprt_create_proto() in order to open a TCP socket must
+have CAP_NET_BIND_SERVICE capabilities, and must bind to a privileged
+port.
+This breaks the NLM locking code and its use of the call_bind() RPC
+portmapper lookup feature.
 
-Well, yes I found out.. This anomaly with the assembler.....
-
-.section .data
-.global	pars
-.type	pars,@object
-.size	pars,4
-.align  4
-pars:	.long	0
-.end
-
-
-I accidentally left out .size, guess what? Even though I had an
-offset recognized and a ".long", initialized to 0, there was no
-space allocated and therefore the seg-fault. I would have seen
-this, but the problem doesn't exist if the ".section" is ".bss",
-the first section I was messing with. Go figure?
-
-And the writable, is a COW. It isn't seen by others. It's a shame.
-It would be very useful to have a writable global section available 
-like VAXen did.
-
+The following patch allows the built-in portmapper client to use
+unbound TCP sockets if the user does not have the necessary
+capabilities.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+  Trond
 
+diff -u --recursive --new-file linux-2.5.41/include/linux/sunrpc/xprt.h linux-2.5.41-fix_tcp/include/linux/sunrpc/xprt.h
+--- linux-2.5.41/include/linux/sunrpc/xprt.h	2002-09-18 06:03:45.000000000 -0400
++++ linux-2.5.41-fix_tcp/include/linux/sunrpc/xprt.h	2002-10-08 21:37:46.000000000 -0400
+@@ -146,6 +146,7 @@
+ 	unsigned long		sockstate;	/* Socket state */
+ 	unsigned char		shutdown   : 1,	/* being shut down */
+ 				nocong	   : 1,	/* no congestion control */
++				resvport   : 1, /* use a reserved port */
+ 				stream     : 1;	/* TCP */
+ 
+ 	/*
+diff -u --recursive --new-file linux-2.5.41/net/sunrpc/xprt.c linux-2.5.41-fix_tcp/net/sunrpc/xprt.c
+--- linux-2.5.41/net/sunrpc/xprt.c	2002-09-18 06:03:45.000000000 -0400
++++ linux-2.5.41-fix_tcp/net/sunrpc/xprt.c	2002-10-08 21:47:53.000000000 -0400
+@@ -89,7 +89,7 @@
+ static void	xprt_conn_status(struct rpc_task *task);
+ static struct rpc_xprt * xprt_setup(int proto, struct sockaddr_in *ap,
+ 						struct rpc_timeout *to);
+-static struct socket *xprt_create_socket(int, struct rpc_timeout *);
++static struct socket *xprt_create_socket(int, struct rpc_timeout *, int);
+ static void	xprt_bind_socket(struct rpc_xprt *, struct socket *);
+ static int      __xprt_get_cong(struct rpc_xprt *, struct rpc_task *);
+ 
+@@ -442,7 +442,7 @@
+ 	 * Start by resetting any existing state.
+ 	 */
+ 	xprt_close(xprt);
+-	if (!(sock = xprt_create_socket(xprt->prot, &xprt->timeout))) {
++	if (!(sock = xprt_create_socket(xprt->prot, &xprt->timeout, xprt->resvport))) {
+ 		/* couldn't create socket or bind to reserved port;
+ 		 * this is likely a permanent error, so cause an abort */
+ 		task->tk_status = -EIO;
+@@ -1490,7 +1490,7 @@
+  * and connect stream sockets.
+  */
+ static struct socket *
+-xprt_create_socket(int proto, struct rpc_timeout *to)
++xprt_create_socket(int proto, struct rpc_timeout *to, int resvport)
+ {
+ 	struct socket	*sock;
+ 	int		type, err;
+@@ -1506,7 +1506,7 @@
+ 	}
+ 
+ 	/* If the caller has the capability, bind to a reserved port */
+-	if (capable(CAP_NET_BIND_SERVICE) && xprt_bindresvport(sock) < 0) {
++	if (resvport && xprt_bindresvport(sock) < 0) {
+ 		printk("RPC: can't bind to reserved port.\n");
+ 		goto failed;
+ 	}
+@@ -1528,29 +1528,25 @@
+ 
+ 	xprt = xprt_setup(proto, sap, to);
+ 	if (!xprt)
+-		goto out;
++		goto out_bad;
+ 
++	xprt->resvport = capable(CAP_NET_BIND_SERVICE) ? 1 : 0;
+ 	if (!xprt->stream) {
+-		struct socket *sock = xprt_create_socket(proto, to);
+-		if (sock)
+-			xprt_bind_socket(xprt, sock);
+-		else {
+-			rpc_free(xprt);
+-			xprt = NULL;
+-		}
+-	} else
+-		/*
+-		 * Don't allow a TCP service user unless they have
+-		 * enough capability to bind a reserved port.
+-		 */
+-		if (!capable(CAP_NET_BIND_SERVICE)) {
+-			rpc_free(xprt);
+-			xprt = NULL;
+-		}
++		struct socket *sock;
++
++		sock = xprt_create_socket(proto, to, xprt->resvport);
++		if (!sock)
++			goto out_bad;
++		xprt_bind_socket(xprt, sock);
++	}
+ 
+- out:
+ 	dprintk("RPC:      xprt_create_proto created xprt %p\n", xprt);
+ 	return xprt;
++ out_bad:
++	dprintk("RPC:      xprt_create_proto failed\n");
++	if (xprt)
++		rpc_free(xprt);
++	return NULL;
+ }
+ 
+ /*

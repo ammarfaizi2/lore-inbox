@@ -1,78 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUAHNKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 08:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUAHNKA
+	id S264459AbUAHNOI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 08:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbUAHNOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 08:10:00 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:733 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264444AbUAHNJw (ORCPT
+	Thu, 8 Jan 2004 08:14:08 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:17280 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S264459AbUAHNOG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 08:09:52 -0500
-Date: Thu, 8 Jan 2004 05:11:11 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-Id: <20040108051111.4ae36b58.pj@sgi.com>
-In-Reply-To: <20040107113207.3aab64f5.akpm@osdl.org>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 8 Jan 2004 08:14:06 -0500
+Date: Thu, 8 Jan 2004 14:14:04 +0100
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: "J. Ryan Earl" <heretic@clanhk.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: won't work: 2.6.0 && SiI 3112 SATA
+Message-ID: <20040108141404.B1041@beton.cybernet.src>
+References: <20040106135634.A5825@beton.cybernet.src> <20040106132533.GD17606@carfax.org.uk> <20040106174714.B6567@beton.cybernet.src> <1866.208.180.249.106.1073426691.squirrel@mail.clanhk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1866.208.180.249.106.1073426691.squirrel@mail.clanhk.org>; from heretic@clanhk.org on Tue, Jan 06, 2004 at 04:04:51PM -0600
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew asked:
-> Just looking at this function, it seems to walking an array of longs using
-> a u32*.  Could someone please convince me that this is correct on both
-> little-endian and big-endian 64-bit hardware?  
+On Tue, Jan 06, 2004 at 04:04:51PM -0600, J. Ryan Earl wrote:
+> > Any clue what can be wrong here?
+> 
+> Did you try what I suggested yet?  The crux of the problem is that here is
+> that you're using an earlier version of the driver that doesn't contain my
+> fix to how the controller gets programmed.
+> 
+> Copy the files at http://files.clanhk.org/siimage/ into drivers/ide/pci
+> and recompile.
 
-Good question, Andrew.  Thanks.  I suspect I did indeed break something
-here.
+Yes, tried but it won't compile.
 
-The key thing to recall first is that these masks, and the bitops of
-longer standing on which they rely, are very little endian.  On all
-architectures, masks are essentially as if an array of bytes, even
-though they have a size that is a multiple of sizeof(long).
+Then managed to enable the SCSI driver in promp for incomplete and/or
+development drivers, applied the patch from don't know who that reenables
+the interrupts and recognizes Adaptec 1210SA and it seems to work fine now.
 
-To quote from include/asm-ppc64/bitops.h:
-
- * Bitops are odd when viewed on big-endian systems.  They were designed
- * on little endian so the size of the bitset doesn't matter (low order bytes
- * come first) as long as the bit in question is valid.
-
->From one u32 word to the next, both my input and output routines in
-lib/mask.c (mask_snprintf and mask_parse) respect this order, so that
-part is correct, I believe.  For a mask beginning at address A, bytes
-A[0..3] form the first u32 word, A[4..7] the second, and so forth. 
-Good.
-
-Whether the mask size is a multiple of u32 or u64 doesn't matter.
-
- ==> However, _within_ each word, I suspect that I have the bytes arse
-backwards on a big endian machine.  The underlying snprintf("%x") and
-strtoul() routines that I call will presume that the byte order of the
-referenced u32 binary word is native (big on big endian).  Not good.
-
-Anyone with a big-endian SMP machine should be able to see this, by
-displaying /proc/irq/prof_cpu_mask or /proc/irq/<pid>/smp_affinity, and
-determining if they see the expected low order bit(s) set, or instead
-the output is byte reversed.
-
-Given the good chance that I'm still confused, I will now broadcast
-under a more enticing Subject a request for someone with a big endian
-SMP to verify whether I've broken this as I suspect.
-
-If this request proceeds as expected, I will follow up with a patch to
-lib/mask.c that will likely make use of the cpu_to_le32() and
-le32_to_cpu() macros in byteorder.h to swap bytes in the u32 words being
-displayed and parsed.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Cl<
+> 
+> -ryan

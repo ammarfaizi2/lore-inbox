@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263056AbTDROHq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 10:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTDROHq
+	id S263049AbTDRON1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 10:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbTDRON1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 10:07:46 -0400
-Received: from watch.techsource.com ([209.208.48.130]:49640 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263056AbTDROHp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 10:07:45 -0400
-Message-ID: <3EA00D04.6090705@techsource.com>
-Date: Fri, 18 Apr 2003 10:34:44 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Fri, 18 Apr 2003 10:13:27 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:26058 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S263049AbTDRON0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 10:13:26 -0400
+Date: Fri, 18 Apr 2003 09:25:21 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ISDN massive packet drops while DVD burn/verify
+In-Reply-To: <20030416151221.71d099ba.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] only use 48-bit lba when necessary
-References: <200304172137_MC3-1-34EB-2D39@compuserve.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Apr 2003, Stephan von Krawczynski wrote:
 
+> I just experienced a massive ISDN problem while writing DVDs.
+> It looks like bigger IP packets (bigger than normal ICMP ping)
+> get simply dropped most of the time.
+> I think the packets get lost because some allocation continously fails and disk
+> i/o is faster in re-gaining the mem, but I am not quite sure. Could as well be
+> ide-scsi is partially busy-looping the box to death.
+> As soon as DVD writing is stopped everything comes back to normal.
+> Reading DVDs does not show the problem btw.
+> ping -s 1500 a.b.c.d shows about 5 packets, then stops.
 
-Chuck Ebbert wrote:
+My best guess would be that IDE blocks IRQs for too long and hisax 
+interrupts get lost. You could try whether hdparm -u1 helps, and a 
+debugging log from the hisax driver may confirm over/underruns.
 
->Matt Mackall wrote:
->
->
->  
->
->>FYI, GCC as of 3.2.3 doesn't yet reduce the if(...) form to branchless
->>code but the & and && versions come out the same with -O2.
->>    
->>
->
->
->  The operands of & can be evaluated in any order, while && requires
->left-to-right and does not evaluate the right operand if the left one
->is false.  Only the simplest cases could possibly generate the same
->code.
->
->  
->
-I have a vague memory of reading a kerneltrap.org article or comment 
-thread which discussed this.  The determination was that a compiler 
-could choose to fully evaluate the logical expression if there were no 
-side-effects.
+--Kai
 
 
 

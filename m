@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbUCTKVK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263323AbUCTKVK
+	id S263331AbUCTKWT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbUCTKWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:21:10 -0500
-Received: from mail.shareable.org ([81.29.64.88]:8335 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263322AbUCTKVF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:21:05 -0500
-Date: Sat, 20 Mar 2004 10:20:54 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Peter Zaitsev <peter@mysql.com>
-Cc: reiser@namesys.com, Chris Mason <mason@suse.com>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: True  fsync() in Linux (on IDE)
-Message-ID: <20040320102054.GB10398@mail.shareable.org>
-References: <1079641026.2447.327.camel@abyss.local> <1079642001.11057.7.camel@watt.suse.com> <1079642801.2447.369.camel@abyss.local> <1079643740.11057.16.camel@watt.suse.com> <1079644190.2450.405.camel@abyss.local> <1079644743.11055.26.camel@watt.suse.com> <405AA9D9.40109@namesys.com> <1079704347.11057.130.camel@watt.suse.com> <405B4BA3.2030205@namesys.com> <1079726769.2446.233.camel@abyss.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079726769.2446.233.camel@abyss.local>
-User-Agent: Mutt/1.4.1i
+	Sat, 20 Mar 2004 05:22:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40598 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263336AbUCTKV3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:21:29 -0500
+Message-ID: <405C1B1C.4000804@pobox.com>
+Date: Sat, 20 Mar 2004 05:21:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+References: <20040319153554.GC2933@suse.de> <200403200140.59543.bzolnier@elka.pw.edu.pl> <405B936C.50200@pobox.com> <200403200224.14055.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403200224.14055.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zaitsev wrote:
-> If file system would guaranty atomicity of write() calls (synchronous
-> would be enough) we could disable it and get good extra performance.
+Bartlomiej Zolnierkiewicz wrote:
+> Yep but in your original mail you suggested that we should explicitly enable
+> FLUSH CACHE and FLUSH CACHE EXT features - there are even no subcommands
+> to do this.  ;-)
 
-Store an MD5 or SHA digest of the page in the page itself, or elsewhere.
-(Obviously the digest doesn't include the bytes used to store it).
+Whoops, you're right.  I was thinking about the general protocol for 
+features.
 
-Then partial write errors are always detectable, even if there's a
-hardware failure, so journal writes are effectively atomic.
 
--- Jamie
+> I wish it was so simple.  Here is an example to make it clear:
+> 
+> model: WDC WD800JB-00CRA1 firmware: 17.07W77
+> word 0x83 is 4b01, word 0x86 is 0x0801
+> 
+> and drive of course supports CACHE FLUSH command.
+
+What ATA revision?
+
+Sending down opcodes because they will "probably" work isn't the best 
+idea in the world...
+
+	Jeff
+
+
+

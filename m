@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263265AbTEMGvf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 02:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTEMGve
+	id S263246AbTEMG5s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbTEMG5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 02:51:34 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:50666 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S263265AbTEMGvd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 02:51:33 -0400
-Date: Tue, 13 May 2003 10:04:17 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [RFC][TTY] callout removal
-Message-ID: <20030513070417.GJ24892@mea-ext.zmailer.org>
-References: <20030513062332.GW10374@parcelfarce.linux.theplanet.co.uk> <20030512234415.11453a9c.akpm@digeo.com>
+	Tue, 13 May 2003 02:57:48 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:16516 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263246AbTEMG5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 02:57:47 -0400
+Date: Tue, 13 May 2003 00:11:35 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm4
+Message-Id: <20030513001135.2395860a.akpm@digeo.com>
+In-Reply-To: <87vfwf8h2n.fsf@lapper.ihatent.com>
+References: <20030512225504.4baca409.akpm@digeo.com>
+	<87vfwf8h2n.fsf@lapper.ihatent.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030512234415.11453a9c.akpm@digeo.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 May 2003 07:10:27.0931 (UTC) FILETIME=[BB57C2B0:01C3191E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 11:44:15PM -0700, Andrew Morton wrote:
-...
-> The current message is
-> 	printk(KERN_WARNING "tty_io.c: "
-> 		"process %d (%s) used obsolete /dev/%s - "
-> 		"update software to use /dev/ttyS%d\n",
-> and google("update software to use") == 201, spread across 1999-2001.
+Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+>
+> net/core/dev.c:1496: conflicting types for `handle_bridge'
+>  net/core/dev.c:1468: previous declaration of `handle_bridge'
 
-Even I have hit that, groaned, reconfigured things, and never
-had trouble about it since.  Certainly didn't bother to write
-to any list.
+argh, sorry, stupid.
 
-For certain people will encounter configurations that use very
-old userspace things with new kernels.  After all, kernels are
-easier to change than doing full re-install.
+diff -puN net/core/dev.c~handle_bridge-fix net/core/dev.c
+--- 25/net/core/dev.c~handle_bridge-fix	2003-05-13 00:10:47.000000000 -0700
++++ 25-akpm/net/core/dev.c	2003-05-13 00:10:57.000000000 -0700
+@@ -1491,7 +1491,7 @@ static inline void handle_diverter(struc
+ #endif
+ }
+ 
+-static inline int handle_bridge(struct sk_buff *skb,
++static inline int __handle_bridge(struct sk_buff *skb,
+ 			struct packet_type **pt_prev, int *ret)
+ {
+ #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
+@@ -1548,7 +1548,7 @@ int netif_receive_skb(struct sk_buff *sk
+ 
+ 	handle_diverter(skb);
+ 
+-	if (handle_bridge(skb, &pt_prev, &ret))
++	if (__handle_bridge(skb, &pt_prev, &ret))
+ 		goto out;
+ 
+ 	list_for_each_entry_rcu(ptype, &ptype_base[ntohs(type)&15], list) {
 
-> Kill it.
+_
 
-I might instead add a bit of text:  "obsolete (since Year-Month) /dev/..."
-
-/Matti Aarnio

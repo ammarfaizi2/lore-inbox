@@ -1,86 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263956AbTCWWmK>; Sun, 23 Mar 2003 17:42:10 -0500
+	id <S263967AbTCWWnt>; Sun, 23 Mar 2003 17:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263967AbTCWWmK>; Sun, 23 Mar 2003 17:42:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10425 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263956AbTCWWmJ>;
-	Sun, 23 Mar 2003 17:42:09 -0500
-Message-ID: <3E7E3AF0.6040107@pobox.com>
-Date: Sun, 23 Mar 2003 17:53:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+	id <S263968AbTCWWnt>; Sun, 23 Mar 2003 17:43:49 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:2004 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263967AbTCWWnr>; Sun, 23 Mar 2003 17:43:47 -0500
+Date: Sun, 23 Mar 2003 14:54:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: James Bourne <jbourne@mtroyal.ab.ca>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
        Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
-       Pavel Machek <pavel@ucw.cz>, szepe@pinerecords.com, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
+       szepe@pinerecords.com, arjanv@redhat.com, Pavel Machek <pavel@ucw.cz>
 Subject: Re: Ptrace hole / Linux 2.2.25
-References: <29100000.1048459104@[10.10.2.4]>
-In-Reply-To: <29100000.1048459104@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-ID: <1240000.1048460079@[10.10.2.4]>
+In-Reply-To: <3E7E335C.2050509@pobox.com>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
+ <200303231938.h2NJcAq14927@devserv.devel.redhat.com>
+ <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+ <1048448838.1486.12.camel@phantasy.awol.org>
+ <20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
+ <1048450211.1486.19.camel@phantasy.awol.org>
+ <402760000.1048451441@[10.10.2.4]>
+ <20030323203628.GA16025@atrey.karlin.mff.cuni.cz>
+ <Pine.LNX.4.51.0303231410250.17155@skuld.mtroyal.ab.ca>
+ <920000.1048456387@[10.10.2.4]> <3E7E335C.2050509@pobox.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>I see a lot of new Red Hat work getting discussed, landing in the 2.5
->>tree, and then getting backported as a value-add 2.4 feature for an RH
->>kernel.  Other stuff is "hack it into stability, but it's ugly and should
->>not go to Marcelo."
->>
->>IMNSHO this perception is more a not-looking-hard-enough issue rather
->>than reality.
+> akpm has suggested something like this in the past.  I respectfully
+> disagree.
 > 
+> The 2.4 kernel will not benefit from constant churn of backporting core
+> kernel changes like a new scheduler.  We need to let it settle, simply
+> get it stable, and concentrate on fixing key problems in 2.6.  Otherwise
+> you will never have a stable 2.4 tree, and it will look suspiciously more
+> and more like 2.6 as time goes by.  Constantly breaking working
+> configurations and changing core behaviors is _not_ the way to go for 2.4.
 > 
-> Well ... or we had different meanings ;-) yes, lots of stuff is in 2.5
-> but I was meaning 2.4. If there's stuff that's in both RH and UL kernels,
-> and it's stable enough for them both to ship as their product, it sounds
-> mergeable to me.
+> I see 2.4 O(1) scheduler and similar features as _pain_ brought on the
+> vendors by themselves (and their customers).
 
-That's a _really_ naive statement, that proves you haven't even looked 
-at what you are talking about.
+O(1) sched may be a bad example ... how about the fact that mainline VM
+is totally unstable? Witness, for instance, the buffer_head stuff. Fixes
+for that have been around for ages. 
 
-The currently released RHAS is based off 2.4.9, with a lot of tweaks 
-specifically for the VM/VFS layer as it existed at that time. 
-(Remember, the VM was basically replaced in 2.4.10)  That's a totally 
-dead end branch (from a mainline perspective) with very little mergeable 
-worth.
+The real philosophical question is "what is mainline 2.4 _for_"?
+ 
+> Surely it is better to concentrate developer time and mindshare on making
+> 2.6 sane?
 
-Still, if you want to create a "2.4-features++" branch, I think that 
-there is value there.  Just PLEASE don't put the junk in mainline.
+Agreed, but all we're doing now is burning lots of time on backporting
+stuff from 2.5 into each separate distro base, and each distro fixing
+things independantly in their own tree (eg O(1) scheduler). I don't
+see that as constructive ... customers will not stagnate, and I don't
+see the point in 2.4 mainline doing that either. 
 
+It's now got to the point where the testing people don't even bother
+testing mainline 2.4 because they know it's horribly broken, and is not
+getting fixed, so there's no point. I think that's sad. Instead, we test
+umpteen different vendor kernels, and try to apply the same fixes to each
+of those, which is a pain in the butt, becasue they won't merge cleanly
+because the trees are so far diverged. People running non-vendor kernels
+are generally running 2.4-aa or 2.4-ac, etc, etc. All burnt thrash time.
 
->>I have no idea about UnitedLinux kernel, but for RHAS I wager there is
->>next to _nil_ patches you would actually want to submit to Marcelo, for
->>three main reasons:  it's a 2.5 backport, or, it's a 2.4.2X backport, or,
->>its an ugly-hack-for-stability that should not be in a mainline kernel
->>without cleaning anyway.
-> 
-> 
-> I don't see what's wrong with putting 2.5 backports into 2.4 once they're
-> stable. And I'd rather have an ugly-hack-for-stability than an unstable
-> kernel ... 2.5 is the place for cleanliness ... 2.4 is a dead end that
-> just needs to work.
+Yes, the real answer is to get 2.6 out the door, and move people onto it.
+But that will take a little while ... would be nice to get some way to
+alleviate the pain in the meantime.
 
-That's no excuse for sloppiness in 2.4.
-
-
-> Right ... I think we're agreeing about what's the difference. Just
-> disagreeing about what should be in mainline 2.4. If most others think it
-> shouldn't go either, than I guess we need a separate tree for a 2.4 that
-> works, not a 2.4 that's pretty ...
-
-
-I agree that we are disagreeing about what should be mainline 2.4 :)
-
-"People are shipping it, so it must be good" is the proverbial 
-road-to-hell-paved-with-good-intentions.
-
-	Jeff
-
-
+M.
 

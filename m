@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261785AbSJEAH3>; Fri, 4 Oct 2002 20:07:29 -0400
+	id <S261853AbSJEAXB>; Fri, 4 Oct 2002 20:23:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261847AbSJEAH3>; Fri, 4 Oct 2002 20:07:29 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:5829 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261785AbSJEAH1>; Fri, 4 Oct 2002 20:07:27 -0400
-Date: Fri, 4 Oct 2002 21:12:46 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "David S. Miller" <davem@redhat.com>
-cc: rickh@Capaccess.org, <linux-kernel@vger.kernel.org>
-Subject: Re: an open letter to George Soros
-In-Reply-To: <20021004.160411.38314828.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44L.0210042111290.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261856AbSJEAXB>; Fri, 4 Oct 2002 20:23:01 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:62705 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261853AbSJEAXB>; Fri, 4 Oct 2002 20:23:01 -0400
+Subject: Re: Any problems with 2.4 and gcc 3.2?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D9E020E.9070703@cox.net>
+References: <20021004204851.26027.qmail@web40020.mail.yahoo.com> 
+	<3D9E020E.9070703@cox.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Oct 2002 01:37:10 +0100
+Message-Id: <1033778230.1299.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Oct 2002, David S. Miller wrote:
+On Fri, 2002-10-04 at 22:03, Kevin P. Fleming wrote:
+> I have a system that's been running 2.4.20-preX compiled with GCC 3.2 
+> for over a month now, no problems so far.
 
->            I have devised a preliminary compensation scheme for authors of
->            open source software based on the songwriter royalties model.
->
-> Yes, let's use the music industry to model how we compensate people
-> for their works, they schemes have an excellent track record
+3.2 seems to work very well. I had problems with trident.c compile
+errors in some 3.2 variants but that is all. 3.1.x seems mostly ok too,
+3.0 is right out
 
-Heh, you'd end up OWING money to the users, because of the
-value of bugreports, paying for the download infrastructure
-and rental of users' screen space ;)
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+(All for x86)
 

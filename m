@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265275AbTA1MwT>; Tue, 28 Jan 2003 07:52:19 -0500
+	id <S265277AbTA1NAt>; Tue, 28 Jan 2003 08:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbTA1MwT>; Tue, 28 Jan 2003 07:52:19 -0500
-Received: from mail2.webart.de ([195.30.14.11]:58121 "EHLO mail2.webart.de")
-	by vger.kernel.org with ESMTP id <S265275AbTA1MwS>;
-	Tue, 28 Jan 2003 07:52:18 -0500
-Message-ID: <398E93A81CC5D311901600A0C9F2928946937E@cubuss2>
-From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-To: "'Jos Hulzink'" <josh@stack.nl>,
-       Alex Riesen <alexander.riesen@synopsys.COM>
-Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: AW: Bootscreen
-Date: Tue, 28 Jan 2003 13:52:22 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265320AbTA1NAt>; Tue, 28 Jan 2003 08:00:49 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35968
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id <S265277AbTA1NAs>; Tue, 28 Jan 2003 08:00:48 -0500
+Subject: Re: [PATCH 2.5] OSS mpu401 exit fix
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200301221637.22120.daniel.ritz@gmx.ch>
+References: <200301221637.22120.daniel.ritz@gmx.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043759366.1316.41.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 28 Jan 2003 13:09:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fbcon, Kernel Graphics Interface (http://kgi-wip.sourceforge.net, no we
-> don't use ioctls or kernel space for accelleration anymore). Enough choice
-> for your "graphical OS" ;-)
-I'll have a look. Thanks for the hint.
+On Wed, 2003-01-22 at 15:37, Daniel Ritz wrote:
+> hello
+> 
+> who is 2.5 OSS maintainer?
+
+AFAIK it doesn't have one. 
 

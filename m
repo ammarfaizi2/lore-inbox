@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbTI2RXf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbTI2RX1
+	id S263968AbTI2RlO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTI2RiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:23:27 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:48049 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263879AbTI2RWS (ORCPT
+	Mon, 29 Sep 2003 13:38:06 -0400
+Received: from imr2.ericy.com ([198.24.6.3]:31677 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id S263927AbTI2RfQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:22:18 -0400
-Date: Mon, 29 Sep 2003 13:22:17 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: davej@redhat.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove unnecessary checks in pcmcia
-Message-ID: <20030929172217.GC6526@gtf.org>
-References: <E1A41Rq-0000NP-00@hardwired>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1A41Rq-0000NP-00@hardwired>
-User-Agent: Mutt/1.3.28i
+	Mon, 29 Sep 2003 13:35:16 -0400
+Message-ID: <3F786E73.6010306@ericsson.ca>
+Date: Mon, 29 Sep 2003 13:40:03 -0400
+From: Jean-Guillaume <jean-guillaume.paradis@ericsson.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Simple Procfs question: Triggering an "action" when opening a directory
+ instead of a file (with seqfile.h)???
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
-> io->stop/start are 16 bits, so will never be >0xffff
-> 
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pcmcia/i82092.c linux-2.5/drivers/pcmcia/i82092.c
-> --- bk-linus/drivers/pcmcia/i82092.c	2003-09-13 14:44:55.000000000 +0100
-> +++ linux-2.5/drivers/pcmcia/i82092.c	2003-09-13 16:20:24.000000000 +0100
-> @@ -675,7 +675,7 @@ static int i82092aa_set_io_map(struct pc
->  		leave("i82092aa_set_io_map with invalid map");
->  		return -EINVAL;
->  	}
-> -	if ((io->start > 0xffff) || (io->stop > 0xffff) || (io->stop < io->start)){
-> +	if (io->stop < io->start) {
->  		leave("i82092aa_set_io_map with invalid io");
->  		return -EINVAL;
->  	}
+Hello everybody :)
 
-I would think the code should fail on ==0 and ==0xffff, no?
+I need some help on this one, I couldn't find anything on google or in 
+the archives of the mailing list. Here it goes:
 
-Also, does this need the "if map > 1" check the code below has?
+I want to trigger an action when "opening" a directory of the procfs. 
+This is easy for files, but how is it done for directories...???
 
+With files this is simple, all we have to do is to change some structs:
 
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pcmcia/i82365.c linux-2.5/drivers/pcmcia/i82365.c
-> --- bk-linus/drivers/pcmcia/i82365.c	2003-09-11 21:18:34.000000000 +0100
-> +++ linux-2.5/drivers/pcmcia/i82365.c	2003-09-12 15:37:05.000000000 +0100
-> @@ -1143,8 +1143,8 @@ static int i365_set_io_map(u_short sock,
->  	  "%#4.4x-%#4.4x)\n", sock, io->map, io->flags,
->  	  io->speed, io->start, io->stop);
->      map = io->map;
-> -    if ((map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
-> -	(io->stop < io->start)) return -EINVAL;
-> +    if ((map > 1) || (io->stop < io->start))
-> +	return -EINVAL;
->      /* Turn off the window before changing anything */
->      if (i365_get(sock, I365_ADDRWIN) & I365_ENA_IO(map))
->  	i365_bclr(sock, I365_ADDRWIN, I365_ENA_IO(map));
-
-likewise
+static struct file_operations FILE_fops = {
+    open:        FILE_open,
+    read:        seq_read,
+    llseek:        seq_lseek,
+    release:    seq_release,
+};
+and
+static struct seq_operations FILE_ops = {
+    start:    FILE_start,
+    next:    FILE_next,
+    stop:    FILE_stop,
+    show:    FILE_show
+};
+and insert some code.
 
 
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pcmcia/tcic.c linux-2.5/drivers/pcmcia/tcic.c
-> --- bk-linus/drivers/pcmcia/tcic.c	2003-09-11 21:18:34.000000000 +0100
-> +++ linux-2.5/drivers/pcmcia/tcic.c	2003-09-12 15:37:05.000000000 +0100
-> @@ -786,8 +786,8 @@ static int tcic_set_io_map(struct pcmcia
->      DEBUG(1, "tcic: SetIOMap(%d, %d, %#2.2x, %d ns, "
->  	  "%#4.4x-%#4.4x)\n", lsock, io->map, io->flags,
->  	  io->speed, io->start, io->stop);
-> -    if ((io->map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
-> -	(io->stop < io->start)) return -EINVAL;
-> +    if ((io->map > 1) || (io->stop < io->start))
-> +		return -EINVAL;
->      tcic_setw(TCIC_ADDR+2, TCIC_ADR2_INDREG | (psock << TCIC_SS_SHFT));
->      addr = TCIC_IWIN(psock, io->map);
+But for directories, the same doesn't work:
 
-likewise
+tipcDir  = proc_mkdir("tipc",&proc_root);
+   if (tipcDir) {
+      tipcDir->proc_fops = &tipcDir_fops;
+   }
 
+...
+
+because when tyring to enter the directory of tipcDir, it says "tipc not 
+a directory", probably because I try to use a "fops" (file operation). 
+But I can't find any other ways to do this
+
+Any ideas?

@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVCCVPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVCCVS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbVCCVPF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 16:15:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVCCVOz
+	id S262543AbVCCVS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 16:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCCVQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 16:14:55 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61857 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262589AbVCCVJl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:09:41 -0500
-Date: Thu, 3 Mar 2005 13:09:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: davej@redhat.com, davem@davemloft.net, jgarzik@pobox.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050303130901.655cb9c4.akpm@osdl.org>
-In-Reply-To: <20050303145846.GA5586@pclin040.win.tue.nl>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<42264F6C.8030508@pobox.com>
-	<20050302162312.06e22e70.akpm@osdl.org>
-	<42265A6F.8030609@pobox.com>
-	<20050302165830.0a74b85c.davem@davemloft.net>
-	<20050303011151.GJ10124@redhat.com>
-	<20050302172049.72a0037f.akpm@osdl.org>
-	<20050303012707.GK10124@redhat.com>
-	<20050303145846.GA5586@pclin040.win.tue.nl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 3 Mar 2005 16:16:55 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:15653 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S262480AbVCCVOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 16:14:33 -0500
+Message-ID: <42277ED8.6050500@suse.com>
+Date: Thu, 03 Mar 2005 16:17:12 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for openfirmware	devices
+References: <20050301211824.GC16465@locomotive.unixthugs.org> <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com> <20050303202319.GA30183@suse.de>
+In-Reply-To: <20050303202319.GA30183@suse.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> wrote:
->
-> API stability: Stable series like 2.0, 2.2, 2.4 try to maintain
->  the guarantee that user-visible APIs do not change. That goal
->  has disappeared, meaning that anything might break when one
->  upgrades from 2.6.14 to 2.6.16.
->  This is one of the big disadvantages of the new 2.6 way.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It depends on what you call a "user visible API".
+Olaf Hering wrote:
+>  On Thu, Mar 03, Jeff Mahoney wrote:
+> 
+> 
+>>Is whitespace (in any form) allowed in the compatible value?
+> 
+> 
+> Yes, whitespace is used at least in the toplevel compatible file, like
+> 'Power Macintosh' in some Pismo models.
+> 
 
-Changes which are visible to userspace are treated with great caution
-nowadays[*].  I keep on rejecting patches...
+Oh well, it was wishful thinking anyway. ;)
 
-Changes which are visible to third-party kernel modules are more
-acceptable, but we're still fairly reluctant to make them.
+I see two potential solutions:
+* Ideally, I'd like to find a character (pipe?) that isn't used in the
+  Apple OF compatible property. I've been unable to find any
+  documentation that specifies to this level of detail. (Well, without
+  paying for the IEEE-1275 reference, and it may not even be there.)
 
-So I think you exaggerate.  And I don't see that the problem which you
-describe is inevitably a part of the "new 2.6 way".
+* Looking at other hotplug agents, it seems acceptable to use $DEVPATH
+  to read attributes directly from sysfs. This wouldn't be difficult to
+  add to my macio agent, but doesn't seem as nice.
 
+To be frank, my experiences with OF are limited to getting my airport
+card to work with this code. That was the initial goal, and I figured it
+was code other people might want to use as well. If someone has the
+answers to these questions, it would be appreciated.
 
+- -Jeff
 
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-[*] I don't know any details of the /proc incompatibility which davej
-    mentions, and I'd like to.  That sounds like a screw-up.
+iD8DBQFCJ37XLPWxlyuTD7IRAimZAJ4kAWQwFur1mBB4RDpC3OfDCVpOWACeKQGg
+YOoSQu4IGt9zmKNCmTjd6UI=
+=yICe
+-----END PGP SIGNATURE-----

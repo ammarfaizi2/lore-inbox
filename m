@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAVCyO>; Sun, 21 Jan 2001 21:54:14 -0500
+	id <S129780AbRAVDKj>; Sun, 21 Jan 2001 22:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129780AbRAVCyD>; Sun, 21 Jan 2001 21:54:03 -0500
-Received: from p3EE3CA38.dip.t-dialin.net ([62.227.202.56]:54799 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129401AbRAVCxw>; Sun, 21 Jan 2001 21:53:52 -0500
-Date: Mon, 22 Jan 2001 03:53:37 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Resolved: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
-Message-ID: <20010122035337.A24188@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org> <20010101180053.D6010@valinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010101180053.D6010@valinux.com>; from chip@valinux.com on Mon, Jan 01, 2001 at 18:00:53 -0800
+	id <S130405AbRAVDKa>; Sun, 21 Jan 2001 22:10:30 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3086 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129780AbRAVDKO>; Sun, 21 Jan 2001 22:10:14 -0500
+Date: Sun, 21 Jan 2001 23:20:13 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Vlad Bolkhovitine <vladb@sw.com.sg>, linux-kernel@vger.kernel.org
+Subject: Re: mmap()/VM problem in 2.4.0
+In-Reply-To: <Pine.LNX.4.31.0101191117460.3368-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0101212224001.7440-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Jan 2001, Chip Salzenberg wrote:
 
-> > If I now patch serial 5.05 on top of that, the kernel itself detects
-> > devices, but does nothing if it's to boot /sbin/init. ctrl-alt-del
-> > and Magic SysRq are both functional and can reboot the machine.
+On Fri, 19 Jan 2001, Rik van Riel wrote:
 
-> VA's current kernel includes VM-global and serial-5.05 (and lots of
-> other stuff :-)).  The only problem we had with serial-5.05 was its
-> 2.2/2.4 compatibility code getting confused because 2.2.18 has more
-> of 2.4's init macros available.  Try this:
+> On Thu, 18 Jan 2001, Marcelo Tosatti wrote:
+> > On Thu, 18 Jan 2001, Rik van Riel wrote:
+> > > On Fri, 12 Jan 2001, Vlad Bolkhovitine wrote:
+> > >
+> > > > You can see, mmap() read performance dropped significantly as
+> > > > well as read() one raised. Plus, "interactivity" of 2.4.0 system
+> > > > was much worse during mmap'ed test, than using read()
+> > > > (everything was quite smooth here). 2.4.0-test7 was badly
+> > > > interactive in both cases.
+> > >
+> > > Could have to do with page_launder() ... I'm working on
+> > > streaming mmap() performance here and have been working
+> > > on this for a week now (amongst other things).
+> >
+> > Also remember that drop_behind() is not working for mmap(), yet...
+> 
+> filemap_sync(..., MS_INVALIDATE) needs a 2-line change to have
+> drop-behind. I have this running (more or less) on my laptop here.
 
-[patch to remove rs_init from tty_io.c]
+The filemap_sync() modifications on your patch makes msync
+(MS_SYNC|MS_INVALIDATE) not work correctly anymore. filemap_sync() must
+set the page dirty for all valid pte's in the requested area if MS_SYNC is
+set.
 
-I finally got around to try it, and your patch did the job. Thank you
-very much.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

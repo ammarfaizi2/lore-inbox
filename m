@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316372AbSEZUhZ>; Sun, 26 May 2002 16:37:25 -0400
+	id <S316359AbSEZUiy>; Sun, 26 May 2002 16:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316359AbSEZUgK>; Sun, 26 May 2002 16:36:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38416 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316372AbSEZUfB>;
-	Sun, 26 May 2002 16:35:01 -0400
-Message-ID: <3CF147B2.9D6D7C2F@zip.com.au>
-Date: Sun, 26 May 2002 13:38:10 -0700
+	id <S316380AbSEZUha>; Sun, 26 May 2002 16:37:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42768 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316388AbSEZUhN>;
+	Sun, 26 May 2002 16:37:13 -0400
+Message-ID: <3CF14834.7FF3E72E@zip.com.au>
+Date: Sun, 26 May 2002 13:40:20 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 2/18] block_truncate_page fix
+Subject: [patch 5/18] mark swapout pages PageWriteback()
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,70 +22,76 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Fix bug in block_truncate_page().
+Pages which are under writeout to swap are locked, and not
+PageWriteback().  So page allocators do not throttle against them in
+shrink_caches().
 
-When buffers are attached to an uptodate page, they are marked as
-being uptodate.  To preserve buffer/page state coherency.  Dirtiness
-is handled in the same way.
+This causes enormous list scans and general coma under really heavy
+swapout loads.
 
-But block_truncate_page() assumes that a buffer which is unmapped and
-uptodate is over a hole.  That's not the case, and the net effect is
-that block_truncate_page() is failing to zero the block outside the
-truncation point.
+One fix would be to teach shrink_cache() to wait on PG_locked for swap
+pages.  The other approach is to set both PG_locked and PG_writeback
+for swap pages so they can be handled in the same manner as file-backed
+pages in shrink_cache().
 
-This only happens if the page has a disk mapping but has no attached
-buffers on entry to block_truncate_page().  That's never the case in
-current kernels, so the problem does not exhibit (it _does_ exhibit
-with direct-to-BIO bypass-the-buffers I/O).
-
-There are actually three possible states of buffer mappedness:
-
-- Buffer has a disk mapping            (buffer_mapped(bh) == true)
-
-- buffer is over a hole	               (buffer_mapped(bh) == false)
-
-- don't know.  Need to run get_block() (buffer_mapped(bh) == false)
-
-This ambiguity could be resolved by added another buffer state bit
-(BH_mapping_state_known?) but given that we already elide the get_block
-calls for the common case (buffer outside i_size) it is unlikely that
-the complexity is worthwhile.
-
+This patch takes the latter approach.
 
 =====================================
 
---- 2.5.18/fs/buffer.c~block_truncate_page	Sun May 26 12:37:39 2002
-+++ 2.5.18-akpm/fs/buffer.c	Sun May 26 12:37:39 2002
-@@ -2079,11 +2079,10 @@ int block_truncate_page(struct address_s
+--- 2.5.18/fs/buffer.c~swap-writeback	Sat May 25 23:26:46 2002
++++ 2.5.18-akpm/fs/buffer.c	Sun May 26 00:50:20 2002
+@@ -544,6 +544,14 @@ static void end_buffer_async_read(struct
+ 	 */
+ 	if (page_uptodate && !PageError(page))
+ 		SetPageUptodate(page);
++
++	/*
++	 * swap page handling is a bit hacky.  A standalone completion handler
++	 * for swapout pages would fix that up.  swapin can use this function.
++	 */
++	if (PageSwapCache(page) && PageWriteback(page))
++		end_page_writeback(page);
++
+ 	unlock_page(page);
+ 	return;
  
- 	err = 0;
- 	if (!buffer_mapped(bh)) {
--		/* Hole? Nothing to do */
--		if (buffer_uptodate(bh))
-+		err = get_block(inode, iblock, bh, 0);
-+		if (err)
- 			goto unlock;
--		get_block(inode, iblock, bh, 0);
--		/* Still unmapped? Nothing to do */
-+		/* unmapped? It's a hole - nothing to do */
- 		if (!buffer_mapped(bh))
- 			goto unlock;
- 	}
---- 2.5.18/fs/ext3/inode.c~block_truncate_page	Sun May 26 12:37:39 2002
-+++ 2.5.18-akpm/fs/ext3/inode.c	Sun May 26 12:37:40 2002
-@@ -1408,11 +1408,8 @@ static int ext3_block_truncate_page(hand
+@@ -2271,6 +2279,9 @@ int brw_kiovec(int rw, int nr, struct ki
+  * calls block_flushpage() under spinlock and hits a locked buffer, and
+  * schedules under spinlock.   Another approach would be to teach
+  * find_trylock_page() to also trylock the page's writeback flags.
++ *
++ * Swap pages are also marked PageWriteback when they are being written
++ * so that memory allocators will throttle on them.
+  */
+ int brw_page(int rw, struct page *page,
+ 		struct block_device *bdev, sector_t b[], int size)
+@@ -2301,6 +2312,11 @@ int brw_page(int rw, struct page *page,
+ 		bh = bh->b_this_page;
+ 	} while (bh != head);
  
- 	err = 0;
- 	if (!buffer_mapped(bh)) {
--		/* Hole? Nothing to do */
--		if (buffer_uptodate(bh))
--			goto unlock;
- 		ext3_get_block(inode, iblock, bh, 0);
--		/* Still unmapped? Nothing to do */
-+		/* unmapped? It's a hole - nothing to do */
- 		if (!buffer_mapped(bh))
- 			goto unlock;
- 	}
++	if (rw == WRITE) {
++		BUG_ON(PageWriteback(page));
++		SetPageWriteback(page);
++	}
++
+ 	/* Stage 2: start the IO */
+ 	do {
+ 		struct buffer_head *next = bh->b_this_page;
+--- 2.5.18/mm/swap_state.c~swap-writeback	Sat May 25 23:26:46 2002
++++ 2.5.18-akpm/mm/swap_state.c	Sun May 26 00:50:19 2002
+@@ -36,10 +36,8 @@ static int swap_writepage(struct page *p
+  * swapper_space doesn't have a real inode, so it gets a special vm_writeback()
+  * so we don't need swap special cases in generic_vm_writeback().
+  *
+- * FIXME: swap pages are locked, but not PageWriteback while under writeout.
+- * This will confuse throttling in shrink_cache().  It may be advantageous to
+- * set PG_writeback against swap pages while they're also locked.  Either that,
+- * or special-case swap pages in shrink_cache().
++ * Swap pages are PageLocked and PageWriteback while under writeout so that
++ * memory allocators will throttle against them.
+  */
+ static int swap_vm_writeback(struct page *page, int *nr_to_write)
+ {
 
 
 -

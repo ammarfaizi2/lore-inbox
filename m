@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUDXPpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbUDXPza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbUDXPpW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 11:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUDXPpW
+	id S262388AbUDXPza (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 11:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUDXPza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 11:45:22 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:33942 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262370AbUDXPpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 11:45:19 -0400
-Message-ID: <408A8B84.4070506@maine.rr.com>
-Date: Sat, 24 Apr 2004 11:45:08 -0400
-From: "David B. Stevens" <dsteven3@maine.rr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mohamed Aslan <mkernel@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Rewrite Kernel
-References: <20040424132402.7EBB923AB1@ws5-3.us4.outblaze.com>
-In-Reply-To: <20040424132402.7EBB923AB1@ws5-3.us4.outblaze.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Apr 2004 11:55:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:39138 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262388AbUDXPz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 11:55:29 -0400
+Date: Sat, 24 Apr 2004 08:55:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Erik Steffl <steffl@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev and /dev/sda1 not found during boot (it's there right after boot)
+Message-ID: <20040424155507.GA11273@kroah.com>
+References: <408A1945.1030506@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <408A1945.1030506@bigfoot.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mohamed Aslan wrote:
-> No I Could Create Assembly Code Faster Than Gcc
-> Gcc 2.95 was good but 3 isn't as 2,it's not my words linus recommended compiling kernel with 2.95
-> don't forget something assemblying requires less time than compiling
+On Sat, Apr 24, 2004 at 12:37:41AM -0700, Erik Steffl wrote:
+>   just moved to udev and everything seems to be working OK except of 
+> SATA drive (visible as /dev/sda1) when fsck checks it during boot (it 
+> works fine right after that).
 
-Well then do it and show us.
+This is a Debian specific bug/issue.  I suggest you file it against the
+Debian udev package, as it is not a kernel issue.
 
-Cheers,
-   Dave
+thanks,
 
-PS:The elitist said that about FORTRAN as well and were _WRONG_
+greg k-h

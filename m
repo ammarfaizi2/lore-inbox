@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264895AbUD2Q5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUD2RB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264895AbUD2Q5R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 12:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264897AbUD2Q5R
+	id S264897AbUD2RB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 13:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUD2RB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 12:57:17 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:23178 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264895AbUD2Q5O (ORCPT
+	Thu, 29 Apr 2004 13:01:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31144 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264894AbUD2Q6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 12:57:14 -0400
-Date: Thu, 29 Apr 2004 09:56:59 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <59450000.1083257819@flay>
-In-Reply-To: <40912F15.4030300@nortelnetworks.com>
-References: <409021D3.4060305@fastclick.com><20040428170106.122fd94e.akpm@osdl.org><409047E6.5000505@pobox.com><40905127.3000001@fastclick.com><20040428180038.73a38683.akpm@osdl.org><4090595D.6050709@pobox.com> <20040428184008.226bd52d.akpm@osdl.org> <44780000.1083255853@flay> <40912F15.4030300@nortelnetworks.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Apr 2004 12:58:39 -0400
+Date: Thu, 29 Apr 2004 09:51:43 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: trini@kernel.crashing.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com, mpm@selenic.com, zwane@linuxpower.ca
+Subject: Re: [PATCH] Kconfig.debug family
+Message-Id: <20040429095143.6de85098.rddunlap@osdl.org>
+In-Reply-To: <200404291842.23968.bzolnier@elka.pw.edu.pl>
+References: <20040421205140.445ae864.rddunlap@osdl.org>
+	<20040426164252.GA19246@smtp.west.cox.net>
+	<20040429083820.6457fa84.rddunlap@osdl.org>
+	<200404291842.23968.bzolnier@elka.pw.edu.pl>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The latency for interactive stuff is definitely more noticeable though, and
->> thus arguably more important. Perhaps we should be tying the scheduler in
->> more tightly with the VM - we've already decided there which apps are 
->> "interactive" and thus need low latency ... shouldn't we be giving a boost
->> to their RAM pages as well, and favour keeping those paged in over other
->> pages (whether other apps, or cache) logically? It's all latency still ...
-> 
-> I like this idea.  Maybe make it more general though--tasks with high scheduler priority also get more of a memory priority boost.  This will factor in the static priority as well as the interactivity bonus.
+On Thu, 29 Apr 2004 18:42:23 +0200 Bartlomiej Zolnierkiewicz wrote:
 
-Yeah, see also my other mail in that thread - if we moved to file-object (address_space) and task anon (mm) based tracking, it should be much easier.
-Also fits in nicely with Hugh's anon_mm code.
+| On Thursday 29 of April 2004 17:38, Randy.Dunlap wrote:
+| > On Mon, 26 Apr 2004 09:42:52 -0700 Tom Rini wrote:
+| > | On Wed, Apr 21, 2004 at 08:51:40PM -0700, Randy.Dunlap wrote:
+| > | > Localizes kernel debug options in lib/Kconfig.debug.
+| > | > Puts arch-specific debug options in $ARCH/Kconfig.debug.
+| > |
+| > | [snip]
+| > |
+| > | >  arch/ppc/Kconfig             |  124 -------------------------
+| > | >  arch/ppc/Kconfig.debug       |   71 ++++++++++++++
+| > |
+| > | OCP shouldn't be moved into Kconfig.debug, it's just in an odd location
+| > | right now.
+| >
+| > Thanks.  I moved it to under Processor options, before Platform
+| > options.  Is that OK?
+| >
+| > Updated patch is here:
+| >   http://developer.osdl.org/rddunlap/patches/kdebug1file_266rc2_v2.patch
+| > (applies to 2.6.6-rc3 with a few offsets)
+| >
+| > Waiting for 2.6.6-final...
+| 
+| I guess it is not a final patch?
 
-M.
- 
+Well, it hasn't been accepted.
+
+| Only on x86 it does a proper thing:
+| 
+| arch/<arch>/Kconfig -> arch/<arch>/Kconfig.debug -> lib/Kconfig.debug
+
+That's because I goofed up... it's the wrong patch.
+
+I was trying something that someone suggested (You!) and it didn't
+work out in a desirable way as far as how it's presented in
+{x,menu}config, so I need to fix that (i386 part) and then you
+can complain some more.  :)
+
+--
+~Randy

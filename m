@@ -1,64 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265765AbTFSLG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 07:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265766AbTFSLGz
+	id S265767AbTFSLQi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 07:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbTFSLQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 07:06:55 -0400
-Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:53736 "EHLO
-	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id S265765AbTFSLGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 07:06:54 -0400
-Subject: Re: 2.4.21: Bluetooth oopses with Acer USB dongle
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Marius Gedminas <mgedmin@delfi.lt>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030619101858.GA1745@gintaras>
-References: <20030619072216.GB14665@gintaras>
-	<1056014305.32273.90.camel@pegasus>  <20030619101858.GA1745@gintaras>
-Content-Type: text/plain
+	Thu, 19 Jun 2003 07:16:38 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:29111 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S265767AbTFSLQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 07:16:37 -0400
+From: Matthias Juchem <lists@konfido.de>
+To: netfilter-devel@lists.netfilter.org
+Subject: [PATCH 2.4] Trivial: kill __FUNCTION__ warnings in ip_nat_helper.c
+Date: Thu, 19 Jun 2003 13:30:09 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200306191326.09187.lists@konfido.de>
+Reply-To: Matthias Juchem <lists@konfido.de>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 19 Jun 2003 13:19:57 +0200
-Message-Id: <1056021604.32273.100.camel@pegasus>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marius,
+Hi there.
 
-> Small and black ;)
+The attached patch kills two warnings (produced by gcc 3.3):
 
-all of the Acer dongles are small and black, but not all of them use the
-same Bluetooth chip :)
+ip_nat_helper.c:493: warning: concatenation of string literals with 
+__FUNCTION__ is deprecated
+ip_nat_helper.c:577: warning: concatenation of string literals with 
+__FUNCTION__ is deprecated
 
-> I've a couple of photos that I was going to put on the web somewhere,
-> but at the moment usb-storage.o is stuck in the initialization phase.
-> Strange...  Perhaps 2.4.20 has other problems with this dongle confusing
-> the USB subsystem?  I haven't tried using it with another USB device at
-> the same time before.
-> 
-> > Please show us your data from
-> > /proc/bus/usb/devices for this device.
-> 
-> T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-> D:  Ver= 1.10 Cls=e0(unk. ) Sub=01 Prot=01 MxPS= 8 #Cfgs=  1
-> P:  Vendor=0b7a ProdID=07d0 Rev= 1.34
-> S:  SerialNumber=3EC0B415
-> C:* #Ifs= 2 Cfg#= 1 Atr=c0 MxPwr=100mA
-> I:  If#= 0 Alt= 0 #EPs= 3 Cls=00(>ifc ) Sub=00 Prot=00 Driver=hci_usb
-> E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=1ms
-> E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> E:  Ad=03(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> I:  If#= 1 Alt= 0 #EPs= 0 Cls=fe(app. ) Sub=01 Prot=00 Driver=(none)
+Diff is against 2.4.21.
 
-The problem is not the USB subsystem. It is the manufacturer of the
-Bluetooth chip, because some of them didn't read the Bluetooth HCI spec.
-part H2 carefully. At least every H2 USB Bluetooth device must have two
-ISOC endpoints. Even if they don't support SCO voice transfer.
+Regards,
+ Matthias
 
-Regards
+diff -urN linux-2.4.21-vanilla/net/ipv4/netfilter/ip_nat_helper.c 
+linux-2.4.21/net/ipv4/netfilter/ip_nat_helper.c
+--- linux-2.4.21-vanilla/net/ipv4/netfilter/ip_nat_helper.c     2003-06-19 
+11:53:43.000000000 +0200
++++ linux-2.4.21/net/ipv4/netfilter/ip_nat_helper.c     2003-06-19 
+12:37:26.000000000 +0200
+@@ -488,9 +488,9 @@
+                        const char *tmp = me->me->name;
 
-Marcel
-
+                        if (strlen(tmp) + 6 > MODULE_MAX_NAMELEN) {
+-                               printk(__FUNCTION__ ": unable to "
+-                                      "compute conntrack helper name "
+-                                      "from %s\n", tmp);
++                               printk("%s: unable to compute conntrack "
++                                      "helper name from %s\n",
++                                      __FUNCTION__, tmp);
+                                return -EBUSY;
+                        }
+                        tmp += 6;
+@@ -573,7 +573,8 @@
+                    && ct_helper->me) {
+                        __MOD_DEC_USE_COUNT(ct_helper->me);
+                } else
+-                       printk(__FUNCTION__ ": unable to decrement usage 
+count"
+-                              " of conntrack helper %s\n", me->me->name);
++                       printk("%s: unable to decrement usage count of "
++                              "conntrack helper %s\n",
++                              __FUNCTION__, me->me->name);
+        }
+ }
 

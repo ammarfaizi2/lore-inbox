@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUGaSsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUGaTMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUGaSsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 14:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUGaSsu
+	id S261300AbUGaTMF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 15:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUGaTMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 14:48:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49638 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261232AbUGaSsq (ORCPT
+	Sat, 31 Jul 2004 15:12:05 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:46091 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261300AbUGaTMC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 14:48:46 -0400
-Date: Sat, 31 Jul 2004 11:47:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: 2.6.8-rc2-mm1
-Message-Id: <20040731114714.37359c2d.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0407311230330.4095@montezuma.fsmlabs.com>
-References: <20040728020444.4dca7e23.akpm@osdl.org>
-	<Pine.LNX.4.58.0407311230330.4095@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 31 Jul 2004 15:12:02 -0400
+Date: Sat, 31 Jul 2004 21:11:55 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Steve French <smfrench@austin.rr.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, rddunlap@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: uid of user who mounts
+Message-ID: <20040731191155.GB5479@pclin040.win.tue.nl>
+References: <1091239509.3894.11.camel@smfhome.smfdom> <20040730190825.7a447429.rddunlap@osdl.org> <1091244841.2742.8.camel@smfhome1.smfdom> <E1BqqGd-0004fX-00@dorka.pomaz.szeredi.hu> <1091287308.2337.6.camel@smfhome.smfdom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091287308.2337.6.camel@smfhome.smfdom>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->
-> Ingo i believe you have a patch for this, could you push it to Andrew?
+On Sat, Jul 31, 2004 at 10:21:48AM -0500, Steve French wrote:
 
-I suspect Ingo's patch will be livelockable under some circumstances.
+> I confirmed what Randy had mantioned about the user= entries in mtab
+> allowing umounts (at least it works that way for a few of the local
+> filesystems I tried) but did not seem to work so well on other
+> filesystems - I had odd results on umounting my cifs mounts e.g. - after
+> adding at mount time "user=someuser" to /etc/mtab (by a minor change to
+> the mount helper mount.cifs.c, when running mount.cifs suid).  umount of
+> those mounts failed and has been tricky to debug through a privately
+> built version of umount via ddd (although it is clearly not making it
+> down to the cifs filesystem on the user umount so the problem is in libc
+> or in fs/namespace.c) - so I am tracing through fs/namespace.c now.
 
-I suspect mine is too, only less so.
+This discussion sounds as if you do think that this is somehow kernel-related.
+But it is not. Mount is suid and does certain things in a certain way.
+For filesystems that have their own private mount program, that private
+mount program is responsible for what happens.
 
-> I reckon it's provoked by CONFIG_PREEMPT.
-
-This should fix.
-
-
-diff -puN fs/jbd/checkpoint.c~journal_clean_checkpoint_list-latency-fix-fix fs/jbd/checkpoint.c
---- 25/fs/jbd/checkpoint.c~journal_clean_checkpoint_list-latency-fix-fix	2004-07-31 11:43:39.320530424 -0700
-+++ 25-akpm/fs/jbd/checkpoint.c	2004-07-31 11:44:11.859583736 -0700
-@@ -497,8 +497,7 @@ int __journal_clean_checkpoint_list(jour
- 		 * We don't test cond_resched() here because another CPU could
- 		 * be waiting on j_list_lock() while holding a different lock.
- 		 */
--		if ((ret & 127) == 127) {
--			spin_unlock(&journal->j_list_lock);
-+		if (transaction && (ret & 127) == 127) {
- 			/*
- 			 * We need to schedule away.  Rotate both this
- 			 * transaction's buffer list and the checkpoint list to
-@@ -512,6 +511,7 @@ int __journal_clean_checkpoint_list(jour
- 			if (transaction)
- 				journal->j_checkpoint_transactions =
- 					transaction->t_cpnext;
-+			spin_unlock(&journal->j_list_lock);
- 			return ret;
- 		}
- #endif
-_
-
+Andries

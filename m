@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUEOS5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264360AbUEOS5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUEOS5E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 14:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbUEOS5E
+	id S264360AbUEOS5q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 14:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUEOS5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 14:57:04 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:50404 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264251AbUEOS5B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 14:57:01 -0400
-Message-ID: <40A667CF.4000908@colorfullife.com>
-Date: Sat, 15 May 2004 20:56:15 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+	Sat, 15 May 2004 14:57:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52385 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264360AbUEOS5n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 14:57:43 -0400
+Message-ID: <40A66819.9040806@pobox.com>
+Date: Sat, 15 May 2004 14:57:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: foner+x-forcedeth@media.mit.edu
-CC: c-d.hailfinger.kernel.2004@gmx.net, XFree86@XFree86.Org,
-       debian-user@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: forcedeth breaks X in Debian-testing 2.4.25 on MSI K7N2 Delta-L
- mobo
-References: <200405130619.CAA18064@out-of-band.media.mit.edu>
-In-Reply-To: <200405130619.CAA18064@out-of-band.media.mit.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: shai@ftcon.com,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Multiple (ICH3) IDE-controllers in a system
+References: <200405151813.i4FIDoqt029818@hera.kernel.org>
+In-Reply-To: <200405151813.i4FIDoqt029818@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-foner+x-forcedeth@media.mit.edu wrote:
+Linux Kernel Mailing List wrote:
+> ChangeSet 1.1627, 2004/05/15 09:42:40-07:00, shai@ftcon.com
+> 
+> 	[PATCH] Multiple (ICH3) IDE-controllers in a system
+> 	
+> 	This fixes a problem with multiple IDE controllers in a system.
+> 	
+> 	The problem is that pcibios_fixups table (in arch/i386/pci/fixup.c) uses
+> 	the pci_fixup_ide_trash() quirk for Intel's ICH3 (my case specifically
+> 	8086:248b).  This clears any bogus BAR information set up by the BIOS.
+> 	
+> 	In a system which has multiple ICH3's can't use any of the IDE
+> 	controllers beside the one on the first ICH3.
+> 	
+> 	Anyhow, the fix is to make sure pci_fixup_ide_trash resets the BARs only
+> 	for first time being called, so the subsequent IDE controllers will use
+> 	the BIOS BARs.  This is better than "loosing" all these IDE controllers
+> 	in the case their BARs set right.
 
->So do you (or anyone) have any suggestions for what to do?  This is a
->reasonably new motherboard (I don't think it has any new firmware
->versions out yet) and this leaves me dead in the water---all I can do
->at this point is to just try the nVidia drivers and hope they work
->better than forcedeth.
->
-I would propose that as the first step: If this fails, then you can try 
-to get support from NVidia.
+I do not think this is correct.
 
- From you description it doesn't look like a bug directly in the 
-forcedeth driver: Perhaps a problem with a shared interrupt, or the vesa 
-bios uses an area for I/O and the ethernet registers are remapped on top 
-of the vesa registers.
+The programming interface register tells us if we're in legacy or native 
+mode, which is what this fixup is concerned with, AFAICS.
 
-Could you post lspci -vxx from both before and after loading forcedeth. 
-Or try bios settings that sound like Plug-N-Play aware OS. Or try ACPI 
-instead of APM (I've seen a boot log that contains both acpi and apm - 
-which one do you use? Try to boot with "acpi=off", "pci=noacpi", etc.)
+So, the code should base its actions on whether or not the controller is 
+in legacy mode, _not_ ordering.
 
---
-    Manfred
+	Jeff
+
 

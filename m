@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263461AbSITUht>; Fri, 20 Sep 2002 16:37:49 -0400
+	id <S263446AbSITUff>; Fri, 20 Sep 2002 16:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263476AbSITUht>; Fri, 20 Sep 2002 16:37:49 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:17024 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S263461AbSITUhs>; Fri, 20 Sep 2002 16:37:48 -0400
-Date: Fri, 20 Sep 2002 13:42:50 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
-To: Greg KH <greg@kroah.com>, Brad Hards <bhards@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Message-id: <3D8B884A.7030205@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200207180950.42312.duncan.sands@wanadoo.fr>
- <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com>
- <200209200656.23956.bhards@bigpond.net.au> <20020919230643.GD18000@kroah.com>
+	id <S263460AbSITUff>; Fri, 20 Sep 2002 16:35:35 -0400
+Received: from pr-66-150-46-254.wgate.com ([66.150.46.254]:16844 "EHLO
+	mail.tvol.net") by vger.kernel.org with ESMTP id <S263446AbSITUfe>;
+	Fri, 20 Sep 2002 16:35:34 -0400
+Message-ID: <3D8B87C7.7040106@wgate.com>
+Date: Fri, 20 Sep 2002 16:40:39 -0400
+From: Michael Sinz <msinz@wgate.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.1b) Gecko/20020813
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mks@sinz.org
+CC: marcelo@conectiva.com.br, Robert Love <rml@tech9.net>, msinz@wgate.com,
+       Linux Kernel List <linux-kernel@vger.kernel.org>, akpm@digeo.com,
+       riel@conectiva.com.br, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+coredump name format control via sysctl
 
->>I wasn't joking about putting back the /proc/bus/usb/drivers file. This is 
->>really going to hurt us in 2.6. 
+Provides for a way to securely move where core files show up and to
+set the name pattern for core files to include the UID, Program,
+Hostname, and/or PID of the process that caused the core dump.
+This is very handy for diskless clusters where all of the core
+dumps go to the same disk and for production servers where core
+dumps want to be segregated from the main production disks.
 
-Considering that the main use of that file that I know about was
-implicit (usbfs is available if its files are present, another
-assumption broken in 2.5), I'm not sure I feel any pain... :-)
+I have again updated the patch to work with 2.4.19 and 2.5.36
+kernels and am now hosting it on my web site at:
 
+	http://www.sinz.org/Michael.Sinz/Linux/
 
-> Is this file _really_ used?  All it did was show the USB drivers
-> registered.  Even so, that same information is now present in driverfs,
-> I haven't taken away anything, just moved it.  Lots of things are
-> starting to move to driverfs, this isn't the first, and will not be the
-> last.
+-- Patch background and how it works --
 
-Actually it does more than that ... it tells you what minor numbers
-are assigned to the drivers _currently loaded_ which means that it's
-not really useful the instant someone plugs in another device.
+What I did with this patch is provide a new sysctl that lets you
+control the name of the core file. The this name is actually a format
+string such that certain values from the process can be included.
+If the sysctl is not used to change the format string, the behavior
+is exactly the same as the current kernel coredump behavior.
 
-You can't use it to allocate numbers or tell what /dev/file/name matches
-a given device ... so what is its value, other than providing a limited
-minor number counterpart to /proc/devices?  (Which, confusingly, doesn't
-list devices but major numbers.)
+The default name format is set to "core" to match the current
+behavior of the kernel. Old behavior of appending the PID to
+the "core" name is also preserved with added logic of only doing
+so if the PID is not already part of the name format.  This fully
+preserves current behaviors within the system while still providing
+for the full control of the format of the core file name.  Thus
+current behavior is not a special case but "falls out" of the
+general code when the format is set to "core".
 
-- Dave
+The following format options are available in that string:
+
+       %P   The Process ID (current->pid)
+       %U   The UID of the process (current->uid)
+       %N   The command name of the process (current->comm)
+       %H   The nodename of the system (system_utsname.nodename)
+       %%   A "%"
+
+For example, in my clusters, I have an NFS R/W mount at /coredumps
+that all nodes have access to. The format string I use is:
+
+	sysctl -w "kernel.core_name_format=/coredumps/%H-%N-%P.core"
+
+This then causes core dumps to be of the format:
+
+	/coredumps/whale.sinz.org-badprogram-13917.core
+
+I used upper case characters to reduce the chance of getting confused
+with format() characters and to be somewhat simular to the mechanism
+that exists on FreeBSD.
 
 

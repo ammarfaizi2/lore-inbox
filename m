@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261276AbSJUICh>; Mon, 21 Oct 2002 04:02:37 -0400
+	id <S261274AbSJUIIo>; Mon, 21 Oct 2002 04:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261277AbSJUICh>; Mon, 21 Oct 2002 04:02:37 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:56562 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S261276AbSJUICf>; Mon, 21 Oct 2002 04:02:35 -0400
-Date: Mon, 21 Oct 2002 02:05:17 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Rob Landley <landley@trommello.org>
-Cc: karim@opersys.com, linux-kernel@vger.kernel.org, boissiere@nl.linux.org
-Subject: Re: Crunch time -- Final merge candidates for 3.0 (the list).
-Message-ID: <20021021080517.GB17430@clusterfs.com>
-Mail-Followup-To: Rob Landley <landley@trommello.org>, karim@opersys.com,
-	linux-kernel@vger.kernel.org, boissiere@nl.linux.org
-References: <200210201849.23667.landley@trommello.org> <200210202037.54370.landley@trommello.org> <20021021064308.GA17430@clusterfs.com> <200210202147.23712.landley@trommello.org>
+	id <S261271AbSJUIIo>; Mon, 21 Oct 2002 04:08:44 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:17417 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S261274AbSJUIIn>; Mon, 21 Oct 2002 04:08:43 -0400
+Date: Mon, 21 Oct 2002 17:14:19 +0900 (JST)
+Message-Id: <20021021.171419.81047036.yoshfuji@wide.ad.jp>
+To: landley@trommello.org
+Cc: davem@redhat.com, rusty@rustcorp.com.au, zippel@linux-m68k.org,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, akpm@zip.com.au,
+       davej@suse.de, boissiere@adiglobal.com, mingo@redhat.com
+Subject: Re: 2.6: Shortlist of Missing Features
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <200210202207.21397.landley@trommello.org>
+References: <20021021.004328.94367521.davem@redhat.com>
+	<20021021.165915.119823836.yoshfuji@wide.ad.jp>
+	<200210202207.21397.landley@trommello.org>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210202147.23712.landley@trommello.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 20, 2002  21:47 -0500, Rob Landley wrote:
-> On Monday 21 October 2002 01:43, Andreas Dilger wrote:
-> > On Oct 20, 2002  20:37 -0500, Rob Landley wrote:
-> > > Ted Tso has also been posting new ext2/ext3 code with extended attributes
-> > > and access control lists.
+In article <200210202207.21397.landley@trommello.org> (at Sun, 20 Oct 2002 22:07:21 -0500), Rob Landley <landley@trommello.org> says:
+
+> On Monday 21 October 2002 02:59, YOSHIFUJI Hideaki wrote:
+> > In article <20021021.004328.94367521.davem@redhat.com> (at Mon, 21 Oct 2002 
+> 00:43:28 -0700 (PDT)), "David S. Miller" <davem@redhat.com> says:
+> > >    > IPSEC from Alexey and myself, and new CryptoAPI from James Morris.
 > > >
-> > > So, 11 items from the 2.5 status list (in -aa, in -mm, and "ready"), plus
-> > > kexec, kernelconfig, and ACL for EXT3.  I believe this brings the total
-> > > number of pending patchsets still hoping for 2.5 inclusion to 14.
+> > >    URLs to which would be nice.
+> > >
+> > > No URLs, being coded as I type this :-)
+> > >
+> > > Some of the ipv4 infrastructure is in 2.5.44
 > >
-> > I belive that the ext3 EA+ACL stuff is now in -mm.
+> > How about IPv6?  We need it. :-)
 > 
-> Query: is the stuff in -mm guaranteed to make it into Linus's tree?  Or is it 
-> another variant of -ac and -dj, from which Linus pulls what he wants?
+> At this point, we need a URL to a specific patch.  (Ideas aren't going to be 
+> submitted to Linus by this time next week, code is.  Preferably tested 
+> code...)
 
-I doubt it.  However, being included in "-mm" or "-ac" is one step closer to
-being included in "" than just being a random patch/cset on the internet...
+Well, our IPsec is ready, runs and is tested...
+ <ftp://ftp.linux-ipv6.org/pub/usagi/patch/ipsec/>
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

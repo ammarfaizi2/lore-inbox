@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266026AbUAEXhj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUAEXhh
+	id S266023AbUAEXkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUAEXh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:37:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59265 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266026AbUAEXhC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:37:02 -0500
-Date: Mon, 5 Jan 2004 15:36:41 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Baudis <pasky@ucw.cz>
-cc: Diego Calleja <grundig@teleline.es>, Robert.L.Harris@rdlg.net,
-       vherva@niksula.hut.fi, ihaquer@isec.pl, cliph@isec.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: mremap() bug IMHO not in 2.2
-In-Reply-To: <20040105225508.GM2093@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.58.0401051532510.5737@home.osdl.org>
-References: <20040105145421.GC2247@rdlg.net> <Pine.LNX.4.58L.0401051323520.1188@logos.cnet>
- <20040105181053.6560e1e3.grundig@teleline.es> <20040105182607.GB2093@pasky.ji.cz>
- <20040105225508.GM2093@pasky.ji.cz>
+	Mon, 5 Jan 2004 18:37:58 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:59385 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266023AbUAEXgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 18:36:03 -0500
+Message-ID: <3FF9F4C2.5040306@eglifamily.dnsalias.net>
+Date: Mon, 05 Jan 2004 16:35:30 -0700
+From: Dan Egli <dan@eglifamily.dnsalias.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Simmons <jsimmons@infradead.org>
+CC: Thomas Molina <tmolina@cablespeed.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0401052334110.7347-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0401052334110.7347-100000@phoenix.infradead.org>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: Blank Screen in 2.6.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dan@eglifamily.dnsalias.net
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+James Simmons wrote:
+|>|>The decision to release 2.6.0 with the same broken vga= option that was
+|>|>reported many times in 2.6.0-test* makes me think that vga= is not
+|>intended
+|>|>to work.
+|>|
+|>|
+|>| Maybe it has something to do with RedHat 7.3.  I've used RH8, RH9, and
+|>| Fedora Core 1 and haven't had a problem with vga= in any of them during
+|>| the 2.5/2.6 series, right up through the current one.  I've got
+|>| framebuffer support as a module.
+|>|
+|>
+|>
+|>Not RedHat 9 issue because I'm using RH 9 and I am the one that started
+|>this thread.
+|
+|
+| Its a bug in the kernel. Fixed in latest tree.
+|
+| http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+|
+|
+|
+Cool. When the 2.6.1 comes out (I'm assuming that this means it will be
+in 2.6.1), I'll d/l it and try it out.
 
-On Mon, 5 Jan 2004, Petr Baudis wrote:
-> 
-> Actually, after looking at the code again, I'm now quite convinced 2.2
-> has not this particular vulnerability. In order for the exploit to work,
-> you'd need mremap() to relocate you.
+- --- Dan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Can somebody tell me (in private) what the exploit is in the first place?
+iD8DBQE/+fTCtwT22Jak4/4RAroCAJkBU2goo0OYMSgRZAo25/zvdpUp+QCfZlLh
+H9y/WAT8t/hBONnhJ+U6k2I=
+=1H0b
+-----END PGP SIGNATURE-----
 
-The thing is, I can see the VM getting confused and creating a zero-sized 
-vma, and I agree that it shouldn't do that. The fix is trivial. But I 
-don't see where the claimed privilege escalation comes from. A zero-sized 
-vma isn't ever going to be _useful_, since nothing will actually find it.
-
-So yes, it creates some confusion in the VM layer, but it all seems 
-benign. It's clearly a bug, but where does the security problem come in?
-
-		Linus

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274521AbRITOiD>; Thu, 20 Sep 2001 10:38:03 -0400
+	id <S274520AbRITOex>; Thu, 20 Sep 2001 10:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274525AbRITOhx>; Thu, 20 Sep 2001 10:37:53 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:11173
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S274521AbRITOhq>; Thu, 20 Sep 2001 10:37:46 -0400
-Date: Thu, 20 Sep 2001 10:38:05 -0400
-From: Chris Mason <mason@suse.com>
-To: Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <627000000.1000996685@tiny>
-In-Reply-To: <Pine.GSO.4.21.0109200952350.3498-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0109200952350.3498-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S274521AbRITOed>; Thu, 20 Sep 2001 10:34:33 -0400
+Received: from zeke.inet.com ([199.171.211.198]:48552 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S274520AbRITOe2>;
+	Thu, 20 Sep 2001 10:34:28 -0400
+Message-ID: <3BA9FE7D.912233AD@inet.com>
+Date: Thu, 20 Sep 2001 09:34:37 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tobin Park <shinywind@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Network buffer allocation
+In-Reply-To: <F177WQejqpRI7aIrq0400001a8c@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tobin Park wrote:
+> 
+> Hello,
+> I am a newbie of linux kernel and studying network kernel source.
+> when network device driver receives packet and allocates buffer,
+> what is the default size of allocation?
+> and is there any reallocation happened when upper layer(ip/tcp) manipulates
+> buffer which was allocated by device driver?
 
+You like to jump in the deep end, I see.
 
-On Thursday, September 20, 2001 09:56:22 AM -0400 Alexander Viro <viro@math.psu.edu> wrote:
+You might want to look at LINUX IP Stacks Commentary by Satchell and
+Clifford (Coriolis).  It covers 2.0, but it might prove helpful anyway.
+(Also look into the device driver book, kernelnewbies.org, and the
+like...)
 
-> Had you actually read the fsync_dev()?  Let me make it clear: you are
-> flushing _buffer_ cache upon blkdev_put(bdev, BDEV_FILE).  It was
-> the right thing when file access went through buffer cache.  It's
-> blatantly wrong with page cache.
+I'm not sure about a default allocation size... I'm not sure if there is
+one.
 
-Well, fsync_dev will flush anything on the dirty list.  Since 
-blkdev_commit_write puts things on the dirty list, andrea's current 
-code will flush changes through the page cache.
+But as for the reallocation in the upper layers, usually it doesn't.  (I
+think there are some cases where it may have to, but we want to avoid it
+when we can.)  From my knowledge of 2.2.x, you'll want to look at how
+that is avoided by using skb_push(), skb_pull(), skb_trim(),
+skb_reserve(), etc.
+skb_copy() and skb_clone() may also be of interest.
 
-The biggest exception is blkdev_writepage directly submits the io instead
-of marking the buffers dirty.  This means the buffers won't be on
-the locked/dirty list, and they won't get waited on.  Similar problem
-for direct io.
+HTH, and good luck!
 
-The fix shouldn't be too bad, I'll code it up...
-
--chris
-
+Eli 
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315421AbSEGL7a>; Tue, 7 May 2002 07:59:30 -0400
+	id <S315423AbSEGMVy>; Tue, 7 May 2002 08:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315423AbSEGL73>; Tue, 7 May 2002 07:59:29 -0400
-Received: from pieck.student.uva.nl ([146.50.96.22]:38088 "EHLO
-	pieck.student.uva.nl") by vger.kernel.org with ESMTP
-	id <S315421AbSEGL72>; Tue, 7 May 2002 07:59:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Reply-To: rudmer@legolas.dynup.net
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Subject: psmouse
-Date: Tue, 7 May 2002 14:00:11 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S315425AbSEGMVx>; Tue, 7 May 2002 08:21:53 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:38665 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315423AbSEGMVx>; Tue, 7 May 2002 08:21:53 -0400
+Message-ID: <3CD7B826.7000000@evision-ventures.com>
+Date: Tue, 07 May 2002 13:19:02 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020507115928Z315421-22651+24320@vger.kernel.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 55
+In-Reply-To: <Pine.LNX.4.21.0205071345110.32715-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Uz.ytkownik Roman Zippel napisa?:
+> Hi,
+> 
+> On Tue, 7 May 2002, Martin Dalecki wrote:
+> 
+> 
+>>>>Then ide-pci.c is still compiled into the kernel. Why?
+>>>
+>>>Becouse the big tables there are subject to go.
+>>
+>>And at some point in time it will check whatever there is
+>>request for any host chip support.
+> 
+> 
+> Could you please then do the above change _after_ you have done this?
 
-I already said that I have a Logitech Optical Wheelmouse and that it is not 
-detected correctly in 2.5.1[234]-dj1. It is detected as a 'PS/2 Logitech 
-Mouse on isa0060/serio1' and the scrollwheel does not work. 
-
-The devicetype for this mouse is 86
-after putting this value in the logitech_* arrays it is detected 
-as 'ImExPS/2 Microsoft IntelliMouse Explorer on isa0060/serio1'....
-and now the scrollwheel works, but only in one direction (opposite to the 
-expected direction)...
-
-forcing the detect routine to return PSMOUSE_PS2PP directly after the 
-logitech detection stuff I get a lot of these messages:
-psmouse.c: Lost synchronization, throwing X bytes away. (with X = 1-3)
-and the mouse is not really usable
-
-using some settings for the Microsoft stuff and returning PSMOUSE_PS2PP also 
-does not work, but returning PSMOUSE_IMEX results in a usable mouse (again 
-with 1 scroll direction)
-
-I don't know how to change the scrollwheel stuff in psmouse_process_packet so 
-it works with my mouse, but I know the contents of the packets (in packet[]):
-
-wheel move	| p[0]	| p[1]	| p[2]	| p[3]	| p[4]
---------------------------------------------------------
-up		| 8	| 0	| 0	| 15	| 0
-down		| 8	| 0	| 0	| 1	| 0
-
-
-I do not know what to do next, but I want to use my scrollwheel!!
-BTW the wheel works in 2.4.x
-
-mouse info:
-Logitech Optical Wheelmouse
-M/N: M-BJ58
-P/N: 830513-0000
-S/N: LNA14826942
-Chip: CP5763AM, Logitech, 3311550000 A  02, IND0143 508226
-
-	Rudmer
+Well one question renames: Please name me one PCI based architecture
+which contains IDE support and does not contain any special host chip
+attached to the very same PCI bus as well.
 

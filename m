@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280819AbRKYLPn>; Sun, 25 Nov 2001 06:15:43 -0500
+	id <S280836AbRKYLnT>; Sun, 25 Nov 2001 06:43:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280820AbRKYLPc>; Sun, 25 Nov 2001 06:15:32 -0500
-Received: from marine.sonic.net ([208.201.224.37]:41788 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S280819AbRKYLPU>;
-	Sun, 25 Nov 2001 06:15:20 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Sun, 25 Nov 2001 03:14:53 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Cc: Michael Zimmermann <zim@vegaa.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: Moving ext3 journal file
-Message-ID: <20011125031452.B27959@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org, Michael Zimmermann <zim@vegaa.de>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <E167Fuw-00001K-00@DervishD> <20011123155901.C1308@lynx.no> <9tmocg$jfn$1@cesium.transmeta.com> <20011123174120.Q1308@lynx.no> <9tmr83$jo2$1@cesium.transmeta.com> <20011123212557.U1308@lynx.no> <3BFF2AAE.7000000@zytor.com> <3BFF8692.7060900@vegaa.de> <20011125023314.B30336@mikef-linux.matchmail.com>
+	id <S280832AbRKYLnB>; Sun, 25 Nov 2001 06:43:01 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:31503 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S280838AbRKYLmr>; Sun, 25 Nov 2001 06:42:47 -0500
+Date: Sun, 25 Nov 2001 22:42:59 +1100
+From: john slee <indigoid@higherplane.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Network hardware: "Network Media Detection"
+Message-ID: <20011125224259.A4844@higherplane.net>
+In-Reply-To: <E167ja2-0004fF-00@carbon.btinternet.com> <9tpiio$n4u$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011125023314.B30336@mikef-linux.matchmail.com>
+In-Reply-To: <9tpiio$n4u$1@cesium.transmeta.com>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 02:33:14AM -0800, Mike Fedyk wrote:
-> The newest e2fsck (1.25) will hide the file for you, just like it would be
-> if the conversion was done on an unmounted FS.
+On Sat, Nov 24, 2001 at 05:47:04PM -0800, H. Peter Anvin wrote:
+> > Hi
+> > I was wondering if there was any way in linux to use what redmond calls 
+> > "Network Media Detection"?
+> This is basically taking the interface down when the link disappears
+> (and vice versa.)  Rather useful for portable systems.  Don't think
+> anyone has implemented it, but it should be easy enough to do.
 
+is there a common field in net_device{} for link state (not just up or
+down, but media type too)?
 
-Actually, to re-iterate a recent point:  No, it won't.
+all the various ethernet drivers seem to handle link changes rather
+differently.  being able to notify userspace of media changes in a
+not-driver-specific manner would be nice as links flapping from 10 to
+100Mbps and back often means problems are afoot.
 
-The next version of e2fsck should.  But 1.25 does NOT do that.
+also i am undecided on _how_ to tell userspace about it...  the current
+hotplug system only seems to handle plug/unplug, whereas this is a
+device state change and as such doesn't really fit the mould...
 
-mrc
+j.
+
 -- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

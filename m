@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTIOXJk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTIOXJk
+	id S261710AbTIOXM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTIOXMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 19:09:40 -0400
-Received: from mail.kroah.org ([65.200.24.183]:61153 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261680AbTIOXJi (ORCPT
+	Mon, 15 Sep 2003 19:12:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4504 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261697AbTIOXLl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:09:38 -0400
-Date: Mon, 15 Sep 2003 16:09:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Kendrick Hamilton <hamilton@sedsystems.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI probe, please CC hamilton@sedsystems.ca
-Message-ID: <20030915230949.GA18153@kroah.com>
-References: <3F66441F.3010206@sedsystems.ca>
+	Mon, 15 Sep 2003 19:11:41 -0400
+Date: Mon, 15 Sep 2003 15:59:52 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add likely around access_ok for uaccess
+Message-Id: <20030915155952.17767ca0.davem@redhat.com>
+In-Reply-To: <3F644E36.5010402@colorfullife.com>
+References: <3F644E36.5010402@colorfullife.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F66441F.3010206@sedsystems.ca>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 04:58:39PM -0600, Kendrick Hamilton wrote:
-> Hello,
->    we are using the Linux 2.2.16 kernel (some of the code we purchased 
-> does not work with 2.4.x kernels and we would have to do a lot of 
-> regression testing to upgrade) on an IBM e-server. We wrote a module for 
-> a modulator card we are using. The code uses pci_find_device to find the 
-> modulator cards. The problem we are having is that it finds the cards in 
-> different orders. One time hss0 is the card in slot 4 and hss1 is the 
-> card in slot5. The next time we power up the computer, hss0 is the card 
-> in slot5 and hss1 is the card in slot 4.
->    The IBM e-server has about 5 PCI bridges.
->    Do you have any suggestion as to how I might be able to ensure the 
-> cards are always detected in the same order? Our system requires that 
-> they always be in the same order.
+On Sun, 14 Sep 2003 13:17:10 +0200
+Manfred Spraul <manfred@colorfullife.com> wrote:
 
-Are the pci device ids different across different boots?  If not, is
-there any way you can tie a specific device to a specific interface
-(unique hardware addresses, mac addresses, etc.)?
+> The attached patch adds likely to the tests - any objections? What about 
+> the archs except i386?
 
-thanks,
+On sparc64, access_ok() is a constant, so it doesn't matter
+there.
 
-greg k-h
+Sparc32 probably should have it.

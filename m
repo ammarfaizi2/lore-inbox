@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268010AbUIKBCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268019AbUIKBYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268010AbUIKBCT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 21:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268013AbUIKBCT
+	id S268019AbUIKBYw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 21:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268020AbUIKBYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 21:02:19 -0400
-Received: from gate.crashing.org ([63.228.1.57]:61397 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268010AbUIKBCR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 21:02:17 -0400
-Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: adaplas@pol.net
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200409110504.09812.adaplas@hotpop.com>
-References: <1094783022.2667.106.camel@gaston>
-	 <200409110504.09812.adaplas@hotpop.com>
+	Fri, 10 Sep 2004 21:24:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:31159 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268019AbUIKBYu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 21:24:50 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Tim Hockin <thockin@hockin.org>, Kay Sievers <kay.sievers@vrfy.org>,
+       Robert Love <rml@ximian.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040911004827.GA8139@kroah.com>
+References: <20040831150645.4aa8fd27.akpm@osdl.org>
+	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
+	 <20040902083407.GC3191@kroah.com>
+	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
+	 <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost>
+	 <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org>
+	 <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org>
+	 <20040911004827.GA8139@kroah.com>
 Content-Type: text/plain
-Message-Id: <1094864419.2578.154.camel@gaston>
+Message-Id: <1094865815.2772.67.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 11 Sep 2004 11:00:19 +1000
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 10 Sep 2004 18:23:36 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-11 at 07:04, Antonino A. Daplas wrote:
-> Hi Ben,
+On Fri, 2004-09-10 at 17:48, Greg KH wrote:
+> On Fri, Sep 10, 2004 at 05:18:49PM -0700, Tim Hockin wrote:
+> > On Fri, Sep 10, 2004 at 04:54:09PM -0700, Greg KH wrote:
+> > > To send an event, the user needs to pass the kobject, a optional
+> > > sysfs-attribute and the signal string to the following function:
+> > >   
+> > >   kobject_uevent(const char *signal,
+> > >                  struct kobject *kobj,
+> > >                  struct attribute *attr)
+> > 
+> > Sorry I missed the flare up of this topic.  What about events for which
+> > there is no associated kobject?
 > 
-> How about this patch?  This brings back the old way of setting up the
-> drivers, supports:
+> Tough, no event for them :)
 > 
-> video=xxxfb:off
-> video=ofonly
+> > why is the kobject argument not first?  Seems weird..
 > 
-> Your patch that brings offb to the very last of the Makefile is needed.
+> Yeah, it is a bit "odd", but it follows my old kobject_hotplug() way.
+> 
+> > What happened to a formatted string argument?  The signal argument can 
+> > become the pre-formatted string, and someone can provide a wrapper
+> > that takes a printf() like format and args.
+> > 	kobject_uevent_printf(kobj, "something bad: 0x%08x", err);
+> 
+> Use an attribute, and have userspace read that formatted argument if
+> need be.  This keeps the kernel interface much simpler, and doesn't
+> allow you to abuse it for things it is not intended for (like error
+> reporting stuff...)
 
-Looks good !
 
-Ben.
+Not to be cheeky, but cpu "overheating" isn't an error event? <grin>
+
 
 

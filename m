@@ -1,71 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261381AbSJYM1R>; Fri, 25 Oct 2002 08:27:17 -0400
+	id <S261379AbSJYMdy>; Fri, 25 Oct 2002 08:33:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261383AbSJYM1R>; Fri, 25 Oct 2002 08:27:17 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:27110 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261381AbSJYM1Q>;
-	Fri, 25 Oct 2002 08:27:16 -0400
-Date: Fri, 25 Oct 2002 18:09:21 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.44-mm5
-Message-ID: <20021025180921.B14451@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1035547268.3db9328488960@kolivas.net>
+	id <S261383AbSJYMdy>; Fri, 25 Oct 2002 08:33:54 -0400
+Received: from zero.aec.at ([193.170.194.10]:12810 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S261379AbSJYMdx>;
+	Fri, 25 Oct 2002 08:33:53 -0400
+Date: Fri, 25 Oct 2002 14:40:01 +0200
+From: Andi Kleen <ak@muc.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 performance counters driver 3.0-pre2 for 2.5.44: [2/4] x86 support
+Message-ID: <20021025124001.GA29937@averell>
+References: <200210241500.RAA03585@kim.it.uu.se> <m3wuo7omzg.fsf@averell.firstfloor.org> <15801.14413.909403.323948@kim.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1035547268.3db9328488960@kolivas.net>; from conman@kolivas.net on Fri, Oct 25, 2002 at 12:04:22PM +0000
+In-Reply-To: <15801.14413.909403.323948@kim.it.uu.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 12:04:22PM +0000, Con Kolivas wrote:
-> 
-> Compile failure (gcc3.2):
-> 
->   gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
-> -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
-> -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version
->   -c -o init/version.o init/version.c
->    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o
->         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-> arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
-> --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o 
-> arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o 
-> fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a 
-> arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o 
-> arch/i386/pci/built-in.o  arch/i386/oprofile/built-in.o  net/built-in.o
-> --end-group  -o .tmp_vmlinux1
-> kernel/built-in.o: In function `sched_init':
-> kernel/built-in.o(.init.text+0xc4): undefined reference to `init_kstat'
-> make: *** [.tmp_vmlinux1] Error 1
+> For what values of cpu is per_cpu(var,cpu) valid? For those where
+> cpu_online(cpu) is true, or those where cpu_possible(cpu) is true?
+> (I need to convert a memset() on the per_cpu_cache[] array to the
+> per_cpu(,) framework.)
 
-The patch below should fix your problem, hopefully. Although I 
-don't understand why kstat initialization isn't in common code.
-I will try to fix it the right way later.
+Currently for cpu_possible(), but there is a patchkit around that
+makes it only true for cpu_online() so better assume that. 
+Of course that would require a hotplug CPU handler, but I would
+just ignore that for now.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
-
-
-
-diff -urN linux-2.5.44-mm5/kernel/sched.c linux-2.5.44-mm5-fix/kernel/sched.c
---- linux-2.5.44-mm5/kernel/sched.c	Fri Oct 25 15:11:06 2002
-+++ linux-2.5.44-mm5-fix/kernel/sched.c	Fri Oct 25 15:40:01 2002
-@@ -2160,6 +2160,8 @@
-  * Don't use in new code.
-  */
- spinlock_t kernel_flag __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-+#else
-+static inline void init_kstat(void) { }
- #endif
- 
- void __init sched_init(void)
-
+-Andi

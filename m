@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270258AbRHMPoJ>; Mon, 13 Aug 2001 11:44:09 -0400
+	id <S270261AbRHMPq6>; Mon, 13 Aug 2001 11:46:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270257AbRHMPn6>; Mon, 13 Aug 2001 11:43:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19462 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270255AbRHMPnt>; Mon, 13 Aug 2001 11:43:49 -0400
-Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
-To: esr@thyrsus.com
-Date: Mon, 13 Aug 2001 16:46:20 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20010813111850.D21008@thyrsus.com> from "Eric S. Raymond" at Aug 13, 2001 11:18:50 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S270263AbRHMPqs>; Mon, 13 Aug 2001 11:46:48 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:7043 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270261AbRHMPqh>; Mon, 13 Aug 2001 11:46:37 -0400
+Date: Mon, 13 Aug 2001 08:46:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix compile of drivers/pci/pci.c in 2.4.9-pre2
+Message-ID: <20010813084635.E9133@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20010813083100.C9133@cpe-24-221-152-185.az.sprintbbd.net> <20010813.083747.74740250.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WJv2-0007eS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20010813.083747.74740250.davem@redhat.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't know what version we have.  Is there a way to query it through /proc?
+On Mon, Aug 13, 2001 at 08:37:47AM -0700, David S. Miller wrote:
+>    From: Tom Rini <trini@kernel.crashing.org>
+>    Date: Mon, 13 Aug 2001 08:31:00 -0700
+> 
+>    Hello.  2.4.9-pre2 introduced the mandatory PM transition delays for PCI
+>    devices.  However, it currently doesn't compile, at least on PPC, since
+>    drivers/pci/pci.c doesn't include <asm/delay.h> to get the definition of
+>    udelay.  Please apply this to the next release.  Thanks.
+> 
+> The correct include is <linux/delay.h> not <asm/delay.h>
 
-You need to look at the lspci hex data. There's an errata document for the
-MP chipset on www.amd.com if you realyl want to scare yourself 8)
+Ah, whoops.
 
-Alan
---
-  "Have you noticed the way people's intelligence capabilities decline
-   sharply the minute they start waving guns around?"
- 		-- Dr. Who
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

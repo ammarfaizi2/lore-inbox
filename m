@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265814AbUFTDT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUFTDd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265814AbUFTDT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 23:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUFTDT2
+	id S265823AbUFTDd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 23:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFTDd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 23:19:28 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:54948 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265815AbUFTDTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 23:19:25 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/11] New set of input patches
-Date: Sat, 19 Jun 2004 22:17:29 -0500
-User-Agent: KMail/1.6.2
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-References: <20040618203340.45436.qmail@web81301.mail.yahoo.com> <20040619200532.GB20632@lug-owl.de>
-In-Reply-To: <20040619200532.GB20632@lug-owl.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406192217.29206.dtor_core@ameritech.net>
+	Sat, 19 Jun 2004 23:33:58 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:11398 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265823AbUFTDd4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 23:33:56 -0400
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Chris Caputo <ccaputo@alt.net>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>, riel@redhat.com
+In-Reply-To: <20040620001529.GA4326@logos.cnet>
+References: <Pine.LNX.4.44.0406181730370.1847-100000@nacho.alt.net>
+	 <20040620001529.GA4326@logos.cnet>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1087702435.5361.64.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 19 Jun 2004 23:33:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 19 June 2004 03:05 pm, Jan-Benedict Glaw wrote:
-> On Fri, 2004-06-18 13:33:40 -0700, Dmitry Torokhov <dtor_core@ameritech.net>
-> wrote in message <20040618203340.45436.qmail@web81301.mail.yahoo.com>:
-> > > However, they won't apply onto Linus' tree and cause rejects in a good
-> > > number of "interesting" files.
-> > 
-> > Well, I do not consider it tested enough to be ready for Linus yet :)
-> > I am thinking about publushing my input-sysfs bk tree... Will there
-> > be an interest in it or you just want a patch against the vanilla 2.6.7?
-> > I can do a wholesale patch but splitting my changes from other stuff in
-> > Vojtech's tree does not sound very appealing... 
-> 
-> As I said, I'd love to see a -linus based patch, simply because I
-> basically work with exactly this as my base. However, I can also try to
-> get another base to start from.
->
+På lau , 19/06/2004 klokka 20:15, skreiv Marcelo Tosatti:
 
-Ok, how about this:
+> The changes between 2.4.25->2.4.26 (which introduce __refile_inode() and 
+> the unused_pagecache list) must have something to do with this. 
 
-http://www.geocities.com/dt_or/input/2_6_7/
+Here's one question:
 
-00-bk-input.patch.gz and 00-bk-sysfs.patch.gz are pulls from Vojtech's and
-Greg's threes diffed against 2.6.7 - that's what I use as a baseline.
+Given the fact that in iput(), the inode remains hashed and the
+inode->i_state does not change until after we've dropped the inode_lock,
+called write_inode_now(), and then retaken the inode_lock, exactly what
+is preventing a third party task from grabbing that inode?
 
-The rest of the patches are the ones that I posted earlier. 
+(Better still: write_inode_now() itself actually calls __iget(), which
+could cause that inode to be plonked right back onto the "inode_in_use"
+list if ever refile_inode() gets called.)
 
--- 
-Dmitry
+So does the following patch help?
+
+Cheers,
+  Trond
+
+--- linux-2.4.27-pre3/fs/inode.c.orig	2004-05-20 20:41:41.000000000 -0400
++++ linux-2.4.27-pre3/fs/inode.c	2004-06-19 23:22:29.000000000 -0400
+@@ -1200,6 +1200,7 @@ void iput(struct inode *inode)
+ 		struct super_block *sb = inode->i_sb;
+ 		struct super_operations *op = NULL;
+ 
++again:
+ 		if (inode->i_state == I_CLEAR)
+ 			BUG();
+ 
+@@ -1241,11 +1242,16 @@ void iput(struct inode *inode)
+ 				if (!(inode->i_state & (I_DIRTY|I_LOCK))) 
+ 					__refile_inode(inode);
+ 				inodes_stat.nr_unused++;
+-				spin_unlock(&inode_lock);
+-				if (!sb || (sb->s_flags & MS_ACTIVE))
++				if (!sb || (sb->s_flags & MS_ACTIVE)) {
++					spin_unlock(&inode_lock);
+ 					return;
+-				write_inode_now(inode, 1);
+-				spin_lock(&inode_lock);
++				}
++				if (inode->i_state & I_DIRTY) {
++					__iget(inode);
++					spin_unlock(&inode_lock);
++					write_inode_now(inode, 1);
++					goto again;
++				}
+ 				inodes_stat.nr_unused--;
+ 				list_del_init(&inode->i_hash);
+ 			}
+

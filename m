@@ -1,122 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261526AbSJAJru>; Tue, 1 Oct 2002 05:47:50 -0400
+	id <S261537AbSJAJ65>; Tue, 1 Oct 2002 05:58:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261537AbSJAJru>; Tue, 1 Oct 2002 05:47:50 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:8703 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S261526AbSJAJrt>;
-	Tue, 1 Oct 2002 05:47:49 -0400
-To: akpm@zip.com.au, hugh@veritas.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Shared memory shmat/dt not working well in 2.5.x
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Tue, 01 Oct 2002 11:52:59 +0200
-Message-ID: <dny99icwp0.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S261544AbSJAJ65>; Tue, 1 Oct 2002 05:58:57 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:27614 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S261537AbSJAJ64>;
+	Tue, 1 Oct 2002 05:58:56 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: kraxel@bytesex.org
+Date: Tue, 1 Oct 2002 12:04:04 +0200
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: V4L2? (was Re: Linux v2.5.40 - and a feature freeze reminder)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <359D88D39E2@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On  1 Oct 02 at 0:32, Linus Torvalds wrote:
+> 
+> And a small reminder that we're now officially in the last month of
+> features, and since I'm going to be away basically the last week of
+> October, so I actually personally consider Oct 20th to be the drop-date,
+> unless you've got a really good and scary costume.. So don't try to leave 
+> it to the last day.
 
-Hi, Andrew, Hugh & others.
+Gerd,
+  do you have any plans for V4L2 being in 2.6 or not? There is still
+sitting patch which allows you to control hue/brightness/saturation/contrast
+on matroxfb's TVOut in my tree, waiting for V4L2 API defines. 
+Should I send current patch (which defines matroxfb_queryctrl,
+matroxfb_ctrl_type, MATROXFB_CID_*... binary compatible with its
+video4linux2 counterparts), or should I wait?
 
-Still having problems with Oracle on 2.5.x (it can't even be started),
-I devoted some time trying to pinpoint where the problem is. Reading
-many traces of Oracle, and rebooting a dozen times, I finally found
-that the culprit is weird behaviour of shmat/shmdt functions in 2.5,
-when combined with mprotect() calls. I wrote a simple test app
-(attached) and I'm also appending output of it below (running on
-2.4.19 & 2.5.39 kernels, see the difference).
-
-Hopefully, somebody will know how to help resolve that issue, so I can
-finally benchmark Oracle on 2.4 vs Oracle on 2.5. ;)
-
-Best regards,
-
-
-{2.4.19} % shm-bug
-First shmat & protects done: 50000000
-50000000-51000000 rw-s 00000000 00:04 327974932  /SYSV01478e7f (deleted)
-51000000-51001000 r--s 01000000 00:04 327974932  /SYSV01478e7f (deleted)
-51001000-51081000 rw-s 01001000 00:04 327974932  /SYSV01478e7f (deleted)
-51081000-51082000 r--s 01081000 00:04 327974932  /SYSV01478e7f (deleted)
-51082000-51083000 rw-s 01082000 00:04 327974932  /SYSV01478e7f (deleted)
-Second shmat done: 50000000
-50000000-51083000 rw-s 00000000 00:04 327974932  /SYSV01478e7f (deleted)
-
-{2.5.39} % shm-bug
-First shmat & protects done: 50000000
-50000000-51000000 rw-s 00000000 00:06 2457614    /SYSV01478e7f (deleted)
-51000000-51001000 r--s 00000000 00:06 2457614    /SYSV01478e7f (deleted)
-51001000-51081000 rw-s 00001000 00:06 2457614    /SYSV01478e7f (deleted)
-51081000-51082000 r--s 00001000 00:06 2457614    /SYSV01478e7f (deleted)
-51082000-51083000 rw-s 00002000 00:06 2457614    /SYSV01478e7f (deleted)
-shmat 2: Invalid argument
-
-
---=-=-=
-Content-Type: text/x-csrc
-Content-Disposition: attachment; filename=shm-bug.c
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/mman.h>
-
-#define SIZE 17313792
-
-void xperror(char *error_string)
-{
-	perror(error_string);
-	exit(EXIT_FAILURE);
-}
-
-int main(int argc, char **argv)
-{
-	int shmid, *addr;
-	char buffer[64];
-
-	if ((shmid = shmget(21466751, SIZE, IPC_CREAT | IPC_EXCL | 0640)) < 0)
-		xperror("shmget");
-	addr = (int *) shmat(shmid, (char *) 0x50000000, 0);
-	if (addr == (int *) -1)
-		xperror("shmat 1");
-	if (mprotect((char *) 0x51000000, 4096, PROT_READ) < 0)
-		xperror("mprotect 1");
-	if (mprotect((char *) 0x51081000, 4096, PROT_READ) < 0)
-		xperror("mprotect 2");
-	printf("First shmat & protects done: %08lx\n", (unsigned long) addr);
-	sprintf(buffer, "cat /proc/%d/maps | grep /SYSV", getpid());
-	system(buffer);
-	if (shmdt(addr) < 0)
-		xperror("shmdt 1");
-	addr = (int *) shmat(shmid, (char *) 0x50000000, 0);
-	if (addr == (int *) -1) {
-		perror("shmat 2");
-		shmctl(shmid, IPC_RMID, NULL);
-		exit(EXIT_FAILURE);
-	}
-	printf("Second shmat done: %08lx\n", (unsigned long) addr);
-	system(buffer);
-	if (shmdt(addr) < 0)
-		xperror("shmdt 2");
-	shmctl(shmid, IPC_RMID, NULL);
-	exit(EXIT_SUCCESS);
-}
-
---=-=-=
-
-
--- 
-Zlatko
-
---=-=-=--
+  I'd like to have this extension in matroxfb before 2.6, as G450's
+and G550's TVOuts differ from piece to piece, and default setting
+does not fit for everyone...
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
+                                        

@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbTEBOuA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 10:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbTEBOuA
+	id S262853AbTEBQnC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbTEBQnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 10:50:00 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:46051 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S262274AbTEBOt6
+	Fri, 2 May 2003 12:43:02 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:9626 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262853AbTEBQnA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 10:49:58 -0400
+	Fri, 2 May 2003 12:43:00 -0400
+Date: Fri, 02 May 2003 09:54:43 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+cc: Andi Kleen <ak@muc.de>
 Subject: Re: 2.5.68-mm4
-From: Steven Cole <elenstev@mesatop.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <1051886748.2166.20.camel@spc9.esa.lanl.gov>
+Message-ID: <31670000.1051894482@[10.10.2.4]>
+In-Reply-To: <20030502020149.1ec3e54f.akpm@digeo.com>
 References: <20030502020149.1ec3e54f.akpm@digeo.com>
-	 <1051886748.2166.20.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051887650.2163.23.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 02 May 2003 09:00:50 -0600
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========878600887=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-02 at 08:45, Steven Cole wrote:
-> On Fri, 2003-05-02 at 03:01, Andrew Morton wrote:
+--==========878600887==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > - grab kexec-tools from
-> > 
-> > 	http://www.osdl.org/archive/andyp/kexec/2.5.68/
-> > 
-> The andyp directory seems to be missing.  I found kexec-tools-1.8 here:
-> http://www.xmission.com/~ebiederm/files/kexec/
-> 
-> Is that the latest version?
+Fix up NUMA-Q build with new generic apic mode stuff
 
-Now kexec-tools-1.8-2.5.68.tgz is there at the original URL.  Thanks.
 
-Steven
+--==========878600887==========
+Content-Type: text/plain; charset=iso-8859-1; name=mm4-fixed
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=mm4-fixed; size=777
+
+diff -urpN -X /home/fletch/.diff.exclude =
+mm4/include/asm-i386/mach-numaq/mach_apic.h =
+mm4-fixed/include/asm-i386/mach-numaq/mach_apic.h
+--- mm4/include/asm-i386/mach-numaq/mach_apic.h	Wed Mar  5 07:37:06 2003
++++ mm4-fixed/include/asm-i386/mach-numaq/mach_apic.h	Fri May  2 09:45:58 =
+2003
+@@ -1,6 +1,9 @@
+ #ifndef __ASM_MACH_APIC_H
+ #define __ASM_MACH_APIC_H
+=20
++#include <asm/io.h>
++#include <linux/mmzone.h>
++
+ #define APIC_DFR_VALUE	(APIC_DFR_CLUSTER)
+=20
+ #define TARGET_CPUS (0xf)
+@@ -102,5 +105,14 @@ static inline int check_phys_apicid_pres
+ {
+ 	return (1);
+ }
++
++#define APIC_ID_MASK (0xF<<24)
++
++static inline unsigned get_apic_id(unsigned long x)
++{
++	        return (((x)>>24)&0x0F);
++}
++
++#define         GET_APIC_ID(x)  get_apic_id(x)
+=20
+ #endif /* __ASM_MACH_APIC_H */
+
+--==========878600887==========--
 

@@ -1,88 +1,160 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268938AbRHBXn3>; Thu, 2 Aug 2001 19:43:29 -0400
+	id <S269290AbRHCDiD>; Thu, 2 Aug 2001 23:38:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269211AbRHBXnU>; Thu, 2 Aug 2001 19:43:20 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:54029 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S268938AbRHBXnM>; Thu, 2 Aug 2001 19:43:12 -0400
-Message-ID: <011601c11bad$51314480$bef7020a@mammon>
-From: "Jeremy Linton" <jlinton@interactivesi.com>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108021508310.21298-100000@heat.gghcwest.com>
-Subject: Re: Ongoing 2.4 VM suckage pagemap_lru_lock
-Date: Thu, 2 Aug 2001 18:46:02 -0500
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S269291AbRHCDhy>; Thu, 2 Aug 2001 23:37:54 -0400
+Received: from wb1-a.mail.utexas.edu ([128.83.126.134]:30737 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S269290AbRHCDhn>;
+	Thu, 2 Aug 2001 23:37:43 -0400
+Message-ID: <3B697310.EF44BCDB@mail.utexas.edu>
+Date: Thu, 02 Aug 2001 21:34:40 +0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
+X-Accept-Language: en,fr,de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Mike Frisch <mfrisch@saturn.tlug.org>
+Subject: Re: "clock timer configuration lost" on ASUS A7A266
+In-Reply-To: <20010802152921.A6242@saturn.tlug.org>
+Content-Type: multipart/mixed;
+ boundary="------------94D54FB41D37AF03B7DAFD90"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm telling you that's not what happens.  When memory pressure gets really
-> high, the kernel takes all the CPU time and the box is completely useless.
-> Maybe the VM sorts itself out but after five minutes of barely responding,
-> I usually just power cycle the damn thing.  As I said, this isn't a
-> classic thrash because the swap disks only blip perhaps once every ten
-> seconds!
+This is a multi-part message in MIME format.
+--------------94D54FB41D37AF03B7DAFD90
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Mike Frisch wrote:
+
+> Hardware: ASUS A7A266 (ALiMAGiK chipset), AMD T-Bird 1.2 GHz
+> Kernel: 2.4.7-ac2
 >
-> You don't have to go to extremes to observe this behavior.  Yesterday, I
-> had one box where kswapd used 100% of one CPU for 70 minutes straight,
-> while user process all ran on the other CPU.  All RAM and half swap was
-> used, and I/O was heavy.  The machine had been up for 14 days.  I just
-> don't understand why kswapd needs to run and run and run and run and run
+> 'dmesg' frequently reports:
+>
+> probable hardware bug: clock timer configuration lost - probably a VIA686a motherboard.
+> probable hardware bug: restoring chip configuration.
 
-    Actually, this sounds very similar to a problem I see on a somewhat
-regular basis with a very memory hungry module running in the machine.
-Basically the module eats up about a quarter of system memory. Then a user
-space process comes along and uses a big virtual area (about 1.2x the total
-physical memory in the box). If the user space process starts to write to a
-lot of the virtual memory it owns, then the box basically slows down to the
-point where it appears to have locked up, disk activity goes to 1 blip every
-few seconds. On the other hand if the user process is doing mostly read
-accesses to the memory space then everything is fine.
-
-    I can't even break into gdb when the box is 'locked up' but before it
-locks up I notice that there is massive contention for the pagemap_lru_lock
-(been running a hand rolled kernel lock profiler) from two different
-places... Take a look at these stack dumps.
-
-Kswapd is in page_launder.......
-#0  page_launder (gfp_mask=4, user=0) at vmscan.c:592
-#1  0xc013d665 in do_try_to_free_pages (gfp_mask=4, user=0) at vmscan.c:935
-#2  0xc013d73b in kswapd (unused=0x0) at vmscan.c:1016
-#3  0xc01056b6 in kernel_thread (fn=0xddaa0848, arg=0xdfff5fbc, flags=9) at
-process.c:443
-#4  0xddaa0844 in ?? ()
-
-And my user space process is desperatly trying to get a page from a page
-fault!
-
-#0  reclaim_page (zone=0xc0285ae8) at
-/usr/src/linux.2.4.4/include/asm/spinlock.h:102
-#1  0xc013e474 in __alloc_pages_limit (zonelist=0xc02864dc, order=0,
-limit=1, direct_reclaim=1) at page_alloc.c:294
-#2  0xc013e581 in __alloc_pages (zonelist=0xc02864dc, order=0) at
-page_alloc.c:383
-#3  0xc012de43 in do_anonymous_page (mm=0xdfb88884, vma=0xdb45ce3c,
-page_table=0xc091e46c, write_access=1, addr=1506914312)
-    at /usr/src/linux.2.4.4/include/linux/mm.h:392
-#4  0xc012df40 in do_no_page (mm=0xdfb88884, vma=0xdb45ce3c,
-address=1506914312, write_access=1, page_table=0xc091e46c)
-    at memory.c:1237
-#5  0xc012e15b in handle_mm_fault (mm=0xdfb88884, vma=0xdb45ce3c,
-address=1506914312, write_access=1) at memory.c:1317
-#6  0xc01163dc in do_page_fault (regs=0xdb2d3fc4, error_code=6) at
-fault.c:265
-#7  0xc01078b0 in error_code () at af_packet.c:1881
-#8  0x40040177 in ?? () at af_packet.c:1881
-
-The spinlock counts are usually on the order of ~1million spins to get the
-lock!!!!!!
+Just FYI, I see the same thing on the same board.  My lspci -vv is also attached.  Ask if
+you need more.
 
 
-                                                        jlinton
+Bobby Bryant
+Austin, Texas
 
+
+--------------94D54FB41D37AF03B7DAFD90
+Content-Type: text/plain; charset=us-ascii;
+ name="temp.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="temp.txt"
+
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi]: Unknown device 1647 (rev 04)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+	Latency: 0
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
+	Capabilities: [b0] AGP version 2.0
+		Status: RQ=27 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+	Capabilities: [a4] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5247 (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	Memory behind bridge: dc800000-dddfffff
+	Prefetchable memory behind bridge: ddf00000-dfffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) (prog-if fa)
+	Subsystem: Asustek Computer, Inc.: Unknown device 8053
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 4: I/O ports at d400 [size=16]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
+	Subsystem: Acer Laboratories Inc. [ALi] ALI M1533 Aladdin IV ISA Bridge
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: [a0] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at b800 [size=256]
+	Region 1: Memory at da000000 (32-bit, non-prefetchable) [size=256]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Unknown mass storage controller: Promise Technology, Inc. 20267 (rev 02)
+	Subsystem: Promise Technology, Inc.: Unknown device 4d33
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at b400 [size=8]
+	Region 1: I/O ports at b000 [size=4]
+	Region 2: I/O ports at a800 [size=8]
+	Region 3: I/O ports at a400 [size=4]
+	Region 4: I/O ports at a000 [size=64]
+	Region 5: Memory at d9800000 (32-bit, non-prefetchable) [size=128K]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [58] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0d.0 Serial controller: US Robotics/3Com 56K FaxModem Model 5610 (rev 01) (prog-if 02 [16550])
+	Subsystem: US Robotics/3Com: Unknown device 00d7
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 9800 [size=8]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0+,D1-,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82) (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc.: Unknown device 0641
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 8000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at de000000 (32-bit, prefetchable) [size=32M]
+	Region 1: Memory at dd000000 (32-bit, non-prefetchable) [size=16K]
+	Region 2: Memory at dc800000 (32-bit, non-prefetchable) [size=8M]
+	Expansion ROM at ddfe0000 [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [f0] AGP version 2.0
+		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x1
+
+
+--------------94D54FB41D37AF03B7DAFD90--
 

@@ -1,70 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbUJ3R6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbUJ3SAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbUJ3R6y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 13:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUJ3R6x
+	id S261251AbUJ3SAt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 14:00:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUJ3SAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 13:58:53 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:19890 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261233AbUJ3R5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 13:57:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lK8eH2nzapA6mSbY37qT5H4Pc9WpUsN6IpwrL8EkwtfPSYONoLH2fBSktMfJRa72YEe2MSRnu1xOjoVn6A+1kUvgXy6Q+K7NBk3Zuwz+cOUKG6MBXhiU9YeUU2yBZGS714CTSxVOfPfoczo1LvQcEkXR1XC88630OeOgJh5EwvQ=
-Message-ID: <9e473391041030105742477056@mail.gmail.com>
-Date: Sat, 30 Oct 2004 13:57:47 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alexander Stohr <alexander.stohr@gmx.de>
-Subject: Re: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?]
-Cc: airlied@gmail.com, kendallb@scitechsoft.com, linux-kernel@vger.kernel.org
-In-Reply-To: <001b01c4bea0$492dce40$8511050a@alexs>
+	Sat, 30 Oct 2004 14:00:49 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:23048 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261233AbUJ3SAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 14:00:11 -0400
+Date: Sat, 30 Oct 2004 19:59:37 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: aeb@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small partitions/msdos cleanups
+Message-ID: <20041030175937.GQ4374@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1098806794.6000.7.camel@tara.firmix.at>
-	 <015101c4bde1$1051bce0$8511050a@alexs>
-	 <9e47339104102916141019bd23@mail.gmail.com>
-	 <001b01c4bea0$492dce40$8511050a@alexs>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are two ways to protect hardware innovations, trade secrets and
-patents. Patents are fully published and trade secrets are not.  Trade
-secrets are not a very good way to protect things since once they leak
-they are gone. So if you have any good ideas get a patent on them, it
-is a much stronger protection and it grants you a legal monopoly.
+The patch below makes the following changes to the msdos partition code:
+- remove CONFIG_NEC98_PARTITION leftovers
+- make parse_bsd static
 
-But patents are all published. So it makes no sense to hide things
-that are patented, you can always just read the patents and find out
-all of the details.
 
-I don't see any other reason for keeping the programming model secret
-other than fear of infringement suits. Many pieces of hardware have
-their specs published and they aren't being sued. Why would ATI fare
-any differently? I have the R200 specs, there is nothing in there that
-hasn't already been done on dozens of other cards.
+diffstat output:
+ fs/partitions/Makefile |    1 -
+ fs/partitions/check.c  |    3 ---
+ fs/partitions/check.h  |    4 ----
+ fs/partitions/msdos.c  |    4 ++--
+ 4 files changed, 2 insertions(+), 10 deletions(-)
 
-Why don't you publish the R200 specs on your website, it is older and
-interest in it is rapidly falling. I'll bet nothing earth shattering
-happens from publishing the spec except that a bunch of open source
-developers stop pestering your development support group. You would
-also get a lot of goodwill from the press announcement.
 
-I also don't see how you conclude publishing programming specs makes
-you a welfare organization. I still have to buy a card to use it. Open
-specs will most likely increase your sales not lower them.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'll keep working on building a base for X on GL. Right now I'm
-working on integrating fbdev/DRM into something more coherent. The
-basic idea is to bring up a standalone OpenGL with a few added things
-like mode setting and cursor support. X will then run on top of that
-using only the OpenGL API plus a few extensions for modes and cursors.
-Hopefully you'll use my code to build proprietary drivers that support
-the newer ATI cards in this model.
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/Makefile.old	2004-10-30 14:42:03.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/Makefile	2004-10-30 14:42:13.000000000 +0200
+@@ -17,4 +17,3 @@
+ obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
+ obj-$(CONFIG_IBM_PARTITION) += ibm.o
+ obj-$(CONFIG_EFI_PARTITION) += efi.o
+-obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/check.h.old	2004-10-30 14:40:20.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.h	2004-10-30 14:40:41.000000000 +0200
+@@ -30,7 +30,3 @@
+ 
+ extern int warn_no_part;
+ 
+-extern void parse_bsd(struct parsed_partitions *state,
+-			struct block_device *bdev, u32 offset, u32 size,
+-			int origin, char *flavour, int max_partitions);
+-
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/check.c.old	2004-10-30 14:41:32.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.c	2004-10-30 14:41:43.000000000 +0200
+@@ -76,9 +76,6 @@
+ #ifdef CONFIG_LDM_PARTITION
+ 	ldm_partition,		/* this must come before msdos */
+ #endif
+-#ifdef CONFIG_NEC98_PARTITION
+-	nec98_partition,	/* must be come before `msdos_partition' */
+-#endif
+ #ifdef CONFIG_MSDOS_PARTITION
+ 	msdos_partition,
+ #endif
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/msdos.c.old	2004-10-30 14:38:38.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/msdos.c	2004-10-30 14:41:57.000000000 +0200
+@@ -202,12 +202,12 @@
+ #endif
+ }
+ 
+-#if defined(CONFIG_BSD_DISKLABEL) || defined(CONFIG_NEC98_PARTITION)
++#if defined(CONFIG_BSD_DISKLABEL)
+ /* 
+  * Create devices for BSD partitions listed in a disklabel, under a
+  * dos-like partition. See parse_extended() for more information.
+  */
+-void
++static void
+ parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
+ 		u32 offset, u32 size, int origin, char *flavour,
+ 		int max_partitions)
 
--- 
-Jon Smirl
-jonsmirl@gmail.com

@@ -1,27 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUIXFn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUIXFsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267818AbUIXFn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 01:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUIXFn1
+	id S268397AbUIXFsx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 01:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUIXFoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 01:43:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:9187 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267974AbUIXFkS (ORCPT
+	Fri, 24 Sep 2004 01:44:14 -0400
+Received: from gate.crashing.org ([63.228.1.57]:10723 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268212AbUIXFl5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 01:40:18 -0400
+	Fri, 24 Sep 2004 01:41:57 -0400
 Subject: [PATCH] ppc32: ADB keycode conversion update
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1096004388.4011.13.camel@gaston>
+Message-Id: <1096004486.4009.18.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 15:39:48 +1000
+Date: Fri, 24 Sep 2004 15:41:27 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+(Resent with proper Signed-off, sorry)
 
 Hi !
 
@@ -35,6 +37,8 @@ Thanks to Frank Murphy <murphyf@f-m.fm> for spotting this keycode
 feature of MacOS (and apple docs)
 
 It also fixes a small possible race in the LED code
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
 diff -urN linux-2.5/drivers/macintosh/adbhid.c linux-lappy/drivers/macintosh/adbhid.c
 --- linux-2.5/drivers/macintosh/adbhid.c	2004-09-24 14:34:04.000000000 +1000

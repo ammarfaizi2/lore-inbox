@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267224AbSLEFOG>; Thu, 5 Dec 2002 00:14:06 -0500
+	id <S267227AbSLEFbX>; Thu, 5 Dec 2002 00:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267225AbSLEFOG>; Thu, 5 Dec 2002 00:14:06 -0500
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:37104 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S267224AbSLEFOG>; Thu, 5 Dec 2002 00:14:06 -0500
-Date: Wed, 4 Dec 2002 21:21:39 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Parallel build broken in latest BK
-Message-ID: <20021205052139.GB17498@ip68-4-86-174.oc.oc.cox.net>
-References: <Pine.LNX.4.33.0212042215540.924-100000@localhost.localdomain> <20021205044913.GA30035@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021205044913.GA30035@gtf.org>
-User-Agent: Mutt/1.4i
+	id <S267228AbSLEFbX>; Thu, 5 Dec 2002 00:31:23 -0500
+Received: from pandora.cantech.net.au ([203.26.6.29]:11282 "EHLO
+	pandora.cantech.net.au") by vger.kernel.org with ESMTP
+	id <S267227AbSLEFbW>; Thu, 5 Dec 2002 00:31:22 -0500
+Date: Thu, 5 Dec 2002 13:38:24 +0800 (WST)
+From: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.50 drivers/char/rio/rioctrl.c
+Message-ID: <Pine.LNX.4.44.0212051327020.14195-100000@thor.cantech.net.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 11:49:13PM -0500, Jeff Garzik wrote:
-> Try the GNU-and-improved:
-> 
-> 	make -j4
-> 
-> I just tried that and it works fine.
-> 
-> I think MAKE= is a remnant of the old kbuild.  Shouldn't be needed
-> anymore since the build doesn't descend into directories the way it used
-> to.
+Hello All,
+	This patch continues the work started by Arnaldo Carvalho de Melo
+<acme@conectiva.com.br>.  It converts a couple of possible return EPERM to
+return -EPERM.  It also changes a generic return 1 to return -ENOMEM
 
-AFAIK MAKE= is a remnant of old/non-GNU make's -- even with the old
-kbuild, it's unneeded with newer GNU make releases AFAIK.
+--------------------------------------------------------------------------------
+diff -X dontdiff -urN linux-2.5.50.clean/drivers/char/rio/rioctrl.c linux-2.5.50.rio/drivers/char/rio/rioctrl.c
+--- linux-2.5.50.clean/drivers/char/rio/rioctrl.c	2002-12-04 17:50:09.000000000 +0800
++++ linux-2.5.50.rio/drivers/char/rio/rioctrl.c	2002-12-05 11:08:44.000000000 +0800
+@@ -524,7 +524,7 @@
+ 					else {
+ 		 				rio_dprintk (RIO_DEBUG_CTRL, "p->RIOBindTab full! - Rta %x not added\n",
+ 		  					(int) arg);
+-		 				return 1;
++		 				return -ENOMEM;
+ 					}
+ 					return 0;
+ 				}
+@@ -1595,12 +1595,12 @@
+ 			case RIO_NO_MESG:
+ 				if ( su )
+ 					 p->RIONoMessage = 1;
+-				return su ? 0 : EPERM;
++				return su ? 0 : -EPERM;
+ 
+ 			case RIO_MESG:
+ 				if ( su )
+ 					p->RIONoMessage = 0;
+-				return su ? 0 : EPERM;
++				return su ? 0 : -EPERM;
+ 
+ 			case RIO_WHAT_MESG:
+ 				if ( copyout( (caddr_t)&p->RIONoMessage, (int)arg, 
+--------------------------------------------------------------------------------
 
--Barry K. Nathan <barryn@pobox.com>
+Yours Tony
+
+   Jan 22-25 2003           Linux.Conf.AU            http://linux.conf.au/
+		  The Australian Linux Technical Conference!
+

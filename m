@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271733AbRHUQWB>; Tue, 21 Aug 2001 12:22:01 -0400
+	id <S271736AbRHUQUb>; Tue, 21 Aug 2001 12:20:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271735AbRHUQVp>; Tue, 21 Aug 2001 12:21:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:260 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271733AbRHUQUa>; Tue, 21 Aug 2001 12:20:30 -0400
-Subject: Re: massive filesystem corruption with 2.4.9
-To: kristian@korseby.net (Kristian)
-Date: Tue, 21 Aug 2001 17:23:28 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), cwidmer@iiic.ethz.ch,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Kristian" at Aug 21, 2001 06:00:41 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S271732AbRHUQUW>; Tue, 21 Aug 2001 12:20:22 -0400
+Received: from prop.sonic.net ([208.201.224.193]:29808 "EHLO prop.sonic.net")
+	by vger.kernel.org with ESMTP id <S271733AbRHUQUJ>;
+	Tue, 21 Aug 2001 12:20:09 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Tue, 21 Aug 2001 09:20:20 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install 'isdn')
+Message-ID: <20010821092020.B968@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZEJM-0008Di-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108211745440.14658-100000@chaos.tp1.ruhr-uni-bochum.de>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No. I can't find any VIA chipset. I'm really surprised. :-) But it is a=
-> n
-> original Compaq-Board (EP-Series..) with a horroble BIOS. It seems that=
->  they're
-> using intel only..
+On Tue, Aug 21, 2001 at 05:47:01PM +0200, Kai Germaschewski wrote:
+> Well, I said should ;-) Maybe I should have tried...
+> 
+> Next try: (still untested)
 
-440BX - good chipset.
 
-Does memtest86 show up anything on this box ?
+Closer.
+
+Had to add #include <linux/types.h> to the header file too.
+
+Thanks!
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

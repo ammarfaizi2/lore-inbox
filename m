@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbTL0K5H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 05:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbTL0K5H
+	id S265358AbTL0LJH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 06:09:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbTL0LJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 05:57:07 -0500
-Received: from [213.94.4.22] ([213.94.4.22]:35969 "EHLO sacarino.pirispons.net")
-	by vger.kernel.org with ESMTP id S265354AbTL0K5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 05:57:03 -0500
-Date: Sat, 27 Dec 2003 11:57:00 +0100
-From: Kiko Piris <kernel@pirispons.net>
-To: linux-kernel@vger.kernel.org
-Subject: A couple of questions about laptop-mode for 2.6, version 4
-Message-ID: <20031227105700.GA3554@sacarino.pirispons.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3FE92517.1000306@samwel.tk> <20031224111640.GL1601@suse.de> <3FE9AFFC.2080302@samwel.tk> <20031225100648.GB13382@conectiva.com.br> <3FEAFE66.2020602@samwel.tk>
+	Sat, 27 Dec 2003 06:09:06 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:21647 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265358AbTL0LI6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 06:08:58 -0500
+Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: perex@suse.cz, alsa-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Rob Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
+       Stan Bubrouski <stan@ccs.neu.edu>
+In-Reply-To: <8240000.1072511437@[10.10.2.4]>
+References: <1080000.1072475704@[10.10.2.4]>
+	 <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]>
+	 <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]>
+	 <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]>
+	 <1072500516.12203.2.camel@duergar>  <8240000.1072511437@[10.10.2.4]>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v1ie5bFjVyaxM7RYYj05"
+Message-Id: <1072523478.12308.52.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FEAFE66.2020602@samwel.tk>
-User-Agent: Mutt
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 27 Dec 2003 13:11:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25/12/2003 at 16:12, Bart Samwel wrote:
 
-> Thanks, I've fixed this. Here is the resulting patch.
-> 
-> I've got another problem getting this stuff to work. The problem lies 
-> with my HD: it just doesn't respect the spindown time, I've got it set 
-> to hdparm -S 4 and it just doesn't spin down, even though there's no 
-> activity whatsoever! hdparm -B 254 gives me:
+--=-v1ie5bFjVyaxM7RYYj05
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Sat, 2003-12-27 at 09:50, Martin J. Bligh wrote:
+> Something appears to have broken OSS sound emulation between=20
+> test2 and test3. Best I can tell (despite the appearance of the BK logs),=
+=20
+> that included ALSA updates 0.9.5 and 0.9.6. Hopefully someone who
+> understands the sound architecture better than I can fix this?
+>=20
 
-since laptop-mode was a feature from 2.4 wich I was missing in 2.6, I've
-decided to give it a try.
+I wont say I understand it, but a quick look seems the major change is
+the addition of the 'whole-frag' and 'no-silence' opts.  You might try
+the following to revert what 'no-silence' change at least does:
 
-However, I have not a clue about kernel programming (and neither about
-filesystems implementations), so looking at the source code is useless
-to me (as I do not understand anything :-[). So, please forgive-me if
-I'm asking obvious questions:
+--
+ # echo 'xmms 0 0 no-silence' > /proc/asound/card0/pcm0p/oss
+ # echo 'xmms 0 0 whole-frag' > /proc/asound/card0/pcm0p/oss
+--
 
-1.- I've used the patch posted in the message I'm replying (From: Bart
-Samwel, Date: Thu, 25 Dec 2003 16:12:38 +0100). Hope this is the correct
-one.
+and restart xmms.  If that do not work, then one of the alsa guys will
+have to have a look.
 
-2.- I plan to use cpudyn (http://mnm.uib.es/~gallir/cpudyn) to spin down
-the disks (as I did in 2.4). If I have understood it correctly, that
-functionality is what the smart_spindown script does. I guess there will
-be no problems with that.
 
-3.- As I use mainly ext3 partitions, I read in the first post regarding
-laptop-mode with ext3, that I had to mount my filesystems with
-commit=$MAX_AGE (beeing that $MAX_AGE, the value used in
-linux-2.4/Documentation/laptop-mode.sh). Is this correct?
+--=20
+Martin Schlemmer
 
-If the previous answer is yes, what do you think would be the best way
-to do so? I don't like modifying /etc/fstab, because if I boot another
-(non laptop-mode) kernel (or I want to disable laptop-mode when doing
-something important); I guess nasty things could happen if I forget to
-remount my ext3 filesystems appropiately.
+--=-v1ie5bFjVyaxM7RYYj05
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I was thinking in modifying laptop-mode.sh to read /proc/mounts and
-remount ext3 partitions with the appropiate parameter (on start and also
-on stop). But I quite don't like this method, it seems "ugly" to me (and
-does not solve the problem of mounting filesystems after
-activating/deactivating laptop-mode).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Do you have a better idea? I know this last question is a userspace
-problem, but AFAICS it's tightly related to the way laptop-mode is
-implemented in the kernel (always suposing the answer to 3.- is yes).
+iD8DBQA/7WjWqburzKaJYLYRAugoAJoC0b5VAlo7QQ5YhYrhR5FeT7lzaQCeI4V7
+QkxPc42WHB8vkuPnZ6oC+BM=
+=ZzUw
+-----END PGP SIGNATURE-----
 
-Thanks in advance!
+--=-v1ie5bFjVyaxM7RYYj05--
 
--- 
-Kiko

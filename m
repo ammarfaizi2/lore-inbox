@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317476AbSFRQWX>; Tue, 18 Jun 2002 12:22:23 -0400
+	id <S317480AbSFRQZr>; Tue, 18 Jun 2002 12:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317477AbSFRQWW>; Tue, 18 Jun 2002 12:22:22 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:53973 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317476AbSFRQWU>; Tue, 18 Jun 2002 12:22:20 -0400
-Date: Tue, 18 Jun 2002 11:22:21 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: James Bottomley <James.Bottomley@steeleye.com>
+	id <S317481AbSFRQZr>; Tue, 18 Jun 2002 12:25:47 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:778 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317480AbSFRQZp>; Tue, 18 Jun 2002 12:25:45 -0400
+Date: Tue, 18 Jun 2002 09:22:02 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Garet Cammer <arcolin@arcoide.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: make dep fails on 2.5.22
-In-Reply-To: <200206181550.g5IFoQ005746@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0206181115180.5695-100000@chaos.physics.uiowa.edu>
+Subject: Re: Need IDE Taskfile Access
+In-Reply-To: <004701c216cf$efd1ca60$8201a8c0@arcoi0s17j2t0x>
+Message-ID: <Pine.LNX.4.10.10206180917550.3804-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, James Bottomley wrote:
 
-> It currently errors out for me with my NCR_D700 controller because 53c700.c 
-> requires 53c700_d.h which is an automatically generated header file and thus 
-> doesn't exist when make dep is run.
+Garet,
+
+You are wasting electons, the interface is gone and the API to the
+transport is wrecked.  I will need to compose a loadable module to renable
+the support.  Clearly 2.5/2.6 is not friendly with the needs of the
+industry and it will never be at this rate.
+
+In the end, I will end up writing a closed ATA binary driver for sale as a
+replacement.  I have had several requests to consider the option.  As much
+as I do not like the idea, it is less offensive than the current
+direction.
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+
+On Tue, 18 Jun 2002, Garet Cammer wrote:
+
+> For some time now we have been writing user applications that send ATAPI commands to the IDE bus to initialize and configure our hardware RAID 1 controllers. This has been working well, thanks to Andre's patch that gave us taskfile access through the ioctl API. We were counting on it to be a permanent part of the 2.5/2.6 kernel, since there is a lot of hardware in the field using these apps.
+> Imagine our surprise when we discovered that taskfile access was being abandoned completely!
+> Although we understand that the kernel may need to filter some commands, why can't applications access at least the Smart commands? Help!
+> Regards,
+> Garet Cammer
+> Software Development
+> Arco Computer Products
+> (954) 925-2688
 > 
-> I can fix this by adding the rule:
-> 
-> $(MODVERDIR)/53c700.ver: 53c700_d.h
-> 
-> but this looks wrong.  The dependency is already listed in the existing rule:
-> 
-> 53c700.o: 53c700_d.h
-
-Well, actually, it looks right to me: It says to build the .ver file, we
-need the header (since it'll be included during the process).
-
-It looks somewhat ugly, but I think it's one of the very few places where
-something like this is needed.  Of course, if there was a way to tell make
-"$(MODVERDIR)/%.ver has the same prequisites as %.o" that'd be nicer, but
-there isn't AFAICT.
-
-Another possibility would be to record these kind of explicit dependencies 
-on generated files into variables, so Rules.make could do the right thing.
-
-Something like
-
-	53c700.o-needs := 53c700_d.h
-
-But I'm not sure that's so much nicer.
-
---Kai
 

@@ -1,130 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268462AbUHLJAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUHLJDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268462AbUHLJAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 05:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268470AbUHLJAQ
+	id S268470AbUHLJDP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 05:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268469AbUHLJDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 05:00:16 -0400
-Received: from pop111-mtl.zid.com ([207.253.126.111]:31753 "EHLO oemcomputer")
-	by vger.kernel.org with ESMTP id S268462AbUHLI76 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 04:59:58 -0400
-From: formation.trois@laposte.net
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?Gestion=20des=20Approvisionnements=20et=20N=E9gociation?=
-Date: Wed, 11 Aug 2004 23:07:49 -0400
-MIME-Version: 1.0 (produced by Synapse)
-x-mailer: Synapse - Delphi & Kylix TCP/IP library by Lukas Gebauer
-Content-type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Content-Description: Message text
-Message-Id: <S268462AbUHLI76/20040812085958Z+93@vger.kernel.org>
+	Thu, 12 Aug 2004 05:03:15 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:29623 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S268470AbUHLJDJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 05:03:09 -0400
+Date: Thu, 12 Aug 2004 10:59:25 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>,
+       wli@holomorphy.com, davem@redhat.com, geert@linux-m68k.org,
+       schwidefsky@de.ibm.com, linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: architectures with their own "config PCMCIA"
+In-Reply-To: <20040812001003.GV26174@fs.tum.de>
+Message-ID: <Pine.LNX.4.58.0408121056270.20634@scrub.home>
+References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org>
+ <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de>
+ <20040811201725.GJ26174@fs.tum.de> <20040811214032.GC7207@mars.ravnborg.org>
+ <20040812001003.GV26174@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACHETONS
-Livres de Gestion neufs ou usagés
- pour notre Bibliothèque
- 
+Hi,
 
-Écrivez-nous  :  cperreault@compufinder.com
- 
- 
-Formation
-Aux acheteurs et responsables des approvisionnements
- 
-GESTION DES APPROVISIONNEMENTS 
- 
+On Thu, 12 Aug 2004, Adrian Bunk wrote:
 
-Réglez vos problèmes de: 
+> > Roman, a related Q.
+> > Why not error out, or at least warn when encountering an unknow
+> > symbol in a 'depends on' statement?
+> >...
+> 
+> That doesn't sound like a good idea, consider e.g.:
+> 
+> config BAGETLANCE
+>         tristate "Baget AMD LANCE support"
+>         depends on NET_ETHERNET && BAGET_MIPS
 
-Retard concernant le moment approprié d'acheter 
-Retard des fournisseurs 
-Retard des transporteurs 
-Retard des sous-traitants 
-Gestion et réception des bonnes quantités 
-Contrôle de la qualité à la réception 
-Gestion des commandes en souffrance "Back order" 
-Négociation des items pour les meilleures quantités - aux meilleurs prix - dans les 
-meilleurs délais 
- 
- 
-en suivant notre formation
-Date de formation : Les 13-14 et 15 Septembre 2004 à Québec 
-ou les 20 -21 et 22 Septembre  2004 à Montréal
- 
-Plan de cours
- 
-Institution:
-Compu-Finder
- 
-Durée:
-3 jours 
- 
-Public visé:
-Acheteurs et responsables des approvisionnements
- 
-Sujets traités:
-Rôles et responsabilités de l_approvisionnement 
-Les compétences d_un acheteur 
-Les règles de l_approvisionnement 
-La détermination des besoins: les différentes méthodes d'évaluation
-de la demande dépendante (résultat direct des ventes de produits finis)
-et de la demande indépendante (fournitures générales, pièces de
-rechanges, etc.) 
-Les déclencheurs de réapprovisionnement 
-L'utilisation des statistiques des achats 
-L_achat d_un bien, d_un service, d_un contrat, d_une location 
-L_organisation des achats 
-Les relations internes 
-La gestion des 7 paramètres de l_approvisionnement 
-Temps 
-Qualité (analyse de la valeur, évaluation des fournisseurs) 
-Quantité (gestion des stocks, demande dépendante et indépendante, rotation des 
-stocks, lot économique à commander) 
-Lieu 
-Service 
-Source ( relation fournisseurs) 
-Coût 
-Les types de réapprovisionnement 
-Le bon de commande 
-Les impacts légaux 
-La relance 
-Le commerce électronique 
-Le transport et l_entreposage (incoterms) 
-La gestion des retours 
-La gestion des engagements 
-Le juste à temps 
-L_impartition 
-Partenariat 
-Alliance stratégique 
-La négociation (les techniques utilisées,et  les pièges) 
-Les Règles de base 
-Enjeux à négocier 
-Type de négociateurs 
-Tactiques de négociation 
-Simulation et travail d'équipe 
- 
+This is less a problem, as here it's clear that you want a boolean result, 
+but something like "FOO=n" is really a string compare and FOO could be of 
+any type (that 99% of all symbols are boolean/tristate symbols doesn't 
+really help).
 
-Lieu de la formation:
-Best Western Laval (Chateauneuf), 3655, Aut. des Laurentides à Laval
-Hotel Plaza Québec 3031, boulevard Laurier Ste-Foy Québec 
- 
- 
-Pour inscription, veuillez contacter Maryse Morin au 450-226-2238 ou 1-800-861-6618
- 
-   
-COMPU-FINDER - Conseiller en Sciences de gestion et technologies avancées
-450-226-2238 ou 1-800-861-6618
- 
-
-www.compufinder.com 
- 
-Pour vous désabonner de notre liste d'envoi écrire à 
- 
-info.compufinder@quebecemail.com
- 
-merci
- 
-
+bye, Roman

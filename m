@@ -1,99 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVBFRQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVBFRRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVBFRQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 12:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVBFROE
+	id S261233AbVBFRRl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 12:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVBFRQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 12:14:04 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:57104 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261228AbVBFRLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 12:11:50 -0500
-To: Marco Rogantini <marco.rogantini@supsi.ch>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] pcmcia: Add support TI PCI4510 CardBus bridge
-References: <Pine.LNX.4.62.0502051818370.4821@rost.dti.supsi.ch>
-	<87wttmg77p.fsf@devron.myhome.or.jp>
-	<Pine.LNX.4.62.0502052052560.6832@rost.dti.supsi.ch>
-	<87y8e266pu.fsf@devron.myhome.or.jp>
-	<87u0oq66ab.fsf@devron.myhome.or.jp>
-	<Pine.LNX.4.62.0502061530550.24476@rost.dti.supsi.ch>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 07 Feb 2005 02:11:33 +0900
-In-Reply-To: <Pine.LNX.4.62.0502061530550.24476@rost.dti.supsi.ch> (Marco
- Rogantini's message of "Sun, 6 Feb 2005 15:38:30 +0100 (CET)")
-Message-ID: <87hdkptxyy.fsf_-_@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Feb 2005 12:16:34 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:24074 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261246AbVBFRN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 12:13:58 -0500
+Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, drepper@redhat.com
+In-Reply-To: <Pine.LNX.4.58.0502060907220.2165@ppc970.osdl.org>
+References: <20050206120244.GA28061@elte.hu> <20050206124523.GA762@elte.hu>
+	 <20050206125002.GF30109@wotan.suse.de>
+	 <1107694800.22680.90.camel@laptopd505.fenrus.org>
+	 <20050206130152.GH30109@wotan.suse.de>
+	 <20050206130650.GA32015@infradead.org>
+	 <20050206131130.GJ30109@wotan.suse.de> <20050206133239.GA4483@elte.hu>
+	 <20050206134640.GB30476@wotan.suse.de> <20050206140802.GA6323@elte.hu>
+	 <20050206142936.GC30476@wotan.suse.de>
+	 <Pine.LNX.4.58.0502060907220.2165@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Sun, 06 Feb 2005 18:13:43 +0100
+Message-Id: <1107710023.22680.138.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Rogantini <marco.rogantini@supsi.ch> writes:
-
->> +#define PCI_DEVICE_ID_TI_4510		0xac44
->> +	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_4510, TI12XX),
->
-> :-) It solved the problem! However I still must use the 'disable_clkrun'
-> parameter to get the bridge working correctly.
-
-Great! Thanks. I checked the datasheet, and added zoom_video
-support. New patch is attached.
-
-Andrew, could you apply this patch to your tree for testing?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+On Sun, 2005-02-06 at 09:08 -0800, Linus Torvalds wrote:
+> 
+> On Sun, 6 Feb 2005, Andi Kleen wrote:
+> > 
+> > Force READ_IMPLIES_EXEC for all 32bit processes to fix
+> > the 32bit source compatibility.
+> 
+> Andi, stop this. We're _not_ going to say "32-bit executables don't need 
+> PROT_EXEC. The executables would need to be marked broken per-executable, 
+> not some kind of "we don't do this globally" setting.
 
 
+marking PT_GNU_STACK as RWE would be an acceptable marking imo; one can
+insert such a marking post build (via the execstack tool), and during
+the build with either an addition to the cflags or via a one line code
+addition. 
 
-This does setup PCI4510 properly, and supports the "disable_clkrun" option.
+In addition there are runtime markings; you can use setarch to start an
+application with READ-IMPLIES-EXEC set (although you can't do that for
+setuid binaries for obvious reasons)
 
-1) Add PCI_DEVICE_ID_TI_4510 to pci_id.h.
-2) Add PCI4510 to yenta_table (that uses TI12XX handlers).
-3) Add zoom_video handler support.
+Note that these techniques all exist today. The only issue is that the
+current code doesn't do the RWE->READIMPLIESEXEC binding, which my patch
+fixed. 
 
-TI12XX handlers can disable CLKRUN feature with "disable_clkrun" option.
-Some devices or bridge itself seems to be needing this option as workaround.
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
 
- drivers/pcmcia/ti113x.h       |    1 +
- drivers/pcmcia/yenta_socket.c |    1 +
- include/linux/pci_ids.h       |    1 +
- 3 files changed, 3 insertions(+)
-
-diff -puN drivers/pcmcia/ti113x.h~yenta-pci4510-support drivers/pcmcia/ti113x.h
---- linux-2.6.11-rc3/drivers/pcmcia/ti113x.h~yenta-pci4510-support	2005-02-07 01:46:12.000000000 +0900
-+++ linux-2.6.11-rc3-hirofumi/drivers/pcmcia/ti113x.h	2005-02-07 01:46:12.000000000 +0900
-@@ -262,6 +262,7 @@ static void ti_set_zv(struct yenta_socke
- 			case PCI_DEVICE_ID_TI_1220:
- 			case PCI_DEVICE_ID_TI_1221:
- 			case PCI_DEVICE_ID_TI_1225:
-+			case PCI_DEVICE_ID_TI_4510:
- 				socket->socket.zoom_video = ti_zoom_video;
- 				break;	
- 			case PCI_DEVICE_ID_TI_1250:
-diff -puN drivers/pcmcia/yenta_socket.c~yenta-pci4510-support drivers/pcmcia/yenta_socket.c
---- linux-2.6.11-rc3/drivers/pcmcia/yenta_socket.c~yenta-pci4510-support	2005-02-07 01:46:12.000000000 +0900
-+++ linux-2.6.11-rc3-hirofumi/drivers/pcmcia/yenta_socket.c	2005-02-07 01:46:12.000000000 +0900
-@@ -1105,6 +1105,7 @@ static struct pci_device_id yenta_table 
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_4410, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_4450, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_4451, TI12XX),
-+	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_4510, TI12XX),
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_4520, TI12XX),
- 
- 	CB_ID(PCI_VENDOR_ID_TI, PCI_DEVICE_ID_TI_1250, TI1250),
-diff -puN include/linux/pci_ids.h~yenta-pci4510-support include/linux/pci_ids.h
---- linux-2.6.11-rc3/include/linux/pci_ids.h~yenta-pci4510-support	2005-02-07 01:46:12.000000000 +0900
-+++ linux-2.6.11-rc3-hirofumi/include/linux/pci_ids.h	2005-02-07 01:46:12.000000000 +0900
-@@ -753,6 +753,7 @@
- #define PCI_DEVICE_ID_TI_1251B		0xac1f
- #define PCI_DEVICE_ID_TI_4410		0xac41
- #define PCI_DEVICE_ID_TI_4451		0xac42
-+#define PCI_DEVICE_ID_TI_4510		0xac44
- #define PCI_DEVICE_ID_TI_4520		0xac46
- #define PCI_DEVICE_ID_TI_1410		0xac50
- #define PCI_DEVICE_ID_TI_1420		0xac51
-_

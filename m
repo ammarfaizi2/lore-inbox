@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287785AbSAFKR4>; Sun, 6 Jan 2002 05:17:56 -0500
+	id <S287786AbSAFKSG>; Sun, 6 Jan 2002 05:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287790AbSAFKRq>; Sun, 6 Jan 2002 05:17:46 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:16590 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S287785AbSAFKRb>;
-	Sun, 6 Jan 2002 05:17:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: vvikram@av.stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: [ingo patch] 2.4.17 benchmarks
-Date: Sun, 6 Jan 2002 02:17:30 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020105215048.A9335@av.stanford.edu>
-In-Reply-To: <20020105215048.A9335@av.stanford.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16NAMs-0000kv-00@phalynx>
+	id <S287790AbSAFKR4>; Sun, 6 Jan 2002 05:17:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:4 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287786AbSAFKRo>;
+	Sun, 6 Jan 2002 05:17:44 -0500
+Date: Sun, 6 Jan 2002 11:17:37 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alistair Riddell <ali@gwc.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: no highmem with 2GB RAM?
+Message-ID: <20020106111737.C8673@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0201050126410.12917-100000@frank.gwc.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0201050126410.12917-100000@frank.gwc.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 5, 2002 21:50, vvikram@av.stanford.edu wrote:
-> 2) further i seperately ran ./lat_proc fork; ./lat_proc exec; ./lat_proc
-> shell many times on the vanilla and patched kernels. their output is also
-> attached in one file [lat_proc.txt]. the patched kernel takes
->    MORE time than the vanilla one......
+On Sat, Jan 05 2002, Alistair Riddell wrote:
+> I have a couple of SMP i386 boxes with 2GB RAM. They suffer from poor
+> performance due to block IO page bouncing with highmem enabled. I have
+> tried the block-highmem patch but this causes occasional oopses and even
+> panics under high IO load.
 
-I'd blame this partially on the reverted fork() execution order bit of his 
-patch. The child process really should be executed first, and performance is 
-much improved in that case (COW and things). I don't think we should worry 
-about breaking obviously incorrect (and already fragile) programs for 2.5.x.
+Well thanks for sending in a bug report on that. Mind doing so?
 
--Ryan
+-- 
+Jens Axboe
+

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130826AbQKCQ4K>; Fri, 3 Nov 2000 11:56:10 -0500
+	id <S129069AbQKCR03>; Fri, 3 Nov 2000 12:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130844AbQKCQ4A>; Fri, 3 Nov 2000 11:56:00 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:25092 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130826AbQKCQzt>;
-	Fri, 3 Nov 2000 11:55:49 -0500
-Date: Fri, 3 Nov 2000 17:55:46 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-Message-ID: <20001103175546.A963@gruyere.muc.suse.de>
-In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org> <E13rj9s-0003c4-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13rj9s-0003c4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Nov 03, 2000 at 03:53:34PM +0000
+	id <S129094AbQKCR0T>; Fri, 3 Nov 2000 12:26:19 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:8188 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129069AbQKCR0N>; Fri, 3 Nov 2000 12:26:13 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011031725.eA3HPwP12932@webber.adilger.net>
+Subject: Re: ext3 vs. JFS file locations...
+In-Reply-To: <3A02D150.E7E87398@usa.net> "from Michael Boman at Nov 3, 2000 10:53:04
+ pm"
+To: Michael Boman <michael.boman@usa.net>
+Date: Fri, 3 Nov 2000 10:25:58 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >      * Spin doing ioctls on a down netdeice as it unloads == BOOM
-> >        (prumpf, Alan Cox) Possible other net driver SMP issues (andi
-> >        kleen)
-> 
-> Turns out to be safe according to Jeff and ANK
+Michael Boman writes:
+> It seems like both IBM's JFS and ext3 wants to use fs/jfs .. IMHO that
+> is like asking for problem.. A more logic location for ext3 should be
+> fs/ext3, no?
 
-It is not safe, just not worse than 2.2.
+Actually, if you would look in linux/fs, you will see that ext3 IS in
+linux/fs/ext3.  However, there is a second component to ext3, which is
+a generic block journalling layer which is called jfs.  This journal
+layer is designed so that it isn't ext3 specific, so it would be
+_possible_ for other journalling filesystems to use it.  Whether non-ext3
+filesystems will actually use it is another question (actually the
+InterMezzo distributed filesystem uses the ext3-jfs functionality to
+do compound transactions on disk to ensure cluster coherency).
 
--Andi
+I think that Stephen at one time said he would change the name, but I
+guess he has not done so yet.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

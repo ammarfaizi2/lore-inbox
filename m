@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129901AbQKHK7C>; Wed, 8 Nov 2000 05:59:02 -0500
+	id <S129423AbQKHLYM>; Wed, 8 Nov 2000 06:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130890AbQKHK6w>; Wed, 8 Nov 2000 05:58:52 -0500
-Received: from hqvsbh1.ms.com ([205.228.12.103]:60058 "EHLO hqvsbh1.ms.com")
-	by vger.kernel.org with ESMTP id <S129901AbQKHK6k>;
-	Wed, 8 Nov 2000 05:58:40 -0500
-Message-ID: <3A0931CB.AE39A93E@msdw.com>
-Date: Wed, 08 Nov 2000 10:58:19 +0000
-From: Richard Polton <Richard.Polton@msdw.com>
-Reply-To: Richard.Polton@msdw.com
-Organization: Morgan Stanley Dean Witter & Co.
-X-Mailer: Mozilla 4.7 [en]C-CCK-MCD   (WinNT; U)
-X-Accept-Language: en,ja
+	id <S129584AbQKHLXw>; Wed, 8 Nov 2000 06:23:52 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:48135 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S129423AbQKHLXl>; Wed, 8 Nov 2000 06:23:41 -0500
+Date: Wed, 8 Nov 2000 12:34:02 +0100 (MET)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Looking for better VM
+In-Reply-To: <Pine.LNX.4.05.10011061954520.26327-100000@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.21.0011081052010.1242-100000@fs129-190.f-secure.com>
 MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.4.0-test10 problems
-In-Reply-To: <3A090F20.D4B42BDE@msdw.com> <3A09B75C.4CB08D72@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I currently do not use either APM or ACPI. Initially I used ACPI
-and removing it in test8 appeared to fix the problem (but I suspect
-that was just 'appear' rather than 'fix' 8-). I moved to APM instead
-of ACPI in test9 - no change, and indeed in test10 I use neither.
 
-There is a flag in the BIOS for Plug n Play OS. I shall toggle it and
-observe the results.
+On Mon, 6 Nov 2000, Rik van Riel wrote:
+> On Mon, 6 Nov 2000, Szabolcs Szakacsits wrote:
+> > On Wed, 1 Nov 2000, Rik van Riel wrote:
+> > > but simply because 
+> > > it appears there has been amazingly little research on this 
+> > > subject and it's completely unknown which approach will work 
+> > There has been lot of research, this is the reason most Unices support
+> > both non-overcommit and overcommit memory handling default to
+> > non-overcommit [think of reliability and high availability].
+> It's a shame you didn't take the trouble to actually
+> go out and see that non-overcommit doesn't solve the
+> "out of memory" deadlock problem.
 
-Brad Hards wrote:
+Read my *entire* email again and please try to understand. No deadlock
+at all since kernel *falls back* to process killing if memory reserved
+for *root* is also out.
 
-> Richard Polton wrote:
-> > I have been testing my test10 installation and have come up with
-> > a few old problems, all of which have been reported before.
-> Don't known about the second two, but maybe can shed some light on the
-> first one.
->
-> > 1. Warm reboot fails to restart, i.e. hangs after displaying 'Restarting
-> >
-> >     system'. In this particular scenario, the power switch is disabled
-> >     too and the only way in which the machine responds is by switching
-> >     off at the wall and pulling the battery. Note that this scenario has
-> > been
-> >     observed only if I boot, get the login prompt (optionally log in)
-> > and then
-> >     ctrl-alt-del. A similar scenario occurs after an amount of time
-> > using the
-> >     machine and then rebooting. In this case, the machine restarts
-> > successfully
-> >     but hangs when it tries to initialise (right word?) the UHCI
-> > controller.
-> I think that the problem is pci / power management related. I have seen
-> similar problems with my laptop (VAio F430), especially when warm
-> booting from Win98 into Linux.
->
-> Things to try:
-> 1. Look at PnP or similar options (could be named anything) in the BIOS,
-> and try toggling them.
->
-> 2. Try APM instead of ACPI, or turn off power management.
->
-> 3. If it hangs, 'soft cycle' the power. This is effective about 90% of
-> the time for me.
->
-> If any of this helps, you might like to post the results. I intend to do
-> some more testing with -test10 over the next week or so, and will also
-> post results.
-> _______________________________________________
-> linux-usb-devel@lists.sourceforge.net
-> To unsubscribe, use the last form field at:
-> http://lists.sourceforge.net/mailman/listinfo/linux-usb-devel
+You could ask, so what's the point for non-overcommit if we use
+process killing in the end? And the answer, in *practise* this almost
+never happens, root can always clean up and no processes are lost
+[just as when disk is "full" except the reserved area for root]. See?
+Human get a chance against hard-wired AI.
+
+I also didn't say non-overcommit should be used as default and a
+patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
+developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
+ignored completely, implemented it this way. 
+
+And with a runtime tunable OOM killer, Linux really would beat the
+competitors [where it is quite behind at present] in this area. See?
+Human get a chance against hard-wired AI again.
+
+Believe me, there are people [don't read only kernel lists] who wants
+a reliable and controllable system and where the kernel doesn't play
+Russan rulet.
+
+[who missed my first email: forget about mem quotas and the the
+non-scalable "add GB's of swap" in this discussion].
+
+> [if you want an explanation, look in the archives,
+> we've explained this a dozen times now]
+ 
+I've been reading the list much longer than you and really pissed of
+that after so many years of discussions, this problem and user
+requirements^Wwishes are still not understood. You think black and
+white but the world is colorful.
+
+	Szaka
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

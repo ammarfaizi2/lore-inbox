@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262908AbSKRSVI>; Mon, 18 Nov 2002 13:21:08 -0500
+	id <S263270AbSKRSWH>; Mon, 18 Nov 2002 13:22:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSKRSVI>; Mon, 18 Nov 2002 13:21:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3844 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262908AbSKRSVI>;
-	Mon, 18 Nov 2002 13:21:08 -0500
-Message-ID: <3DD9311A.3080006@pobox.com>
-Date: Mon, 18 Nov 2002 13:27:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jordan.breeding@attbi.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tco/rng support for Intel chipsets other than the i810?
-References: <20021118175200.XMDP6492.rwcrmhc51.attbi.com@rwcrwbc71>
-In-Reply-To: <20021118175200.XMDP6492.rwcrmhc51.attbi.com@rwcrwbc71>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263281AbSKRSWH>; Mon, 18 Nov 2002 13:22:07 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:48812 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S263270AbSKRSWG>; Mon, 18 Nov 2002 13:22:06 -0500
+Subject: [maybe-OT] D-Link AirPlus ( DWL 520+ and 650+) Chipset TI ACX100
+From: Moritz Angermann <moritz.angermann@gmx.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Nov 2002 19:28:41 +0100
+Message-Id: <1037644121.4237.16.camel@ai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jordan.breeding@attbi.com wrote:
+hmm well after doing some research at google.com ( groups and web )
+i figured out, the WLAN card i bought. has this TI ACX100 chipset.
+and there ain't no driver. afaik. Also someone said, that Dlink was
+doing some linux driver. I'm suspicious this will happen anyway. 
+Since a mail i sent Dlink support. The US Support pointed me to
+the Driver for the DWL 520 and 650 which have the Prism2 chip and 
+though linux-wlan does support the. Dlink DE support told me they
+didn't know about any driver but would inform me if they do.
 
-> Do Intel chipsets other than the i810 have hardware support for 
-> rng/tco drivers
-> (i845, i860, E7500)?  If so will Linux be getting drivers for the tco/rng
-> capabilities of those chipsets some time in the future?  Thanks.
+so it looks to me as if i'm on my own. well i don't mind... :*/
+(*grmbl*)
+I wonderd if ReverseEngineering the Windows Driver might help me with
+that. though my ASM knowledge ain't taht good (but that is increaseable)
+and in Germany afaik. Rev.Eng. is allowed.
 
+So why i write it to this ML. is because, this is kinda the 'source'
+when talking about driver, i guess. And well might be you know of anyone
+doing allreaday that... So i just don't start doing obsolet stuff.
 
+regards
+-- 
+- Moritz Angermann / mind -
 
-WRT RNG, more than just i810 supports RNG, yes.  There are several 
-chipset ids in i810_rng.c which are for later versions after i810.
-
-So, the driver is perhaps misnamed at this point :) but it's not a huge 
-deal, so I haven't renamed it to i8xx_rng.c.  :)
-
-	Jeff
-
-
+------------------------------------------------------------------- 
+This message is composed of 100% recycled electrons & photons only! 
+-------------------------------------------------------------------
 

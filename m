@@ -1,83 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266058AbSKFTZi>; Wed, 6 Nov 2002 14:25:38 -0500
+	id <S266064AbSKFTwK>; Wed, 6 Nov 2002 14:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266060AbSKFTZi>; Wed, 6 Nov 2002 14:25:38 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:27385 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266058AbSKFTZg>; Wed, 6 Nov 2002 14:25:36 -0500
-Subject: Re: Voyager subarchitecture for 2.5.46
-From: john stultz <johnstul@us.ibm.com>
-To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200211061503.gA6F3DW02053@localhost.localdomain>
-References: <200211061503.gA6F3DW02053@localhost.localdomain>
-Content-Type: text/plain
+	id <S266065AbSKFTwK>; Wed, 6 Nov 2002 14:52:10 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:4871 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S266064AbSKFTwG>;
+	Wed, 6 Nov 2002 14:52:06 -0500
+Message-ID: <3DC9744F.4090702@namesys.com>
+Date: Wed, 06 Nov 2002 22:58:07 +0300
+From: Yury Umanets <umka@namesys.com>
+Organization: NAMESYS
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Cliff White <cliffw@osdl.org>
+CC: reiserfs-dev@namesys.com, Linux-Kernel@vger.kernel.org
+Subject: Re: [reiserfs-dev] build failure: reiser4progs-0.1.0
+References: <200211061956.gA6Ju8B12346@mail.osdl.org>
+In-Reply-To: <200211061956.gA6Ju8B12346@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Nov 2002 11:30:38 -0800
-Message-Id: <1036611039.6098.126.camel@cog>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 07:03, J.E.J. Bottomley wrote:
-> There are certain architectures (voyager is the only one currently supported, 
-> but I suspect the Numa machines will have this too) where the TSC cannot be 
-> used for cross CPU timings because the processors are driven by separate 
-> clocks and may even have different clock speeds.
+Cliff White wrote:
 
-Yes, I'll confirm your suspicions for some NUMA boxes ;)  The timer_opts
-structure was largely created to make it easier to remedy this
-situation, allowing alternate time sources to be easily added. 
- 
-> What I need is an option simply not to compile in the TSC code and use the PIT 
-> instead.  What I'm trying to do with the TSC and PIT options is give three 
-> choices:
-> 
-> 1. Don't use TSC (don't compile TSC code): X86_TSC=n, X86_PIT=y
-> 
-> 2. May use TSC but check first (blacklist, notsc kernel option).  X86_TSC=y, 
-> X86_PIT=y
-> 
-> 3. TSC is always OK so don't need PIT.  X86_TSC=y, X86_PIT=n
+>>Cliff White wrote:
+>>
+>>    
+>>
+>>>Attempting to test reiser4, kernel 2.5.46, using the 2002.11.05 snapshot.
+>>>--------------------------------------------------
+>>>gcc -DHAVE_CONFIG_H -I. -I. -I../.. -I../../include -g -O2 -D_REENTRANT 
+>>>-D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -Werror 
+>>>-DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -c alloc40.c -MT alloc40.lo -MD -MP 
+>>>-MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
+>>>cc1: warnings being treated as errors
+>>>alloc40.c: In function `callback_fetch_bitmap':
+>>>alloc40.c:50: warning: signed and unsigned type in conditional expression
+>>>alloc40.c: In function `callback_flush_bitmap':
+>>>alloc40.c:209: warning: signed and unsigned type in conditional expression
+>>>alloc40.c: In function `callback_check_bitmap':
+>>>alloc40.c:376: warning: signed and unsigned type in conditional expression
+>>>make[3]: *** [alloc40.lo] Error 1
+>>>make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
+>>>oc40'
+>>>make[2]: *** [all-recursive] Error 1
+>>>make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
+>>>make[1]: *** [all-recursive] Error 1
+>>>make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
+>>>make: *** [all] Error 2
+>>>-------------------------------------
+>>>cliffw
+>>>
+>>>
+>>>
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>You are probably using gcc-3.2. Okay, fixed. Thanks a lot for report.
+>>    
+>>
+>
+>No, i am not using gcc-3.2
+>]# gcc -v
+>Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+>gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
+>I have replicated the problem on two machines
+>cliffw
+>
+>  
+>
+>>-- 
+>>Yury Umanets
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>
+>
+>
+>  
+>
+Try for awhile:
+configure --without-readline
 
-Almost all systems are going to want #3. For those that need an
-alternate time source (NUMAQ, Voyager, x440, etc) do we really need the
-PIT only option(#1)? It can easily be dynamically detected in #2, and
-the resulting kernel will run correctly on more machines which makes for
-one less special kernel distros have to create/manage.
 
+-- 
+Yury Umanets
 
-> Theres also another problem in that the timer_init is called too early in the 
-> boot sequence to get a message out to the user, so the panic in timers.c about 
-> not finding a suitable timer will never be seen (the system will just lock up 
-> on boot).
-> 
-> Do we have an option for a deferred panic that will trip just after we init 
-> the console and clean out the printk buffer?
-
-Yea, I'm actually working on exactly what Alan suggested (timer_none),
-to solve this. Thanks for bringing it up though, I occasionally need a
-kick in the pants for motivation :) 
-
-
-> > Then make the arch/i386/timers/Makefile change to be something like:
-> > 
-> > obj-y := timer.o timer_tsc.o timer_pit.o
-> > obj-$(CONFIG_X86_TSC)		-= timer_pit.o #does this(-=) work?
-> > obj-$(CONFIG_X86_CYCYLONE)	+= timer_cyclone.o
-> 
-> Even if it works, the config option style is confusing.  It's easier just to 
-> have a positive option (CONFIG_X86_PIT) for this.
-
-I realize that the negative-option that _X86_TSC has become is a bit
-confusing, but it is an optimization option, not a feature option. I've
-been thinking of something similar to _X86_PIT, but I want to avoid the
-PIT only case that you had in your patch, and try to come up with
-something that isn't more confusing then what we started with. 
-
-thanks
--john
 

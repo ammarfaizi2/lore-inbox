@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314735AbSEHQyj>; Wed, 8 May 2002 12:54:39 -0400
+	id <S314747AbSEHQ6I>; Wed, 8 May 2002 12:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314740AbSEHQyi>; Wed, 8 May 2002 12:54:38 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43021 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314735AbSEHQyg>; Wed, 8 May 2002 12:54:36 -0400
-Date: Wed, 8 May 2002 09:54:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Juan Quintela <quintela@mandrakesoft.com>
-cc: Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <m2r8knkrkt.fsf@demo.mitica>
-Message-ID: <Pine.LNX.4.44.0205080945450.4991-100000@home.transmeta.com>
+	id <S314748AbSEHQ6H>; Wed, 8 May 2002 12:58:07 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19217 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314747AbSEHQ6H>; Wed, 8 May 2002 12:58:07 -0400
+Date: Wed, 8 May 2002 12:54:14 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Clifford White <ctwhite@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86 question: Can a process have > 3GB memory?
+In-Reply-To: <E175ESI-0000PX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020508124801.3449C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 May 2002, Alan Cox wrote:
 
+> Remember DOS and EMM memory expansion. Basically that is what you come
+> down to. Allocate multiple large shared memory segments, attach the one
+> you need each time and implement software segment swapping.
 
-On 8 May 2002, Juan Quintela wrote:
-> linus> (Side note: I'm afraid that don't think backwards compatibility weighs
-> linus> very heavily on an embedded setup - I'm more thinking about things like "a
-> linus> regular RedHat/SuSE/Debian/whatever install won't work any more".)
->
-> here at Mandrake we have a patch for the install kernel to remove the
-> /proc/ide, and  I think that we got it from redhat, that means that at
-> least two distros preffer to save ~25kb in the boot kernels than the
-> reporting that they do :p
+  I remember doing bank switching on IEEE-696 (S-100) system for both
+programs and "ramdisk," when 64K (sic) was a lot of memory.
+ 
+> That should have you diving for an AMD hammer or IA64 box as soon as they
+> come out 8)
 
-Well, that's a good sign in that it implies that things certainyl work
-fine without /proc/ide.
+  At the moment Itanium is shipping, it makes up for being expensive by
+also being slow ;-) However, Sun will sell you a 64bit UltraSPARC system
+with everything but monitor for <$1K. Add a few GB and load Linux. I
+*think* you can order with Linux preloaded now, but don't quote me on
+that. It's not blindingly fast but it's blindingly cheap.
 
-However, I think I phrased things badly: I'm not actually worried about
-the RedHat or Mandrake "act of installation" itself - since that will
-always use whatever kernel RH or Mandrake put on their CD's, and they can
-always change their install scripts/programs to match the kernel they use.
-
-I'm more worried about the issue of "I installed RH-x.x, and then I
-upgraded the kernel, and now program xyz won't work any more", where "xyz"
-is something perfectly reasonable and common.
-
-For example, let's say that some strange version of "mount" _requires_
-/proc/ide to work (don't ask me why), and that Mandrake happened to ship
-that version in their 8.2 release, and if you use the new 2.5.15 kernel on
-that installation, it simply won't work. THAT would be a problem where
-some backwards compatibility crud is probably worth it.
-
-But if /proc/ide removal breaks an embedded device (on which the kernel is
-not normally upgraded by "normal" people that aren't willing to upgrade
-other stuff at the same time), I won't worry too much. Or if the /proc/ide
-changs mean that the actual installer has to be re-done, I won't worry.
-
-And even breaking one or two applications might be quite acceptable: I
-worry more about maintainability than _perfect_ backwards compatibility.
-
-		Linus
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

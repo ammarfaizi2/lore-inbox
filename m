@@ -1,90 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbTH2UIM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 16:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbTH2UGd
+	id S262073AbTH2USS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbTH2UR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:06:33 -0400
-Received: from zork.zork.net ([64.81.246.102]:37793 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S261933AbTH2UDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:03:06 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 29 Aug 2003 21:03:02 +0100
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk> (Jamie Lokier's
- message of "Fri, 29 Aug 2003 06:35:10 +0100")
-Message-ID: <6uu180xmdl.fsf@zork.zork.net>
+	Fri, 29 Aug 2003 16:17:59 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:14499 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262073AbTH2UIM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 16:08:12 -0400
+Message-ID: <3F4FB2F8.1000109@terra.com.br>
+Date: Fri, 29 Aug 2003 17:09:28 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: netfilter-devel@lists.netfilter.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: [PATCH 8/9] Remove unneeded linux/version.h from net/ipv4/netfilter/ip_nat_rule
+Content-Type: multipart/mixed;
+ boundary="------------060708000805010105090102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+This is a multi-part message in MIME format.
+--------------060708000805010105090102
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> I'd appreciate if folks would run the program below on various
-> machines, especially those whose caches aren't automatically coherent
-> at the hardware level.
+	Based on Randy's modified checkversion.pl script.
 
-2-way Pentium III:
+	Compile fine against 2.6.0-test4.
 
-$ time ./va
-Test separation: 4096 bytes: pass
-Test separation: 8192 bytes: pass
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
+	Please consider applying.
 
-real    0m0.096s
-user    0m0.073s
-sys     0m0.023s
-$ cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 11
-model name      : Intel(R) Pentium(R) III CPU family      1133MHz
-stepping        : 1
-cpu MHz         : 1129.879
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 2220.03
+	Cheers,
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 11
-model name      : Intel(R) Pentium(R) III CPU family      1133MHz
-stepping        : 1
-cpu MHz         : 1129.879
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 2252.80
+Felipe
+
+--------------060708000805010105090102
+Content-Type: text/plain;
+ name="ip_nat_rule.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ip_nat_rule.patch"
+
+--- linux-2.6.0-test4/net/ipv4/netfilter/ip_nat_rule.c.orig	Fri Aug 29 16:45:09 2003
++++ linux-2.6.0-test4/net/ipv4/netfilter/ip_nat_rule.c	Fri Aug 29 16:45:14 2003
+@@ -9,7 +9,6 @@
+ #include <linux/proc_fs.h>
+ #include <net/checksum.h>
+ #include <linux/bitops.h>
+-#include <linux/version.h>
+ 
+ #define ASSERT_READ_LOCK(x) MUST_BE_READ_LOCKED(&ip_nat_lock)
+ #define ASSERT_WRITE_LOCK(x) MUST_BE_WRITE_LOCKED(&ip_nat_lock)
+
+--------------060708000805010105090102--
+

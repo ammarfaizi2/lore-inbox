@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbUKFDWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbUKFDXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbUKFDWS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 22:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUKFDWS
+	id S261306AbUKFDXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 22:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUKFDXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 22:22:18 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:50157 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261285AbUKFDWO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 22:22:14 -0500
-In-Reply-To: <200411051906.iA5J6XJd014410@laptop11.inf.utfsm.cl>
-References: <200411051906.iA5J6XJd014410@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <01C20E37-2FA3-11D9-857E-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: jp@enix.org, "Adam J. Richter" <adam@yggdrasil.com>,
-       linux-kernel@vger.kernel.org, davids@webmaster.com
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Possible GPL infringement in Broadcom-based routers
-Date: Fri, 5 Nov 2004 22:21:53 -0500
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Mailer: Apple Mail (2.619)
+	Fri, 5 Nov 2004 22:23:47 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:21666 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261301AbUKFDXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 22:23:22 -0500
+Date: Fri, 5 Nov 2004 19:22:59 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/3] WIN_* -> ATA_CMD_* conversion: comments
+Message-ID: <20041106032259.GA6060@taniwha.stupidest.org>
+References: <20041103091101.GC22469@taniwha.stupidest.org> <418AE8C0.3040205@pobox.com> <58cb370e041105051635c15281@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e041105051635c15281@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 05, 2004, at 14:06, Horst von Brand wrote:
-> This is nonsense: If so, I'd be commiting a crime each time I fire up 
-> emacs
-> on Solaris (linking (GPLed) emacs to (propietary) libc in RAM). [Yes, 
-> just
-> an example; haven't done so for the best part of 5 years now...]
+On Fri, Nov 05, 2004 at 02:16:05PM +0100, Bartlomiej Zolnierkiewicz wrote:
 
-What you do with the GPL _on_your_computer_ is not relevant.  libc is a
-standard interface, which is used by many programs, much the same way
-that a keyboard is a standard interface to a computer.  You don't see
-companies with copyright to _all_ keyboards, do you? ;-D
+> On Thu, 04 Nov 2004 21:43:12 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> Besides, Linus has _explicitly_ said that binary (closed source) 
-> modules
-> are OK (under certain conditions). And AFAIU there was legitimate
-> discussion wether this particular excemption was required at al.
+> > Chris, a useful follow-up patch (if Bart agrees) is a global
+> > search-n-replace of WIN_xxx constants with ATA_CMD_xxx constants.
+> > Depending on the size of the patch, it might even need to be split
+> > up across several patches.
 
-This, of course, would assume that said code is compiled as a module. I
-posted earlier some available makefile snippets from the code that they
-_do_ distribute that shows they do _not_ link it as a module, but 
-directly
-into the kernel.  Last I saw, NVidia couldn't distribute kernels with 
-their
-modules compiled directly into the binary.
+Following are three patches doing just thus.  They are against bk TOT
+with Bart's IDE tree pulled in.
 
-Cheers,
-Kyle Moffett
+> One ceveat here: hdreg.h and WIN_xxx are (ab)used by user-space so
+> for sure there will be complaints (not that we should care :)...
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+They should fork the values they need then, they are not kernel
+specific but come from some nightmarish specification :)
 
 
+About the following patches:
+
+      The first patch adds missing ATA_CMD_* values which the legacy
+      code will need.
+
+      The second patch updates the legacy code (and a couple of
+      stragglers) to use the new ATA_CMD_* tokens.
+
+      The third patch removes the (then) redundant cruft from hdreg.h.

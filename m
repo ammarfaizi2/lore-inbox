@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132004AbRBEMDW>; Mon, 5 Feb 2001 07:03:22 -0500
+	id <S131197AbRBEMBn>; Mon, 5 Feb 2001 07:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132018AbRBEMDM>; Mon, 5 Feb 2001 07:03:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48658 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132004AbRBEMCw>; Mon, 5 Feb 2001 07:02:52 -0500
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-To: greg@linuxpower.cx (Gregory Maxwell)
-Date: Mon, 5 Feb 2001 12:02:48 +0000 (GMT)
-Cc: ahzz@terrabox.com (Brian Wolfe), reiser@namesys.com (Hans Reiser),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        ionut@moisil.cs.columbia.edu (Ion Badulescu),
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        kas@informatics.muni.cz (Jan Kasprzak)
-In-Reply-To: <20010205002119.A31043@xi.linuxpower.cx> from "Gregory Maxwell" at Feb 05, 2001 12:21:19 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131817AbRBEMBc>; Mon, 5 Feb 2001 07:01:32 -0500
+Received: from colorfullife.com ([216.156.138.34]:30213 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131197AbRBEMBN>;
+	Mon, 5 Feb 2001 07:01:13 -0500
+Message-ID: <3A7E95F3.38B26DC@colorfullife.com>
+Date: Mon, 05 Feb 2001 13:00:51 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify 
+ + callback chains
+In-Reply-To: <20010201220744.K11607@redhat.com> <Pine.LNX.4.10.10102031224210.8867-100000@penguin.transmeta.com> <20010205110336.A1167@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14PkM7-0003CA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No. There are *many* other compilers out there which are much *more* broken
-> then anything RedHat has recently shipped. Unfortunatly, there is no easy
-> way to accuratly test for such bugs (because once they can be boiled down to
-> a simple test they are very rapidly fixed, what's left is voodoo).
+"Stephen C. Tweedie" wrote:
+> 
+> You simply cannot do physical disk IO on
+> non-sector-aligned memory or in chunks which aren't a multiple of
+> sector size.
 
-The problem isn't so much that compilers get bugs and they get fixed as
-soon as a good test case pops up, its that end users don't habitually check
-for a compiler update. Being able to say 'look go get a new compiler' is
-productive. Especially as the kernel can panic with a URL ;)
+Why not?
 
-Alan
+Obviously the disk access itself must be sector aligned and the total
+length must be a multiple of the sector length, but there shouldn't be
+any restrictions on the data buffers.
 
+I remember that even Windoze 95 has scatter-gather support for physical
+disk IO with arbitraty buffer chunks. (If the hardware supports it,
+otherwise the io subsystem will copy the data into a contiguous
+temporary buffer)
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

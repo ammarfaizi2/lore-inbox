@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312142AbSCQX6g>; Sun, 17 Mar 2002 18:58:36 -0500
+	id <S312141AbSCQX7F>; Sun, 17 Mar 2002 18:59:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312140AbSCQX6Z>; Sun, 17 Mar 2002 18:58:25 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:2060 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S312141AbSCQX6N>;
-	Sun, 17 Mar 2002 18:58:13 -0500
-Date: Sun, 17 Mar 2002 18:53:56 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: "Theodore Y. Ts'o" <tytso@mit.edu>, Paul Allen <allenp@nwlink.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ext2 zeros inode in directory entry when deleting files.
-Message-ID: <20020317185356.C16140@mark.mielke.cc>
-In-Reply-To: <20020317131702.A16140@mark.mielke.cc> <Pine.LNX.4.44.0203171516540.21552-100000@waste.org>
+	id <S312143AbSCQX64>; Sun, 17 Mar 2002 18:58:56 -0500
+Received: from 26-072.104.popsite.net ([64.24.54.72]:7940 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S312141AbSCQX6f>; Sun, 17 Mar 2002 18:58:35 -0500
+Message-Id: <200203172358.g2HNwPo01891@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Dave Jones <davej@suse.de>, Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, dougg@torque.net
+Subject: Re: Linux 2.5.6-dj1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0203171516540.21552-100000@waste.org>; from oxymoron@waste.org on Sun, Mar 17, 2002 at 03:20:19PM -0600
+Date: Sun, 17 Mar 2002 18:58:25 -0500
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 03:20:19PM -0600, Oliver Xymoron wrote:
-> On Sun, 17 Mar 2002, Mark Mielke wrote:
-> > Out of curiosity... how would you mark the first entry in a directory
-> > as 'deleted' under your suggestion?
-> As it happens, the first entry tends to be '.'.
+Douglas Gilbert <dougg@torque.net> said:
+> There are over 30 scsi subsystem patches backed up in
+> your tree. Some are over 2 months old. Could
+> some (or perhaps all) of them get promoted to the
+> main tree? 
 
-If this was a guarantee, I would assume that the initial two entries
-could be optimized as two inodes.
+davej@suse.de said:
+>  Indeed. Once Linus returns from vacation, I'll be doing a
+>  patch-bombing on a larger scale than usual 8-)
+>  Any bits I'm uncertain of, I'll bounce your way first for
+>  clarification, deal ?
 
-> > Also, I'm not certain, but I suspect that the reclen vs namelen
-> > difference allows the ext2(/3) format to be extended while minimizing
-> > breakage to existing code. One day another field might be added to the
-> > inode and any assumptions regarding the size of a record length would
-> > limit such extensions. (One such field is currently the 'file type',
-> > although, the file type does not actually use up any additional bytes)
-> Doesn't matter, reclen still makes it a linked list, and we'd still skip
-> over 'dead' entries, regardless of content.
+This really brings up a very important point.  As Doug has said before, since 
+there are quite a few patches floating around on the SCSI list and other 
+discussion of structural alteration in there, could we not have our own 
+bitkeeper repository for the SCSI subsystem to keep them all in (and so that 
+we can roll our own patch sets from)?
 
-If the extra bytes (reclen - namelen) *were* extra bits of file system
-information, there would be no safe way of ensuring that the allocation
-of a new directory entry didn't 'accidentally' overwrite these bytes.
+Jens, you're now listed as the SCSI maintainer so you are the person who is 
+supposed to serve as a conduit to Linus for all of the SCSI patches.  You 
+would also be the logical person to look after a SCSI bitkeeper repository, so 
+will you look after one for us?  I can volunteer to help, and I'm sure others 
+will.
 
-Exactly how big should you assume reclen *really* is, if reclen
-sometimes means the length of the record, and other times means a next
-pointer offset?
+I'm getting pretty tired of the snide comments from HW manufacturers and other 
+OS interests about the state of our SCSI subsystem (not to mention 
+unfavourable comparisons from the IDE guys).  Perhaps something like this 
+could galvanise the community and serve as a catalyst for a general 
+streamlining of the subsystem.
 
-mark
+James
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

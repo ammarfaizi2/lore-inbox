@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263327AbSITTAU>; Fri, 20 Sep 2002 15:00:20 -0400
+	id <S263311AbSITS73>; Fri, 20 Sep 2002 14:59:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbSITTAU>; Fri, 20 Sep 2002 15:00:20 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:57547 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S263327AbSITTAT>; Fri, 20 Sep 2002 15:00:19 -0400
-Date: Fri, 20 Sep 2002 14:04:19 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.36-mm1 compile (fwd)
-In-Reply-To: <Pine.LNX.3.96.1020920120132.29079D-300000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0209201403460.14323-100000@chaos.physics.uiowa.edu>
+	id <S263323AbSITS73>; Fri, 20 Sep 2002 14:59:29 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:40841
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S263311AbSITS72>; Fri, 20 Sep 2002 14:59:28 -0400
+Message-ID: <3D8B7157.6040205@redhat.com>
+Date: Fri, 20 Sep 2002 12:04:55 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020812
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+References: <Pine.NEB.4.44.0209201144270.2586-100000@mimas.fachschaften.tu-muenchen.de>
+X-Enigmail-Version: 0.65.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Bill Davidsen wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I tried to build 2.5.36-mm1 on a PII-350 with RH7.3. Make menuconfig, make
-> dep, make bzImage. Tried backing up the config, make mrproper, install
-> config, make oldconfig, make dep, make bzImage. Still no go.
+Adrian Bunk wrote:
 
-Could you please let me know if this patch fixes it?
+> My personal estimation is that Debian will support kernel 2.4 in it's
+> stable distribution until 2006 or 2007 (this is based on the experience
+> that Debian usually supports two stable kernel series and the time between
+> stable releases of Debian is > 1 year). What is the proposed way for
+> distributions to deal with this?
 
---Kai
+Two ways:
+
+- - continue to use the old code
+
+- - backport the required functionality
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.579   -> 1.580  
-#	            Makefile	1.304   -> 1.305  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/20	kai@tp1.ruhr-uni-bochum.de	1.580
-# kbuild: Fix modversions generation glitch
-# 
-# Some people have their "cd" command print $PWD, so they would end
-# up with $PWD in their include/modversions.h, which is not quite what we
-# want.
-# --------------------------------------------
-#
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Fri Sep 20 14:03:35 2002
-+++ b/Makefile	Fri Sep 20 14:03:35 2002
-@@ -436,7 +436,8 @@
- 	@( echo "#ifndef _LINUX_MODVERSIONS_H";\
- 	   echo "#define _LINUX_MODVERSIONS_H"; \
- 	   echo "#include <linux/modsetver.h>"; \
--	   for f in `cd .tmp_export-objs; find modules -name SCCS -prune -o -name BitKeeper -prune -o -name \*.ver -print | sort`; do \
-+	   cd .tmp_export-objs >/dev/null; \
-+	   for f in `find modules -name \*.ver -print | sort`; do \
- 	     echo "#include <linux/$${f}>"; \
- 	   done; \
- 	   echo "#endif"; \
+Note that not all the changes Ingo made have to be ported back to 2.4. 
+Only those required for correct execution, not the optimizations.
+
+Whether Marcello is interested in this I cannot say, I doubt it though. 
+  But this does not mean you cannot have such a kernel in Debian.
+
+- -- 
+- ---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE9i3Fb2ijCOnn/RHQRAlC+AJ9kXWMdkfuORtodijTXQ+Hnah0ZYQCfZkOT
+Axzw/z1VEFVXIQdZ4d8PLe4=
+=ptvg
+-----END PGP SIGNATURE-----
 

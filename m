@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261961AbSI3H4Y>; Mon, 30 Sep 2002 03:56:24 -0400
+	id <S261963AbSI3IKI>; Mon, 30 Sep 2002 04:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261967AbSI3H4X>; Mon, 30 Sep 2002 03:56:23 -0400
-Received: from packet.digeo.com ([12.110.80.53]:20913 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261961AbSI3H4W>;
-	Mon, 30 Sep 2002 03:56:22 -0400
-Message-ID: <3D9804E1.76C9D4AE@digeo.com>
-Date: Mon, 30 Sep 2002 01:01:37 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: 2.5.39-mm1
-References: <3D976206.B2C6A5B8@digeo.com> <735786955.1033347097@[10.10.2.3]>
+	id <S261965AbSI3IKH>; Mon, 30 Sep 2002 04:10:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:12449 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261963AbSI3IKH>;
+	Mon, 30 Sep 2002 04:10:07 -0400
+Date: Mon, 30 Sep 2002 10:15:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020930081522.GG27420@suse.de>
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com> <20020926064455.GC12862@suse.de> <20020926065951.GD12862@suse.de> <20020926085445.A22321@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2002 08:01:39.0186 (UTC) FILETIME=[9B025520:01C26857]
+Content-Disposition: inline
+In-Reply-To: <20020926085445.A22321@eng2.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
+On Thu, Sep 26 2002, Patrick Mansfield wrote:
+> On Thu, Sep 26, 2002 at 08:59:51AM +0200, Jens Axboe wrote:
+> > On Thu, Sep 26 2002, Jens Axboe wrote:
+> > BTW, for SCSI, it would be nice to first convert more drivers to use the
+> > block level queued tagging. That would provide us with a much better
+> > means to control starvation properly on SCSI as well.
+> > 
+> > -- 
+> > Jens Axboe
 > 
-> > I must say that based on a small amount of performance testing the
-> > benefits of the cache warmness thing are disappointing. Maybe 1% if
-> > you squint.  Martin, could you please do a before-and-after on the
-> > NUMAQ's, double check that it is actually doing the right thing?
-> 
-> Seems to work just fine:
-> 
-> 2.5.38-mm1 + my original hot/cold code.
-> Elapsed: 19.798s User: 191.61s System: 43.322s CPU: 1186.4%
-> 
-> 2.5.39-mm1
-> Elapsed: 19.532s User: 192.25s System: 42.642s CPU: 1203.2%
-> 
-> And it's a lot more than 1% for me ;-) About 12% of systime
-> on kernel compile, IIRC.
+> I haven't look closely at the block tagging, but for the FCP protocol,
+> there are no tags, just the type of queueing to use (task attributes)
+> - like ordered, head of queue, untagged, and some others. The tagging
+> is normally done on the adapter itself (FCP2 protocol AFAIK). Does this
+> mean block level queued tagging can't help FCP?
 
-Well that's still a 1% bottom line.  But we don't have a
-comparison which shows the effects of this patch alone.
+The generic block level tagging is nothing more than tag management. It
+can 'tag' a request (assigning it an integer tag), and later let you
+locate that request by giving it the tag.
 
-Can you patch -R the five patches and retest sometime?
+I suspect you need none of that for FCP. Instead it looks more like you
+can set the task attributes based on the type of request itself. So you
+would currently set 'ordered' for a request with REQ_BARRIER set. And
+you could set 'head of queue' for REQ_URGENT (I'm making this one up
+:-), etc.
 
-I just get the feeling that it should be doing better.
+Do you need any request management to deal with FCP queueing? It doesn't
+sound like it.
+
+-- 
+Jens Axboe
+

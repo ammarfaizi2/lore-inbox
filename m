@@ -1,47 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292353AbSBPLYI>; Sat, 16 Feb 2002 06:24:08 -0500
+	id <S292357AbSBPLpu>; Sat, 16 Feb 2002 06:45:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292354AbSBPLX6>; Sat, 16 Feb 2002 06:23:58 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:47367 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S292353AbSBPLXk>; Sat, 16 Feb 2002 06:23:40 -0500
-Date: Sat, 16 Feb 2002 12:23:35 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216112334.GA2805@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215213833.J27880@suse.de> <1013810923.807.1055.camel@phantasy> <20020215232832.N27880@suse.de> <3C6DE87C.FA96D1D6@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C6DE87C.FA96D1D6@mandrakesoft.com>
-User-Agent: Mutt/1.3.27i
+	id <S292356AbSBPLpl>; Sat, 16 Feb 2002 06:45:41 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:40125 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S292355AbSBPLp0>; Sat, 16 Feb 2002 06:45:26 -0500
+Message-ID: <3C6E462D.39039598@in.ibm.com>
+Date: Sat, 16 Feb 2002 17:14:45 +0530
+From: Rajasekhar Inguva <irajasek@in.ibm.com>
+X-Mailer: Mozilla 4.5 [en] (Win95; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: girouard@us.ibm.com
+CC: ctindel@ieee.org, willy@meta-x.org,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]:Ethernet Bonding Driver-2.4.17
+Content-Type: multipart/mixed;
+ boundary="------------2DF5B0BE26821A7CA897A995"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Feb 2002, Jeff Garzik wrote:
+This is a multi-part message in MIME format.
+--------------2DF5B0BE26821A7CA897A995
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Dave Jones wrote:
-> >  Increased functionality I don't have a problem with, as long
-> >  as other more important things are addressed.  And for that matter,
-> >  Linus has said to Eric "I don't care, take this out of the
-> >  kernel completely leaving just oldconfig'.
-> 
-> That's a good point, and one I would be happy with.  (or, ditch -all-
-> current config code, and replace with the existing mconfig)
+Hi all,
 
-If so, then fairness of mconfig vs. CML2 tools should command that
-mconfig's "old" mode works properly first. I reported to Christoph that
-it always reprompts me about the kernel core format (a.out vs. ELF),
-which is something "make oldconfig" does not do with the same config, he
-acknowledged the bug, but I have yet to see the fix.
+The patch is WRT a problem with the Ethernet Bonding Driver when
+compiled as a module. Tested on 2.4.17
+and the patch is also against 2.4.17.
 
-> Eric's configurator definitely seems to have a place with users.  Making
-> kernel configuration easier for the masses is more than fine with me... 
-> Impacting kernel developers' productivity and workflow because of this
-> is more of what I object to...
+# insmod bonding max_bonds=2
+Using /lib/modules/2.4.17/kernel/drivers/net/bonding.o
+Warning: /lib/modules/2.4.17/kernel/drivers/net/bonding.o parameter
+max_bonds
+has max < min!
+/lib/modules/2.4.17/kernel/drivers/net/bonding.o: unknown parameter type
+'(' for
+max_bonds
 
-Does that really happen? It looks as though the conversion of the
-current config.in stuff has been completed as part of the CML2 suite.
+and the module fails to load.
+
+The problem seems to be with the way MODULE_PARM was written for
+max_bonds. 
+
+MODULE_PARM(max_bonds,"1-" __MODULE_STRING(INT_MAX) "i"); 
+
+INT_MAX is defined to be ((int)(~0U>>1)) and 'insmod' gets the string
+"1-((int)(~0U>>1))i" which it is failing to understand.
+
+As max_bonds is an integer and not an array, i feel omitting the min-max
+range would be a better option.
+
+And if a negative or zero value is supplied to max_bonds while loading,
+it can be taken care of in bonding_init() by setting it back to
+MAX_BONDS.
+
+Thx,
+Rajasekhar Inguva
+
+
+--- /usr/src/linux/drivers/net/bonding.c	Fri Dec 21 23:11:54 2001
++++ /usr/src/linux/drivers/fixed/bonding.c	Sat Feb 16 17:03:48 2002
+@@ -226,7 +226,7 @@
+ static struct bonding *these_bonds =  NULL;
+ static struct net_device *dev_bonds = NULL;
+ 
+-MODULE_PARM(max_bonds, "1-" __MODULE_STRING(INT_MAX) "i");
++MODULE_PARM(max_bonds,"i");
+ MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
+ MODULE_PARM(miimon, "i");
+ MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
+@@ -1981,6 +1981,10 @@
+ 
+ 	/* Find a name for this unit */
+ 	static struct net_device *dev_bond = NULL;
++
++	/* If max_bonds <=0, set it to MAX_BONDS */
++	if(max_bonds <=0)
++		max_bonds = MAX_BONDS;
+ 
+ 	dev_bond = dev_bonds = kmalloc(max_bonds*sizeof(struct net_device), 
+ 					GFP_KERNEL);
+--------------2DF5B0BE26821A7CA897A995
+Content-Type: text/plain; charset=us-ascii;
+ name="bonding.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bonding.patch"
+
+--- /usr/src/linux/drivers/net/bonding.c	Fri Dec 21 23:11:54 2001
++++ /usr/src/linux/drivers/fixed/bonding.c	Sat Feb 16 17:03:48 2002
+@@ -226,7 +226,7 @@
+ static struct bonding *these_bonds =  NULL;
+ static struct net_device *dev_bonds = NULL;
+ 
+-MODULE_PARM(max_bonds, "1-" __MODULE_STRING(INT_MAX) "i");
++MODULE_PARM(max_bonds,"i");
+ MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
+ MODULE_PARM(miimon, "i");
+ MODULE_PARM_DESC(miimon, "Link check interval in milliseconds");
+@@ -1981,6 +1981,10 @@
+ 
+ 	/* Find a name for this unit */
+ 	static struct net_device *dev_bond = NULL;
++
++	/* If max_bonds <=0, set it to MAX_BONDS */
++	if(max_bonds <=0)
++		max_bonds = MAX_BONDS;
+ 
+ 	dev_bond = dev_bonds = kmalloc(max_bonds*sizeof(struct net_device), 
+ 					GFP_KERNEL);
+
+--------------2DF5B0BE26821A7CA897A995--
+

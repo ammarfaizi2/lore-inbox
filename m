@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266654AbUHIO2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUHIO07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266654AbUHIO2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 10:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUHIO11
+	id S266613AbUHIO07 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUHIOZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:27:27 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:47319 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S266611AbUHIOYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:24:53 -0400
-X-Sender-Authentication: net64
-Date: Mon, 9 Aug 2004 16:24:49 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
+	Mon, 9 Aug 2004 10:25:08 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:39619 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266613AbUHIOWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:22:47 -0400
+Date: Mon, 9 Aug 2004 16:21:44 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
+To: alan@lxorguk.ukuu.org.uk, axboe@suse.de
+Cc: James.Bottomley@steeleye.com, eric@lammerts.org,
+       linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-Id: <20040809162449.51b13528.skraw@ithnet.com>
-In-Reply-To: <200408091346.i79DkDRi010405@burner.fokus.fraunhofer.de>
-References: <200408091346.i79DkDRi010405@burner.fokus.fraunhofer.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Aug 2004 15:46:13 +0200 (CEST)
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
 
-> >From: Stephan von Krawczynski <skraw@ithnet.com>
-> 
-> >Understand this: _nobody_ expects you to know everything about 25 different
-> >OS's, the only thing that can be expected is that you simply listen to the
-> >different parties knowing the different platforms and _take their advice_,
-> >really not more.
-> 
-> While this works for most if not all OS, it does not work for Linux.
-> 
-> For Linux, the percentage of things that are reported incorrect to me is
-> higher than 80%, so I need to use my own extertise. If I would not, cdrecord
-> would be unusable.
+>From: Jens Axboe <axboe@suse.de>
 
-If things are that bad, why don't you just take the easy path and let _others_
-implement the linux-glue to your app ? All you have to do is to specify an
-interface which is completely at your will.
-Then, if something does not work out, it's not your problem. You can then
-always draw the Solaris card and say "look, it works under solaris. So you (the
-glue-author) must have made some mistake."
+>On Mon, Aug 09 2004, Alan Cox wrote:
+>> On Llu, 2004-08-09 at 13:24, Joerg Schilling wrote:
+>> > On Linux, it is impossible to run cdrecord without root privilleges.
+>> > Make cdrecord suid root, it has been audited....
+>> 
+>> Wrong. Although in part that is a bug in the kernel urgently needing
+>> a fix.
 
-Regards,
-Stephan
+>Even with that fixing, write privileges on the device would be enough.
+>So root would still not be required.
+
+Please try again after you had a look into the cdrtools sources.
+
+Cdrecord also needs privilleges to lock memory and to raise prioirity.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

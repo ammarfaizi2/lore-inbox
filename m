@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287371AbRL3KBO>; Sun, 30 Dec 2001 05:01:14 -0500
+	id <S287376AbRL3KGf>; Sun, 30 Dec 2001 05:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287367AbRL3KBE>; Sun, 30 Dec 2001 05:01:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41222 "EHLO
+	id <S287370AbRL3KGZ>; Sun, 30 Dec 2001 05:06:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44294 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287371AbRL3KAq>; Sun, 30 Dec 2001 05:00:46 -0500
-Subject: Re: The direction linux is taking
-To: lm@bitmover.com (Larry McVoy)
-Date: Sun, 30 Dec 2001 10:07:36 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), lm@bitmover.com (Larry McVoy),
-        bcrl@redhat.com (Benjamin LaHaise),
-        oxymoron@waste.org (Oliver Xymoron),
-        wingel@hog.ctrl-c.liu.se (Christer Weinigel),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011229184921.B27114@work.bitmover.com> from "Larry McVoy" at Dec 29, 2001 06:49:21 PM
+	id <S287372AbRL3KGP>; Sun, 30 Dec 2001 05:06:15 -0500
+Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd
+To: viro@math.psu.edu (Alexander Viro)
+Date: Sun, 30 Dec 2001 10:15:12 +0000 (GMT)
+Cc: akpm@zip.com.au (Andrew Morton), andrea@suse.de (Andrea Arcangeli),
+        torvalds@transmeta.com (Linus Torvalds), torrey.hoffman@myrio.com,
+        linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        sct@redhat.com (Stephen C. Tweedie)
+In-Reply-To: <Pine.GSO.4.21.0112300153520.8523-100000@weyl.math.psu.edu> from "Alexander Viro" at Dec 30, 2001 02:17:56 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16KcsS-0000hb-00@the-village.bc.nu>
+Message-Id: <E16Kczo-0000iw-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the human doing the merging.  So far, it seems more like nobody is 
-> doing any merging, Dave says someone does but nobody else has spoken
+> Now, the fs consistency stuff is a different story.  Fixes had been
+> in -ac since before 2.4.0 and I distinctly remember at least one of
+> 3 area getting synced with -linus.  My fault - I assumed that the
+> whole patch went there at that point.  I'll try to dig the rest out.
 
-Lots of people do. I get all my wireless, my isdn, my usb
-patches all nicely prepacked and merged for example.
+I didnt feed Marcelo the final truncate stuff nor the file write fixes, it
+was getting too close to 2.4.17 and they are not completely risk free
+sort of changes.
 
-> up and I tend to think that merging is not a common process in the
-> Linux tree, the rate of change sort of indicates that.  I suspect 
-
-The primary limit on the rate of change is the rate at which Linus merges
-stuff, nothing else.
-
-> is happening in the Linux/PPC development nor the MySQL development.
-> They have merge conflicts all the time and we have years of data to prove
-
-For the ppc folks I guess because they are keeping a parallel tree. Thats a 
-totally different animal because you collide continually with things you've
-submitted and changes in the core tree.
-
-Alan

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVBMNUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBMNbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVBMNUT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 08:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVBMNUT
+	id S261171AbVBMNbN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 08:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVBMNbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 08:20:19 -0500
-Received: from amsfep18-int.chello.nl ([213.46.243.20]:33047 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261274AbVBMNUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 08:20:14 -0500
-Subject: Re: Oops with oprofile + RT preempt 2.6.11-rc2-RT-V0.7.37-01
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050213131634.GA13162@elte.hu>
-References: <1108274835.3739.2.camel@krustophenia.net>
-	 <1108300516.7818.68.camel@twins>  <20050213131634.GA13162@elte.hu>
-Content-Type: text/plain
-Date: Sun, 13 Feb 2005 14:20:12 +0100
-Message-Id: <1108300812.7818.70.camel@twins>
+	Sun, 13 Feb 2005 08:31:13 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26799 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261171AbVBMNbL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 08:31:11 -0500
+Date: Sun, 13 Feb 2005 14:28:33 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.11-rc4
+Message-ID: <20050213132833.GA28883@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.4.58.0502121928590.19649@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0502121928590.19649@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-13 at 14:16 +0100, Ingo Molnar wrote:
-> * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> 
-> > PS. Ingo: Any plans to move the RT tree to -mm again (would save me
-> > time patching; does keep me practised though)?
-> 
-> not at the moment - but you might want to make your port available to
-> others?
+Linus Torvalds <torvalds@osdl.org> :
+[...]
+> this is hopefully the last -rc kernel before the real 2.6.11, so please 
+> give it a whirl, and complain loudly about anything broken.
 
-Sure, I'll post the diff next time I do one.
+- dscc4 (patch in Jeff's -netdev)
+  Apart the fact that the driver crashes on module insertion and is
+  unusable, users do not complain so this is a minor annoyance from
+  a maintainer's pov :o)
+ 
+- r8169 (patches available on netdev, sent to Jeff and Andrew)
+  rtl8169_open() after rtl8169_close() sucks.
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
-
+--
+Ueimor

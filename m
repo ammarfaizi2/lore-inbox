@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129412AbQKNTqD>; Tue, 14 Nov 2000 14:46:03 -0500
+	id <S129047AbQKNTqX>; Tue, 14 Nov 2000 14:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129047AbQKNTpx>; Tue, 14 Nov 2000 14:45:53 -0500
-Received: from cr226477-a.surrey1.bc.wave.home.com ([24.115.213.208]:16906
-	"EHLO vancouver.yi.org") by vger.kernel.org with ESMTP
-	id <S129412AbQKNTpr>; Tue, 14 Nov 2000 14:45:47 -0500
-Date: Tue, 14 Nov 2000 11:15:10 -0800 (PST)
-From: <spam@vancouver.yi.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-In-Reply-To: <Pine.LNX.3.95.1001114112055.23624A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0011141113180.8463-100000@vancouver.yi.org>
+	id <S129551AbQKNTqD>; Tue, 14 Nov 2000 14:46:03 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:10758 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129079AbQKNTp7>; Tue, 14 Nov 2000 14:45:59 -0500
+Message-ID: <3A118E7F.462BAC34@timpanogas.org>
+Date: Tue, 14 Nov 2000 12:11:59 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: NetWare Changing IP Port 524
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Richard B. Johnson wrote:
 
-> On Tue, 14 Nov 2000, Michael Rothwell wrote:
-> 
-> > One historically significant "Enterprise" OS is Multics. It had nine
-> > major goals. Perhaps we should think about how Linux measures up to
-> > these 1965 goals for "Enterprise Computing."
-> >
-> 2
-> Multics???  No way. It was abandoned as unusable and part of the
-> kernel code, basically the boot loader, was modified to become
-> part of Unix.
-> 
-> You have way too many persons on this list who know the history of
-> Unix to try this BS.
 
-Perhaps this is a call for forking off linux into other project, It is not
-unreasonable, if goals of one do not match with the other. =)
-However the guy said that goals are applicable to linux, he did not say
-rewrite linux to be multics...
-Pavel.
 
+Petr/Linux,
+
+If you are relying on port 524 to get SAP information for NCPFS over
+TCPIP, you may want to track this since it appears Novell will be
+patching this port to close a security flaw.  I 
+added the tracking URL so you can review what changes they are
+proposing.  I think what they
+are proposing as an immediate patch may break NCPFS -- you will need to
+check.
+
+:-)
+
+Jeff 
+
+Novell NetWare discloses system information
+
+Novell's NetWare operating system contains a flaw that allows 
+system information to be leaked via TCP port 524 in pure IP 
+configurations. When NetWare is used in a mix Microsoft 
+environment, the Novell operating system leaks data via Service 
+Advertising Protocol (SAP). Other third-party applications 
+compound the problem as well. A hacker can use the data to gain 
+knowledge on the inner workings of the affected system. It is 
+recommended that port 524 be blocked to prevent any leaks. For 
+more information on SAP:
+http://support.novell.com/cgi-bin/search/search.pl?database_name=kb&type=HTM
+L&docid=%03%21F221133%3a973867389%3a%20%28%2010050864%20%29%20%20%07%01%00&b
+yte_count=71624
+
+
+**********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

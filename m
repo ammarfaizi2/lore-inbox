@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136799AbREISHj>; Wed, 9 May 2001 14:07:39 -0400
+	id <S136802AbREISJJ>; Wed, 9 May 2001 14:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136801AbREISH3>; Wed, 9 May 2001 14:07:29 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:42804 "EHLO
-	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
-	id <S136799AbREISHX>; Wed, 9 May 2001 14:07:23 -0400
-Message-ID: <3AF98697.44437FEB@mvista.com>
-Date: Wed, 09 May 2001 11:04:07 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S136803AbREISI7>; Wed, 9 May 2001 14:08:59 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:4264 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S136801AbREISIa>; Wed, 9 May 2001 14:08:30 -0400
+Subject: Re: Announcing Journaled File System (JFS)  release 0.3.1 available
+To: Christoph Hellwig <hch@caldera.de>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF1E6EA372.3C309891-ON85256A47.00629678@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Wed, 9 May 2001 13:08:14 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 05/09/2001 02:08:21 PM
 MIME-Version: 1.0
-To: Eli Carter <eli.carter@inet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: standard queue implementation?
-In-Reply-To: <3AF96062.19528A86@inet.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter wrote:
-> 
-> All,
-> 
-> I did a quick look in include/linux for a standard implementation of an
-> array-based circular queue, but I didn't see one.
-> 
-> I was thinking something that could be declared, allocated, and then
-> used with an addq and a removeq.  A deallocator would also be good.
-> 
-> Is there such a beast in the kernel?  If not, it seems that having
-> something like this would reduce the potential for bugs.
-> 
-> Thoughts?
-> 
-Are you possibly looking for include/linux/list.h ?
+On Wed, May 09, 2001 at 12:50:15PM -0500, Christoph Hellwig wrote:
+>>On Wed, May 09, 2001 at 12:40:25PM -0500, Steve Best wrote:
+>> Release 0.3.1 of JFS was made available today.
+>>
+>> Drop 31 on May 9, 2001 (jfs-0.3.1.tar.gz) includes fixes to the
+>> file system and utilities.
+>>
+>> For more details about the problems fixed, please see the README.
 
-Routines to build and manager doubly linked circular lists.
+> would it be possible to include the latest part of the ChangeLog (e.g.
+> 0.3.0 -> 0.3.1) in the mail to allow people to get a quick overview on
+> what changed when reading the mail?
 
-George
+Christoph,
+
+Here is description of the changes from 0.3.0 -> 0.3.1
+
+Function and Fixes in Utilities
+- completed endian macros support needed for xpeek
+- added socket support for fsck
+- minor bug fixes
+
+Function and Fixes in File System
+- Removed max hard links check (showed up during cp -a /usr /jfs/usr)
+- Fixed inode writing hang could have showed up running (dbench, iozone,
+  etc), the change was to prevent a deadlock during inode writing.
+
+Steve
+

@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264539AbTDPPdh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 11:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTDPPdh
+	id S264462AbTDPPri (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 11:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTDPPri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 11:33:37 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.26]:63957 "EHLO
-	mwinf0504.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S264539AbTDPPdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 11:33:17 -0400
-Date: Wed, 16 Apr 2003 17:45:04 +0200
-Subject: PATCH: usb-ohci: interrupt out with urb->interval 0 
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v551)
-Cc: linux-kernel@vger.kernel.org
-To: weissg@vienna.at
-From: Frode Isaksen <fisaksen@bewan.com>
-Content-Transfer-Encoding: 7bit
-Message-Id: <6451EBA9-7022-11D7-8F05-003065EF6010@bewan.com>
-X-Mailer: Apple Mail (2.551)
+	Wed, 16 Apr 2003 11:47:38 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:54027 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S264462AbTDPPrg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 11:47:36 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: How to identify contents of /lib/modules/*
+Date: Wed, 16 Apr 2003 10:58:48 -0500
+Message-ID: <45B36A38D959B44CB032DA427A6E1064045133AB@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: How to identify contents of /lib/modules/*
+Thread-Index: AcMEK6SoQGVl9lqlQcSu8ZdCOEaXDgAAWdcQ
+From: "Cameron, Steve" <Steve.Cameron@hp.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Apr 2003 15:59:25.0071 (UTC) FILETIME=[26FFC1F0:01C30431]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the usb-ohci driver, the interrupt out transfer is always 
-rescheduled, even if the urb->interval is set to 0 to signal a one-shot 
-transfer.
-The other usb drivers (usb-uhci,uhci) allows one-shot interrupt out 
-transfers.
-Tested with kernel 2.4.21 and previous kernels.
+Alan Cox wrote:
 
-Thanks,
-Frode
+> On Mer, 2003-04-16 at 03:00, Stephen Cameron wrote:
+> > The task for the binary driver distributor becomes to figure out which
+> > of these multiple errata kernels found in /boot corresponds to the 
+> > /lib/modules directory, so we can drop the binary driver that was
+> > made for that errata kernel in there, and not a driver made for the
+> > wrong kernel.
+> 
+> if its an rpm based distro
+> 
+> 	rpm -qf /lib/modules/[version]/something
+> 
+> will tell you which kernel owns the file.
+[...]
 
---- drivers/usb/usb-ohci.c.orig	2003-04-16 15:42:46.000000000 +0200
-+++ drivers/usb/usb-ohci.c	2003-04-16 15:45:41.000000000 +0200
-@@ -490,12 +490,17 @@
-  				usb_pipeout (urb->pipe)
-  					? PCI_DMA_TODEVICE
-  					: PCI_DMA_FROMDEVICE);
--			urb->complete (urb);
-+			if (urb->interval) {
-+				urb->complete (urb);
+Yep. I thought of that too, which is why I had also written:
 
--			/* implicitly requeued */
--  			urb->actual_length = 0;
--			urb->status = -EINPROGRESS;
--			td_submit_urb (urb);
-+				/* implicitly requeued */
-+				urb->actual_length = 0;
-+				urb->status = -EINPROGRESS;
-+				td_submit_urb (urb);
-+			} else {
-+				urb_rm_priv(urb);
-+				urb->complete (urb);
-+			}
-    			break;
-    			
-  		case PIPE_ISOCHRONOUS:
+steve> Also, rpm -qf to try to id the RPM from which some /lib/modules file
+steve> or vmlinuz won't necessarily work, as rpm can report they belong to 
+steve> multiple RPMs in certain cases.
+
+I think it's the use of "--force" option to RPM that causes this,
+or else, faulty RPMs.  It's not so easy to make a well-behaved
+RPM.  Having tried myself, sometimes I think maybe RPM 
+really stands for "Revolting Pile of Manure". (no offense ;-) Of 
+course I'm probably trying to bend it do a job for which perhaps 
+it is not so well suited.
+
+-- steve
 

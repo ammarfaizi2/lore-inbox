@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270391AbTG1STt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 14:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270426AbTG1STt
+	id S270386AbTG1SSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 14:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270391AbTG1SSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 14:19:49 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:22407 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270391AbTG1STs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 14:19:48 -0400
-Date: Mon, 28 Jul 2003 20:34:43 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2: cursor started to disappear
-Message-ID: <20030728183443.GC572@elf.ucw.cz>
-References: <20030728181408.GA499@elf.ucw.cz> <20030728182757.GA1793@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728182757.GA1793@win.tue.nl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Mon, 28 Jul 2003 14:18:11 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:11230 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S270386AbTG1SSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 14:18:04 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: DMA not supported with Intel ICH4 I/O controller?
+Date: Mon, 28 Jul 2003 14:44:46 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGCEIHCDAA.kfrazier@mdc-dayton.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I just read on an Intel site
+(http://64.143.3.64/downloads/drivers/845/perform/linux/udma.htmthat) "ICH4
+requires kernel 2.5.12 or later to enable any DMA mode".  Can you guys
+support or refute this?  No wonder I'm having problems with my DMA device on
+the ASUS P4PE (using Intel 845PE and ICH4 chipsets)!  Are there any patches,
+by chance, against a 2.4.20-8 that will give our system DMA support?  Or
+maybe a patch for 2.4.21?  kernel.org shows that the latest (albeit beta)
+kernel is 2.6.0-test2 . . . I hestiate to use that, because we would like
+something more stable to ship with our product.
 
-> > Plus I'm seeing some silent data corruption. It may be
-> > swsusp or loop related
-> 
-> Loop is not stable at all. Unsuitable for daily use.
+Thanks,
 
-Ouch... I have my most important filesystem on loop. Time to go back
-to 2.4.X? Or do you have some patches you want me to try?
+Kathy Frazier
+Senior Software Engineer
+Max Daetwyler Corporation-Dayton Division
+2133 Lyons Road
+Miamisburg, OH 45342
+Tel #: 937.439-1582 ext 6158
+Fax #: 937.439-1592
+Email: kfrazier@daetwyler.com
+http://www.daetwyler.com
 
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+

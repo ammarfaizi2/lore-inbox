@@ -1,93 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312855AbSDPTLC>; Tue, 16 Apr 2002 15:11:02 -0400
+	id <S312983AbSDPTOY>; Tue, 16 Apr 2002 15:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312983AbSDPTLB>; Tue, 16 Apr 2002 15:11:01 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:38094 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S312855AbSDPTLA>;
-	Tue, 16 Apr 2002 15:11:00 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 16 Apr 2002 21:10:59 +0200 (MEST)
-Message-Id: <UTC200204161910.g3GJAx009370.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, akpm@zip.com.au
-Subject: Re: readahead
-Cc: linux-kernel@vger.kernel.org
+	id <S313827AbSDPTOX>; Tue, 16 Apr 2002 15:14:23 -0400
+Received: from mailg.telia.com ([194.22.194.26]:35838 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S312983AbSDPTOW>;
+	Tue, 16 Apr 2002 15:14:22 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Moritz Franosch <jfranosc@physik.tu-muenchen.de>
+Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
+Date: Tue, 16 Apr 2002 21:14:09 +0200
+X-Mailer: KMail [version 1.4.5]
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <rxxadshj1rh.fsf@synapse.t30.physik.tu-muenchen.de> <20020416165358.E29747@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200204162114.09589.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Andrew Morton <akpm@zip.com.au>
+On Tuesday 16 April 2002 16.53, Andrea Arcangeli wrote:
+> The reason hd is faster is because new algorithm is much better than the
+> previous mainline code. Now the reason the DVDRAM hangs the machine
+> more, that's probably because more ram can be marked dirty with those
+> new changes (beneficial for some workload, but it stalls much more the
+> fast hd, if there's one very slow blkdev in the system). You can try
+> decrasing the percent of vm dirty in the system with:
+>
+>
+>         echo 2 500 0 0 500 3000 3 1 0 >/proc/sys/vm/bdflush
+>
+>
+> hope this helps,
+>
+>
+> Right fix is different but not suitable for 2.4.
+>
+>
+> Andrea
 
-    > In the good old days we had tunable readahead.
-    > Very good, especially for special purposes.
+In an other recent thread "PROMBLEM: CD burning at 16x uses excessive CPU, 
+although DMA is enabled" it was found out that writing to CD-R did not use 
+DMA. This resulted in lots of wasted CPU cycles.
 
-    readahead is tunable, but the window size is stored
-    at the request queue layer.  If it has never been
-    set, or if the device doesn't have a request queue,
-    you get the defaults.
+>From a main by Anssi Saari
+> cdrdao simulate -n --speed 8 foo.cue  2.62s user 3.37s system 1% cpu 6:41
+> cdrdao simulate -n --speed 12 foo.cue  2.78s user 29.91s system 12% cpu 4:31
+> cdrdao simulate -n --speed 16 foo.cue  2.67s user 128.8s system 52% cpu 4:11
 
-    Do these cards not have a request queue?
+> But even though 50% is quite high, CPU load is not the problem as such,
+> the problem is getting data to the writer fast enough. And it's not
+> happening. Even a single audio track that is completely cached so that
+> there is no HD access has problems. It's like somehow accessing the CD
+> writer hogs the system for such long periods that there is insufficient
+> time to fill the writing program's buffer.
 
-The kernel views them as SCSI disks.
-So yes, I can do
+Might this be part of the problem in this case too? Moritz please time your 
+commands and use vmstat too... (time spent in interrupt while running the
+idle process - does not always show up)
 
-   blockdev --setra 0 /dev/sdc
 
-Unfortunately that does not help in the least.
-Indeed, the only user of the readahead info is
-readahead.c: get_max_readahead() and it does
+/RogerL
 
-        blk_ra_kbytes = blk_get_readahead(inode->i_dev) / 2;
-        if (blk_ra_kbytes < VM_MIN_READAHEAD)
-                blk_ra_kbytes = VM_MAX_READAHEAD;
+-- 
+Roger Larsson
+Skellefteå
+Sweden
 
-We need to distinguish between undefined, and explicily zero.
-Also, overriding the value explicitly given by the user
-is a bad idea.
-     
-    > I recall the days where I tried to get something off
-    > a bad SCSI disk, and the kernel would die in the retries
-    > trying to read a bad block, while the data I needed was
-    > not in the block but just before. Set readahead to zero
-    > and all was fine.
 
-    Yes, but things should be OK as-is.  If the readahead attempt
-    gets an I/O error, do_generic_file_read will notice the non-uptodate
-    page and will issue a single-page read.  So everything up to
-    a page's distance from the bad block should be recoverable.
-    That's the theory; can't say that I've tested it.
-
-It is really important to be able to tell the kernel to read and
-write only the blocks it has been asked to read and write and
-not to touch anything else.
-
-In my SCSI example you go easily past "an I/O error", but what
-this driver would do is retry a few times, reset the device,
-retry again, reset the scsi bus, and then the kernel would crash
-or hang forever. Maybe things are better today, but one does
-not want to depend on complicated subsystems recovering
-from their errors. There must just not be any errors.
-
-In my situation yesterday night entirely different things play a role.
-This card has a mapping from logical to physical blocks, but a
-logical block only has a corresponding physical block when it has
-been written at least once. So readahead will ask for blocks that
-do not exist yet. (The driver that I put on ftp now recognizes this
-situation and returns an all zero block, instead of an error.)
-
-There are other situations where reading something has side effects.
-A very common side effect is time delay.
-
-So, for some devices I want to be able to kill read-ahead, even
-before the kernel looks at the partition table.
-Fortunately, I think that 2.5 will include the code that moves
-partition table reading code out of the kernel, so this is
-really possible.
-
-    If the driver is actually dying over the bad block, well, foo.
-
-    Yup.  Permitting a window size of zero is on my todo list,
-    but it would require that the device have a request queue.
-
-It has.
-
-Andries

@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267400AbUJIVCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267421AbUJIVIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267400AbUJIVCU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 17:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUJIVCU
+	id S267421AbUJIVIE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 17:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUJIVIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 17:02:20 -0400
-Received: from main.gmane.org ([80.91.229.2]:13282 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267400AbUJIVAM (ORCPT
+	Sat, 9 Oct 2004 17:08:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26244 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267421AbUJIVH7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 17:00:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Subject: Re: [Patch 1/5] xbox: add 'CONFIG_X86_XBOX' to kernel configuration
-Date: Sat, 09 Oct 2004 22:59:53 +0200
-Message-ID: <yw1xmzyva9py.fsf@mru.ath.cx>
-References: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210> <200410091315.10988.lkml@lpbproductions.com>
- <41684BC1.5000500@ppp0.net> <200410091348.09537.lkml@lpbproductions.com>
+	Sat, 9 Oct 2004 17:07:59 -0400
+Date: Sat, 9 Oct 2004 14:05:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: joshk@triplehelix.org, linux-kernel@vger.kernel.org
+Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
+Message-Id: <20041009140551.58fce532.akpm@osdl.org>
+In-Reply-To: <20041009101552.GA3727@stusta.de>
+References: <20041005063324.GA7445@darjeeling.triplehelix.org>
+	<20041009101552.GA3727@stusta.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 197.80-202-92.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:TRLaTn9pttRrDDtCXGIonrwAxNs=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Heler <lkml@lpbproductions.com> writes:
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Mon, Oct 04, 2004 at 11:33:24PM -0700, Joshua Kwan wrote:
+> 
+>  > Hello,
+>  > 
+>  > It seems that make (possibly among other things) has been affected by
+>  > some change in 2.6.9-rcX that prevents it from resuming some jobs.
+>  > 
+>  > I created this Makefile as a testcase:
+>  > 
+>  > all:
+>  > 	sleep 5
+>  > 	echo Hi
+>  > 	sleep 5
+>  > 
+>  > The result:
+>  > 
+>  > darjeeling:~{0}% make
+>  > sleep 5
+>  > 
+>  > zsh: suspended  make
+>  > darjeeling:~{1}% bg
+>  > [1]  + continued  make
+>  > make: *** wait: No child processes.  Stop.
+>  > make: *** Waiting for unfinished jobs....
+>  > darjeeling:~{1}% echo Hi
+>  > Hi
+>  > make: *** Waiting for unfinished jobs....
+>  > sleep 5
+>  > make: *** Waiting for unfinished jobs....
+>  > 
+>  > [1]  + exit 2     make
+>  > 
+>  > This happens with bash also. I'm pretty sure it didn't use to happen
+>  > with older kernels. Any ideas?
+> 
+> 
+>  I'm also observing this problem.
 
-> If it does go into mainline. What's to stop the inclusion of other gaming 
-> platforms into the kernel . Say for instance Playstation or Gamecube or some 
-> other variant. 
+Neither I not Roland could reproduce this.
 
-What would be the problem if that happened?
+>  It doesn't depend on which version I'm compiling, it depends on which 
+>  kernel I'm actually running.
+> 
+>  (2.6.9-rc1 is OK, 2.6.8-rc3-mm3 is not OK.)
 
--- 
-Måns Rullgård
-mru@mru.ath.cx
+What about current -linus?
+
+Is there any way in which you can do a bit of bisecting, identify the
+offending patch?
 

@@ -1,67 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277074AbRJHTK6>; Mon, 8 Oct 2001 15:10:58 -0400
+	id <S277073AbRJHTJI>; Mon, 8 Oct 2001 15:09:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277085AbRJHTKs>; Mon, 8 Oct 2001 15:10:48 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:35083 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277074AbRJHTKl>; Mon, 8 Oct 2001 15:10:41 -0400
-Date: Mon, 8 Oct 2001 15:48:49 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
-In-Reply-To: <1814766007.1002542145@mbligh.des.sequent.com>
-Message-ID: <Pine.LNX.4.21.0110081548020.4899-100000@freak.distro.conectiva>
+	id <S277074AbRJHTI7>; Mon, 8 Oct 2001 15:08:59 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:4852 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S277073AbRJHTIs>; Mon, 8 Oct 2001 15:08:48 -0400
+Message-ID: <3BC1F7D6.E84D617B@mvista.com>
+Date: Mon, 08 Oct 2001 12:00:38 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Georg Nikodym <georgn@somanetworks.com>
+CC: Pantelis Antoniou <panto@intracom.gr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Standard way of generating assembler offsets
+In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au>
+		<3BC1735F.41CBF5C1@intracom.gr>  <3BC1E294.1A4FB12D@mvista.com> <1002563771.21079.3.camel@keller>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Georg Nikodym wrote:
+> 
+> At the risk of sticking my foot in it, is there something wrong with the
+> ANSI C offsetof() macro, defined in <stddef.h>?
+> 
+> --Georg
+No, and it could have been (and was) written prio to ANSI C defining
+it.  Something like:
 
+#define offsetof(x, instruct) &((struct instruct *)0)->x
 
-On Mon, 8 Oct 2001, Martin J. Bligh wrote:
+The issues that CPP resolves have to deal with the following sort of
+structure:
 
-> >> The worst possible case I can conceive (in the future architectures 
-> >> that I know of)  is 4 different levels. I don't think the number of access
-> >> speed levels is ever related to the number of processors ?
-> >> (users of other NUMA architectures feel free to slap me at this point).
-> > 
-> > So you're saying that at most any given node is 4 hops away from any
-> > other for your arch?
-> 
-> For the current architecture (well, for NUMA-Q) it's 0 or 1. For future
-> architectures, there will be more (forgive me for deliberately not being 
-> specific ... I'd have to ask for more blessing first). Up to about 4. Ish.
-> 
-> Depending on how much extra latency each hop introduces, it may well
-> not be worth adding the complexity of differentiating beyond local vs
-> remote? At least at first ...
-> 
-> Do you know how many hops SGI can get, and how much extra latency 
-> you introduce? I know we're something like 10:1 ratio at the moment 
-> between local and remote. 
-> 
-> I guess my main point was that the number of levels was more like constant 
-> than linear. Maybe for large interconnected switched systems with small 
-> switches, it's n log n, but in practice I think log n is small enough to be 
-> considered constant (the number of levels of switches).
-> 
-> >> So I *think* the worst possible case is still linear (to number of nodes) 
-> >> in terms of how many classzone type things we'd need? And the number 
-> >> of classzone type things any given access would have to search through 
-> >> for an access is constant? The number of zones searched would be
-> >> (worst case) linear to number of nodes?
-> > 
-> > That's how we have our stuff coded at the moment, but with classzones you
-> > might be able to get that down even further.  For instance, you could have
-> > classzones that correspond to the number of hops a set of nodes is from a
-> > given node. Having such classzones might make finding nearby memory easier.
-> 
-> That's what I was planning on ... we'd need m x n classzones, where m
-> was the number of levels, and n the number of nodes. Each search would
-> obviously be through m classzones. I'll go poke at the current code some more.
+struct instruct {
+	struct foo * bar;
+#ifdef CONFIG_OPTION_DIDDLE
+	int diddle_flag;
+	int diddle_array[CONFIG_DIDDLE_SIZE];
+#endif
+	int x;
+}
 
-You say "numbers of levels" as in each level being a given number of nodes
-on that "level" distance ? 
+Or for the simple need for a constant:
 
+#define Const (CONFIG_DIDDLE_SIZE * sizeof(int))
+
+Of course you could have any number of constant operators in the
+expression.  Note also, that the array in the structure above is defined
+by a CONFIG symbol.  This could also involve math, i.e.:
+
+#define CONFIG_DIDDLE_SIZE CLOCK_RATE / HZ
+
+and so on.  All in all, it best to let CPP do what it does best and
+scarf up the result:
+
+#define GENERATE_CONSTANT(name,c) printf(#name " equ %d\n",c)
+
+then:
+
+GENERATE_CONSTANT(diddle_size,CONFIG_DIDDLE_SIZE);
+
+In the code we did, we put all the GENERATE macros in a .h file.  The
+the code looked like:
+
+#include.... all the headers needed....
+
+#include <generate.h>
+
+GENERATE....  all the generate macro calls...
+
+} // all done (assumes that the "main(){" is in the generate.h file)
+
+This whole mess was included as comments in the asm file.  The make rule
+then used a sed script to extract it, compile and run it to produce a
+new header file which the asm source included outside of the above
+stuff.
+
+George

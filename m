@@ -1,56 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbUBGWyH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 17:54:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUBGWyH
+	id S261188AbUBGW7O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 17:59:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUBGW7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 17:54:07 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:63128 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261152AbUBGWyE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 17:54:04 -0500
-Date: Sat, 7 Feb 2004 20:46:08 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs 199.17 not in 2.4 (was Re:2.4.22 devfs/zlib outstanding
- updates ...)
-In-Reply-To: <Pine.LNX.4.58.0401280110530.949@pervalidus.dyndns.org>
-Message-ID: <Pine.LNX.4.58L.0402072044040.29406@logos.cnet>
-References: <Pine.LNX.4.58.0401280110530.949@pervalidus.dyndns.org>
+	Sat, 7 Feb 2004 17:59:14 -0500
+Received: from may.nosdns.com ([207.44.240.96]:54680 "EHLO may.nosdns.com")
+	by vger.kernel.org with ESMTP id S261188AbUBGW7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 17:59:12 -0500
+Date: Sat, 7 Feb 2004 16:00:43 -0700
+From: Elikster <elik@webspires.com>
+X-Mailer: The Bat! (v2.02.3 CE) Personal
+Reply-To: Elikster <elik@webspires.com>
+Organization: WebSpires Technologies
+X-Priority: 3 (Normal)
+Message-ID: <169747427.20040207160043@webspires.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.2 Compile Failure - Redhat 7.3 Distro
+In-Reply-To: <20040207222148.GA3209@bitwiser.org>
+References: <20040207222148.GA3209@bitwiser.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - may.nosdns.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - webspires.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Folks,
+
+	It seems that the compile of 2.6.2 is sort of hit and miss depending on the configuration among various Redhat 7.3 distros with gcc 2.96 compiler.  The most common miscompile usually shows up when it reaches this point here:
+
+  CC      fs/proc/task_mmu.o
+  CC      fs/proc/inode.o
+  CC      fs/proc/root.o
+  CC      fs/proc/base.o
+  CC      fs/proc/generic.o
+  CC      fs/proc/array.o
+fs/proc/array.c: In function `proc_pid_stat':
+fs/proc/array.c:398: Unrecognizable insn:
+(insn/i 721 1009 1003 (parallel[
+            (set (reg:SI 0 eax)
+                (asm_operands ("") ("=a") 0[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 38))
+            (set (reg:SI 1 edx)
+                (asm_operands ("") ("=d") 1[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 38))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 715 (nil))
+    (nil))
+fs/proc/array.c:398: confused by earlier errors, bailing out
+make[2]: *** [fs/proc/array.o] Error 1
+make[1]: *** [fs/proc] Error 2
+make: *** [fs] Error 2
+root@longmont [/usr/src/linux-2.6.2]#
+
+   Any ideas?  I have 2 Redhat 7.3 compiled with no problem and some compiles with errors.  It seems to be sort of hit and miss since they are all identical as far the distro goes, but with various hardware.
+
+   This error is coming up with this hardware specs as shown:
+
+ root@longmont [/usr/src/linux-2.6.2]# lspci
+00:00.0 Host bridge: Intel Corp. e7500 [Plumas] DRAM Controller (rev 03)
+00:00.1 Class ff00: Intel Corp. e7500 [Plumas] DRAM Controller Error Reporting (rev 03)
+00:02.0 PCI bridge: Intel Corp. e7500 [Plumas] HI_B Virtual PCI Bridge (F0) (rev 03)
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
+00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 42)
+00:1f.0 ISA bridge: Intel Corp. 82801CA ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801CA IDE U100 (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
+01:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
+01:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
+01:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
+01:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
+04:04.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+04:05.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
+
+   Got Dual Xeons 2.4 on it with 3Ware IDE RAID Controller.
 
 
-On Wed, 28 Jan 2004, Frédéric L. W. Meunier wrote:
+-- 
+Best regards,
+ Elikster                            mailto:elik@webspires.com
 
-> Herbert Pötzl wrote on Sat, 12 Jul 2003 00:22:07 +0200
->
-> > just wanted to remind/state that the final? v199.17 devfs
-> > patch and the 1.1.4 zlib update are not in 2.4.22-pre5.
->
-> About the devfs patch.
->
-> Yes, I already reported it a long time ago -
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.2/1655.html
-> and have no idea why it hasn't been merged in 2.4, after all
-> it's supposed to fix some things and there have been no changes
-> since then in the kernel.
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103474534430016&w=2
->
-> Can someone clarify this ? I've been applying this patch since
-> its release and it didn't broke anything.
-
-Oi Frederic,
-
-Richard Gooch used to send me updates a long time ago.
-
-What are the bugs this new releases are fixing?

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269294AbUICRoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269726AbUICRwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269294AbUICRoT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269735AbUICRnO
+	id S269726AbUICRwj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269705AbUICRtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:43:14 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:44490 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S269731AbUICRmK (ORCPT
+	Fri, 3 Sep 2004 13:49:13 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:42125 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269715AbUICRpk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:42:10 -0400
-Message-Id: <200409031741.i83HfASY017164@laptop11.inf.utfsm.cl>
-To: Helge Hafting <helge.hafting@hist.no>
-cc: Oliver Hunt <oliverhunt@gmail.com>, Hans Reiser <reiser@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>, David Masover <ninja@slaphack.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives 
-In-Reply-To: Message from Helge Hafting <helge.hafting@hist.no> 
-   of "Fri, 03 Sep 2004 10:22:55 +0200." <413829DF.8010305@hist.no> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Fri, 03 Sep 2004 13:41:10 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 3 Sep 2004 13:45:40 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Fri, 3 Sep 2004 10:45:14 -0700
+User-Agent: KMail/1.7
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Greg KH <greg@kroah.com>,
+       Matthew Wilcox <willy@debian.org>, Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <20040903014048.60310.qmail@web14922.mail.yahoo.com> <200409031027.46354.jbarnes@engr.sgi.com>
+In-Reply-To: <200409031027.46354.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409031045.14499.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helge.hafting@hist.no> said:
+On Friday, September 3, 2004 10:27 am, Jesse Barnes wrote:
+> On Thursday, September 2, 2004 6:40 pm, Jon Smirl wrote:
+> > This is a repost of the pci-sysfs-rom-22.patch. No one has made any
+> > comments on this version. All previous objections have been addressed.
+> > Any objections to sending it upstream?
+>
+> Hm, the last one I tried worked fine, but this one makes my qla card stop
+> working, but not right way.  The system gets to init and then falls over,
+> maybe when it starts doing writes?  The last version I tried seems to work
+> ok though.  Has something changed in the PCI layer that would affect this?
 
-[...]
+It looks like hald is reading the rom attribute at boot, which either disables 
+decode for the qla mmio registers or otherwise panics.  Bad hald.
 
-> The only new thing needed is the ability for something to be both
-> file and directory at the same time.
-
-Then why have files and directories in the first place?
-
->                                       Some tools will need
-> a update - usually only because they blindly assume that a directory
-> isn't a file too, or that a file can't be a directory too.  Remove the
-> mistaken assumption and things will work because the underlying system
-> calls (chdir or open) _will_ work.
-
-But with some weird restrictions: No moving stuff around between files, no
-linking, some "files" can't be deleted (how would you handle removing the
-principal stream of a file?). Some stuff you'd love to do (is, in fact, the
-reason for this all) just can't be allowed (i.e., J. Random Luser setting
-his own icon for system-wide emacs). So the tools/scripts/users/sysadmins
-will have to be painfully aware that some of the files aren't, and some of
-the directories aren't either. Major pain in the neck to use, if you look
-closer.  Add extra kernel complexity. For little (if any) gain.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Jesse

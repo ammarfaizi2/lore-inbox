@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTENA2E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 20:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbTENA2E
+	id S262318AbTENAa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 20:30:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTENAa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 20:28:04 -0400
-Received: from dsl-213-023-064-103.arcor-ip.net ([213.23.64.103]:30653 "EHLO
-	neon.pearbough.net") by vger.kernel.org with ESMTP id S262139AbTENA2D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 20:28:03 -0400
-Date: Wed, 14 May 2003 02:40:09 +0200
-From: axel@pearbough.net
-To: linux-kernel@vger.kernel.org
-Subject: drivers/scsi/aic7xxx/aic7xxx_osm.c: warning is error
-Message-ID: <20030514004009.GA20914@neon.pearbough.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Tue, 13 May 2003 20:30:29 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:29712 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262318AbTENAa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 20:30:28 -0400
+Date: Tue, 13 May 2003 17:44:25 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: trond.myklebust@fys.uio.no
+Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] htree nfs fix
+Message-Id: <20030513174425.2bc49803.akpm@digeo.com>
+In-Reply-To: <16065.35997.348432.385925@charged.uio.no>
+References: <16065.35997.348432.385925@charged.uio.no>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: pearbough.net
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 May 2003 00:43:10.0516 (UTC) FILETIME=[CB2D5F40:01C319B1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+> If you're unhappy with the state of readdir, then fix the VFS/glibc.
 
-today compiled 2.5.69-bk8 with gcc version 3.3 20030510 and a warning in
-drivers/scsi/aic7xxx/aic7xxx_osm.c resulted in an error because of gcc flag
--Werror.
+What should be done?
 
-  gcc -Wp,-MD,drivers/scsi/aic7xxx/.aic7xxx_osm.o.d -D__KERNEL__ -Iinclude
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=i586
--Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix
-include  -Idrivers/scsi -Werror  -DKBUILD_BASENAME=aic7xxx_osm
--DKBUILD_MODNAME=aic7xxx -c -o drivers/scsi/aic7xxx/aic7xxx_osm.o
-drivers/scsi/aic7xxx/aic7xxx_osm.c
-drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_map_seg':
-drivers/scsi/aic7xxx/aic7xxx_osm.c:767: warning: integer constant is too
-large for "long" type
-make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
-
-
-regards,
-axel siebenwirth

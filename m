@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTKDQad (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 11:30:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKDQad
+	id S262353AbTKDQgA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 11:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTKDQgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 11:30:33 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22998 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262352AbTKDQac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 11:30:32 -0500
-Date: Tue, 4 Nov 2003 17:30:31 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Fix alt- -> console switching
-Message-ID: <20031104163031.GB220@elf.ucw.cz>
+	Tue, 4 Nov 2003 11:36:00 -0500
+Received: from fed1mtao08.cox.net ([68.6.19.123]:61649 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S262353AbTKDQf6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 11:35:58 -0500
+Date: Tue, 4 Nov 2003 09:35:56 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Jamie Wellnitz <Jamie.Wellnitz@emulex.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: virt_to_page/pci_map_page vs. pci_map_single
+Message-ID: <20031104093556.A24704@home.com>
+References: <1067885332.2076.13.camel@mulgrave> <yq0znfcjwh1.fsf@trained-monkey.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <yq0znfcjwh1.fsf@trained-monkey.org>; from jes@trained-monkey.org on Tue, Nov 04, 2003 at 04:48:10AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Nov 04, 2003 at 04:48:10AM -0500, Jes Sorensen wrote:
+> >>>>> "James" == James Bottomley <James.Bottomley@steeleye.com> writes:
+> 
+> James> Erm, I don't think so.  pci_map_single() covers a different use
+> James> case from pci_map_page().
+> 
+> James> The thing pci_map_single() can do that pci_map_page() can't is
+> James> cope with contiguous regions greater than PAGE_SIZE in length
+> James> (which you get either from kmalloc() or __get_free_pages()).
+> James> This feature is used in the SCSI layer for instance.
+> 
+> The question is whether that should be allowed in the first place. Some
+> IOMMU's will have to map it page-by-page anyway. However if it is to
+> remain a valid use then I don't see why pci_map_page() shouldn't be
+> able to handle it under the same conditions by passing it a
+> size > PAGE_SIZE.
 
-Take vesafb, do cat /etc/termcap, while it is printing press alt and
-right arrow twice. Oops, it only goes one console to the right.
+This raises a question for me regarding these rules in 2.4 versus
+2.6.  While fixing a bug in PPC's 2.4 pci_map_page/pci_map_sg
+implementations I noticed that a scatterlist created by the IDE
+subsystem will pass nents by page struct reference with a
+size > PAGE_SIZE.  Is this a 2.4ism resulting from allowing both
+address and page reference scatterlist entries?  This isn't
+explicitly mentioned in the DMA docs AFAICT.  I'm wondering
+if this is the same expected behavior in 2.6 as well.  If
+pci_map_page() is limited to size <= PAGE_SIZE then I would
+expect pci_map_sg() to be limited as well (and vice versa).
 
-Problem is that if console is already being switched and you press
-alt- ->, fg_console is still old one and second alt- -> is basically
-lost. Here's a fix.
-								Pavel
-
-
---- tmp/linux/drivers/char/keyboard.c	2003-11-04 17:13:00.000000000 +0100
-+++ linux/drivers/char/keyboard.c	2003-11-04 17:08:57.000000000 +0100
-@@ -528,8 +528,12 @@
- static void fn_inc_console(struct vc_data *vc, struct pt_regs *regs)
- {
- 	int i;
-+	int cur = fg_console;
- 
--	for (i = fg_console+1; i != fg_console; i++) {
-+	if (want_console != -1)
-+		cur = want_console;
-+
-+	for (i = cur+1; i != cur; i++) {
- 		if (i == MAX_NR_CONSOLES)
- 			i = 0;
- 		if (vc_cons_allocated(i))
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-Matt

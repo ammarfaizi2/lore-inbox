@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316587AbSGQS03>; Wed, 17 Jul 2002 14:26:29 -0400
+	id <S316544AbSGQS03>; Wed, 17 Jul 2002 14:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316544AbSGQSZ3>; Wed, 17 Jul 2002 14:25:29 -0400
-Received: from bgm-24-169-49-60.stny.rr.com ([24.169.49.60]:4602 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S316465AbSGQSYU>; Wed, 17 Jul 2002 14:24:20 -0400
-Date: Wed, 17 Jul 2002 13:31:22 -0400 (EDT)
-From: Steven Rostedt <rostedt@stny.rr.com>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: Steven Rostedt <rostedt@stny.rr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Reserve memory from the command line
-Message-ID: <Pine.LNX.4.44.0207171307380.29293-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316512AbSGQSZZ>; Wed, 17 Jul 2002 14:25:25 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:5884 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S316544AbSGQSY0>; Wed, 17 Jul 2002 14:24:26 -0400
+Date: Wed, 17 Jul 2002 14:27:25 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Anton Altaparmakov <aia21@cantab.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/13] lseek speedup
+Message-ID: <20020717142725.B2645@redhat.com>
+References: <3D3598F0.FBBA9DB6@zip.com.au> <5.1.0.14.2.20020717171311.00b00380@pop.cus.cam.ac.uk> <3D35A024.1635E12E@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D35A024.1635E12E@zip.com.au>; from akpm@zip.com.au on Wed, Jul 17, 2002 at 09:49:40AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jul 17, 2002 at 09:49:40AM -0700, Andrew Morton wrote:
+> But protection of struct file should not be via any per-inode thing.
 
-Today I just discoved that my Toshiba laptop has a small bit of bad 
-memory.  So I went on looking for a way to reserve the memory area from 
-the command line, because I run several kernels for various reasons and 
-that it would be easiest to just modify lilo.conf.
+Why not make use of set_64bit instead of using a spinlock?  It might 
+need a companion get_64bit, but at least on 64 bit machines they could  
+be defined to use a direct load/store.
 
-After seaching the web and scanning the source code I realize that there 
-are only patches to do this and not in the vanilla kernel.  I was 
-wondering why such a usefull feature is not in the kernel?
-
-I'm using kernel versions 2.4.7 to 2.4.18 and didn't want to go patching 
-each one.  I'll probably just hardcode the bad memory as reserved and be 
-done with it.
-
-Is this feature planned on becoming part of the kernel, at least as a 
-config option, and if not, then why not?
-
-If it is already there, and I missed it, please let me know.
-
-Thanks,
-
-Steven Rostedt
-
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

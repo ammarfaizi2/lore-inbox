@@ -1,101 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVCVXbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVCVXca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262392AbVCVXbW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 18:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVCVXbW
+	id S262417AbVCVXca (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 18:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVCVXc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 18:31:22 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63889 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262392AbVCVXbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 18:31:18 -0500
+	Tue, 22 Mar 2005 18:32:29 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:45238
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262417AbVCVXcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 18:32:16 -0500
+Date: Tue, 22 Mar 2005 15:30:33 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: hugh@veritas.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       davem@davemloft.net, tony.luck@intel.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
-	 <20050322034053.311b10e6.akpm@osdl.org>
-	 <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Wed, 23 Mar 2005 10:30:50 +1100
-Message-Id: <1111534250.16224.22.camel@gaston>
+Message-Id: <20050322153033.57a1fea6.davem@davemloft.net>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F03211751@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F03211751@scsmsx401.amr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-22 at 16:37 +0000, Hugh Dickins wrote:
-> On Tue, 22 Mar 2005, Andrew Morton wrote:
-> > 
-> > With these six patches the ppc64 is hitting the BUG in exit_mmap():
-> > 
-> >         BUG_ON(mm->nr_ptes);    /* This is just debugging */
-> > 
-> > fairly early in boot.
-> 
-> So ppc64 is in the same boat as sparc64 (yet ia64 okay so far).
-> 
-> Sorry, I'm still clueless.
-> 
-> I cannot see those arches doing pte_allocs outside their vmas,
-> that of course could cause it.  And nr_ptes is initialized to 0
-> once by memset and again by assignment, so it should be starting
-> out even zeroer than most fields.
+On Tue, 22 Mar 2005 14:40:55 -0800
+"Luck, Tony" <tony.luck@intel.com> wrote:
 
-We do funny things in arch/ppc64/mm/init.c in the ioremap_mm, where we
-don't use VMAs but our own mecanism (yah, ugly, but that's some legacy
-we have from the original port, though I do intend to change that at one
-point).
+> Then I don't see how we decide when to clear a pointer at each
+> level.  Are there counters of how many entries are active in each
+> table at all levels (pgd/pud/pmd/pte)?
 
-> I should probably be paying more attention to the repellent
-> notion that my code is broken.
-> 
-> If you and David could try the lame patch below,
-> it'll at least give us a slight clue of where to be looking -
-> every mm exiting with nr_ptes 1 means something different from
-> every mm exiting with nr_ptes -1 means something different from
-> occasional mms exiting with nr_ptes something positive.
-> 
-> I'm not sure whether the patch would ever get to show a more
-> interesting proc name than "?".
-> 
-> And does memory leak away into lost pagetables if you continue
-> running, or does it actually carry on running fine, and the
-> problem appear to be with the BUG_ON itself?
-> 
-> Thanks,
-> Hugh
-> 
-> --- freepgt6/mm/mmap.c	2005-03-22 04:28:40.000000000 +0000
-> +++ testing/mm/mmap.c	2005-03-22 15:45:00.000000000 +0000
-> @@ -1896,6 +1896,7 @@ EXPORT_SYMBOL(do_brk);
->  /* Release all mmaps. */
->  void exit_mmap(struct mm_struct *mm)
->  {
-> +	static unsigned long good_mms, bad_mms;
->  	struct mmu_gather *tlb;
->  	struct vm_area_struct *vma = mm->mmap;
->  	unsigned long nr_accounted = 0;
-> @@ -1931,7 +1932,14 @@ void exit_mmap(struct mm_struct *mm)
->  		vma = next;
->  	}
->  
-> -	BUG_ON(mm->nr_ptes);	/* This is just debugging */
-> +	if (mm->nr_ptes && bad_mms < 250) {
-> +		printk(KERN_ERR "exit_mmap: %s nr_ptes %ld good_mms %lu\n",
-> +			current->mm == mm? current->comm: "?",
-> +			(long)mm->nr_ptes, good_mms);
-> +		good_mms = 0;
-> +		bad_mms++;
-> +	} else
-> +		good_mms++;
->  }
->  
->  /* Insert vm structure into process list sorted by address
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+No, there are no counters.
+
+How it works is that it knows the extent in each direction
+where mappings do not exist.
+
+Once we know we have a clear span up to the next PMD_SIZE
+modulo (and PUD_SIZE and so on and so forth) we know we
+can liberate the page table chunks covered by such ranges.
+
+Say we are unmapping a page at some address.  The next VMA
+in the address space says where the next potentially valid
+mapping resides.  The previous VMA says similarly.  If this
+is the first or last VMA, we use the beginning or end of
+the virtual address space as our value.
+
+Play around with my little simulator I posted, you'll see how
+it works ;-)  Actually, this is the second such simulator you
+have seen Tony :-)
 

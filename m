@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275816AbRJBFYT>; Tue, 2 Oct 2001 01:24:19 -0400
+	id <S275823AbRJBF1K>; Tue, 2 Oct 2001 01:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275822AbRJBFYK>; Tue, 2 Oct 2001 01:24:10 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:28935 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S275816AbRJBFYC>; Tue, 2 Oct 2001 01:24:02 -0400
-Subject: Re: ext3 0.9.10 for Alan's tree
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3BB946B4.C7479C16@zip.com.au>
-In-Reply-To: <1001989916.2780.61.camel@phantasy> 
-	<3BB946B4.C7479C16@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
-Date: 02 Oct 2001 01:24:31 -0400
-Message-Id: <1002000273.865.13.camel@phantasy>
+	id <S275822AbRJBF07>; Tue, 2 Oct 2001 01:26:59 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:3334 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S275823AbRJBF0s>; Tue, 2 Oct 2001 01:26:48 -0400
+Date: Tue, 2 Oct 2001 15:27:54 +1000
+From: john slee <indigoid@higherplane.net>
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-kernel-announce?
+Message-ID: <20011002152754.A21148@higherplane.net>
+In-Reply-To: <20011001164720Z275269-761+14414@vger.kernel.org> <20011001124811.D25387@mikef-linux.matchmail.com> <01100121011009.09156@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01100121011009.09156@localhost.localdomain>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-02 at 00:46, Andrew Morton wrote:
-> Yes, sorry.  It's turning out to be a lot of work keeping the master
-> ext3 tree in sync with two (rather different) kernels, and running around
-> after all the changes which are happening in (ahem) one of them.
+[ trimmed cc list ]
 
-Don't explain that -- I know :) I think all of us are wanting a
-single-tree development kernel about now...
+On Mon, Oct 01, 2001 at 09:01:10PM -0400, Rob Landley wrote:
+> Now Alan Cox not only does a pretty good job of ac-release logs, but he has a 
+> diary as well (http://www.linux.org.uk/diary).  I'm unaware of being able to 
+> get Alan's release announcements as read-only a mailing list, but I suppose 
+> if somebody suggested the idea to him he might not be too opposed to it.  
+> Good luck getting through his spam-blocker, though.
 
-> We prefer to test a lot before releasing, and the one time I skipped
-> that step was for 2.4.10, and it was the one which is broken. Sigh.
-> 
-> Rob, I've added this patch to the download site for interested parties
-> to use.  http://www.uow.edu.au/~andrewm/linux/ext3/
+with a little procmail magic this can be done automatically from a
+dedicated linux-kernel subscriber mailbox, but beware of loops and it
+would be best to ask alan first ;-D
 
-Great.
-
-> But for a merge with Alan we do have a few more changes backed up,
-> and some more testing must be done.  I'll try to prepare 0.9.11
-> for -ac this week.  I'm inclined to down-tools on Linus kernels
-> for a while, wait for things to settle down there.
-
-I'll be happy to test and do anything else I can.  Thanks for the reply
-and all.
-
-> Thanks!
-
-You are welcome :)
+j.
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

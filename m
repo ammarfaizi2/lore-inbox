@@ -1,35 +1,53 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <169016-27300>; Fri, 5 Feb 1999 07:23:11 -0500
-Received: by vger.rutgers.edu id <161507-27302>; Fri, 5 Feb 1999 07:22:30 -0500
-Received: from viking.informatik.uni-bremen.de ([134.102.204.210]:1042 "EHLO viking.informatik.uni-bremen.de" ident: "steenbo") by vger.rutgers.edu with ESMTP id <168508-27300>; Fri, 5 Feb 1999 07:19:47 -0500
-Date: Fri, 5 Feb 1999 14:38:28 +0100
-Message-Id: <199902051338.OAA00796@viking.informatik.uni-bremen.de>
-From: Hauke <steenbo@viking.informatik.uni-bremen.de>
-To: linux-kernel@vger.rutgers.edu
-Cc: card@Linux.EU.Org
-Subject: ACL-Support for Ext2
+Received: by vger.rutgers.edu via listexpand id <154200-27302>; Mon, 8 Feb 1999 04:28:37 -0500
+Received: by vger.rutgers.edu id <154434-27302>; Mon, 8 Feb 1999 04:28:18 -0500
+Received: from styx.cs.kuleuven.ac.be ([134.58.40.3]:40512 "EHLO styx.cs.kuleuven.ac.be" ident: "TIMEDOUT2") by vger.rutgers.edu with ESMTP id <154144-27302>; Mon, 8 Feb 1999 04:25:47 -0500
+Date: Mon, 8 Feb 1999 10:43:21 +0100 (CET)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@cs.kuleuven.ac.be>
+To: "Robert G. Werner" <rwerner@lx1.microbsys.com>
+Cc: Ben Bridgwater <bennyb@ntplx.net>, kernel-list <linux-kernel@vger.rutgers.edu>
+Subject: Re: Linux Graphics Architecture (format fixed)
+In-Reply-To: <Pine.LNX.3.96.990207125900.16041E-100000@lx1.microbsys.com>
+Message-ID: <Pine.LNX.4.03.9902081041570.29366-100000@mercator.cs.kuleuven.ac.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello!  
+On Sun, 7 Feb 1999, Robert G. Werner wrote:
+> What was the consensus,  Geert?  Knowing what the fbdev people decided might
+> squash out of gamut discussions on lkml.
 
-We fixed some bugs in the ACL support for ext2 from Remy Card found on tsx-11.
+For what it's worth, Fabrice Bellard <bellard@email.enst.fr> wrote:
+| I read the papers of SGI and the related papers about XFree 3d. I
+| understand that implementing an acceleration API in fbdev will clearly
+| hurt the performances and add too much bloat in ther kernel, especially
+| for 3D acceleration. I understand too that if the hardware is well
+| designed, the kernel support for the graphical acceleration can be
+| small, consistent and elegant.
+|
+| So I changed my mind and I admit now that we should concentrate in
+| puting in fbcon/fbdev only things related to text mode and mode
+| switching.
 
-Based on linux-2.1.99-ext2fs-0.6alpha3-wip11.diff we built a newpatch for the
-linux-2.2.0-pre9-kernel. Also we fixed some bugs in aclutils-0.1.tar.gz. At
-last we applied the e2fsprogs-1.12-WIP-acl-support.patch on e2fsprogs-1.14 and
-made a change in pass1.c so that the blocks used for acl´s are checked by
-e2fsck. We built a system with ACL support that seems to work (with some
-restrictions).
+References:
 
-At the moment we are working on our own, but would like to get into contact
-with anyone working on the same.
+  - SGI paper:
 
-You can get our results from
+    http://trant.sgi.com/opengl/docs/Direct/direct.html
+       
+  - XFRee86-3D:
 
-http://aerobee.informatik.uni-bremen.de/acl_eng.html
+    http://www.dpmms.cam.ac.uk/~werdna/XFree86-3D-status.html
 
-Hauke Steenbock
-Matthias Riese
+Greetings,
+
+						Geert
+
+--
+Geert Uytterhoeven                     Geert.Uytterhoeven@cs.kuleuven.ac.be
+Wavelets, Linux/{m68k~Amiga,PPC~CHRP}  http://www.cs.kuleuven.ac.be/~geert/
+Department of Computer Science -- Katholieke Universiteit Leuven -- Belgium
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

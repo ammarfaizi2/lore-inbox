@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265892AbTGIJwd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 05:52:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbTGIJwd
+	id S265912AbTGIJxl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 05:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbTGIJxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 05:52:33 -0400
-Received: from nils.bezeqint.net ([192.115.106.38]:32204 "EHLO
-	nils.bezeqint.net") by vger.kernel.org with ESMTP id S265892AbTGIJwc
+	Wed, 9 Jul 2003 05:53:41 -0400
+Received: from mail44-s.fg.online.no ([148.122.161.44]:56739 "EHLO
+	mail44.fg.online.no") by vger.kernel.org with ESMTP id S265912AbTGIJxj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 05:52:32 -0400
-Date: Wed, 9 Jul 2003 13:07:08 +0300
-From: gigag@bezeqint.net
-Subject: Known problems for 3.5/0.5 virtual space split???
-To: linux-kernel@vger.kernel.org
-X-Mailer: Webmail Mirapoint Direct 3.3.3-GR
+	Wed, 9 Jul 2003 05:53:39 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
+To: "Clayton Weaver" <cgweav@email.com>, linux-kernel@vger.kernel.org
+Subject: Re: PTY DOS vulnerability?
+Date: Wed, 9 Jul 2003 12:08:07 +0200
+User-Agent: KMail/1.5.2
+References: <20030708231157.7322.qmail@email.com>
+In-Reply-To: <20030708231157.7322.qmail@email.com>
 MIME-Version: 1.0
-Message-Id: <a4ba947b.a0a80e9b.81ab200@mas3.bezeqint.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200307091208.08466.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if there are any known problems for applying 
-2.4.21rc8aa1 patch from Andrea?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm trying to boot a Xeon 2.4 box with 4GB of RAM, IDE CD and 
-Adaptec AIC7XXX SCSI devices.
+onsdag 9. juli 2003, 01:11, skrev Clayton Weaver:
+> Seems to me that a pty ulimit and making
+> sure that root can always access an unused
+> pty on demand are separate issues.
+>
+> The ulimit is the same issue that it is for
+> open files, disk quota, aggregate per-user
+> memory utilization, etc, maintaining the
+> "multi-user" aspect of system usability.
+>
+> Making sure that root has the tools to do
+> what is needed in a pty resource exhaustion
+> situation deserves perhaps a different
+> mechanism, like dynamic, on-demand pty device
+> creation for root (which seems to me more
+> robust than a "reserved for root" mechanism,
+> which allows the possibility that root
+> processes have already used up that many
+> ptys when root needs one in an emergency).
 
-I compile the kernel with 1/3 split and it boots OK. When I simply 
-change the split to 3.5/0.5, it gets stuck during the boot not being 
-able to mount root partition.
+But if you're going to do that for root, then why not do it for all users?
+That would avoid the problem altogether, after all...
 
-Any ideas? Any other working kernel/patch configurations for h/w 
-like I have?
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Thanks
-Giga
+iD8DBQE/C+mH9OlFkai3rMARAvlIAKCuBSdCx31kgcMP8hFaEx3qkdWiZwCfUI0A
+YSDkrEFpFnmIkzXUi1E7Tnw=
+=Hmkz
+-----END PGP SIGNATURE-----
+

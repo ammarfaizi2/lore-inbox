@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSGQQUK>; Wed, 17 Jul 2002 12:20:10 -0400
+	id <S315375AbSGQQ1C>; Wed, 17 Jul 2002 12:27:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSGQQUJ>; Wed, 17 Jul 2002 12:20:09 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:28800 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315370AbSGQQUI>;
-	Wed, 17 Jul 2002 12:20:08 -0400
-Date: Wed, 17 Jul 2002 09:19:39 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  July 17, 2002
-In-Reply-To: <Pine.LNX.4.33L2.0207170908060.29653-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0207170916360.2542-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315416AbSGQQ1C>; Wed, 17 Jul 2002 12:27:02 -0400
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:54927 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id <S315375AbSGQQ1B>; Wed, 17 Jul 2002 12:27:01 -0400
+Date: Wed, 17 Jul 2002 12:29:55 -0400
+From: Jason Lunz <lunz@reflexsecurity.com>
+To: zhengchuanbo <zhengcb@netpower.com.cn>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to improve the throughput of linux network
+Message-ID: <20020717162955.GA8858@reflexsecurity.com>
+References: <200207172216104.SM00792@zhengcb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207172216104.SM00792@zhengcb>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Randy.Dunlap wrote:
-
-> On Wed, 17 Jul 2002, Guillaume Boissiere wrote:
+In gmane.linux.kernel, you wrote:
+> i got the patch for NAPI,and patched it on linux2.4.18. it worked. the
+> throughput of 128bytes frame improve from 60% to more than 90%. it
+> seems that it has no influnce to frames bigger than 256.
 > 
-> | New week, new status update...
-> | The details are at http://www.kernelnewbies.org/status/
-> |
-> | With the code freeze date approaching soon, it is obvious that many
-> Oct. 31 is feature freeze date, or so several of us understood.
-
-That is correct. And, for a feature, we only need a header file to be in, 
-right? ;)
-
-> | o Started     Reorder x86 initialization                      (Dave Jones,
-> | Randy Dunlap)
+> but there is still some problem. when i tested the throught of 64bytes
+> frame,some error occured. in the begining it works well. but after
+> several times of try the linux router can not receive any packets at
+> all.(i found that by run ifconfig when the smartbits is testing). for
+> the other frames it worked very well.
 > 
-> Please change this one to Pat Mochel.
+> so what's wrong with my test? is there some problem with the patch?
 
-Please don't. While it would be nice if x86 init were a bit nicer, and 
-things like CPUs were added in a 'hotpluggable' manner, I won't be 
-dedicating time to this. At least not in near future...
+Quite possibly. Are you still using the eepro100 NAPI driver? I doubt
+that it's gotten wide testing.
 
-	-pat
+The patch at http://gtf.org/lunz/linux/net/ comes from here:
+ftp://robur.slu.se/pub/Linux/net-development/NAPI/eepro100/eepro100-napi-020619.tar.gz
 
+The NAPI conversion was done by fxzhang@ict.ac.cn (see the README); you
+may want to ask him about problems you're having.
+
+-- 
+Jason Lunz			Reflex Security
+lunz@reflexsecurity.com		http://www.reflexsecurity.com/

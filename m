@@ -1,39 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317671AbSGJXTP>; Wed, 10 Jul 2002 19:19:15 -0400
+	id <S317673AbSGJXWR>; Wed, 10 Jul 2002 19:22:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317672AbSGJXTO>; Wed, 10 Jul 2002 19:19:14 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45193 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317671AbSGJXTN>;
-	Wed, 10 Jul 2002 19:19:13 -0400
-Date: Wed, 10 Jul 2002 16:21:08 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Compile error (starfire ethernet) on 2.5.25 for crc32_le
-Message-ID: <165080000.1026343268@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S317674AbSGJXWQ>; Wed, 10 Jul 2002 19:22:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39954 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317672AbSGJXWP>; Wed, 10 Jul 2002 19:22:15 -0400
+Subject: Re: [OT] /proc/cpuinfo output from some arch
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Thu, 11 Jul 2002 00:47:18 +0100 (BST)
+Cc: hpa@zytor.com (H. Peter Anvin), pavel@ucw.cz (Pavel Machek),
+       acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <20020711001549.D17806@flint.arm.linux.org.uk> from "Russell King" at Jul 11, 2002 12:15:49 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E17SRB0-00086D-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following compile error if I try to use the starfire
-driver.
+> What about /proc/sys/cpu/<number>/<datapoint> ?
 
-  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o --start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o /home/mbligh/linux-2.5.25/arch/i386/lib/lib.a lib/lib.a /home/mbligh/linux-2.5.25/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
-drivers/built-in.o: In function `set_rx_mode':
-drivers/built-in.o(.text+0x2138c): undefined reference to `crc32_le'
-make: *** [vmlinux] Error 1
-
-starfire.c calls ether_crc_le which is defined in include/linux/crc32.h as
-#define ether_crc_le(length, data) crc32_le(~0, data, length)
-
-crc32_le is defined in lib/crc32.c .... which is only compiled if CONFIG_CRC32
-is set  ... setting this fixes the problem ... shouldn't drivers that need this turn it
-on automatically somehow?
-
-M.
-
+What happens if the cpus are hot plugged and change ID while doing the
+config 8)

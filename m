@@ -1,95 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbUCWM2v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 07:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUCWM2v
+	id S262518AbUCWM2g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 07:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUCWM2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 07:28:51 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:47097 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262525AbUCWM2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 07:28:42 -0500
-Date: Tue, 23 Mar 2004 13:28:34 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: remove-page-list patch in -mm breaks m68k
-In-Reply-To: <pan.2004.03.23.11.15.01.701720@smurf.noris.de>
-Message-ID: <Pine.GSO.4.58.0403231322200.4928@waterleaf.sonytel.be>
-References: <pan.2004.03.23.11.15.01.701720@smurf.noris.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Mar 2004 07:28:36 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24002
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262518AbUCWM2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 07:28:34 -0500
+Date: Tue, 23 Mar 2004 13:29:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: tiwai@suse.de, Robert Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RCU for low latency (experimental)
+Message-ID: <20040323122925.GH22639@dualathlon.random>
+References: <20040323101755.GC3676@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040323101755.GC3676@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Mar 2004, Matthias Urlichs wrote:
-> The patch mentioned in $SUBJECT, which is included in Andrew's mm tree,
-> does this to "struct page":
->
-> diff -Nru a/include/linux/mm.h b/include/linux/mm.h
-> --- a/include/linux/mm.h        Tue Mar 23 11:29:11 2004
-> +++ b/include/linux/mm.h        Tue Mar 23 11:29:11 2004
-> @@ -177,7 +177,6 @@
->         page_flags_t flags;             /* atomic flags, some possibly
->                                            updated asynchronously */
->         atomic_t count;                 /* Usage count, see below. */
-> -       struct list_head list;          /* ->mapping has some page lists. */
->         struct address_space *mapping;  /* The inode (or ...) we belong to. */
->         pgoff_t index;                  /* Our offset within mapping. */
->         struct list_head lru;           /* Pageout list, eg. active_list;
->
-> In principle, anything that makes "struct page" smaller is a good idea.
-> Unfortunately, this change breaks m68k, as arch/m68k/mm/memory.c has,
-> and actually uses,
->
-> #define PD_PTABLE(page) ((ptable_desc *)&(virt_to_page(page)->list))
->
-> Thus, apparently this change
->
-> /* ++andreas: {get,free}_pointer_table rewritten to use unused fields from
->    struct page instead of separately kmalloced struct.  Stolen from
->    arch/sparc/mm/srmmu.c ... */
+On Tue, Mar 23, 2004 at 03:47:55PM +0530, Dipankar Sarma wrote:
+> Here is the RCU patch for low scheduling latency Andrew was talking
+> about in the other thread. I had done some measurements with
 
-Apparently arch/sparc/mm/srmmu.c stopped using this a long time ago...
-
-> needs to be reverted. It seems that a binary search through old kernel
-> archives is in order.
-
-I don't have a copy of the latest mm tree at hand, but in plain 2.6.5-rc2, we
-have several users:
-
-| tux$ find arch -type f | xargs grep 'page.*->list'
-| arch/i386/mm/pageattr.c:                list_add(&kpte_page->list, &df_list);
-| arch/i386/mm/hugetlbpage.c:     list_add(&page->list,
-| arch/i386/mm/hugetlbpage.c:             list_del(&page->list);
-| arch/i386/mm/hugetlbpage.c:     INIT_LIST_HEAD(&page->list);
-| arch/m68k/mm/memory.c:#define PD_PTABLE(page) ((ptable_desc *)&(virt_to_page(page)->list))
-| arch/sparc64/mm/hugetlbpage.c:  list_add(&page->list,
-| arch/sparc64/mm/hugetlbpage.c:          list_del(&page->list);
-| arch/sparc64/mm/hugetlbpage.c:  INIT_LIST_HEAD(&page->list);
-| arch/ia64/mm/hugetlbpage.c:     list_add(&page->list,
-| arch/ia64/mm/hugetlbpage.c:             list_del(&page->list);
-| arch/ia64/mm/hugetlbpage.c:     INIT_LIST_HEAD(&page->list);
-| arch/ppc64/mm/hugetlbpage.c:    list_add(&page->list,
-| arch/ppc64/mm/hugetlbpage.c:            list_del(&page->list);
-| arch/ppc64/mm/hugetlbpage.c:    INIT_LIST_HEAD(&page->list);
-| arch/arm26/machine/small_page.c:                        list_del_init(&page->list);
-| arch/arm26/machine/small_page.c:                        list_add(&page->list, &order->queue);
-| arch/arm26/machine/small_page.c:                        list_add(&page->list, &order->queue);
-| arch/arm26/machine/small_page.c:        list_del_init(&page->list);
-| tux$
-
-Are all of these (except for m68k) converted in the mm tree?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I don't see why you're using an additional kernel thread. I told you one
+way to implement it via softirq taking advantage of the scheduler-friendy
+re-arming tasklets.

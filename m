@@ -1,166 +1,1118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbULIMBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbULIMMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbULIMBu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 07:01:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbULIMBu
+	id S261511AbULIMMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 07:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbULIMMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 07:01:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41739 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261508AbULIMBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 07:01:43 -0500
-Date: Thu, 9 Dec 2004 13:01:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Philip.Blundell@pobox.com, tim@cyberelk.net
-Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] non-PC parport config change
-Message-ID: <20041209120136.GI22324@stusta.de>
+	Thu, 9 Dec 2004 07:12:34 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:1225 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261511AbULIMLZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 07:11:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=PKJbQ+Z/PT1PEk5qqJZ4IEBNLLi7zjGxhYY92yaaY6wkK8spgtA/CERIqN02OqexM41kxiA6IZyYYhd0GgPU9wLgV+5vKmH0yM5mvZczerh+9aV+v3jikJBJza0gfCRcYnswT/IOvzb873jHyhQlfXUwN8iy+TvOPSJoyj53s4Q=
+Message-ID: <aec7e5c3041209041146287034@mail.gmail.com>
+Date: Thu, 9 Dec 2004 13:11:24 +0100
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: lkml@think-future.de, Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Subject: Re: eth1: Error -110 writing Tx descriptor to BAP
+In-Reply-To: <20041209123833.6EE44440E2@service.i-think-future.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041209123833.6EE44440E2@service.i-think-future.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below adds a config option PARPORT_NOT_PC (and removes the 
-PARPORT_OTHER option) and lets all non-PC parallel ports options depend 
-on it.
+Hello,
 
-Advantages:
-- the config structure is IMHO a bit more logical
-- the mega #if in parport.h is gone now
+Maybe updating to something newer than 2.6.8.1 helps. I am not sure
+but it looks like your wlan adapter is some kind of orinoco card. Look
+at the kernel changelogs by googling for "2.6.9 changelog orinoco" or
+"2.6.10 changelog orinoco".
 
-Additionally, it removes the unneeded PARPORT_NEED_GENERIC_OPS #define.
+If any orinoco-specific changes has been made then upgrade to the
+latest kernel and see if the problem still exists!
 
+/ magnus
 
-diffstat output:
- drivers/parport/Kconfig |   28 +++++++++++++---------------
- drivers/usb/Kconfig     |    1 +
- include/linux/parport.h |   12 +++++-------
- 3 files changed, 19 insertions(+), 22 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/include/linux/parport.h.old	2004-12-09 04:50:26.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/parport.h	2004-12-09 12:59:06.000000000 +0100
-@@ -105,8 +105,6 @@
- #include <asm/ptrace.h>
- #include <asm/semaphore.h>
- 
--#define PARPORT_NEED_GENERIC_OPS
--
- /* Define this later. */
- struct parport;
- struct pardevice;
-@@ -520,9 +518,8 @@
- extern int parport_device_proc_unregister(struct pardevice *device);
- 
- /* If PC hardware is the only type supported, we can optimise a bit.  */
--#if (defined(CONFIG_PARPORT_PC) || defined(CONFIG_PARPORT_PC_MODULE)) && !(defined(CONFIG_PARPORT_ARC) || defined(CONFIG_PARPORT_ARC_MODULE)) && !(defined(CONFIG_PARPORT_AMIGA) || defined(CONFIG_PARPORT_AMIGA_MODULE)) && !(defined(CONFIG_PARPORT_MFC3) || defined(CONFIG_PARPORT_MFC3_MODULE)) && !(defined(CONFIG_PARPORT_ATARI) || defined(CONFIG_PARPORT_ATARI_MODULE)) && !(defined(CONFIG_USB_USS720) || defined(CONFIG_USB_USS720_MODULE)) && !(defined(CONFIG_PARPORT_SUNBPP) || defined(CONFIG_PARPORT_SUNBPP_MODULE)) && !defined(CONFIG_PARPORT_OTHER)
-+#if !defined(CONFIG_PARPORT_NOT_PC)
- 
--#undef PARPORT_NEED_GENERIC_OPS
- #include <linux/parport_pc.h>
- #define parport_write_data(p,x)            parport_pc_write_data(p,x)
- #define parport_read_data(p)               parport_pc_read_data(p)
-@@ -534,9 +531,9 @@
- #define parport_disable_irq(p)             parport_pc_disable_irq(p)
- #define parport_data_forward(p)            parport_pc_data_forward(p)
- #define parport_data_reverse(p)            parport_pc_data_reverse(p)
--#endif
- 
--#ifdef PARPORT_NEED_GENERIC_OPS
-+#else  /*  !CONFIG_PARPORT_NOT_PC  */
-+
- /* Generic operations vector through the dispatch table. */
- #define parport_write_data(p,x)            (p)->ops->write_data(p,x)
- #define parport_read_data(p)               (p)->ops->read_data(p)
-@@ -548,7 +545,8 @@
- #define parport_disable_irq(p)             (p)->ops->disable_irq(p)
- #define parport_data_forward(p)            (p)->ops->data_forward(p)
- #define parport_data_reverse(p)            (p)->ops->data_reverse(p)
--#endif
-+
-+#endif /*  !CONFIG_PARPORT_NOT_PC  */
- 
- #endif /* __KERNEL__ */
- #endif /* _PARPORT_H_ */
---- linux-2.6.10-rc2-mm4-full/drivers/parport/Kconfig.old	2004-12-09 04:45:30.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/parport/Kconfig	2004-12-09 04:49:21.000000000 +0100
-@@ -88,13 +88,21 @@
- 	  Say Y here if you need PCMCIA support for your PC-style parallel
- 	  ports. If unsure, say N.
- 
-+config PARPORT_NOT_PC
-+	bool "Support non-PC-style parallel ports"
-+	depends on PARPORT
-+	help
-+	  Say Y here if you want to use non-PC-style parallel ports.
-+
-+	  This causes a performance loss, so most people say N.
-+
- config PARPORT_ARC
- 	tristate "Archimedes hardware"
--	depends on ARM && PARPORT
-+	depends on ARM && PARPORT_NOT_PC
- 
- config PARPORT_AMIGA
- 	tristate "Amiga builtin port"
--	depends on AMIGA && PARPORT
-+	depends on AMIGA && PARPORT_NOT_PC
- 	help
- 	  Say Y here if you need support for the parallel port hardware on
- 	  Amiga machines. This code is also available as a module (say M),
-@@ -102,7 +110,7 @@
- 
- config PARPORT_MFC3
- 	tristate "Multiface III parallel port"
--	depends on ZORRO && PARPORT
-+	depends on ZORRO && PARPORT_NOT_PC
- 	help
- 	  Say Y here if you need parallel port support for the MFC3 card.
- 	  This code is also available as a module (say M), called
-@@ -110,7 +118,7 @@
- 
- config PARPORT_ATARI
- 	tristate "Atari hardware"
--	depends on ATARI && PARPORT
-+	depends on ATARI && PARPORT_NOT_PC
- 	help
- 	  Say Y here if you need support for the parallel port hardware on
- 	  Atari machines. This code is also available as a module (say M),
-@@ -123,22 +131,12 @@
- 
- config PARPORT_SUNBPP
- 	tristate "Sparc hardware (EXPERIMENTAL)"
--	depends on SBUS && EXPERIMENTAL && PARPORT
-+	depends on SBUS && EXPERIMENTAL && PARPORT_NOT_PC
- 	help
- 	  This driver provides support for the bidirectional parallel port
- 	  found on many Sun machines. Note that many of the newer Ultras
- 	  actually have pc style hardware instead.
- 
--# If exactly one hardware type is selected then parport will optimise away
--# support for loading any others.  Defeat this if the user is keen.
--config PARPORT_OTHER
--	bool "Support foreign hardware"
--	depends on PARPORT
--	help
--	  Say Y here if you want to be able to load driver modules to support
--	  other non-standard types of parallel ports. This causes a
--	  performance loss, so most people say N.
--
- config PARPORT_1284
- 	bool "IEEE 1284 transfer modes"
- 	depends on PARPORT
---- linux-2.6.10-rc2-mm4-full/drivers/usb/Kconfig.old	2004-12-09 04:49:57.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/usb/Kconfig	2004-12-09 04:50:17.000000000 +0100
-@@ -62,6 +62,7 @@
- config USB_USS720
- 	tristate "USS720 parport driver"
- 	depends on USB && PARPORT
-+	select PARPORT_NOT_PC
- 	---help---
- 	  This driver is for USB parallel port adapters that use the Lucent
- 	  Technologies USS-720 chip. These cables are plugged into your USB
+On Thu, 9 Dec 2004 11:38:31 +0100, lkml@think-future.de
+<lkml@think-future.de> wrote:
+> 
+>   Hi,
+> 
+>  on this notebook (Thinkpad A31, wlan) after the last suspend-resume
+> cycle, the following error occurred:
+> 
+> dmesg | tail -1
+> eth1: Error -110 writing Tx descriptor to BAP
+> 
+> This happend while transferring data from this machine to another via
+> scp.
+> eth1 is the notebooks wlan interface.
+> 
+> Obviously, the connected endpoint, the interface of the machine the data
+> was being transferred to, has crashed. It is an 10mbit eth connected to
+> an access point.
+> 
+> This time I managed to get the notebook to work again by another
+> suspend-resume cycle.
+> 
+> Any idea why this happens, and how to fix this?
+> 
+>   Thanks for advice,
+> 
+>     Nils
+> 
+> top|head
+> 
+> top - 11:07:57 up 11 days, 5 min,  7 users,  load average: 12.20, 12.55, 6.90
+> Tasks: 111 total,   2 running, 109 sleeping,   0 stopped,   0 zombie
+> Cpu(s):  2.6% us, 10.1% sy,  0.0% ni, 87.3% id,  0.0% wa,  0.0% hi, 0.0% si
+> Mem:    771644k total,   765748k used,     5896k free,   105580k buffers
+> Swap:  1542196k total,   110968k used,  1431228k free,   325096k cached
+> 
+> free
+> 
+>             total       used       free     shared     buffers cached
+> Mem:        771644     761028      10616     0        106308     323176
+> -/+ buffers/cache:     331544     440100
+> Swap:      1542196     110968    1431228
+> 
+> lsmod
+> 
+> Module                  Size  Used by
+> orinoco_pci             7296  0
+> orinoco                40708  1 orinoco_pci
+> hermes                  8192  2 orinoco_pci,orinoco
+> snd_seq_oss            34944  0
+> snd_seq_midi_event      7936  1 snd_seq_oss
+> snd_seq                57488  4 snd_seq_oss,snd_seq_midi_event
+> snd_pcm_oss            61576  0
+> snd_mixer_oss          20224  1 snd_pcm_oss
+> snd_intel8x0           36040  0
+> snd_ac97_codec         66820  1 snd_intel8x0
+> snd_pcm               102912  2 snd_pcm_oss,snd_intel8x0
+> snd_timer              27136  2 snd_seq,snd_pcm
+> snd_page_alloc         12552  2 snd_intel8x0,snd_pcm
+> snd_mpu401_uart         8704  1 snd_intel8x0
+> snd_rawmidi            26400  1 snd_mpu401_uart
+> snd_seq_device          8964  3 snd_seq_oss,snd_seq,snd_rawmidi
+> snd                    66820  12 snd_seq_oss,snd_seq_midi_event,snd_seq,snd_pcm_oss,snd_mixer_oss,snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+> vmnet                  30944  12
+> vmmon                  46516  0
+> smapi                   3972  0
+> thinkpad                5508  1 smapi
+> af_key                 31364  0
+> ipv6                  248516  10
+> iptable_mangle          3456  0
+> ipt_LOG                 6912  0
+> ipt_state               2816  0
+> ip_conntrack           35716  1 ipt_state
+> iptable_filter          3456  0
+> ip_tables              18192  4 iptable_mangle,ipt_LOG,ipt_state,iptable_filter
+> eepro100               29580  0
+> audio                  45568  0
+> ehci_hcd               28160  0
+> uhci_hcd               31112  0
+> usbcore               111828  5 audio,ehci_hcd,uhci_hcd
+> 
+> lspci
+> 
+> 00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 04)
+> 00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 04)
+> 00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02)
+> 00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02)
+> 00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02)
+> 00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 42)
+> 00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 02)
+> 00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02)
+> 00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus Controller (rev 02)
+> 00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio Controller (rev 02)
+> 00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller (rev 02)
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 LW [Radeon Mobility 7500]
+> 02:00.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+> 02:00.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+> 02:02.0 Network controller: Harris Semiconductor Prism 2.5 Wavelan chipset (rev 01)
+> 02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) PRO/100 VE (LOM) Ethernet Controller (rev 42)
+> 
+> /proc/cmdline
+> 
+> auto BOOT_IMAGE=vpn681 ro root=303 apm=on acpi=off cpufreq=500000:1600000:performance video=radeon:off
+> 
+> /proc/interrupts
+> 
+>            CPU0
+>   0:  461854102          XT-PIC  timer
+>   1:     328248          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   8:         28          XT-PIC  rtc
+>  11:    2724164          XT-PIC  yenta, yenta, eth0, Intel 82801CA-ICH3, uhci_hcd, uhci_hcd, uhci_hcd, eth1
+>  12:    6902656          XT-PIC  i8042
+>  14:    1021927          XT-PIC  ide0
+>  15:     722811          XT-PIC  ide1
+> NMI:          0
+> LOC:          0
+> ERR:        202
+> MIS:          0
+> 
+> uname -a
+> 
+> Linux tadpole 2.6.8.1 #2 Fri Sep 10 17:57:27 CEST 2004 i686 GNU/Linux
+> 
+> zcat /proc/config.gz  |grep "[y|m]"
+> 
+> # Automatically generated make config: don't edit
+> CONFIG_X86=y
+> CONFIG_MMU=y
+> CONFIG_UID16=y
+> CONFIG_GENERIC_ISA_DMA=y
+> # Code maturity level options
+> CONFIG_EXPERIMENTAL=y
+> CONFIG_CLEAN_COMPILE=y
+> CONFIG_BROKEN_ON_SMP=y
+> CONFIG_SWAP=y
+> CONFIG_SYSVIPC=y
+> CONFIG_POSIX_MQUEUE=y
+> CONFIG_BSD_PROCESS_ACCT=y
+> CONFIG_BSD_PROCESS_ACCT_V3=y
+> CONFIG_SYSCTL=y
+> CONFIG_AUDIT=y
+> CONFIG_AUDITSYSCALL=y
+> CONFIG_HOTPLUG=y
+> CONFIG_IKCONFIG=y
+> CONFIG_IKCONFIG_PROC=y
+> CONFIG_KALLSYMS=y
+> CONFIG_FUTEX=y
+> CONFIG_EPOLL=y
+> CONFIG_IOSCHED_NOOP=y
+> CONFIG_IOSCHED_AS=y
+> CONFIG_IOSCHED_DEADLINE=y
+> CONFIG_IOSCHED_CFQ=y
+> # Loadable module support
+> CONFIG_MODULES=y
+> CONFIG_MODULE_UNLOAD=y
+> CONFIG_MODULE_FORCE_UNLOAD=y
+> CONFIG_OBSOLETE_MODPARM=y
+> CONFIG_MODVERSIONS=y
+> CONFIG_KMOD=y
+> # Processor type and features
+> CONFIG_X86_PC=y
+> CONFIG_MPENTIUM4=y
+> CONFIG_X86_CMPXCHG=y
+> CONFIG_X86_XADD=y
+> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+> CONFIG_X86_WP_WORKS_OK=y
+> CONFIG_X86_INVLPG=y
+> CONFIG_X86_BSWAP=y
+> CONFIG_X86_POPAD_OK=y
+> CONFIG_X86_GOOD_APIC=y
+> CONFIG_X86_INTEL_USERCOPY=y
+> CONFIG_X86_USE_PPRO_CHECKSUM=y
+> CONFIG_PREEMPT=y
+> CONFIG_X86_UP_APIC=y
+> CONFIG_X86_UP_IOAPIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_X86_IO_APIC=y
+> CONFIG_X86_TSC=y
+> CONFIG_X86_MCE=y
+> CONFIG_X86_MCE_NONFATAL=y
+> CONFIG_X86_MCE_P4THERMAL=y
+> CONFIG_MICROCODE=y
+> CONFIG_X86_MSR=y
+> CONFIG_X86_CPUID=y
+> # Firmware Drivers
+> CONFIG_NOHIGHMEM=y
+> CONFIG_MTRR=y
+> CONFIG_HAVE_DEC_LOCK=y
+> # Power management options (ACPI, APM)
+> CONFIG_PM=y
+> CONFIG_SOFTWARE_SUSPEND=y
+> CONFIG_PM_DISK=y
+> CONFIG_ACPI=y
+> CONFIG_ACPI_BOOT=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_SLEEP=y
+> CONFIG_ACPI_SLEEP_PROC_FS=y
+> CONFIG_ACPI_AC=y
+> CONFIG_ACPI_BATTERY=y
+> CONFIG_ACPI_BUTTON=y
+> CONFIG_ACPI_FAN=y
+> CONFIG_ACPI_PROCESSOR=y
+> CONFIG_ACPI_THERMAL=y
+> CONFIG_ACPI_DEBUG=y
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_SYSTEM=y
+> CONFIG_X86_PM_TIMER=y
+> # APM (Advanced Power Management) BIOS Support
+> CONFIG_APM=y
+> CONFIG_APM_CPU_IDLE=y
+> CONFIG_APM_RTC_IS_GMT=y
+> CONFIG_APM_ALLOW_INTS=y
+> CONFIG_APM_REAL_MODE_POWER_OFF=y
+> # CPU Frequency scaling
+> CONFIG_CPU_FREQ=y
+> CONFIG_CPU_FREQ_PROC_INTF=y
+> CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
+> CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+> CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+> CONFIG_CPU_FREQ_GOV_USERSPACE=y
+> CONFIG_CPU_FREQ_24_API=y
+> CONFIG_CPU_FREQ_TABLE=y
+> CONFIG_X86_ACPI_CPUFREQ=y
+> CONFIG_X86_ACPI_CPUFREQ_PROC_INTF=y
+> CONFIG_X86_SPEEDSTEP_ICH=y
+> CONFIG_X86_P4_CLOCKMOD=y
+> CONFIG_X86_SPEEDSTEP_LIB=y
+> CONFIG_PCI=y
+> CONFIG_PCI_GOANY=y
+> CONFIG_PCI_BIOS=y
+> CONFIG_PCI_DIRECT=y
+> CONFIG_PCI_MMCONFIG=y
+> CONFIG_PCI_LEGACY_PROC=y
+> CONFIG_PCI_NAMES=y
+> CONFIG_ISA=y
+> CONFIG_EISA=y
+> CONFIG_EISA_PCI_EISA=y
+> CONFIG_EISA_VIRTUAL_ROOT=y
+> CONFIG_EISA_NAMES=y
+> CONFIG_PCMCIA=y
+> CONFIG_YENTA=y
+> CONFIG_CARDBUS=y
+> CONFIG_PD6729=y
+> CONFIG_I82092=y
+> CONFIG_TCIC=y
+> CONFIG_PCMCIA_PROBE=y
+> # Executable file formats
+> CONFIG_BINFMT_ELF=y
+> CONFIG_BINFMT_AOUT=y
+> CONFIG_BINFMT_MISC=y
+> CONFIG_STANDALONE=y
+> CONFIG_PREVENT_FIRMWARE_BUILD=y
+> CONFIG_FW_LOADER=y
+> # Memory Technology Devices (MTD)
+> CONFIG_PARPORT=y
+> CONFIG_PARPORT_PC=y
+> CONFIG_PARPORT_PC_CML1=y
+> CONFIG_PARPORT_PC_FIFO=y
+> CONFIG_PARPORT_PC_SUPERIO=y
+> CONFIG_PARPORT_1284=y
+> # Plug and Play support
+> CONFIG_BLK_DEV_FD=y
+> CONFIG_BLK_DEV_LOOP=y
+> CONFIG_BLK_DEV_CRYPTOLOOP=y
+> CONFIG_BLK_DEV_NBD=y
+> CONFIG_BLK_DEV_RAM=y
+> CONFIG_BLK_DEV_INITRD=y
+> CONFIG_IDE=y
+> CONFIG_BLK_DEV_IDE=y
+> # Please see Documentation/ide.txt for help/info on IDE drives
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_BLK_DEV_IDECS=y
+> CONFIG_BLK_DEV_IDECD=y
+> CONFIG_BLK_DEV_IDESCSI=y
+> CONFIG_IDE_GENERIC=y
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_ADMA=y
+> CONFIG_BLK_DEV_PIIX=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_IDEDMA_AUTO=y
+> CONFIG_SCSI=y
+> CONFIG_SCSI_PROC_FS=y
+> # SCSI support type (disk, tape, CD-ROM)
+> CONFIG_BLK_DEV_SD=y
+> CONFIG_BLK_DEV_SR=y
+> CONFIG_CHR_DEV_SG=y
+> # Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+> CONFIG_SCSI_MULTI_LUN=y
+> CONFIG_SCSI_CONSTANTS=y
+> CONFIG_SCSI_LOGGING=y
+> CONFIG_SCSI_SPI_ATTRS=y
+> CONFIG_SCSI_AIC7XXX_OLD=y
+> CONFIG_SCSI_FUTURE_DOMAIN=y
+> CONFIG_SCSI_SYM53C8XX_2=y
+> CONFIG_SCSI_QLA2XXX=y
+> CONFIG_PCMCIA_AHA152X=m
+> CONFIG_PCMCIA_FDOMAIN=m
+> CONFIG_PCMCIA_NINJA_SCSI=m
+> CONFIG_PCMCIA_QLOGIC=m
+> CONFIG_MD=y
+> CONFIG_BLK_DEV_MD=y
+> CONFIG_MD_LINEAR=y
+> CONFIG_MD_RAID0=y
+> CONFIG_MD_RAID1=y
+> CONFIG_MD_RAID5=y
+> CONFIG_MD_MULTIPATH=y
+> CONFIG_BLK_DEV_DM=y
+> CONFIG_DM_CRYPT=y
+> CONFIG_IEEE1394=y
+> # Subsystem Options
+> CONFIG_IEEE1394_OUI_DB=y
+> CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
+> CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
+> CONFIG_IEEE1394_PCILYNX=m
+> CONFIG_IEEE1394_OHCI1394=y
+> CONFIG_IEEE1394_VIDEO1394=y
+> CONFIG_IEEE1394_SBP2=y
+> CONFIG_IEEE1394_SBP2_PHYS_DMA=y
+> CONFIG_IEEE1394_ETH1394=y
+> CONFIG_IEEE1394_DV1394=y
+> CONFIG_IEEE1394_RAWIO=y
+> CONFIG_IEEE1394_CMP=y
+> CONFIG_IEEE1394_AMDTP=y
+> CONFIG_I2O=y
+> CONFIG_I2O_CONFIG=y
+> CONFIG_I2O_BLOCK=y
+> CONFIG_I2O_SCSI=y
+> CONFIG_I2O_PROC=y
+> CONFIG_NET=y
+> CONFIG_PACKET=y
+> CONFIG_PACKET_MMAP=y
+> CONFIG_NETLINK_DEV=m
+> CONFIG_UNIX=y
+> CONFIG_NET_KEY=m
+> CONFIG_INET=y
+> CONFIG_IP_MULTICAST=y
+> CONFIG_IP_ADVANCED_ROUTER=y
+> CONFIG_IP_MULTIPLE_TABLES=y
+> CONFIG_IP_ROUTE_FWMARK=y
+> CONFIG_IP_ROUTE_NAT=y
+> CONFIG_IP_ROUTE_MULTIPATH=y
+> CONFIG_IP_ROUTE_TOS=y
+> CONFIG_IP_ROUTE_VERBOSE=y
+> CONFIG_IP_PNP=y
+> CONFIG_IP_PNP_DHCP=y
+> CONFIG_IP_PNP_BOOTP=y
+> CONFIG_IP_PNP_RARP=y
+> CONFIG_NET_IPIP=m
+> CONFIG_NET_IPGRE=m
+> CONFIG_NET_IPGRE_BROADCAST=y
+> CONFIG_IP_MROUTE=y
+> CONFIG_IP_PIMSM_V1=y
+> CONFIG_IP_PIMSM_V2=y
+> CONFIG_ARPD=y
+> CONFIG_SYN_COOKIES=y
+> CONFIG_INET_AH=m
+> CONFIG_INET_ESP=m
+> CONFIG_INET_IPCOMP=m
+> CONFIG_IPV6=m
+> CONFIG_IPV6_PRIVACY=y
+> CONFIG_INET6_AH=m
+> CONFIG_INET6_ESP=m
+> CONFIG_INET6_IPCOMP=m
+> CONFIG_IPV6_TUNNEL=m
+> CONFIG_NETFILTER=y
+> CONFIG_BRIDGE_NETFILTER=y
+> CONFIG_IP_NF_CONNTRACK=m
+> CONFIG_IP_NF_FTP=m
+> CONFIG_IP_NF_IRC=m
+> CONFIG_IP_NF_TFTP=m
+> CONFIG_IP_NF_AMANDA=m
+> CONFIG_IP_NF_QUEUE=m
+> CONFIG_IP_NF_IPTABLES=m
+> CONFIG_IP_NF_MATCH_LIMIT=m
+> CONFIG_IP_NF_MATCH_IPRANGE=m
+> CONFIG_IP_NF_MATCH_MAC=m
+> CONFIG_IP_NF_MATCH_PKTTYPE=m
+> CONFIG_IP_NF_MATCH_MARK=m
+> CONFIG_IP_NF_MATCH_MULTIPORT=m
+> CONFIG_IP_NF_MATCH_TOS=m
+> CONFIG_IP_NF_MATCH_RECENT=m
+> CONFIG_IP_NF_MATCH_ECN=m
+> CONFIG_IP_NF_MATCH_DSCP=m
+> CONFIG_IP_NF_MATCH_AH_ESP=m
+> CONFIG_IP_NF_MATCH_LENGTH=m
+> CONFIG_IP_NF_MATCH_TTL=m
+> CONFIG_IP_NF_MATCH_TCPMSS=m
+> CONFIG_IP_NF_MATCH_HELPER=m
+> CONFIG_IP_NF_MATCH_STATE=m
+> CONFIG_IP_NF_MATCH_CONNTRACK=m
+> CONFIG_IP_NF_MATCH_OWNER=m
+> CONFIG_IP_NF_MATCH_PHYSDEV=m
+> CONFIG_IP_NF_FILTER=m
+> CONFIG_IP_NF_TARGET_REJECT=m
+> CONFIG_IP_NF_NAT=m
+> CONFIG_IP_NF_NAT_NEEDED=y
+> CONFIG_IP_NF_TARGET_MASQUERADE=m
+> CONFIG_IP_NF_TARGET_REDIRECT=m
+> CONFIG_IP_NF_TARGET_NETMAP=m
+> CONFIG_IP_NF_TARGET_SAME=m
+> CONFIG_IP_NF_NAT_LOCAL=y
+> CONFIG_IP_NF_NAT_SNMP_BASIC=m
+> CONFIG_IP_NF_NAT_IRC=m
+> CONFIG_IP_NF_NAT_FTP=m
+> CONFIG_IP_NF_NAT_TFTP=m
+> CONFIG_IP_NF_NAT_AMANDA=m
+> CONFIG_IP_NF_MANGLE=m
+> CONFIG_IP_NF_TARGET_TOS=m
+> CONFIG_IP_NF_TARGET_ECN=m
+> CONFIG_IP_NF_TARGET_DSCP=m
+> CONFIG_IP_NF_TARGET_MARK=m
+> CONFIG_IP_NF_TARGET_CLASSIFY=m
+> CONFIG_IP_NF_TARGET_LOG=m
+> CONFIG_IP_NF_TARGET_ULOG=m
+> CONFIG_IP_NF_TARGET_TCPMSS=m
+> CONFIG_IP_NF_ARPTABLES=m
+> CONFIG_IP_NF_ARPFILTER=m
+> CONFIG_IP_NF_ARP_MANGLE=m
+> CONFIG_IP_NF_TARGET_NOTRACK=m
+> CONFIG_IP_NF_RAW=m
+> CONFIG_IP_NF_MATCH_ADDRTYPE=m
+> CONFIG_IP_NF_MATCH_REALM=m
+> CONFIG_IP6_NF_QUEUE=m
+> CONFIG_IP6_NF_IPTABLES=m
+> CONFIG_IP6_NF_MATCH_LIMIT=m
+> CONFIG_IP6_NF_MATCH_MAC=m
+> CONFIG_IP6_NF_MATCH_RT=m
+> CONFIG_IP6_NF_MATCH_OPTS=m
+> CONFIG_IP6_NF_MATCH_FRAG=m
+> CONFIG_IP6_NF_MATCH_HL=m
+> CONFIG_IP6_NF_MATCH_MULTIPORT=m
+> CONFIG_IP6_NF_MATCH_OWNER=m
+> CONFIG_IP6_NF_MATCH_MARK=m
+> CONFIG_IP6_NF_MATCH_IPV6HEADER=m
+> CONFIG_IP6_NF_MATCH_AHESP=m
+> CONFIG_IP6_NF_MATCH_LENGTH=m
+> CONFIG_IP6_NF_MATCH_EUI64=m
+> CONFIG_IP6_NF_FILTER=m
+> CONFIG_IP6_NF_TARGET_LOG=m
+> CONFIG_IP6_NF_MANGLE=m
+> CONFIG_IP6_NF_TARGET_MARK=m
+> CONFIG_IP6_NF_RAW=m
+> CONFIG_BRIDGE_NF_EBTABLES=m
+> CONFIG_BRIDGE_EBT_BROUTE=m
+> CONFIG_BRIDGE_EBT_T_FILTER=m
+> CONFIG_BRIDGE_EBT_T_NAT=m
+> CONFIG_BRIDGE_EBT_802_3=m
+> CONFIG_BRIDGE_EBT_AMONG=m
+> CONFIG_BRIDGE_EBT_ARP=m
+> CONFIG_BRIDGE_EBT_IP=m
+> CONFIG_BRIDGE_EBT_LIMIT=m
+> CONFIG_BRIDGE_EBT_MARK=m
+> CONFIG_BRIDGE_EBT_PKTTYPE=m
+> CONFIG_BRIDGE_EBT_STP=m
+> CONFIG_BRIDGE_EBT_VLAN=m
+> CONFIG_BRIDGE_EBT_ARPREPLY=m
+> CONFIG_BRIDGE_EBT_DNAT=m
+> CONFIG_BRIDGE_EBT_MARK_T=m
+> CONFIG_BRIDGE_EBT_REDIRECT=m
+> CONFIG_BRIDGE_EBT_SNAT=m
+> CONFIG_BRIDGE_EBT_LOG=m
+> CONFIG_XFRM=y
+> CONFIG_XFRM_USER=m
+> CONFIG_IP_SCTP=m
+> CONFIG_SCTP_DBG_MSG=y
+> CONFIG_SCTP_DBG_OBJCNT=y
+> CONFIG_SCTP_HMAC_MD5=y
+> CONFIG_BRIDGE=m
+> CONFIG_VLAN_8021Q=m
+> CONFIG_LLC=m
+> CONFIG_IPX=m
+> CONFIG_IPX_INTERN=y
+> CONFIG_ATALK=m
+> CONFIG_DEV_APPLETALK=y
+> CONFIG_IPDDP=m
+> CONFIG_IPDDP_ENCAP=y
+> CONFIG_IPDDP_DECAP=y
+> CONFIG_NET_SCHED=y
+> CONFIG_NET_SCH_CLK_JIFFIES=y
+> CONFIG_NET_SCH_CBQ=m
+> CONFIG_NET_SCH_HTB=m
+> CONFIG_NET_SCH_HFSC=m
+> CONFIG_NET_SCH_PRIO=m
+> CONFIG_NET_SCH_RED=m
+> CONFIG_NET_SCH_SFQ=m
+> CONFIG_NET_SCH_TEQL=m
+> CONFIG_NET_SCH_TBF=m
+> CONFIG_NET_SCH_GRED=m
+> CONFIG_NET_SCH_DSMARK=m
+> CONFIG_NET_SCH_INGRESS=m
+> CONFIG_NET_QOS=y
+> CONFIG_NET_ESTIMATOR=y
+> CONFIG_NET_CLS=y
+> CONFIG_NET_CLS_TCINDEX=m
+> CONFIG_NET_CLS_ROUTE4=m
+> CONFIG_NET_CLS_ROUTE=y
+> CONFIG_NET_CLS_FW=m
+> CONFIG_NET_CLS_U32=m
+> CONFIG_CLS_U32_PERF=y
+> CONFIG_NET_CLS_IND=y
+> CONFIG_NET_CLS_RSVP=m
+> CONFIG_NET_CLS_RSVP6=m
+> CONFIG_NET_CLS_ACT=y
+> CONFIG_NET_ACT_POLICE=m
+> CONFIG_NETPOLL=y
+> CONFIG_NET_POLL_CONTROLLER=y
+> CONFIG_IRDA=m
+> CONFIG_IRLAN=m
+> CONFIG_IRNET=m
+> CONFIG_IRCOMM=m
+> CONFIG_IRDA_ULTRA=y
+> CONFIG_IRDA_CACHE_LAST_LSAP=y
+> CONFIG_IRDA_FAST_RR=y
+> CONFIG_IRDA_DEBUG=y
+> CONFIG_IRTTY_SIR=m
+> CONFIG_DONGLE=y
+> CONFIG_ESI_DONGLE=m
+> CONFIG_ACTISYS_DONGLE=m
+> CONFIG_TEKRAM_DONGLE=m
+> CONFIG_LITELINK_DONGLE=m
+> CONFIG_MA600_DONGLE=m
+> CONFIG_GIRBIL_DONGLE=m
+> CONFIG_MCP2120_DONGLE=m
+> CONFIG_OLD_BELKIN_DONGLE=m
+> CONFIG_ACT200L_DONGLE=m
+> CONFIG_IRPORT_SIR=m
+> CONFIG_DONGLE_OLD=y
+> CONFIG_ESI_DONGLE_OLD=m
+> CONFIG_ACTISYS_DONGLE_OLD=m
+> CONFIG_TEKRAM_DONGLE_OLD=m
+> CONFIG_GIRBIL_DONGLE_OLD=m
+> CONFIG_LITELINK_DONGLE_OLD=m
+> CONFIG_MCP2120_DONGLE_OLD=m
+> CONFIG_OLD_BELKIN_DONGLE_OLD=m
+> CONFIG_ACT200L_DONGLE_OLD=m
+> CONFIG_USB_IRDA=m
+> CONFIG_SIGMATEL_FIR=m
+> CONFIG_NSC_FIR=m
+> CONFIG_WINBOND_FIR=m
+> CONFIG_TOSHIBA_FIR=m
+> CONFIG_SMC_IRCC_FIR=m
+> CONFIG_ALI_FIR=m
+> CONFIG_VLSI_FIR=m
+> CONFIG_VIA_FIR=m
+> CONFIG_BT=m
+> CONFIG_BT_L2CAP=m
+> CONFIG_BT_SCO=m
+> CONFIG_BT_RFCOMM=m
+> CONFIG_BT_RFCOMM_TTY=y
+> CONFIG_BT_BNEP=m
+> CONFIG_BT_BNEP_MC_FILTER=y
+> CONFIG_BT_BNEP_PROTO_FILTER=y
+> CONFIG_BT_CMTP=m
+> CONFIG_BT_HIDP=m
+> CONFIG_BT_HCIUSB=m
+> CONFIG_BT_HCIUSB_SCO=y
+> CONFIG_BT_HCIUART=m
+> CONFIG_BT_HCIUART_H4=y
+> CONFIG_BT_HCIUART_BCSP=y
+> CONFIG_BT_HCIUART_BCSP_TXCRC=y
+> CONFIG_BT_HCIBCM203X=m
+> CONFIG_BT_HCIBFUSB=m
+> CONFIG_BT_HCIDTL1=m
+> CONFIG_BT_HCIBT3C=m
+> CONFIG_BT_HCIBLUECARD=m
+> CONFIG_BT_HCIBTUART=m
+> CONFIG_BT_HCIVHCI=m
+> CONFIG_NETDEVICES=y
+> CONFIG_DUMMY=y
+> CONFIG_BONDING=y
+> CONFIG_TUN=y
+> CONFIG_ETHERTAP=m
+> CONFIG_NET_ETHERNET=y
+> CONFIG_MII=y
+> # Tulip family network device support
+> CONFIG_NET_PCI=y
+> CONFIG_EEPRO100=m
+> CONFIG_E100=m
+> # Wireless LAN (non-hamradio)
+> CONFIG_NET_RADIO=y
+> CONFIG_STRIP=m
+> CONFIG_PCMCIA_WAVELAN=m
+> CONFIG_PCMCIA_NETWAVE=m
+> # Wireless 802.11 Frequency Hopping cards support
+> CONFIG_PCMCIA_RAYCS=m
+> CONFIG_AIRO=m
+> CONFIG_HERMES=m
+> CONFIG_PLX_HERMES=m
+> CONFIG_PCI_HERMES=m
+> CONFIG_ATMEL=m
+> CONFIG_PCI_ATMEL=m
+> # Wireless 802.11b Pcmcia/Cardbus cards support
+> CONFIG_PCMCIA_HERMES=m
+> CONFIG_AIRO_CS=m
+> CONFIG_PCMCIA_ATMEL=m
+> CONFIG_PCMCIA_WL3501=m
+> # Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+> CONFIG_PRISM54=m
+> CONFIG_NET_WIRELESS=y
+> CONFIG_NET_PCMCIA=y
+> CONFIG_PCMCIA_3C589=y
+> CONFIG_PCMCIA_3C574=y
+> CONFIG_PCMCIA_FMVJ18X=y
+> CONFIG_PCMCIA_PCNET=y
+> CONFIG_PCMCIA_NMCLAN=y
+> CONFIG_PCMCIA_SMC91C92=y
+> CONFIG_PCMCIA_XIRC2PS=y
+> CONFIG_PCMCIA_AXNET=y
+> CONFIG_PLIP=y
+> CONFIG_PPP=y
+> CONFIG_PPP_MULTILINK=y
+> CONFIG_PPP_FILTER=y
+> CONFIG_PPP_ASYNC=y
+> CONFIG_PPP_SYNC_TTY=y
+> CONFIG_PPP_DEFLATE=y
+> CONFIG_PPP_BSDCOMP=y
+> CONFIG_PPPOE=y
+> CONFIG_SLIP=y
+> CONFIG_SLIP_COMPRESSED=y
+> CONFIG_SLIP_SMART=y
+> CONFIG_SLIP_MODE_SLIP6=y
+> CONFIG_SHAPER=y
+> CONFIG_NETCONSOLE=y
+> # ISDN subsystem
+> CONFIG_ISDN=y
+> CONFIG_ISDN_I4L=m
+> CONFIG_ISDN_PPP=y
+> CONFIG_ISDN_PPP_VJ=y
+> CONFIG_ISDN_MPP=y
+> CONFIG_IPPP_FILTER=y
+> CONFIG_ISDN_PPP_BSDCOMP=m
+> CONFIG_ISDN_AUDIO=y
+> CONFIG_ISDN_TTY_FAX=y
+> # ISDN feature submodules
+> CONFIG_ISDN_DRV_LOOP=m
+> CONFIG_ISDN_DRV_HISAX=m
+> CONFIG_HISAX_EURO=y
+> CONFIG_DE_AOC=y
+> CONFIG_HISAX_NO_KEYPAD=y
+> CONFIG_HISAX_1TR6=y
+> CONFIG_HISAX_16_3=y
+> CONFIG_HISAX_FRITZPCI=y
+> CONFIG_HISAX_ELSA=y
+> CONFIG_HISAX_HFC_SX=y
+> CONFIG_HISAX_DEBUG=y
+> # HiSax PCMCIA card service modules
+> CONFIG_HISAX_ELSA_CS=m
+> CONFIG_HISAX_AVM_A1_CS=m
+> CONFIG_HISAX_TELES_CS=m
+> # HiSax sub driver modules
+> CONFIG_HISAX_ST5481=m
+> CONFIG_HISAX_HFCUSB=m
+> CONFIG_HISAX_FRITZ_PCIPNP=m
+> CONFIG_HISAX_HDLC=y
+> # CAPI subsystem
+> CONFIG_ISDN_CAPI=y
+> CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON=y
+> CONFIG_ISDN_CAPI_MIDDLEWARE=y
+> CONFIG_ISDN_CAPI_CAPI20=y
+> CONFIG_ISDN_CAPI_CAPIFS_BOOL=y
+> CONFIG_ISDN_CAPI_CAPIFS=y
+> CONFIG_ISDN_CAPI_CAPIDRV=m
+> CONFIG_CAPI_AVM=y
+> CONFIG_ISDN_DRV_AVMB1_B1PCI=y
+> # Telephony Support
+> CONFIG_INPUT=y
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_PSAUX=y
+> CONFIG_INPUT_JOYDEV=y
+> CONFIG_INPUT_EVDEV=y
+> CONFIG_SOUND_GAMEPORT=y
+> CONFIG_SERIO=y
+> CONFIG_SERIO_I8042=y
+> CONFIG_SERIO_SERPORT=y
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> CONFIG_MOUSE_SERIAL=y
+> CONFIG_INPUT_MISC=y
+> CONFIG_INPUT_PCSPKR=y
+> CONFIG_INPUT_UINPUT=y
+> CONFIG_VT=y
+> CONFIG_VT_CONSOLE=y
+> CONFIG_HW_CONSOLE=y
+> CONFIG_SERIAL_8250=y
+> CONFIG_SERIAL_CORE=y
+> CONFIG_UNIX98_PTYS=y
+> CONFIG_LEGACY_PTYS=y
+> CONFIG_PRINTER=y
+> CONFIG_LP_CONSOLE=y
+> CONFIG_PPDEV=y
+> CONFIG_IPMI_HANDLER=y
+> CONFIG_IPMI_DEVICE_INTERFACE=y
+> CONFIG_IPMI_SI=y
+> CONFIG_IPMI_WATCHDOG=y
+> CONFIG_HW_RANDOM=y
+> CONFIG_NVRAM=y
+> CONFIG_RTC=y
+> # Ftape, the floppy tape device driver
+> CONFIG_AGP=y
+> CONFIG_AGP_INTEL=y
+> CONFIG_AGP_INTEL_MCH=y
+> CONFIG_DRM=y
+> CONFIG_DRM_RADEON=y
+> CONFIG_DRM_I810=y
+> CONFIG_DRM_I830=y
+> CONFIG_MWAVE=y
+> CONFIG_HANGCHECK_TIMER=y
+> CONFIG_I2C=y
+> CONFIG_I2C_CHARDEV=m
+> # I2C Algorithms
+> CONFIG_I2C_ALGOBIT=y
+> CONFIG_I2C_ALGOPCF=y
+> CONFIG_I2C_SENSOR=m
+> CONFIG_SENSORS_DS1621=m
+> CONFIG_SENSORS_LM75=m
+> CONFIG_SENSORS_LM78=m
+> CONFIG_SENSORS_LM80=m
+> CONFIG_SENSORS_LM83=m
+> CONFIG_SENSORS_LM85=m
+> CONFIG_SENSORS_LM90=m
+> CONFIG_I2C_DEBUG_CORE=y
+> CONFIG_I2C_DEBUG_ALGO=y
+> CONFIG_I2C_DEBUG_BUS=y
+> CONFIG_I2C_DEBUG_CHIP=y
+> CONFIG_W1=m
+> CONFIG_W1_MATROX=m
+> CONFIG_W1_THERM=m
+> CONFIG_IBM_ASM=y
+> # Multimedia devices
+> CONFIG_VIDEO_DEV=y
+> CONFIG_VIDEO_OVCAMCHIP=m
+> CONFIG_FB=y
+> CONFIG_FB_VESA=y
+> CONFIG_VIDEO_SELECT=y
+> CONFIG_FB_I810=y
+> CONFIG_FB_RADEON_OLD=m
+> CONFIG_FB_RADEON=y
+> CONFIG_FB_RADEON_I2C=y
+> CONFIG_FB_RADEON_DEBUG=y
+> # Console display driver support
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_DUMMY_CONSOLE=y
+> CONFIG_FRAMEBUFFER_CONSOLE=y
+> CONFIG_FONTS=y
+> CONFIG_FONT_8x8=y
+> CONFIG_FONT_8x16=y
+> CONFIG_FONT_SUN8x16=y
+> CONFIG_FONT_SUN12x22=y
+> CONFIG_LOGO=y
+> CONFIG_LOGO_LINUX_CLUT224=y
+> CONFIG_SOUND=y
+> CONFIG_SND=m
+> CONFIG_SND_TIMER=m
+> CONFIG_SND_PCM=m
+> CONFIG_SND_RAWMIDI=m
+> CONFIG_SND_SEQUENCER=m
+> CONFIG_SND_SEQ_DUMMY=m
+> CONFIG_SND_OSSEMUL=y
+> CONFIG_SND_MIXER_OSS=m
+> CONFIG_SND_PCM_OSS=m
+> CONFIG_SND_SEQUENCER_OSS=y
+> CONFIG_SND_RTCTIMER=m
+> CONFIG_SND_VERBOSE_PRINTK=y
+> CONFIG_SND_DEBUG=y
+> CONFIG_SND_DEBUG_MEMORY=y
+> CONFIG_SND_DEBUG_DETECT=y
+> CONFIG_SND_MPU401_UART=m
+> CONFIG_SND_VIRMIDI=m
+> CONFIG_SND_SERIAL_U16550=m
+> CONFIG_SND_MPU401=m
+> CONFIG_SND_AC97_CODEC=m
+> CONFIG_SND_INTEL8X0=m
+> CONFIG_SND_USB_AUDIO=m
+> # Open Sound System
+> CONFIG_SOUND_PRIME=m
+> CONFIG_SOUND_ICH=m
+> CONFIG_SOUND_OSS=m
+> CONFIG_SOUND_TRACEINIT=y
+> CONFIG_SOUND_MPU401=m
+> CONFIG_USB=m
+> CONFIG_USB_DEVICEFS=y
+> CONFIG_USB_EHCI_HCD=m
+> CONFIG_USB_OHCI_HCD=m
+> CONFIG_USB_UHCI_HCD=m
+> CONFIG_USB_AUDIO=m
+> # USB Bluetooth TTY can only be used with disabled Bluetooth subsystem
+> CONFIG_USB_MIDI=m
+> CONFIG_USB_ACM=m
+> CONFIG_USB_PRINTER=m
+> CONFIG_USB_STORAGE=m
+> CONFIG_USB_STORAGE_DEBUG=y
+> CONFIG_USB_STORAGE_DATAFAB=y
+> CONFIG_USB_STORAGE_FREECOM=y
+> CONFIG_USB_STORAGE_ISD200=y
+> CONFIG_USB_STORAGE_DPCM=y
+> CONFIG_USB_STORAGE_HP8200e=y
+> CONFIG_USB_STORAGE_SDDR09=y
+> CONFIG_USB_STORAGE_SDDR55=y
+> CONFIG_USB_STORAGE_JUMPSHOT=y
+> # USB Human Interface Devices (HID)
+> CONFIG_USB_HID=m
+> CONFIG_USB_HIDINPUT=y
+> CONFIG_USB_HIDDEV=y
+> # USB Imaging devices
+> CONFIG_USB_MDC800=m
+> CONFIG_USB_MICROTEK=m
+> CONFIG_USB_HPUSBSCSI=m
+> # USB Multimedia devices
+> CONFIG_USB_DABUSB=m
+> CONFIG_USB_VICAM=m
+> CONFIG_USB_DSBR=m
+> CONFIG_USB_IBMCAM=m
+> CONFIG_USB_KONICAWC=m
+> CONFIG_USB_OV511=m
+> CONFIG_USB_PWC=m
+> CONFIG_USB_SE401=m
+> CONFIG_USB_STV680=m
+> CONFIG_USB_W9968CF=m
+> CONFIG_USB_CATC=m
+> CONFIG_USB_KAWETH=m
+> CONFIG_USB_PEGASUS=m
+> CONFIG_USB_RTL8150=m
+> CONFIG_USB_USBNET=m
+> CONFIG_USB_ALI_M5632=y
+> CONFIG_USB_AN2720=y
+> CONFIG_USB_BELKIN=y
+> CONFIG_USB_GENESYS=y
+> CONFIG_USB_NET1080=y
+> CONFIG_USB_PL2301=y
+> CONFIG_USB_ARMLINUX=y
+> CONFIG_USB_EPSON2888=y
+> CONFIG_USB_ZAURUS=y
+> CONFIG_USB_CDCETHER=y
+> CONFIG_USB_AX8817X=y
+> CONFIG_USB_USS720=m
+> CONFIG_USB_SERIAL=m
+> CONFIG_USB_SERIAL_GENERIC=y
+> CONFIG_USB_SERIAL_BELKIN=m
+> CONFIG_USB_SERIAL_WHITEHEAT=m
+> CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+> CONFIG_USB_SERIAL_EMPEG=m
+> CONFIG_USB_SERIAL_FTDI_SIO=m
+> CONFIG_USB_SERIAL_VISOR=m
+> CONFIG_USB_SERIAL_IPAQ=m
+> CONFIG_USB_SERIAL_IR=m
+> CONFIG_USB_SERIAL_EDGEPORT=m
+> CONFIG_USB_SERIAL_EDGEPORT_TI=m
+> CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+> CONFIG_USB_SERIAL_KEYSPAN=m
+> CONFIG_USB_SERIAL_KEYSPAN_MPR=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+> CONFIG_USB_SERIAL_KEYSPAN_USA49WLC=y
+> CONFIG_USB_SERIAL_KLSI=m
+> CONFIG_USB_SERIAL_MCT_U232=m
+> CONFIG_USB_SERIAL_PL2303=m
+> CONFIG_USB_SERIAL_CYBERJACK=m
+> CONFIG_USB_SERIAL_XIRCOM=m
+> CONFIG_USB_SERIAL_OMNINET=m
+> CONFIG_USB_EZUSB=y
+> CONFIG_USB_EMI62=m
+> CONFIG_USB_EMI26=m
+> CONFIG_USB_TIGL=m
+> CONFIG_USB_AUERSWALD=m
+> CONFIG_USB_RIO500=m
+> CONFIG_USB_LEGOTOWER=m
+> CONFIG_USB_LCD=m
+> CONFIG_USB_LED=m
+> CONFIG_USB_CYTHERM=m
+> CONFIG_USB_GADGET=m
+> CONFIG_USB_GADGET_NET2280=y
+> CONFIG_USB_NET2280=m
+> CONFIG_USB_GADGET_DUALSPEED=y
+> # File systems
+> CONFIG_EXT2_FS=y
+> CONFIG_EXT2_FS_XATTR=y
+> CONFIG_EXT2_FS_POSIX_ACL=y
+> CONFIG_EXT2_FS_SECURITY=y
+> CONFIG_EXT3_FS=y
+> CONFIG_EXT3_FS_XATTR=y
+> CONFIG_EXT3_FS_POSIX_ACL=y
+> CONFIG_EXT3_FS_SECURITY=y
+> CONFIG_JBD=y
+> CONFIG_JBD_DEBUG=y
+> CONFIG_FS_MBCACHE=y
+> CONFIG_REISERFS_FS=y
+> CONFIG_REISERFS_PROC_INFO=y
+> CONFIG_REISERFS_FS_XATTR=y
+> CONFIG_REISERFS_FS_POSIX_ACL=y
+> CONFIG_REISERFS_FS_SECURITY=y
+> CONFIG_FS_POSIX_ACL=y
+> CONFIG_MINIX_FS=y
+> CONFIG_ROMFS_FS=y
+> CONFIG_QUOTA=y
+> CONFIG_QFMT_V1=y
+> CONFIG_QFMT_V2=y
+> CONFIG_QUOTACTL=y
+> CONFIG_AUTOFS_FS=y
+> CONFIG_AUTOFS4_FS=y
+> # CD-ROM/DVD Filesystems
+> CONFIG_ISO9660_FS=y
+> CONFIG_JOLIET=y
+> CONFIG_ZISOFS=y
+> CONFIG_ZISOFS_FS=y
+> CONFIG_UDF_FS=y
+> CONFIG_UDF_NLS=y
+> # DOS/FAT/NT Filesystems
+> CONFIG_FAT_FS=y
+> CONFIG_MSDOS_FS=y
+> CONFIG_VFAT_FS=y
+> CONFIG_NTFS_FS=y
+> CONFIG_NTFS_RW=y
+> # Pseudo filesystems
+> CONFIG_PROC_FS=y
+> CONFIG_PROC_KCORE=y
+> CONFIG_SYSFS=y
+> CONFIG_DEVFS_FS=y
+> CONFIG_TMPFS=y
+> CONFIG_RAMFS=y
+> # Miscellaneous filesystems
+> CONFIG_CRAMFS=y
+> CONFIG_HPFS_FS=y
+> CONFIG_SYSV_FS=y
+> CONFIG_UFS_FS=y
+> CONFIG_UFS_FS_WRITE=y
+> # Network File Systems
+> CONFIG_NFS_FS=y
+> CONFIG_NFS_V3=y
+> CONFIG_NFS_V4=y
+> CONFIG_NFSD=y
+> CONFIG_NFSD_V3=y
+> CONFIG_NFSD_V4=y
+> CONFIG_NFSD_TCP=y
+> CONFIG_ROOT_NFS=y
+> CONFIG_LOCKD=y
+> CONFIG_LOCKD_V4=y
+> CONFIG_EXPORTFS=y
+> CONFIG_SUNRPC=y
+> CONFIG_SUNRPC_GSS=y
+> CONFIG_RPCSEC_GSS_KRB5=y
+> CONFIG_SMB_FS=y
+> CONFIG_SMB_NLS_DEFAULT=y
+> CONFIG_CIFS=y
+> CONFIG_NCP_FS=y
+> CONFIG_NCPFS_PACKET_SIGNING=y
+> CONFIG_NCPFS_IOCTL_LOCKING=y
+> CONFIG_NCPFS_STRONG=y
+> CONFIG_NCPFS_NFS_NS=y
+> CONFIG_NCPFS_OS2_NS=y
+> CONFIG_NCPFS_SMALLDOS=y
+> CONFIG_NCPFS_NLS=y
+> CONFIG_NCPFS_EXTRAS=y
+> CONFIG_AFS_FS=y
+> CONFIG_RXRPC=y
+> # Partition Types
+> CONFIG_PARTITION_ADVANCED=y
+> CONFIG_MAC_PARTITION=y
+> CONFIG_MSDOS_PARTITION=y
+> CONFIG_BSD_DISKLABEL=y
+> CONFIG_MINIX_SUBPARTITION=y
+> CONFIG_SOLARIS_X86_PARTITION=y
+> CONFIG_UNIXWARE_DISKLABEL=y
+> CONFIG_LDM_PARTITION=y
+> CONFIG_SUN_PARTITION=y
+> CONFIG_NLS=y
+> CONFIG_NLS_CODEPAGE_437=y
+> CONFIG_NLS_CODEPAGE_737=m
+> CONFIG_NLS_CODEPAGE_775=m
+> CONFIG_NLS_CODEPAGE_850=y
+> CONFIG_NLS_CODEPAGE_852=m
+> CONFIG_NLS_CODEPAGE_855=m
+> CONFIG_NLS_CODEPAGE_857=m
+> CONFIG_NLS_CODEPAGE_860=m
+> CONFIG_NLS_CODEPAGE_861=m
+> CONFIG_NLS_CODEPAGE_862=m
+> CONFIG_NLS_CODEPAGE_863=m
+> CONFIG_NLS_CODEPAGE_864=m
+> CONFIG_NLS_CODEPAGE_865=m
+> CONFIG_NLS_CODEPAGE_866=m
+> CONFIG_NLS_CODEPAGE_869=m
+> CONFIG_NLS_CODEPAGE_936=m
+> CONFIG_NLS_CODEPAGE_950=m
+> CONFIG_NLS_CODEPAGE_932=m
+> CONFIG_NLS_CODEPAGE_949=m
+> CONFIG_NLS_CODEPAGE_874=m
+> CONFIG_NLS_ISO8859_8=m
+> CONFIG_NLS_CODEPAGE_1250=y
+> CONFIG_NLS_CODEPAGE_1251=m
+> CONFIG_NLS_ASCII=m
+> CONFIG_NLS_ISO8859_1=y
+> CONFIG_NLS_ISO8859_2=m
+> CONFIG_NLS_ISO8859_3=m
+> CONFIG_NLS_ISO8859_4=m
+> CONFIG_NLS_ISO8859_5=m
+> CONFIG_NLS_ISO8859_6=m
+> CONFIG_NLS_ISO8859_7=m
+> CONFIG_NLS_ISO8859_9=m
+> CONFIG_NLS_ISO8859_13=m
+> CONFIG_NLS_ISO8859_14=m
+> CONFIG_NLS_ISO8859_15=y
+> CONFIG_NLS_KOI8_R=m
+> CONFIG_NLS_KOI8_U=m
+> CONFIG_NLS_UTF8=y
+> CONFIG_DEBUG_KERNEL=y
+> CONFIG_EARLY_PRINTK=y
+> CONFIG_DEBUG_STACKOVERFLOW=y
+> CONFIG_MAGIC_SYSRQ=y
+> CONFIG_X86_FIND_SMP_CONFIG=y
+> CONFIG_X86_MPPARSE=y
+> # Security options
+> CONFIG_SECURITY=y
+> CONFIG_SECURITY_NETWORK=y
+> CONFIG_SECURITY_CAPABILITIES=y
+> CONFIG_SECURITY_SELINUX=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+> CONFIG_SECURITY_SELINUX_DISABLE=y
+> CONFIG_SECURITY_SELINUX_DEVELOP=y
+> # Cryptographic options
+> CONFIG_CRYPTO=y
+> CONFIG_CRYPTO_HMAC=y
+> CONFIG_CRYPTO_NULL=y
+> CONFIG_CRYPTO_MD4=y
+> CONFIG_CRYPTO_MD5=y
+> CONFIG_CRYPTO_SHA1=y
+> CONFIG_CRYPTO_SHA256=y
+> CONFIG_CRYPTO_SHA512=y
+> CONFIG_CRYPTO_DES=y
+> CONFIG_CRYPTO_BLOWFISH=y
+> CONFIG_CRYPTO_TWOFISH=y
+> CONFIG_CRYPTO_SERPENT=y
+> CONFIG_CRYPTO_AES_586=y
+> CONFIG_CRYPTO_CAST5=y
+> CONFIG_CRYPTO_CAST6=y
+> CONFIG_CRYPTO_TEA=y
+> CONFIG_CRYPTO_ARC4=y
+> CONFIG_CRYPTO_KHAZAD=y
+> CONFIG_CRYPTO_DEFLATE=y
+> CONFIG_CRYPTO_MICHAEL_MIC=y
+> CONFIG_CRYPTO_CRC32C=y
+> CONFIG_CRYPTO_TEST=y
+> # Library routines
+> CONFIG_CRC_CCITT=y
+> CONFIG_CRC32=y
+> CONFIG_LIBCRC32C=y
+> CONFIG_ZLIB_INFLATE=y
+> CONFIG_ZLIB_DEFLATE=y
+> CONFIG_X86_BIOS_REBOOT=y
+> CONFIG_PC=y
+> 
+> --
+> 
+> * N.Radtke@                 * University of Stuttgart *    icq / lc   *
+> *      www.Think-Future.de  *    dep.comp.science     * 9336272/92045 *
+> :x                                                                   :)
+> 
+>    Gli eserciti tradizionali perdono se non vincono.  I guerriglieri
+>    vincono se non perdono. n  -- Henry Kissinger
+> 
+> 
+>

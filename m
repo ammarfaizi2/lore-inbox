@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131983AbQKBBJn>; Wed, 1 Nov 2000 20:09:43 -0500
+	id <S129687AbQKBBNd>; Wed, 1 Nov 2000 20:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132018AbQKBBJe>; Wed, 1 Nov 2000 20:09:34 -0500
-Received: from napalm.go.cz ([212.24.148.98]:5636 "EHLO napalm.go.cz")
-	by vger.kernel.org with ESMTP id <S131983AbQKBBJR>;
-	Wed, 1 Nov 2000 20:09:17 -0500
-Date: Thu, 2 Nov 2000 02:08:46 +0100
-From: Jan Dvorak <johnydog@go.cz>
-To: George <greerga@entropy.muc.muohio.edu>
-Cc: Kurt Garloff <garloff@suse.de>, "J . A . Magallon" <jamagallon@able.es>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
+	id <S130609AbQKBBNY>; Wed, 1 Nov 2000 20:13:24 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:16908 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129687AbQKBBNK>;
+	Wed, 1 Nov 2000 20:13:10 -0500
+Message-ID: <3A00BF7F.5C7CB1D7@mandrakesoft.com>
+Date: Wed, 01 Nov 2000 20:12:31 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "J . A . Magallon" <jamagallon@able.es>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-Message-ID: <20001102020846.A335@napalm.go.cz>
-Mail-Followup-To: George <greerga@entropy.muc.muohio.edu>,
-	Kurt Garloff <garloff@suse.de>,
-	"J . A . Magallon" <jamagallon@able.es>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <Pine.LNX.4.21.0011011802500.14734-100000@entropy.muc.muohio.edu>
-Mime-Version: 1.0
+In-Reply-To: <E13r6lL-0000w4-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011011802500.14734-100000@entropy.muc.muohio.edu>; from greerga@entropy.muc.muohio.edu on Wed, Nov 01, 2000 at 06:04:38PM -0500
-Organization: (XNET.cz)
-X-URL: http://doga.go.cz/
-X-OS: Linux 2.2.17 i686
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 06:04:38PM -0500, George wrote:
-> On Wed, 1 Nov 2000, Kurt Garloff wrote:
-> >kgcc is a redhat'ism. They invented this package because their 2.96 fails
-> >compiling a stable kernel. However, it's not a good idea to dist specific
-> >code into the official kernel tree.
+Alan Cox wrote:
+> J. A. Magallon wrote:
+> > I have noticed that in latest patch for 2.4.0, the global Makefile
+> > no more tries to find a kgcc, and falls back to gcc.
+
+The global Makefile in 2.4.x -never- looked for kgcc.
+
+
+> > I suppose because 2.7.2.3 is no more good for kernel, but still you
+> > can use 2.91, 2.95.2 or 2.96(??). Is that a patch that leaked in
+> > the way to test10, or is for another reason ?.
 > 
-> Big picture.
-> 
-> It may be distribution specific right now, but that doesn't stop other
-> distributions from needing it later.
+> I've not yet submitted it to Linus is the obvious reason 8)
 
-If number of distribution kernel-independent-compilers increase (and it
-will, at least until gcc 2.97/3.0 branch stabilize), it will be better to
-put in kernel variable (maybe in config) which cc to use. I agree, that this
-is not the best thing to do - put such code in kernel, but if it'll be
-needed, it can be done as shell script - 'which cc you want to compile
-kernel ? (1) gcc (default) (2) kgcc .... (X) Other: ___'. 
+You're not changing 2.4.x to use kgcc, are you?  It seems to be working
+fine under gcc 2.95.2+fixes...
 
-Jan Dvorak <johnydog@go.cz>
+	Jeff
 
+
+
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

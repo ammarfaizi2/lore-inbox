@@ -1,104 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265445AbTGCWDo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 18:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265450AbTGCWDo
+	id S265464AbTGCWEa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbTGCWE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 18:03:44 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:48002 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265445AbTGCWDf (ORCPT
+	Thu, 3 Jul 2003 18:04:29 -0400
+Received: from mailf.telia.com ([194.22.194.25]:26828 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id S265464AbTGCWES (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 18:03:35 -0400
-Subject: Re: Linux 2.5.74 (compile statistics)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057270853.29831.639.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 03 Jul 2003 15:20:53 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 18:04:18 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Mike Keehan <mike_keehan@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Synaptics driver on HP6100 and 2.5.73
+References: <20030626220016.27332.qmail@web12304.mail.yahoo.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 04 Jul 2003 00:15:45 +0200
+In-Reply-To: <20030626220016.27332.qmail@web12304.mail.yahoo.com>
+Message-ID: <m2brwb9rzi.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile statistics: 2.5.74
-Compiler: gcc 3.2.2
-Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
+Mike Keehan <mike_keehan@yahoo.com> writes:
 
-          bzImage       bzImage        modules
-        (defconfig)  (allmodconfig) (allmodconfig)
+> The touchpad is recognised OK when the kernel boots,
+> and my usb
+> connected mouse works fine.  But I get the following
+> message in
+> the syslog when I try to use the mousepad or any of
+> the buttons :-
+> 
+>     ... kernel: Synaptics driver lost sync at 1st byte
+> 
+> It worked alright in previous kernels before the
+> Synaptic driver was
+> added.
+> 
+> Relevant /var/log/dmesg content:-
+> 
+>  drivers/usb/core/usb.c: registered new driver hid
+>  drivers/usb/input/hid-core.c: v2.0:USB HID core
+> driver
+>  mice: PS/2 mouse device common for all mice
+>  synaptics reset failed
+>  synaptics reset failed
+>  synaptics reset failed
 
-2.5.74  0 warnings     8 warnings   1338 warnings
-        0 errors       9 errors       40 errors
+The logs from your other mail show that the touchpad is still in
+relative mode (using 3 byte packets) instead of absolute mode (using 6
+byte packets.) I don't know why this happens, but here are some things
+to investigate:
 
-2.5.73  2 warnings    11 warnings   1347 warnings
-        0 errors       9 errors       43 errors
+* Does the touchpad work with the synaptics XFree driver and a 2.4
+  kernel?
+* Does the Synaptics aware GPM version work?
+  (:pserver:cvs@ar.linux.it:/data/cvs)
+* Can you add some printks to the synaptics_reset() function to see
+  why it fails?
+* Maybe it helps to remove the call to synaptics_reset() in
+  query_hardware(). (I know this helped one user that used the user
+  space XFree driver with a 2.4 kernel.)
 
-2.5.72  2 warnings     8 warnings   1335 warnings
-        0 errors       0 errors       48 errors
+>  (**) Option "Device" "/dev/input/mouse1"
+>  (EE) xf86OpenSerial: Cannot open device
+> /dev/input/mouse1
+>          No such device.
+>  Synaptics driver unable to open device
+>  (EE) PreInit failed for input device "Mouse1"
+>  (II) UnloadModule: "synaptics"
+> 
+> Other device names I tries were /dev/input/mice,
+> /dev/event/event0
+> and /dev/psaux, but none of them work.
 
-2.5.71  6 warnings    11 warnings   1347 warnings
-        0 errors       0 errors       48 errors
+You should use /dev/input/eventX, where X is a number that depends on
+your hardware configuration. My config looks like this:
 
-2.5.70  7 warnings    10 warnings   1366 warnings
-        0 errors       0 errors       57 errors
+Section "InputDevice"
+        Identifier      "TouchPad"
+        Driver  "synaptics"
+        Option  "Device"        "/dev/input/event2"
+        Option  "Protocol"      "event"
+        Option  "LeftEdge"      "1800"
+        Option  "RightEdge"     "5400"
+        Option  "TopEdge"       "4200"
+        Option  "BottomEdge"    "1500"
+        Option  "FingerLow"     "25"
+        Option  "FingerHigh"    "30"
+        Option  "MaxTapTime"    "180"
+        Option  "MaxTapMove"    "220"
+        Option  "VertScrollDelta"       "100"
+        Option  "HorizScrollDelta"      "100"
+        Option  "EdgeMotionSpeed"       "40"
+        Option  "MinSpeed"      "0.08"
+        Option  "MaxSpeed"      "0.10"
+        Option  "AccelFactor"   "0.0010"
+        Option  "SHMConfig"     "on"
+        Option  "EmulateMidButtonTime" "75"
+#       Option  "UpDownScrolling" "off"
+EndSection
 
-
-Compile statistics have been for kernel releases from 2.5.46 to 2.5.74
-at: www.osdl.org/archive/cherry/stability
-
-Note that the sparse output is now included with the kernel compile
-statics at the link above.  Analysis welcome!
-
-
-Error Summary:
-
-   drivers/block: 2 warnings, 1 errors
-   drivers/char: 232 warnings, 4 errors
-   drivers/ieee1394: 15 warnings, 1 errors
-   drivers/isdn: 216 warnings, 6 errors
-   drivers/media: 102 warnings, 5 errors
-   drivers/mtd: 42 warnings, 1 errors
-   drivers/net: 29 warnings, 6 errors
-   drivers/net: 320 warnings, 6 errors
-   drivers/scsi/aic7xxx: 0 warnings, 1 errors
-   drivers/scsi: 110 warnings, 10 errors
-   drivers/video: 77 warnings, 3 errors
-   sound/oss: 49 warnings, 3 errors
-   sound: 5 warnings, 3 errors
-
-
-Warning Summary:
-
-   drivers/atm: 36 warnings, 0 errors
-   drivers/cdrom: 25 warnings, 0 errors
-   drivers/i2c: 3 warnings, 0 errors
-   drivers/ide: 28 warnings, 0 errors
-   drivers/md: 2 warnings, 0 errors
-   drivers/message: 5 warnings, 0 errors
-   drivers/pci: 1 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/scsi/aacraid: 1 warnings, 0 errors
-   drivers/scsi/pcmcia: 5 warnings, 0 errors
-   drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
-   drivers/serial: 2 warnings, 0 errors
-   drivers/telephony: 9 warnings, 0 errors
-   drivers/video/aty: 3 warnings, 0 errors
-   drivers/video/matrox: 5 warnings, 0 errors
-   drivers/video/sis: 2 warnings, 0 errors
-   fs/afs: 1 warnings, 0 errors
-   fs/intermezzo: 1 warnings, 0 errors
-   fs/jffs: 1 warnings, 0 errors
-   fs/lockd: 4 warnings, 0 errors
-   fs/nfsd: 2 warnings, 0 errors
-   fs/smbfs: 2 warnings, 0 errors
-   net: 35 warnings, 0 errors
-   sound/isa: 3 warnings, 0 errors
-
-John Cherry
-OSDL
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318870AbSHWPzu>; Fri, 23 Aug 2002 11:55:50 -0400
+	id <S318867AbSHWPzM>; Fri, 23 Aug 2002 11:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318869AbSHWPzu>; Fri, 23 Aug 2002 11:55:50 -0400
-Received: from codepoet.org ([166.70.99.138]:37778 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S318870AbSHWPzs>;
-	Fri, 23 Aug 2002 11:55:48 -0400
-Date: Fri, 23 Aug 2002 09:59:59 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix bitops.h circular dependancies
-Message-ID: <20020823155958.GA26060@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-References: <200208231046.g7NAk2914276@devserv.devel.redhat.com> <20020823145907.GA24609@codepoet.org> <20020823151615.GB24609@codepoet.org>
-Mime-Version: 1.0
+	id <S318869AbSHWPzM>; Fri, 23 Aug 2002 11:55:12 -0400
+Received: from smtp01.web.de ([194.45.170.210]:1297 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S318867AbSHWPzM>;
+	Fri, 23 Aug 2002 11:55:12 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4-ac1
+References: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <plail@web.de>
+Date: Fri, 23 Aug 2002 17:57:53 +0200
+In-Reply-To: <200208231046.g7NAk2914276@devserv.devel.redhat.com> (Alan
+ Cox's message of "Fri, 23 Aug 2002 06:46:02 -0400 (EDT)")
+Message-ID: <87d6s9a7pa.fsf@plailis.homelinux.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020823151615.GB24609@codepoet.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Aug 23, 2002 at 09:16:15AM -0600, Erik wrote:
-> On Fri Aug 23, 2002 at 08:59:08AM -0600, Erik wrote:
-> > It appears that linux/bitops.h includes asm/bitops.h, which itself
-> > includes linux/bitops.h prior to the #define fls(x)...  Both files
-> > have include guards, therefore the #define never happens....
-> 
-> Here is a fix.  Not an ideal fix, but it at least works.
+Hi Alan!
 
-"You feel foolish.  Goodbye level 2."
+* Alan Cox writes:
+>The HP merge is now down to 3503 lines pending
+>IDE status
+>	Chasing two reports of strange ide-scsi crashes
 
-I was fixing a patch I'd added locally...  Sorry about 
-the noise,
+As the problem still exists with this version, I fiddled a bit with
+different kernel option. I realized that the problem only occurs, when
+I have DMA enabled. As soon as I disable it, I can mount CD-ROM/DVDs
+without the formerly reported kernel oops.
 
- -Erik
+Hope it helps
+regards
+Markus
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

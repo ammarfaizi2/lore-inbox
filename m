@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271687AbTG2MHc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271688AbTG2MHc
+	id S271414AbTG2MDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271416AbTG2MDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:07:32 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:41123 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S271687AbTG2MHZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:07:25 -0400
-To: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-Cc: <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>
-Subject: Re: Problems related to DMA or DDR memory on Intel 845 chipset?
-References: <PMEMILJKPKGMMELCJCIGCEIOCDAA.kfrazier@mdc-dayton.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 29 Jul 2003 01:14:04 +0200
-In-Reply-To: <PMEMILJKPKGMMELCJCIGCEIOCDAA.kfrazier@mdc-dayton.com>
-Message-ID: <m3u1962qir.fsf@defiant.pm.waw.pl>
+	Tue, 29 Jul 2003 08:03:44 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:7906 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S271414AbTG2MDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 08:03:43 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: "Albert Cahalan" <albert@users.sourceforge.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: DMA not supported with Intel ICH4 I/O controller?
+Date: Tue, 29 Jul 2003 08:14:50 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGKEKOCDAA.kfrazier@mdc-dayton.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <1059443191.3861.48.camel@cube>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kathy Frazier" <kfrazier@mdc-dayton.com> writes:
 
-> Sorry for the confusion!  My driver sets up our device for a DMA (address
-> and length) and then gives the command
-> for the DMA to start.  Once the device has completed the transfer, it
-> asserts its interrupt, the driver clears it and proceeds to set up the next
-> data transfer.  It runs for awhile, but then eventually hangs (I don't get
-> interrupts and neither does anything else - keyboard, ethernet, etc).  I
-> simply added debug to do_IRQ in the kernel to track the desired IRQ.  I also
-> added a routine to read the 8259 Interrupt Controller Registers when
-> requested.  Then I had a user app and driver which simply called this new
-> new routine in the kernel to return the status of the 8259 and the debug
-> counters I added to do_IRQ.  Once the system failed, this debug information
-> showed that not only was Linux NOT receiving the interrupt, but neither was
-> the 8259.  When I changed my driver to poll the device for DMA completion
-> instead of rely on an interrupt, it still locked up.
 
-I understand this is your device doing DMA (= access) - i.e. your
-PCI card is transfering to/from system RAM? This has nothing to do with
-any UDMA and it works with any Linux kernel and system hardware which
-support PCI.
+>> kernel.org shows that the latest (albeit beta) kernel
+>> is 2.6.0-test2 . . . I hestiate to use that, because
+>> we would like something more stable to ship with our product.
 
-Are you using some standard PCI bridge by chance? Are you sure it isn't
-a hardware (design or manufacturing) problem with the device (bridge)?
-How do you check interrupt request state?
--- 
-Krzysztof Halasa
-Network Administrator
+>The 2.6.0-test2 kernel is very good for a test release.
+>Most problems are with drivers for old hardware not
+>being updated yet.
+
+Good info.  Thanks.
+
+>Also, in all seriousness, try a different PCI slot.
+>You may be having electrical problems.
+
+We've tried that . . .
+
+Regards, 
+Kathy
+
+

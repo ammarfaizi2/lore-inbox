@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbTA2Pgc>; Wed, 29 Jan 2003 10:36:32 -0500
+	id <S266233AbTA2PiC>; Wed, 29 Jan 2003 10:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbTA2Pgc>; Wed, 29 Jan 2003 10:36:32 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:52497 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S265140AbTA2Pgb>;
-	Wed, 29 Jan 2003 10:36:31 -0500
-Date: Wed, 29 Jan 2003 16:45:52 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: no more MTRRs available ?
-Message-Id: <20030129164552.182e0cb8.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0301291025240.18828-100000@coffee.psychology.mcmaster.ca>
-References: <20030129162354.55f2ace4.skraw@ithnet.com>
-	<Pine.LNX.4.44.0301291025240.18828-100000@coffee.psychology.mcmaster.ca>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S266250AbTA2PiB>; Wed, 29 Jan 2003 10:38:01 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14757 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S266233AbTA2PiA>;
+	Wed, 29 Jan 2003 10:38:00 -0500
+Date: Wed, 29 Jan 2003 16:47:06 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE: Do not call bh_phys() on buffers with invalid b_page.
+Message-ID: <20030129154706.GG31566@suse.de>
+References: <1043852266.1690.63.camel@zion.wanadoo.fr> <20030129150000.GD31566@suse.de> <1043853614.1668.70.camel@zion.wanadoo.fr> <20030129152214.GE31566@suse.de> <1043853975.1668.74.camel@zion.wanadoo.fr> <20030129153820.GF31566@suse.de> <1043855055.536.81.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043855055.536.81.camel@zion.wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jan 2003 10:25:57 -0500 (EST)
-Mark Hahn <hahn@physics.mcmaster.ca> wrote:
-
-> > what exactly does
-> > 
-> > 	mtrr: no more MTRRs available
-> > 	mtrr: no more MTRRs available
-> > 
-> > during boot mean? What can I do against this? This comes up while booting a
-> > system with 6GB and P-III 1.4 GHz (Serverworks chipset). Kernel is 2.4.20.
+On Wed, Jan 29 2003, Benjamin Herrenschmidt wrote:
+> On Wed, 2003-01-29 at 16:38, Jens Axboe wrote:
+> > No, any b_data < PAGE_OFFSET is not wrong, that's the point. For highmem
+> > b_page, b_data will be the offset into the page. So it could be 2048,
+> > for instance.
 > 
-> you need to look at /proc/mtrr.
+> In the other if() case, yes ;)
 
-Thanks for your hint, but what does this tell me?
+b_data < PAGE_SIZE would not be a bug in the other case, if
+PageHighmem(bh->b_page). If !PageHighmem(bh->b_page), then b_data <
+PAGE_OFFSET would be a bug, yes.
 
-# cat /proc/mtrr
-reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
-reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
-reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
-reg05: base=0xf7000000 (3952MB), size=  16MB: uncachable, count=1
-reg06: base=0x100000000 (4096MB), size=4096MB: write-back, count=1
-reg07: base=0x200000000 (8192MB), size=8192MB: write-back, count=1
- 
+But lets drop this now, it's getting way silly! :)
+
+> All I wanted to spot is that < PAGE_OFFSET would catch the PAGE_SIZE bug
+> as well ;) But that's not a problem in real life anyway it seems.
+
+That is correct, but as I said it's nice to separate them because it's
+two bugs really. And the one I wanted to catch was number 1, and that's
+the one I put in. EOD?
+
 -- 
-Regards,
-Stephan
+Jens Axboe
+

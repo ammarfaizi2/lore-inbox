@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292515AbSCKR7M>; Mon, 11 Mar 2002 12:59:12 -0500
+	id <S293452AbSCKSAC>; Mon, 11 Mar 2002 13:00:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292593AbSCKR7D>; Mon, 11 Mar 2002 12:59:03 -0500
-Received: from mail.gmx.net ([213.165.64.20]:34836 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S292515AbSCKR66>;
-	Mon, 11 Mar 2002 12:58:58 -0500
-Message-ID: <3C8CF054.91290065@gmx.net>
-Date: Mon, 11 Mar 2002 18:58:44 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S293487AbSCKR7r>; Mon, 11 Mar 2002 12:59:47 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:7186 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S292593AbSCKR7X>; Mon, 11 Mar 2002 12:59:23 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A76EC@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Henrique Gobbi'" <henrique@cyclades.com>
+Cc: linux-kernel@vger.kernel.org,
+        "'linux-serial'" <linux-serial@vger.kernel.org>
+Subject: RE: Char devices drivers
+Date: Mon, 11 Mar 2002 09:59:14 -0800
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE on linux-2.4.18
-In-Reply-To: <Pine.LNX.3.95.1020311120825.2860A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+On Mon, Mar 11, 2002, Henrique Gobbi wrote:
+> 
+> Can anyone explain what is the utility of the callout devices 
+> in the char drivers ???
 
-> On Mon, 11 Mar 2002, Alan Cox wrote:
->
-> > > hda: 20044080 sectors (10263 MB) w/418KiB Cache, CHS=1024/255/63, UDMA(33)
-> > > Partition check:
-> > >  hda: hda1 hda2 < hda5 hda6 >
-> > > hd: unable to get major 3 for hard disk
-> >
-> > ^^^^^^^^^^^^^^^^^^
-> >
-> > Case dismissed ;)
->
-> I haven't a clue what you are saying. Every IDE option that is allowed
-> is enabled in .config. The IDE drive(s) are found, but you imply, no
-> state, that I did something wrong. You state that I haven't enabled
-> something? I enabled everything that 'make config` allowed me to
-> enable. Now what is it?
+Historically, under various Uni*, the idea was that the callout devices
+would ignore DCD so open would complete regardless of the state of the
+CLOCAL cflag bit. This allowed dialing on modems that either did not assert
+DCD or bobbled DCD (causing hang-up on connect) while switching to online
+mode. One would choose to configure modems to assert DCD only when in
+connect state to assure local DTR drop (local hang up) if the link got
+disconnected. Many phone systems were implemented such that the caller would
+remain connected from the point of view of the telephone company and
+continue to be billed for time if the called party hung up unexpectedly, or
+the phone company dropped the link. Of course, if the modem were configured
+to not assert DCD while offline (dialing) then the normal series of tty
+devices could not be opened. So, the callout devices were to be used to
+"call out" from automatic communication programs such as UUCP. 
 
-You enabled too much(see hd.c):
+The other series of devices, sometimes called "call-in", open with CLOCAL
+off and wait in open for DCD to be asserted. This is what you would use for
+a getty to listen for an auto answer connection. Most vendors provided an
+interlock so a single port could be used for call-in and call-out traffic
+without conflict. This almost worked. There was always the rare case where
+the call-out devices was being opened at the same moment that a call came
+in. Not very secure. 
 
-    dep_bool '  Use old disk-only driver on primary interface'
-CONFIG_BLK_DEV_HD_IDE
+There was even a third series of devices that were used to dial out on
+hardware separate from the modem in the days before Hayes modems when
+dinosaurs roamed the parking lot. :) 
 
-will hog "major 3" (which is needed by IDE driver later).
+Just to confuse things, the vendors noticed that customers were complaining
+about not being able to open local connections to directly connected devices
+through 3-wire RS-232 and 2-pair RS-422 connections that did not contain the
+DCD line. They provided "software carrier" options, not specified via
+termio(s) or sgtty that could be set to allow the tty port to act as if DCD
+were always asserted. For example, on Solaris this is the default for the
+normal tty ports. 
 
+To further confuse things, most vendors have a "back door" port
+configuration mechanism outside of termio(s)/sgtty. For example, Linux has
+the setserial command. There is less need for separate callout devices when
+the user can set a port to open with the desired flag values.
+
+In summary, that's why they exist. Don't expect there to still be a
+compelling reason to use them.
+
+Enjoy,
+
+---------------------------------------------------------------- 
+Ed Vance              serial24@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

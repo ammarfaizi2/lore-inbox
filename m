@@ -1,75 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbTKBRPl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 12:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTKBRPl
+	id S261754AbTKBR3K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 12:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTKBR3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 12:15:41 -0500
-Received: from h80ad263a.async.vt.edu ([128.173.38.58]:57318 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261753AbTKBRPj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 12:15:39 -0500
-Message-Id: <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Brian Beattie <beattie@beattie-home.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right 
-In-Reply-To: Your message of "Sun, 02 Nov 2003 08:11:32 EST."
-             <1067778693.1315.76.camel@kokopelli> 
-From: Valdis.Kletnieks@vt.edu
-References: <1067778693.1315.76.camel@kokopelli>
+	Sun, 2 Nov 2003 12:29:09 -0500
+Received: from quechua.inka.de ([193.197.184.2]:50663 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261754AbTKBR3D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 12:29:03 -0500
+Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+To: Daniel Stekloff <dsteklof@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200310290920.06056.dsteklof@us.ibm.com>
+References: <3F9D82F0.4000307@mvista.com> <20031028224416.GA8671@kroah.com>
+	 <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
+	 <200310290920.06056.dsteklof@us.ibm.com>
+Content-Type: text/plain
+Organization: small linux home
+Message-Id: <1067794124.30274.18.camel@simulacron>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1458627488P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 02 Nov 2003 18:28:44 +0100
 Content-Transfer-Encoding: 7bit
-Date: Sun, 02 Nov 2003 12:15:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1458627488P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 2003-10-29 at 18:20, Daniel Stekloff wrote:
+> The tdb database is for storing current device information, udev needs to 
+> reference names to devices. The database also enables an api for applications 
+> to query what devices are on the system, their names, and their nodes. 
+> 
+> Using tdb has its advantages too; it's small, it's flexible, it's fast, it can 
+> be in memory or on disk, and it has locking for multiple accesses.
+> 
+> IMVHO - tdb isn't bloat.
 
-On Sun, 02 Nov 2003 08:11:32 EST, Brian Beattie <beattie@beattie-home.net>  said:
+Hi Dan,
 
-> for storage might be feasible soon.  The idea is that you have a
-> permanent store, using raid or raid-like redundancy and file versioning
-> so that nothing is ever deleted, you just keep adding drives and
-> replacing those that fail.  Of course you'd need some geographic
-> diversity and a way for storage to migrate to newer "file stores" to
-> really work, but just think, no more backups to fail...ever!   
+thanks for your email.
+I took a look at tdb. Upon adding devices, the DEVPATH is resolved via
+config files etc. to a final /dev filename. That combination is stored
+in tdb, and when the device is remove, the same resolution process is
+not done, but the tdb is looked up to find the filename, and remove
+the device. Is that right?
 
-This may be very nice for the high end, but getting "geographic diversity"
-means you have to get space in a colo of some sort (unless you're a big enough
-site that you have another building of your own at least a mile or two away),
-and bandwidth between the two sites.
+So the advantage would be resistance against config file changes - if
+the nameing scheme is changed while a devices is added, the remove would
+get the new name, and that way try to remove the wrong device.
 
-Somehow, I don't see this anytime soon for the home user, the SOHO user, or the
-small company that has 7-8 internal servers and a T-1.
+Also this mechanism could be used to implement counting device names
+like "disc/0", where the final name depends on the devices currently
+available, so there is no static translation from devpath to the
+filename.
 
-Remember that for this to work, the bandwidth and off-site storage has to be
-available at a cost the user can afford.  Remember that a lot of people aren't
-too happy with the current price point for cable or DSL access - and those
-price points are set with a high overcommital of bandwidth.  If everybody
-starts trying to do backups over the network, the provider will have to build
-out more capacity, and raise the price to cover it.
+I'd prefer the kernel giving up the old device names, and migrating
+to counter names i.e. disc/0, cdrom/0, printer/0, etc. Those who
+still want the old names could use /sys/ to determine the details
+on the device, and that way create devices per the old naming schema.
+That way tdb wouldn't be necessary for counting device names, at least
+if sysfs still has the full information on the device while the hotplug
+event runs. I guess that is not the case or not guaranteed?
 
-Yes, we're looking at offsite disk mirroring as a backup solution.  But we're
-lucky that we have a large open space in a switch room some 3 miles from the
-data center and dark fiber from here to there.  But it's STILL going to be a
-big chunk of change. I dread to think what it would cost per month if we had to
-pay for the space and bandwidth.
+Also I have to admit, if symlinks like "hpdeskjet" to some usb device
+are configured in the config, the device is attached, and the config
+is changed, then a remove event will not find the old symlink and
+cannot remove it, without tdb.
 
+But maybe like a coldplug / fulling an empty /dev, there should be
+rerun command? I.e. like coldplug determine what device and symlinks
+shold be in /dev, and the remove unnecessary, add missing, and modify
+outdated entries (devices,files)? If that existed, configuration changes
+wouldn't be a reason for udev to use tdb?
 
---==_Exmh_1458627488P
-Content-Type: application/pgp-signature
+So why is tdb currently required? I only see the possibility to use
+naming schemes like disc/0 as a reason, but that isn't implemented
+in udev so far...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+other than a theological discussion about needed or not, I guess nobody
+will complain about it - even people with /dev on tmpfs and a readonly
+/ will have a writable or tmpfs /var so they can live with it anyway.
+but I'm still not sure, if it isn't unnecessary.
 
-iD8DBQE/pTu0cC3lWbTT17ARAvGyAJ4uyjMCJhz78LuOvY5+Wa0jZvvcfACgrJbt
-iA5nKnNWStTBMhYLPiAtse8=
-=Ov+g
------END PGP SIGNATURE-----
+Regards, Andreas
 
---==_Exmh_1458627488P--

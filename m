@@ -1,72 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266913AbUBEWIE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266943AbUBEWIE
+	id S267057AbUBEWR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 17:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267059AbUBEWR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:08:04 -0500
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:26245 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266913AbUBEWH7 convert rfc822-to-8bit (ORCPT
+	Thu, 5 Feb 2004 17:17:57 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:3870 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S267057AbUBEWRv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:07:59 -0500
-From: Murilo Pontes <murilo_pontes@yahoo.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: psmouse.c, throwing 3 bytes away
-Date: Thu, 5 Feb 2004 19:08:21 +0000
-User-Agent: KMail/1.6
-References: <200402041820.39742.wnelsonjr@comcast.net> <200402051517.37466.murilo_pontes@yahoo.com.br> <20040205203840.GA13114@ucw.cz>
-In-Reply-To: <20040205203840.GA13114@ucw.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>
+	Thu, 5 Feb 2004 17:17:51 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200402051908.22071.murilo_pontes@yahoo.com.br>
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Thu, 5 Feb 2004 17:17:50 -0500
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96FA@mercury.infiniconsys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsLs89w9yLLeYgQ3eZJ/EqsnTR3QAAxrlw
+From: "Tillier, Fabian" <ftillier@infiniconsys.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <sean.hefty@intel.com>,
+       <linux-kernel@vger.kernel.org>, <hozer@hozed.org>, <woody@co.intel.com>,
+       <bill.magro@intel.com>, <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui 05 Fev 2004 20:59, você escreveu:
-> The exception seems to be coming from
-> linux-2.6.2/drivers/input/mouse/psmouse-base.c, specifically from
-> 
-> if (psmouse->state == PSMOUSE_ACTIVATED &&
->             psmouse->pktcnt && time_after(jiffies, psmouse->last +
-> HZ/2)) {
->                 printk(KERN_WARNING "psmouse.c: %s at %s lost
-> synchronization, throwing %d bytes away.\n",
->                        psmouse->name, psmouse->phys, psmouse->pktcnt);
->                 psmouse->pktcnt = 0;
->         }
-> 
-> 
-> where (for me) HZ is 1804768000, and therefore HZ/2 is 902384000,  
-> psmouse->pktcnt is 3, and (I assume) PSMOUSE_ACTIVATED is non-0 after
-> boot.  I assume that pktcnt is fed by interrupt, and the problem then is
-> that psmouse->last + HZ/2 blows past the jiffies value, causing the
-> warning message to be issued.  When mouse service finally comes back,
-> pktcnt is non-zero (and possibly whatever the maximum is that it will
-> hold), and when it flushes, the mouse pointer goes nuts for a second. 
-> The real problem then, is why does the sum of ps->last + HZ/2 grow to
-> beyond the size of jiffies (or what is delaying the mouse service)?
-> 
-> This is just a rough guesstimate of what is going on, but seems to fit
-> the facts.   Cheers!
-> 
-> Bob
-Always in heavy load(like c++ compiling, high volume of VM operations),
-kernel jiffies are more large or short delay....
+Greg,
 
-Bug is solved?
-I am open to receive patchs for test! 
-Please send when avaliable! 
+I'm not arguing about the spinlocks here, and never have.  I'm arguing
+about the atomic abstraction for the x86 platforms.  My last question
+was not a yes/no question so I'm not sure what you're answering with
+your "No" - your reply makes no sense.  To clarify, the answer to a
+"chose one of two things" question is not "No".  Basic XOR logic is all
+that's needed here.  I'm not sure what you're asking about with the
+whole quotations thing.
 
-Thanks
+Having atomic operations return a value allows one to do something like
+test for zero when decrementing an atomic variable such as a reference
+count, to determine whether final cleanup should proceed.  This removes
+the need for an actual spinlock protecting the reference count.  As you
+know, reading the value post-decrement does not guarantee that said
+value reflects the result of only that decrement operation.  It would be
+catastrophic if two threads checked the value of a reference count
+without proper synchronization - they could both end up running the
+cleanup code with undesired (and perhaps catastrophic) results.
 
+I'll try a simple example for you assuming atomic_dec returns the
+decremented value:
 
+if( atomic_dec( x ) == 0 )
+{
+    cleanup();
+}
 
+In the current implementation of atomic operations for x86 however,
+atomic_dec doesn't return anything.  To get the proper behavior would
+require a true spinlock because the following code sample would not work
+properly since there's no atomicity guaranteed between the decrement and
+the read:
 
+atomic_dec( x )
+if( atomic_read( x ) == 0 )
+{
+    cleanup();
+}
 
+So without returning the result of the decrement, you lose the ability
+to use atomic variables for reference counting.
 
+Hope this clarifies things for you,
 
+- Fab
+ 
+
+-----Original Message-----
+From: Greg KH [mailto:greg@kroah.com] 
+Sent: Thursday, February 05, 2004 1:27 PM
+To: Tillier, Fabian
+Cc: Randy.Dunlap; sean.hefty@intel.com; linux-kernel@vger.kernel.org;
+hozer@hozed.org; woody@co.intel.com; bill.magro@intel.com;
+woody@jf.intel.com; infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+theLinux kernel
+
+A: No.
+Q: Should I include quotations after my reply?
+
+On Thu, Feb 05, 2004 at 03:32:09PM -0500, Tillier, Fabian wrote:
+> So which is more important to the "Linux kernel" project: i386
+backwards
+> compatibility, or consistent API and functionality across processor
+> architectures? ;)
+
+Anyway, why not describe what you are trying to accomplish that made you
+determine that you _had_ to have these kinds of functions.
+
+Basically, what is lacking in the current kernel locks that the
+infiniband project has to have in order to work properly.  We can work
+from there.
+
+thanks,
+
+greg k-h

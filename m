@@ -1,99 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268590AbUJKA7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268591AbUJKBY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268590AbUJKA7u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 20:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268591AbUJKA7u
+	id S268591AbUJKBY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 21:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268594AbUJKBY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 20:59:50 -0400
-Received: from nef.ens.fr ([129.199.96.32]:48654 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S268590AbUJKA7q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 20:59:46 -0400
-Subject: Re: possible GPL violation by Free
-From: Eric Rannaud <eric.rannaud@ens.fr>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, okuji@gnu.org
-In-Reply-To: <20041010102802.GH19761@alpha.home.local>
-References: <200410091958.25251.okuji@gnu.org>
-	 <20041010102802.GH19761@alpha.home.local>
+	Sun, 10 Oct 2004 21:24:56 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:22965 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S268591AbUJKBYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 21:24:54 -0400
+Subject: Producing nice text output while suspending without messing the
+	logs.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
 Content-Type: text/plain
-Date: Mon, 11 Oct 2004 02:59:39 +0200
-Message-Id: <1097456379.27877.51.camel@frenchenigma>
+Message-Id: <1097457890.3519.30.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 11 Oct 2004 11:24:51 +1000
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Mon, 11 Oct 2004 02:59:42 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi all.
 
-On Sun, 2004-10-10 at 12:28 +0200, Willy Tarreau wrote:
-> (at least provide the
-> result of an nmap -O). For most end-users, "linux" is the word for "a
-> reliable embedded OS with IP support".
+First, apologies to those CC'd if they don't think this is relevant to
+them - I'm guessing who to CC).
 
-Here it is, on a Freebox v1 (the Freebox distributed now is version 3,
-but version 1 was still distributed less than one year ago (i.e. under
-the 3 years limit in the GPL)).
-Disclaimer: this scan output should be taken carefully. Please do not
-jump to conclusions.
-(IP and MAC hidden)
+Suspend2 can produce potentially produce quite a lot of output, not all
+of which you want to see in your logs. (Compare Pavel's ^Hs from the
+spinning bar). To get around this, I used to use vt_console_print to
+output the stuff that shouldn't be logged. Some people, however (don't
+remember who now), said I should be opening /dev/console and using that
+instead. I made the switch and it didn't caused any problems until the
+other day, when one user had /dev/console open while trying to suspend.
+When suspend tried to open /dev/console as well, it hung, of course.
+This makes me want to raise the issue again.
 
---------------------------------
-Starting nmap 3.70 ( http://www.insecure.org/nmap/ ) at 2004-10-10 20:23
-CEST
-Initiating SYN Stealth Scan against XX.XX.XX.254 [1660 ports] at 20:23
-Discovered open port 22/tcp on XX.XX.XX.254
-Discovered open port 199/tcp on XX.XX.XX.254
-The SYN Stealth Scan took 5.12s to scan 1660 total ports.
-For OSScan assuming that port 22 is open and port 1 is closed and
-neither are firewalled
-Host XX.XX.XX.254 appears to be up ... good.
-Interesting ports on XX.XX.XX.254:
-(The 1658 ports scanned but not shown below are in state: closed)
-PORT    STATE SERVICE
-22/tcp  open  ssh
-199/tcp open  smux
-MAC Address: 00:07:XX:XX:XX:XX (Freebox SA)
-Device type: general purpose
-Running: Linux 2.4.X|2.5.X
-OS details: Linux 2.4.0 - 2.5.20
-OS Fingerprint:
-TSeq(Class=RI%gcd=1%SI=40A886%IPID=Z%TS=100HZ)
-T1(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T4(Resp=Y%DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(Resp=Y%DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(Resp=Y%DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(Resp=Y%DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(Resp=Y%DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%
-DAT=E)
+I guess the problem is really that suspend is a bit of a combination of
+kernel and user space: all of the main work that it does can't be done
+in userspace, but we (well some people at least!) want Linux to look
+good while it does it's suspend to disk and resuming. (And we don't want
+the logs filled with lots of junk in the process). I realise that some
+people don't care what their screen and logs look like, so long as the
+suspend & resume work. That's fine, but I want to cater for those who do
+care as well, and think that since this will be a very visible part of
+the kernel, it ought to look good (think ignorant desktop user). To that
+end, I'm going to ignore anyone who simply wants to argue that this
+stuff doesn't belong in the kernel.
 
-Uptime 41.944 days (since Sun Aug 29 21:XX:XX 2004)
-TCP Sequence Prediction: Class=random positive increments
-                         Difficulty=4237446 (Good luck!)
-TCP ISN Seq. Numbers: 99D03998 9A7D22DF 9A644725 9A6FDD72 9A0BEAA0
-IPID Sequence Generation: All zeros
+Having said all of that, I want to raise the issue again: Is it really
+necessary for suspend to use /dev/console to display output that
+shouldn't be logged? Could the code use the vt_console_print, gotoxy and
+blank/unblank_console functions - or some abstraction of them to do it's
+drawing?
 
-Nmap run completed -- 1 IP address (1 host up) scanned in 8.556 seconds
--------------------------------
+Regards,
 
-
-If I remember correctly my contract, after 36 months, I become the owner
-of the freebox. The argument about renting does not seem to hold,
-anyway.
-
-I will contact Free to ask for more information.
-
-Best,
-
-     /er.
-
-
-
+Nigel
 -- 
-Eric Rannaud <eric.rannaud@ens.fr>
-http://www.eleves.ens.fr/home/rannaud/
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

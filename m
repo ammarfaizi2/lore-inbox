@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUJNLts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUJNMF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUJNLts (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 07:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUJNLts
+	id S263540AbUJNMF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 08:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUJNMF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 07:49:48 -0400
-Received: from [200.48.36.148] ([200.48.36.148]:47825 "EHLO
-	correo.speedy.com.pe") by vger.kernel.org with ESMTP
-	id S263117AbUJNLtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 07:49:46 -0400
-Message-ID: <1097753635.416e6423adc5a@correo.speedy.com.pe>
-Date: Thu, 14 Oct 2004 06:33:55 -0500
-From: fancy3@speedy.com.pe
-To: fancy3@speedy.com.pe
-Subject: Proposal
+	Thu, 14 Oct 2004 08:05:28 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:17641 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S263540AbUJNMFW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 08:05:22 -0400
+Date: Thu, 14 Oct 2004 14:01:46 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: David Howells <dhowells@redhat.com>
+cc: "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: signed kernel modules? 
+In-Reply-To: <16349.1097752349@redhat.com>
+Message-ID: <Pine.LNX.4.61.0410141357380.877@scrub.home>
+References: <Pine.LNX.4.61.0410132346080.7182@scrub.home> 
+ <1097626296.4013.34.camel@localhost.localdomain> <1096411448.3230.22.camel@localhost.localdomain>
+ <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
+ <20040812092029.GA30255@devserv.devel.redhat.com> <20040811211719.GD21894@kroah.com>
+ <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
+ <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
+ <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
+ <30797.1092308768@redhat.com> <20040812111853.GB25950@devserv.devel.redhat.com>
+ <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+ <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+ <10345.1097507482@redhat.com> <1097507755.318.332.camel@hades.cambridge.redhat.com>
+ <1097534090.16153.7.camel@localhost.localdomain>
+ <1097570159.5788.1089.camel@baythorne.infradead.org> <27277.1097702318@redhat.com>
+  <16349.1097752349@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 200.60.240.194
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Dear Customer,
+On Thu, 14 Oct 2004, David Howells wrote:
 
-Be the very first listing in the top search engines immediately.
-Our company will now place any business with a qualified website permanently 
-at the top of the major search engines guaranteed never to move.  This 
-promotion includes unlimited traffic and is not going to last long.  If you 
-are interested in being guaranteed first position in the top search engines at 
-a promotional fee, please contact us promptly to find out if you qualify via 
-email at fancy3@speedy.com.pe and include the URL(s) you are interested in 
-placing.  This is not pay per click.
- 
-The following are examples on Yahoo!, MSN and Alta Vista:
+> > How do you make sure that the module you sign is exactly the module that 
+> > you want to get signed?
+> 
+> Currently you have to sign them manually (as I said in that email). The Fedora
+> kernel spec file signs everything and its dog when you build the RPM.
 
- 
-Company:             Oahu Dive Center
+I'm trying to understand the reason to stuff this into kernel. Why can't 
+this check be done before loading the module into the kernel? If you don't 
+trust insmod, how can you trust the build system?
 
-URL:                 http://oahudivecenter.com
-
-keyword:             oahu scuba diving
-
- 
-Company:             California Moves.com
-
-URL:                 http://steph.cbsocal.com/
-
-keyword:             find a home southern california
-
-Sincerely,
-
-IGN
-
-The Search Engine Promotional Consultants
+bye, Roman

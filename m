@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132906AbRDEOgi>; Thu, 5 Apr 2001 10:36:38 -0400
+	id <S132910AbRDEOiI>; Thu, 5 Apr 2001 10:38:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132908AbRDEOg3>; Thu, 5 Apr 2001 10:36:29 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:54793 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132906AbRDEOgT>;
-	Thu, 5 Apr 2001 10:36:19 -0400
-Date: Thu, 5 Apr 2001 10:35:00 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: Joseph Carter <knghtbrd@debian.org>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: asm/unistd.h
-In-Reply-To: <20010405072628.C22001@debian.org>
-Message-ID: <Pine.LNX.4.30.0104051031210.13496-100000@localhost>
+	id <S132908AbRDEOh7>; Thu, 5 Apr 2001 10:37:59 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:29196 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S132909AbRDEOho>;
+	Thu, 5 Apr 2001 10:37:44 -0400
+Message-ID: <3ACC82DA.11D76D45@mountain.net>
+Date: Thu, 05 Apr 2001 10:36:10 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: Race in fs/proc/generic.c:make_inode_number()
+In-Reply-To: <3ACBFF4C.97AA345F@mountain.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Apr 2001, Joseph Carter wrote:
+I wrote:
+> 
+> The proc_alloc_map bitfield is unprotected by any lock, and
+> find_first_zero_bit() is not atomic. Concurrent module loading can race
+> here.
 
-> On Thu, Apr 05, 2001 at 09:06:20AM -0400, Bart Trojanowski wrote:
-> > So you ask: "why not just use a { ... } to define a macro".  I don't
-> > remember the case for this but I know it's there.  It has to do with a
-> > complicated if/else structure where a simple {} breaks.
->
-> This doesn't follow in my mind.  I can't think of a case where a { ... }
-> would fail, but a do { ... } while (0) would succeed.  The former would
-> also save a few keystrokes.
+Hello,
 
-Tim Waugh already stated this one:
-
-#define foo(x) { do_something(x) }
-
-if( condition )
-  foo(x);
-else
-  foo(y);
-
-would produce
-
-if( condition )
-  { do_something(x) };
-else
-  { do_something(y) };
-
-note the semi-colon at the end of {.*}.
-
-This is bad because it forces you to use the foo macro knowing it's a
-macro and not a function.
-
-So you say I will use it like this:
-
-if( condition )
-  foo(x)
-else
-  foo(y)
-
-That's just great for this case, but now imagine that on some other
-architecture doing foo(x) takes many many lines with recursion and all.
-You don't want that to be in a macro so you make a function.  And you get
-many many compiler errors on thsi new platform.
+Here is a patch for this. It looks like callers are always in user context
+(kmalloc flag GFP_KERNEL), so I used a light spinlock.
 
 Cheers,
-Bart.
-
+Tom
 -- 
-	WebSig: http://www.jukie.net/~bart/sig/
+The Daemons lurk and are dumb. -- Emerson
 
-
+--- linux-2.4.3/fs/proc/generic.c.orig	Thu Apr  5 10:03:02 2001
++++ linux-2.4.3/fs/proc/generic.c	Thu Apr  5 10:22:48 2001
+@@ -192,13 +192,22 @@
+ 
+ static unsigned char proc_alloc_map[PROC_NDYNAMIC / 8];
+ 
++spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
++
+ static int make_inode_number(void)
+ {
+-	int i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
+-	if (i<0 || i>=PROC_NDYNAMIC) 
+-		return -1;
++	int i;
++	spin_lock(&proc_alloc_map_lock);
++	i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
++	if (i<0 || i>=PROC_NDYNAMIC) {
++		i = -1;
++		goto out;
++	}
+ 	set_bit(i, (void *) proc_alloc_map);
+-	return PROC_DYNAMIC_FIRST + i;
++	i += PROC_DYNAMIC_FIRST;
++out:
++	spin_unlock(&proc_alloc_map_lock);
++	return i;
+ }
+ 
+ static int proc_readlink(struct dentry *dentry, char *buffer, int buflen)

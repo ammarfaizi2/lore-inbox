@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbUKLCC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbUKLCEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbUKLCC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 21:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUKLCCz
+	id S262485AbUKLCEs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 21:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUKLCEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 21:02:55 -0500
-Received: from smtpout.mac.com ([17.250.248.44]:1484 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262458AbUKLCBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 21:01:48 -0500
-In-Reply-To: <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org>
-References: <200411112302.iABN2Pu01711@apps.cwi.nl> <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <CB00AF16-344E-11D9-857E-000393ACC76E@mac.com>
+	Thu, 11 Nov 2004 21:04:20 -0500
+Received: from mail.renesas.com ([202.234.163.13]:25591 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262458AbUKLCDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 21:03:21 -0500
+Date: Fri, 12 Nov 2004 11:03:07 +0900 (JST)
+Message-Id: <20041112.110307.1025206957.takata.hirokazu@renesas.com>
+To: akpm@osdl.org
+Cc: takata@linux-m32r.org, linux-kernel@vger.kernel.org, gniibe@fsij.org
+Subject: Re: [PATCH 2.6.10-rc1 1/2] [m32r] Update for m32r-g00ff
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20041111163927.1edcd1c9.akpm@osdl.org>
+References: <20041111.221136.576022723.takata.hirokazu@renesas.com>
+	<20041111.221223.596521517.takata.hirokazu@renesas.com>
+	<20041111163927.1edcd1c9.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] remove if !PARTITION_ADVANCED condition in defaults
-Date: Thu, 11 Nov 2004 21:01:40 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 11, 2004, at 18:11, Linus Torvalds wrote:
-> Actually, we should make MSDOS_PARTITION not ask at all, unless
-> CONFIG_EMBEDDED is set.
+Hi, Andrew,
 
-My dual 1GHz G4 isn't an embedded system by any means, but I don't
-want to load crappy MSDOS partition drivers into it, it's intended to
-have a blazingly fast boot time with minimal extra drivers.
+From: Andrew Morton <akpm@osdl.org>
+Date: Thu, 11 Nov 2004 16:39:27 -0800
+> Hirokazu Takata <takata@linux-m32r.org> wrote:
+> >
+> >  - Position-independent zImage support;
+> >    this aims at removing constraints of zImage(vmlinuz)'s location.
+> 
+> This generates a reject against Linus's current tree, in
+> arch/m32r/boot/compressed/Makefile
+> 
+> Please always generate diffs against current bitkeeper, or against the
+> latest diff from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots. 
+> 2.6.10-rc1 is too old: we're currently showing a ten megabyte diff against
+> 2.6.10-rc1.
 
-> That's really what EMBEDDED means: ask about things that no sane person
-> would leave out. So how about just changing that "if 
-> PARTITION_ADVANCED"
-> into "if EMBEDDED" on MSDOS?
+I see. I will check my patches before sending hereafter.
 
-If you make this specific to x86, that _may_ be OK, but I suspect 
-others who
-only have only BSD partitioning schemes may object.
+> I resolved the reject as below.  It might be wrong.
 
-Cheers,
-Kyle Moffett
+Thank you for your elaboration.
+OK. Please apply the following patch.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+> 
+> --- 25/arch/m32r/boot/compressed/Makefile~m32r-update-for-m32r-g00ff	2004-11-11 16:35:23.789252008 -0800
+> +++ 25-akpm/arch/m32r/boot/compressed/Makefile	2004-11-11 16:35:23.800250336 -0800
+> @@ -5,10 +5,10 @@
+>  #
+>  
+>  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o \
+> -		   m32r-sio.o piggy.o vmlinux.lds
+> +		   piggy.o vmlinux.lds
+>  EXTRA_AFLAGS	:= -traditional
+>  
+> -OBJECTS = $(obj)/head.o $(obj)/misc.o $(obj)/m32r_sio.o
+> +OBJECTS = $(obj)/head.o $(obj)/misc.o
+>  
+>  #
+>  # IMAGE_OFFSET is the load offset of the compression loader
+> @@ -28,6 +28,8 @@ $(obj)/vmlinux.bin: vmlinux FORCE
+>  $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
+>  	$(call if_changed,gzip)
+>  
+> +CFLAGS_misc.o += -fpic
+> +
+>  LDFLAGS_piggy.o := -r --format binary --oformat elf32-m32r-linux -T
+>  OBJCOPYFLAGS += -R .empty_zero_page
+>  
 
+Thank you again,
 
+-- Takata

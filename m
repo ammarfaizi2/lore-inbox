@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312511AbSDEMYl>; Fri, 5 Apr 2002 07:24:41 -0500
+	id <S312505AbSDEM2W>; Fri, 5 Apr 2002 07:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312524AbSDEMYX>; Fri, 5 Apr 2002 07:24:23 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:45199 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S312505AbSDEMYB>; Fri, 5 Apr 2002 07:24:01 -0500
-Date: Fri, 5 Apr 2002 14:23:51 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: "David S. Miller" <davem@redhat.com>
+	id <S312513AbSDEM2L>; Fri, 5 Apr 2002 07:28:11 -0500
+Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:43790 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S312505AbSDEM1y>;
+	Fri, 5 Apr 2002 07:27:54 -0500
+Date: Fri, 5 Apr 2002 13:28:10 +0100
+From: Chris Wilson <chris@jakdaw.org>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: socket write(2) after remote shutdown(2) problem ?
-Message-ID: <20020405122351.GH16595@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020405105509.GE16595@come.alcove-fr> <20020405.030251.28451401.davem@redhat.com> <20020405120054.GF16595@come.alcove-fr> <20020405.040451.127871174.davem@redhat.com>
+Subject: Re: P4/i845 Strange clock drifting
+Message-Id: <20020405132810.4728c01d.chris@jakdaw.org>
+In-Reply-To: <Pine.LNX.4.44.0204031613160.2309-100000@netfinity.realnet.co.sz>
+Organization: Hah!
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 05, 2002 at 04:04:51AM -0800, David S. Miller wrote:
 
->    From: Stelian Pop <stelian.pop@fr.alcove.com>
->    Date: Fri, 5 Apr 2002 14:00:55 +0200
+
+> > I tried to use 2.5.7-dj2 with Zwane Mwaikambo's thermal LVT support in
+> > there but it didn't detect a local APIC on bootup (!) - I'm guessing there
+> > needs to be an APIC for Zwane's stuff? When I tried to switch back to
 > 
->    As you can see, read() doesn't return any error, just 0 to 
->    indicate end-of-file (seems correct interpretation of remote
->    shutdown here), but it doesn't report any error from the 
->    precedent write... Bug ?
-> 
-> Race, wait a bit, the reset will arrive.
+> -dj2 P4 thermal patch is a bit broken (my bad), but the fact that it 
+> doesn't detect an APIC means that code would, erm do interesting things...
 
-30 seconds later the read still returns 0...
+<grin>
 
-> Look, your app is buggy, PERIOD.  Once you start to write to a closed
-> socket, sorry the phase of the moon decides what happens to you.  Most
-> of the time you'll be lucky and see an error.
+I've now tried a couple more kernels to no avail - nothing can find APICs.
+Is it even possible for a P4 to not have a local APIC? System is a
+supermicro 5012B*. 
 
-The socket is not closed on the client side. I expect the kernel to
-signal me an error (reset of read/write return code, whatever) if
-the connection is closed by the _server_ (with close OR shutdown).
+/proc/cpuinfo shows:
 
-Stelian.
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+
+(notice no "apic"). Is this normal/correct? If just just removed the check
+from apic.c and tried to enable the apic anyway then are bad things going
+to happen? 
+
+I've also noticed [probably unrelated but...] that I can't reboot the box
+without use of the reset button - it doesn't come up after /sbin/reboot -f
+either. It's at a colo facility so I can't see what's being displayed
+until I find out a null modem and go for a drive... :)
+
+Any suggestions?? 
+
+Chris
+
+* http://www.supermicro.com/PRODUCT/SUPERServer/SuperServer5012B-E.htm
+
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Chris Wilson
+chris@jakdaw.org

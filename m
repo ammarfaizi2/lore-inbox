@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVCOQSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVCOQSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVCOQSk (ORCPT <rfc822;willy@w.ods.org>);
+	id S261378AbVCOQSk (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 15 Mar 2005 11:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCOQRa
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVCOQR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 11:17:30 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:29103 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261378AbVCOQP6 (ORCPT
+	Tue, 15 Mar 2005 11:17:57 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:13288 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261380AbVCOQPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 11:15:58 -0500
-Message-ID: <42370A3A.6020206@dgreaves.com>
-Date: Tue, 15 Mar 2005 16:15:54 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Tue, 15 Mar 2005 11:15:44 -0500
+Date: Tue, 15 Mar 2005 16:15:42 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Clayton <andrew@digital-domain.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: drm lockups since 2.6.11-bk2
+In-Reply-To: <20050315143629.GA27654@redhat.com>
+Message-ID: <Pine.LNX.4.58.0503151610560.443@skynet>
+References: <Pine.LNX.4.58.0503151033110.22756@skynet> <20050315143629.GA27654@redhat.com>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       greg@kroah.com
-Cc: Greg Norris <haphazard@kc.rr.com>, linux-kernel@vger.kernel.org,
-       akpm <akpm@osdl.org>
-Subject: [BUG] Re: [PATCH] scripts/patch-kernel: use EXTRAVERSION
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <411E0A37.5040507@anomalistic.org> <20040814205707.GA11936@yggdrasil.localdomain> <20040818135751.197ce3c9.rddunlap@osdl.org> <20040822204002.GB8639@mars.ravnborg.org>
-In-Reply-To: <20040822204002.GB8639@mars.ravnborg.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Old thread (!) but this is the last time I could find patch-kernel updated.
 
-Sam Ravnborg wrote:
-
->On Wed, Aug 18, 2004 at 01:57:51PM -0700, Randy.Dunlap wrote:
->  
+>  >
+>  > I might get time to do a code review, my main worry is that all the
+>  > problems reported with those patches in -mm made it into the patchset that
+>  > went into Linus.. mainly things like forgetting to memset certain
+>  > structures to 0 and sillies like that...
 >
->>Update 'scripts/patch-kernel' to support EXTRAVERSION.
->>    
->>
+> I saw one report where the recent drm security hole fix broke dri
+> for one user.  Whilst it seems an isolated incident, could this have
+> more impact than we first realised ?
+
+the radeon security changes? I've gotten no bad feedback on those neither
+has dri-devel, so I've assumed they were all fine (usually radeon bug
+reports get back fairly quickly as everyone has one ..),
+
+the multi-bridge stuff is definitely broken as I've seen radeon and r128
+reports on it .. and it looks most like 2.6.11-bk2 broke things and I
+haven't merged anything until -bk7 ...
+
 >
->I saw no complains, so applied.
->  
->
-FYI
+> Worse case scenario we can drop out the multi-bridge support for now
+> if it needs work. Mike left SGI now, so we'll need to find someone else
+> with access to a Prism to make sure it still works correctly on a
+> real multi-gart system.
 
-$ ./scripts/patch-kernel . /everything/Downloads/Linux/SOURCES/kernel/
-Current kernel version is 2.6.10 (Woozy Numbat)
-Applying patch-2.6.11 (gzip)... done.
-Applying patch-2.6.11.1 (gzip)... done.
-Applying patch-2.6.11.2 (gzip)... done.
-Applying patch-2.6.11.3 (gzip)... 1 out of 1 hunk FAILED -- saving 
-rejects to file Makefile.rej
-Reversed (or previously applied) patch detected! Skipping patch.
-3 out of 3 hunks ignored -- saving rejects to file 
-drivers/input/serio/i8042-x86ia64io.h.rej
-Reversed (or previously applied) patch detected! Skipping patch.
-1 out of 1 hunk ignored -- saving rejects to file 
-drivers/md/raid6altivec.uc.rej
-Reversed (or previously applied) patch detected! Skipping patch.
-2 out of 2 hunks ignored -- saving rejects to file fs/eventpoll.c.rej
-failed. Clean up yourself.
+I'd like to make it work I'm sure it is some thing small wrong, but I've
+no access for > 1 week to my radeon machine so unless someone else picks
+it up we may need to drop it for now..
 
+Dave.
 
-David
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

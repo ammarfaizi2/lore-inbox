@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283268AbSAGRfH>; Mon, 7 Jan 2002 12:35:07 -0500
+	id <S284180AbSAGRkI>; Mon, 7 Jan 2002 12:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284141AbSAGRe5>; Mon, 7 Jan 2002 12:34:57 -0500
-Received: from port-213-20-128-16.reverse.qdsl-home.de ([213.20.128.16]:8976
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S283268AbSAGReo> convert rfc822-to-8bit; Mon, 7 Jan 2002 12:34:44 -0500
-Date: Mon, 07 Jan 2002 18:34:04 +0100 (CET)
-Message-Id: <20020107.183404.846963381.rene.rebe@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
+	id <S284191AbSAGRjs>; Mon, 7 Jan 2002 12:39:48 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:14599 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S284186AbSAGRjr>;
+	Mon, 7 Jan 2002 12:39:47 -0500
+Date: Mon, 7 Jan 2002 18:39:37 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: rwhron@earthlink.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-From: Rene Rebe <rene.rebe@gmx.net>
-X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-Id: <20020107183937.40625026.skraw@ithnet.com>
+In-Reply-To: <20020106153854.A10824@earthlink.net>
+In-Reply-To: <20020106153854.A10824@earthlink.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Sun, 6 Jan 2002 15:38:54 -0500
+rwhron@earthlink.net wrote:
 
-I tried the sched-O1-2.4.17-C1.patch on a 2.4.17 kernel running on a
-UP Athlon-XP with 1466Mhz, 512MB RAM, SiS 735 board and an IBM IDE
-disks.
+> In the experiment above, it appears the rc2aa2 VM shinks slabs and 
+> page/buffer caches in a reasonable way when a process needs a lot
+> of memory.
 
-I works (no crashes) including XFree-4.1 and ALSA modules loaded.
+Hello Randy,
 
-But during higher load (normal gcc compilations are enough) my system
-gets really unresponsive and my mouse-cursor (USB-mouse, XFree-4.1,
-Matrox G450) flickers with ~ 5fps over the screen ... :-((
+can you please try The Same Thing while copying large files around in the
+background (lets say 100MB files) and re-comment.
 
-I'll retry with the D0 patch ;-)
-
-k33p h4ck1n6
-  René Rebe
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+Thanks,
+Stephan
 

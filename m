@@ -1,55 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTKYNIL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 08:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKYNIL
+	id S262540AbTKYN1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 08:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTKYN1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 08:08:11 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:42881 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262446AbTKYNIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 08:08:10 -0500
-Date: Tue, 25 Nov 2003 13:12:20 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200311251312.hAPDCKaA000948@81-2-122-30.bradfords.org.uk>
-To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <yw1xllq4d4l5.fsf@kth.se>
-References: <fa.hevpbbs.u5q2r6@ifi.uio.no>
- <fa.l1quqni.v405hu@ifi.uio.no>
- <3FC27019.7010402@myrealbox.com>
- <200311242204.hAOM4aZ1000847@81-2-122-30.bradfords.org.uk>
- <yw1xptfh8lh3.fsf@kth.se>
- <200311251210.hAPCAAGo000750@81-2-122-30.bradfords.org.uk>
- <yw1xllq4d4l5.fsf@kth.se>
-Subject: Re: hard links create local DoS vulnerability and security problems
+	Tue, 25 Nov 2003 08:27:22 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:51934 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S262540AbTKYN1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 08:27:19 -0500
+Message-ID: <3FC358B5.3000501@softhome.net>
+Date: Tue, 25 Nov 2003 14:27:17 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
+Content-Type: multipart/mixed;
+ boundary="------------070701020502080301010707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=):
-> John Bradford <john@grabjohn.com> writes:
-> 
-> >> > They can truncate the file to zero length, though, then delete the
-> >> > 'original' link, making all of the other links point to the zero
-> >> > length file.
-> >>=20
-> >> It could be tricky to find those extra links if the original has bee=
-> n
-> >> deleted, of course.
-> >
-> > True, but as long as at least one of the links which has been made to
-> > the original file is in a directory you have access to, you can simpl=
-> y
-> > create a new link to the file, truncate it, then delete your newly
-> > created link, so actually deleting the 'original' link is not
-> > necessarily a problem :-).
-> 
-> There's no need to make a new link, since any links will be owned by
-> the original owner.  That was the concern in the first place.  The
-> problem is finding a link after the file has been deleted.  It could
-> be hidden away somewhere in a directory you don't have read or execute
-> permission for.
+This is a multi-part message in MIME format.
+--------------070701020502080301010707
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ah, OK, I was thinking of something else entirely :-)
+Hello!
 
-John.
+   I just wondering: do last three stable branches of LK able to return 
+malloc()==NULL and/or ENOMEM?
+
+   2.2: I cannot test this stuff right now - but it was hanging hard on 
+"for (;;) memset(malloc(N), 0, N);" So we do not have NULL from malloc().
+   2.4: same behaviour if OOM disabled. But by default (OOM even has no 
+configuration entry - so always on) it just kills offending process. No 
+NULL pointer either.
+   2.6: the same as 2.4 with oom killer (default conf). I have no test 
+system to check 2.6. w/o oom killer.
+
+   Resume: we malloc() never returns NULL. so man-pages are incorrect ;-)
+   [ AFAIK only kmalloc(GFP_ATOMIC) can potentially return NULL - but I 
+didn't yet tested my modules under memory pressure. TODO. ]
+
+   Most interesting thing is that on 2.4 "for(;;) malloc(N)" able to 
+allocate about 1.8GB of memory on system with only 256M of physical RAM. 
+Laghtingly fast. Then malloc() returns NULL. Good signs.
+   But as soon as I will put "memset()" -  app will be killed or box 
+will go bananas. Neither of this two things are appropriate. Especially 
+when applications are tuned to handle memmory allocation errors.
+
+   Can anyone comment on this?
+
+   Does any one has patches with replacement VM? I'm very interesting in 
+knowing all aspect of VM<->block layer<->rest of the kernel integration.
+
+   Pointers to on-line memory management algorithms will be valuable 
+too, if some one knows any.
+
+P.S. I know about linux-mm.org - out-dated, but I do read it right now. 
+Any other pointers will be appreciated.
+But looks like general Linux crowd is satisfied with current (and past) 
+status of MM...
+
+P.P.S. Small memory eating app is attached. lines 16 & 17 (for() loop) 
+used to touch every kbyte of memory to make it really allocated.
+
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  Because the kernel depends on it existing. "init"          |_|*|_|
+  literally _is_ special from a kernel standpoint,           |_|_|*|
+  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
+  that would be a great name for a rock band).
+                                 -- Linus Torvalds
+
+--------------070701020502080301010707
+Content-Type: text/plain;
+ name="malloc.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="malloc.c"
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#define CHUNK_SIZE	(1<<16)
+
+int main()
+{
+	char *b;
+	unsigned long sz = 0;
+	for (;;) {
+		fprintf(stderr, "alloc ");
+		if ((b = malloc( CHUNK_SIZE ))) {
+			unsigned int i;
+			sz += CHUNK_SIZE;
+			for (i=0; i<(CHUNK_SIZE>>10); ++i)
+				b[i<<10] = '0';
+		} else
+			exit(1);
+		fprintf(stderr, "done. [%lu%s]\n", sz>>10, "k");
+	}
+}
+
+
+--------------070701020502080301010707--
+

@@ -1,333 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264801AbRFSVs5>; Tue, 19 Jun 2001 17:48:57 -0400
+	id <S264804AbRFSVxR>; Tue, 19 Jun 2001 17:53:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264802AbRFSVsi>; Tue, 19 Jun 2001 17:48:38 -0400
-Received: from FSG1.nws.noaa.gov ([140.90.20.103]:38156 "EHLO
-	fsg1.nws.noaa.gov") by vger.kernel.org with ESMTP
-	id <S264801AbRFSVsU>; Tue, 19 Jun 2001 17:48:20 -0400
-Date: Tue, 19 Jun 2001 17:47:10 -0400 (EDT)
-From: Brian McEntire <brianm@fsg1.nws.noaa.gov>
-To: <andrewm@uow.edu.au>, <pnorton@ieee.org>, <mid@auk.cx>
-cc: <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: memory allocation error with token ring tms380/abyss modules
-Message-ID: <Pine.LNX.4.33.0106191643030.17512-100000@fsg1.nws.noaa.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264807AbRFSVxH>; Tue, 19 Jun 2001 17:53:07 -0400
+Received: from lorax.neutraldomain.org ([64.81.248.141]:53253 "HELO
+	lorax.neutraldomain.org") by vger.kernel.org with SMTP
+	id <S264804AbRFSVwx>; Tue, 19 Jun 2001 17:52:53 -0400
+Date: Tue, 19 Jun 2001 14:53:20 -0700
+From: Gabriel Rocha <grocha@onesecure.com>
+To: Eli Carter <eli.carter@inet.com>
+Cc: Gabriel Rocha <grocha@onesecure.com>,
+        McHarry John <john.mcharry@gemplex.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to compile on one machine and install on another?
+Message-ID: <20010619145320.G81548@onesecure.com>
+Mail-Followup-To: Eli Carter <eli.carter@inet.com>,
+	Gabriel Rocha <grocha@onesecure.com>,
+	McHarry John <john.mcharry@gemplex.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <A5F553757C933442ADE9B31AF50A273B028DB4@corp-p1.gemplex.com> <20010619143253.F81548@onesecure.com> <3B2FC7F4.2AAA6A8D@inet.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Z0mFw3+mXTC5ycVe"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B2FC7F4.2AAA6A8D@inet.com>; from eli.carter@inet.com on Tue, Jun 19, 2001 at 04:45:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] memory allocation error with token ring tms380/abyss modules
 
-[2.] a memory allocation error causes the system to go into an infinite
-loop about once every week or two. This most recent time was 8 days, to
-the hour from the last crash. Everything on the system stops working and I
-need to hit the reset button to reboot the system. At crash time, the
-following message scrolls up the screen:
+--Z0mFw3+mXTC5ycVe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-__alloc_pages: 1-order allocation failed
+hey, how and where you export the filesystem is an exercise left for the
+reader, i have no problem exporting nfs filesystems in my internal
+network, what you do or dont, is up to you. and there is always
+cfs...
 
-* Actually, I did some searching on the web and found this problem
-discussed but not fixed. According to one e-mail, I patched
-mm/page_alloc.c and rebuilt the kernel so that I could get the following
-_slightly_ more informative message after the crash:
+,----[ On Tue, Jun 19, at 04:45PM, Eli Carter wrote: ]--------------
+| Gabriel Rocha wrote:
+| >=20
+| > you could always compile on one machine and nfs mount the /usr/src/linux
+| > and do a make modules_install from the nfs mounted directory...
+|=20
+| Which would require exporting that filesystem with root permissions
+| enabled...any security bells going off?
+|=20
+| C-ya,
+|=20
+| Eli=20
+| -----------------------.   No wonder we didn't get this right first time
+| Eli Carter             |      through. It's not really all that horribly=
+=20
+| eli.carter(at)inet.com `- complicated, but the _details_ kill you. Linus
+`----[ End Quote ]---------------------------
 
-__alloc_pages: 1-order allocation failed from c01290e8
+--=20
+Gabriel Rocha (grocha@onesecure.com) - 1-877-4-1SECURE
+OneSecure, Inc. Sunnyvale Security Operations Center (GMT -0700)
 
-The modification I made to mm/page_alloc.c is:
-change the line:
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.3ia
 
-printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
+mQCNAzrYQA8AAAEEAL/fjYD12U8QNO0PJX30zYd+0Wg1aZq+jPp34hTiMXrGg2bv
+VE2hwrcz4iILCaQ5KlncteycMx6VL7u0tnIkxnT0M8fAPuS4VpqB/tS/mr3RcHLa
+52+TRZ45KnZt/6pp+pc9zJM8STJvGatfF+YPYKtzEM3mFL4OEnMJdtsEFkx1AAUT
+tCRHYWJyaWVsIFJvY2hhIDxncm9jaGFAb25lc2VjdXJlLmNvbT6JAJUDBRA62EAP
+cwl22wQWTHUBATrVA/9Z+/pUsd0nV6ZtOn014Q9hJ1TUzhzVcNVF1zUufTHTwLO1
+gnKaomNj1Fb+pwGK3ZxNqomUTAnCXCU3HxQ0DkG8OIjzuOIr08Lv57pA9u/yjlTR
+IOV5REUNFWD0ogKLAlVG9wp3IsSgntjToB/rj75siVrBapqzbgR+Dcs3nb8Ijg=3D=3D
+=3DHwqX
+-----END PGP PUBLIC KEY BLOCK-----
 
-to:
+--Z0mFw3+mXTC5ycVe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-printk(KERN_ERR "__alloc_pages: %lu-order allocation failed from %p\n",
-  order, __builtin_return_address(0));
+-----BEGIN PGP SIGNATURE-----
+Version: 2.6.3in
 
-Then I'm supposed to be able to look up the hex code from the error
-message in the /boot/System.map (it is the correct one for my kernel) and
-find out what function is causing the problem.
+iQCVAwUBOy/J0HMJdtsEFkx1AQFAXAP9Hqj+eEF53lmmD3VYJdTYOgrJBG5Qqcf7
+i958RqAm8oXvgFPhNXh06K5NTTfPCO+FczLtvDc7FRwY7oJeTtQSIdW8Ly/C76eu
+Ls51yvbYCVqfz9r06QTcZ/bqzqR6IumBoiBaX2YEuEAwxIg6KmA0dFT9HhihtBmq
+iOAtNAwLnhQ=
+=zFsD
+-----END PGP SIGNATURE-----
 
-But, I don't find c01290e8 in my System.map. Two hex addresses close to it
-are found there:
-
-c01290d4 T __get_free_pages
-c01290f4 T get_zeroed_page
-
-Yup, looks like it has something to do with memory allocation alright ;-)
-
-Everytime this crash occurs, it is the same hex address given in the error
-message. I can't cause this error to occur. The system is running as a
-basic router and has two Netgear FA310TX ethernet cards in it and one
-Madge Smart 16/4 PCI Ringnode Mk2 token ring card in it.
-
-The system logs don't give any indication that the crash is coming or any
-information about it, not even the 1-order allocation error is listed.
-One exception (maybe):
-
-I get the following messages showing up occasionally in /var/log/messages
-on weekdays (when I expect network usage to be higher than on weekends).
-But these don't seem to come in any higher frequency leading up to the
-crash.
-
-Jun 19 15:10:23 ohdrouter kernel: Cancel tx (C04D0068h).
-Jun 19 15:10:23 ohdrouter kernel: Cancel tx (C04D0098h).
-Jun 19 15:10:59 ohdrouter kernel: Cancel tx (C04D0068h).
-Jun 19 15:10:59 ohdrouter kernel: Cancel tx (C04D0098h).
-Jun 19 15:14:14 ohdrouter kernel: Cancel tx (C04D0068h).
-Jun 19 15:14:14 ohdrouter kernel: Cancel tx (C04D0098h).
-Jun 19 15:25:05 ohdrouter kernel: Cancel tx (C04D00C8h).
-
-[3.] token ring, tms380, abyss, memory allocation failure, 1-order
-allocation failed, __alloc_pages, kernel 2.4.5 and previous 2.4 kernels
-
-[4.] Linux version 2.4.5 (root@ohdrouter.nws.noaa.gov) (gcc version
-egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #6 Wed May 30 17:43:06
-EDT 2001
-
-[5.] N/A ... no Oops
-
-[6.] N/A ... can't force it to happen, just have to wait a week or so
-
-[7.] Red Hat Linux release 6.2 (Zoot)
-
-[7.1] output from sh scripts/ver_linux
-
-Gnu C                  egcs-2.91.66
-Gnu make               3.78.1
-binutils               2.9.5.0.22
-util-linux             2.10f
-mount                  2.10r
-modutils               2.4.5
-e2fsprogs              1.18
-pcmcia-cs              3.1.8
-PPP                    2.3.11
-Linux C Library        2.1.3
-Dynamic linker (ldd)   2.1.3
-Procps                 2.0.6
-Net-tools              1.54
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         ipchains abyss tms380tr tulip
-
-[7.2]
-[root@ohdrouter linux]# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 3
-model name      : Pentium II (Klamath)
-stepping        : 4
-cpu MHz         : 298.737
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
-mmx
-bogomips        : 596.37
-
-[7.3]
-[root@ohdrouter linux]# cat /proc/modules
-ipchains               32320   0 (unused)
-abyss                   2960   1 (autoclean)
-tms380tr               43216   0 (autoclean) [abyss]
-tulip                  39328   2 (autoclean)
-
-[7.4]
-[root@ohdrouter linux]# cat /proc/ioports
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial(auto)
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0cf8-0cff : PCI conf1
-4000-403f : Intel Corporation 82371AB PIIX4 ACPI
-5000-501f : Intel Corporation 82371AB PIIX4 ACPI
-d000-dfff : PCI Bus #01
-e000-e01f : Intel Corporation 82371AB PIIX4 USB
-e400-e4ff : Lite-On Communications Inc LNE100TX
-  e400-e4ff : tulip
-e800-e8ff : Lite-On Communications Inc LNE100TX (#2)
-  e800-e8ff : tulip
-ec00-ecff : Madge Networks Smart 16/4 PCI Ringnode Mk2
-  ec00-ec3f : tr0
-f000-f00f : Intel Corporation 82371AB PIIX4 IDE
-
-[root@ohdrouter linux]# cat /proc/iomem
-00000000-0009ffff : System RAM
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-03ffffff : System RAM
-  00100000-001e11cf : Kernel code
-  001e11d0-00232c2b : Kernel data
-e0000000-e3ffffff : Intel Corporation 440LX/EX - 82443LX/EX Host bridge
-e4000000-e5ffffff : PCI Bus #01
-  e4000000-e4ffffff : NVidia / SGS Thomson (Joint Venture) Riva128
-e6000000-e6ffffff : PCI Bus #01
-  e6000000-e6ffffff : NVidia / SGS Thomson (Joint Venture) Riva128
-ea000000-ea0000ff : Lite-On Communications Inc LNE100TX
-  ea000000-ea0000ff : tulip
-ea001000-ea0010ff : Madge Networks Smart 16/4 PCI Ringnode Mk2
-ea002000-ea0020ff : Lite-On Communications Inc LNE100TX (#2)
-  ea002000-ea0020ff : tulip
-ffff0000-ffffffff : reserved
-
-[7.5]
-[root@ohdrouter linux]# cat lspci -vvv
-00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX Host bridge
-(rev 03)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 64 set
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [a0] AGP version 1.0
-                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP bridge
-(rev 03) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: e4000000-e5ffffff
-        Prefetchable memory behind bridge: e6000000-e6ffffff
-        BridgeCtl: Parity+ SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
-
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0 set
-
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-(prog-if 80 [Master])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set
-        Region 4: I/O ports at f000 [size=16]
-
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-(prog-if 00 [UHCI])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set
-        Interrupt: pin D routed to IRQ 10
-        Region 4: I/O ports at e000 [size=32]
-
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin ? routed to IRQ 9
-
-00:09.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
-        Subsystem: Netgear FA310TX
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at e400 [size=256]
-        Region 1: Memory at ea000000 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at e7000000 [disabled] [size=256K]
-
-00:0a.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
-        Subsystem: Netgear FA310TX
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set
-        Interrupt: pin A routed to IRQ 9
-        Region 0: I/O ports at e800 [size=256]
-        Region 1: Memory at ea002000 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at e8000000 [disabled] [size=256K]
-
-00:0b.0 Token ring network controller: Madge Networks Smart 16/4 PCI
-Ringnode Mk2
-        Subsystem: Madge Networks Smart 16/4 PCI Ringnode Mk2
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set, cache line size 08
-        Interrupt: pin A routed to IRQ 12
-        Region 0: I/O ports at ec00 [size=256]
-        Region 1: Memory at ea001000 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at e9000000 [disabled] [size=1M]
-
-01:00.0 VGA compatible controller: NVidia / SGS Thomson (Joint Venture)
-Riva128 (rev 21) (prog-if 00 [VGA])
-        Subsystem: STB Systems Inc STB Velocity 128
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 3 min, 1 max, 64 set
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at e4000000 (32-bit, non-prefetchable) [size=16M]
-        Region 1: Memory at e6000000 (32-bit, prefetchable) [size=16M]
-        Expansion ROM at e5000000 [disabled] [size=4M]
-        Capabilities: [44] AGP version 1.0
-                Status: RQ=4 SBA- 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-[7.6] N/A ... no SCSI on this system
-
-[7.7] Its pretty standard PC hardware with the exception of the token ring
-card which I know aren't nearly as widely used as ethernet cards.
-
-[root@ohdrouter linux]# free
-             total       used       free     shared    buffers     cached
-Mem:         62604      60068       2536          0       6120      47944
--/+ buffers/cache:       6004      56600
-Swap:       136512       7280     129232
-
-[7.8] No ideas on patches or work arounds other than the mm/page_alloc.c
-patch mentioned above.
-
-
-* * *
-
-Please help!  =)
-
-We're only using this "router" in testing at this point but would like to
-roll it into our department's network. I won't do that as long as it is
-crashing once a week.
-
-If you need more information, I'll be happy to provide it let me know if I
-can help.
-
-Thanks,
-  Brian
-
+--Z0mFw3+mXTC5ycVe--

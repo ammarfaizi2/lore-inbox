@@ -1,92 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265102AbUHHGH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUHHGKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbUHHGH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 02:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUHHGH6
+	id S265195AbUHHGKs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 02:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUHHGKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 02:07:58 -0400
-Received: from [61.155.114.21] ([61.155.114.21]:56843 "EHLO
-	mail.mobilesoft.com.cn") by vger.kernel.org with ESMTP
-	id S265102AbUHHGHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 02:07:47 -0400
-Date: Sun, 8 Aug 2004 14:12:06 +0800
-From: Wu Jian Feng <jianfengw@mobilesoft.com.cn>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
-Message-ID: <20040808061206.GA5417@mobilesoft.com.cn>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-mtd@lists.infradead.org,
-	Russell King <rmk+lkml@arm.linux.org.uk>
-References: <20040807150458.E2805@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040807150458.E2805@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6+20040803i
+	Sun, 8 Aug 2004 02:10:48 -0400
+Received: from imo-d01.mx.aol.com ([205.188.157.33]:58824 "EHLO
+	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S265195AbUHHGKR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 02:10:17 -0400
+Date: Sun, 08 Aug 2004 02:10:11 -0400
+From: consolebandit@netscape.net (Maurice)
+To: vda@port.imtp.ilyichevsk.odessa.ua (Denis Vlasenko),
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.xSMP and IPv4 issues (ifconfig(s))
+MIME-Version: 1.0
+Message-ID: <00D27771.68563E3E.345005B1@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 216.227.167.63
+X-AOL-Language: english
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't figure out why but have a quick workaround for this:
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 
---- a/fs/jffs2/erase.c	2004-08-08 14:03:06.000000000 +0800
-+++ b/fs/jffs2/erase.c	2004-08-08 14:05:41.000000000 +0800
-@@ -72,8 +72,10 @@
- 	((struct erase_priv_struct *)instr->priv)->c = c;
+>> I re-booted to see what, if anything, would fail on start-up.
+>>
+>> I did have a failure, the FA311 NIC card could no longer get an address
+>> from the DHCP server???
+>> Seems that the NIC now only "runs" IPv6, and the info I've gathered from
+>>  the Net isn't helping me correct this -- I must be searching the wrong
+>> phrase(s).
+>>
+>> Has anyone else followed this upgrade path and had the same problem?
+>> Has anyone else moved to the 2.6 kernel and had IPv4 problems?
+>>
+>> I've poked around and added line to certain system files and even gave
+>> the card a static IPv4 number -- but nothing has corrected this problem.
+>
+>ifconfig output? tcpdump of ping attempts? dmesg?
+>--
+>vda
+>
+>
+
+
+Ifconfig(s):
+
+Seems that the non-SMP kernel works fine.
+Here is the ifconfig;
+    [root@localhost root]# uname -r
+    2.6.6-1.435.2.3
+    [root@localhost root]# ifconfig
+    eth0      Link encap:Ethernet  HWaddr 00:02:E3:1D:3F:32
+              inet addr:192.168.0.102  Bcast:192.168.0.255  Mask:255.255.255.0
+              UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+              RX packets:33 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:7 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:1000
+              RX bytes:5810 (5.6 Kb)  TX bytes:1036 (1.0 Kb)
+              Interrupt:10 Base address:0x2000
+                                                                               
+    lo        Link encap:Local Loopback
+              inet addr:127.0.0.1  Mask:255.0.0.0
+              UP LOOPBACK RUNNING  MTU:16436  Metric:1
+              RX packets:143 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:143 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:0
+              RX bytes:9270 (9.0 Kb)  TX bytes:9270 (9.0 Kb)
+                                                                               
+    [root@localhost root]#
+
+
+
+
+But the SMP kernel has issues;
+
+    [root@localhost root]# uname -r
+    2.6.6-1.435.2.3smp
+    [root@localhost root]# ifconfig
+    lo        Link encap:Local Loopback
+              inet addr:127.0.0.1  Mask:255.0.0.0
+              UP LOOPBACK RUNNING  MTU:16436  Metric:1
+              RX packets:128 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:128 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:0
+              RX bytes:8670 (8.4 Kb)  TX bytes:8670 (8.4 Kb)
+        
+                                                                      
+    [root@localhost root]# ifconfig -a
+    eth0      Link encap:Ethernet  HWaddr 00:02:E3:1D:3F:32
+              BROADCAST MULTICAST  MTU:1500  Metric:1
+              RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:8 errors:0 dropped:3 overruns:0 carrier:0
+              collisions:0 txqueuelen:1000
+              RX bytes:0 (0.0 b)  TX bytes:2736 (2.6 Kb)
+              Interrupt:10 Base address:0x2000
+                                                                               
+    lo        Link encap:Local Loopback
+              inet addr:127.0.0.1  Mask:255.0.0.0
+              UP LOOPBACK RUNNING  MTU:16436  Metric:1
+              RX packets:128 errors:0 dropped:0 overruns:0 frame:0
+              TX packets:128 errors:0 dropped:0 overruns:0 carrier:0
+              collisions:0 txqueuelen:0
+              RX bytes:8670 (8.4 Kb)  TX bytes:8670 (8.4 Kb)
  
- 	ret = c->mtd->erase(c->mtd, instr);
--	if (!ret)
-+	if (!ret) {
-+		kfree(instr);
- 		return;
-+	}
+    [root@localhost root]#
+
+
+
+Then I did the static IP number thing, but had/have a communication problem;
+
+[root@localhost root]# ifconfig eth0 down
+[root@localhost root]# ifconfig eth0 192.168.0.49 netmask 255.255.255.0 broadcast 192.168.0.255
+[root@localhost root]# ifconfig eth0 up
+[root@localhost root]# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:02:E3:1D:3F:32
+          inet addr:192.168.0.49  Bcast:192.168.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:40 errors:0 dropped:32 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:4080 (3.9 Kb)
+          Interrupt:10 Base address:0x2000
+                                                                                                 
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:210 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:210 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:18787 (18.3 Kb)  TX bytes:18787 (18.3 Kb)
+                                                                                                 
+[root@localhost root]# ping 192.168.0.103
+PING 192.168.0.103 (192.168.0.103) 56(84) bytes of data.
+>From 192.168.0.49 icmp_seq=0 Destination Host Unreachable
+>From 192.168.0.49 icmp_seq=1 Destination Host Unreachable
+>From 192.168.0.49 icmp_seq=2 Destination Host Unreachable
+>From 192.168.0.49 icmp_seq=3 Destination Host Unreachable
+>From 192.168.0.49 icmp_seq=4 Destination Host Unreachable
+>From 192.168.0.49 icmp_seq=5 Destination Host Unreachable
+                                                                                                 
+--- 192.168.0.103 ping statistics ---
+7 packets transmitted, 0 received, +6 errors, 100% packet loss, time 5999ms
+, pipe 4
+
+
  
- 	bad_offset = instr->fail_addr;
- 	kfree(instr);
-@@ -206,7 +208,6 @@
- 	} else {
- 		jffs2_erase_succeeded(priv->c, priv->jeb);
- 	}	
--	kfree(instr);
- }
- #endif /* !__ECOS */
- 
-On Sat, Aug 07, 2004 at 03:04:58PM +0100, Russell King wrote:
-> Not sure exactly what caused this, but it happened while logging in
-> (after fixing the previous two reported problems - the first by backing
-> out the last change to redboot.c and the second by commenting out
-> ri->usercompr in fs/jffs2/read.c.)
-> 
-> Slab corruption: start=c1e39474, len=64
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<c032ca10>](cfi_intelext_erase_varsize+0x58/0x64)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 4f 6b
-> Prev obj: start=c1e39428, len=64
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<c02c767c>](jffs2_garbage_collect_deletion_dirent+0x80/0x8c)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> Next obj: start=c1e394c0, len=64
-> Redzone: 0x170fc2a5/0x170fc2a5.
-> Last user: [<c03514f8>](neigh_hh_init+0x64/0x11c)
-> 000: 00 00 00 00 03 00 00 00 08 00 00 00 0e 00 00 00
-> 010: 00 b0 34 c0 00 00 08 00 2b 95 1d 7b 00 c0 1b 00
-> 
-> Due to tail call optimisation, its difficult to work out exactly what's
-> going on, but the first seems to be a kfree call from the erase callback
-> (possibly jffs2_erase_callback).  The second function is the call to
-> jffs2_free_full_dirent() in jffs2_garbage_collect_deletion_dirent().
-> 
-> Any ideas?  I haven't been able to reproduce (presumably because the
-> erase succeeded, and we didn't need to re-erase again.)
-> 
-> -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
->                  2.6 Serial core
-> 
-> ______________________________________________________
-> Linux MTD discussion mailing list
-> http://lists.infradead.org/mailman/listinfo/linux-mtd/
+--------
+-Maurice
+
+"Linux -- it not just for breakfast anymore..."
+-Moe
+
+
+
+
+
+__________________________________________________________________
+Switch to Netscape Internet Service.
+As low as $9.95 a month -- Sign up today at http://isp.netscape.com/register
+
+Netscape. Just the Net You Need.
+
+New! Netscape Toolbar for Internet Explorer
+Search from anywhere on the Web and block those annoying pop-ups.
+Download now at http://channels.netscape.com/ns/search/install.jsp

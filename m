@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265361AbSLQS4k>; Tue, 17 Dec 2002 13:56:40 -0500
+	id <S265373AbSLQTBd>; Tue, 17 Dec 2002 14:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbSLQS4k>; Tue, 17 Dec 2002 13:56:40 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7908
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265361AbSLQS4j>; Tue, 17 Dec 2002 13:56:39 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S265400AbSLQTBd>; Tue, 17 Dec 2002 14:01:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40452 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265373AbSLQTBc>; Tue, 17 Dec 2002 14:01:32 -0500
+Date: Tue, 17 Dec 2002 11:10:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Ingo Molnar <mingo@elte.hu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hpa@transmeta.com
-In-Reply-To: <3DFF717C.90006@redhat.com>
-References: <Pine.LNX.4.44.0212170858510.2702-100000@home.transmeta.com>
-	<3DFF6501.3080106@redhat.com>
-	<1040153030.20804.8.camel@irongate.swansea.linux.org.uk> 
-	<3DFF717C.90006@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Dec 2002 19:44:33 +0000
-Message-Id: <1040154273.20804.13.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+       <hpa@transmeta.com>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <3DFF7399.40708@redhat.com>
+Message-ID: <Pine.LNX.4.44.0212171106210.1095-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-17 at 18:48, Ulrich Drepper wrote:
-> Alan Cox wrote:
-> 
-> > Is there any reason you can't just keep the linker out of the entire
-> > mess by generating
-> > 
-> > 	.byte whatever
-> > 	.dword 0xFFFF0000
-> > 
-> > instead of call ?
-> 
-> There is no such instruction.  Unless you know about some secret
-> undocumented opcode...
 
-No I'd forgotten how broken x86 was
+
+On Tue, 17 Dec 2002, Ulrich Drepper wrote:
+>
+> But this is exactly what I expect to happen.  If you want to implement
+> gettimeofday() at user-level you need to modify the page.
+
+Note that I really don't think we ever want to do the user-level
+gettimeofday(). The complexity just argues against it, it's better to try
+to make system calls be cheap enough that you really don't care.
+
+sysenter helps a bit there.
+
+If we'd need to modify the page, we couldn't share one page between all
+processes, and we couldn't make it global in the TLB. So modifying the
+info page is something we should avoid at all cost - it's not totally
+unlikely that the overheads implied by per-thread pages would drown out
+the wins from trying to be clever.
+
+The advantage of the current static fixmap is that it's _extremely_
+streamlined. The only overhead is literally the system entry itself, which
+while a bit too high on a P4 is not that bad in general (and hopefully
+Intel will fix the stupidities that cause the P4 to be slow at kernel
+entry. Somebody already mentioned that apparently the newer P4 cores are
+actually faster at system calls than mine is).
+
+			Linus
 

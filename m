@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129831AbQLBK0z>; Sat, 2 Dec 2000 05:26:55 -0500
+	id <S129525AbQLBLlP>; Sat, 2 Dec 2000 06:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129933AbQLBK0p>; Sat, 2 Dec 2000 05:26:45 -0500
-Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:56594 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S129831AbQLBK00>; Sat, 2 Dec 2000 05:26:26 -0500
-Date: Sat, 2 Dec 2000 01:55:51 -0800
-Message-Id: <200012020955.eB29tpK03869@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Transmeta and Linux-2.4.0-test12-pre3 [slightly off-topic]
-In-Reply-To: <90a065$5ai$1@penguin.transmeta.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre23 (i586))
+	id <S129933AbQLBLlF>; Sat, 2 Dec 2000 06:41:05 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:3342 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S129525AbQLBLky>; Sat, 2 Dec 2000 06:40:54 -0500
+Date: Sat, 2 Dec 2000 11:09:51 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+To: folkert@vanheusden.com
+cc: "Theodore Y Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+        vpnd@sunsite.auc.dk
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+In-Reply-To: <E141u3g-0006vY-00@post.mail.nl.demon.net>
+Message-ID: <Pine.LNX.4.10.10012021108350.31306-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Dec 2000 21:09:25 -0800, Linus Torvalds <torvalds@transmeta.com> wrote:
+On Fri, 1 Dec 2000 folkert@vanheusden.com wrote:
 
-> Even then XFree86 does something bad with DPMS, and will lock up the
-> graphics chipset when it tries to shut down the flat panel display. 
-> Solution: don't enable DPMS is XF86Config.  That's an XFree86 problem,
-> but happily easily worked around. 
+> > open("/dev/random", O_RDONLY)           = 3
+> > read(3, "q\321Nu\204\251^\234i\254\350\370\363\"\305\366R\2708V"..., 72) = 29
+> > close(3)                                = 0
 
-If it's the same bug that locks up the ATI chipset on my Dell laptop,
-then you can safely enable DPMS if only enable the standby mode,
-not the others (suspend and off). The panel gets turned off anyway,
-even in standby.
+> I've seen that happen with kernel version 2.2.16!
 
-Ion
+Indeed, you are correct.  Is vpnd broken then, for assuming
+that it can gather the required randomness in one read?
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Matthew.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

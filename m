@@ -1,526 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbULIPTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbULIPUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbULIPTu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULIPTt
+	id S261527AbULIPUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULIPUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:19:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20681 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261524AbULIPJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 10:09:30 -0500
-Date: Thu, 9 Dec 2004 15:08:58 GMT
-Message-Id: <200412091508.iB9F8wja027564@warthog.cambridge.redhat.com>
-From: dhowells@redhat.com
-To: akpm@osdl.org, davidm@snapgear.com, gerg@snapgear.com, wli@holomorphy.com
-cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH 4/5] NOMMU: Make POSIX shmem work on ramfs-backed files
-In-Reply-To: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com> 
-References: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
+	Thu, 9 Dec 2004 10:20:12 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:56943 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S261527AbULIPR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 10:17:57 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF7A3735CE.0606A36B-ON86256F65.00512706@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 9 Dec 2004 09:16:49 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/09/2004 09:16:51 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch makes ramfs able to support POSIX shared memory under !MMU
-conditions. It does this by:
+Comparison of .32-5RT and .32-5PK results
+RT has PREEMPT_RT,
+PK has PREEMPT_DESKTOP and no threaded IRQ's.
+2.4 has lowlat + preempt patches applied
 
- (1) Intercept file expansion from zero-size by truncation. If this happens,
-     ramfs will attempt to allocate a high-order page sufficient to hold the
-     entire file. If successful, it'll split the high-order page into an array
-     of single pages and attach those that it needs to the inode. Any excess
-     will be returned to the allocator.
+      within 100 usec
+       CPU loop (%)   Elapsed Time (sec)    2.4
+Test   RT     PK        RT      PK   |   CPU  Elapsed
+X     90.46  99.88      67 *    63+  |  97.20   70
+top   83.03  99.87      35 *    33+  |  97.48   29
+neto  91.69  97.57     360 *   320+* |  96.23   36
+neti  88.37  97.79     360 *   300+* |  95.86   41
+diskw 87.73  67.41     360 *    57+* |  77.64   29
+diskc 86.35  99.39     360 *   320+* |  84.12   77
+diskr 81.57  99.89     360 *   320+* |  90.66   86
+total                 1902    1413   |         368
+ [higher is better]  [lower is better]
+* wide variation in audio duration
++ long stretch of audio duration "too fast"
 
-     If unsuccessful then the operation will return error ENOMEM or EFBIG
-     beyond the normal error returns for truncation.
+The max CPU latencies in RT are worse than PK as well. The
+values for RT range from 3.00 msec to 5.43 msec and on
+PK range from 1.45 msec to 2.24 msec.
 
-     The assumption is made that an mmap() will be performed to the size given
-     should this be successful.
+This is the first set of charts I have seen where _RT is
+basically worse than _PK in all the application measures.
 
- (2) Prevent file contraction leaving VM_SHARED VMAs dangling in midair. If
-     this were to happen, error ETXTBSY is returned instead. It's not quite the
-     right error, but it'll probably do.
+To contrast, there were plenty of > 250 usec latency traces
+in the _PK run and none during _RT. The PK run also had
+three of the "starvation" periods where the 5 second sleep
+took 212, 70, and 248 seconds and the RT run had one
+starvation period of 11 seconds.
 
- (3) get_unmapped_area() is now provided on ramfs files if !MMU. This checks
-     that if a shared mapping is desired the pages requested are all present
-     with the file and that they're all contiguous. The address of the
-     appropriate start page in the file returned if they are; ENOMEM is
-     returned if not.
+Not quite sure why these measures are so inconsistent..
 
-The page attachment mentioned in (1) could be done by get_unmapped_area()
-instead if mapping->nrpages is zero; however, this would mean that open(),
-ftruncate(), write(), mmap() wouldn't work. There's no ideal solution since
-there's effectively no MMU.
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 
-What (1) allows is data passed to write() calls made after the truncation to
-appear on the memory indicated by mmap() whilst it is mapped.
-
-This is sufficient to allow POSIX shared memory on ramfs.
-
-Signed-Off-By: dhowells@redhat.com
----
-diffstat nommu-ramfs-2610rc2mm3-3.diff
- fs/ramfs/Makefile     |    8 +
- fs/ramfs/file-mmu.c   |   57 +++++++++
- fs/ramfs/file-nommu.c |  295 ++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/ramfs/inode.c      |   22 ---
- fs/ramfs/internal.h   |   15 ++
- include/linux/ramfs.h |   10 +
- 6 files changed, 385 insertions(+), 22 deletions(-)
-
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-mmu.c linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-mmu.c
---- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-mmu.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-mmu.c	2004-11-26 13:58:54.000000000 +0000
-@@ -0,0 +1,57 @@
-+/* file-mmu.c: ramfs MMU-based file operations
-+ *
-+ * Resizable simple ram filesystem for Linux.
-+ *
-+ * Copyright (C) 2000 Linus Torvalds.
-+ *               2000 Transmeta Corp.
-+ *
-+ * Usage limits added by David Gibson, Linuxcare Australia.
-+ * This file is released under the GPL.
-+ */
-+
-+/*
-+ * NOTE! This filesystem is probably most useful
-+ * not as a real filesystem, but as an example of
-+ * how virtual filesystems can be written.
-+ *
-+ * It doesn't get much simpler than this. Consider
-+ * that this file implements the full semantics of
-+ * a POSIX-compliant read-write filesystem.
-+ *
-+ * Note in particular how the filesystem does not
-+ * need to implement any data structures of its own
-+ * to keep track of the virtual data: using the VFS
-+ * caches is sufficient.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/pagemap.h>
-+#include <linux/highmem.h>
-+#include <linux/init.h>
-+#include <linux/string.h>
-+#include <linux/smp_lock.h>
-+#include <linux/backing-dev.h>
-+#include <linux/ramfs.h>
-+
-+#include <asm/uaccess.h>
-+#include "internal.h"
-+
-+struct address_space_operations ramfs_aops = {
-+	.readpage	= simple_readpage,
-+	.prepare_write	= simple_prepare_write,
-+	.commit_write	= simple_commit_write
-+};
-+
-+struct file_operations ramfs_file_operations = {
-+	.read		= generic_file_read,
-+	.write		= generic_file_write,
-+	.mmap		= generic_file_mmap,
-+	.fsync		= simple_sync_file,
-+	.sendfile	= generic_file_sendfile,
-+	.llseek		= generic_file_llseek,
-+};
-+
-+struct inode_operations ramfs_file_inode_operations = {
-+	.getattr	= simple_getattr,
-+};
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-nommu.c linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-nommu.c
---- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/file-nommu.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/file-nommu.c	2004-12-07 20:30:01.000000000 +0000
-@@ -0,0 +1,295 @@
-+/* file-nommu.c: no-MMU version of ramfs
-+ *
-+ * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/pagemap.h>
-+#include <linux/highmem.h>
-+#include <linux/init.h>
-+#include <linux/string.h>
-+#include <linux/smp_lock.h>
-+#include <linux/backing-dev.h>
-+#include <linux/ramfs.h>
-+#include <linux/quotaops.h>
-+#include <linux/pagevec.h>
-+#include <linux/mman.h>
-+
-+#include <asm/uaccess.h>
-+#include "internal.h"
-+
-+static int ramfs_nommu_setattr(struct dentry *, struct iattr *);
-+
-+struct address_space_operations ramfs_aops = {
-+	.readpage		= simple_readpage,
-+	.prepare_write		= simple_prepare_write,
-+	.commit_write		= simple_commit_write
-+};
-+
-+struct file_operations ramfs_file_operations = {
-+	.mmap			= ramfs_nommu_mmap,
-+	.get_unmapped_area	= ramfs_nommu_get_unmapped_area,
-+	.read			= generic_file_read,
-+	.write			= generic_file_write,
-+	.fsync			= simple_sync_file,
-+	.sendfile		= generic_file_sendfile,
-+	.llseek			= generic_file_llseek,
-+};
-+
-+struct inode_operations ramfs_file_inode_operations = {
-+	.setattr		= ramfs_nommu_setattr,
-+	.getattr		= simple_getattr,
-+};
-+
-+/*****************************************************************************/
-+/*
-+ * add a contiguous set of pages into a ramfs inode when it's truncated from
-+ * size 0 on the assumption that it's going to be used for an mmap of shared
-+ * memory
-+ */
-+static int ramfs_nommu_expand_for_mapping(struct inode *inode, size_t newsize)
-+{
-+	struct pagevec lru_pvec;
-+	unsigned long npages, xpages, loop, limit;
-+	struct page *pages;
-+	unsigned order;
-+	void *data;
-+	int ret;
-+
-+	/* make various checks */
-+	order = get_order(newsize);
-+	if (unlikely(order >= MAX_ORDER))
-+		goto too_big;
-+
-+	limit = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
-+	if (limit != RLIM_INFINITY && newsize > limit)
-+		goto fsize_exceeded;
-+
-+	if (newsize > inode->i_sb->s_maxbytes)
-+		goto too_big;
-+
-+	i_size_write(inode, newsize);
-+
-+	/* allocate enough contiguous pages to be able to satisfy the
-+	 * request */
-+	pages = alloc_pages(mapping_gfp_mask(inode->i_mapping), order);
-+	if (!pages)
-+		return -ENOMEM;
-+
-+	/* split the high-order page into an array of single pages */
-+	split_highorder_page(pages, 0, order);
-+
-+	xpages = 1UL << order;
-+	npages = (newsize + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+
-+	/* trim off any pages we don't actually require */
-+	for (loop = npages; loop < xpages; loop++)
-+		__free_page(pages + loop);
-+
-+	/* clear the memory we allocated */
-+	newsize = PAGE_SIZE * npages;
-+	data = page_address(pages);
-+	memset(data, 0, newsize);
-+
-+	/* attach all the pages to the inode's address space */
-+	pagevec_init(&lru_pvec, 0);
-+	for (loop = 0; loop < npages; loop++) {
-+		struct page *page = pages + loop;
-+
-+		page->index = loop;
-+
-+		ret = add_to_page_cache(page, inode->i_mapping, loop, GFP_KERNEL);
-+		if (ret < 0)
-+			goto add_error;
-+
-+		if (!pagevec_add(&lru_pvec, page))
-+			__pagevec_lru_add(&lru_pvec);
-+
-+		unlock_page(page);
-+	}
-+
-+	pagevec_lru_add(&lru_pvec);
-+	return 0;
-+
-+ fsize_exceeded:
-+	send_sig(SIGXFSZ, current, 0);
-+ too_big:
-+	return -EFBIG;
-+
-+ add_error:
-+	page_cache_release(pages + loop);
-+	for (loop++; loop < npages; loop++)
-+		__free_page(pages + loop);
-+	return ret;
-+}
-+
-+/*****************************************************************************/
-+/*
-+ * check that file shrinkage doesn't leave any VMAs dangling in midair
-+ */
-+static int ramfs_nommu_check_mappings(struct inode *inode,
-+				      size_t newsize, size_t size)
-+{
-+	struct vm_area_struct *vma;
-+	struct prio_tree_iter iter;
-+
-+	/* search for VMAs that fall within the dead zone */
-+	vma_prio_tree_foreach(vma, &iter, &inode->i_mapping->i_mmap,
-+			      newsize >> PAGE_SHIFT,
-+			      (size + PAGE_SIZE - 1) >> PAGE_SHIFT
-+			      ) {
-+		/* found one - only interested if it's shared out of the page
-+		 * cache */
-+		if (vma->vm_flags & VM_SHARED)
-+			return -ETXTBSY; /* not quite true, but near enough */
-+	}
-+
-+	return 0;
-+}
-+
-+/*****************************************************************************/
-+/*
-+ *
-+ */
-+static int ramfs_nommu_resize(struct inode *inode, loff_t newsize, loff_t size)
-+{
-+	int ret;
-+
-+	/* assume a truncate from zero size is going to be for the purposes of
-+	 * shared mmap */
-+	if (size == 0) {
-+		if (unlikely(newsize >> 32))
-+			return -EFBIG;
-+
-+		return ramfs_nommu_expand_for_mapping(inode, newsize);
-+	}
-+
-+	/* check that a decrease in size doesn't cut off any shared mappings */
-+	if (newsize < size) {
-+		ret = ramfs_nommu_check_mappings(inode, newsize, size);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	ret = vmtruncate(inode, size);
-+
-+	return ret;
-+}
-+
-+/*****************************************************************************/
-+/*
-+ * handle a change of attributes
-+ * - we're specifically interested in a change of size
-+ */
-+static int ramfs_nommu_setattr(struct dentry *dentry, struct iattr *ia)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	unsigned int old_ia_valid = ia->ia_valid;
-+	int ret = 0;
-+
-+	/* by providing our own setattr() method, we skip this quotaism */
-+	if ((old_ia_valid & ATTR_UID && ia->ia_uid != inode->i_uid) ||
-+	    (old_ia_valid & ATTR_GID && ia->ia_gid != inode->i_gid))
-+		ret = DQUOT_TRANSFER(inode, ia) ? -EDQUOT : 0;
-+
-+	/* pick out size-changing events */
-+	if (ia->ia_valid & ATTR_SIZE) {
-+		loff_t size = i_size_read(inode);
-+		if (ia->ia_size != size) {
-+			ret = ramfs_nommu_resize(inode, ia->ia_size, size);
-+			if (ret < 0 || ia->ia_valid == ATTR_SIZE)
-+				goto out;
-+		} else {
-+			/* we skipped the truncate but must still update
-+			 * timestamps
-+			 */
-+			ia->ia_valid |= ATTR_MTIME|ATTR_CTIME;
-+		}
-+	}
-+
-+	ret = inode_setattr(inode, ia);
-+ out:
-+	ia->ia_valid = old_ia_valid;
-+	return ret;
-+}
-+
-+/*****************************************************************************/
-+/*
-+ * try to determine where a shared mapping can be made
-+ * - we require that:
-+ *   - the pages to be mapped must exist
-+ *   - the pages be physically contiguous in sequence
-+ */
-+unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
-+					    unsigned long addr, unsigned long len,
-+					    unsigned long pgoff, unsigned long flags)
-+{
-+	unsigned long maxpages, lpages, nr, loop, ret;
-+	struct inode *inode = file->f_dentry->d_inode;
-+	struct page **pages = NULL, **ptr, *page;
-+	loff_t isize;
-+
-+	if (!(flags & MAP_SHARED))
-+		return addr;
-+
-+	/* the mapping mustn't extend beyond the EOF */
-+	lpages = (len + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	isize = i_size_read(inode);
-+
-+	ret = -EINVAL;
-+	maxpages = (isize + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	if (pgoff >= maxpages)
-+		goto out;
-+
-+	if (maxpages - pgoff < lpages)
-+		goto out;
-+
-+	/* gang-find the pages */
-+	ret = -ENOMEM;
-+	pages = kmalloc(lpages * sizeof(struct page *), GFP_KERNEL);
-+	if (!pages)
-+		goto out;
-+
-+	memset(pages, 0, lpages * sizeof(struct page *));
-+
-+	nr = find_get_pages(inode->i_mapping, pgoff, lpages, pages);
-+	if (nr != lpages)
-+		goto out; /* leave if some pages were missing */
-+
-+	/* check the pages for physical adjacency */
-+	ptr = pages;
-+	page = *ptr++;
-+	page++;
-+	for (loop = lpages; loop > 1; loop--)
-+		if (*ptr++ != page++)
-+			goto out;
-+
-+	/* okay - all conditions fulfilled */
-+	ret = (unsigned long) page_address(pages[0]);
-+
-+ out:
-+	if (pages) {
-+		ptr = pages;
-+		for (loop = lpages; loop > 0; loop--)
-+			put_page(*ptr++);
-+		kfree(pages);
-+	}
-+
-+	return ret;
-+}
-+
-+/*****************************************************************************/
-+/*
-+ * set up a mapping
-+ */
-+int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return 0;
-+}
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/inode.c linux-2.6.10-rc2-mm3-shmem/fs/ramfs/inode.c
---- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/inode.c	2004-10-19 10:42:09.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/inode.c	2004-11-26 13:58:54.000000000 +0000
-@@ -34,13 +34,12 @@
- #include <linux/ramfs.h>
- 
- #include <asm/uaccess.h>
-+#include "internal.h"
- 
- /* some random number */
- #define RAMFS_MAGIC	0x858458f6
- 
- static struct super_operations ramfs_ops;
--static struct address_space_operations ramfs_aops;
--static struct inode_operations ramfs_file_inode_operations;
- static struct inode_operations ramfs_dir_inode_operations;
- 
- static struct backing_dev_info ramfs_backing_dev_info = {
-@@ -140,25 +139,6 @@ static int ramfs_symlink(struct inode * 
- 	return error;
- }
- 
--static struct address_space_operations ramfs_aops = {
--	.readpage	= simple_readpage,
--	.prepare_write	= simple_prepare_write,
--	.commit_write	= simple_commit_write
--};
--
--struct file_operations ramfs_file_operations = {
--	.read		= generic_file_read,
--	.write		= generic_file_write,
--	.mmap		= generic_file_mmap,
--	.fsync		= simple_sync_file,
--	.sendfile	= generic_file_sendfile,
--	.llseek		= generic_file_llseek,
--};
--
--static struct inode_operations ramfs_file_inode_operations = {
--	.getattr	= simple_getattr,
--};
--
- static struct inode_operations ramfs_dir_inode_operations = {
- 	.create		= ramfs_create,
- 	.lookup		= simple_lookup,
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/internal.h linux-2.6.10-rc2-mm3-shmem/fs/ramfs/internal.h
---- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/internal.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/internal.h	2004-11-26 13:58:54.000000000 +0000
-@@ -0,0 +1,15 @@
-+/* internal.h: ramfs internal definitions
-+ *
-+ * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+
-+extern struct address_space_operations ramfs_aops;
-+extern struct file_operations ramfs_file_operations;
-+extern struct inode_operations ramfs_file_inode_operations;
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/Makefile linux-2.6.10-rc2-mm3-shmem/fs/ramfs/Makefile
---- linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/Makefile	2004-06-18 13:41:28.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-shmem/fs/ramfs/Makefile	2004-11-26 15:36:07.000000000 +0000
-@@ -4,4 +4,10 @@
- 
- obj-$(CONFIG_RAMFS) += ramfs.o
- 
--ramfs-objs := inode.o
-+ifeq ($(CONFIG_MMU),y)
-+ramfs-objs := file-mmu.o
-+else
-+ramfs-objs := file-nommu.o
-+endif
-+
-+ramfs-objs += inode.o
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/include/linux/ramfs.h linux-2.6.10-rc2-mm3-shmem/include/linux/ramfs.h
---- linux-2.6.10-rc2-mm3-mmcleanup/include/linux/ramfs.h	2004-10-19 10:42:17.000000000 +0100
-+++ linux-2.6.10-rc2-mm3-shmem/include/linux/ramfs.h	2004-12-02 16:21:26.000000000 +0000
-@@ -5,6 +5,16 @@ struct inode *ramfs_get_inode(struct sup
- struct super_block *ramfs_get_sb(struct file_system_type *fs_type,
- 	 int flags, const char *dev_name, void *data);
- 
-+#ifndef CONFIG_MMU
-+extern unsigned long ramfs_nommu_get_unmapped_area(struct file *file,
-+						   unsigned long addr,
-+						   unsigned long len,
-+						   unsigned long pgoff,
-+						   unsigned long flags);
-+
-+extern int ramfs_nommu_mmap(struct file *file, struct vm_area_struct *vma);
-+#endif
-+
- extern struct file_operations ramfs_file_operations;
- extern struct vm_operations_struct generic_file_vm_ops;
- 

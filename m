@@ -1,94 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263594AbSITV1p>; Fri, 20 Sep 2002 17:27:45 -0400
+	id <S263527AbSITVYV>; Fri, 20 Sep 2002 17:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263599AbSITV1p>; Fri, 20 Sep 2002 17:27:45 -0400
-Received: from dsl-213-023-039-089.arcor-ip.net ([213.23.39.89]:52637 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S263594AbSITV1n>;
-	Fri, 20 Sep 2002 17:27:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Dave Olien <dmo@osdl.org>
-Subject: Re: [2.5] DAC960
-Date: Fri, 20 Sep 2002 23:32:53 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jens Axboe <axboe@suse.de>, Samium Gromoff <_deepfire@mail.ru>,
-       linux-kernel@vger.kernel.org
-References: <E17odbY-000BHv-00@f1.mail.ru> <E17s6nH-0000xq-00@starship> <20020919150958.A27837@acpi.pdx.osdl.net>
-In-Reply-To: <20020919150958.A27837@acpi.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17sVOQ-0001H8-00@starship>
+	id <S263554AbSITVYV>; Fri, 20 Sep 2002 17:24:21 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23045
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263527AbSITVYU>; Fri, 20 Sep 2002 17:24:20 -0400
+Subject: Re: pre-empt and smp in 2.5.37 - is it supposed to work? [contains
+	2 oopses, one in set_cpus_allowed, one in md code]
+From: Robert Love <rml@tech9.net>
+To: thunder7@xs4all.nl
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020920210225.GA526@middle.of.nowhere>
+References: <20020920200441.GA3677@middle.of.nowhere>
+	<1032552562.966.832.camel@phantasy> 
+	<20020920210225.GA526@middle.of.nowhere>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Sep 2002 17:29:26 -0400
+Message-Id: <1032557366.2105.858.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+On Fri, 2002-09-20 at 17:02, Jurriaan wrote:
 
-Here's the trivial patch you need, on top of your last-posted patch, to fix 
-up the one failed hunk and make it work in 2.5.37.
+> Trace; c01165f1 <schedule+3d/404>
+> Trace; c0116c3c <wait_for_completion+9c/f8>
+> Trace; c01169fc <default_wake_function+0/80>
+> Trace; c01169fc <default_wake_function+0/80>
+> Trace; c01180e6 <set_cpus_allowed+13a/744>
+> Trace; c0118158 <set_cpus_allowed+1ac/744>
+> Trace; c0118108 <set_cpus_allowed+15c/744>
+> Trace; c01054f1 <enable_hlt+1c9/1d0>
+> Trace; c01165f1 <schedule+3d/404>
+> Trace; c0116c3c <wait_for_completion+9c/f8>
+> Trace; c01169fc <default_wake_function+0/80>
+> Trace; c01169fc <default_wake_function+0/80>
+> Trace; c01180e6 <set_cpus_allowed+13a/744>
+> Trace; c012031d <__run_task_queue+dd/168>
+> Trace; c01202cc <__run_task_queue+8c/168>
+> Trace; c01054f1 <enable_hlt+1c9/1d0>
 
-I cleaned up a few stylistic things to bring them in line with 
-penguin-classic style, things like never writing "== true" in logical 
-expressions and having line breaks in the right places.  Very minor.
+This is known, its due to set_cpus_allowed() sleeping while holding a
+preempt_disable().  It is harmless but something I need to fix.
 
-Obviously, a lot more trivial cleanup is still needed, especially spelling.  
-The code is pretty easy to read, though, including your code.
+> 8139too Fast Ethernet driver 0.9.26
+> Unable to handle kernel NULL pointer dereference at virtual address 0000000e
+> c024b6b9
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0060:[<c024b6b9>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010286
+> eax: 0000001e   ebx: fffffffa   ecx: c03675a8   edx: 00000292
+> esi: fffffffa   edi: ffffffea   ebp: 00002103   esp: f7737eec
+> ds: 0068   es: 0068   ss: 0068
+> Stack: 00002103 c024d562 fffffffa 00000931 00002103 00002103 00000000 c024dfd9 
+>        00002103 00000931 f7ca5e40 00002103 f77a3ee0 00000000 00000000 f778ba00 
+>        000061b0 00000001 00000000 00000006 00002103 00000000 00000000 00000000 
+> Call Trace: [<c024d562>] [<c024dfd9>] [<c014a826>] [<c0152d39>] [<c01071eb>] 
+> Code: 8b 43 14 85 c0 74 10 0f b7 50 10 b2 00 66 0f b6 40 10 09 c2 
 
-Daniel
+What is this?  Do you normally see this?
 
---- 2.5.37.clean/drivers/block/DAC960.c	2002-09-20 23:08:09.000000000 +0200
-+++ 2.5.37/drivers/block/DAC960.c	2002-09-20 23:19:47.000000000 +0200
-@@ -3007,16 +3007,48 @@
-   individual Buffer.
- */
- 
--static inline void DAC960_ProcessCompletedBuffer(BufferHeader_T *BufferHeader,
--						 boolean SuccessfulIO)
-+static inline void DAC960_ProcessCompletedRequest(DAC960_Command_T *Command,
-+	boolean SuccessfulIO)
- {
--  bio_endio(BufferHeader, BufferHeader->bi_size, SuccessfulIO ? 0 : -EIO);
--  blk_finished_io(bio_sectors(BufferHeader));
-+	DAC960_CommandType_T CommandType = Command->CommandType;
-+	IO_Request_T *Request = Command->Request;
-+	int DmaDirection, UpToDate;
-+
-+	UpToDate = 0;
-+	if (SuccessfulIO)
-+		UpToDate = 1;
-+
-+	/*
-+	 * We could save DmaDirection in the command structure
-+	 * and just reuse that information here.
-+	 */
-+	if (CommandType == DAC960_ReadCommand || CommandType == DAC960_ReadRetryCommand)
-+		DmaDirection = PCI_DMA_FROMDEVICE;
-+	else
-+		DmaDirection = PCI_DMA_TODEVICE;
-+
-+	pci_unmap_sg(Command->PciDevice, Command->V1.ScatterList,
-+		Command->SegmentCount, DmaDirection);
-+
-+	/*
-+	 * BlockCount is redundant with nr_sectors in the request
-+	 * structure.  Consider eliminating BlockCount from the
-+	 * command structure now that Command includes a pointer to
-+	 * the request.
-+	 */
-+	while (end_that_request_first(Request, UpToDate, Command->BlockCount))
-+		;
-+	end_that_request_last(Request);
-+
-+	if (Command->Completion) {
-+		complete(Command->Completion);
-+		Command->Completion = NULL;
-+	}
- }
- 
- static inline int DAC960_PartitionByCommand(DAC960_Command_T *Command)
- {
--	return DAC960_PartitionNumber(to_kdev_t(Command->BufferHeader->bi_bdev->bd_dev)); 
-+	return DAC960_PartitionNumber(Command->Request->rq_dev);
- }
- 
- /*
+	Robert Love
+

@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264492AbSIVTVT>; Sun, 22 Sep 2002 15:21:19 -0400
+	id <S264495AbSIVTWU>; Sun, 22 Sep 2002 15:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264495AbSIVTVS>; Sun, 22 Sep 2002 15:21:18 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:32128 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264492AbSIVTVS>; Sun, 22 Sep 2002 15:21:18 -0400
-Date: Sun, 22 Sep 2002 12:24:42 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-cc: LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
-Message-ID: <86171478.1032697481@[10.10.2.3]>
-In-Reply-To: <73440311.1032684750@[10.10.2.3]>
-References: <73440311.1032684750@[10.10.2.3]>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S264497AbSIVTWU>; Sun, 22 Sep 2002 15:22:20 -0400
+Received: from ns.suse.de ([213.95.15.193]:65036 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S264495AbSIVTWT>;
+	Sun, 22 Sep 2002 15:22:19 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+References: <Pine.LNX.4.44.0209221830400.8911-100000@serv.suse.lists.linux.kernel> <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Sep 2002 21:27:29 +0200
+In-Reply-To: Linus Torvalds's message of "22 Sep 2002 20:36:41 +0200"
+Message-ID: <p734rchu8ny.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +	int this_pool = CPU_TO_NODE(this_cpu);
->> +	int this_pool=CPU_TO_NODE(this_cpu), weight, maxweight=0;
+Linus Torvalds <torvalds@transmeta.com> writes:
 > 
-> Howcome you can use the CPU_TO_NODE abstraction here ...
-> 
->> +	/* build translation table for CPU_TO_NODE macro */
->> +	for (i = 0; i < NR_CPUS; i++)
->> +		if (cpu_online(i))
->> +			lnode_number[i] = pnode_to_lnode[SAPICID_TO_PNODE(cpu_physical_id(i))];
-> 
-> But not here?
+> I suspect we'll want to have some form of event tracing eventually, but
+> I'm personally pretty convinced that it needs to be a per-CPU thing, and 
+> the core mechanism would need to be very lightweight. It's easier to build 
+> up complexity on top of a lightweight interface than it is to make a 
+> lightweight interface out of a heavy one.
 
-Doh! Because you're building the list to use for CPU_TO_NODE,
-obviously ;-) Sorry.
+There is an old patch around from SGI that does exactly this. It is a
+very lightweight binary value tracer that has per CPU buffers. It
+traces using macros that you can easily add. It's called ktrace (not
+to be confused with Ingo's ktrace). I've been porting it for some time
+for my own tracing needs (adding tracing macros as needed but never submitting
+them). If you're interested I can submit it for 2.5 (without any hooks, people
+should just add them as needed and then remove them again) 
 
-Should still get buried back down into the arch code though. 
-
-M.
-
-
-
+-Andi

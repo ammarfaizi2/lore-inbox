@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVBBVf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVBBVjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262793AbVBBVf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 16:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbVBBVfC
+	id S262584AbVBBVjX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 16:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbVBBVfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 16:35:02 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:56477 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S262797AbVBBVdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 16:33:51 -0500
-Date: Wed, 02 Feb 2005 16:33:08 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [RFC] shared subtrees
-In-reply-to: <20050202212557.GC3879@fieldses.org>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Ram <linuxram@us.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <42014714.2070901@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
- <20050116184209.GD13624@fieldses.org>
- <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
- <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost>
- <20050201232106.GA22118@fieldses.org> <1107369381.5992.73.camel@localhost>
- <42012DE7.4080003@sun.com> <1107376434.5992.113.camel@localhost>
- <42014150.9090500@sun.com> <20050202212557.GC3879@fieldses.org>
+	Wed, 2 Feb 2005 16:35:43 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:4109 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262601AbVBBVeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:34:25 -0500
+Date: Wed, 2 Feb 2005 13:34:02 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Huey <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050202213402.GB14023@nietzsche.lynx.com>
+References: <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <20050202111045.GA12155@nietzsche.lynx.com> <87is5ahpy1.fsf@sulphur.joq.us> <20050202211405.GA13941@nietzsche.lynx.com> <20050202212100.GA12808@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202212100.GA12808@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Feb 02, 2005 at 10:21:00PM +0100, Ingo Molnar wrote:
+> yes and no. You are right in that the individual workloads (e.g.
+> softirqs) are not separated and identified/credited to the thread that
+> requested them. (in part due to the fact that you cannot e.g. credit a
+> thread for e.g. unrequested workloads like incoming sockets, or for
+> 'merged' workloads like writeout of a commonly accessed file.)
 
-J. Bruce Fields wrote:
-> On Wed, Feb 02, 2005 at 04:08:32PM -0500, Mike Waychison wrote:
-> 
->>Well, fwiw, I have the same kind of race in autofsng.  I counter it by
->>building up the vfsmount tree elsewhere and mount --move'ing it.
->>
->>Unfortunately, the RFC states that moving a shared vfsmount is
->>prohibited (for which the reasoning slips my mind).
-> 
-> 
-> See http://marc.theaimsgroup.com/?l=linux-fsdevel&m=110594248826226&w=2
-> 
-> As I understand it, the problem isn't sharing of the vfsmount being
-> moved, but sharing of the vfsmount on which that vfsmount is
-> mounted.--b.
+What's not being addressed here is a need for pervasive QoS across all
+kernel systems. The power of this patch is multiplicative. It's not
+about a specific component of the system having microsecond latencies,
+it's about how all parts, softirqs, hardirqs, VM, etc... work together
+so that the entire system is suitable for (near) hard real time. It's
+unconstrained, unlike dual kernel RT systems, across all component
+boundaries. Those constraints create large chunks of glue logic between
+systems, which is exploded the complexity of things that app folks
+much deal with.
 
-Okay, thanks for the refresher.
+This is where properly written Linux apps (non exist right now because
+of kernel issues) can really overtake competing apps from other OSes
+(ignoring how crappy X11 is).
+ 
+> but Jack is right in practical terms: the audio folks achieved pretty
+> good results with the current IRQ threading mechanism, partly due to the
+> fact that the audio stack doesnt use softirqs, so all the
+> latency-critical activities are in the audio IRQ thread and the
+> application itself.
 
-That still keeps you from using the 'build tree elsewhere' and 'mount
-- --move' approach though, as the parent mountpoint would likely be shared.
+It's clever that they do that, but additional control is needed in the
+future. jackd isn't the most sophisticate media app on this planet (not
+too much of an insult :)) and the demands from this group is bound to
+increase as their group and competing projects get more and more
+sophisticated. When I mean kernel folks needs to be proactive, I really
+mean it. The Linux kernel latency issues and poor driver support is
+largely why media apps are way below even being second rate with regard
+to other operating systems such as Apple's OS X for instance.
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
+bill
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCAUcUdQs4kOxk3/MRAubGAJ0fUrpVS9U5oQof5jv4JieVOo6JjwCgjHXa
-oHcjXLEV5zj4OrB+TEipQdY=
-=3hhk
------END PGP SIGNATURE-----

@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262687AbTCPQcm>; Sun, 16 Mar 2003 11:32:42 -0500
+	id <S262688AbTCPQiP>; Sun, 16 Mar 2003 11:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262688AbTCPQcm>; Sun, 16 Mar 2003 11:32:42 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:47364 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S262687AbTCPQcl>; Sun, 16 Mar 2003 11:32:41 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303161645.h2GGjZ7i000983@81-2-122-30.bradfords.org.uk>
-Subject: Re: 2.4 PS/2 mouse problem
-To: vojtech@suse.cz
-Date: Sun, 16 Mar 2003 16:45:35 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200303161406.h2GE6PGd000145@81-2-122-30.bradfords.org.uk> from "John Bradford" at Mar 16, 2003 02:06:25 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262689AbTCPQiP>; Sun, 16 Mar 2003 11:38:15 -0500
+Received: from ns.miraclelinux.com ([219.101.34.26]:38652 "EHLO
+	dns01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id <S262688AbTCPQiO>; Sun, 16 Mar 2003 11:38:14 -0500
+To: rddunlap@osdl.org
+Cc: jamagallon@able.es, mikpe@user.it.uu.se,
+       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: hyoshiok@miraclelinux.com
+Subject: Re: [Perfctr-devel] Re: perfctr-2.5.0 released
+In-Reply-To: <33207.4.64.238.61.1047616615.squirrel@www.osdl.org>
+References: <200303110002.h2B02Uxa025848@harpo.it.uu.se>
+	<20030314012502.GA20357@werewolf.able.es>
+	<33207.4.64.238.61.1047616615.squirrel@www.osdl.org>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Cuyahoga Valley)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20030317014736O.hyoshiok@miraclelinux.com>
+Date: Mon, 17 Mar 2003 01:47:36 +0900
+From: Hiro Yoshioka <hyoshiok@miraclelinux.com>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've just bought a new PS/2 mouse, and it works fine with 2.5, but in
-> 2.4 it doesn't work properly if I move the mouse slowly.
+Hi,
+
+We have made a memory profiling tool based on the perfctr 2.5.0.
+http://downloads.sourceforge.jp/hardmeter/2646/hardmeter-030314.tar.gz
+
+The tool (hardmeter) is
+1) patch to perfctr 2.5.0
+2) ebs (PEBS (Precise Event Based Sampling) memory profiling tool)
+3) API
+
+Thanks,
+  Hiro
+
+> >
+> > On 03.11, Mikael Pettersson wrote:
+> >> Version 2.5.0 of perfctr, the Linux/x86 performance
+> >> monitoring counters driver, is now available at the usual
+> >> place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+> >>
+> >
+> > Perhaps this has been asked for a million times, but I'm new to
+> > perfctrs...
+> > Is there any tool available to profile a program based on this ?
+> > I have seen perfex, but that gives total counts. I would like something like
+> > gprof... We are now optimizing some software and I would like to make my
+> > colleagues leave Windows (they use Intel's VTune) and go to Linux.
+> > Or at least compare the same kind of things between VTune on win and
+> > 'something' in Linux that also uses the counters. They don't seem to trust
+> > gprof. And, looking at the results, I'm beginning to untrust VTune...
 > 
-> I've tried 2.4.20-pre5, 2.4.20, and 2.4.19, and get the same
-> problems:
+> I hope that Mikael knows of some native Linux tools for this.
+> However, Intel did announce Vtune for Linux recently (might still be
+> in beta test), and there was a SuSE patch for it posted at
+> kernelnewbies.org also.  See:
 > 
-> In X, the mouse works fine as long as it's moved quickly, but trying
-> to move it 1 pixel, for example, is almost impossible.
+> http://www.linuxhardware.org/comments.pl?sid=364&cid=530
+> http://www.linuxhardware.org/articles/03/01/17/1633229.shtml
+> http://kernelnewbies.org/kernels/SuSE81/SOURCES/patches.i386/50_vtune-ia32
+>   (warning: this is for 2.4.19)
 > 
-> From the console, cat /dev/psaux displays nothing, if I move the mouse
-> slowly, no matter how far it's moved.  Moving it quicky displays
-> characters as expected.
-
-OK, this was my fault :-)
-
-In 2.5.X, psmouse_initialize is actually setting the resolution, etc,
-whereas 2.4.X is just using the mouse's power on default.  Adding:
-
-Option "Resolution" "200"
-
-to my X config file, seems to initialise the mouse in a similar way,
-and it works fine.
-
-Never noticed this with any other PS/2 mouse, though.  Maybe this one
-just has an unusual power-on default setting?
-
-John.
+> or google for "+vtune +linux".
+> 
+> ~Randy

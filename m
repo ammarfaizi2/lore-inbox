@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262928AbVAFRfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVAFRis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262928AbVAFRfd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbVAFRej
+	id S262940AbVAFRis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 12:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVAFRfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:34:39 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:38075 "EHLO
+	Thu, 6 Jan 2005 12:35:55 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:43707 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262928AbVAFRe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:34:29 -0500
-Subject: Re: [patch 6/6] delete unused file
+	id S262931AbVAFRe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:34:57 -0500
+Subject: Re: 2.6.10: "[permanent]" modules?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matt Mackall <mpm@selenic.com>
-Cc: domen@coderock.org, akpm@osdl.org,
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-os@analogic.com, Christoph Hellwig <hch@infradead.org>,
+       Harald Dunkel <harald@coware.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050104210342.GA2995@waste.org>
-References: <20041226153257.0F3501F126@trashy.coderock.org>
-	 <1104081178.15994.11.camel@localhost.localdomain>
-	 <20050104210342.GA2995@waste.org>
+In-Reply-To: <58cb370e05010605584cdcd400@mail.gmail.com>
+References: <41DCE48E.5010604@coware.com>
+	 <20050106092858.GB15162@infradead.org>
+	 <Pine.LNX.4.61.0501060744330.17811@chaos.analogic.com>
+	 <58cb370e05010605584cdcd400@mail.gmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105020583.17166.208.camel@localhost.localdomain>
+Message-Id: <1105023878.17176.217.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 06 Jan 2005 16:30:04 +0000
+Date: Thu, 06 Jan 2005 16:30:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-01-04 at 21:03, Matt Mackall wrote:
-> On Sun, Dec 26, 2004 at 05:13:00PM +0000, Alan Cox wrote:
-> > On Sul, 2004-12-26 at 15:33, domen@coderock.org wrote:
-> > > Remove nowhere referenced file. (egrep "filename\." didn't find anything)
-> > 
-> > This file is there for a reason - it completes the set of endian types
-> > should anyone port to a mixed endian system.
-> 
-> Please name one such box that doesn't support a more sensible order
-> and is vaguely Linux-capable.
+On Iau, 2005-01-06 at 13:58, Bartlomiej Zolnierkiewicz wrote:
+> It can be unloaded given that the needed locking
+> and cleanup code are in place...
 
-That isnt the point of having a neat set of complete headers sometimes.
+ie 2.6.10-ac, although I've only enabled it for a few controllers so far
+for testing purposes.
 
 Alan
 

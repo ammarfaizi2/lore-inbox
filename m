@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSLCRPk>; Tue, 3 Dec 2002 12:15:40 -0500
+	id <S261914AbSLCRPo>; Tue, 3 Dec 2002 12:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbSLCRPk>; Tue, 3 Dec 2002 12:15:40 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:4368
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261894AbSLCRPj>; Tue, 3 Dec 2002 12:15:39 -0500
-Subject: Re: [PATCH] deprecate use of bdflush()
-From: Robert Love <rml@tech9.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1021203091821.5578A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1021203091821.5578A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1038935401.994.9.camel@phantasy>
+	id <S261934AbSLCRPo>; Tue, 3 Dec 2002 12:15:44 -0500
+Received: from mta11n.bluewin.ch ([195.186.1.211]:37049 "EHLO
+	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
+	id <S261914AbSLCRPm>; Tue, 3 Dec 2002 12:15:42 -0500
+Date: Tue, 3 Dec 2002 18:23:10 +0100
+From: Martin Buck <mb-kernel0212@gromit.dyndns.org>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Race condition in tty_flip_buffer_push/flush_to_ldisc?
+Message-ID: <20021203172310.GA5373@gromit.at.home>
+References: <20021203093323.GA25957@gromit.at.home> <006601c29ae5$57b28220$294b82ce@connecttech.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 (1.2.0-3) 
-Date: 03 Dec 2002 12:10:01 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <006601c29ae5$57b28220$294b82ce@connecttech.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 09:24, Bill Davidsen wrote:
+On Tue, Dec 03, 2002 at 11:02:12AM -0500, Stuart MacDonald wrote:
+> What causes the DONT_FLIP bit to be un/set? I don't think your
+> situation can occur under normal operation. But ICBW.
 
-> My take on this is that it's premature. This would be fine in the 2.6.0-rc
-> series, but the truth is that the majority of 2.5 users boot 2.5 for
-> testing but run 2.4 for normal use. They aren't going to get rid of
-> bdflush and this just craps up the logs. At least with the occurrence
-> limit it will only happen a few times. I would like to see it once only,
-> myself, as a reminder rather than a nag.
+n_tty.c seems to do it in read_chan(), i.e. it will happen when the
+process reading from the TTY is currently in read(2) while at the same time
+new characters arrive on the serial port.
 
-2.4 does not need bdflush, either.
+> If you search the lkml archive, recently Ted stated that it's
+> acceptable to call the line discpline's receive_buf() routine
+> directly, bypassing the flip buffers.
 
-Bdflush the user-space daemon went away a long time ago, ~1995.
+Interesting, that should solve my problem. But then the next question is:
+What's the use of the DONT_FLIP bit if it's legal to bypass it by calling
+receive_buf() directly?
 
-Besides, you only see the message once for each daemon that is loaded. 
-So regardless of the rate limiting you probably only see it once on
-boot.
+Also, if somebody enables low_latency using setserial with the standard
+serial driver, he can still trigger the race condition. It's not very
+likely to happen, but it does happen - I added code to flush_to_ldisc() to
+detect concurrent calls and it triggered once during an over-night test.
 
-	Robert Love
+Thanks,
+Martin
 

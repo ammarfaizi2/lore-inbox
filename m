@@ -1,45 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbTIWRYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 13:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTIWRYv
+	id S262118AbTIWRWm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 13:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTIWRWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 13:24:51 -0400
-Received: from prefect.guardianit.se ([193.15.191.37]:47631 "EHLO
-	prefect.guardianit.se") by vger.kernel.org with ESMTP
-	id S262078AbTIWRYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 13:24:43 -0400
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pivot_root solved by patch to 2.4.22-pre7
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 5.0.9  November 16, 2001
-Message-ID: <OF57E99370.537F0F4E-ONC1256DAA.005EACF7@guardianit.se>
-From: "Mathias Sundman" <mathias.sundman@sungard.se>
-Date: Tue, 23 Sep 2003 19:25:19 +0200
-X-MIMETrack: Serialize by Router on prefect/GuardianIT(Release 5.0.12  |February 13, 2003) at
- 2003-09-23 19:25:20,
-	Serialize complete at 2003-09-23 19:25:20
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 23 Sep 2003 13:22:42 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18949 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262118AbTIWRWT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 13:22:19 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: suid bit behaviour modification in 2.6.0-test5
+Date: 23 Sep 2003 17:12:59 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bkpuur$e63$1@gatekeeper.tmr.com>
+References: <3F6CF491.9030205@free.fr> <200309220425.21862.lkml@ordinal.freeserve.co.uk>
+X-Trace: gatekeeper.tmr.com 1064337179 14531 192.168.12.62 (23 Sep 2003 17:12:59 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Ah yes.. because of do_basic_setup. Having /sbin/init sharing with
-> > kernel threads doesn't actually strike me as too clever anyway 
-although
-> > none of them should be using fd stuff.
-> > 
-> > In which case I guess we should call unshare_files directly before we
-> > open /dev/console in init/main.c.
-> 
-> Is this going to be fixed for 2.4.22? In -rc2, I still get this after
-> pivot_root (I'm using pivot_root, but not initrd):
-> 
->                halfoat:0:~ # umount /mnt
->                umount: /mnt: device is busy
+In article <200309220425.21862.lkml@ordinal.freeserve.co.uk>,
+Ian Hastie  <lkml@ordinal.freeserve.co.uk> wrote:
+| On Sunday 21 Sep 2003 01:45, Jean-pierre Cartal wrote:
+| > Hello,
+| >
+| > I'm running a standard RH 9 installation upgraded to kernel 2.6.0-test5
+| > with rpms from http://people.redhat.com/arjanv/2.5/RPMS.kernel/.
+| >
+| > I noticed that contrary to what was happening with 2.4.x kernel, suid
+| > root files don't loose their suid bit when they get overwritten by a
+| > normal user (see example below)
+| >
+| > Is this the intended behaviour or a bug ?
+| 
+| I got the same results.  However it seems the bug is something to do with a 
+| directory listing cache somewhere.  If you sync after copying over the file 
+| the suid bit is shown as having been cleared.
 
-Have this problem been resolved yet, or do one
-still need to use the patch supplied by Jason Baron?
+Well, if ls gets that bit as still set, what would happen if someone
+actually ran the program before the sync was done? COuld the file be
+modified and then run? Is there a window? Still smells bugish.
+| 
+| $ touch suid_test
+| 
+| # chown root suid_test
+| # chmod 4775 suid_test
+| 
+| $ ls -l
+| total 0
+| -rwsrwxr-x    1 root     ianh            0 Sep 22 04:21 suid_test
+| $ cp /bin/ls suid_test
+| $ ls -l
+| total 68
+| -rwsrwxr-x    1 root     ianh        69228 Sep 22 04:22 suid_test
+| $ sync
+| $ ls -l
+| total 68
+| -rwxrwxr-x    1 root     ianh        69228 Sep 22 04:22 suid_test
+| 
+| -- 
+| Ian.
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+| 
 
-/Mathias
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

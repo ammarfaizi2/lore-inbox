@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbRA3Jep>; Tue, 30 Jan 2001 04:34:45 -0500
+	id <S129868AbRA3JeO>; Tue, 30 Jan 2001 04:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130415AbRA3Jel>; Tue, 30 Jan 2001 04:34:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:36993 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129789AbRA3Je0>;
-	Tue, 30 Jan 2001 04:34:26 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129789AbRA3JeE>; Tue, 30 Jan 2001 04:34:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:57348 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129704AbRA3Jds>; Tue, 30 Jan 2001 04:33:48 -0500
+Message-ID: <3A768A6B.78D72693@transmeta.com>
+Date: Tue, 30 Jan 2001 01:33:31 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: "Michael B. Trausch" <fd0man@crosswinds.net>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <Pine.LNX.4.21.0101300350290.2225-100000@fd0man.accesstoledo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14966.35438.429963.405587@pizda.ninka.net>
-Date: Tue, 30 Jan 2001 01:33:34 -0800 (PST)
-To: linux-kernel@vger.kernel.org
-CC: netdev@oss.sgi.com
-Subject: [UPDATE] Fresh zerocopy patch on kernel.org
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Michael B. Trausch" wrote:
+> 
+> On 29 Jan 2001, H. Peter Anvin wrote:
+> >
+> > He's keeping in mind who owns Hotmail.  However, I think that's unfair
+> > to the Hotmail guys; all the ones I have ever spoken with have been
+> > very professional and genuinely concerned with standards compliance.
+> >
+> 
+> I would also keep in mind, that Microsoft doesn't even run their *own*
+> system on Hotmail.  Currently they're using Solaris, and from what I hear
+> they might be moving Linux in there fairly soon.
+> 
 
-At the usual place:
+I don't know if that's true.  The headers I've seen from hotmail users --
+and Netcraft seem to agree -- indicate that they have migrated over to
+Win2K.  I do understand this was a forced migration for non-technical
+reasons, and that they had quite a bit of problems.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.1-1.diff.gz
+An interesting exception seem to be the hosts named ad.law*.hotmail.com,
+which Netcraft claim to be FreeBSD.
 
-(As usual, please allow some minutes for the mirrors to get it)
+	-hp
 
-Changes since last installment:
-
-1) Merge to 2.4.1 final. (me)
-2) Accept TCP flags (ACK, URG, RST, etc.) for out of window packets
-   if truncating the data to the window would make that packet valid.
-   (Alexey)
-3) Add SO_ACCEPTCONN, Unix standard wants it. (me)
-
-Have fun testing...
-
-Later,
-David S. Miller
-davem@redhat.com
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

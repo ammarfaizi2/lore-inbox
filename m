@@ -1,73 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267621AbUHRXxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUHRXzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267621AbUHRXxs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 19:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267635AbUHRXxs
+	id S267653AbUHRXzu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 19:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUHRXzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 19:53:48 -0400
-Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:6610 "EHLO
-	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S267621AbUHRXxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 19:53:43 -0400
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Subject: Re: page fault fastpath patch v2: fix race conditions, stats for 8,32     and    512 cpu SMP
-Date: Wed, 18 Aug 2004 19:50:21 -0400
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Message-Id: <pan.2004.08.18.23.50.13.562750@umich.edu>
-References: <2uexw-1Nn-1@gated-at.bofh.it> <2uCTq-2wa-55@gated-at.bofh.it>
-To: Hugh Dickins <hugh@veritas.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "David S. Miller" <davem@redhat.com>, <raybry@sgi.com>, <ak@muc.de>,
-       <benh@kernel.crashing.org>, <manfred@colorfullife.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 18 Aug 2004 19:55:50 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:65388 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267653AbUHRXzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 19:55:31 -0400
+Date: Wed, 18 Aug 2004 16:55:28 -0700
+To: sparclinux@vger.kernel.org
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.6] busybox EFAULT on sparc64
+Message-ID: <20040818235528.GA8070@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, sparclinux@vger.kernel.org,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+User-Agent: Mutt/1.5.6+20040722i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Wed, Aug 18, 2004 at 06:55:07PM +0100, Hugh Dickins wrote:
->> That's interesting, and disappointing.
->> The main lesson I took from your patch (I think wli was hinting at
->> the same) is that we ought now to question page_table_lock usage,
->> should be possible to cut it a lot.
->> I recall from exchanges with Dave McCracken 18 months ago that the
->> page_table_lock is _almost_ unnecessary in rmap.c, should be possible
->> to get avoid it there and in some other places.
->> We take page_table_lock when making absent present and when making
->> present absent: I like your observation that those are exclusive cases.
->> But you've found that narrowing the width of the page_table_lock
->> in a particular path does not help.  You sound surprised, me too.
->> Did you find out why that was?
->
-> It also protects against vma tree modifications in mainline, but rmap.c
-> shouldn't need it for vmas anymore, as the vma is rooted to the spot by
-> mapping->i_shared_lock for file pages and anon_vma->lock for anonymous.
 
-If I am reading the code correctly, then without page_table_lock
-in page_referenced_one(), we can race with exit_mmap() and page 
-table pages can be freed under us.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-William Lee Irwin III wrote:
-> On Wed, Aug 18, 2004 at 06:55:07PM +0100, Hugh Dickins wrote:
->> I do think this will be a more fruitful direction than pte locking:
->> just looking through the arches for spare bits puts me off pte locking.
->
-> Fortunately, spare bits aren't strictly necessary, and neither is
-> cmpxchg. A single invalid value can serve in place of a bitflag. When
-> using such an invalid value, just xchg()'ing it and looping when the
-> invalid value is seen should suffice. This holds more generally for all
-> radix trees, not just pagetables, and happily xchg() or emulation
-> thereof is required by core code for all arches.
+Here's an example of a strange phenomenon seen by me and more recently
+Jeff Bailey...
 
-Good point. 
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D264482
 
-Another solution may be to use the unused bytes (->lru or
-->private) in page table "struct page" as bit_spin_locks. We can 
-use a single bit to protect a small set of ptes (8, 16, or 32).
+I'm not sure exactly what's happening here. Summary: passing static
+memory to mount(2) returns Bad address, and starting klogd hangs on a
+fork(2) call. A mount call will succeed if the memory is copied first
+onto the heap. This is 2.6.8 without any SPARC-specific patches, built
+for sparc64.
 
-Rajesh
-  
+You can check this out at (misnomer)
+http://people.debian.org/~joshk/2.4.27/kernel-image-2.6.8-sparc/kernel-imag=
+e-2.6.8-1-sparc64_2.4.27-1_sparc.deb
+for yourself.
 
+I'm inclined to believe that the two bugs are related; these both happen
+with busybox-cvs and the exact same programs work with 2.4. Bastian
+Blank suggests that it is the compat wrapper for sys_mount that is not
+clean.
 
+Could I get any idea of what is going on here? I'm CC:ing lkml because
+this may be a general 2.6 bug that neither Jeff or I have encountered.
+
+--=20
+Joshua Kwan
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
+
+iQIVAwUBQSPsb6OILr94RG8mAQL9ChAAoVivg5h79ctFmi9KvYUMMYDrGBeH+lLL
+B0k3eJmWD91E7s3g0ZxJE9rog7gy3BS7XDTMBTUBv/milnQrtLMTLxDcDk18qOBp
+QFK+Y72Htrq0N6QPg/OAdV3Wh4tMCXMKyplqwtOodrBDyksxhkue1Sm01/HGwRGQ
+h+uoJBw+kO4uoa0VgUtX6/Ms383fcPuPk2v94+wTAiwIcFDA9ky3koR4fhVQ4WBe
+CQdhM0k+Qd2Sg27daye+AyG4kCB13PCRiqbnxtYvUCuBtMY7RcT69CyF7z3WBjUV
+vjmxsDAiuaQfpMxWW9w+/DxX5Rdb2LiNGjUcRbXyR8se9e9Zs3TG3QEKMyG3n821
++vJFHrH0Oa9wyoBpKro3ubm3G5NU8OgXprivGQ4/WQ4fYihv4VcdZ9Jodox8Rv0B
+EOKcM11Aa7r0PqlMh3rqZ3qwXWaWOs0Sqd2pLpcguoY7GMjF1sLGY5o0qHuucdMW
+qI7yenBfChFsq/yX19/vqb/2R5OgJSpjp/SLt7sLdhUMr8zML5kwBzd/5QUsHTF2
+Hw33I0fMRowvfGkw16yIjU+cGFwFBoaOi6huwIo34XG6HnlZNsofQHotTCpuRzMd
+u6G5yWn1jeeQpAdokCtd9PoEyXjXlLD09BTpQJWUFeGjVRrSzMSS41DO3borLG4q
+E670AnVSvEs=
+=x+6X
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--

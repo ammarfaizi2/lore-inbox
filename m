@@ -1,116 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313764AbSDHVgw>; Mon, 8 Apr 2002 17:36:52 -0400
+	id <S313766AbSDHVmM>; Mon, 8 Apr 2002 17:42:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313765AbSDHVgv>; Mon, 8 Apr 2002 17:36:51 -0400
-Received: from mailg.telia.com ([194.22.194.26]:44514 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S313764AbSDHVgt>;
-	Mon, 8 Apr 2002 17:36:49 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Anssi Saari <as@sci.fi>, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
-Date: Mon, 8 Apr 2002 23:32:09 +0200
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020408154732.GA10271@sci.fi> <Pine.LNX.3.96.1020408133036.22155A-100000@gatekeeper.tmr.com> <20020408190612.GA19419@sci.fi>
+	id <S313767AbSDHVmL>; Mon, 8 Apr 2002 17:42:11 -0400
+Received: from kitkat.hotpop.com ([204.57.55.30]:52750 "HELO kitkat.hotpop.com")
+	by vger.kernel.org with SMTP id <S313766AbSDHVmK>;
+	Mon, 8 Apr 2002 17:42:10 -0400
+Date: Mon, 08 Apr 2002 22:15:54 -0700
+From: "wilson Damilo" <dammylo@hotpop.com>
+Subject: BUSINESS PROPOSAL
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200204082332.09302.roger.larsson@norran.net>
+Content-type: text/plain
+X-Mailer: FletMail 1.103
+Message-Id: <20020408213351.05FBF505C4@zagnut.hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+May I briefly introduce myself. I am Wilson Damilo of
+the Democratic Republic of Congo (formerly Zaire) and
+the former aide de camp of the Late President Laurel
+Kabila of blessed memory.
 
-I tested with my computer - the CD-R:s that I had
-limited the testing to 10x. But when testing
-that it indicated 33% CPU in system, but not accouted
-to any process by top.
+I am presently living in Nigeria on asylum. In case
+you are wondering how I got your contact, I got your
+contact from a source at the foreign trade office of
+the Nigeria Chamber of commerce, trade and industry.
 
-I have done some profiling with my kernel
-2.4.17-rmap12f
-I think this indicates that the time spent for this kernel is
-IRQ happening during idle time - correct?
+The events of the past one year in my country has been
+very unfortunate. The Late president Kabila
+successfully toppled the very corrupt government of
+the Late Dictator Mobutu Sese Seko and ruled justly
+and peacefully for a few months. Unfortunately, the
+Tutsi from Goma, the Northern part of the country
+rebelled against his government and since then my
+country has been at war.
 
-I am not sure that this is the same situation that Anssi has
-but 33% are quite a lot (more than he got, DMAs are enabled).
-But at least it is another comparative datapoint...
+I am very dedicated and committed to winning the war
+against the rebels until recently when to my shock I
+found out that Senior Army Officers and Government
+officials were stealing public funds and looting
+government treasury and sending them to foreign
+countries. They have exploited the war situation to
+bring back the lawlessness and corruption of the
+Mobutu days.
 
-/RogerL
+After the late President Kabila was assassinated in very
+questionable circumstances, I knew I was in danger of
+losing from both ends. Due to this development and as
+a way of survival, I have joined the train. I have in
+my possession funds amounting to US$25million.  
 
---- output from readprofile (>=3) ------------------
-     3 __aux_write_ack                            0.0938
-     3 kmalloc                                    0.0115
-     3 pipe_poll                                  0.0300
-     3 sys_select                                 0.0026
-     4 add_wait_queue                             0.1000
-     4 link_path_walk                             0.0021
-     4 rest_init                                  0.1000
-     4 rmqueue                                    0.0059
-     4 tasklet_action                             0.0303
-     4 timer_bh                                   0.0066
-     5 __free_pages_ok                            0.0068
-     5 sock_poll                                  0.1250
-     6 __rdtsc_delay                              0.2143
-     6 __switch_to                                0.0326
-     6 __wake_up                                  0.0375
-     6 kfree                                      0.0405
-     7 fget                                       0.1750
-     7 poll_freewait                              0.1029
-     7 sys_write                                  0.0357
-     8 unix_poll                                  0.0541
-     9 schedule                                   0.0110
-    11 do_softirq                                 0.0671
-    12 do_anonymous_page                          0.0517
-    12 do_select                                  0.0252
-    23 handle_IRQ_event                           0.2614
-    24 file_read_actor                            0.1765
-  5960 ide_intr                                  17.7381
- 36056 default_idle                             901.4000
- 42283 total                                      0.0418
+My problem is that the financial Law of Nigeria does
+not give asylum seekers any financial rights. And
+because of the economic instability and religious
+crisis, I have decided that it will be unwise to
+attempt investing the funds here. The climate here is
+very unfavorable and as a result, I have not
+disclosed even to my hosts anything about this fund.
+
+Now I am seeking foreign assistance to transfer the
+funds overseas. If you can assist, I am willing to
+give you 20% of the funds, that is US$5Million. You
+will understand that my entire life and future depend
+on this money and I shall be very grateful if you can
+assist me. The major thing I demand from you is the
+absolute assurance that the money will be safe and you
+will not sit on it when it is transferred to your
+account.
+
+If you are ready to be of assistance, please contact
+me immediately by e-mail, so that I can furnish you
+with the modalities for the transaction and what is
+expected of you. I shall be most grateful if you
+maintain utmost confidentiality and keep this message
+entirely to yourself.
+
+Best Regards,
+
+MR. Wilson  Damilo
+
+TEL : 234-1-7760618
+FAX : 234-1-7593311
+
+RESPOND TO THE BELOW EMAIL ADDRESS (damwil004@yahoo.com) or better still respond through my fax number above.
+
+ONCE AGAIN NOTE THAT FOR THE CONFIDENTIALITY OF THIS TRANSACTION, WHEN YOU CALL ME THE FIRST THING YOU DO IS FOR YOU TO ASK ME WHAT IS THE CODE, AND MY RESPONSE WILL BE (055).IF I DO NOT TELL YOU (055) THEN KNOW YOU ARE NOT TALKING TO ME. DROP THE PHONE IMMEDIATELY AND CALL ME BACK TILL I GIVE YOU THE CODE WORD. THIS IS DUE TO JAMMING TELECOMMUNICATION DEVICES IN THIS COUNTRY AS A RESULT OF THE BOMB EXPLOSION IN A LAGOS MILITARY BASE RECENTLY. 
 
 
-On måndagen den 8 april 2002 21.06, Anssi Saari wrote:
-> On Mon, Apr 08, 2002 at 01:35:35PM -0400, Bill Davidsen wrote:
-> >   Okay, this is good information. At the risk of asking a dumb question,
-> > are you sure that both the burner and the source drive ar using DMA?
->
-> I'm fairly certain. I can read that test image at ~37MB/s and 35% CPU,
-> which can't be PIO. The CD writer reads at ~3.7MB/s and 3% CPU usage.
->
-> > that they are on separate cables (controllers)?
->
-> Yes. Two HDs, one writer, all on different channels. The other HD is on
-> the motherboards Promise 20265 "raid" controller.
->
-> >   This would be a good question for the CD writing list,
-> > cdwrite@other.debian.org.
->
-> I tried that some time ago. So far, this is a sort of repetition of
-> that. Joerg Schilling suggested that maybe I don't have DMA on or the
-> reader and writer are on the same cable. Other discussion was off topic...
->
-> In fact, I've also had this conversation from the other point of view
-> with someone else, who  was asking about this same problem in the finnish
-> Linux group, sfnet.atk.linux. Now I have the same LG CD writer, the same
-> VIA KT133A chipset, the same problem and the same discussion... I'd be
-> amused if the problem weren't still unresolved.
->
-> I decided to post here after I tried FreeBSD, didn't have a problem
-> and thus it seemed likely that this is a Linux specific problem.
->
-> I think I'll try to put together another system and see what happens
-> there. I wonder if SGI's kernprof thing would be useful with this.
-> I'll try that too, when I have the time.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
 

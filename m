@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275716AbRJBRAw>; Tue, 2 Oct 2001 13:00:52 -0400
+	id <S275778AbRJBRCW>; Tue, 2 Oct 2001 13:02:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275778AbRJBRAm>; Tue, 2 Oct 2001 13:00:42 -0400
-Received: from robur.slu.se ([130.238.98.12]:38406 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S275716AbRJBRAc>;
-	Tue, 2 Oct 2001 13:00:32 -0400
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S275851AbRJBRCM>; Tue, 2 Oct 2001 13:02:12 -0400
+Received: from ns1.uklinux.net ([212.1.130.11]:45828 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S275778AbRJBRB6>;
+	Tue, 2 Oct 2001 13:01:58 -0400
+From: Mark Hindley <mark@hindley.uklinux.net>
+Message-ID: <15289.60336.765914.654516@titan.home.hindley.uklinux.net>
+Date: Tue, 2 Oct 2001 17:30:40 +0100 (BST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15289.62283.695135.525478@robur.slu.se>
-Date: Tue, 2 Oct 2001 19:03:07 +0200
-To: Ben Greear <greearb@candelatech.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, jamal <hadi@cyberus.ca>,
-        linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
-        Robert Olsson <Robert.Olsson@data.slu.se>, Ingo Molnar <mingo@elte.hu>,
-        netdev@oss.sgi.com
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <3BB956D3.AE0FCC54@candelatech.com>
-In-Reply-To: <20011001210445.D15341@redhat.com>
-	<Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca>
-	<20011002011351.A20025@redhat.com>
-	<3BB956D3.AE0FCC54@candelatech.com>
-X-Mailer: VM 6.92 under Emacs 19.34.1
+To: linux-thinkpad@topica.com,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PLIP on thinkpad 560E
+X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Does anybody know if PLIP works on a thinkpad 560E. I can't get it to!
 
-Hello!
+I am using 2.4.10.
 
-Jamal mentioned some about the polling efforts for Linux. I can give some
-experimental data here with GIGE. Motivation, implantation etc is in paper 
-to presented at USENIX Oakland. 
+The packets are received, but the sending seems to fail:
 
-Below a IP forwarding test. Injected 10 Million 64 byte packets into eth0 at 
-a speed of 890.000 p/s received and routed and TX:ed on eth1.
+Logs:
+Oct  2 17:18:42 localhost kernel: plip0: transmit timeout(1,87)
+Oct  2 17:18:43 localhost kernel: plip0: transmit timeout(1,87)
 
-PIII @ 933 MHz. Kernel UP 2.4.10 with polling patch the are NIC's e1000 
-eth0 (irq=24) and eth1 (irq=26)
+ifconfig:
+plip0       Link encap:VJ Serial Line IP
+          inet addr:192.168.1.2  P-t-P:192.168.1.1  Mask:255.255.255.255
+          UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1596  Metric:1
+          RX packets:42 errors:0 dropped:0 overruns:0 frame:0
+             compressed:0
+          TX packets:0 errors:42 dropped:0 overruns:0 carrier:42
+          collisions:0 compressed:0 txqueuelen:10          
+
+I have the parallel port set to ECP. I have tried reversing the
+connection wire!
+
+Any suggestions? It has been suggested/mentioned that the port is butchered in
+some way and won't do plip. Is this true? Does anyone know the detail?
 
 
-Iface   MTU Met  RX-OK RX-ERR RX-DRP RX-OVR  TX-OK TX-ERR TX-DRP TX-OVR Flags
-eth0   1500   0 4031309 7803725 7803725 5968699     22      0      0      0 BRU
-eth1   1500   0     18      0      0      0 4031305      0      0      0 BRU
+Thanks,
 
 
-The RX-ERR, RX-DRP are bugs from the e1000 driver. Anyway we getting 40% of 
-packet storm routed. With a estimated throughput is about 350.000 p/s 
-
- irq       CPU0       
- 24:      80652   IO-APIC-level  e1000
- 26:         41   IO-APIC-level  e1000
-
-The for RX (polling) we use only 24 interrupts. TX is mitigated (not polled) 
-in this run. We see a lot more interrupts for same amount of packets. I think 
-we can actually tune this a bit... And I should also say that RxIntDelay=0
-(e1000 driver). So there is no latency before the driver register for polling 
-by kernel.
-
-USER       PID %CPU %MEM  SIZE   RSS TTY STAT START   TIME COMMAND
-root         3  3.0  0.0     0     0  ?  SWN  12:51   0:11 (ksoftirqd_CPU0)
-
-The polling (softirq) now handled by ksoftirqd  but I have seen a path from 
-Ingo that schedules without the need for ksoftirqd.
-
-Also note that during poll we disable only RX interrupts so all other device
-interrupts/functions are handled properly.
-
-And tulip variants of this is in production use and seems very solid. The 
-kernel code part holds ANK-trademark. :-)
-
-Cheers.
- 
-						--ro
+Mark

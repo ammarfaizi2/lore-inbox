@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUDOUYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 16:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUDOUYJ
+	id S262849AbUDOUZW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 16:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUDOUZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 16:24:09 -0400
-Received: from ida.rowland.org ([192.131.102.52]:2052 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262380AbUDOUYE (ORCPT
+	Thu, 15 Apr 2004 16:25:21 -0400
+Received: from codeblau.walledcity.de ([212.84.209.34]:49932 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S262849AbUDOUY5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 16:24:04 -0400
-Date: Thu, 15 Apr 2004 16:24:03 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Colin Leroy <colin@colino.net>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still (differently) broken
-In-Reply-To: <20040415212334.4a568c5a@jack.colino.net>
-Message-ID: <Pine.LNX.4.44L0.0404151617460.614-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Apr 2004 16:24:57 -0400
+Date: Thu, 15 Apr 2004 22:25:23 +0200
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: radeonfb broken
+Message-ID: <20040415202523.GA17316@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Apr 2004, Colin Leroy wrote:
+I am using the radeonfb on a Radeon 9600 Pro with a TFT display, and
+radeonfb very recently started to give me a picture at all, so I am
+quite happy about that.
 
-> Like this one? It works. I'm a bit wondering, however, how comes 
-> usb_interface_claimed() returns true, and the check in 
-> usb_driver_claim_interface() passes?
+However, running mplayer does not work at all on radeonfb.  mplayer
+inquires about the color depth, I am using 32 bit color depth for this,
+but radeonfb says it's DirectColor instead of TrueColor, so mplayer
+tries to initialize the palette and fails.
 
-While an interface is being probed, usb_interface_claimed() will always
-return true for it.  That's because the probing code sets
-interface->dev.driver (which is what usb_interface_claimed() tests) before
-calling the probe function.  If the probe fails then interface->dev.driver
-will be reset.  This all happens inside bus_match() in drivers/base/bus.c.
+Also, using fbset to set the mode to 1600x1200 fails.  The mode is
+changed, but the text console resolution stays the same.  Worse, a
+"setfont" changes back to 1024x768.
 
-For the same reason, the test of (dev->driver) in 
-usb_driver_claim_interface() -- that is the test you meant, isn't it? -- 
-passes (i.e., yields a true value).
+Also, I cannot view images on console with fbi or fbv.
 
-Alan Stern
-
+Felix

@@ -1,256 +1,217 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbTLHUwo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 15:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTLHUwo
+	id S263002AbTLHUtM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 15:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTLHUtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 15:52:44 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:44675
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262030AbTLHUwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 15:52:34 -0500
-Date: Mon, 8 Dec 2003 15:51:12 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] make cpu_sibling_map a cpumask_t
-In-Reply-To: <3FD3FD52.7020001@cyberone.com.au>
-Message-ID: <Pine.LNX.4.58.0312080109010.1758@montezuma.fsmlabs.com>
-References: <3FD3FD52.7020001@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY=------------040107070607050508050907
-Content-ID: <Pine.LNX.4.58.0312080109011.1758@montezuma.fsmlabs.com>
+	Mon, 8 Dec 2003 15:49:12 -0500
+Received: from holomorphy.com ([199.26.172.102]:50653 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262328AbTLHUsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 15:48:53 -0500
+Date: Mon, 8 Dec 2003 12:48:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: rl@hellgate.ch, Con Kolivas <kernel@kolivas.org>,
+       Chris Vine <chris@cvine.freeserve.co.uk>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031208204817.GA19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	rl@hellgate.ch, Con Kolivas <kernel@kolivas.org>,
+	Chris Vine <chris@cvine.freeserve.co.uk>,
+	Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+	"Martin J. Bligh" <mbligh@aracnet.com>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <200311031148.40242.kernel@kolivas.org> <200311032113.14462.chris@cvine.freeserve.co.uk> <200311041355.08731.kernel@kolivas.org> <20031208135225.GT19856@holomorphy.com> <20031208194930.GA8667@k3.hellgate.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031208194930.GA8667@k3.hellgate.ch>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 08 Dec 2003 05:52:25 -0800, William Lee Irwin III wrote:
+>> Explicit load control is in order. 2.4 appears to work better in these
+>> instances because it victimizes one process at a time. It vaguely
+>> resembles load control with a random demotion policy (mmlist order is
 
---------------040107070607050508050907
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.58.0312080109012.1758@montezuma.fsmlabs.com>
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> Everybody I talked to seemed to assume that 2.4 does better due to the
+> way mapped pages are freed (i.e. swap_out in 2.4). While it is true
+> that the new VM as merged in 2.5.27 didn't exactly help with thrashing
+> performance, the main factors slowing 2.6 down were merged much later.
 
-On Mon, 8 Dec 2003, Nick Piggin wrote:
+What kinds of factors are these? How did you find these factors? When
+were these factors introduced?
 
-> It turns the cpu_sibling_map array from an array of cpus to an array
-> of cpumasks. This allows handling of more than 2 siblings, not that
-> I know of any immediate need.
->
-> I think it generalises cpu_sibling_map sufficiently that it can become
-> generic code. This would allow architecture specific code to build the
-> sibling map, and then Ingo's or my HT implementations to build their
-> scheduling descriptions in generic code.
->
-> I'm not aware of any reason why the kernel should not become generally
-> SMT aware. It is sufficiently different to SMP that it is worth
-> specialising it, although I am only aware of P4 and POWER5 implementations.
 
-Generally i agree, it's fairly unintrusive and appears to clean up some
-things. Perhaps Andrew will take it a bit later after release.
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> Have a look at the graph attached to this message to get an idea of
+> what I am talking about (x axis is kernel releases after 2.5.0, y axis
+> is time to complete each benchmark).
 
-> P.S.
-> I have an alternative to Ingo's HT scheduler which basically does
-> the same thing. It is showing a 20% elapsed time improvement with a
-> make -j3 on a 2xP4 Xeon (4 logical CPUs).
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> It is important to note that different work loads show different
+> thrashing behavior. Some changes in 2.5 improved one thrashing benchmark
+> and made another worse. However, 2.4 seems to do better than 2.6 across
+> the board, which suggests that some elements are in fact better for
+> any types of thrashing.
 
--j3 is an odd number, what does -j4, -j8, -j16 look like?
---------------040107070607050508050907
-Content-Type: TEXT/PLAIN; NAME="sibling-map-to-cpumask.patch"
-Content-ID: <Pine.LNX.4.58.0312080109013.1758@montezuma.fsmlabs.com>
-Content-Description: 
-Content-Disposition: INLINE; FILENAME="sibling-map-to-cpumask.patch"
+qsbench I'd pretty much ignore except as a control case, since there's
+nothing to do with a single process but let it thrash.
 
- linux-2.6-npiggin/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c |    9 --
- linux-2.6-npiggin/arch/i386/kernel/io_apic.c                 |   19 ++--
- linux-2.6-npiggin/arch/i386/kernel/smpboot.c                 |   46 +++++------
- linux-2.6-npiggin/arch/i386/oprofile/op_model_p4.c           |    7 -
- linux-2.6-npiggin/include/asm-i386/smp.h                     |    2 
- 5 files changed, 37 insertions(+), 46 deletions(-)
 
-diff -puN include/asm-i386/smp.h~sibling-map-to-cpumask include/asm-i386/smp.h
---- linux-2.6/include/asm-i386/smp.h~sibling-map-to-cpumask	2003-12-08 14:42:28.000000000 +1100
-+++ linux-2.6-npiggin/include/asm-i386/smp.h	2003-12-08 14:42:28.000000000 +1100
-@@ -34,7 +34,7 @@
- extern void smp_alloc_memory(void);
- extern int pic_mode;
- extern int smp_num_siblings;
--extern int cpu_sibling_map[];
-+extern cpumask_t cpu_sibling_map[];
- 
- extern void smp_flush_tlb(void);
- extern void smp_message_irq(int cpl, void *dev_id, struct pt_regs *regs);
-diff -puN arch/i386/kernel/smpboot.c~sibling-map-to-cpumask arch/i386/kernel/smpboot.c
---- linux-2.6/arch/i386/kernel/smpboot.c~sibling-map-to-cpumask	2003-12-08 14:42:28.000000000 +1100
-+++ linux-2.6-npiggin/arch/i386/kernel/smpboot.c	2003-12-08 15:07:48.000000000 +1100
-@@ -933,7 +933,7 @@ static int boot_cpu_logical_apicid;
- /* Where the IO area was mapped on multiquad, always 0 otherwise */
- void *xquad_portio;
- 
--int cpu_sibling_map[NR_CPUS] __cacheline_aligned;
-+cpumask_t cpu_sibling_map[NR_CPUS] __cacheline_aligned;
- 
- static void __init smp_boot_cpus(unsigned int max_cpus)
- {
-@@ -1079,32 +1079,28 @@ static void __init smp_boot_cpus(unsigne
- 	Dprintk("Boot done.\n");
- 
- 	/*
--	 * If Hyper-Threading is avaialble, construct cpu_sibling_map[], so
--	 * that we can tell the sibling CPU efficiently.
-+	 * construct cpu_sibling_map[], so that we can tell sibling CPUs
-+	 * efficiently.
- 	 */
--	if (cpu_has_ht && smp_num_siblings > 1) {
--		for (cpu = 0; cpu < NR_CPUS; cpu++)
--			cpu_sibling_map[cpu] = NO_PROC_ID;
--
--		for (cpu = 0; cpu < NR_CPUS; cpu++) {
--			int 	i;
--			if (!cpu_isset(cpu, cpu_callout_map))
--				continue;
-+	for (cpu = 0; cpu < NR_CPUS; cpu++)
-+		cpu_sibling_map[cpu] = CPU_MASK_NONE;
- 
--			for (i = 0; i < NR_CPUS; i++) {
--				if (i == cpu || !cpu_isset(i, cpu_callout_map))
--					continue;
--				if (phys_proc_id[cpu] == phys_proc_id[i]) {
--					cpu_sibling_map[cpu] = i;
--					printk("cpu_sibling_map[%d] = %d\n", cpu, cpu_sibling_map[cpu]);
--					break;
--				}
--			}
--			if (cpu_sibling_map[cpu] == NO_PROC_ID) {
--				smp_num_siblings = 1;
--				printk(KERN_WARNING "WARNING: No sibling found for CPU %d.\n", cpu);
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		int siblings = 0;
-+		int 	i;
-+		if (!cpu_isset(cpu, cpu_callout_map))
-+			continue;
-+
-+		for (i = 0; i < NR_CPUS; i++) {
-+			if (!cpu_isset(i, cpu_callout_map))
-+				continue;
-+			if (phys_proc_id[cpu] == phys_proc_id[i]) {
-+				siblings++;
-+				cpu_set(i, cpu_sibling_map[cpu]);
- 			}
- 		}
-+		if (siblings != smp_num_siblings)
-+			printk(KERN_WARNING "WARNING: %d siblings found for CPU%d, should be %d\n", siblings, cpu, smp_num_siblings);
- 	}
- 
- 	smpboot_setup_io_apic();
-@@ -1143,8 +1139,8 @@ __init void arch_init_sched_domains(void
- 
- 		*cpu_domain = SD_CPU_INIT;
- 		cpu_domain->span = CPU_MASK_NONE;
--		cpu_set(i, cpu_domain->span);
--		cpu_set(cpu_sibling_map[i], cpu_domain->span);
-+		cpu_domain->span = cpu_sibling_map[i];
-+		WARN_ON(!cpu_isset(i, cpu_sibling_map[i]));
- 		cpu_domain->flags |= SD_FLAG_WAKE | SD_FLAG_IDLE;
- 		cpu_domain->cache_hot_time = 0;
- 		cpu_domain->cache_nice_tries = 0;
-diff -puN arch/i386/kernel/io_apic.c~sibling-map-to-cpumask arch/i386/kernel/io_apic.c
---- linux-2.6/arch/i386/kernel/io_apic.c~sibling-map-to-cpumask	2003-12-08 14:42:28.000000000 +1100
-+++ linux-2.6-npiggin/arch/i386/kernel/io_apic.c	2003-12-08 14:42:28.000000000 +1100
-@@ -309,8 +309,7 @@ struct irq_cpu_info {
- 
- #define IRQ_ALLOWED(cpu, allowed_mask)	cpu_isset(cpu, allowed_mask)
- 
--#define CPU_TO_PACKAGEINDEX(i) \
--		((physical_balance && i > cpu_sibling_map[i]) ? cpu_sibling_map[i] : i)
-+#define CPU_TO_PACKAGEINDEX(i) (first_cpu(cpu_sibling_map[i]))
- 
- #define MAX_BALANCED_IRQ_INTERVAL	(5*HZ)
- #define MIN_BALANCED_IRQ_INTERVAL	(HZ/2)
-@@ -393,6 +392,7 @@ static void do_irq_balance(void)
- 	unsigned long max_cpu_irq = 0, min_cpu_irq = (~0);
- 	unsigned long move_this_load = 0;
- 	int max_loaded = 0, min_loaded = 0;
-+	int load;
- 	unsigned long useful_load_threshold = balanced_irq_interval + 10;
- 	int selected_irq;
- 	int tmp_loaded, first_attempt = 1;
-@@ -444,7 +444,7 @@ static void do_irq_balance(void)
- 	for (i = 0; i < NR_CPUS; i++) {
- 		if (!cpu_online(i))
- 			continue;
--		if (physical_balance && i > cpu_sibling_map[i])
-+		if (i != CPU_TO_PACKAGEINDEX(i))
- 			continue;
- 		if (min_cpu_irq > CPU_IRQ(i)) {
- 			min_cpu_irq = CPU_IRQ(i);
-@@ -463,7 +463,7 @@ tryanothercpu:
- 	for (i = 0; i < NR_CPUS; i++) {
- 		if (!cpu_online(i))
- 			continue;
--		if (physical_balance && i > cpu_sibling_map[i])
-+		if (i != CPU_TO_PACKAGEINDEX(i))
- 			continue;
- 		if (max_cpu_irq <= CPU_IRQ(i)) 
- 			continue;
-@@ -543,9 +543,14 @@ tryanotherirq:
- 	 * We seek the least loaded sibling by making the comparison
- 	 * (A+B)/2 vs B
- 	 */
--	if (physical_balance && (CPU_IRQ(min_loaded) >> 1) >
--					CPU_IRQ(cpu_sibling_map[min_loaded]))
--		min_loaded = cpu_sibling_map[min_loaded];
-+	load = CPU_IRQ(min_loaded) >> 1;
-+	for_each_cpu(j, cpu_sibling_map[min_loaded]) {
-+		if (load > CPU_IRQ(j)) {
-+			/* This won't change cpu_sibling_map[min_loaded] */
-+			load = CPU_IRQ(j);
-+			min_loaded = j;
-+		}
-+	}
- 
- 	cpus_and(allowed_mask, cpu_online_map, irq_affinity[selected_irq]);
- 	target_cpu_mask = cpumask_of_cpu(min_loaded);
-diff -puN arch/i386/kernel/cpu/cpufreq/p4-clockmod.c~sibling-map-to-cpumask arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
---- linux-2.6/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c~sibling-map-to-cpumask	2003-12-08 14:42:28.000000000 +1100
-+++ linux-2.6-npiggin/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-12-08 14:42:28.000000000 +1100
-@@ -67,14 +67,7 @@ static int cpufreq_p4_setdc(unsigned int
- 	cpus_allowed = current->cpus_allowed;
- 
- 	/* only run on CPU to be set, or on its sibling */
--       affected_cpu_map = cpumask_of_cpu(cpu);
--#ifdef CONFIG_X86_HT
--	hyperthreading = ((cpu_has_ht) && (smp_num_siblings == 2));
--	if (hyperthreading) {
--		sibling = cpu_sibling_map[cpu];
--                cpu_set(sibling, affected_cpu_map);
--	}
--#endif
-+	affected_cpu_map = cpu_sibling_map[cpu];
- 	set_cpus_allowed(current, affected_cpu_map);
-         BUG_ON(!cpu_isset(smp_processor_id(), affected_cpu_map));
- 
-diff -puN arch/i386/oprofile/op_model_p4.c~sibling-map-to-cpumask arch/i386/oprofile/op_model_p4.c
---- linux-2.6/arch/i386/oprofile/op_model_p4.c~sibling-map-to-cpumask	2003-12-08 14:42:28.000000000 +1100
-+++ linux-2.6-npiggin/arch/i386/oprofile/op_model_p4.c	2003-12-08 14:42:28.000000000 +1100
-@@ -382,11 +382,8 @@ static struct p4_event_binding p4_events
- static unsigned int get_stagger(void)
- {
- #ifdef CONFIG_SMP
--	int cpu;
--	if (smp_num_siblings > 1) {
--		cpu = smp_processor_id();
--		return (cpu_sibling_map[cpu] > cpu) ? 0 : 1;
--	}
-+	int cpu = smp_processor_id();
-+	return (cpu != first_cpu(cpu_sibling_map[cpu]));
- #endif	
- 	return 0;
- }
+On Mon, 08 Dec 2003 05:52:25 -0800, William Lee Irwin III wrote:
+>> Other important aspects of load control beyond the demotion policy are
+>> explicit suspension the execution contexts of the process address
+>> spaces chosen as its victims, complete eviction of the process address
 
-_
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> I implemented suspension during memory shortage for 2.6 and I had some
+> code for complete eviction as well. It definitely helped for some
+> benchmarks. There's one problem, though: Latency. If a machine is
+> thrashing, a sys admin won't appreciate that her shell is suspended
+> when she tries to log in to correct the problem. I have some simple
+> criteria for selecting a process to suspend, but it's hard to get it
+> right every time (kind of like the OOM killer, although with smaller
+> damage for bad decisions).
 
---------------040107070607050508050907--
+I'd be interested in seeing the specific criteria used, since the
+policy can strongly influence performance. Some of the most obvious
+policies do worse than random.
+
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> For workstations and most servers latency is so important compared to
+> throughput that I began to wonder whether implementing suspension was
+> actually worth it. After benchmarking 2.4 vs 2.6, though, I suspected
+> that there must be plenty of room for improvement _before_ such drastic
+> measures are necessary. It makes little sense to add suspension to 2.6
+> if performance can be improved _without_ hurting latency. That's why
+> I shelved my work on suspension to find out and document when exactly
+> performance went down during 2.5.
+
+Ideally, the targets for suspension and complete eviction would be
+background tasks that aren't going to demand memory in the near future.
+Unfortunately that algorithm appears to require an oracle to implement.
+Also, the best criteria as I know of them are somewhat counterintuitive,
+so I'd like to be sure they were tried.
+
+
+On Mon, 08 Dec 2003 05:52:25 -0800, William Lee Irwin III wrote:
+>> 2.4 does not do any of this.
+>> The effect of not suspending the execution contexts of the demoted
+>> process address spaces is that the victimized execution contexts thrash
+>> while trying to reload the memory they need to execute. The effect of
+>> incomplete demotion is essentially livelock under sufficient stress.
+>> Its memory scheduling to what extent it has it is RR and hence fair,
+>> but the various caveats above justify "does not do any of this",
+>> particularly incomplete demotion.
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> One thing you can observe with 2.4 is that one process may force another
+> process out. Say you have several instances of the same program which
+> all have the same working set size (i.e.  requirements, not RSS) and
+> a constant rate of memory references in the code. If their current RSS
+> differ then some take more major faults and spend more time blocked than
+> others. In a thrashing situation, you can see the small RSSs shrink
+> to virtually zero, while the largest RSS will grow even further --
+> the thrashing processes are stealing each other's pages while the one
+> which hardly ever faults keeps its complete working set in RAM. Bad for
+> fairness, but can help throughput quite a bit. This effect is harder
+> to trigger in 2.6.
+
+There was a study conducted by someone involved with CKRM (included in
+some joint paper with the rest of the team) that actually charted out
+this property of 2.6 in terms of either faults taken over time or RSS
+over time, but compared it to a modified page replacement policy that
+actually had it to a greater degree than stock 2.6 instead of 2.4.
+
+
+On Mon, 08 Dec 2003 05:52:25 -0800, William Lee Irwin III wrote:
+>> So I predict that a true load control mechanism and policy would be
+>> both an improvement over 2.4 and would correct 2.6 regressions vs. 2.4
+>> on underprovisioned machines. For now, we lack an implementation.
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> I doubt that you can get performance anywhere near 2.4 just by adding
+> load control to 2.6 unless you measure throughput and nothing else --
+> otherwise latency will kill you. I am convinced the key is not in
+> _adding_ stuff, but _fixing_ what we have.
+
+A small problem with that kind of argument is that it's assuming the
+existence of some accumulation of small regressions that haven't proven
+to exist (or have they?), where the kind of a priori argument I've made
+only needs to rely on the properties of the algorithms. But neither can
+actually provide a guarantee of results without testing. I suppose one
+point in favor of my "grab this tool off the shelf" approach is that
+there is quite a bit of history behind the methods and that they are
+well-understood.
+
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> IMO the question is: How much do we care? Machines with tight memory are
+> not necessarily very concerned about paging (e.g. PDAs), and serious
+> servers rarely operate under such conditions: Admins tend to add RAM
+> when the paging load is significant.
+
+The question is not if we care, but if we care about others. Economies
+aren't as kind to all users as they are to us
+
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> If you don't care _that_ much about thrashing in Linux, just tell
+> people to buy more RAM. Computers are cheap, RAM even more so, 64 bit
+> becomes affordable, and heavy paging sucks no matter how good a paging
+> mechanism is.
+
+If I took this kind of argument seriously I'd be telling people to go
+shopping for new devices every time they run into a driver problem. I'm
+actually rather annoyed with hearing this line of reasoning repeated to
+many so many times over, and I'd appreciate not hearing it ever again
+(offenders, you know who you are).
+
+The issue at hand is improving how the kernel behaves on specific
+hardware configurations; the fact other hardware configurations exist
+is irrelevant.
+
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> If you care enough to spend resources to address the problem, look at
+> the major regressions in 2.5 and find out where they were a consequence
+> of a deliberate trade-off decision and where it was an oversight which
+> can be fixed or mitigated without sacrificing what was gained through
+> the respective changes in 2.5. Obviously, performing regular testing
+> with thrashing benchmarks would make lasting major regressions like
+> those in the 2.5 development series much less likely in the future.
+
+Yes, this does need to be done more regularly. c.f. the min_free_kb
+tuning problem Matt Mackall and I identified.
+
+
+On Mon, Dec 08, 2003 at 08:49:30PM +0100, Roger Luethi wrote:
+> Additional load control mechanisms create new problems (latency,
+> increased complexity), so I think they should be a last resort, not
+> some method to paper over deficiencies elsewhere in the kernel.
+
+Who could disagree with this without looking ridiculous?
+
+Methods of last resort are not necessarily unavoidable; the OOM killer
+is an example of one that isn't avoidable. The issue is less clear cut
+here, since the effect is limited to degraded performance on a limited
+range of machines. But I would prefer not to send an "FOAD" message to
+the users of older hardware or users who can't afford fast hardware.
+
+The assumption methods of last resort create more problems than they
+solve appears to be based on the notion that they'll be used for more
+than methods of last resort. They're meant to handle the specific cases
+where they are beneficial, not infect the common case with behavior
+that's only appropriate for underpowered machines or other bogosity.
+That is, it should teach the kernel how to behave in the new situation
+where we want it to behave well, not change its behavior where it
+already behaves well.
+
+
+-- wli

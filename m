@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbTIRQiT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 12:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbTIRQiT
+	id S261663AbTIRQjt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 12:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbTIRQjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 12:38:19 -0400
-Received: from web41111.mail.yahoo.com ([66.218.93.27]:52037 "HELO
-	web41111.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261649AbTIRQiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 12:38:19 -0400
-Message-ID: <20030918163818.84296.qmail@web41111.mail.yahoo.com>
-Date: Thu, 18 Sep 2003 09:38:18 -0700 (PDT)
-From: Subodh Srivastava <subodh_sri@yahoo.com>
-Subject: Re: Problems with Synaptics touchpad on Compaq Evo N600c and
-To: kmaraas@broadpark.no
-Cc: linux-kernel@vger.kernel.org
+	Thu, 18 Sep 2003 12:39:49 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:37864 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261663AbTIRQjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 12:39:47 -0400
+Date: Thu, 18 Sep 2003 12:39:45 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: linux-kernel@vger.kernel.org, <linux-admin@vger.kernel.org>
+Subject: Re: DON'T use DNS BLs,  they appear to be dying fast...
+In-Reply-To: <20030916091303.GU9192@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.44.0309181238180.32280-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you should use the updated driver for X available at
-http://w1.894.telia.com/~u89404340/touchpad/index.html
-which gives you access to all the nifty features of
-synaptics touchpad.
+On Tue, 16 Sep 2003, Matti Aarnio wrote:
 
-Subodh
+> Or rather..   lattest thing to raise its ugly head is
+>     dorkslayers.com
+> which in itself, and in all its subdomains ("*.dorkslayers.com")
+> points to Verisign's web service.
 
+Well yeah, dorkslayers seems to have been down for over a
+year now, the domain expiring etc...
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+Still, I don't think it's fair of you to blame the DNSBL
+operators for the fact that some mail admins only check
+their MTA configuration once every 2 years.
+
+There have been cases where a DNSBL still got 1Mbit/s in
+DNS queries 6 months after the database went dead...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

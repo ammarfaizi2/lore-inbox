@@ -1,106 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319382AbSH2Wfb>; Thu, 29 Aug 2002 18:35:31 -0400
+	id <S319468AbSH2Wb5>; Thu, 29 Aug 2002 18:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319381AbSH2Vve>; Thu, 29 Aug 2002 17:51:34 -0400
-Received: from smtpout.mac.com ([204.179.120.85]:42718 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319371AbSH2VvC>;
-	Thu, 29 Aug 2002 17:51:02 -0400
-Message-Id: <200208292155.g7TLtP72021501@smtp-relay04-en1.mac.com>
-Date: Thu, 29 Aug 2002 21:56:27 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 12/41 sound/oss/nm256_audio.c - convert cli to spinlocks
-From: pwaechtler@mac.com
+	id <S319462AbSH2Wau>; Thu, 29 Aug 2002 18:30:50 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9229 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319456AbSH2WaD>; Thu, 29 Aug 2002 18:30:03 -0400
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Cc: torvalds@transmeta.com
-X-Mailer: Apple Mail (2.482)
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] low-latency zap_page_range()
+Date: Thu, 29 Aug 2002 22:37:02 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <akm7me$3s1$1@penguin.transmeta.com>
+References: <3D6E844C.4E756D10@zip.com.au> <1030653602.939.2677.camel@phantasy> <3D6E8B25.425263D5@zip.com.au> <20020829213830.GG888@holomorphy.com>
+X-Trace: palladium.transmeta.com 1030660454 12107 127.0.0.1 (29 Aug 2002 22:34:14 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 29 Aug 2002 22:34:14 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/nm256_audio.c	Sat Apr 20 18:25:20 2002
-+++ linux-2.5-cli-oss/sound/oss/nm256_audio.c	Tue Aug 13 15:38:21 2002
-@@ -25,6 +25,7 @@
- #include <linux/module.h>
- #include <linux/pm.h>
- #include <linux/delay.h>
-+#include <linux/spinlock.h>
- #include "sound_config.h"
- #include "nm256.h"
- #include "nm256_coeff.h"
-@@ -262,8 +263,7 @@
- 	return;
-     }
- 
--    save_flags (flags);
--    cli ();
-+    spin_lock_irqsave(&card->lock,flags);
-     /*
-      * If we're not currently recording, set up the start and end registers
-      * for the recording engine.
-@@ -283,7 +283,7 @@
- 	}
- 	else {
- 	    /* Not sure what else to do here.  */
--	    restore_flags (flags);
-+	    spin_unlock_irqrestore(&card->lock,flags);
- 	    return;
- 	}
-     }
-@@ -303,7 +303,7 @@
- 	nm256_writePort8 (card, 2, NM_RECORD_ENABLE_REG,
- 			    NM_RECORD_ENABLE_FLAG | NM_RECORD_FREERUN);
- 
--    restore_flags (flags);
-+    spin_unlock_irqrestore(&card->lock,flags);
- }
- 
- /* Stop the play engine. */
-@@ -370,8 +370,7 @@
- 
-     card->requested_amt = amt;
- 
--    save_flags (flags);
--    cli ();
-+    spin_lock_irqsave(&card->lock,flags);
- 
-     if ((card->curPlayPos + amt) >= ringsize) {
- 	u32 rem = ringsize - card->curPlayPos;
-@@ -418,7 +417,7 @@
-     if (! card->playing)
- 	startPlay (card);
- 
--    restore_flags (flags);
-+    spin_unlock_irqrestore(&card->lock,flags);
- }
- 
- /*  We just got a card playback interrupt; process it.  */
-@@ -829,8 +828,7 @@
- 
-     base = card->mixer;
- 
--    save_flags (flags);
--    cli ();
-+    spin_lock_irqsave(&card->lock,flags);
- 
-     nm256_isReady (dev);
- 
-@@ -844,7 +842,7 @@
- 
-     }
- 
--    restore_flags (flags);
-+    spin_unlock_irqrestore(&card->lock,flags);
-     udelay (1000);
- 
-     return ! done;
-@@ -1055,6 +1053,7 @@
-     card->playing  = 0;
-     card->recording = 0;
-     card->rev = rev;
-+	spin_lock_init(&card->lock);
- 
-     /* Init the memory port info.  */
-     for (x = 0; x < 2; x++) {
+In article <20020829213830.GG888@holomorphy.com>,
+William Lee Irwin III  <wli@holomorphy.com> wrote:
+>Robert Love wrote:
+>>> unless we
+>>> wanted to unconditionally drop the locks and let preempt just do the
+>>> right thing and also reduce SMP lock contention in the SMP case.
+>
+>On Thu, Aug 29, 2002 at 01:59:17PM -0700, Andrew Morton wrote:
+>> That's an interesting point.  page_table_lock is one of those locks
+>> which is occasionally held for ages, and frequently held for a short
+>> time.
+>> I suspect that yes, voluntarily popping the lock during the long holdtimes
+>> will allow other CPUs to get on with stuff, and will provide efficiency
+>> increases.  (It's a pretty lame way of doing that though).
+>> But I don't recall seeing nasty page_table_lock spintimes on
+>> anyone's lockmeter reports, so...
+>
+>You will. There are just bigger fish to fry at the moment.
 
+You will NOT.
+
+The page_table_lock protects against page stealing of the VM and
+concurrent page-faults, nothing else.  There is no way you can get
+contention on it under any reasonable load that doesn't involve heavy
+out-of-memory behaviour, simply because
+
+ - the lock is per-mm
+ - all "regular" paths that care about this also get the mmap semaphore
+
+In short, that spinlock has _zero_ scalability impact.  You can
+theoretically get contention on it without memory pressure only by
+having hundreds of threads page-faulting at the same time (getting a
+read-lock on the mmap semaphore), but by then your performance has
+nothing to do with the spinlock, and everything to do with the page
+faults themselves. 
+
+(In fact, I can almost guarantee that most of the long hold-times are
+for exit(), not for munmap().  And in that case the spinlock cannot get
+any non-pagestealer contention at all, since nobody else is using the
+MM)
+
+			Linus

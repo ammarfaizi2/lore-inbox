@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUIIShc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUIIS3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266721AbUIIShc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 14:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUIISdr
+	id S266646AbUIIS3y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 14:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUIIS1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 14:33:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23761 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266391AbUIIScb (ORCPT
+	Thu, 9 Sep 2004 14:27:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:15794 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266650AbUIISSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 14:32:31 -0400
-Date: Thu, 9 Sep 2004 11:32:28 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: [patch 1/1] uml:fix ubd deadlock on SMP
-Message-ID: <20040909113228.M1973@build.pdx.osdl.net>
-References: <20040908172503.384144933@zion.localdomain> <20040908111204.I1973@build.pdx.osdl.net> <200409092002.19134.blaisorblade_spam@yahoo.it>
+	Thu, 9 Sep 2004 14:18:54 -0400
+Date: Thu, 9 Sep 2004 11:18:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, dev@sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes() faster
+Message-ID: <20040909181818.GF3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, dev@sw.ru,
+	linux-kernel@vger.kernel.org
+References: <4140791F.8050207@sw.ru> <Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org> <20040909171927.GU3106@holomorphy.com> <20040909110622.78028ae6.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200409092002.19134.blaisorblade_spam@yahoo.it>; from blaisorblade_spam@yahoo.it on Thu, Sep 09, 2004 at 08:02:19PM +0200
+In-Reply-To: <20040909110622.78028ae6.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* BlaisorBlade (blaisorblade_spam@yahoo.it) wrote:
-> On Wednesday 08 September 2004 20:12, Chris Wright wrote:
-> > * blaisorblade_spam@yahoo.it (blaisorblade_spam@yahoo.it) wrote:
-> > > Trivial: don't lock the queue spinlock when called from the request
-> > > function. Since the faulty function must use spinlock in another case,
-> > > double-case it. And since we will never use both functions together, let
-> > > no object code be shared between them.
-> >
-> > Why not add a helper which locks around the core function.  Then either
-> > call helper or core function directly depending on locking needs?
-> I'm happy with whatever is nicer.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> I've not reviewed this version of the patch for differences with the -mm
+>> code. It would probably be best to look at the -mm bits as they've had
+>> sustained exposure for quite some time.
 
-The way I outlined is nicer as it avoids all that conditional locking.
-I can do a full patch if you like.
+On Thu, Sep 09, 2004 at 11:06:22AM -0700, Andrew Morton wrote:
+> Yes.
+> I have not merged it up because it seems rather dopey to add eight bytes to
+> the inode to speed up something as rare as umount.
+> Is there a convincing reason for proceeding with the change?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+The only motive I'm aware of is for latency in the presence of things
+such as autofs. It's also worth noting that in the presence of things
+such as removable media umount is also much more common. I personally
+find this sufficiently compelling. Kirill may have additional ammunition.
+
+Also, the additional sizeof(struct list_head) is only a requirement
+while the global inode LRU is maintained. I believed it would have
+been beneficial to have localized the LRU to the sb also, which would
+have maintained sizeof(struct inode0 at parity with current mainline.
+
+
+-- wli

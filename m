@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267500AbTAQNrr>; Fri, 17 Jan 2003 08:47:47 -0500
+	id <S267505AbTAQNy6>; Fri, 17 Jan 2003 08:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267509AbTAQNrr>; Fri, 17 Jan 2003 08:47:47 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51730 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267500AbTAQNrq>; Fri, 17 Jan 2003 08:47:46 -0500
-Date: Fri, 17 Jan 2003 13:56:38 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
-Message-ID: <20030117135638.A376@flint.arm.linux.org.uk>
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
-References: <15911.64825.624251.707026@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15911.64825.624251.707026@harpo.it.uu.se>; from mikpe@csd.uu.se on Fri, Jan 17, 2003 at 01:55:21PM +0100
+	id <S267516AbTAQNy6>; Fri, 17 Jan 2003 08:54:58 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:62175 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S267505AbTAQNy5>;
+	Fri, 17 Jan 2003 08:54:57 -0500
+Date: Fri, 17 Jan 2003 15:07:51 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
+In-Reply-To: <200301171210.03567.efocht@ess.nec.de>
+Message-ID: <Pine.LNX.4.44.0301171459430.9021-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 01:55:21PM +0100, Mikael Pettersson wrote:
-> This oops occurs for every module, not just af_packet.ko, at
-> resolve_symbol()'s first call to __find_symbol().
+
+On Fri, 17 Jan 2003, Erich Focht wrote:
+
+> I prefer a single point of entry called load_balance() to multiple
+> functionally different balancers. [...]
+
+agreed - my cleanup patch keeps that property.
+
+> [...] IIRC, his conclusion for the multi-queue scheduler was that an
+> order of magnitude of 10ms is long enough, below you start feeling the
+> balancing overhead, above you waste useful cycles.
+
+this is one reason why we do the idle rebalancing at 1 msec granularity
+right now.
+
+> On a NUMA system this is even more important: the longer you leave fresh
+> tasks on an overloaded node, the more probable it is that they allocate
+> their memory there. And then they will run with poor performance on the
+> node which stayed idle for 200-400ms before stealing them. So one wastes
+> 200-400ms on each CPU of the idle node and at the end gets tasks which
+> perform poorly, anyway. If the tasks are "old", at least we didn't waste
+> too much time beeing idle. The long-term target should be that the tasks
+> should remember where their memory is and return to that node.
+
+i'd much rather vote for fork() and exec() time 'pre-balancing' and then
+making it quite hard to move a task across nodes.
+
+> > The inter-node balancing (which is heavier than even the global SMP
+> > balancer), should never be triggered from the high-frequency path.
 > 
-> What happens is that __find_symbol() oopses because the kernel's
-> symbol table is in la-la land. (Note the bogus kernel adress
-> 2220c021 it tried to dereference above.)
-> 
-> Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
-> problem and modules now load correctly for me.
-> 
-> I don't know if this is a problem also for non-i386 archs.
+> Hmmm, we made it really slim. [...]
 
-Well:
+this is a misunderstanding. I'm not worried about the algorithmic overhead
+_at all_, i'm worried about the effect of too frequent balancing - tasks
+being moved between runqueues too often. That has shown to be a problem on
+SMP. The prev_load type of statistic measurement relies on a constant
+frequency - it can lead to over-balancing if it's called too often.
 
-        __start___ksymtab = .;                                          \
-        __ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {         \
-                *(__ksymtab)                                            \
-        }                                                               \
-        __stop___ksymtab = .;                                           \
+> So if the CPU is idle, it won't go through schedule(), except we get an
+> interrupt from time to time... [...]
 
-breaks on some ARM binutils (from a couple of years ago.)  The most
-reliable way we've found in with ARM binutils is to place the symbols
-inside the section - this appears to work 100% every single time and
-I've never had any reports of failure (whereas I did with the symbols
-outside as above.)
+(no, it's even better than that, we never leave the idle loop except when
+we _know_ that there is scheduling work to be done. Hence the
+need_resched() test. But i'm not worried about balancing overhead at all.)
 
-On the topic of these changes, I'd prefer it if people didn't silently
-run around making random stuff generic when there are subtle differences
-between each architecture version without:
-
-1. querying why things are different.
-2. waiting a reasonable time for replies to why things are different.
-3. copying such changes to the architecture maintainers for review
-   in case steps 1 and 2 failed.
-
-Unfortunately, it seems that the BK disease is growing and seems to
-be killing the review process, as some people here predicted it
-would. ;(
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	Ingo
 

@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRCFS0d>; Tue, 6 Mar 2001 13:26:33 -0500
+	id <S129115AbRCFS2X>; Tue, 6 Mar 2001 13:28:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRCFS0X>; Tue, 6 Mar 2001 13:26:23 -0500
-Received: from cx866070-a.tucson1.az.home.com ([24.177.155.28]:33526 "EHLO
-	aahz.klah.net") by vger.kernel.org with ESMTP id <S129112AbRCFS0N>;
-	Tue, 6 Mar 2001 13:26:13 -0500
-Date: Tue, 6 Mar 2001 11:36:29 -0700 (MST)
-From: Jeff Coy <jcoy@klah.net>
-Reply-To: jcoy@klah.net
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: binfmt_script and ^M
-In-Reply-To: <20010306121510.A28368@cadcamlab.org>
-Message-ID: <Pine.LNX.4.10.10103061126490.27694-100000@aahz.klah.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129602AbRCFS2N>; Tue, 6 Mar 2001 13:28:13 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:21004 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S129115AbRCFS2C>; Tue, 6 Mar 2001 13:28:02 -0500
+Date: Tue, 6 Mar 2001 19:26:36 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Patch submissions
+Message-ID: <20010306192636.G5944@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E14aKlG-00011U-00@the-village.bc.nu> <Pine.LNX.4.33.0103061422030.1409-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="VkqCAaSJIySsbD6j"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0103061422030.1409-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Mar 06, 2001 at 02:22:58PM -0300
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Peter Samuelson wrote:
 
-> 
-> [Jeff Coy]
-> > this issue came up frequently with customers uploading scripts in
-> > binary mode trying to run #!/usr/bin/perl^M.  The solution for me was
-> > to just do the following:
-> > 
-> > 	cd /usr/bin
-> > 	sudo ln -s perl^V^M perl
-> 
-> So none of your customers tried '#!/usr/bin/perl -w^M'?  (Come on,
-> doesn't everyone use -w?)
-> 
-> I'm not for treating \r as IFS in the kernel, but the "simple one-time"
-> solution is not perfect..
-> 
+--VkqCAaSJIySsbD6j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-'#!/usr/bin/perl -w^M' works without any special handling; the link is
-not needed:
+On Tue, Mar 06, 2001 at 02:22:58PM -0300, Rik van Riel wrote:
+> I agree with Alan that we should keep all experimental stuff
+> out of 2.4,
 
-	11:15:52 jcoy@d-hopper::~
-	$ cat -vet foo.pl
-	#!/usr/bin/perl -w^M$
-	^M$
-	print "Hello, World!\n";^M$
-	11:16:52 jcoy@d-hopper::~
-	$ ./foo.pl
-	Hello, World!
+Depends on the impact. Experimental stuff in MM, FS, ... things is something
+which we don't want. If somebody writes a new driver for a device which was
+not supported before, we may want to add it to the kernel to get it tested
+and improved.
+But, that's probably what you meant.
 
-Jeff
---
-The Harvard Law states:  Under controlled conditions of light, temperature,
-humidity, and nutrition, the organism will do as it damn well pleases.
-             -- Larry Wall
+> probably even out of linux-kernel ...
 
+No. I want to see experimental stuff on l-k. That's what it's meant for.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+
+--VkqCAaSJIySsbD6j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6pSvbxmLh6hyYd04RArJIAJsGsLCVeXE5cunT10vhnaTUFZbrFgCgjIiK
+ubsQpe7OFz4fLoXrrFhMUVs=
+=Vsu1
+-----END PGP SIGNATURE-----
+
+--VkqCAaSJIySsbD6j--

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbTKONPd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 08:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTKONPc
+	id S261699AbTKONXx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 08:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbTKONXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 08:15:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:23056 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261692AbTKONPJ
+	Sat, 15 Nov 2003 08:23:53 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25616 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261699AbTKONXp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 08:15:09 -0500
-Date: Sat, 15 Nov 2003 08:04:13 -0500 (EST)
+	Sat, 15 Nov 2003 08:23:45 -0500
+Date: Sat, 15 Nov 2003 08:13:04 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Pascal Schmidt <der.eremit@email.de>
-cc: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <Pine.LNX.4.44.0311131413000.947-100000@neptune.local>
-Message-ID: <Pine.LNX.3.96.1031115080315.2903B-100000@gatekeeper.tmr.com>
+In-Reply-To: <20031113070627.GU21141@suse.de>
+Message-ID: <Pine.LNX.3.96.1031115080431.2903C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2003, Pascal Schmidt wrote:
+On Thu, 13 Nov 2003, Jens Axboe wrote:
 
-> On Thu, 13 Nov 2003, Bill Davidsen wrote:
-> 
-> > For a read-only access, I think the size is what's written, while for
-> > writing it's the physical size, I think. Does it need to be as complex as
-> > having the order depend on the access mode? It seems that a size of zero
-> > is correct for a read access to an unwritten media.
-> 
-> Well, there is only one capacity and we cannot tell at the time we
-> fetch the capacity from the drive whether the user will use the disk
-> read-only or read-write.
-> 
-> In any case, cdrom_read_capacity() is the only thing that works on my
-> MO drive, the other methods all fail. So my patch from yesterday changes 
-> the order of things so that read_capacity is used first to get the 
-> capacity, and the other methods are allowed to override it's findings
-> later on.
+> On Wed, Nov 12 2003, bill davidsen wrote:
 
-And that sounds like the correct thing to do.
+> > capability working again. I presume eventually one of the commercial
+> > vendors will fix it, since it's easier than rewriting all the SCSI
+> > applications in the world. oddly there are people writing useful things
+> > using other operating systems, under 2.4 almost all of those work.
+> 
+> It's not about applications, we can fix that differently. You still
+> don't seem to get that moving from ide-scsi is a _good_ thing, from the
+> application point of view. It's about hardware that doesn't work well
+> with atapi drivers yet, for whatever reason. ide-scsi is nice to have to
+> fill those holes.
+
+Sorry, as far as I can tell it's just the wrong direction. Devices mounted
+by USB look like... SCSI. And ZIP drives and tapes mounted on parallel
+(ppa) look like... SCSI. If Linux had one fully functional ide-scsi driver
+it would then present a consistant all-SCSI interface to the applications.
+No more ide-floppy, ide-cd, ide-tape, just one driver. And that would
+allow use of applications from BSD, Sun, and SysV.
+
+Clearly the ide-scsi driver currently available isn't fully capable, and
+as long as Linus doesn't agree that having a single application interface
+is elegant and desirable, I can't see anyone doing the things needed.
 
 -- 
 bill davidsen <davidsen@tmr.com>

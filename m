@@ -1,96 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317537AbSFRSTk>; Tue, 18 Jun 2002 14:19:40 -0400
+	id <S317538AbSFRSUX>; Tue, 18 Jun 2002 14:20:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317538AbSFRSTj>; Tue, 18 Jun 2002 14:19:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10881 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317537AbSFRSTg>; Tue, 18 Jun 2002 14:19:36 -0400
-Date: Tue, 18 Jun 2002 14:21:52 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: mgix@mgix.com
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       David Schwartz <davids@webmaster.com>, rml@tech9.net,
-       linux-kernel@vger.kernel.org
-Subject: RE: Question about sched_yield()
-In-Reply-To: <AMEKICHCJFIFEDIBLGOBEEEHCBAA.mgix@mgix.com>
-Message-ID: <Pine.LNX.3.95.1020618140651.8171A-100000@chaos.analogic.com>
+	id <S317539AbSFRSUW>; Tue, 18 Jun 2002 14:20:22 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1022 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317538AbSFRSUT>;
+	Tue, 18 Jun 2002 14:20:19 -0400
+Message-ID: <3D0F79CA.A0FAC230@mvista.com>
+Date: Tue, 18 Jun 2002 11:19:54 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kuznet@ms2.inr.ac.ru
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+References: <200206180516.JAA11563@sex.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002 mgix@mgix.com wrote:
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > This patch replaces the timer_bh with a tasklet.
+> 
+> But this is impossible, timers must not race with another BHs,
+> all the code using BHs depends on this. That's why they are BHs.
+
+If indeed they do "race" the old code had the timer_bh being first.
+So does this patch.
+> 
+> Also, looping for timers seems to be pure pathalogy.
+> It can be raised only if you looped in softirq for a jiffie,
+> in this case waking ksoftirqd is not unusual.
+
+This is one of the most hard to control paths in the system as ALL it 
+does is execute functions that are unknown as to size, duration, etc.
+One would hope that they never run for long, but...
 
 > 
-> > It's all in the accounting. Use usleep(0) if you want it to "look good".
+> I feel your goal is high res timers, right? You can do them separately
+> to avoid conflicts with classic timers.
+
+Not really.  One REALLY expects timers to expire in timed order :)  Using
+a separate procedure to deliver a timer just because it is of a different
+resolution opens one up to a world of pathology.
 > 
-> 
-> Two things:
-> 
-> 	1. First, I think there's a misunderstanding on what my
->          original issue was: I am not interested in any way by
->          CPU cycle accounting, and wether the yielding loop should
->          log any of it. All I want is: when I run a bunch of
->          yielders and a actual working process, I want the
->          working process to not be slown down (wall clock) in
->          anyway. That's all. What top shows is of little interest
->          (to me). What matters is how many real world seconds it takes
->          for the actually working process to complete its task.
->          And that should not be affected by the presence of running
->          yielders. And, David, no one is arguing the fact that a yielder
->          running all by itself should log 100% of the CPU.
-> 
+> Alexey
 
-Well the problem seems to be an inconsistancy I reported to 'the list'
-some time ago. As I recall, Ingo replied that I should use usleep(0) and
-the problem I reported would "go away". It did go away. However, if
-you run this on a single-processor machine, 'top' will show that
-each task gets 99+ percent of the CPU, which of course can't be correct.
-
-
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
-int main(int c, char *argv[])
-{
-    if(!fork())
-    {
-        strcpy(argv[0], "Child");
-        for(;;)
-            ;
-    } 
-    strcpy(argv[0], "Parent");
-
-    for(;;)
-        sched_yield();
-
-   return c;
-}
-
-
-So, it seems that the guy that's yielding the CPU gets 'charged' for
-the CPU time he gave away. Fair enough, I guess. As I see it,
-sched_yield() will give the CPU to any single computible task once.
-After this, the caller gets the CPU back whether or not he wants it.
-
-
-> 	2. I have a question about usleep(0). You seem to make the point
->          that usleep(0) is equivalent to sched_yield(). I can see how
->          intuitively this should be the case, but I am not sure if it
->          will always be true. It's certainly documented anywhere.
-> 
-
-No. I did not mention or imply "equivalent", only that you can use it
-instead, in many, perhaps most, instances.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

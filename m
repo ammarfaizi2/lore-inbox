@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVAGXGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVAGXGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVAGXGw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVAGXCj
+	id S261679AbVAGXGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:06:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVAGXAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:02:39 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:7687 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261679AbVAGXCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:02:07 -0500
-Message-Id: <200501072301.j07N1TW2027950@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/04/2005 with nmh-1.1-RC3
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       paul@linuxaudiosystems.com, arjanv@redhat.com, hch@infradead.org,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, joq@io.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
-In-Reply-To: Your message of "Fri, 07 Jan 2005 14:36:38 PST."
-             <20050107143638.L2357@build.pdx.osdl.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org> <200501072207.j07M7Lda004987@turing-police.cc.vt.edu>
-            <20050107143638.L2357@build.pdx.osdl.net>
+	Fri, 7 Jan 2005 18:00:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21196 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261699AbVAGW7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:59:15 -0500
+Date: Fri, 7 Jan 2005 15:03:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: pmarques@grupopie.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: [RFC] per thread page reservation patch
+Message-Id: <20050107150315.3c1714a4.akpm@osdl.org>
+In-Reply-To: <m1d5wgrir7.fsf@clusterfs.com>
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org>
+	<41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<41DEDF87.8080809@grupopie.com>
+	<m1llb5q7qs.fsf@clusterfs.com>
+	<20050107132459.033adc9f.akpm@osdl.org>
+	<m1d5wgrir7.fsf@clusterfs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1105138889_12694P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Jan 2005 18:01:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1105138889_12694P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 07 Jan 2005 14:36:38 PST, Chris Wright said:
-
-> > We already *know* how to (in principle) fix the capabilities system to make
-> > it useful.  We should probably investigate doing that and at the same time
-> > fixing the current CAP_SYS_ADMIN mess (which we also have at least some ideas
-> > on fixing). The remaining problem is possible breakage of software that's doing
-> > capability things The Old Way (as the inheritance rules are incompatible).
+Nikita Danilov <nikita@clusterfs.com> wrote:
+>
+> > And the whole idea is pretty flaky really - how can one precalculate how
+> > much memory an arbitrary md-on-dm-on-loop-on-md-on-NBD stack will want to
+> > use?  It really would be better if we could drop the whole patch and make
+> > reiser4 behave more sanely when its writepage is called with for_reclaim=1.
 > 
-> Fixing CAP_SYS_ADMIN whole other can o' worms.  No point in tangling the
-> two.
+> Reiser4 doesn't use this for ->writepage(), by the way. This is used by
+> tree balancing code to assure that balancing cannot get -ENOMEM in the
+> middle of tree modification, because undo is _so_ very complicated.
 
-Yes, it's two entire cans.  The problem is that in *both* cases, we're probably
-going to have to do an API change.  It may be preferable to only require changes
-on the userspace side once, rather than change it once to fix the inheritance
-problems in 2.7/2.6.N+10 or whatever it will be, and then again in 2.9/2.6.N+20
-or whatever....
+Oh.  And that involves performing I/O, yes?
 
-> > Linus at one time said that a 2.7 might open if there was some issue that
-> > caused enough disruption to require a fork - could this be it, or does somebody
-> > have a better way to address the backward-combatability problem?
-> 
-> There's at least two ways.  Introduce a new capability module or introduce
-> a PF flag to opt in.  Neither are great
-
-A new PF flag strikes me as marginally better, especially if we have a way to
-propogate from Elf headers in a way similar to Execshield's use of elf_ex.e_phnum
-to set the executable-stack...
-
---==_Exmh_1105138889_12694P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB3xTJcC3lWbTT17ARAjwdAJ9M+QaPiC+JMTXKpYpgarNdxLUPTwCg10OQ
-WtowWdV3fZ0jshH9VjYq4ww=
-=TH0s
------END PGP SIGNATURE-----
-
---==_Exmh_1105138889_12694P--
+Why does the filesystem risk going oom during the rebalance anyway?  Is it
+doing atomic allocations?

@@ -1,96 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTDIEo4 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 00:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTDIEo4 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 00:44:56 -0400
-Received: from [12.47.58.221] ([12.47.58.221]:20751 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262731AbTDIEoy (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 00:44:54 -0400
-Date: Tue, 8 Apr 2003 21:56:51 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: spstarr@sh0n.net, rml@tech9.net, rmk@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.5.66bk9+] - tty hangings - patches, dmesg & sysctl+T
- info
-Message-Id: <20030408215651.503685ee.akpm@digeo.com>
-In-Reply-To: <52znn0mg3o.fsf@topspin.com>
-References: <20030406133827.34bfbf93.akpm@digeo.com>
-	<003001c2fe3d$6eab1080$030aa8c0@unknown>
-	<20030408211216.71022d84.akpm@digeo.com>
-	<52znn0mg3o.fsf@topspin.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S262721AbTDIEtj (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 00:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTDIEtj (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 00:49:39 -0400
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1028
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S262721AbTDIEth (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 00:49:37 -0400
+From: "Shawn Starr" <spstarr@sh0n.net>
+To: "'Roland Dreier'" <roland@topspin.com>, "'Andrew Morton'" <akpm@digeo.com>
+Cc: <rml@tech9.net>, <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: [BUG][2.5.66bk9+] - tty hangings - patches, dmesg & sysctl+T info
+Date: Wed, 9 Apr 2003 01:01:31 -0400
+Message-ID: <000001c2fe55$16edbe70$030aa8c0@unknown>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Apr 2003 04:56:28.0704 (UTC) FILETIME=[618B9200:01C2FE54]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <52vfxomfwa.fsf@topspin.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <roland@topspin.com> wrote:
->
-> Still, I like the idea of this patch, since it resolves the livelock.
-> But I don't think the implementation is quite right.  insert_sequence
-> doesn't get incremented until delayed_work_timer_fn().  That means
-> that a driver (tty_io.c, for example) could call
-> schedule_delayed_work(), then call flush_scheduled_work() before
-> delayed_work_timer_fn() has run for that work.
+Applying akpm's patch now, expect a result in 1-2 days since that's how long
+it takes to begin to destabilize :-)
 
-The driver needs to run cancel_delayed_work() before calling
-flush_scheduled_work().  The tty patch is already doing that, and I think
-that plugs the holes.
-
-Here's a full changelog.
+Shawn.
 
 
+-----Original Message-----
+From: Roland Dreier [mailto:roland@topspin.com] 
+Sent: Wednesday, April 09, 2003 12:52 AM
+To: Andrew Morton
+Cc: spstarr@sh0n.net; rml@tech9.net; rmk@arm.linux.org.uk;
+linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.5.66bk9+] - tty hangings - patches, dmesg & sysctl+T
+info
+Importance: High
 
-The workqueue code currently has a notion of a per-cpu queue being "busy". 
-flush_scheduled_work()'s responsibility is to wait for a queue to be not busy.
+    Andrew> No, I agree.  I don't think pending delayed work should
+    Andrew> contribute to the count at all.
 
-Problem is, flush_scheduled_work() can easily hang up.
+    Andrew> If someone wants to synchronise with the workqueue system
+    Andrew> they should cancel any delayed work which they own (via
+    Andrew> cancel_scheduled_work) and then wait on any
+    Andrew> currently-queued works via flush_scheduled_work().
 
-- The workqueue is deemed "busy" when there are pending (timer-based)
-  works.  But if someone repeatedly schedules new work in the delayed
-  callback, the queue will never fall idle, and flush_scheduled_work() will
-  not complete.
+    Andrew> So flush_scheduled_work() only needs to care about
+    Andrew> currently-queued works, not the ones which are pending a
+    Andrew> timer event.
 
-- If someone reschedules work (not delayed work) in the work function, that
-  too will cause the queue to never go idle, and flush_scheduled_work() will
-  not terminate.
+    Andrew> And flush_scheduled_work() needs to be taught to not lock
+    Andrew> up if someone keeps re-adding work.
 
-So what this patch does is:
+Ah, I see... your patch that added insert_sequence and remove_sequence
+was intended to apply on top of the patch that adds
+cancel_delayed_work().
 
-- Create a new "cancel_delayed_work()" which will try to kill off any
-  timer-based works.
+Please ignore the reply to your patch that I just sent, I
+misunderstood what you were trying to do.
 
-- Change flush_scheduled_work() so that it is immune to people re-adding
-  work in the work callout handler.
+Shawn, I think if you add Andrew's most recent patch on top of what
+you were running with, your problem should probably be fixed.
 
-  We can do this by recognising that the caller does *not* want to wait
-  until the workqueue is "empty".  The caller merely wants to wait until all
-  works which were pending at the time flush_scheduled_work() was called have
-  completed.
+Sorry for the extra noise.
 
-  The patch uses a couple of sequence numbers for that.
-
-So now, if someone wants to reliably remove delayed work they should do:
+ - Roland
 
 
-	/*
-	 * Make sure that my work-callback will no longer schedule new work
-	 */
-	my_driver_is_shutting_down = 1;
-
-	/*
-	 * Kill off any pending delayed work
-	 */
-	cancel_delayed_work(&my_work);
-
-	/*
-	 * OK, there will be no new works scheduled.  But there may be one
-	 * currently queued or in progress.  So wait for that to complete.
-	 */
-	flush_scheduled_work();
-
-And change the flush_workqueue() sleep to be uninterruptible.  We worry that
-delivery of a signal may cause the wait to return too early.
 

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265848AbRF2KTc>; Fri, 29 Jun 2001 06:19:32 -0400
+	id <S265849AbRF2KVD>; Fri, 29 Jun 2001 06:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265849AbRF2KTX>; Fri, 29 Jun 2001 06:19:23 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:57242 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S265848AbRF2KTI>;
-	Fri, 29 Jun 2001 06:19:08 -0400
-Date: Fri, 29 Jun 2001 11:19:48 GMT
+	id <S265850AbRF2KUn>; Fri, 29 Jun 2001 06:20:43 -0400
+Received: from rhenium.btinternet.com ([194.73.73.93]:58278 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S265849AbRF2KUf>;
+	Fri, 29 Jun 2001 06:20:35 -0400
+Date: Fri, 29 Jun 2001 11:21:16 GMT
 From: James Stevenson <mistral@stev.org>
-Message-Id: <200106291119.f5TBJmt03865@cyrix.stev.org>
-To: 2.4.5-ac15@cyrix.stev.org, linux-kernel@vger.kernel.org
-Subject: [OPPS]
+Message-Id: <200106291121.f5TBLGL03880@cyrix.stev.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OPPS] 2.4.5-ac15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

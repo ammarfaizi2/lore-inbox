@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263727AbUC3PcL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbUC3PcK
+	id S263721AbUC3PfU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbUC3PfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:32:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55475 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263727AbUC3PbV
+	Tue, 30 Mar 2004 10:35:19 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:34435 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263721AbUC3PcR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:31:21 -0500
-Message-ID: <406992BC.60503@pobox.com>
-Date: Tue, 30 Mar 2004 10:31:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Tue, 30 Mar 2004 10:32:17 -0500
+Date: Tue, 30 Mar 2004 10:33:50 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <len.brown@intel.com>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+In-Reply-To: <20040330150949.GA22073@alpha.home.local>
+Message-ID: <Pine.LNX.4.53.0403301019570.6451@chaos>
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
+ <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local>
+ <1080598062.983.3.camel@dhcppc4> <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk>
+ <Pine.LNX.4.53.0403300814350.5311@chaos> <20040330142215.GA21931@alpha.home.local>
+ <Pine.LNX.4.53.0403300943520.6151@chaos> <20040330150949.GA22073@alpha.home.local>
 MIME-Version: 1.0
-To: Marc Bevand <bevand_m@epita.fr>
-CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <40695FF6.3020401@epita.fr>
-In-Reply-To: <40695FF6.3020401@epita.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Bevand wrote:
-> Jeff Garzik wrote:
-> 
->>
->> [...]
->> With this simple patch, the max request size goes from 128K to 32MB... 
->> so you can imagine this will definitely help performance.  Throughput 
->> goes up.  Interrupts go down.  Fun for the whole family.
->> [...]
-> 
-> 
-> I have experienced a noticeable improvement concerning the CPU usage
-> and disk throughput with this patch.
-> 
-> Benchmark specs:
-> 
->  o read from only 1 disk (sda), or from 2 disks (sda+sdb), with
->    1 or 2 instances of "dd if=/dev/sd? of=/dev/null bs=100M".
->  o hardware: two Seagate 160GB SATA, on a Silicon Image 3114, on a
->    32-bit/33MHz PCI bus, 1GB RAM.
->  o software: kernel 2.6.5-rc2-bk6-libata2.
+On Tue, 30 Mar 2004, Willy Tarreau wrote:
 
-[...]
+>
+> > > OK, so why not compile the cmpxchg instruction even on i386 targets
+> > > to let generic kernels stay compatible with everything, but disable
+> > > ACPI at boot if the processor does not feature cmpxchg ? This could
+> > > be helpful for boot/install kernels which try to support a wide
+> > > range of platforms, and may need ACPI to correctly enable interrupts
+> > > on others.
+> > >
+> > > Cheers,
+> > > Willy
+> > >
+> >
+> > Because it would get used (by the compiler) in other code as well!
+> > As soon as the 386 sees it, you get an "invalid instruction trap"
+> > and you are dead.
+>
+> That's not what I meant. I only meant to declare the cmpxchg() function.
 
-Very cool, thanks for benching!
+It's not a function. It is actual op-codes. If you compile with
+'486 or higher, the C compiler is free to spew out these op-codes
+any time it thinks it's a viable instruction sequence. Since
+it basically replaces two other op-codes, gcc might certainly use
+if for optimization.
 
-
-> As other people were complaining that the 32MB max request size might be 
-> too
-> high, I did give a try to 1MB (by replacing "65534" by "2046" in the 
-> patch).
-> There is no visible differences between 32MB and 1MB.
-
-This is not surprising, since:
-* the scatter-gather table imposes a limit of 8MB
-* the VM further imposes limits on readahead and writeback
-
-So 32MB is the hardware max, but not really achieveable due to other 
-factors.
+This is independent of the macro that is defined in a header to
+use this sequence .
 
 
-> PS: Jeff: "pci_dma_mapping_error()", in libata-core.c from your latest
-> 2.6-libata patch, is an unresolved symbol. I have had to comment it out
-> to be able to compile the kernel.
+[SNIPPED...]
 
-Yeah, this is only found in the bleeding-edge-latest 2.6.x kernels.  You 
-did the right thing...
 
-Regards,
-
-	Jeff
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

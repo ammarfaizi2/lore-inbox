@@ -1,78 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUJSGEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUJSGGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268008AbUJSGEl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 02:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268013AbUJSGEl
+	id S268013AbUJSGGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 02:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUJSGGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 02:04:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27606 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268008AbUJSGEh (ORCPT
+	Tue, 19 Oct 2004 02:06:16 -0400
+Received: from ozlabs.org ([203.10.76.45]:46476 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268013AbUJSGGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 02:04:37 -0400
-To: jmoyer@redhat.com
-Cc: Ingo Molnar <mingo@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
-	<20041005112752.GA21094@logos.cnet>
-	<16739.61314.102521.128577@segfault.boston.redhat.com>
-	<20041006120158.GA8024@logos.cnet>
-	<1097119895.4339.12.camel@orbit.scot.redhat.com>
-	<20041007101213.GC10234@logos.cnet>
-	<1097519553.2128.115.camel@sisko.scot.redhat.com>
-	<16746.55283.192591.718383@segfault.boston.redhat.com>
-	<1097531370.2128.356.camel@sisko.scot.redhat.com>
-	<16749.15133.627859.786023@segfault.boston.redhat.com>
-	<16751.61561.156429.120130@segfault.boston.redhat.com>
-	<orzn2lpyfc.fsf@livre.redhat.lsd.ic.unicamp.br>
-	<Pine.LNX.4.58.0410170715240.16806@devserv.devel.redhat.com>
-	<orvfd9yw1m.fsf@livre.redhat.lsd.ic.unicamp.br>
-	<16755.62608.19034.491032@segfault.boston.redhat.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 19 Oct 2004 03:04:24 -0300
-In-Reply-To: <16755.62608.19034.491032@segfault.boston.redhat.com>
-Message-ID: <orekjvnt07.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Oct 2004 02:06:00 -0400
+Subject: Re: XFS oops on loading the module
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Eric Sandeen <sandeen@sgi.com>
+In-Reply-To: <20041019004933.GD918@frodo>
+References: <20041016165058.GB32324@cirrus.madduck.net>
+	 <20041019004933.GD918@frodo>
+Content-Type: text/plain
+Message-Id: <1098160225.11204.425.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 16:05:57 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 18, 2004, Jeff Moyer <jmoyer@redhat.com> wrote:
+On Tue, 2004-10-19 at 10:49, Nathan Scott wrote:
+> Hi there,
+> 
+> On Sat, Oct 16, 2004 at 06:50:58PM +0200, martin f krafft wrote:
+> > I just tried to mount an XFS filesystem on this AMD K6 machine,
+> > booted with the 2.6.8 kernel for FAI
+> > (http://www.informatik.uni/koeln.de/fai) (let me know if you need
+> > any information about it), and modprobe segfaults with a kernel bug.
+> > Have you seen this before? Thanks!
+> > 
+> > sh-2.05b# modprobe xfs
+> > Segmentation fault
+> > ------------[ cut here ]------------
+> > kernel BUG at kernel/module.c:264!
+> 
+> IOW... this, I guess:
+> 
+>         for (i = 0; i < pcpu_num_used; ptr += block_size(pcpu_size[i]), i++) {
+>                 /* Extra for alignment requirement. */
+>                 extra = ALIGN((unsigned long)ptr, align) - (unsigned long)ptr;
+>                 BUG_ON(i == 0 && extra != 0);
 
-> Select, pselect, and poll will always return data ready on a regular file.
-> As such, I would argue that squid's behaviour is broken.  Additionally, I
-> don't think it's a good idea to modify any polling mechanism to kick off
-> I/O, if simply because I'm not sure how much data to request!
+Somehow, your per-cpu section was not aligned sufficiently for this
+alignment request.  Since you passed the BUG_ON(align > SMP_CACHE_BYTES)
+above, it implies that your per-cpu section isn't correctly aligned.
 
-You could request a single block (whatever that means), and then the
-subsequent non-blocking read would stand a chance of eventually making
-progress.  .  Or you could request nothing, and have the actual read
-start a readahead, such that next time it hopefully will have
-something to get to immediately.  If the read comes in too quickly,
-before the poll-initiated readahead completes, you'll probably get
-them merged anyway, so it's not like it could hurt, methinks.
+Does this fix it?
 
-And then, you might arrange for select/poll to not return immediately
-for these file descriptors, but rather return as soon as one of them
-has some data available to read, the time-out expired, or a very short
-time-out set for the case of non-blocking file descriptors select()ed
-for read expired.  The latter time-out should be short enough to be
-hardly distinguishable from an immediate return, and the return value
-should be exactly what a POSIX-compliant application expects.
+Name: Align per-cpu Section Correctly
+Status: Untested
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-This doesn't quite fix the problem with the existing standard
-interfaces, that don't quite enable anyone to do non-blocking reads
-without explicit readahead advice and busy-waiting for data.  The
-short time-out above should at least reduce the syscall explosion that
-we get with the current behavior, but if read kicks in a readahead to
-guarantee we'd eventually get out of the select/read loop without
-external help to bring the data into memory, I guess we could live
-without the select/poll changes.
+The per-cpu section must be aligned to a cacheline: it's currently
+aligned to a hardcoded 32 bytes on x86, which is wrong in some
+configs.  On x86 the .data.cacheline_aligned is also 32-byte aligned,
+which seems wrong too.
+
+We can't use SMP_CACHE_BYTES because we can't include linux/cache.h
+from asm.
+
+Other archs need similar changes.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26520-linux-2.6.9-rc4-bk2/arch/i386/kernel/vmlinux.lds.S .26520-linux-2.6.9-rc4-bk2.updated/arch/i386/kernel/vmlinux.lds.S
+--- .26520-linux-2.6.9-rc4-bk2/arch/i386/kernel/vmlinux.lds.S	2004-10-11 15:16:58.000000000 +1000
++++ .26520-linux-2.6.9-rc4-bk2.updated/arch/i386/kernel/vmlinux.lds.S	2004-10-19 12:45:54.000000000 +1000
+@@ -5,6 +5,7 @@
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+ #include <asm/page.h>
++#include <asm/cache.h>
+ 
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+@@ -47,7 +48,7 @@ SECTIONS
+   . = ALIGN(4096);
+   .data.page_aligned : { *(.data.idt) }
+ 
+-  . = ALIGN(32);
++  . = ALIGN(L1_CACHE_BYTES);
+   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
+ 
+   _edata = .;			/* End of data section */
+@@ -96,7 +97,7 @@ SECTIONS
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+   __initramfs_end = .;
+-  . = ALIGN(32);
++  . = ALIGN(L1_CACHE_BYTES);
+   __per_cpu_start = .;
+   .data.percpu  : { *(.data.percpu) }
+   __per_cpu_end = .;
 
 -- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

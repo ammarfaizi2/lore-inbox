@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263138AbTDBVCC>; Wed, 2 Apr 2003 16:02:02 -0500
+	id <S263144AbTDBVCl>; Wed, 2 Apr 2003 16:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263144AbTDBVCC>; Wed, 2 Apr 2003 16:02:02 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:8895 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S263138AbTDBVBy>; Wed, 2 Apr 2003 16:01:54 -0500
-Subject: Re: cpufreq isn't supported on 440BX
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Ducrot Bruno <poup@poupinou.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030402145216.GC10453@poup.poupinou.org>
-References: <1049232042.637.12.camel@teapot>
-	 <20030402145216.GC10453@poup.poupinou.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049317982.698.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 02 Apr 2003 23:13:03 +0200
-Content-Transfer-Encoding: 7bit
+	id <S263145AbTDBVCl>; Wed, 2 Apr 2003 16:02:41 -0500
+Received: from 200-161-189-133.dsl.telesp.net.br ([200.161.189.133]:23827 "HELO
+	200-161-189-133.dsl.telesp.net.br") by vger.kernel.org with SMTP
+	id <S263144AbTDBVCj>; Wed, 2 Apr 2003 16:02:39 -0500
+From: "littlemisskris" <048homesatgeneration@yahoo.com>
+To: "" <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?=F0=D2=C5=C4=CC=C1=C7=C1=C5=CD?= =?ISO-8859-1?Q?=E1=CD=C5=D2=C9=CB=C1=CE=D3=CB=C9=C5?= =?ISO-8859-1?Q?=D7=CF=C4=C9=D4=C5=CC=D8=D3=CB=C9=C5?= =?ISO-8859-1?Q?=D5=C4=CF=D3=D4=CF=D7=C5=D2=C5=CE=C9=D1.?=
+X-Mailer: Microsoft Outlook Express 4.72.3110.1
+MIME-Version: 1.0
+Date: Wed, 2 Apr 2003 13:12:24 -0800
+Content-Type: multipart/related;
+  boundary="----=_NextPart_000_0008_4F05764D.3BA000F3"
+Message-Id: <20030402210239Z263144-25576+5455@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-02 at 16:52, Ducrot Bruno wrote:
-> > I think that cpufreq isn't supported for Intel Pentium III Mobile
-> > (Coppermine) processors on Intel 440BX motherboards. Is this true?
-> 
-> yes.
-> 
-> > If so, are there any plans on getting this support in a foreseable future?
-> 
-> I am trying to get it.  But I got only semi-success on it, and therefore
-> I have not cleaned up things in order to even considering to send a patch
-> to the cpufreq maintainer.
+------=_NextPart_000_0008_4F05764D.3BA000F3
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: base64
 
-At least someone is trying to get it working!
-Glad to know this :-)
+5M/C0s/HzyDX0sXNxc7JINPV1M/LICEgCujP3tUg0NLFxNPUwdfJ1Nggzs/X2cog0sXT1dLT
+INDPIMnax8/Uz9fMxc7JwCDX08XIINfJxM/XIMTPy9XNxc7Uz9cgCs7BIM/Tzs/XxSDQzMHT
+1MnLz9fZyCDLwdLULiD0xdDF0tgg99kg19PFx8TBIM3P1sXUxSDawcvB2sHU2CDJINDPzNXe
+ydTYIArXIMvSwdTewcrbycUg09LPy8kg7cXWxNXOwdLPxM7ZxSD3z8TJ1MXM2NPLycUg0NLB
+18EgKElBREMpLCD71MHUz9fTy8nFIArQ0sHXwSwg6sQgy8HS1NksIPPU1cTFzt7F08vJxSDV
+xM/T1M/XxdLFzsnRIMkgzc7Px88gxNLVx8/FLi4uIAoK99PFINDPxNLPws7P09TJIM7BINPB
+ytTFOiB3d3cuZ2V0LWlkLmNvbQoK99PFzSD1xMHeySE=
 
-________________________________________________________________________
-Linux Registered User #287198
 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+------=_NextPart_000_0008_4F05764D.3BA000F3--

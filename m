@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132557AbRDKLe2>; Wed, 11 Apr 2001 07:34:28 -0400
+	id <S132559AbRDKLh2>; Wed, 11 Apr 2001 07:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132560AbRDKLeR>; Wed, 11 Apr 2001 07:34:17 -0400
-Received: from danielle.hinet.hr ([195.29.254.157]:3336 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S132557AbRDKLeK>; Wed, 11 Apr 2001 07:34:10 -0400
-Date: Wed, 11 Apr 2001 13:34:11 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: Mario Mikocevic <mozgy@hinet.hr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Few Qs regarding COMPAQ Proliant 6500
-Message-ID: <20010411133411.C24141@danielle.hinet.hr>
-In-Reply-To: <20010411132734.B24141@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010411132734.B24141@danielle.hinet.hr>; from mozgy@hinet.hr on Wed, Apr 11, 2001 at 01:27:34PM +0200
+	id <S132560AbRDKLhS>; Wed, 11 Apr 2001 07:37:18 -0400
+Received: from mta04-acc.tin.it ([212.216.176.35]:41939 "EHLO fep04-svc.tin.it")
+	by vger.kernel.org with ESMTP id <S132559AbRDKLhI> convert rfc822-to-8bit;
+	Wed, 11 Apr 2001 07:37:08 -0400
+To: linux-kernel <linux-kernel@vger.kernel.org>
+From: lomarcan@tin.it
+Reply-To: lomarcan@tin.it
+Subject: SCSI tape corruption problem
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20010411113702.GURC24736.fep04-svc.tin.it@fep41-svc.tin.it>
+Date: Wed, 11 Apr 2001 13:37:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Any pointers ? Patches to apply ?
+I've recently installed a SDT-9000 tape drive. Running kernel 2.4.x I've
+noticed the following (critical) problem:
 
-Don't you people hate to followup yourself ..
+Apparently the data are corrupted on the way to (from?) tape. I'm sure the
+DAT 
+drive is good (worked good on NT, head clean, new cartridge). It doesn't
+report
+data errors. I've got bad CRC errors on tar (the gzip part, of course)
 
-Anyway it's updated RH70 on 2.4.3 kernel !
+The drive is on an Adaptec 2904 controller, with a Yamaha CDRW on the same
+bus.
+I'm pretty sure it's terminated correctly. Another SCSI controller (2940)
+is 
+driving 2 hard drives. Underlying HW: Athlon 1GHz, on Asus board (VIA
+chipset). 
+It seems to happen frequently (tried four times with about 600MB of data,
+three
+times failed the restore :((. Tried all the 2.4.x kernel series (thru
+2.4.3)
 
+What can it be? (I'll try to compare the read data with the original...)
 
--- 
-Mario Mikoèeviæ (Mozgy)
-My favourite FUBAR ...
+				-- Lorenzo Marcantonio
+

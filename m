@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSHVS5n>; Thu, 22 Aug 2002 14:57:43 -0400
+	id <S315491AbSHVSyQ>; Thu, 22 Aug 2002 14:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSHVS5m>; Thu, 22 Aug 2002 14:57:42 -0400
-Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:34057 "HELO
-	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S315709AbSHVS5k>; Thu, 22 Aug 2002 14:57:40 -0400
-X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CBBB@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.kernel.org
-Subject: RE: NULL_GUID
-Date: Thu, 22 Aug 2002 14:01:47 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 117BEA972372756-01-01
-Content-Type: text/plain; 
- charset=us-ascii
+	id <S315540AbSHVSyQ>; Thu, 22 Aug 2002 14:54:16 -0400
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:46733 "EHLO
+	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
+	id <S315491AbSHVSyP>; Thu, 22 Aug 2002 14:54:15 -0400
+Subject: Re: ServerWorks OSB4 in impossible state
+From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Gonzalo Servat <gonzalo@unixpac.com.au>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1030039087.3161.27.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org> 
+	<1030017756.9866.74.camel@biker.pdb.fsc.net> 
+	<1030039087.3161.27.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Aug 2002 20:58:08 +0200
+Message-Id: <1030042689.9867.120.camel@biker.pdb.fsc.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Earlier this evening I happened to compile a 2.4.20-pre4 and got
+Am Don, 2002-08-22 um 19.58 schrieb Alan Cox:
+
+> > 2) The tested condition inb(dma_base+0x02)&1 is valid if the
+> >    device doing the DMA reported an error status. Only if the
+> >    device reports success is there an indication of the "4 byte shift".
 > 
-> efi.c: In function `add_gpt_partitions':
-> efi.c:728: `NULL_GUID' undeclared (first use in this function)
-> 
-> Earlier it was defined in include/asm-ia64/efi.h,
-> but since there is no relation with ia64 it is reasonable
-> that it was moved, only it never arrived in partitions/efi.h.
-> 
-> [I'll be lazy and not supply the trivial patch. Too likely
-> that others already did.]
+> True
 
-Yep.  FWIW, these are incorporated in the IA64 port patch released yesterday
-too.  I'd love to see these included in the standard 2.4.x trees.
+This condition is easy to test, right? My patch tested for
+   OK_STAT (GET_STAT(), DRIVE_READY, BAD_STAT)
+Why not put that in the code?
 
-Patches available in a number of places:
-bk pull http://mdomsch.bkbits.net/linux-2.4-gpt
-
-As separate patches:
-1)
-http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt.cset
-has been in the IA64 port for a while.  This fixes the endianness issues
-with the efi_guid_t type and adds the NULL_GUID definition needed to compile
-the GPT code.
-
-2)
-http://domsch.com/linux/patches/ia64/linux-2.4-efihmove.cset
-moves include/asm-ia64/efi.h to include/linux/efi.h similar to the 2.5
-patches.  This is needed to allow the GPT code to compile on non-IA64
-platforms too, necessary for the use of really big disks.
-
-3)
-http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt-unparse.cset
-has been the IA64 port for a while.  This fixes efi_guid_unparse for
-endianness.
+Martin
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
 
 
-These need to be applied in the above order, as #1 touches efi.h,  #2
-touches and moves efi.h, and #3 touches it then too.  All are already in the
-ia64 port tree, but Marcelo and Alan don't have any of these three yet.
-I've compiled this on x86 against BK-current building in GPT with no
-troubles.
 
-Thanks,
-Matt
 
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 

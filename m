@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131424AbRDBW4l>; Mon, 2 Apr 2001 18:56:41 -0400
+	id <S131466AbRDBW5V>; Mon, 2 Apr 2001 18:57:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131461AbRDBW4c>; Mon, 2 Apr 2001 18:56:32 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:21380 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S131424AbRDBW4X>; Mon, 2 Apr 2001 18:56:23 -0400
-Date: Mon, 2 Apr 2001 18:55:26 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Ketil Froyn <ketil@froyn.com>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: oops in uhci.c running 2.4.2-ac28
-Message-ID: <20010402185526.A4083@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org>
-Mime-Version: 1.0
+	id <S131472AbRDBW5L>; Mon, 2 Apr 2001 18:57:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36881 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131466AbRDBW5A>; Mon, 2 Apr 2001 18:57:00 -0400
+Subject: Re: linux scheduler limitations?
+To: fabio@chromium.com (Fabio Riccardi)
+Date: Mon, 2 Apr 2001 23:58:45 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AC3A6C9.991472C0@chromium.com> from "Fabio Riccardi" at Mar 29, 2001 01:19:05 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org>; from ketil@froyn.com on Sun, Apr 01, 2001 at 03:35:03AM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kDHc-0006r2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: 	Sun, 1 Apr 2001 03:35:03 +0200 (CEST)
-> From: Ketil Froyn <ketil@froyn.com>
-> To: <linux-kernel@vger.kernel.org>
+> I've found a (to me) unexplicable system behaviour when the number of
+> Apache forked instances goes somewhere beyond 1050, the machine
+> suddently slows down almost top a halt and becomes totally unresponsive,
+> until I stop the test (SpecWeb).
 
-> While running kernel 2.4.2-ac28, I switched on spinlock debugging and
-> verbose BUG() reporting (I always use sysrq). Anyway, while running this I
-> got an oops after about 2 or 3 minutes running, several times, exact same
-> place each time, which I traced back to rh_int_timer_do().
-> This was in uhci.c (I used CONFIG_USB_UHCI_ALT).  [...]  I
-> recompiled with usb-uhci.c instead (CONFIG_USB_UHCI), and now I don't get
-> the oops any more.
+Im suprised it gets that far
 
-I am behind usb-uhci for a reason. Alan bounced your report
-to me but I do not see a case for action...
+> Moreover the max number of processes is not even constant. If I increase
+> the server load gradually then I manage to have 1500 processes running
+> with no problem, but if the transition is sharp (the SpecWeb case) than
+> I end-up having a lock up.
 
--- Pete
+With that many servers and a sudden load you are probably causing a lot of
+paging. What kernel version. And while this isnt a solution to kernel issues
+take a look at thttpd instead (www.acme.com). If you have 1500 8K stacks 
+thrashing in your cache you are not going to have good performance.
+

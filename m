@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265900AbUAQNzT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 08:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUAQNzT
+	id S266048AbUAQOyM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 09:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUAQOyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 08:55:19 -0500
-Received: from gprs214-197.eurotel.cz ([160.218.214.197]:16512 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265900AbUAQNzQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 08:55:16 -0500
-Date: Sat, 17 Jan 2004 14:54:29 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>, Steve Gonczi <steve@relicore.com>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: kgdb 2.0.4 with restructuring and fixes
-Message-ID: <20040117135429.GB270@elf.ucw.cz>
-References: <200401171451.38701.amitkale@emsyssoft.com> <20040117100127.GI1332@holomorphy.com> <200401171554.21553.amitkale@emsyssoft.com>
-Mime-Version: 1.0
+	Sat, 17 Jan 2004 09:54:12 -0500
+Received: from heavymos.kumin.ne.jp ([61.114.158.133]:58059 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP id S266048AbUAQOyK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 09:54:10 -0500
+Message-Id: <200401171453.AA00009@prism.kumin.ne.jp>
+Date: Sat, 17 Jan 2004 23:53:41 +0900
+To: linux-kernel@vger.kernel.org
+Cc: <tao@acc.umu.se>
+Subject: linux-2.0.40-rc7
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+In-Reply-To: <200303041229.AA00001@prism.kumin.ne.jp>
+References: <200303041229.AA00001@prism.kumin.ne.jp>
+MIME-Version: 1.0
+X-Mailer: AL-Mail32 Version 1.13
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401171554.21553.amitkale@emsyssoft.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> I understand. I also don't like URLs in email as my browser and mailer are 
-> different.
-> 
-> I am really sorry, the best I can do is post a link to actuall tarball which 
-> is: http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.4.tar.bz2
-> 
-> I believe people will have me on their spammers list if I actually inflate 
-> this tarball and send as attachments. I sent 3 such postings this
-> week!
+I update linux-2.0.40-rc7 from 2.0.40-rc6.
+But compile error occured.
 
-Well, its 30K archive, that's pretty small. Sending it as patches has
-advantage that more people will actually see it and point errors...
+=====
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ialloc.c: In function `ext2_new_inode':
+ialloc.c:302: warning: `bh2' might be used uninitialized in this function
+ialloc.c:452: warning: `bh' might be used uninitialized in this function
+skbuff.c: In function `skb_copy_grow':
+skbuff.c:960: structure has no member named `priority'
+skbuff.c:960: structure has no member named `priority'
+skbuff.c:962: structure has no member named `dst'
+skbuff.c:962: warning: implicit declaration of function `dst_clone'
+skbuff.c:962: structure has no member named `dst'
+skbuff.c:964: structure has no member named `nh'
+skbuff.c:964: structure has no member named `nh'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:966: structure has no member named `cb'
+skbuff.c:968: structure has no member named `is_clone'
+skbuff.c:969: warning: implicit declaration of function `atomic_set'
+skbuff.c:973: structure has no member named `security'
+skbuff.c:973: structure has no member named `security'
+skbuff.c: In function `skb_pad':
+skbuff.c:991: too few arguments to function `kfree_skb'
+make[3]: *** [skbuff.o] Error 1
+make[2]: *** [first_rule] Error 2
+make[1]: *** [sub_dirs] Error 2
+make: *** [linuxsubdirs] Error 2
+
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

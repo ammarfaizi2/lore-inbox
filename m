@@ -1,91 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAENnw>; Fri, 5 Jan 2001 08:43:52 -0500
+	id <S129267AbRAENsD>; Fri, 5 Jan 2001 08:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRAENnm>; Fri, 5 Jan 2001 08:43:42 -0500
-Received: from sm10.texas.rr.com ([24.93.35.222]:8205 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S129183AbRAENnd>;
-	Fri, 5 Jan 2001 08:43:33 -0500
-Date: Fri, 5 Jan 2001 07:41:31 -0600 (CST)
-From: Brad Hartin <bhartin@satx.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18: do_try_to_free_pages
-Message-ID: <Pine.LNX.4.21.0101050732330.10424-100000@osprey.hartinhome.net>
+	id <S130339AbRAENrw>; Fri, 5 Jan 2001 08:47:52 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:56076 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129267AbRAENrl>; Fri, 5 Jan 2001 08:47:41 -0500
+Date: Fri, 05 Jan 2001 08:47:34 -0500
+From: Chris Mason <mason@suse.com>
+To: Claas Langbehn <claas@bigfoot.com>
+cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs patch for 2.4.0-final
+Message-ID: <502300000.978702454@tiny>
+In-Reply-To: <20010105140408.A2812@villariba.2y.net>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I recieved the following messages from the kernel yesterda morning.  It
-doesn't appear that any running programs actually died, or ran out of
-memory (128M physical/ 256M swap, only about 150M total or so in use when
-I got back on the machine.
 
-As a side note, during times of what I consider only moderate system
-activity (burning a CD while xmms playing and doing stuff in netscape, for
-example) I've had some system freezes.  While under X, everything freezes
-solid, mouse pointer and all.  System is completely inaccessable.  After
-about 2 minutes or so, everything begins responding again.
+On Friday, January 05, 2001 02:04:08 PM +0100 Claas Langbehn
+<claas@bigfoot.com> wrote:
 
-These problems began only when I moved to kernel 2.2.18.  I also have
-Reiserfs 3.5.29 patched in, and in use.
+> On Thu, Jan 04, 2001 at 04:52:49PM -0500, Chris Mason wrote:
+>> This patch is meant to be applied on top of the reiserfs
+>> 3.6.23 patch to get everything working in the new prerelease
+>> kernels.  The order is:
+>> 
+>> untar linux-2.4.0-prerelease.tar.bz2
+>> apply linux-2.4.0-test12-reiserfs-3.6.23.gz
+>> apply this patch
+>> apply the fs/super.c patch to make sure fsync_dev is called
+>> when unmounting /.  This was already sent to l-k, I'll send
+>> to the reiserfs list as well.
+> 
+> Is this still correct for the final 2.4.0-kernel ?
+> 
+Yes
 
-System is a K6-2/450, 128MB ram, Matsonic 6120S motherboard, ALi chipset.
-Just email me for any more details that are needed.
+> Could someone create one single patch for the 2.4.0 ?
+> 
+I put all the code into CVS, and Yura is making the official patch now.
 
-dmesg:
-
-Jan  4 00:06:05 osprey kernel: VM: do_try_to_free_pages failed for X...
-Jan  4 00:06:06 osprey last message repeated 6 times
-Jan  4 00:06:06 osprey kernel: VM: do_try_to_free_pages failed for klogd...
-Jan  4 00:06:07 osprey last message repeated 15 times
-Jan  4 00:06:07 osprey kernel: VM: do_try_to_free_pages failed for kfm...
-Jan  4 00:06:07 osprey last message repeated 14 times
-Jan  4 00:06:07 osprey kernel: VM: do_try_to_free_pages failed for maudio...
-Jan  4 00:06:07 osprey last message repeated 4 times
-Jan  4 00:06:07 osprey kernel: VM: do_try_to_free_pages failed for xmms...
-Jan  4 00:06:08 osprey last message repeated 10 times
-Jan  4 00:06:08 osprey kernel: VM: do_try_to_free_pages failed for maudio...
-Jan  4 00:06:08 osprey kernel: VM: do_try_to_free_pages failed for klogd...
-Jan  4 00:06:09 osprey last message repeated 14 times
-Jan  4 00:06:09 osprey kernel: VM: do_try_to_free_pages failed for identd...
-Jan  4 00:06:09 osprey last message repeated 4 times
-Jan  4 00:06:09 osprey kernel: VM: do_try_to_free_pages failed for maudio...
-Jan  4 00:06:09 osprey last message repeated 10 times
-Jan  4 00:06:09 osprey kernel: VM: do_try_M: do_try_to_free_pages failed for syslogd...
-Jan  4 00:06:09 osprey kernel: VM: do_try_to_free_pages failed for init...
-Jan  4 00:06:10 osprey last message repeated 14 times
-Jan  4 00:06:10 osprey kernel: VM: do_try_to_free_pages failed for identd...
-Jan  4 00:06:10 osprey last message repeated 14 times
-Jan  4 00:06:10 osprey kernel: VM: do_try_to_free_pages failed for fetchmail...
-Jan  4 00:06:10 osprey kernel: VM: do_try_to_free_pages failed for xmms...
-Jan  4 00:06:10 osprey kernel: VM: do_try_to_free_pages failed for X...
-Jan  4 00:06:10 osprey kernel: VM: do_try_to_free_pages failed for maudio...
-Jan  4 00:06:10 osprey kernel: VM: do_try_to_free_pages failed for X...
-Jan  4 00:06:11 osprey last message repeated 14 times
-Jan  4 00:06:11 osprey kernel: VM: do_try_to_free_pages failed for xmms...
-Jan  4 00:06:11 osprey last message repeated 14 times
-Jan  4 00:06:11 osprey kernel: VM: do_try_to_free_pages failed for wpexc...
-Jan  4 00:06:12 osprey last message repeated 14 times
-Jan  4 00:06:12 osprey kernel: VM: do_try_to_free_pages failed for fetchmail...
-...............
-
-Messages continue for all programs running at the time, and end with:
-
-...............
-Jan  4 00:06:16 osprey kernel: VM: do_try_to_free_pages failed for gpm...
-Jan  4 00:06:17 osprey last message repeated 13 times
-Jan  4 00:06:17 osprey kernel: VM: do_try_to_free_pages failed for crond...
-Jan  4 00:06:17 osprey last message repeated 14 times                                         
+-chris
 
 
------------------------------------------
-Brad Hartin - bhartin@strafco.com
-Communications Administrator
-Straus-Frank Enterprises Limited
-Carquest retail/wholesale distributor for
-areas in TX, OK, LA, AR, NM, and KS
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

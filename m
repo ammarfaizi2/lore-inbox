@@ -1,45 +1,315 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264041AbTEJL1G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 07:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbTEJL1E
+	id S264043AbTEJLh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 07:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTEJLh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 07:27:04 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:22508 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S264041AbTEJL0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 07:26:39 -0400
-Date: Sat, 10 May 2003 13:39:10 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc2 IDE Modular non-compile
-Message-ID: <20030510113910.GD12431@louise.pinerecords.com>
-References: <20030509064035.4C6612C014@lists.samba.org> <20030509075319.A10102@infradead.org> <20030510102615.GB12431@louise.pinerecords.com> <20030510113843.GC12431@louise.pinerecords.com>
+	Sat, 10 May 2003 07:37:28 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:18168 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264043AbTEJLhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 07:37:22 -0400
+Date: Sat, 10 May 2003 07:51:00 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [BENCHMARKS] on various filesystems with 2.5.69
+Message-ID: <20030510115100.GA13485@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030510113843.GC12431@louise.pinerecords.com>
 User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [szepe@pinerecords.com]
-> 
-> > [szepe@pinerecords.com]
-> > 
-> > > [hch@infradead.org]
-> > > 
-> > > This is the patch I sent marcelo just after rc1 was released, I gues
-> > > it will still apply..
-> > 
-> > Christoph, for a fully modular IDE (.config snippet included at the
-> > end of the post) on .21rc2 I need to apply the following patch on top
-> > of the one you have posted.  100% untested.
-> 
-> This is still not enough.  pci-*.o objects will need to be linked
-> into a single ide.o module.  I'm leaving that up to somebody else. :)
+Filesystem benchmarks on 2.5.69 for 5 filesystem types.
+Same LUN (RAID0) and partition used for each filesystem.
+QLogic 2200 Fibre channel.
+Quad P3 700 Xeon with 3.75 GB RAM.
+System not rebooted between filesystem runs.
 
-s/pci-/ide-/ of course.
+Every filesystem was best in at least one test.  Filesystems
+exhibit very different performance characteristics for some
+workloads.
+
+Results are similar to prior posting for 2.5.68.  This time
+reiserfs has notail, which helps some tests.
+
+mount options
+mount -t ext2 -o defaults,noatime /dev/sdc1 /fs1
+mount -t ext3 -o defaults,noatime,data=writeback /dev/sdc1 /fs1
+mount -t reiserfs -o defaults,noatime,notail /dev/sdc1 /fs1
+mount -t jfs -o defaults,noatime /dev/sdc1 /fs1
+mount -t xfs -o logbufs=8,logbsize=32768,noatime /dev/sdc1 /fs1
+
+mkfs command
+mke2fs -q /dev/sdc1
+mke2fs -q -j -J size=400 /dev/sdc1
+yes  "y" | mkreiserfs /dev/sdc1 >/tmp/mkr.out 2>&1
+jfs_mkfs -q /dev/sdc1
+mkfs.xfs -l size=32768b -f /dev/sdc1
+
+XFS mount/mkfs options came from the XFS FAQ and are very desireable
+for these tests based on an earlier run without them.  If anyone
+knows better than default options for jfs, I'd like to hear.
+
+dbench-1.3 executed 5 times.
+Filesystems that did best on dbench 64 also did best on dbench 192.
+
+dbench 64 processes 	Average		High		Low
+2.5.69-ext2         	253.13		254.51		251.55 MB/second
+2.5.69-xfs          	141.68		143.94		139.95
+2.5.69-ext3         	125.72		135.08		117.92
+2.5.69-reiserfs     	101.96		105.65		 97.57
+2.5.69-jfs          	 17.04		 19.90		 15.81
+
+dbench 192 processes	Average		High		Low
+2.5.69-ext2         	200.78		211.27		190.89 MB/second
+2.5.69-xfs          	111.85		112.79		110.42
+2.5.69-ext3         	108.97		122.37		 96.27
+2.5.69-reiserfs     	 68.63		 70.06		 65.95
+2.5.69-jfs          	 10.33		 10.78		  9.86
+
+
+
+bonnie++-1.02c with 8192 megabyte filesize.
+One notable thing here is filesystems that did better in sequential block
+writes had lower sequential re-writes.
+
+                  --------------------- Sequential Output ------------------
+                  ---- Per Char -----  ------ Block -----  ---- Rewrite ----
+Kernel            MB/sec   %CPU   Eff  MB/sec   %CPU  Eff  MB/sec  %CPU  Eff
+2.5.69-ext2         9.47   99.0  9.56   68.28   52.7  130   15.89  17.0   93
+2.5.69-xfs          9.37  100.0  9.37   65.28   52.7  124   15.95  18.0   89
+2.5.69-jfs          9.28   99.0  9.37   63.85   55.7  115   16.16  16.0  101
+2.5.69-ext3         8.88   97.0  9.16   59.51   68.7   87   16.20  18.0   90
+2.5.69-reiserfs     8.58   99.0  8.67   57.07   92.3   62   16.56  20.7   80
+
+
+
+                  -------- Sequential Input ----------   ----- Random -----
+                  ---- Per Char ---  ----- Block -----   ----- Seeks  -----
+Kernel            MB/sec  %CPU  Eff  MB/sec  %CPU  Eff    /sec  %CPU   Eff
+2.5.69-xfs          9.31  99.0  9.4   27.17  20.0  136   638.8  3.67  17423
+2.5.69-reiserfs     9.24  99.0  9.3   27.14  21.7  125   519.1  3.33  15574
+2.5.69-jfs          9.33  99.0  9.4   27.09  19.0  143   504.1  2.67  18902
+2.5.69-ext2         9.33  99.0  9.4   27.00  19.3  140   496.7  2.67  18628
+2.5.69-ext3         9.29  99.0  9.4   26.95  20.0  135   491.2  3.00  16373
+
+
+bonnie++-1.02c creating 65536 small files
+ext2 and ext3 have great numbers for sequential small file deletes.
+reiserfs and jfs were faster at creating small files.
+
+
+                  ---------------- Sequential ----------  -------------- Random --------------
+                  ----- Create -----    ---- Delete ----  ----- Create ----   ---- Delete ----
+                   /sec  %CPU    Eff    /sec  %CPU   Eff   /sec  %CPU   Eff   /sec  %CPU   Eff
+2.5.69-reiserfs    7884  90.3   8727    3244  45.7  7102   7672  91.3  8400   1159  20.3  5702
+2.5.69-jfs         2885  16.3  17663    1278   8.0  1597    855  16.3  5233    436   5.3  8175
+2.5.69-xfs          380   8.7   4385     280   3.3  8390    319   5.3  5975    943  14.7  6430
+2.5.69-ext2         147  99.0    148   61857  99.7  6206    156 100.0   156    536 100.0   536
+2.5.69-ext3         118  99.0    119   29789  98.7  3019    123  99.0   124    459  97.0   474
+
+
+
+tiobench-0.3.3
+Unit information
+================
+File size = 8192 megabytes
+Blk Size  = 4096 bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
+
+Sequential Reads
+                     Num                    Avg       Maximum     Lat%     Lat%    CPU
+Kernel               Thr   Rate  (CPU%)   Latency     Latency      >2s     >10s    Eff
+-------------------- ---  ------------------------------------------------------------
+2.5.69-jfs             1   28.89 12.85%     0.403      692.53  0.00000  0.00000    225
+2.5.69-ext2            1   28.68 13.23%     0.406      673.26  0.00000  0.00000    217
+2.5.69-ext3            1   28.52 13.23%     0.408      725.09  0.00000  0.00000    215
+2.5.69-xfs             1   28.51 13.84%     0.408      128.47  0.00000  0.00000    206
+2.5.69-reiserfs        1   28.24 14.87%     0.412      117.86  0.00000  0.00000    190
+
+2.5.69-xfs             8   55.78 29.21%     1.656      575.74  0.00000  0.00000    191
+2.5.69-jfs             8   49.88 23.79%     1.845      750.77  0.00000  0.00000    210
+2.5.69-ext2            8   34.10 16.51%     2.733      865.66  0.00000  0.00000    206
+2.5.69-reiserfs        8   32.30 18.16%     2.868      298.62  0.00000  0.00000    178
+2.5.69-ext3            8   17.69  9.63%     5.158     1668.87  0.00000  0.00000    184
+
+2.5.69-xfs            16   52.14 26.31%     3.416      651.68  0.00000  0.00000    198
+2.5.69-jfs            16   39.66 18.23%     4.710     1030.97  0.00000  0.00000    218
+2.5.69-reiserfs       16   28.50 16.12%     6.540      751.46  0.00000  0.00000    177
+2.5.69-ext2           16   26.93 12.98%     6.890     1204.62  0.00000  0.00000    207
+2.5.69-ext3           16   11.36  6.33%    15.848     2862.65  0.00000  0.00000    179
+
+2.5.69-xfs            32   51.03 26.25%     7.040     1076.62  0.00000  0.00000    194
+2.5.69-jfs            32   38.78 18.15%     9.603     1511.39  0.00000  0.00000    214
+2.5.69-reiserfs       32   28.72 16.49%    12.916     1358.22  0.00000  0.00000    174
+2.5.69-ext2           32   26.08 12.79%    14.207     1552.67  0.00000  0.00000    204
+2.5.69-ext3           32    7.74  4.38%    43.586     5152.95  0.00005  0.00000    177
+
+2.5.69-xfs            64   48.04 24.88%    14.764     1413.14  0.00000  0.00000    193
+2.5.69-jfs            64   39.41 18.70%    18.804     1662.55  0.00000  0.00000    211
+2.5.69-reiserfs       64   27.64 16.18%    26.386     5739.81  0.00000  0.00000    171
+2.5.69-ext2           64   26.66 13.41%    27.258     6090.32  0.00014  0.00000    199
+2.5.69-ext3           64    7.94  4.42%    80.663    11676.94  0.64340  0.00000    179
+
+2.5.69-xfs           128   50.91 26.69%    27.458    20455.48  0.01020  0.00000    191
+2.5.69-reiserfs      128   28.01 16.33%    48.300    15901.49  0.06442  0.00000    171
+2.5.69-ext2          128   26.53 13.30%    48.171    17099.00  0.26316  0.00000    199
+2.5.69-jfs           128   22.23 11.53%    39.757    30947.48  0.18906  0.00019    193
+2.5.69-ext3          128    7.19  4.10%   167.290    24500.71  4.14162  0.00000    175
+
+2.5.69-xfs           256   49.01 26.05%    42.521   216893.18  0.03920  0.03653    188
+2.5.69-ext2          256   30.27 15.04%    76.573    51905.04  1.35470  0.00377    201
+2.5.69-reiserfs      256   26.78 15.60%    98.770    39730.71  2.29430  0.00119    172
+2.5.69-jfs           256   13.30  7.43%   106.094    75753.19  1.62244  0.17771    179
+2.5.69-ext3          256    7.66  4.38%   305.493    53661.66  4.59085  0.03228    175
+
+
+Random Reads
+                     Num                    Avg       Maximum     Lat%     Lat%    CPU
+Kernel               Thr   Rate  (CPU%)   Latency     Latency      >2s     >10s    Eff
+-------------------- ---  ------------------------------------------------------------
+2.5.69-jfs             1    1.03  0.85%    11.364       98.64  0.00000  0.00000    121
+2.5.69-xfs             1    1.03  0.88%    11.319      109.80  0.00000  0.00000    118
+2.5.69-reiserfs        1    0.96  0.94%    12.201      113.33  0.00000  0.00000    103
+2.5.69-ext2            1    0.71  0.66%    16.500      109.32  0.00000  0.00000    108
+2.5.69-ext3            1    0.66  0.63%    17.875      130.42  0.00000  0.00000    104
+
+2.5.69-xfs             8    5.29  4.87%    16.496      116.95  0.00000  0.00000    109
+2.5.69-reiserfs        8    5.23  5.03%    16.950      127.86  0.00000  0.00000    104
+2.5.69-jfs             8    4.29  3.47%    20.283      161.44  0.00000  0.00000    124
+2.5.69-ext3            8    3.93  3.78%    21.154      160.03  0.00000  0.00000    104
+2.5.69-ext2            8    3.78  3.84%    23.510      178.01  0.00000  0.00000     98
+
+2.5.69-xfs            16    5.56  4.24%    32.024      139.29  0.00000  0.00000    131
+2.5.69-reiserfs       16    5.35  5.51%    33.111      176.50  0.00000  0.00000     97
+2.5.69-ext3           16    4.53  3.46%    36.799      195.72  0.00000  0.00000    131
+2.5.69-jfs            16    4.02  2.88%    44.453      217.44  0.00000  0.00000    140
+2.5.69-ext2           16    3.11  2.40%    56.441      304.68  0.00000  0.00000    129
+
+2.5.69-xfs            32    5.55  4.34%    62.371      214.31  0.00000  0.00000    128
+2.5.69-ext3           32    4.61  3.75%    64.795      270.41  0.00000  0.00000    123
+2.5.69-reiserfs       32    4.58  4.54%    75.188      328.87  0.00000  0.00000    101
+2.5.69-jfs            32    4.05  2.96%    87.559      278.97  0.00000  0.00000    137
+2.5.69-ext2           32    3.41  2.71%   102.938      453.10  0.00000  0.00000    126
+
+2.5.69-xfs            64    4.98  3.86%   127.462      395.93  0.00000  0.00000    129
+2.5.69-ext3           64    4.66  4.05%   123.913      462.04  0.00000  0.00000    115
+2.5.69-reiserfs       64    4.59  4.57%   146.642      690.82  0.00000  0.00000    100
+2.5.69-jfs            64    4.01  2.74%   171.711      440.13  0.00000  0.00000    146
+2.5.69-ext2           64    3.92  2.96%   169.214      821.28  0.00000  0.00000    133
+
+2.5.69-xfs           128    5.41  4.46%   225.327      687.04  0.00000  0.00000    121
+2.5.69-ext3          128    5.08  4.28%   219.591      755.29  0.00000  0.00000    119
+2.5.69-reiserfs      128    5.01  5.52%   237.218     3535.45  0.00000  0.00000     91
+2.5.69-ext2          128    4.48  3.93%   254.929     4204.91  0.00000  0.00000    114
+2.5.69-jfs           128    4.13  3.32%   226.459     1026.05  0.00000  0.00000    124
+
+2.5.69-reiserfs      256    5.38  6.00%   358.590     6620.91  0.57292  0.00000     90
+2.5.69-ext3          256    5.18  4.70%   368.793     6503.31  0.65104  0.00000    110
+2.5.69-ext2          256    4.94  4.33%   368.978     6564.52  0.96354  0.00000    114
+2.5.69-xfs           256    4.65  4.59%   381.852     6953.11  1.84896  0.00000    101
+2.5.69-jfs           256    4.47  4.17%   385.960     6963.52  1.71875  0.00000    107
+
+
+Sequential Writes
+                     Num                    Avg       Maximum     Lat%     Lat%    CPU
+Kernel               Thr   Rate  (CPU%)   Latency     Latency      >2s     >10s    Eff
+-------------------- ---  ------------------------------------------------------------
+2.5.69-xfs             1   56.19 45.83%     0.173    70307.02  0.00025  0.00025    123
+2.5.69-jfs             1   55.60 47.60%     0.197     2912.30  0.00000  0.00000    117
+2.5.69-ext2            1   55.38 41.92%     0.173     3325.07  0.00000  0.00000    132
+2.5.69-reiserfs        1   54.50 88.65%     0.203     1781.72  0.00000  0.00000     61
+2.5.69-ext3            1   53.07 62.68%     0.210    15303.42  0.00105  0.00000     85
+
+2.5.69-xfs             8   57.26 66.91%     1.021   173095.36  0.00430  0.00272     86
+2.5.69-jfs             8   56.18 77.32%     1.306    22005.56  0.00414  0.00000     73
+2.5.69-ext2            8   30.59 29.69%     2.481    19463.29  0.05675  0.00000    103
+2.5.69-reiserfs        8   25.41 90.84%     2.900    70100.86  0.05269  0.00204     28
+2.5.69-ext3            8    5.55 10.07%    13.528   106484.56  0.06676  0.05312     55
+
+2.5.69-xfs            16   56.86 71.35%     2.089   212980.06  0.00834  0.00515     80
+2.5.69-jfs            16   54.96 71.08%     2.600    28339.70  0.01917  0.00024     77
+2.5.69-ext2           16   30.08 30.95%     4.608    34246.15  0.07085  0.00024     97
+2.5.69-reiserfs       16   24.09 89.08%     6.279   117800.21  0.07777  0.00672     27
+2.5.69-ext3           16    3.95  8.28%    32.668   197166.88  0.10915  0.06881     48
+
+2.5.69-xfs            32   56.62 78.23%     3.909   223550.92  0.01502  0.01016     72
+2.5.69-jfs            32   54.61 73.68%     4.759    62624.50  0.09513  0.00262     74
+2.5.69-ext2           32   27.75 31.48%     9.625    71499.00  0.09336  0.04287     88
+2.5.69-reiserfs       32   26.38 93.89%    10.773    48079.01  0.11229  0.02532     28
+2.5.69-ext3           32    3.08  8.06%    87.427   436590.16  0.24333  0.10415     38
+
+2.5.69-xfs            64   56.53 80.82%     7.759   275777.12  0.04525  0.01912     70
+2.5.69-jfs            64   54.04 78.09%     9.481    88872.21  0.14224  0.01131     69
+2.5.69-ext2           64   25.49 32.20%    19.103   129407.11  0.13690  0.07219     79
+2.5.69-reiserfs       64   23.68 91.67%    22.228    91150.38  0.14729  0.09446     26
+2.5.69-ext3           64    3.26  8.88%   162.219   953244.56  0.46191  0.12464     37
+
+2.5.69-xfs           128   56.10 80.57%    15.469   257121.14  0.09298  0.04115     70
+2.5.69-ext2          128   24.46 33.21%    38.365   302714.90  0.23523  0.10219     74
+2.5.69-reiserfs      128   23.80 95.85%    41.340   202903.22  0.28315  0.10938     25
+2.5.69-jfs           128   18.96 30.66%    47.620   854754.60  0.25796  0.05523     62
+2.5.69-ext3          128    2.96  9.25%   347.714  1815860.71  1.03125  0.30684     32
+
+2.5.69-xfs           256   55.29 83.76%    28.330   304285.48  0.14419  0.08334     66
+2.5.69-ext2          256   28.45 41.95%    65.916   484980.73  0.47846  0.13266     68
+2.5.69-reiserfs      256   21.69 113.2%    90.434   371051.39  0.61755  0.18215     19
+2.5.69-jfs           256    9.01 17.95%   201.918  2260340.59  0.44389  0.07214     50
+2.5.69-ext3          256    3.10 12.81%   637.843  3904635.30  1.62105  0.61188     24
+
+
+Random Writes
+                     Num                    Avg       Maximum     Lat%     Lat%    CPU
+Kernel               Thr   Rate  (CPU%)   Latency     Latency      >2s     >10s    Eff
+-------------------- ---  ------------------------------------------------------------
+2.5.69-jfs             1    3.79  2.90%     0.061        1.02  0.00000  0.00000    131
+2.5.69-xfs             1    3.12  2.84%     0.078        4.04  0.00000  0.00000    110
+2.5.69-ext2            1    3.06  2.74%     0.710       56.74  0.00000  0.00000    111
+2.5.69-reiserfs        1    2.86  2.89%     1.106       48.02  0.00000  0.00000     99
+2.5.69-ext3            1    2.49  2.38%     1.595       71.83  0.00000  0.00000    104
+
+2.5.69-jfs             8    3.75  6.05%     0.167       62.66  0.00000  0.00000     62
+2.5.69-ext2            8    3.53  3.63%     1.779       91.15  0.00000  0.00000     97
+2.5.69-reiserfs        8    3.52  4.25%     2.870      774.95  0.00000  0.00000     83
+2.5.69-xfs             8    3.17  5.65%     0.409      758.32  0.00000  0.00000     56
+2.5.69-ext3            8    2.92  2.89%     5.755      161.96  0.00000  0.00000    101
+
+2.5.69-reiserfs       16    3.66  4.54%     2.825     1275.73  0.00000  0.00000     81
+2.5.69-jfs            16    3.63  6.00%     0.176      119.88  0.00000  0.00000     60
+2.5.69-xfs            16    3.62  6.03%     0.582      846.52  0.00000  0.00000     60
+2.5.69-ext2           16    3.37  3.58%     2.840      477.59  0.00000  0.00000     94
+2.5.69-ext3           16    3.17  3.36%     7.213      485.61  0.00000  0.00000     94
+
+2.5.69-xfs            32    3.87  6.77%     0.209      192.18  0.00000  0.00000     57
+2.5.69-reiserfs       32    3.60  4.15%     6.343     1761.01  0.00000  0.00000     87
+2.5.69-jfs            32    3.49  5.97%     0.395      669.25  0.00000  0.00000     58
+2.5.69-ext2           32    3.44  4.53%     2.627      417.56  0.00000  0.00000     76
+2.5.69-ext3           32    3.15  3.47%     9.351     1457.12  0.00000  0.00000     91
+
+2.5.69-reiserfs       64    3.64  5.18%     8.353     1561.56  0.00000  0.00000     70
+2.5.69-xfs            64    3.61  6.72%     0.446     1094.24  0.00000  0.00000     54
+2.5.69-ext2           64    3.52  5.57%     2.282      719.30  0.00000  0.00000     63
+2.5.69-jfs            64    3.43  5.89%     0.910     1409.02  0.00000  0.00000     58
+2.5.69-ext3           64    3.09  4.74%    11.068     1246.89  0.00000  0.00000     65
+
+2.5.69-reiserfs      128    3.69  6.51%     3.604     1283.12  0.00000  0.00000     57
+2.5.69-xfs           128    3.68  6.67%     0.160        5.15  0.00000  0.00000     55
+2.5.69-ext2          128    3.57  6.54%     0.963      167.28  0.00000  0.00000     55
+2.5.69-jfs           128    3.35  6.15%     0.991     2140.53  0.00000  0.00000     54
+2.5.69-ext3          128    3.15  6.35%    17.863     1005.55  0.00000  0.00000     50
+
+2.5.69-reiserfs      256    3.75  7.53%     1.818     3603.06  0.00000  0.00000     50
+2.5.69-ext2          256    3.66  7.35%     2.078     3413.62  0.00000  0.00000     50
+2.5.69-xfs           256    3.45  6.57%     1.863     3204.17  0.00000  0.00000     53
+2.5.69-ext3          256    3.40  8.70%    23.478     1476.74  0.00000  0.00000     39
+2.5.69-jfs           256    3.35  6.74%     1.913     3532.44  0.02604  0.00000     50
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

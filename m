@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131014AbQLJW41>; Sun, 10 Dec 2000 17:56:27 -0500
+	id <S131116AbQLJXLJ>; Sun, 10 Dec 2000 18:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131341AbQLJW4H>; Sun, 10 Dec 2000 17:56:07 -0500
-Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:48073 "EHLO
-	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
-	id <S131014AbQLJWz6>; Sun, 10 Dec 2000 17:55:58 -0500
-Date: Sun, 10 Dec 2000 23:25:33 +0100
-From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test12-pre8 compilation errors and make oldconfig problem
-Message-ID: <20001210232532.A6808@iapetus.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
+	id <S131138AbQLJXLA>; Sun, 10 Dec 2000 18:11:00 -0500
+Received: from zero.tech9.net ([209.61.188.187]:22788 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S131116AbQLJXKw>;
+	Sun, 10 Dec 2000 18:10:52 -0500
+Date: Sun, 10 Dec 2000 17:40:26 -0500 (EST)
+From: "Robert M. Love" <rml@tech9.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Matrox DRM (mga_dma.c) tq fix Was: Re: Compile Failure:
+ mga_dma.o on 2.4.0-test12-pre8
+In-Reply-To: <Pine.LNX.4.30.0012101501160.17790-100000@phantasy.awol.org>
+Message-ID: <Pine.LNX.4.30.0012101737480.18138-100000@phantasy.awol.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I don't know why but make oldconfig keeps asking this:
-    ServerWorks OSB4 chipset support (CONFIG_BLK_DEV_OSB4) [N/y/?] (NEW) 
-
-Compilation problems:
-plip.c: In function `plip_init_dev':
-plip.c:352: structure has no member named `next'
-plip.c:357: structure has no member named `next'
-plip.c:363: structure has no member named `next'
-
-make[2]: Entering directory `/loc/x29/linux/fs/smbfs'
-gcc -D__KERNEL__ -I/loc/x29/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686 -DMODULE -DSMBFS_PARANOIA  -c -o proc.o proc.c
-gcc -D__KERNEL__ -I/loc/x29/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686 -DMODULE -DSMBFS_PARANOIA  -c -o dir.o dir.c
-gcc -D__KERNEL__ -I/loc/x29/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686 -DMODULE -DSMBFS_PARANOIA  -c -o cache.o cache.c
-gcc -D__KERNEL__ -I/loc/x29/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686 -DMODULE -DSMBFS_PARANOIA  -c -o sock.o sock.c
-sock.c: In function `smb_data_ready':
-sock.c:166: structure has no member named `next'
-make[2]: *** [sock.o] Error 1
-make[2]: Leaving directory `/loc/x29/linux/fs/smbfs'
+i previously reported a problem with mga_dma.c not compiling due to the
+new schedule task queue updates. below is a patch to use the new task
+queue system.
 
 -- 
-Frank
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
+
+--- linux/drivers/char/drm/mga_dma.c~   Sun Dec 10 17:35:17 2000
++++ linux/drivers/char/drm/mga_dma.c    Sun Dec 10 17:35:37 2000
+@@ -818,7 +818,7 @@
+        dev->dma->next_buffer = NULL;
+        dev->dma->next_queue  = NULL;
+        dev->dma->this_buffer = NULL;
+-       dev->tq.next          = NULL;
++       INIT_LIST_HEAD(&dev->tq.list);
+        dev->tq.sync          = 0;
+        dev->tq.routine       = mga_dma_task_queue;
+        dev->tq.data          = dev;
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

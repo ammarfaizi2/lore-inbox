@@ -1,105 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264741AbSJOUdv>; Tue, 15 Oct 2002 16:33:51 -0400
+	id <S264722AbSJOUax>; Tue, 15 Oct 2002 16:30:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264742AbSJOUdv>; Tue, 15 Oct 2002 16:33:51 -0400
-Received: from jdike.solana.com ([198.99.130.100]:10369 "EHLO karaya.com")
-	by vger.kernel.org with ESMTP id <S264741AbSJOUdr>;
-	Tue, 15 Oct 2002 16:33:47 -0400
-Message-Id: <200210152042.g9FKgMS15717@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML SMP support
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 Oct 2002 16:42:22 -0400
-From: Jeff Dike <jdike@karaya.com>
+	id <S264737AbSJOUax>; Tue, 15 Oct 2002 16:30:53 -0400
+Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:61392 "EHLO
+	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S264722AbSJOUav>; Tue, 15 Oct 2002 16:30:51 -0400
+Date: Tue, 15 Oct 2002 13:36:38 -0700
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: [PATCH] async poll for 2.5
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Message-id: <3DAC7C56.6020104@netscape.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------ms040308020004080103020509; micalg=sha1;
+ protocol="application/x-pkcs7-signature"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a)
+ Gecko/20020910
+References: <20021015150201.K14596@redhat.com>
+ <Pine.LNX.4.44.0210151213170.1554-100000@blue1.dev.mcafeelabs.com>
+ <20021015151238.L14596@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull
-	http://jdike.stearns.org:5000/smp-2.5
+This is a cryptographically signed message in MIME format.
 
-This adds SMP support to UML.  All global data owned by UML is now either
-locked or is commented as to why no locking is needed.  All interrupts
-are currently handled by CPU 0.  The special handling of the timer interrupt
-is now gone.
+--------------ms040308020004080103020509
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-				Jeff
+Benjamin LaHaise wrote:
+
+>Erm, the aio interface has support for the event ringbuffer being accessed 
+>by userspace
+>
+Making the event ringbuffer visible to userspace conflicts with being 
+able to support event priorities.  To support event priorities, the 
+ringbuffer would need to be replaced with some other data structure.
 
 
- arch/um/config.in                |    5 +
- arch/um/drivers/chan_user.c      |    2 
- arch/um/drivers/harddog_kern.c   |    4 
- arch/um/drivers/hostaudio_kern.c |    1 
- arch/um/drivers/line.c           |   22 ++++-
- arch/um/drivers/mconsole_kern.c  |   28 +++++-
- arch/um/drivers/mconsole_user.c  |   10 +-
- arch/um/drivers/mmapper_kern.c   |    3 
- arch/um/drivers/net_kern.c       |   23 ++++-
- arch/um/drivers/port_kern.c      |   13 ++-
- arch/um/drivers/ssl.c            |    5 -
- arch/um/drivers/stdio_console.c  |    9 ++
- arch/um/drivers/ubd_kern.c       |  147 ++++++++++++++++++++++++----------
- arch/um/drivers/ubd_user.c       |    4 
- arch/um/drivers/xterm.c          |    1 
- arch/um/include/2_5compat.h      |    2 
- arch/um/include/irq_user.h       |    4 
- arch/um/include/kern_util.h      |   10 --
- arch/um/include/mconsole.h       |    2 
- arch/um/include/sigio.h          |    2 
- arch/um/include/time_user.h      |    6 -
- arch/um/kernel/exec_kern.c       |    3 
- arch/um/kernel/exitcode.c        |    3 
- arch/um/kernel/frame.c           |    4 
- arch/um/kernel/helper.c          |    1 
- arch/um/kernel/initrd_kern.c     |    1 
- arch/um/kernel/irq.c             |   29 ++++++
- arch/um/kernel/irq_user.c        |  162 ++++++++++++++++++++++++++-----------
- arch/um/kernel/mem.c             |   45 +++++++---
- arch/um/kernel/mem_user.c        |    5 -
- arch/um/kernel/process.c         |   14 +--
- arch/um/kernel/process_kern.c    |   53 +++++++++---
- arch/um/kernel/sigio_kern.c      |   13 +++
- arch/um/kernel/sigio_user.c      |   59 ++++++++++---
- arch/um/kernel/signal_user.c     |   27 +++---
- arch/um/kernel/smp.c             |  167 ++++++++++++++++++---------------------
- arch/um/kernel/syscall_kern.c    |   15 ++-
- arch/um/kernel/syscall_user.c    |   13 ---
- arch/um/kernel/time.c            |   44 +++-------
- arch/um/kernel/time_kern.c       |   31 ++++++-
- arch/um/kernel/trap_kern.c       |   15 ++-
- arch/um/kernel/trap_user.c       |   79 +++++++-----------
- arch/um/kernel/tty_log.c         |    4 
- arch/um/kernel/um_arch.c         |   29 +++---
- arch/um/kernel/umid.c            |    4 
- arch/um/kernel/user_util.c       |    1 
- arch/um/main.c                   |   13 ++-
- arch/um/ptproxy/proxy.c          |    6 -
- arch/um/sys-i386/bugs.c          |    1 
- arch/um/sys-i386/ptrace_user.c   |    1 
- arch/um/sys-ppc/miscthings.c     |    3 
- arch/um/uml.lds.S                |    3 
- include/asm-um/cache.h           |    3 
- include/asm-um/smp.h             |   17 +++
- include/asm-um/thread_info.h     |    4 
- 55 files changed, 774 insertions(+), 401 deletions(-)
 
-ChangeSet@1.786, 2002-10-15 11:21:41-04:00, jdike@uml.karaya.com
-  Fixed some locking bugs spotted by Oleg Drokin.
+--------------ms040308020004080103020509
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-ChangeSet@1.785, 2002-10-14 18:51:59-04:00, jdike@uml.karaya.com
-  Fixed the non-SMP build.
-
-ChangeSet@1.784, 2002-10-14 11:31:46-04:00, jdike@uml.karaya.com
-  config.in now defines CONFIG_NR_CPUS.
-
-ChangeSet@1.783, 2002-10-14 09:53:55-04:00, jdike@uml.karaya.com
-  This is the merge of the initial 2.4 SMP support.
-  Locking was added where necessary.
-  All processors take timer interrupts, but only CPU 0 calls the timer
-  IRQ.  The others just call update_process_times to keep the
-  accounting straight.
-  The timer interrupt is blocked along with the other signals.
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MDE1MjAzNjM4WjAjBgkqhkiG9w0BCQQxFgQUk4xBXHu1VumrxHNHgTe+1oNv8IMwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
+VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
+EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
+AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
+gD5PRYIWMQlLuXOMshkxRa28+aBm4h/9Bc3Ljba62K8EJuU8VGXGl6xd6e/wWiaYqwb+LZ7x
+/kwY9BzB8/4gmrT9nOyshKV84JbGTZJsQimvGbn8hHBDeS7ygLkzZ6WooFYhYTgoiEO5Cj2G
+FC+OTb71ZqruZnjezf2O/noezoc0AAAAAAAA
+--------------ms040308020004080103020509--
 

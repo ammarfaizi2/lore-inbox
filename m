@@ -1,33 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132722AbRDNCak>; Fri, 13 Apr 2001 22:30:40 -0400
+	id <S132709AbRDNCXU>; Fri, 13 Apr 2001 22:23:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132726AbRDNCab>; Fri, 13 Apr 2001 22:30:31 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53521 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132717AbRDNCaT>; Fri, 13 Apr 2001 22:30:19 -0400
-Date: Fri, 13 Apr 2001 19:29:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: John Fremlin <chief@bandits.org>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-In-Reply-To: <m2g0fc6ybj.fsf@boreas.yi.org.>
-Message-ID: <Pine.LNX.4.31.0104131925370.11761-100000@penguin.transmeta.com>
+	id <S132724AbRDNCXK>; Fri, 13 Apr 2001 22:23:10 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:19242 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S132709AbRDNCXE>; Fri, 13 Apr 2001 22:23:04 -0400
+Message-ID: <3AD78A6C.F0F3CF5A@mindspring.com>
+Date: Fri, 13 Apr 2001 19:23:24 -0400
+From: Joe <joeja@mindspring.com>
+Reply-To: joeja@mindspring.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: bug in float on Pentium
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Not sure but I think I found a NEW bug.
+
+I know that there have been some issues with pentiums and floating point
+arrithmatic, but this takes the cake...
+
+Linux Lserver.org 2.2.18 #43 SMP Fri Mar 9 14:19:41 EST 2001 i586
+unknown
+
+>kgcc --version
+egcs-2.91.66
+
+RH 6.2.x / 7.0
+
+try this program
+
+#include <stdio.h>
+
+int main() {
+
+    char tmpx[100];
+ char tmpy[100];
+
+ double x = 5483.99;
+ float y = 5483.99;
+
+    sprintf (tmpx, "%f",x );
+    sprintf (tmpy, "%f",y );
+
+ printf ("%s\n%s\n", tmpx, tmpy);
+ return 0;
+}
 
 
-On 14 Apr 2001, John Fremlin wrote:
->
->					. In fact, if you think
-> fork+exec is such a big performance hit why not go for spawn(2) and
-> have Linus and Al jump on you? ;-)
+I am getting the following as output
 
-spawn() is trivial to implement if you want to. I don't think it's all
-that much more interesting than vfork()+execve(), though.
+joeja@Lserver$ ./testf
+5483.990000
+5483.990234
 
-		Linus
+
+what is with the .990234??  it should be .990000
+
+any ideas on this??
+
+--
+Joe Acosta ........
+home: joeja@mindspring.com
+
+
 

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262926AbTC0NdL>; Thu, 27 Mar 2003 08:33:11 -0500
+	id <S262927AbTC0Ngk>; Thu, 27 Mar 2003 08:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262927AbTC0NdL>; Thu, 27 Mar 2003 08:33:11 -0500
-Received: from hkue10ka.hku.hk ([147.8.2.91]:53649 "EHLO hkusua.hku.hk")
-	by vger.kernel.org with ESMTP id <S262926AbTC0NdK>;
-	Thu, 27 Mar 2003 08:33:10 -0500
-X-Spam-Filter: check_local@hkusua.hku.hk by digitalanswers.org
-X-WebMail-UserID: h9916628@hkusua.hku.hk
-Date: Thu, 27 Mar 2003 21:43:49 +0800
-From: h9916628 <h9916628@hkusua.hku.hk>
-To: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00002816
-Subject: Read and write by a module
-Message-ID: <3E84607C@webmaila.hku.hk>
+	id <S262929AbTC0Ngk>; Thu, 27 Mar 2003 08:36:40 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19939 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262927AbTC0Ngj>;
+	Thu, 27 Mar 2003 08:36:39 -0500
+Date: Thu, 27 Mar 2003 05:43:57 -0800 (PST)
+Message-Id: <20030327.054357.17283294.davem@redhat.com>
+To: shmulik.hen@intel.com
+Cc: dane@aiinet.com, bonding-devel@lists.sourceforge.net,
+       bonding-announce@lists.sourceforge.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       torvalds@transmeta.com, mingo@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: Re: BUG or not? GFP_KERNEL with interrupts disabled.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0303271406230.7106-100000@jrslxjul4.npdj.intel.com>
+References: <E791C176A6139242A988ABA8B3D9B38A01085638@hasmsx403.iil.intel.com>
+	<Pine.LNX.4.44.0303271406230.7106-100000@jrslxjul4.npdj.intel.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-WebMail-Urgent: Y
-X-Priority: 1
-X-Mailer: WebMail (Hydra) SMTP v3.61.08
-X-MailScanner: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+   From: shmulik.hen@intel.com
+   Date: Thu, 27 Mar 2003 15:32:02 +0200 (IST)
 
-Please help! I have to read and write cotents from a file by a module. Could 
-anyone tell me the procedures or advise me? This is very urgent to me. Thanks
+   Further more, holding a lock_irq doesn't mean bottom halves are disabled
+   too, it just means interrupts are disabled and no *new* softirq can be
+   queued. Consider the following situation:
+   
+I think local_bh_enable() should check irqs_disabled() and honour that.
+What you are showing here, that BH's can run via local_bh_enable()
+even when IRQs are disabled, is a BUG().
 
-I am working on the platform of Rad Hat 7.3 Kernel version 2.4-18
+IRQ disabling is meant to be stronger than softint disabling.
 
-Thanks
-
-George Chang Tak Yin
-EEE HKU
-
+Ingo/Linus?

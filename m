@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270674AbRHJW7K>; Fri, 10 Aug 2001 18:59:10 -0400
+	id <S270677AbRHJXBa>; Fri, 10 Aug 2001 19:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270681AbRHJW6z>; Fri, 10 Aug 2001 18:58:55 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:35854 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270679AbRHJW6Q>; Fri, 10 Aug 2001 18:58:16 -0400
-Date: Fri, 10 Aug 2001 15:58:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
-In-Reply-To: <E15VL6x-0007Jm-00@gondolin.me.apana.org.au>
-Message-ID: <Pine.LNX.4.33.0108101557180.1048-100000@penguin.transmeta.com>
+	id <S270678AbRHJXBU>; Fri, 10 Aug 2001 19:01:20 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:24332 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S270677AbRHJXBG>;
+	Fri, 10 Aug 2001 19:01:06 -0400
+Message-Id: <200108102301.f7AN1Ge32032@thor.mesatop.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Some dbench 32 results for 2.4.8-pre8, 2.4.7-ac10, and 2.4.7
+Date: Fri, 10 Aug 2001 16:59:05 -0600
+X-Mailer: KMail [version 1.2.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108100933240.1869-100000@penguin.transmeta.com> <200108102253.f7AMrCe31622@thor.mesatop.com>
+In-Reply-To: <200108102253.f7AMrCe31622@thor.mesatop.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 10 August 2001 16:51, Steven Cole wrote:
+> I ran dbench 32 twenty-eight times, with the results below.
 
-On Sat, 11 Aug 2001, Herbert Xu wrote:
->
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> > In article <20010810231906.A21435@bonzo.nirvana> you write:
->
-> > You have to use the reboot() system call directly as root, with the
-> > proper arguments to make it avoid doing even any sync. See
->
-> >        man 2 reboot
->
-> How do you do this when the process in the D state is holding the BKL?
+Sorry, I forgot to mention that this was all with 2.4.8-pre8.
 
-If it's in D state, it will be sleeping, and will have released the BKL.
-
-Besides, does the reboot system call actually get the BKL? I don't think
-it should need it..
-
-		Linus
-
+Steven

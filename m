@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268937AbUIQSzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUIQS4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268937AbUIQSzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 14:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUIQSzW
+	id S268944AbUIQS4R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 14:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIQS4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 14:55:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48528 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268937AbUIQSzT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 14:55:19 -0400
-Date: Fri, 17 Sep 2004 14:33:34 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
-       Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PPC64] Remove LARGE_PAGE_SHIFT constant
-Message-ID: <20040917173334.GC2179@logos.cnet>
-References: <20040917011320.GA6523@zax> <20040917170328.GB2179@logos.cnet> <1095446429.4088.3.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095446429.4088.3.camel@localhost>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 17 Sep 2004 14:56:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5075 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268944AbUIQS4L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 14:56:11 -0400
+Message-ID: <414B3270.2080409@sgi.com>
+Date: Fri, 17 Sep 2004 13:52:32 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>,
+       lse-tech@lists.sourceforge.net, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] lockmeter: fixes
+References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com> <20040917083127.F10537@infradead.org>
+In-Reply-To: <20040917083127.F10537@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 11:40:29AM -0700, Dave Hansen wrote:
-> On Fri, 2004-09-17 at 10:03, Marcelo Tosatti wrote:
-> > On Fri, Sep 17, 2004 at 11:13:20AM +1000, David Gibson wrote:
-> > > Andrew, please apply:
-> > > 
-> > > For historical reasons, ppc64 has ended up with two #defines for the
-> > > size of a large (16M) page: LARGE_PAGE_SHIFT and HPAGE_SHIFT.  This
-> > > patch removes LARGE_PAGE_SHIFT in favour of the more widely used
-> > > HPAGE_SHIFT.
-> > 
-> > Nitpicking, "LARGE_PAGE_xxx" is used by x86/x86_64:
-> > 
-> > #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
-> > #define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
-> > 
-> > Wouldnt it be nice to keep consistency between archs?
+Christoph Hellwig wrote:
+> On Thu, Sep 16, 2004 at 04:03:44PM -0700, Ray Bryant wrote:
 > 
-> Actually, if everybody makes sure to define PMD_SHIFT, we should be able
-> to use common macros, right?
+>>Andrew,
+>>
+>>The first patch in this series is a replacement patch for the prempt-fix
+>>patch I sent earlier this morning.  There was a missing paren in that
+>>previous version.
+> 
+> 
+> Any chance you could stop lockmeter patching around in fs/proc/proc_misc.c?
+> procfs files can be created easily from individual drivers.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Hi Christoph,
 
-Yeap. 
+Yes, I'll take a look at it as soon as I get done chasing the COOL bits changes.
+
+Is there a specific example you can point me at as to how others have done this?
+
+Thanks,
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
+

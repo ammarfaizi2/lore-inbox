@@ -1,64 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbUCABNw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 20:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUCABNv
+	id S262213AbUCABXp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 20:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUCABXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 20:13:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5821 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262214AbUCABNr (ORCPT
+	Sun, 29 Feb 2004 20:23:45 -0500
+Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:15250 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262213AbUCABXk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 20:13:47 -0500
-Date: Sun, 29 Feb 2004 17:14:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org, Nikita@Namesys.COM
-Subject: Re: 2.6.4-rc1-mm1
-Message-Id: <20040229171452.2e209835.akpm@osdl.org>
-In-Reply-To: <40428B95.1000600@cyberone.com.au>
-References: <20040229140617.64645e80.akpm@osdl.org>
-	<40428B95.1000600@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Feb 2004 20:23:40 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: kernbench v0.30
+Date: Mon, 1 Mar 2004 12:23:25 +1100
+User-Agent: KMail/1.6
+Cc: Cliff White <cliffw@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403011223.31059.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> I had one addition which is to use a "refill_counter" for inactive
->  list scanning as well so the scanning is batched up now that we don't
->  round up the amount to be done. No observed benefits, but I imagine
->  it would lower the acquisition frequency of the lru locks in some
->  cases?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Might do, yes.
+Kernbench v0.30
 
-Also I think you did some work on the inactive-vs-active list balancing?  I
-have spent precisely zero time looking at or working on that since
-2.5.nothing and it's entirely possible that it is doing something
-inappropriate.
+http://ck.kolivas.org/kernbench/
 
->  Should I start testing again, or are you still doing more to vmscan?
+Changelog:
+v0.30 Added fast run option which bypasses caching, warmup and tree 
+	preparation and drops number of runs to 3. Modified half loads to 
+	detect -j2 and change to -j3. Added syncs. Improved warnings and 
+	messages. 
 
-Now would be a good time.  The only thing I'm likely to look at in the next
-several days is accounting for the slab fragmentation.  My current thinking
-is to solve that by making slab account for the number of objects and the
-number of pages, and to use that in shrink_dcache_memory(), so it doesn't
-touch vmscan.c at all.
 
->  Nikita's dont-rotate-active-list.patch looks to be the only major
->  casualty. I found this patch pretty important, so I will definitely
->  like to demonstrate its benefits. One question remains, would you
->  accept the patch in its current form?
+What is this?
 
-We should bring that back for testing, please.  I need to sit down and
-think a bit more about test suites which replicate workloads which we care
-about before making any decisions.
+This is a cpu throughput benchmark originally devised and used by Martin J.
+Bligh. It is designed to compare kernels on the same machine, or to compare
+hardware. To compare hardware you need to be running the same architecture
+machines (eg i386) and run kernbench on the same kernel source tree.
 
-One point I would make is that if a workload is only achieving 5% CPU
-anyway, we shouldn't optimise for it.  Sure, it's nice to be able to get it
-up to 7% but it is much more important to get the 50% CPU workload up to
-70%.  The 5% problem is a fiscal one, not an engineering one ;)
+It runs a kernel at various numbers of concurrent jobs: 1/2 number of cpus, 
+optimal (default is 4xnumber of cpus) and maximal job count. Optionally it can
+also run single threaded. It then prints out a number of useful statistics
+for the average of each group of runs.
 
+You need at least 2Gb of ram for this to be a true throughput benchmark or 
+else you will get swapstorms.
+
+Ideally it should be run in single user mode on a non-journalled filesystem.
+To compare results it should always be run in the same kernel tree.
+
+
+How do I use it?
+
+You need a kernel tree (any will do) and the applications 'time' and 'awk' 
+installed. 'time' is different to the builtin time used by BASH and has more
+features desired for this benchmark.
+ 
+Simply cd into the kernel tree directory and type
+
+/path/to/kernbench
+
+
+Options
+
+kernbench [-n runs] [-o jobs] [-s] [-H] [-O] [-M] [-h] [-v]
+n : number of times to perform benchmark (default 5)
+o : number of jobs for optimal run (default 4 * cpu)
+s : perform single threaded runs (default don't)
+H : don't perform half load runs (default do)
+O : don't perform optimal load runs (default do)
+M : don't perform maximal load runs (default do)
+f : fast run
+h : print this help
+v : print version number
+
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAQpCPZUg7+tp6mRURAgvfAJ4lyrnuOns0NSvCY9usWnnhiv2ZpQCbBI04
+zvd+1jYdtTwFatWBUEuoERI=
+=Eq2l
+-----END PGP SIGNATURE-----

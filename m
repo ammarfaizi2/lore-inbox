@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315427AbSG2Lmh>; Mon, 29 Jul 2002 07:42:37 -0400
+	id <S315430AbSG2LpV>; Mon, 29 Jul 2002 07:45:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315430AbSG2Lmh>; Mon, 29 Jul 2002 07:42:37 -0400
-Received: from pat.uio.no ([129.240.130.16]:8182 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315427AbSG2Lmf>;
-	Mon, 29 Jul 2002 07:42:35 -0400
-To: Jan Hudec <bulb@ucw.cz>
-Cc: linux-fsdevel@vger.kerner.org, linux-kernel@vger.kernel.org
-Subject: Re: Race in open(O_CREAT|O_EXCL) and network filesystem
-References: <20020728165256.GA4631@vagabond>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 29 Jul 2002 13:45:52 +0200
-In-Reply-To: <20020728165256.GA4631@vagabond>
-Message-ID: <shsk7nezrin.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S315437AbSG2LpU>; Mon, 29 Jul 2002 07:45:20 -0400
+Received: from pD952AB8F.dip.t-dialin.net ([217.82.171.143]:5505 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315430AbSG2LpU>; Mon, 29 Jul 2002 07:45:20 -0400
+Date: Mon, 29 Jul 2002 05:48:35 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Federico Ferreres <fferreres@ojf.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <1027714551.961.61.camel@fede>
+Message-ID: <Pine.LNX.4.44.0207290548070.18044-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jan Hudec <bulb@ucw.cz> writes:
+Hi,
 
-     > Hi all, maybe I'm blind, but I think there is a race featuring
-     > open(O_CREAT|O_EXCL) and nfs or any other network fs.
+On 26 Jul 2002, Federico Ferreres wrote:
+> Idea 5: You are a student and as such are granted a free membership
+> until you finish your studies.
 
-     > 1) Is there some reason this can't happen that I overlooked?
+...will certainly kick most of the payers.
 
-No. It can indeed happen, and it is one of my pet peeves in the
-current open_namei() layout. The VFS seems all too often to assume
-that a semaphore suffices to ensure atomicity. This is obviously not
-the case for networked filesystems.
+			Thunder
 
-     > 2) If it is a problem (comment in NFS suggest so), I can see
-     >    two ways of
-     > handling this. Either pass the flags to the create method, or
-     > restart the open when create returns EEXISTS. Which one would
-     > be prefered?
-
-I'd rather like to see some method by which we could merge the
-lookup() and create() calls.
-
-Given its support for exclusive create, there is no reason why we
-should be doing the lookup in the first place on NFSv3. It's just a
-waste of an RPC call...
-IIRC, the NFSv4 client actually has to work around the whole
-open_namei() thingy with a new 'open()' method in order to conform to
-the RFCs.
-
-The minimum change I'd need, though, is for vfs_create() to actually
-pass me the O_EXCL flag.
-
-Cheers,
-  Trond

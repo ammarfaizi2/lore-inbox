@@ -1,76 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbUKALFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbUKALFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbUKALFw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 06:05:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUKALFw
+	id S261755AbUKALFf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 06:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUKALFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 06:05:52 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:3783 "HELO koto.vergenet.net")
-	by vger.kernel.org with SMTP id S261754AbUKALFc (ORCPT
+	Mon, 1 Nov 2004 06:05:11 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:63837 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261377AbUKALFF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 06:05:32 -0500
-Date: Mon, 1 Nov 2004 20:05:22 +0900
-From: Horms <horms@verge.net.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Siep Kroonenberg <siepo@cybercomm.nl>, 278068@bugs.debian.org
-Subject: Re: chmod messes up permissions on hfs filesystem
-Message-ID: <20041101110516.GA13658@verge.net.au>
-References: <20041101043559.GA12500@verge.net.au>
+	Mon, 1 Nov 2004 06:05:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=XLvyCb+V5GGd4MJi1//h785rZ9q5G6UMhyoleP7iQFu9nA8eZpuGt29KklzWemV3bTYy0IKl/CXyOcdeD7oU8GJXOSmMiPS5on3mV9LMKM7mExZBHz8QMaQdCmxB15dIH2OE3SVo0n8nS2V3c4vav7hJICs0+4cmiG9eugeT6C8=
+Message-ID: <cb62342b04110103057dc7dff0@mail.gmail.com>
+Date: Mon, 1 Nov 2004 12:05:04 +0100
+From: Carlos Vidal <yorugua@gmail.com>
+Reply-To: carlos@tarkus.se
+To: linux-kernel@vger.kernel.org
+Subject: spinlock_t typedef visibility and uninitialized spinlock
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041101043559.GA12500@verge.net.au>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 01:35:59PM +0900, Horms wrote:
-> On Sun, Oct 24, 2004 at 05:21:44PM +0200, Siep Kroonenberg wrote:
-> > Package: kernel-image-2.6.8-powerpc Version: 2.6.8-6 Severity: normal
-> > 
-> > 
-> > chmod commands on files on hfs partitions tend to give weird results,
-> > e.g.:
-> > 
-> > original: -rw-r--r-- 
-> > after chmod g+w: 
-> > -----w--w- 
-> > after chmod g-w:
-> > ---------- 
-> > after unmounting and remounting the partition: 
-> > -r--r--r--
-> > 
-> > I assume this is kernel-related, since with a 2.4 kernel, chmod
-> > commands mostly got ignored on this hfs partition. Anyhow, the
-> > maintainer of coreutils doesn't consider this a problem with chmod.
-> 
-> That is very strange indeed. I have sent this on to LKML so see if he has
-> any ideas.
-> 
-> From reading hfs_inode_setattr() in fs/hfs/inode.c I observe that, it
-> only honours changes for the write flag, and it changes the global,
-> group and user flag simultaneously. I guess HFS only has one permission
-> flag, write, which can be on or off. The relevant code in the hfs tree
-> doesn't seem to have changed for many moons, so either it has always
-> been broken in 2.6 or something strange has happened elsewhere. 
-> 
-> In any case the behaviuor describe above is weird and should work
-> more along the lines of. 
-> 
-> -rw-r--r--
-> after chmod g+w:
-> -rw-rw-rw-
-> after chmod g-w:
-> -r--r--r--
-> after unmounting and remounting the partition:
-> -r--r--r--
+I'm porting CIPE 1.6.0 kernel module to Kernel 2.6.8 and had problems
+with "spin_is_locked on uninitialized spinlock".
 
-I took a closer look into this and it seems to be caused by completely
-bogus handling of the umask and dirmask of the fs which is set
-at mount time and supposed to control the default permisions of files.
-I am working on a patch to resolve this.
+After tracing the problem I found that the spinlock_t structure is not
+visible to the module code. A 'gcc -E' yields:
+     typedef struct { } spinlock_t;
 
--- 
-Horms
+In spinlock.h, this declaration is inside a #ifdef
+CONFIG_DEBUG_SPINLOCK block, so it becomes visible only
+CONFIG_DEBUG_SPINLOCK is 'y'.
+
+If I turn CONFIG_DEBUG_SPINLOCK on, the module loads nicely. Otherwise
+I get a nasty error in syslog and sometimes a system crash, as if in
+CIPE the struct was not allocated (what is the case if the compiler
+uses the typedef as it is above).
+
+The question is: is this a bug or a feature? ;-)
+
+Should the declaration be out of the #ifdef CONFIG_DEBUG_SPINLOCK? Or
+should I use a special compiler flag?
+
+Carlos

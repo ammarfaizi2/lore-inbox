@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316797AbSE3SP6>; Thu, 30 May 2002 14:15:58 -0400
+	id <S316799AbSE3Sh2>; Thu, 30 May 2002 14:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316798AbSE3SP5>; Thu, 30 May 2002 14:15:57 -0400
-Received: from ns.crrstv.net ([209.128.25.4]:21147 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S316797AbSE3SPz>;
-	Thu, 30 May 2002 14:15:55 -0400
-Date: Thu, 30 May 2002 15:16:28 -0300
-From: "skidley" <skidley@crrstv.net>
+	id <S316820AbSE3Sh1>; Thu, 30 May 2002 14:37:27 -0400
+Received: from pool-151-196-236-146.balt.east.verizon.net ([151.196.236.146]:61863
+	"EHLO starbug.reddwarf") by vger.kernel.org with ESMTP
+	id <S316799AbSE3Sh1>; Thu, 30 May 2002 14:37:27 -0400
+Message-ID: <3CF6723E.3020502@dlister.net>
+Date: Thu, 30 May 2002 14:41:02 -0400
+From: Brian Davids <dlister@dlister.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020513 Netscape/7.0b1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre9-ac2
-Message-ID: <20020530181628.GA8190@crrstv.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
+CC: Michail Rusinov <one@da.ru>
+Subject: Re: PROBLEM: NVidia drivers with 2.5 kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get following errors in 2.4.19-pre9-ac2, please let me know if any 
-other info is needed,
+  > Is there any method to compile NVidia drivers with linux kernel
+  > 2.5.18?
+  > When I begin to compile them, they write
+  > "error This driver does not support 2.5.x development kernels!"
+  > Is there any solution to make it work?
 
-agpgart_be.c: In function `agp_generic_agp_enable':
-agpgart_be.c:400: warning: unused variable `cap_id'
-agpgart_be.c: In function `intel_815_configure':
-agpgart_be.c:1518: warning: passing arg 3 of `pci_write_config_dword'
-makes integer from pointer without a cast
-agpgart_be.c:1524: `INTEL_I815_APCONT' undeclared (first use in this
-function)
-agpgart_be.c:1524: (Each undeclared identifier is reported only once
-agpgart_be.c:1524: for each function it appears in.)
-agpgart_be.c: In function `agp_find_supported_device':
-agpgart_be.c:4280: warning: unused variable `scratch'
-agpgart_be.c:4280: warning: unused variable `cap_id'
-make[4]: *** [agpgart_be.o] Error 1
-make[4]: Leaving directory `/home/kernel/linux/drivers/char/agp'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/home/kernel/linux/drivers/char/agp'
-make[2]: *** [_subdir_agp] Error 2
-make[2]: Leaving directory `/home/kernel/linux/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Leaving directory `/home/kernel/linux/drivers'
-make: *** [_dir_drivers] Error 2
--- 
-*********************************
-* Chad Young                    *
-* Registered Linux User #195191 *
-*********************************
+
+There was a patch to nVidia's v.2880 drivers tested on kernel 2.5.15
+posted on May 13 which you can find here:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.1/1034.html
+
+
+
+Brian Davids
+

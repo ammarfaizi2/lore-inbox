@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317260AbSGOAWM>; Sun, 14 Jul 2002 20:22:12 -0400
+	id <S317264AbSGOAlZ>; Sun, 14 Jul 2002 20:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317262AbSGOAWL>; Sun, 14 Jul 2002 20:22:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13442 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317260AbSGOAWK>; Sun, 14 Jul 2002 20:22:10 -0400
-Date: Sun, 14 Jul 2002 20:29:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Joerg Schilling <schilling@fokus.gmd.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207141400.g6EE0brJ019110@burner.fokus.gmd.de>
-Message-ID: <Pine.LNX.3.95.1020714202607.20849A-100000@chaos.analogic.com>
+	id <S317267AbSGOAlY>; Sun, 14 Jul 2002 20:41:24 -0400
+Received: from lsanca2-ar27-4-3-064-252.lsanca2.dsl-verizon.net ([4.3.64.252]:1920
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S317264AbSGOAlX>; Sun, 14 Jul 2002 20:41:23 -0400
+Date: Sun, 14 Jul 2002 17:43:51 -0700 (PDT)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Dave Jones <davej@suse.de>
+cc: Heinz Diehl <hd@cavy.de>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
+       <andre@linux-ide.org>
+Subject: Re: Linux 2.5.25-dj2
+In-Reply-To: <Pine.LNX.4.44.0207141716590.3174-100000@barbarella.hawaga.org.uk>
+Message-ID: <Pine.LNX.4.44.0207141740460.2865-100000@barbarella.hawaga.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002, Joerg Schilling wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> >From root@chaos.analogic.com Fri Jul 12 22:18:47 2002
-> 
-> >As much as I hate IDE, IDE isn't going away. All my systems use SCSI
-> >so on machines that have CD/ROMS, I use your libraries and your tools.
-> 
-> >Maybe somebody should make CD/ROM code that directly talks to IDE via
-> >/dev/hdwhatever, instead of expecting you to modify your code that
-> >has worked so well for so long.
-> 
-> This would be a really bad idea.
-> 
-> Such a change would force me to add a 6th (and unneeded) new interface.
-> Why? What problem would be solved if you did introduce such an interface?
-> 
+On Sun, 14 Jul 2002, Ben Clifford wrote:
 
-Well for one thing it eliminates the requirement to
-include SCSI interface code on machines that don't
-have SCSI. That's the practical aspect.
+> >>EIP; d08ff420 <[ide-cd]ll_10byte_cmd_build+0/d0>   <=====
 
-Now, the esoteric. Do you truly think that it is
-proper to encapsulate devices in various layers?
+ide-cd.o is loaded at boot, and I have been manually unloading it before 
+attempting to modprobe ide-scsi24.
 
-The IDE interface, if it wasn't for the bug-workarounds,
-is just a floppy disk interface that uses a different
-controller chip. It is register-based, not message-
-based. If you throw in a message-based control layer
-(SCSI), what problems are you solving? It's a
-rhetorical question. No answer is required.
+So I rm'd the ide-cd.o from my modules directory as an easy way to stop it 
+ever being loaded and I can modprobe ide-scsi24 without the oops 
+happening.
 
-Like I said before, your stuff works great. I use
-it because I use SCSI. Somebody needs to write some
-CD access code for IDE drives because they are not
-going away. Maybe that 'somebody' is not you. You
-certainly don't want to mess up good working code.
+I am attempting to rerecord a CD-RW at the moment to see if it works
+properly - it is in the blanking stage at the moment and appears to be 
+ok...
 
-But I, for one, would feel a bit better about the
-future IDE/CDROM code if you wrote it.
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+http://www.hawaga.org.uk/ben/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+iD8DBQE9MhrKsYXoezDwaVARAtQDAJ0RCg3YDcWVtWICxscA18KaWXr3ogCcDDpe
+cbnDZdbOtWSgIdVtrnBFj1U=
+=KK1q
+-----END PGP SIGNATURE-----
 

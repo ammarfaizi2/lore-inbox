@@ -1,55 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262255AbUBXO05 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 09:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUBXO05
+	id S262256AbUBXOjv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 09:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262258AbUBXOjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 09:26:57 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:8976 "EHLO
-	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S262255AbUBXO0x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 09:26:53 -0500
-Date: Tue, 24 Feb 2004 09:26:50 -0500 (EST)
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: network / performance problems
-In-Reply-To: <Pine.OSF.4.21.0402232326560.192063-100000@mhc.mtholyoke.edu>
-Message-ID: <Pine.OSF.4.21.0402240922280.430603-100000@mhc.mtholyoke.edu>
+	Tue, 24 Feb 2004 09:39:51 -0500
+Received: from vsmtp1alice.tin.it ([212.216.176.141]:54511 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S262256AbUBXOjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 09:39:46 -0500
+Message-ID: <403B7402.2000008@universitari.crocetta.org>
+Date: Tue, 24 Feb 2004 15:55:46 +0000
+From: Alessandro Salvatori <a.salvatori@universitari.crocetta.org>
+Reply-To: sandr8@crocetta.org
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040221)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gautam Pagedar <gautam@cins.unipune.ernet.in>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can i modify ls
+References: <005601c3fd75$1c681510$8c01080a@crayii>
+In-Reply-To: <005601c3fd75$1c681510$8c01080a@crayii>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+a directory is a file. it has got its own rights, that are rights 
+referred to that particular file. maybe you should not allow people to 
+use ls and make them use your own ls_patched but they still could give a 
+"echo *" command which would be expanded by bash or other shells... 
+so... what could you do with that? are you going to patch any shell you 
+give access to?
+let me know, it's quite interesting...
+cheers
+Alessandro Salvatori
 
-On Mon, 23 Feb 2004, Ron Peterson wrote:
-> On Mon, 23 Feb 2004, Ron Peterson wrote:
-> > 
-> > more graphs, and more graphs.
-> > 
-> > http://depot.mtholyoke.edu:8080/tmp/must-mhc/2002-02-23_17:00/
-> 
-> ...and another graph to follow up.  Same setup, but now running
-> 2.4.20.  Looks much better.
-> 
-> http://depot.mtholyoke.edu:8080/tmp/must-mhc/2002-02-23_23:00/
+Gautam Pagedar wrote:
 
-And a follow up to the follow up.  Things have stabilized long enough now
-that the trend appears real.
-
-http://depot.mtholyoke.edu:8080/tmp/must-mhc/2002-02-24_8:40/
-
-Was it Mark Twain who said that interpolation is like standing on the
-south side of a cliff and walking north because the ground has been flat
-so far?
-
-I've also added some graphs of must monitoring mist (which is the machine
-I actually care about the most right now).  Mist ping latencies are
-predictably on the upswing again.  I'll likely be rebooting soon.
-
-http://depot.mtholyoke.edu:8080/tmp/must-mist/2002-02-24_8:40/
-
-_________________________
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
+>Hello Everyboy.
+>   i am new to this mailing list, so please bear with me if i don't follow
+>certain rules till i get used to it.  I am a research student and currently
+>working on a project to tweak the working of 'ls' command depending on my
+>requirement. I have observed that 'ls' show ALL THE FILES and DIRECTORIES in
+>a particular location even though a user has no access rights to it. I want
+>to hide all
+>such files for that particular user.
+>
+>The Algorithm i beleive should work like this when an 'ls' command is
+>called.
+>
+>1. Check the current directory.
+>2. Extract the files or directory to be displayed.
+>3. Check the user permissions for these files.
+>4. Display only those files wher user had either read, write or execute
+>access for all owner,group and others.
+>
+>I have found out that 'ls' uses getdents64() system call for gathering the
+>directory information. How do i move ahead from here.
+>
+>Regards,
+>Gautam Pagedar
+>Centre for Information and Network Security
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 

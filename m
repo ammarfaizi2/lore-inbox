@@ -1,66 +1,94 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317378AbSFCLgJ>; Mon, 3 Jun 2002 07:36:09 -0400
+	id <S317381AbSFCMFA>; Mon, 3 Jun 2002 08:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317377AbSFCLgJ>; Mon, 3 Jun 2002 07:36:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14793 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317378AbSFCLgH>;
-	Mon, 3 Jun 2002 07:36:07 -0400
-Date: Mon, 3 Jun 2002 13:35:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend.c: This is broken, fixme
-Message-ID: <20020603113548.GB21035@suse.de>
-In-Reply-To: <20020603095507.GA3030@elf.ucw.cz> <20020603110816.GI820@suse.de> <20020603113221.GA17228@atrey.karlin.mff.cuni.cz>
+	id <S317382AbSFCME7>; Mon, 3 Jun 2002 08:04:59 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34536 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317381AbSFCME6>;
+	Mon, 3 Jun 2002 08:04:58 -0400
+Date: Mon, 3 Jun 2002 17:38:10 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Robert Love <rml@tech9.net>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
+Message-ID: <20020603173810.A8437@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <1022600998.20317.44.camel@sinai>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03 2002, Pavel Machek wrote:
-> Hi!
-> 
-> > > @@ -300,7 +301,8 @@
-> > >  static void do_suspend_sync(void)
-> > >  {
-> > >         while (1) {
-> > > -               run_task_queue(&tq_disk);
-> > > +               blk_run_queues();
-> > > +#error this is broken, FIXME
-> > >                 if (!TQ_ACTIVE(tq_disk))
-> > >                         break;
-> > > 
-> > > . Why is it broken?
-> > 
-> > Hey, I even cc'ed you on the patch when it went to Linus... Lets
-> > look at
-> 
-> Okay; I thought I corrected it in the meantime, that's why I got confused.
-> 
-> > what happened before: run tq_disk, then check if it is active. What
-> > prevents tq_disk from being active right after you issue the TQ_ACTIVE
-> > check? Nothing. And I'm not sure exactly what semantics you think
-> > running tq_disk has. I suspect you are looking for a 'start any pending
-> > i/o and return when it has completed', which is far from what happens.
-> > Running tq_disk will _try_ to start _some_ I/O, and eventually, in time,
-> > the currently pending requests will have completed. In the mean time,
-> > more I/O could have been added though.
-> 
-> I'm alone at the system at that point. All user tasks are stopped and
-> I'm only thread running. There's noone that could submit requests at
-> that point.
+On Tue, May 28, 2002 at 08:49:58AM -0700, Robert Love wrote:
+> I agree the numbers posted are nice, but I remain skeptical like Linus. 
+> Sure, the locking overhead is nearly gone in the profiled function where
+> RCU is used.  But the overhead has just been _moved_ to wherever the RCU
+> work is now done.  Any benchmark needs to include the damage done there,
+> too.
 
-Ok, then at least the very last point I made can be disregarded.
-However... ->
+Hi Robert,
 
-> In such case, killing #error is right solution, right?
+I did a crude analysis of RCU overhead for rt_rcu-2.5.3-1.patch
+and the corresponding RCU infrastructure patch rcu_ltimer-2.5.3-1.patch.
+(http://prdownloads.sourceforge.net/lse/rcu_ltimer-2.5.3-1.patch).
+The rcu_ltimer patch uses the local timer interrupt handler to check
+if there is any RCU pending for that that CPU. The 
+smp_local_timer_interrupt() routine is never counted for profiling,
+but it happens every 10ms and the RCU overhead is limited
+to checking a few CPU-local things and scheduling the per-CPU
+RCU tasklet. The rest of the RCU code is entirely in rcupdate.c
+and were measured in kernel profiling.
 
-Not at all. The tq_disk/blk_run_queues() semantics are the same, they
-will only start i/o (which may not even be right when you run it) and
-that is it. When all i/o is completed is not known.
+Here is an analysis of what we can measure -
 
+1. rt_rcu with neighbor table garbage collection threshold increased
+   prevent frequent overflow (due to random dest addresses).
+   (8-1-32-gc31048576gcint60 configuration in earlier published results).
+
+
+Function                              2.5.3              rt_rcu-2.5.3
+--------                              ------             ------------
+ip_route_output_key [c0214470]:        4486                2026
+
+call_rcu [c0125f40]:                   N/A                 11
+rcu_process_callbacks [c01261d0]:      N/A                 4
+rcu_invoke_callbacks [c0125fc0]:       N/A                 4
+
+So with infrequent updates, clearly RCU overheads are practically
+negligible.
+
+
+2. rt_rcu with frequent neighbor table overflow (due to random dest addresses)
+   (8-1-32 configuration in earlier published results).
+
+
+Function                              2.5.3              rt_rcu-2.5.3
+--------                              ------             ------------
+ip_route_output_key [c0214470]:       2358                 1646
+
+call_rcu [c0125f40]:                  N/A                  262
+rcu_invoke_callbacks [c0125fc0]:      N/A                  57
+rcu_process_callbacks [c01261d0]:     N/A                  49
+rcu_check_quiescent_state [c0126030]: N/A                  27
+rcu_check_callbacks [c01260d0]:       N/A                  24
+rcu_reg_batch [c0125ff0]:             N/A                  3
+
+This shows that with very frequent RCU updates, the real gains
+made in ip_route_output_key() is less but still outweighs RCU overhead. 
+I suspect that such frequent update is not a common occurrence, but Davem
+can confirm that.
+
+The bottom line is that RCU overhead is tolerable where we know that
+updates are not going to be frequent. Also different RCU
+algorithms are likely to have different overheads. We will
+present analysis for these algorithms as we go along.
+
+Thanks
 -- 
-Jens Axboe
-
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

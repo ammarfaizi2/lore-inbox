@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282832AbRK0HQc>; Tue, 27 Nov 2001 02:16:32 -0500
+	id <S282838AbRK0HRc>; Tue, 27 Nov 2001 02:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282833AbRK0HQN>; Tue, 27 Nov 2001 02:16:13 -0500
-Received: from ns.suse.de ([213.95.15.193]:63759 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282832AbRK0HQE>;
-	Tue, 27 Nov 2001 02:16:04 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: Re: Fix knfsd readahead cache in 2.4.15
-In-Reply-To: <15362.18626.303009.379772@charged.uio.no.suse.lists.linux.kernel> <15362.53694.192797.275363@esther.cse.unsw.edu.au.suse.lists.linux.kernel> <20011126.155347.45872112.davem@redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Nov 2001 08:16:03 +0100
-In-Reply-To: "David S. Miller"'s message of "27 Nov 2001 00:58:40 +0100"
-Message-ID: <p73r8qksmz0.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S282836AbRK0HRX>; Tue, 27 Nov 2001 02:17:23 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7175 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282833AbRK0HRO>; Tue, 27 Nov 2001 02:17:14 -0500
+Message-ID: <3C033DDE.5090400@zytor.com>
+Date: Mon, 26 Nov 2001 23:16:46 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Nathan Myers <ncm-nospam@cantrip.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] omnibus header cleanup, certification
+In-Reply-To: <20011127061714.A41881@cantrip.org> <3C03315C.5060203@zytor.com> <20011127071420.A45036@cantrip.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+Nathan Myers wrote:
+
 > 
-> There are other problems remaining, this function is a logical
-> mess.
+> Not true, in principle.  E.g.
+> 
+>   #define foo -1
+>   ...
+>   char f(char* a) { return foo[a]; }  // -a[1] or a[-1]?
+> 
+> Such an expression should, of course, be taken out and shot (although
+> it's far less bad than "(x = x++ % y)" that appeared in a macro until
+> very recently).  
+> 
 
-It is also broken by design. It forces file systems that need more
-state to maintain read/write ahead to maintain their own cache (e.g. XFS
-which needs to cache extent allocations) 
-Better would be to just fix nfsd to cache open file handles, then all
-this mess would be done by the VFS. In addition it would be faster
-because it wouldn't need to execute an "open()" for every rpc operation.
 
--Andi
+OK, you win :)
+
+	-=hpa
+

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129157AbQKNBVr>; Mon, 13 Nov 2000 20:21:47 -0500
+	id <S129227AbQKNB26>; Mon, 13 Nov 2000 20:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129227AbQKNBVi>; Mon, 13 Nov 2000 20:21:38 -0500
-Received: from h00059aa0e40d.ne.mediaone.net ([24.91.9.69]:22267 "EHLO
-	piglet.larsshack.org") by vger.kernel.org with ESMTP
-	id <S129157AbQKNBV1>; Mon, 13 Nov 2000 20:21:27 -0500
-Date: Mon, 13 Nov 2000 20:33:14 -0500 (EST)
-From: Lars Kellogg-Stedman <lars@larsshack.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Whither sparc bugs?
-Message-ID: <Pine.LNX.4.21.0011132030470.1802-100000@piglet.larsshack.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129434AbQKNB2s>; Mon, 13 Nov 2000 20:28:48 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:23494 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129227AbQKNB2g>;
+	Mon, 13 Nov 2000 20:28:36 -0500
+Date: Tue, 14 Nov 2000 01:58:34 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: LA Walsh <law@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: IDE0 /dev/hda performance hit in 2217 on my HW - more info - maybe extended partitions
+Message-ID: <20001114015834.A24158@veritas.com>
+In-Reply-To: <00111322024100.20267@dax.joh.cam.ac.uk> <NBBBJGOOMDFADJDGDCPHCEJECJAA.law@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHCEJECJAA.law@sgi.com>; from law@sgi.com on Mon, Nov 13, 2000 at 03:47:27PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently run into what look like some kernel bugs in the 2.2.17
-kernel (on a sparcstation 2 (sun4c) and a javasation (sun4m)).  I've
-posted them to the sparclinux mailing list, but I was wondering if there
-was somewhere else (e.g., here) that I should send them.
+On Mon, Nov 13, 2000 at 03:47:27PM -0800, LA Walsh wrote:
 
-Thanks,
+> Some further information in response to a private email, I did hdparm -ti
+> under both
+> 2216 and 2217 -- they are identical -- this may be something weird
+> w/extended partitions...
 
-  -- Lars
+What nonsense. There is nothing special with extended partitions.
+Partitions influence the logical view on the disk, but not I/O.
 
+(But the outer rim of a disk is faster than the inner side.)
 
+Moreover, you report elapsed times
+0:27, 0:22, 0:24, 0:28, 0:21, 0:24, 0:27
+where is this performance hit?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

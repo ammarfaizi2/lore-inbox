@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVA1AUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVA1AUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVA1AUh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 19:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVA1AU3
+	id S261353AbVA1AUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 19:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVA1ATz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 19:20:29 -0500
-Received: from khc.piap.pl ([195.187.100.11]:27652 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S261344AbVA1ARD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 19:17:03 -0500
-To: Zan Lynx <zlynx@acm.org>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, Bill Davidsen <davidsen@tmr.com>,
-       linux-os <linux-os@analogic.com>,
-       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
-       Linus Torvalds <torvalds@osdl.org>, Valdis.Kletnieks@vt.edu,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <Pine.LNX.3.96.1050126143205.24013A-100000@gatekeeper.tmr.com>
-	<05012710374600.20895@tabby> <1106846314.15927.6.camel@localhost>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 28 Jan 2005 01:15:45 +0100
-In-Reply-To: <1106846314.15927.6.camel@localhost> (Zan Lynx's message of
- "Thu, 27 Jan 2005 10:18:34 -0700")
-Message-ID: <m3oefal87i.fsf@defiant.localdomain>
+	Thu, 27 Jan 2005 19:19:55 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:5581 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S261347AbVA1AS3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 19:18:29 -0500
+Message-ID: <41F984D4.5030306@verizon.net>
+Date: Thu, 27 Jan 2005 19:18:28 -0500
+From: Mark Studebaker <mds4@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030420
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Corey Minyard <minyard@acm.org>
+CC: Sensors <sensors@Stimpy.netroedge.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Adding an async I2C interface
+References: <41F50E9D.3050702@acm.org>
+In-Reply-To: <41F50E9D.3050702@acm.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [4.4.166.144] at Thu, 27 Jan 2005 18:18:28 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zan Lynx <zlynx@acm.org> writes:
+is there a way to do this solely in i2c-core without having to
+add support to all the drivers?
 
-> In the reality I'm familiar with, the defense contractor's secure
-> projects building had one entrance, guarded by security guards who were
-> not cheap $10/hr guys, with strict instructions.  No computers or
-> computer media were allowed to leave the building except with written
-> authorization of a corporate officer.
+Corey Minyard wrote:
+> I have an IPMI interface driver that sits on top of the I2C code.  I'd
+> like to get it into the mainstream kernel, but I have a few problems
+> to solve first before I can do that.  The I2C code is synchronous and
+> must run from a task context.  The IPMI driver has certain
+> operations that occur at panic time, including:
+> 
+>   * Storing panic information in IPMI's system event log
+>   * Extending the watchdog timer so it doesn't go off during panic
+>     operations (like kernel coredumps).
+>   * Powering the system off
+> 
+> I can't really put the IPMI SMB interface into the kernel until I can
+> do those operations.  Also, I understand that some vendors put RTC
+> chips onto the I2C bus and this must be accessed outside task context,
+> too.  I would really like add asynchronous interface to the I2C bus
+> drivers.  I propose:
+> 
+>   * Adding an async send interface to the busses that does a callback
+>     when the operation is complete.
+>   * Adding a poll interface to the busses.  The I2C core code could
+>     call this if a synchronous call is made from task context (much
+>     like all the current drivers do right now).  For asyncronous
+>     operation, the I2C core code would call it from a timer
+>     interrupt.  If the driver supported interrupts, polling from the
+>     timer interrupt would not be necessary.
+>   * Add async operations for the user to call, including access to the
+>     polling code.
+>   * If the driver didn't support an async send, it would work as it
+>     does today and the async calls would return ENOSYS.
+> 
+> This way, the bus drivers on I2C could be converted on a
+> driver-by-driver basis.  The IPMI code could query to see if the
+> driver supported async operations.  And the RTC code could use it,
+> too.
+> 
+> Is this ok with the I2C community?  I would do the base work and
+> convert over a few drivers.
+> 
+> Thanks,
+> 
+> -Corey
+> 
+> 
 
-Wow, nice. How do they check for, say, Compact Flashes or, for example,
-even smaller XD-picture cards?
--- 
-Krzysztof Halasa

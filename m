@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315267AbSIIITE>; Mon, 9 Sep 2002 04:19:04 -0400
+	id <S316601AbSIIITR>; Mon, 9 Sep 2002 04:19:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSIIITE>; Mon, 9 Sep 2002 04:19:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7069 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315267AbSIIITD>;
-	Mon, 9 Sep 2002 04:19:03 -0400
-Date: Mon, 09 Sep 2002 01:15:39 -0700 (PDT)
-Message-Id: <20020909.011539.122194350.davem@redhat.com>
+	id <S316610AbSIIITR>; Mon, 9 Sep 2002 04:19:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9373 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316601AbSIIITP>;
+	Mon, 9 Sep 2002 04:19:15 -0400
+Date: Mon, 09 Sep 2002 01:16:21 -0700 (PDT)
+Message-Id: <20020909.011621.71920880.davem@redhat.com>
 To: rusty@rustcorp.com.au
-Cc: pavel@suse.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       akpm@zip.com.au
-Subject: Re: [PATCH] Important per-cpu fix. 
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Important per-cpu fix.
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020909081754.EC8382C09D@lists.samba.org>
-References: <20020908.231304.30400540.davem@redhat.com>
-	<20020909081754.EC8382C09D@lists.samba.org>
+In-Reply-To: <20020909180619.7934b455.rusty@rustcorp.com.au>
+References: <20020904042036.816A62C1B6@lists.samba.org>
+	<al43it$mel$1@cesium.transmeta.com>
+	<20020909180619.7934b455.rusty@rustcorp.com.au>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -24,30 +24,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
    From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Mon, 09 Sep 2002 18:17:22 +1000
+   Date: Mon, 9 Sep 2002 18:06:19 +1000
 
-   In message <20020908.231304.30400540.davem@redhat.com> you write:
-   I'm not making an interface harder to use because of one of 17
-   architectures refuses to fix a bug in their toolchain.
-
-It's not a sparc64 specific problem, as has been noted.
-We are extended the life of an older toolchain on more than
-one platform.
+   On 3 Sep 2002 21:52:45 -0700
+   "H. Peter Anvin" <hpa@zytor.com> wrote:
    
-Note that Andrew Morton found the problem on one of his older
-x86 EGCS's about the same time I found it on sparc64.
-
-   I want *you* to feel the pain, not spread it around by leaving turds
-   throughout the code long after the bug is forgotten:
+   > gcc puts all uninitialized variables in .bss, and it apparently can't
+   > be overridden.  This seems to be a side effect of the way gcc handles
+   > common variables.
    
-Aha, but it is you putting the turd comments all over.  I'm
-suggesting to put the turd in one place, the header file.
-
-And how difficult is it to discern which initializers were
-needed?  Hmmm let me see, if it was all zero --> removing it
-is harmless.
-
-Wow, that was hard. :-)
-
-Both of us are advocating adding shit to the tree, the only argument
-is which stinks less from a maintainence perspective.
+   Err... no, as I said, it doesn't happen with 2.95.4 or 3.0.4.
+   
+But note that older GCCs do have the problem and it isn't platform
+specific at all.

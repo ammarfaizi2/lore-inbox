@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270734AbUJUUwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270743AbUJUU4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270734AbUJUUwI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 16:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270418AbUJUUsv
+	id S270743AbUJUU4x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 16:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270824AbUJUUxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 16:48:51 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:45015 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S270734AbUJUUsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 16:48:38 -0400
-Subject: Re: Linux 2.6.9-ac2
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0410212046250.9699@yvahk01.tjqt.qr>
-References: <1098379853.17095.160.camel@localhost.localdomain>
-	 <Pine.LNX.4.53.0410212046250.9699@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Message-Id: <1098391389.3792.1.camel@krustophenia.net>
+	Thu, 21 Oct 2004 16:53:13 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:25092 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S270809AbUJUUuE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 16:50:04 -0400
+Date: Thu, 21 Oct 2004 13:49:39 -0700
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Jens Axboe <axboe@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021204939.GA25190@nietzsche.lynx.com>
+References: <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 16:43:09 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041021203821.GA24628@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 14:47, Jan Engelhardt wrote:
-> >2.6.9-ac2
-> >o	Flash lights on panic as in 2.4			(Andi Kleen)
+On Thu, Oct 21, 2004 at 01:38:21PM -0700, Bill Huey wrote:
+> On Thu, Oct 21, 2004 at 10:33:50PM +0200, Jens Axboe wrote:
+> > Linux semaphores (being counted) have always been a fine fit for things
+> > like the loop use, where you get to down it 10 times because you have 10
+> > items pending. I know this isn't the traditional mutex and that it
+> > doesn't protect data as such, but is was never abuse. It isn't overload.
+> > Doing it with a traditional mutex (I'm assuming this is what mutex_t is
+> > in Ingos tree) would be overload and a bad idea, indeed.
 > 
-> It would be cool to have the pc speaker doing a toneladder when the Kernel
-> oopses. That is (was) especially helpful when in X when the lights did not
-> flash. Might as well add to the accessibility of the kernel.
+> Well, this is something that's got to be considered by the larger Linux
+> community and whether these conventions are to be kept or removed. It's
+> a larger issue than what can be address in Ingo's preemption patch, but
+> with inevitable need for something like this in the kernel (hard RT)
+> it's really unavoidable collision. IMO, it's got to go, which is a nasty
+> change.
 
-Sometimes it's possible to continue normally after an Oops.  For months,
-even years.  This could get annoying in a data center real quick.
+But this is a non-fatal case. I'll see if I can change this logic to not
+completely die when this case is detected.
 
-Lee
+bill
 

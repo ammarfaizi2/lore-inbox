@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTCTQ4b>; Thu, 20 Mar 2003 11:56:31 -0500
+	id <S261340AbTCTQug>; Thu, 20 Mar 2003 11:50:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261452AbTCTQ4b>; Thu, 20 Mar 2003 11:56:31 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:62095 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S261427AbTCTQ4a>;
-	Thu, 20 Mar 2003 11:56:30 -0500
-Date: Thu, 20 Mar 2003 19:07:28 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Bernd Petrovitsch <bernd@gams.at>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Bottleneck on /dev/null
-Message-ID: <20030320170728.GQ29167@mea-ext.zmailer.org>
-References: <Pine.LNX.4.33.0303201720170.8831-100000@gans.physik3.uni-rostock.de> <28588.1048178012@frodo.gams.co.at> <Pine.LNX.4.53.0303201150140.4241@chaos>
+	id <S261341AbTCTQug>; Thu, 20 Mar 2003 11:50:36 -0500
+Received: from smtp-102.noc.nerim.net ([62.4.17.102]:42763 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S261340AbTCTQue>; Thu, 20 Mar 2003 11:50:34 -0500
+Date: Thu, 20 Mar 2003 18:01:34 +0100
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, alexh@ihatent.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hard freeze with 2.5.65-mm1
+Message-Id: <20030320180134.1f3e0d21.philippe.gramoulle@mmania.com>
+In-Reply-To: <20030319191536.58ea9d35.akpm@digeo.com>
+References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
+	<8765qfacaz.fsf@lapper.ihatent.com>
+	<20030319182442.4a9fa86c.philippe.gramoulle@mmania.com>
+	<877kav5ikv.fsf@lapper.ihatent.com>
+	<20030319121909.74f957af.akpm@digeo.com>
+	<20030320010319.GB1240@holomorphy.com>
+	<20030319191536.58ea9d35.akpm@digeo.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws24 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0303201150140.4241@chaos>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 12:01:06PM -0500, Richard B. Johnson wrote:
-...
-> Yes. That's better. It may have been a diagnostic error
-> in the code of the first person reporting this --also.
-> 
-> The data-rate is so high that I might have wrapped several
-> times! I didn't think it would be that high, only 2 to 3
-> gigibyte/second, not over 4 Gb/s (with 130MHz RAM no less)
 
-  Furthermore,  in Linux you are really measuring syscall overhead
-  to  "/dev/null" write,  which does never do memory transfers of
-  any kind from user-space to kernel.
+Just a side note.
 
-... 
-> Its interesting that the data-rate is higher with the network
-> plugged in and getting all those M$ broadcast messages. But, as
-> expected, its more stable without.
+I rebooted with elevator=deadline this morning and i didn't experienced any
+hard freeze since. Uptime is about 8 hours now ( both former freezes were with
+elevator=as)
 
-  Quite so.
+No xmms audio skips, very good overall feel, very good responsiveness
+(openoffice,mozilla, news feed update,etc..)
 
-> Cheers,
-> Dick Johnson
+Thanks,
 
-/Matti Aarnio
+Philippe
+
+
+On Wed, 19 Mar 2003 19:15:36 -0800
+Andrew Morton <akpm@digeo.com> wrote:
+
+  | William Lee Irwin III <wli@holomorphy.com> wrote:
+  | >
+  | > $ less /proc/16657/wchan
+  | > do_clock_nanosleep
+  | 
+  | There is a bug in do_clock_nanosleep().  I can reproduce it.  I'll fix it up
+  | later today.
+  | 
+  | -
+  | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+  | the body of a message to majordomo@vger.kernel.org
+  | More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  | Please read the FAQ at  http://www.tux.org/lkml/
+  | 

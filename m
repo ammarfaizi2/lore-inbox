@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbTIAQB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTIAQB5
+	id S262987AbTIAQC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTIAQC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:01:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41382 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262982AbTIAQBe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:01:34 -0400
-Message-ID: <3F536D52.3030204@pobox.com>
-Date: Mon, 01 Sep 2003 12:01:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paolo Ornati <javaman@katamail.com>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.22][RESEND] small config fix for ISDN
-References: <200309011554.00720.javaman@katamail.com>
-In-Reply-To: <200309011554.00720.javaman@katamail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Sep 2003 12:02:27 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:23047 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262987AbTIAQCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:02:22 -0400
+Date: Mon, 1 Sep 2003 17:02:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Larry McVoy <lm@bitmover.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, ak@suse.de
+Subject: Re: bitkeeper comments
+Message-ID: <20030901170218.A24713@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	Larry McVoy <lm@bitmover.com>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, ak@suse.de
+References: <1062389729.314.31.camel@cube> <20030901140706.GG18458@work.bitmover.com> <1062430014.314.59.camel@cube> <20030901154646.GB1327@work.bitmover.com> <20030901165658.A24661@infradead.org> <20030901155915.GC1327@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030901155915.GC1327@work.bitmover.com>; from lm@bitmover.com on Mon, Sep 01, 2003 at 08:59:15AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ornati wrote:
-> Hi,
-> 
-> trying to install modules in 2.4.22 I get this error:
-> depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/drivers/isdn/isdn.o
-> depmod: 	sk_run_filter
-> depmod: 	sk_chk_filter
-> 
-> this is the fix for drivers/isdn/Config.in, please apply:
-> 
-> --- drivers/isdn/Config.in.orig	2003-08-31 13:23:25.000000000 +0200
-> +++ drivers/isdn/Config.in	2003-08-31 13:29:31.000000000 +0200
-> @@ -8,7 +8,7 @@
->  if [ "$CONFIG_INET" != "n" ]; then
->     bool '  Support synchronous PPP' CONFIG_ISDN_PPP
->     if [ "$CONFIG_ISDN_PPP" != "n" ]; then
-> -      bool         '    PPP filtering for ISDN' CONFIG_IPPP_FILTER $CONFIG_FILTER
-> +      dep_bool     '    PPP filtering for ISDN' CONFIG_IPPP_FILTER $CONFIG_FILTER
->        bool         '    Use VJ-compression with synchronous PPP' CONFIG_ISDN_PPP_VJ
->        bool         '    Support generic MP (RFC 1717)' CONFIG_ISDN_MPP
->        dep_tristate '    Support BSD compression' CONFIG_ISDN_PPP_BSDCOMP $CONFIG_ISDN
+On Mon, Sep 01, 2003 at 08:59:15AM -0700, Larry McVoy wrote:
+> Hey, I'm not in the middle of this because I don't understand who is right
+> and it's not my place to make that call.
 
+I doesn't matter who's actually right.  If Andi was wrong Albert can
+demand a apology from him or sue him or whater (not that his name is
+actually mentioned in the message).
 
-agreed, looks good.
+But we're not going to retroactively censor commit messages.
 

@@ -1,88 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129965AbRAZWul>; Fri, 26 Jan 2001 17:50:41 -0500
+	id <S131096AbRAZXG1>; Fri, 26 Jan 2001 18:06:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131096AbRAZWuc>; Fri, 26 Jan 2001 17:50:32 -0500
-Received: from selene.cps.intel.com ([192.198.165.10]:36625 "EHLO
-	selene.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S129965AbRAZWu1>; Fri, 26 Jan 2001 17:50:27 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF8B@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Rasmus Andersen'" <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: RE: [uPATCH][Probably fucked up] arch/i386/kernel/io_apic.c: miss
-	ing extern? (241p10)
-Date: Fri, 26 Jan 2001 14:50:04 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S131201AbRAZXGR>; Fri, 26 Jan 2001 18:06:17 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:43616
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S131096AbRAZXGJ>; Fri, 26 Jan 2001 18:06:09 -0500
+Date: Sat, 27 Jan 2001 00:06:01 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [uPATCH][Probably fucked up] arch/i386/kernel/io_apic.c: missing extern? (241p10)
+Message-ID: <20010127000601.E612@jaquet.dk>
+In-Reply-To: <20010126221335.B612@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010126221335.B612@jaquet.dk>; from rasmus@jaquet.dk on Fri, Jan 26, 2001 at 10:13:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus,
-
-Yep, I noticed this during some recent ServerWorks chipset
-APIC work I have been doing.
-
-nr_ioapics is also used in arch/i386/kernel/apic.c
-(#ifdef CONFIG_X86_IO_APIC), so that should have an
-  extern int nr_ioapics;
-also.
-
-I'd prefer to see nr_ioapics live near the mp_ioapics[] array,
-in io_apic.c, and add an
-  extern int nr_ioapics;
-in mpparse.c also.
-
-And while your patch will compile without syntax errors,
-it has linker errors on undefined references to 'nr_ioapics'.
-
-
-> In arch/i386/kernel we declare nr_ioapics in both io_apic.c 
-> and mpparse.c.
-
-Where is it declared in mpparse.c ?
-I don't see it.
-
-> I guess that one of them should be an 'extern' declaration? 
-> In the patch
-> below I have guessed that it is io_apic.c that is missing it 
-> since (AFAICS)
-> never assign to nr_ioapic in this file. 
-
-It's only _read_ in io_apic.c and written in mpparse.c.
-
+On Fri, Jan 26, 2001 at 10:13:35PM +0100, Rasmus Andersen wrote:
+> Hi.
+[...]
+> 
 > But I am in way over my head here so please be gentle when you point
 > out my mistake.
 > 
-> The patch (against 241p10 and ac11):
-> 
-> 
-> --- linux-ac11-clean/arch/i386/kernel/io_apic.c	Thu Jan 
-> 25 20:48:51 2001
-> +++ linux-ac11/arch/i386/kernel/io_apic.c	Fri Jan 26 21:59:16 2001
-> @@ -38,7 +38,7 @@
->  /*
->   * # of IRQ routing registers
->   */
-> -int nr_ioapics;
-> +extern int nr_ioapics;
->  int nr_ioapic_registers[MAX_IO_APICS];
->  
->  #if CONFIG_SMP
-> 
-> -- 
-> Regards,
->         Rasmus(rasmus@jaquet.dk)
+
+Already someone did :) I was too sloppy in checking my facts; it is only
+-ac11 that has the 'int nr_ioapics;' in mpparse.c. As mpparse.c includes 
+<mpspec.h> (where nr_ioapics is defined as an extern int) I will risk
+another patch removing the declaration from mpparse.c (in ac11). My
+original patch should just be silently ignored, thank you ;)
+
+Thanks goes to Manfred Spraul who pointed out the salient facts that
+I had blithely ignored. Like, all of them :/ And my apologies for
+the brief confusion I might have caused in people looking in 241p10
+for my phantom declaration.
 
 
-~Randy
-_______________________________________________
-|randy.dunlap_at_intel.com        503-677-5408|
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------
+This patch is only against ac11. It has been compile-tested with SMP
+turned on.
 
+Comments?
+
+--- linux-ac11-clean/arch/i386/kernel/mpparse.c	Thu Jan 25 20:48:51 2001
++++ linux-ac11/arch/i386/kernel/mpparse.c	Fri Jan 26 23:33:31 2001
+@@ -48,8 +48,6 @@
+ /* MP IRQ source entries */
+ int mp_irq_entries;
+ 
+-int nr_ioapics;
+-
+ int pic_mode;
+ unsigned long mp_lapic_addr;
+ 
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+A file that big?
+It might be very useful.
+But now it is gone.       --- Error messages in haiku
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbTDMU6p (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 16:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTDMU6p (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 16:58:45 -0400
-Received: from are.twiddle.net ([64.81.246.98]:10193 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S261945AbTDMU6o (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 16:58:44 -0400
-Date: Sun, 13 Apr 2003 14:10:28 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unwinding for vsyscall code
-Message-ID: <20030413141028.A3683@twiddle.net>
-Mail-Followup-To: Ulrich Drepper <drepper@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andrew Morton <akpm@digeo.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <3E98E01C.3070103@redhat.com>
+	id S261924AbTDMUpX (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 16:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbTDMUpX (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 16:45:23 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:54789 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261924AbTDMUpW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 16:45:22 -0400
+Date: Sun, 13 Apr 2003 13:57:13 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm2: multiple definition of `ipip_err'
+Message-Id: <20030413135713.79f9cb25.akpm@digeo.com>
+In-Reply-To: <20030413201643.GP9640@fs.tum.de>
+References: <20030412180852.77b6c5e8.akpm@digeo.com>
+	<20030413201643.GP9640@fs.tum.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E98E01C.3070103@redhat.com>; from drepper@redhat.com on Sat, Apr 12, 2003 at 08:57:16PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Apr 2003 20:57:05.0283 (UTC) FILETIME=[3D469530:01C301FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 08:57:16PM -0700, Ulrich Drepper wrote:
-> +	/* What follows are the instructions for the table generation.
-> +	   We have to record all changes of the stack pointer.  */
-> +		0x04,			/* DW_CFA_advance_loc4 */
-> +		0x01, 0x00, 0x00, 0x00,	/* Size of push %ecx */
-> +		0x0e,			/* DW_CFA_def_cfa_offset */
-> +		0x08,			/* RA at offset 8 now */
-> +		0x04,			/* DW_CFA_advance_loc4 */
-> +		0x01, 0x00, 0x00, 0x00,	/* Size of push %edx */
-> +		0x0e,			/* DW_CFA_def_cfa_offset */
-> +		0x0c,			/* RA at offset 12 now */
-> +		0x04,			/* DW_CFA_advance_loc4 */
-> +		0x01, 0x00, 0x00, 0x00,	/* Size of push %ebp */
-> +		0x0e,			/* DW_CFA_def_cfa_offset */
-> +		0x10,			/* RA at offset 16 now */
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> Besides the ipip_err that was already in net/ipv4/ipip.c there's now a 
+> second one in net/ipv4/xfrm4_tunnel.c .
 
-Not only changes to the stack pointer, but also changes to call-saved
-registers, such as %ebp.  You're intending to be able to unwind through
-asynchronous signals here, which means that you can't leave even a single
-insn window with a register modified but not recorded.
+Seems pretty straightforward.
 
-So you also need a
+diff -puN net/ipv4/ipip.c~ipip_err-compile-fix net/ipv4/ipip.c
+--- 25/net/ipv4/ipip.c~ipip_err-compile-fix	2003-04-13 13:55:21.000000000 -0700
++++ 25-akpm/net/ipv4/ipip.c	2003-04-13 13:55:31.000000000 -0700
+@@ -286,7 +286,7 @@ static void ipip_tunnel_uninit(struct ne
+ 	dev_put(dev);
+ }
+ 
+-void ipip_err(struct sk_buff *skb, void *__unused)
++static void ipip_err(struct sk_buff *skb, void *__unused)
+ {
+ #ifndef I_WISH_WORLD_WERE_PERFECT
+ 
+diff -puN net/ipv4/xfrm4_tunnel.c~ipip_err-compile-fix net/ipv4/xfrm4_tunnel.c
+--- 25/net/ipv4/xfrm4_tunnel.c~ipip_err-compile-fix	2003-04-13 13:55:21.000000000 -0700
++++ 25-akpm/net/ipv4/xfrm4_tunnel.c	2003-04-13 13:55:35.000000000 -0700
+@@ -163,7 +163,7 @@ out:
+ 	return 0;
+ }
+ 
+-void ipip_err(struct sk_buff *skb, u32 info)
++static void ipip_err(struct sk_buff *skb, u32 info)
+ {
+ 	struct xfrm_tunnel *handler = ipip_handler;
+ 	u32 arg = info;
 
-	0x85 0x04			DW_CFA_offset %ebp -16
+_
 
-there at the end of the prologue.
-
-> +	/* Finally the epilogue.  */
-> +		0x04,			/* DW_CFA_advance_loc4 */
-> +		0x0e, 0x00, 0x00, 0x00,	/* Offset til pop %edx */
-> +		0x0e,			/* DW_CFA_def_cfa_offset */
-> +		0x12,			/* RA at offset 12 now */
-
-And of course you need a corresponding bit here, since once we
-pop off the slot in which we stored %ebp, we can't restore it
-from there, because we will have clobbered that slot in the
-signal handler.
-
-(Btw, typo here in comment; it's "%ebp" not "%edx".)
-
-So here we also need a 
-
-	0xc5				DW_CFA_restore %ebp
-
-here before the next DW_CFA_advance_loc.
-
-Oh, and you don't need to use DW_CFA_advance_loc4.  You should
-be using
-
-	DW_CFA_advance_loc+N		N <= 0x3f
-	DW_CFA_advance_loc1 N		N <= 0xff
-
-We have to use DW_CFA_advance_loc4 in GCC because we don't know
-the true sizes of instructions.  This gets fixed for us in GAS
-through some truely disgusting magic based on section names.
-
-
-
-r~

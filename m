@@ -1,93 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266546AbUHBOlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266550AbUHBOnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266546AbUHBOlt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUHBOlt
+	id S266550AbUHBOnv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 10:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUHBOmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:41:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:61062 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266543AbUHBOhI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:37:08 -0400
-Date: Mon, 2 Aug 2004 10:36:34 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: war <war@pv.producto-valvo.com>
-cc: linux-kernel@vger.kernel.org, support@highpoint-tech.com
-Subject: Re: HPT 366 - Why does HPT's driver freeze the kernel (2.4.26)?
-In-Reply-To: <20040802101407.M10023@pv.producto-valvo.com>
-Message-ID: <Pine.LNX.4.53.0408021029060.19226@chaos>
-References: <20040802101407.M10023@pv.producto-valvo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Aug 2004 10:42:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10734 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266574AbUHBOko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 10:40:44 -0400
+Date: Mon, 2 Aug 2004 10:39:51 -0400
+From: Alan Cox <alan@redhat.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: PATCH: Fix HPT366 crash and support HPT372N
+Message-ID: <20040802143951.GA15610@devserv.devel.redhat.com>
+References: <20040801001522.GA13954@devserv.devel.redhat.com> <20040802141131.GA2716@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040802141131.GA2716@mea-ext.zmailer.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Aug 2004, war wrote:
+On Mon, Aug 02, 2004 at 05:11:31PM +0300, Matti Aarnio wrote:
+> I have been wondering about HPT37x in Fedora Core (development) kernel
+> called  kernel-smp-2.6.7-1.501.i686.  It doesn't find one of the cards
+> attached to a HPT372A card that I have.
+> 
+> I tried also to boot with a bit older kernels: 2.6.3, 2.6.5 do work just 
+> fine (except of 2.6.5 barfs the keyboard..). 
 
-> # make
-> gcc -DHIGHPOINT -DDRIVER_VERSION=\"1.31\" -DMODVERSIONS -DMODULE -DLINUX
-> -D__KER
-> NEL__=1 -DCONFIG_PCI -D__BOOT_KERNEL_SMP=0 -D__BOOT_KERNEL_UP=1
-> -D__MODULE_KERNE
-> L_i686=1  -DDPLL_SWITCH -DFORCE_133 -DDRIVER_REBUILD  -DSUPPORT_ARRAY
-> -DSUPPORT_
-> IOCTL -DSUPPORT_ALARM -O2 -I/usr/src/linux/include
-> -I/usr/src/linux/include/asm-
-> i386 -I/usr/src/linux/drivers/scsi -Wall -Wstrict-prototypes
-> -fomit-frame-pointe
-> r  -c hpt.c
-> hpt.c: In function `hpt_copy_array_info':
-> hpt.c:2948: warning: int format, long unsigned int arg (arg 3)
-> as -o baseproc.o baseproc.s
-> ld -m elf_i386 -r hpt37x2lib.o hpt.o baseproc.o -o hpt37x2.o
->
-> # insmod hpt37x2.o
-> hpt37x2.o: unresolved symbol scsi_unregister_module
-> hpt37x2.o: unresolved symbol scsi_register
-> hpt37x2.o: unresolved symbol scsi_register_module
-> hpt37x2.o: unresolved symbol scsi_unregister
-> hpt37x2.o:
-> Hint: You are trying to load a module without a GPL compatible license
->        and it has unresolved symbols.  The module may be trying to access
->        GPLONLY symbols but the problem is more likely to be a coding or
->        user error.  Contact the module supplier for assistance, only they
->        can help you.
->
-> # modprobe scsi_mod
-> # insmod hpt37x2.o
-> <freeze>
->
-> Read from remote host testhpt: Operation timed out
-> Connection to testhpt closed.
->
-> Any ideas?
-> If I load the kernel's driver for the HPT3xxx card, it loads, but then it
-> does not see any drives.
->
-> The card and driver(s) included with RedHat 7.3 worked perfectly, but it
-> seems that any other distribution (current) has serious problem.
->
-> Can anyone suggest what is going wrong?
->
-> Must it be booted ONLY with an initrd to properly setup the drives, or?
-> What is the problem with this card?
+Probably unrelated. I'd ask Arjan or see if it depends on the compiler or
+some other horror
 
-I think you are using a library:
-
-> ld -m elf_i386 -r hpt37x2lib.o hpt.o baseproc.o -o hpt37x2.o
-                    ^^^^^^^^^^^^
-... that was compiled with another kernel version. You can't bypass
-the normal steps in module building. At the very least, remove
-all the '*.o' files before rebuilding, better yet, enable the
-driver in the .config file, do make clean; make oldconfig; make dep;
-make bzImage; make modules; make modules_install.....  Use the
-resulting object in /lib/modules/`uname -r`/....
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+This patch is unrelated to 372A
 

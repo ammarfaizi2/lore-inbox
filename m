@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbREULyy>; Mon, 21 May 2001 07:54:54 -0400
+	id <S261173AbREUMIo>; Mon, 21 May 2001 08:08:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbREULyp>; Mon, 21 May 2001 07:54:45 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:15367 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S261398AbREULya>; Mon, 21 May 2001 07:54:30 -0400
-Date: Mon, 21 May 2001 15:51:51 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-Message-ID: <20010521155151.A10403@jurassic.park.msu.ru>
-In-Reply-To: <15112.26868.5999.368209@pizda.ninka.net> <20010521034726.G30738@athlon.random> <15112.48708.639090.348990@pizda.ninka.net> <20010521105944.H30738@athlon.random> <15112.55709.565823.676709@pizda.ninka.net> <20010521115631.I30738@athlon.random> <15112.59880.127047.315855@pizda.ninka.net> <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random>
+	id <S261176AbREUMIY>; Mon, 21 May 2001 08:08:24 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:60209 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S261173AbREUMIQ>; Mon, 21 May 2001 08:08:16 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+From: Robert "M." Love <rml@tech9.net>
+To: Mike "A." Harris <mharris@opensourceadvocate.org>
+Cc: Jes Sorensen <jes@sunsite.dk>, John Cowan <jcowan@reutershealth.com>,
+        esr@thyrsus.com, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.33.0105210205520.1590-100000@asdf.capslock.lan>
+In-Reply-To: <Pine.LNX.4.33.0105210205520.1590-100000@asdf.capslock.lan>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 21 May 2001 08:08:03 -0400
+Message-Id: <990446886.1097.1.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010521131959.M30738@athlon.random>; from andrea@suse.de on Mon, May 21, 2001 at 01:19:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21, 2001 at 01:19:59PM +0200, Andrea Arcangeli wrote:
-> Alpha in mainline is just screwedup if a single pci bus tries to dynamic
-> map more than 128mbyte, changing it to 512mbyte is trivial, growing more
+On 21 May 2001 02:11:39 -0400, Mike A. Harris wrote:
+> On 20 May 2001, Robert M. Love wrote:
+>>(on another note, about the coexist issue: am i going to have a python
+>>and python2 binary? so now the config tool will find which to use, ala
+>>the kgcc mess? great)
+>
+> For the record, the kgcc "mess" you speak of was used by
+> Conectiva, and I believe also by debian before adoption in Red
+> Hat Linux.  It was about as good a solution as one could get for
+> the problem that it solved - the kernel being broken and unable
+> to build with our gcc-2.96.  Just to head anyone off at the
+> pass... the kernel is fixed and now builds properly with
+> gcc-2.96.
 
-Could you just describe the configuration where increasing sg window
-from 128 to 512Mb actually fixes "out of ptes" problem? I mean which
-drivers involved, what kind of load etc.
-I'm unable reproduce it with *8Mb* window, so I'm asking.
+my view of the mess wasn't the fact RedHat used kgcc. i think that was a
+good move.
 
-Ivan.
+i mean how in 2.2 the Makefile must search out for gcc, kgcc, gcc-2.95,
+gcc-2.91 etc. what is the cml2 parser going to do? search for my python2
+binary because my python1 binary is my "standard" python?
+
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
+

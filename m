@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271031AbTGPSlg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270965AbTGPSlb
+	id S271002AbTGPSHd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271028AbTGPSGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:41:31 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:9910 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id S271031AbTGPSlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:41:19 -0400
-Date: Wed, 16 Jul 2003 19:57:38 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Ron Niles <Ron.Niles@falconstor.com>, David Mosberger <davidm@hpl.hp.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Question about free_one_pgd() changes in these 3.5G patches
-In-Reply-To: <20030716152532.GA18350@suse.de>
-Message-ID: <Pine.LNX.4.44.0307161936210.1181-100000@localhost.localdomain>
+	Wed, 16 Jul 2003 14:06:01 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:24713 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270972AbTGPSFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:05:32 -0400
+Date: Wed, 16 Jul 2003 15:17:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: ajoshi@kernel.crashing.org
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb 0.1.9 against 2.4.21pre2 (fwd)
+In-Reply-To: <Pine.LNX.4.10.10307161258230.21751-100000@gate.crashing.org>
+Message-ID: <Pine.LNX.4.55L.0307161514050.12905@freak.distro.conectiva>
+References: <Pine.LNX.4.10.10307161258230.21751-100000@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jul 2003, Dave Jones wrote:
-> On Wed, Jul 16, 2003 at 01:31:39PM +0100, Hugh Dickins wrote:
-> 
-> Both this..
->  > >  		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
-> and this..
->  > > 		prefetchw(md+(PREFETCH_STRIDE/16));
-> 
-> both use the prefetch that was removed in 2.5 for 'being bogus'.
-> It can prefetch past the end iirc, which is fatal on some CPUs.
 
-That prefetchw never made sense to me, nor to DavidM whom I falsely
-accused of it; but I had never noticed that someone (aha - you!)
-got up the courage to remove it from 2.5.  A 2.4.22 patch to Marcelo
-would come with greater authority from you than from me, Dave.
+On Wed, 16 Jul 2003 ajoshi@kernel.crashing.org wrote:
 
-Hugh
+>
+>
+> Many of these have already been addressed in 0.1.9,
 
+He is talking about 0.1.9. The issues he complained about are present in
+0.1.9. I havent read one line of code, but I know him enough to know he's
+has no reason to lie or come up with non-existant bugs.
+
+Please resend me a patch when you really have addressed the issues
+Benjamin pointed out (0.1.10 or whatever).
+
+For now I'll stick to 0.1.8 + his fixes.
+
+> though I added the usage of the native clock, assertion for it, the dvi
+> blanking, and the nolcd passthrough.  For things like the updated PM
+> code, a patch would be helpful.

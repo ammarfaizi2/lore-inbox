@@ -1,33 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267583AbUHEHL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267584AbUHEHTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267583AbUHEHL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 03:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267581AbUHEHL2
+	id S267584AbUHEHTS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 03:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267586AbUHEHTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 03:11:28 -0400
-Received: from prosun.first.fraunhofer.de ([194.95.168.2]:54996 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267583AbUHEHLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 03:11:00 -0400
-To: linux-kernel@vger.kernel.org
-Date: Thu, 05 Aug 2004 09:10:16 +0200
-From: Soeren Sonnenburg <kernel@nn7.de>
-Message-ID: <pan.2004.08.05.07.10.15.718214@nn7.de>
-Organization: Local Intranet News
-MIME-Version: 1.0
+	Thu, 5 Aug 2004 03:19:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9901 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267584AbUHEHTQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 03:19:16 -0400
+Date: Thu, 5 Aug 2004 00:17:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: inaky.perez-gonzalez@intel.com, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org, rusty@rustcorp.com.au, mingo@elte.hu,
+       jamie@shareable.org
+Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+Message-Id: <20040805001737.78afb0d6.akpm@osdl.org>
+In-Reply-To: <4111DC8C.7050504@redhat.com>
+References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
+	<20040804232123.3906dab6.akpm@osdl.org>
+	<4111DC8C.7050504@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: pts/pty problem since 2.6.8-rc2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Ulrich Drepper <drepper@redhat.com> wrote:
+>
+> Andrew Morton wrote:
+> 
+> > This fixes what appear to be some fairly significant shortcomings.  What do
+> > the futex and NPTL people have to say about the gravity of the problems
+> > which this solves, and the offered implementation?
+> 
+> This code will not be suppoerted by the glibc code.  Using these
+> primitives would mean significant slowdown of all operations and this
+> for problems which only a few people have.
 
-Whenever I boot a kernel of the 2.6.8-* series (also -rc3) I cannot open
-up any xterms in X. I first have to lsof /dev/pts and kill all the 1-5
-processes listed there. Afterwards xterm etc pops up without problems.
+How large is the slowdown, and on what workloads?
 
-Any ideas what could go wrong ?
+>  I asked to get the useful
+> parts of the code to be made available using the current futex interface
+> (robust mutexes are useful)
 
-Cheers,
-Soeren.
+Passing the lock to a non-rt task when there's an rt-task waiting for it
+seems pretty poor form, too.
+

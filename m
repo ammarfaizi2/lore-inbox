@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHOMhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUHOMtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUHOMhG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 08:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHOMhG
+	id S266666AbUHOMtg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 08:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUHOMtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 08:37:06 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:9884 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S266663AbUHOMhC (ORCPT
+	Sun, 15 Aug 2004 08:49:36 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:10886 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S266666AbUHOMte (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 08:37:02 -0400
-Message-ID: <411F58DF.2070002@greatcn.org>
-Date: Sun, 15 Aug 2004 20:36:47 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Sun, 15 Aug 2004 08:49:34 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: maximilian attems <janitor@sternwelten.at>
+Subject: Re: Add msleep_interruptible() function to kernel/timer.c
+Date: Sun, 15 Aug 2004 14:50:35 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, kj <kernel-janitors@osdl.org>
+References: <20040815121805.GA15111@stro.at>
+In-Reply-To: <20040815121805.GA15111@stro.at>
 MIME-Version: 1.0
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-CC: linux-kernel@vger.kernel.org
-References: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net>
-In-Reply-To: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net>
-X-Scan-Signature: fad39d3eb0bc82a8daaaab38959dee5c
-X-SA-Exim-Connect-IP: 218.24.189.67
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: Re: [PATCH] Remove obsolete HEAD in top Makefile
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.189.67 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0+cvs20040712 (built Mon, 09 Aug 2004 23:30:37 -0500)
+Message-Id: <200408151450.35196.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
+Am Sonntag, 15. August 2004 14:18 schrieb maximilian attems:
+> while doing kernel-janitor msleep conversion of drivers own (incorrect),
+> functions, some places would need msleep_interruptible().
+> 
+> this function is equivalent to:
+>         current->state = TASK_INTERRUPTIBLE;
+> 	schedule_timeout(timeout);
+> 
+> idea from Ingo Molnar:
+> well, aboves is not 100% equivalent because msleep() is uninterruptible so
+> stoppage of the md thread (upon shutdown) will occur with only a 250 msec
+> delay. Someone should add a msleep_interruptible() function to kernel/timer.c.
 
->In article <411F3A48.2030201@greatcn.org> you wrote:
->  
->
->>Now the 2.6 kbuild is no longer using it. I have tested it.
->>    
->>
->...
->  
->
->>-head-y += $(HEAD)
->>vmlinux-objs := $(head-y) $(init-y) $(core-y) $(libs-y) $(drivers-y) 
->>$(net-y)
->>    
->>
->
->
->iff it is not using it you need to remove it in the next line, too.
->  
->
+[..] 
+> +/**
+> + * msleep_interruptible - sleep waiting for waitqueue interruptions
+> + * @msecs: Time in milliseconds to sleep for
+> + */
+> +void msleep_interruptible(unsigned int msecs)
+> +{
+> +	unsigned long timeout = msecs_to_jiffies(msecs);
+> +
+> +	while (timeout) {
+> +		set_current_state(TASK_INTERRUPTIBLE);
+> +		timeout = schedule_timeout(timeout);
+> +	}
 
-Nah, I'm only removing HEAD, not head-y. :p
+This is not really interruptible sleep because it is missing a check
+for pending signals.
 
-
--- 
-Coywolf Qi Hunt
-Homepage http://greatcn.org/~coywolf/
-Admin of http://GreatCN.org and http://LoveCN.org
-
+	Regards
+		Oliver

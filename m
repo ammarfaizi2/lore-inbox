@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbRADQoI>; Thu, 4 Jan 2001 11:44:08 -0500
+	id <S129697AbRADQvI>; Thu, 4 Jan 2001 11:51:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbRADQn7>; Thu, 4 Jan 2001 11:43:59 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:49673 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129325AbRADQnn>; Thu, 4 Jan 2001 11:43:43 -0500
-Date: Thu, 4 Jan 2001 08:43:23 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: try_to_swap_out() return value problem?
-In-Reply-To: <Pine.LNX.4.21.0101041429130.1188-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101040835360.15597-100000@penguin.transmeta.com>
+	id <S129780AbRADQut>; Thu, 4 Jan 2001 11:50:49 -0500
+Received: from pop.gmx.net ([194.221.183.20]:44737 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129697AbRADQuo>;
+	Thu, 4 Jan 2001 11:50:44 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0prerelease-ac4 : still unresolved sysmpols 
+Date: Tue, 2 Jan 2001 23:27:14 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01010223271400.01187@nmb>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo,
+I'm using 2.4.0prerelease-ac4. As far as I can see most things work fine 
+besides the following:
+
+1. after make modules_install I get:
+
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.0-test12/kernel/drivers/block/fusion/mptlan.o
+depmod:         unregister_fcdev
+depmod:         init_fcdev
 
 
-On Thu, 4 Jan 2001, Rik van Riel wrote:
-> 
-> Then again, in theory the current VM should already be
-> unbalanced and we haven't felt any bad effects yet ;)
+2. With 2.4.0-ac3 I had system-freese 3 times. 
 
-The current VM is in fact very nice - I spent quite a long time running
-with 32MB and for the first time in ages I didn't mind all that much. It
-was painful when doing a recursive kernel diff (which takes me 2 seconds
-with both threes cached, which they tend to be with a gig of RAM), but X
-was fine.
+kind regards
 
-The way to really hurt the current VM is to have a process dirty working
-set that is large and changes rapidly. Then we'll do badly, apparently
-because we'll end up having a large portion of the freeable pages in the
-page tables, but we still seem to try to do most of the work in the lists.
-
-I'd like somebody to try out a more aggressive "drop this from the page
-tables, but don't actively swap it out until needed" approach eventually.
-For now, 2.4.0 seems to be quite nice on "normal" loads, though. 
-
-(Or maybe my loads weren't normal, who knows)
-
-		Linus
-
+Norbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

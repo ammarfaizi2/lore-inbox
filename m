@@ -1,62 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262034AbSJJRz7>; Thu, 10 Oct 2002 13:55:59 -0400
+	id <S261707AbSJJR7k>; Thu, 10 Oct 2002 13:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262050AbSJJRz7>; Thu, 10 Oct 2002 13:55:59 -0400
-Received: from findaloan-online.cc ([216.209.85.42]:41993 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S262034AbSJJRz6>;
-	Thu, 10 Oct 2002 13:55:58 -0400
-Date: Thu, 10 Oct 2002 14:01:08 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Robert Love <rml@tech9.net>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on O_STREAMING (goodby read pauses)
-Message-ID: <20021010180108.GB16962@mark.mielke.cc>
-References: <20021009222349.GA2353@werewolf.able.es> <1034203433.794.152.camel@phantasy> <20021010034057.GC8805@mark.mielke.cc> <20021010143927.GA2193@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021010143927.GA2193@werewolf.able.es>
-User-Agent: Mutt/1.4i
+	id <S261744AbSJJR7k>; Thu, 10 Oct 2002 13:59:40 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:50956 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261707AbSJJR7i>; Thu, 10 Oct 2002 13:59:38 -0400
+Date: Thu, 10 Oct 2002 20:04:36 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Alexander Viro <viro@math.psu.edu>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.LNX.4.44.0210091704040.5883-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0210100107410.338-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 04:39:27PM +0200, J.A. Magallon wrote:
-> On 2002.10.10 Mark Mielke wrote:
-> >I assume the stall is not 'while pages are sent to disk', but rather
-> >until kswapd gets around to freeing enough pages to allow memory to
-> >fill again. The stall is due to the pages being fully analyzed to
-> >determine which ones should go, and which ones shouldn't. O_STREAMING
-> >removes the pages ahead of time, so no analysis is ever required.
-> I can _hear_ the disk activity when the stall happens, so selecting what
-> to drop is fast, but then you have to write it...
+Hi,
 
-I don't think this is right. Prove me wrong by explaining how kswapd works,
-but if a page isn't dirty, there is no need to write it out to disk.
+On Wed, 9 Oct 2002, Kai Germaschewski wrote:
 
-My (perhaps incorrect) assumption is that kswapd prefers to swap on clean
-pages over dirty pages. If your pages are mostly clean, there is nothing
-to write to disk the clear majority of the time.
+> So at this point, you decide to rather not have the user wait
+> forever until his "rmmod net_pci" succeeds, but return -EBUSY right away.
+> You do it by running MOD_INC_USE_COUNT in ::open(), and DEC again in
+> ::close().
 
-Clean read-only pages should *never* be written to swap. They can be re-read
-from their source.
+You don't really want to do this. Imagine what happens if you get
+preempted before you had a chance to run MOD_INC_USE_COUNT.
 
-I _think_ what you are seeing is that kswapd is not cleaning pages out
-fast enough, which means that *other* tasks executing need to have their
-*swapped out* pages *read* from disk. I.e. the churning you hear is probably
-mostly reads - not writes.
+> The current implementation gives you a way of knowing if unloading will
+> succeed shortly (if not, it'll fail with -EBUSY). Yours doesn't AFAICS,
+> and that's actually bad IMO, I think you actually have to try to see if
+> the unload would succeed, and that's not pretty.
 
-mark
+The unload path could look something like this:
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+	if (mod->usecount())
+		return -EBUSY;
+	mod->state = cleanup;
+	if (mod->exit())
+		return -EBUSY;
+	(free module)
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+So this does what you want. The only problem is here that the exit call
+can fail, because there are still users, so the module will stay in the
+cleanup state. start/stop functions would give you better control over
+this.
 
-                           http://mark.mielke.cc/
+> And, done right, the API for the current implementation is so simple that
+> I doubt you'll be able to come up with something with more ease-of-use.
+
+The current API just hides the complexity, but it requires extra checks
+all over the kernel, to test if an object belongs to a module and if the
+module is running. My proposal would get rid of this.
+Deciding whether when you can release a device object or a driver object
+is pretty much the same problem and a common solution is IMO prefered. The
+module code should work like the remaining kernel and not require extra
+care everywhere.
+The diff below shows how filesystem.c would change, which becomes simpler
+as it doesn't has to care about the module state anymore.
+
+bye, Roman
+
+Index: fs/filesystems.c
+===================================================================
+RCS file: /home/other/cvs/linux/linux-2.5/fs/filesystems.c,v
+retrieving revision 1.1.1.5
+diff -u -p -r1.1.1.5 filesystems.c
+--- fs/filesystems.c	16 Apr 2002 08:45:18 -0000	1.1.1.5
++++ fs/filesystems.c	10 Oct 2002 15:23:46 -0000
+@@ -28,17 +28,17 @@
+ static struct file_system_type *file_systems;
+ static rwlock_t file_systems_lock = RW_LOCK_UNLOCKED;
+
+-/* WARNING: This can be used only if we _already_ own a reference */
++/* WARNING: This can be used only if we _already_ own a reference
++ * or hold the file_systems_lock
++ */
+ void get_filesystem(struct file_system_type *fs)
+ {
+-	if (fs->owner)
+-		__MOD_INC_USE_COUNT(fs->owner);
++	atomic_inc(&fs->refcnt);
+ }
+
+ void put_filesystem(struct file_system_type *fs)
+ {
+-	if (fs->owner)
+-		__MOD_DEC_USE_COUNT(fs->owner);
++	atomic_dec(&fs->refcnt);
+ }
+
+ static struct file_system_type **find_filesystem(const char *name)
+@@ -77,8 +77,10 @@ int register_filesystem(struct file_syst
+ 	p = find_filesystem(fs->name);
+ 	if (*p)
+ 		res = -EBUSY;
+-	else
++	else {
+ 		*p = fs;
++		get_filesystem(fs);
++	}
+ 	write_unlock(&file_systems_lock);
+ 	return res;
+ }
+@@ -103,15 +105,15 @@ int unregister_filesystem(struct file_sy
+ 	tmp = &file_systems;
+ 	while (*tmp) {
+ 		if (fs == *tmp) {
++			put_filesystem(fs);
+ 			*tmp = fs->next;
+ 			fs->next = NULL;
+-			write_unlock(&file_systems_lock);
+-			return 0;
++			break;
+ 		}
+ 		tmp = &(*tmp)->next;
+ 	}
+ 	write_unlock(&file_systems_lock);
+-	return -EINVAL;
++	return atomic_read(&fs->refcnt) > 0 ? -EBUSY : 0;
+ }
+
+ static int fs_index(const char * __name)
+@@ -145,8 +147,10 @@ static int fs_name(unsigned int index, c
+
+ 	read_lock(&file_systems_lock);
+ 	for (tmp = file_systems; tmp; tmp = tmp->next, index--)
+-		if (index <= 0 && try_inc_mod_count(tmp->owner))
+-				break;
++		if (index <= 0) {
++			get_filesystem(tmp)
++			break;
++		}
+ 	read_unlock(&file_systems_lock);
+ 	if (!tmp)
+ 		return -EINVAL;
+@@ -216,14 +220,14 @@ struct file_system_type *get_fs_type(con
+
+ 	read_lock(&file_systems_lock);
+ 	fs = *(find_filesystem(name));
+-	if (fs && !try_inc_mod_count(fs->owner))
+-		fs = NULL;
++	if (fs)
++		get_filesystem(fs);
+ 	read_unlock(&file_systems_lock);
+ 	if (!fs && (request_module(name) == 0)) {
+ 		read_lock(&file_systems_lock);
+ 		fs = *(find_filesystem(name));
+-		if (fs && !try_inc_mod_count(fs->owner))
+-			fs = NULL;
++		if (fs)
++			put_filesystem(fs);
+ 		read_unlock(&file_systems_lock);
+ 	}
+ 	return fs;
+
 

@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262977AbTDVHrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 03:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTDVHrZ
+	id S262974AbTDVHnM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 03:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTDVHnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 03:47:25 -0400
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:27891 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262977AbTDVHrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 03:47:24 -0400
-Date: Tue, 22 Apr 2003 09:59:22 +0200
-From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+	Tue, 22 Apr 2003 03:43:12 -0400
+Received: from iits0165.inlink.com ([209.135.140.65]:35774 "EHLO
+	vs365.rosehosting.com") by vger.kernel.org with ESMTP
+	id S262974AbTDVHnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 03:43:11 -0400
+Date: Tue, 22 Apr 2003 03:48:21 -0400
+From: Michael B Allen <mba2000@ioplex.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ARP
-Message-Id: <20030422095922.6938d362.Christoph.Pleger@uni-dortmund.de>
-In-Reply-To: <Pine.LNX.4.44.0304171308000.6853-100000@sparrow>
-References: <20030417185540.28c74d42.Christoph.Pleger@uni-dortmund.de>
-	<Pine.LNX.4.44.0304171308000.6853-100000@sparrow>
-Organization: Universitaet Dortmund
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
+Subject: What's the deal McNeil? Bad interactive behavior in X w/ RH's
+ 2.4.18
+Message-Id: <20030422034821.6a57acc0.mba2000@ioplex.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello William,
+I'm running Red Hat 7.3 with their stock 2.4.18-3 kernel on an IBM
+T30. Once every few hours X locks up for 5-10 seconds while the disk
+grinds. If I type in an Xterm the characters are not echoed until the
+disk grinding stops. Then they all come out in a bunch and life is back
+to normal.
 
-> Good afternoon, Chris,
-> 
-> On Thu, 17 Apr 2003, Christoph Pleger wrote:
-> 
-> > I want to use FreeS/WAN with kernel 2.4. For the configuration I
-> > have to reach with FreeS/WAN I need the ability to tell a host that
-> > it shall accept traffic which is directed to another host. I tried
-> > doing that by the user space program arp, but it did not work and
-> > after that I read in the manual page of arp that since kernel
-> > version 2.2.0 setting an arp entry for a whole subnet is no longer
-> > supported. 
-> > 
-> > Is there something else I can do to tell the hosts in a subnet to
-> > send packets for a specific not to that host itself but to another
-> > host? This should be done transparently so that the hosts do not
-> > know that their ip packets do not go directly to the destination.
-> 
-> 	Proxy arp _does_ work, to the est of my knowledge, still.  You
-> 	may 
-> need to put in the entries for each workstation, that that's a simple 
-> shell loop in your network startup.
-> 
-> http://www.stearns.org/doc/proxyarp-howto
+I asked about this on kernelnewbies but the only response was something
+regarding some kind of change to the 'elevator code' but they didn't
+know of a solution.
 
-I did exactly what you described on your webpage (of course I changed
-the addresses), but the arp request of another host still is not
-answered by the FreeS/WAN gateway. Do I have to enable special kernel
-options for proxy arp to work?
+I would like very much for this behavior to go away as it is extremely
+annoying. If there is a patch please let me know where I can get it.
 
-Kind regards
-  Christoph
+Thanks,
+Mike
+
+-- 
+A  program should be written to model the concepts of the task it
+performs rather than the physical world or a process because this
+maximizes  the  potential  for it to be applied to tasks that are
+conceptually  similar and, more important, to tasks that have not
+yet been conceived. 

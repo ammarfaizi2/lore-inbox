@@ -1,107 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbTLJUtV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTLJUtV
+	id S264108AbTLJUxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264110AbTLJUxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:49:21 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:48514 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S263971AbTLJUsv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:48:51 -0500
-Date: Wed, 10 Dec 2003 14:48:42 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-bk bogus edd changeset - Re: 2.4.23 compile error in edd
-Message-ID: <20031210144842.A24414@lists.us.dell.com>
-References: <Pine.SOL.4.58.0312042225300.26114@yellow.csi.cam.ac.uk> <Pine.LNX.4.44.0312051109580.1782-100000@logos.cnet> <20031205113619.A20371@lists.us.dell.com> <1070901250.4508.1.camel@imp> <20031208222322.A21354@lists.us.dell.com> <1070987393.3447.64.camel@imp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1070987393.3447.64.camel@imp>; from aia21@cam.ac.uk on Tue, Dec 09, 2003 at 04:29:53PM +0000
+	Wed, 10 Dec 2003 15:53:16 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:14031 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S264108AbTLJUxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 15:53:04 -0500
+Message-ID: <3FD787AF.8080902@wmich.edu>
+Date: Wed, 10 Dec 2003 15:53:03 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+CC: Witukind <witukind@nsbm.kicks-ass.org>,
+       =?ISO-8859-1?Q?M=E5ns_Rullg?= =?ISO-8859-1?Q?=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+References: <200312081536.26022.andrew@walrond.org>	<20031208154256.GV19856@holomorphy.com>	<3FD4CC7B.8050107@nishanet.com>	<20031208233755.GC31370@kroah.com>	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>	<20031209075619.GA1698@kroah.com>	<1070960433.869.77.camel@nomade>	<20031209090815.GA2681@kroah.com>	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp>	<yw1xd6ayib3f.fsf@kth.se>	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>	<yw1xd6aw4ge3.fsf@kth.se> <20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org> <3FD78645.9090300@wmich.edu>
+In-Reply-To: <3FD78645.9090300@wmich.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The ds segment is not pointing to the correct segment AND/OR the offsets
-> into the segment used for the writes are bogus.  You write straight into
-> ds and ds:si referenced memory but you never setup ds in the first
-> place.  So the writes done by the EDD code corrupt the loaded compressed
-> kernel and the decompression fails.
-
-ds is set up already to point at the empty_zero_page, else none of
-what I'm doing is correct.  But, it is very likely that something else
-is using 0x228 in empty_zero_page but isn't marked as using it in
-Documentation/i386/zero-page.txt.
-
-You've been patient, and thorough.  As another test, could you change
-include/asm-i386/edd.h: DISK80_SIG_BUFFER from 0x228 to 0x2cc (the
-four bytes immediately before the e820 memory buffer), and see if that
-helps?  If so, I'll submit a patch to use that instead, and another
-that markes 0x228 as in use by something else.
-
-> I haven't really spent time thinking about ds and offsets and what they
-> should be set to but I hope I have given you enough information to fix
-> this yourself.  (-:
-
-I'm quite certain that ds is correct, but that 0x228 may be in use by
-something else.
- 
-> Please also note that you may want to consider adding this around your
-> first int 0x13 call (the one to read the MBR):
+Ed Sweetman wrote:
+> Witukind wrote:
 > 
-> movb	$READ_SECTORS, %ah
-> [snip]
-> pushw	%dx		# work around buggy BIOSes
-> stc			# work around buggy BIOSes
-> int	$0x13
-> sti			# work around buggy BIOSes
-> popw	%dx
+>> On Wed, 10 Dec 2003 20:33:24 +0100
+>> mru@kth.se (Måns Rullgård) wrote:
+>>
+>>
+>>> Witukind <witukind@nsbm.kicks-ass.org> writes:
+>>>
+>>>
+>>>> On Tue, 09 Dec 2003 10:39:32 +0100 mru@kth.se (Måns Rullgård) wrote:
+>>>>
+>>>>
+>>>>>> Is there a specific case for which people want this feature?
+>>>>>> Offhand it seems like a slightly odd thing to ask for...
+>>>>>
+>>>>>
+>>>>> I believe the original motivation for module autoloading was to
+>>>>
+>>>>
+>>>> save> memory by unloading modules when their devices were unused. 
+>>>> Loading> them automatically on demand made for less trouble for
+>>>> users, who> didn't have to run modprobe manually to use the sound
+>>>> card, or> whatever.  This could still be a good thing in embedded
+>>>> systems.>
 > 
-> This is what Microsoft uses apparently to work around various buggy BIOS
-> implementations - ref: Ralf Brown's Interrupt list 61, which I consider
-> the ultimate and definite guide to interrupts. (-:
-
-OK, I'll look into that too.
- 
-> Further, at the Getdeviceparameters int 0x13 call, you may want to zero
-> the two bytes following the EDDPARMSIZE in %ds:(%si) before doing the
-> interrupt as your own company's PhoneixBIOS 4.0 Release 6.0 machines
-> didn't work unless this was the case (ref: Ralf Brown's Interrupt list
-> 61).
-
-Ahh, yes.  I read that now.  OK, no harm in doing so, I'll add that.
- 
-> Finally, would it not be prudent to check the result of
-> checkextensionspresent int 0x13 call before doing the
-> getdeviceparameters int 0x13 call?  For example this would do just that:
+> the biggest advantage from modules is the ability to enable/disable 
+> devices with different initialization configurations without rebooting, 
+> including the use of devices that aren't present during boot or may be 
+> added to a system that cant be put down to reboot. Embedded systems 
+> usually do not change, that's just part of being embedded, modules dont 
+> really make sense there unless things like filesystems and non-device 
+> modules never get used at the same time and memory is limited such that 
+> 100KB actually matters.
 > 
-> [snip]
-> movw	%cx, %ds:-2(%si)		# store extensions
-> [snip]                                                                                        testw	$7, %cx				# Is Function 48 supported?
-> jz	edd_skip_getdevparms		# If not, skip the call...
 > 
-> movb	$GETDEVICEPARAMETERS, %ah	# Function 48
-> int	$0x13				# make the call
-> 					# Don't check for fail return
-> 					# it doesn't matter.
-> edd_skip_getdevparms:
+>>>> I don't see why it wouldn't be a good thing for regular systems
+>>>> also. Saving memory is usually a good idea.
+> 
+> 
+> True, but how about we start being good memory users where it counts the 
+> most, like gui's/userspace land and then worry about the sub 1MB usage 
+> that kernels exist in.
+> 
+>>> The biggest modules are about 100k.  Saving 100k of 1 GB doesn't
+>>> really seem worth any effort.
+>>
+>>
+>>
+>> I don't have 1 Gb of memory. On my laptop with 16 mb RAM saving 100k 
+>> is worth
+>> the effort.
+> 
 
-So, I thought about this for a while when I first wrote the code.  I
-haven't run across *any* BIOSses yet which didn't implement function
-48 for at least some version of EDD; it may not be version 0x30, but we've got
-space reserved for it up to the size 0x30 could return, so it doesn't
-matter.  If it returns anything in function 41, then it will return
-something in function 48 too.  I could be wrong I suppose, but none of
-the BIOS reports I've seen suggest otherwise.
+Blah, scratch this.
+> Then why do you use a sylpheed, which is gtk instead of something in a 
+> terminal that uses much less memory (doesn't require xfree86, which 
+> you're probably also using instead of tinyX) and toolkits, pixmaps etc. 
+>   Obviously, 100k is not worth _your_ effort.
 
-Thanks,
-Matt
+And of course that's all assuming you're using your laptop to write and 
+send email.  Which you probably wouldn't be doing on a 16MB 
+laptop...probably wouldn't be doing anything on a 16MB laptop.  But 
+anyway, the rest of what i was talking about is ok.
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+
+
+> 
+> I'm not saying module use is more memory efficient than not or vice 
+> versa, but if memory usage in the 100K range is going to be the only 
+> argument for autoloading/unloading of modules then it's really _not_ 
+> worth the effort unless someone can give that kind of support without 
+> trying.  Your fight for memory efficiency should start where the 
+> inefficiency is the largest, and work it's way down, not the other way 
+> around.
+>
+

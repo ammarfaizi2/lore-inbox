@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291155AbSBMAdR>; Tue, 12 Feb 2002 19:33:17 -0500
+	id <S291157AbSBMAdr>; Tue, 12 Feb 2002 19:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291157AbSBMAdL>; Tue, 12 Feb 2002 19:33:11 -0500
-Received: from dsl-213-023-043-038.arcor-ip.net ([213.23.43.38]:5765 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S291155AbSBMAc6>;
-	Tue, 12 Feb 2002 19:32:58 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: File BlockSize
-Date: Wed, 13 Feb 2002 01:36:39 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, riel@surriel.com
-In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> <E16ae3z-0001xO-00@the-village.bc.nu> <20020212205722.GH767@holomorphy.com>
-In-Reply-To: <20020212205722.GH767@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16anPb-0001Vu-00@starship.berlin>
+	id <S291273AbSBMAdi>; Tue, 12 Feb 2002 19:33:38 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:21199 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S291222AbSBMAdZ>;
+	Tue, 12 Feb 2002 19:33:25 -0500
+Date: Tue, 12 Feb 2002 16:33:23 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] get_request starvation fix
+Message-ID: <20020212163323.A768043@sgi.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C639060.A68A42CA@zip.com.au> <3C6791C0.63CA2677@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C6791C0.63CA2677@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 12, 2002 09:57 pm, William Lee Irwin III wrote:
-> On Tue, Feb 12, 2002 at 02:37:43PM +0000, Alan Cox wrote:
-> > Going to a block size bigger than page size causes all sorts of fun with 
-> > allocation failures if there are not two pages free adjacent to one another
-> > when allocating, and isn't really worth the cost.
-> 
-> This sounds like fairly severe memory fragmentation, which seems more
-> worrisome to me than blocksize constraints. Should I look into that?
+On Mon, Feb 11, 2002 at 01:41:20AM -0800, Andrew Morton wrote:
+> Also, here's a patch which fixes the /bin/sync livelock in
+> write_unlocked_buffers().  It simply bales out after writing
+> all the buffers which were dirty at the time the function
+> was called, rather than keeping on trying to write buffers
+> until the list is empty.
 
-This is one of the chronic VM problems that rmap is supposed to cure, at least
-it will provide a base on which an active physical defragger can be built.
+I've also seen this issue when I start multiple mkfs commands (10 in
+parallel basically make the system useless), but the patch helped.
+Any chance it will get into 2.4?
 
--- 
-Daniel
+Thanks,
+Jesse

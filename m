@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269209AbTCBNkp>; Sun, 2 Mar 2003 08:40:45 -0500
+	id <S269211AbTCBNuI>; Sun, 2 Mar 2003 08:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269211AbTCBNkp>; Sun, 2 Mar 2003 08:40:45 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:31754 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S269209AbTCBNko>; Sun, 2 Mar 2003 08:40:44 -0500
-Subject: Re: [PATCH] kernel source spellchecker
-From: Steven Cole <elenstev@mesatop.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Dan Kegel <dank@kegel.com>, Matthias Schniedermeyer <ms@citd.de>,
-       Joe Perches <joe@perches.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
-In-Reply-To: <1046604117.12947.16.camel@imladris.demon.co.uk>
-References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>
-	<3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com>
-	<3E6167B1.6040206@kegel.com>  <3E617428.3090207@kegel.com>
-	<1046578585.2544.451.camel@spc1.mesatop.com> 
-	<1046604117.12947.16.camel@imladris.demon.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 02 Mar 2003 06:49:50 -0700
-Message-Id: <1046612993.7527.472.camel@spc1.mesatop.com>
-Mime-Version: 1.0
+	id <S269212AbTCBNuI>; Sun, 2 Mar 2003 08:50:08 -0500
+Received: from daimi.au.dk ([130.225.16.1]:37844 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S269211AbTCBNuH>;
+	Sun, 2 Mar 2003 08:50:07 -0500
+Message-ID: <3E620E71.B74C2191@daimi.au.dk>
+Date: Sun, 02 Mar 2003 15:00:17 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: DervishD <raul@pleyades.net>
+CC: Miles Bader <miles@gnu.org>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030302125315.GH45@DervishD>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-02 at 04:21, David Woodhouse wrote:
-> On Sun, 2003-03-02 at 04:16, Steven Cole wrote:
+DervishD wrote:
 > 
-> > Another correction to the corrections file:
-> > 
-> > Licensed=Licenced
-> >          ^^^^^^^^
-> > I think Licenced is OK in the UK.
-> > See http://www.gsu.edu/~wwwesl/egw/jones/differences.htm
+>     Hi Miles :)
 > 
-> 'Licenced' is not OK in the UK; it should be corrected to 'Licensed'.
+>  Miles Bader dixit:
+> > /var is clearly the right place for this; if /var isn't mounted
+> > initially, I'd suggest that mount should simply not update any file
+> > at that point, and the init-script that mounts /var can be
+> > responsible from propagating information from /proc/mounts to
+> > /var/whatever.
 > 
-> In the UK, 'licence' is a noun, 'license' is a verb -- just as with
-> practice/practise and advice/advise etc. in both variants of the
-> language.
+>     In an embedded system I built a time ago, /etc/mtab was first a
+> symlink to /proc/mounts, but after a while I made it a symlink to
+> /var/run/mtab. It worked OK, AFAIK.
 
-Thanks for the explanation.
+Did mount actually update the mtab file? The version of mount on
+my system would not.
 
-> 
-> I think we also want to add:
-> 
-> Decompressing=Uncompressing
-> 
-> You should also refrain from 'correcting' the already-correct British
-> spellings of 'modelled'.
-> 
-> It might also be worth adding a list of 'suspect' spellings -- which
-> require human intervention. Such items might include 'indices=indexes'
-> and 'erratum=errata' although you can't do it automatically because
-> sometimes the right-hand side is actually correct.
-
-In my first pass through the tree, it looks like there are quite a few
-_correct_ uses of errata, but there indeed some of these:
-
-./drivers/net/tulip/de2104x.c:  /* Avoid a chip errata by prefixing a dummy entry. */
-
-I think the errata/erratum issue requires careful editing.
-
-Steven
-
-
-
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

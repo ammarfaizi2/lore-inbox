@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262781AbUCOWG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 17:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbUCOWG6
+	id S262816AbUCOWHc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 17:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262793AbUCOWHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 17:06:58 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:7823 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262781AbUCOWFj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 17:05:39 -0500
-Message-ID: <405628AC.4030609@cyberone.com.au>
-Date: Tue, 16 Mar 2004 09:05:32 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, j-nomura@ce.jp.nec.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [2.4] heavy-load under swap space shortage
-References: <Pine.LNX.4.44.0403150822040.12895-100000@chimarrao.boston.redhat.com> <4055BF90.5030806@cyberone.com.au> <20040315145020.GC30940@dualathlon.random>
-In-Reply-To: <20040315145020.GC30940@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 15 Mar 2004 17:07:08 -0500
+Received: from gate.crashing.org ([63.228.1.57]:18141 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262775AbUCOWFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 17:05:02 -0500
+Subject: Re: consistent_sync_for_cpu() and friends on ppc32
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Olaf Hering <olh@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040315123647.4ce943b7.davem@redhat.com>
+References: <20040315201616.GA31268@suse.de>
+	 <20040315123647.4ce943b7.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1079387955.1966.177.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 16 Mar 2004 08:59:16 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Ben, can you work this out?  I can make it compile by just making the
+> _for_cpu and _for_device routines behave identically to what the
+> consisten_sync{,_page}() stuff does now.  But I'd much rather a ppc32
+> person implement it correctly and optimally.
+> 
+> In short, the _for_device routines should make sure cacheable data in
+> the cpu is fully visible to the DMA device, and _for_cpu should make
+> sure all device DMA is visible to the processor.
 
-Andrea Arcangeli wrote:
+Yup, it depends for what CPU the kernel is compiled, normal desktop
+CPUs are completely coherent, so this will be a no-op, but 4xx/8xx
+embedded CPUs will need something better. I'll have a look today
 
->On Tue, Mar 16, 2004 at 01:37:04AM +1100, Nick Piggin wrote:
->
->>This case I think is well worth the unfairness it causes, because it
->>means your zone's pages can be freed quickly and without freeing pages
->>from other zones.
->>
->
->freeing pages from other zones is perfectly fine, the classzone design
->gets it right, you have to free memory from the other zones too or you
->have no way to work on a 1G machine. you call the thing "unfair" when it
->has nothing to do with fariness, your unfariness is the slowdown I
->pointed out, it's all about being able to maintain a more reliable cache
->information from the point of view of the pagecache users (the pagecache
->users cares at the _classzone_, they can't care about the zones
->themself), it has nothing to do with fairness.
->
->
+Ben.
 
-What I meant by unfairness is that low zone scanning in response
-to low zone pressure will not put any pressure on higher zones.
-Thus pages in higher zones have an advantage.
-
-We do scan lowmem in response to highmem pressure.
 

@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131498AbRDJLy2>; Tue, 10 Apr 2001 07:54:28 -0400
+	id <S131505AbRDJLy2>; Tue, 10 Apr 2001 07:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131505AbRDJLyS>; Tue, 10 Apr 2001 07:54:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:517 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131484AbRDJLyF>; Tue, 10 Apr 2001 07:54:05 -0400
-Subject: Re: No 100 HZ timer !
-To: schwidefsky@de.ibm.com
-Date: Tue, 10 Apr 2001 12:54:24 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
-        mbs@mc.com (Mark Salisbury), jdike@karaya.com (Jeff Dike),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <C1256A2A.003FF1BD.00@d12mta07.de.ibm.com> from "schwidefsky@de.ibm.com" at Apr 10, 2001 01:38:43 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131484AbRDJLyT>; Tue, 10 Apr 2001 07:54:19 -0400
+Received: from light.kappa.ro ([194.102.249.27]:25866 "EHLO light.kappa.ro")
+	by vger.kernel.org with ESMTP id <S131498AbRDJLyH>;
+	Tue, 10 Apr 2001 07:54:07 -0400
+Message-ID: <000d01c0c1bc$43236760$e8c6e7c1@hybrid>
+From: "Alexandru Barloiu Nicolae" <axl@light.kappa.ro>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14mvsY-0003zS-00@the-village.bc.nu>
+Subject: Re: Compaq proliant ML-350 - IDE & SCSI
+Date: Tue, 10 Apr 2001 14:46:28 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14mwj5-00046a-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you do the accounting on reschedule, how do you find out how much ti=
-> me
-> has been spent in user versus kernel mode? Or do the Intel chips have t=
-> wo
-> counters, one for user space execution and one for the kernel?
 
-Unfortunately not so you'd need to do a little bit per syscall, at least for
-non trivial syscalls.
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Alexandru Barloiu Nicolae" <axl@light.kappa.ro>
+Cc: "Mark Hahn" <hahn@coffee.psychology.mcmaster.ca>;
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, April 10, 2001 1:00 PM
+Subject: Re: Compaq proliant ML-350 - IDE & SCSI
+
+
+> > 2.4.4-p1 is the kernel version that i've tried now. no succes with 2.4.3
+and
+> > below.
+>
+> Please see if the 2.4.3-ac version of osb4 works on your box. I need to
+get
+> more results on this to know if I got it right
+>
+
+Still hangs. No ops no nothing. Just hangs. I've got 8 ext2fs in this system
+and it takes foresever to start. :(
+
+axl
+

@@ -1,64 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262911AbUCMA4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 19:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUCMA4N
+	id S262917AbUCMBRe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 20:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUCMBRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 19:56:13 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:49386 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262911AbUCMA4K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 19:56:10 -0500
-Message-ID: <40525C1F.5030705@cyberone.com.au>
-Date: Sat, 13 Mar 2004 11:55:59 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 12 Mar 2004 20:17:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24705 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262917AbUCMBRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 20:17:31 -0500
+Date: Fri, 12 Mar 2004 20:17:26 -0500 (EST)
+From: Matthew Galgoci <mgalgoci@redhat.com>
+X-X-Sender: mgalgoci@lacrosse.corp.redhat.com
+To: akpm@osdl.org, <tytso@mit.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH - take 3] atkbd shaddup
+In-Reply-To: <20040312183738.GA3233@thunk.org>
+Message-ID: <Pine.LNX.4.44.0403122015400.2910-100000@lacrosse.corp.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>
-Subject: [BENCHMARKS] 2.6.4 vs 2.6.4-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are some benchmarks on a 16-way (4x4) NUMAQ. Basically
-measures the scheduler patches with a couple of meaningless
-but very scheduler intensive benchmarks.
+> > Andrew,
+> > 
+> > I can't be the only person to be annoyed by the "too many keys
+> > pressed" error message that often gets spewed across the console
+> > when I am typing fast. This patch turns that error message (and
+> > others) into info message. Also, one debug message was turned into
+> > info, and a couple of warnings were turned into info where I thought
+> > it made sense.
+> 
+> I'd go even further.  Do we need to print the "too many keys pressed"
+> message at *all*?  Why would anyone care?
 
-hackbench:
-The number in () is a projection for the time 1000 would take,
-assuming a linear scaling. It is probably better shown on a
-graph, but you can see a non linear element in 2.6.4 that is
-basically absent in 2.6.4-mm1.
+atkbd shaddup - Take 3 - I suck again.
 
-              2.6.4    2.6.4-mm1
- 50      19.4 (388)   15.5 (310)
-100      39.0 (390)   34.5 (345)
-150      59.0 (393)   48.3 (322)
-200      82.9 (414)   68.9 (344)
-250     114.8 (459)   90.2 (360)
-300     145.4 (484)  106.3 (354)
-350     178.1 (508)  122.1 (348)
-400     218.8 (547)  135.0 (337)
-450     237.8 (528)  163.9 (364)
-500     262.0 (524)  181.7 (363)
-
-volanomark (MPS):
-This one starts getting huge mmap_sem contention at 150+ coming
-from futexes. Don't know what is taking the mmap_sem for writing.
-Maybe just brk or mmap.
-
-        2.6.4   2.6.4-mm1
- 15      5850        6221
- 30      5682        5852
- 45      4736        5700
- 60      2857        5622
- 75      1024        4840
- 90      1832        5191
-105       491        5036
-120      1591        4228
-135       393        4986
-150      1056        1586
+--- linux-2.6.4/drivers/input/keyboard/atkbd.c.orig	2004-03-12 20:13:30.000000000 -0500
++++ linux-2.6.4/drivers/input/keyboard/atkbd.c	2004-03-12 20:13:49.000000000 -0500
+@@ -257,9 +257,11 @@
+ 		case ATKBD_RET_HANJA:
+ 			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
++#ifdef ATKBD_DEBUG
+ 		case ATKBD_RET_ERR:
+-			printk(KERN_WARNING "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
++			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+ 			goto out;
++#endif /* ATKBD_DEBUG */
+ 	}
+ 
+ 	if (atkbd->set != 3)
+@@ -274,15 +276,15 @@
+ 		case ATKBD_KEY_NULL:
+ 			break;
+ 		case ATKBD_KEY_UNKNOWN:
+-			printk(KERN_WARNING "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
++			printk(KERN_INFO "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
+ 				atkbd->release ? "released" : "pressed",
+ 				atkbd->translated ? "translated" : "raw", 
+ 				atkbd->set, code, serio->phys);
+ 			if (atkbd->translated && atkbd->set == 2 && code == 0x7a)
+-				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access"
++				printk(KERN_INFO "atkbd.c: This is an XFree86 bug. It shouldn't access"
+ 					" hardware directly.\n");
+ 			else
+-				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
++				printk(KERN_INFO "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
+ 			break;
+ 		default:
+ 			value = atkbd->release ? 0 :
+@@ -496,8 +498,8 @@
+ 	atkbd->id = (param[0] << 8) | param[1];
+ 
+ 	if (atkbd->id == 0xaca1 && atkbd->translated) {
+-		printk(KERN_ERR "atkbd.c: NCD terminal keyboards are only supported on non-translating\n");
+-		printk(KERN_ERR "atkbd.c: controllers. Use i8042.direct=1 to disable translation.\n");
++		printk(KERN_INFO "atkbd.c: NCD terminal keyboards are only supported on non-translating\n");
++		printk(KERN_INFO "atkbd.c: controllers. Use i8042.direct=1 to disable translation.\n");
+ 		return -1;
+ 	}
+ 
+@@ -588,7 +590,7 @@
+  */
+ 
+ 	if (atkbd_command(atkbd, NULL, ATKBD_CMD_ENABLE)) {
+-		printk(KERN_ERR "atkbd.c: Failed to enable keyboard on %s\n",
++		printk(KERN_WARNING "atkbd.c: Failed to enable keyboard on %s\n",
+ 			atkbd->serio->phys);
+ 		return -1;
+ 	}
+@@ -744,7 +746,7 @@
+ 	int i;
+ 
+         if (!dev) {
+-                printk(KERN_DEBUG "atkbd: reconnect request, but serio is disconnected, ignoring...\n");
++                printk(KERN_INFO "atkbd.c: reconnect request, but serio is disconnected, ignoring...\n");
+                 return -1;
+         }
+ 
 

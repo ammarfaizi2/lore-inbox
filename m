@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288342AbSBMSaY>; Wed, 13 Feb 2002 13:30:24 -0500
+	id <S288308AbSBMS3Y>; Wed, 13 Feb 2002 13:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288377AbSBMSaV>; Wed, 13 Feb 2002 13:30:21 -0500
-Received: from mailer3.bham.ac.uk ([147.188.128.54]:38582 "EHLO
-	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
-	id <S288342AbSBMSaA>; Wed, 13 Feb 2002 13:30:00 -0500
-Date: Wed, 13 Feb 2002 18:30:01 +0000 (GMT)
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-X-X-Sender: mpc@pc24.sr.bham.ac.uk
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Quick question on Software RAID support.
-In-Reply-To: <E16axOE-0004zX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0202131824530.29582-100000@pc24.sr.bham.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288342AbSBMS3P>; Wed, 13 Feb 2002 13:29:15 -0500
+Received: from ns.suse.de ([213.95.15.193]:47111 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288308AbSBMS26>;
+	Wed, 13 Feb 2002 13:28:58 -0500
+Date: Wed, 13 Feb 2002 19:28:51 +0100
+From: Dave Jones <davej@suse.de>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: portmap problems with 2.5.4-pre5
+Message-ID: <20020213192851.C925@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0202130818430.15774-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0202130818430.15774-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Wed, Feb 13, 2002 at 08:20:34AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Wed, Feb 13, 2002 at 08:20:34AM +0200, Zwane Mwaikambo wrote:
+ > I tried to mount an NFS filesystem and had mount stuck in the D state for 
+ > quite a while (minutes), this was also in my logs.
+ > 
+ > Jan  1 02:06:00 mondecino kernel: portmap: server localhost not responding, timed out
+ > Jan  1 02:06:00 mondecino kernel: lockd_up: makesock failed, error=-5
+ > Jan  1 02:07:40 mondecino kernel: portmap: server localhost not responding, timed out
+ > 
+ > Eventually it did mount, but i've never had this error before on that box 
+ > (i use the box daily and do that mount more than 5 times a day). I've been 
+ > using 2.5 on that box since 2.5.0. I seem to be able to reproduce it, so 
+ > i'll leave the box running in case anyone wants to try anything.
 
-Just a note that I have almost exactly the setup you outlined on a 
-KT7A-RAID, HPT370 onboard.
+ Richard Henderson mentioned it yesterday in the Re: thread_info implementation
+ thread. (msgid: 20020211154917.A19367@are.twiddle.net). I've also seen
+ it recently (circa .4pre3), then it went away, and now I have a box thats also
+ doing it repeatedly.
 
-I have a single disk on each highpoint chain, and a 3rd (parity) on 
-one of the onboard 686B channels.
-
-I have been seeing odd corruptions since I setup the system as RAID-5 
-though.  Have you seen any reports of 686B ide corruption recently (or 
-RAID-5 for that matter) ?
-
-kernel 2.4.18pre6... just compiling pre9-ac3...
-Athlon MP 1500+, mem=nopentium apm=off, NvAGP=0 in X-setup.
-
-Mark
-
-On Wed, 13 Feb 2002, Alan Cox wrote:
-
-> Date: Wed, 13 Feb 2002 11:15:54 +0000 (GMT)
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: Marco Colombo <marco@esi.it>
-> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-> Subject: Re: Quick question on Software RAID support.
-> 
-> > 	 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > Is it supposed to detect a failed disk and *stop* using it?
-> 
-> Yes, it will stop using it and if appropriate try and do a rebuild
-> 
-> > I had a raid1 IDE system, and it was continuosly raising hard errors on
-> > hdc (the disk was dead, non just some bad blocks): the net result was that
-> > it was unusable - too slow, too busy on IDE errors (a lot of them - even
-> > syslog wasn't happy).
-> 
-> Don't try and do "hot pluggable" IDE raid it really doesn't work out. With
-> scsi the impact of a sulking drive is minimal unless you get unlucky
-> (I have here a failed SCSI SCA drive that hangs the entire bus merely by
-> being present - I use it to terrify HA people 8))
-> 
-> > BTW, given a 2 disks IDE raid1 setup (hda / hdc), does it pay to put a
-> > third disk in (say hdb) and configure it as "spare disk"? I've got 
-> > concerns about the slave not actually beeing able to operate if the
-> > master (hda) fails badly.
-> 
-> Well placed concerns. I don't know what Andre thinks but IMHO spend the
-> extra $20 to put an extra highpoint controller in the machine for the third
-> IDE bus.
-> 
-> Alan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+ afaik, no-one else has looked at it in detail yet (or seen it?)
 
 -- 
-+-------------------------------------------------------------------------+
-Mark Cooke                  The views expressed above are mine and are not
-Systems Programmer          necessarily representative of university policy
-University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
-+-------------------------------------------------------------------------+
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

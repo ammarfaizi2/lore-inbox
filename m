@@ -1,82 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314445AbSDRUEs>; Thu, 18 Apr 2002 16:04:48 -0400
+	id <S314446AbSDRUIi>; Thu, 18 Apr 2002 16:08:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSDRUEr>; Thu, 18 Apr 2002 16:04:47 -0400
-Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:2098 "EHLO
-	carey-server.stronghold.to") by vger.kernel.org with ESMTP
-	id <S314445AbSDRUEq>; Thu, 18 Apr 2002 16:04:46 -0400
-Message-Id: <4.3.2.7.2.20020418153151.019a98e0@mail.qrts.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 18 Apr 2002 16:06:36 -0400
+	id <S314447AbSDRUIh>; Thu, 18 Apr 2002 16:08:37 -0400
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:21146 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S314446AbSDRUIf>; Thu, 18 Apr 2002 16:08:35 -0400
+Date: Thu, 18 Apr 2002 22:08:55 +0200 (CEST)
+From: Erich Focht <efocht@ess.nec.de>
+X-X-Sender: focht@beast.local
 To: linux-kernel@vger.kernel.org
-From: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Subject: CPU scheduler question: processes created faster than
-  destroyed?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+cc: Ingo Molnar <mingo@elte.hu>, <torvalds@transmeta.com>
+Subject: [PATCH] migration thread fix
+Message-ID: <Pine.LNX.4.44.0204182043110.2453-100000@beast.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, thanks to all for doing a great job with the Linux kernel. We 
-appreciate your work!
+The patch below applies to the 2.5.8 kernel. It does two things:
 
-I've been seeing this behavior on our servers (2.4.2 and 2.4.18 kernel) and 
-would like to ask your opinion. I have read the linux internals doc. 
-section on the scheduler, and have read through the sched.c source code.
+1: Fixes a BUG in the migration threads: the interrupts MUST be disabled
+before the double runqueue lock is aquired, otherwise this thing will
+deadlock sometimes.
 
-I have a certain # of client processes on various machines that connect to 
-a linux server box. A forking server (DAServer.t) waits for client 
-connections, then forks a copy to handle the client request. Each forked 
-DAServer.t connects to three database server back ends (postgres), all of 
-which fork from a postmaster process.
+2: Streamlines the initialization of migration threads. Instead of
+fiddling around with cache_deccay_ticks, waiting for migration_mask bits
+and relying on the scheduler to distribute the tasks uniformly among
+processors, it starts the migration thread on the boot cpu and uses it to
+reliably distribute the other threads to their target cpus.
 
-So each client connection causes 4 forks on the server.
+Please consider applying it!
 
-The forked server does some work for the client, communicating with the 3 
-database backends, then replies to the client, and the client disconnects. 
-Now the server does some cleanup and exist.
+Thanks,
+Erich
 
-At the point where the server replied to the client, the client disconnects 
-and is ready to send another message to the master server, which will cause 
-another 4 forks, etc.
+diff -urN 2.5.8-ia64/kernel/sched.c 2.5.8-ia64-ef/kernel/sched.c
+--- 2.5.8-ia64/kernel/sched.c	Wed Apr 17 23:39:00 2002
++++ 2.5.8-ia64-ef/kernel/sched.c	Thu Apr 18 20:00:49 2002
+@@ -1669,10 +1669,9 @@
+ 	down(&req.sem);
+ }
 
-Given a fixed # of clients (say 14) I'd expect the # of processes to have 
-some upper bound, but what I see is that sometimes the # of sleeping 
-processes will grow unbounded (limited only by the 512 limit on the # of 
-database backends).
+-static volatile unsigned long migration_mask;
+-
+-static int migration_thread(void * unused)
++static int migration_thread(void * bind_cpu)
+ {
++	int cpu = cpu_logical_map((int) (long) bind_cpu);
+ 	struct sched_param param = { sched_priority: 99 };
+ 	runqueue_t *rq;
+ 	int ret;
+@@ -1680,36 +1679,20 @@
+ 	daemonize();
+ 	sigfillset(&current->blocked);
+ 	set_fs(KERNEL_DS);
+-	ret = setscheduler(0, SCHED_FIFO, &param);
+-
+ 	/*
+-	 * We have to migrate manually - there is no migration thread
+-	 * to do this for us yet :-)
+-	 *
+-	 * We use the following property of the Linux scheduler. At
+-	 * this point no other task is running, so by keeping all
+-	 * migration threads running, the load-balancer will distribute
+-	 * them between all CPUs equally. At that point every migration
+-	 * task binds itself to the current CPU.
++	 * The first migration thread is started on CPU #0. This one can migrate
++	 * the other migration threads to their destination CPUs.
+ 	 */
+-
+-	/* wait for all migration threads to start up. */
+-	while (!migration_mask)
+-		yield();
+-
+-	for (;;) {
+-		preempt_disable();
+-		if (test_and_clear_bit(smp_processor_id(), &migration_mask))
+-			current->cpus_allowed = 1 << smp_processor_id();
+-		if (test_thread_flag(TIF_NEED_RESCHED))
+-			schedule();
+-		if (!migration_mask)
+-			break;
+-		preempt_enable();
++	if (cpu != 0) {
++		while (!cpu_rq(cpu_logical_map(0))->migration_thread)
++			yield();
++		set_cpus_allowed(current, 1UL << cpu);
+ 	}
++	printk("migration_task %d on cpu=%d\n",cpu,smp_processor_id());
++	ret = setscheduler(0, SCHED_FIFO, &param);
++
+ 	rq = this_rq();
+ 	rq->migration_thread = current;
+-	preempt_enable();
 
-I've logged load average, # of processes, # of DAServer.t processes, # of 
-database server and plotted these at
+ 	sprintf(current->comm, "migration_CPU%d", smp_processor_id());
 
-http://www.strongholdtech.com/plots/
+@@ -1740,6 +1723,7 @@
+ 		cpu_src = p->thread_info->cpu;
+ 		rq_src = cpu_rq(cpu_src);
 
-The # of sleeping processes will grow to say 900, and then suddenly 140 or 
-them will become ready to run, run for a few seconds (driving load avg to 
-around 100) and then disappear. Then shortly the system returns to normal.
++		local_irq_save(flags);
+ 		double_rq_lock(rq_src, rq_dest);
+ 		if (p->thread_info->cpu != cpu_src) {
+ 			double_rq_unlock(rq_src, rq_dest);
+@@ -1753,6 +1737,7 @@
+ 			}
+ 		}
+ 		double_rq_unlock(rq_src, rq_dest);
++		local_irq_restore(flags);
 
-Swap is not an issue, we have 1 gig RAM and 2 gig swap, and the swap isn't 
-used, we usually only have about 400 meg in use when we hit the 900 process 
-mark.
+ 		up(&req->sem);
+ 	}
+@@ -1760,33 +1745,18 @@
 
-Is this just bad design on our part, or is there something in the CPU 
-scheduler that leads to this behavior - where processes are started quicker 
-than they die?
+ void __init migration_init(void)
+ {
+-	unsigned long tmp, orig_cache_decay_ticks;
+ 	int cpu;
 
-This problem is only exacerbated on a dual CPU box (goes unstable quicker).
+-	tmp = 0;
++	current->cpus_allowed = 1UL << cpu_logical_map(0);
+ 	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
+-		if (kernel_thread(migration_thread, NULL,
++		if (kernel_thread(migration_thread, (void *) (long) cpu,
+ 				CLONE_FS | CLONE_FILES | CLONE_SIGNAL) < 0)
+ 			BUG();
+-		tmp |= (1UL << cpu_logical_map(cpu));
+ 	}
++	current->cpus_allowed = -1L;
 
-Any suggestions?
-
-We're going to try throttling the forked DAServer.t when the # of sleeping 
-processes is large, making it sleep so that hopefully the other processes 
-(some of which hang around in the sleeping state for 30 minutes or longer) 
-will be able to run and die.
-
-Thanks for your help,
-Nick
-****************************************************
-Nicolae P. Costescu, Ph.D.  / Senior Developer
-Stronghold Technologies
-46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
-Tel: 571-434-1472 / Fax: 571-434-1478
+-	migration_mask = tmp;
+-
+-	orig_cache_decay_ticks = cache_decay_ticks;
+-	cache_decay_ticks = 0;
+-
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
+-		int logical = cpu_logical_map(cpu);
+-
+-		while (!cpu_rq(logical)->migration_thread) {
+-			set_current_state(TASK_INTERRUPTIBLE);
++	for (cpu = 0; cpu < smp_num_cpus; cpu++)
++		while (!cpu_rq(cpu)->migration_thread)
+ 			schedule_timeout(2);
+-		}
+-	}
+-	if (migration_mask)
+-		BUG();
+-
+-	cache_decay_ticks = orig_cache_decay_ticks;
+ }
+ #endif
 

@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268602AbTGTVae (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268644AbTGTVae
+	id S268587AbTGTV3F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268589AbTGTV3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:30:34 -0400
-Received: from h80ad25d2.async.vt.edu ([128.173.37.210]:16513 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S268602AbTGTVa1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:30:27 -0400
-Message-Id: <200307202145.h6KLjPGO006430@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Ronald Jerome <imun1ty@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1-mnm2 blank screen in X in RH9.0 Dell c840 laptop 
-In-Reply-To: Your message of "Sun, 20 Jul 2003 14:23:41 PDT."
-             <20030720212341.87198.qmail@web13302.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030720212341.87198.qmail@web13302.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-408219322P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 20 Jul 2003 17:29:05 -0400
+Received: from mithril.c-zone.net ([63.172.74.235]:27659 "EHLO mail.c-zone.net")
+	by vger.kernel.org with ESMTP id S268587AbTGTV3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 17:29:02 -0400
+Message-ID: <3F1B0D4A.8000908@c-zone.net>
+Date: Sun, 20 Jul 2003 14:44:42 -0700
+From: jiho@c-zone.net
+Organization: Kidding of Course
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       B.Zolnierkiewicz@elka.pw.edu.pl, vojtech@suse.cz
+Subject: [PATCH] 2.6.0-test1 - IDE driver VIA support (obscure bug)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 20 Jul 2003 17:45:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-408219322P
-Content-Type: text/plain; charset=us-ascii
+(Apoligies if line-wrapping is nuts, I've been confined to Mozilla....)
 
-On Sun, 20 Jul 2003 14:23:41 PDT, Ronald Jerome <imun1ty@yahoo.com>  said:
-> Is X broken in 2.6.0-test1-mm2?
-> 
-> I have a blank screen when I "startx"
+This patch fixes a *very* obscure bug, which only applies to VIA chipsets that
+support UDMA-133 mode, and which is only known to be tickled by one UDMA-66 hard
+drive (Maxtor 91360U4) that happens to report 80-wire cable detection opposite to
+the ATA standard.
 
-Are you using the NVidia binary drivers?  If so, you need some patches.
+The bug appears in a test to see how the BIOS set up UDMA timing.  This test is
+only reached when the drive says 80-wire *and* the chipset says 40-wire (which is
+only known to happen with this drive).
 
-1) Get the 4363 drivers from NVidia's download site.
-2) run './NVIDIA-Linux-x86-1.0-4363.run --extract-only'
-3) Get the current 4363 patch from www.minion.de
-4) 'cd NVIDIA-Linux-x86-1.0-4363/usr/src/nv'
-5) patch -p1 < /path/to/NVIDIA_kernel-1.0-4363-2.6.diff
-6) cp Makefile.nvidia Makefile
+The timing bits that are checked represent clocks T minus 2, i.e., ((N - 2) * T).
+But Vojtech forgot to subtract 2, and applied N = 8 rather than N = 6 in the
+test.  Since the test masks the bits at 7, they are always less than 8, and the
+test always succeeds, even though the BIOS set UDMA-33.
 
-7) boot -test1-mm2 *SINGLE USER*
 
-8) login as root and 'cd NVIDIA-Linux-x86-1.0-4363',
-then
-9) 'make install'
+--- drivers/ide/pci/via82cxxx.c-orig	Fri Jun 13 07:51:33 2003
++++ drivers/ide/pci/via82cxxx.c	Sun Jul 20 11:38:42 2003
+@@ -484,7 +484,7 @@
+			for (i = 24; i >= 0; i -= 8)
+				if (((u >> i) & 0x10) ||
+				    (((u >> i) & 0x20) &&
+-				     (((u >> i) & 7) < 8))) {
++				     (((u >> i) & 7) < 6))) {
+					/* BIOS 80-wire bit or
+					 * UDMA w/ < 60ns/cycle
+					 */
 
-(I'm typing this on a C840 running -test1-mm2 and the NVidia drivers, so I
-know it can be made to work).
 
---==_Exmh_-408219322P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/Gw11cC3lWbTT17ARAsLFAJ9tZIKfPvFoDjwW5xgtbXsIj0m6swCglscY
-uZ6JNOMfj/7Cwj304F/0D8Y=
-=7dp9
------END PGP SIGNATURE-----
-
---==_Exmh_-408219322P--

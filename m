@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbTDKXRT (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 19:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTDKXQg (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 19:16:36 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:41978 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S262134AbTDKXPV (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 19:15:21 -0400
-Message-ID: <3E974F68.5020106@mvista.com>
-Date: Fri, 11 Apr 2003 16:27:36 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: David Lang <david.lang@digitalinsight.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Jeremy Jackson'" <jerj@coplanar.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-hotplug-devel@lists.sourceforge.net'" 
-	<linux-hotplug-devel@lists.sourceforge.net>
+	id S262569AbTDKX0H (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 19:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTDKX0G (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 19:26:06 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:46030 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262569AbTDKXZi (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 19:25:38 -0400
+Date: Fri, 11 Apr 2003 16:37:19 -0700
+From: Greg KH <greg@kroah.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com
 Subject: Re: [ANNOUNCE] udev 0.1 release
-References: <A46BBDB345A7D5118EC90002A5072C780BEBAA44@orsmsx116.jf.intel.com> <Pine.LNX.4.44.0304111347370.8422-100000@dlang.diginsite.com> <20030411205948.GV1821@kroah.com> <3E974299.3030701@mvista.com> <20030411225137.GB3786@kroah.com>
-In-Reply-To: <20030411225137.GB3786@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030411233719.GD4539@kroah.com>
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <20030411192827.GC31739@ca-server1.us.oracle.com> <20030411195843.GO1821@kroah.com> <20030411232507.GC4917@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030411232507.GC4917@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 11, 2003 at 04:25:07PM -0700, Joel Becker wrote:
+> On Fri, Apr 11, 2003 at 12:58:43PM -0700, Greg KH wrote:
+> > > There's going to be a war over this naming, and that's why this is
+> > > hard.
+> > 
+> > No, there isn't.  That's what I am trying to completely avoid with udev.
+> > It will allow you to plug in whatever device naming scheme that you
+> > want.
+> 
+> 	And this is exactly what we can't have happen.  If I am an
+> administrator, I don't want to have to write all my scripts to do:
+> 
+> if [ -f /etc/redhat-release ]
+> then
+>     DISKPREFIX="/dev/disk"
+> elif [ -f /etc/unitedlinux-release ]
+> then
+>     DISKPREFIX="/dev/disc"
+> elif [ -f /dev/volume0 ]
+> then
+>     DISKPREFIX="/dev/volume"
+> elif 
+>     ...
 
+But all the distros will do that for you :)
 
-Greg KH wrote:
+> 	Please, let's not repeat GNOME/KDE, OpenLook/Motif,
+> mkinitrd/mkinitrd, etc for all our devices.
 
->On Fri, Apr 11, 2003 at 03:32:57PM -0700, Steven Dake wrote:
->  
->
->>I've been thinking of how to solve this particular problem, and believe 
->>you could use dnotify in a daemon to track permission and ownership 
->>changes and store them in a backing database.  In fact, we do something 
->>similiar to this today.  This allows the user to use any type of 
->>application for changing permissions/owners, even syscalls directly 
->>without having to go "through" any sort of tracking database.
->>    
->>
->
->That would be cool.  But I think we need to add dnotify support to sysfs
->first :)
->
-Hmm, I thought you were creating a tmpfs in /dev.  I think that 
-particular case would allow dnotify to tell you when permissions and 
-owners changed?
+Then try to convince LSB to add a device naming document to their spec.
+That's the only way this is going to happen...
 
->
->thanks,
->
->greg k-h
->
->
->
->  
->
+Good luck,
 
+greg k-h

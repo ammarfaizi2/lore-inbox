@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSGNTJH>; Sun, 14 Jul 2002 15:09:07 -0400
+	id <S317006AbSGNTMc>; Sun, 14 Jul 2002 15:12:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317006AbSGNTJH>; Sun, 14 Jul 2002 15:09:07 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:1764 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317005AbSGNTJG>; Sun, 14 Jul 2002 15:09:06 -0400
-Date: Sun, 14 Jul 2002 21:10:24 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141910.g6EJAOrC019354@burner.fokus.gmd.de>
-To: alan@lxorguk.ukuu.org.uk, schilling@fokus.gmd.de
-Cc: linux-kernel@vger.kernel.org
+	id <S317012AbSGNTMc>; Sun, 14 Jul 2002 15:12:32 -0400
+Received: from zork.zork.net ([66.92.188.166]:18367 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S317006AbSGNTMb>;
+	Sun, 14 Jul 2002 15:12:31 -0400
+Date: Sun, 14 Jul 2002 20:15:24 +0100
+From: Sean Neakums <sneakums@zork.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
+Message-ID: <20020714191524.GB9202@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200207141811.g6EIBXKc019318@burner.fokus.gmd.de> <20020714184006.GA13867@louise.pinerecords.com> <20020714190657.GB13867@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020714190657.GB13867@louise.pinerecords.com>
+User-Agent: Mutt/1.3.28i
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text advisory: HACKING, DENIAL OF THE ANTECEDENT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From alan@lxorguk.ukuu.org.uk Sun Jul 14 17:35:44 2002
+commence  Tomas Szepe  quotation:
+> > > A Pentium 1200 running Linux-2.5.25 (ext3) results in:
+> > > 
+> > > # star -xp -time < rock.tar.bz2
+> > > star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+> > > star: 10372 blocks + 1536 bytes (total of 106210816 bytes = 103721.50k).
+> > > star: Total time 3190.483sec (32 kBytes/sec)
+> > > 53:10.490r 12.299u 2970.099s 93% 0M 0+0k 0st 0+0io 4411pf+0w
+> > > 
+> > > You see, during the 53:20, the machine is only 7% idle!
+> > 
+> > A Pentium 1200, eh?
+> > More like Pentium 120 or star just doesn't cut it.
+> 
+> Now I'm actually pretty sure you meant 386DX/33!
+> 
+> I don't know whom you're trying to fool, but even my P2/233
+> can get the work done in under 5 minutes:
+> 
+> kala@hubert:/tmp$ time tar xjf rock.tar.bz2
+> 
+> real    4m50.598s
+> user    0m36.700s
+> sys     1m51.860s
+> 
+> Linux 2.4.19-pre10-ac2, reiserfs 3.6.
 
+Aha, but reiserfs's directories are indexed, are they not?  Whereas
+ext3's directories are flat and require a linear search for lookups
+and modifications.  This may be what Joerg's example highlights.
 
->Try doing the following in SCSI
-
->-	Device managed storage layout  "Allocate x blocks close to 	handle y
->and give me a new handle"
-
-You don't want do do this in SCSI because it is a task of a layer above SCSI.
-
-
->-	Per I/O request readahead hints (please read on xyzK , please 	dont
->readahead)
-
-Again:	this is a task of a layer above SCSI.
-	In some cases, where you might refer to medium access level read ahead,
-	this is done by implementing tagged SCSI command queueing.
-
->-	Per I/O request writeback hints (write back cache is ok, write 	back
->cache is ok only if NV, don't bother caching, streaming I/O
->	hint)
-
-Again: this is a task of a layer above SCSI. See Solaris and FreeBSD as 
-examples.
-
-It would help if you first do some homework and read some decent kernel 
-sources to understand how a kernel needs to be layered to implement
-e.g. Storage/FS/kernel/user interface layering.
-
-Then use e.g. 'iostat' to see how overlapping disk I/O is done.
-
->I have controllers which can do most of the above. I don't want to talk
->scsi to them and spend all my cpu time faking, decoding and recoding
->command blocks, spoofing error handling and the like.
-
->Its simply inappropriate to consider the SCSI command set as a high
->level interface for block and related I/O. 
-
-It looks like you never did metering tests to see what amount of time
-is needed to handle the SCSI protocol.
-
-I did many tests when implementing RSCSI. Even when you include TCP/IP
-times, the overhead is <= 100 µs per SCSI command.
-
-
->As to your comments on sg. Everyone except you happened to think that
->Doug Gilberts very nice sg changes were the right path. I still think it
->was the right decision. 
-
-Not knowing what is bad may make people believe that something is good.
-
->> If this discussion stays as it currently looks like, it does not make 
->> sense for me to try to find a better solution. Let me call it this
->> way: this thread was just another proof that it is not possible to
->> have a technical based solution with the Linux folks. It seems t be >
->> just a waste of time :-(
-
->The Linux development process aggressively filters bad ideas.
-
-It definitely did not help 4 years ago, when the sg problem did came up.
-
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+-- 
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

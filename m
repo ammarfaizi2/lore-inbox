@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSIOTAb>; Sun, 15 Sep 2002 15:00:31 -0400
+	id <S318223AbSIOTIl>; Sun, 15 Sep 2002 15:08:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318188AbSIOTAb>; Sun, 15 Sep 2002 15:00:31 -0400
-Received: from lmail.actcom.co.il ([192.114.47.13]:29895 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S318184AbSIOTAa>; Sun, 15 Sep 2002 15:00:30 -0400
+	id <S318229AbSIOTIl>; Sun, 15 Sep 2002 15:08:41 -0400
+Received: from balu.sch.bme.hu ([152.66.208.40]:61908 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S318223AbSIOTIg>;
+	Sun, 15 Sep 2002 15:08:36 -0400
+Date: Sun, 15 Sep 2002 21:13:30 +0200 (MEST)
+From: Pozsar Balazs <pozsy@uhulinux.hu>
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [BUG?] binfmt_script: interpreted interpreter doesn't work
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.30.0209151910220.22107-100000@balu>
-References: <Pine.GSO.4.30.0209151910220.22107-100000@balu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 15 Sep 2002 22:05:31 +0300
-Message-Id: <1032116731.2620.1.camel@gby.benyossef.com>
-Mime-Version: 1.0
+In-Reply-To: <200209152055.05322.hpj@urpla.net>
+Message-ID: <Pine.GSO.4.30.0209152057580.22107-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-15 at 20:15, Pozsar Balazs wrote:
 
-> This may well not be bug, rather an intended feature, but please enlighten
-> me why the following doesn't work:
-> 
-> I have two scripts:
-> /home/pozsy/a:
-> #!/bin/sh
-> echo "Hello from a!"
-> 
-> /home/pozsy/b:
-> #!/home/pozsy/a
-> echo "hello from b!"
-> 
-> 
-> Both of them has +x permissions.
-> But I cannot execute the /home/pozsy/b script:
-> 
-> [pozsy:~]$ strace -f /home/pozsy/b
-> execve("/home/pozsy/b", ["/home/pozsy/b"], [/* 25 vars */]) = 0
-> strace: exec: Exec format error
-> [pozsy:~]$
-> 
-> 
-> Isn't this "indirection" allowed?
+On Sun, 15 Sep 2002, Hans-Peter Jansen wrote:
 
-hm... never chcked the code but I think /home/pozsy/a needs to be in
-/etc/shells
+> > Consider these two scripts:
+> >
+> > /home/pozsy/a:
+> > #!/usr/bin/perl
+> > print <>;
+> >
+> > /home/pozsy/b:
+> > #!/home/pozsy/a
+> > "This is some text to printed out by the 'a' script"
 
-What are you trying to do, anyway?
+> What's the problem?
 
-Cheers,
-Gilad.
+I have a script written in perl, which interprets its input (or the files
+in its arguments) [this is "a" in the above example]. I want to use this
+script, as an interpreter to another "script" [the "b" in the above
+example].
+
+I well know bash, but this has nothing to do with shell coding.
+
+Try my above example and you will understand what the problem is.
+If you execute /home/pozsy/b, you _should_ get this as the output (2
+lines) (the "a" program simply cats its input or argument files to its
+output):
+#!/home/pozsy/b
+"This is some text to printed out by the 'a' script"
+
+BUT this is what you get (1 line):
+/home/pozsy/b: This is some text to printed out by the 'a' script: command
+not found
+
+This is because the kernel cannot execute the "/home/pozsy/b" script, and
+then bash tries to interpret it itself. (but this in *not* what I want: I
+want the "b" 'script' interpreted by the "a" script).
+If you try this:
+  strace -f /home/pozsy/b
+You will get this:
+execve("/home/pozsy/b", ["/home/pozsy/b"], [/* 24 vars */]) = 0
+strace: exec: Exec format error
+
+The root of the problem is still that /home/pozsy/b cannot be execve'd.
+That is a kernel problem.
 
 -- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-http://benyossef.com
- 
- "We don't need kernel hackers or geniuses, we need good developers who
-  will do what they're told". Famous last words, the collection.
+pozsy
+
 

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbTEHMqM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 08:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbTEHMqM
+	id S261524AbTEHNGw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 09:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbTEHNGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 08:46:12 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:51460 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261311AbTEHMqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 08:46:11 -0400
-Date: Thu, 8 May 2003 13:58:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chuck Ebbert <76306.1226@compuserve.com>, D.A.Fedorov@inp.nsk.su,
-       Steffen Persvold <sp@scali.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030508135839.A6698@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Terje Eggestad <terje.eggestad@scali.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Chuck Ebbert <76306.1226@compuserve.com>, D.A.Fedorov@inp.nsk.su,
-	Steffen Persvold <sp@scali.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no> <20030508095943.B22255@devserv.devel.redhat.com> <1052398474.4849.57.camel@pc-16.office.scali.no>
+	Thu, 8 May 2003 09:06:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32921 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261524AbTEHNGv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 09:06:51 -0400
+Date: Thu, 8 May 2003 14:19:26 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       lsm <linux-security-module@wirex.com>
+Subject: Re: [PATCH] Process Attribute API for Security Modules 2.5.69
+Message-ID: <20030508131926.GU10374@parcelfarce.linux.theplanet.co.uk>
+References: <1052237601.1377.991.camel@moss-huskers.epoch.ncsc.mil> <20030507105038.GN10374@parcelfarce.linux.theplanet.co.uk> <1052319765.1044.60.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052398474.4849.57.camel@pc-16.office.scali.no>; from terje.eggestad@scali.com on Thu, May 08, 2003 at 02:54:35PM +0200
+In-Reply-To: <1052319765.1044.60.camel@moss-huskers.epoch.ncsc.mil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 02:54:35PM +0200, Terje Eggestad wrote:
-> So what you're saying here is not that you object to having people doing
-> syscall hooks, just that operating on the syscall_table symbol directly
-> is error prone (to which I wholeheartedly agree). 
+On Wed, May 07, 2003 at 11:02:46AM -0400, Stephen Smalley wrote:
+> On Wed, 2003-05-07 at 06:50, viro@parcelfarce.linux.theplanet.co.uk
+> wrote:
+> > Umm...  How about having it merged with proc_base_readdir()?  I.e.
+> > have both call the common helper.  Ditto for lookups.
+> > 
+> > Other than that (and missing check for copy_to_user() return value in
+> > ->read()) I don't see any problems here.
 > 
-> Then you reject a "proper mechanism".....
+> This updated patch against 2.5.69 merges the readdir and lookup routines
+> for proc_base and proc_attr, fixes the copy_to_user call in
+> proc_attr_read and proc_info_read, moves the new data and code within
+> CONFIG_SECURITY, and uses ARRAY_SIZE, per the comments from Al Viro and
+> Andrew Morton.  As before, this patch implements a process attribute API
+> for security modules via a set of nodes in a /proc/pid/attr directory.
+> Credit for the idea of implementing this API via /proc/pid/attr nodes
+> goes to Al Viro.  Jan Harkes provided a nice cleanup of the
+> implementation to reduce the code bloat.
 
-Maybe you have a different notion of proper mechanism then everyone
-else.  BTW, you could easily have fixed your driver in the time you
-spent trolling on lkml..
+[snip]
 
+Looks sane...

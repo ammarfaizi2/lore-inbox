@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUEXIkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUEXInA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUEXIkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 04:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUEXIkQ
+	id S264153AbUEXInA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 04:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbUEXInA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 04:40:16 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:61598 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264147AbUEXIcL (ORCPT
+	Mon, 24 May 2004 04:43:00 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:17311 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264153AbUEXIc6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 04:32:11 -0400
-Date: Mon, 24 May 2004 04:31:46 -0400
+	Mon, 24 May 2004 04:32:58 -0400
+Date: Mon, 24 May 2004 04:32:20 -0400
 From: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
 To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
        prism54-devel@prism54.org
-Subject: [PATCH 4/14 linux-2.6.7-rc1] prism54: add support for avs header in
-Message-ID: <20040524083146.GE3330@ruslug.rutgers.edu>
+Subject: [PATCH 5/14 linux-2.6.7-rc1] prism54: new prism54 kernel compatibility
+Message-ID: <20040524083220.GF3330@ruslug.rutgers.edu>
 Reply-To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
 Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
 	netdev@oss.sgi.com, prism54-devel@prism54.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5joxkA65nhhP20dL"
+	protocol="application/pgp-signature"; boundary="jmkJtp15SxLq1SbD"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
 X-Operating-System: 2.4.18-1-686
@@ -31,580 +31,669 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---5joxkA65nhhP20dL
-Content-Type: multipart/mixed; boundary="SKW69dzTt3T8RCN0"
+--jmkJtp15SxLq1SbD
+Content-Type: multipart/mixed; boundary="SqJDPA0lBYgnDFWV"
 Content-Disposition: inline
 
 
---SKW69dzTt3T8RCN0
+--SqJDPA0lBYgnDFWV
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
-2004-03-19      Aurelien Alleaume <slts@free.fr>
+2004-03-20      Margit Schubert-While <margitsw@t-online.de>
 
-* islpci_eth.[c,h], islpci_dev.[c,h], isl_ioctl.[c,h] : added
-  support for avs header in monitor mode. Based on the work of
-  Antonio Eugenio Burriel <aeb@ryanstudios.com>. Unified packets
-  header (rfmon_header and rx_annex) for iwspy.j
+* isl_38xx.[ch], isl_ioctl.c, islpci_dev.[ch], islpci_eth.c
+  islpci_hotplug.c, islpci_mgt.[ch], oid_mgt.c: Adopt new
+  prism54 kernel compatibility.
 
-* Some minor things (oid_mgt.[c,h]).
-				=09
+* prismcompat.h, prismcompat24.h: New compatibility work
+
+
 --=20
 GnuPG Key fingerprint =3D 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
 
---SKW69dzTt3T8RCN0
+--SqJDPA0lBYgnDFWV
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="04-add_avs_header_support.patch"
+Content-Disposition: attachment; filename="05-new_kernel_compatibility.patch"
 Content-Transfer-Encoding: quoted-printable
 
-2004-03-19	Aurelien Alleaume <slts@free.fr>
+2004-03-20	Margit Schubert-While <margitsw@t-online.de>
 
-	* islpci_eth.[c,h], islpci_dev.[c,h], isl_ioctl.[c,h] : added support
-	for avs header in monitor mode. Based on the work of Antonio Eugenio
-	Burriel <aeb@ryanstudios.com>. Unified packets header (rfmon_header and
-	rx_annex) for iwspy.
+	* isl_38xx.[ch], isl_ioctl.c, islpci_dev.[ch], islpci_eth.c
+	islpci_hotplug.c, islpci_mgt.[ch], oid_mgt.c: Adopt new=20
+	prism54 kernel compatibility.=20
 
-	* Some minor things (oid_mgt.[c,h]).
+	* prismcompat.h, prismcompat24.h: New compatibility work
 
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_38xx.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /var/lib/cvs/prism54-ng/ksrc/isl_38xx.c,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -u -r1.25 -r1.26
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_38xx.c	18 Mar 2004 05:=
+25:24 -0000	1.25
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_38xx.c	20 Mar 2004 16:=
+58:36 -0000	1.26
+@@ -1,4 +1,4 @@
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_38xx.c,v 1.22 2004/02/28 03:=
+06:07 mcgrof Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_38xx.c,v 1.26 2004/03/20 16:=
+58:36 mcgrof Exp $
+  * =20
+  *  Copyright (C) 2002 Intersil Americas Inc.
+  *  Copyright (C) 2003-2004 Luis R. Rodriguez <mcgrof@ruslug.rutgers.edu>_
+@@ -25,17 +25,11 @@
+ #include <linux/types.h>
+ #include <linux/delay.h>
+=20
+-#include "isl_38xx.h"
+-#include <linux/firmware.h>
+-
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+=20
+-#include <linux/config.h>
+-#if !defined(CONFIG_FW_LOADER) && !defined(CONFIG_FW_LOADER_MODULE)
+-#error No Firmware Loading configured in the kernel !
+-#endif
+-
++#include "prismcompat.h"
++#include "isl_38xx.h"
+ #include "islpci_dev.h"
+ #include "islpci_mgt.h"
+=20
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_38xx.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /var/lib/cvs/prism54-ng/ksrc/isl_38xx.h,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -u -r1.24 -r1.25
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_38xx.h	18 Mar 2004 05:=
+25:24 -0000	1.24
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_38xx.h	20 Mar 2004 16:=
+58:36 -0000	1.25
+@@ -1,4 +1,4 @@
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_38xx.h,v 1.22 2004/02/28 03:=
+06:07 mcgrof Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_38xx.h,v 1.25 2004/03/20 16:=
+58:36 mcgrof Exp $
+  * =20
+  *  Copyright (C) 2002 Intersil Americas Inc.
+  *
+@@ -22,14 +22,6 @@
+=20
+ #include <linux/version.h>
+ #include <asm/io.h>
+-
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,75))
+-#include <linux/device.h>
+-# define _REQ_FW_DEV_T struct device *
+-#else
+-# define _REQ_FW_DEV_T char *
+-#endif
+-
+ #include <asm/byteorder.h>
+=20
+ #define ISL38XX_CB_RX_QSIZE                     8
 Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_ioctl.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 RCS file: /var/lib/cvs/prism54-ng/ksrc/isl_ioctl.c,v
-retrieving revision 1.145
 retrieving revision 1.148
-diff -u -r1.145 -r1.148
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_ioctl.c	18 Mar 2004 15=
-:27:44 -0000	1.145
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_ioctl.c	19 Mar 2004 23=
+retrieving revision 1.149
+diff -u -r1.148 -r1.149
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_ioctl.c	19 Mar 2004 23=
 :03:58 -0000	1.148
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_ioctl.c	20 Mar 2004 16=
+:58:36 -0000	1.149
 @@ -1,4 +1,4 @@
--/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_ioctl.c,v 1.145 2004/03/18 1=
-5:27:44 ajfa Exp $
-+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_ioctl.c,v 1.148 2004/03/19 2=
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_ioctl.c,v 1.148 2004/03/19 2=
 3:03:58 ajfa Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/isl_ioctl.c,v 1.149 2004/03/20 1=
+6:58:36 mcgrof Exp $
   * =20
   *  Copyright (C) 2002 Intersil Americas Inc.
   *            (C) 2003,2004 Aurelien Alleaume <slts@free.fr>
-@@ -327,34 +327,15 @@
- {
- 	islpci_private *priv =3D netdev_priv(ndev);
- 	int rvalue;
--	u32 c =3D 0;
-+	u32 c;
+@@ -25,10 +25,10 @@
+ #include <linux/kernel.h>
+ #include <linux/if_arp.h>
+ #include <linux/pci.h>
+-#include <linux/moduleparam.h>
 =20
--	/* prepare the structure for the set object */
--	if (fwrq->m < 1000)
--		/* structure value contains a channel indication */
--		c =3D fwrq->m;
--	else {
--		/* structure contains a frequency indication and fwrq->e =3D 1 */
--		int f =3D fwrq->m / 100000;
--
--		if (fwrq->e !=3D 1)
--			return -EINVAL;
--		if ((f >=3D 2412) && (f <=3D 2484)) {
--			while ((c < 14) && (f !=3D frequency_list_bg[c]))
--				c++;
--			if (c >=3D 14)
--				return -EINVAL;
--		} else if ((f >=3D (int) 5170) && (f <=3D (int) 5320)) {
--			while ((c < 12) && (f !=3D frequency_list_a[c]))
--				c++;
--			if (c >=3D 12)
--				return -EINVAL;
--		} else
--			return -EINVAL;
--		c++;
--	}
-+	if (fwrq->m  < 1000)
-+		/* we have a channel number */
-+		c =3D  fwrq->m;
-+	else
-+		c =3D (fwrq->e =3D=3D 1) ? channel_of_freq(fwrq->m / 100000) : 0;
+ #include <asm/uaccess.h>
 =20
--	rvalue =3D mgt_set_request(priv, DOT11_OID_CHANNEL, 0, &c);
-+	rvalue =3D c ? mgt_set_request(priv, DOT11_OID_CHANNEL, 0, &c) : -EINVAL;
-=20
- 	/* Call commit handler */
- 	return (rvalue ? rvalue : -EINPROGRESS);
-@@ -410,7 +391,7 @@
-=20
- 	mgt_commit(priv);
- 	priv->ndev->type =3D (priv->iw_mode =3D=3D IW_MODE_MONITOR)
--	    ? ARPHRD_IEEE80211 : ARPHRD_ETHER;
-+	    ? priv->monitor_type : ARPHRD_ETHER;
- 	up_write(&priv->mib_sem);
-=20
- 	return 0;
-@@ -1963,6 +1944,28 @@
- }
-=20
- int
-+prism54_set_prismhdr(struct net_device *ndev, struct iw_request_info *info,
-+		     __u32 * uwrq, char *extra)
-+{
-+	islpci_private *priv =3D netdev_priv(ndev);
-+	priv->monitor_type =3D
-+	    (*uwrq ? ARPHRD_IEEE80211_PRISM : ARPHRD_IEEE80211);
-+	if (priv->iw_mode =3D=3D IW_MODE_MONITOR)
-+		priv->ndev->type =3D priv->monitor_type;
-+
-+	return 0;
-+}
-+
-+int
-+prism54_get_prismhdr(struct net_device *ndev, struct iw_request_info *info,
-+		     __u32 * uwrq, char *extra)
-+{
-+	islpci_private *priv =3D netdev_priv(ndev);
-+	*uwrq =3D (priv->monitor_type =3D=3D ARPHRD_IEEE80211_PRISM);
-+	return 0;
-+}
-+
-+int
- prism54_set_maxframeburst(struct net_device *ndev, struct iw_request_info =
-*info,
- 			  __u32 * uwrq, char *extra)
- {
-@@ -2198,6 +2201,9 @@
- #define	PRISM54_SET_OID_STR	SIOCIWFIRSTPRIV+20
- #define	PRISM54_SET_OID_ADDR	SIOCIWFIRSTPRIV+22
-=20
-+#define PRISM54_GET_PRISMHDR	SIOCIWFIRSTPRIV+23
-+#define PRISM54_SET_PRISMHDR	SIOCIWFIRSTPRIV+24
-+
- #define IWPRIV_SET_U32(n,x)	{ n, IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1=
-, 0, "set_"x }
- #define IWPRIV_SET_SSID(n,x)	{ n, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_FIXED |=
- 1, 0, "set_"x }
- #define IWPRIV_SET_ADDR(n,x)	{ n, IW_PRIV_TYPE_ADDR | IW_PRIV_SIZE_FIXED |=
- 1, 0, "set_"x }
-@@ -2212,6 +2218,10 @@
- static const struct iw_priv_args prism54_private_args[] =3D {
- /*{ cmd, set_args, get_args, name } */
- 	{PRISM54_RESET, 0, 0, "reset"},
-+	{PRISM54_GET_PRISMHDR, 0, IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
-+	 "get_prismhdr"},
-+	{PRISM54_SET_PRISMHDR, IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0,
-+	 "set_prismhdr"},
- 	{PRISM54_GET_POLICY, 0, IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
- 	 "getPolicy"},
- 	{PRISM54_SET_POLICY, IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1, 0,
-@@ -2321,7 +2331,8 @@
- 	(iw_handler) prism54_set_raw,
- 	(iw_handler) NULL,
- 	(iw_handler) prism54_set_raw,
--
-+	(iw_handler) prism54_get_prismhdr,
-+	(iw_handler) prism54_set_prismhdr,
- };
-=20
- const struct iw_handler_def prism54_handler_def =3D {
-Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_oid.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /var/lib/cvs/prism54-ng/ksrc/isl_oid.h,v
-retrieving revision 1.5
-retrieving revision 1.6
-diff -u -r1.5 -r1.6
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_oid.h	18 Mar 2004 15:2=
-7:44 -0000	1.5
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/isl_oid.h	19 Mar 2004 20:5=
-4:33 -0000	1.6
-@@ -1,5 +1,5 @@
- /*
-- *  $Id: isl_oid.h,v 1.5 2004/03/18 15:27:44 ajfa Exp $
-+ *  $Id: isl_oid.h,v 1.6 2004/03/19 20:54:33 ajfa Exp $
-  * =20
-  *  Copyright (C) 2003 Herbert Valerio Riedel <hvr@gnu.org>
-  *  Copyright (C) 2004 Luis R. Rodriguez <mcgrof@ruslug.rutgers.edu>
-@@ -91,19 +91,6 @@
- 	u16 mhz[0];
- } __attribute__ ((packed));
-=20
--struct obj_rx_annex {
--	u8 addr1[ETH_ALEN];
--	u8 addr2[ETH_ALEN];
--	u32 something0;
--	u32 time;
--	u16 something1;
--	u16 rate;
--	u16 freq;
--	u16 something2;
--	u8 rssi;
--	u8 pad[3];
--} __attribute__ ((packed));
--
- /*=20
-  * in case everything's ok, the inlined function below will be
-  * optimized away by the compiler...
++#include "prismcompat.h"
+ #include "isl_ioctl.h"
+ #include "islpci_mgt.h"
+ #include "isl_oid.h"		/* additional types and defs for isl38xx fw */
 Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v
-retrieving revision 1.71
 retrieving revision 1.72
-diff -u -r1.71 -r1.72
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c	18 Mar 2004 1=
-1:44:17 -0000	1.71
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c	19 Mar 2004 2=
+retrieving revision 1.73
+diff -u -r1.72 -r1.73
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c	19 Mar 2004 2=
 0:54:33 -0000	1.72
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.c	20 Mar 2004 1=
+6:58:36 -0000	1.73
 @@ -1,4 +1,4 @@
--/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v 1.71 2004/03/18 1=
-1:44:17 ajfa Exp $
-+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v 1.72 2004/03/19 2=
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v 1.72 2004/03/19 2=
 0:54:33 ajfa Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.c,v 1.73 2004/03/20 1=
+6:58:36 mcgrof Exp $
   * =20
   *  Copyright (C) 2002 Intersil Americas Inc.
   *  Copyright (C) 2003 Herbert Valerio Riedel <hvr@gnu.org>
-@@ -715,9 +715,9 @@
- 	priv =3D netdev_priv(ndev);
- 	priv->ndev =3D ndev;
- 	priv->pdev =3D pdev;
--
-+	priv->monitor_type =3D ARPHRD_IEEE80211;
- 	priv->ndev->type =3D (priv->iw_mode =3D=3D IW_MODE_MONITOR) ?
--		ARPHRD_IEEE80211: ARPHRD_ETHER;
-+		priv->monitor_type : ARPHRD_ETHER;
+@@ -30,6 +30,7 @@
 =20
- 	/* save the start and end address of the PCI memory area */
- 	ndev->mem_start =3D (unsigned long) priv->device_base;
+ #include <asm/io.h>
+=20
++#include "prismcompat.h"
+ #include "isl_38xx.h"
+ #include "isl_ioctl.h"
+ #include "islpci_dev.h"
+@@ -37,12 +38,6 @@
+ #include "islpci_eth.h"
+ #include "oid_mgt.h"
+=20
+-#if LINUX_VERSION_CODE <=3D KERNEL_VERSION(2,5,0)
+-#define prism54_synchronize_irq(irq) synchronize_irq()
+-#else
+-#define prism54_synchronize_irq(irq) synchronize_irq(irq)
+-#endif
+-
+ #define ISL3877_IMAGE_FILE	"isl3877"
+ #define ISL3890_IMAGE_FILE	"isl3890"
+=20
+@@ -325,11 +320,7 @@
+ 	printk(KERN_DEBUG "%s: uploading firmware...\n", priv->ndev->name);
+=20
+ 	rc =3D isl38xx_upload_firmware(priv->firmware,
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,75))
+-		&priv->pdev->dev,
+-#else
+-		pci_name(priv->pdev),
+-#endif
++		PRISM_FW_PDEV,
+ 		priv->device_base,
+ 		priv->device_host_address);
+ 	if (rc) {
+@@ -357,15 +348,7 @@
+ 	int result =3D -ETIME;
+ 	int count;
+=20
+-#if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,6,0)
+-	/* This is 2.6 specific, nicer, shorter, but not in 2.4 yet */
+-	DEFINE_WAIT(wait);
+-	prepare_to_wait(&priv->reset_done, &wait, TASK_UNINTERRUPTIBLE);
+-#else
+-	DECLARE_WAITQUEUE(wait, current);
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	add_wait_queue(&priv->reset_done, &wait);
+-#endif
++	PRISM_DEFWAITQ(priv->reset_done, wait);
+ =09
+ 	/* now the last step is to reset the interface */
+ 	isl38xx_interface_reset(priv->device_base, priv->device_host_address);
+@@ -390,13 +373,7 @@
+=20
+ 	}
+=20
+-#if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,6,0)
+-	/* 2.6 specific too */
+-	finish_wait(&priv->reset_done, &wait);
+-#else
+-	remove_wait_queue(&priv->reset_done, &wait);
+-	set_current_state(TASK_RUNNING);
+-#endif
++	PRISM_ENDWAITQ(priv->reset_done, wait);
+=20
+ 	if(result)
+ 		return result;
 Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.h
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.h,v
-retrieving revision 1.57
 retrieving revision 1.58
-diff -u -r1.57 -r1.58
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.h	18 Mar 2004 1=
-5:27:44 -0000	1.57
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.h	19 Mar 2004 2=
+retrieving revision 1.59
+diff -u -r1.58 -r1.59
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.h	19 Mar 2004 2=
 0:54:33 -0000	1.58
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_dev.h	20 Mar 2004 1=
+6:58:36 -0000	1.59
 @@ -1,4 +1,4 @@
--/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.h,v 1.57 2004/03/18 1=
-5:27:44 ajfa Exp $
-+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.h,v 1.58 2004/03/19 2=
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.h,v 1.58 2004/03/19 2=
 0:54:33 ajfa Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_dev.h,v 1.59 2004/03/20 1=
+6:58:36 mcgrof Exp $
   * =20
   *  Copyright (C) 2002 Intersil Americas Inc.=20
   *  Copyright (C) 2003 Herbert Valerio Riedel <hvr@gnu.org>
-@@ -114,6 +114,8 @@
+@@ -29,20 +29,6 @@
+ #include <net/iw_handler.h>
+ #include <linux/list.h>
 =20
- 	struct iw_spy_data spy_data; /* iwspy support */
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,41)
+-# include <linux/workqueue.h>
+-#else
+-# include <linux/tqueue.h>
+-# define work_struct tq_struct
+-# define INIT_WORK INIT_TQUEUE
+-# define schedule_work schedule_task
+-#endif
+-
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
+-#define free_netdev(x) kfree(x)=20
+-#define pci_name(x) x->slot_name=20
+-#endif
+-
+ #include "isl_38xx.h"
+ #include "isl_oid.h"
+ #include "islpci_mgt.h"
+@@ -210,12 +196,6 @@
 =20
-+	int monitor_type; /* ARPHRD_IEEE80211 or ARPHRD_IEEE80211_PRISM */
-+
- 	struct islpci_acl acl;
+ #define ISLPCI_TX_TIMEOUT               (2*HZ)
 =20
- 	/* PCI bus allocation & configuration members */
+-#if (LINUX_VERSION_CODE <=3D KERNEL_VERSION(2,5,75))
+-# define irqreturn_t void
+-# define IRQ_HANDLED
+-# define IRQ_NONE
+-#endif
+-
+ irqreturn_t islpci_interrupt(int, void *, struct pt_regs *);
+=20
+ int prism54_post_setup(islpci_private *, int);
 Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v
-retrieving revision 1.31
 retrieving revision 1.33
-diff -u -r1.31 -r1.33
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c	18 Mar 2004 1=
-5:27:44 -0000	1.31
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c	19 Mar 2004 2=
+retrieving revision 1.35
+diff -u -r1.33 -r1.35
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c	19 Mar 2004 2=
 3:03:58 -0000	1.33
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.c	20 Mar 2004 1=
+6:58:36 -0000	1.35
 @@ -1,4 +1,4 @@
--/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.31 2004/03/18 1=
-5:27:44 ajfa Exp $
-+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.33 2004/03/19 2=
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.33 2004/03/19 2=
 3:03:58 ajfa Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.35 2004/03/20 1=
+6:58:36 mcgrof Exp $
   * =20
   *  Copyright (C) 2002 Intersil Americas Inc.
   *  Copyright (C) 2004 Aurelien Alleaume <slts@free.fr>
-@@ -24,10 +24,12 @@
- #include <linux/delay.h>
- #include <linux/netdevice.h>
+@@ -26,6 +26,7 @@
  #include <linux/etherdevice.h>
-+#include <linux/if_arp.h>
+ #include <linux/if_arp.h>
 =20
++#include "prismcompat.h"
  #include "isl_38xx.h"
  #include "islpci_eth.h"
  #include "islpci_mgt.h"
-+#include "oid_mgt.h"
+@@ -261,9 +262,9 @@
+ 	if (priv->ndev->type =3D=3D ARPHRD_IEEE80211_PRISM) {
+ 		struct avs_80211_1_header *avs;
+ 		/* extract the relevant data from the header */
+-		u32 clock =3D hdr->clock;
++		u32 clock =3D le32_to_cpu(hdr->clock);
+ 		u8 rate =3D hdr->rate;
+-		u16 freq =3D be16_to_cpu(hdr->freq);
++		u16 freq =3D le16_to_cpu(hdr->freq);
+ 		u8 rssi =3D hdr->rssi;
 =20
- /*************************************************************************=
-*****
-     Network Interface functions
-@@ -246,6 +248,69 @@
- 	return err;
- }
-=20
-+static inline int
-+islpci_monitor_rx(islpci_private *priv, struct sk_buff **skb)
-+{
-+	/* The card reports full 802.11 packets but with a 20 bytes
-+	 * header and without the FCS. But there a is a bit that
-+	 * indicates if the packet is corrupted :-) */
-+	struct rfmon_header *hdr =3D (struct rfmon_header *) (*skb)->data;
-+	if (hdr->flags & 0x01)
-+		/* This one is bad. Drop it ! */
-+		return -1;
-+	if (priv->ndev->type =3D=3D ARPHRD_IEEE80211_PRISM) {
-+		struct avs_80211_1_header *avs;
-+		/* extract the relevant data from the header */
-+		u32 clock =3D hdr->clock;
-+		u8 rate =3D hdr->rate;
-+		u16 freq =3D be16_to_cpu(hdr->freq);
-+		u8 rssi =3D hdr->rssi;
-+
-+		skb_pull(*skb, sizeof (struct rfmon_header));
-+
-+		if (skb_headroom(*skb) < sizeof (struct avs_80211_1_header)) {
-+			struct sk_buff *newskb =3D skb_copy_expand(*skb,
-+								 sizeof (struct
-+									 avs_80211_1_header),
-+								 0, GFP_ATOMIC);
-+			if (newskb) {
-+				kfree_skb(*skb);
-+				*skb =3D newskb;
-+			} else
-+				return -1;
-+			/* This behavior is not very subtile... */
-+		}
-+
-+		/* make room for the new header and fill it. */
-+		avs =3D
-+		    (struct avs_80211_1_header *) skb_push(*skb,
-+							   sizeof (struct
-+								   avs_80211_1_header));
-+
-+		avs->version =3D htonl(P80211CAPTURE_VERSION);
-+		avs->length =3D htonl(sizeof (struct avs_80211_1_header));
-+		avs->mactime =3D __cpu_to_be64(clock);
-+		avs->hosttime =3D __cpu_to_be64(jiffies);
-+		avs->phytype =3D htonl(6);	/*OFDM: 6 for (g), 8 for (a) */
-+		avs->channel =3D htonl(channel_of_freq(freq));
-+		avs->datarate =3D htonl(rate * 5);
-+		avs->antenna =3D htonl(0);	/*unknown */
-+		avs->priority =3D htonl(0);	/*unknown */
-+		avs->ssi_type =3D htonl(2);	/*2: dBm, 3: raw RSSI */
-+		avs->ssi_signal =3D htonl(rssi);
-+		avs->ssi_noise =3D htonl(priv->local_iwstatistics.qual.noise);	/*better =
+ 		skb_pull(*skb, sizeof (struct rfmon_header));
+@@ -286,21 +287,21 @@
+ 		    (struct avs_80211_1_header *) skb_push(*skb,
+ 							   sizeof (struct
+ 								   avs_80211_1_header));
+-
+-		avs->version =3D htonl(P80211CAPTURE_VERSION);
+-		avs->length =3D htonl(sizeof (struct avs_80211_1_header));
+-		avs->mactime =3D __cpu_to_be64(clock);
+-		avs->hosttime =3D __cpu_to_be64(jiffies);
+-		avs->phytype =3D htonl(6);	/*OFDM: 6 for (g), 8 for (a) */
+-		avs->channel =3D htonl(channel_of_freq(freq));
+-		avs->datarate =3D htonl(rate * 5);
+-		avs->antenna =3D htonl(0);	/*unknown */
+-		avs->priority =3D htonl(0);	/*unknown */
+-		avs->ssi_type =3D htonl(2);	/*2: dBm, 3: raw RSSI */
+-		avs->ssi_signal =3D htonl(rssi);
+-		avs->ssi_noise =3D htonl(priv->local_iwstatistics.qual.noise);	/*better =
 than 'undefined', I assume */
-+		avs->preamble =3D htonl(0);	/*unknown */
-+		avs->encoding =3D htonl(0);	/*unknown */
-+	} else
-+		skb_pull(*skb, sizeof (struct rfmon_header));
-+
-+	(*skb)->protocol =3D htons(ETH_P_802_2);
-+	(*skb)->mac.raw =3D (*skb)->data;
-+	(*skb)->pkt_type =3D PACKET_OTHERHOST;
-+
-+	return 0;
-+}
-+
- int
- islpci_eth_receive(islpci_private *priv)
- {
-@@ -315,37 +380,29 @@
- 	/* do some additional sk_buff and network layer parameters */
- 	skb->dev =3D ndev;
+-		avs->preamble =3D htonl(0);	/*unknown */
+-		avs->encoding =3D htonl(0);	/*unknown */
++	=09
++		avs->version =3D cpu_to_be32(P80211CAPTURE_VERSION);
++		avs->length =3D cpu_to_be32(sizeof (struct avs_80211_1_header));
++		avs->mactime =3D cpu_to_be64(le64_to_cpu(clock));
++		avs->hosttime =3D cpu_to_be64(jiffies);
++		avs->phytype =3D cpu_to_be32(6);	/*OFDM: 6 for (g), 8 for (a) */
++		avs->channel =3D cpu_to_be32(channel_of_freq(freq));
++		avs->datarate =3D cpu_to_be32(rate * 5);
++		avs->antenna =3D cpu_to_be32(0);	/*unknown */
++		avs->priority =3D cpu_to_be32(0);	/*unknown */
++		avs->ssi_type =3D cpu_to_be32(3);	/*2: dBm, 3: raw RSSI */
++		avs->ssi_signal =3D cpu_to_be32(rssi & 0x7f);
++		avs->ssi_noise =3D cpu_to_be32(priv->local_iwstatistics.qual.noise);	/*b=
+etter than 'undefined', I assume */
++		avs->preamble =3D cpu_to_be32(0);	/*unknown */
++		avs->encoding =3D cpu_to_be32(0);	/*unknown */
+ 	} else
+ 		skb_pull(*skb, sizeof (struct rfmon_header));
 =20
--	/* take care of monitor mode */
--	if (priv->iw_mode =3D=3D IW_MODE_MONITOR) {
--		/* The card reports full 802.11 packets but with a 20 bytes
--		 * header and without the FCS. But there a is a bit that
--		 * indicates if the packet is corrupted :-) */
--		if (skb->data[8] & 0x01)
--			/* This one is bad. Drop it ! */
--			discard =3D 1;
--		skb_pull(skb, 20);
--		skb->protocol =3D htons(ETH_P_802_2);
--		skb->mac.raw =3D skb->data;
--		skb->pkt_type =3D PACKET_OTHERHOST;
--	} else {
-+	/* take care of monitor mode and spy monitoring. */
-+	if (priv->iw_mode =3D=3D IW_MODE_MONITOR)
-+		discard =3D islpci_monitor_rx(priv, &skb);
-+	else {
- 		if (skb->data[2 * ETH_ALEN] =3D=3D 0) {
- 			/* The packet has a rx_annex. Read it for spy monitoring, Then
- 			 * remove it, while keeping the 2 leading MAC addr.
- 			 */
- 			struct iw_quality wstats;
--			struct obj_rx_annex *annex =3D
--			    (struct obj_rx_annex *) skb->data;
--			wstats.level =3D annex->rssi;
-+			struct rx_annex_header *annex =3D
-+			    (struct rx_annex_header *) skb->data;
-+			wstats.level =3D annex->rfmon.rssi;
- 			/* The noise value can be a bit outdated if nobody's=20
- 			 * reading wireless stats... */
--			wstats.noise =3D priv->iwstatistics.qual.noise;
-+			wstats.noise =3D priv->local_iwstatistics.qual.noise;
- 			wstats.qual =3D wstats.level - wstats.noise;
- 			wstats.updated =3D 0x07;
- 			/* Update spy records */
- 			wireless_spy_update(ndev, annex->addr2, &wstats);
--			/* 20 =3D sizeof(struct obj_rx_annex) - 2*ETH_ALEN */
--			memcpy(skb->data + 20, skb->data, 2 * ETH_ALEN);
--			skb_pull(skb, 20);
-+
-+			memcpy(skb->data + sizeof (struct rfmon_header),
-+			       skb->data, 2 * ETH_ALEN);
-+			skb_pull(skb, sizeof (struct rfmon_header));
- 		}
- 		skb->protocol =3D eth_type_trans(skb, ndev);
- 	}
-Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.h
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_hotplug.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.h,v
-retrieving revision 1.6
-retrieving revision 1.7
-diff -u -r1.6 -r1.7
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.h	18 Mar 2004 1=
-1:44:17 -0000	1.6
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_eth.h	19 Mar 2004 2=
-0:54:33 -0000	1.7
+RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_hotplug.c,v
+retrieving revision 1.58
+retrieving revision 1.59
+diff -u -r1.58 -r1.59
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_hotplug.c	18 Mar 20=
+04 05:25:24 -0000	1.58
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_hotplug.c	20 Mar 20=
+04 16:58:36 -0000	1.59
 @@ -1,4 +1,4 @@
--/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.h,v 1.6 2004/03/18 11=
-:44:17 ajfa Exp $
-+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.h,v 1.7 2004/03/19 20=
-:54:33 ajfa Exp $
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_hotplug.c,v 1.56 2004/02/=
+26 23:33:02 mcgrof Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_hotplug.c,v 1.59 2004/03/=
+20 16:58:36 mcgrof Exp $
   * =20
   *  Copyright (C) 2002 Intersil Americas Inc.
-  *
-@@ -23,6 +23,47 @@
- #include "isl_38xx.h"
- #include "islpci_dev.h"
+  *  Copyright (C) 2003 Herbert Valerio Riedel <hvr@gnu.org>
+@@ -24,6 +24,7 @@
+ #include <linux/delay.h>
+ #include <linux/init.h> /* For __init, __exit */
 =20
-+struct rfmon_header {
-+	u16 unk0;		/* =3D 0x0000 */
-+	u16 length;		/* =3D 0x1400 */
-+	u32 clock;		/* 1MHz clock */
-+	u8 flags;
-+	u8 unk1;
-+	u8 rate;
-+	u8 unk2;
-+	u16 freq;
-+	u16 unk3;
-+	u8 rssi;
-+	u8 padding[3];
-+} __attribute__ ((packed));
-+
-+struct rx_annex_header {
-+	u8 addr1[ETH_ALEN];
-+	u8 addr2[ETH_ALEN];
-+	struct rfmon_header rfmon;
-+} __attribute__ ((packed));
-+
-+/* wlan-ng (and hopefully others) AVS header, version one.  Fields in
-+ * network byte order. */
-+#define P80211CAPTURE_VERSION 0x80211001
-+
-+struct avs_80211_1_header {
-+	uint32_t version;
-+	uint32_t length;
-+	uint64_t mactime;
-+	uint64_t hosttime;
-+	uint32_t phytype;
-+	uint32_t channel;
-+	uint32_t datarate;
-+	uint32_t antenna;
-+	uint32_t priority;
-+	uint32_t ssi_type;
-+	int32_t ssi_signal;
-+	int32_t ssi_noise;
-+	uint32_t preamble;
-+	uint32_t encoding;
-+};
-+
- void islpci_eth_cleanup_transmit(islpci_private *, isl38xx_control_block *=
-);
- int islpci_eth_transmit(struct sk_buff *, struct net_device *);
- int islpci_eth_receive(islpci_private *);
++#include "prismcompat.h"
+ #include "islpci_dev.h"
+ #include "islpci_mgt.h"		/* for pc_debug */
+ #include "isl_oid.h"
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_mgt.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_mgt.c,v
+retrieving revision 1.42
+retrieving revision 1.43
+diff -u -r1.42 -r1.43
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_mgt.c	18 Mar 2004 0=
+5:25:24 -0000	1.42
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_mgt.c	20 Mar 2004 1=
+6:58:37 -0000	1.43
+@@ -1,4 +1,4 @@
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_mgt.c,v 1.40 2004/02/01 1=
+0:57:23 mcgrof Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_mgt.c,v 1.43 2004/03/20 1=
+6:58:37 mcgrof Exp $
+  * =20
+  *  Copyright (C) 2002 Intersil Americas Inc.
+  *  Copyright 2004 Jens Maurer <Jens.Maurer@gmx.net>
+@@ -22,12 +22,12 @@
+ #include <linux/netdevice.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+-#include <linux/moduleparam.h>
+=20
+ #include <asm/io.h>
+ #include <asm/system.h>
+ #include <linux/if_arp.h>
+=20
++#include "prismcompat.h"
+ #include "isl_38xx.h"
+ #include "islpci_mgt.h"
+ #include "isl_oid.h"		/* additional types and defs for isl38xx fw */
+@@ -456,21 +456,11 @@
+ 	const long wait_cycle_jiffies =3D (ISL38XX_WAIT_CYCLE * 10 * HZ) / 1000;
+ 	long timeout_left =3D ISL38XX_MAX_WAIT_CYCLES * wait_cycle_jiffies;
+ 	int err;
+-#if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,6,0)
+-	DEFINE_WAIT(wait);
+-#else
+-	DECLARE_WAITQUEUE(wait, current);
+-#endif
+=20
+ 	if (down_interruptible(&priv->mgmt_sem))
+ 		return -ERESTARTSYS;
+=20
+-#if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,6,0)
+-	prepare_to_wait(&priv->mgmt_wqueue, &wait, TASK_UNINTERRUPTIBLE);
+-#else
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	add_wait_queue(&priv->mgmt_wqueue, &wait);
+-#endif
++	PRISM_DEFWAITQ(priv->mgmt_wqueue, wait);
+ 	err =3D islpci_mgt_transmit(ndev, operation, oid, senddata, sendlen);
+ 	if(err)
+ 		goto out;
+@@ -499,12 +489,7 @@
+=20
+ 	/* TODO: we should reset the device here */    =20
+  out:
+-#if LINUX_VERSION_CODE >=3D KERNEL_VERSION(2,6,0)
+-	finish_wait(&priv->mgmt_wqueue, &wait);
+-#else
+-	remove_wait_queue(&priv->mgmt_wqueue, &wait);
+-	set_current_state(TASK_RUNNING);
+-#endif
++	PRISM_ENDWAITQ(priv->mgmt_wqueue, wait);
+ 	up(&priv->mgmt_sem);
+ 	return err;
+ }
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_mgt.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /var/lib/cvs/prism54-ng/ksrc/islpci_mgt.h,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -u -r1.24 -r1.25
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_mgt.h	18 Mar 2004 0=
+5:25:24 -0000	1.24
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/islpci_mgt.h	20 Mar 2004 1=
+6:58:37 -0000	1.25
+@@ -1,4 +1,4 @@
+-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_mgt.h,v 1.22 2004/01/30 1=
+6:24:00 ajfa Exp $
++/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_mgt.h,v 1.25 2004/03/20 1=
+6:58:37 mcgrof Exp $
+  * =20
+  *  Copyright (C) 2002 Intersil Americas Inc.
+  *  Copyright (C) 2003 Luis R. Rodriguez <mcgrof@ruslug.rutgers.edu>
+@@ -24,15 +24,6 @@
+ #include <linux/wireless.h>
+ #include <linux/skbuff.h>
+=20
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,41)
+-# include <linux/workqueue.h>
+-#else
+-# include <linux/tqueue.h>
+-# define work_struct tq_struct
+-# define INIT_WORK INIT_TQUEUE
+-# define schedule_work schedule_task
+-#endif
+-
+ /*
+  *  Function definitions
+  */
 Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 RCS file: /var/lib/cvs/prism54-ng/ksrc/oid_mgt.c,v
-retrieving revision 1.9
 retrieving revision 1.11
-diff -u -r1.9 -r1.11
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.c	18 Mar 2004 15:2=
-7:44 -0000	1.9
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.c	19 Mar 2004 23:0=
+retrieving revision 1.12
+diff -u -r1.11 -r1.12
+--- linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.c	19 Mar 2004 23:0=
 3:58 -0000	1.11
-@@ -31,6 +31,27 @@
- 	5240, 5260, 5280, 5300, 5320
- };
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.c	20 Mar 2004 16:5=
+8:37 -0000	1.12
+@@ -16,6 +16,7 @@
+  *
+  */
 =20
-+int
-+channel_of_freq(int f)
-+{
-+	int c =3D 0;
-+
-+	if ((f >=3D 2412) && (f <=3D 2484)) {
-+		while ((c < 14) && (f !=3D frequency_list_bg[c]))
-+			c++;
-+		if (c >=3D 14)
-+			return 0;
-+	} else if ((f >=3D (int) 5170) && (f <=3D (int) 5320)) {
-+		while ((c < 12) && (f !=3D frequency_list_a[c]))
-+			c++;
-+		if (c >=3D 12)
-+			return 0;
-+	} else
-+		return 0;
-+
-+	return ++c;
-+}
-+
- #define OID_STRUCT(name,oid,s,t) [name] =3D {oid, 0, sizeof(s), t}
- #define OID_STRUCT_C(name,oid,s,t) OID_STRUCT(name,oid,s,t | OID_FLAG_CACH=
-ED)
- #define OID_U32(name,oid) OID_STRUCT(name,oid,u32,OID_TYPE_U32)
-Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.h
++#include "prismcompat.h"
+ #include "islpci_dev.h"
+ #include "islpci_mgt.h"
+ #include "isl_oid.h"
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat.h
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /var/lib/cvs/prism54-ng/ksrc/oid_mgt.h,v
-retrieving revision 1.4
-retrieving revision 1.5
-diff -u -r1.4 -r1.5
---- linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.h	18 Mar 2004 15:2=
-7:44 -0000	1.4
-+++ linux-2.6.7-rc1/drivers/net/wireless/prism54/oid_mgt.h	19 Mar 2004 20:5=
-4:33 -0000	1.5
-@@ -28,9 +28,10 @@
-=20
- void mgt_clean(islpci_private *);
-=20
-+/* I don't know where to put these 3 */
- extern const int frequency_list_bg[];
--
- extern const int frequency_list_a[];
-+int channel_of_freq(int);
-=20
- void mgt_le_to_cpu(int, void *);
-=20
+RCS file: ksrc/prismcompat.h
+diff -N ksrc/prismcompat.h
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat.h	20 Mar 2004 =
+18:23:28 -0000	1.1
+@@ -0,0 +1,47 @@
++/* =20
++ *  (C) 2004 Margit Schubert-While <margitsw@t-online.de>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  =
+USA
++ *
++ */
++
++/* =20
++ *	Compatibility header file to aid support of different kernel versions
++ */
++
++#ifndef _PRISM_COMPAT_H
++#define _PRISM_COMPAT_H
++
++#include <linux/device.h>
++#include <linux/firmware.h>
++#include <linux/config.h>
++#include <linux/moduleparam.h>
++#include <linux/workqueue.h>
++
++#if !defined(CONFIG_FW_LOADER) && !defined(CONFIG_FW_LOADER_MODULE)
++#error Firmware Loading is not configured in the kernel !
++#endif
++
++#define prism54_synchronize_irq(irq) synchronize_irq(irq)
++
++#define PRISM_DEFWAITQ(x, y)	DEFINE_WAIT(y); \
++	prepare_to_wait(&(x), &(y), TASK_UNINTERRUPTIBLE)
++
++#define PRISM_ENDWAITQ(x, y)	finish_wait(&(x), &(y))
++
++#define _REQ_FW_DEV_T		struct device *
++
++#define PRISM_FW_PDEV		&priv->pdev->dev
++
++#endif				/* _PRISM_COMPAT_H */
+Index: linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat24.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: ksrc/prismcompat24.h
+diff -N ksrc/prismcompat24.h
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ linux-2.6.7-rc1/drivers/net/wireless/prism54/prismcompat24.h	20 Mar 200=
+4 18:23:28 -0000	1.1
+@@ -0,0 +1,64 @@
++/* =20
++ *  (C) 2004 Margit Schubert-While <margitsw@t-online.de>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  =
+USA
++ *
++ */
++
++/* =20
++ *	Compatibility header file to aid support of different kernel versions
++ */
++
++#ifndef _PRISM_COMPAT_H
++#define _PRISM_COMPAT_H
++
++#include <linux/firmware.h>
++#include <linux/config.h>
++#include <linux/tqueue.h>
++
++#define work_struct		tq_struct
++#define INIT_WORK		INIT_TQUEUE
++#define schedule_work		schedule_task
++
++#define irqreturn_t		void
++#define IRQ_HANDLED
++#define IRQ_NONE
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
++#define free_netdev(x)		kfree(x)
++#define pci_name(x)		x->slot_name
++#endif
++
++#define module_param(x, y, z)	MODULE_PARM(x, "i")
++
++#define netdev_priv(x)		x->priv
++
++#if !defined(CONFIG_FW_LOADER) && !defined(CONFIG_FW_LOADER_MODULE)
++#error Firmware Loading is not configured in the kernel !
++#endif
++
++#define prism54_synchronize_irq(irq) synchronize_irq()
++
++#define PRISM_DEFWAITQ(x, y)	DECLARE_WAITQUEUE(y, current); \
++	set_current_state(TASK_UNINTERRUPTIBLE); \
++	add_wait_queue(&(x), &(y))
++
++#define PRISM_ENDWAITQ(x, y)	remove_wait_queue(&(x), &(y)); \
++	set_current_state(TASK_RUNNING)
++
++#define _REQ_FW_DEV_T		char *
++
++#define PRISM_FW_PDEV		pci_name(priv->pdev)
++
++#endif				/* _PRISM_COMPAT_H */
 
---SKW69dzTt3T8RCN0--
+--SqJDPA0lBYgnDFWV--
 
---5joxkA65nhhP20dL
+--jmkJtp15SxLq1SbD
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAsbLyat1JN+IKUl4RAp8jAKCHkr7ygtOLaSBy1d98FOKIwdzVywCdFPS6
-o9RWEaNjqGbhICVey9o/p+0=
-=zPAo
+iD8DBQFAsbMUat1JN+IKUl4RAvGmAKClHLqpxB2DXcCeY9Q5dW28ng1a1QCgpjhY
+nh+uyKNVEFI8KHxLR7W3mnk=
+=NEcy
 -----END PGP SIGNATURE-----
 
---5joxkA65nhhP20dL--
+--jmkJtp15SxLq1SbD--

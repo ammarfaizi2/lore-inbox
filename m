@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135484AbREITX3>; Wed, 9 May 2001 15:23:29 -0400
+	id <S135494AbREITYT>; Wed, 9 May 2001 15:24:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135296AbREITXT>; Wed, 9 May 2001 15:23:19 -0400
-Received: from front5.grolier.fr ([194.158.96.55]:63112 "EHLO
-	front5.grolier.fr") by vger.kernel.org with ESMTP
-	id <S135266AbREITXC> convert rfc822-to-8bit; Wed, 9 May 2001 15:23:02 -0400
-Date: Wed, 9 May 2001 18:11:15 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: Dan Hollis <goemon@anime.net>
-cc: Larry McVoy <lm@bitmover.com>, Marty Leisner <leisner@rochester.rr.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Wow! Is memory ever cheap!
-In-Reply-To: <Pine.LNX.4.30.0105082233430.30695-100000@anime.net>
-Message-ID: <Pine.LNX.4.10.10105091754210.1512-100000@linux.local>
+	id <S135296AbREITYK>; Wed, 9 May 2001 15:24:10 -0400
+Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.102.89.11]:61431 "HELO
+	scotch.homeip.net") by vger.kernel.org with SMTP id <S135494AbREITYC>;
+	Wed, 9 May 2001 15:24:02 -0400
+Date: Wed, 9 May 2001 15:23:53 -0400 (EDT)
+From: God <atm@sdk.ca>
+To: Gregory Maxwell <greg@linuxpower.cx>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN: Volunteers needed :: AOL ::: Spam filter
+In-Reply-To: <20010509150313.C13226@xi.linuxpower.cx>
+Message-ID: <Pine.LNX.4.21.0105091518330.23642-100000@scotch.homeip.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 May 2001, Gregory Maxwell wrote:
 
+> On Wed, May 09, 2001 at 01:08:31PM -0400, God wrote:
+> > On Wed, 9 May 2001, Gregory Maxwell wrote:
+> > 
+> > > 2) They certainly are.  Every once in a while they go through a period of
+> > >    silently dropping all email coming from hosts that don't have PTRs.
+> > >    This would be no worse.
+> > 
+> > ACK .... Which do you mean? :
 
-On Tue, 8 May 2001, Dan Hollis wrote:
-
-> On Tue, 8 May 2001, Larry McVoy wrote:
-> > which is a text version of the paper I mentioned before.  The basic
-> > message of the paper is that it really doesn't help much to have things
-> > like ECC unless you can be sure that 100% of the rest of your system
-> > has similar checks.
 > 
-> UDMA has crc, scsi has parity, pci has (i think) parity, tcpip has crc,
-> your cpu l1 and l2 have ecc...
-
-SCSI Ultra-160 has CRC.
-
-PCI has parity (btw, you think right), but only a few drivers make sure
-PCI parity checking is enabled. On the other hand, a PCI parity error
-should be considered as extremally serious and the system should be
-stopped when such happens.
-
-Btw, it seems (read at the pci list) that the original PCI hadn't parity.
-After all, PCI had been designed for PC machines... :)
-
-> Looks like similar checks are already there.
+> AFIK, mail which contains Path with host names which don't pass a two-way
+> check (forward, reverse the forward) AOL drops. Not always though, MX
+> records are irrelevantly.
 > 
-> -Dan
-> 
-  Gérard.
+
+OMG ... that .. is gay ...   oh well .... should add them as a blocked
+domain anyway ... for all the dam spam that comes from them ....grrr
+
+</thread>
+
+
 

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbTJWKZE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 06:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTJWKZE
+	id S263441AbTJWKbG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 06:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTJWKbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 06:25:04 -0400
-Received: from smtp2.email.luna.net ([217.77.137.81]:64660 "EHLO
-	smtp2.email.luna.net") by vger.kernel.org with ESMTP
-	id S263531AbTJWKZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 06:25:00 -0400
-Message-ID: <3F97AD01.9030806@freemail.hu>
-Date: Thu, 23 Oct 2003 12:27:13 +0200
-From: Chip <szarlada@freemail.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test8 PROBLEM: codepage=850 doesn't work with mount
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 23 Oct 2003 06:31:06 -0400
+Received: from rth.ninka.net ([216.101.162.244]:64397 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S263441AbTJWKbE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 06:31:04 -0400
+Date: Thu, 23 Oct 2003 03:31:00 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: an7 <an3h0ny@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Useless networking code in 2.4.x ?
+Message-Id: <20031023033100.1bc47d31.davem@redhat.com>
+In-Reply-To: <20031023085801.40580.qmail@web11105.mail.yahoo.com>
+References: <20031023085801.40580.qmail@web11105.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 23 Oct 2003 10:58:01 +0200 (CEST)
+an7 <an3h0ny@yahoo.fr> wrote:
 
-If you've got this line in your /etc/fstab:
+> If we have a look at tcp_recv_skb, and
+> tcp_read_sock(),
+>
+> we notice that there is a SYN check, and if the flag
+> is on, we do offset-- (sequence number not
+> corresponding to real data byte). 
+>
+> This Syn check is useless, as the function cannot be
+> called at the beginning of a connection (since we have
+> not copied_seq filled with the last sequence number of
+> the last packet passed to the upper layer)
+> 
+> What do you think of that ?
 
-/dev/hda5 /mnt/win_d vfat quiet,iocharset=iso8859-1,codepage=850,umask=0 0 0
+Please next time, take this kind of question to netdev@oss.sgi.com
+where the networking developers are, most of them are not subscribed
+to linux-kernel.
 
-You will get the following message during mount -a:
-
-mount: wrong fs type, bad option, bad superblock on /dev/hda5,
-        or too many mounted file systems
-
-I've chessed out that the problemataic part is the codepage=850. When 
-I've removed it the mount goes ok.
-
-
-My system:
-Linux version 2.6.0-test8 (root@localhost) (gcc version 3.2.2 (Mandrake 
-Linux 9.1 3.2.2-3mdk)) #3 SMP Mon Oct 20 12:32:45 CEST 2003
-
-After this I've patched my kernel with supermount patch for 2.6.0-test7, 
-but doesn't work. After configuring, recompile, and installing I still 
-get this message:
-mount: fs type supermount not supported by kernel
-
-Please feel free to ask me about these problems and CC me, while I'm not 
-on the list.
-
-Kind Regards,
-Chip...
+As to your question, if we ever support accepting data in the
+initial final SYN-ACK packet, this code would be needed, so it's
+better to keep this code around.
 

@@ -1,78 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283269AbRK2PSZ>; Thu, 29 Nov 2001 10:18:25 -0500
+	id <S283270AbRK2PZ4>; Thu, 29 Nov 2001 10:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283266AbRK2PSQ>; Thu, 29 Nov 2001 10:18:16 -0500
-Received: from marao.utad.pt ([193.136.40.3]:31244 "EHLO marao.utad.pt")
-	by vger.kernel.org with ESMTP id <S283269AbRK2PSH>;
-	Thu, 29 Nov 2001 10:18:07 -0500
-Message-ID: <3C065182.3090909@alvie.com>
-Date: Thu, 29 Nov 2001 15:17:22 +0000
-From: Alvaro Lopes <alvieboy@alvie.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011127
-X-Accept-Language: en
+	id <S283276AbRK2PZq>; Thu, 29 Nov 2001 10:25:46 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:38930 "HELO
+	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S283270AbRK2PZi>;
+	Thu, 29 Nov 2001 10:25:38 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15366.21354.879039.718967@abasin.nj.nec.com>
+Date: Thu, 29 Nov 2001 10:25:30 -0500 (EST)
 To: linux-kernel@vger.kernel.org
-Subject: System temporary freeze (but network layer) while blanking CD-RW w/ ide-scsi [2.4.14 and 2.4.16 w/preempt]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: 2.4.16 freezed up with eepro100 module
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
 
-This is very weird. A few days ago I started blanking a CD-RW with a
-HP9500 IDE drive and after five seconds or so the system froze. I was
-still able to ping it and SNAT worked properly too. All services (X,
-ssh, smtp) stopped and were almost fully inacessible (I was still able
-to see some applets working on X, but no more) and when it finished
-blanking, system came back to normal as if nothing had happended.
+The 2.4.16 kernel finally makes my clients happy with memory
+management.  The systems that froz up is a Dell of some sort or other
+with two 1Ghz Pentium IIIs and 4G of memory.  But, now I seems to be
+having ethernet problems.  With and eepro100 card:
 
-At the time I thought it might be a 2.4.14 issue.
+  Bus  0, device   4, function  0:
+    Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 8).
+      IRQ 16.
+      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xfeb02000 [0xfeb02fff].
+      I/O at 0xfcc0 [0xfcff].
+      Non-prefetchable 32 bit memory at 0xfe900000 [0xfe9fffff].
 
-Today I repeated the test with 2.4.16 w/ preemption patch. The same
-thing happened. This time I was running a 'vmstat 1':
+loaded as a module, being used heavily, the system froze with nothing
+on the console when I saw it.  Normal log messages until:
 
-....
-....
-....
-   0  4  1  50524   3932   2984  46168   0   0     0     0  102   151   0   0 100
-   0  4  1  50524   3932   2984  46168   0   0     0     0  102   154   0   0 100
-   0  4  1  50524   3928   2984  46168   0   0     0     0  101   149   0   0 100
-   0  4  1  50524   3928   2984  46168   0   0     0     0  101   154   0   0 100
-   1  4  1  50524   3928   2984  46168   0   0     0     0  101   150   0   0 100
-   0  4  1  50524   3928   2984  46168   0   0     0     0  102   151   0   0 100
-   0  4  1  50524   3924   2984  46168   0   0     0     0  101   156   0   0 100
-   0  4  1  50524   3924   2984  46168   0   0     0     0  101   152   0   0 100
-   0  4  1  50524   3924   2984  46168   0   0     0     0  102   155   0   0 100
-   0  4  1  50524   3924   2984  46168   0   0     0     0  101   150   0   0 100
-   0  4  1  50524   3916   2984  46168   0   0     0     0  101   150   0   0 100
-   0  4  1  50524   3916   2984  46168   0   0     0     0  101   151   0   0 100
+Nov 28 22:03:31 ps1 kernel: eth0: can't fill rx buffer (force 0)!
+Nov 28 22:05:03 ps1 kernel: 0001.
+Nov 28 22:05:03 ps1 kernel: eth0: can't fill rx buffer (force 1)!
+Nov 28 22:05:04 ps1 kernel: eth0: can't fill rx buffer (force 0)!
+Nov 28 22:05:05 ps1 kernel: eth0: can't fill rx buffer (force 0)!
+Nov 28 22:05:06 ps1 kernel: eth0: can't fill rx buffer (force 1)!
+Nov 28 22:05:06 ps1 kernel: eth0: can't fill rx buffer (force 0)!
+Nov 28 22:05:07 ps1 kernel: eth0: can't fill rx buffer (force 1)!
+Nov 28 22:05:08 ps1 kernel: eth0: can't fill rx buffer (force 1)!
+Nov 28 22:05:09 ps1 kernel: eth0: can't fill rx buffer (force 0)!
+Nov 28 22:05:17 ps1 last message repeated 10 times
+Nov 28 22:05:18 ps1 kernel: KERNEL: assertion (flags&MSG_PEEK) failed at tcp.c(1463):tcp_recvmsg
+Nov 28 22:07:48 ps1 kernel: eth0: card reports no resources.
+Nov 28 22:08:19 ps1 last message repeated 19 times
+Nov 28 22:09:20 ps1 last message repeated 56 times
+...
+Nov 29 03:57:34 ps1 last message repeated 5 times
+Nov 29 03:58:36 ps1 last message repeated 4 times
+Nov 29 03:59:41 ps1 last message repeated 5 times
+Nov 29 04:00:44 ps1 last message repeated 4 times
+Nov 29 04:01:47 ps1 last message repeated 6 times
+Nov 29 09:54:13 ps1 syslogd 1.4-0: restart.
 
-when it got here, system froze.... and then:
+Then me hitting the reset key before 10am.  I'm going to start digging
+through the code (guess it will be more of a learning experience for
+me rather then actually being able to help code).  So any suggestions
+will be helpful.
 
-   1  5  1  50584   4216  2820  44996 2348 296 3032  348 113506 165193   0   0 100
-   1  4  1  50572  11416   3192  37112 348   0   668   596  319  1243   4   3  93
-   1  1  0  50552  11468   3520  37420   0   0   308   492  315   794   6   3  91
-   1  0  0  50552  11068   3544  37596   0   0   168     4  127  9301  65   6  29
-   1  0  0  50552  11064   3544  37596   0   0     0     0  104   652  75   0  25
-   2  0  0  50552  11064   3544  37596   0   0     0     0  102   604  75   0  25
-   1  0    procs                      memory    swap          io     system
-     cpu
-   r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
-   1  0  1  50552  10992   3616  37596   0   0     0   140  154   721  75   1  25
-   2  0  0  50552  10992   3616  37596   0   0     0    32  118   679  75   0  25
-   1  0  0  50552  10988   3616  37596   0   0     0     0  101   610  75   0  25
-   1  0  0  50552  10988   3616  37596   0   0     0     0  102   602  74   0  26
-   0  0  0  50552  10104   3652  37664 220   0   308     0  139   741  47   1  52
-   0  0  0  50552  10104   3652  37664   0   0     0     0  107   491   0   0 100
-   0  0  0  50552  10012   3744  37664   0   0     0   160  155   598   1   0  99
-   0  0  0  50552  10320   3744  37704  32   0    84     0  181  1078  18   2  80
-   0  0  0  50552  10284   3780  37704   0   0     0    44  250   834   1   2  97
-
-
-What is happening here ?  Any clues ???
-
-Álvaro Lopes
-
-
+---
+Sven Heinicke <sven@research.nj.nec.com> Princeton, NJ

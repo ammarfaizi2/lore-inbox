@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTFPWqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTFPWqU
+	id S264444AbTFPWr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTFPWr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:46:20 -0400
-Received: from main.gmane.org ([80.91.224.249]:61122 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264432AbTFPWqR (ORCPT
+	Mon, 16 Jun 2003 18:47:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:26321 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264444AbTFPWrp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:46:17 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.5.71 compile error on alpha
-Date: 17 Jun 2003 01:00:01 +0200
-Message-ID: <yw1xhe6pzkzy.fsf@zaphod.guide>
-References: <3EEE4A14.4090505@g-house.de>
+	Mon, 16 Jun 2003 18:47:45 -0400
+Date: Mon, 16 Jun 2003 15:57:17 -0700 (PDT)
+Message-Id: <20030616.155717.58468888.davem@redhat.com>
+To: niv@us.ibm.com
+Cc: janiceg@us.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       stekloff@us.ibm.com, girouard@us.ibm.com, lkessler@us.ibm.com,
+       kenistonj@us.ibm.com, jgarzik@pobox.com
+Subject: Re: patch for common networking error messages
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EEE49BA.6070401@us.ibm.com>
+References: <3EEE40F1.4030107@us.ibm.com>
+	<20030616.151308.55864910.davem@redhat.com>
+	<3EEE49BA.6070401@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> writes:
+   From: Nivedita Singhvi <niv@us.ibm.com>
+   Date: Mon, 16 Jun 2003 15:50:34 -0700
 
-> i have an alpha here, running 2.5.70 for weeks now. the patch to 2.5.71
-> applied with no errors (i did "make clean" before this) but it won't
-> compile:
-> 
-> # make vmlinux modules modules_install
-> 
-> ...
-> 
->    CC      arch/alpha/kernel/srmcons.o
-> arch/alpha/kernel/srmcons.c:269: warning: `srmcons_ops' defined but not used
-> make[2]: *** [arch/alpha/kernel/srmcons.o] Error 1
-> make[1]: *** [arch/alpha/kernel] Error 2
-> make: *** [vmlinux] Error 2
+   I do see positives in the feature as a whole though.
 
-Not looking at the code, I guess you could just remove the definition
-of srmcons_ops from srmcons.c.
+Would you design a network protocol this way?  By passing
+strings like "open connection please", "sure no problem"
+back and forth between server and client?
 
--- 
-Måns Rullgård
-mru@users.sf.net
+Of course not.
 
+So why are we even remotely considering the standardization
+of _STRINGS_ for event reporting?

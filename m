@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129034AbQKBTiB>; Thu, 2 Nov 2000 14:38:01 -0500
+	id <S129183AbQKBTxR>; Thu, 2 Nov 2000 14:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129048AbQKBThl>; Thu, 2 Nov 2000 14:37:41 -0500
-Received: from ra.lineo.com ([204.246.147.10]:14499 "EHLO thor.lineo.com")
-	by vger.kernel.org with ESMTP id <S129034AbQKBThd>;
-	Thu, 2 Nov 2000 14:37:33 -0500
-Message-ID: <3A01C127.F335E92A@Rikers.org>
-Date: Thu, 02 Nov 2000 12:31:51 -0700
-From: Tim Riker <Tim@Rikers.org>
-Organization: Riker Family (http://rikers.org/)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ben Ford <bford@talontech.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-In-Reply-To: <E13rPhi-0001ng-00@the-village.bc.nu> <3A01BB7D.B084B66@Rikers.org> <3A01BF5A.30BC4B4@talontech.com>
-X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 11/02/2000
- 12:37:30 PM,
-	Serialize complete at 11/02/2000 12:37:30 PM
-Content-Transfer-Encoding: 7bit
+	id <S129281AbQKBTxH>; Thu, 2 Nov 2000 14:53:07 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:36651 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129183AbQKBTxB>; Thu, 2 Nov 2000 14:53:01 -0500
+Date: Thu, 2 Nov 2000 20:52:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Tim Riker <Tim@Rikers.org>
+Cc: Andi Kleen <ak@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux?
+Message-ID: <20001102205246.A17332@athlon.random>
+In-Reply-To: <3A01B8BB.A17FE178@Rikers.org> <E13rPhi-0001ng-00@the-village.bc.nu> <20001102201836.A14409@gruyere.muc.suse.de> <3A01BDCD.FCBCFFF8@Rikers.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A01BDCD.FCBCFFF8@Rikers.org>; from Tim@Rikers.org on Thu, Nov 02, 2000 at 12:17:33PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Ford wrote:
-> 
-> Tim Riker wrote:
-> 
-> > Alan Cox wrote:
-> > >
-> > > > 1. There are architectures where some other compiler may do better
-> > > > optimizations than gcc. I will cite some examples here, no need to argue
-> > >
-> > > I think we only care about this when they become free software.
-> >
-> > This may be your belief, but I would not choose to enforce it on
-> > everyone. Thank you for you opinion.
-> 
-> No need to be so flip about it.  I believe that most of us feel that way.
+On Thu, Nov 02, 2000 at 12:17:33PM -0700, Tim Riker wrote:
+> [..] by adding gcc
+> syntax into it [..]
 
-Me or Alan? I did not mean this as a dig. I feel strongly that one
-should have the choice here. I do not choose to enforce my beliefs on
-anyone else. I am suggesting only that others should provide the same
-courtesy. I truly meant "Thank you for you opinion". I feel the
-community benefits from the differing opinions contained within it.
+I think that's the right path. How much would be hard for you to add gcc syntax
+into your compiler too instead of feeding us kernel patches? Note that it would
+be a big advantage also for userspace (not only kernel uses inline asm and
+other gcc extensions). And probably it would be an improvement to your
+compiler too (since I don't know of other compilers that are as smart as
+gcc in the inline asm syntax :).
 
-> 
-> -b
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
--- 
-Tim Riker - http://rikers.org/ - short SIGs! <g>
-All I need to know I could have learned in Kindergarten
-... if I'd just been paying attention.
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

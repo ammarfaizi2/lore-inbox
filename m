@@ -1,85 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293439AbSBZB7x>; Mon, 25 Feb 2002 20:59:53 -0500
+	id <S293466AbSBZCCN>; Mon, 25 Feb 2002 21:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293464AbSBZB7o>; Mon, 25 Feb 2002 20:59:44 -0500
-Received: from unthought.net ([212.97.129.24]:35263 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S293439AbSBZB7c>;
-	Mon, 25 Feb 2002 20:59:32 -0500
-Date: Tue, 26 Feb 2002 02:59:31 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Christer Weinigel <wingel@acolyte.hack.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
-Message-ID: <20020226025931.M28035@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Christer Weinigel <wingel@acolyte.hack.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0202251413100.11464-100000@dragon.pdx.osdl.net> <20020226012245.95555F5B@acolyte.hack.org> <20020226013735.0D309F5B@acolyte.hack.org>
+	id <S293465AbSBZCCL>; Mon, 25 Feb 2002 21:02:11 -0500
+Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:39042 "EHLO
+	ohdarn.net") by vger.kernel.org with ESMTP id <S293464AbSBZCAJ>;
+	Mon, 25 Feb 2002 21:00:09 -0500
+Date: Mon, 25 Feb 2002 21:00:11 -0500
+From: Michael Cohen <me@ohdarn.net>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br
+Subject: Submissions for 2.4.19-pre [RivaFB Blanking Fix (Author Unknown)]
+Message-Id: <20020225210011.490d7131.me@ohdarn.net>
+Organization: OhDarn.net
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <20020226013735.0D309F5B@acolyte.hack.org>; from wingel@acolyte.hack.org on Tue, Feb 26, 2002 at 02:37:35AM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 02:37:35AM +0100, Christer Weinigel wrote:
-> Hi,
-> 
-> this is a patch trying to document the Watchdog API in the kernel.
-> I'd suggest that it gets into the mainline kernel so that people read
-> it and (hopefully) also update it.
 
-Great !
+This is the fourth (there were two seconds with different contents, oops) of several mails containing patches to be included in 2.4.19.  Some are worthy of dicussion prior to inclusion and have been marked as such.  The majority of these patches were found on lkml; the remaining ones have URLs listed.
 
-...
-> +
-> +Some parts of this document are copied verbatim from the sbc60xxwdt
-> +driver which is (c) Copyright 2000 Jakob Oestergaard <jakob@ostenfeld.dk>
+The origin of this patch is unknown, but it is believed to be from lkml.
 
-My e-mail address now is:  jakob@unthought.net
+------
+Michael Cohen
+OhDarn.net
 
-....
-> +A Watchdog Timer (WDT) is a hardware circuit that can reset the
-> +computer system in case of a software fault.  You probably knew that
-> +already.
-
-Hardware faults such as memory corruption (leading to software malfunction)
-are included as well   :)
-
-> +Usually a userspace daemon will notify the kernel watchdog driver via the
-> +/dev/watchdog special device file that userspace is still alive, at
-> +regular intervals.  When such a notification occurs, the driver will
-> +usually tell the hardware watchdog that everything is in order, and
-> +that the watchdog should wait for yet another little while to reset
-> +the system.  If userspace fails (RAM error, kernel bug, whatever), the
-> +notifications cease to occur, and the hardware watchdog will reset the
-> +system (causing a reboot) after the timeout occurs.
-
-Exactly.
-
-...
-> +A more advanced driver could for example check that a HTTP server is
-> +still responding before doing the write call to ping the watchdog.
-
-I think that's a bad example - you would start httpd from init if it was that
-critical, or use a monitoring system, or something...  Spontaneously booting
-the machine because the admin made an error in httpd.conf seems a little
-impractical  :)   Especially because it will keep on re-booting, until someone
-starts it in single-user mode and fixes the httpd config...
-
-...
-
-A very nice document !   Some day, someone ought to standardize the way
-that /dev/watchdog is used...  Some other day I presume   :)
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+--- linux.orig/drivers/video/riva/fbdev.c	Wed Nov 14 14:52:20 2001
++++ linux/drivers/video/riva/fbdev.c	Tue Nov 27 17:37:02 2001
+@@ -1703,11 +1703,31 @@
+ {
+ 	unsigned char tmp, vesa;
+ 	struct rivafb_info *rinfo = (struct rivafb_info *)info;
++	struct fb_cmap cmap;
++	u16 black[16];
+ 
+ 	DPRINTK("ENTER\n");
+ 
+ 	assert(rinfo != NULL);
+ 
++	/*
++	 * FIXME: X seems to have some issues with this particular hardware
++	 * method of blanking.. so we use a software fallback for now, pending
++	 * a real fix. (Someone with documentation might want to fix this
++	 * properly).
++	 */
++	if (blank) {
++		memset(black, 0, 16 * sizeof(u16));
++		cmap.red = black;
++		cmap.green = black;
++		cmap.blue = black;
++		cmap.transp = NULL;
++		cmap.start = 0;
++		cmap.len = sizeof(black) / sizeof(u16);
++		fb_set_cmap(&cmap, 1, riva_setcolreg, info);
++	}
++
++#if 0
+ 	tmp = SEQin(rinfo, 0x01) & ~0x20;	/* screen on/off */
+ 	vesa = CRTCin(rinfo, 0x1a) & ~0xc0;	/* sync on/off */
+ 
+@@ -1730,6 +1750,7 @@
+ 
+ 	SEQout(rinfo, 0x01, tmp);
+ 	CRTCout(rinfo, 0x1a, vesa);
++#endif
+ 
+ 	DPRINTK("EXIT\n");
+ }

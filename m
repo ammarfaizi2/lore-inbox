@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267352AbTAVGOx>; Wed, 22 Jan 2003 01:14:53 -0500
+	id <S267353AbTAVG0k>; Wed, 22 Jan 2003 01:26:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267353AbTAVGOx>; Wed, 22 Jan 2003 01:14:53 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:41344 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267352AbTAVGOw>; Wed, 22 Jan 2003 01:14:52 -0500
+	id <S267354AbTAVG0k>; Wed, 22 Jan 2003 01:26:40 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:52242 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S267353AbTAVG0j>; Wed, 22 Jan 2003 01:26:39 -0500
+Message-ID: <3E2E3BA2.30401@snapgear.com>
+Date: Wed, 22 Jan 2003 16:35:14 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Greg Ungerer <gerg@snapgear.com>, <linux-kernel@vger.kernel.org>
+CC: Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
 Subject: Re: common RODATA in vmlinux.lds.h (2.5.59)
 References: <Pine.LNX.4.44.0301212339540.8909-100000@chaos.physics.uiowa.edu>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 22 Jan 2003 15:23:48 +0900
 In-Reply-To: <Pine.LNX.4.44.0301212339540.8909-100000@chaos.physics.uiowa.edu>
-Message-ID: <buod6mp8zyj.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> writes:
-> Yes, I saw it, but on the other hand I'd like to avoid introducing
-> complexity which isn't really needed.
+Hi Kai,
 
-Actually as far as I can see, my suggested alternative is _less_ complex
-than the current RODATA.
+Kai Germaschewski wrote:
+> Yes, I saw it, but on the other hand I'd like to avoid introducing 
+> complexity which isn't really needed. So the important question is: Is 
+> there a reason that v850 does things differently, or could it just as well 
+> live with separate .text and .rodata sections (Note that sections 
+> like .rodata1 will be discarded when empty).
 
-It seems to me that the absolutely most straight-forward solution is to
-have a single macro that groups input sections and symbol defs, and is
-simply embeddable into any old output section, i.e. RODATA_CONTENTS
-(note that it's actually shorter than RODATA).  Is there some reason
-why multiple output sections are actually necessary?
+The reason we tend to group all these things together is that logically
+that is the way they are layed out between flash and ram (and running
+the kernel code in flash is really the case that is interresting here).
+Where you have the text and rodata parts resident in flash (and this is
+where they stay), and the data and bss in ram (but they start in flash
+and are copied on start up to ram). So 2 very different memory regions
+involved, not just one contiguous blob like on most VM architectures.
 
-Also, I've found that defining symbols outside the sections, like RODATA
-does, to be somewhat dangerous, and have had much better luck defining
-them inside the sections whenever possible (sometimes it isn't, of
-course, but none of the RODATA symbols appear to have any problems).
+So to build a flash image most people just objcopy out the
+text and the data (and init really too) sections and cat them
+together and that is the binary image that you program into
+your flash. If you have lots of sections this makes this
+extraction and concatentation process just plain ugly. And when
+you add new sections your flash building needs to know about
+them and handle them.
 
-> So the important question is:  Is there a reason that v850 does things
-> differently, or could it just as well live with separate .text and
-> .rodata sections.
+Regards
+Greg
 
-It's not that it _needs_ to group things inside a single output section
-(though often doing so is just simpler), but it _does_ need more control
-over the output sections than is provided by the current RODATA macro:
-at least, it needs to be able to specify which memory regions the
-various sections go, sometimes at separate link- and run-time addresses
-(i.e., a "> MEM AT> OTHER_MEM" directive following each output section).
 
--Miles
--- 
-A zen-buddhist walked into a pizza shop and
-said, "Make me one with everything."
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

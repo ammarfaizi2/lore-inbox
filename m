@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131184AbRCKBiH>; Sat, 10 Mar 2001 20:38:07 -0500
+	id <S131194AbRCKCUf>; Sat, 10 Mar 2001 21:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131187AbRCKBh6>; Sat, 10 Mar 2001 20:37:58 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:52239 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131184AbRCKBhr>; Sat, 10 Mar 2001 20:37:47 -0500
-Message-ID: <3AAAD694.B0482AE8@leo.org>
-Date: Sun, 11 Mar 2001 02:36:20 +0100
-From: Joachim Herb <herb@leo.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: de, en
+	id <S131196AbRCKCUZ>; Sat, 10 Mar 2001 21:20:25 -0500
+Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:62728 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131194AbRCKCUP>; Sat, 10 Mar 2001 21:20:15 -0500
+Message-ID: <3AAAE073.4C18B7F8@baretta.com>
+Date: Sun, 11 Mar 2001 03:18:27 +0100
+From: Alex Baretta <alex@baretta.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: compilation error in 2.4.3-pre3
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible bug with poll syscall
+In-Reply-To: <3AAA2ADE.E8FF41E3@baretta.com> <3AAA5273.67DC90EF@baretta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Alex Baretta wrote:
+> 
+> Alex Baretta wrote:
+> >
+> > I am using poll with the POLLIN flag to wait for connection
+> > requests on a set of listening sockets in a server process.
+> > Although clients attempt to connect to those sockets, poll does
+> > returns zero after the expiration of the timeout.
+...
 
-I get the following compilation error:
-gcc -D__KERNEL__ -I/tmp2/src/linux-2.4.3.jh/include -Wall
--Wstrict-prototypes -O
-2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -
-march=i686 -malign-functions=4     -c -o proc_misc.o proc_misc.c
-proc_misc.c: In function `read_profile':
-proc_misc.c:452: `prof_shift' undeclared (first use in this function)
-proc_misc.c:452: (Each undeclared identifier is reported only once
-proc_misc.c:452: for each function it appears in.)
-proc_misc.c:454: `prof_len' undeclared (first use in this function)
-proc_misc.c:464: `prof_buffer' undeclared (first use in this function)
-proc_misc.c: In function `write_profile':
-proc_misc.c:494: `prof_len' undeclared (first use in this function)
-proc_misc.c:494: `prof_buffer' undeclared (first use in this function)
-proc_misc.c: In function `proc_misc_init':
-proc_misc.c:563: `prof_shift' undeclared (first use in this function)
-proc_misc.c:567: `prof_len' undeclared (first use in this function)
-make[3]: *** [proc_misc.o] Error 1
-make[3]: Leaving directory `/tmp2/src/linux-2.4.3.jh/fs/proc'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/tmp2/src/linux-2.4.3.jh/fs/proc'
-make[1]: *** [_subdir_proc] Error 2
-make[1]: Leaving directory `/tmp2/src/linux-2.4.3.jh/fs'
-make: *** [_dir_fs] Error 2
+There was a bug in my code. I am unable to find it, but I wrote a
+minimal to case to prove my point, and actually I proved myself
+wrong. Test case follows. If I ever find the time I'll try to
+experiment and discover why in "the real thing" poll did not work
+for me.
 
-I use:
-# gcc --version
-2.95.3
-(Mandrake 7.2)
 
-This variables were defined in asm/string.h but now I can only find them
-in asm/hw_irq.h. I have included asm/hw_irq.h and it compiles but I get
-a warning:
-make[3]: Entering directory `/tmp2/src/linux-2.4.3.jh/fs/proc'
-gcc -D__KERNEL__ -I/tmp2/src/linux-2.4.3.jh/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o
-proc_misc.o proc_misc.c
-In file included from proc_misc.c:42:
-/tmp2/src/linux-2.4.3.jh/include/asm/hw_irq.h:219: warning: `struct
-hw_interrupt_type' declared inside parameter list
-/tmp2/src/linux-2.4.3.jh/include/asm/hw_irq.h:219: warning: its scope is
-only this definition or declaration, which is probably not what you
-want.
-rm -f proc.o
+#include <sys/poll.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
 
-Bye,
-Joachim
+int main(int argc, char **argv) {
+  struct pollfd fds;
+  int res1, res2, nevents;
+  struct sockaddr_in sockaddr;
 
-P.S. Please send also an email to my private address as I am not
-subscribed to the list.
--- 
-Joachim Herb
-mailto:herb@leo.org
+  fds.fd = socket(PF_INET, SOCK_STREAM, 0);
+  fds.events = POLLIN;
+  
+  
+  sockaddr.sin_family = AF_INET;
+  sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  sockaddr.sin_port = htons(50000);
+  
+  res1 = bind(fds.fd, (struct sockaddr *)&sockaddr,
+sizeof(sockaddr));
+  res2 = listen(fds.fd, 20);
+
+  if (fds.fd == -1 || res1 == -1 || res2 == -1) {
+    fprintf(stderr, "The program failed miserably.\n");
+    exit(1);
+  }
+  
+  fprintf(stderr, "I'm about to suspend myself on a poll
+syscall!\n");
+  nevents = poll(&fds, 1, -1);
+  fprintf(stderr, "Waking up: nevents = %d\n", nevents);
+  
+  return 0;
+};

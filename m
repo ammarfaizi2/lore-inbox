@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVA1RY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVA1R1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVA1RY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 12:24:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVA1RY7
+	id S261298AbVA1R1d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 12:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVA1R1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 12:24:59 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:1728 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261171AbVA1RYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 12:24:54 -0500
-Date: Fri, 28 Jan 2005 18:24:48 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4][RESEND] Fix MSF overflow in ide-cd with multisession DVDs
-Message-ID: <20050128172448.GA4243@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 28 Jan 2005 12:27:33 -0500
+Received: from fire.osdl.org ([65.172.181.4]:12473 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261298AbVA1RZw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 12:25:52 -0500
+Message-ID: <41FA7128.1090604@osdl.org>
+Date: Fri, 28 Jan 2005 09:06:48 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm1-V0.7.34-01 ACPI err in dmesg
+References: <200501072156.54803.gene.heskett@verizon.net> <20050128070840.GA1456@elte.hu>
+In-Reply-To: <20050128070840.GA1456@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
-this a backport of my patch that went into 2.6.10.
+Ingo Molnar wrote:
+> * Gene Heskett <gene.heskett@verizon.net> wrote:
+> 
+> 
+>>  Normal zone: 225280 pages, LIFO batch:16
+>>  HighMem zone: 32752 pages, LIFO batch:7
+>>DMI 2.2 present.
+>>__iounmap: bad address c00f0000  <-why?
+>>ACPI: RSDP (v000 Nvidia                                ) @ 0x000f7220
+> 
+> 
+> I have no idea what is causing this. If it still occurs with recent
+> kernels then stick a WARN_ON(1) into __iounmap()'s error path, to get a
+> stack dump? It is almost certainly not related to -RT.
 
----
-cdrom_read_toc (ide-cd.c) always reads the TOC using MSF format. If the
-last session of the disk starts beyond block 1152000 (LBA) there's an
-overflow in the MSF format and kernel complains:
+There was a thread a few weeks ago about this same message (afaik).
+The answer then was something like "the __iounmap() call is happening
+very early, before the unmap machinery (data/structs) have been
+set up for it."  (but I don't know that first-hand, just repeating
+close to what I read.)
 
-Unable to identify CD-ROM format.
-
-So read the multi-session TOC in LBA format in order to avoid an
-overflow in MSF format with multisession DVDs.
-
-Signed-off-by: Luca Tettamanti <kronos@kronoz.cjb.net>
-
---- a/drivers/ide/ide-cd.c	2005-01-08 21:53:03.000000000 +0100
-+++ b/drivers/ide/ide-cd.c	2005-01-08 21:53:08.000000000 +0100
-@@ -2206,25 +2206,31 @@
- 	/* Read the multisession information. */
- 	if (toc->hdr.first_track != CDROM_LEADOUT) {
- 		/* Read the multisession information. */
--		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
-+		stat = cdrom_read_tocentry(drive, 0, 0, 1, (char *)&ms_tmp,
- 					   sizeof(ms_tmp), sense);
- 		if (stat) return stat;
-+	
-+		toc->last_session_lba = be32_to_cpu(ms_tmp.ent.addr.lba);
- 	} else {
--		ms_tmp.ent.addr.msf.minute = 0;
--		ms_tmp.ent.addr.msf.second = 2;
--		ms_tmp.ent.addr.msf.frame  = 0;
- 		ms_tmp.hdr.first_track = ms_tmp.hdr.last_track = CDROM_LEADOUT;
-+		toc->last_session_lba = msf_to_lba(0, 2, 0); /* 0m 2s 0f */
- 	}
- 
- #if ! STANDARD_ATAPI
--	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
-+	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd) {
-+		/* Re-read multisession information using MSF format */
-+		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
-+					   sizeof(ms_tmp), sense);
-+		if (stat)
-+			return stat;
-+
- 		msf_from_bcd (&ms_tmp.ent.addr.msf);
-+		toc->last_session_lba = msf_to_lba(ms_tmp.ent.addr.msf.minute,
-+					  	   ms_tmp.ent.addr.msf.second,
-+						   ms_tmp.ent.addr.msf.frame);
-+	}
- #endif  /* not STANDARD_ATAPI */
- 
--	toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
--					    ms_tmp.ent.addr.msf.second,
--					    ms_tmp.ent.addr.msf.frame);
--
- 	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
- 
- 	/* Now try to get the total cdrom capacity. */
-
-
-
-Luca
 -- 
-Home: http://kronoz.cjb.net
-Collect some stars to shine for you
-And start today 'cause there's only a few
-A sign of times my friend
+~Randy

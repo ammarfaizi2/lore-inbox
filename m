@@ -1,33 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262195AbRETTuS>; Sun, 20 May 2001 15:50:18 -0400
+	id <S262201AbRETTx2>; Sun, 20 May 2001 15:53:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbRETTuI>; Sun, 20 May 2001 15:50:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19466 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262193AbRETTt6>; Sun, 20 May 2001 15:49:58 -0400
-Subject: Re: Problems with buslogic and osst driver
-To: andy@chaos.org.uk
-Date: Sun, 20 May 2001 20:46:44 +0100 (BST)
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <slrn9geggf.soc.abuse@madhouse.demon.co.uk> from "Andrew Bray" at May 20, 2001 04:03:27 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262202AbRETTxS>; Sun, 20 May 2001 15:53:18 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:55473 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S262201AbRETTxB>;
+	Sun, 20 May 2001 15:53:01 -0400
+Date: Sun, 20 May 2001 21:51:04 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: const __init
+Message-ID: <Pine.LNX.4.05.10105202145520.1667-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E151ZA4-0002n9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So I have 2 questions:
-> 1) Does anyone know if Leonard Zubkoff is still around?
 
-Leonard was around at OLS last year and working at VA. Its possible he was
-laid off but I've heard nothing to suggest that so he's probably just busy
-or on holiday
+Since a while include/linux/init.h contains the line
 
-> 2) Is anyone else looking after the BusLogic driver these days?
+    * Also note, that this data cannot be "const".
 
-Not afaik but feel free to pitch in
+Why is this? Because const data will be put in a different section?
+
+However, quite some code defines const __init variables (see list below).
+
+So what should be done now?
+  1. Remove const from __initdata variables
+  2. Make __inidata work with const variables
+
+FWIW, many sources still use __init for data, while it should be __initdata.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+Appendix: here's the list of affected source files:
+
+    arch/arm/kernel/setup.c
+    arch/m68k/amiga/config.c
+    arch/ppc/amiga/config.c
+    arch/ppc/kernel/residual.c
+    drivers/acorn/net/ether1.c
+    drivers/acorn/net/ether3.c
+    drivers/acorn/net/etherh.c
+    drivers/atm/ambassador.c
+    drivers/cdrom/cdu31a.c
+    drivers/char/dsp56k.c
+    drivers/char/pc110pad.c
+    drivers/char/qpmouse.c
+    drivers/char/softdog.c
+    drivers/ide/buddha.c
+    drivers/ide/rapide.c
+    drivers/net/ewrk3.c
+    drivers/net/hamradio/6pack.c
+    drivers/net/hamradio/bpqether.c
+    drivers/net/hamradio/mkiss.c
+    drivers/net/hamradio/scc.c
+    drivers/net/hamradio/yam.c
+    drivers/net/strip.c
+    drivers/net/tokenring/ibmtr.c
+    drivers/net/wan/lapbether.c
+    drivers/net/wan/z85230.c
+    drivers/pci/names.c
+    drivers/scsi/seagate.c
+    drivers/sound/sonicvibes.c
+    drivers/video/amifb.c
+    drivers/video/aty128fb.c
+    drivers/video/atyfb.c
+    drivers/video/mdacon.c
+    drivers/video/modedb.c
+    drivers/video/newport_con.c
+    drivers/video/promcon.c
+    drivers/video/riva/fbdev.c
+    drivers/video/sticon-bmode.c
+    drivers/video/sticon.c
+    drivers/video/tdfxfb.c
+    drivers/video/vgacon.c
+    drivers/zorro/names.c
+    net/ax25/af_ax25.c
+    net/ipv4/ipip.c
+    net/ipx/af_ipx.c
+    net/ipx/af_spx.c
+    net/lapb/lapb_iface.c
+    net/netrom/af_netrom.c
+    net/unix/af_unix.c
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

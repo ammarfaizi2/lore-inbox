@@ -1,104 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274774AbRJRLZK>; Thu, 18 Oct 2001 07:25:10 -0400
+	id <S274872AbRJRLxI>; Thu, 18 Oct 2001 07:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274872AbRJRLZB>; Thu, 18 Oct 2001 07:25:01 -0400
-Received: from hermes.dur.ac.uk ([129.234.4.9]:44029 "EHLO hermes.dur.ac.uk")
-	by vger.kernel.org with ESMTP id <S274774AbRJRLYs>;
-	Thu, 18 Oct 2001 07:24:48 -0400
-Date: Thu, 18 Oct 2001 12:14:03 +0100 (BST)
-From: Nirmal Bissonauth <Nirmal.Bissonauth@durham.ac.uk>
-Reply-To: Nirmal Bissonauth <Nirmal.Bissonauth@durham.ac.uk>
+	id <S274920AbRJRLw6>; Thu, 18 Oct 2001 07:52:58 -0400
+Received: from noc.easyspace.net ([62.254.202.67]:18704 "EHLO
+	noc.easyspace.net") by vger.kernel.org with ESMTP
+	id <S274872AbRJRLwp>; Thu, 18 Oct 2001 07:52:45 -0400
+Date: Thu, 18 Oct 2001 12:52:39 +0100
+From: Sam Vilain <sam@vilain.net>
 To: linux-kernel@vger.kernel.org
-Subject: Dlink DL2000 Gigabit Driver problems with Tyan Thunder K7 motherboard
-Message-ID: <Pine.GSO.3.95-960729.1011018115012.25557A-100000@altair.dur.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-ECS-MailScanner: Found to be clean
-X-ECS-MailScanner: Found to be clean
+Subject: ds: no socket drivers loaded! in 2.4.x
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15uBj5-0006lx-00@hoffman.vilain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+hoffman:/root# modprobe ds 
+/lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o: init_module: Operation not permitted
+Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
+/lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o: insmod /lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o failed
+/lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o: insmod ds failed
+hoffman:/root# dmesg | tail -1
+ds: no socket drivers loaded!
 
-I am having problems with the DL2k driver which I which use for the
-DGE-550T NIC on the Tyan Thunder K7 760MP Dual Athlon Motherboard.
-I am using kernel 2.4.12-ac3. The card does not send or receive any
-packets. The switch does not report any activity from the card at all. The
-motherboard also has two other 3com 3c980 NICs on board. 
+This is on a Dell Inspiron 4000 FWIW.  I'm using 2.4.12-ac3, but had
+exactly the same problem with plain 2.4.9 and every other 2.4 kernel I've
+tried.
 
-I switched to the ac kernel because I was having the following error in
-the first place. (APIC problem I think)
+I've put my .config, and output from a few other commands at:
 
-NETDEV WATCHDOG: eth2: transmit timed out
-eth2: Transmit timed out, TxStatus 0000. 
+http://sam.vilain.net/no-socket/
 
-The ac kernel cured the above error, but the card still does
-transmit any packets. However it correctly detects medium changes.
-Plugging and unplugging into the switch.
+Any ideas?
 
-Auto 1000BaseT, Full duplex.
-eth2: Link off
-eth2: Link up
-Auto 100BaseT, Full duplex.
-
-I have attached system details below.
-Any help would be welcome.
-
-Regards
-Nirmal Bissonauth
-
-#lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c
-(rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
-00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7410 (rev
-02)
-00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7411
-(rev 01)
-00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7413 (rev 01)
-00:07.4 USB Controller: Advanced Micro Devices [AMD]: Unknown device 7414
-(rev 07)
-00:09.0 Ethernet controller: D-Link System Inc: Unknown device 4000 (rev
-06)
-00:0e.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0f.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
-[Python-T] (rev 78)
-00:10.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
-[Python-T] (rev 78) 
-
-#ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:E0:81:03:DA:CF
-          inet addr:129.234.8.40  Bcast:129.234.255.255  Mask:255.255.0.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:377529 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:9398 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:145 txqueuelen:100
-          Interrupt:5 Base address:0x1800
- 
-eth1      Link encap:Ethernet  HWaddr 00:E0:81:03:DA:D0
-          inet addr:192.168.1.2  Bcast:192.168.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:14 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:14 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          Interrupt:11 Base address:0x1880
- 
-eth2      Link encap:Ethernet  HWaddr 00:05:5D:00:9C:46
-          inet addr:192.168.2.2  Bcast:192.168.2.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:8 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          Interrupt:10 Base address:0x9000
- 
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:13357 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:13357 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-
-
-
-
+Sam.

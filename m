@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbTHTQ7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 12:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTHTQ7s
+	id S262078AbTHTRMO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTHTRMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 12:59:48 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12293 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262074AbTHTQ7i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 12:59:38 -0400
-Date: Wed, 20 Aug 2003 12:49:14 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Gryniewicz <dang@fprintf.net>
-cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
-       richard@aspectgroup.co.uk, skraw@ithnet.com, willy@w.ods.org,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 20 Aug 2003 13:12:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:50586 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262080AbTHTRLI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:11:08 -0400
+Date: Wed, 20 Aug 2003 10:00:44 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: dang@fprintf.net, alan@lxorguk.ukuu.org.uk, richard@aspectgroup.co.uk,
+       skraw@ithnet.com, willy@w.ods.org, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, bloemsaa@xs4all.nl, marcelo@conectiva.com.br,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-In-Reply-To: <1061320363.3744.14.camel@athena.fprintf.net>
-Message-ID: <Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030820100044.3127d612.davem@redhat.com>
+In-Reply-To: <Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
+References: <1061320363.3744.14.camel@athena.fprintf.net>
+	<Pine.LNX.3.96.1030820123600.14414I-100000@gatekeeper.tmr.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Aug 2003, Daniel Gryniewicz wrote:
+On Wed, 20 Aug 2003 12:49:14 -0400 (EDT)
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-> I realize that, but is that a reason to keep linux from working with
-> these?  (And it's not just cisco, all the *BSDs (and therefore anything
-> that took the BSD stack such as MS) work this way too.)  As nearly as I
-> can tell, there's no way to make linux work with these, and the
-> situation I gave is one where linux could easily get it right, and
-> isn't.  Saying "They're broken.  Tough." is not really helpful.  At
-> least can we get a "work with broken other systems in certain
-> circumstances" switch somewhere?
-
-I have been asking for a similar thing as well, David mentioned some
-things that would break, but I believe they break if you use source
-routing, so that seems not to be a real objection.
-
+> On 19 Aug 2003, Daniel Gryniewicz wrote:
 > 
-> (Funny you should mention Cisco, as we write routing software and must
-> interoperate with Cisco.  What Cisco says *does* go in the routing
-> community, if you wish your product to be used.  Currently, when our
-> customers come to us, we have to say "Either don't use Linux or run 2.2
-> with the arp fix patch.")
+> I have been asking for a similar thing as well, David mentioned some
+> things that would break, but I believe they break if you use source
+> routing, so that seems not to be a real objection.
 
-Unless all your customers do odd things with networking, or you are not
-using source routing for some reason, you don't do customers a favor by
-giving that advice. Most users have one NIC with one IP and Linux works.
+It's not about source routing.  It's about failover and being
+able to use ARP on interfaces which don't have addresses assigned
+to them yet.
 
-The Linux implementation is not broken by standard, it's just that there
-were two ways to do it, and the one chosen is allowed by frequently
-non-functional.
+> I find it interesting that we can't change networking because a few
+> complex systems would have to be reconfigured, but we *can* change modules
+> which requires config changes on probably 90% of all systems (commercial
+> distributions).
 
-I find it interesting that we can't change networking because a few
-complex systems would have to be reconfigured, but we *can* change modules
-which requires config changes on probably 90% of all systems (commercial
-distributions). Linus has rethought some of his design decisions, but
-David seems intent on not only keeping this one, but preventing the
-addition of a flag which would solve the problem for most people.
+Decisions about Networking will always be in a different domain
+because the way one behaves has effects upon other systems not
+just the local one.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+BTW, another thing which makes the source address selection for
+outgoing ARPs a real touchy area is the following.  Some weird
+configurations actually respond with different ARP answers based upon
+the source address in the ARP request.  You can ask Julian Anastasov
+about such (arguably pathological) setups.

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTECT3R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 15:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTECT3R
+	id S263407AbTECT3X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 15:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTECT3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 15:29:17 -0400
-Received: from AMarseille-201-1-2-221.abo.wanadoo.fr ([193.253.217.221]:29992
-	"EHLO gaston") by vger.kernel.org with ESMTP id S263402AbTECT3Q
+	Sat, 3 May 2003 15:29:22 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:9221 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263407AbTECT3U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 15:29:16 -0400
-Subject: Re: Reserving an ATA interface
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0305032109390.10296-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0305032109390.10296-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051990830.7820.72.camel@gaston>
+	Sat, 3 May 2003 15:29:20 -0400
+Date: Sat, 3 May 2003 20:39:08 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DECNET in latest BK
+Message-ID: <20030503203908.A5915@electric-eye.fr.zoreil.com>
+References: <20030503175913.GA13595@work.bitmover.com> <1051987091.14504.9.camel@rth.ninka.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 May 2003 21:40:30 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1051987091.14504.9.camel@rth.ninka.net>; from davem@redhat.com on Sat, May 03, 2003 at 11:38:11AM -0700
+X-Organisation: Hungry patch-scripts (c) users
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller <davem@redhat.com> :
+[...]
+> Turn off CONFIG_DECNET_ROUTE_FWMARK, aparently even the maintainer
+> doesn't even enable this option :-)
 
-> > With my patch, since the PCI interface will not set the "hold" flag,
-> > ide_register_hw() called by ide-cs will call init_hwif_data(), thus
-> > putting back the hwif to a sane state
-> 
-> So every time you remove your disks from one of your PCI IDE controllers,
-> your ide-cs will get diffirent hwif and drives mappings and your RAID
-> on ide-cs won't be recognized ;-)
+Does the attached patch make sense ?
 
-Yes ;) Note that it's already the case today. Except that with the call
-to init_hwif_data(), at least, it wont crash the kernel because of wrong
-IOps, DMA ops or whatever in the hwif.
+ net/decnet/dn_route.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Ben.
+diff -puN net/decnet/dn_route.c~decnet-compile-fix net/decnet/dn_route.c
+--- linux-2.5.68-1.1118.1.6-to-1.1192/net/decnet/dn_route.c~decnet-compile-fix	Fri May  2 23:19:48 2003
++++ linux-2.5.68-1.1118.1.6-to-1.1192-fr/net/decnet/dn_route.c	Fri May  2 23:19:48 2003
+@@ -1055,7 +1055,7 @@ make_route:
+ 	rt->fl.oif        = oldflp->oif;
+ 	rt->fl.iif        = 0;
+ #ifdef CONFIG_DECNET_ROUTE_FWMARK
+-	rt->fl.fld_fwmark = flp->fld_fwmark;
++	rt->fl.fld_fwmark = oldflp->fld_fwmark;
+ #endif
+ 
+ 	rt->rt_saddr      = fl.fld_src;
+@@ -1180,7 +1180,7 @@ static int dn_route_input_slow(struct sk
+ 				       .saddr = cb->src,
+ 				       .scope = RT_SCOPE_UNIVERSE,
+ #ifdef CONFIG_DECNET_ROUTE_FWMARK
+-				       .fwmark = skb->fwmark
++				       .fwmark = skb->nfmark
+ #endif
+ 				    } },
+ 			    .iif = skb->dev->ifindex };
 

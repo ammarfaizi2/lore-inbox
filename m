@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbTFDAvM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 20:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTFDAvM
+	id S262494AbTFDAwr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 20:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTFDAwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 20:51:12 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22542
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262298AbTFDAvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 20:51:10 -0400
-Date: Tue, 3 Jun 2003 17:53:19 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mauk van der Laan <mauk.lists@maatwerk.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: siimage slow on 2.4.21-rc6-ac2
-In-Reply-To: <1054678794.9233.76.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10306031746070.27756-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Tue, 3 Jun 2003 20:52:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27285 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262494AbTFDAwq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 20:52:46 -0400
+Date: Wed, 4 Jun 2003 02:06:13 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@digeo.com>
+Cc: Lou Langholtz <ldl@aros.net>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Greg KH <greg@kroah.com>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: 2.5.70 add_disk(disk) re-registering disk->queue->elevator.kobj (bug?!)
+Message-ID: <20030604010613.GG6754@parcelfarce.linux.theplanet.co.uk>
+References: <3EDCEA14.2000407@aros.net> <20030603120717.66012855.akpm@digeo.com> <3EDD3D5F.3010509@aros.net> <20030603180002.2a0b4402.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030603180002.2a0b4402.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 03, 2003 at 06:00:02PM -0700, Andrew Morton wrote:
+ 
+> According to Al, we have a significant number of drivers in the tree in
+> which multiple gendisks shared the same queue.  Sometimes because that's a
+> logical mapping onto how the hardware behaves.
 
-NO, it is not irrelevant.
-
-Seagate and Silicon Image are the only two player (well intel now) who did
-their own PHY.  They did not use the Marvel pairs.
-
-It is a function of possible ECC on the wire and the relation to the
-segments in the PIO or SG operations.  It is a FIFO issue based on 512byte
-boundaries being breached on corner cases.
-
-The data on the wire is in 8K units.
-
-It is a 7.5K + 0.5K corner case.
-
-max_kb_per_request:15 == 7.5K
-
-This prevents this corner case until I can code the proper special case SG
-table.
-
-drive->id->hwconfig |= 0x6000;
-
-Is needed to fake the driver for device side cable detect.
-There are several issues and I have not had time to keep up.
-
-I have to do other business ventures because being an independent
-developer/contract no longer can pay the bills.  More proof that free
-drivers and free software still has a cost to somebody.
-
-Cheers,
-
-On 3 Jun 2003, Alan Cox wrote:
-
-> On Maw, 2003-06-03 at 23:48, Mauk van der Laan wrote:
-> > He! I just did
-> > 
-> > # hdparm -d1 -X66 /dev/hdX
-> > # echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
-> > 
-> > on BOTH sata drives and everything works fine!
-> > Is it possible that they influence each other?
-> 
-> Not as I understand it, but this is rather useful information. The SI
-> does have some ties for PIO mode but not UDMA clocking. This is most
-> interesting information.
-> 
-> The max_kb_per thing should be irrelevant btw.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+... on top of that, we have queues with no gendisk ever registered.
+SCSI tapes, for one things.

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267327AbTBPSO7>; Sun, 16 Feb 2003 13:14:59 -0500
+	id <S267331AbTBPSPY>; Sun, 16 Feb 2003 13:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267330AbTBPSO7>; Sun, 16 Feb 2003 13:14:59 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46097 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267327AbTBPSO6>; Sun, 16 Feb 2003 13:14:58 -0500
-Date: Sun, 16 Feb 2003 10:21:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: 2.5.61 oops running SDET
-In-Reply-To: <21410000.1045413579@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0302161017500.2619-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267334AbTBPSPY>; Sun, 16 Feb 2003 13:15:24 -0500
+Received: from crack.them.org ([65.125.64.184]:46267 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S267331AbTBPSPW>;
+	Sun, 16 Feb 2003 13:15:22 -0500
+Date: Sun, 16 Feb 2003 13:25:12 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>, linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.53 not compiling
+Message-ID: <20030216182512.GB4861@nevyn.them.org>
+Mail-Followup-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>,
+	linux-kernel@vger.kernel.org
+References: <20030216171050.A12489@flint.arm.linux.org.uk> <Pine.SOL.3.96.1030216224235.25827A-100000@osiris.csa.iisc.ernet.in> <20030216174411.B12489@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030216174411.B12489@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 16 Feb 2003, Martin J. Bligh wrote:
+On Sun, Feb 16, 2003 at 05:44:11PM +0000, Russell King wrote:
+> Please copy replies back to lkml.
 > 
-> Right, that's what I expected, and that may well explain the hang, but I 
-> don't see how that explains the oops still happening. What exactly is 
-> tasklist_lock protecting here anyway?
+> On Sun, Feb 16, 2003 at 10:43:01PM +0530, Rahul Vaidya wrote:
+> > the command is giving me the following:
+> > 
+> > Reading specs from
+> > /usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3.2/specs
+> > Configured with: ../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
+> > Thread model: posix
+> > gcc version 3.2
+> >  /usr/local/gcc-3.2/lib/gcc-lib/i686-pc-linux-gnu/3.2/cpp0 -lang-c -v
+> > -iprefix /usr/local/bin/../lib/gcc-lib/i686-pc-linux-gnu/3.2/
+>                       ^^^^^^^^^^
 > 
->         read_lock(&tasklist_lock);
->         buffer += sprintf(buffer,
->                 "State:\t%s\n"
->                 "Tgid:\t%d\n"
->                 "Pid:\t%d\n"
->                 "PPid:\t%d\n"
->                 "TracerPid:\t%d\n"
->                 "Uid:\t%d\t%d\t%d\t%d\n"
->                 "Gid:\t%d\t%d\t%d\t%d\n",
->                 get_task_state(p), p->tgid,
->                 p->pid, p->pid ? p->real_parent->pid : 0,
->                 p->pid && p->ptrace ? p->parent->pid : 0,
->                 p->uid, p->euid, p->suid, p->fsuid,
->                 p->gid, p->egid, p->sgid, p->fsgid);
->         read_unlock(&tasklist_lock);
+> It looks like gcc 3.2 thinks its compiler prefix is in a place where it
+> is not.  I'd suggest you report this to the gcc people; at a guess, it
+> may be due to gcc getting confused during its configuration:
 > 
-> Is it these two accesses:
-> 
-> p->real_parent->pid ?
-> p->parent->pid ?
+> 	../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
+>         ^^^
 
-Yup.
+No, that doesn't affect the search path.  It's detecting a GCC in
+/usr/local and assuming the installation was moved.  Rahul, what does
+it say when you run it from its real location?
 
-> Don't see what I can do for this apart from to invert the ordering and take
-> tasklist_lock around the whole function, and nest task_lock inside that, or
-> I suppose I could take the task_lock for each of the parents? I seem to 
-> recall Linus reminding people recently that it was only the lock 
-> acquisition order that was important, not release ... does something like 
-> the following look OK?
-
-This patch looks like it should certainly fix the problem, but that is 
-still some god-awful ugly overkill in locking.
-
-I'd rather make the rule be that you have to take the task lock before 
-modifying things like the parent pointers (and all the other fundamntal 
-pointers), since that's already the rule for most of it anyway.
-
-And then the tasklist lock would go away _entirely_ from /proc (except for
-task lookup in ->readdir/->lookup, of course, where it is fundamentally
-needed and proper - and will probably some day be replaced by RCU, I
-suspect).
-
-			Linus
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131447AbQKCTiV>; Fri, 3 Nov 2000 14:38:21 -0500
+	id <S131469AbQKCTmL>; Fri, 3 Nov 2000 14:42:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131492AbQKCTiL>; Fri, 3 Nov 2000 14:38:11 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:36102 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131447AbQKCTiC>;
-	Fri, 3 Nov 2000 14:38:02 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011031937.WAA10753@ms2.inr.ac.ru>
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-To: ak@suse.de (Andi Kleen)
-Date: Fri, 3 Nov 2000 22:37:45 +0300 (MSK)
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20001103202911.A2979@gruyere.muc.suse.de> from "Andi Kleen" at Nov 3, 0 08:29:11 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131545AbQKCTmC>; Fri, 3 Nov 2000 14:42:02 -0500
+Received: from runyon.cygnus.com ([205.180.230.5]:41433 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S131469AbQKCTly>;
+	Fri, 3 Nov 2000 14:41:54 -0500
+To: george@moberg.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a user-land  programmer...
+In-Reply-To: <3A03120A.DFC62AD5@moberg.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 03 Nov 2000 11:41:42 -0800
+In-Reply-To: george@moberg.com's message of "Fri, 03 Nov 2000 14:29:14 -0500"
+Message-ID: <m3y9z0g7wp.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+george@moberg.com writes:
 
-> that does hardware register access without protecting against interrupts
-> or checking if the interface is up.
+> Can we _PLEASE_PLEASE_PLEASE_ not do this anymore and have the kernel do
+> what BSD does:  re-start the interrupted call?
 
-This issue is not that issue. It is separate issue and in fact
-it is private problem of driver and its author, what is safe,
-what is not safe.
+This is crap.  Returning EINTR is necessary for many applications.
 
-F.e. I see no cathastrophe even if MII registers are accessed without
-any protections. Diag utilities do this from user space. 8)8)
-
-
-> de4x5 is probably also buggy in regard to this.
-
-de4x5 is hopeless. I added nice comment in softnet to it.
-Unfortunately it was lost. 8)
-
-Andi, neither you nor me nor Alan nor anyone are able to audit
-all this unnevessarily overcomplicated code. It was buggy, is buggy
-and will be buggy. It is inavoidable, as soon as you have hundreds
-of drivers.
-
-Alexey
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

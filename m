@@ -1,76 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267829AbTBEGrX>; Wed, 5 Feb 2003 01:47:23 -0500
+	id <S267835AbTBEHHe>; Wed, 5 Feb 2003 02:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267831AbTBEGrX>; Wed, 5 Feb 2003 01:47:23 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:52746 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267829AbTBEGrV>; Wed, 5 Feb 2003 01:47:21 -0500
-Message-Id: <200302050648.h156mxs16371@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Dave Slicer" <slice1900@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: disabling nagle
-Date: Wed, 5 Feb 2003 08:47:18 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <F137jnt61tqeaVRMPjc00012673@hotmail.com>
-In-Reply-To: <F137jnt61tqeaVRMPjc00012673@hotmail.com>
+	id <S267836AbTBEHHe>; Wed, 5 Feb 2003 02:07:34 -0500
+Received: from mail.scram.de ([195.226.127.117]:35271 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S267835AbTBEHHd>;
+	Wed, 5 Feb 2003 02:07:33 -0500
+Date: Wed, 5 Feb 2003 07:06:00 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: mike_phillips@urscorp.com, <phillim2@comcast.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [CHECKER] 112 potential memory leaks in 2.5.48
+In-Reply-To: <20030205011353.GA17941@Xenon.Stanford.EDU>
+Message-ID: <Pine.LNX.4.44.0302050653210.3534-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 February 2003 02:01, Dave Slicer wrote:
-> On Tue, Feb 04, 2003 at 11:39:16AM -0800, Fiona Sou-Yee Wong wrote:
-> >I have kernel version 2.4.18 and I was looking for a patch to have
-> > the option to disable NAGLE's algorithm.
-> >Is there a patch available for kernels 2.4 and greater and if not,
-> > what other options do I have?
->
-> Others already answered this specific question, but I wonder how hard
-> it would be to create a patch to disable TCP's timeout and retransmit
-> mechanisms on a given interface?  This would allow those of us who
-> have no alternative other than PPP over ssh for VPN to greatly
-> improve performance. Over a well behaved connection this works
-> acceptably, but given any delays or packet loss it is essentially
-> unusable.  I know the real answer is using something other than TCP
-> as the transport layer for the tunnel (IPSEC, IP over IP, UDP, etc.)
-> but that isn't always possible.  So I'd like a way to treat the ppp
-> interface the VPN tunnel creates as a completely reliable transport
-> for which normal TCP/IP retransmits and timeouts don't apply. It'd
-> just bullheadedly go along transmitting data and assuming it was
-> received -- the underlying TCP transport can take care of making the
-> link reliable.
+Hi,
 
-I want this too ;) For one, it would be a perfect example of using
-good existing tools to achieve the goal instead of inventing
-something big and new. Also it does not reduce MTU unlike
-packet-encapsulation tunnels.
+> /u1/acc/linux/2.5.48/drivers/net/tokenring/madgemc.c:356:madgemc_probe:
+> ERROR:LEAK:194:356:Memory leak [Allocated from:
+> /u1/acc/linux/2.5.48/drivers/net/tokenring/madgemc.c:194:kmalloc]
 
-Now it's an imperfect example due to noted TCP over TCP performance
-problem ('internal meltdown').
+This should fix the leaks (and updates the driver to use propper
+reference counting).
 
-> Is this even remotely reasonable?  If it would cause performance
-> degradation it'd have to be a config option or never make the kernel
-> at all (Linus may never accept it regardless I suppose)  But ignoring
-> that for a moment, is it just too hairy to contemplate?  I've done a
-> few patches here and there for Linux in the past, but nothing like
-> this (and nothing involving networking) so it is far beyond my
-> capability.  But if something was cooked up that works well enough
-> I'd be willing to try polishing it and porting between kernel
-> versions where necessary.
->
-> But I'd take any suggestions for alterations in /proc/sys/net/ipv4/*
-> that might help the current state of things.
+--jochen
+===== madgemc.c 1.9 vs edited =====
+--- 1.9/drivers/net/tokenring/madgemc.c	Thu Nov 21 18:59:53 2002
++++ edited/madgemc.c	Wed Feb  5 08:16:32 2003
+@@ -180,8 +180,11 @@
 
-I'm looking there for the first time ever, but it seems you
-can twiddle TCP parameters in /proc/sys/net/ipv4/tcp_*
-(OTOH I don't see retransmit timeout controls there...
-maybe they have another name?)
+ 		if ((dev = init_trdev(NULL, 0))==NULL) {
+ 			printk("madgemc: unable to allocate dev space\n");
++			if (madgemc_card_list)
++				return 0;
+ 			return -1;
+ 		}
++		SET_MODULE_OWNER(dev);
+ 		dev->dma = 0;
 
-In order to make them per-iface one needs to have an ability to
-override them in /proc/sys/net/ipv4/conf/ethX.
-Seems like this is not implemented.
---
-vda
+ 		/*
+@@ -193,6 +196,9 @@
+ 		card = kmalloc(sizeof(struct madgemc_card), GFP_KERNEL);
+ 		if (card==NULL) {
+ 			printk("madgemc: unable to allocate card struct\n");
++			kfree(dev); /* release_trdev? */
++			if (madgemc_card_list)
++				return 0;
+ 			return -1;
+ 		}
+ 		card->dev = dev;
+@@ -223,14 +229,14 @@
+
+ 		if (dev->irq == 0) {
+ 			printk("%s: invalid IRQ\n", dev->name);
+-			goto getout;
++			goto getout1;
+ 		}
+
+ 		if (!request_region(dev->base_addr, MADGEMC_IO_EXTENT,
+ 				   "madgemc")) {
+ 			printk(KERN_INFO "madgemc: unable to setup Smart MC in slot %d because of I/O base conflict at 0x%04lx\n", slot, dev->base_addr);
+ 			dev->base_addr += MADGEMC_SIF_OFFSET;
+-			goto getout;
++			goto getout1;
+ 		}
+ 		dev->base_addr += MADGEMC_SIF_OFFSET;
+
+@@ -348,6 +354,14 @@
+ 		if (tmsdev_init(dev, ISA_MAX_ADDRESS, NULL)) {
+ 			printk("%s: unable to get memory for dev->priv.\n",
+ 			       dev->name);
++			release_region(dev->base_addr-MADGEMC_SIF_OFFSET,
++			       MADGEMC_IO_EXTENT);
++
++			kfree(card);
++			tmsdev_term(dev);
++			kfree(dev);
++			if (madgemc_card_list)
++				return 0;
+ 			return -1;
+ 		}
+ 		tp = (struct net_local *)dev->priv;
+@@ -376,10 +390,14 @@
+ 			madgemc_card_list = card;
+ 		} else {
+ 			printk("madgemc: register_trdev() returned non-zero.\n");
++			release_region(dev->base_addr-MADGEMC_SIF_OFFSET,
++			       MADGEMC_IO_EXTENT);
+
+ 			kfree(card);
+ 			tmsdev_term(dev);
+ 			kfree(dev);
++			if (madgemc_card_list)
++				return 0;
+ 			return -1;
+ 		}
+
+@@ -389,6 +407,7 @@
+ 	getout:
+ 		release_region(dev->base_addr-MADGEMC_SIF_OFFSET,
+ 			       MADGEMC_IO_EXTENT);
++	getout1:
+ 		kfree(card);
+ 		kfree(dev); /* release_trdev? */
+ 		slot++;
+@@ -696,7 +715,6 @@
+ 	 */
+ 	madgemc_chipset_init(dev);
+ 	tms380tr_open(dev);
+-	MOD_INC_USE_COUNT;
+ 	return 0;
+ }
+
+@@ -704,7 +722,6 @@
+ {
+ 	tms380tr_close(dev);
+ 	madgemc_chipset_close(dev);
+-	MOD_DEC_USE_COUNT;
+ 	return 0;
+ }
+
+

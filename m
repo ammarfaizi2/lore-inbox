@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283836AbRLRETU>; Mon, 17 Dec 2001 23:19:20 -0500
+	id <S283860AbRLRE2b>; Mon, 17 Dec 2001 23:28:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284017AbRLRETK>; Mon, 17 Dec 2001 23:19:10 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:30363 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S283836AbRLRETA>;
-	Mon, 17 Dec 2001 23:19:00 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: BURJAN Gabor <burjang@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17-rc1 kernel panic at boot 
-In-Reply-To: Your message of "Mon, 17 Dec 2001 09:29:05 -0800."
-             <3C1E2B61.3F9A685E@zip.com.au> 
+	id <S284038AbRLRE2W>; Mon, 17 Dec 2001 23:28:22 -0500
+Received: from mx2.port.ru ([194.67.57.12]:38151 "EHLO smtp2.port.ru")
+	by vger.kernel.org with ESMTP id <S284017AbRLRE2Q>;
+	Mon, 17 Dec 2001 23:28:16 -0500
+Date: Tue, 18 Dec 2001 07:26:56 +0300
+From: Dmitry Volkoff <vdb@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
+Message-ID: <20011218072656.D1841@localhost>
+In-Reply-To: <20011216223909.A230@localhost> <01121715011208.02146@manta>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 18 Dec 2001 15:18:47 +1100
-Message-ID: <2375.1008649127@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01121715011208.02146@manta>; from vda@port.imtp.ilyichevsk.odessa.ua on Mon, Dec 17, 2001 at 03:01:12PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001 09:29:05 -0800, 
-Andrew Morton <akpm@zip.com.au> wrote:
->BURJAN Gabor wrote:
->> >>NIP; c0264050 <vortex_probe1+394/cbc>   <=====
->> Trace; c0263f28 <vortex_probe1+26c/cbc>
+On Mon, Dec 17, 2001 at 03:01:12PM -0200, vda wrote:
+> >     if (r == -1) {
+> >       printf("unable to write\n");
+> >       close(fd);
+> >       return;
+> >     }
+> >     close(fd);
+> >     sleep(1);
+> >   }
+> > }
+> > // end test.c
+> 
+> I removed sleep(1). Is it needed?
 >
->That's a big function, unfortunately.   Could you please
->do the following?
->
->In the top-level makefile, add the line:
->
->CFLAGS += -g
->
->right at the end.    Then rebuild the kernel, recreate the
->crash, then run:
->
->gdb vmlinux
->(gdb) l *0xc0264050
 
-Not need to go quite that far.  It is not necessary to recompile the
-entire kernel nor do you need to boot a kernel to get the source code
-for an instruction.
+Yes, you need it in order to see the memory leakage.
+ 
+> After 10000+ runs of this proggy swap usage isn't changed on 2.4.17-pre7.
+> top reports constant 2304K of swap usage.
 
-cd linux
-rm drivers/net/3c59x.o
-make CFLAGS_3c59x.o=-g vmlinux
-s=$(sed -ne '/vortex_probe1/s/ .*//p' System.map | tr '[a-z]' '[A-Z]')
-e=$(echo -e "obase=16\nibase=16\n$s+500" | bc)
-objdump -S --start-address=0x$s --stop-address=0x$e vmlinux
+I know. You'll notice this effect only after 1000000+ runs.
+Try it again with sleep(1).
 
-That recompiles just 3c59x.o with -g and dumps the first 0x500 bytes of
-vortex_probe1, including the source code.
+> --
+> vda
+> 
 
+-- 
+
+    DV

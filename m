@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVCXMh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbVCXMj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262806AbVCXMh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 07:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVCXMh3
+	id S263126AbVCXMj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 07:39:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbVCXMj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 07:37:29 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:12714 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S262806AbVCXMhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 07:37:22 -0500
-Date: Thu, 24 Mar 2005 13:37:21 +0100
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, michal@logix.cz
+	Thu, 24 Mar 2005 07:39:28 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:11406 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S263124AbVCXMjI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 07:39:08 -0500
+Date: Thu, 24 Mar 2005 22:38:02 +1000
+From: David McCullough <davidm@snapgear.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
 Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050324123719.GY29897@vanheusden.com>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050324043300.GA2621@havoc.gtf.org> <20050324044621.GC3124@beast> <42424C6D.2020605@pobox.com>
+Message-ID: <20050324123802.GB7115@beast>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42424C6D.2020605@pobox.com>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Wed Mar 23 21:52:36 CET 2005
-X-MSMail-Priority: High
+In-Reply-To: <20050323203856.17d650ec.akpm@osdl.org>
 User-Agent: Mutt/1.5.6+20040907i
-From: folkert@vanheusden.com (Folkert van Heusden)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, there are other entropy daemons floating about.  I think there is 
-> one that obtains noise from an audio device.
 
-That's correct: http://www.vanheusden.com/aed/ audio-entropyd
+Jivin Andrew Morton lays it down ...
+> David McCullough <davidm@snapgear.com> wrote:
+> >
+> > Here is a small patch for 2.6.11 that adds a routine:
+> > 
+> >  	add_true_randomness(__u32 *buf, int nwords);
+> 
+> It neither applies correctly nor compiles in current kernels.  2.6.11 is
+> very old in kernel time.
 
-There's also one for doing the same with video4linux devices: 
-http://www.vanheusden.com/ved/
+Sorry about that,  I had actually checked a fairly recent bk version
+and noticed quite a few changes.  I used that to figure out what I could
+do that would apply reasonably to both 2.4 and 2.6 kernels,  and then
+forgot about all those new changes and used the older release kernel.
 
+See the new patch.
 
-Folkert van Heusden
+> Are we likely to see any in-kernel users of this?
 
-Auto te koop! Zie: http://www.vanheusden.com/daihatsu.php
-Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
-+------------------------------------------------------------------+
-|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
-|a try, it brings monitoring logfiles to a different level! See    |
-|http://vanheusden.com/multitail/features.html for a feature list. |
-+------------------------------------------= www.unixsoftware.nl =-+
-Phone: +31-6-41278122, PGP-key: 1F28D8AE
-Get your PGP/GPG key signed at www.biglumber.com!
+Both the OCF port that I am working on and Evgeniy Polyakov's acrypto
+support devices that could use such an API.  The OCF port has already
+has two drivers (hifn and safenet) that are using this and,  depending
+on how this pans out,  there will be another for Xscale soon.
+
+Whether or not these users of it end up in the kernel is out of my hands
+somewhat :-)
+
+Cheers,
+Davidm
+
+-- 
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265511AbUABLcW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 06:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbUABLcW
+	id S265476AbUABLad (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 06:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUABLad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 06:32:22 -0500
-Received: from hell.org.pl ([212.244.218.42]:5391 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S265511AbUABLcU (ORCPT
+	Fri, 2 Jan 2004 06:30:33 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:12491 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265476AbUABLaa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 06:32:20 -0500
-Date: Fri, 2 Jan 2004 12:32:21 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] ACPI and framebuffer related problems with Linux 2.6.1-rc1
-Message-ID: <20040102113221.GA13322@hell.org.pl>
-Mail-Followup-To: "Yu, Luming" <luming.yu@intel.com>,
-	Martin Loschwitz <madkiss@madkiss.org>,
-	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-References: <3ACA40606221794F80A5670F0AF15F8401720C6E@PDSMSX403.ccr.corp.intel.com>
+	Fri, 2 Jan 2004 06:30:30 -0500
+Date: Fri, 2 Jan 2004 12:30:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Christophe Saout <christophe@saout.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: CPRM ?? Re: Possibly wrong BIO usage in ide_multwrite
+Message-ID: <20040102113018.GP5523@suse.de>
+References: <1073013643.20163.51.camel@leto.cs.pocnet.net> <Pine.LNX.4.10.10401012018030.32122-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720C6E@PDSMSX403.ccr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.10.10401012018030.32122-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Yu, Luming:
-> >However, there is a problem with ACPI:
-> /proc/acpi/processor/CPU0/performance, 
-> >which was there in previous versions of the kernel and allowed me to
-> slow the 
-> >CPU down in order to save power, disappeared in Linux 2.6.1-rc1. It's
-> simply 
-> >not there anymore. Was it replaced? 
+On Thu, Jan 01 2004, Andre Hedrick wrote:
 > 
-> It sounds like a regression. Would you file it on
-> http://bugzilla.kernel.org
+> Christophe,
+> 
+> I am sorry but adding in a splitter to CPRM is not acceptable.
+> Digital Rights Management in the kernel is not acceptable to me, period.
+> 
+> Maybe I have misread your intent and the contents on your website.
+> 
+> Device-Mappers are one thing, intercepting buffers in the taskfile FSM
+> transport is another.  This stinks of CPRM at this level, regardless of
+> your intent.  Do correct me if I am wrong.
 
-I guess he needs rather to compile the ACPI performance CPUFreq driver and
-insmod acpi.ko, or something similar. That's a pretty non-obvious change
-over 2.4.
-Best regards,
+       0   2   4   6   8   10
+                        /
+                       /
+                      /
+                     /
+                    /
+                   /
+                  /
+           PARANOIA-METER
 
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Jens Axboe
+

@@ -1,50 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266658AbSKHALr>; Thu, 7 Nov 2002 19:11:47 -0500
+	id <S266675AbSKHAPb>; Thu, 7 Nov 2002 19:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266671AbSKHALr>; Thu, 7 Nov 2002 19:11:47 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33541 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266658AbSKHALq>; Thu, 7 Nov 2002 19:11:46 -0500
-Date: Fri, 8 Nov 2002 00:18:22 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Martin Diehl <lists@mdiehl.de>
-Subject: Re: [Serial 2.5]: packet drop problem (FE ?)
-Message-ID: <20021108001822.E11437@flint.arm.linux.org.uk>
-Mail-Followup-To: jt@hpl.hp.com,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Martin Diehl <lists@mdiehl.de>
-References: <20021107224750.GA699@bougret.hpl.hp.com>
+	id <S266676AbSKHAPb>; Thu, 7 Nov 2002 19:15:31 -0500
+Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:25216 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S266675AbSKHAPa>;
+	Thu, 7 Nov 2002 19:15:30 -0500
+Date: Thu, 7 Nov 2002 19:25:51 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pnp.h changes - 2.5.46 (4/6)
+Message-ID: <20021107192551.GB352@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+References: <20021106210639.GO316@neo.rr.com> <20021107060102.GB26821@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021107224750.GA699@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Thu, Nov 07, 2002 at 02:47:50PM -0800
+In-Reply-To: <20021107060102.GB26821@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 02:47:50PM -0800, Jean Tourrilhes wrote:
-> 	I tried swapping the IrDA dongles themselves, and this didn't
-> make any difference. No other device/driver is using irq4. I also try
-> using a FIR as a sender, and I still see this packet dropped in Rx in
-> 2.5.X. And this used to work properly way back when I had 2.4.X on
-> this box.
-> 	I'm kind of suspicious about the "fe" number above. Could
-> anybody tell me a bit more about what "fe" means ?
+On Wed, Nov 06, 2002 at 10:01:02PM -0800, Greg KH wrote:
+> On Wed, Nov 06, 2002 at 09:06:39PM +0000, Adam Belay wrote:
+> >  
+> > +static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
+> > +{
+> > +	return pdev->dev.driver_data;
+> > +}
+> > +
+> > +static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
+> > +{
+> > +	pdev->dev.driver_data = data;
+> > +}
+> > +
+> > +static inline void *pnp_get_protodata (struct pnp_dev *pdev)
+> > +{
+> > +	return pdev->protocol_data;
+> > +}
+> > +
+> > +static inline void pnp_set_protodata (struct pnp_dev *pdev, void *data)
+> > +{
+> > +	pdev->protocol_data = data;
+> > +}
+>
+> Any reason for not just using dev_get_drvdata() and dev_set_drvdata() in
+> the drivers?  Or at the least, use them within these functions, that's
+> what they are there for :)
+>
+> thanks,
+>
+> greg k-h
 
-FE = framing error, which is an error which is solely detected by the
-hardware when the stop bit(s) are not the mark value.  They can appear
-when the wrong parity setting, number of stop bits, or baud rate is
-programmed.
 
-If you were overruning the serial port FIFOs, then you would see "oe"
-errors.
+Sure, here's a patch.  I think I'll use them within these functions.
 
-What baud rate are you trying to run the link at?
+Thanks,
+Adam
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
+
+Is this ok?
+
+
+
+diff -ur a/include/linux/pnp.h b/include/linux/pnp.h
+--- a/include/linux/pnp.h	Wed Nov  6 17:52:11 2002
++++ b/include/linux/pnp.h	Thu Nov  7 19:19:07 2002
+@@ -75,12 +75,12 @@
+
+ static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
+ {
+-	return pdev->dev.driver_data;
++	return dev_get_drvdata(&pdev->dev);
+ }
+
+ static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
+ {
+-	pdev->dev.driver_data = data;
++	dev_set_drvdata(&pdev->dev, data);
+ }
+
+ static inline void *pnp_get_protodata (struct pnp_dev *pdev)

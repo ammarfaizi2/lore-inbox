@@ -1,32 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129234AbQKTRHU>; Mon, 20 Nov 2000 12:07:20 -0500
+	id <S129524AbQKTRJu>; Mon, 20 Nov 2000 12:09:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQKTRHK>; Mon, 20 Nov 2000 12:07:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16178 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129234AbQKTRGx>; Mon, 20 Nov 2000 12:06:53 -0500
-Subject: Re: 2.2.16 does not compile
-To: andrei@ds5500.cemr.wvu.edu (Andrei Smirnov)
-Date: Mon, 20 Nov 2000 16:37:25 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.ULT.3.96.1001120110905.28412A-100000@ds5500> from "Andrei Smirnov" at Nov 20, 2000 11:30:21 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129345AbQKTRJk>; Mon, 20 Nov 2000 12:09:40 -0500
+Received: from wg.redhat.de ([193.103.254.4]:18239 "HELO mail.redhat.de")
+	by vger.kernel.org with SMTP id <S129166AbQKTRJ1>;
+	Mon, 20 Nov 2000 12:09:27 -0500
+Date: Mon, 20 Nov 2000 17:39:26 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@redhat.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: de4x5 hangs in 2.4.0-test11-pre7
+Message-ID: <Pine.LNX.4.30.0011201732020.16038-100000@bochum.redhat.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13xtwd-0003ng-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a newly installed RH-7.0 distribution on a Celeron Pentium 400.
-> When I tried to compile the kernel I got the following:
-> 
-> 1. I ran make xconfig (or make menuconfig) and saved without changing any
->    options - completed OK
+The de4x5 driver crashed on me twice today (on a 2 CPU x86 box); The
+network went down for no visible reason (nothing in syslog or on the console).
 
-Step 0: make mrproper
+The network card is a
+00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
+        Subsystem: Compu-Shack: Unknown device 4235)
+        Subsystem: Unknown device 4942:4c4c
+        I/O ports at b800 [size=64]
+
+Shutting down networking, removing the module and re-inserting it
+produces:
+
+eth0: DC21143 at 0xd000 (PCI bus 0, device 11), h/w address 00:00:cb:56:48:9b,
+eth0: Using generic MII device control. If the board doesn't operate,
+please mail the following dump to the author:
+
+MII device address: 5
+MII CR:  3000
+MII SR:  7809
+MII ID0: 15
+MII ID1: f430
+MII ANA: 1e1
+MII ANC: 0
+MII 16:  158
+MII 17:  608
+MII 18:  10
+
+      and requires IRQ10 (provided by PCI BIOS).
+de4x5.c:V0.545 1999/11/28 davies@maniac.ultranet.com
+eth0: media is 100Mb/s.
+
+
+and
+
+
+eth0: DC21143 at 0xd000 (PCI bus 0, device 11), h/w address 00:00:cb:56:48:9b,
+eth0: Using generic MII device control. If the board doesn't operate,
+please mail the following dump to the author:
+
+MII device address: 5
+MII CR:  3000
+MII SR:  7809
+MII ID0: 15
+MII ID1: f430
+MII ANA: 1e1
+MII ANC: 0
+MII 16:  158
+MII 17:  408
+MII 18:  10
+
+      and requires IRQ17 (provided by PCI BIOS).
+de4x5.c:V0.545 1999/11/28 davies@maniac.ultranet.com
+eth0: media is 100Mb/s.
+
+
+LLaP
+bero
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

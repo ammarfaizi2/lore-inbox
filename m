@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVBQXgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVBQXjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVBQXgr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVBQXf6
+	id S261245AbVBQXjq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVBQXhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:35:58 -0500
-Received: from simmts12.bellnexxia.net ([206.47.199.141]:35481 "EHLO
-	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261247AbVBQXeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:34:31 -0500
-Message-ID: <1742.10.10.10.24.1108683124.squirrel@linux1>
-In-Reply-To: <200502171825.08631.tomlins@cam.org>
-References: <20050214020802.GA3047@bitmover.com>
-    <4214CC9B.7090001@nortel.com>
-    <3757.10.10.10.24.1108659538.squirrel@linux1>
-    <200502171825.08631.tomlins@cam.org>
-Date: Thu, 17 Feb 2005 18:32:04 -0500 (EST)
-Subject: Re: [BK] upgrade will be needed
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Ed Tomlinson" <tomlins@cam.org>
-Cc: "Chris Friesen" <cfriesen@nortel.com>, "Lee Revell" <rlrevell@joe-job.com>,
-       "d.c" <aradorlinux@yahoo.es>, tytso@mit.edu, cs@tequila.co.jp,
-       galibert@pobox.com, kernel@crazytrain.com, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-7
-X-Mailer: SquirrelMail/1.4.3a-7
-MIME-Version: 1.0
+	Thu, 17 Feb 2005 18:37:08 -0500
+Received: from fire.osdl.org ([65.172.181.4]:24486 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261218AbVBQXgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:36:19 -0500
+Date: Thu, 17 Feb 2005 15:41:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] add umask parameter to procfs
+Message-Id: <20050217154119.1f237921.akpm@osdl.org>
+In-Reply-To: <20050217212859.GA24403@lsrfire.ath.cx>
+References: <20050217212859.GA24403@lsrfire.ath.cx>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, February 17, 2005 6:25 pm, Ed Tomlinson said:
-
->> Yes, I do remember that post.  But i'm not arguing from an ideological
->> basis; i'm arguing on practical grounds that the price of using BK is
->> too
->> high for its supposed benefits.  I've not seen anyone else make that
+Rene Scharfe <rene.scharfe@lsrfire.ath.cx> wrote:
 >
-> Huh?  This ideology in my books.
+> Add proc.umask kernel parameter.  It can be used to restrict permissions
+> on the numerical directories in the root of a proc filesystem, i.e. the
+> directories containing process specific information.
+> 
+> E.g. add proc.umask=077 to your kernel command line and all users except
+> root can only see their own process details (like command line
+> parameters) with ps or top.  It can be useful to add a bit of privacy to
+> multi-user servers.
+> 
+> The patch has been inspired by a similar feature in GrSecurity.
+> 
+> It could have also been implemented as a mount option to procfs, but at
+> a higher cost and no apparent benefit -- changes to this umask are not
+> supposed to happen very often.  Actually, the previous incarnation of
+> this patch was implemented as a half-assed mount option, but I didn't
+> know then how easy it is to add a kernel parameter.
 
-No.  It's about recognizing the needs of more people than just the few at
-the top.  Besides, with a free tool at the Head, bk could continue to be
-used underneath by Linus and anyone else.   And others in the community
-could use their preferred tools too.
+The feature seems fairly obscure, although very simple.  Is anyone actually
+likely to use this?
 
-> Linus has tried other SCMs.  They did not suffice.   I remember the preBK
-> days, when you had to post a patch half a dozen time to get it merged.
-> Patches were being missed left right and center.  This changed after BK.
-> We _are_ getting large benefits from BK.  They may be hard to see at our
-> side of the keyboard - but I believe Linus when he says BK is the best
-> tool for him.  That this probably will not be the case for ever.  Think
-> it still is for now though.
+>  
+> +static umode_t umask = 0;
 
-It's not a choice between BK or nothing.   Much of the improvements you're
-attributing to BK would have been realized with any other SCM system too.
+a) I think the above should be called proc_umask.
 
-Cheers,
-Sean
+b) You shouldn't initialise it.
 
-
+c) When adding a kernel parameter you should update
+   Documentation/kernel-parameters.txt

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbUAORYt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 12:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUAORYs
+	id S265181AbUAOR0e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 12:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265191AbUAOR0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 12:24:48 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:21429 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S265224AbUAORYr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 12:24:47 -0500
-Date: Thu, 15 Jan 2004 12:24:46 -0500 (EST)
-From: Jim Faulkner <jfaulkne@ccs.neu.edu>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
+	Thu, 15 Jan 2004 12:26:34 -0500
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:7854 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265181AbUAOR0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 12:26:33 -0500
+From: Murilo Pontes <murilo_pontes@yahoo.com.br>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [BUG] ABNT2 keyboards not work with >= 2.6.1 with or without -mm patchs
+Date: Thu, 15 Jan 2004 14:26:28 +0000
+User-Agent: KMail/1.5.94
+References: <200401142326.21543.murilo_pontes@yahoo.com.br> <200401151126.02722.murilo_pontes@yahoo.com.br> <20040115143252.GA1266@ucw.cz>
+In-Reply-To: <20040115143252.GA1266@ucw.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
-In-Reply-To: <4006C665.3065DFA1@users.sourceforge.net>
-Message-ID: <Pine.GSO.4.58.0401151215320.27227@denali.ccs.neu.edu>
-References: <Pine.GSO.4.58.0401141357410.10111@denali.ccs.neu.edu>
- <4006C665.3065DFA1@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401151426.28510.murilo_pontes@yahoo.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I patch original 2.6.1 
+Ok, your lastest patch work 100%, Thanks :)
 
-On Thu, 15 Jan 2004, Jari Ruusu wrote:
+It will be present in 2.6.2?
 
-> Jim,
-> If you want your data secure, you need to re-encrypt your data anyway.
-> Mainline loop crypto implementation has exploitable vulnerability that is
-> equivalent to back door. Kerneli.org folks have always shipped back-doored
-> loop crypto, and now mainline folks are shipping back-doored loop crypto.
-> Kerneli.org derivatives such as Debian, SuSE, and others are also
-> back-doored.
 
-Hi Jari,
-
-Could you give me more information about this back-door, and generally
-speaking how it would be exploited?  I want to be sure that I am affected
-by this problem.
-
-Also, in the loop-AES.README, this is mentioned:
-
-"Device backed loop device can be used with journaling file systems as
-device backed loops guarantee that writes reach disk platters in
-order required by journaling file system (write caching must be disabled
-on the disk drive, of course)"
-
-Are you talking about the "hdparm -W" flag for IDE drives?  Would I need
-to disable write caching when using non-journaling file systems?
-
-thanks,
-Jim Faulkner
+Em Qui 15 Jan 2004 14:32, Vojtech Pavlik escreveu:
+> On Thu, Jan 15, 2004 at 11:26:02AM +0000, Murilo Pontes wrote:
+> > I try 2.6.1-mm3 still not working
+> >
+> > Em Qui 15 Jan 2004 07:24, voc? escreveu:
+> > > On Wed, Jan 14, 2004 at 11:26:21PM +0000, Murilo Pontes wrote:
+> > > > BUG: ABNT2 keyboards not work with >= 2.6.1 with or without -mm
+> > > > patchs DESCRIPTION: The "/ ?" not work on console-framebuffer
+> > >
+> > > Known problem. They should work with recent -mm (if Andrew applied my
+> > > patch), and that patch should go to 2.6.2 soon. Please test if it works
+> > > correctly with latest -mm kernel.
+>
+> Yes, this patch (attached) is still not in -mm3. Hopefully it'll be in
+> -mm4.

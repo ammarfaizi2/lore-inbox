@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUG3KdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267463AbUG3Kjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267455AbUG3KdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 06:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267463AbUG3KdB
+	id S267463AbUG3Kjq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 06:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUG3Kjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 06:33:01 -0400
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:53159 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267455AbUG3Kc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 06:32:57 -0400
-Message-ID: <410A23C5.3040500@kolivas.org>
-Date: Fri, 30 Jul 2004 20:32:37 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: segfault@club-internet.fr
-Cc: ck@vds.kolivas.org, "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [ck] Re: 2.6.7-ck6
-References: <4109A933.60203@kolivas.org> <4109D85A.3030003@gmx.de> <4109DB13.4000705@kolivas.org> <200407300903.02857.segfault@club-internet.fr>
-In-Reply-To: <200407300903.02857.segfault@club-internet.fr>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 30 Jul 2004 06:39:46 -0400
+Received: from rdrz.de ([217.160.107.209]:62406 "HELO rdrz.de")
+	by vger.kernel.org with SMTP id S267463AbUG3Kjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 06:39:43 -0400
+Date: Fri, 30 Jul 2004 12:39:41 +0200
+From: Raphael Zimmerer <killekulla@rdrz.de>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
+Subject: [PATCH] [pci]: fix PCI access mode dependences in arch/i386/Kconfig
+Message-ID: <20040730103941.GB28101@rdrz.de>
+Reply-To: killekulla@rdrz.de
+Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig05A4474FB19B1D045E0855BB"
-Content-Transfer-Encoding: 8bit
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig05A4474FB19B1D045E0855BB
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
 
-Daniel Caujolle-Bert wrote:
-> Hi,
-> 
-> Le vendredi 30 Juillet 2004 07:22, Con Kolivas a écrit :
-> 
->>>Prakash K. Cheemplavam wrote:
->>>
->>>>Con Kolivas wrote:
->>>>| Patchset update:
->>>>
->>>>Hi, what happened to the incremental updates, ie ck5->ck6? I don't want
->>>>to reverse ck5 and then apply ck6, as my kernel is furthermore patched
->>>>and this complicates stuff...
->>>
->>>Here:
->>>
->>>http://ck.kolivas.org/patches/2.6/2.6.7/from_2.6.7-ck5_to_2.6.7-ck6.bz2
-> 
-> 
-> 	Argl, this host his unreachable....
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry, it was down till a minute ago. It's live again now.
+PCI acces mode Configuration
 
-Con
+Problem:
+While all ACPI stuff is deselected, and PCI access mode is set to
+"Any", CONFIG_ACPI_BOOT is going to be set  because of CONFIG_PCI_MMCONFIG.
 
---------------enig05A4474FB19B1D045E0855BB
+Solution:
+If CONFIG_ACPI_BOOT is not allready set by other stuff, setting PCI access
+mode to "Any" shouldn't set CONFIG_PCI_MMCONFIG. Anyhow, setting PCI access
+mode to "MMConfig" should select CONFIG_ACPI_BOOT.
+
+Regards,
+Raphael
+
+Signed-off-by: Raphael Zimmerer <killekulla@rdrz.de>                       =
+                                         =20
+ Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.8-rc2/arch/i386/Kconfig	2004-07-27 13:13:16.000000000 +0200
++++ linux-2.6.8-rc2-[uart]/arch/i386/Kconfig	2004-07-29 12:47:07.000000000 =
++0200
+@@ -1105,7 +1105,7 @@
+=20
+ config PCI_MMCONFIG
+ 	bool
+-	depends on PCI && (PCI_GOMMCONFIG || PCI_GOANY)
++	depends on PCI && (PCI_GOMMCONFIG || (PCI_GOANY && ACPI_BOOT))
+ 	select ACPI_BOOT
+ 	default y
+
+--UugvWAfsgieZRqgk
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBCiPFZUg7+tp6mRURAgkRAJ47cNUxTlcRrCYykcNQTovx/il20ACfR5g7
-xhVNw+aPdkVidE1tVWhMXZI=
-=//eM
+iD8DBQFBCiVtUcUgUprPgz4RAk88AJ9ipn5cFL8ybUZZCWiv5ifiGBgfhwCffRYb
++LtnzQJoLmRkVFgTVvEaPmM=
+=M9Sl
 -----END PGP SIGNATURE-----
 
---------------enig05A4474FB19B1D045E0855BB--
+--UugvWAfsgieZRqgk--

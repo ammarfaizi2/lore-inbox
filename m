@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317418AbSFHN7c>; Sat, 8 Jun 2002 09:59:32 -0400
+	id <S317406AbSFHPhg>; Sat, 8 Jun 2002 11:37:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317420AbSFHN7b>; Sat, 8 Jun 2002 09:59:31 -0400
-Received: from pD9E2320A.dip.t-dialin.net ([217.226.50.10]:50050 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317418AbSFHN7a>; Sat, 8 Jun 2002 09:59:30 -0400
-Date: Sat, 8 Jun 2002 07:59:16 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: john slee <indigoid@higherplane.net>
-cc: Oliver Xymoron <oxymoron@waste.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <20020608135027.GF27429@higherplane.net>
-Message-ID: <Pine.LNX.4.44.0206080757010.15675-100000@hawkeye.luckynet.adm>
+	id <S317409AbSFHPhf>; Sat, 8 Jun 2002 11:37:35 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:9611 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S317406AbSFHPhe>; Sat, 8 Jun 2002 11:37:34 -0400
+Message-ID: <3D0223AD.4030208@quark.didntduck.org>
+Date: Sat, 08 Jun 2002 11:33:01 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] missing GET_CPU_IDX in i386 entry.S
+Content-Type: multipart/mixed;
+ boundary="------------050106080605090804080607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------050106080605090804080607
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sat, 8 Jun 2002, john slee wrote:
-> sadly all the host software for the card needs windows or macos.  linux
-> is MUCH better than windows in areas like this,
+resume_kernel uses CPU_IDX but never uses GET_CPU_IDX to get the index. 
+  This is an issue when smp and preemption are both enabled.  I also 
+removed the unused GET_CURRENT_CPU_IDX.
 
-I understand that this is, but does anyone know what exactly our 
-opportunities in this corner are?
-
-> after all the work Sir Morton has done to clean up latency.  a thousand
-> blessings upon his house :-)
-
-He's a Sir now? Sorry, Sir Andrew, I didn't know that ;-)
-
-Regards,
-Thunder
 --
-ship is leaving right on time	| Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		| free inhabitant not directly
-caveman's paintings drowning	| belonging anywhere
+				Brian Gerst
+
+--------------050106080605090804080607
+Content-Type: text/plain;
+ name="cpu_idx-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cpu_idx-1"
+
+diff -urN linux-bk/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-bk/arch/i386/kernel/entry.S	Wed May 29 15:06:00 2002
++++ linux/arch/i386/kernel/entry.S	Sat Jun  8 10:44:44 2002
+@@ -83,13 +83,9 @@
+ #define GET_CPU_IDX \
+ 		movl TI_CPU(%ebx), %eax;  \
+ 		shll $irq_array_shift, %eax
+-#define GET_CURRENT_CPU_IDX \
+-		GET_THREAD_INFO(%ebx); \
+-		GET_CPU_IDX
+ #define CPU_IDX (,%eax)
+ #else
+ #define GET_CPU_IDX
+-#define GET_CURRENT_CPU_IDX GET_THREAD_INFO(%ebx)
+ #define CPU_IDX
+ #endif
+ 
+@@ -236,6 +232,7 @@
+ 	movl TI_FLAGS(%ebx), %ecx
+ 	testb $_TIF_NEED_RESCHED, %cl
+ 	jz restore_all
++	GET_CPU_IDX
+ 	movl irq_stat+local_bh_count CPU_IDX, %ecx
+ 	addl irq_stat+local_irq_count CPU_IDX, %ecx
+ 	jnz restore_all
+
+--------------050106080605090804080607--
 

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264445AbSIQSXB>; Tue, 17 Sep 2002 14:23:01 -0400
+	id <S264454AbSIQSY1>; Tue, 17 Sep 2002 14:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264452AbSIQSXB>; Tue, 17 Sep 2002 14:23:01 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23817
+	id <S264457AbSIQSY1>; Tue, 17 Sep 2002 14:24:27 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:29193
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264445AbSIQSXB>; Tue, 17 Sep 2002 14:23:01 -0400
+	with ESMTP id <S264454AbSIQSY0>; Tue, 17 Sep 2002 14:24:26 -0400
 Subject: Re: [PATCH] BUG(): sched.c: Line 944
 From: Robert Love <rml@tech9.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209171153050.7096-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0209171153050.7096-100000@localhost.localdomain>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1032271821.11913.10.camel@spc9.esa.lanl.gov>
+References: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com> 
+	<1032250378.969.112.camel@phantasy>  <1032253191.4592.15.camel@phantasy> 
+	<1032271821.11913.10.camel@spc9.esa.lanl.gov>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 14:27:52 -0400
-Message-Id: <1032287273.4593.31.camel@phantasy>
+Date: 17 Sep 2002 14:29:18 -0400
+Message-Id: <1032287359.4588.36.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 05:57, Ingo Molnar wrote:
+On Tue, 2002-09-17 at 10:10, Steven Cole wrote:
 
-> We *must* use the schedule() check to debug preemption bugs, or we wont
-> have usable preemption in 2.6, i dont really understand why your are not
-> happy that we have such a great tool. In fact we should also add other
-> debugging bits, like 'check for !0 preemption count in smp_processor_id()'
-> , and the underflow checks that caught the IDE bug. These are all bits
-> that help the elimination of preemption bugs which are also often SMP
-> bugs, on plain UP boxes.
+> I booted that so-patched kernel and it got much further than before,
+> up to where syslogd was able to write some stuff to /var/log/messages.
 
-Hm, sorry if I sound like I do not want something "so great".  I do.  I
-just do not ever want to compromise the existing code... I would much
-prefer to say "wow we cannot do this cleanly now, let's wait until we
-figure out a clean way".
+That is what is happening to me... if you trace when you lockup, its due
+to the printk.  My machines in these cases are only livelocked, I can
+still ping etc.
+ 
+> Trace; c011c51b <put_files_struct+bb/d0>
+> Trace; c011d08b <do_exit+35b/370>
+> Trace; c012d67f <do_munmap+11f/130>
+> Trace; c012d6c5 <sys_munmap+35/60>
+> Trace; c010918f <syscall_call+7/b>
 
-Anyhow, one of us is confused.  How can this in_atomic() test _ever_
-catch a preemption bug?  We cannot enter the scheduler off kernel
-preemption unless preempt_count==0.  This is a test to catch bugs in
-other parts of the kernel, e.g. where code explicitly calls schedule()
-while holding a lock.
+Ugh this looks like the exit path which should not be triggered.
 
 	Robert Love
 

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261299AbTCGAFo>; Thu, 6 Mar 2003 19:05:44 -0500
+	id <S261298AbTCGAEE>; Thu, 6 Mar 2003 19:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261303AbTCGAFo>; Thu, 6 Mar 2003 19:05:44 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:50436 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S261299AbTCGAFm>; Thu, 6 Mar 2003 19:05:42 -0500
-Date: Fri, 7 Mar 2003 00:12:37 +0000
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: E: Loading and executing kernel from a non-standard address usin g SY SLINUX
-Message-ID: <20030307001237.A2112@pierrot.local>
-Mime-Version: 1.0
+	id <S261299AbTCGAEE>; Thu, 6 Mar 2003 19:04:04 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:1764 "EHLO
+	myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S261298AbTCGAEC>; Thu, 6 Mar 2003 19:04:02 -0500
+Message-ID: <3E67E4A1.1040900@redhat.com>
+Date: Thu, 06 Mar 2003 16:15:29 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davidm@hpl.hp.com
+CC: george@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: POSIX timer syscalls
+References: <200303062306.h26N6hrd008442@napali.hpl.hp.com>
+In-Reply-To: <200303062306.h26N6hrd008442@napali.hpl.hp.com>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003 ravikumar.chakaravarthy@amd.com wrote:
-> Yup,
->   Thanks I got that. The physical address is computed using (virtual address) -
-> PAGE_OFFSET. So if my decompressed kernel is loaded at the physical address
-> 0x200000 (I defined this address), I would need the linker to know it. Actually
-> I went past that stage and now I got into start_kernel.. however it seems to be
-> hanging somewhere after that.  Is there any other kernel changes I need to make
-> to avoid this hanging for a normal boot.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You cannot get the kernel to run from a different physical address by changing
-PAGE_OFFSET.  This is not what PAGE_OFFSET is for.  PAGE_OFFSET specifies the
-offset of virtual memory from the start of physical memory, which is assumed to
-be 0x0.
+David Mosberger wrote:
 
-You should never want to change PAGE_OFFSET.
+> On a related note: as far as I can see, timer_t is declared as "int"
+> on all platforms (both by kernel and glibc).  Yet if my reading of the
+> kernel code is right, it's supposed to be "long" (and allegedly some
+> standard claims that timer_t should be the "widest" integer on a
+> platform).
 
-> Thats why I tried to change
-> the PAGE_OFFSET value to 0xc0100000, which should be the right value
-> corresponding to (0x200000).
+There is no such claim, don't spread misinformation.
 
-Wrong.
+timer_t is just an ID.  No specifics of the type are defined in the
+standard.  'int' is as fine as 'long' if it is OK for the implementation.
 
-If you really do want the kernel to run at 0x200000 physical, you should
-try changing the link address to 0xc0200000.  I'm no expert on the
-i386 kernel (I know the PPC kernel), but there's no guarantee that this
-will work, if there's any code which assumes the kernel is at 0x100000
-physical.
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Phillip
+iD8DBQE+Z+Sh2ijCOnn/RHQRApRKAKCPikdEfOcciOJpineUOYjFQ78IPwCgte4x
+2CxYAdahZoQ4TjEr6imBZ3U=
+=UsgY
+-----END PGP SIGNATURE-----
 
-> -Ravi

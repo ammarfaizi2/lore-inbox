@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284535AbRLPI7G>; Sun, 16 Dec 2001 03:59:06 -0500
+	id <S284536AbRLPJKa>; Sun, 16 Dec 2001 04:10:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284536AbRLPI64>; Sun, 16 Dec 2001 03:58:56 -0500
-Received: from www.wen-online.de ([212.223.88.39]:28175 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S284535AbRLPI6s>;
-	Sun, 16 Dec 2001 03:58:48 -0500
-Date: Sun, 16 Dec 2001 10:02:56 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root and initrd kernel panic woes
-In-Reply-To: <01121600323100.01820@manta>
-Message-ID: <Pine.LNX.4.33.0112160913360.452-100000@mikeg.weiden.de>
+	id <S284570AbRLPJKT>; Sun, 16 Dec 2001 04:10:19 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:23962 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S284536AbRLPJKK>; Sun, 16 Dec 2001 04:10:10 -0500
+Date: Sun, 16 Dec 2001 11:11:56 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][OOPS] loop block device induced on 2.5.1-pre11+HIGHMEM
+In-Reply-To: <Pine.LNX.4.33.0112161017550.4185-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.33.0112161111130.17367-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Dec 2001, vda wrote:
+Another question, how did we manage to hit the bounce stuff when i mounted
+a loopback filesystem? regular mounts are fine.
 
-> BTW, is it possible for you to place your initrd on some publicly accessible
-> ftp/http server?
+Cheers,
+	Zwane Mwaikambo
 
-Point me at an ftp server that will allow put.  Alternately, I can mail
-you the .config and image if your mta accepts mondo messages.
-
-I can't imagine how one fs image could load/work and another not unless
-maybe your bootloader is screwing up placement.  I use loadlin.
-
-	-Mike
 

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVA1Svb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVA1Svp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbVA1Svb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVA1SkM
+	id S262723AbVA1Svp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVA1Svo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:40:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:37302 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262584AbVA1Sgt (ORCPT
+	Fri, 28 Jan 2005 13:51:44 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:666 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262723AbVA1SvQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:36:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=e1BwqdrCpE31EOEiuKV+EEOh090jHM31quVJA8ixODwnnlUA04JlPkNta1jmryJj62n3pxvWGcrr1DwNZon6RlbrnW34FpZFtRCG+w/0ykLPLRXxEGHjxb8I0cdzyUAkis5vfnL5NJTy6WC73zqkmEQp/bSK4FWr17mP2vbSVPk=
-Message-ID: <9e47339105012810362a0a7018@mail.gmail.com>
-Date: Fri, 28 Jan 2005 13:36:48 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Grant Grundler <grundler@parisc-linux.org>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Cc: Jesse Barnes <jbarnes@sgi.com>, Greg KH <greg@kroah.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050128173222.GC30791@colo.lackof.org>
+	Fri, 28 Jan 2005 13:51:16 -0500
+Date: Fri, 28 Jan 2005 19:51:01 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Doug Niehaus <niehaus@ittc.ku.edu>,
+       Benedikt Spranger <bene@linutronix.de>
+Subject: Re: High resolution timers and BH processing on -RT
+Message-ID: <20050128185101.GC25164@elte.hu>
+References: <1106871192.21196.152.camel@tglx.tec.linutronix.de> <20050128044301.GD29751@elte.hu> <1106900411.21196.181.camel@tglx.tec.linutronix.de> <20050128082439.GA3984@elte.hu> <1106901013.21196.194.camel@tglx.tec.linutronix.de> <20050128084725.GB5004@elte.hu> <41FA85A7.4000805@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339105011719436a9e5038@mail.gmail.com>
-	 <20050125042459.GA32697@kroah.com>
-	 <9e473391050127015970e1fedc@mail.gmail.com>
-	 <200501270828.43879.jbarnes@sgi.com>
-	 <20050128173222.GC30791@colo.lackof.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41FA85A7.4000805@mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 10:32:22 -0700, Grant Grundler
-<grundler@parisc-linux.org> wrote:
-> Moving the VGA device can only function within that legacy space
-> the way the code is written now (using hard coded addresses).
-> If it is intended to work with multiple IO Port address spaces,
-> then it needs to use the pci_dev->resource[] and mangle that appropriately.
 
-Post a patch an I will incorporate it. 
+* George Anzinger <george@mvista.com> wrote:
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> A quick comment here on the current RT code.  It looks to me like
+> there is a race in timer delivery.  It looks like the softirq is
+> "raised" by the PIT interrupt code and the jiffie is bumped by the
+> timer thread.  If the softirq gets to run prior to the PIT interrupt
+> thread we could end up in the run_timer list code with a stale jiffie
+> value and do nothing.  This would delay normal timers for a jiffie and
+> HRT timers for some time less than a jiffie, depending on when they
+> were really due.
+> 
+> I thing we should move the raising of the timer softirq to the PIT
+> interrupt thread after we release the xtime_lock.
+
+ok - mind sending a patch for this?
+
+	Ingo

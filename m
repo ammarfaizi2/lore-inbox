@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbUK1PK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbUK1PKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbUK1PK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 10:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbUK1PK7
+	id S261487AbUK1PKj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 10:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbUK1PKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 10:10:59 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:45278 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261490AbUK1PKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 10:10:53 -0500
-Message-ID: <41A9F8F6.3255879A@tv-sign.ru>
-Date: Sun, 28 Nov 2004 19:12:38 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] rcu: eliminate rcu_data.last_qsctr
-References: <41A9E98F.209C59B0@tv-sign.ru> <20041128144346.GB2714@holomorphy.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Nov 2004 10:10:39 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61097 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261487AbUK1PKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 10:10:35 -0500
+Date: Sun, 28 Nov 2004 12:37:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Suspend 2 merge
+Message-ID: <20041128113708.GQ1417@openzaurus.ucw.cz>
+References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041128082912.GC22793@wiggy.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->
-> On Sun, Nov 28, 2004 at 06:06:55PM +0300, Oleg Nesterov wrote:
-> > Is the rcu_data.last_qsctr really needed?
-> > It is used in rcu_check_quiescent_state() exclusively.
-> > I think we can reset qsctr at the start of the grace period,
-> > and then just test qsctr against 0.
->
-> That might work if there were only 1 cpu. The local cpu owns ->qsctr,
-> ->last_qsctr is stored and loaded by remote cpus under locks.
+Hi!
 
-How can it be?
+> > Lucky you.  My machine takes minutes.
+> > (To be precise, it prints about a line and a half of dots in the
+> > count_data_pages() loop, and often takes 2 seconds per dot.)
+> 
+> It also seems to vary wildly. Most of the time it goes pretty fast for
+> me (under one minute) but occasionaly it will take well over 10 minutes.
+> Never managed to time it exactly since my battery tends to run out in
+> the middle of a suspend when that happens.
 
-Afaics, the whole rcu_data is cpu local.
+It depends on memory fragmentation; after updatedb it tends to be slow.
+Patch exists, see archives.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-If i am wrong, could you please clarify?
-
-Oleg.

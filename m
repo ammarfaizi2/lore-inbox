@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130110AbRA3UFM>; Tue, 30 Jan 2001 15:05:12 -0500
+	id <S130172AbRA3UIC>; Tue, 30 Jan 2001 15:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130570AbRA3UFD>; Tue, 30 Jan 2001 15:05:03 -0500
-Received: from mail.cambridge.com ([208.148.185.5]:14579 "EHLO
-	newmail.cambridge.com") by vger.kernel.org with ESMTP
-	id <S130110AbRA3UEs>; Tue, 30 Jan 2001 15:04:48 -0500
-From: "Douglas W. Marcey" <dougm@cambridge.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Megaraid updates for 2.4?
-Date: Tue, 30 Jan 2001 15:08:21 -0500
-Message-ID: <NNELJLEHNPOMNALEOJAIOEDECBAA.dougm@cambridge.com>
+	id <S130439AbRA3UHx>; Tue, 30 Jan 2001 15:07:53 -0500
+Received: from hilbert.umkc.edu ([134.193.4.60]:62735 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S130172AbRA3UHr>;
+	Tue, 30 Jan 2001 15:07:47 -0500
+Message-ID: <3A771EDC.58D2FE8D@kasey.umkc.edu>
+Date: Tue, 30 Jan 2001 14:06:52 -0600
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: University of Missouri - Kansas City   supercomputing infrastructure
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: dwen@javapond.com, linux-kernel@vger.kernel.org
+Subject: Re: How can I understand Linux Network implementation?
+In-Reply-To: <20010127022533.3CDBF36F9@sitemail.everyone.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this question has been answered already, or if this is the wrong
-venue for it but I have done a lot of searching and haven't been able to
-find much.
+Donghui Wen wrote:
+> 
+> I am hacking the implementation of linux2.4's
+> networking (IPV4) . Can anyone give me some idea
+> what material I should read to understand the
+> data structures and algorithms. I have stevens's
+> books which talked about BSD's implementation.
+> 
+> Thanks!
+> 
+> Donghui
 
-What is the status of the megaraid driver in 2.4.x? I am a little confused
-as to what versions are what so I will summarize what I know:
+Print it all out
 
-	The latest version of the driver from AMI's web site is 1e08 they say that
-it works with 2.2 and 2.4 kernels (which I guess it does) but it does not
-seem to properly recognize my AMI Enterprise 1600 Raid controller under
-either kernel.
+read the source code
 
-	As of 2.2.19pre7 the latest version of the driver seems to be 1.11. The
-comments at the top of linux/drivers/scsi/megaraid.c seem to conflict. They
-say that the driver is version 1b08b but they have change log entries up
-through 1.11, so I assume the current version is 1.11 and that the Version:
-as the top of the file is just out of date. Anyway this version of the
-driver recognizes my card perfectly and seems to be working well with it.
 
-	The current version in 2.4.1 seems to be 1.07 which seems very old in
-comparison to 2.2.19pre7. It does not recognize my card and will not work.
-This is annoying because the Enterprise 1600 is a 64bit PCI card and my
-understanding is that the performance for such a bus is better under 2.4.x
-than under 2.2.x and the server it is running on is primarily a file server
-using NFS and SMB and I understand the NFS performance under 2.4.x is better
-too (most of my clients for NFS are Irix systems).
+I like the a2ps tool for formatting source code for reading;
+I print out a sheaf of source code and retreat to a local coffee emporium
+with a highlighter and a legal pad.
 
-	So my question is... are there plans to bring the 2.4.x driver up to date,
-I would try it myself but my expertise in this area is very much lacking.
 
-	Any information is greatly appreciated,
 
-				--Doug.
-
---
-Doug Marcey
-Systems Administrator
-Cambridge Research Associates
+-- 
+                      David Nicol 816.235.1187 dnicol@cstp.umkc.edu
+                                     2.4.0 seems faster than 2.2.16
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279275AbRJWGUo>; Tue, 23 Oct 2001 02:20:44 -0400
+	id <S279279AbRJWGXY>; Tue, 23 Oct 2001 02:23:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279276AbRJWGUe>; Tue, 23 Oct 2001 02:20:34 -0400
-Received: from zero.tech9.net ([209.61.188.187]:54538 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279275AbRJWGUU>;
-	Tue, 23 Oct 2001 02:20:20 -0400
-Subject: Re: Why XFS not in the main kernel?
-From: Robert Love <rml@tech9.net>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011023113546.A1310@bee.lk>
-In-Reply-To: <20011023113546.A1310@bee.lk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
-Date: 23 Oct 2001 02:21:05 -0400
-Message-Id: <1003818066.1491.2.camel@phantasy>
+	id <S279278AbRJWGXO>; Tue, 23 Oct 2001 02:23:14 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:17925 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S279279AbRJWGWy>;
+	Tue, 23 Oct 2001 02:22:54 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: george anzinger <george@mvista.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: How should we do a 64-bit jiffies? 
+In-Reply-To: Your message of "Tue, 23 Oct 2001 02:05:54 -0400."
+             <3BD508C2.3A0DB6C2@didntduck.org> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 Oct 2001 16:23:04 +1000
+Message-ID: <1898.1003818184@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-23 at 01:35, Anuradha Ratnaweera wrote:
-> Is there a reason not to include XFS in the mainstream kernel?  It is very
-> stable and many (including us) are using it in production environments without
-> problems.
-> 
-> Obviously, there can't be liscening issues, because XFS is released under GPL.
+On Tue, 23 Oct 2001 02:05:54 -0400, 
+Brian Gerst <bgerst@didntduck.org> wrote:
+>Keith Owens wrote:
+>> You will need a spin lock around that on 32 bit systems, but that is
+>> true for anything that tries to do 64 bit counter updates on a 32 bit
+>> system.
+>
+>cmpxchg8b does, but it's a bit indirect.
 
-No one doubts XFS is stable.  It is a great fs.  But XFS includes some
-modifications to block layer and such that people aren't ready to merge
-yet -- XFS touches a lot of stuff.  During 2.5, the better bits of the
-modifications will be used and then XFS can be merged properly.  Perhaps
-once this proves stable a backport to 2.4 can be done.
-
-	Robert Love
+Not on 386, only on 486 and above.  Besides, you want to avoid arch
+specific asm code.
 

@@ -1,44 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318488AbSIFLrE>; Fri, 6 Sep 2002 07:47:04 -0400
+	id <S318516AbSIFLtX>; Fri, 6 Sep 2002 07:49:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318516AbSIFLrE>; Fri, 6 Sep 2002 07:47:04 -0400
-Received: from speech.linux-speakup.org ([129.100.109.30]:35024 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S318488AbSIFLrD>; Fri, 6 Sep 2002 07:47:03 -0400
-To: <Hell.Surfers@cwctv.net>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.xx kernels won't run on my Athlon boxes
-References: <0d6c95254000692DTVMAIL12@smtp.cwctv.net>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 06 Sep 2002 07:51:40 -0400
-In-Reply-To: <0d6c95254000692DTVMAIL12@smtp.cwctv.net>
-Message-ID: <x71y879vzn.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318518AbSIFLtX>; Fri, 6 Sep 2002 07:49:23 -0400
+Received: from reload.namesys.com ([212.16.7.75]:6790 "EHLO reload.namesys.com")
+	by vger.kernel.org with ESMTP id <S318516AbSIFLtV>;
+	Fri, 6 Sep 2002 07:49:21 -0400
+From: Hans Reiser <reiser@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, green@namesys.com
+Subject: [BK] ReiserFS PATCH resend (preallocation the default)
+Message-Id: <20020906115355.F3B23A9A79@reload.namesys.com>
+Date: Fri,  6 Sep 2002 15:53:55 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<Hell.Surfers@cwctv.net> writes:
+Hello!
 
-> I was going to suggest a kernel check from the begining of 2.4ac to see if the problem occurs at some point, as major features are usually stuck in from them first...
+    This changeset enables preallocation of blocks on reiserfs filesystems
+    by default. Without this, SMP boxes seems to have speed problems on some
+    workloads.  You can get it from bk://thebsh.namesys.com/bk/reiser3-linux-2.4
 
-The 2.4.19 kernels seem to be fine on the box unless it's right after
-I've rebooted from 2.5.33.  Then 2.4.19 seems to be flakey in various
-interesting ways until I do a full shut off of the hardware and turn
-it back on.  Usually when I'm seeing problems under 2.4.19 they seem
-to be vm errors in processes.  It really likes to kill off my
-setiathome process with a vm error.  It's very consistant.  I run a
-twenty minute cron job to restart setiathome and vm kills it almost
-immediately.  Of course, I shut down the box and turn it off and when
-it comes back up it runs fine until I restart under 2.5 again.  Then
-five minutes or so and it's dead in the water again.
+Diffstat:
+ fs/reiserfs/bitmap.c        |    3 +--
+ fs/reiserfs/super.c         |    4 ++++
+ include/linux/reiserfs_fs.h |    2 +-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
-  Kirk
+Plain text patch:
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.587   -> 1.588  
+#	include/linux/reiserfs_fs.h	1.21    -> 1.22   
+#	 fs/reiserfs/super.c	1.21    -> 1.22   
+#	fs/reiserfs/bitmap.c	1.15    -> 1.16   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/20	green@angband.namesys.com	1.588
+# Turn on blocks preallocation by default for reiserfs.
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/bitmap.c b/fs/reiserfs/bitmap.c
+--- a/fs/reiserfs/bitmap.c	Tue Aug 20 13:43:25 2002
++++ b/fs/reiserfs/bitmap.c	Tue Aug 20 13:43:25 2002
+@@ -15,7 +15,7 @@
+ #include <linux/reiserfs_fs_sb.h>
+ #include <linux/reiserfs_fs_i.h>
+ 
+-#define PREALLOCATION_SIZE 8
++#define PREALLOCATION_SIZE 9
+ 
+ #define INODE_INFO(inode) (&(inode)->u.reiserfs_i)
+ 
+@@ -397,7 +397,6 @@
+ {
+     char * this_char, * value;
+ 
+-    s->u.reiserfs_sb.s_alloc_options.preallocmin = 4;
+     s->u.reiserfs_sb.s_alloc_options.bits = 0; /* clear default settings */
+ 
+     for (this_char = strtok (options, ":"); this_char != NULL; this_char = strtok (NULL, ":")) {
+diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+--- a/fs/reiserfs/super.c	Tue Aug 20 13:43:25 2002
++++ b/fs/reiserfs/super.c	Tue Aug 20 13:43:25 2002
+@@ -1117,6 +1117,10 @@
+     s->u.reiserfs_sb.s_mount_opt = ( 1 << REISERFS_SMALLTAIL );
+     /* default block allocator option: skip_busy */
+     s->u.reiserfs_sb.s_alloc_options.bits = ( 1 << 5);
++    /* If file grew past 4 blocks, start preallocation blocks for it. */
++    s->u.reiserfs_sb.s_alloc_options.preallocmin = 4;
++    /* Preallocate by 8 blocks (9-1) at once */
++    s->u.reiserfs_sb.s_alloc_options.preallocsize = 9;
+ 
+     if (reiserfs_parse_options (s, (char *) data, &(s->u.reiserfs_sb.s_mount_opt), &blocks) == 0) {
+ 	return NULL;
+diff -Nru a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
+--- a/include/linux/reiserfs_fs.h	Tue Aug 20 13:43:25 2002
++++ b/include/linux/reiserfs_fs.h	Tue Aug 20 13:43:25 2002
+@@ -56,7 +56,7 @@
+ 
+ #define REISERFS_PREALLOCATE
+ #define DISPLACE_NEW_PACKING_LOCALITIES
+-#define PREALLOCATION_SIZE 8
++#define PREALLOCATION_SIZE 9
+ 
+ /* n must be power of 2 */
+ #define _ROUND_UP(x,n) (((x)+(n)-1u) & ~((n)-1u))
 
--- 
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+

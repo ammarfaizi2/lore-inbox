@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130110AbRAWUOy>; Tue, 23 Jan 2001 15:14:54 -0500
+	id <S131260AbRAWUPz>; Tue, 23 Jan 2001 15:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130391AbRAWUOp>; Tue, 23 Jan 2001 15:14:45 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:51706 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S130110AbRAWUOb>; Tue, 23 Jan 2001 15:14:31 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101232013.f0NKDi601717@webber.adilger.net>
-Subject: Re: Under 2.4.0 I can mount same partition twice.
-In-Reply-To: <Pine.LNX.4.21.0101231132000.934-100000@balance.uoregon.edu>
- "from Dan Graham at Jan 23, 2001 11:38:39 am"
-To: Dan Graham <graham@balance.uoregon.edu>
-Date: Tue, 23 Jan 2001 13:13:44 -0700 (MST)
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S130391AbRAWUPp>; Tue, 23 Jan 2001 15:15:45 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:64517 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131260AbRAWUPi>; Tue, 23 Jan 2001 15:15:38 -0500
+Date: Tue, 23 Jan 2001 15:17:02 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Ragnar Hojland Espinosa <ragnar@fuckmpaa.com>
+cc: Trever Adams <vichu@digitalme.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <20010123134333.A1096@lightside.2y.net>
+Message-ID: <Pine.LNX.4.32.0101231516030.7610-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Graham writes:
->   I don't know if this is a bug or a feature.  While I was
-> playing around with 2.4.0 I (mistakenly) mounted an ext2
-> partition twice.  
+On Tue, 23 Jan 2001, Ragnar Hojland Espinosa wrote:
 
-Feature.
+>> >I had a similar experience.  All I can say is windows 98
+>> >and ME seem to have it out for Linux drives running late
+>> >2.3.x and 2.4.0 test and release.  I had windows completely
+>> >fry my Linux drive and I lost everything.  I had some old
+>>
+>> I don't see how Windows 9x can be at fault in any way shape or
+>> form, if you can boot between 2.2.x kernel and 9x no problem, but
+>> lose your disk if you boot Win98 and then 2.3.x/2.4.x and lose
+>> everything.  Windows does not touch your Linux fs's, so if there
+>
+>WS Windows might reprogram IDE / drives in some way that, being left in that
+>state, conflict with linux's. .. well, ask Andre, he'll know :)
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+I certainly wouldn't say it is impossible.  ;o)  Definitely
+anything is possible in machines today, especially where chips do
+not match chip specs, and OS's do not follow either.  ;o)
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+There are two major products that come out of Berkeley: LSD and BSD.
+We don't believe this to be a coincidence.
+   -- Jeremy S. Anderson
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270542AbUJUDED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270048AbUJUDFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270542AbUJUDED (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 23:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270529AbUJUDAZ
+	id S270048AbUJUDFp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 23:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUJUDE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 23:00:25 -0400
-Received: from mx13.sac.fedex.com ([199.81.197.53]:46860 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S270512AbUJUC4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 22:56:39 -0400
-Date: Thu, 21 Oct 2004 10:53:12 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
-Subject: Re: [ANNOUNCE] iproute2 2.6.9-041019
-In-Reply-To: <20041020091554.57e60936@zqx3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.61.0410211049400.4927@boston.corp.fedex.com>
-References: <41758014.4080502@osdl.org> <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
- <20041020091554.57e60936@zqx3.pdx.osdl.net>
+	Wed, 20 Oct 2004 23:04:29 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:24961 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S270527AbUJUDAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 23:00:19 -0400
+Message-ID: <41772674.50403@metaparadigm.com>
+Date: Thu, 21 Oct 2004 11:01:08 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/21/2004
- 10:56:36 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/21/2004
- 10:56:37 AM,
-	Serialize complete at 10/21/2004 10:56:37 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com>
+In-Reply-To: <4176E001.1080104@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/21/04 06:00, H. Peter Anvin wrote:
+> Chris Friesen wrote:
+> 
+>> H. Peter Anvin wrote:
+>>
+>>> EIO seems to be The Right Thing[TM]... it pretty much says "yes, we
+>>> received something, but it was bad."  What isn't clear to me is how
+>>> applications react to EIO.  It could easily be considered a fatal
+>>> error... :-/
+>>
+>>
+>>
+>>  From an application point of view, The Right Thing would be to do the 
+>> checksum validation at select() time if the socket is blocking.
+>>
+>> If it's nonblocking, then just do as we do now and return EAGAIN at 
+>> recvmsg() time.
+>>
+>> This would ensure that all existing apps get the expected semantics, 
+>> but the ones based on blocking sockets would see a performance 
+>> degredation.
+>>
+> 
+> Doing work twice can hardly be considered The Right Thing.
 
-On Wed, 20 Oct 2004, Stephen Hemminger wrote:
+Optimisations that break documented interfaces and age old assumptions
+can hardly be considered The Right Thing :)
 
-> Try this, ss was dragging in byteorder.h and it didn't need to.
->
-> diff -Nru a/misc/ss.c b/misc/ss.c
-> --- a/misc/ss.c	2004-10-20 09:13:56 -07:00
-> +++ b/misc/ss.c	2004-10-20 09:13:56 -07:00
-> @@ -33,7 +33,6 @@
-> #include "libnetlink.h"
-> #include "SNAPSHOT.h"
->
-> -#include <asm/byteorder.h>
-> #include <linux/tcp.h>
-> #include <linux/tcp_diag.h>
+And you only do the checksum once (just earlier), and the copy_to_user
+should be cache hot as most of these UDP apps will call recvmesg right
+after the select.
 
+That said, an app with many connected sockets will have a high chance
+of losing the cache. Although a handful of unconnected UDP sockets
+(one per interface) are more common in the use case of a large number
+of clients, so in general the performance difference should be minor.
 
-same problem.
+Doing the same amount work (with chance of lower performance because of
+cache loss) is good IMHO if it means the choice of a reliable vs an
+unreliable interface. You can only take the performance optimisation
+argument so far and when these optimisations start breaking interfaces,
+i think that's too far ie. what to give up efficiency vs. correctness?
 
-"#include <linux/tcp.h>" is dragging in "#include <asm/byteorder.h>".
+Just my 2c in favour of !O_NONBLOCK early UDP checksum test in select.
 
-Same thing goes for <linux/ip.h>.
-
-All these kernel headers need cleanup, and I don't know enough to fix it.
-
-Jeff.
-
+~mc

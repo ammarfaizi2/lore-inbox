@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271813AbTHML1y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271816AbTHML1y
+	id S271883AbTHMLtd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271749AbTHMLtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:27:54 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:5335 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S271813AbTHML1x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:27:53 -0400
-Date: Wed, 13 Aug 2003 13:27:43 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andrew Morton <akpm@osdl.org>
-cc: Roland McGrath <roland@redhat.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] read_trylock for i386
-In-Reply-To: <20030813020117.0acc5383.akpm@osdl.org>
-Message-ID: <Pine.GSO.3.96.1030813131756.25530A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Wed, 13 Aug 2003 07:49:33 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:64524 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S271883AbTHMLtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 07:49:31 -0400
+Date: Wed, 13 Aug 2003 21:49:09 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: kartikey bhatt <kartik_me@hotmail.com>
+cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: CAST5 Cipher Algorithm for Kernel Cryptographic API.
+In-Reply-To: <Law11-F49NOoIu83xnD0004caca@hotmail.com>
+Message-ID: <Mutt.LNX.4.44.0308132148210.19280-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Andrew Morton wrote:
+On Wed, 13 Aug 2003, kartikey bhatt wrote:
 
-> So it would be better if someone could sweep all those together, implement
-> the necessary stubs for uniprocessor builds on all architectures and
-> apologetically break the build on the remaining SMP architectures.
-> 
-> That would appear to be mips, parisc, s390, sparc and x86_64.
+> thanks david.
+> does it work? (cast5 on sparc).
 
- Well, the code for mips will be less complicated even.  I can supply it
-if the i386 patch goes in.
+Yes.
 
+> what's probability of it being included in 2.6.0-test4.
+
+It's in Dave's tree now, so presumably good.
+
+
+- James
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+James Morris
+<jmorris@intercode.com.au>
+
 

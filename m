@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVAGJOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVAGJRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVAGJOb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 04:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVAGJOb
+	id S261327AbVAGJRU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 04:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAGJRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 04:14:31 -0500
-Received: from smtp.seznam.cz ([212.80.76.43]:53166 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S261326AbVAGJMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 04:12:20 -0500
-Date: Fri, 7 Jan 2005 10:12:19 +0100
-To: Greg KH <greg@kroah.com>
-Cc: "Ilya A. Volynets-Evenbakh" <ilya@total-knowledge.com>,
-       Ralf Baechle <ralf@linux-mips.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       sensors@stimpy.netroedge.com, linux-mips@linux-mips.org
-Subject: Re: [2.6 patch] 2.6.10-mm2: let I2C_ALGO_SGI depend on MIPS
-Message-ID: <20050107091218.GA3715@orphique>
-References: <20050106002240.00ac4611.akpm@osdl.org> <20050106181519.GG3096@stusta.de> <20050106192701.GA13955@linux-mips.org> <41DD9313.4030105@total-knowledge.com> <20050106194646.GB5481@kroah.com>
+	Fri, 7 Jan 2005 04:17:19 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:36537 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261327AbVAGJPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 04:15:48 -0500
+Date: Fri, 7 Jan 2005 09:15:42 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, torvalds@osdl.org
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050107091542.GA5295@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
+	arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+	wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+	greghk@us.ibm.com, torvalds@osdl.org
+References: <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106234123.GA27869@infradead.org> <20050106162928.650e9d71.akpm@osdl.org> <20050107002624.GA29006@infradead.org> <20050107090014.GA24946@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050106194646.GB5481@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Ladislav Michl <ladis@linux-mips.org>
+In-Reply-To: <20050107090014.GA24946@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 11:46:46AM -0800, Greg KH wrote:
-> Ok, can someone send me the proper patch then?
+On Fri, Jan 07, 2005 at 10:00:14AM +0100, Ingo Molnar wrote:
+> so my strong position is that even asking for any 'warning period' for
+> changes in VFS internals (including exports/unexports) would be
+> extremely rude. It would be rude not only towards the authors and
+> maintainers of mainline VFS code, but also towards other external
+> trees/drivers who do _not_ ask for any special status and accept the
+> deal: "follow internals, notice kernel people if they do bad stuff
+> (extremely rare in my case) and fix/redesign stuff if the external tree
+> is broken (much more common)".
 
-Index: drivers/i2c/algos/Kconfig
-===================================================================
-RCS file: /home/cvs/linux/drivers/i2c/algos/Kconfig,v
-retrieving revision 1.3
-diff -u -r1.3 Kconfig
---- drivers/i2c/algos/Kconfig	24 Aug 2004 15:10:09 -0000	1.3
-+++ drivers/i2c/algos/Kconfig	7 Jan 2005 09:10:10 -0000
-@@ -61,7 +61,7 @@
- 
- config I2C_ALGO_SGI
- 	tristate "I2C SGI interfaces"
--	depends on I2C
-+	depends on I2C && (SGI_IP22 || SGI_IP32 || X86_VISWS)
- 	help
- 	  Supports the SGI interfaces like the ones found on SGI Indy VINO
- 	  or SGI O2 MACE.
+<sarcasm>
+<osdl-salespitch>
+Unfortunately you don't have the financial and political powers IBM
+has, so your opinion doesn't matter as much.  Maybe you should become
+OSDL member to influence the direction of Linux development.
+</osdl-salespitch>
+</sarcasm>
+

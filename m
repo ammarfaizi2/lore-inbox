@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbTFXPeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 11:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTFXPbn
+	id S262179AbTFXPh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 11:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTFXPeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 11:31:43 -0400
-Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:1673
-	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
-	id S262710AbTFXPaB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 11:30:01 -0400
-From: "jds" <jds@soltis.cc>
-To: linux-kernel@vger.kernel.org
-Subject: Problems when compile kernel 2.5.73-mm1
-Date: Tue, 24 Jun 2003 09:18:46 -0600
-Message-Id: <20030624151611.M70129@soltis.cc>
-X-Mailer: Open WebMail 1.90 20030212
-X-OriginatingIP: 180.175.220.238 (jds)
+	Tue, 24 Jun 2003 11:34:23 -0400
+Received: from tag.witbe.net ([81.88.96.48]:16901 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S262456AbTFXPeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 11:34:11 -0400
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Martin J. Bligh'" <mbligh@aracnet.com>,
+       "'Rick A. Hohensee'" <rickh@capaccess.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox has been...
+Date: Tue, 24 Jun 2003 17:48:17 +0200
+Message-ID: <014c01c33a68$07ed2e20$5700a8c0@witbe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <347470000.1056467133@[10.10.2.4]>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew:
+Hello,
 
-   I have problems whe try the compile kernel. the messages is:
+> Given a choice between Alan and you, I feel confident in the 
+> knowledge who 99.999999999% of the world would find more useful.
 
-[root@toshiba linux-2.5]# make bzImage
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/asm-i386/asm_offsets.h
-  CC      init/main.o
-In file included from include/linux/pagemap.h:7,
-                 from include/linux/blkdev.h:10,
-                 from include/linux/blk.h:2,
-                 from init/main.c:26:
-include/linux/mm.h: In function `lowmem_page_address':
-include/linux/mm.h:344: `__PAGE_OFFSET' undeclared (first use in this function)
-include/linux/mm.h:344: (Each undeclared identifier is reported only once
-include/linux/mm.h:344: for each function it appears in.)
-In file included from include/linux/bio.h:28,
-                 from include/linux/blkdev.h:14,
-                 from include/linux/blk.h:2,
-                 from init/main.c:26:
-include/asm/io.h: In function `virt_to_phys':
-include/asm/io.h:74: `__PAGE_OFFSET' undeclared (first use in this function)
-include/asm/io.h: In function `phys_to_virt':
-include/asm/io.h:92: `__PAGE_OFFSET' undeclared (first use in this function)
-include/asm/io.h: In function `isa_check_signature':
-include/asm/io.h:245: `__PAGE_OFFSET' undeclared (first use in this function)
-make[1]: *** [init/main.o] Error 1
-make: *** [init] Error 2
-[root@toshiba linux-2.5]#
+I was the remaining 0.000000001%, and I just changed my mind ;-)
+You can say 100% now....
 
-Helpme please 
+Regards,
+Paul
 
-Regards

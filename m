@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbTFHJhD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 05:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFHJhC
+	id S261305AbTFHJyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 05:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTFHJyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 05:37:02 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:65292 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261280AbTFHJhA
+	Sun, 8 Jun 2003 05:54:25 -0400
+Received: from mail.hometree.net ([212.34.181.120]:26794 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S261305AbTFHJyY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 05:37:00 -0400
-Date: Sun, 8 Jun 2003 11:47:29 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Clayton Weaver <cgweav@email.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-rc7
-Message-ID: <20030608094729.GA29484@alpha.home.local>
-References: <20030608085448.31378.qmail@email.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030608085448.31378.qmail@email.com>
-User-Agent: Mutt/1.4i
+	Sun, 8 Jun 2003 05:54:24 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Linksys WRT54G and the GPL
+Date: Sun, 8 Jun 2003 10:08:00 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bbv1u0$cuo$1@tangens.hometree.net>
+References: <20030608035314.GA10781@dillweed.codepoet.org>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1055066880 13272 212.34.181.4 (8 Jun 2003 10:08:00 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 8 Jun 2003 10:08:00 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Erik Andersen <andersen@codepoet.org> writes:
 
-[ first, please fix your mailer and cut your lines, it's not easy to quote you in replies ]
+>So he has now sent them a second letter...  Assuming we again get
+>no response, Linksys is going to find themselves in court in the
+>very near future.
 
-On Sun, Jun 08, 2003 at 03:54:48AM -0500, Clayton Weaver wrote:
-> > Now I really hope its the last one, all this
-> > rc's are making me mad.
-> 
-> We still have ide problems, and I don't see any
-> potential fixes for that in the changelog between -rc6 and -rc7.
-> 
-> I tried -rc6 on a whim and had hda report
-> a timeout (dma, I think, but the message went by kind of quick), then the big freeze with the
-> disk light stuck on,  Never happened in 6 months on the same hardware running
-> 2.4.19-rc2 (with glibc-2.2.5, gcc-2.95.3, binutils-2.12.90.0.9, all ext2 filesystems).
+Go for it. This might be the acid test to see whether the GPL holds up
+in court...
 
-Did you try with "ide0=nodma", or other similar options ?
+	Regards
+		Henning
 
-> SiS530/5513, k6-II/450, udma33 Maxtor drive that 2.4.19-rc2 has no problems with.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-That's not exactly what you said below. You said that you could reliably kill it with 32 threads...
-Perhaps you have a broken hardware, and 2.4.21 stresses it more than 2.4.19-rc2. Perhaps it's
-really an old driver bug, then having reported it since this you encountered it would have been
-more constructive than telling us at 2.4.21 time that it dies even more easily than a one year old
-2.4.19-rc2.
-
-> You can release a 2.4.21 anyway, of course, but without finding out where the ide livelock (and other big freezes, thinking of the report on the all-scsi system already posted) originates, calling it "stable" would be a bit fanciful.
-
-That's what -pre and -rc are for : bug reports. The ide code has been included in 2.4.21-pre1,
-several months ago. There's always a risk of breaking someone's setup, but obviously, if people
-don't try pre-releases and don't report problems in time, how could they hope to get a stable
-kernel on their hardware ?
-
-> Not what you wanted to hear, right? Oh well.
-> 
-> (Better to find out sooner than release
-> 2.4.21-stable and watch 52 different bug reports on it arrive at the list the next day.)
-
-Well, look through the archives, there have been two patches by Lionel Bouton and Vojtech Pavlik
-posted in May for the 5513 driver, to support newer chipsets. I don't know if they have been
-included, nor if they also fixed old bugs. Perhaps you'll be intersted in checking them.
-
-BTW, someone reported yesterday that his 5513 worked flawlessly in 2.4.20, but behaved like yours
-on 2.5.70. Have you tested 2.4.20, or better, have you tried to narrow the problem down to a
-particular version (but I bet it will be tied to the introduction of the newer IDE code).
-
-You may also try -ac kernels which have more recent, but less tested code.
-
-Regards,
-Willy
-
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

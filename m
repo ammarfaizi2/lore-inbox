@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289727AbSBES6G>; Tue, 5 Feb 2002 13:58:06 -0500
+	id <S289761AbSBETDi>; Tue, 5 Feb 2002 14:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289761AbSBES5r>; Tue, 5 Feb 2002 13:57:47 -0500
-Received: from natwar.webmailer.de ([192.67.198.70]:12221 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S289727AbSBES5k>; Tue, 5 Feb 2002 13:57:40 -0500
-Date: Tue, 5 Feb 2002 19:38:56 +0100
-From: Kristian <kristian.peters@korseby.net>
-To: Brandon Low <lostlogic@lostlogicx.com>
-Cc: starfire@dplanet.ch, linux-kernel@vger.kernel.org
-Subject: Re: New scheduler in 2.4. series?
-Message-Id: <20020205193856.7628dcb3.kristian.peters@korseby.net>
-In-Reply-To: <20020204163513.A31041@lostlogicx.com>
-In-Reply-To: <20020204231938.18755478.starfire@dplanet.ch>
-	<20020204163513.A31041@lostlogicx.com>
-X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289767AbSBETD2>; Tue, 5 Feb 2002 14:03:28 -0500
+Received: from [199.203.178.211] ([199.203.178.211]:59666 "EHLO
+	exchange.store-age.com") by vger.kernel.org with ESMTP
+	id <S289762AbSBETDX>; Tue, 5 Feb 2002 14:03:23 -0500
+Message-ID: <BDE817654148D51189AC00306E063AAE054628@exchange.store-age.com>
+From: Alexander Sandler <ASandler@store-age.com>
+To: "'Arjan van de Ven'" <arjan@fenrus.demon.nl>,
+        Tim Pepper <tpepper@vato.org>
+Cc: Alexander Sandler <ASandler@store-age.com>,
+        "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.17: Bug?
+Date: Tue, 5 Feb 2002 21:02:56 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="x-user-defined"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brandon Low <lostlogic@lostlogicx.com> wrote:
-> Seeing the new scheduler in 2.4 would be nice!  However, soon wouldn't be nice, because there are a lot of 3rd party kernel 
-> modules that try to make calls against the old scheduler that don't seem to work.  My personal case in point is Bestcrypt 
-> ( www.jetico.sci.fi ).  Just my thoughts on the matter.
+Sorry about this. I though it is good anough.
 
-If you're speaking of Ingo's O1-scheduler I won't vote for inclusion now. I still have some trouble with high priority nice levels (renice -20). For some seconds the system gets totally unresponsive for user requests while switching between those processes. The last one I've tried was J2.
+Anyway, Arjan, do you have any suggestions for me? With problems in device
+detection QLogic's drivers have (those from their web site) it appears that
+there is no solution for this problem right now. Am I correct?
 
-*Kristian
+> Misunderstanding; I did not say (or intend to say) that it 
+> will go into 2.4.18; it's not good enough yet.
 
-  :... [snd.science] ...:
- ::
- :: http://www.korseby.net
- :: http://gsmp.sf.net
-  :.........................:: ~/$ kristian@korseby.net :
+Sasha.

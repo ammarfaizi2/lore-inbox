@@ -1,131 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265303AbTLHCXO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 21:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbTLHCXO
+	id S265285AbTLHCW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 21:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbTLHCW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 21:23:14 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:30117
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S265303AbTLHCXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 21:23:05 -0500
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-From: Ian Kumlien <pomac@vapor.com>
-To: ross@datscreative.com.au
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200312081207.45297.ross@datscreative.com.au>
-References: <1070827127.1991.16.camel@big.pomac.com>
-	 <200312081207.45297.ross@datscreative.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D94W1js+KXOXIkMxr7DN"
-Message-Id: <1070850185.1992.39.camel@big.pomac.com>
+	Sun, 7 Dec 2003 21:22:58 -0500
+Received: from d57-130-238.home.cgocable.net ([24.57.130.238]:24449 "EHLO
+	cormack.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S265285AbTLHCW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 21:22:56 -0500
+Date: Sun, 7 Dec 2003 21:24:27 -0500
+From: Gordon Cormack <gvcormac@uwaterloo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.test11 bug
+Message-ID: <20031208022427.GA12859@cormack.uwaterloo.ca>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Dec 2003 03:23:05 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-D94W1js+KXOXIkMxr7DN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have read the FAQ but I'm confused about how to report a 2.6
+kernel bug, or who to report it to.
 
-On Mon, 2003-12-08 at 03:07, Ross Dickson wrote:
-> On Monday 08 December 2003 05:58, you wrote:
-> > > There are three parts to this email.
-> > > a) apic mods.
-> > > Lockups are due to too fast an apic acknowledge of apic timer int.
-> > > Apic hard locked up the system - no nmi debug available.
-> > > Fixed it by introducing a delay of at least 500ns into=20
-> > > smp_apic_timer_interrupt() just prior to ack_APIC_irq().
-> >=20
-> > I find this really odd... It works just fine...=20
-> > As did disabling whats now active ie:
-> > 'Halt Disconnect and Stop Grant Disconnect' bit is enabled.
-> >=20
-> > So it seems like these are the two most important factors, at least fro=
-m
-> > where i stand. Both enabled me to actually use my machine with IO-APIC.
-> > (1, disabling Halt Disconnect and Stop Grand Disconnect bit or 2, Add a
-> > delay on the irq ack.)
-> > Anyone that has any clues?
->=20
-> I started work on this about 2 weeks ago and have not yet tried the=20
-> "Halt Disconnect patch and Stop Grand Disconnect bit or 2" patch.=20
-> My lockups ceased with just the apic time delay. I agree the delay is
-> wasteful but the code branches into other servicing routines which I
-> did not want to try to rearrange as yet. Given the infrequent nature
-> of the lockup in CPU cycles maybe we can get smarter and read the
-> timer register and see if enough time has expired to safely ack it. Is
-> the Apic read cycle fast like cache ram (assume as fast as bus
-> cycles?) or slow like 8259?
+Here it is in a nutshell.
 
-It could be something like cpu-disconnect-while-apic-being-hammered
-race... Hell i dunno, i can only see some patterns from my own
-experiences.
+--- kernel ---
 
-> After all it counts bus cycles doesn't it.  Alternately perhaps there
-> is a status bit in the apic somewhere to check against after we ack to
-> ensure that it did its job although we would not want to hammer the
-> apic with writes it cannot accept? Or maybe it is not too bad for now,
-> I note that there is an existing fixed 400ns delay in the IDE command
-> routines ide-iops.c ide_execute_command() which we currently tolerate.
+Linux xxx20.uwaterloo.ca 2.6.0-test11 #2 SMP Thu Nov 27 14:46:01 EST 2003 i686 athlon i386 GNU/Linux
 
-A status bit would be preferred since that would fix any races that
-might exist. As for ide it would be preferred to have non-static delays
-but if it's not possible to solve in another way then, by all means =3D).
+---- log ----
 
-But in this case, this is a specific workaround, and it works without it
-if you disable the AMD cooler thing.
+Dec  6 13:16:01 flax20 kernel: Bad page state at free_hot_cold_page
+Dec  6 13:16:01 flax20 kernel: flags:0x02000114 mapping:00000000 mapped:1 count:0
+Dec  6 13:16:01 flax20 kernel: Backtrace:
+Dec  6 13:16:01 flax20 kernel: Call Trace:
+Dec  6 13:16:01 flax20 kernel:  [<c013f98d>] bad_page+0x5d/0x90
+Dec  6 13:16:01 flax20 kernel:  [<c0140041>] free_hot_cold_page+0x61/0xf0
+Dec  6 13:16:01 flax20 kernel:  [<c014063c>] __pagevec_free+0x1c/0x30
+Dec  6 13:16:01 flax20 kernel:  [<c014527f>] release_pages+0x11f/0x140
+Dec  6 13:16:01 flax20 kernel:  [<c01544a6>] free_pages_and_swap_cache+0x56/0x90
+Dec  6 13:16:01 flax20 kernel:  [<c014cf60>] unmap_region+0x150/0x160
+Dec  6 13:16:01 flax20 kernel:  [<c014d28f>] do_munmap+0x11f/0x170
+Dec  6 13:16:01 flax20 kernel:  [<c014d325>] sys_munmap+0x45/0x70
+Dec  6 13:16:01 flax20 kernel:  [<c010adcf>] syscall_call+0x7/0xb
+Dec  6 13:16:01 flax20 kernel:
+Dec  6 13:16:01 flax20 kernel: Trying to fix it up, but a reboot is needed
+Dec  6 16:31:14 flax20 syslogd 1.4.1: restart.
 
-> > > b) io-apic mods
-> > > So I have fixed it too (tested on both my epox and albatron MOBOs).
-> > > Firstly I found 8254 connected directly to pin 0 not pin 2 of io-apic=
-.
-> > > I have modified check_timer() in io_apic.c to trial connect pin and=20
-> > > test for it after the existing test for connection to io-apic.
-> >=20
-> > Good job, i wonder if it could be more generalized and integrated with
-> > the rest of the code (i haven't even checked the rest of the code, but
-> > this seemed separated).
-> >=20
-> > One thing though, I get a lot more NMI's now than with nmi_watchdog=3D2=
-...
-> > NMI:      85520
-> > LOC:      85477
-> >=20
-> > I usually had a 3 figure number by now... but.. =3D)
+--- comments ---
 
-> I have not tested the nmi against the b) io-apic mods. We may have a
-> vector clash? Perhaps the new apic mpparse.c patch lets the existing
-> check_timer() routines work properly?
-> I have not yet tried it.
+The problem has occurred only once on one of 13 dual-processor machines.
+The one that crashed was one (of seven) with dual AMD 1900+, 2GB RAM,
+and 4 ATA hard drives.  None of the other machines have crashed in the
+9 days since I installed the kernel.
 
-I dunno, i have never used a machine with IO-APIC on so i dunno whats
-normal. But it grows a lot faster than nmi_watchdog=3D2.
+It appears to be related to high memory pressure but I can't reproduce
+it with simple programs.  The machines run text search software that is
+both CPU and IO intensive.
 
-> > > c) ide driver mods
-> >=20
-> > Cool..=20
-> >=20
-> > I applied all patches and it survived my grep test so i think it works.
+---
 
-6h 46 mins tells me that this works.
-(peak nonworking uptime is still below 2hours)
+I'm not a developer but I am running a pretty significant load on these
+machines and am prepared to do instrumentation/investigation in order to
+diagnose the problem.
 
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+As an aside, all versions of the 2.4 kernel are brought to their knees
+in this application ("kswapd problems" hit full force and none of the
+suggested patches worked).  Even with the occasional crash, 2.6.test11 is
+way better.
 
---=-D94W1js+KXOXIkMxr7DN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/0+CJ7F3Euyc51N8RAiCiAJwLJJ2zr0kVNV52h6qka5uDHOKt5gCfR6YX
-RrhMcplDxtkuhGCimZ49eh0=
-=RYHl
------END PGP SIGNATURE-----
-
---=-D94W1js+KXOXIkMxr7DN--
-
+-- 
+Gordon V. Cormack     CS Dept, University of Waterloo, Canada N2L 3G1
+gvcormack@uwaterloo.ca            http://cormack.uwaterloo.ca/cormack

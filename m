@@ -1,121 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264250AbRFLIUf>; Tue, 12 Jun 2001 04:20:35 -0400
+	id <S264264AbRFLIji>; Tue, 12 Jun 2001 04:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264260AbRFLIUZ>; Tue, 12 Jun 2001 04:20:25 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:8211 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S264250AbRFLIUL>; Tue, 12 Jun 2001 04:20:11 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: linux-kernel@vger.kernel.org
-cc: pmenage@ensim.com, alan@redhat.com
-Subject: [PATCH] Inode quota allocation loophole (2.2)
+	id <S264271AbRFLIj3>; Tue, 12 Jun 2001 04:39:29 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:2308 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264260AbRFLIjX>;
+	Tue, 12 Jun 2001 04:39:23 -0400
+Message-ID: <20010611223357.A959@bug.ucw.cz>
+Date: Mon, 11 Jun 2001 22:33:57 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: =?iso-8859-1?Q?Mich=E8l_Alexandre_Salim?= <salimma1@yahoo.co.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Clock drift on Transmeta Crusoe
+In-Reply-To: <20010611113604.4073.qmail@web3504.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Jun 2001 01:17:04 -0700
-Message-Id: <E159jMG-0004Wb-00@pmenage-dt.ensim.com>
+X-Mailer: Mutt 0.93i
+In-Reply-To: =?iso-8859-1?Q?=3C20010611113604=2E4073=2Eqmail=40web3504=2Email=2Eyahoo?=
+ =?iso-8859-1?Q?=2Ecom=3E=3B_from_Mich=E8l_Alexandre_Salim_on_Mon=2C_Jun_?=
+ =?iso-8859-1?Q?11=2C_2001_at_12:36:04PM_+0100?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HI!
 
-This is the equivalent patch for Linux 2.2 (prepared against 2.2.19) for
-the quota loophole described in my previous email.
+> Searching through the mailing list I could not find a
+> reference to this problem, hence this post.
+> 
+> Having ran various kernel and distribution
+> combinations (SGI's 2.4.2-xfs bundled with their Red
+> Hat installer, 2.4-xfs-1.0 and 2.4 CVS trees, Linux
+> Mandrake with default kernel 2.4.3, and lastly
+> 2.4.5-ac9), compiled for generic i386 and/or Transmeta
+> Crusoe with APM off or on, one thing sticks out : a
+> clock drift of a few minutes per day.
+> 
+> This problem might not be noticeable for most users
+> since notebooks are not normally left running that
+> long, but it is rather serious. I can choose not to
+> sync the software and hardware clock on shutdown and
+> re-read the hardware clock every hour or so but it is
+> rather kludgy.
+> 
+> Any suggestions and/or user experiences more than
+> welcome.
 
-Currently, dquot_initialize() is a no-op if the inode being initialized
-isn't a regular file, directory or symlink. This means that calling
-DQUOT_ALLOC_INODE() on a named pipe or AF_UNIX socket has no effect (the
-same applies to devices, but this is less likely to be a problem as
-random users can't create them); as a result a user can exhaust the
-filesystem's inodes even when they have a quota limit. This problem is
-exploitable in 2.2.19 and 2.4.2, and appears to be present in all kernel
-versions that I've looked at.
+Let me guess: vesafb?
 
-I presume that the reason for not putting quotas on pipes and sockets is
-that it's slightly more efficient not to do so. If that's the case, then
-the simplest solution would be to remove the checks in fs/dquot.c (patch
-below for 2.2 - patch for 2.4 in my earlier email). Are there any
-undesirable consequences to pipes, sockets and devices having non-NULL
-pointers in i_dquot[]?
+If problem goes away when you stop using framebuffer (i.e. go X), then
+it is known. 
 
-Paul
+You are lucky. My machine is able to loose 2 minutes from every 3
+minutes.
 
-
---- linux/fs/dquot.c	Sun May 20 11:32:11 2001
-+++ linux.new/fs/dquot.c	Tue Jun 12 00:39:50 2001
-@@ -667,8 +667,6 @@
- {
- 	int cnt;
- 
--        if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode)))
--                return 0;
- 	if (is_quotafile(inode))
- 		return 0;
- 	if (type != -1)
-@@ -1082,38 +1078,34 @@
- 	unsigned int id = 0;
- 	short cnt;
- 
--	if (S_ISREG(inode->i_mode) ||
--            S_ISDIR(inode->i_mode) ||
--            S_ISLNK(inode->i_mode)) {
--		/* We don't want to have quotas on quota files - nasty deadlocks possible */
--		if (is_quotafile(inode))
--			return;
--		for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
--			if (type != -1 && cnt != type)
-+	/* We don't want to have quotas on quota files - nasty deadlocks possible */
-+	if (is_quotafile(inode))
-+		return;
-+	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
-+		if (type != -1 && cnt != type)
-+			continue;
-+		
-+		if (!sb_has_quota_enabled(inode->i_sb, cnt))
-+			continue;
-+		
-+		if (inode->i_dquot[cnt] == NODQUOT) {
-+			switch (cnt) {
-+			case USRQUOTA:
-+				id = inode->i_uid;
-+				break;
-+			case GRPQUOTA:
-+				id = inode->i_gid;
-+				break;
-+			}
-+			dquot = dqget(inode->i_dev, id, cnt);
-+			if (dquot == NODQUOT)
- 				continue;
--
--			if (!sb_has_quota_enabled(inode->i_sb, cnt))
-+			if (inode->i_dquot[cnt] != NODQUOT) {
-+				dqput(dquot);
- 				continue;
--
--			if (inode->i_dquot[cnt] == NODQUOT) {
--				switch (cnt) {
--					case USRQUOTA:
--						id = inode->i_uid;
--						break;
--					case GRPQUOTA:
--						id = inode->i_gid;
--						break;
--				}
--				dquot = dqget(inode->i_dev, id, cnt);
--				if (dquot == NODQUOT)
--					continue;
--				if (inode->i_dquot[cnt] != NODQUOT) {
--					dqput(dquot);
--					continue;
--				} 
--				inode->i_dquot[cnt] = dquot;
--				inode->i_flags |= S_QUOTA;
--			}
-+			} 
-+			inode->i_dquot[cnt] = dquot;
-+			inode->i_flags |= S_QUOTA;
- 		}
- 	}
- }
-
-
+try time cat /etc/termcap, and check it against stopwatch.
+ 								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

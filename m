@@ -1,121 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSFZQES>; Wed, 26 Jun 2002 12:04:18 -0400
+	id <S316662AbSFZQDk>; Wed, 26 Jun 2002 12:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316664AbSFZQER>; Wed, 26 Jun 2002 12:04:17 -0400
-Received: from ns.suse.de ([213.95.15.193]:8458 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316663AbSFZQEM>;
-	Wed, 26 Jun 2002 12:04:12 -0400
-Date: Wed, 26 Jun 2002 18:03:50 +0200
-From: Ihno Krumreich <ihno@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Martin Schwenke <martin@meltin.net>,
-       Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] /proc/scsi/map
-Message-ID: <20020626180350.A29197@wotan.suse.de>
-References: <20020620165553.GA16897@win.tue.nl> <Pine.LNX.4.44.0206201046340.8225-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206201046340.8225-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S316663AbSFZQDj>; Wed, 26 Jun 2002 12:03:39 -0400
+Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:27404 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S316662AbSFZQDi>; Wed, 26 Jun 2002 12:03:38 -0400
+Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
+In-Reply-To: <20020626152213.GE4611@kroah.com>
+To: Greg KH <greg@kroah.com>
+Date: Wed, 26 Jun 2002 18:03:26 +0200 (CEST)
+CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, marcelo@conectiva.com.br,
+       mdharm-usb@one-eyed-alien.net, mwilck@freenet.de,
+       linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17NFGQ-00069b-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 11:11:45AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 20 Jun 2002, Andries Brouwer wrote:
-> >
-> > At present this does not look very useful, but it may have future.
-> 
-> Nobody is actually using it yet, so there hasn't been much feedback (and,
-> for the same reason, not much reason for driver writers to care -
-> everything that shows up there now ends up being pretty much built by the
-> bus that contains the devices rather than any device-specific information
-> itself).
-> 
-> > But there is a pressing present problem. What name do my devices have?
-> > I plug in a SmartMedia card reader. It will become some SCSI device.
-> 
-> That's a user-space issue, the kernel is not going to make any policy.
-> We've seen where policy takes us with devfs.
-> 
+> 2.4.19-final is too close.  I'll trust Matt to tell me if the patch is
+> ok or not technically, as it's his code.  I'd also prefer for you to
+> work through him, as he is the maintainer, and not try to send things
+> like this to Marcelo directly (read Documentation/SubmittingPatches).
 
+OK, and sorry if sending directly to Marcelo was the wrong thing to do
+(I wouldn't have done that if the patch might affect other devices).
 
-Hello,
+I've just played a little more with this device, and here is the really
+minimal patch (new entry in unusual_devs.h for the flags, no other
+changes in the code) - there should be no doubt if it's OK technically,
+as it makes a device work that previously didn't...
 
-by following the discussion I still miss a naming sceme for
-devices like disks, tapes, cdrom for the user (no kernelhackers, but the
-daily user running the system for some productive work). Does there exist
-a naming sceme for persistant names for those devices? I think of something
-like scsidev (http://www.garloff.de/kurt/linux/scsidev/#scsidev). 
+The device I have is called "Sagatek DCS-CF", but the name "Sagatek"
+is only on the packaging, and the "DCS-CF" is only on a small sticker
+at tbe bottom side.  So I left the name "Datafab" in the entry,
+assuming it's really the same device inside (same vendor:product ID)
+so I guess it's a Datafab product and Sagatek really just sells it...
 
-I think the scsidev idea could be extended to a general sceme that
-satisfies all technologies (not only ide and scsi).
+Please at least consider this - later, the larger issue of limiting
+INQUIRY to 36 bytes might have a different solution (in the SCSI code),
+but in the meantime this micro-patch is sufficient.  Thanks.
 
-I think of something like 
+Regards,
+Marek
 
-/dev/<device-type>/<technologie>_<Uniq-Number>_<Bus-number>_<Target>_<Lun>_<Device_type_specific>
+--- linux/drivers/usb/storage/unusual_devs.h.orig	Tue Jun 25 15:38:23 2002
++++ linux/drivers/usb/storage/unusual_devs.h	Wed Jun 26 17:45:59 2002
+@@ -461,6 +461,13 @@
+ 		US_FL_MODE_XLATE ),
+ #endif
+ 
++/* aka Sagatek DCS-CF */
++UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
++		"Datafab",
++		"KECF-USB",
++		US_SC_SCSI, US_PR_BULK, NULL,
++		US_FL_FIX_INQUIRY | US_FL_MODE_XLATE | US_FL_START_STOP ),
++
+ /* Casio QV 2x00/3x00/4000/8000 digital still cameras are not conformant
+  * to the USB storage specification in two ways:
+  * - They tell us they are using transport protocol CBI. In reality they
 
-<device-type> would be disks, tapes, cd-rom and other devices (scanner?)
-
-<technologie> is something really readable for the user (ide, scsi, dasd (dasd are
-              disks on the IBM zSeries)
-
-<Uniq-number>	something to make a device uniq. examples for this could be:
-                - PC the I/O-port used by the controller
-		- DASD the device-port where the dasd is assigned
-<bus-Number>
-<Target>
-<Lun>		As intented by SCSI. On technologies where they make no sense
-		just leave them 0 (for example dasd don`t have that).
-
-<device_type_specific>	depends on the device type. 
-			for disks this is the partition-number
-			for tapes rewind, norewind, compression, density
-
-examples:
-
-disks:
-
-/dev/disks/ide_01f0_0_0_0_0	for the whole IDE disk
-/dev/disks/ide_01f0_0_0_0_1	for partition 1
-.
-.
-/dev/disks/ide_01f0_0_0_0_31	for partition 31
-
-/dev/disks/scsi_0330_0_1_0_0	for the controller at port 0x330, disk bus 0 target 1, lun 0
-/dev/disks/scsi_0330_0_1_0_1	for partition 1
-.
-.
-/dev/disks/scsi_0330_0_1_0_15	for partition 15
-
-/dev/disks/dasd_0150_0_0_0_0	for dasd at device-port 0x150, whole disk
-/dev/disks/dasd_0150_0_0_0_1	for partition 1
-.
-.
-/dev/disks/dasd_0150_0_0_0_3	for partition 3
-
-tapes:
-
-/dev/tapes/scsi_0330_0_2_0_r	auto-rewind SCSI-Tape at controller at Port 0x330
-/dev/tapes/scsi_0330_0_2_0_n	no-rewind SCSI-Tape at controller at Port 0x330
-
-
-Beside some standard devices, the devices could be created
-
-- at system start for coldplugged devices
-- by /sbin/hotplug for hotpluged devices
-
-This naming sceme could be used for kernel 2.4 by creating nodes and for
-kernel 2.5 by making symbolic links to /devices.
-
-something forgotten?
-
-
-Ihno
 

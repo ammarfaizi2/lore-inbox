@@ -1,88 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVASBir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVASCCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVASBir (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 20:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVASBir
+	id S261444AbVASCCI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 21:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVASCCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 20:38:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29368 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261540AbVASBio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 20:38:44 -0500
-Date: Tue, 18 Jan 2005 17:31:34 -0800
-From: Greg KH <greg@kroah.com>
-To: dtor_core@ameritech.net
-Cc: Hannes Reinecke <hare@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pawlik <vojtech@suse.cz>
-Subject: Re: [PATCH 0/2] Remove input_call_hotplug
-Message-ID: <20050119013133.GD23296@kroah.com>
-References: <41ED23A3.5020404@suse.de> <20050118213002.GA17004@kroah.com> <d120d50005011813495b49907c@mail.gmail.com> <20050118215820.GA17371@kroah.com> <d120d500050118142068157a78@mail.gmail.com>
+	Tue, 18 Jan 2005 21:02:08 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:49320 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261444AbVASCCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 21:02:03 -0500
+Subject: Re: [ck] [PATCH][RFC] sched: Isochronous class for unprivileged
+	soft rt	scheduling
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: hihone@bigpond.net.au, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>,
+       paul@linuxaudiosystems.com
+In-Reply-To: <87d5w2u2xd.fsf@sulphur.joq.us>
+References: <41ED08AB.5060308@kolivas.org> <41ED2F1F.1080905@bigpond.net.au>
+	 <87d5w2u2xd.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Date: Tue, 18 Jan 2005 21:02:01 -0500
+Message-Id: <1106100122.30792.23.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d500050118142068157a78@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 05:20:40PM -0500, Dmitry Torokhov wrote:
-> On Tue, 18 Jan 2005 13:58:20 -0800, Greg KH <greg@kroah.com> wrote:
-> > On Tue, Jan 18, 2005 at 04:49:34PM -0500, Dmitry Torokhov wrote:
-> > > On Tue, 18 Jan 2005 13:30:02 -0800, Greg KH <greg@kroah.com> wrote:
-> > > > On Tue, Jan 18, 2005 at 03:56:35PM +0100, Hannes Reinecke wrote:
-> > > > > Hi all,
-> > > > >
-> > > > > the input subsystem is using call_usermodehelper directly, which breaks
-> > > > > all sorts of assertions especially when using udev.
-> > > > > And it's definitely going to fail once someone is trying to use netlink
-> > > > > messages for hotplug event delivery.
-> > > > >
-> > > > > To remedy this I've implemented a new sysfs class 'input_device' which
-> > > > > is a representation of 'struct input_dev'. So each device listed in
-> > > > > '/proc/bus/input/devices' gets a class device associated with it.
-> > > > > And we'll get proper hotplug events for each input_device which can be
-> > > > > handled by udev accordingly.
-> > > >
-> > > > Hm, why another input class?  We already have /sys/class/input, which we
-> > > > get hotplug events for.  We also have the individual input device
-> > > > hotplug events, which is what I think we really want here, right?
-> > >
-> > > These are a bit different classes. One is a generic input device class
-> > > device. Then you have several class device interfaces (evdev,
-> > > mousedev, joydev, tsdev, keyboard) that together with generic input
-> > > device produce concrete input devices (mouse, js, ts) that you have
-> > > implemented with class_simple.
-> > 
-> > Hm, but we still need to make the input_dev a "real" struct device,
-> > right?  And if you do that, then you just hooked up your hotplug event
-> > properly, with no userspace breakage.
+On Tue, 2005-01-18 at 10:17 -0600, Jack O'Quin wrote:
+> Cal <hihone@bigpond.net.au> writes:
 > 
-> I wasn't planning on doing that. The real devices are serio ports,
-> gameport ports and USB devices.They require power and resource
-> management and so forth. input_device is just a product of binding a
-> port to appropriate driver and seems to me like an ideal class_device
-> candidate. Then you add couple of class interfaces and get another
-> class_device layer as a result.
-
-Ah, ok, that makes sense.  That would work too, although I don't know if
-udev can handle class_interfaces with a "dev" file in it or not.  If
-not, it shouldn't be that hard to change.
-
-> > Then, if you want to still make the evdev, mousedev, and so on as
-> > class_device interfaces, that's fine, but the main point of this patch
-> > was to allow the call_usermodehelper call to be removed, so that the
-> > input subsytem will work properly with the kernel event and hotplug
-> > systems.
+> > There's a collection of test summaries from jack_test3.2 runs at
+> > <http://www.graggrag.com/ck-tests/ck-tests-0501182249.txt>
 > >
+> > Tests were run with iso_cpu at 70, 90, 99, 100, each test was run
+> > twice. The discrepancies between consecutive runs (with same
+> > parameters) is puzzling.  Also recorded were tests with SCHED_FIFO and
+> > SCHED_RR.
 > 
-> I was mostly talking about the need of 2 separate classes and this
-> patch lays groundwork for it althou lifetime rules in input system
-> need to be cleaned up before we can go all the way.
+> It's probably suffering from some of the same problems of thread
+> granularity we saw running nice --20.  It looks like you used
+> schedtool to start jackd.  IIUC, that will cause all jackd processes
+> to run in the specified scheduling class.  JACK is carefully written
+> not to do that.  Did you also use schedtool to start all the clients?
+> 
+> I think your puzzling discrepancies are probably due to interference
+> from non-realtime JACK threads running at elevated priority.
 
-I agree.  But I think only 1 class is needed, that way we don't break
-userspace, which is a pretty important thing.
+Isn't this going to be a showstopper?  If I understand the scheduler
+correctly, a nice -20 task is not guaranteed to preempt a nice -19 task,
+if the scheduler decides that one is more CPU bound than the other and
+lowers its dynamic priority.  The design of JACK, however, requires the
+higher priority threads to *always* preempt the lower ones.
 
-thanks,
+Lee
 
-greg k-h

@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292265AbSBUAdT>; Wed, 20 Feb 2002 19:33:19 -0500
+	id <S292598AbSBUAfK>; Wed, 20 Feb 2002 19:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292598AbSBUAdJ>; Wed, 20 Feb 2002 19:33:09 -0500
-Received: from WARSL401PIP6.highway.telekom.at ([195.3.96.113]:65366 "HELO
-	email02.aon.at") by vger.kernel.org with SMTP id <S292265AbSBUAdF>;
-	Wed, 20 Feb 2002 19:33:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Gerald Roth <gerald.roth@aon.at>
-Organization: University of Graz, Austria
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-rc2-aa1 compilation failure
-Date: Thu, 21 Feb 2002 01:30:51 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S292600AbSBUAfB>; Wed, 20 Feb 2002 19:35:01 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:7435 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S292598AbSBUAez>;
+	Wed, 20 Feb 2002 19:34:55 -0500
+Date: Wed, 20 Feb 2002 16:29:26 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Jesse Barnes <jbarnes@sgi.com>, David Mosberger <davidm@hpl.hp.com>,
+        Dan Maas <dmaas@dcine.com>, <linux-kernel@vger.kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Ben Collins <bcollins@debian.org>
+Subject: Re: readl/writel and memory barriers 
+In-Reply-To: <13997.1014156337@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.33L2.0202201627270.3312-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020221003306Z292265-889+4243@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[3]: Entering directory `/usr/src/linux/fs/reiserfs'
-make[3]: Circular /usr/src/linux/include/asm/pgalloc.h <- 
-/usr/src/linux/include/linux/highmem.h dependency dropped.
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    
--DKBUILD_BASENAME=bitmap  -c -o bitmap.o bitmap.c
-bitmap.c: In function `reiserfs_free_prealloc_block':
-bitmap.c:142: warning: unused variable `s'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    
--DKBUILD_BASENAME=do_balan  -c -o do_balan.o do_balan.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    
--DKBUILD_BASENAME=namei  -c -o namei.o namei.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    
--DKBUILD_BASENAME=inode  -c -o inode.o inode.c
-inode.c: In function `reiserfs_direct_io':
-inode.c:2097: `filp' undeclared (first use in this function)
-inode.c:2097: (Each undeclared identifier is reported only once
-inode.c:2097: for each function it appears in.)
-make[3]: *** [inode.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/fs/reiserfs'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/fs/reiserfs'
-make[1]: *** [_subdir_reiserfs] Error 2
-make[1]: Leaving directory `/usr/src/linux/fs'
-make: *** [_dir_fs] Error 2
+On Wed, 20 Feb 2002, Keith Owens wrote:
 
-hth
-gerald
+| On Tue, 19 Feb 2002 10:35:06 -0800,
+| Jesse Barnes <jbarnes@sgi.com> wrote:
+| >Making a variable volatile doesn't guarantee that the compiler won't
+| >reorder references to it, AFAIK.  And on some platforms, even uncached
+| >I/O references aren't necessarily ordered.
+|
+| Ignoring the issue of hardware that reorders I/O, volatile accesses
+| must not be reordered by the compiler.  From a C9X draft (1999, anybody
+| have the current C standard online?) :-
+PDF file, for about US$18 - US$20, downloaded from ISO.
+
+|   5.1.2.3 [#2]
+|
+|   Accessing  a volatile object, modifying an object, modifying a file,
+|   or calling a function that does any of those operations are all side
+|   effects which are changes in the state of the execution environment.
+|   Evaluation of an expression may produce side effects.  At certain
+|   specified points in the execution sequence called sequence points,
+|   all side effects of previous evaluations shall be complete and no
+|   side effects of subsequent evaluations shall have taken place.
+No changes here.
+
+|   5.1.2.3 [#6]
+|
+|   The least requirements on a conforming implementation are:
+|
+|     -- At sequence points, volatile objects are stable in the sense
+|        that previous accesses are complete and subsequent accesses have
+|        not yet occurred.
+Same text, although it's #5 now.
+
+| The compiler may not reorder volatile accesses across sequence points.
+|
+| volatile int *a, *b;
+| int c;
+|
+| c = *a + *b;	// no sequence point, access order to a, b is undefined
+|
+| c = *a;		// compiler must not convert to the above format, it
+| c += *b;	// must access a then b
+|
+|
+| -
+
+---
+~Randy
+
+

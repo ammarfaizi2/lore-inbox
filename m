@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbTJaMup (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 07:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTJaMuo
+	id S263071AbTJaMqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 07:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTJaMqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 07:50:44 -0500
-Received: from ezoffice.mandrakesoft.com ([212.11.15.34]:17544 "EHLO
-	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id S263271AbTJaMuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 07:50:44 -0500
-To: bd <bdonlan@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Post-halloween doc updates.
-X-URL: <http://www.linux-mandrake.com/
-References: <20031030141519.GA10700@redhat.com>
-	<u6f871-68s.ln1@bd-home-comp.no-ip.org>
-From: Thierry Vignaud <tvignaud@mandrakesoft.com>
-Organization: MandrakeSoft
-Date: Fri, 31 Oct 2003 12:50:42 +0000
-In-Reply-To: <u6f871-68s.ln1@bd-home-comp.no-ip.org> (bdonlan@users.sourceforge.net's
- message of "Thu, 30 Oct 2003 17:16:30 -0500")
-Message-ID: <m2r80t1sgt.fsf@vador.mandrakesoft.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 31 Oct 2003 07:46:06 -0500
+Received: from tweedy.ksc.nasa.gov ([128.217.76.165]:52196 "EHLO
+	tweedy.ksc.nasa.gov") by vger.kernel.org with ESMTP id S263071AbTJaMqE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 07:46:04 -0500
+Subject: Re: initrd help -- umounts root after pivot_root
+From: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 31 Oct 2003 07:46:03 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bd <bdonlan@users.sourceforge.net> writes:
-
-> > - The format of /proc/stat changed, which could break some
-> >   applications that still depend on the old layout.
-> >   Currently the only known application to break is the java
-> >   'DOTS' app. (http://bugme.osdl.org/show_bug.cgi?id=277)
+On Thu, 2003-10-30 at 19:18, John R Moser wrote: 
+> Been trying with 2.4.20, 2.4.22, 2.6.0-test9, how the heck do I get this 
+> to work?
 > 
-> 'xosview' is also broken by this change.
+> I set everthing up on /dev/shm type tmpfs, then 
+> cd /dev/shm
+> mkdir initrd
+> pivot_root . initrd
+John,
 
-there's a patch around the net that fix it (alternatively, you got it
-from the xosview source rpm from mandrake contribs)
+It does not appear that the kernel(s) will support the root fs on
+tmpfs.  Looking through the init kernel code:  It boils down to a block
+device with real major and minor number or NFS.
+
+Could you set up a ramdisk to do the same thing as /dev/shm?  Also,
+you'll have to tell the kernel where root is, either a boot parameter
+(root=xxx) or with the rdev command.
+
+Bob...
 

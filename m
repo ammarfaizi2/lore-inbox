@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbTE0AhP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 20:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTE0AhP
+	id S262422AbTE0AhR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 20:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTE0AhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 20:37:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27791 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262416AbTE0AhO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 20:37:14 -0400
-Date: Mon, 26 May 2003 17:48:41 -0700 (PDT)
-Message-Id: <20030526.174841.116378513.davem@redhat.com>
-To: andrea@suse.de
-Cc: akpm@digeo.com, davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030527004115.GD3767@dualathlon.random>
-References: <20030527000639.GA3767@dualathlon.random>
-	<20030526.171527.35691510.davem@redhat.com>
-	<20030527004115.GD3767@dualathlon.random>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 26 May 2003 20:37:17 -0400
+Received: from dyn-ctb-203-221-73-245.webone.com.au ([203.221.73.245]:14340
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S262422AbTE0AhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 20:37:16 -0400
+Message-ID: <3ED2B637.2020606@cyberone.com.au>
+Date: Tue, 27 May 2003 10:49:59 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Jens Axboe <axboe@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] add ata scsi driver
+References: <Pine.LNX.4.44.0305261705070.15826-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0305261705070.15826-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Tue, 27 May 2003 02:41:15 +0200
 
-   In 2.4 normally the softirq (of course w/o NAPI) are
-   served in irq context so we didn't face this yet.
-   
-Andrea, whether ksoftirqd processes the softirq work or not has
-nothing to do with what I'm talking about.
 
-It is all about what does a hardware IRQ mean in terms of work
-processed.  And it can mean anything from 1 to 1000 packets worth
-of work.
+Linus Torvalds wrote:
 
-Therefore, any usage of hardware IRQ activity to determine "load" in
-any sense is totally inaccurate.
+>On Tue, 27 May 2003, Nick Piggin wrote:
+>
+>>There is an elevator notifier which is called on request
+>>completion in Andrew's tree (needed for AS io scheduler). This
+>>can be used to do what you want.
+>>
+>
+>Well, yeah, sure, you can use it to keep track of outstanding requests. 
+>But wouldn't it be nicer to see them in the first place?
+>
+Yeah. Basically the driver will call:
+elv_next_request, elv_remove_request, elv_completed_request
 
-So I'm asking you, again, how are you going to measure softirq load in
-making hardware IRQ load balancing decisions?  Watching the scheduling
-and running of ksoftirqd is not an answer.  Networking hardware
-interrupts, with a simplistic and mindless algorithm like the one we
-have currently in the 2.5.x IRQ balancing code, appear to be
-contributing very little to "load" and that is wrong.
+elv_remove_request can easily just move the request to another
+list, which is removed by elv_completed_request.
 
-   But it doesn't change my basic argument about this topic, that there's
-   no way in userspace to do anything remotely as accurate as that to boost
-   system performance to the maximum, especially on big systems.
+Don't let the names bother you, the elevator (in Andrew's tree)
+gets all the information it needs.
 
-You show that the measurements and reactions belong there.  This I
-totally understand.  This is how cpufreq is implemented in 2.5.x
-currently.  It is a very similar situation.
-
-But deciding how to intepret these measurements and what to do in
-response is a userlevel policy decision.  This also coincides with
-how cpufreq works.

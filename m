@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265061AbTFYUtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbTFYUtR
+	id S265059AbTFYUuI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFYUuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:49:17 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:10199 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id S265061AbTFYUtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:49:16 -0400
-From: Folkert van Heusden <folkert@vanheusden.com>
-Reply-To: folkert@vanheusden.com
-To: Michael Bellion and Thomas Heinz <nf@hipac.org>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-Date: Wed, 25 Jun 2003 23:03:13 +0200
-User-Agent: KMail/1.5.2
-References: <200306252248.44224.nf@hipac.org>
-In-Reply-To: <200306252248.44224.nf@hipac.org>
-WebSite: http://www.vanheusden.com/
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jun 2003 16:50:08 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:32521 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265059AbTFYUtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:49:52 -0400
+Date: Wed, 25 Jun 2003 22:03:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: mocm@mocm.de
+Cc: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Marcus Metzler <mocm@metzlerbros.de>,
+       Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: DVB Include files
+Message-ID: <20030625220358.B13814@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
+	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+	Marcus Metzler <mocm@metzlerbros.de>,
+	Michael Hunold <hunold@convergence.de>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler> <20030625185036.C29537@infradead.org> <16121.58735.59911.813354@sheridan.metzler> <20030625191532.A1083@infradead.org> <16121.60747.537424.961385@sheridan.metzler> <20030625194250.GF1770@wohnheim.fh-wedel.de> <16122.379.321217.737557@sheridan.metzler> <20030625202312.GG1770@wohnheim.fh-wedel.de> <16122.2724.417649.622538@sheridan.metzler>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306252303.13366.folkert@vanheusden.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16122.2724.417649.622538@sheridan.metzler>; from mocm@metzlerbros.de on Wed, Jun 25, 2003 at 10:48:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 25, 2003 at 10:48:36PM +0200, Marcus Metzler wrote:
+> That was kind of the point. If I have to check and copy the includes
+> all the time I may run into trouble because of such changes. Whereas
+> without that, I only have to recompile. I don't have to check each and
+> evry possible place where old headers may be, which may even be
+> different for every distribution.
 
-> nf-hipac is a drop-in replacement for the iptables packet filtering module.
-> It implements a novel framework for packet classification which uses an
-> advanced algorithm to reduce the number of memory lookups per packet.
-> The module is ideal for environments where large rulesets and/or high
-> bandwidth networks are involved. Its userspace tool, which is also called
-> 'nf-hipac', is designed to be as compatible as possible to 'iptables -t
-> filter'.
-
-Looks great!
-Any chance on a port to 2.5.x?
-
-
-Greetings,
-
-Folkert van Heusden
-
-+-> www.vanheusden.com       folkert@vanheusden.com       +31-6-41278122 <-+
-+--------------------------------------------------------------------------+
-| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
-| a try, it brings monitoring logfiles (and such) to a different level!    |
-+--------------------------------------------------------------------------+
+If that's your attitude we should drop dvb from the kernel again.  The Linux
+Kernel has a stable userspace ABI.
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbTIAT6U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 15:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263247AbTIAT6U
+	id S263251AbTIAT73 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 15:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTIAT73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 15:58:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13473 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263250AbTIAT6R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 15:58:17 -0400
-Date: Mon, 1 Sep 2003 12:58:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [BUG] mtime&ctime updated when it should not
-Message-Id: <20030901125830.6f8d8f04.akpm@osdl.org>
-In-Reply-To: <20030901193128.GA26983@atrey.karlin.mff.cuni.cz>
-References: <20030901181113.GA15672@atrey.karlin.mff.cuni.cz>
-	<20030901121807.29119055.akpm@osdl.org>
-	<20030901193128.GA26983@atrey.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Sep 2003 15:59:29 -0400
+Received: from dsl-hkigw4a35.dial.inet.fi ([80.222.48.53]:60873 "EHLO
+	dsl-hkigw4a35.dial.inet.fi") by vger.kernel.org with ESMTP
+	id S263251AbTIAT70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 15:59:26 -0400
+Date: Mon, 1 Sep 2003 22:59:21 +0300 (EEST)
+From: Petri Koistinen <petri.koistinen@iki.fi>
+X-X-Sender: petri@dsl-hkigw4a35.dial.inet.fi
+To: linux-kernel@vger.kernel.org
+Subject: Sparse warning: bitmap.h: bad constant expression
+Message-ID: <Pine.LNX.4.56.0309012249230.14789@dsl-hkigw4a35.dial.inet.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara <jack@suse.cz> wrote:
->
->  > Isn't this sufficient?
->    I think it is not (I tried exactly the same patch but it didn't work)
->  - the problem is that vmtruncate() is called when prepare_write() fails
->  and this function also updates mtime and ctime.
+Hi!
 
-Oh OK.
+If I try to compile latest kernel with "make C=1" I'll get many warning
+messages from sparse saying:
 
-So we would need to change each filesystem's ->truncate to not update the
-inode times, then move the timestamp updating up into vmtruncate().
+warning: include/linux/bitmap.h:85:2: bad constant expression
+warning: include/linux/bitmap.h:98:2: bad constant expression
 
+Sparse doesn't seem to like DECLARE_BITMAP macros.
+
+#define DECLARE_BITMAP(name,bits) \
+        unsigned long name[BITS_TO_LONGS(bits)]
+
+So what is wrong with this and how it could be fixed so that sparse
+wouldn't complain?
+
+Best regards,
+Petri Koistinen

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265457AbUAZE0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 23:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUAZE0e
+	id S265493AbUAZE2V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 23:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUAZE2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 23:26:34 -0500
-Received: from mail.gmx.de ([213.165.64.20]:27627 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265457AbUAZE0c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 23:26:32 -0500
-X-Authenticated: #12437197
-Date: Mon, 26 Jan 2004 06:26:32 +0200
-From: Dan Aloni <da-x@gmx.net>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Cooperative Linux
-Message-ID: <20040126042631.GA401@callisto.yi.org>
-References: <20040125193518.GA32013@callisto.yi.org> <40148C1C.5040102@vgertech.com>
-Mime-Version: 1.0
+	Sun, 25 Jan 2004 23:28:21 -0500
+Received: from hoemail2.lucent.com ([192.11.226.163]:10968 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265493AbUAZE1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 23:27:44 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40148C1C.5040102@vgertech.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16404.38674.244506.359654@gargle.gargle.HOWL>
+Date: Sun, 25 Jan 2004 23:26:58 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: "John Stoffel" <stoffel@lucent.com>
+Cc: Andi Kleen <ak@muc.de>, Adrian Bunk <bunk@fs.tum.de>,
+       Valdis.Kletnieks@vt.edu, Fabio Coatti <cova@ferrara.linux.it>,
+       Andrew Morton <akpm@osdl.org>, Eric <eric@cisu.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+In-Reply-To: <16404.34836.753760.759367@gargle.gargle.HOWL>
+References: <200401251811.27890.cova@ferrara.linux.it>
+	<20040125173048.GL513@fs.tum.de>
+	<20040125174837.GB16962@colin2.muc.de>
+	<200401251800.i0PI0SmV001246@turing-police.cc.vt.edu>
+	<20040125191232.GC16962@colin2.muc.de>
+	<16404.9520.764788.21497@gargle.gargle.HOWL>
+	<20040125202557.GD16962@colin2.muc.de>
+	<16404.10496.50601.268391@gargle.gargle.HOWL>
+	<20040125214920.GP513@fs.tum.de>
+	<16404.20183.783477.596431@gargle.gargle.HOWL>
+	<20040125234756.GF28576@colin2.muc.de>
+	<16404.34836.753760.759367@gargle.gargle.HOWL>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 03:40:12AM +0000, Nuno Silva wrote:
-> Hi!
-> 
-> Dan Aloni wrote:
-> >Hello fellow developers, kernel hackers, and open source contributors,
-> >
-> >Cooperative Linux is a port of the Linux kernel which allows it 
-> >to run cooperatively under other operating systems in ring0 without 
-> >hardware emulation, based on very minimal changes in the architecture 
-> >dependent code and almost no changes in functionality.
-> >
-> >The bottom line is that it allows us to run Linux on an unmodified
-> >Windows 2000/XP system in a practical way (the user just launches 
-> 
-> Very nice! Can we run two (or more) instances of Linux at the same time?
 
-Yes, it would be possible.
+Just a quick followup, but 2.6.2-rc2 also hung in the exact same spot,
+after printing out the HighMem zone: line.
 
-> When will you release a linux-as-host patch? :-)
+Falling back to 2.6.1-mm5 for now.  More testing tomorrow evening when
+I get a chance.
 
-I can't say exactly when, but several people volunteered to work on this. 
-
--- 
-Dan Aloni
-da-x@gmx.net
+John

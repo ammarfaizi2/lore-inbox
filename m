@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbSKGAYF>; Wed, 6 Nov 2002 19:24:05 -0500
+	id <S266240AbSKGA3e>; Wed, 6 Nov 2002 19:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266244AbSKGAYF>; Wed, 6 Nov 2002 19:24:05 -0500
-Received: from pop015pub.verizon.net ([206.46.170.172]:7876 "EHLO
-	pop015.verizon.net") by vger.kernel.org with ESMTP
-	id <S266243AbSKGAYE>; Wed, 6 Nov 2002 19:24:04 -0500
-Message-Id: <200211070028.gA70SMDv000402@pool-141-150-241-241.delv.east.verizon.net>
-Date: Wed, 6 Nov 2002 19:28:20 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>, dcl_info@osdl.org,
-       dcl_discussion@osdl.org, dev@osdl.org
-Subject: Re: [ANNOUNCE] linux-2.5.46-dcl1
-References: <1036626404.20740.169.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1036626404.20740.169.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Wed, Nov 06, 2002 at 03:46:44PM -0800
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop015.verizon.net from [141.150.241.241] at Wed, 6 Nov 2002 18:30:38 -0600
+	id <S266248AbSKGA3d>; Wed, 6 Nov 2002 19:29:33 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:44433 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S266240AbSKGA3d>; Wed, 6 Nov 2002 19:29:33 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 6 Nov 2002 16:46:03 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] epoll bits 0.30 ...
+In-Reply-To: <20021106124607.09da5e1c.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0211061641180.953-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> The latest release is available on SourceForge 
->    http://sourceforge.net/projects/osdldcl 
-> 
-> Linux 2.5.46-dcl1
->  * Update to Linux Trace Toolkit (LTT)		(Karim Yaghmour)
+On Wed, 6 Nov 2002, Rusty Russell wrote:
 
-Why did you change the LTT syscall number for no good reason?  The tools
-have to be recompiled to use it.  You could've left it 258 and just
-added posix clocks after it.
+> On Mon, 4 Nov 2002 19:44:29 -0800 (PST)
+> Davide Libenzi <davidel@xmailserver.org> wrote:
+>
+> >
+> > These are the latest few bits for epoll. Changes :
+> >
+> > *) Some constant adjusted
+> >
+> > *) Comments plus
+> >
+> > *) Better hash initialization
+>
+> Um, why doesn't this use linux/hash.h?  Haven't looked hard, but...
 
--- 
-Skip
+Rusty, the hash is not under pressure over there. The only time seeks is
+performed is at file removal ( from the set ) and eventually at file
+modify. There's a direct link between the wait queue and its item during
+the high frequency event delivery, so need seek is performed.
+
+
+
+
+- Davide
+
+

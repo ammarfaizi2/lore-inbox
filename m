@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132986AbRADUdL>; Thu, 4 Jan 2001 15:33:11 -0500
+	id <S135259AbRADUfB>; Thu, 4 Jan 2001 15:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135273AbRADUdB>; Thu, 4 Jan 2001 15:33:01 -0500
-Received: from entropy.muc.muohio.edu ([134.53.213.10]:18306 "EHLO
-	entropy.muc.muohio.edu") by vger.kernel.org with ESMTP
-	id <S132986AbRADUcl>; Thu, 4 Jan 2001 15:32:41 -0500
-Date: Thu, 4 Jan 2001 15:32:36 -0500 (EST)
-From: George <greerga@entropy.muc.muohio.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.18 bttv
-Message-ID: <Pine.LNX.4.30.0101041524140.29919-100000@entropy.muc.muohio.edu>
+	id <S132973AbRADUev>; Thu, 4 Jan 2001 15:34:51 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:22538 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135259AbRADUel>;
+	Thu, 4 Jan 2001 15:34:41 -0500
+Date: Thu, 4 Jan 2001 21:31:46 +0100 (CET)
+From: egger@suse.de
+Reply-To: egger@suse.de
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1010104140542.17050A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20010104213355.707A651AA@Nicole.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A follow-up to my previous report about 2.2.18 bttv's new (worse) behavior:
-Replacing 2.2.18's bttv.c with 2.2.17's fixes the problems.
+On  4 Jan, Richard B. Johnson wrote:
 
-- The green and purple fuzzy flash on a screen capture or channel change is
-  gone.
-- The screen works after loading the module without TV->Composite->TV in
-  XawTV. (Especially important with automatic module loading.)
+> A mobile-phone that runs out of battery power will also  lose all the
+> phone numbers you have stored, etc. The same is true for most all
+> embedded systems that save data.
 
-Hauppauge WinTV 401
-00:14.0 Multimedia video controller: Brooktree Corporation Bt878 (rev 02)
-        Subsystem: Hauppage computer works Inc.: Unknown device 13eb
-        Flags: bus master, medium devsel, latency 32, IRQ 16
-        Memory at e4001000 (32-bit, prefetchable)
+ In your world maybe. I would be quite pissed if my mobile phones lost 
+ the stored numbers every time they run out of power. Nearly all embedded 
+ devices nowadays keep their settings without power; be it a satellite
+ receiver, a PBX, a fax machine or a coffee brewer. 
 
-S3 Virge DX
-00:11.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01) (prog-if 00 [VGA])
-        Subsystem: S3 Inc. ViRGE/DX
-        Flags: bus master, medium devsel, latency 32, IRQ 19
-        Memory at e0000000 (32-bit, non-prefetchable)
+> This means that the data-base
+> software has to roll-back and redo the temporarily-lost updates
+> when it restarts. It uses the journal to accomplish this. As
+> N-seconds gets smaller, the overhead necessary to maintain data
+> consistency gets greater, so there are trade-offs.
 
-Tyan Tomcat IV -- Pentium 233 MMX x2
-00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
-        Flags: bus master, medium devsel, latency 32
+ And depending on the application they may really be worth it.
 
-I can try to narrow it down further if someone has ideas or I'll just try
-whatever I can in the large chunks changed.
+> A journaling file-system also needs some number to show the
+> order of operations so that roll-backs and restarts work.
+> Unfortunately, the systems that I have seen all use time for
+> the number! You don't want time to reconstruct 'order'. You
+> need a number that represents 'order'. Time is not your friend.
 
--George Greer
+ Since the metadata has to be sync anyway what about using a
+ normal transaction counter?
+
+-- 
+
+Servus,
+       Daniel
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

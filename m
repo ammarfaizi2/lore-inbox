@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268017AbRIKPNR>; Tue, 11 Sep 2001 11:13:17 -0400
+	id <S268071AbRIKPXS>; Tue, 11 Sep 2001 11:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268071AbRIKPNI>; Tue, 11 Sep 2001 11:13:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29445 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268017AbRIKPM5>; Tue, 11 Sep 2001 11:12:57 -0400
-Date: Tue, 11 Sep 2001 08:12:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10-pre5
-In-Reply-To: <Pine.LNX.4.33L.0109102151581.30234-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0109110808150.8078-100000@penguin.transmeta.com>
+	id <S272464AbRIKPXH>; Tue, 11 Sep 2001 11:23:07 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:63247 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268071AbRIKPWx>;
+	Tue, 11 Sep 2001 11:22:53 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200109111522.TAA16406@ms2.inr.ac.ru>
+Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Tue, 11 Sep 2001 19:22:57 +0400 (MSK DST)
+Cc: matthias.andree@gmx.de, alan@lxorguk.ukuu.org.uk, wietse@porcupine.org,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <20010910221448.E30149@emma1.emma.line.org> from "Matthias Andree" at Sep 10, 1 10:14:48 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Mon, 10 Sep 2001, Rik van Riel wrote:
-> >
-> > Pre-loading your cache always depends on some limited portion of
-> > prescience.
->
-> OTOH, agressively pre-loading metadata should be ok in a lot
-> of cases, because metadata is very small, but wastes about
-> half of our disk time because of the seeks ...
+> Let's keep this as simple as possible.
 
-I actually agree to some degree here. The main reason I agree is that
-meta-data often is (a) known to be physically contiguous (so pre-fecthing
-is easy and cheap on most hardwate) and (b) meta-data _is_ small, so you
-don't have to prefetch very much (so pre-fetching is not all that
-expensive).
+A. No way to do the trick with SIOCSIF*.
 
-Trying to read two or more pages of inode data whenever we fetch an inode
-might not be a bad idea, for example. Either we fetch a _lot_ of inodes
-(in which case the prefetching is very likely to get a hit anyway), or we
-don't (in which case the prefetching is unlikely to hurt all that much
-either). You don't easily get into a situation where you prefetch a lot
-without gaining anything.
+B. The things does not become simpler when code does something random.
+   The things become simpler when code checks something explicitly,
+   otherwise you have to add comment: "Well, here we do this against
+   plain logic, but this does not matter because of this, this and this."
 
-We might do other kinds of opportunistic pre-fetching, like have "readdir"
-start prefetching for the inode data it finds. That miht be a win for many
-loads (and it might be a loss too - there _are_ loads that really only
-care about the filename, although I suspect they are fairly rare).
-
-		Linus
-
+Alexey

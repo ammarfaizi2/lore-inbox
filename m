@@ -1,93 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318416AbSGYJZv>; Thu, 25 Jul 2002 05:25:51 -0400
+	id <S318422AbSGYJaq>; Thu, 25 Jul 2002 05:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318417AbSGYJZv>; Thu, 25 Jul 2002 05:25:51 -0400
-Received: from B5230.pppool.de ([213.7.82.48]:29704 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S318416AbSGYJZu>; Thu, 25 Jul 2002 05:25:50 -0400
-Subject: Re: Linux-2.5.28
-From: Daniel Egger <degger@fhm.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-u4NRQCKf8yo0JZAnXUJJ"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 25 Jul 2002 11:21:00 +0200
-Message-Id: <1027588861.12730.11.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S318423AbSGYJap>; Thu, 25 Jul 2002 05:30:45 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:11648 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S318422AbSGYJap>; Thu, 25 Jul 2002 05:30:45 -0400
+Date: Thu, 25 Jul 2002 11:41:03 +0200
+Organization: Pleyades
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: USB problem with my printer
+Message-ID: <3D3FC7AF.mail1CA1SQPD7@viadomus.com>
+User-Agent: nail 9.31 6/18/02
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi all :))
 
---=-u4NRQCKf8yo0JZAnXUJJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+    Shortly: the USB driver detects my printer and correctly
+registers and unregisters it when disconnecting the USB cable. But
+I'm not able to print thru USB port :((
 
-Am Don, 2002-07-25 um 03.08 schrieb Linus Torvalds:
+    My printer is a Lexmark Optra E312, with parallel and USB ports.
+I'm able to use it thru the parallel port without problems, but when
+I use the USB interface, it doesn't work. I load modules 'usbcore',
+'usb-uhci' and 'printer', I've created the node usblp0 (char, major
+180, minor 0), but when I try to send something to the printer, using
+'cat', 'echo' or even using 'pdq', the process goes to sleep forever
+:( I've tested three different USB cables, and my USB port seems to
+work.
 
-> > So IDE-101 equals to the small snippet of code pasted somewhere in the
-> > evil flamewar?
-=20
-> Have you _looked_ at the full changelog? Apparently not.
+    Am I doing something wrong? Do I need to pass args to the printer
+USB driver?.
 
-I was merely requesting a bit more verbose information in your regular
-changelog, the whole thing is quite exhaustive but this entry didn't
-really fit and contained no useful information at all.
-
-I will definitely consider reading the "full changelog" although I
-cannot remember having read anything about such a thing before this
-thread.
-=20
-> The snippet was posted as part of the IDE-2.5.27 thread. Go look for it
-> yourself.
-
-Exactly what I said, no?
-
-> Most of the IDE stuff is FUD and misinformation. I've run every single
-> 2.5.x kernel on an IDE system ("penguin.transmeta.com" has everything on
-> IDE), and the main reported 2.5.27 corruption was actually from my BK tre=
-e
-> apparently due to the IRQ handling changes.
-
-This is very encouraging information that had been missing from the
-threads at all: a success story from a person actually trusting und
-using this thing.
-
-> The thing I dislike is how people who apparently haven't even read the
-> discussions, and didn't bother to look up the full changelog feel that
-> they are perfectly fine to spread FUD and misinformation about the IDE
-> layer.
-
-I for one did read the discussion(s) but it's really hard to map IDE-101
-to some tiny patch in a huge tree of mails.
-
-> Do we have issues there? Yes. But there are actually _more_ problems with
-> people dissing the work than with the code itself.
-
-I appreciate Martins work and even more your word on it that it's pretty
-stable.=20
-
-Keep on the good work and let us end this thread for good.
-
---=20
-Servus,
-       Daniel
-
---=-u4NRQCKf8yo0JZAnXUJJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9P8L8chlzsq9KoIYRAoCvAJ4l63b9QCo4cxbT+7Y62eLobplAIgCg1uyZ
-UrJSk90EiA6pFKtnoxjgMa0=
-=b/vN
------END PGP SIGNATURE-----
-
---=-u4NRQCKf8yo0JZAnXUJJ--
-
+    Thanks in advance :)
+    Raúl

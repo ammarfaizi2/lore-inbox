@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbTE1Jsc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 05:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbTE1Jsb
+	id S264638AbTE1Jpc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 05:45:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbTE1Jpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 05:48:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35284 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264639AbTE1Jsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 05:48:30 -0400
-Date: Wed, 28 May 2003 12:01:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Ragnar Hojland Espinosa <ragnar@linalco.com>,
-       manish <manish@storadinc.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528100135.GM845@suse.de>
-References: <3ED2DE86.2070406@storadinc.com> <200305271954.11635.m.c.p@wolk-project.de> <20030528093654.GA20687@linalco.com> <200305281153.15317.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305281153.15317.m.c.p@wolk-project.de>
+	Wed, 28 May 2003 05:45:32 -0400
+Received: from luminis.xs4all.nl ([213.84.241.134]:16039 "EHLO
+	birdie.luminis.net") by vger.kernel.org with ESMTP id S264638AbTE1Jpb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 05:45:31 -0400
+Message-ID: <48531.212.153.190.2.1054116191.squirrel@www.luminis.net>
+Date: Wed, 28 May 2003 12:03:11 +0200 (CEST)
+Subject: How do I implement a use counter for 2.5 modules?
+From: "Marcel Offermans" <marcel.offermans@luminis.nl>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.10)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28 2003, Marc-Christian Petersen wrote:
-> On Wednesday 28 May 2003 11:36, Ragnar Hojland Espinosa wrote:
-> 
-> Hi Ragnar,
-> 
-> > Actually it just happens in the fixing stage when burning prebuilt iso
-> > images from the hard disk (same IDE channel as the burner, 2.4.20)
-> > Having a completely frozen machine under X was quite panic inducing ;)
-> That's a problem of IDE itself. I still say IDE is broken by design ;-)
+I am currently porting a CAN driver module from 2.4 to 2.5 and one of the
+things I did was remove the MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT macros
+from the code. This now means that rmmod will remove my module even when
+it is still in use. What mechanism should I use to prevent this? I know
+how to logically detect if the module is in use (there's a variable that
+keeps track of this already in the code), I just don't know what new API I
+should use.
 
-It is actually possible to use the IMMED bit of the CLOSE_TRACK command
-to get around this. In that case the cd-r will return the command as
-completed and the drive on the same channel can service requests.
-
--- 
-Jens Axboe
 

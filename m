@@ -1,90 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266108AbSKFVKK>; Wed, 6 Nov 2002 16:10:10 -0500
+	id <S266146AbSKFV1C>; Wed, 6 Nov 2002 16:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266111AbSKFVKK>; Wed, 6 Nov 2002 16:10:10 -0500
-Received: from pop016pub.verizon.net ([206.46.170.173]:929 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S266108AbSKFVKI>; Wed, 6 Nov 2002 16:10:08 -0500
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+	id <S266147AbSKFV1B>; Wed, 6 Nov 2002 16:27:01 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:33037 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266146AbSKFV1A>; Wed, 6 Nov 2002 16:27:00 -0500
+Date: Wed, 6 Nov 2002 22:33:29 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Nov 2002 16:15:43 -0500
-MIME-Version: 1.0
-Subject: [STATUS 2.5]  November 6, 2002
-Message-ID: <3DC9402F.22787.27763DD6@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop016.verizon.net from [64.152.17.166] at Wed, 6 Nov 2002 15:16:30 -0600
+Subject: Re: [Evms-announce] EVMS announcement
+Message-ID: <20021106213329.GH25580@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <02110516191004.07074@boiler> <20021105214012.C2B4651CF@dominion.dyndns.org> <20021106001856.GD1092@gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106001856.GD1092@gnu.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With Halloween behind us, I have regrouped all the remaining items on 
-the status list into 2 categories: 2.6 and post-2.6.
-I'd be great if folks in the know could comment on the relevance of 
-the breakdown!
+On Wed, 06 Nov 2002, Andrew Clausen wrote:
 
-The full list is at http://www.kernelnewbies.org/status/
-Enjoy!
+> On Tue, Nov 05, 2002 at 04:00:10PM -0500, Mike Diehl wrote:
+> > Well, I'm a bit disapointed.  My experience with LVM has been nothing short 
+> > of disasterous;
+> 
+> I think you'll find LVM2 much more pleasant than LVM1.  It's a
+> reimplementation with a very different (minimalist :) architecture.
 
--- Guillaume
+What's the current LVM2 status? I've got EVMS up and running in a couple
+of minutes, but finding LVM2 stuff, let alone documentation, gives me a
+hard time. And yes I know it's the testing stuff at sistina.com, so I
+hope I'm looking at the right web site...
 
---------------------------
-Linux Kernel 2.5 Status - November 6th, 2002
-(Latest kernel release is 2.5.46)
-
-Merged  
-....
-o in 2.5.45  CryptoAPI  (James Morris)  
-o in 2.5.45  New Linux configuration system: kconfig  (Roman Zippel)  
-o in 2.5.46  Extended Attributes and ACLs for ext2/ext3  (Ted Ts'o)  
-o in 2.5.46  Replace initrd by initramfs  (H. Peter Anvin, Al Viro, Jeff Garzik)  
-o in 2.5.46  MMU-less processor support (ucLinux)  (Greg Ungerer)  
-o in 2.5.46  Better I/O performance with epoll  (Davide Libenzi)  
- 
-o in -mm  Page table sharing  (Daniel Phillips, Dave McCracken)  
-o in -mm  Per-cpu hot & cold page lists  (Andrew Morton, Martin Bligh)  
-o in -dcl  EVMS (Enterprise Volume Management System)  (EVMS team)  
-o in -dcl  Build option for Linux Trace Toolkit (LTT)  (Karim Yaghmour)  
-o in -dcl  Linux Kernel Crash Dumps  (Matt Robinson, LKCD team)  
-o in -dcl  NUMA aware scheduler extensions  (Erich Focht, Michael Hohnbaum)  
- 
-o in 2.6  Kernel Probes (kprobes)  (Vamsi Krishna, kprobes team)  
-o in 2.6  High resolution timers  (George Anzinger, etc.)  
-o in 2.6  Rewrite of the console layer  (James Simmons)  
-o in 2.6  Zerocopy NFS  (Hirokazu Takahashi)  
-o in 2.6  Support insane number of groups  (Tim Hockin)  
-o in 2.6  SCSI and FibreChannel Hotswap Support  (Steven Dake)  
-o in 2.6  Worldclass support for IPv6  (Alexey Kuznetsov, Dave Miller, Jun Murai, Yoshifuji 
-Hideaki, USAGI team)  
-o in 2.6  Reiserfs v4  (Reiserfs team)  
-o in 2.6  32bit dev_t  (?)  
-o in 2.6  UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)  
-o in 2.6  Fix device naming issues  (Patrick Mochel, Greg Kroah-Hartman)  
-o in 2.6  Change all drivers to new driver model  (All maintainers)  
-o in 2.6  USB gadget support  (Stuart Lynne, Greg Kroah-Hartman)  
-o in 2.6  Improved AppleTalk stack  (Arnaldo Carvalho de Melo)  
-o in 2.6  ext2/ext3 online resize support  (Andreas Dilger)  
- 
-o post 2.6  Kexec, syscall to load kernel from kernel  (Eric Biederman)  
-o post 2.6  In-kernel module loader  (Rusty Russell)  
-o post 2.6  Unified boot/parameter support  (Rusty Russell)  
-o post 2.6  SCSI multipath IO (with NUMA support)  (Patrick Mansfield, Mike Anderson)  
-o post 2.6  Basic NUMA API  (Matt Dobson)  
-o post 2.6  Remove waitqueue heads from kernel structures  (William Lee Irwin)  
-o post 2.6  NUMA aware slab allocator  (Manfred Spraul, Martin Bligh)  
-o post 2.6  Better event logging for enterprise systems  (Larry Kessler, evlog team)  
-o post 2.6  Page table reclamation  (William Lee Irwin, Rik Van Riel)  
-o post 2.6  UMSDOS (Unix under MS-DOS) Rewrite  (Al Viro)  
-o post 2.6  Overhaul PCMCIA support  (David Woodhouse, David Hinds)  
-o post 2.6  InfiniBand support  (InfiniBand team)  
-o post 2.6  Per-mountpoint read-only, union-mounts, unionfs  (Al Viro)  
-o post 2.6  More complete NetBEUI stack  (Arnaldo Carvalho de Melo, from Procom donated code)  
-o post 2.6  New mount API  (Al Viro)  
-o post 2.6  Add thrashing control  (Rik van Riel)  
-o post 2.6  Remove all hardwired drivers from kernel  (Alan Cox, etc.)  
-o post 2.6  New lightweight library (klibc)  (H. Peter Anvin)  
-o post 2.6  Scalable Statistics Counter  (Ravikiran Thirumalai)  
-o post 2.6  Add hardware sensors drivers  (lm_sensors team)  
-
+-- 
+Matthias Andree

@@ -1,77 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVAWRba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVAWRwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVAWRba (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 12:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVAWRba
+	id S261335AbVAWRwF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 12:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVAWRwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 12:31:30 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:36051 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261334AbVAWRbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 12:31:24 -0500
-Message-ID: <41F3DFF5.9050806@upb.de>
-Date: Sun, 23 Jan 2005 18:33:41 +0100
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: de, en
+	Sun, 23 Jan 2005 12:52:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43716 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261335AbVAWRv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 12:51:59 -0500
+Date: Sun, 23 Jan 2005 09:51:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: ierdnah <ierdnah@go.ro>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel oops!
+In-Reply-To: <1106483340.21951.4.camel@ierdnac>
+Message-ID: <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
+References: <1106437010.32072.0.camel@ierdnac>  <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
+ <1106483340.21951.4.camel@ierdnac>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 more picky about IDE drives than 2.4 ?
-References: <csv3ss$a4m$1@sea.gmane.org> <58cb370e0501230850185b007f@mail.gmail.com>
-In-Reply-To: <58cb370e0501230850185b007f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>i have many problems with kernel 2.6.10 since it won't run stable with
->>an IDE-device. It's an internal IDE-RAID subsystem. The DMA is
->>frequently disabled, and even writes/reads fail and the kernel reports
->>I/O-Errors for many sectors. The RAID-device doesn't report any errors
->>it it's own event-log. You can have a closer look at the error-messages
->>below.
->>
->>I'm mailing to the LKML, since i haven't been abled to reproduce the
->>problem with a kernel 2.4 bases system, but it randomly happens with 2.6
->>kernels. Let's take the latest Knoppix as an example (it comes with both
->>kernels):
->>- if i boot kernel 2.4, i can stress test the harddisk as much as i
->>want. the kernel does report any problem and it doesn't disable DMA well
->>- if i boot kernel 2.6, after a while, there are the error-message below
->>in the log. "hdparm -k1" doesn't help, the kernel will disable DMA mode.
->>There was a also a bigger problems for two times now, where the kernel
->>refused to write to the devide, due to the I/O-Errors below. I'm very
->>sad, that i haven't the log-lines prior to the I/O-Errors.
+
+
+On Sun, 23 Jan 2005, ierdnah wrote:
 > 
-> You didn't give any information about your hardware (controller type,
-> drives used etc).  Please read REPORTING-BUGS in the kernel source
-> directory.  Also please find last working kernel version (2.5 or 2.6).
+> (gdb) disassemble pty_chars_in_buffer
+...
+> 0xc02c97a7 <pty_chars_in_buffer+23>:    mov    0x28(%edx),%ecx **
+> 0xc02c97aa <pty_chars_in_buffer+26>:    test   %ecx,%ecx
+> 0xc02c97ac <pty_chars_in_buffer+28>:    jne    0xc02c97b6
+> 0xc02c97ae <pty_chars_in_buffer+30>:    mov    0x4(%esp,1),%ebx
+> 0xc02c97b2 <pty_chars_in_buffer+34>:    add    $0x8,%esp
+> 0xc02c97b5 <pty_chars_in_buffer+37>:    ret
+> 0xc02c97b6 <pty_chars_in_buffer+38>:    mov    %edx,(%esp,1)
+> 0xc02c97b9 <pty_chars_in_buffer+41>:    call   *0x28(%edx) **
 
-The hardware used was a Intel 440GX Chipset (PIIX southbridge, max 
-UDMA33), and a Sis 755 (SiS964 soutbridge, max UDMA133). The drive is an 
-EasyRAID R5A.
+Ahh, indeed. When I compiled this function, it kept 0x28(%edx) in a 
+register. Your config/compiler combination does not, so there actually is 
+a race condition if somebody changes the function pointer.
 
-http://www.easyraid.com/index.php?Products:easyRAID_R5A
+> this is another compiled kernel, but is compiled with the same .config
+> file and same gcc version...because I only have the bzImage, how do I
+> convert it to vmlinux?
 
->>I testes the RAID-subsystem with two different PC-systems. Always the
->>same result: 2.4 works, 2.6 does not. It's hard for me to reproduce the
->>Errors through. I'm still writing an application to reliably reproduce
->>them :-( Does anybody know a good stress-test perhaps? Sequential
->>reading doesn't seem to do the trick.
->>
->>What changes have been applied to the IDE subsystem from kernel 2.4 to
->>kernel 2.6? What may cause this different behaviour? What does
->>"status=0x51" mean? And why is "error=0x00" although the Error-Bit in
->>the status-byte has been set. (i guess this is what status=0x51 means).
->>
->>How can the behaviour of kernel 2.6 be reverted to the behaviour of
->>kernel 2.4? I already tried "hda=nowerr" in the append-line, but it
->>doesn't help either. Is it a Bug of kernel 2.6, or should i smash the
->>manufactures doors, to make them release a firmware-update of the
->>RAID-subsystem since it reports strange values to the OS?
-> 
-> Dunno, I don't have a magic ball... ;)
+Don't worry, it clearly shows that it's at least possible, and worth 
+looking at. 
 
-So i guess you will not know The R5A, and the Problems of Kernel 2.6 
-seems to be controller independant (Intel and SiS testen).
+For testing, a patch like this might get rid of the problem by hiding the
+race (but for all I know, gcc ends up re-loading it anyway) - you might 
+want to check the disassembly. 
+
+However, this patch is just for testing, to verify that your problem 
+really is that particular race. It's not a proper fix.
+
+I suspect that pty's should always lock each others line disciplines too, 
+not just their "own" side.
+
+		Linus
+
+----
+--- 1.32/drivers/char/pty.c	2005-01-10 17:29:36 -08:00
++++ edited/drivers/char/pty.c	2005-01-23 09:49:16 -08:00
+@@ -149,13 +149,15 @@
+ static int pty_chars_in_buffer(struct tty_struct *tty)
+ {
+ 	struct tty_struct *to = tty->link;
++	ssize_t (*chars_in_buffer)(struct tty_struct *);
+ 	int count;
+ 
+-	if (!to || !to->ldisc.chars_in_buffer)
++	/* We should get the line discipline lock for "tty->link" */
++	if (!to || !(chars_in_buffer = to->ldisc.chars_in_buffer))
+ 		return 0;
+ 
+ 	/* The ldisc must report 0 if no characters available to be read */
+-	count = to->ldisc.chars_in_buffer(to);
++	count = chars_in_buffer(to);
+ 
+ 	if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
+ 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265318AbSJRRwi>; Fri, 18 Oct 2002 13:52:38 -0400
+	id <S265285AbSJRRlJ>; Fri, 18 Oct 2002 13:41:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265321AbSJRRwh>; Fri, 18 Oct 2002 13:52:37 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:44938 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265318AbSJRR1I>; Fri, 18 Oct 2002 13:27:08 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 18 Oct 2002 10:41:28 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Kegel <dank@kegel.com>
-cc: Mark Mielke <mark@mark.mielke.cc>, John Myers <jgmyers@netscape.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <3DB044C6.1080908@kegel.com>
-Message-ID: <Pine.LNX.4.44.0210181027440.1537-100000@blue1.dev.mcafeelabs.com>
+	id <S265277AbSJRRjz>; Fri, 18 Oct 2002 13:39:55 -0400
+Received: from sentry.gw.tislabs.com ([192.94.214.100]:42464 "EHLO
+	sentry.gw.tislabs.com") by vger.kernel.org with ESMTP
+	id <S265238AbSJRRjA>; Fri, 18 Oct 2002 13:39:00 -0400
+Date: Fri, 18 Oct 2002 13:44:18 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+X-X-Sender: <sds@raven>
+To: Russell Coker <russell@coker.com.au>
+cc: <linux-kernel@vger.kernel.org>, <linux-security-module@wirex.com>
+Subject: Re: [PATCH] remove sys_security
+In-Reply-To: <200210181830.28354.russell@coker.com.au>
+Message-ID: <Pine.GSO.4.33.0210181333320.9847-100000@raven>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, Dan Kegel wrote:
 
-> I was afraid someone would be confused by the examples.  Davide loves
-> coroutines (check out http://www.xmailserver.org/linux-patches/nio-improve.html )
-> and I think his examples are written in that style.  He really means
-> what you think he should be meaning :-)
-> which is something like
->      while (1) {
->          grab next bunch of events from epoll
->          for each event
->              while (do_io(event->fd) != EAGAIN);
->      }
-> I'm pretty sure.
+On Fri, 18 Oct 2002, Russell Coker wrote:
 
-Yes, I like coroutines :) even if sometimes you have to be carefull with
-the stack usage ( at least if you do not want to waste all your memory ).
-Since there're N coroutines/stacks for N connections even 4Kb does mean
-something when N is about 100000. The other solution is a state machine,
-cheaper about memory, a little bit more complex about coding. Coroutines
-though helps a graceful migration from a thread based application to a
-multiplexed one. If you take a thread application and you code your
-connect()/accept()/recv()/send() like the ones coded in the example http
-server linked inside the epoll page, you can easily migrate a threaded app
-by simply adding a distribution loop like :
+> The only code that we really want to see in the mainline kernel is the hooks
+> for permission checks.  Personally I would not mind if no security module
+> ever gets included in Linus' source tree.
 
-for (;;) {
-	get_events();
-	for_each_fd
-		call_coroutines_associated_with_ready_fd();
-}
+I'd disagree.  I would like to see selinux included in the mainstream
+kernel someday, but I know that selinux needs quite a bit of work
+(Christoph says "rewrite") to make it acceptable.  It also doesn't make
+much sense to submit selinux until after the remainder of LSM has been
+submitted for possible merging and after some level of pruning
+and refinement of LSM has occurred.  I would also expect other security
+modules, e.g. DTE, to be submitted by their authors eventually.  If there
+aren't any in-tree users of LSM, then there is little motivation for the
+kernel developers to retain LSM.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
 
 
-
-- Davide
 
 

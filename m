@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267711AbTACWus>; Fri, 3 Jan 2003 17:50:48 -0500
+	id <S267709AbTACWug>; Fri, 3 Jan 2003 17:50:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267706AbTACWus>; Fri, 3 Jan 2003 17:50:48 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:2568 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S267711AbTACWuq>;
-	Fri, 3 Jan 2003 17:50:46 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Richard Stallman <rms@gnu.org>, efault@gmx.de, Hell.Surfers@cwctv.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-References: <E18UYTD-0004ye-00@fencepost.gnu.org>
-	<20030103212817.A11278@infradead.org>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 03 Jan 2003 23:59:13 +0100
-In-Reply-To: Christoph Hellwig's message of "Fri, 3 Jan 2003 21:28:17 +0000"
-Message-ID: <yw1x8yy1on5q.fsf@gladiusit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S267710AbTACWug>; Fri, 3 Jan 2003 17:50:36 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:59528 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267709AbTACWue>; Fri, 3 Jan 2003 17:50:34 -0500
+Date: Fri, 3 Jan 2003 20:58:50 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [STUPID] Best looking code to transfer to a t-shirt
+In-Reply-To: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.50L.0301032057380.2429-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Fri, 3 Jan 2003, Maciej Soltysiak wrote:
 
-> Calling it GNU/Linux is 1984-style changing of history, though.
+> I am in a t-shirt transfering frenzy and was wondering which part of the
+> kernel code it would be best to have on my t-shirt.
 
-Yeah, the GNU project was started in 1984.
+> How about we have a poll of the most frightening pieces of the kernel ?
 
+How about drivers/net/sunhme.c ?
+
+It's not scary, but it is absolutely hilarious, even to
+people who don't even know C.
+
+static void happy_meal_tcvr_write(struct happy_meal *hp,
+                                  unsigned long tregs, int reg,
+                                  unsigned short value)
+{
+        int tries = TCVR_WRITE_TRIES;
+
+        ASD(("happy_meal_tcvr_write: reg=0x%02x value=%04x\n", reg,
+value));
+
+        /* Welcome to Sun Microsystems, can I take your order please? */
+        if (!hp->happy_flags & HFLAG_FENABLE)
+                return happy_meal_bb_write(hp, tregs, reg, value);
+
+        /* Would you like fries with that? */
+        hme_write32(hp, tregs + TCVR_FRAME,
+                    (FRAME_WRITE | (hp->paddr << 23) |
+                     ((reg & 0xff) << 18) | (value & 0xffff)));
+        while (!(hme_read32(hp, tregs + TCVR_FRAME) & 0x10000) && --tries)
+                udelay(20);
+
+        /* Anything else? */
+        if (!tries)
+                printk(KERN_ERR "happy meal: Aieee, transceiver MIF write
+bolixed\n");
+
+        /* Fifty-two cents is your change, have a nice day. */
+}
+
+
+Rik
 -- 
-Måns Rullgård
-mru@users.sf.net
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,61 +1,247 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314433AbSFTNbg>; Thu, 20 Jun 2002 09:31:36 -0400
+	id <S314444AbSFTNgQ>; Thu, 20 Jun 2002 09:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314444AbSFTNbg>; Thu, 20 Jun 2002 09:31:36 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:5938 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S314433AbSFTNbf>; Thu, 20 Jun 2002 09:31:35 -0400
-Date: Thu, 20 Jun 2002 15:32:49 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre10aa3
-Message-ID: <20020620133249.GG10718@dualathlon.random>
-References: <20020620055933.GA1308@dualathlon.random> <20020620130511.GA8426@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020620130511.GA8426@werewolf.able.es>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S314446AbSFTNgP>; Thu, 20 Jun 2002 09:36:15 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:43175 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S314444AbSFTNgN>;
+	Thu, 20 Jun 2002 09:36:13 -0400
+Date: Thu, 20 Jun 2002 15:34:05 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Manik Raina <manik@cisco.com>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: [patch] scheduler bits from 2.5.23-dj1
+In-Reply-To: <3D1183AF.BCEE2BDF@cisco.com>
+Message-ID: <Pine.LNX.4.44.0206201519380.2536-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 03:05:11PM +0200, J.A. Magallon wrote:
-> 
-> On 2002.06.20 Andrea Arcangeli wrote:
-> >
-> >Only in 2.4.19pre10aa3: 07_e100-1.8.38.gz
-> >Only in 2.4.19pre10aa3: 08_e100-includes-1
-> >Only in 2.4.19pre10aa3: 09_e100-compilehack-1
-> >
-> >	Merged e100 GPL driver from Intel (also make it link
-> >	into the kernel).
-> >
-> 
-> ???
-> 
-> Current driver is 2.0.30...
-> And would not have been easier to get it from 2.5 ? You just have
-> good Makefiles, instead of hacking those from Intel, that I suppose
-> are prepared for building separate from kernel tree.
 
-I was using this version in an environment and I preferred not to change
-this variable because I wouldn't had time to notice if it broke, but of
-course I should upgrade soon, thanks for the reminder :). For your tree
-you can backout these three patches and apply a more recent version of
-course.
+On Thu, 20 Jun 2002, Manik Raina wrote:
 
-> Or just take it from jam2...I have been using both e100 and e1000
-> in the same cluster and no problem with them.
-> 
-> Btw, would you mind mergin also e1000...? ;).
+> 	A small doubt, 
+> 	Should'nt this function below return something ? 
+> 	set_task_cpu() should return unsigned int but it
+> 	seems to do nothing ....
 
-I didn't need it in any environment, and I usually try to avoid any
-driver update in -aa except in case I can test it somehow. However if
-there's significant request for this I can as well add it (in particular
-because it's unlikely to raise maintainance problems).
+now i understand. We shouldnt return anything, it should be a 'void', like
+Mikael Pettersson suggests. New scheduler patch attached, with this fixed,
+against 2.5.23.
 
-Andrea
+	Ingo
+
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	Thu Jun 20 15:32:36 2002
++++ b/include/linux/sched.h	Thu Jun 20 15:32:36 2002
+@@ -863,6 +863,34 @@
+ 		clear_thread_flag(TIF_SIGPENDING);
+ }
+ 
++/*
++ * Wrappers for p->thread_info->cpu access. No-op on UP.
++ */
++#ifdef CONFIG_SMP
++
++static inline unsigned int task_cpu(struct task_struct *p)
++{
++	return p->thread_info->cpu;
++}
++
++static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
++{
++	p->thread_info->cpu = cpu;
++}
++
++#else
++
++static inline unsigned int task_cpu(struct task_struct *p)
++{
++	return 0;
++}
++
++static inline void set_task_cpu(struct task_struct *p, unsigned int cpu)
++{
++}
++
++#endif /* CONFIG_SMP */
++
+ #endif /* __KERNEL__ */
+ 
+ #endif
+diff -Nru a/include/linux/smp.h b/include/linux/smp.h
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Thu Jun 20 15:32:36 2002
++++ b/kernel/sched.c	Thu Jun 20 15:32:36 2002
+@@ -148,7 +148,7 @@
+ 
+ #define cpu_rq(cpu)		(runqueues + (cpu))
+ #define this_rq()		cpu_rq(smp_processor_id())
+-#define task_rq(p)		cpu_rq((p)->thread_info->cpu)
++#define task_rq(p)		cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+ 
+@@ -284,8 +284,8 @@
+ 	need_resched = test_and_set_tsk_thread_flag(p,TIF_NEED_RESCHED);
+ 	nrpolling |= test_tsk_thread_flag(p,TIF_POLLING_NRFLAG);
+ 
+-	if (!need_resched && !nrpolling && (p->thread_info->cpu != smp_processor_id()))
+-		smp_send_reschedule(p->thread_info->cpu);
++	if (!need_resched && !nrpolling && (task_cpu(p) != smp_processor_id()))
++		smp_send_reschedule(task_cpu(p));
+ 	preempt_enable();
+ #else
+ 	set_tsk_need_resched(p);
+@@ -366,10 +366,10 @@
+ 		 * currently. Do not violate hard affinity.
+ 		 */
+ 		if (unlikely(sync && (rq->curr != p) &&
+-			(p->thread_info->cpu != smp_processor_id()) &&
++			(task_cpu(p) != smp_processor_id()) &&
+ 			(p->cpus_allowed & (1UL << smp_processor_id())))) {
+ 
+-			p->thread_info->cpu = smp_processor_id();
++			set_task_cpu(p, smp_processor_id());
+ 			task_rq_unlock(rq, &flags);
+ 			goto repeat_lock_task;
+ 		}
+@@ -409,7 +409,7 @@
+ 		p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
+ 		p->prio = effective_prio(p);
+ 	}
+-	p->thread_info->cpu = smp_processor_id();
++	set_task_cpu(p, smp_processor_id());
+ 	activate_task(p, rq);
+ 
+ 	rq_unlock(rq);
+@@ -663,7 +663,7 @@
+ 	 */
+ 	dequeue_task(next, array);
+ 	busiest->nr_running--;
+-	next->thread_info->cpu = this_cpu;
++	set_task_cpu(next, this_cpu);
+ 	this_rq->nr_running++;
+ 	enqueue_task(next, this_rq->active);
+ 	if (next->prio < current->prio)
+@@ -821,7 +821,7 @@
+ 	spin_lock_irq(&rq->lock);
+ 
+ 	/*
+-	 * if entering off a kernel preemption go straight
++	 * if entering off of a kernel preemption go straight
+ 	 * to picking the next task.
+ 	 */
+ 	if (unlikely(preempt_get_count() & PREEMPT_ACTIVE))
+@@ -906,7 +906,7 @@
+ 	schedule();
+ 	ti->preempt_count = 0;
+ 
+-	/* we can miss a preemption opportunity between schedule and now */
++	/* we could miss a preemption opportunity between schedule and now */
+ 	barrier();
+ 	if (unlikely(test_thread_flag(TIF_NEED_RESCHED)))
+ 		goto need_resched;
+@@ -1630,7 +1630,7 @@
+ 
+ void __init init_idle(task_t *idle, int cpu)
+ {
+-	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(idle->thread_info->cpu);
++	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(task_cpu(idle));
+ 	unsigned long flags;
+ 
+ 	__save_flags(flags);
+@@ -1642,7 +1642,7 @@
+ 	idle->array = NULL;
+ 	idle->prio = MAX_PRIO;
+ 	idle->state = TASK_RUNNING;
+-	idle->thread_info->cpu = cpu;
++	set_task_cpu(idle, cpu);
+ 	double_rq_unlock(idle_rq, rq);
+ 	set_tsk_need_resched(idle);
+ 	__restore_flags(flags);
+@@ -1751,7 +1751,7 @@
+ 	 * Can the task run on the task's current CPU? If not then
+ 	 * migrate the process off to a proper CPU.
+ 	 */
+-	if (new_mask & (1UL << p->thread_info->cpu)) {
++	if (new_mask & (1UL << task_cpu(p))) {
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+@@ -1760,7 +1760,7 @@
+ 	 * it is sufficient to simply update the task's cpu field.
+ 	 */
+ 	if (!p->array && (p != rq->curr)) {
+-		p->thread_info->cpu = __ffs(p->cpus_allowed);
++		set_task_cpu(p, __ffs(p->cpus_allowed));
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+ 	}
+@@ -1775,6 +1775,8 @@
+ 	preempt_enable();
+ }
+ 
++static __initdata int master_migration_thread;
++
+ static int migration_thread(void * bind_cpu)
+ {
+ 	int cpu = (int) (long) bind_cpu;
+@@ -1786,14 +1788,12 @@
+ 	sigfillset(&current->blocked);
+ 	set_fs(KERNEL_DS);
+ 
+-	/* FIXME: First CPU may not be zero, but this crap code
+-           vanishes with hotplug cpu patch anyway. --RR */
+ 	/*
+-	 * The first migration thread is started on CPU #0. This one can
+-	 * migrate the other migration threads to their destination CPUs.
++	 * The first migration thread is started on the boot CPU, it
++	 * migrates the other migration threads to their destination CPUs.
+ 	 */
+-	if (cpu != 0) {
+-		while (!cpu_rq(0)->migration_thread)
++	if (cpu != master_migration_thread) {
++		while (!cpu_rq(master_migration_thread)->migration_thread)
+ 			yield();
+ 		set_cpus_allowed(current, 1UL << cpu);
+ 	}
+@@ -1829,18 +1829,18 @@
+ 		cpu_dest = __ffs(p->cpus_allowed);
+ 		rq_dest = cpu_rq(cpu_dest);
+ repeat:
+-		cpu_src = p->thread_info->cpu;
++		cpu_src = task_cpu(p);
+ 		rq_src = cpu_rq(cpu_src);
+ 
+ 		local_irq_save(flags);
+ 		double_rq_lock(rq_src, rq_dest);
+-		if (p->thread_info->cpu != cpu_src) {
++		if (task_cpu(p) != cpu_src) {
+ 			double_rq_unlock(rq_src, rq_dest);
+ 			local_irq_restore(flags);
+ 			goto repeat;
+ 		}
+ 		if (rq_src == rq) {
+-			p->thread_info->cpu = cpu_dest;
++			set_task_cpu(p, cpu_dest);
+ 			if (p->array) {
+ 				deactivate_task(p, rq_src);
+ 				activate_task(p, rq_dest);
+@@ -1857,7 +1857,9 @@
+ {
+ 	int cpu;
+ 
+-	current->cpus_allowed = 1UL << 0;
++	master_migration_thread = smp_processor_id();
++	current->cpus_allowed = 1UL << master_migration_thread;
++	
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		if (!cpu_online(cpu))
+ 			continue;
+

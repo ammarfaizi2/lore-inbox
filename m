@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbSI2TvB>; Sun, 29 Sep 2002 15:51:01 -0400
+	id <S261778AbSI2Tz3>; Sun, 29 Sep 2002 15:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261762AbSI2TvA>; Sun, 29 Sep 2002 15:51:00 -0400
-Received: from spog.gaertner.de ([194.45.135.2]:39315 "EHLO spog.gaertner.de")
-	by vger.kernel.org with ESMTP id <S261696AbSI2TuW>;
-	Sun, 29 Sep 2002 15:50:22 -0400
-Date: Sun, 29 Sep 2002 21:55:42 +0200 (MEST)
-Message-Id: <200209291955.g8TJtgp24880@aunt2.gaertner.de>
-From: Erik Schoenfelder <schoenfr@gaertner.de>
-To: linux-kernel@vger.kernel.org
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [2.4.19] small bug plus fix for /proc/net/snmp (Imcp: field count)
-Reply-to: schoenfr@gaertner.de
+	id <S261777AbSI2Tz2>; Sun, 29 Sep 2002 15:55:28 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:56542 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261776AbSI2Tz0>;
+	Sun, 29 Sep 2002 15:55:26 -0400
+Date: Sun, 29 Sep 2002 22:00:49 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: qsbench, interesting results
+Message-ID: <20020929200049.GA6460@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200209291615.24158.l.allegrucci@tiscalinet.it> <20020929162627.GA1270@outpost.ds9a.nl> <200209292156.35518.l.allegrucci@tiscalinet.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209292156.35518.l.allegrucci@tiscalinet.it>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Sep 29, 2002 at 09:56:35PM +0200, Lorenzo Allegrucci wrote:
 
-i received a bug report plus fix from Gonzalo A. Arana Tagle
-<garana@uolsinectis.com.ar> about a extra dummy value printed for the
-``Icmp:'' values in /proc/net/snmp:
+> >Furthermore, can you check how much
+> > lowmem is actually available according to the dmesg output? It may be that
+> > your graphics adaptor is using ram in one kernel but not in another.
+> 
+> The memory available is about the same in all tests, and all
+> tests have been run in single user mode.
 
-       # awk '/Icmp/ { print NF; }' /proc/net/snmp 
-       27
-       28
+Can you then provide people with 'vmstat 1' output while your program runs?
 
-the code in snmp_get_info() from net/ipv4/proc.c prints a dummy value
-present at the end of struct icmp_mib, which should not be included.
+Regards,
 
-from include/net/snmp.h:
+bert
 
->  struct icmp_mib
->  {
->   	unsigned long	IcmpInMsgs;
->  [...]
->   	unsigned long	IcmpOutAddrMaskReps;
->  	unsigned long	dummy;
->  	unsigned long   __pad[0]; 
->  } ____cacheline_aligned;
-
-
-instead of printing all values before the __pad field, printing the
-values before the dummy field gives the right number of values:
-
-
---- linux-2.4.19/net/ipv4/proc.c-dist	Wed May 16 19:21:45 2001
-+++ linux-2.4.19/net/ipv4/proc.c	Sat Sep 28 22:03:05 2002
-@@ -128,7 +128,7 @@
- 	len += sprintf (buffer + len,
- 		"\nIcmp: InMsgs InErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps\n"
- 		  "Icmp:");
--	for (i=0; i<offsetof(struct icmp_mib, __pad)/sizeof(unsigned long); i++)
-+	for (i=0; i<offsetof(struct icmp_mib, dummy)/sizeof(unsigned long); i++)
- 		len += sprintf(buffer+len, " %lu", fold_field((unsigned long*)icmp_statistics, sizeof(struct icmp_mib), i));
- 
- 	len += sprintf (buffer + len,
-
-
-please fix this.  thank's in advance,
-							Erik
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318920AbSHSOTh>; Mon, 19 Aug 2002 10:19:37 -0400
+	id <S318892AbSHSO1o>; Mon, 19 Aug 2002 10:27:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318921AbSHSOTh>; Mon, 19 Aug 2002 10:19:37 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:13514 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318920AbSHSOTg> convert rfc822-to-8bit; Mon, 19 Aug 2002 10:19:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Marco Colombo <marco@esi.it>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Date: Mon, 19 Aug 2002 16:22:39 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0208191248130.26653-100000@Megathlon.ESI>
-In-Reply-To: <Pine.LNX.4.44.0208191248130.26653-100000@Megathlon.ESI>
+	id <S318893AbSHSO1o>; Mon, 19 Aug 2002 10:27:44 -0400
+Received: from smtp03.web.de ([217.72.192.158]:20773 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S318892AbSHSO1n> convert rfc822-to-8bit;
+	Mon, 19 Aug 2002 10:27:43 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel panic while cd writing
+References: <20020817203010.GA251@poczta.gazeta.pl>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <plail@web.de>
+Date: Mon, 19 Aug 2002 16:30:09 +0200
+Message-ID: <873ctaudji.fsf@plailis.homelinux.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208191622.39957.oliver@neukum.name>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Justyna!
 
-> > 1. You create a problem for in kernel users of random numbers.
-> > 2. You forgo the benefit of randomness by concurrent access to
-> > /dev/urandom 3. You will not benefit from hardware random number
-> > generators as easily.
->
-> You lost me. The kernel of course has "client" access to the internal
-> pool. And since the userspace reads from /dev/random, it benefits
+* Justyna Bia³a writes:
+>Hi.
 
-The kernel users of random numbers may be unable to block.
-Thus the kernel has to have a PRNG anyway.
-You may as well export it.
+>I have LiteOn 40x12x48x cd-writer, linux 2.4.19, cdrecord 1.11a24,
+>Duron 1000 MHz, ECS K7S5A with SIS735 chipset. My cd-writer works fine
+>only in two cases: 
 
-> from HRNG just the same way it does now. Point 2 is somewhat obscure
-> to me. The kernel has only one observer to deal with, in theory.
+I also have a ECS K7S5A, but I have an acer 2010A cd-writer.
 
-In theory. In practice what goes out through eg. the network is
-most important. Additional accesses to a PRNG bitstream unknown
-outside make it harder to predict the bitstream.
+>1. when the speed is not higher than 12x (no matter if the dma is on)
+>2. with speed = 32x but only when I turn the dma off with hdparm
 
-	Regards
-		Oliver
+My problem was, that the system load was almost unbearable at higher
+speeds, but only when I was burning DAO. Do you burn DAO? Is your
+system load (top) also very high?
+Now I just upgraded to 2.4.20-pre3 and everything is just fine :-) I am
+not really sure if it was only the kernel, because I still have the
+same problem when I tell the kernel to umask the drive's IRQ (hdparm -u1).
+I am not 100% sure if I tried it without umask before.
+But without umask, everything seems to work fine now. There's just a
+few percent CPU load when doing c2scan or writing DAO.
+The only thing is that if I do a c2scan under X, X consumes all my CPU
+time after some time and gets unresponsive. Doing the same in the
+console there's no problem at all. So I am pretty sure this is a X
+problem and not the kernel's.
+
+regards
+Markus
 

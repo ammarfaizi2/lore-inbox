@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264965AbUGZKzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265027AbUGZK7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264965AbUGZKzM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 06:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbUGZKzM
+	id S265027AbUGZK7t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 06:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUGZK7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 06:55:12 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:18839 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264965AbUGZKzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 06:55:07 -0400
-Message-ID: <4104E307.1070004@yahoo.com.au>
-Date: Mon, 26 Jul 2004 20:55:03 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
+	Mon, 26 Jul 2004 06:59:49 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22238 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265027AbUGZK7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 06:59:46 -0400
+Message-ID: <4104E421.8080700@suse.de>
+Date: Mon, 26 Jul 2004 12:59:45 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOM-killer going crazy. (was: Re: memory not released after using
- cdrecord/cdrdao)
-References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no>
-In-Reply-To: <20040726091004.GA32403@ii.uib.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit number of concurrent hotplug processes
+References: <40FD23A8.6090409@suse.de> <20040725182006.6c6a36df.akpm@osdl.org>
+In-Reply-To: <20040725182006.6c6a36df.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Frode Myklebust wrote:
-> On Sun, Jul 25, 2004 at 09:30:38PM -0400, Ed Sweetman wrote:
+Andrew Morton wrote:
+> Hannes Reinecke <hare@suse.de> wrote:
 > 
->>Indeed, i burned a smaller cd and got very similar results.  
+>>the attached patch limits the number of concurrent hotplug processes.
+>> Main idea behind it is that currently each call to call_usermodehelper 
+>> will result in an execve() of "/sbin/hotplug", without any check whether 
+>> enough resources are available for successful execution. This leads to 
+>> hotplug being stuck and in worst cases to machines being unable to boot.
+>>
+>> This check cannot be implemented in userspace as the resources are 
+>> already taken by the time any resource check can be done; for the same 
+>> reason any 'slim' programs as /sbin/hotplug will only delay the problem.
 > 
 > 
-> Same here.. After upgrading to 2.6.8-rc2 the OOM-killer is going crazy.
-> It's particularly angry at the backup client 'dsmc' (from Tivoli Storage
-> Manager).  I'm monitoring its usage with 'top', and 'dsmc' is not using
-> more than ~150MB in either size or RSS when the OOM-killer takes it down.
+> hm, it's a bit sad that this happens.  Are you able to tell us more about
+> what is causing such an explosion of module probes?
 > 
-> The 'dsmc'-process is reporting that it's processed 2,719,000 files, and
-> transfered 164.34 MB when it gets killed. i.e. it's traversed a lot of
-> files, but only read about 164 MB data, so it shouldn't have filled up any
-> buffer cache... 
-> 
-> The system still has lots of free memory (~900 MB), and also 2 GB of
-> unused swap. Actually there's 0K used swap..??  
-> 
-> I've tried turning on vm.overcommit_memory, but it had no effect. Also
-> tried changing the swappiness both up to 90% and down to 10%, but it
-> never uses any swap.. ???
-> 
-> BTW: I had no OOM-killer problems on 2.6.7.
-> 
+As Christian Borntraeger already said, it's not so much an explosion of 
+module probes but rather the triggering of quite a lot of events. 
+Imagine loading scsi_debug with 512 devices or more ...
 
-Can you just check you CONFIG_SWAP is on and /proc/sys/vm/laptop_mode is 0,
-and that you have some swap enabled.
+> 
+>> Any comments/suggestions welcome; otherwise please apply.
+> 
+> 
+> I suggest you just use a semaphore, initialised to a suitable value:
+> 
+> 
+> static struct semaphore foo = __SEMAPHORE_INITIALIZER(foo, 50);
+> 
+> 
+> {
+> 	...
+> 	down(&foo);
+> 	...
+> 	up(&foo);
+> 	...
+> }
+> 
+Hmm; looks good, but: It's not possible to reliably change the maximum 
+number of processes on the fly.
 
-If the problem persists, can you send a copy each of /proc/sys/fs/dentry-state,
-/proc/slabinfo and /proc/vmstat before and after you run dsmc until it goes
-OOM please?
+The trivial way of course it when the waitqueue is empty and no 
+processes are holding the semaphore. But it's quite non-obvious how this 
+should work if processes are already holding the semaphore.
+We would need to wait for those processes to finish, setting the length 
+of the queue to 0 (to disallow any other process from grabbing the 
+semaphore), and atomically set the queue length to the new value.
+Apart from the fact that we would need a worker thread for that 
+(otherwise the calling process might block indefinitely), there is no 
+guarantee that the queue ever will become empty, as hotplug processes 
+might be generated at any time.
 
-Thanks.
+Or is there an easier way?
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284924AbRL3U3X>; Sun, 30 Dec 2001 15:29:23 -0500
+	id <S284850AbRL3UZX>; Sun, 30 Dec 2001 15:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284927AbRL3U3N>; Sun, 30 Dec 2001 15:29:13 -0500
-Received: from ns.suse.de ([213.95.15.193]:62475 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284899AbRL3U3E>;
-	Sun, 30 Dec 2001 15:29:04 -0500
-Date: Sun, 30 Dec 2001 21:29:01 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Bogus devfs ChangeLog change in 2.5.2-pre4
-In-Reply-To: <200112302014.fBUKEJM29085@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0112302126010.7853-100000@Appserv.suse.de>
+	id <S284765AbRL3UZN>; Sun, 30 Dec 2001 15:25:13 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:21516 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284913AbRL3UZD>; Sun, 30 Dec 2001 15:25:03 -0500
+Date: Sun, 30 Dec 2001 12:28:51 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: scheduler params ...
+Message-ID: <Pine.LNX.4.40.0112301217280.935-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Dec 2001, Richard Gooch wrote:
 
->   Hi, Linus. Someone sneaked the appended patch into 2.5.2-pre4, which
-> is not necessary and obviously wrong (the ChangeLog was correct
-> previously). Please revert.
->
-> Looks like the result of an automated global search-and-replace
-> (i.e. lazy cleanup). Pity a sanity a last-minute sanity check wasn't
-> performed by the guilty party.
+Linus, after some test i'd suggest to reposition MM_AFFINITY_BONUS to 1
+for a better interactive feeling.
+The other issue is TICK_SCALE()/NICE_TO_TICKS() that does not permit fine
+tuned time slices. I'd like to try shorter ts but the current shifting
+implementation does not give enough control over final values. What about
+having a table :
 
-dwmw2's handywork from my tree.
-I read this diff a half dozen times, and given Linus' scrutiny over the
-other bits I've shoved him today, I guess he overlooked it too..
-Typically, I spotted it whilst merging pre4 with my tree.. Weirdness.
+unsigned char ts_table[];
 
-Dave.
+that is filled in sched_init() and is used like :
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+p->time_slice = ts_table[20 - p->nice];
+
+The TICK_SCALE()/NICE_TO_TICKS() is no more critical because is now called
+with a nr_running frequency and no more with a total processes frequency.
+
+
+
+
+- Davide
+
 

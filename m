@@ -1,171 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131526AbQK3FMw>; Thu, 30 Nov 2000 00:12:52 -0500
+        id <S131531AbQK3FUf>; Thu, 30 Nov 2000 00:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131531AbQK3FMn>; Thu, 30 Nov 2000 00:12:43 -0500
-Received: from [63.118.43.131] ([63.118.43.131]:17427 "EHLO
-        receive.turbosport.com") by vger.kernel.org with ESMTP
-        id <S131526AbQK3FM2>; Thu, 30 Nov 2000 00:12:28 -0500
-Message-ID: <002a01c05a87$55b84b80$19211518@vnnys1.ca.home.com>
-From: "Android" <android@turbosport.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Questions about Kernel 2.4.0.*
-Date: Wed, 29 Nov 2000 20:38:02 -0800
+        id <S131774AbQK3FUZ>; Thu, 30 Nov 2000 00:20:25 -0500
+Received: from [209.217.160.149] ([209.217.160.149]:11302 "EHLO darion.dhs.org")
+        by vger.kernel.org with ESMTP id <S131531AbQK3FUL>;
+        Thu, 30 Nov 2000 00:20:11 -0500
+Date: Wed, 29 Nov 2000 22:49:29 -0600 (CST)
+From: Dmitri Matrosov <m3d@mail.utexas.edu>
+To: linux-kernel@vger.kernel.org
+Subject: submitting ksymoops
+Message-ID: <Pine.LNX.4.21.0011292238140.551-200000@darion.dhs.org>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0027_01C05A44.449BA1A0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-MDRemoteIP: 63.118.43.130
-X-Return-Path: android@turbosport.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-380631080-975559769=:551"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-------=_NextPart_000_0027_01C05A44.449BA1A0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+--8323328-380631080-975559769=:551
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-1) There is a link in /lib/modules/2.4.0.11: =
-build->/usr/src/linuxcreated by the Makefile (make modules_install). =
-What for?
+hi all, im new to the list
 
-2)  (Answered)
+maybe someone might search thru this "stuff", im not gonna, so i just
+leave it here...
 
-3)  (Answered)
+i got these modprobing module bttv on linux2.4.0-test11, when loading it
+at startup machine hangs oopsing in endless loop.
 
-4) Some of the device special files are missing when using devfs.
-devfsd is running (loaded at the beginning of rc.S by init).
-There was no /dev/lp0 on my system, even though module lp was loaded.
-After creating this file explicitly with mknod, the printer worked.
+#endif
 
-5) This problem is probably the fault of X11 - it doesn't repaint the =
-screen properly
-after coming out of console mode. I have to switch back and forth =
-several times
-before I get a proper repaint. May be related to using framebuffer with =
-X.
-X crashes and locks completely when using sound. Anyone know why?
+--8323328-380631080-975559769=:551
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=ksymoops
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0011292249290.551@darion.dhs.org>
+Content-Description: 
+Content-Disposition: attachment; filename=ksymoops
 
-6) When going through the bash command history (using the arrow keys)
-while in framebuffer mode, there will be a pause for about 3 seconds - =
-during this time,
-the system is totally frozen until this pause has expired. Any ideas on =
-this?
-I know this is a problem with bash - this problem doesn't occur when =
-using tcsh.
-
-7) How does one disable the display of the penguin logo when booting in =
-framebuffer
-mode so that all video lines are available for text? I know this can be =
-removed with setfont
-and possible fbset, but I would prefer the video display be "normal" =
-from the start. Thanks.
-
-                                     -- Ted
-
-
-
-******
-Free web-based/POP3 mail from turbosport.com, turbomail.tv, mailplanet.net, and webmailcity.com
-******
-To report SPAM mail please send an e-mail to spam@turbosport.com.
-
-------=_NextPart_000_0027_01C05A44.449BA1A0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 5.50.4134.100" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>
-<DIV><FONT face=3DArial size=3D2>1) There is a link in =
-/lib/modules/2.4.0.11:=20
-build-&gt;/usr/src/linux</FONT><FONT face=3DArial size=3D2>created by =
-the Makefile=20
-(make modules_install). What for?</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>2)&nbsp; (Answered)</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>3)&nbsp; (Answered)</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>4) Some of the device special files are =
-missing=20
-when using devfs.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>devfsd is running (loaded at the =
-beginning of rc.S=20
-by init).</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>There was no /dev/lp0 on my system, =
-even though=20
-module lp was loaded.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>After creating this file explicitly =
-with mknod, the=20
-printer worked.</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>5) This problem is probably the fault =
-of X11 - it=20
-doesn't repaint the screen properly</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>after coming out of console mode. I =
-have to switch=20
-back and forth several times</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>before I get a proper repaint. May be =
-related to=20
-using framebuffer with X.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>X crashes and locks completely when =
-using sound.=20
-Anyone know why?</FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>6) When going through the bash command =
-history=20
-(using the arrow keys)</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>while in framebuffer mode, there will =
-be a pause=20
-for about 3 seconds - during this time,</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>the system is totally frozen until this =
-pause has=20
-expired. Any ideas on this?</FONT></DIV>
-<DIV>I know this is a problem with bash - this problem doesn't occur =
-when using=20
-tcsh.</DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>7) How does one disable the display of =
-the penguin=20
-logo when booting in framebuffer</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>mode so that all video lines are =
-available for=20
-text? I know this can be removed with setfont</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>and possible fbset, but I would prefer =
-the video=20
-display be "normal" from the start. Thanks.</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial=20
-size=3D2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;=20
--- Ted</FONT></DIV>
-<DIV>&nbsp;</DIV></FONT></DIV>
-<BR>
-******<BR>
-Free web-based/POP3 mail from turbosport.com, turbomail.tv, mailplanet.net, and webmailcity.com<BR>
-******<BR>
-To report SPAM mail please send an e-mail to spam@turbosport.com.<BR>
-</BODY></HTML>
-
-------=_NextPart_000_0027_01C05A44.449BA1A0--
-
-
+a3N5bW9vcHMgMi4zLjUgb24gaTY4NiAyLjQuMC10ZXN0MTEuICBPcHRpb25z
+IHVzZWQNCiAgICAgLXYgL3Vzci9zcmMvbGludXgvdm1saW51eCAoc3BlY2lm
+aWVkKQ0KICAgICAtayAvcHJvYy9rc3ltcyAoZGVmYXVsdCkNCiAgICAgLWwg
+L3Byb2MvbW9kdWxlcyAoZGVmYXVsdCkNCiAgICAgLW8gL2xpYi9tb2R1bGVz
+LzIuNC4wLXRlc3QxMS8gKGRlZmF1bHQpDQogICAgIC1tIC91c3Ivc3JjL2xp
+bnV4L1N5c3RlbS5tYXAgKGRlZmF1bHQpDQoNClVuYWJsZSB0byBoYW5kbGUg
+a2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZSBhdCB2aXJ0dWFsIGFk
+ZHJlc3MgMDAwMDAwMDMNCmM0ODJiMDU0DQoqcGRlID0gMDAwMDAwMDANCk9v
+cHM6IDAwMDINCkNQVTogICAgMA0KRUlQOiAgICAwMDEwOls8YzQ4MmIwNTQ+
+XQ0KVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2
+IC1hIGkzODYNCkVGTEFHUzogMDAwMTAyMDINCmVheDogMDAwMDAwMDMgICBl
+Yng6IGM0ODNlODIwICAgZWN4OiAwMDAwMDAwMiAgIGVkeDogMDAwMTAwMDAN
+CmVzaTogYzQ4M2U5ODAgICBlZGk6IGM0ODNlOTgwICAgZWJwOiBjNDgzZWE2
+OCAgIGVzcDogYzMzMmZlNjQNCmRzOiAwMDE4ICAgZXM6IDAwMTggICBzczog
+MDAxOA0KUHJvY2VzcyBtb2Rwcm9iZSAocGlkOiAyMTQsIHN0YWNrcGFnZT1j
+MzMyZjAwMCkNClN0YWNrOiBjNDgzMDE5YyBjNDgzZTk4MCBjNDgzZTgyMCBj
+NDgzZTk4MCBjNDgzZTk4NiBjNDgzZWE2OCBjNDgzMjJlYSBjNDgzZTk4MCAN
+CiAgICAgICBjNDgzZTgyMCAwMDAwMDAwMSBjNDgzZTgyMCAwMDAwMDAwMSBj
+NDgzZTk4NSBjNDgzYWM2NSAwMDAwMDAwMCAwMDAwMDI5NiANCiAgICAgICBj
+NDgzZTgyMCBjNDg1MzAwMCBjNDgzZmJjYyBjNDgzZTk4MCBjNDgzZTk4NSBj
+NDgzODQwZCBjNDgzZTgyMCAwMDAwMDAwMCANCkNhbGwgVHJhY2U6IFs8YzQ4
+MzAxOWM+XSBbPGM0ODNlOTgwPl0gWzxjNDgzZTgyMD5dIFs8YzQ4M2U5ODA+
+XSBbPGM0ODNlOTg2Pl0gWzxjNDgzZWE2OD5dIFs8YzQ4MzIyZWE+XSANCiAg
+ICAgICBbPGM0ODNlOTgwPl0gWzxjNDgzZTgyMD5dIFs8YzQ4M2U4MjA+XSBb
+PGM0ODNlOTg1Pl0gWzxjNDgzYWM2NT5dIFs8YzQ4M2U4MjA+XSBbPGM0ODUz
+MDAwPl0gWzxjNDgzZmJjYz5dIA0KICAgICAgIFs8YzQ4M2U5ODA+XSBbPGM0
+ODNlOTg1Pl0gWzxjNDgzODQwZD5dIFs8YzQ4M2U4MjA+XSBbPGM0ODNlODIw
+Pl0gWzxjNDg0MTExOD5dIFs8YzQ4MzkwNTE+XSBbPGM0ODNlODIwPl0gDQog
+ICAgICAgWzxjNDgzY2Q0MD5dIFs8YzQ4M2NkNDA+XSBbPGMwMWEwMjE1Pl0g
+WzxjNDgzY2NhOD5dIFs8YzAxYTAyNmM+XSBbPGM0ODNjZDQwPl0gWzxjNDgz
+MjAwMD5dIFs8YzQ4MzkwYjA+XSANCiAgICAgICBbPGM0ODM5MTM5Pl0gWzxj
+NDgzY2Q0MD5dIFs8YzAxMTc4NWM+XSBbPGM0ODMyMDAwPl0gWzxjNDgyOTAw
+MD5dIFs8YzQ4MjkwMDA+XSBbPGM0ODNmYmEwPl0gWzxjNDgyZjAwMD5dIA0K
+ICAgICAgIFs8YzQ4MzIwNjA+XSBbPGMwMTBhMzdiPl0gWzxjNDgzMjAwMD5d
+IFs8YzAxMDAwMmI+XSANCkNvZGU6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
+IDAwIDAwIDAwIDAwIDhiIDdjIDI0IDIwIGZmIDA5IDBmIDg4IA0KDQo+PkVJ
+UDsgYzQ4MmIwNTQgPFtpMmMtY29yZV1pMmNfYWRkX2FkYXB0ZXIrMC8wPiAg
+IDw9PT09PQ0KVHJhY2U7IGM0ODMwMTljIDxbaTJjLWFsZ28tYml0XWkyY19i
+aXRfYWRkX2J1cytmMC9mYz4NClRyYWNlOyBjNDgzZTk4MCA8W2J0dHZdX19t
+b2R1bGVfcGFybV9kZXNjX2J0dHZfdmVyYm9zZSs0MC80ND4NClRyYWNlOyBj
+NDgzZTgyMCA8W2J0dHZdX19tb2R1bGVfcGFybV9kZXNjX3JhZGlvKzAvM2U+
+DQpUcmFjZTsgYzQ4M2U5ODAgPFtidHR2XV9fbW9kdWxlX3Bhcm1fZGVzY19i
+dHR2X3ZlcmJvc2UrNDAvNDQ+DQpUcmFjZTsgYzQ4M2U5ODYgPFtidHR2XV9f
+bW9kdWxlX3Bhcm1fYnR0dl9ncGlvKzIvMWM+DQpUcmFjZTsgYzQ4M2VhNjgg
+PFtidHR2XV9fbW9kdWxlX3Bhcm1fZGVzY19pcnFfZGVidWcrOC80Mj4NClRy
+YWNlOyBjNDgzMjJlYSA8W2J0dHZdaW5pdF9idHR2X2kyYythZS9jMD4NClRy
+YWNlOyBjNDgzZTk4MCA8W2J0dHZdX19tb2R1bGVfcGFybV9kZXNjX2J0dHZf
+dmVyYm9zZSs0MC80ND4NClRyYWNlOyBjNDgzZTgyMCA8W2J0dHZdX19tb2R1
+bGVfcGFybV9kZXNjX3JhZGlvKzAvM2U+DQpUcmFjZTsgYzQ4M2U4MjAgPFti
+dHR2XV9fbW9kdWxlX3Bhcm1fZGVzY19yYWRpbyswLzNlPg0KVHJhY2U7IGM0
+ODNlOTg1IDxbYnR0dl1fX21vZHVsZV9wYXJtX2J0dHZfZ3BpbysxLzFjPg0K
+VHJhY2U7IGM0ODNhYzY1IDxbYnR0dl0ucm9kYXRhLnN0YXJ0KzE0NS9hZjA+
+DQpUcmFjZTsgYzQ4M2U4MjAgPFtidHR2XV9fbW9kdWxlX3Bhcm1fZGVzY19y
+YWRpbyswLzNlPg0KVHJhY2U7IGM0ODUzMDAwIDxFTkRfT0ZfQ09ERSsxMzQ2
+MS8/Pz8/Pg0KVHJhY2U7IGM0ODNmYmNjIDwuYnNzLmVuZCsyZC8/Pz8/Pg0K
+VHJhY2U7IGM0ODNlOTgwIDxbYnR0dl1fX21vZHVsZV9wYXJtX2Rlc2NfYnR0
+dl92ZXJib3NlKzQwLzQ0Pg0KVHJhY2U7IGM0ODNlOTg1IDxbYnR0dl1fX21v
+ZHVsZV9wYXJtX2J0dHZfZ3BpbysxLzFjPg0KVHJhY2U7IGM0ODM4NDBkIDxb
+YnR0dl1pbml0X2J0ODQ4KzVkZC81ZmM+DQpUcmFjZTsgYzQ4M2U4MjAgPFti
+dHR2XV9fbW9kdWxlX3Bhcm1fZGVzY19yYWRpbyswLzNlPg0KVHJhY2U7IGM0
+ODNlODIwIDxbYnR0dl1fX21vZHVsZV9wYXJtX2Rlc2NfcmFkaW8rMC8zZT4N
+ClRyYWNlOyBjNDg0MTExOCA8LmJzcy5lbmQrMTU3OS8/Pz8/Pg0KVHJhY2U7
+IGM0ODM5MDUxIDxbYnR0dl1idHR2X3Byb2JlKzM0NS8zYTQ+DQpUcmFjZTsg
+YzQ4M2U4MjAgPFtidHR2XV9fbW9kdWxlX3Bhcm1fZGVzY19yYWRpbyswLzNl
+Pg0KVHJhY2U7IGM0ODNjZDQwIDxbYnR0dl1idHR2X3BjaV9kcml2ZXIrMC8y
+MD4NClRyYWNlOyBjNDgzY2Q0MCA8W2J0dHZdYnR0dl9wY2lfZHJpdmVyKzAv
+MjA+DQpUcmFjZTsgYzAxYTAyMTUgPHBjaV9hbm5vdW5jZV9kZXZpY2UrMmQv
+NDA+DQpUcmFjZTsgYzQ4M2NjYTggPFtidHR2XWJ0dHZfcGNpX3RibCswLzhj
+Pg0KVHJhY2U7IGMwMWEwMjZjIDxwY2lfcmVnaXN0ZXJfZHJpdmVyKzQ0LzVj
+Pg0KVHJhY2U7IGM0ODNjZDQwIDxbYnR0dl1idHR2X3BjaV9kcml2ZXIrMC8y
+MD4NClRyYWNlOyBjNDgzMjAwMCA8W2kyYy1hbGdvLWJpdF1fX21vZHVsZV9w
+YXJtX2Rlc2NfaTJjX2RlYnVnKzEyYTQvMTJmOD4NClRyYWNlOyBjNDgzOTBi
+MCA8W2J0dHZdYnR0dl9pbml0X21vZHVsZSswLzA+DQpUcmFjZTsgYzQ4Mzkx
+MzkgPFtidHR2XWluaXRfbW9kdWxlKzg5L2E4Pg0KVHJhY2U7IGM0ODNjZDQw
+IDxbYnR0dl1idHR2X3BjaV9kcml2ZXIrMC8yMD4NClRyYWNlOyBjMDExNzg1
+YyA8c3lzX2luaXRfbW9kdWxlKzU3Yy82MjA+DQpUcmFjZTsgYzQ4MzIwMDAg
+PFtpMmMtYWxnby1iaXRdX19tb2R1bGVfcGFybV9kZXNjX2kyY19kZWJ1Zysx
+MmE0LzEyZjg+DQpUcmFjZTsgYzQ4MjkwMDAgPFt0dWxpcF1fX21vZHVsZV9w
+YXJtX2Z1bGxfZHVwbGV4Kzc3MTEvNzc2NT4NClRyYWNlOyBjNDgyOTAwMCA8
+W3R1bGlwXV9fbW9kdWxlX3Bhcm1fZnVsbF9kdXBsZXgrNzcxMS83NzY1Pg0K
+VHJhY2U7IGM0ODNmYmEwIDwuYnNzLmVuZCsxLz8/Pz8+DQpUcmFjZTsgYzQ4
+MmYwMDAgPFtpMmMtY29yZV1fX2tzdHJ0YWJfaTJjX2NoZWNrX2Z1bmN0aW9u
+YWxpdHkrMTBiMC8xMTA0Pg0KVHJhY2U7IGM0ODMyMDYwIDxbYnR0dl1ydm1h
+bGxvYytjL2U4Pg0KVHJhY2U7IGMwMTBhMzdiIDxzeXN0ZW1fY2FsbCszMy8z
+OD4NClRyYWNlOyBjNDgzMjAwMCA8W2kyYy1hbGdvLWJpdF1fX21vZHVsZV9w
+YXJtX2Rlc2NfaTJjX2RlYnVnKzEyYTQvMTJmOD4NClRyYWNlOyBjMDEwMDAy
+YiA8c3RhcnR1cF8zMisyYi8xM2I+DQpDb2RlOyAgYzQ4MmIwNTQgPFtpMmMt
+Y29yZV1pMmNfYWRkX2FkYXB0ZXIrMC8wPiAgIDw9PT09PQ0KMDAwMDAwMDAg
+PF9FSVA+OiAgIDw9PT09PQ0KQ29kZTsgIGM0ODJiMDYwIDxbaTJjLWNvcmVd
+LnRleHQuc3RhcnQrYy8xODA+DQogICBjOiAgIDhiIDdjIDI0IDIwICAgICAg
+ICAgICAgICAgbW92bCAgIDB4MjAoJWVzcCwxKSwlZWRpDQpDb2RlOyAgYzQ4
+MmIwNjQgPFtpMmMtY29yZV0udGV4dC5zdGFydCsxMC8xODA+DQogIDEwOiAg
+IGZmIDA5ICAgICAgICAgICAgICAgICAgICAgZGVjbCAgICglZWN4KQ0KQ29k
+ZTsgIGM0ODJiMDY2IDxbaTJjLWNvcmVdLnRleHQuc3RhcnQrMTIvMTgwPg0K
+ICAxMjogICAwZiA4OCAwMCAwMCAwMCAwMCAgICAgICAgIGpzICAgICAxOCA8
+X0VJUCsweDE4PiBjNDgyYjA2YyA8W2kyYy1jb3JlXS50ZXh0LnN0YXJ0KzE4
+LzE4MD4NCg0K
+--8323328-380631080-975559769=:551--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

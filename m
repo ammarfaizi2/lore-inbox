@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTJDH4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 03:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTJDH4q
+	id S261947AbTJDITF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 04:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTJDITF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 03:56:46 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:38075 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261932AbTJDH4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 03:56:44 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: down_timeout
-Date: Sat, 4 Oct 2003 09:53:43 +0200
-User-Agent: KMail/1.5.4
-References: <F760B14C9561B941B89469F59BA3A84702C93004@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84702C93004@orsmsx401.jf.intel.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310040953.43024.ioe-lkml@rameria.de>
+	Sat, 4 Oct 2003 04:19:05 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:58005 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261947AbTJDITA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 04:19:00 -0400
+Date: Sat, 04 Oct 2003 19:50:18 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [pm] fix oops after saving image
+In-reply-to: <20031004080239.GA213@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Stan Bubrouski <stan@ccs.neu.edu>, Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1065253818.14870.27.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <20031002203906.GB7407@elf.ucw.cz>
+ <Pine.LNX.4.44.0310031433530.28816-100000@cherise>
+ <20031003223352.GB344@elf.ucw.cz> <3F7E57E9.8070904@ccs.neu.edu>
+ <20031004080239.GA213@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+I guess he means...
 
-On Friday 03 October 2003 20:03, Grover, Andrew wrote:
-> > From: linux-kernel-owner@vger.kernel.org
-> > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
-> > Matthew Wilcox
-> > It's still not great because it doesn't preserve ordering.
-> > down_timeout()
-> > would be a much better primitive.  We have down_interruptible() which
-> > could be used for this purpose.  Something like (completely
-> > uncompiled):
->
-> Yeah we proposed this 2 years ago and someone (don't remember who) shot
-> us down.
+On Sat, 2003-10-04 at 20:02, Pavel Machek wrote:
+> > >+ *    not freed; its not needed since system is going down anyway
 
-It was me.
+should be
 
-Reason: 
-	I misunderstood your suggestion down_timeout() as "down and hold
-	a semaphore until timeout" instead of "try until timeout to get
-	the semaphore". I suggested using waitqueues for this.
+> >+ *    not freed; it's not needed since the system is going down anyway
 
-But now that I understand, what you really want, I agree that this is
-very useful and also agree that the kernel should provide it.
+(it's = it is, its = belongs to it)
 
-I don't think that I prevented it from being accepted, but my opinion
-about it might had have the wrong influence.
+and
 
-I'm really sorry, that this simple communication problem caused you,
-the ACPI development and users such a big pain.
+> > >+ *    (plus it causes oops and I'm lazy^H^H^H^Htoo busy).
 
-PS: And I still think that semaphores with a maximum hold time are a bad
-    idea in the linux kernel. But this is just *my* opinion ;-)
+should be
 
-Regards
+> >+ *    (plus it causes an oops and I'm too lazy^H^H^H^Hbusy).
 
-Ingo Oeser
+Regards,
 
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

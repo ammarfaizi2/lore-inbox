@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269078AbUINA1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUINAc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269078AbUINA1I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 20:27:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUINA1I
+	id S269080AbUINAc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 20:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269075AbUINAc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 20:27:08 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:1929 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269078AbUINA1D (ORCPT
+	Mon, 13 Sep 2004 20:32:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9164 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269080AbUINA2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 20:27:03 -0400
-Message-ID: <7798951e04091317273b1bed29@mail.gmail.com>
-Date: Mon, 13 Sep 2004 19:27:02 -0500
-From: hotdog day <hotdogday@gmail.com>
-Reply-To: hotdog day <hotdogday@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc2 and Hyperthreading. (SMT)
+	Mon, 13 Sep 2004 20:28:39 -0400
+Date: Mon, 13 Sep 2004 17:26:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] exec: fix posix-timers leak and pending signal loss
+Message-Id: <20040913172630.249a7aac.akpm@osdl.org>
+In-Reply-To: <200409140021.i8E0LKcB030581@magilla.sf.frob.com>
+References: <20040913162645.448e6131.akpm@osdl.org>
+	<200409140021.i8E0LKcB030581@magilla.sf.frob.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been testing the 2.6.9-rc1, and 2.6.9-rc2 kernel patches over
-the past couple days and have been having some issues with
-hyperthreading (SMT) turned on.
+Roland McGrath <roland@redhat.com> wrote:
+>
+>  Frankly, I think the old code is much more prone to unforeseen problems
+>  than the new.  
 
-This problem first exhibited itself when I was testing 
-2.6.9-rc2-mm2-love2. I noticed the following quirks that ONLY show
-themselves with hyperthreading enabled on my 3.0C Pentium 4.
+It's a question of testing coverage, and historical fragility of that part
+of the code.  I'm uncomfortable making changes in there unless we're early
+in the release cycle.
 
-Random HARD LOCKS. No messages from the kernel. Just a good swift hard lock.
+>  > Had you not rolled three distinct patches into one (hint) I'd have
+>  > forwarded along the leak fix and sat on the rest for post-2.6.9.
+> 
+>  I don't like being an enabler of bad code.  So I didn't do a separate fix
+>  inside something that I already knew needed to be ripped out.  If you want
+>  an untested minimal fix for just the leak potential, leaving the semantics
+>  frotzed in multiple ways
 
-Hard locks when mounting two cdrom drives in quick succession. 
+As long as "frotzed" != "goes oops mysteriously two days after we release
+2.6.9" I'm happy.
 
-Turning off hyperthreading solves these issues.  Going back to 2.6.8.1
-solves these issues.
+> you can try the following.
 
-I then tried 2.6.9-rc1 with no mm or love patches. I had the exact same issues. 
-
-Today I downloaded the prepatch to 2.6.9-rc2 and applied it to clean
-2.6.8 source. The issues are still there.
-
-I hope someone is paying attention to the way scheduler tweaks and
-changes are affecting SMT enabled kernels. I don't think anyone wants
-to disable features of their hardware in order to run an optimized
-scheduler.
+I shall, thanks.

@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRADHGh>; Thu, 4 Jan 2001 02:06:37 -0500
+	id <S129348AbRADHKR>; Thu, 4 Jan 2001 02:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbRADHG1>; Thu, 4 Jan 2001 02:06:27 -0500
-Received: from innerfire.net ([208.181.73.33]:4618 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S129267AbRADHGQ>;
-	Thu, 4 Jan 2001 02:06:16 -0500
-Date: Wed, 3 Jan 2001 23:09:49 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Dan Hollis <goemon@anime.net>
-cc: Dan Aloni <karrde@callisto.yi.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
- bug exploits
-In-Reply-To: <Pine.LNX.4.30.0101031657320.1616-100000@anime.net>
-Message-ID: <Pine.LNX.4.10.10101032259560.5009-100000@innerfire.net>
+	id <S130110AbRADHKH>; Thu, 4 Jan 2001 02:10:07 -0500
+Received: from webmail.metabyte.com ([216.218.208.53]:4196 "EHLO
+	webmail.metabyte.com") by vger.kernel.org with ESMTP
+	id <S129348AbRADHJy>; Thu, 4 Jan 2001 02:09:54 -0500
+Message-ID: <3A542148.AAE1D8E9@metabyte.com>
+Date: Wed, 03 Jan 2001 23:07:52 -0800
+From: Pete Zaitcev <zaitcev@metabyte.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: So, what about kwhich on RH6.2?
+In-Reply-To: <3A541361.65942CB3@metabyte.com> <200101040611.WAA01811@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jan 2001 07:09:52.0891 (UTC) FILETIME=[559DD4B0:01C0761D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Dan Hollis wrote:
-
-> On Wed, 3 Jan 2001, Gerhard Mack wrote:
-> > On Wed, 3 Jan 2001, Dan Hollis wrote:
-> > > On Wed, 3 Jan 2001, Gerhard Mack wrote:
-> > > > Your comparing actual security with stack guarding? Stack guarding mearly
-> > > > makes the attack diffrent.. rootkits are already available to defeat it.
-> > > url?
-> > Ugh do you have any idea how hard it is to find 2 year old exploits?
-> > Heres the best I could find on short notice:
-> > http://www.insecure.org/sploits/non-executable.stack.problems.html
-> > http://darwin.bio.uci.edu/~mcoogan/bugtraq/msg00335.html
+>    Date:        Wed, 03 Jan 2001 22:08:33 -0800
+>    From: Pete Zaitcev <zaitcev@metabyte.com>
 > 
-> You said there were rootkits specifically targetting stackguard.
+>    Are we going to use Miquel's patch? I cannot build fresh 2.2.x on
+>    plain RH6.2 without it. The 2.2.19-pre6 comes out without it.  Or
+>    is "install new bash" the official answer? Alan?
 > 
-> These URLs simply describe attacks on stackguard, where are the
-> stackguard rootkits?
+> I do not understand, I just got a working 2.2.19-pre6 build on one of
+> my 6.2 Sparc64 systems, what kind of failure do you see?
 
-I'll correct myself then: there were non exec stack patches.   Keep in
-mind  part of the problem is that some compilors actually use that feature
-look up "trampolines" for more info.
+Oops. I cannot reproduce it anymore. Since I am quite sure
+in my recollection of this problem, I conclude that there
+was a kernel (perhaps 2.2.19-pre3), that called kwhich with
+several arguments. No problem now on the pre6.
 
-Also I was in error to refer to it as stack guarding.. Stack guard is a
-compilor. I acually use libsafe it's preferable for 2 reasons. 
-  1 It's entirely userspace and it works fine.
-  2 If someone manages to render it useless I'll simply uninstall it.
-
-	Gerhard
-
-PS Although personally I think linux reoutation is most harmed by distribs
-who insists on installing software with bad security records.  But that's
-not relevent to linux-kernel.
-
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+-- Pete
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbUDFLwV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 07:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263658AbUDFLwJ
+	id S263799AbUDFLvi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 07:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUDFLvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 07:52:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29875 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263771AbUDFLvq
+	Tue, 6 Apr 2004 07:51:38 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:63496 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263803AbUDFLtj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 07:51:46 -0400
-Date: Tue, 6 Apr 2004 12:51:45 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linux IA64 Mailing List <linux-ia64@vger.kernel.org>,
-       Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
-Subject: Re: [RFC] readX_check() - Interface for PCI-X error recovery
-Message-ID: <20040406115145.GA23258@parcelfarce.linux.theplanet.co.uk>
-References: <0HVQ0051BXG19H@fjmail506.fjmail.jp.fujitsu.com>
+	Tue, 6 Apr 2004 07:49:39 -0400
+Date: Tue, 6 Apr 2004 21:49:31 +1000
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Fix parportbook build again
+Message-ID: <20040406114931.GA4396@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-In-Reply-To: <0HVQ0051BXG19H@fjmail506.fjmail.jp.fujitsu.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 08:04:49PM +0900, Hidetoshi Seto wrote:
-> - Resources newly required:
-> 
->     on struct device:
-> 	error flag
-> 	list of recoverable physical address regions
 
-Can't you just use the pci_dev->resource regions for this?
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 	pointer to host bridge of the device
+Hi:
 
-Again, there's already ways of getting to this from the pci_dev.
-Simply wander up through pdev->bus->self until you get to a self that
-is NULL and you've found a root bus.  Alternatively, you might just look
-at PCI_CONTROLLER() on ia64.
+The previous fix causes a syntax error when building:
 
->     on per_cpu:
-> 	list of currently checking devices
-> 
-> 
-> - Interfaces newly required:
-> 
->     clear_pcix_errors(dev)
-> 	Clear the error flag of the dev, and start to check the device.
-> 	This also clears the status register of its host bridge.
+Working on: /home/gondolin/herbert/src/debian/work/kernel/build/2.6/kernel-source-2.6.5-2.6.5/Documentation/DocBook/parportbook.sgml
+jade:/home/gondolin/herbert/src/debian/work/kernel/build/2.6/kernel-source-2.6.5-2.6.5/Documentation/DocBook/parportbook.sgml:4059:2:E: invalid comment declaration: found character "!" outside comment but inside comment declaration
+jade:/home/gondolin/herbert/src/debian/work/kernel/build/2.6/kernel-source-2.6.5-2.6.5/Documentation/DocBook/parportbook.sgml:4058:0: comment declaration started here
+jade:/home/gondolin/herbert/src/debian/work/kernel/build/2.6/kernel-source-2.6.5-2.6.5/Documentation/DocBook/parportbook.sgml:4059:4:E: character data is not allowed here
 
-For consistency, how about naming these functions pci_clear_errors()
-and pci_check_errors()?  PCI-Express has similar error-checking abilities
-and I'd hate to see two extremely similar capabilities at war with each
-other over unacceoptable names ;-)
+This patch removes the offending line completely since that file
+is probably not coming back anyway.
 
->     readX_check(dev,vaddr)
-> 	Read a register of the device mapped to vaddr, and check errors 
-> 	if possible(This is depending on its architecture. In the case of 
-> 	ia64, we can generate a MCA from an error by simple operation to 
-> 	test the read data.)
-> 	If any error happen on the recoverable region, set the error flag.
-
-I really don't think we want another readX variant.  Do we then also
-add readX_check_relaxed()?  Can't we just pretend the MCA is asynchronous
-on ia64?  I'm sure we'd get better performance.
-
+Cheers,
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: Documentation/DocBook/parportbook.tmpl
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/Documentation/DocBook/parportbook.tmpl,v
+retrieving revision 1.1.1.3
+retrieving revision 1.4
+diff -u -r1.1.1.3 -r1.4
+--- a/Documentation/DocBook/parportbook.tmpl	5 Apr 2004 09:49:21 -0000	1.1.1.3
++++ b/Documentation/DocBook/parportbook.tmpl	6 Apr 2004 11:40:47 -0000	1.4
+@@ -2729,9 +2729,6 @@
+  </appendix>
+ 
+ </book>
+-<!-- Additional function to be documented:
+---! Ddrivers/parport/init.c (this file doesn't exist any more)
+--->
+ <!-- Local Variables: -->
+ <!-- sgml-indent-step: 1 -->
+ <!-- sgml-indent-data: 1 -->
+
+--AqsLC8rIMeq19msA--

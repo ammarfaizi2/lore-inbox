@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264678AbSJTX7Q>; Sun, 20 Oct 2002 19:59:16 -0400
+	id <S264682AbSJTX7w>; Sun, 20 Oct 2002 19:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264682AbSJTX7Q>; Sun, 20 Oct 2002 19:59:16 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:26692 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S264678AbSJTX7P>; Sun, 20 Oct 2002 19:59:15 -0400
-Date: Sun, 20 Oct 2002 17:13:35 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Jon Portnoy <portnoy@tellink.net>
-cc: Richard Stallman <rms@gnu.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <Pine.LNX.4.44.0210201309120.22852-100000@cerberus.localhost>
-Message-ID: <Pine.LNX.4.44.0210201648510.13602-100000@nakedeye.aparity.com>
+	id <S264685AbSJTX7w>; Sun, 20 Oct 2002 19:59:52 -0400
+Received: from mail.tpgi.com.au ([203.12.160.58]:23433 "EHLO mail2.tpgi.com.au")
+	by vger.kernel.org with ESMTP id <S264682AbSJTX7u>;
+	Sun, 20 Oct 2002 19:59:50 -0400
+Message-ID: <3DB3442A.7050002@tpg.com.au>
+Date: Mon, 21 Oct 2002 10:02:50 +1000
+From: Bill Leckey <bleckey@tpg.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020514
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: System lockup.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, Jon Portnoy wrote:
-|>On Sun, 20 Oct 2002, Richard Stallman wrote:
-|>> This is the old "We're not free unless we are `free' to deny freedom
-|>> to others" argument that some (not all) advocates of the BSD license
-|>> often make.  It is a word game intended to render the concept of
-|>> freedom so confused that people can't think about it any more.  Once
-|>> people see through this, it loses its effect.
+I have a terminal server that's supporting up to 240 lines.  It's a 
+2.4.17 kernel, and is running squid, and using the reiser file system to 
+store log files, squid cache and other data.  About every day or so, the 
+machine locks up.  The screen is blank, keyboard doesn't respond, the 
+serial console I set up shows no 'dying gasp' and there is nothing in 
+any of the system logs.
 
-It seems like people have lost their marbles on this issue.
+This doesn't appear to be related to load as it has happened both during 
+the busiest times and during the low times.
 
-Using the BSD license gives the receiver certain freedoms.  I'm all
-for that -- if someone takes my BSD licensed code and never releases
-modifications back to me (or anyone else), that's okay.  I chose
-that license because that's what I intended and should even expect
-to happen.
+I'm still servicing interrupts from our serial devices (on IRQ 11), so 
+it seems interrupts are still happening.
 
-Using the GNU GPL means imposing your idea of freedom on others,
-which in some cases I'm all for.  Either it's required of me (because
-I've modified GPL code and released it) or I think that people
-will benefit from being able to use it and expand upon it openly.
-There's plenty of cases where that's a good thing to do.
+Beyond this, however, I have no idea where to go from here.  If anyone 
+has any hints on what the problem might be, or even a way to gather more 
+information, I would be grateful.
 
-Using a proprietary license means protecting interests, regardless
-of freedoms for anything.  That's okay as well -- some people like
-to earn a paycheck and/or preserve their investments.  When it
-comes down to putting food on your family's table, or putting a
-roof over their heads, in those cases it's the right thing to do.
-That applies to the mom and pop development companies all the way
-up to a company the size of Microsoft.  Sometimes it's a good thing
-to be paid for you and your company's efforts.
-
-I wish more people would stop and think about why they write code
-in the first place.  If you write code to make a living, or write
-code to help others (like a volunteer might do), or if you write
-code just because you feel like it, each may need a different
-license.  Nobody's wrong to use BSD, GNU GPL, or any other license.
-Nobody's evil or stupid or naive just because they make a certain
-licensing choice.
-
-Back to writing code (which I'm "free" to do) ... :)
-
---Matt
+-- 
+Bill Leckey - Senior Software Design Engineer
+TPG Research and Development
+Ph: +61 2 62851711
+Fax: +61 2 62853939
 

@@ -1,260 +1,289 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311957AbSCQHxz>; Sun, 17 Mar 2002 02:53:55 -0500
+	id <S311954AbSCQH50>; Sun, 17 Mar 2002 02:57:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311954AbSCQHxg>; Sun, 17 Mar 2002 02:53:36 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:26810 "HELO
+	id <S311958AbSCQH5R>; Sun, 17 Mar 2002 02:57:17 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:47035 "HELO
 	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S311952AbSCQHx2>; Sun, 17 Mar 2002 02:53:28 -0500
-Date: Sun, 17 Mar 2002 09:36:39 +0200 (SAST)
+	id <S311954AbSCQH5K>; Sun, 17 Mar 2002 02:57:10 -0500
+Date: Sun, 17 Mar 2002 09:40:20 +0200 (SAST)
 From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 X-X-Sender: zwane@netfinity.realnet.co.sz
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] wdt_pci update
-Message-ID: <Pine.LNX.4.44.0203170933560.6387-100000@netfinity.realnet.co.sz>
+Subject: [PATCH] CS5530 Power Management
+Message-ID: <Pine.LNX.4.44.0203170936420.6387-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also ended up removing references to ISA e.g. specifying IRQ/IO, 
-__setup, and some comments.
+In light of what Alan stated earlier about Geode based boxes and the BIOS 
+doing the right thing, i wonder if the following code is still valid. Main 
+features are enabling the idle timers and enabling active_idle. I'd 
+appreciate comments on wether the BIOS does this stuff too.
 
-	Zwane
+Cheers,
+	Zwane "power management freak" Mwaikambo
 
 Diffed against 2.4.19-pre2-ac3
 
---- linux-2.4.19-work/drivers/char/wdt_pci.c.orig	Sun Mar 17 06:56:31 2002
-+++ linux-2.4.19-work/drivers/char/wdt_pci.c	Sun Mar 17 08:36:08 2002
-@@ -31,6 +31,7 @@
-  *		Jeff Garzik	:	PCI cleanups
-  *		Tigran Aivazian	:	Restructured wdtpci_init_one() to handle failures
-  *		Joel Becker	:	Added WDIOC_GET/SETTIMEOUT
-+ *		Zwane Mwaikambo :	Magic char closing, locking changes, cleanups
-  */
+diff -urN linux-2.4.19-orig/Documentation/Configure.help linux-2.4.19-work/Documentation/Configure.help
+--- linux-2.4.19-orig/Documentation/Configure.help	Sat Mar 16 22:31:57 2002
++++ linux-2.4.19-work/Documentation/Configure.help	Sat Mar 16 22:39:15 2002
+@@ -17441,6 +17441,19 @@
  
- #include <linux/config.h>
-@@ -53,7 +54,8 @@
- #include <linux/notifier.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
--#include <linux/smp_lock.h>
-+#include <linux/spinlock.h>
-+#include <asm/semaphore.h>
+   If unsure, say N.
  
- #include <linux/pci.h>
- 
-@@ -72,52 +74,19 @@
- #define PCI_DEVICE_ID_WDG_CSM 0x22c0
- #endif
- 
--static int wdt_is_open;
-+static struct semaphore open_sem;
-+static spinlock_t wdtpci_lock;
-+static int expect_close = 0;
- 
--/*
-- *	You must set these - there is no sane way to probe for this board.
-- *	You can use wdt=x,y to set these now.
-- */
-- 
--static int io=0x240;
--static int irq=11;
-+static int io;
-+static int irq;
- 
- /* Default timeout */
- #define WD_TIMO (100*60)		/* 1 minute */
-+#define WD_TIMO_MAX (WD_TIMO*60)	/* 1 hour(?) */
- 
- static int wd_margin = WD_TIMO;
- 
--#ifndef MODULE
--
--/**
-- *	wdtpci_setup:
-- *	@str: command line string
-- *
-- *	Setup options. The board isn't really probe-able so we have to
-- *	get the user to tell us the configuration. Sane people build it 
-- *	modular but the others come here.
-- */
-- 
--static int __init wdtpci_setup(char *str)
--{
--	int ints[4];
--
--	str = get_options (str, ARRAY_SIZE(ints), ints);
--
--	if (ints[0] > 0)
--	{
--		io = ints[1];
--		if(ints[0] > 1)
--			irq = ints[2];
--	}
--
--	return 1;
--}
--
--__setup("wdt=", wdtpci_setup);
--
--#endif /* !MODULE */
-- 
- /*
-  *	Programming support
-  */
-@@ -233,11 +202,15 @@
-  
- static void wdtpci_ping(void)
- {
-+	unsigned long flags;
++National Semiconductor CS5530 Enhanced Power Management
++CONFIG_CS5530PM
++  This driver enables additional power management features of the
++  National Semiconductor CS5530 South Bridge. It currently supports
++  user configurable inactivity timeout and CPU power saving via
++  the active idle mode as supported by the Geode GX range of processors.
 +
- 	/* Write a watchdog value */
-+	spin_lock_irqsave(&wdtpci_lock, flags);
- 	inb_p(WDT_DC);
- 	wdtpci_ctr_mode(1,2);
- 	wdtpci_ctr_load(1,wd_margin);		/* Timeout */
- 	outb_p(0, WDT_DC);
-+	spin_unlock_irqrestore(&wdtpci_lock, flags);
- }
++  This driver is also available as a module ( = code which can be
++  inserted in and removed from the running kernel whenever you want).
++  The module is called sc5530_pm.o.  If you want to compile it as a
++  module, say M here and read <file:Documentation/modules.txt>.  Most
++  people will say N.
++
+ Power Management support
+ CONFIG_PM
+   "Power Management" means that parts of your computer are shut
+diff -urN linux-2.4.19-orig/MAINTAINERS linux-2.4.19-work/MAINTAINERS
+--- linux-2.4.19-orig/MAINTAINERS	Sat Mar 16 22:31:57 2002
++++ linux-2.4.19-work/MAINTAINERS	Sat Mar 16 22:39:15 2002
+@@ -388,6 +388,12 @@
+ W:	http://developer.axis.com
+ S:	Maintained
  
- /**
-@@ -257,12 +230,21 @@
- 	if (ppos != &file->f_pos)
- 		return -ESPIPE;
++CS5530 POWER MANAGEMENT DRIVER
++P:	Zwane Mwaikambo
++M:	zwane@commfireservices.com
++W:	http://www.national.com
++S:	Maintained
++
+ CYBERPRO FB DRIVER
+ P:	Russell King
+ M:	rmk@arm.linux.org.uk
+diff -urN linux-2.4.19-orig/drivers/char/Config.in linux-2.4.19-work/drivers/char/Config.in
+--- linux-2.4.19-orig/drivers/char/Config.in	Sat Mar 16 22:31:57 2002
++++ linux-2.4.19-work/drivers/char/Config.in	Sat Mar 16 22:39:15 2002
+@@ -222,6 +222,7 @@
+ dep_tristate 'AMD 768 Random Number Generator support' CONFIG_AMD_RNG $CONFIG_PCI
+ dep_tristate 'Intel i8x0 Random Number Generator support' CONFIG_INTEL_RNG $CONFIG_PCI
+ dep_tristate 'AMD 762/768 native power management' CONFIG_AMD_PM768 $CONFIG_PCI
++dep_tristate 'Natsemi CS5530 Enhanced Power Management (EXPERIMENTAL)' CONFIG_CS5530PM $CONFIG_PCI $CONFIG_EXPERIMENTAL
+ tristate '/dev/nvram support' CONFIG_NVRAM
+ tristate 'Enhanced Real Time Clock Support' CONFIG_RTC
+ if [ "$CONFIG_IA64" = "y" ]; then
+diff -urN linux-2.4.19-orig/drivers/char/Makefile linux-2.4.19-work/drivers/char/Makefile
+--- linux-2.4.19-orig/drivers/char/Makefile	Sat Mar 16 22:31:57 2002
++++ linux-2.4.19-work/drivers/char/Makefile	Sat Mar 16 22:39:15 2002
+@@ -206,6 +206,7 @@
+ obj-$(CONFIG_INTEL_RNG) += i810_rng.o
+ obj-$(CONFIG_AMD_RNG) += amd768_rng.o
+ obj-$(CONFIG_AMD_PM768) += amd768_pm.o
++obj-$(CONFIG_CS5530PM) += cs5530_pm.o
  
--	if(count)
--	{
-+	if (count) {
-+#ifndef CONFIG_WATCHDOG_NOWAYOUT
-+		size_t i;
+ obj-$(CONFIG_ITE_GPIO) += ite_gpio.o
+ obj-$(CONFIG_AU1000_GPIO) += au1000_gpio.o
+diff -urN linux-2.4.19-orig/drivers/char/cs5530_pm.c linux-2.4.19-work/drivers/char/cs5530_pm.c
+--- linux-2.4.19-orig/drivers/char/cs5530_pm.c	Thu Jan  1 02:00:00 1970
++++ linux-2.4.19-work/drivers/char/cs5530_pm.c	Sat Mar 16 22:39:29 2002
+@@ -0,0 +1,193 @@
++/*	Enhanced Power Management driver for National Semiconductor CS5530
++ *
++ *	(c) Copyright 2002 Zwane Mwaikambo <zwane@commfireservices.com>
++ *	All Rights Reserved.
++ *
++ *	Inspired and based on amd768pm.c by Alan Cox
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ *
++ *	The author(s) of this software shall not be held liable for damages
++ *	of any nature resulting due to the use of this software. This
++ *	software is provided AS-IS with no warranties.
++ *
++ *	Changelog:
++ *	20020317	Zwane Mwaikambo		Test release
++ *	
++ */
 +
-+		expect_close = 0;
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/pci.h>
 +
-+		for (i = 0; i != count; i++) {
-+			if (buf[i] == 'V')
-+				expect_close = 1;
-+		}
-+#endif
- 		wdtpci_ping();
--		return 1;
- 	}
--	return 0;
++#include <asm/uaccess.h>
 +
-+	return count;
- }
- 
- /**
-@@ -343,13 +325,14 @@
- 			if (get_user(new_margin, (int *)arg))
- 				return -EFAULT;
- 			/* Arbitrary, can't find the card's limits */
--			if ((new_margin < 0) || (new_margin > 60))
-+			new_margin *= 100;
-+			if ((new_margin < 0) || (new_margin > WD_TIMO_MAX))
- 				return -EINVAL;
--			wd_margin = new_margin * 100;
-+			wd_margin = new_margin;
- 			wdtpci_ping();
- 			/* Fall */
- 		case WDIOC_GETTIMEOUT:
--			return put_user(wd_margin, (int *)arg);
-+			return put_user(wd_margin / 100, (int *)arg);
- 	}
- }
- 
-@@ -367,20 +350,22 @@
-  
- static int wdtpci_open(struct inode *inode, struct file *file)
- {
-+	unsigned long flags;
++#define CS5530PM_MODULE_VER	"build 20020316"
++#define CS5530PM_MODULE_NAME	"cs5530pm"
++#define PFX			CS5530PM_MODULE_NAME ": "
 +
- 	switch(MINOR(inode->i_rdev))
- 	{
- 		case WATCHDOG_MINOR:
--			if(wdt_is_open)
--				return -EBUSY;
-+			 if (down_trylock(&open_sem))
-+                        	return -EBUSY;
++#define MAX_IDLE_TIMEOUT	65536	/* max idle timer value in seconds */
 +
- #ifdef CONFIG_WATCHDOG_NOWAYOUT	
- 			MOD_INC_USE_COUNT;
- #endif
- 			/*
- 			 *	Activate 
- 			 */
--	 
--			wdt_is_open=1;
--
-+			spin_lock_irqsave(&wdtpci_lock, flags);
-+			
- 			inb_p(WDT_DC);		/* Disable */
- 
- 			/*
-@@ -405,6 +390,7 @@
- 			wdtpci_ctr_load(1,wd_margin);/* Timeout 60 seconds */
- 			/* DO NOT LOAD CTR2 on PCI card! -- JPN */
- 			outb_p(0, WDT_DC);	/* Enable */
-+			spin_unlock_irqrestore(&wdtpci_lock, flags);
- 			return 0;
- 		case TEMP_MINOR:
- 			return 0;
-@@ -427,15 +413,21 @@
-  
- static int wdtpci_release(struct inode *inode, struct file *file)
- {
--	if(MINOR(inode->i_rdev)==WATCHDOG_MINOR)
--	{
--		lock_kernel();
--#ifndef CONFIG_WATCHDOG_NOWAYOUT	
--		inb_p(WDT_DC);		/* Disable counters */
--		wdtpci_ctr_load(2,0);	/* 0 length reset pulses now */
++/* PCI config registers, all at F0 */
++#define PCI_PMER1		0x80	/* power management enable register 1 */
++#define PCI_PMER2		0x81	/* power management enable register 2 */
++#define PCI_SUSCFG		0x96	/* suspend configuration register */
++#define PCI_PHDDTC		0x98	/* primary hdd timer count */
++#define PCI_SHDDTC		0xac	/* secondary hdd timer count */
++#define PCI_FDDTC		0x9a	/* floppy disk timer count */
++#define PCI_PRTTC		0x9c	/* parallel/serial timer count */
++#define PCI_KBCTC		0x9e	/* keyboard/mouse timer count */
 +
-+	if (MINOR(inode->i_rdev)==WATCHDOG_MINOR) {
-+#ifndef CONFIG_WATCHDOG_NOWAYOUT
-+		unsigned long flags;
-+		if (expect_close) {
-+			spin_lock_irqsave(&wdtpci_lock, flags);
-+			inb_p(WDT_DC);		/* Disable counters */
-+			wdtpci_ctr_load(2,0);	/* 0 length reset pulses now */
-+			spin_unlock_irqrestore(&wdtpci_lock, flags);
-+		} else {
-+			printk(KERN_CRIT PFX "Unexpected close, not stopping timer!");
-+			wdtpci_ping();
-+		}
- #endif		
--		wdt_is_open=0;
--		unlock_kernel();
-+		up(&open_sem);
- 	}
- 	return 0;
- }
-@@ -455,11 +447,14 @@
- static int wdtpci_notify_sys(struct notifier_block *this, unsigned long code,
- 	void *unused)
- {
--	if(code==SYS_DOWN || code==SYS_HALT)
--	{
-+	unsigned long flags;
++/* PMER1 bits */
++#define GPM			(1<<0)	/* global power management */
++#define GIT			(1<<1)	/* globally enable PM device idle timers */
++#define GTR			(1<<2)	/* globally enable IO traps */
++/* 3 - 5 not implemented (set to 0)
++ * 4 - 7 reserved (set to 0) */
 +
-+	if (code==SYS_DOWN || code==SYS_HALT) {
- 		/* Turn the card off */
-+		spin_lock_irqsave(&wdtpci_lock, flags);
- 		inb_p(WDT_DC);
- 		wdtpci_ctr_load(2,0);
-+		spin_unlock_irqrestore(&wdtpci_lock, flags);
- 	}
- 	return NOTIFY_DONE;
- }
-@@ -520,6 +515,9 @@
- 			"this driver only supports 1 device\n");
- 		return -ENODEV;
- 	}
++/* PMER2 bits */
++#define HDDTMR			(1<<0)	/* primary harddisk timer enable */
++#define FDDTMR			(1<<1)	/* floppy disk timer enable */
++#define PRTTMR			(1<<2)	/* parallel/serial port timer enable */
++#define KBCTMR			(1<<3)	/* keyboard/mouse timer enable */
++/* 4 - 7 not implemented (set to 0) */
++
++/* SUSCFG bits */
++#define SUSCFG			(1<<2)	/* enable powering down a GX processor */
++#define PWRSVE_ISA		(1<<3)	/* stop ISA clock */
++#define PWRSVE			(1<<4)	/* active idle */
++
++/* for restoring on exit */
++static u8 pci_pmer1;
++static u8 pci_pmer2;
++static u8 pci_suscfg;
++
++static struct pci_dev *cs5530;
++static int timeout = 1800;
++static int active_idle = 1;
++
++MODULE_PARM(timeout, "i");
++MODULE_PARM_DESC(timeout, "idle timer range is 1-1092 minutes, default is 30");
++MODULE_PARM(active_idle, "i");
++MODULE_PARM_DESC(active_idle, "enable(1) / disable(0) active idle mode, default is 1");
++
++
++/* Configure PM abilities */
++static int __init cs5530pm_config(void)
++{
++	u8 byte_reg;
 +	
-+	sema_init(&open_sem, 1);
-+	spin_lock_init(&wdtpci_lock);
- 
- 	irq = dev->irq;
- 	io = pci_resource_start (dev, 2);
++	/* save for restoring later */
++	pci_read_config_byte(cs5530, PCI_PMER1, &pci_pmer1);
++	pci_read_config_byte(cs5530, PCI_PMER2, &pci_pmer2);
++	pci_read_config_byte(cs5530, PCI_SUSCFG, &pci_suscfg);
++
++	/* enable power management, idle timers */
++	printk(KERN_INFO PFX "Enabling enhanced power management abilities\n");
++	if (pci_pmer1 & GPM)
++		printk(KERN_DEBUG PFX "Found GPM already enabled, continuing...\n");
++
++	byte_reg = pci_pmer1 | GPM | GIT;
++	pci_write_config_byte(cs5530, PCI_PMER1, byte_reg);
++
++	/* set timeout values, should be done before enabling specific timers */
++	timeout *= 60;
++	if ((timeout > MAX_IDLE_TIMEOUT) || (timeout <= 0))
++		timeout = MAX_IDLE_TIMEOUT;
++
++	printk(KERN_INFO PFX "Enabling idle timers, ");
++	pci_write_config_word(cs5530, PCI_PHDDTC, timeout & 0x0000ffff);
++	pci_write_config_word(cs5530, PCI_SHDDTC, timeout & 0x0000ffff);
++	pci_write_config_word(cs5530, PCI_FDDTC, timeout & 0x0000ffff);
++	pci_write_config_word(cs5530, PCI_PRTTC, timeout & 0x0000ffff);
++	pci_write_config_word(cs5530, PCI_KBCTC, timeout & 0x0000ffff);
++	pci_write_config_word(cs5530, PCI_PRTTC, timeout & 0x0000ffff);
++
++	/* enable specific devices */
++	byte_reg = pci_pmer2 | HDDTMR | FDDTMR | PRTTMR | KBCTMR;
++	pci_write_config_byte(cs5530, PCI_PMER2, byte_reg);
++	printk(KERN_INFO PFX "timeout: %d min(s)\n", timeout / 60);
++
++	/* enable active idle and GX processor suspend */
++	if (active_idle) {
++		printk(KERN_INFO PFX "Switching to active idle mode\n");
++		byte_reg = pci_suscfg | PWRSVE | PWRSVE_ISA | SUSCFG;
++		pci_write_config_byte(cs5530, PCI_SUSCFG, byte_reg);
++	}
++	
++	return 0;
++}
++
++
++/*
++ * Data for PCI driver interface
++ *
++ * This data only exists for exporting the supported
++ * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
++ * register a pci_driver, because someone else might one day
++ * want to register another driver on the same PCI id.
++ */
++static struct pci_device_id cs5530_pci_tbl[] __initdata = {
++	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_LEGACY, PCI_ANY_ID, PCI_ANY_ID },
++	{ 0, },
++};
++
++MODULE_DEVICE_TABLE (pci, cs5530_pci_tbl);
++
++static int __init cs5530pm_init(void)
++{
++	pci_for_each_dev(cs5530) {
++		if (pci_match_device (cs5530_pci_tbl, cs5530) != NULL)
++			goto found_one;
++	}
++
++	return -ENODEV;
++
++found_one:
++	return cs5530pm_config();
++}
++
++
++/*
++ * Restore system back to non enhanced PM state
++ */
++static void __exit cs5530pm_exit (void)
++{
++	pci_write_config_byte(cs5530, PCI_PMER1, pci_pmer1);
++	pci_write_config_byte(cs5530, PCI_PMER2, pci_pmer2);
++	pci_write_config_byte(cs5530, PCI_SUSCFG, pci_suscfg);
++	printk(KERN_DEBUG PFX "Restored PM Settings, exiting...\n");
++}
++
++#ifndef MODULE
++static int __init cs5530_setup(char *str)
++{
++	int ints[4];
++
++	str = get_options (str, ARRAY_SIZE(ints), ints);
++
++	if (ints[0] > 0) {
++		timeout = ints[1];
++		if (ints[0] > 1)
++			active_idle = ints[2];
++	}
++
++	return 1;
++}
++
++__setup("cs5530pm=", cs5530_setup);
++#endif /* MODULE */
++
++
++module_init (cs5530pm_init);
++module_exit (cs5530pm_exit);
++
++MODULE_AUTHOR("Zwane Mwaikambo <zwane@commfireservices.com>");
++MODULE_DESCRIPTION("National Semiconductor CS5530 Enhanced Power Management");
++MODULE_LICENSE("GPL");
++EXPORT_NO_SYMBOLS;
++
 

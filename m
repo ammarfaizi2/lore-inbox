@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265736AbTBTQHN>; Thu, 20 Feb 2003 11:07:13 -0500
+	id <S265754AbTBTQIp>; Thu, 20 Feb 2003 11:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbTBTQHM>; Thu, 20 Feb 2003 11:07:12 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:9234 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S265736AbTBTQHL>;
-	Thu, 20 Feb 2003 11:07:11 -0500
-Subject: Re: hard lockup on 2.4.20 w/ nfs over frees/wan
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1045686971.8084.2.camel@zaphod>
-References: <1045634189.4761.44.camel@zaphod>
-	 <1045686971.8084.2.camel@zaphod>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1045757772.31762.13.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 20 Feb 2003 11:16:13 -0500
-Content-Transfer-Encoding: 7bit
+	id <S265725AbTBTQIo>; Thu, 20 Feb 2003 11:08:44 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:59293 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S265670AbTBTQIm>;
+	Thu, 20 Feb 2003 11:08:42 -0500
+Date: Thu, 20 Feb 2003 17:17:49 +0100 (CET)
+From: Stephan van Hienen <raid@a2000.nu>
+To: kernel@ddx.a2000.nu
+cc: Mike Black <mblack@csi-inc.com>, Peter Chubb <peter@chubb.wattle.id.au>,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
+Subject: what is the exact raid5 limit (2TB (can i use 12 or 13*180GB?))
+In-Reply-To: <Pine.LNX.4.53.0302171123480.2464@ddx.a2000.nu>
+Message-ID: <Pine.LNX.4.53.0302201717020.4479@ddx.a2000.nu>
+References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
+ <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
+ <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
+ <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu> <044101c2d2a9$4fcdf980$f6de11cc@black>
+ <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu> <Pine.LNX.4.53.0302171123480.2464@ddx.a2000.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-moved from the netfinity's onboard pcnet32 adapter to an IBM branded
-Intel epro/100 w/ the intel driver in 2.4.20 and it appears very
-stable.  Is it possible the pcnet/32 adapter is broken or the driver is
-buggy?
+On Mon, 17 Feb 2003, Stephan van Hienen wrote:
 
-On Wed, 2003-02-19 at 15:36, Shaya Potter wrote:
-> didn't get any responses on this, but its crashes again a few times
-> again today, the status code it printed out was ffff.  
-> 
-> On Wed, 2003-02-19 at 00:56, Shaya Potter wrote:
-> > I'm trying to use frees/wan 1.99 w/ NFSv3.  I've been testing it w/
-> > large r and wsize's (32k each).  When used w/o ipsec, it seems to work
-> > fine.  When used w/ ipsec, make dep on a kernel source tree has
-> > consistently frozen up these IBM Netfinity boxes (2*933mhz P3s w/ smp
-> > kernel).  One time the last thing the kernel printk'd was
-> > 
-> > pcnet32.c:	    printk(KERN_ERR "%s: Bus master arbitration failure,
-> > status %4.4x.\n",
-> > 
-> > but didn't record the status number (well it was eth0: Bus master....,
-> > and it's using a pcnet32 controller, so assume that's the line). 
-> > Usually it's locked up w/o printk'ing anything, last things I see on
-> > console are the normal ipsec printk's
-> > 
-> > Is it possible that the r/w size's are causing issues when used in
-> > conjuction w/ ipsec?  Am I triggering some sort of race condition?  The
-> > NFS client is running the exact same kernel on the same exact hardware
-> > and hasn't had an issue yet.
-> > 
-> > any ideas on what I can do to debug it?
-> > 
-> > thanks,
-> > 
-> > shaya
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> On Fri, 14 Feb 2003 kernel@ddx.a2000.nu wrote:
+>
+> > On Wed, 12 Feb 2003, Mike Black wrote:
+> >
+> > > I did a 12x180G and as I recall was unable to do 13x180G as it overflowed during mke2fs.  This was a year ago though so I don't know
+> > > if that's been improved since then.
+> > >
+> >
+> > does anyone know for sure what is the limit for md raid5 ?
+> >
+> > can i use 13*180GB in raid5 ?
+> > or should i go for 12*180GB in raid5 ?
+
+I really want to create this raid this week
+so is there anyone with info what will be the limit ?
 

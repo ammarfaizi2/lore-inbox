@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318266AbSIKAhm>; Tue, 10 Sep 2002 20:37:42 -0400
+	id <S318257AbSIKAgf>; Tue, 10 Sep 2002 20:36:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318268AbSIKAhm>; Tue, 10 Sep 2002 20:37:42 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:26614
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318266AbSIKAhk>; Tue, 10 Sep 2002 20:37:40 -0400
-Subject: IDE status
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 11 Sep 2002 01:45:45 +0100
-Message-Id: <1031705145.2768.15.camel@irongate.swansea.linux.org.uk>
+	id <S318258AbSIKAge>; Tue, 10 Sep 2002 20:36:34 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:41975 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318257AbSIKAfz>;
+	Tue, 10 Sep 2002 20:35:55 -0400
+Date: Tue, 10 Sep 2002 17:40:24 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: Linux 2.4.20-pre6
+Message-ID: <20020911004024.GA30708@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20020910231424.GA30612@bougret.hpl.hp.com> <1031704911.2726.10.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031704911.2726.10.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok the last -ac seems to have worked better than I had expected. I've
-now got the test code with some more PCI cleanups. I need to finish
-pushing these to the other drivers in the PCI layer and then I'll put
-out another release
+On Wed, Sep 11, 2002 at 01:41:51AM +0100, Alan Cox wrote:
+> 
+> > 	So, as people like quick'n'dirty hacks, just make sure that
+> > TIOCM_MODEM_BITS is also defined in ARM, SH, PPC and Alpha (at least),
+> > just to make sure I'm the only one complaining.
+> 
+> They are in my tree.
 
-You can now do
+	Perfect, if all architectures are covered, I'm perfectly fine
+with it. Sorry for having ranted too fast ;-)
 
-hdparm -t /dev/hda           (get 900K/sec)
-insmod piix
-hdparm -d 1 /dev/hda
-hdparm -t /dev/hda           (get 8Mbyte/sec)
-
-[Yeah my TP600 drive isnt the fastest on earth]
-
+	Jean

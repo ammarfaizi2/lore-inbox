@@ -1,82 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVCVKBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVCVKCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVCVKBn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 05:01:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVCVKBn
+	id S262599AbVCVKCM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVCVKCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 05:01:43 -0500
-Received: from relay.rost.ru ([80.254.111.11]:40146 "EHLO relay.rost.ru")
-	by vger.kernel.org with ESMTP id S262598AbVCVKBU (ORCPT
+	Tue, 22 Mar 2005 05:02:12 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:50908 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262599AbVCVKCA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 05:01:20 -0500
-Date: Tue, 22 Mar 2005 13:01:14 +0300
-From: Andrey Panin <pazke@donpac.ru>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-Message-ID: <20050322100114.GI2810@pazke>
-Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-	Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
-	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-	Vojtech Pavlik <vojtech@suse.cz>
-References: <20050217194217.GA2458@ucw.cz> <d120d500050321065261ee815c@mail.gmail.com> <1111419068.8079.15.camel@localhost> <200503220213.46375.dtor_core@ameritech.net>
+	Tue, 22 Mar 2005 05:02:00 -0500
+Date: Tue, 22 Mar 2005 11:01:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-05
+Message-ID: <20050322100153.GA23143@elte.hu>
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8JPrznbw0YAQ/KXy"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503220213.46375.dtor_core@ameritech.net>
-X-Uname: Linux 2.6.11-pazke i686
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050322093201.GA21945@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---8JPrznbw0YAQ/KXy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-On 081, 03 22, 2005 at 02:13:45AM -0500, Dmitry Torokhov wrote:
-> On Monday 21 March 2005 10:31, Kenan Esau wrote:
-> > Am Montag, den 21.03.2005, 09:52 -0500 schrieb Dmitry Torokhov:
-> > >=20
-> > > There are couple of things that I an concerned with:
-> > >=20
-> > > 1. I don't like that it overrides meaning of max_proto parameter to be
-> > > exactly the protocol specified.=20
-> >=20
-> > Yeah -- I agree. I also don't like that double-meaning. That was the
-> > reason why I originally proposed the use of a new parameter...
-> >=20
->=20
-> Ok, I have some patches to lifebook that I would like to included (if
-> they work):
->=20
-> 1. lifebook-dmi-x86-only - do not compile in DMI detection on anything
->    but x86.
+> hm, another thing: i think call_rcu() needs to take the read-lock.
+> Right now it assumes that it has the data structure private, but
+> that's only statistically true on PREEMPT_RT: another CPU may have
+> this CPU's RCU control structure in use. So IRQs-off (or preempt-off)
+> is not a guarantee to have the data structure, the read lock has to be
+> taken.
 
-On !x86 machines DMI functions will be optimized away and so you'll save on=
-ly
-few bytes in .init.data section. IMHO it's not worth additional ugly #ifdef=
-'s.
+i've reworked the code to use the read-lock to access the per-CPU data
+RCU structures, and it boots with 2 CPUs and PREEMPT_RT now. The -40-05
+patch can be downloaded from the usual place:
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+  http://redhat.com/~mingo/realtime-preempt/
 
---8JPrznbw0YAQ/KXy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+had to add two hacks though:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+ static void rcu_advance_callbacks(struct rcu_data *rdp)
+ {
+        if (rdp->batch != rcu_ctrlblk.batch) {
+                if (rdp->donetail) // HACK
+                        *rdp->donetail = rdp->waitlist;
+		...
 
-iD8DBQFCP+zqby9O0+A2ZecRAlArAJ9lWC4R3kFASxSDCEp+pzCkdY+siACgxZx7
-CKE+aXmHGOYOjSNwO7Fx/gY=
-=1sWd
------END PGP SIGNATURE-----
+ void fastcall call_rcu(struct rcu_head *head,
+          void (*func)(struct rcu_head *rcu))
+ [...]
+        rcu_advance_callbacks(rdp);
+        if (rdp->waittail) // HACK
+                *rdp->waittail = head;
+	...
 
---8JPrznbw0YAQ/KXy--
+without them it crashes during bootup.
+
+maybe we are better off with the completely unlocked read path and the
+long grace periods.
+
+	Ingo

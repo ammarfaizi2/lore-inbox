@@ -1,74 +1,107 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314448AbSDVTC5>; Mon, 22 Apr 2002 15:02:57 -0400
+	id <S314459AbSDVTDw>; Mon, 22 Apr 2002 15:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314452AbSDVTC4>; Mon, 22 Apr 2002 15:02:56 -0400
-Received: from zero.tech9.net ([209.61.188.187]:63753 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S314448AbSDVTC4>;
-	Mon, 22 Apr 2002 15:02:56 -0400
-Subject: Re: in_interrupt race
-From: Robert Love <rml@tech9.net>
-To: paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15553.17071.88897.914713@argo.ozlabs.ibm.com>
-Content-Type: text/plain
+	id <S314456AbSDVTDv>; Mon, 22 Apr 2002 15:03:51 -0400
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:63454 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id <S314452AbSDVTDq>;
+	Mon, 22 Apr 2002 15:03:46 -0400
+Message-ID: <3CC45E8D.68566324@isg.de>
+Date: Mon, 22 Apr 2002 21:03:41 +0200
+From: Peter Niemayer <niemayer@isg.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, jari.ruusu@pp.inet.fi
+Subject: mounting loop-device on a 2048 byte/sector medium fails
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 22 Apr 2002 15:02:53 -0400
-Message-Id: <1019502174.939.50.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-20 at 06:27, Paul Mackerras wrote:
+Hi,
 
-> Thus if we have CONFIG_SMP and CONFIG_PREEMPT, there is a small but
-> non-zero probability that in_interrupt() will give the wrong answer if
-> it is called with preemption enabled.  If the process gets scheduled
-> from cpu A to cpu B between calling smp_processor_id() and evaluating
-> local_irq_count(cpu) or local_bh_count(), and cpu A then happens to be
-> in interrupt context at the point where the process resumes on cpu B,
-> then in_interrupt() will incorrectly return 1.
+first I thought this was some loop-AES specific issue, but now I know
+it isn't: When I try to mount a filesystem on a loop device which
+is in turn using a 2048 byte/sector medium (a magneto-optical drive
+in my case), the mount fails though mkfs & fsck are happy.
 
-Looks like you are probably right ...
+The following script (tests done with kernel 2.4.18):
 
-> One idea I had is to use a couple of bits in
-> current_thread_info()->flags to indicate whether local_irq_count and
-> local_bh_count are non-zero for the current cpu.  These bits could be
-> tested safely without having to disable preemption.
+----------------------------------------------------------------------
+#!/bin/sh
 
-For now we can just do this,
+echo -n "blockdev /dev/sdb result: "
+blockdev --getbsz /dev/sdb
 
---- linux-2.5.8/include/asm-i386/hardirq.h	Sun Apr 14 15:18:55 2002
-+++ linux/include/asm-i386/hardirq.h	Mon Apr 22 14:56:29 2002
-@@ -21,8 +21,10 @@
-  * Are we in an interrupt context? Either doing bottom half
-  * or hardware interrupt processing?
-  */
--#define in_interrupt() ({ int __cpu = smp_processor_id(); \
--	(local_irq_count(__cpu) + local_bh_count(__cpu) != 0); })
-+#define in_interrupt() ({ int __cpu; preempt_disable(); \
-+	__cpu = smp_processor_id(); \
-+	(local_irq_count(__cpu) + local_bh_count(__cpu) != 0); \
-+	preempt_enable(); })
- 
- #define in_irq() (local_irq_count(smp_processor_id()) != 0)
- 
+losetup /dev/loop0 /dev/sdb
 
-Or perhaps leave the code as-is but make the rule preemption needs to be
-disabled before calling (either implicitly or explicitly).  I.e., via a
-call to preempt_disable or because interrupts are disabled, a lock is
-held, etc ...
+echo
+echo -n "blockdev /dev/loop0 result: "
+blockdev --getbsz /dev/loop0
 
-> In fact almost all uses of local_irq_count() and local_bh_count() are
-> for the current cpu; the exceptions are the irqs_running() function
-> and some debug printks.  Maybe the irq and bh counters themselves
-> could be put into the thread_info struct, if irqs_running could be
-> implemented another way.
+echo
+echo "mkfs output:"
+mkfs -t ext2 /dev/loop0
 
-One thing Linus, DaveM, and I discussed a while back was actually
-getting rid of the irq and bh counts completely and folding them into
-preempt_count.  I am interested in this...
+echo
+echo "fsck output:"
+fsck.ext2 -f /dev/loop0
 
-	Robert Love
+echo
+echo "mount output:"
 
+mount -t ext2 /dev/loop0 /mnt/floppy
+------------------------------------------------------------------------
+
+works just fine when the medium inserted into the MO-drive is a 512 byte/sector
+medium, but when I put a 2048 byte/sector medium in the drive, this is the
+resulting output:
+
+------------------------------------------------------------------------
+blockdev /dev/sdb result: 2048
+
+blockdev /dev/loop0 result: 2048
+
+mkfs output:
+mke2fs 1.23, 15-Aug-2001 for EXT2 FS 0.5b, 95/08/09
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+77600 inodes, 155176 blocks
+7758 blocks (5.00%) reserved for the super user
+First data block=0
+5 block groups
+32768 blocks per group, 32768 fragments per group
+15520 inodes per group
+Superblock backups stored on blocks: 
+        32768, 98304
+
+Writing inode tables: done                            
+Writing superblocks and filesystem accounting information: done
+
+This filesystem will be automatically checked every 31 mounts or
+180 days, whichever comes first.  Use tune2fs -c or -i to override.
+
+fsck output:
+e2fsck 1.23, 15-Aug-2001 for EXT2 FS 0.5b, 95/08/09
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/loop0: 11/77600 files (0.0% non-contiguous), 2446/155176 blocks
+
+mount output:
+mount: wrong fs type, bad option, bad superblock on /dev/loop0,
+       or too many mounted file systems
+------------------------------------------------------------------------
+
+Any idea?
+
+
+Regards,
+
+Peter Niemayer

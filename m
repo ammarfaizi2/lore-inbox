@@ -1,25 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSI2X7U>; Sun, 29 Sep 2002 19:59:20 -0400
+	id <S261851AbSI3AAF>; Sun, 29 Sep 2002 20:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261845AbSI2X57>; Sun, 29 Sep 2002 19:57:59 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:9491 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S261848AbSI2X5K>; Sun, 29 Sep 2002 19:57:10 -0400
-Date: Sun, 29 Sep 2002 20:02:25 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-Message-Id: <200209300002.g8U02Pis024933@pincoya.inf.utfsm.cl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.39-bk current compile failure
+	id <S261845AbSI2X70>; Sun, 29 Sep 2002 19:59:26 -0400
+Received: from zero.aec.at ([193.170.194.10]:5130 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S261851AbSI2X6o>;
+	Sun, 29 Sep 2002 19:58:44 -0400
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+References: <20020929152731.GA10631@averell>
+	<20020929160113.K5659@devserv.devel.redhat.com>
+From: Andi Kleen <ak@muc.de>
+Date: 30 Sep 2002 02:04:02 +0200
+In-Reply-To: <20020929160113.K5659@devserv.devel.redhat.com>
+Message-ID: <m3ptuw5onh.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel/ksyms.c is missing declarations for tvec_bases, bh_task_vec, init_bh,
-remove_bh, __run_task_queue
+Jakub Jelinek <jakub@redhat.com> writes:
 
-In the middle of a big update?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> On Sun, Sep 29, 2002 at 05:27:31PM +0200, Andi Kleen wrote:
+> > 
+> > gcc 3.2 has an __attribute__((malloc)) function attribute. It tells gcc
+> > that a function returns newly allocated memory and that the return pointer
+> > cannot alias with any other pointer in the parent function. This often
+> > allows gcc to generate better code because the optimizer doesn't need take
+> > pointer aliasing in account.
+> 
+> Does this matter when the kernel is compiled with -fno-strict-aliasing?
+
+I don't know. But it's certainly worth trying, isn't it ?  Giving the 
+compiler more information can't be a bad thing.
+
+-Andi

@@ -1,82 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUG2TRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUG2TSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUG2TRw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 15:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUG2TRw
+	id S264265AbUG2TSi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUG2TSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 15:17:52 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:28363 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265027AbUG2TOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 15:14:51 -0400
-Date: Thu, 29 Jul 2004 12:14:47 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: [PATCH 2.6-BK] [ARM] Trivial ARM fixes for 2.6.8
-Message-ID: <20040729191447.GA10367@plexity.net>
-Reply-To: dsaxena@plexity.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 29 Jul 2004 15:18:37 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:57279 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S264704AbUG2TQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 15:16:53 -0400
+Date: Thu, 29 Jul 2004 21:16:34 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix BSD accounting cross-platform compatibility
+Message-ID: <Pine.LNX.4.53.0407292104470.6898@gockel.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, Linus
+Hi Andrew,
 
-Russell King is out vacationing for the next 2 weeks so I can't 
-push any ARM updates through him and I have have some trivial 
-fixes that I'd like to get upstream into 2.6.8.  If you're OK
-with pulling them directly from me, please do a
+it would be nice to have this patch in before 2.6.8-final.
 
-	bk pull bk://dsaxena.bkbits.net/linux-2.6-for-rmk
+BSD accounting cross-platform compatibility is a new feature of 2.6.8 and 
+thus not crucial, but it'd be nice not to have kernels writing wrong file 
+formats out in the wild.
 
-This will update the following files:
+Tim
 
- arch/arm/mach-ixp4xx/common-pci.c      |    2 ++
- arch/arm/mach-ixp4xx/coyote-setup.c    |    8 ++++++--
- arch/arm/mach-ixp4xx/ixdp425-setup.c   |   10 +++++++---
- arch/arm/mach-ixp4xx/prpmc1100-setup.c |    8 ++++++--
- include/asm-arm/bitops.h               |    2 +-
- 5 files changed, 22 insertions(+), 8 deletions(-)
+***********************************************************************
 
-through these ChangeSets:
 
-<dsaxena@plexity.net> (04/07/16 1.1784.14.4)
-   [ARM] Fix _find_next_bit_be prototype to use 'const' qualifier
-   
-   _find_next_bit_be() does not have a 'const' qualifier for the first 
-   argument, so we get the following warning for a very large number
-   of files:
-   
-   In file included from include/linux/sched.h:15,
-                    from include/linux/module.h:10,
-                    from drivers/mtd/maps/ixp2000.c:24:
-   include/linux/cpumask.h: In function `__next_cpu':
-   include/linux/cpumask.h:216: warning: passing arg 1 of `_find_next_bit_be' 
-   discards qualifiers from pointer target type
-   
-   Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+The endianness detection logic I wanted to suppose for userspace turned 
+out to be bogus. So just do it the simple way and store endianness info 
+together with the version number.
 
-<dsaxena@plexity.net> (04/07/15 1.1784.14.3)
-   [ARM] Export ixp42xx_pci_read/write so PCI driver modules load
-   
-   Originally found by Thomas Winkler <winkler@iti.tu-graz.ac.at>
-   
-   Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de> 
 
-<dsaxena@plexity.net> (04/07/07 1.1784.14.1)
-   [ARM] IXP4xx: platform_add_device() to platform_add_devices() conversion
-   
-   Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
-Tnx!
-~Deepak
-
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment and
- will die here like rotten cabbages." - Number 6
+--- linux-2.6.8-rc1/include/linux/acct.h	2004-07-15 16:58:16.000000000 +0200
++++ linux-2.6.8-rc1-acct/include/linux/acct.h	2004-07-15 17:16:34.000000000 +0200
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/types.h>
+ #include <asm/param.h>
++#include <asm/byteorder.h>
+ 
+ /* 
+  *  comp_t is a 16-bit "floating" point number with a 3-bit base 8
+@@ -104,7 +105,12 @@ struct acct_v3
+ #define ACOMPAT		0x04	/* ... used compatibility mode (VAX only not used) */
+ #define ACORE		0x08	/* ... dumped core */
+ #define AXSIG		0x10	/* ... was killed by a signal */
+-#define ABYTESEX	0x80	/* always set, allows to detect byteorder */
++
++#ifdef __BIG_ENDIAN
++#define ACCT_BYTEORDER	0x80	/* accounting file is big endian */
++#else
++#define ACCT_BYTEORDER	0x00	/* accounting file is little endian */
++#endif
+ 
+ #ifdef __KERNEL__
+ 
+--- linux-2.6.8-rc1/include/linux/acct.h	2004-07-15 16:58:16.000000000 +0200
++++ linux-2.6.8-rc1-acct/include/linux/acct.h	2004-07-15 17:16:34.000000000 +0200
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/types.h>
+ #include <asm/param.h>
++#include <asm/byteorder.h>
+ 
+ /* 
+  *  comp_t is a 16-bit "floating" point number with a 3-bit base 8
+@@ -104,7 +105,12 @@ struct acct_v3
+ #define ACOMPAT		0x04	/* ... used compatibility mode (VAX only not used) */
+ #define ACORE		0x08	/* ... dumped core */
+ #define AXSIG		0x10	/* ... was killed by a signal */
+-#define ABYTESEX	0x80	/* always set, allows to detect byteorder */
++
++#ifdef __BIG_ENDIAN
++#define ACCT_BYTEORDER	0x80	/* accounting file is big endian */
++#else
++#define ACCT_BYTEORDER	0x00	/* accounting file is little endian */
++#endif
+ 
+ #ifdef __KERNEL__
+ 
+--- linux-2.6.8-rc1/kernel/acct.c	2004-07-15 16:58:16.000000000 +0200
++++ linux-2.6.8-rc1-acct/kernel/acct.c	2004-07-15 17:18:50.000000000 +0200
+@@ -398,7 +398,7 @@ static void do_acct_process(long exitcod
+ 	 */
+ 	memset((caddr_t)&ac, 0, sizeof(acct_t));
+ 
+-	ac.ac_version = ACCT_VERSION;
++	ac.ac_version = ACCT_VERSION | ACCT_BYTEORDER;
+ 	strlcpy(ac.ac_comm, current->comm, sizeof(ac.ac_comm));
+ 
+ 	elapsed = jiffies_64_to_AHZ(get_jiffies_64() - current->start_time);
+@@ -441,8 +441,7 @@ static void do_acct_process(long exitcod
+ 		old_encode_dev(tty_devnum(current->signal->tty)) : 0;
+ 	read_unlock(&tasklist_lock);
+ 
+-	/* ABYTESEX is always set to allow byte order detection */
+-	ac.ac_flag = ABYTESEX;
++	ac.ac_flag = 0;
+ 	if (current->flags & PF_FORKNOEXEC)
+ 		ac.ac_flag |= AFORK;
+ 	if (current->flags & PF_SUPERPRIV)

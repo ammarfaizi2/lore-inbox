@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319453AbSH3GrZ>; Fri, 30 Aug 2002 02:47:25 -0400
+	id <S319529AbSH3Gu2>; Fri, 30 Aug 2002 02:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319458AbSH3GrZ>; Fri, 30 Aug 2002 02:47:25 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:33683 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319453AbSH3GrY>;
-	Fri, 30 Aug 2002 02:47:24 -0400
-Date: Fri, 30 Aug 2002 08:51:26 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Meelis Roos <mroos@tartu.cyber.ee>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hangs in 2.4.19 and 2.4.20-pre5 (IDE-related?)
-Message-ID: <20020830085126.A19532@ucw.cz>
-References: <20020830075147.D18904@ucw.cz> <Pine.LNX.4.10.10208292329150.7329-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10208292329150.7329-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Aug 29, 2002 at 11:31:39PM -0700
+	id <S319530AbSH3Gu2>; Fri, 30 Aug 2002 02:50:28 -0400
+Received: from dp.samba.org ([66.70.73.150]:57031 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319529AbSH3Gu1>;
+	Fri, 30 Aug 2002 02:50:27 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: rmk@arm.linux.org.uk, Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: cpu controls in driverfs?
+Date: Fri, 30 Aug 2002 16:53:16 +1000
+Message-Id: <20020830015512.A44D22C092@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 11:31:39PM -0700, Andre Hedrick wrote:
-> 
-> Vojtech,
-> 
-> Ball is in your court, DO IT!
-> Lets see what you got and how we can debloat the driver more.
-> 
-> Looking to put the past behind, will you help?
+Hi guys,
 
-Sure.
+	I current put the cpu online controls in /proc, they really
+should be in driverfs somewhere.  There doesn't seem to be any cpus in
+driverfs at the moment: Pat, where should they go?
 
-> Cheers,
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> 
-> On Fri, 30 Aug 2002, Vojtech Pavlik wrote:
-> 
-> > > Well if atapci is that complete then I see no reason to keep proc about.
-> > > So if it needs to go we delete it.
-> > 
-> > I think you can drop the chipset specific /proc code. It'll simplify the
-> > drivers a lot as well as making them smaller.
-> > 
-> > On the other hand, I'd suggest that some generic /proc code is put in
-> > place instead of the chipset-specific one - the values that cannot be
-> > read from PCI config registers, like:
-> > 
-> > The PIO/MMIO/(U)DMA mode (and transfer rate) the IDE driver is operating
-> > the in. The bus speed the driver thinks is running at. Whether the IDE
-> > driver has detected a 80 or 40 wire cable. Etc, etc. This would be very
-> > useful, can be done by a single common routine, and most users actually
-> > don't need the exact timings.
+My current code looks like:
 
--- 
-Vojtech Pavlik
-SuSE Labs
++static void __init create_entries(struct proc_dir_entry *parent,
++				  unsigned int cpu)
++{
++	struct proc_dir_entry *e;
++
++	e = create_proc_entry("online", 0644, parent);
++	e->data = (void *)cpu;
++	e->read_proc = &read_online;
++	e->write_proc = &write_online;
++}
++
++static int __init create_per_cpu_entries(void)
++{
++	unsigned int i;
++	struct proc_dir_entry *cpudir, *dir;
++
++	cpudir = proc_mkdir("sys/cpu", NULL);
++	for (i = 0; i < NR_CPUS; i++) {
++		char cpuname[20];
++
++		if (cpu_possible(i)) {
++			sprintf(cpuname, "%i", i);
++			dir = proc_mkdir(cpuname, cpudir);
++
++			create_entries(dir, i);
++		}
++	}
++	return 0;
++}
++
++__initcall(create_per_cpu_entries);
+
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

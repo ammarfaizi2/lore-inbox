@@ -1,42 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293717AbSCESqN>; Tue, 5 Mar 2002 13:46:13 -0500
+	id <S293702AbSCESqW>; Tue, 5 Mar 2002 13:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293706AbSCESqC>; Tue, 5 Mar 2002 13:46:02 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43780 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293702AbSCESpy>; Tue, 5 Mar 2002 13:45:54 -0500
-Message-ID: <3C851255.5050800@zytor.com>
-Date: Tue, 05 Mar 2002 10:45:41 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-In-Reply-To: <200203051814.NAA03393@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293706AbSCESqO>; Tue, 5 Mar 2002 13:46:14 -0500
+Received: from marcy.nas.nasa.gov ([129.99.113.17]:28335 "EHLO
+	marcy.nas.nasa.gov") by vger.kernel.org with ESMTP
+	id <S293702AbSCESqF>; Tue, 5 Mar 2002 13:46:05 -0500
+Date: Tue, 5 Mar 2002 10:45:59 -0800 (PST)
+From: Brian S Queen <bqueen@nas.nasa.gov>
+Message-Id: <200203051845.KAA16326@marcy.nas.nasa.gov>
+To: linux-kernel@vger.kernel.org
+Subject: dnotify for kernel 2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
+I have been going through the trouble of adding dnotify to our 2.2
+kernel because we don't want to switch to 2.4 yet. I wonder:
 
-> hpa@zytor.com said:
-> 
->>Until you can come up with a sane application for it, this is just
->>featuritis. 
->>
-> 
-> Having the system better manage its memory is "featuritis"?
-> 
+How many folks are interested in dnotify for 2.2?
 
+Is it a really bad idea?
 
-s/better/insanely/
+Is imon really dead?
 
-Your proposed application is, quite frankly, bullshit.
-
-	-hpa
-
-
+Brian McQueen
+NAS Division
+NASA/Ames

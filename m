@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283206AbRK2MsI>; Thu, 29 Nov 2001 07:48:08 -0500
+	id <S283190AbRK2M4S>; Thu, 29 Nov 2001 07:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283210AbRK2Mr6>; Thu, 29 Nov 2001 07:47:58 -0500
-Received: from h217n3fls22o974.telia.com ([213.64.105.217]:45035 "EHLO
-	milou.dyndns.org") by vger.kernel.org with ESMTP id <S283206AbRK2Mrv>;
-	Thu, 29 Nov 2001 07:47:51 -0500
-Message-Id: <200111291247.fATClEX23157@milou.dyndns.org>
-To: "gw boynton" <audio@crystal.cirrus.com>, linux-kernel@vger.kernel.org
-Subject: cs4281 dead after BIOS upgrade
-From: Anders Eriksson <aer-list@mailandnews.com>
-Date: Thu, 29 Nov 2001 13:47:13 +0100
+	id <S283198AbRK2M4I>; Thu, 29 Nov 2001 07:56:08 -0500
+Received: from ns.caldera.de ([212.34.180.1]:9858 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283190AbRK2M4D>;
+	Thu, 29 Nov 2001 07:56:03 -0500
+Date: Thu, 29 Nov 2001 13:55:49 +0100
+Message-Id: <200111291255.fATCtnE25671@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: ink@jurassic.park.msu.ru (Ivan Kokshaysky)
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] /proc/interrupts fixes
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20011129154611.A13470@jurassic.park.msu.ru>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20011129154611.A13470@jurassic.park.msu.ru> you wrote:
+> Is /proc/interrupts now allowed only on s390, x86 and mips? ;-)
 
-Hi,
-I just upgraded the BIOS on my Dell L400 laptop from rev A01 to A03. Now the cs4281 module refuses to load. I used to load perfectly.
+Umm, it is present everywhere _but_ s390, afaik.
 
-Nov 29 13:19:40 devil kernel: cs4281: version v1.13.32 time 17:15:07 Nov 28 2001
-Nov 29 13:19:40 devil kernel: PCI: Found IRQ 10 for device 00:08.0
-Nov 29 13:19:41 devil kernel: cs4281: DLLRDY failed!
-Nov 29 13:19:41 devil kernel: cs4281: cs4281_hw_init() failed. Skipping part.
-Nov 29 13:19:41 devil kernel: cs4281: probe()- no device allocated
+> -#if defined(CONFIG_ARCH_S390) || defined(CONFIG_X86) || defined(CONFIG_ARCH_MIPS)
+>  	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
+> -#endif
 
-Any suggestions as to how to track down the offending changes?
+I think that should be
 
-/Anders
+#if !defined(CONFIG_ARCH_S390)
+

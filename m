@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUHDLba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUHDLme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264298AbUHDLba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 07:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUHDLba
+	id S264346AbUHDLme (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 07:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUHDLme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 07:31:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52668 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264298AbUHDLbU (ORCPT
+	Wed, 4 Aug 2004 07:42:34 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:8860 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264346AbUHDLmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 07:31:20 -0400
-Date: Wed, 4 Aug 2004 07:30:58 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Song Jiang <sjiang@CS.WM.EDU>
-cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       <fchen@CS.WM.EDU>, <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] token based thrashing control
-In-Reply-To: <Pine.LNX.4.44.0408040016200.24835-100000@th139-4.cs.wm.edu>
-Message-ID: <Pine.LNX.4.44.0408040728430.7628-100000@dhcp83-102.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Aug 2004 07:42:33 -0400
+Date: Wed, 4 Aug 2004 13:42:32 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+Message-ID: <20040804114232.GA23285@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040802015527.49088944.akpm@osdl.org> <410E3CAF.6080305@kolivas.org> <410F3423.3020409@yahoo.com.au> <cone.1091518501.973503.9648.502@pc.kolivas.org> <cone.1091519122.804104.9648.502@pc.kolivas.org> <41109FCC.4070906@yahoo.com.au> <cone.1091614334.471559.9775.502@pc.kolivas.org> <4110BB88.3030400@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4110BB88.3030400@yahoo.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004, Song Jiang wrote:
+On Wed, Aug 04, 2004 at 08:33:44PM +1000, Nick Piggin wrote:
 
-> The intention behind the score = time/size is very sound, but
-> I am not sure how sensitive the performance is to the formula.
-> We may need to tune it carefully to make it valid.    
+> >Well duh... disable interactivity and interactivity is bad. What's the 
+> >problem? It's not meant to be used on a desktop in that way.
+> 
+> Well why would you want to disable it then?
 
-[snip]
-
-> Do we need to periodically compare the scores of registered processes?
-> If yes, that would take queueing complexity.
-
-Hmmm, good points.  And my "queue of one" idea has the danger
-of registering a process that doesn't want the token any more
-by the time it's handed off...
-
-Maybe we should use the "time/size" score to influence the
-chance that a process gets to try and steal the token, in
-effect just modifying the odds.
-
-After all, thrashing should be a relatively rare situation,
-so the code should be as low impact as possible...
+When not on a desktop of course - most servers don't care about X
+interactivity but do care a lot about 'nice', and would not want to grant a
+process the CPU (unfairly) longer to satisfy the human need for snappy
+responses.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

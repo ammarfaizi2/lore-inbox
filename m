@@ -1,66 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288220AbSACGbo>; Thu, 3 Jan 2002 01:31:44 -0500
+	id <S288223AbSACGiY>; Thu, 3 Jan 2002 01:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288222AbSACGbf>; Thu, 3 Jan 2002 01:31:35 -0500
-Received: from runyon.cygnus.com ([205.180.230.5]:12796 "HELO cygnus.com")
-	by vger.kernel.org with SMTP id <S288220AbSACGbT>;
-	Thu, 3 Jan 2002 01:31:19 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: paulus@samba.org
-cc: Momchil Velikov <velco@fadata.bg>, Tom Rini <trini@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix 
-Reply-To: law@redhat.com
-From: law@redhat.com
-In-Reply-To: Your message of Thu, 03 Jan 2002 13:51:33 +1100.
-             <15411.50997.394792.638980@argo.ozlabs.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 Jan 2002 23:29:04 -0700
-Message-ID: <1927.1010039344@porcupine.cygnus.com>
+	id <S288224AbSACGiO>; Thu, 3 Jan 2002 01:38:14 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35283 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S288223AbSACGiA>; Thu, 3 Jan 2002 01:38:00 -0500
+Date: Wed, 2 Jan 2002 23:37:59 -0700
+Message-Id: <200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Ivan Passos <ivan@cyclades.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serial Driver Name Question (kernels 2.4.x)
+In-Reply-To: <3C33E0D3.B6E932D6@zip.com.au>
+In-Reply-To: <3C33BCF3.20BE9E92@cyclades.com>
+	<3C33E0D3.B6E932D6@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  > Now the claim is that RELOC is bad because it adds an offset to a
-  > pointer, and the offset is usually around 0xc0000000, and thus we are
-  > "violating" the C standard.  Thus we are being told that someday this
-  > will break and cause a lot of grief.  My contention is that this will
-  > only break if a pointer becomes something other than a simple address
-  > and pointer arithmetic becomes something other than simple 2's
-  > complement addition, subtraction, etc.  If that happens then C will
-  > have become useless for implementing a kernel, IMHO.
-Well, pointer arithmetic on the HPPA isn't simple 2's complement due to
-the way implicit space register selection works.
+Andrew Morton writes:
+> Ivan Passos wrote:
+> > 
+> > (Please CC your answer to me, as I'm not a subscriber of this list.)
 
-For example in an unscaled indexed addressing mode like
+And when sending a message to the list about devfs, I wish people
+would Cc: me.
 
-ldbx  srcreg1(srcreg2), dstreg
+> > Hello,
+> > 
+> > By looking at tty_io.c:_tty_make_name(), it seems that the TTY
+> > subsystem in the Linux 2.4.x kernel series expects driver.name to be
+> > in the form "ttyX%d", even if you're not using devfs. I say that
+> > because as of now the definition in serial.c for this variable is:
+> > 
+> > #if defined(CONFIG_DEVFS_FS)
+> >         serial_driver.name = "tts/%d";
+> > #else
+> >         serial_driver.name = "ttyS";
+> > #endif
+> > 
+> > , when it seems it should be:
+> > 
+> > #if defined(CONFIG_DEVFS_FS)
+> >         serial_driver.name = "tts/%d";
+> > #else
+> >         serial_driver.name = "ttyS%d";
+> > #endif
+> 
+> I don't think so.  Some quick grepping indicates that _all_
+> tty drivers currently use the "ttyS" equivalent if !CONFIG_DEVFS.
+> 
+> Instead, it appears that someone broke tty_name().  Here's the
+> 2.2 kernel's version:
 
-Is not equivalent to
+That "someone" was me, and I changed it from broken to fixed.
 
-ldbx srcreg2(srcreg1), dstreg
+> char *tty_name(struct tty_struct *tty, char *buf)
+> {
+>         if (tty)
+>                 sprintf(buf, "%s%d", tty->driver.name, TTY_NUMBER(tty));
+>         else
+>                 strcpy(buf, "NULL tty");
+>         return buf;
+> }
+> 
+> And that's much more sensible.  The tty has a name associated with
+> what it is (eg "ttyS") - correlates with major number, probably.
+> And it has an instance number.
+> 
+> Which is cleaner, IMO, than embedding printf control strings
+> in the driver name.
 
+No, originally tty_name() did it, and then I shifted it to the
+drivers. I don't recall the reason, but it was necessary. So I don't
+want this changed.
 
-ie x + y != y + x for computing an address in a memory operation.
+				Regards,
 
-For the same reason computing an address outside of an object into a 
-register, then using a displacement in a memory operation to generate an
-address that is within the bounds of the object may not work.  ie, you
-can't do something like this and expect it to work:
-
-int a[10];
-int *z = a - 10;
-
-foo()
-{
-  return z[10];
-}
-
-And before anyone says the PA is unbelievably strange and nobody else would
-make the same mistakes -- the mn10300 (for which a linux port does exist)
-has the same failings.
-
-jeff
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,76 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTADUdl>; Sat, 4 Jan 2003 15:33:41 -0500
+	id <S261456AbTADUmb>; Sat, 4 Jan 2003 15:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbTADUdl>; Sat, 4 Jan 2003 15:33:41 -0500
-Received: from r2l120.mistral.cz ([62.245.75.120]:10624 "EHLO ppc.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261427AbTADUdj>;
-	Sat, 4 Jan 2003 15:33:39 -0500
-Date: Sat, 4 Jan 2003 21:41:31 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][FBDEV]: fb_putcs() and fb_setfont() methods
-Message-ID: <20030104204131.GD1319@ppc.vc.cvut.cz>
-References: <1041672313.958.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041672313.958.17.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	id <S261463AbTADUma>; Sat, 4 Jan 2003 15:42:30 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:9858 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261456AbTADUm2>;
+	Sat, 4 Jan 2003 15:42:28 -0500
+Message-ID: <3E174936.4080000@colorfullife.com>
+Date: Sat, 04 Jan 2003 21:51:02 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [CFT,PATCH] Do not taint AMD non-MP cpus if only one cpu is present
+Content-Type: multipart/mixed;
+ boundary="------------040305030701050900030805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 04, 2003 at 05:25:14PM +0800, Antonino Daplas wrote:
-> Attached is a patch against 2.5.54 in an attempt to add putcs() and
-> setfont() methods for fbdev drivers that require them:
+This is a multi-part message in MIME format.
+--------------040305030701050900030805
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Looks good.
+smp_store_cpu_info() sets TAINT_UNSAFE_SMP as soon as it finds an K7 cpu 
+that doesn't support SMP, even if only one cpu is present. This is wrong 
+- it's ok to run an SMP kernel with a non-MP cpu, as long as only one 
+cpu is present.
+Unfortunately neither num_online_cpus() nor num_booting_cpu() work when 
+smp_store_cpu_info() is called.
+
+The attached patch moves that check into an __initcall.
+It's tested on my uniprocessor Duron, but not on real SMP.
+
+Could someone with an Athlon-non-MP SMP setup check that the kernel 
+still complains about the non-certified setup?
+
+Thanks,
+    Manfred
+
+--------------040305030701050900030805
+Content-Type: text/plain;
+ name="patch-fix-taint"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-fix-taint"
+
+--- 2.5/arch/i386/kernel/smpboot.c	2003-01-04 10:18:05.000000000 +0100
++++ build-2.5/arch/i386/kernel/smpboot.c	2003-01-04 10:53:15.000000000 +0100
+@@ -132,41 +132,57 @@
+ 		 * Remember we have B step Pentia with bugs
+ 		 */
+ 		smp_b_stepping = 1;
++}
  
-> ...
-> struct fb_char {
-> 	__u32 dx;               /* where to place chars, in pixels */
-> 	__u32 dy;               /* where to place chars, in scanline */
+-	/*
+-	 * Certain Athlons might work (for various values of 'work') in SMP
+-	 * but they are not certified as MP capable.
+-	 */
+-	if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
++static int __init check_smp_support(void)
++{
++	int i;
++
++	if (num_online_cpus() == 1)
++		return 0;
+ 
+-		/* Athlon 660/661 is valid. */	
+-		if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
+-			goto valid_k7;
+-
+-		/* Duron 670 is valid */
+-		if ((c->x86_model==7) && (c->x86_mask==0))
+-			goto valid_k7;
++	for(i=0;i<NR_CPUS;i++) {
++		struct cpuinfo_x86 *c = cpu_data + i;
+ 
++		if (!cpu_online(i))
++			continue;
+ 		/*
+-		 * Athlon 662, Duron 671, and Athlon >model 7 have capability bit.
+-		 * It's worth noting that the A5 stepping (662) of some Athlon XP's
+-		 * have the MP bit set.
+-		 * See http://www.heise.de/newsticker/data/jow-18.10.01-000 for more.
++		 * Certain Athlons might work (for various values of 'work') in SMP
++		 * but they are not certified as MP capable.
+ 		 */
+-		if (((c->x86_model==6) && (c->x86_mask>=2)) ||
+-		    ((c->x86_model==7) && (c->x86_mask>=1)) ||
+-		     (c->x86_model> 7))
+-			if (cpu_has_mp)
++		if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
++
++			/* Athlon 660/661 is valid. */	
++			if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
+ 				goto valid_k7;
+ 
+-		/* If we get here, it's not a certified SMP capable AMD system. */
+-		printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
+-		tainted |= TAINT_UNSAFE_SMP;
+-	}
++			/* Duron 670 is valid */
++			if ((c->x86_model==7) && (c->x86_mask==0))
++				goto valid_k7;
++
++			/*
++			 * Athlon 662, Duron 671, and Athlon >model 7 have capability bit.
++			 * It's worth noting that the A5 stepping (662) of some Athlon XP's
++			 * have the MP bit set.
++			 * See http://www.heise.de/newsticker/data/jow-18.10.01-000 for more.
++			 */
++			if (((c->x86_model==6) && (c->x86_mask>=2)) ||
++			    ((c->x86_model==7) && (c->x86_mask>=1)) ||
++			     (c->x86_model> 7))
++				if (cpu_has_mp)
++					goto valid_k7;
++
++			/* If we get here, it's not a certified SMP capable AMD system. */
++			printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
++			tainted |= TAINT_UNSAFE_SMP;
++		}
+ 
+-valid_k7:
+-	;
++	valid_k7:
++		;
++	}
++	return 0;
+ }
++__initcall(check_smp_support);
+ 
+ /*
+  * TSC synchronization.
 
-These two are questionable. I do not know what DaveM will need, but
-I'll be happier with character coordinates for text mode. So for me it is
-just question whether I'll do divide by width/height stored from setfont
-in text mode, or multiply when in graphics mode. So I must remember
-character cell size in any case. But having multiply in matroxfb could 
-save multiply here in generic code.
+--------------040305030701050900030805--
 
-I have strong feeling that doing multiply in generic code, and then divide
-in fbdev driver is waste of time, but if Dave is happier with pixel
-coordinates, I can definitely live with it.
-
-> 	__u32 len;              /* number of characters */
-> 	__u32 fg_color;
-> 	__u32 bg_color;        
-> 	__u32 *data;            /* array of indices to fontdata */
-> };
-> 
-> struct fb_fontdata {
-> 	__u32 width;            /* font width */
-> 	__u32 height;           /* font height */
-> 	__u32 len;              /* number of characters */
-> 	__u8  *data;            /* character map */
-> };
-> 
-> ...
-> 
->     /* upload character map */
->     int (*fb_setfont)(struct fb_info *info, const struct fb_fontdata
-> *font);
->     /* write characters */
->     int (*fb_putcs)(struct fb_info *info, const struct fb_char *chars);
-> 
-
-It would be nice to have old accel_putcs() available for modules, so driver 
-could decide on case-by-case basis whether it will use its own code or 
-generic without touching pointer (without modifying potentially constant
-fb_ops structure common to all fbdev instances).
-						Thanks,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz

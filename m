@@ -1,55 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270370AbTHGPDh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270256AbTHGPDE
+	id S275384AbTHGO7o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275362AbTHGO5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:03:04 -0400
-Received: from visp12-175.visp.co.nz ([210.54.175.12]:28934 "EHLO
-	mdew.dyndns.org") by vger.kernel.org with ESMTP id S275392AbTHGPB3
+	Thu, 7 Aug 2003 10:57:24 -0400
+Received: from dhcp75.ists.dartmouth.edu ([129.170.249.155]:49280 "EHLO
+	uml.karaya.com") by vger.kernel.org with ESMTP id S275384AbTHGOy6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:01:29 -0400
-Subject: Re: reiserfs4
-From: mdew <mdew@mdew.dyndns.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Oleg Drokin <green@namesys.com>, Ivan Gyurdiev <ivg2@cornell.edu>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030807132111.GB7094@louise.pinerecords.com>
-References: <200308070305.51868.vlad@lazarenko.net>
-	 <20030806230220.I7752@schatzie.adilger.int> <3F31DFCC.6040504@cornell.edu>
-	 <20030807072751.GA23912@namesys.com>
-	 <20030807132111.GB7094@louise.pinerecords.com>
-Content-Type: text/plain
-Message-Id: <1060268478.30293.14.camel@mdew>
+	Thu, 7 Aug 2003 10:54:58 -0400
+Message-Id: <200308071459.h77ExAf9001975@uml.karaya.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: torvalds@odsl.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML fixes 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 08 Aug 2003 03:01:19 +1200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 07 Aug 2003 10:59:10 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-08 at 01:21, Tomas Szepe wrote:
+Please pull
+	http://jdike.stearns.org:5000/fixes-2.5
 
-> > This is no longer true.
-> > There is sort of "universal" fs convertor for linux that can convert almost
-> > any fs to almost any other fs.
-> > The only requirement seems to be that both fs types should have read/write support in Linux.
-> > http://tzukanov.narod.ru/convertfs/
-> 
-> I'm afraid I cannot recommend using this tool.
-> 
-> A test conversion from reiserfs to ext3 (inside a vmware machine)
-> screwed up the data real horrorshow: directory structure seems
-> ok but file contents are apparently shifted.
+This update fixes a number of UML bugs.
 
-I'm looking at converting (sometime soon) a JFS system to XFS using
-convertfs, I'm hoping this "converting" process will come out bug-free. 
-Other than backing up all the data, and re-formating to XFS, would any
-one have suggestings?
+				Jeff
 
-convertfs /dev/hde1 jfs xfs
+ arch/um/drivers/chan_kern.c           |    1 
+ arch/um/drivers/chan_user.c           |    4 -
+ arch/um/drivers/hostaudio_kern.c      |   77 +++++++++++++++++++++++++++++++---
+ arch/um/drivers/mconsole_kern.c       |   26 +++++------
+ arch/um/drivers/ubd_user.c            |   50 +++++++++++++---------
+ arch/um/include/kern_util.h           |    7 +--
+ arch/um/include/mem.h                 |    1 
+ arch/um/include/os.h                  |    2 
+ arch/um/include/user_util.h           |    1 
+ arch/um/kernel/mem.c                  |   11 +---
+ arch/um/kernel/mem_user.c             |   10 ++--
+ arch/um/kernel/process.c              |    4 -
+ arch/um/kernel/process_kern.c         |    7 ++-
+ arch/um/kernel/skas/include/mode.h    |    1 
+ arch/um/kernel/skas/include/uaccess.h |    2 
+ arch/um/kernel/skas/process.c         |   16 ++++++-
+ arch/um/kernel/skas/process_kern.c    |   12 ++---
+ arch/um/kernel/skas/util/mk_ptregs.c  |    1 
+ arch/um/kernel/time.c                 |   12 +++--
+ arch/um/kernel/time_kern.c            |    2 
+ arch/um/kernel/trap_kern.c            |    6 ++
+ arch/um/kernel/trap_user.c            |    2 
+ arch/um/kernel/tt/include/uaccess.h   |   31 +++++++------
+ arch/um/kernel/tt/process_kern.c      |   37 +++++++---------
+ arch/um/kernel/tt/ptproxy/proxy.c     |    8 +--
+ arch/um/kernel/tt/tracer.c            |    4 -
+ arch/um/kernel/tt/uaccess_user.c      |   14 ++++++
+ arch/um/kernel/um_arch.c              |   19 +++++---
+ arch/um/kernel/umid.c                 |   47 +++++++++++---------
+ arch/um/kernel/user_util.c            |   11 ----
+ arch/um/os-Linux/file.c               |   31 +++++++++++++
+ arch/um/util/mk_constants_kern.c      |    4 +
+ 32 files changed, 310 insertions(+), 151 deletions(-)
 
--- 
-mdew <mdew@mdew.dyndns.org>
+ChangeSet@1.1455.16.1, 2003-07-25 01:23:07-04:00, jdike@uml.karaya.com
+  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.6.0-test1
+  into uml.karaya.com:/home/jdike/linux/2.5/fixes-2.5
+
+ChangeSet@1.1310.128.2, 2003-07-23 23:41:57-04:00, jdike@uml.karaya.com
+  Fixed the NSEC_PER_SEC problem, which was that this was a kernel
+  constant in a userspace file, by adding it to mk_constants, and
+  including that in time.h.
+
+ChangeSet@1.1310.128.1, 2003-07-18 13:22:14-04:00, jdike@uml.karaya.com
+  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.5.72
+  into uml.karaya.com:/home/jdike/linux/2.5/fixes-2.5
+
+ChangeSet@1.1215.148.1, 2003-07-17 10:28:18-04:00, jdike@uml.karaya.com
+  Untangling my repositories - this adds the fixes that came over from
+  the 2.4 pool.
 

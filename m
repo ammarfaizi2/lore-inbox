@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTJ2XAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 18:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJ2XAG
+	id S262038AbTJ2XEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 18:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTJ2XEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 18:00:06 -0500
-Received: from mail.kroah.org ([65.200.24.183]:42898 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261959AbTJ2XAD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 18:00:03 -0500
-Date: Wed, 29 Oct 2003 14:59:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Missing kobject release methods?
-Message-ID: <20031029225922.GB1513@kroah.com>
-References: <Pine.LNX.4.44L0.0310271121350.679-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0310271121350.679-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 29 Oct 2003 18:04:09 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:55441 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262038AbTJ2XD7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 18:03:59 -0500
+Message-ID: <3FA0475E.2070907@namesys.com>
+Date: Thu, 30 Oct 2003 02:03:58 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org>
+In-Reply-To: <20031029224230.GA32463@codepoet.org>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 11:31:44AM -0500, Alan Stern wrote:
-> Greg:
-> 
-> For a long time, I've been getting debug warnings about missing release()  
-> methods in various kobjects.  They come up because your usb-2.5 tree has
-> DEBUG defined in a number of driver-model source files.
+Erik Andersen wrote:
 
-And because I have a "test for .release in a kobject" patch in my tree
-to help me debug.  That's what you are seeing.
+>
+>
+>Linux today vs an MS vaporware press release is not exactly a
+>fair comparison.  Based on their release schedule, it looks like
+>we have a couple of years yet before anything materializes from
+>the folk in Redmond.
+>
+> -Erik
+>
+>--
+>Erik B. Andersen             http://codepoet-consulting.com/
+>--This message was written using 73% post-consumer electrons--
+>
+>
+>  
+>
+If they have a beta today, and we are not doing anything today in that 
+area, they are probably going to beat us to shipping something in that 
+area unless we make a real effort.  That means well-earned advantage for 
+them.
 
-> It's not easy to track down exactly what the objects in question are;
+-- 
+Hans
 
-Don't worry about these, they are all for things that are only
-directories, and don't have release functions because they do not need
-to at this time.  Pat is aware of these and someday we will divorce
-kobjects from beeing needed just to create a subdirectory in sysfs.
 
-These false warnings are the reason that patch never made it into the
-main kernel tree, unlike the other .release checks in the driver model
-code.
-
-You can just disable that change in your copy of my tree if it's really
-annoying you :)
-
-thanks,
-
-greg k-h

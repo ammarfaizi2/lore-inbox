@@ -1,86 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265872AbRF2MUr>; Fri, 29 Jun 2001 08:20:47 -0400
+	id <S265880AbRF2MVH>; Fri, 29 Jun 2001 08:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265873AbRF2MUi>; Fri, 29 Jun 2001 08:20:38 -0400
-Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:52747 "EHLO
-	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id <S265872AbRF2MUY>; Fri, 29 Jun 2001 08:20:24 -0400
-Date: Fri, 29 Jun 2001 14:20:20 +0200 (MESZ)
-From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
-To: "Ph. Marek" <marek@bmlv.gv.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: sparse file creation in existing data?
-In-Reply-To: <3.0.6.32.20010629133915.0091e470@pop3.bmlv.gv.at>
-Message-Id: <Pine.A32.3.95.1010629135834.61212E-100000@werner.exp-math.uni-essen.de>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265874AbRF2MU6>; Fri, 29 Jun 2001 08:20:58 -0400
+Received: from yellow.jscc.ru ([195.208.40.129]:25101 "EHLO yellow.jscc.ru")
+	by vger.kernel.org with ESMTP id <S265873AbRF2MUv>;
+	Fri, 29 Jun 2001 08:20:51 -0400
+Message-ID: <022901c10095$f4fca650$4d28d0c3@jscc.ru>
+From: "Oleg I. Vdovikin" <vdovikin@jscc.ru>
+To: <linux-kernel@vger.kernel.org>
+Subject: alpha - generic_init_pit - why using RTC for calibration?
+Date: Fri, 29 Jun 2001 16:20:59 +0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jun 2001, Ph. Marek wrote:
+Hello,
 
-> Hi everybody,
-> 
-> though looking and grepping through the sources I couldn't find a way (via
-> fcntl() or whatever) to allow an existing file to get holes.
+    we've a bunch of UP2000/UP2000+ boards (similar to DP264) with 666MHz
+EV67 Alphas (we're building large Alpha cluster). And we're regulary see
+"HWRPB cycle frequency bogus" and the measured value for the speed in the
+range of 519 MHz - 666 MHz. And this value changes in this range from boot
+to boot. So why this happens???
 
-Indeed, I don't think there is any such syscall.
+    Initialy we've an idea this boards has frequency stability problem. But
+then I've decided to add simple recalculation for est_cycle_freq on every
+1024 ticks which happens on boot processor (I've used rpcc for the
+counting). I've added 10 lines to the timer_interrupt function. And I was
+really wondered: the clock are rock solid - near 666 MHz and +- 1Khz
+stability (I'm thinking it's some non constant overhead in the irq
+handlers).
 
-> I found that cp has a parameter --sparse (or suchlike) - but strace shows
-> it doing a open(,O_TRUNC) which has a bit of impact on previous filedata :-)
+    So, I've looked deeper. And here is the question: why using RTC for
+calibration and UIP bit? This bit guarantees nothing - the specs said when
+it's raised to 1 if clock update occures in the ~244 ms! But it does not
+said this happens regulary in the same time for this 244 ms!
 
-Holes are not made by specific syscalls, just by not writing data to
-certain places. In principle, the write syscall could check if it just
-writes zeroes and create a hole instead. Of course,
-this check would be much slower than just writing the data to disk.
-Probably a 'write_zeroes' syscall to create a hole (if possible) would be
-better.
+    So, the final question: why we're not using the aproach which is used by
+x86 time.c? I.e. why not to use CTC channel 2 for calibration?
 
-While I see your purpose and the advantage, this is a pretty specific
-question and doesn't look like std. unix semantics. I doubt you'll get
-people to add such a syscall (maybe if you implement it yourself, people
-will accept it for addition, but I doubt even that).
+    Please correct me, if there is something wrong.
 
-For your specific problem I'd suggest the following approach:
-
-write a new filter prog, kind of a 'destructive cat' command.
-
-Open the file for read-modify (non destructive)
-Let it read some blocks (number controllable on commandline) from the
-beginning and pipe them to stdout. Then.. read in same amount (well;
-block aligned) from the end of file and copy it over the beginning,
-truncate the file accordingly. After some time reading and truncating
-will meet in the middle of the file, then you read the blocks back in
-on reverse (and truncate them after reading)
-
-It shouldn't be too difficult to write and result in a multipurpose
-commandline utility.
-
-It does some disk i/o but I don't think it will too bad due to disk
-buffers of the kernel and read-ahead. Theoretically, the kernel, buffers
-etc. could detect you are just moving file blocks to different places and
-does this in a 'zero-copy' fashion by just moving some inode entries
-around, but I doubt that it is soo smart.
-
-Drawback: If you have choosen the read block size too large (hmm.. you
-might want to read some data from beginning, some from the end, copy over
-beginning, then truncate, and only then pipe to stdout: this should
-eliminate this 'buffer/diskspace overrun')  of 'destructive cat' too big,
-or the archive is compressed and doesn't fit uncompressed, the backup was
-destructed. This is by far not as safe as any backup tool should be.
-
-A major advantage, however, is that this tool will run w/o a kernel patch,
-on any Unix on any filesystem, even those w/o holes (I think truncate
-works in general, maybe not samba?) 
-
-Just my 0.02$ (you asked for ideas, didn't you?)
-
-Michael.
-
---
-
-Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
-or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
-any machine in the net, it's very likely it's me.
+Thanks,
+    Oleg.
 

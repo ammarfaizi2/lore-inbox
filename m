@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135257AbRAHVwC>; Mon, 8 Jan 2001 16:52:02 -0500
+	id <S135350AbRAHVxc>; Mon, 8 Jan 2001 16:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132964AbRAHVvw>; Mon, 8 Jan 2001 16:51:52 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:45841 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S135318AbRAHVvo>; Mon, 8 Jan 2001 16:51:44 -0500
-Date: Mon, 8 Jan 2001 13:51:34 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [PATCH,serious] Fix raid5 crashes in 2.4.0
-Message-ID: <20010108135134.A28394@twiddle.net>
-In-Reply-To: <20010108181625.A11766@gruyere.muc.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20010108181625.A11766@gruyere.muc.suse.de>
+	id <S135351AbRAHVxW>; Mon, 8 Jan 2001 16:53:22 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:44791 "EHLO
+	mf2.private") by vger.kernel.org with ESMTP id <S135350AbRAHVxP>;
+	Mon, 8 Jan 2001 16:53:15 -0500
+Date: Mon, 8 Jan 2001 13:56:08 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.30.0101082207290.3435-100000@fs129-124.f-secure.com>
+Message-ID: <Pine.LNX.4.30.0101081352400.954-100000@mf2.private>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 06:16:25PM +0100, Andi Kleen wrote:
-> This patch just makes the SSE2 code conditional on ...
+On Mon, 8 Jan 2001, Szabolcs Szakacsits wrote:
 
-Pedanticly, this is SSE1 code.
+> AFAIK newer glibc = CVS glibc but the malloc() tune parameters work
+> via environment variables for the current stable ones as well,
+
+Hmm, this must have been introduced in libc6?  Unfortunately, I don't have
+the source code to MAGMA, and the binary I have is statically linked.  It
+does not contain the names of the environment variables you mentioned.
+
+I'll arrange a binary linked against glibc2.2, and then your suggestion
+will hopefully do the trick.  Thanks for your kind help!
+
+Cheers,
+Wayne
 
 
-r~
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269429AbUJSOsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269433AbUJSOtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269429AbUJSOsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 10:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbUJSOsP
+	id S269433AbUJSOtb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 10:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269438AbUJSOtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 10:48:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:36283 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269429AbUJSOsO (ORCPT
+	Tue, 19 Oct 2004 10:49:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:55192 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S269433AbUJSOtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 10:48:14 -0400
-Date: Tue, 19 Oct 2004 16:46:42 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-Message-ID: <20041019144642.GA6512@elte.hu>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+	Tue, 19 Oct 2004 10:49:08 -0400
+Subject: Re: [PATCH] Re: Weird... 2.6.9 kills FC2 gcc
+From: Mark Haverkamp <markh@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41748A9D.2080306@pobox.com>
+References: <4174697B.90306@pobox.com> <1098150587.1384.0.camel@peabody>
+	 <41747A28.2000101@pobox.com>  <41748A9D.2080306@pobox.com>
+Content-Type: text/plain
+Date: Tue, 19 Oct 2004 07:48:58 -0700
+Message-Id: <1098197339.1278.0.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041019124605.GA28896@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 (2.0.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-10-18 at 23:31 -0400, Jeff Garzik wrote:
+> More data points:
+> 
+> No problems at all on x86-64.
+> 
+> No ICE on 32-bit x86 gcc 3.4.2, with 2.6.9 release kernel.
+> 
+> So this ICE appears to be a bug specific to 3.3.x or perhaps Fedora.
+> 
+> 	Jeff
+> 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+I tried building this on FC3 with a 3.4.2 gcc and it compiles OK.
 
-> i have released the -U6 Real-Time Preemption patch:
->  
->   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U6
+Mark.
 
-i've re-released the patch because shortly after releasing it i found a
-false-positive in the deadlock-detector that was triggering in oowriter. 
 
-The latest patch is thus:
+-- 
+Mark Haverkamp <markh@osdl.org>
 
- $ md5sum realtime-preempt-2.6.9-rc4-mm1-U6
- 9fd546bdd2d45ff1a8d5a88160135170  realtime-preempt-2.6.9-rc4-mm1-U6
-
-if you've got the earlier one and have CONFIG_RWSEM_DEADLOCK_DETECT
-enabled then please download the new patch.
-
-	Ingo

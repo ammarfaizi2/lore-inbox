@@ -1,182 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUIPNd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUIPNkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUIPNd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 09:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUIPNd5
+	id S268074AbUIPNkW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 09:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUIPNkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 09:33:57 -0400
-Received: from mproxy.gmail.com ([216.239.56.251]:39468 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268066AbUIPNbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 09:31:18 -0400
-Message-ID: <21d7e99704091606315a4cc51a@mail.gmail.com>
-Date: Thu, 16 Sep 2004 23:31:15 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: [BK pull] [DRM] latest DRM patches..
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0409161226180.17566@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 16 Sep 2004 09:40:21 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:45704 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S268074AbUIPNgP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 09:36:15 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: journal aborted, system read-only
+Date: Thu, 16 Sep 2004 09:36:01 -0400
+User-Agent: KMail/1.7
+Cc: Valdis.Kletnieks@vt.edu, "Stephen C. Tweedie" <sct@redhat.com>
+References: <200409121128.39947.gene.heskett@verizon.net> <1095088378.2765.18.camel@sisko.scot.redhat.com> <200409160634.i8G6YhOR008893@turing-police.cc.vt.edu>
+In-Reply-To: <200409160634.i8G6YhOR008893@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0409161226180.17566@skynet>
+Content-Disposition: inline
+Message-Id: <200409160936.01539.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.59.197] at Thu, 16 Sep 2004 08:36:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just added another changeset to use __set_current_state after
-Alan suggested it as the proper construct to use in the DRM...
-
-Dave.
-
-
-On Thu, 16 Sep 2004 12:27:52 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
-> 
-> Hi Linus,
-> 
-> Please do a
-> 
->         bk pull bk://drm.bkbits.net/drm-2.6
-> 
-> This will include the latest DRM changes and will update the following files:
-> 
->  drivers/char/drm/drm_drv.h      |   11 +++++++----
->  drivers/char/drm/drm_os_linux.h |    4 ++--
->  drivers/char/drm/drm_scatter.h  |    2 +-
->  drivers/char/drm/i830_irq.c     |    4 ++--
->  4 files changed, 12 insertions(+), 9 deletions(-)
-> 
-> through these ChangeSets:
-> 
-> <airlied@starflyer.(none)> (04/09/16 1.1904)
->    drm: use set_current_state instead of direct assignment
-> 
->    Suggested-by: Nishanth Aravamudan <nacc@us.ibm.com>
->    Approved-by: Dave Airlie <airlied@linux.ie>
-> 
-> <airlied@starflyer.(none)> (04/09/16 1.1903)
->    drm: add pci_enable_device
-> 
->    Add pci_enable_device for any PCI device we want to use.
-> 
->    From: Bjorn Helgaas <bjorn.helgaas@hp.com>
->    Approved-by: David Airlie <airlied@linux.ie>
-> 
-> <airlied@starflyer.(none)> (04/09/16 1.1902)
->    drm: fix bug introduced in the macro removal
-> 
->    This caused issues with a PCI radeon card.
-> 
->    From: Jon Smirl
->    Approved-by: Dave Airlie <airlied@linux.ie>
-> 
-> diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
-> --- a/drivers/char/drm/drm_drv.h        Thu Sep 16 21:24:25 2004
-> +++ b/drivers/char/drm/drm_drv.h        Thu Sep 16 21:24:25 2004
-> @@ -480,6 +480,9 @@
->         if (DRM(numdevs) >= MAX_DEVICES)
->                 return -ENODEV;
-> 
-> +       if ((retcode=pci_enable_device(pdev)))
-> +               return retcode;
-> +
->         dev = &(DRM(device)[DRM(numdevs)]);
-> 
->         memset( (void *)dev, 0, sizeof(*dev) );
-> @@ -785,7 +788,7 @@
-> 
->                 add_wait_queue( &dev->lock.lock_queue, &entry );
->                 for (;;) {
-> -                       current->state = TASK_INTERRUPTIBLE;
-> +                       set_current_state(TASK_INTERRUPTIBLE);
->                         if ( !dev->lock.hw_lock ) {
->                                 /* Device has been unregistered */
->                                 retcode = -EINTR;
-> @@ -805,7 +808,7 @@
->                                 break;
->                         }
->                 }
-> -               current->state = TASK_RUNNING;
-> +               set_current_state(TASK_RUNNING);
->                 remove_wait_queue( &dev->lock.lock_queue, &entry );
->                 if( !retcode ) {
->                         if (dev->fn_tbl.release)
-> @@ -985,7 +988,7 @@
-> 
->         add_wait_queue( &dev->lock.lock_queue, &entry );
->         for (;;) {
-> -               current->state = TASK_INTERRUPTIBLE;
-> +               set_current_state(TASK_INTERRUPTIBLE);
->                 if ( !dev->lock.hw_lock ) {
->                         /* Device has been unregistered */
->                         ret = -EINTR;
-> @@ -1006,7 +1009,7 @@
->                         break;
->                 }
->         }
-> -       current->state = TASK_RUNNING;
-> +       set_current_state(TASK_RUNNING);
->         remove_wait_queue( &dev->lock.lock_queue, &entry );
-> 
->         sigemptyset( &dev->sigmask );
-> diff -Nru a/drivers/char/drm/drm_os_linux.h b/drivers/char/drm/drm_os_linux.h
-> --- a/drivers/char/drm/drm_os_linux.h   Thu Sep 16 21:24:25 2004
-> +++ b/drivers/char/drm/drm_os_linux.h   Thu Sep 16 21:24:25 2004
-> @@ -134,7 +134,7 @@
->         add_wait_queue(&(queue), &entry);                       \
->                                                                 \
->         for (;;) {                                              \
-> -               current->state = TASK_INTERRUPTIBLE;            \
-> +               set_current_state(TASK_INTERRUPTIBLE);          \
->                 if (condition)                                  \
->                         break;                                  \
->                 if (time_after_eq(jiffies, end)) {              \
-> @@ -147,7 +147,7 @@
->                         break;                                  \
->                 }                                               \
->         }                                                       \
-> -       current->state = TASK_RUNNING;                          \
-> +       set_current_state(TASK_RUNNING);                                \
->         remove_wait_queue(&(queue), &entry);                    \
->  } while (0)
-> 
-> diff -Nru a/drivers/char/drm/drm_scatter.h b/drivers/char/drm/drm_scatter.h
-> --- a/drivers/char/drm/drm_scatter.h    Thu Sep 16 21:24:25 2004
-> +++ b/drivers/char/drm/drm_scatter.h    Thu Sep 16 21:24:25 2004
-> @@ -73,7 +73,7 @@
-> 
->         DRM_DEBUG( "%s\n", __FUNCTION__ );
-> 
-> -       if (drm_core_check_feature(dev, DRIVER_SG))
-> +       if (!drm_core_check_feature(dev, DRIVER_SG))
->                 return -EINVAL;
-> 
->         if ( dev->sg )
-> diff -Nru a/drivers/char/drm/i830_irq.c b/drivers/char/drm/i830_irq.c
-> --- a/drivers/char/drm/i830_irq.c       Thu Sep 16 21:24:25 2004
-> +++ b/drivers/char/drm/i830_irq.c       Thu Sep 16 21:24:25 2004
-> @@ -92,7 +92,7 @@
->         add_wait_queue(&dev_priv->irq_queue, &entry);
-> 
->         for (;;) {
-> -               current->state = TASK_INTERRUPTIBLE;
-> +               set_current_state(TASK_INTERRUPTIBLE);
->                 if (atomic_read(&dev_priv->irq_received) >= irq_nr)
->                    break;
->                 if((signed)(end - jiffies) <= 0) {
-> @@ -112,7 +112,7 @@
->                 }
->         }
-> 
-> -       current->state = TASK_RUNNING;
-> +       set_current_state(TASK_RUNNING);
->         remove_wait_queue(&dev_priv->irq_queue, &entry);
->         return ret;
->  }
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Thursday 16 September 2004 02:34, Valdis.Kletnieks@vt.edu wrote:
+>On Mon, 13 Sep 2004 16:12:59 BST, "Stephen C. Tweedie" said:
+>> Well, we really need to see _what_ error the journal had
+>> encountered to be able to even begin to diagnose it.  But
+>> 2.6.9-rc1-mm3 and -mm4 had a bug in the journaling introduced by
+>> low-latency work on the checkpoint code; can you try -mm5 or back
+>> out
+>> "journal_clean_checkpoint_list-latency-fix.patch" and try again?
 >
+>I just got bit by the 'journal aborted' problem under -rc1-mm5, so
+> it looks like that particular bug wasn't at fault here (also, I
+> started seeing the problem under -mm2, so that's another point
+> against that theory...)
+>
+Thanks Valdis, now I don't feel quite so lonely in this camp. :-)
+
+[...]
+
+>This happened about 4 minutes into a 'tar cf - | (cd && tar xf -)'
+> pipeline to clone a work copy of the -rc1-mm5 source tree (it got
+> about 408M through the 543M before it blew up)....
+
+Humm, it happened to me while amdump was running, and amdump uses tar.
+My tar version is 1.13-25.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

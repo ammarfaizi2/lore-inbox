@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbTF3Gp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 02:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbTF3Gp3
+	id S265763AbTF3GnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 02:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbTF3GnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 02:45:29 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25355
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265779AbTF3GpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 02:45:22 -0400
-Date: Sun, 29 Jun 2003 23:56:07 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Miles Bader <miles@gnu.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Svein Ove Aas <svein.ove@aas.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dell vs. GPL
-In-Reply-To: <buoznk06pde.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Message-ID: <Pine.LNX.4.10.10306292353190.5840-100000@master.linux-ide.org>
+	Mon, 30 Jun 2003 02:43:22 -0400
+Received: from client73.fre.communitycolo.net ([216.218.240.222]:24534 "EHLO
+	slick.sigje.org") by vger.kernel.org with ESMTP id S265763AbTF3GnV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 02:43:21 -0400
+Date: Sun, 29 Jun 2003 23:57:39 -0700 (PDT)
+From: ahorn@deorth.org
+X-X-Sender: ahorn@slick.sigje.org
+To: David Schwartz <davids@webmaster.com>
+cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: RE: Dell vs. GPL
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEHCEAAA.davids@webmaster.com>
+Message-ID: <Pine.NEB.4.44.0306292354100.7687-100000@slick.sigje.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Everyone else general talks out of their hat and not from a truly informed
-position.  I will qualify the statement, having paid for legal advise from
-lawyers who specialize in the field of technology, copyright, and patent
-law.
+On Sun, 29 Jun 2003, David Schwartz wrote:
 
-When they tell you they will not open a case on your behalf until a
-registered copyright is in hand, that point real hard.
+>	There are sections of the GPL that specifically state that those who
+>receive copies of covered works are intended beneficiaries. Like this
+>section:
+>
+>"For example, if you distribute copies of such a program, whether
+>gratis or for a fee, you must give the recipients all the rights that
+>you have. You must make sure that they, too, receive or can get the
+>source code. And you must show them these terms so they know their
+>rights."
+>
+>	It is quote clear that this entitlement is specifically intended to benefit
+>the recipients and not to benefit the copyright holder.
 
-Andre Hedrick
-LAD Storage Consulting Group
+I interpret this to mean 'distribute a copy of the GPL with all
+distributions of the source code, and make sure that it's followed', kind
+of a recursive inheritance thing...
 
-On 30 Jun 2003, Miles Bader wrote:
+I'm still not seeing any evidence of anyone being blocked from obtaining
+the source code (although I haven't followed the whole thread)
 
-> Andre Hedrick <andre@linux-ide.org> writes:
-> > I know first hand that I can not take "RAIDZONE" to court yet to sue for
-> > GPL violation to get the code back into the community and monetary
-> > damages, until I fully file a registered copyright and not the halfassed
-> > crap of just sticking you name and email address in a file.
-> > 
-> > GPL wins great.
-> > GPL loses, maybe better so it can be replaced with OSL and then it gets
-> > serious because we will have teeth to defend the ideas of open source.
-> 
-> Even if you are right about the need to register (I have no idea, though
-> everyone else seems to say otherwise), this seems like a bizarre
-> conclusion.  If the problem is the lack of proper copyright
-> registration, how would changing the license make the least bit of
-> difference?
-> 
-> -Miles
-> -- 
-> `...the Soviet Union was sliding in to an economic collapse so comprehensive
->  that in the end its factories produced not goods but bads: finished products
->  less valuable than the raw materials they were made from.'  [The Economist]
-> 
+I repeat, did anyone ask dell for source code for this supposed violation?
+They are not bound to _distribute_ the source code with their software
+only to make it available in a reasonable fashion upon request.
+
+Or am I missing something here ?
+
+(not being argumentative here by the way, this is really interesting
+discussion)
+
+Cheers,
+
+Al
+
 

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265034AbTFRF7N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 01:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTFRF7N
+	id S264547AbTFRGj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 02:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbTFRGj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 01:59:13 -0400
-Received: from web40015.mail.yahoo.com ([66.218.78.55]:49497 "HELO
-	web40015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265034AbTFRF7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 01:59:12 -0400
-Message-ID: <20030618061307.84646.qmail@web40015.mail.yahoo.com>
-Date: Tue, 17 Jun 2003 23:13:07 -0700 (PDT)
-From: Jeff Smith <whydoubt@yahoo.com>
-Subject: [PATCH] Symbol export needed by 3c509 module
-To: linux-kernel@vger.kernel.org
+	Wed, 18 Jun 2003 02:39:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:15294 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264547AbTFRGj0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 02:39:26 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16112.2991.972670.344808@cargo.ozlabs.ibm.com>
+Date: Wed, 18 Jun 2003 16:50:23 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@transmeta.com, akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: copy_from_user
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-depmod gets snagged on 3c509.ko if netdev_boot_setup_check is not
-in the kernel's export list.  On searching the kernel sources, I
-found a few other modules that may require this symbol as well,
-but 3c509 is the only one that affects me.  So here's the patch.
+Some time ago (in the 2.1 series IIRC) we added code to copy_from_user
+to zero the remainder of the destination buffer if we faulted on the
+source.  The motive was to eliminate some potential security holes
+that could arise if callers didn't check the return value from
+copy_from_user and continued on to pass the contents of the
+destination buffer back to userspace in one way or another.
 
- -- Jeff Smith
+However, I notice that copy_from_user on i386 in 2.5 doesn't clear the
+destination if the access_ok() check fails, or if the size is 1, 2 or
+4.  Have all the callers of copy_from_user been checked?  Is the
+zeroing of the destination no longer necessary?
 
-========================================================================
---- a/net/netsyms.c	Tue Jun 17 16:23:00 2003
-+++ b/net/netsyms.c	Tue Jun 17 16:58:52 2003
-@@ -563,6 +563,7 @@
- EXPORT_SYMBOL(unregister_netdevice);
- EXPORT_SYMBOL(synchronize_net);
- EXPORT_SYMBOL(netdev_state_change);
-+EXPORT_SYMBOL(netdev_boot_setup_check);
- EXPORT_SYMBOL(dev_new_index);
- EXPORT_SYMBOL(dev_get_by_flags);
- EXPORT_SYMBOL(__dev_get_by_flags);
-
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
+Thanks,
+Paul.

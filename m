@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269313AbTGJO6R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 10:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269318AbTGJO6Q
+	id S266358AbTGJOuG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 10:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269290AbTGJOuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 10:58:16 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:10768 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S269313AbTGJO6M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 10:58:12 -0400
-Date: Thu, 10 Jul 2003 17:12:31 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: marcelo@conectiva.com.br, green@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre3 and reiserfs boot problem
-Message-Id: <20030710171231.01df358e.skraw@ithnet.com>
-In-Reply-To: <3F0D7BCC.7070607@gmx.net>
-References: <3F0D761E.2050702@gmx.net>
-	<20030710163828.70eb6587.skraw@ithnet.com>
-	<3F0D7BCC.7070607@gmx.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 10 Jul 2003 10:50:06 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:64402 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266358AbTGJOuC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 10:50:02 -0400
+Date: Thu, 10 Jul 2003 16:04:41 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS client errors with 2.5.74?
+Message-ID: <20030710150441.GC29113@mail.jlokier.co.uk>
+References: <20030710053944.GA27038@mail.jlokier.co.uk> <16141.15245.367725.364913@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16141.15245.367725.364913@charged.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003 16:44:28 +0200
-Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net> wrote:
+>      >       kernel: nfs: server 192.168.1.1 not responding, timed out
 
-> > I have currently nmi_watchdog=1 which works (NMI interrupts show up during
-> > normal operation), but there is no backtrace visible or producable during
-> > the freeze, sorry.
-> 
-> How is that possible? If the NMI watchdog works but doesn't fire, the
-> lockup should respond to SysRq-T. Could you please try SysRq-T *before*
-> the hang just to verify that it would work?
+Trond Myklebust wrote:
+> I can never guarantee you perfect service with soft mounts (a 5 second
+> network patition/server congestion is all it takes)
 
-Well, the thing I don't really understand about SysRq-X is that the output is
-visible by dmesg-command, but I cannot see anything on the console (single user
-tested). This means it may well work in the hang-case, but as I cannot execute
-dmesg I will never see it...
+There is _no_ congestion to speak of: I type "ls directory" and it
+returns EIO apparently immediately, from an otherwise idle network and
+unloaded server.
 
-Regards,
-Stephan
+The "server 192.168.1.1 not responding, timed out" message also
+appears immediately in this case - there is no 5 second delay.
+
+There is no 0.7 second delay either (the default value of "timeo"
+according to nfs(5)).  So the retransmission logic is buggered.
+
+> Sigh... I hate soft mounts...  Have I said that before? 8-)
+
+If I switch to a hard mount ("hard,intr") the EIO errors go away.
+
+However, the protocol problem remains: multiple READDIRPLUS calls with
+the same xid in a fraction of a second.  Note: there is no 0.7 second
+delay between these packets.  According to Ethereal, it is between
+0.01 and 0.1 seconds between duplicate requests.
+
+There seems to be a transition from a state where calls with duplicate
+xids are rare (but they do occur), to one where they occur on nearly
+every request.
+
+I have 768MB of RAM on the client, so I checked whether RAM being
+filled makes a difference.  Not really.
+
+After mounting, if I do "ls -lR" then I see that duplicate xids are
+rare for a while, then they become common.  In this state, I still
+have 400MB free (i.e. not even filled clean pagecache pages), so it is
+not an absolute shortage of RAM which triggers this, but something else.
+
+I suspect the request timeout logic is buggered, and sending retries
+too quickly - 0.01 to 0.1 seconds rather than 0.7 upwards.  It would
+also explain why "soft" is failing quickly: if the timeout logic
+thinks it has already sent the maximum number of retries in a very
+short time, it will count it as a timeout even though the server is
+quite fast in responding.
+
+It's interesting that this state can be reached even when the network,
+client and server are idle and I try "ls directory" for some uncached
+directory.  This shows it's not purely a question of congestion, but
+that even a fast response is not good enough.
+
+-- Jamie

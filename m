@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUJQDjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269038AbUJQDkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269032AbUJQDjw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 23:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUJQDjw
+	id S269038AbUJQDkc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 23:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269039AbUJQDkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 23:39:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9674 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269032AbUJQDju
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 23:39:50 -0400
-Message-ID: <4171E978.6060207@pobox.com>
-Date: Sat, 16 Oct 2004 23:39:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ak@suse.de, axboe@suse.de
-Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
-References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com>	<20041016171458.4511ad8b.akpm@osdl.org>	<4171C20D.1000105@pobox.com> <20041016182116.33b3b788.akpm@osdl.org>
-In-Reply-To: <20041016182116.33b3b788.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Oct 2004 23:40:31 -0400
+Received: from holomorphy.com ([207.189.100.168]:14997 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269038AbUJQDk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 23:40:27 -0400
+Date: Sat, 16 Oct 2004 20:40:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: christophpfister@bluemail.ch,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: failure in /mm/memory.c
+Message-ID: <20041017034018.GX5607@holomorphy.com>
+References: <412EB75E00164E05@mssazhh-int.msg.bluewin.ch> <20041016120911.GW5607@holomorphy.com> <1097980417.13428.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097980417.13428.17.camel@localhost.localdomain>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> vmscan-total_scanned-fix.patch
+On Sat, Oct 16, 2004 at 12:32:35PM +0100, christophpfister@bluemail.ch wrote:
+>>> i found a failure in function remap_pte_range in memory.c
+
+On Sad, 2004-10-16 at 13:09, William Lee Irwin III wrote:
+[...]
+
+On Sun, Oct 17, 2004 at 03:33:39AM +0100, Alan Cox wrote:
+> I think the bug is in the comment not the code !
+
+I suppose the comment is a bit off, sure. I'll send an update atop the
+remap_pfn_range() patch series akpm has in -mm to correct it.
 
 
-Yes, this patch also seems to solve the hang.
-
-Do you want me to test further?
-
-	Jeff
-
-
+-- wli

@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbUKAMLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUKAMNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbUKAMLW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 07:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUKAMLV
+	id S261764AbUKAMNk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 07:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbUKAMNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 07:11:21 -0500
-Received: from cantor.suse.de ([195.135.220.2]:50084 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261762AbUKAMLG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 07:11:06 -0500
-Date: Mon, 1 Nov 2004 13:07:04 +0100
-From: Olaf Hering <olh@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: Disambiguation for panic_timeout's sysctl
-Message-ID: <20041101120704.GB24626@suse.de>
-References: <Pine.LNX.4.53.0410311721470.20529@yvahk01.tjqt.qr> <20041101120227.GA24626@suse.de> <20041101120411.GA26958@infradead.org>
+	Mon, 1 Nov 2004 07:13:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9220 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261766AbUKAMNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 07:13:30 -0500
+Date: Mon, 1 Nov 2004 13:12:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Paul Dickson <dickson@permanentmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1: drivers/ide/ide-dma.o: value of -130 too large for field of 1 bytes at 911
+Message-ID: <20041101121256.GK2495@stusta.de>
+References: <20041101035402.556616d2.dickson@permanentmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041101120411.GA26958@infradead.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20041101035402.556616d2.dickson@permanentmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Nov 01, Christoph Hellwig wrote:
-
-> On Mon, Nov 01, 2004 at 01:02:27PM +0100, Olaf Hering wrote:
-> >  On Sun, Oct 31, Jan Engelhardt wrote:
-> > 
-> > > 
-> > > 
-> > > The /proc/sys/kernel/panic file looked to me like it was something like
-> > > /proc/sysrq-trigger -- until I looked into the kernel sources which reveal that
-> > > it sets the variable "panic_timeout" in kernel/sched.c.
-> > 
-> > This will probably break applications that expect the filename 'panic'.
+On Mon, Nov 01, 2004 at 03:54:02AM -0700, Paul Dickson wrote:
+> With the attached .config, I'm getting this while compiling...
 > 
-> And why should applications care for the panic timeout?  Especially only
-> a few days after it's been added to the kernel?
+>...
+>   CC      drivers/ide/ide-dma.o
+> {standard input}: Assembler messages:
+> {standard input}:607: Error: value of -130 too large for field of 1 bytes at 911
+> make[3]: *** [drivers/ide/ide-dma.o] Error 1
+> make[2]: *** [drivers/ide] Error 2
+> make[1]: *** [drivers] Error 2
+> make: *** [bzImage] Error 2
+> 
+> I got the same error with 2.6.9 too.
+> 
+> GCC 3.2.2 and 3.4.1.
+> 
+> Has this been fixed since 2.6.10-rc1?  Searching my Linux-Kernel folder
+> didn't find a match.
 
-/proc/sys/kernel/panic exists since at least 2.6.5.
-Its used to override the silly default '0' on i386, but one should be
-able to boot with panic=$bignum
+I can't reproduce it with your .config in 2.6.10-rc1.
+
+Please send the output of ./scripts/ver_linux .
+
+> 	-Paul
+
+cu
+Adrian
 
 -- 
-USB is for mice, FireWire is for men!
 
-sUse lINUX ag, nÜRNBERG
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

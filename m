@@ -1,62 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSIEBuk>; Wed, 4 Sep 2002 21:50:40 -0400
+	id <S316608AbSIECPl>; Wed, 4 Sep 2002 22:15:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316595AbSIEBuk>; Wed, 4 Sep 2002 21:50:40 -0400
-Received: from [199.26.153.9] ([199.26.153.9]:50875 "EHLO smtp.fourelle.com")
-	by vger.kernel.org with ESMTP id <S316594AbSIEBuj>;
-	Wed, 4 Sep 2002 21:50:39 -0400
-Message-ID: <3D76B970.8080709@fourelle.com>
-Date: Wed, 04 Sep 2002 18:54:56 -0700
-From: Adam Scislowicz <adams@fourelle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: dead programs LISTEN sockets remain in netstat (Kernel Version 2.4.18-rc4
- SMP)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S316609AbSIECPl>; Wed, 4 Sep 2002 22:15:41 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:31246 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S316608AbSIECPk>;
+	Wed, 4 Sep 2002 22:15:40 -0400
+Date: Thu, 05 Sep 2002 11:13:26 +0900 (JST)
+Message-Id: <20020905.111326.68164898.taka@valinux.co.jp>
+To: hpa@zytor.com
+Cc: paubert@iram.es, linux-kernel@vger.kernel.org
+Subject: Re: TCP Segmentation Offloading (TSO)
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <3D768C0F.7040006@zytor.com>
+References: <Pine.LNX.4.33.0209050027270.7673-100000@gra-lx1.iram.es>
+	<3D768C0F.7040006@zytor.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quick Summary: Rarely, but several times in the past few weeks now after 
-I kill off a process nicely(SIGTERM) its LISTEN sockets remain open...
+Hello, 
 
-Some Detail: Because of this, Squid or our server side app cannot 
-respawn(cannot bind to socket as it's in use), sometimes its squid's 
-socket that remains in the LISTEN state and other times it's been out 
-server side app. These are the apps running on our servers which are 
-restarted most often. I don't see how an application could be 
-responsible for this behaviour after it is dead. So now I look to the 
-kernel ;)
+> > While it would work, this sequence is overkill. Unless I'm mistaken, the
+> > only property of bswap which is used in this case is that it swaps even
+> > and odd bytes, which can be done by a simple "roll $8,%eax" (or rorl).
+> > 
+> > I believe that bswap is one byte shorter than roll. In any case, using a
+> > rotate might be the right thing to do on other architectures.
+> > 
+> 
+> And again, I think you'll find the rotate faster on at least some x86 cores.
 
-My diagnostics below:
+Yeah, I replaced "bswap %eax" with "roll $8,%eax" which would be more
+familier to us.
 
-lsof -n -P | grep 9000 finds nothing, however netstate shows TCP/9000 in 
-listen state w/ no parent program?
-**** NETSTAT OUTPUT ****
-bash-2.04# netstat -antp
-Active Internet connections (servers and established)
-Proto Recv-Q Send-Q Local Address           Foreign Address         
-State       PID/Program name  
-tcp        0      0 0.0.0.0:8001            0.0.0.0:*               
-LISTEN      -                  
-tcp        0      0 127.0.0.1:9666          0.0.0.0:*               
-LISTEN      9826/lcdd          
-tcp        0      0 0.0.0.0:9000            0.0.0.0:*               
-LISTEN      -                  
-tcp        0      0 0.0.0.0:8008            0.0.0.0:*               
-LISTEN      -                  
-tcp        0      0 127.0.0.1:9875          0.0.0.0:*               
-LISTEN      -                  
-...
-**** END OF NETSTAT OUTPUT ****
+> Better fix is to verify len >=2 before half-word alignment
+> test at the beginning of csum_partial.  I am not enough of
+> an x86 coder to hack this up reliably. :-)
 
-ps aux reports no zombie processes...
+Don't care about the order of checking len and half-word alignment
+as both of them have to be checked after all.
 
-any help? do you need more info? I have a system in this state now.
+Thank you,
+Hirokazu Takahashi.
 
-thank you :)
-/)dam.. .  . d o n ' t   s t o p.
+
+--- linux/arch/i386/lib/checksum.S.BUG	Sun Sep  1 17:00:59 2030
++++ linux/arch/i386/lib/checksum.S	Thu Sep  5 10:33:31 2030
+@@ -126,8 +126,8 @@ csum_partial:
+ 	movl 16(%esp),%ecx	# Function arg: int len
+ 	movl 12(%esp),%esi	# Function arg:	const unsigned char *buf
+ 
+-	testl $2, %esi         
+-	jnz 30f                 
++	testl $3, %esi         
++	jnz 25f                 
+ 10:
+ 	movl %ecx, %edx
+ 	movl %ecx, %ebx
+@@ -145,6 +145,20 @@ csum_partial:
+ 	lea 2(%esi), %esi
+ 	adcl $0, %eax
+ 	jmp 10b
++25:
++	testl $1, %esi         
++	jz 30f                 
++	# buf is odd
++	dec %ecx
++	jl 90f
++	roll $8, %eax
++	movzbl (%esi), %ebx
++	shll $8, %ebx
++	addl %ebx, %eax
++	adcl $0, %eax
++	inc %esi
++	testl $2, %esi
++	jz 10b
+ 
+ 30:	subl $2, %ecx          
+ 	ja 20b                 
+@@ -211,6 +225,10 @@ csum_partial:
+ 	addl %ebx,%eax
+ 	adcl $0,%eax
+ 80: 
++	testl $1, 12(%esp)
++	jz 90f
++	roll $8, %eax
++90: 
+ 	popl %ebx
+ 	popl %esi
+ 	ret
 

@@ -1,102 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbVCQCxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVCQDft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbVCQCxL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 21:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262970AbVCQCxL
+	id S261806AbVCQDft (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 22:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVCQDfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 21:53:11 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:53521 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262969AbVCQCxA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 21:53:00 -0500
-Date: Thu, 17 Mar 2005 11:54:44 +0900 (JST)
-Message-Id: <20050317.115444.31670680.yoshfuji@linux-ipv6.org>
-To: davem@davemloft.net, juhl-lkml@dif.dk
-Cc: kuznet@ms2.inr.ac.ru, davem@davemloft.net, pekkas@netcore.fi,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH] net, ipv6: remove redundant NULL checks before kfree
- in ip6_flowlabel.c
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <Pine.LNX.4.62.0503170027390.2558@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503170027390.2558@dragon.hyggekrogen.localhost>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 16 Mar 2005 22:35:48 -0500
+Received: from fire.osdl.org ([65.172.181.4]:17628 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261806AbVCQDfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 22:35:24 -0500
+Message-ID: <4238FADA.5090504@osdl.org>
+Date: Wed, 16 Mar 2005 19:34:50 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jayalk@intworks.biz
+CC: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
+References: <200503170124.j2H1O2Ar024405@intworks.biz>
+In-Reply-To: <200503170124.j2H1O2Ar024405@intworks.biz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.62.0503170027390.2558@dragon.hyggekrogen.localhost> (at Thu, 17 Mar 2005 00:36:35 +0100 (CET)), Jesper Juhl <juhl-lkml@dif.dk> says:
+jayalk@intworks.biz wrote:
+> Hi Greg, PCI folk,
+> 
+> I updated this to change pirq_table_addr to a long, and to add a warning
+> msg if the PIRQ table wasn't found at the specified address, as per thread
+> with Matthew Wilcox. Let me know if it's okay. Thanks.
+> 
+> In our hardware situation, the BIOS is unable to store or generate it's PIRQ
+> table in the F0000h-100000h standard range. This patch adds a pci kernel
+> parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
+> the kernel where the PIRQ table got stored. A beneficial side-effect is that,
+> if one's BIOS uses a static address each time for it's PIRQ table, then
+> pirqaddr can be used to avoid the $pirq search through that address block each
+> time at boot for normal PIRQ BIOSes.
+> 
+> Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
+> 
+> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
+> --- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
+> +++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-11 20:35:41.000000000 +0800
+> @@ -25,6 +25,7 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
+>  
+>  int pci_routeirq;
+>  int pcibios_last_bus = -1;
+> +unsigned long pirq_table_addr = 0;
+Don't need to init above (or below) to 0.
 
-> I considered also rewriting the 
->         if (fl)
->                 fl_free(fl);
-> bit as simply fl_free(fl) as well, but that if() potentially saves two 
-> calls to kfree() inside fl_free as well as the call to fl_free itself, so 
-> I guess that's worth the if().
+>  struct pci_bus *pci_root_bus = NULL;
+>  struct pci_raw_ops *raw_pci_ops;
+>  
+> @@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
+>  	} else if (!strcmp(str, "biosirq")) {
+>  		pci_probe |= PCI_BIOS_IRQ_SCAN;
+>  		return NULL;
+> +	} else if (!strncmp(str, "pirqaddr=", 9)) {
+> +		pirq_table_addr = simple_strtol(str+9, NULL, 0);
+Use simple_strtoul().
 
-I don't mind calling kfree twice itself (because that function is not
-so performance critical), but fl_free(NULL) is out because
-if fl is NULL, kfree(fl->opt) is out.
+> +		return NULL;
+>  	}
+>  #endif
+>  #ifdef CONFIG_PCI_DIRECT
+> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
+> --- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
+> +++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-11 20:40:28.000000000 +0800
+> @@ -58,6 +58,35 @@ struct irq_router_handler {
+>  int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
+>  
+>  /*
+> + *  Check passed address for the PCI IRQ Routing Table signature 
+> + *  and perform checksum verification.
+> + */
+> +
+> +static inline struct irq_routing_table * __init pirq_check_routing_table(u8 *addr)
+This doesn't need to be both inline and __init.
 
-So, what do you think of checking fl inside fl_free like this?
+> +{
+> +	struct irq_routing_table *rt;
+> +	int i;
+> +	u8 sum;
+> +
+> +	rt = (struct irq_routing_table *) addr;
+> +	if (rt->signature != PIRQ_SIGNATURE ||
+> +	    rt->version != PIRQ_VERSION ||
+> +	    rt->size % 16 ||
+> +	    rt->size < sizeof(struct irq_routing_table))
+> +		return NULL;
+> +	sum = 0;
+> +	for(i=0; i<rt->size; i++)
+Space after for:  "for ("
+Spaces around "<" would be nice for readability.
 
-We can even make fl_free inline and check as following:
-  if (fl) {
-    kfree(fl->opt);
-    kfree(fl);
-  }
+> +		sum += addr[i];
+> +	if (!sum) {
+> +		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
+> +		return rt;
+> +	}
+> +	return NULL;
+> +}
+> +
+> +
+> +
+> +/*
+>   *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
+>   */
+>  
+> @@ -65,21 +94,17 @@ static struct irq_routing_table * __init
+>  {
+>  	u8 *addr;
+>  	struct irq_routing_table *rt;
+> -	int i;
+> -	u8 sum;
+>  
+> +	if (pirq_table_addr) {
+> +		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
+> +		if (rt) {
+> +			return rt;
+> +		}
+No braces when not needed for block of statements.
 
-Based on patch from Jesper Juhl <juhl-lkml@dif.dk>.
+> +		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
+> +	}
+>  	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
+> -		rt = (struct irq_routing_table *) addr;
+> -		if (rt->signature != PIRQ_SIGNATURE ||
+> -		    rt->version != PIRQ_VERSION ||
+> -		    rt->size % 16 ||
+> -		    rt->size < sizeof(struct irq_routing_table))
+> -			continue;
+> -		sum = 0;
+> -		for(i=0; i<rt->size; i++)
+> -			sum += addr[i];
+> -		if (!sum) {
+> -			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
+> +		rt = pirq_check_routing_table(addr);
+> +		if (rt) {
+>  			return rt;
+>  		}
+>  	}
+> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
+> --- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
+> +++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-11 20:35:55.000000000 +0800
+> @@ -27,6 +27,7 @@
+>  #define PCI_ASSIGN_ALL_BUSSES	0x4000
+>  
+>  extern unsigned int pci_probe;
+> +extern unsigned long pirq_table_addr;
+>  
+>  /* pci-i386.c */
+>  
+> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
+> --- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
+> +++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-10 16:45:48.000000000 +0800
+> @@ -967,6 +967,10 @@ running once the system is up.
+>  		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
+>  					automatically to PCI devices. You can make the kernel
+>  					exclude IRQs of your ISA cards this way.
+> +		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
+> +					of the PIRQ table (normally generated
+> +					by the BIOS) if it is outside the .  
+What is the trailing " .  " here? (above)
 
-David?
-
-Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-
-===== net/ipv6/ip6_flowlabel.c 1.18 vs edited =====
---- 1.18/net/ipv6/ip6_flowlabel.c	2005-01-14 13:41:06 +09:00
-+++ edited/net/ipv6/ip6_flowlabel.c	2005-03-17 11:23:32 +09:00
-@@ -87,7 +87,7 @@
- 
- static void fl_free(struct ip6_flowlabel *fl)
- {
--	if (fl->opt)
-+	if (fl)
- 		kfree(fl->opt);
- 	kfree(fl);
- }
-@@ -351,8 +351,7 @@
- 	return fl;
- 
- done:
--	if (fl)
--		fl_free(fl);
-+	fl_free(fl);
- 	*err_p = err;
- 	return NULL;
- }
-@@ -551,10 +550,8 @@
- 	}
- 
- done:
--	if (fl)
--		fl_free(fl);
--	if (sfl1)
--		kfree(sfl1);
-+	fl_free(fl);
-+	kfree(sfl1);
- 	return err;
- }
- 
+> +					F0000h-100000h range.
+>  		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
+>  					if the kernel is unable to find your secondary buses
+>  					and you want to tell it explicitly which ones they are.
+> -
 
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+~Randy

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318152AbSHIFdu>; Fri, 9 Aug 2002 01:33:50 -0400
+	id <S318159AbSHIGD0>; Fri, 9 Aug 2002 02:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318153AbSHIFdt>; Fri, 9 Aug 2002 01:33:49 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:1154 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318140AbSHIFds>;
-	Fri, 9 Aug 2002 01:33:48 -0400
-Date: Thu, 8 Aug 2002 22:30:27 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.30 scsi_scan.c cleanup/rewrite
-Message-ID: <20020808223027.A21774@eng2.beaverton.ibm.com>
-References: <20020808140616.A28275@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020808140616.A28275@eng2.beaverton.ibm.com>; from patmans@us.ibm.com on Thu, Aug 08, 2002 at 02:06:16PM -0700
+	id <S318161AbSHIGD0>; Fri, 9 Aug 2002 02:03:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39185 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318159AbSHIGDZ>; Fri, 9 Aug 2002 02:03:25 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+Date: 8 Aug 2002 23:06:43 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aivm5j$rmt$1@cesium.transmeta.com>
+References: <UTC200208081822.g78IM2r23833.aeb@smtp.cwi.nl> <3.0.5.32.20020808153603.01476050@pop-server.san.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 02:06:16PM -0700, Patrick Mansfield wrote:
-> Hi -
+Followup to:  <3.0.5.32.20020808153603.01476050@pop-server.san.rr.com>
+By author:    John Coffman <johninsd@san.rr.com>
+In newsgroup: linux.dev.kernel
 > 
-> Attached is cleanup/rewrite patch for scsi_scan.c against 2.5.30.
+> The lilo boot loader must use the BIOS as its disk driver to access the
+> disk at boot time.  It may be directed to use one of three addressing modes:
+> 
+>   geometric - use int 13h, fn 2 (CHS read)
+>   linear - convert 24-bit disk address to CHS, use int 13h, fn 2 as above.
+>   lba32 - 32-bit disk addresses; IF AVAILABLE, use int 13h, fn 42h (EDD
+> packet call) to read disk; else convert disk address to CHS, use int 13h,
+> fn 2 as above.
+> 
+> All CHS addressing is subject to the 1024 cylinder limit.  If a 'linear' or
+> 'lba32' address is converted to CHS, the head/sector information need for
+> the conversion is obtained with int 13h, fn 8 (Get drive parameters).
 > 
 
-There's a bug for adapters with multiple channels (like the ServeRAID
-with ips driver) not being properly scanned - it scans channel 0 again
-rather than going to the next channel - patch on top of the original
-patch:
+Why support geometric at all?  Either "linear" or "lba32" should work
+on all systems (otherwise (Win)DOS won't work either.)
 
---- 1.23/drivers/scsi/scsi_scan.c	Thu Aug  8 09:48:01 2002
-+++ edited/drivers/scsi/scsi_scan.c	Thu Aug  8 16:19:31 2002
-@@ -1939,6 +1939,7 @@
- 
- 	sdevscan->host = shost;
- 	sdevscan->id = id;
-+	sdevscan->channel = channel;
- 	/*
- 	 * Scan LUN 0, if there is some response, scan further. Ideally, we
- 	 * would not configure LUN 0 until all LUNs are scanned.
-
-Complete patch against 2.5.30 is now at:
-
-http://www-124.ibm.com/storageio/gen-io/patch-scsi_scan-2.5.30-2.gz
-
-The modified scsi_scan.c file:
-
-http://www-124.ibm.com/storageio/gen-io/scsi_scan.c-2.5.30-2.gz
-
-Thanks.
-
--- Patrick Mansfield
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbSK1FD0>; Thu, 28 Nov 2002 00:03:26 -0500
+	id <S264856AbSK1FVK>; Thu, 28 Nov 2002 00:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265197AbSK1FD0>; Thu, 28 Nov 2002 00:03:26 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:27353 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S264856AbSK1FDZ>; Thu, 28 Nov 2002 00:03:25 -0500
-Message-ID: <3DE5A1E4.8030200@snapgear.com>
-Date: Thu, 28 Nov 2002 14:56:04 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.50-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265190AbSK1FVK>; Thu, 28 Nov 2002 00:21:10 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:23969 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264856AbSK1FVJ>;
+	Thu, 28 Nov 2002 00:21:09 -0500
+Date: Wed, 27 Nov 2002 21:26:38 -0800 (PST)
+Message-Id: <20021127.212638.35873260.davem@redhat.com>
+To: sfr@canb.auug.org.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, anton@samba.org,
+       ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021128162231.6935e3af.sfr@canb.auug.org.au>
+References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
+	<Pine.LNX.4.44.0211270913480.7657-100000@home.transmeta.com>
+	<20021128162231.6935e3af.sfr@canb.auug.org.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Stephen Rothwell <sfr@canb.auug.org.au>
+   Date: Thu, 28 Nov 2002 16:22:31 +1100
 
-Hi All,
+   On Wed, 27 Nov 2002 09:18:06 -0800 (PST) Linus Torvalds <torvalds@transmeta.com> wrote:
+   > May I just suggest doing a
+   > 
+   > 	kernel/compat32.c
+   
+   OK, new version.
 
-Mostly the same patches as previously, only patches against
-2.5.50. I will keep sending small peices to Linus, hopefully
-he will commit them some time...
+Well, actually I disagree with this.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.50-uc0.patch.gz
+I envisioned moving the compat stuff right next to the "normal"
+implementation.
 
-Change log:
-1. patch up to 2.5.50                              (me)
-2. spinlocks around m68knommu signal processing    (Robert Daniels)
-3. pte_chain_unlock fix up for !CONFIG_SWAP        (Andrew Morton)
-4. !CONFIG_MMU read_zero() rewrite                 (Andrew Morton)
+A problem currently, is that when people change VFS stuff up one has
+to pay attention to update all the compat syscall layers as well.
 
+This often simply does not happen because the compat version is
+"somewhere else" is some other file.
 
-I have separated out the 68328 frame buffer driver.
-Its patch set is now at:
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.50-uc0-68328fb.patch.gz
-
-And the h8300 support is at:
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.50-uc0-h8300.patch.gz
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
+Now if we put the stuff next to the non-compat stuff, it likely won't
+get missed.

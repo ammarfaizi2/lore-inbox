@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311273AbSDNWvX>; Sun, 14 Apr 2002 18:51:23 -0400
+	id <S312484AbSDNW4G>; Sun, 14 Apr 2002 18:56:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312480AbSDNWvW>; Sun, 14 Apr 2002 18:51:22 -0400
-Received: from amethyst.es.usyd.edu.au ([129.78.124.28]:49086 "EHLO
-	amethyst.es.usyd.edu.au") by vger.kernel.org with ESMTP
-	id <S311273AbSDNWvV>; Sun, 14 Apr 2002 18:51:21 -0400
-Date: Mon, 15 Apr 2002 08:51:09 +1000 (EST)
-From: ivan <ivan@es.usyd.edu.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Memory Leaking. Help!
-In-Reply-To: <E16wkde-0004MR-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0204150848340.20787-100000@dipole.es.usyd.edu.au>
+	id <S312488AbSDNW4F>; Sun, 14 Apr 2002 18:56:05 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:20392 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S312484AbSDNW4E>; Sun, 14 Apr 2002 18:56:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Ivan G." <ivangurdiev@yahoo.com>
+Reply-To: ivangurdiev@yahoo.com
+Organization: ( )
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: 2.5.8 compile bugs
+Date: Sun, 14 Apr 2002 16:48:35 -0600
+X-Mailer: KMail [version 1.2]
+Cc: LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <02041416483500.07641@cobra.linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Apr 2002, Alan Cox wrote:
+1) Script error, xconfig fails, apply to drivers/ide/Config.in
 
-> > 10 Days ago I installed DNS and DHCPd servers from RedHat and noticed that 
-> > "top" shows the amount of consumed memory is slowly and constantly 
-> > growing. Machine became unstable and a few users complained that their 
-> > files disappeared. ( we have good backup ). I re-booted 4 days ago and now 
-> > it looks it is doing it again. Could this be BIND?
-> 
-> Wildly improbable. Slow shifts in memory usage occur naturally so don't be 
-> totally mislead by it. Named for example will grow and shrink over time 
-> according to what it has cached and what people asked for.
+--- Config.in.bak       Sun Apr 14 16:13:29 2002
++++ Config.in   Sun Apr 14 16:13:44 2002
+@@ -49,7 +49,7 @@
+         define_bool CONFIG_BLK_DEV_IDEDMA $CONFIG_BLK_DEV_IDEDMA_PCI
+         dep_bool '    ATA tagged command queueing' CONFIG_BLK_DEV_IDE_TCQ 
+$CONFIG_BLK_DEV_IDEDMA_PCI
+           dep_bool '      TCQ on by default' CONFIG_BLK_DEV_IDE_TCQ_DEFAULT 
+$CONFIG_BLK_DEV_IDE_TCQ
+-          if [ $CONFIG_BLK_DEV_IDE_TCQ_DEFAULT != "n" ]; then
++          if [ "$CONFIG_BLK_DEV_IDE_TCQ_DEFAULT" != "n" ]; then
+                int '      Default queue depth' CONFIG_BLK_DEV_IDE_TCQ_DEPTH 
+32
+           fi
+         dep_bool '    ATA Work(s) In Progress (EXPERIMENTAL)' 
+CONFIG_IDEDMA_PCI_WIP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
 
-But it took half of my swap (4GB) as well. A bit too much 
-for a little bind. How to explain this?
 
-> 
-> > 1) Could you please advice how can I detect memory leaks. ( I guess it is 
-> > not an easy task on production server.
-> > 
-> > 2) Is there a tool which I can use to log memory usage 
-> 
-> ps, looking in /proc at the address space maps too.
-> 
-> What you almost certainly want to do first is run memtest86 as suggested
-> by others. 
-> 
-> 
+To complement this pathetic bugfix, here's some other bug reports 
 
--- 
+2) 
+ERROR:
+ide.c: In function `ide_teardown_commandlist':
+ide.c:2704: structure has no member named `pci_dev'
+ide.c: In function `ide_build_commandlist':
+ide.c:2719: structure has no member named `pci_dev'
+make[3]: *** [ide.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.8/drivers/ide'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.8/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.8/drivers'
+make: *** [_dir_drivers] Error 2
 
-There's an old story about the person who wished his computer were as
- easy to use as his telephone. That wish has come true, since I no
- longer know how to use my telephone.
+CAUSE:
+/usr/src/linux-2.5.8/include/linux/ide.h:
 
-================================================================================
+#ifdef CONFIG_BLK_DEV_IDEPCI
+        struct pci_dev  *pci_dev;       /* for pci chipsets */
+#endif
 
-Ivan Teliatnikov,
-F05 David Edgeworth Building,
-Department of Geology and Geophysics,
-School of Geosciences,
-University of Sydney, 2006
-Australia
+I don't use BLK_DEV_IDEPCI
+yet I have an IDE hard drive so ide.c has to be compiled.
 
-e-mail: ivan@es.usyd.edu.au
-ph:  061-2-9351-2031 (w)
-fax: 061-2-9351-0184 (w)
 
-===============================================================================
+3)
+Is the init bug fixed? I didn't finish the compile 
+but it doesn't look like it.
+In init/main.c setup_per_cpu_areas ends up undefined 
+for uniprocessors (and called in start_kernel) , because of 
+incorrect ifdef statements.............. result is compile error.
 
+any replies: 
+please cc to ivangurdiev@yahoo.com
+I'm not subscribed

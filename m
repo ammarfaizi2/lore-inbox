@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265660AbTFNJYK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 05:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbTFNJYK
+	id S265631AbTFNK1P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 06:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265664AbTFNK1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 05:24:10 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:38095 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265660AbTFNJYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 05:24:09 -0400
-Date: Sat, 14 Jun 2003 02:38:07 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Dave Jones <davej@codemonkey.org.uk>
+	Sat, 14 Jun 2003 06:27:15 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:21773 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S265631AbTFNK1O convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 06:27:14 -0400
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Organization: K4 Labs
+To: mirsev@cicese.mx, Damian Kolkowski <deimos@deimos.one.pl>
+Subject: Re: via-rhine strange behavior 2.4.21-rc8
+Date: Sat, 14 Jun 2003 11:12:19 +0100
+User-Agent: KMail/1.5.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: EFS breakage in 2.5
-Message-Id: <20030614023807.28141985.akpm@digeo.com>
-In-Reply-To: <20030614092805.GC18188@suse.de>
-References: <20030614091014.GA18188@suse.de>
-	<20030614022108.6b9d0e8b.akpm@digeo.com>
-	<20030614092805.GC18188@suse.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jun 2003 09:37:58.0416 (UTC) FILETIME=[A3DC9900:01C33258]
+References: <200306121227.07122@gjs> <20030613170426.GB573@deimos.one.pl> <3EEA12C0.E15DBAF2@cicese.mx>
+In-Reply-To: <3EEA12C0.E15DBAF2@cicese.mx>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200306141112.25252@gjs>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@codemonkey.org.uk> wrote:
->
-> Deja-vu. dee-dee-dee-dee...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I had to pinch myself ;)
+On Friday 13 of June 2003 19:06, Serguei Miridonov wrote:
+> Are you sure that ACPI is the reason? Grzegorz Jaskiewicz wrote about
+> generic 2.4.21-rc8 = 2.4.21 which does not have the new ACPI code.
+Yep, it was vanilla 2.4.21-rc8 (which become 2.4.21 at the moment).
 
->  That's got to be a cut-n-paste error from the same error that was
->  fixed a week or so back somewhere else. Hopefully it's the last.
+ 
+- --
+Grzegorz Jaskiewicz
+K4 Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-It is. I checked.
-
+iD8DBQE+6vUIqu082fCQYIgRArd6AJ0TZgROPpzSkvJuyrRFtzhpIO9noQCfcz66
+fXVrbcOGV1JKPVcNudcfY/s=
+=E8Lk
+-----END PGP SIGNATURE-----
 

@@ -1,88 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264270AbTLBSpW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbTLBSpW
+	id S263281AbTLBSiw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTLBSiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:45:22 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:46726 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264270AbTLBSpP (ORCPT
+	Tue, 2 Dec 2003 13:38:51 -0500
+Received: from mail.gmx.net ([213.165.64.20]:8071 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263281AbTLBSis (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:45:15 -0500
-Date: Tue, 2 Dec 2003 19:45:13 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Tue, 2 Dec 2003 13:38:48 -0500
+X-Authenticated: #14985714
+Date: Tue, 2 Dec 2003 19:35:22 +0100
+From: "Stefan J. Betz" <stefan_betz@gmx.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031202184513.GU16507@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <200312020223.55505.snpe@snpe.co.yu> <20031202063912.GD16507@lug-owl.de> <Pine.LNX.4.58.0312020956120.1519@home.osdl.org>
+Subject: include/linux/version.h
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bW7Nw90iaNQhVLQB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312020956120.1519@home.osdl.org>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Debian GNU/Linux 3.0r1
+X-Programming-Language: Python
+X-Office-Software: OpenOffice 1.1.0
+X-Nickname: [ENC]BladeXP
+X-Kernel-Version: 2.4.22
+X-Desktop: FVWM 2.4.6
+X-Jabber-Id: stefan_betz@jabber.org
+X-Host: encbladexp.homelinux.net
+Message-Id: <S263281AbTLBSis/20031202183848Z+2508@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello People,
 
---bW7Nw90iaNQhVLQB
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+i have found some wrong thing in include/linux/version.h
+On my System i have Kernel 2.6.0-test10 & 2.6.0-test11, but in
+include/linux/version.h i see:
+#define UTS_RELEASE "2.6.0-test9"
 
-On Tue, 2003-12-02 10:04:24 -0800, Linus Torvalds <torvalds@osdl.org>
-wrote in message <Pine.LNX.4.58.0312020956120.1519@home.osdl.org>:
-> On Tue, 2 Dec 2003, Jan-Benedict Glaw wrote:
-> >
-> > On Tue, 2003-12-02 02:23:55 +0000, snpe <snpe@snpe.co.yu>
-> > wrote in message <200312020223.55505.snpe@snpe.co.yu>:
-> > > Is there linux-abi for 2.6 kernel ?
-> >
-> > Nobody really cares about ABI (at least, not enough to keep one stable)
-> > while there's a good API. That requires sources, though, but that's a
-> > good thing...
+correct where:
+#definde UTS_RELEASE "2.6.0-test11" (for Linux Kernel 2.6.0-test11)...
 
-> You are, however, correct when it comes to internal kernel interfaces: we
-> care not at all about ABI's, and even API's are fluid and are freely
-> changed if there is a real technical reason for it. But that is only true
-> for the internal kernel stuff (where source is obviously a requirement
-> anyway).
+Here is a little "patch":
 
-Whenever The ABI Question (TM) comes up, it seems to be about claiming a
-(binary compatible) interface - mostly for modules. But I think it's
-widely accepted that there isn't much work done to have these truly (sp?)
-binary compatible (eg. UP/SMP spinlocks et al.).
+diff -Nru linux-2.6.0-test11/include/linux/version.h linux-2.6.0-test11-fixed/include/linux/version.h
+--- linux-2.6.0-test11/include/linux/version.h	Tue Dec  2 19:21:22 2003
++++ linux-2.6.0-test11-fixed/include/linux/version.h	Tue Dec  2 19:22:06 2003
+@@ -1,3 +1,3 @@
+-#define UTS_RELEASE "2.6.0-test9"
++#define UTS_RELEASE "2.6.0-test11"
+ #define LINUX_VERSION_CODE 132608
+ #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
-Of course, we want to have a somewhat stable interface for libc (->
-userspace), but some struct (fb_info, ...) doesn't need to be binary
-compatible - as long as a driver (given to be in source) still works
-cleanly with it:)
+I know that this is not a very usefull fix, but i think 2.6.0 should be
+BugFree (TM) :-)
 
-MfG, JBG
+Greeting Betz Stefan
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---bW7Nw90iaNQhVLQB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/zN25Hb1edYOZ4bsRAkKPAJ9YDk4zoHRdvmVlKezX/Suwib8yyACfcbdc
-BLsVJvWrUey6pucErzWZVQg=
-=5/nZ
------END PGP SIGNATURE-----
-
---bW7Nw90iaNQhVLQB--
+I know that my english is not realy good, but any tipp how i can learn
+better english is welcome...

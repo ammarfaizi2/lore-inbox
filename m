@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267469AbTBML3Q>; Thu, 13 Feb 2003 06:29:16 -0500
+	id <S268022AbTBMLpx>; Thu, 13 Feb 2003 06:45:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268022AbTBML3Q>; Thu, 13 Feb 2003 06:29:16 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:49391 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S267469AbTBML3P>; Thu, 13 Feb 2003 06:29:15 -0500
-Subject: Re: select returning slow on RH 2.4.18-14 (RH 8.0) kernel.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E4B60A1.2060209@candelatech.com>
-References: <3E4B60A1.2060209@candelatech.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-45JlsNdNHU4Rim308ESs"
-Organization: Red Hat, Inc.
-Message-Id: <1045136340.2313.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 13 Feb 2003 12:39:00 +0100
+	id <S268025AbTBMLpx>; Thu, 13 Feb 2003 06:45:53 -0500
+Received: from 3-157.ctame701-1.telepar.net.br ([200.193.161.157]:10983 "EHLO
+	3-157.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S268022AbTBMLpw>; Thu, 13 Feb 2003 06:45:52 -0500
+Date: Thu, 13 Feb 2003 09:55:28 -0200 (BRST)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Andrea Arcangeli <andrea@e-mind.com>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+In-Reply-To: <20030213024751.GA14016@bjl1.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com>
+References: <20030206021029.GW19678@dualathlon.random>
+ <20030213024751.GA14016@bjl1.jlokier.co.uk>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Feb 2003, Jamie Lokier wrote:
+> Andrea Arcangeli wrote:
+> > I guess the bitkeeper network protocol could be also implemented on the
+> > longer run, it should be much faster to fetch all the database that way,
+>
+> Nobody (who is covered by copyright laws) is allowed to use the _free_
+> version of BitKeeper to reverse engineer the protocol.  I may be
+> mistaken - perhaps the BitKeeper "anti-competition" clause would be
+> found unenforcable.. but I'm not interested in going there.
 
---=-45JlsNdNHU4Rim308ESs
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Reverse engineering the protocol is probably allowed, as long
+as you don't create an alternative implementation yourself.
 
-On Thu, 2003-02-13 at 10:08, Ben Greear wrote:
-> I've been doing some testing with RH 8.0 on an Ezra 800Mhz
-> machine.
->=20
-> Even when lightly loaded select() often returns 3-9 miliseconds slower
-> than the timeout would suggest.  I know select is not guaranteed to
-> return with < 10ms accuracy, but with almost no load, shouldn't it
-> at least return with 1ms accuracy on average?
-no
-the kernel.org kernels will return in multiple-of-10ms quantities due to
-HZ having the value of 100.
-2.4.18-14 (which is btw obsoleted by several security errata) has a HZ
-value of 512 so will return in shorter quantities, EXCEPT when you
-always try to wait exactly 10ms of course....
+I can't see how Larry's license would stop people from writing
+that alternative implementation, as long as those people don't
+use bitkeeper themselves.
 
---=-45JlsNdNHU4Rim308ESs
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+This is mostly because the license doesn't forbid creating an
+alternative to bitkeeper (I doubt Larry would even want that,
+even if the law granted that much power).  All it does is not
+grant the free use of bitkeeper to people working on an alternative.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+cheers,
 
-iD8DBQA+S4PUxULwo51rQBIRAgwwAJ9UKBYIUHR2c+gFDS6LwlkMEkiQEQCfSLRh
-f8IjlnoIEykfrNK67vTzqlc=
-=ZzaC
------END PGP SIGNATURE-----
-
---=-45JlsNdNHU4Rim308ESs--
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,46 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267370AbTAOWpj>; Wed, 15 Jan 2003 17:45:39 -0500
+	id <S267354AbTAOW5Z>; Wed, 15 Jan 2003 17:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267373AbTAOWpj>; Wed, 15 Jan 2003 17:45:39 -0500
-Received: from host217-35-54-97.in-addr.btopenworld.com ([217.35.54.97]:62848
-	"EHLO dstc.edu.au") by vger.kernel.org with ESMTP
-	id <S267370AbTAOWpi>; Wed, 15 Jan 2003 17:45:38 -0500
-Message-Id: <200301152254.WAA19810@tereshkova.dstc.edu.au>
-To: linux-kernel@vger.kernel.org
-X-face: -[YGaR`*}M3pOPceHtP0Bb{\f!h4e?n{mXfI@DMKL-:8
-Subject: [PATCH] counting bug in svc_tcp_recvfrom causes panic for TCP NFS
-Date: Wed, 15 Jan 2003 22:54:32 +0000
-From: Ted Phelps <phelps@dstc.edu.au>
+	id <S267375AbTAOW5Z>; Wed, 15 Jan 2003 17:57:25 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:16908 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267354AbTAOW5Y>;
+	Wed, 15 Jan 2003 17:57:24 -0500
+Date: Wed, 15 Jan 2003 15:05:54 -0800
+From: Greg KH <greg@kroah.com>
+To: Torben Mathiasen <torben.mathiasen@hp.com>
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       stormy_peters@hp.com, john.cagle@hp.com, dan.zink@hp.com
+Subject: Re: [PATCH-2.4.20] PCI-X hotplug support for Compaq driver
+Message-ID: <20030115230554.GC25816@kroah.com>
+References: <20030115095513.GA2761@tmathiasen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030115095513.GA2761@tmathiasen>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 15, 2003 at 10:55:13AM +0100, Torben Mathiasen wrote:
+> Hi Greg,
+> 
+> Attached is a patch against 2.4.20 (should apply to .21-pre3 and BK-current as
+> well) that adds 66/100/133MHz PCI-X support to the Compaq Hotplug driver.
+> 
+> Please apply.
 
-When svc_tcp_recvfrom() builds up its iovec to receive a packet, it
-invokes page_address() with an argument which refers to
-rqstp->rq_argused++.  For some memory layouts (eg not HIMEM and
-not WANT_PAGE_VIRTUAL), page_address() is a macro which evalutes its
-argument three times.  This results in a kernel panic when an TCP NFS
-client sends a packet longer than about 1/3 of the maximum size.
+Looks almost ready.  Could you make up a 2.5 version first?  I don't
+like to have new features in 2.4 before they go into 2.5.
 
-The patch below causes the increment to be performed outside of the
-call to page_address(), which avoids the kernel panic.  Perhaps a
-better solution would be to change page_address() to be consistently
-be a function for all memory layouts.
+>  /* inline functions */
+> -
+> +extern inline struct slot *find_slot (struct controller *ctrl, u8 device);
 
-Thanks,
--Ted
+Can you just make this a normal function then, with a more private name?
 
---- ./linux-2.5.58-ORIG/net/sunrpc/svcsock.c	2003-01-13 22:30:06.000000000 +0000
-+++ ./linux-2.5.58/net/sunrpc/svcsock.c	2003-01-15 22:42:03.000000000 +0000
-@@ -924,8 +924,9 @@
- 	vlen = PAGE_SIZE;
- 	pnum = 1;
- 	while (vlen < len) {
--		vec[pnum].iov_base = page_address(rqstp->rq_argpages[rqstp->rq_argused++]);
-+		vec[pnum].iov_base = page_address(rqstp->rq_argpages[rqstp->rq_argused]);
- 		vec[pnum].iov_len = PAGE_SIZE;
-+		rqstp->rq_argused++;
- 		pnum++;
- 		vlen += PAGE_SIZE;
- 	}
+> +/*
+> + * get_controller_speed - find the current frequency/mode of controller.
+> + *
+> + * @ctrl: controller to get frequency/mode for.
+> + *
+> + * Returns controller speed.
+> + *
+> + */
+>  static inline u8 get_controller_speed (struct controller *ctrl)
+
+Thanks for documenting this and get_adapter_speed().
+
+> +static char *get_speed_string (int speed)
+> +{
+> +	switch(speed) {
+> +		case(PCI_SPEED_33MHz):
+> +			return "33MHz PCI";
+> +		case(PCI_SPEED_66MHz):
+> +			return "66MHz PCI";
+> +		case(PCI_SPEED_50MHz_PCIX):
+> +			return "50MHz PCI-X";
+> +		case(PCI_SPEED_66MHz_PCIX):
+> +			return "66MHz PCI-X";
+> +		case(PCI_SPEED_100MHz_PCIX):
+> +			return "100MHz PCI-X";
+> +		case(PCI_SPEED_133MHz_PCIX):
+> +			return "133MHz PCI-X";
+> +		default:
+> +			return "UNKNOWN";
+> +	}
+> +}
+
+Ick, why?  Just for a debugging message?  That /proc file is on the
+short list of things to delete :)
+
+> --- linux-2.4.20/drivers/hotplug/pci_hotplug.h	Thu Nov 28 17:53:13 2002
+> +++ linux-2.4.20-pcix/drivers/hotplug/pci_hotplug.h	Mon Jan  6 22:54:47 2003
+> @@ -33,9 +33,10 @@
+>  enum pci_bus_speed {
+>  	PCI_SPEED_33MHz			= 0x00,
+>  	PCI_SPEED_66MHz			= 0x01,
+> -	PCI_SPEED_66MHz_PCIX		= 0x02,
+> -	PCI_SPEED_100MHz_PCIX		= 0x03,
+> -	PCI_SPEED_133MHz_PCIX		= 0x04,
+> +	PCI_SPEED_50MHz_PCIX		= 0x02,
+> +	PCI_SPEED_66MHz_PCIX		= 0x03,
+> +	PCI_SPEED_100MHz_PCIX		= 0x04,
+> +	PCI_SPEED_133MHz_PCIX		= 0x05,
+>  	PCI_SPEED_66MHz_PCIX_266	= 0x09,
+>  	PCI_SPEED_100MHz_PCIX_266	= 0x0a,
+>  	PCI_SPEED_133MHz_PCIX_266	= 0x0b,
+
+Where are you getting the PCI_SPEED_50MHz_PCIX value from?  I took these
+values from the Hotplug PCI draft spec.  Has 02 been reserved for 50MHz
+PCIX and the other values changed?
+
+If it's not in the spec, I'd recommend adding it to the end of the list,
+with a big comment about why it's different from the spec values.
+
+thanks,
+
+greg k-h
+

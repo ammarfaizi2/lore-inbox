@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267102AbTAFTAa>; Mon, 6 Jan 2003 14:00:30 -0500
+	id <S267111AbTAFTAv>; Mon, 6 Jan 2003 14:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267111AbTAFTAa>; Mon, 6 Jan 2003 14:00:30 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:53137 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267102AbTAFTA3>;
-	Mon, 6 Jan 2003 14:00:29 -0500
-Date: Mon, 6 Jan 2003 11:05:49 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: [PATCH] configurable LOG_BUF_SIZE
-In-Reply-To: <20030106190648.GD796@opus.bloom.county>
-Message-ID: <Pine.LNX.4.33L2.0301061104410.15416-100000@dragon.pdx.osdl.net>
+	id <S267112AbTAFTAv>; Mon, 6 Jan 2003 14:00:51 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:10526 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S267111AbTAFTAt>;
+	Mon, 6 Jan 2003 14:00:49 -0500
+Date: Mon, 6 Jan 2003 20:09:20 +0100 (MET)
+From: Daniel Blueman <daniel.blueman@gmx.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <Pine.LNX.3.96.1030106132528.10550A-100000@gatekeeper.tmr.com>
+Subject: Re: Gigabit/SMP performance problem
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0008973862@gmx.net
+X-Authenticated-IP: [81.86.104.216]
+Message-ID: <23239.1041880161@www5.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jan 2003, Tom Rini wrote:
+Even with HT turned off on this dual-Xeon box, all IRQs are routed to CPU 0.
 
-| On Mon, Jan 06, 2003 at 10:57:01AM -0800, Randy.Dunlap wrote:
-| > On Mon, 6 Jan 2003, Tom Rini wrote:
-| >
-| > | On Thu, Jan 02, 2003 at 03:09:17PM -0800, Randy.Dunlap wrote:
-| > |
-| > | > This patch to 2.5.54 make LOG_BUF_LEN a configurable option.
-| > | > Actually its shift value is configurable, and that keeps it
-| > | > a power of 2.
-| > |
-| > | Erm, why not just prompt for an int, slightly change the help wording,
-| > | and then just give a default int value directly.
-| > |
-| > | Flexibility is good for everyone.
-| >
-| > Sure, I like that, but LOG_BUF_LEN must be a power of 2 (currently)
-| > and I was trying not to rewrite that circular buffer code, that's all.
-| > However, I will if that's desirable.
-|
-| I actually meant prompting for the shift value itself.
+Kernel here is the latest RedHat 2.4.18 one.
 
-I did think of that, but it's too user-unfriendly IMO.
-Heck, it's even developer-unfriendly IMO.
+Just curious what kernel Avery is running...
 
-| > And kconfig doesn't have a way to enforce the selected value...
-|
-| That is a shame, I've had to resort to doing checks like that at compile
-| time for that reason.
-|
-| > Linus also told me that he's not crazy about this change.
-|
-| Maybe he would be, if it was cleaner than the current code in the end.
-| :)
+Dan
+
+> On 4 Jan 2003, Daniel Blueman wrote:
+> 
+> > It's interesting you have IRQs balanced over the two logical
+> > processors. I can't get this on HT Xeons with stock RedHat 7.3 kernel.
+> 
+> I think he's using two physical processors, if by "logical processors" you
+> are thinking HT... I also recall he has HT off, but the original post
+> isn't handy.
+> 
+> > 
+> > Can you post the exact kernel version string, please?
+> > 
+> > TIA,
+> >   Dan
+> > 
+> > "Avery Fay" <avery_fay@symantec.com> wrote in message
+>
+news:<OF256CD297.9F92C038-ON85256CA3.006A4034-85256CA3.00705DEA@symantec.com>...
+> > > Dual Pentium 4 Xeon at 2.4 Ghz. I believe I am using irq load
+> balancing as 
+> > > shown below (seems to be applied to Red Hat's kernel). Here's 
+> > > /proc/interrupts:
+> 
+> -- 
+> bill davidsen <davidsen@tmr.com>
+>   CTO, TMR Associates, Inc
+> Doing interesting things with little computers since 1979.
+> 
 
 -- 
-~Randy
+Daniel J Blueman
+
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+NEU: Mit GMX ins Internet. Rund um die Uhr für 1 ct/ Min. surfen!
 

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265069AbSJRLPW>; Fri, 18 Oct 2002 07:15:22 -0400
+	id <S265065AbSJRLUh>; Fri, 18 Oct 2002 07:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265071AbSJRLPW>; Fri, 18 Oct 2002 07:15:22 -0400
-Received: from [195.77.207.130] ([195.77.207.130]:5894 "HELO telepolis.es")
-	by vger.kernel.org with SMTP id <S265069AbSJRLPV>;
-	Fri, 18 Oct 2002 07:15:21 -0400
-X-Qmail-Scanner-Mail-From: xpegenaute@telepolis.es via mail
-X-Qmail-Scanner: 1.12 (Clear:. Processed in 0.065443 secs)
-Message-ID: <011601c2769a$1e61c400$ca00030a@xavip>
-From: "Xavier Pegenaute" <xpegenaute@telepolis.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: (May be off-topic) .. i want make my final project playing with kernel Linux ..
-Date: Fri, 18 Oct 2002 13:33:02 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S265070AbSJRLUh>; Fri, 18 Oct 2002 07:20:37 -0400
+Received: from cmailg2.svr.pol.co.uk ([195.92.195.172]:1036 "EHLO
+	cmailg2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S265065AbSJRLUg>; Fri, 18 Oct 2002 07:20:36 -0400
+Date: Fri, 18 Oct 2002 12:26:17 +0100
+To: christophe varoqui <christophe.varoqui@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: block allocators and LVMs
+Message-ID: <20021018112617.GA1942@fib011235813.fsnet.co.uk>
+References: <3DA24B4A0064C333@mel-rta8.wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA24B4A0064C333@mel-rta8.wanadoo.fr>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all..
+Christophe,
 
-i'm a student of computer systems and i want make my final project about
-Linux and developing over the kernel.
+On Thu, Oct 17, 2002 at 10:30:05PM +0200, christophe varoqui wrote:
+> hello,
+> 
+> reading the recent threads about FS block allocator algorithms and about 
+> possible integration of a new volume management framework, I wondered if 
+> the role of intelligent block allocators and/or online FS defragmentation  
+> could be replaced by a block remapper in the LVM subsystem.
 
-Any one need help about some thing ..?
+Crazy idea :)
 
-Thanks.
-Xavi.
+I think this is best left to the fs to handle, mainly because the
+blocks that the fs deals with are so small.  You would end up with
+*huge* remapping tables.  Also you would need to spend a lot of time
+collecting the information neccessary calculate the remapping, to do
+it properly you'd need to record an ordering of data acccesses not
+just io counts (ie. so you could build a Markov chain).
 
+> Am I completely out of my mind ?
+
+Not completely, I think the statistics could be extremely valuable for
+gauging the performance of different filesystems.  It would be very
+easy to write a little dm target that just records all the information
+in a spare block device, this target could then be layered over any
+block device for testing.
+
+- Joe

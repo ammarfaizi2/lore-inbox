@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbTDDGJB (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTDDGJB (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:09:01 -0500
-Received: from adsl-b3-72-208.telepac.pt ([213.13.72.208]:17024 "HELO
-	puma-vgertech.no-ip.com") by vger.kernel.org with SMTP
-	id S263529AbTDDGIz (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 01:08:55 -0500
-Message-ID: <3E8D23E8.4060508@vgertech.com>
-Date: Fri, 04 Apr 2003 07:19:20 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en-us, pt
-MIME-Version: 1.0
-To: erik@hensema.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to fix the ptrace flaw without rebooting
-References: <200304030708_MC3-1-32C2-5A8A@compuserve.com> <slrnb8oaad.j0h.erik@bender.home.hensema.net>
-In-Reply-To: <slrnb8oaad.j0h.erik@bender.home.hensema.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S263455AbTDDG1S (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263456AbTDDG1S (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:27:18 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16061 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263455AbTDDG1D (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 01:27:03 -0500
+Date: Fri, 4 Apr 2003 01:38:29 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch for show_task
+Message-ID: <20030404013829.A30163@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Andrew, bkbits says you changed the line above to be p->thread_info.
+Unfortunately, there's another.
 
-Erik Hensema wrote:
-> 
-> If you can't reboot to apply a security fix, you've got a serious problem.
-> 
-> A better fix in a running system is to simply disable dynamic module
-> loading: echo /no/such/file > /proc/sys/kernel/modprobe
-> At the very least you can be sure your machine won't crash this way ;-)
-> 
+--- linux-2.5.66/kernel/sched.c	2003-03-24 14:01:16.000000000 -0800
++++ linux-2.5.66-sparc/kernel/sched.c	2003-04-03 22:33:29.000000000 -0800
+@@ -2197,7 +2197,7 @@
+ 		unsigned long * n = (unsigned long *) (p->thread_info+1);
+ 		while (!*n)
+ 			n++;
+-		free = (unsigned long) n - (unsigned long)(p+1);
++		free = (unsigned long) n - (unsigned long) (p->thread_info+1);
+ 	}
+ 	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
+ 	if ((relative = eldest_child(p)))
 
-IIRC, dynamic module loading is not required to exploit all the bugs 
-present in ptrace. Luckly all the exploits floating around require kmod :)
-
-Regards,
-Nuno Silva
-
+-- Pete

@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286011AbRLHWk3>; Sat, 8 Dec 2001 17:40:29 -0500
+	id <S286044AbRLHXFX>; Sat, 8 Dec 2001 18:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286024AbRLHWkY>; Sat, 8 Dec 2001 17:40:24 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:12012 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S286011AbRLHWkO>; Sat, 8 Dec 2001 17:40:14 -0500
-Message-ID: <3C114539.62A0D8E7@sympatico.ca>
-Date: Fri, 07 Dec 2001 17:39:53 -0500
-From: Chris Friesen <chris_friesen@sympatico.ca>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: software raid issues -- possible kernel I/O problem?
-In-Reply-To: <3C11358D.28400117@sympatico.ca>
+	id <S286045AbRLHXFO>; Sat, 8 Dec 2001 18:05:14 -0500
+Received: from ppp-RAS1-1-13.dialup.eol.ca ([64.56.224.13]:49672 "EHLO
+	node0.opengeometry.ca") by vger.kernel.org with ESMTP
+	id <S286044AbRLHXFJ>; Sat, 8 Dec 2001 18:05:09 -0500
+Date: Sat, 8 Dec 2001 18:05:05 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cheap P3 Xeon... Any quad motherboard? (cancelled)
+Message-ID: <20011208180505.A1569@node0.opengeometry.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011208160018.A1166@node0.opengeometry.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011208160018.A1166@node0.opengeometry.ca>; from parkw@node0.opengeometry.ca on Sat, Dec 08, 2001 at 04:00:18PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 08, 2001 at 04:00:18PM -0500, William Park wrote:
+> Hi all,
+> 
+> I came across Pentium III Xeon 733MHz for $50 US.  I may want to build
+> 4/8-cpu machine for Christmas.  Can anyone recommend quad motherboard?
+> Or, any place through which I can order?
+> 
+> Only one I know is SuperMicro's Super S2QR6.
 
-A number of people have privately pointed out that hdparm -T doesn't
-actually go to the disk at all.  Guess I should RTFM...I though that
-this was reading from the disk's cache, not linux's cache.  Oops.
+Sorry about off-topic.  I thought I was posting to Usenet.
 
-I'm still kind of curious why raid-1 reads don't seem to get any
-performance increase over reads from a single disk.  Any ideas?
-
-Chris
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
+8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin

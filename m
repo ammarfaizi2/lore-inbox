@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277333AbRJEJNH>; Fri, 5 Oct 2001 05:13:07 -0400
+	id <S277334AbRJEJ1B>; Fri, 5 Oct 2001 05:27:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277334AbRJEJM5>; Fri, 5 Oct 2001 05:12:57 -0400
-Received: from mail.scs.ch ([212.254.229.5]:13745 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id <S277333AbRJEJMw>;
-	Fri, 5 Oct 2001 05:12:52 -0400
-Message-ID: <3BBD7B07.1B030E3D@scs.ch>
-Date: Fri, 05 Oct 2001 11:19:03 +0200
-From: Reto Baettig <baettig@scs.ch>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-CC: petal.scs@scs.ch
-Subject: RAW I/O Performance
+	id <S277337AbRJEJ0m>; Fri, 5 Oct 2001 05:26:42 -0400
+Received: from mohawk.n-online.net ([195.30.220.100]:14089 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S277334AbRJEJ0e>; Fri, 5 Oct 2001 05:26:34 -0400
+Date: Fri, 5 Oct 2001 11:17:22 +0200
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Odd keyboard related crashes.
+X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20011005092640Z277334-760+20965@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+> I'm running 2.4.10, and the ps/2 keyboard came out of it's socket.
 
-We are using RedHat's 2.4.3-12 kernel for our Alpha machines and
-stumbled over a bad performance problem with raw devices:
+> On plugging back in, all worked fine, until 10 seconds later there was a
+> crash. (the keyboard worked after being plugged in)
+> No oops, just a reboot.
+> Thinking this must just have been a wierd coincidence, after the system
+> came back up, I tried it again, and again it crashed a few seconds afterwards.
 
-Our test results (with a couple of disks and controllers ;-) were:
+> It doesn't seem to want to do this again though.
 
-Kernel 2.2.18        ~200MB/s        95% idle
-Kernel 2.4.3-12(RH)  ~105MB/s         0% idle
-Kernel 2.4.11-pre3   ~173MB/s        28% idle
+That's not a linux related problem, its a hardware problem.
 
-The 2.2.18 kernel is using the SGI raw device patches.
+I have the same thing happen with a Windows 2000 box.
+Whenever i plug out the keyboard while the system is running and plugging it in
+again, the system reboots.
+It's the only system i can reproduce the problem, all other Linux boxes
+(whatever kernel is running) run stable when playing with the keyboard.
 
-I saw that Andrea had a patch for 2.4.3aa where he could improve the RAW
-I/O performance significantly. I looked at the patch and I could not
-apply it to 2.4.3-12 because of conflicts which I was not able to
-resolve.
+Thomas
 
-I also looked at 2.4.10 and saw that Andreas patch was not in there. 
-
-How can I get a similar RAW-IO performance with 2.4.3-12 as I had with
-2.2.18? 
-
-TIA
-
-Reto

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTJ2URn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 15:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbTJ2URn
+	id S261567AbTJ2ULc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 15:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTJ2ULc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 15:17:43 -0500
-Received: from gprs194-254.eurotel.cz ([160.218.194.254]:54915 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261595AbTJ2URm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 15:17:42 -0500
-Date: Wed, 29 Oct 2003 21:17:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Ben Collins <bcollins@debian.org>
-Cc: Matthew J Galgoci <mgalgoci@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: sbp2 slab corruiton in 2.6-test9
-Message-ID: <20031029201731.GB1941@elf.ucw.cz>
-References: <Pine.LNX.4.44.0310261357100.16378-100000@parcelfarce.linux.theplanet.co.uk> <20031026141837.GA7904@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031026141837.GA7904@phunnypharm.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 29 Oct 2003 15:11:32 -0500
+Received: from mcomail03.maxtor.com ([134.6.76.14]:2571 "EHLO
+	mcomail03.maxtor.com") by vger.kernel.org with ESMTP
+	id S261567AbTJ2ULa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 15:11:30 -0500
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB3F0@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Pavel Machek'" <pavel@ucw.cz>, John Bradford <john@grabjohn.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       linux-kernel@vger.kernel.org, nikita@namesys.com,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: RE: Blockbusting news, results get worse
+Date: Wed, 29 Oct 2003 13:11:27 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I'm seeing slab corruption in 2.6-test9 when I do a 
-> > cat /proc/scsi/scsi
-> > 
+
+> -----Original Message-----
+> From: Pavel Machek [mailto:pavel@ucw.cz]
 > 
-> Known. The fix is non-trivial, so I am holding off on it until 2.6.0
-> gets out.
+> > > If you don't FLUSH CACHE, you have no guarantees your 
+> data is on the 
+> > > platter.
+> > 
+> > I think that the idea that is floating around is to 
+> deliberately ruin
+> > the formatting on part of the drive in order to simulate a 
+> bad block.
+> > 
+> > Operation of disk drives immediately after a power failiure has been
+> > discussed before, by the way:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=100665153518652&w=2
+> 
+> Well, that looks like pure speculation.
+> 
+> BTW I *do* believe that powerfail can make the sector bad. Imagine you
+> bump into bad sector during write, and need to reallocate...
+> 
+> 								Pavel
 
-You need to disable /proc/scsi/scsi at least, I guess. Its security
-hole...
+Both the linked post and Pavel's point are correct.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+In a modern drive, tolerances are so tight that your drive is constantly
+re-writing blocks it knows it didn't write very well.  In a power-fail
+event, there's little to no time to reallocate or reattempt a write, and
+even less energy available to "fix" things that aren't within specification
+anymore (spin speed, etc) ... if we don't get the actuator to the latch,
+your drive probably won't spin again and you'll lose *all* your data, so
+that is our number 1 concern when the power fails.
+
+"Performance" IDE drives these days ship with 8MB buffers, which compounds
+the problem even further if you're trying to get data on the media after
+power has been cut.
+

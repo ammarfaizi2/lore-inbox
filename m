@@ -1,34 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268284AbUHKWhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268285AbUHKWk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268284AbUHKWhR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUHKWhR
+	id S268285AbUHKWk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268289AbUHKWk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:37:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:45019 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268284AbUHKWhO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:37:14 -0400
-Message-ID: <d577e56904081115374e088a99@mail.gmail.com>
-Date: Wed, 11 Aug 2004 18:37:13 -0400
-From: Patrick McFarland <diablod3@gmail.com>
-To: Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Cc: =?ISO-8859-1?Q?=20=22M=E5ns?= =?ISO-8859-1?Q?=20Rullg=E5rd=22?= 
-	 <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040810132952.GA32212@merlin.emma.line.org>
+	Wed, 11 Aug 2004 18:40:27 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30166 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268285AbUHKWkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:40:24 -0400
+Date: Thu, 12 Aug 2004 00:40:15 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Steve Whitehouse <SteveW@ACM.org>,
+       Eduardo Marcelo Serrat <emserrat@geocities.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, netdev@oss.sgi.com
+Subject: 2.6: DECNET compile errors with SYSCTL=n
+Message-ID: <20040811224015.GP26174@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200408061330.i76DU2Tm005937@burner.fokus.fraunhofer.de> <20040806151017.GG23263@suse.de> <20040810084159.GD10361@merlin.emma.line.org> <20040810101123.GB2743@harddisk-recovery.com> <yw1xsmav8b79.fsf@kth.se> <20040810132952.GA32212@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, did Joerg Schilling ever accept this patch? If so, or if not, why?
+I'm getting the following compile errors in 2.6.8-rc4-mm1 (but it 
+doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
+
+<--  snip  -->
+
+...
+  LD      .tmp_vmlinux1
+net/built-in.o(.text+0x1685e9): In function `dn_route_output_slow':
+: undefined reference to `dn_dev_get_default'
+net/built-in.o(.text+0x16a749): In function `dn_dev_bind_default':
+: undefined reference to `dn_dev_get_default'
+net/built-in.o(.text+0x16a85b): In function `dn_send_endnode_hello':
+: undefined reference to `mtu2blksize'
+net/built-in.o(.text+0x16a9f2): In function `dn_send_router_hello':
+: undefined reference to `mtu2blksize'
+net/built-in.o(.text+0x16aa08): In function `dn_send_router_hello':
+: undefined reference to `mtu2blksize'
+net/built-in.o(.text+0x16aaeb): In function `dn_send_router_hello':
+: undefined reference to `mtu2blksize'
+net/built-in.o(.text+0x16b1a4): In function `dn_dev_up':
+: undefined reference to `dn_dev_set_default'
+net/built-in.o(.text+0x16b1e8): In function `dn_dev_delete':
+: undefined reference to `dn_dev_check_default'
+net/built-in.o(.text+0x16b6b8): In function `dn_dev_seq_show':
+: undefined reference to `mtu2blksize'
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

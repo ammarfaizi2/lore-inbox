@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbRGKSMR>; Wed, 11 Jul 2001 14:12:17 -0400
+	id <S264169AbRGKSQr>; Wed, 11 Jul 2001 14:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263745AbRGKSL5>; Wed, 11 Jul 2001 14:11:57 -0400
-Received: from cr821974-a.lndn1.on.wave.home.com ([24.112.53.173]:39941 "EHLO
-	megatonmonkey.net") by vger.kernel.org with ESMTP
-	id <S263089AbRGKSL4>; Wed, 11 Jul 2001 14:11:56 -0400
-Date: Wed, 11 Jul 2001 14:11:56 -0400
-From: "Carlos O'Donell Jr." <carlos@baldric.uwo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting? [MOSIX]
-Message-ID: <20010711141156.B32049@megatonmonkey.net>
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEKECGAA.davids@webmaster.com> <001501c10980$f42035a0$fe00000a@cslater> <3B4C180E.D3AE1960@idb.hist.no> <005f01c10a20$03baf5a0$fe00000a@cslater>
+	id <S264541AbRGKSQh>; Wed, 11 Jul 2001 14:16:37 -0400
+Received: from customers.imt.ru ([212.16.0.33]:12330 "HELO smtp.direct.ru")
+	by vger.kernel.org with SMTP id <S264169AbRGKSQW>;
+	Wed, 11 Jul 2001 14:16:22 -0400
+Message-ID: <20010711111356.A15553@saw.sw.com.sg>
+Date: Wed, 11 Jul 2001 11:13:56 -0700
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Stefan Hoffmeister <lkml.2001@econos.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6: eepro100 does not survive warm boot
+In-Reply-To: <gg4oktks8jch0sqsdivo2m5071t2h0q1jp@4ax.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <005f01c10a20$03baf5a0$fe00000a@cslater>; from cslater@wcnet.org on Wed, Jul 11, 2001 at 11:41:54AM -0400
-X-Useless-Header: oooohhmmm, chant the email mantra...
-X-Mailer: Patched Mutt OS 1.2.5 - Neural Implant (47% Sync Ratio [=====.....])
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <gg4oktks8jch0sqsdivo2m5071t2h0q1jp@4ax.com>; from "Stefan Hoffmeister" on Wed, Jul 11, 2001 at 10:47:35AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 11, 2001 at 11:41:54AM -0400, C. Slater wrote:
-> Unless we find some other way to do it, i think we will have to limit this
-> to only switching between kernels with the same minor version. We probably
-> would not beable to swap between 2.4 and 2.6 anyways, though it depends on
-> what changes are made.
+Hi,
+
+Apparently, the card is unaccessible after warm reboot.
+It should be a PCI initialization problem.
+What lspci shows after the warm reboot?
+
+	Andrey
+
+On Wed, Jul 11, 2001 at 10:47:35AM +0200, Stefan Hoffmeister wrote:
+> For testing purposes, I am running a stock 2.4.6 kernel on a Sony VAIO
+> Z600 NE notebook (Sony Z505 JS in the US).
 > 
->   Colin
-
-Just thinking...
-
-If you had enough money, and were inclined enough, one could setup the
-following system:
-
-- 2 Boxes, Running MOSIX (similar processors).
-
-a. Start processes on Box 1.
-b. Migrate processes to Box 2.
-
-If the need to upgrade the kernel arises, you can migrate the processes
-back to Box 1. Upgrade the kenrel on Box 2, recompile MOSIX.
-If the first two digits of the MOSIX version are the same, you can migrate
-the processes back to Box 2 (now running the latest kernel).
-
-The stubs inplace for your process will run local kernel functions that
-are not specifically host dependant, thus taking advantage of the newer
-kernel features, and possibly newer hardware on Box 2, at an application
-level.
-
-Obviously, Box 1 could be smaller and less expensive.
-Take note that if Box 1 were to fail, you process would die, since the
-kernel stubs need to be in place on the original machine.
-
-There are many cons to this system, but I will not ruin the decidely
-happy mood of this linux-future-istic conversation ;)
-
-Cheers,
-Carlos O'Donell Jr.
--------------------------
-Baldric Project
-http://www.baldric.uwo.ca
--------------------------
-
-
+> On a cold boot, I get this information in dmesg:
+> 
+> >eth0: OEM i82557/i82558 10/100 Ethernet, 08:00:46:07:49:99, IRQ 9.
+> >  Receiver lock-up bug exists -- enabling work-around.
+> >  Board assembly 100001-001, Physical connectors present: RJ45
+[snip]
+> 
+> With the exact same kernel, after a warm boot ('reboot'), the picture
+> changes to
+> 
+> >eth0: Invalid EEPROM checksum 0xff00, check settings before activating this device!
+> >eth0: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 9.
+> >  Board assembly ffffff-255, Physical connectors present: RJ45 BNC AUI MII
+> >  Primary interface chip unknown-15 PHY #31.
+> >    Secondary interface chip i82555.
+> >Self test failed, status ffffffff:
+> > Failure to initialize the i82557.
+> > Verify that the card is a bus-master capable slot.
+> 
+> 
+> Result: The network essentially is dead; I cannot make HTTP requests to a
+> server on the LAN, for instance. Shut down the system and go through a

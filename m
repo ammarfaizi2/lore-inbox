@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVC3VCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVC3VFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVC3VCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 16:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC3VAj
+	id S261767AbVC3VFB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 16:05:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVC3VCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 16:00:39 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:4574 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261686AbVC3U6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:58:53 -0500
-Date: Wed, 30 Mar 2005 22:58:37 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12-rc1-mm3] BUG: atomic counter underflow in smbfs
-Message-ID: <20050330205837.GF10278@ens-lyon.fr>
-References: <20050330201818.GA18967@ens-lyon.fr> <20050330124456.3da2a2b8.akpm@osdl.org>
+	Wed, 30 Mar 2005 16:02:54 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:18376 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261767AbVC3VBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 16:01:08 -0500
+Subject: Re: How's the nforce4 support in Linux?
+From: Lee Revell <rlrevell@joe-job.com>
+To: azarah@nosferatu.za.org
+Cc: Tomasz Torcz <zdzichu@irc.pl>, linux-kernel@vger.kernel.org
+In-Reply-To: <1112210369.25867.7.camel@nosferatu.lan>
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <1111792462.23430.25.camel@mindpipe> <20050329185825.GB20973@irc.pl>
+	 <1112128807.5141.14.camel@mindpipe>  <20050330150023.GB6878@irc.pl>
+	 <1112210369.25867.7.camel@nosferatu.lan>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 16:01:03 -0500
+Message-Id: <1112216464.18237.4.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050330124456.3da2a2b8.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
-X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 12:44:56PM -0800, Andrew Morton wrote:
-> Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
-> >
-> > I had the following BUG with 2.6.12-rc1-mm3:
+On Wed, 2005-03-30 at 21:19 +0200, Martin Schlemmer wrote:
+> On Wed, 2005-03-30 at 17:00 +0200, Tomasz Torcz wrote:
+> > > >  quake3 still segfaults when run through "aoss". And can't be fixed, as
+> > > > it's closed source still.
+> > > > 
+> > > I guess that's Quake3's problem...
 > > 
-> > remote host is running 2.6.12-rc1-mm1 with samba 3.0.13.
+> >  It an glaring example, dmix is unsufficient in one third of my sound
+> > uses (other two beeing movie and music playback)
+> >  But you advertise dmix like it was silver bullet.
 > > 
-> > [23156.357178] smb_lookup: find musique/Pink_Floyd-Dark_Side_of_the_Moon
-> > failed, error=-512
-> > [23157.057501] BUG: atomic counter underflow at:
-> > [23157.057508]  [<c0103c27>] dump_stack+0x17/0x20
-> > [23157.057516]  [<e0ed0f31>] smb_rput+0x51/0x60 [smbfs]
-> > [23157.057530]  [<e0ecd497>] smb_proc_query_cifsunix+0x77/0xa0 [smbfs]
-> > [23157.057538]  [<e0eca14c>] smb_newconn+0x2bc/0x310 [smbfs]
-> > [23157.057546]  [<e0ed05ac>] smb_ioctl+0xfc/0x100 [smbfs]
-> > [23157.057554]  [<c0162188>] do_ioctl+0x48/0x70
-> > [23157.057559]  [<c01622f9>] vfs_ioctl+0x59/0x1b0
-> > [23157.057563]  [<c0162489>] sys_ioctl+0x39/0x60
-> > [23157.057582]  [<c0102d8f>] sysenter_past_esp+0x54/0x75
 > 
-> Oh dear.  That warning is not necessarily telling us that there's a serious
-> problem - often it's fairly harmless.  Did the filesytem misbehave in any
-> other manner?
+> Or goes limbo randomly and no mailing to lists seems to result in a
+> reply (from the alsa peeps at least) ...
 > 
-It was stucked (couldn't do anything inside) but i was able to umount
-it.
 
-> A problem we have here is that nobody really maintains smbfs any more, and
-> it has problems.  I was hoping that the stock answer to that would be "use
-> cifs", but for some reason that doesn't seem to be happening.  Have you
-> tried it?  (Last time I looked, cifs didn't work against win98 servers -
-> maybe that got fixed).
-> 
-> 
-Ok, i think i will google a bit to find how to use samba as a cifs server.
+Because no one has ever produced a simple test program with source code
+that demonstrates the problem.  You really expect the ALSA developers to
+go chasing bugs in closed source apps?
 
-Thanks,
+Anyway, do you really need to hear your system sounds and MP3s while
+playing Q3?  This is hardly a fatal problem.
 
-Benoit
+Lee
 
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+

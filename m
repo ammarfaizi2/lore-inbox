@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279087AbRJVXbv>; Mon, 22 Oct 2001 19:31:51 -0400
+	id <S279092AbRJVXdb>; Mon, 22 Oct 2001 19:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279088AbRJVXbf>; Mon, 22 Oct 2001 19:31:35 -0400
-Received: from hermes.toad.net ([162.33.130.251]:8072 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S279087AbRJVXai>;
-	Mon, 22 Oct 2001 19:30:38 -0400
+	id <S279094AbRJVXdQ>; Mon, 22 Oct 2001 19:33:16 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:37371
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279088AbRJVXcK>; Mon, 22 Oct 2001 19:32:10 -0400
+Date: Mon, 22 Oct 2001 16:32:34 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Ford <david@blue-labs.org>, linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.20pre10
-To: linux-kernel@vger.kernel.org
-Date: Mon, 22 Oct 2001 19:30:24 -0400 (EDT)
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20011022233024.D747EAAA@thanatos.toad.net>
-From: jdthood@home.dhs.org (Thomas Hood)
+Message-ID: <20011022163234.C5343@mikef-linux.matchmail.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Ford <david@blue-labs.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BD4A602.5050605@blue-labs.org> <E15voHc-0003qA-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15voHc-0003qA-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that a lot of people would like to know more about
-how the DMCA creates the risk that Alan is worried about.
+On Tue, Oct 23, 2001 at 12:15:00AM +0100, Alan Cox wrote:
+> > This reaction is ludicrous.
+> > 
+> > Instead of helping US people, now the US people are fighting both US 
+> > politicians and their own camp of code developers.
+> 
+> I dont see why I should risk 5 years in a US jail. Not my problem.
+> Fortunately the major vendors kernel development teams are all non US based.
+> 
 
-Having said that, the decision about what is required to protect
-himself is up to Alan, and if he chooses to be very cautious
-then that is more than his right.  Don't like it?  You can
-always start maintaining your own -xyz kernel branch.
-
-I would also like to know how this issue affects Canadians,
-who often occupy a legal middle ground between the U.S.
-and the non-U.S. world when it comes to these issues.
-Can Canadian citizens be informed of these changelog items?
-
--- 
-Thomas Hood
-(Don't reply to the From: address but to jdthood_AT_mail.com)
+You still didn't answer the qustion of wheather you are going to give
+descriptions to Linus in the US of A...

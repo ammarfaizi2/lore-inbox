@@ -1,78 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275743AbRKICyf>; Thu, 8 Nov 2001 21:54:35 -0500
+	id <S276877AbRKIDBg>; Thu, 8 Nov 2001 22:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276877AbRKICyQ>; Thu, 8 Nov 2001 21:54:16 -0500
-Received: from vp226158.uac62.hknet.com ([202.71.226.158]:42508 "EHLO
-	main.coppice.org") by vger.kernel.org with ESMTP id <S275743AbRKICyM>;
-	Thu, 8 Nov 2001 21:54:12 -0500
-Message-ID: <3BEB4630.6010103@coppice.org>
-Date: Fri, 09 Nov 2001 10:57:52 +0800
-From: Steve Underwood <steveu@coppice.org>
-Organization: Me? Organised?
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en, zh-TW
+	id <S277782AbRKIDB0>; Thu, 8 Nov 2001 22:01:26 -0500
+Received: from lorica.ucc.usyd.edu.au ([129.78.64.15]:57298 "EHLO
+	lorica.ucc.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S276877AbRKIDBW>; Thu, 8 Nov 2001 22:01:22 -0500
+Date: Fri, 9 Nov 2001 14:01:19 +1100 (EST)
+From: Michael Chapman <mchapman@beren.hn.org>
+Reply-To: Michael Chapman <mchapman@student.usyd.edu.au>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Oops in kmem_cache_free with 2.4.14
+Message-ID: <Pine.LNX.4.33.0111091355540.21862-100000@beren.hn.org>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Linux Kermel ML <linux-kernel@vger.kernel.org>
-Subject: Re: VIA 686 timer bugfix incomplete
-In-Reply-To: <E161RcS-0003x8-00@the-village.bc.nu> <3BE98BA9.7090102@coppice.org> <20011108211126.B6266@suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all.
 
-Vojtech Pavlik wrote:
+I got this oops in oops while loading mozilla. It killed my X session, but 
+the box appears to be running stable again. I haven't been able to 
+reproduce it.
 
-> On Thu, Nov 08, 2001 at 03:29:45AM +0800, Steve Underwood wrote:
->>If the messages:
->>
->>probable hardware bug: clock timer configuration lost - probably a 
->>VIA686a motherboard.
->>probable hardware bug: restoring chip configuration.
->>
->>are really related to a VIA686A bug, why do they erratically appear on 
->>Compaq ML370's, which use ServerWorks chip sets? Is there a common bug 
->>between these chip sets? Seems unlikely.
->>
-> 
-> Just to make sure: Is on the system the Ftape of any joystick driver in
-> use? If not, then:
-> 
-> The ServerWorks chip set has a bug that is shared with old Intel Neptune
-> chipset most likely. This is a problem per se, but also triggers the VIA
-> bug workaround. The VIA bug test can be enhanced to detect this false
-> alarm, but the Neptune-like bug still stays and is dangerous as well.
-> 
-> At least the VIA workaround told us something fishy is happening on
-> non-VIA hardware as well.
-> 
-> For example on my VIA686a/cg (late revision), the workaround is never
-> triggered.
+My kernel is non-SMP 2.4.14 with the ext3 patches.
+
+ksymoops 2.4.1 on i686 2.4.14.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.14/ (default)
+     -m /boot/System.map-2.4.14 (specified)
+
+Unable to handle kernel paging request at virtual address cfa5b04c
+c0128478
+*pde = 0f8001b9
+Oops: 0003
+CPU:    0
+EIP:    0010:[kmem_cache_free+56/160]    Not tainted
+EIP:    0010:[<c0128478>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00210006
+eax: 00000000   ebx: c1607360   ecx: cfa5b030   edx: 00000000
+esi: 00200086   edi: 00000001   ebp: 0000000e   esp: d4e05ed8
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 2186, stackpage=d4e05000)
+Stack: 0000000e d4e04568 cfa5b178 d4e05f50 c011c063 c1607360 cfa5b154 
+d4e04000 
+       0000000e d4e04000 d4e05f30 c011c11d 0000000e d4e04568 d4e05f30 
+d4e04000 
+       00000000 c01069b9 d4e04560 d4e05f30 d4e04560 d4e05fc4 0000000e 
+00000000 
+Call Trace: [collect_signal+147/224] [dequeue_signal+109/176] 
+[do_signal+89/672] [process_timeout+0/80] [process_timeout+0/80] 
+Call Trace: [<c011c063>] [<c011c11d>] [<c01069b9>] [<c0111900>] 
+[<c0111900>] 
+   [<c011b9f3>] [<c0111c51>] [<c0106d24>] 
+Code: 89 44 b9 18 89 79 14 8b 51 10 8d 42 ff 89 41 10 85 c0 75 24 
+
+>>EIP; c0128478 <kmem_cache_free+38/a0>   <=====
+Trace; c011c063 <collect_signal+93/e0>
+Trace; c011c11d <dequeue_signal+6d/b0>
+Trace; c01069b9 <do_signal+59/2a0>
+Trace; c0111900 <process_timeout+0/50>
+Trace; c0111900 <process_timeout+0/50>
+Trace; c011b9f3 <timer_bh+213/250>
+Trace; c0111c51 <schedule+251/390>
+Trace; c0106d24 <signal_return+14/18>
+Code;  c0128478 <kmem_cache_free+38/a0>
+00000000 <_EIP>:
+Code;  c0128478 <kmem_cache_free+38/a0>   <=====
+   0:   89 44 b9 18               mov    %eax,0x18(%ecx,%edi,4)   <=====
+Code;  c012847c <kmem_cache_free+3c/a0>
+   4:   89 79 14                  mov    %edi,0x14(%ecx)
+Code;  c012847f <kmem_cache_free+3f/a0>
+   7:   8b 51 10                  mov    0x10(%ecx),%edx
+Code;  c0128482 <kmem_cache_free+42/a0>
+   a:   8d 42 ff                  lea    0xffffffff(%edx),%eax
+Code;  c0128485 <kmem_cache_free+45/a0>
+   d:   89 41 10                  mov    %eax,0x10(%ecx)
+Code;  c0128488 <kmem_cache_free+48/a0>
+  10:   85 c0                     test   %eax,%eax
+Code;  c012848a <kmem_cache_free+4a/a0>
+  12:   75 24                     jne    38 <_EIP+0x38> c01284b0 
+<kmem_cache_free+70/a0>
 
 
-There are no such devices in use in our machines. This is happening on 3
-
-Compaq servers, and each has a similar configuration. A Compaq ML370,
-
-1G RAM, a Compaq Smart Array 431 RAID controller, and some Dialogic
-
-telephony cards.
-
-
-I don't have one of these machines running without telephony cards, to 
-see if that has any significance.The only external interfaces we use are 
-the LAN, one of the serial ports, and the phone lines connected to the 
-Dialogic cards. The SCSI controller is idle, as the disks are on the 
-RAID controller. The IDE interface has a CD-ROM on it..
-
- From what you say, it sounds like the ServerWorks chipset may well have 
-a timer bug. This machine uses the LE 3.0 chipset.
-
-Regards,
-Steve
-
-
+Michael
 

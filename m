@@ -1,89 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268213AbUG2QBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUG2Qcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268213AbUG2QBO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUG2P4E
+	id S267721AbUG2Qcj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUG2Q0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:56:04 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:14808 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S267608AbUG2Puv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:50:51 -0400
-Subject: Re: [PATCH] Delete cryptoloop
-From: Christophe Saout <christophe@saout.de>
-To: James Morris <jmorris@redhat.com>
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Xine.LNX.4.44.0407282025440.12996-100000@dhcp83-76.boston.redhat.com>
-References: <Xine.LNX.4.44.0407282025440.12996-100000@dhcp83-76.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y9B1DMJNEBF3y1snMl3E"
-Date: Thu, 29 Jul 2004 17:50:39 +0200
-Message-Id: <1091116240.12054.9.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
+	Thu, 29 Jul 2004 12:26:10 -0400
+Received: from s1.mailresponder.info ([81.2.143.10]:60938 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S267572AbUG2QYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 12:24:08 -0400
+From: "David Burg" <dburg@nero.com>
+To: "'David Balazic'" <david.balazic@hermes.si>,
+       "'Pat LaVarre'" <p.lavarre@ieee.org>
+Cc: <linux_udf@hpesjro.fc.hp.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Can not read UDF CD
+Date: Thu, 29 Jul 2004 18:23:38 +0200
+Message-ID: <000301c47588$6850e2f0$7a02a8c0@cwx235>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
+In-Reply-To: <B1ECE240295BB146BAF3A94E00F2DBFF090203@piramida.hermes.si>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Pat,
 
---=-y9B1DMJNEBF3y1snMl3E
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Could it be that Nero is to be blamed? I see in the verifier log:
 
-Am Mittwoch, den 28.07.2004, 20:27 -0400 schrieb James Morris:
+	AVDP at N-256
+	AVDP error: Volume Descriptor Sequence Extent not equal to
+-		    the one read in first AVDP
+-	   Main: length,location: 32768, 30654 expected:  32768, 32   
+-	Reserve: length,location: 32768, 30670 expected:  32768, 48   
 
-> > James Morris  wrote:
-> > >It would be good if we could get some further review on the issue by a=
-n=20
-> > >independent, well known cryptographer.
-> >=20
-> > I'd be glad to review it if someone can point me to a clear, concise
-> > description of the scheme (trying to extract the spec from the code
-> > is too much work for me).
->=20
-> That would be great.  It would be best to do this review for dm-crypt. =20
->=20
-> Christophe, is there a detailed description of the existing scheme?
+Let me know if you also think the medium produced by Nero has a mistake and
+our Nero UDF engineers have a bug to fix.
 
-I can explain it here, it's pretty simple:
+Best regards,
 
-IV =3D sector number (little endian, 32 bits), pad with zeroes
+David Burg
 
-The actual content is then encoded using the selected cipher and key in
-CBC mode.
+----------------------------------------------------------------
+David Burg
+Software Development,
+InCD Project Leader
 
-For those who don't know what exactly that means:
-
-C[0] =3D E(IV     xor P[0])
-C[1] =3D E(C[0]   xor P[1])
-...
-C[n] =3D E(C[n-1] xor P[n])
-
-C is the encrypted data, P the plaintext data. The block size is given
-by the cipher (usually 128 bit or something like that). E is the
-encryption using cipher and key.
-
-This is done for every sector.
-
-The weakness is that the IV is known. You can write specially crafted
-blocks on the disk and have a known plaintext for the first block.
-
-Also see: http://clemens.endorphin.org/OnTheProblemsOfCryptoloop
-
-One simple way to avoid this would be to compute the IV in a different
-way, something based on key and sector number.
+Ahead Software AG
+Im Stoeckmaedle 18    fax:   +49 (0)7248 911 888
+76307 Karlsbad        email: dburg@nero.com
+Germany               http://www.nero.com
+----------------------------------------------------------------
 
 
---=-y9B1DMJNEBF3y1snMl3E
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+-----Original Message-----
+From: linux_udf-owner@hpesjro.ipf.fc.hp.com
+[mailto:linux_udf-owner@hpesjro.ipf.fc.hp.com] On Behalf Of David Balazic
+Sent: Thursday, July 29, 2004 5:33 PM
+To: David Balazic; 'Pat LaVarre'
+Cc: 'linux_udf@hpesjro.fc.hp.com'; 'linux-kernel@vger.kernel.org'
+Subject: RE: Can not read UDF CD
 
-iD8DBQBBCRzPZCYBcts5dM0RArEyAKCLw1Z3PrXDfDsxP+vaSQYKk5OfEgCdEb1f
-Z9C7SLaqvf5tZ3GnE/uF9iM=
-=nyjS
------END PGP SIGNATURE-----
 
---=-y9B1DMJNEBF3y1snMl3E--
+> From: 	Pat LaVarre[SMTP:p.lavarre@ieee.org]
+>
+> David B:
+>
+> /// In short,
+>
+> I suggest quickly trying the mount -o lastblock= and anchor= udf.ko
+> options described at:
+>
+> http://lxr.linux.no/source/Documentation/filesystems/udf.txt?v=2.6.5
+>
+> else working thru til able to try the phgfsck described at my page:
+>
+> http://udfko.blog-city.com/read/577369.htm
+>
+> If you do post the phgfsck report on the web, I'll gladly link to it.
+
+I attach the "udf_test -scsi 1:0" output.
+
+> /// At length, in Seven parts ...
+>
+> /// 1) Similarly
+
+	snip
+
+> /// 2) Where
+>
+> What kind of cable do you use, what is your device name, what is your
+> mount point?
+
+cable is 80 wire ATA-66
+dev  is /dev/cdrom2 -> /dev/hdc
+/mnt/cdrom2
+
+> Til I know, I will cover both USB and PATAPI and pretend you want to
+> mount /dev/scd0 at /mnt/scd0.
+>
+> /// 3) -o lastblock="$n"
+>
+> Up in user land, my workaround was:
+>
+> n="`dc -e \"\`sudo blockdev --getsize /dev/scd0\` 512 * 2048 / 1 -
+> p\"`" sudo mount -r -o lastblock="$n" /dev/scd0 /mnt/scd0
+
+Will try...
+
+> /// 4) patch -p1 ...
+>
+> To recover the feature:
+>
+> sudo mount -r /dev/scd0 /mnt/scd0
+>
+> for such unfriendly discs, I web-published the patch quoted below to
+> the patches-udf.lastblock package of
+> http://iomrrdtools.sourceforge.net/
+
+Wil try ...
+
+> /// 5) -o anchor=...
+>
+> If -o lastblock="$n" doesn't work for you, then one more blind try is
+> -o anchor="$n" i.e.
+>
+> n="`dc -e \"\`sudo blockdev --getsize /dev/scd0\` 512 * 2048 / 1 -
+> p\"`" sudo mount -r -o anchor="$n" /dev/scd0 /mnt/scd0
+>
+> Please note -o anchor is arguably reckless except when combined with
+> -r.
+>
+> /// 6) phgfsck
+>
+> If neither blind try works for you, then to make sense of the disc
+> you can try phgfsck.  For example, here, I see:
+>
+> $ sudo phgfsck -scsi /dev/sg0 | grep 'AVDPs at'
+>         Number of AVDPs: 2, AVDPs at  N-256,  N
+> $
+>
+> Seeing "AVDP ... at ... N" tells me to try what I mentioned above:
+>
+> n="`dc -e \"\`sudo blockdev --getsize /dev/scd0\` 512 * 2048 / 1 -
+> p\"`" sudo mount -r -o anchor="$n" /dev/scd0 /mnt/scd0
+>
+> /// 7) reconfiguring Linux to permit phgfsck
+>
+> http://www.extra.research.philips.com/udf/
+> is the Philips page that offers the phgfsck, aka the "Philips UDF
+> Verifier".
+>
+> My clarification of that page is:
+>
+> http://udfko.blog-city.com/read/577369.htm
+>
+> Philips deserves nothing but kudos for donating the phgfsck to
+> improve UDF interoperability worldwide ... except the fact remains
+> they haven't chosen to release their copyright under a license
+> approved as open source by such authorities as sourceforge.net.
+>
+> Consequently, the phgfsck can be unusually hard to use in Linux.
+> Specifically, it does Not incorporate any of the better SCSI pass
+> thru libraries.  Privately, as yet I've heard from Two employees of
+> different corporations who privately requested and privately were
+> denied permission to donate code into the phgfsck, because its source
+> is partly closed.
+>
+> First, as yet with the phgfsck, you have to substitute an sg name for
+> the regular dev name, even when running 2.6.
+>
+> To discover your sg name, you can try each of /dev/sg* to see what
+> happens, or you can download yet another tool, such as sg_scan -i or
+> my own plscsi -w, found at http://members.aol.com/plscsi/linux/
+>
+> In theory `phgfsck -showscsi` will give you device names, but for me
+> that query doesn't work reliably.  Trying here just now in
+> 2.6.8-rc2-bk7, it hangs.  In the past, I've seen it miss names.
+>
+> Often you need root privilege to discover the sg name.
+>
+> You will probably have an sg name to find only if your kernel has a
+> drivers/scsi/sg.ko and your device name was among the /dev/scd*
+>
+> Else you might have to get into substituting ide-scsi.ko for
+> ide-cd.ko, especially if your device name was among the /dev/hd*. 
+> linux-scsi speaks occasionally of the issues such substitutions
+> raise.
+>
+> Pat LaVarre
+> http://iomrrdtools.sourceforge.net/
+> http://udfko.blog-city.com/
+>
+> --- From:
+> http://sourceforge.net/project/showfiles.php?group_id=101444&package_
+>id=12 5426
+>
+> See also: Readme.txt
+> ... Copyright (c) 2004 Iomega Corp
+> ... free software ...
+> ... GNU General Public License as ... either ... or ...
+> ...
+>
+> diff -urp linux-2.6.8-rc2-bk7/fs/udf/lowlevel.c
+> linux-2.6.8-rc2-bk7-pel/fs/udf/lowlevel.c
+> --- linux-2.6.8-rc2-bk7/fs/udf/lowlevel.c	2004-06-15
+> 23:19:36.000000000 -0600
+> +++ linux-2.6.8-rc2-bk7-pel/fs/udf/lowlevel.c	2004-07-28
+> 14:46:02.373806296 -0600
+> @@ -73,9 +73,9 @@ udf_get_last_block(struct super_block *s
+>  	struct block_device *bdev = sb->s_bdev;
+>  	unsigned long lblock = 0;
+>
+> -	if (ioctl_by_bdev(bdev, CDROM_LAST_WRITTEN, (unsigned long)
+> &lblock))
+> -		lblock = bdev->bd_inode->i_size >> sb->s_blocksize_bits;
+> -
+> +	if (!ioctl_by_bdev(bdev, CDROM_LAST_WRITTEN, (unsigned long)
+> &lblock))
+> +		return lblock;
+> +	lblock = bdev->bd_inode->i_size >> sb->s_blocksize_bits;
+>  	if (lblock)
+>  		return lblock - 1;
+>  	else
+> diff -urp linux-2.6.8-rc2-bk7/fs/udf/super.c
+> linux-2.6.8-rc2-bk7-pel/fs/udf/super.c
+> --- linux-2.6.8-rc2-bk7/fs/udf/super.c	2004-07-28
+> 10:36:35.928051888 -0600
+> +++ linux-2.6.8-rc2-bk7-pel/fs/udf/super.c	2004-07-28
+> 14:45:45.356393336 -0600
+> @@ -1562,6 +1562,9 @@ static int udf_fill_super(struct super_b
+>   		goto error_out;
+>  	}
+>
+> +	if (!UDF_SB_LASTBLOCK(sb)) {
+> +		UDF_SB_LASTBLOCK(sb) = udf_get_last_block(sb);
+> +	}
+>  	udf_find_anchor(sb);
+>
+>  	/* Fill in the rest of the superblock */
+>
+>  <<report_1_stein.txt>>
 

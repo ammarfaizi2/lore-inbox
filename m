@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271755AbTG2PZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 11:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271814AbTG2PZJ
+	id S271824AbTG2PbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 11:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271837AbTG2PbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 11:25:09 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:27152 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271755AbTG2PZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 11:25:04 -0400
-Message-ID: <3F26944D.8070707@techsource.com>
-Date: Tue, 29 Jul 2003 11:35:41 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Valdis.Kletnieks@vt.edu,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O10int for interactivity
-References: <200307280112.16043.kernel@kolivas.org> <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu> <3F2682EF.2040702@techsource.com> <200307300035.01354.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jul 2003 11:31:21 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:50829 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S271824AbTG2PbP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 11:31:15 -0400
+Date: Tue, 29 Jul 2003 11:31:14 -0400
+From: Yaroslav Halchenko <yoh@onerussian.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test2-bk3 phantom I/O errors
+Message-ID: <20030729153114.GA30071@washoe.rutgers.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Just want to confirm that problem described by Sander
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105935020525253
+persist on my system since test1-bk2 version as well. And it reveals
+itself usually under some specific load of hdd I/O - in my case
+usually it is running 'dselect' or 'dpkg -i' with an attempt to install/remove
+packages. Then software says something about error in some data file and
+syslog bears the signs of errors:
+Buffer I/O error on device hda2, logical block 3861502
+Buffer I/O error on device hda2, logical block 3861504
+Buffer I/O error on device hda2, logical block 3861506
 
-Con Kolivas wrote:
-> On Wed, 30 Jul 2003 00:21, Timothy Miller wrote:
-> 
->>Valdis.Kletnieks@vt.edu wrote:
->>
->>>I'm guessing that the anticipatory scheduler is the culprit here.  Soon
->>>as I figure out the incantations to use the deadline scheduler, I'll
->>>report back....
->>
->>It would be unfortunate if AS and the interactivity scheduler were to
->>conflict.  Is there a way we can have them talk to each other and have
->>AS boost some I/O requests for tasks which are marked as interactive?
->>
->>It would sacrifice some throughput for the sake of interactivity, which
->>is what the interactivity patches do anyhow.  This is a reasonable
->>compromise.
-> 
-> 
-> That's not as silly as it sounds. In fact it should be dead easy to 
-> increase/decrease the amount of anticipatory time based on the bonus from 
-> looking at the code. I dunno how the higher filesystem gods feel about this 
-> though.
+My system is laptop vaio PCG-P505TS running Debian unstable
+Linux kernel 2.6.0-test2
 
+I provide links (to don't thrust the mailing list) to my 
+.config: 
+http://www.onerussian.com/linux.bug/config-2.6.0-test2
 
-On the one hand, it's nice to keep systems independent so that you can 
-make them separately optional, but on the other hand, if they can talk 
-to each other, it makes for an all-around better-performing system, 
-because things don't stomp on each other.
+dmesg:
+http://www.onerussian.com/linux.bug/dmesg.log
 
-They will need to pay attention to each other's kernel config options so 
-as to keep or leave out whatever code communicates between them.  How 
-hard is that to do?
+dmesg bears also signs about 
+buffer layer error at fs/buffer.c:416
+Call Trace:
+ [<c0154f30>] __find_get_block_slow+0x80/0xe0
+ [<c0155f51>] __find_get_block+0x91/0xf0
 
+which I've not mentioned before so I don't know if they are relevant to
+the problem
 
+Thanx for your help/support
 
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

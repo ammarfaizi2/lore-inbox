@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbTJNUkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 16:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTJNUkn
+	id S262745AbTJNVHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTJNVHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 16:40:43 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:53774 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S261982AbTJNUkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 16:40:42 -0400
-Message-ID: <3F8C60E3.1020907@kolumbus.fi>
-Date: Tue, 14 Oct 2003 23:47:31 +0300
-From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 14 Oct 2003 17:07:42 -0400
+Received: from smtp5.hy.skanova.net ([195.67.199.134]:19936 "EHLO
+	smtp5.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S262745AbTJNVHl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 17:07:41 -0400
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+Date: Tue, 14 Oct 2003 23:11:36 +0200
+User-Agent: KMail/1.5.9
+References: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+In-Reply-To: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
 MIME-Version: 1.0
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-CC: Vojtech Pavlik <vojtech@suse.cz>, 4Front Technologies <dev@opensound.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: mouse driver bug in 2.6.0-test7?
-References: <3F8C3A99.6020106@opensound.com>	 <1066159113.12171.4.camel@tux.rsn.bth.se> <20031014193847.GA9112@ucw.cz>	 <3F8C56B3.1080504@opensound.com>  <20031014201354.GA10458@ucw.cz> <1066163220.12165.11.camel@tux.rsn.bth.se>
-In-Reply-To: <1066163220.12165.11.camel@tux.rsn.bth.se>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 14.10.2003 23:42:14,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 14.10.2003 23:41:42,
-	Serialize complete at 14.10.2003 23:41:42
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200310142311.36472.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not use the new style module_param thing, goes for compiled-in and 
-module stuff.
+On Tuesday 14 October 2003 18.27, Maciej Zenczykowski wrote:
+> Of course part of the problem is that by designing the kernel for high mem
+> situations we're using more memory hogging algorithms.  It's a simple
+> matter of features vs mem footprint.
 
---Mika
+Algorithms using lots of memory should be avoided even for newer computers.
+Cache misses HURTS.
 
+That is why -Os can be a better compilation option than -O2 !
 
-Martin Josefsson wrote:
+/RogerL
 
->On Tue, 2003-10-14 at 22:13, Vojtech Pavlik wrote:
->
->  
->
->>>I'd recommend that you make the sample rate a module config option so that
->>>users may be able to tweak this for their systems.
->>>      
->>>
->>It already is. Only the code to make it a kernel command line parameter
->>(when psmouse is compiled into the kernel) is missing.
->>    
->>
->
->If you fix that I'd be happy and I'll stop sending that patch over and
->over again... :)
->
->  
->
-
+-- 
+Roger Larsson
+Skellefteå
+Sweden

@@ -1,158 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbTJSUqb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 16:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTJSUqb
+	id S262225AbTJSVFU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 17:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTJSVFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 16:46:31 -0400
-Received: from mail.gmx.de ([213.165.64.20]:54183 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262158AbTJSUq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 16:46:28 -0400
-Date: Sun, 19 Oct 2003 22:46:26 +0200 (MEST)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org, bkz@linux-ide.org
-MIME-Version: 1.0
-References: <Pine.LNX.4.10.10310191329150.15306-100000@master.linux-ide.org>
-Subject: Re: HighPoint 374
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <7755.1066596386@www23.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Sun, 19 Oct 2003 17:05:20 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:51462 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262225AbTJSVFP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 17:05:15 -0400
+Date: Sun, 19 Oct 2003 23:04:53 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Daniel Egger <degger@fhm.edu>,
+       linux-kernel@vger.kernel.org, rob@landley.net
+Subject: Re: Where's the bzip2 compressed linux-kernel patch?
+Message-ID: <20031019210453.GE16761@alpha.home.local>
+References: <200310180018.21818.rob@landley.net> <1066477155.5606.34.camel@sonja> <3F91E01C.4090507@cyberone.com.au> <200310191245.55961.mbuesch@freenet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310191245.55961.mbuesch@freenet.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> You do not enable TCQ on highpoint without using the hosted polling timer.
-> Oh and I have not added it, and so hit Bartlomiej up for the additions.
-
-good info :-)
-
-but it sometimes seems to enable it
-
-the 4 drives are identical,
-and the drive failing is almost always different
-
-and this doesn't explain the md/ lvm corupption,
-even when TCQ is not enabled both in 2.4 and 2.5
+On Sun, Oct 19, 2003 at 12:45:46PM +0200, Michael Buesch wrote:
  
-/dev/hda:
+> What about making it configurable? If someone want's bzip2
+> and if he want's to wait longer to boot, (s)he may
+> compile bzip2 support.
+> If someone dislikes it, (s)he may use gzip.
 
-ATA device, with non-removable media
-powers-up in standby; SET FEATURES subcmd spins-up.
-        Model Number:       IC35L080AVVA07-0
-        Serial Number:      VNC402A4CVHNEA
-        Firmware Revision:  VA4OA52A
-Standards:
-        Used: ATA/ATAPI-5 T13 1321D revision 1
-        Supported: 5 4 3 2 & some of 6
-Configuration:
-        Logical         max     current
-        cylinders       16383   16383
-        heads           16      16
-        sectors/track   63      63
-        --
-        CHS current addressable sectors:   16514064
-        LBA    user addressable sectors:  160836480
-        device size with M = 1024*1024:       78533 MBytes
-        device size with M = 1000*1000:       82348 MBytes (82 GB)
-Capabilities:
-        LBA, IORDY(can be disabled)
-        bytes avail on r/w long: 52     Queue depth: 32
-        Standby timer values: spec'd by Standard, no device specific minimum
-        R/W multiple sector transfer: Max = 16  Current = 0
-        Advanced power management level: unknown setting (0x0000)
-        Recommended acoustic management value: 128, current value: 254
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=240ns  IORDY flow control=120ns
-Commands/features:
-        Enabled Supported:
-           *    NOP cmd
-           *    READ BUFFER cmd
-           *    WRITE BUFFER cmd
-           *    Host Protected Area feature set
-                Release interrupt
-           *    Look-ahead
-           *    Write cache
-           *    Power Management feature set
-                Security Mode feature set
-           *    SMART feature set
-           *    Mandatory FLUSH CACHE command
-           *    Device Configuration Overlay feature set
-.................................................................
-           *    READ/WRITE DMA QUEUED
-...................................................................
+I don't know if people have already tested LZO and NRV (used in UPX). Perhaps
+LZO might already be a little better than gzip, while faster and with less
+code. NRV is surely better, but is not open source IIRC. Perhaps Markus would
+agree to release a free NRV decompressor if asked kindly ?
 
-> > i have the same problems with epox 8k9a3+,
-> > and may be even strange ones
-> > (like fs coruption when soft raid & / or lvm is used)
-> > 
-> > and i never had the problems with 8k5a3+,
-> > the drives were actually taken from the 8k5a3+
-> > when it died (me silly tried to update to XP2700)
-> > 
-> > really strange, isn't it
-> > 
-> > both boards should be the same, except
-> > 8k5a3+ uses kt333
-> > 8k9a3+ uses kt400
-> > 
-> > only mainboard change -> hell of a lot unresolved problems
-> > 
-> > 
-> > svetljo
-> > kernels used 2.4.21-2.4.23-pre3 2.6.0-test3-test7bk8
-> > 
-> > and a nice log when i try to enable TCQ
-> > 
-> > all Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-> > [<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-> > Badness in as_remove_dispatched_request at
-> drivers/block/as-iosched.c:102
-> 2
-> > Call Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-> > [<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-> > Badness in as_remove_dispatched_request at
-> drivers/block/as-iosched.c:102
-> 2
-> > Call Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-> > [<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-> > Badness in as_remove_dispatched_request at
-> drivers/block/as-iosched.c:102
-> 2
-> > Call Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-> > [<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-> > 
-> > 
-> > -- 
-> > NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-> > Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-> > 
-> > Jetzt kostenlos anmelden unter http://www.gmx.net
-> > 
-> > +++ GMX - die erste Adresse für Mail, Message, More! +++
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> i
-> n
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-
--- 
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-
-Jetzt kostenlos anmelden unter http://www.gmx.net
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
+Regards,
+Willy
 

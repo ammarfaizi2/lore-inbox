@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbUCJWyG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 17:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbUCJWxv
+	id S262877AbUCJWxm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 17:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUCJWvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 17:53:51 -0500
-Received: from mail.gmx.de ([213.165.64.20]:50072 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262866AbUCJWw6 (ORCPT
+	Wed, 10 Mar 2004 17:51:50 -0500
+Received: from smtpq2.home.nl ([213.51.128.197]:15835 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S262866AbUCJWtq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 17:52:58 -0500
-X-Authenticated: #4512188
-Message-ID: <404F9C52.5090602@gmx.de>
-Date: Wed, 10 Mar 2004 23:53:06 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+	Wed, 10 Mar 2004 17:49:46 -0500
+Message-ID: <404F9B6B.10102@keyaccess.nl>
+Date: Wed, 10 Mar 2004 23:49:15 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031029
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Dominik Brodowski <linux@brodo.de>
-Subject: Re: ACPI PM Timer vs. C1 halt issue
-References: <404E38B7.5080008@gmx.de>	 <1078870289.12084.8.camel@cog.beaverton.ibm.com>  <404E4913.3020005@gmx.de>	 <1078955372.2696.23.camel@cog.beaverton.ibm.com> <1078956711.2557.72.camel@dhcppc4>
-In-Reply-To: <1078956711.2557.72.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL] 8139too assertions
+Content-Type: multipart/mixed;
+ boundary="------------030101000602010608080303"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030101000602010608080303
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> That said, I don't know what caused the regression you describe. 
-> Perhaps you can clarfiy the minimal changes necessary to switch between
-> correct and incorrect behaviour?
+Hi Jeff,
 
-Or in short word:
+current placements of these asserts seems unhelpful; we've already oopsed.
 
-HOT:
-Detected 2204.949 MHz processor.
-Using pmtmr for high-res timesource
+Incremental to IFG patch only for line-numbers.
 
-COOL:
-Detected 2205.177 MHz processor.
-Using tsc for high-res timesource
+Rene.
 
 
-Otherwise no difference in config.
+--------------030101000602010608080303
+Content-Type: text/plain;
+ name="linux-2.6.4-rc2-mm1_8139too-assert.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.4-rc2-mm1_8139too-assert.diff"
 
-Prakash
+--- linux-2.6.4-rc2-mm1/drivers/net/8139too.c~	2004-03-10 22:58:52.000000000 +0100
++++ linux-2.6.4-rc2-mm1/drivers/net/8139too.c	2004-03-10 23:00:49.000000000 +0100
+@@ -974,12 +974,11 @@
+ 	if (i < 0)
+ 		return i;
+ 
++	assert (dev != NULL);
+ 	tp = dev->priv;
++	assert (tp != NULL);
+ 	ioaddr = tp->mmio_addr;
+-
+ 	assert (ioaddr != NULL);
+-	assert (dev != NULL);
+-	assert (tp != NULL);
+ 
+ 	addr_len = read_eeprom (ioaddr, 0, 8) == 0x8129 ? 8 : 6;
+ 	for (i = 0; i < 3; i++)
+
+--------------030101000602010608080303--
 

@@ -1,172 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbQKCWWp>; Fri, 3 Nov 2000 17:22:45 -0500
+	id <S129042AbQKCWc2>; Fri, 3 Nov 2000 17:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQKCWWf>; Fri, 3 Nov 2000 17:22:35 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29203 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129069AbQKCWWT>;
-	Fri, 3 Nov 2000 17:22:19 -0500
-Message-ID: <3A033A45.D8F6E952@mandrakesoft.com>
-Date: Fri, 03 Nov 2000 17:20:53 -0500
+	id <S129034AbQKCWcS>; Fri, 3 Nov 2000 17:32:18 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:14340 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129033AbQKCWcJ>;
+	Fri, 3 Nov 2000 17:32:09 -0500
+Message-ID: <3A033C82.114016A0@mandrakesoft.com>
+Date: Fri, 03 Nov 2000 17:30:26 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: tytso@mit.edu
-CC: linux-kernel@vger.kernel.org, jeremy@goop.org,
-        "David S. Miller" <davem@redhat.com>, rgooch@atnf.csiro.au,
-        sct@redhat.com
+To: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
+CC: kuznet@ms2.inr.ac.ru, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org, davies@maniac.ultranet.com
 Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org>
+In-Reply-To: <20001103202911.A2979@gruyere.muc.suse.de> <200011031937.WAA10753@ms2.inr.ac.ru> <20001103160108.D16644@ganymede.isdn.uiuc.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tytso@mit.edu wrote:
-> 4. Boot Time Failures
+Bill Wendling wrote:
 > 
->      * Crashes on boot on some Compaqs ? (may be fixed)
+> Also sprach kuznet@ms2.inr.ac.ru:
+> } > de4x5 is probably also buggy in regard to this.
+> }
+> } de4x5 is hopeless. I added nice comment in softnet to it.
+> } Unfortunately it was lost. 8)
+> }
+> } Andi, neither you nor me nor Alan nor anyone are able to audit
+> } all this unnevessarily overcomplicated code. It was buggy, is buggy
+> } and will be buggy. It is inavoidable, as soon as you have hundreds
+> } of drivers.
+> }
+> If they are buggy and unsupported, why aren't they being expunged from
+> the main source tree and placed into a ``contrib'' directory or something
+> for people who may want those drivers?
 
-compaq laptops?  desktops?  or alphas?
+de4x5 is stable.  Its hopeless to add stuff to it, or try to any fix of
+the (IMHO small) issues, but its fine as is.  For maintenance issues,
+its PCI support will be eliminated in 2.5.x because it is a duplicate of
+support in the tulip driver.
 
+	Jeff
 
->      * Various Alpha's don't boot under 2.4.0-test9 (PCI resource
->        allocation problem? Michal Jaegermann; Richard Henderson may have
->        an idea what's failing.)
-
-Elaboration:  PCI-PCI bridges are not configured correctly
-
-> 5. Compile errors
-
-I doubt you need this category :)
-
-
-> 6. In Progress
->      * Fix all remaining PCI code to use pci_enable_device (mostly done)
-
-Most drivers are done, and all of the important drivers are done
-(IMHO).  Maybe we could move this to a cleanup category?  Its definitely
-not a showstopper..
-
-
->      * DMFE is not SMP safe (Frank Davis patch exists, but hasn't gotten
->        much commens yet)
-
-update:  frank davis patch is poor.
-
-DMFE accesses multiple hardware registers for a single operation, and
-requires SMP locking to synchronize between all that code.
-
-
->      * Audit all char and block drivers to ensure they are safe with the
->        2.3 locking - a lot of them are not especially on the
->        read()/write() path. (Frank Davis --- moving slowly; if someone
->        wants to help, contact Frank)
-
-Haven't heard any update on this in a long while...
-
-
->      * Fixing autofs4 to deal with VFS changes (Jeremy Fitzhardinge)
-
-I thought this was complete a long time ago?
-
-
-> 8. Fix Exists But Isnt Merged
-
->      * Many network device drivers don't call MOD_INC_USE_COUNT in
->        dev->open. (Paul Gortmaker has patches)
-
-There exists a patch which makes MOD_xxx in net drivers obsolete.  I'm
-hoping that one will get applied...
-
-
->      * mtrr.c is broken for machines with >= 4GB of memory (David Wragg
->        has a fix)
-
-His patch looks ok to me, too....   Does somebody want to submit this
-patch to Linus?  I haven't seen the maintainer (Richard Gooch) speak up
-on this issue at all.
-
-
->      * Issue with notifiers that try to deregister themselves? (lnz;
->        notifier locking change by Garzik should backed out, according to
->        Jeff)
-
-Done.
-
-
->      * The new hot plug PCI interface does not provide a method for
->        passing the correct device name to cardmgr (David Hinds, alan)
-
-Move to "in progress"...
-
-
->      * 2.4.0-test8 pcmcia is unusable in fall forms (kernel, mixed, or
->        dhinds code) (David Ford)
-
-"fall forms"?
-
-David clearly has problems w/ pcmcia, but it is not at all as broken as
-he makes it out to be:  all my cardbus laptops boot and work.
-
-
->      * Spin doing ioctls on a down netdeice as it unloads == BOOM
->        (prumpf, Alan Cox)
-
-not an issue.
-
-
->	Possible other net driver SMP issues (andi
->        kleen)
-
-No showstoppers AFAICS, but small races do exist.
-
-
->      * PCMCIA/Cardbus hangs (Basically unusable - Hinds pcmcia code is
->        reliable)
-
-Again "whatever".  The CardBus code is definitely usable.  It is not
-mature, but saying it is "basically unusable" is wildly inaccurate.
-
-
->      * RTL 8139 cards sometimes stop responding. Both drivers don't
->        handle this quite good enough yet. (reported by Rogier Wolff,
->        tentatively reported as fixed by David Ford; reports from Frank
->        Jacobberger and Shane Shrybman indicate that it doesn't appear to
->        be fixed in test9)
-
-I'm hoping this is fixed in test10, but haven't gotten any reports back
-yet...
-
-
->      * kiobuf seperate lock functions/bounce/page_address fixes
-
-Do Stephen Tweedie's recently posted kiobuf patches fix this issue?
-
-
->      * Potential races in file locking code (Christian Ehrhardt)
->           + locks_verify_area checks the wrong range if O_APPEND is set
->             and the current file position is not at the end of the file.
->           + dito if the file position changes between the call to
->             locks_verify_area and the actual read/write (requires a
->             shared file pointer, an attacker can use this to circumvent
->             virtually any mandatory lock).
->           + active writes should prevent anyone from getting mandatory
->             locks for the area beeing written.
->           + active reads should prevent anyone from getting mandatory
->             write locks for the area beeing read.
-
-a fix patch for file locks (related to nfs, but still it appears to fix
-some general issues)  was posted this week:  
-http://boudicca.tux.org/hypermail/linux-kernel/this-week/0404.html
-
-
->      * Eepro100 driver can sometimes report out of resources on reboot
->        (Josue Emmanuel Amaro)
-
-More than just on reboot.
 
 -- 
 Jeff Garzik             | Dinner is ready when

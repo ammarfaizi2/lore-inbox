@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261301AbTCTBg7>; Wed, 19 Mar 2003 20:36:59 -0500
+	id <S262628AbTCTBr1>; Wed, 19 Mar 2003 20:47:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262628AbTCTBg7>; Wed, 19 Mar 2003 20:36:59 -0500
-Received: from ext.aurema.com ([203.31.96.4]:12469 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id <S261301AbTCTBg6>;
-	Wed, 19 Mar 2003 20:36:58 -0500
-Date: Thu, 20 Mar 2003 12:47:55 +1100
-From: Kingsley Cheung <kingsley@aurema.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: fluctuations in /proc/stat btime field
-Message-ID: <20030320124755.A5602@aurema.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030319154554.C3492@aurema.com>
+	id <S262893AbTCTBr1>; Wed, 19 Mar 2003 20:47:27 -0500
+Received: from adsl-67-121-154-32.dsl.pltn13.pacbell.net ([67.121.154.32]:7392
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S262628AbTCTBr0>; Wed, 19 Mar 2003 20:47:26 -0500
+Date: Wed, 19 Mar 2003 17:58:23 -0800
+To: Brad Laue <brad@brad-x.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED UNTILL NOW!) - removed link
+Message-ID: <20030320015823.GB4821@triplehelix.org>
+References: <000701c2ee22$efe61fd0$0100a8c0@andrus> <01f001c2ee5b$f418dd20$294b82ce@connecttech.com> <3E78FA9C.3000707@brad-x.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030319154554.C3492@aurema.com>; from kingsley@aurema.com on Wed, Mar 19, 2003 at 03:45:54PM +1100
+In-Reply-To: <3E78FA9C.3000707@brad-x.com>
+User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 03:45:54PM +1100, Kingsley Cheung wrote:
-> Hi,
-> 
-> On a dual SMP box running SuSE-2.4.19-79 (United Linux rc4), the boot
-> time in /proc/stat can vary 1 second when read.  I haven't seen this
-> on a UP box. Its not a major issue, but I guess its a hindrance if
-> one's expecting it to never change:
-> 
-> gen2 12:06:52 ~: grep btime /proc/stat
-> btime 1046838984
-> gen2 12:07:06 ~: grep btime /proc/stat
-> btime 1046838984
-> gen2 12:07:07 ~: grep btime /proc/stat
-> btime 1046838983
-> gen2 12:07:07 ~: grep btime /proc/stat
-> btime 1046838983
-> gen2 12:07:08 ~: grep btime /proc/stat
-> btime 1046838983
-> gen2 12:07:09 ~: grep btime /proc/stat
-> btime 1046838984
-> gen2 12:07:10 ~: grep btime /proc/stat
-> btime 1046838984
-> gen2 12:07:11 ~: grep btime /proc/stat
-> btime 1046838983
-> 
-> I'm not familiar with the way IO-APIC timers work or the interrupt
-> timer itself, so can someone explain why this is the case? I'm
-> guessing that it might simply be a timing issue between when the
-> actual interrupt handling updating jiffies in do_timer and the bottom
-> half updating xtime.tv_sec (see kernel/timer.c). 
-> 
-> Maybe by caching the btime value so that its only calculated once is
-> the way to go. Attached is the suggested fix, as well as the output
-> from /proc/cpuinfo & /proc/interrupts.
-> 
-> If someone could get back to me on this it would be much appreciated.
-> 
 
-Actually, correction: the boot-time does also fluctuate on a UP as
-well.  Not nice if you want absolute boot-time.
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-		Kingsley
+On Wed, Mar 19, 2003 at 06:17:48PM -0500, Brad Laue wrote:
+> My problem is with the fix for 2.4.x; last I checked, XFree86 et al=20
+> should not be surrounded by square brackets, such as is the case now:
+
+But .. does anything weird happen?
+I've noticed it too; no big deal, everything is still running fine...
+
+nobody   16966  0.0  0.8  4132 1120 ?        S    Mar18   0:00 [proftpd]
+www-data 22277  0.0  0.6 137464 796 ?        S    Mar18   0:00 [apache]
+www-data 22278  0.0  0.7 137424 1012 ?       S    Mar18   0:00 [apache]
+www-data 22279  0.0  0.6 137424 864 ?        S    Mar18   0:00 [apache]
+www-data 22280  0.0  0.9 137452 1216 ?       S    Mar18   0:00 [apache]
+www-data 22281  0.0  0.5 137412 748 ?        S    Mar18   0:00 [apache]
+www-data 22282  0.0  0.6 137448 772 ?        S    Mar18   0:00 [apache]
+www-data 22333  0.0  0.6 137416 852 ?        S    Mar18   0:00 [apache]
+www-data 29197  0.0  0.9 137420 1264 ?       S    05:48   0:00 [apache]
+root      4799  0.1  1.4  6628 1820 ?        S    17:24   0:02 [sshd]
+joshk     4801  0.0  1.2  3832 1644 pts/1    S    17:24   0:00 -bash
+irc       4815  0.0  0.5  2996  680 ?        S    17:25   0:00 -slink 10 10=
+ 12 1
+joshk     4821  0.9  2.9  6208 3804 pts/1    S    17:26   0:17 mutt
+root      5123  5.0  1.4  6700 1848 ?        S    17:56   0:00 [sshd]
+joshk     5125  9.0  1.2  3820 1632 pts/2    S    17:56   0:00 -bash
+joshk     5128  0.0  0.5  2488  752 pts/2    R    17:56   0:00 ps aux
+
+Regards,
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+eSA+T2bz5yevw+4RAtXlAJ9PVpVFzlI8hTX+xvmuqn/EKH9AegCgmx59
+uc4guto5DJRoR/3rPW+Zsro=
+=yAYq
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--

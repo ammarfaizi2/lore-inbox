@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264304AbTIISzA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 14:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264306AbTIISzA
+	id S264312AbTIIS4W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 14:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbTIIS4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 14:55:00 -0400
-Received: from mid-1.inet.it ([213.92.5.18]:13748 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id S264304AbTIISy7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 14:54:59 -0400
-Message-ID: <003e01c37704$79551720$36af7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Tue, 9 Sep 2003 20:59:18 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Tue, 9 Sep 2003 14:56:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22542 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264312AbTIIS4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 14:56:17 -0400
+Date: Tue, 9 Sep 2003 19:56:14 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Serial updates
+Message-ID: <20030909195614.I4216@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're right. When i have a bit of time, i'll translate the page.
+Here's a set of serial updates I'm planning to send to Linus shortly.
+You can get a patch from the following URL:
 
-The version of the kernel is not so important.
-The code is highly portable and little dependent of the internals of kernel.
-It only needs some functions that continue to survive in newer versions of
-Linux.
-I used 2.2.4 only because it was ready-to-use on my machine.
+	http://patches.arm.linux.org.uk/serial-20030909.diff
 
-The main purpose of the article was not to present a professional
-mechanism that you can download and use into your own applications.
+ drivers/serial/8250_cs.c     |  712 ------------
+ drivers/serial/core.c        | 2432 -------------------------------------------
+ drivers/serial/8250.c        |   24 
+ drivers/serial/8250.h        |    4 
+ drivers/serial/8250_pci.c    |   22 
+ drivers/serial/Kconfig       |   32 
+ drivers/serial/Makefile      |    4 
+ drivers/serial/clps711x.c    |   12 
+ drivers/serial/sa1100.c      |    8 
+ drivers/serial/serial_core.c | 2420 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/serial/serial_cs.c   |  712 ++++++++++++
+ include/linux/serial_core.h  |   10 
+ 12 files changed, 3198 insertions(+), 3194 deletions(-)
 
-It is only the proof of a fact: Linux IPC Mechanisms
-are ***structurally*** inefficient.
+<rmk@flint.arm.linux.org.uk> (03/09/09 1.1243)
+	[SERIAL] Introduce per-port capabilities.
+	
+	This allows us to maintain quirks or capabilities on a per-port basis,
+	so we can handle buggy clones more effectively.
 
-Bye.
-Luca
+<rmk@flint.arm.linux.org.uk> (03/09/09 1.1242)
+	[SERIAL] Fix another missing irqreturn_t (clps711x.c)
+
+<rmk@flint.arm.linux.org.uk> (03/09/09 1.1241)
+	[SERIAL] Convert serial config deps to select statements
+	
+	The dependencies for CONFIG_SERIAL_CORE / CONFIG_SERIAL_CORE_CONSOLE
+	were becoming very messy.  This cset converts the dependencies to
+	use "select" statements instead.
+
+<rmk@flint.arm.linux.org.uk> (03/09/09 1.1240)
+	[SERIAL] Drop "level" argument from serial PM calls.
+	
+	Since the driver model has transitioned away from using multi-level
+	device suspend/resume, we also drop the multi-level support from
+	the serial layer.
+	
+	Update the 8250 and sa1100 drivers for this change.
+
+<rmk@flint.arm.linux.org.uk> (03/08/27 1.1153.59.2)
+	[SERIAL] Rename core.o and 8250_cs.o
+	
+	core.ko is a bad name for a module - make it serial_core.ko
+	8250_cs.ko continues to cause people compatibility problems with
+	older kernels, so rename that back to serial_cs.ko
+
+<rmk@flint.arm.linux.org.uk> (03/08/24 1.1123.33.1)
+	[SERIAL] Add new port numbers.
+	
+	This adds the new port numbers which are in use in MAC and PARISC
+	trees (so other people know they're taken.)
 
 
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

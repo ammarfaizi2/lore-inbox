@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUIINZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUIINbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUIINZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 09:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUIINZd
+	id S263736AbUIINbq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 09:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUIINbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 09:25:33 -0400
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:50661 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S263626AbUIINZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 09:25:31 -0400
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97 
-	patch)
-From: Ian Campbell <ijc@hellion.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040909114747.GC30162@lkcl.net>
-References: <20040909114747.GC30162@lkcl.net>
-Content-Type: text/plain
-Message-Id: <1094736327.22994.9.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 09 Sep 2004 14:25:27 +0100
+	Thu, 9 Sep 2004 09:31:45 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:31662 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263736AbUIINbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 09:31:44 -0400
+Message-ID: <41405773.3090403@yahoo.com.au>
+Date: Thu, 09 Sep 2004 23:15:31 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Andrew Morton <akpm@osdl.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Q about pagecache data never written to disk
+References: <20040905120147.A9202@castle.nmd.msu.ru> <20040905035233.6a6b5823.akpm@osdl.org> <20040905154336.B9202@castle.nmd.msu.ru> <20040905140040.58a5fcdc.akpm@osdl.org> <20040909123957.GB1065@elf.ucw.cz>
+In-Reply-To: <20040909123957.GB1065@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-09 at 12:47, Luke Kenneth Casson Leighton wrote:
+Pavel Machek wrote:
 
-> i trust that someone will download, check it, and if
-> appropriate, incorporate it into the mainstream linux kernel.
+>>No, read() will see the modified pagecache data immediately, apart from CPU
+>>cache coherency effects.
+> 
+> 
+> Is not this quite a big security hole?
+> 
+> cat evil_data > /tmp/sign.me   [Okay, evil_data probably have to
+> 				contain lot of zeroes?]
+> sync, fill disk or wait for someone to fill disk completely
+> 
+> attempt to write good_data to /tmp/sign.me using mmap
+> 
+> "Hey, root, see what /tmp/sign.me contains, can you make it suid?"
+> 
+> root reads /tmp/sign.me, and sees it is good.
+> 
+> root does chown root.root /tmp/sign.me; chmod 4755 /tmp/sign.me
+> 
+> kernel realizes that there's not enough disk space, and discard
+> changes, therefore /tmp/sign.me reverts to previous, evil, content.
+> 
 
-The ALSA bit is already in the kernel at sound/pci/intel8x0m.c, I don't
-know when it was added though. Not sure of the status of the USB bit,
-but I think it is normally up to the author to submit something rather
-than some 3rd party...
-
-Unfortunately the ALSA driver doesn't work for me, I just get NO
-DIALTONE and the following in the kernel logs:
-
-        codec_semaphore: semaphore is not ready [0x1][0x300300]
-        codec_write 1: semaphore is not ready for register 0x54
-        
-I only tried it out last night, and I don't really need the modem in my
-laptop much (it never really travels much further than the sofa :) so I
-haven't really investigated much.
-
-The laptop is a VAIO from several years ago. lspci shows the modem as:
-0000:00:1f.6 Modem: Intel Corp. Intel 537 [82801BA/BAM AC'97 Modem] (rev 03)
-
-Ian.
--- 
-Ian Campbell
-Current Noise: Dream Theater - About to Crash
-
-Q:	Why did the lone ranger kill Tonto?
-A:	He found out what "kimosabe" really means.
-
+root would have to make that change while user has the file open,
+and should welcome the subsequent unleashing of evil content as a
+valuable lesson.

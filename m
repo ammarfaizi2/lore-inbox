@@ -1,33 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285605AbRLGWRB>; Fri, 7 Dec 2001 17:17:01 -0500
+	id <S285609AbRLGWSV>; Fri, 7 Dec 2001 17:18:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285606AbRLGWQv>; Fri, 7 Dec 2001 17:16:51 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:13071 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285605AbRLGWQo>; Fri, 7 Dec 2001 17:16:44 -0500
-Message-ID: <3C113FB1.2000AFF1@zip.com.au>
-Date: Fri, 07 Dec 2001 14:16:17 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
-X-Accept-Language: en
+	id <S285606AbRLGWSJ>; Fri, 7 Dec 2001 17:18:09 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:63681 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S285609AbRLGWRr>;
+	Fri, 7 Dec 2001 17:17:47 -0500
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-To: "Udo A. Steinberg" <reality@delusion.de>
-CC: "David C. Hansen" <haveblue@us.ibm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: release() locking
-In-Reply-To: <3C10D83E.81261D74@delusion.de> <3C10FDCF.D8E473A0@zip.com.au> <3C11394D.90101@us.ibm.com> <3C113D78.F324F1B9@delusion.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15377.16385.380923.588249@napali.hpl.hp.com>
+Date: Fri, 7 Dec 2001 14:17:37 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@zip.com.au>,
+        j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
+In-Reply-To: <Pine.LNX.4.21.0112071845380.22884-100000@freak.distro.conectiva>
+In-Reply-To: <15377.13976.342104.636304@napali.hpl.hp.com>
+	<Pine.LNX.4.21.0112071845380.22884-100000@freak.distro.conectiva>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
-> 
-> I guess there's something wrong with the changes you made, and it only
-> shows with the modifications that Andrew made - and since he says he
-> only fixed some bits of the code, the broken bits must have been there
-> before.
+>>>>> On Fri, 7 Dec 2001 18:47:11 -0200 (BRST), Marcelo Tosatti <marcelo@conectiva.com.br> said:
 
-Maybe so.  Can you identify the exact kernel version at which
-the problem started?
+  Marcelo> On Fri, 7 Dec 2001, David Mosberger wrote:
+
+  >> >>>>> On Fri, 7 Dec 2001 16:52:07 -0200 (BRST), Marcelo Tosatti
+  >> <marcelo@conectiva.com.br> said:
+  >> 
+  Marcelo> I'm really not willing to apply this kludge...
+  >>  Do you agree that it should always be safe to call printk() from
+  >> C code?
+
+  Marcelo> No if you can't access the console to print the message :)
+
+Let me quote the first few lines of the Linux kernel:
+
+	----
+	asmlinkage void __init start_kernel(void)
+	{
+		char * command_line;
+		unsigned long mempages;
+		extern char saved_command_line[];
+	/*
+	 * Interrupts are still disabled. Do necessary setups, then
+	 * enable them
+	 */
+		lock_kernel();
+		printk(linux_banner);
+	----
+
+You still think it doesn't make sense?
+
+  Marcelo> Its just that I would prefer to see the thing fixed in
+  Marcelo> arch-dependant code instead special casing core code.
+
+Only architecture specific problems should be fixed with architecture
+specific code.
+
+I'm not entirely sure whether this particular problem is architecture
+specific.  Perhaps it is and, if so, I'm certainly happy to fix it in
+the ia64 specific code. However, are you really 100% certain that on
+x86 there are no console drivers which in some fashion depend on
+cpu_init() having completed execution?  Note that the x86 version of
+cpu_init() also has printk()s.  If you're not certain of this, the AP
+startup problem could occur on x86, too.  I haven't looked at all the
+other platforms, but I suspect similar things will be true, there.
+
+	--david

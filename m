@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131527AbRAVQK3>; Mon, 22 Jan 2001 11:10:29 -0500
+	id <S132480AbRAVQOA>; Mon, 22 Jan 2001 11:14:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132178AbRAVQKT>; Mon, 22 Jan 2001 11:10:19 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:12296 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131527AbRAVQKG>; Mon, 22 Jan 2001 11:10:06 -0500
-To: Bernd Eckenfels <lists@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org
-Subject: Re: the remount problem [2.4.0] kind of solved [patch]
-In-Reply-To: <20010121130745.A1383@lina.inka.de>
-	<87snmcl31k.fsf@mose.informatik.uni-tuebingen.de>
-	<20010122093234.A9194@lina.inka.de>
-From: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>
-Date: 22 Jan 2001 17:09:44 +0100
-In-Reply-To: Bernd Eckenfels's message of "Mon, 22 Jan 2001 09:32:34 +0100"
-Message-ID: <87vgr78t6f.fsf@mose.informatik.uni-tuebingen.de>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132441AbRAVQNu>; Mon, 22 Jan 2001 11:13:50 -0500
+Received: from h56s242a129n47.user.nortelnetworks.com ([47.129.242.56]:39597
+	"EHLO zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S132178AbRAVQNb>; Mon, 22 Jan 2001 11:13:31 -0500
+Message-ID: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>
+From: "Jonathan Earle" <jearle@nortelnetworks.com>
+To: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
+Subject: RE: [OT?] Coding Style
+Date: Mon, 22 Jan 2001 11:04:50 -0500
+X-Mailer: Internet Mail Service (5.5.2652.35)
+X-Orig: <jearle@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Bernd Eckenfels <lists@lina.inka.de> writes:
-    >> Why in hell are library open for write? But it doesn't seem to
-    >> be only libraries:
+> -----Original Message-----
+> From: profmakx.fmp [mailto:profmakx.fmp@gmx.de]
+> 
+> So, every good programmer
+> should know where to put comments. And it is unnecessary to 
+> put comments to
+> explain what code does. One should see this as stated in the 
+> CodingStyle doc.
+> Ok, there are points where a comment is good, but for example 
+> at university
+> we are to comment on every single line of code ...
 
-     > They are not open for write. They are open for mmaped read. The
-     > Problem with this is, that as long as the files are open, the
-     > filesystem cannot remove them from disk. This means, that as
-     > long as you have files open, even for read, which are deleted,
-     > a remount ro will fail.
+WRONG!!!
 
-     > The new lsof will find those mmaped files, so you can simply
-     > restart the associated binary.
+Not documenting your code is not a sign of good coding, but rather shows
+arrogance, laziness and contempt for "those who would dare tamper with your
+code after you've written it".  Document and comment your code thoroughly.
+Do it as you go along.  I was also taught to comment nearly every line - as
+part of the coding style used by a large, international company I worked for
+several years ago.  It brings the logic of the programmer into focus and
+makes code maintenance a whole lot easier.  It also helps one to remember
+the logic of your own code when you revisit it a year or more hence.
 
-Ah, I see. Forgot about that.
-
-Maybe the kernel coud swap in the deleted libraries and keep it in
-memory or real swap from then on instead of blocking the fs.
-
-     > Yes, all daemons will get started with the old libs, since a
-     > upgrade always happens after system start :) But not only
-     > daemons. Think of Shells, getty, login, ...
-
-So, when you update glibc, / can't be remounted ro any more?
-Ugly.
-
-MfG
-        Goswin
+Jon
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

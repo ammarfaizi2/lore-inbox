@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267777AbTBRMZs>; Tue, 18 Feb 2003 07:25:48 -0500
+	id <S267744AbTBRMcb>; Tue, 18 Feb 2003 07:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267780AbTBRMZs>; Tue, 18 Feb 2003 07:25:48 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:29191 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267777AbTBRMZr>; Tue, 18 Feb 2003 07:25:47 -0500
-Date: Tue, 18 Feb 2003 13:35:13 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Werner Almesberger <wa@almesberger.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Is an alternative module interface needed/possible?
-In-Reply-To: <20030218042042.R2092@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0302181332020.1336-100000@serv>
-References: <20030217221837.Q2092@almesberger.net> <20030218050349.44B092C04E@lists.samba.org>
- <20030218042042.R2092@almesberger.net>
+	id <S267762AbTBRMcb>; Tue, 18 Feb 2003 07:32:31 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:11194 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S267744AbTBRMca>; Tue, 18 Feb 2003 07:32:30 -0500
+Message-ID: <20030218124218.20981.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Cc: ciarrocchi@linuxmail.org
+Date: Tue, 18 Feb 2003 20:42:18 +0800
+Subject: Make rpm doesn't work
+X-Originating-Ip: 62.101.98.215
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
+I tried the following:
+[root@frodo linux-2.5.61]# make rpm
+make: *** No rule to make target `clean', needed by `rpm'.  Stop.
 
-On Tue, 18 Feb 2003, Werner Almesberger wrote:
+Not because I really need an rpm kernel, just because I wanted
+to try the process.
 
-> I don't think we'll make much progress if we keep on mixing issues
-> of interface correctness, current module constraints, and possible
-> module interface changes, all that with performance considerations
-> and minimum invasive migration plans thrown in. So I'd suggest the
-> following sequence:
+I looked at the Makefile but I can't understand why it doesn't 
+work.
 
-Um, another point, let's ignore "minimum invasive migration plans", if we 
-found a good solution, we can still figure out how to get there smoothly, 
-so this shouldn't be a primary concern.
+Do you have to fill a bug report to bugzilla.kernel.org ?
 
-bye, Roman
+Ciao,
+       Paolo
 
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

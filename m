@@ -1,161 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315580AbSEIA2O>; Wed, 8 May 2002 20:28:14 -0400
+	id <S315582AbSEIA4N>; Wed, 8 May 2002 20:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315581AbSEIA2N>; Wed, 8 May 2002 20:28:13 -0400
-Received: from ua83d37hel.dial.kolumbus.fi ([62.248.234.83]:55194 "EHLO
-	rankki.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S315580AbSEIA2K>; Wed, 8 May 2002 20:28:10 -0400
-Message-ID: <3CD9C230.9989F491@kolumbus.fi>
-Date: Thu, 09 May 2002 03:26:24 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Kravetz <kravetz@us.ibm.com>
-CC: Robert Love <rml@tech9.net>, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler gives big boost to tbench 192
-In-Reply-To: <20020507151356.A18701@w-mikek.des.beaverton.ibm.com> <E175DhD-0000HF-00@the-village.bc.nu> <20020507154322.F1537@w-mikek2.des.beaverton.ibm.com> <1020814775.2084.43.camel@bigsur> <20020507164857.G1537@w-mikek2.des.beaverton.ibm.com> <3CD94582.DE18AB99@kolumbus.fi> <1020875500.2078.117.camel@bigsur> <20020508100224.C1531@w-mikek2.des.beaverton.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------4C7DB0877E0D7DFF1039EF4F"
+	id <S315583AbSEIA4M>; Wed, 8 May 2002 20:56:12 -0400
+Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:44513 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id <S315582AbSEIA4L>;
+	Wed, 8 May 2002 20:56:11 -0400
+Date: Wed, 8 May 2002 20:55:46 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Alexander.Riesen@synopsys.com, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+Message-ID: <20020509005546.GA14348@nevyn.them.org>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	Alexander.Riesen@synopsys.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020508172557.GB1044@riesen-pc.gr05.synopsys.com> <13244.1020903019@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------4C7DB0877E0D7DFF1039EF4F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Mike Kravetz wrote:
+On Thu, May 09, 2002 at 10:10:19AM +1000, Keith Owens wrote:
+> On Wed, 8 May 2002 19:25:57 +0200, 
+> Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
+> >i've found the reason: the make's stdin was redirected in /dev/null
+> >(my make is aliased to a program prettifying output).
 > 
-> Is there anything simple I can do to check the latencies of the
-> pthread_cond_*() functions?  I'd like to do some analysis of
-> scheduler behavior, but am unfamiliar with the user level code.
+> Use standard make.
 
-I just wrote small test program (attached) for testing this. It is similar
-to my app, but for this test the soundcard is just used more as a timing
-source.
+Wouldn't you call it a bug anyway if running
+'make -f Makefile-2.5 oldconfig < /dev/null' went on to build a kernel? 
+That's pretty surprising behavior.
 
-Adjust the buffer size so that it's on the edge of missing blocks then
-generate some system load to run it over the edge to see how sensitive it is
-and how many blocks are lost. I can see clear difference using kernel with
-original scheduler and with kernel having the O(1) scheduler.
-
-It's quite sensitive when you run it without setuid privileges, but normal
-situation is to run it at SCHED_FIFO.
-
-Because of famous ReiserFS tailmerging feature lost-and-rewrote part of it
-after crashing system with it. Found the the binary overwriting top of it
-after reboot... I was happy to have copied it to another machine over NFS
-just a few minutes before crash, so not much was lost.
-
-
-	- Jussi Laako
+(Not saying that that does happen, but it's how I read Alex's message)
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
---------------4C7DB0877E0D7DFF1039EF4F
-Content-Type: application/x-unknown-content-type-cfile;
- name="schedtest.c"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="schedtest.c"
-
-LyoKCiAgICBTbWFsbCBwcm9ncmFtIGZvciB0ZXN0aW5nIHNjaGVkdWxpbmcgbGF0ZW5jaWVz
-LgoKICAgIENvcHlyaWdodCAoQykgMjAwMiBKdXNzaSBMYWFrbwoKKi8KCgojaW5jbHVkZSA8
-c3RkaW8uaD4KI2luY2x1ZGUgPHN0cmluZy5oPgojaW5jbHVkZSA8c2lnbmFsLmg+CiNpbmNs
-dWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPGZjbnRsLmg+CiNpbmNsdWRlIDxlcnJuby5oPgoj
-aW5jbHVkZSA8c3lzL3R5cGVzLmg+CiNpbmNsdWRlIDxzeXMvc3RhdC5oPgojaW5jbHVkZSA8
-c3lzL2lvY3RsLmg+CiNpbmNsdWRlIDxzeXMvc291bmRjYXJkLmg+CgojaW5jbHVkZSA8c2No
-ZWQuaD4KI2luY2x1ZGUgPHB0aHJlYWQuaD4KCgovKiB0aGlzIGlzIGNvbnNpZGVyZWQgc2Fm
-ZSwgbG9zcyBzaG91bGQgbmV2ZXIgaGFwcGVuICg5Mi44IG1zZWNzKSAqLwovKiNkZWZpbmUg
-QlVGX1NJWkUgICAgODE5MiovCi8qIHRoaXMgc2hvdWxkIHdvcmsgaW4gYWxsIHN5c3RlbXMg
-d2l0aG91dCBsb3NzICgyMyBtc2VjcykgKi8KLyojZGVmaW5lIEJVRl9TSVpFICAgIDIwNDgq
-LwovKiB0aGlzIGlzIGhlYXZpZXIgYnV0IHNob3VsZG4ndCBjYXVzZSBsb3NzICg1LjggbXNl
-Y3MpICovCi8qI2RlZmluZSBCVUZfU0laRSAgICA1MTIqLwovKiBsb3dsYXRlbmN5IHN5c3Rl
-bXMgYXJlIGJlIGFibGUgdG8gZG8gdGhpcyB3aXRob3V0IGxvc3MgKDIuOSBtc2VjcykgKi8K
-I2RlZmluZSBCVUZfU0laRSAgICAyNTYKCiNkZWZpbmUgQVVESU9fREVWICAgIi9kZXYvZHNw
-IgovKiNkZWZpbmUgQVVESU9fREVWICAgIi9kZXYvZHNwOSIqLwoKCnZvbGF0aWxlIGludCBy
-dW4gPSAxOwp2b2xhdGlsZSBpbnQgZXZlbnRjbnRyID0gMDsKc2lnbmVkIHNob3J0IHNoYXJl
-ZF9idWZbQlVGX1NJWkVdOwpwdGhyZWFkX211dGV4X3QgbXR4OwpwdGhyZWFkX2NvbmRfdCBj
-b25kOwoKCnZvaWQgc2V0X3NjaGVkdWxpbmcgKCkKewogICAgdWlkX3QgY3VycmVudF91aWQ7
-CiAgICBzdHJ1Y3Qgc2NoZWRfcGFyYW0gc2NoZWR1bGVyX3BhcmFtczsKCiAgICBjdXJyZW50
-X3VpZCA9IGdldHVpZCgpOwogICAgc2V0dWlkKDApOwogICAgc2NoZWR1bGVyX3BhcmFtcy5z
-Y2hlZF9wcmlvcml0eSA9IHNjaGVkX2dldF9wcmlvcml0eV9taW4oU0NIRURfRklGTyk7CiAg
-ICBpZiAocHRocmVhZF9zZXRzY2hlZHBhcmFtKHB0aHJlYWRfc2VsZigpLCBTQ0hFRF9GSUZP
-LCAKICAgICAgICAmc2NoZWR1bGVyX3BhcmFtcykgIT0gMCkKICAgICAgICBwZXJyb3IoInB0
-aHJlYWRfc2V0c2NoZWRwYXJhbSgpIik7CiAgICBzZXR1aWQoY3VycmVudF91aWQpOwp9CgoK
-dm9pZCAqcHJvZHVjZXJfdGhyZWFkICh2b2lkICpwYXJhbSkKewogICAgaW50IGggPSAoaW50
-KSBwYXJhbTsKICAgIHNpZ25lZCBzaG9ydCBidWZbQlVGX1NJWkVdOwoKICAgIHNldF9zY2hl
-ZHVsaW5nKCk7CgogICAgd2hpbGUgKHJ1bikKICAgIHsKICAgICAgICBpZiAocmVhZChoLCBi
-dWYsIHNpemVvZihidWYpKSAhPSAoaW50KSBzaXplb2YoYnVmKSkKICAgICAgICAgICAgcGVy
-cm9yKCJyZWFkKCkiKTsKICAgICAgICBwdGhyZWFkX211dGV4X2xvY2soJm10eCk7CiAgICAg
-ICAgbWVtY3B5KHNoYXJlZF9idWYsIGJ1ZiwgQlVGX1NJWkUgKiBzaXplb2Yoc2lnbmVkIHNo
-b3J0KSk7CiAgICAgICAgZXZlbnRjbnRyKys7CiAgICAgICAgcHRocmVhZF9jb25kX2Jyb2Fk
-Y2FzdCgmY29uZCk7CiAgICAgICAgcHRocmVhZF9tdXRleF91bmxvY2soJm10eCk7CiAgICB9
-CgogICAgcmV0dXJuIE5VTEw7Cn0KCgp2b2lkICpjb25zdW1lcl90aHJlYWQgKHZvaWQgKnBh
-cmFtKQp7CiAgICBpbnQgaCA9IChpbnQpIHBhcmFtOwogICAgaW50IGxvY2FsX2V2ZW50Y250
-cjsKICAgIHNpZ25lZCBzaG9ydCBidWZbQlVGX1NJWkVdOwoKICAgIHNldF9zY2hlZHVsaW5n
-KCk7CgogICAgcHRocmVhZF9tdXRleF9sb2NrKCZtdHgpOwogICAgbG9jYWxfZXZlbnRjbnRy
-ID0gZXZlbnRjbnRyOwogICAgcHRocmVhZF9tdXRleF91bmxvY2soJm10eCk7CiAgICB3aGls
-ZSAocnVuKQogICAgewogICAgICAgIHB0aHJlYWRfbXV0ZXhfbG9jaygmbXR4KTsKICAgICAg
-ICBwdGhyZWFkX2NvbmRfd2FpdCgmY29uZCwgJm10eCk7CiAgICAgICAgbWVtY3B5KGJ1Ziwg
-c2hhcmVkX2J1ZiwgQlVGX1NJWkUgKiBzaXplb2Yoc2lnbmVkIHNob3J0KSk7CiAgICAgICAg
-bG9jYWxfZXZlbnRjbnRyKys7CiAgICAgICAgaWYgKGxvY2FsX2V2ZW50Y250ciAhPSBldmVu
-dGNudHIpCiAgICAgICAgewogICAgICAgICAgICBwcmludGYoInRocmVhZCAldSBsb3N0ICVp
-IGJsb2Nrc1xuIiwgCiAgICAgICAgICAgICAgICBwdGhyZWFkX3NlbGYoKSwKICAgICAgICAg
-ICAgICAgIGV2ZW50Y250ciAtIGxvY2FsX2V2ZW50Y250cik7CiAgICAgICAgICAgIGxvY2Fs
-X2V2ZW50Y250ciA9IGV2ZW50Y250cjsKICAgICAgICB9CiAgICAgICAgcHRocmVhZF9tdXRl
-eF91bmxvY2soJm10eCk7CiAgICAgICAgaWYgKHdyaXRlKGgsIGJ1Ziwgc2l6ZW9mKGJ1Zikp
-ICE9IChpbnQpIHNpemVvZihidWYpKQogICAgICAgICAgICBwZXJyb3IoIndyaXRlKCkiKTsK
-ICAgIH0KICAgIHJldHVybiBOVUxMOwp9CgoKdm9pZCBzaWdfaGFuZGxlciAoaW50IHNpZ25v
-KQp7CiAgICBzd2l0Y2ggKHNpZ25vKQogICAgewogICAgICAgIGNhc2UgU0lHSU5UOgogICAg
-ICAgICAgICBydW4gPSAwOwogICAgICAgICAgICBicmVhazsKICAgIH0KfQoKCmludCBvcGVu
-X2F1ZGlvICgpCnsKICAgIGludCBkZXZoOwogICAgaW50IGZtdCA9IEFGTVRfUzE2X05FOwog
-ICAgaW50IGNocyA9IDI7CiAgICBpbnQgc3BkID0gNDQxMDA7CiAgICBpbnQgZnJhZ3NpemU7
-CiAgICBpbnQgZnJhZ3NldHRpbmc7CgogICAgZGV2aCA9IG9wZW4oQVVESU9fREVWLCBPX1JE
-T05MWSk7CiAgICBpZiAoZGV2aCA8IDApCiAgICB7CiAgICAgICAgcGVycm9yKCJvcGVuKCki
-KTsKICAgICAgICByZXR1cm4gLTE7CiAgICB9CgogICAgaWYgKGlvY3RsKGRldmgsIFNORENU
-TF9EU1BfU0VURk1ULCAmZm10KSA8IDApCiAgICAgICAgcGVycm9yKCJpb2N0bChTTkRDVExf
-RFNQX1NFVEZNVCkiKTsKICAgIGlmIChpb2N0bChkZXZoLCBTTkRDVExfRFNQX0NIQU5ORUxT
-LCAmY2hzKSA8IDApCiAgICAgICAgcGVycm9yKCJpb2N0bChTTkRDVExfRFNQX0NIQU5ORUxT
-KSIpOwogICAgaWYgKGlvY3RsKGRldmgsIFNORENUTF9EU1BfU1BFRUQsICZzcGQpIDwgMCkK
-ICAgICAgICBwZXJyb3IoImlvY3RsKFNORENUTF9EU1BfU1BFRUQpIik7CgogICAgZnJhZ3Np
-emUgPSBCVUZfU0laRSAqIHNpemVvZihzaWduZWQgc2hvcnQpOwogICAgZnJhZ3NldHRpbmcg
-PSAoMHg3ZmZmMDAwMCB8IChmcmFnc2l6ZSAmIDB4ZmZmZikpOwogICAgaWYgKGlvY3RsKGRl
-dmgsIFNORENUTF9EU1BfU0VURlJBR01FTlQsICZmcmFnc2V0dGluZykgPCAwKQogICAgICAg
-IHBlcnJvcigiaW9jdGwoU05EQ1RMX0RTUF9TRVRGUkFHTUVOVCkiKTsKICAgIGlmIChpb2N0
-bChkZXZoLCBTTkRDVExfRFNQX0dFVEJMS1NJWkUsICZmcmFnc2l6ZSkgPCAwKQogICAgICAg
-IHBlcnJvcigiaW9jdGwoU05EQ1RMX0RTUF9HRVRCTEtTSVpFKSIpOwogICAgcHJpbnRmKCJm
-cmFnbWVudCBzaXplOiAlaVxuIiwgZnJhZ3NpemUpOwogICAgaWYgKGZyYWdzaXplID4gKEJV
-Rl9TSVpFICogc2l6ZW9mKHNpZ25lZCBzaG9ydCkpKQogICAgICAgIHB1dHMoIndhcm5pbmcs
-IGhhcmR3YXJlIGZyYWdtZW50IHNpemUgbGFyZ2VyIHRoYW4gcmVxdWVzdGVkIik7CgogICAg
-cmV0dXJuIGRldmg7Cn0KCgppbnQgb3Blbl9udWxsICgpCnsKICAgIGludCBkZXZoOwoKICAg
-IGRldmggPSBvcGVuKCIvZGV2L251bGwiLCBPX1dST05MWSk7CiAgICBpZiAoZGV2aCA8IDAp
-CiAgICAgICAgcGVycm9yKCJvcGVuKCkiKTsKCiAgICByZXR1cm4gZGV2aDsKfQoKCmludCBt
-YWluIChpbnQgYXJnYywgY2hhciAqYXJndltdKQp7CiAgICBpbnQgYXVkaW9faDsKICAgIGlu
-dCBudWxsX2gxOwogICAgaW50IG51bGxfaDI7CiAgICBpbnQgcmVjdl9zaWc7CiAgICBzaWdz
-ZXRfdCBzaWdzZXRfd2FpdDsKICAgIHB0aHJlYWRfdCB0aWRfcHJvZHVjZXI7CiAgICBwdGhy
-ZWFkX3QgdGlkX2NvbnN1bWVyMTsKICAgIHB0aHJlYWRfdCB0aWRfY29uc3VtZXIyOwoKICAg
-IHNpZ25hbChTSUdJTlQsIHNpZ19oYW5kbGVyKTsKICAgIHNpZ2VtcHR5c2V0KCZzaWdzZXRf
-d2FpdCk7CiAgICBzaWdhZGRzZXQoJnNpZ3NldF93YWl0LCBTSUdJTlQpOwoKICAgIGF1ZGlv
-X2ggPSBvcGVuX2F1ZGlvKCk7CiAgICBpZiAoYXVkaW9faCA8IDApCiAgICAgICAgcmV0dXJu
-IDE7CgogICAgbnVsbF9oMSA9IG9wZW5fbnVsbCgpOwogICAgaWYgKG51bGxfaDEgPCAwKQog
-ICAgICAgIHJldHVybiAxOwoKICAgIG51bGxfaDIgPSBvcGVuX251bGwoKTsKICAgIGlmIChu
-dWxsX2gyIDwgMCkKICAgICAgICByZXR1cm4gMTsKCiAgICBwdGhyZWFkX211dGV4X2luaXQo
-Jm10eCwgTlVMTCk7CiAgICBwdGhyZWFkX2NvbmRfaW5pdCgmY29uZCwgTlVMTCk7CgogICAg
-cHRocmVhZF9jcmVhdGUoJnRpZF9wcm9kdWNlciwgTlVMTCwgcHJvZHVjZXJfdGhyZWFkLCAo
-dm9pZCAqKSBhdWRpb19oKTsKICAgIHB0aHJlYWRfY3JlYXRlKCZ0aWRfY29uc3VtZXIxLCBO
-VUxMLCBjb25zdW1lcl90aHJlYWQsICh2b2lkICopIG51bGxfaDEpOwogICAgcHRocmVhZF9j
-cmVhdGUoJnRpZF9jb25zdW1lcjIsIE5VTEwsIGNvbnN1bWVyX3RocmVhZCwgKHZvaWQgKikg
-bnVsbF9oMik7CgogICAgc2lnd2FpdCgmc2lnc2V0X3dhaXQsICZyZWN2X3NpZyk7CiAgICBy
-dW4gPSAwOwoKICAgIHB0aHJlYWRfam9pbih0aWRfY29uc3VtZXIxLCBOVUxMKTsKICAgIHB0
-aHJlYWRfam9pbih0aWRfY29uc3VtZXIyLCBOVUxMKTsKICAgIHB0aHJlYWRfam9pbih0aWRf
-cHJvZHVjZXIsIE5VTEwpOwoKICAgIHB0aHJlYWRfY29uZF9kZXN0cm95KCZjb25kKTsKICAg
-IHB0aHJlYWRfbXV0ZXhfZGVzdHJveSgmbXR4KTsKCiAgICBjbG9zZShhdWRpb19oKTsKICAg
-IGNsb3NlKG51bGxfaDEpOwogICAgY2xvc2UobnVsbF9oMik7CgogICAgcmV0dXJuIDA7Cn0K
-
---------------4C7DB0877E0D7DFF1039EF4F--
-
-
+Daniel Jacobowitz                           Carnegie Mellon University
+MontaVista Software                         Debian GNU/Linux Developer

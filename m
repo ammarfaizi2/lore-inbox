@@ -1,51 +1,173 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbRH1UPu>; Tue, 28 Aug 2001 16:15:50 -0400
+	id <S267852AbRH1UVB>; Tue, 28 Aug 2001 16:21:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbRH1UPl>; Tue, 28 Aug 2001 16:15:41 -0400
-Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:52615
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S266806AbRH1UP0>; Tue, 28 Aug 2001 16:15:26 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: "Tony Hoyle" <tmh@nothing-on.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Treating parallel port as serial device 
-In-Reply-To: Message from "Tony Hoyle" <tmh@nothing-on.tv> 
-   of "Tue, 28 Aug 2001 21:09:12 BST." <9mgtpb$mf4$1@sisko.my.home> 
-In-Reply-To: <9mgtpb$mf4$1@sisko.my.home> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2145994864P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Aug 2001 21:15:32 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E15bpGm-0000Em-00@kings-cross.london.uk.eu.org>
+	id <S268691AbRH1UUv>; Tue, 28 Aug 2001 16:20:51 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:14866 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S267852AbRH1UUf>;
+	Tue, 28 Aug 2001 16:20:35 -0400
+Date: Tue, 28 Aug 2001 12:02:41 -0700 (PDT)
+From: David Lang <dlang@diginsite.com>
+To: Brad Chapman <kakadu_croc@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010828193317.96277.qmail@web10901.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33.0108281201260.18348-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2145994864P
-Content-Type: text/plain; charset=us-ascii
+Brad, the three arg min/max changes both values to the common type and
+then compares them.
 
->even comes close.  Userspace probably wouldn't cut it as I'm reading as
->9600 baud and usleep doesn't have nearly enough resolution.
+there isn't any need to have two different types becouse you then still
+need to decide what the common type you are going to use for the
+comparison is.
 
-9600 baud is only 1 bit every 100us or so.  SCHED_FIFO and nanosleep should be 
-perfectly adequate for timing.  You can use ppdev or direct port I/O to get at 
-the pins.
+David Lang
 
-p.
+ On Tue, 28 Aug 2001, Brad Chapman wrote:
 
-
---==_Exmh_-2145994864P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 (debian)
-
-iD8DBQE7i/vkVTLPJe9CT30RAqHKAJ9RRV50ur9BSXAzIm/zffNu7NIwkgCg2ZMm
-gev/z9Nt9gp7lnHsrVxBFVQ=
-=8bVz
------END PGP SIGNATURE-----
-
---==_Exmh_-2145994864P--
+> Date: Tue, 28 Aug 2001 12:33:17 -0700 (PDT)
+> From: Brad Chapman <kakadu_croc@yahoo.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+>
+> Everyone,
+>
+> 	From reading this thread, I believe I have come up with several reasons,
+> IMHO, why the old min()/max() macros were not usable:
+>
+> 	- They did not take into account non-typesafe comparisons
+> 	- They were too generic
+> 	- Some versions, IIRC, relied on typeof()
+> 	- They did not take into account signed/unsigned conversions
+>
+> 	I have also discovered one problem with the new three-arg min()/max()
+> macro: it forces both arguments to be the same, thus preventing signed/unsigned
+> comparisons.
+>
+> 	Thus, I have a humble idea: add another type argument!
+>
+> 	Below is a coding example (just an example!):
+>
+> 	#define min(ta, a, tb, b)	((ta)(a) < (tb)(b) ? (a) : (b))
+> 	#define max(ta, a, tb, b)	((ta)(a) > (tb)(b) ? (a) : (b))
+>
+> 	.....
+> 	long int number[] = { 878593, 786831 };
+> 	short int num[] = { 878, 786 };
+>
+> 	.....
+> 	long_min = min(long int, num[0], long int, number[0]);
+> 	short_min = min(short int, num[0], short int, number[0]);
+>
+> 	long_max = max(long int, num[1], long int, number[1]);
+> 	short_max = max(short int, num[1], short int, number[1]);
+>
+> 	Thus, people can now cast different number types up or down, depending
+> on what they need, and properly compare their sizes. The new argument also makes
+> comparisons between signed/unsigned more flexible, because now you can cast
+> in both directions - get a signed minimum and an unsigned minimum.
+>
+> 	This is an RFC. Flames, anyone? Honestly, this was one of those
+> "lightbulb" ideas. If people object, I don't mind......
+>
+> Brad
+>
+> P.S: /me also wonders if I will need firehoses in my e-mail client ;)
+>
+> > On 28 Aug 2001, Andreas Schwab wrote:
+> >
+> > > Roman Zippel <zippel@linux-m68k.org> writes:
+> > >
+> > > |> Hi,
+> > > |>
+> > > |> Linus Torvalds wrote:
+> > > [...]
+> > > |> > You just fixed the "re-use arguments" bug - which is a bug, but doesn't
+> > > |> > address the fact that most of the min/max bugs are due to the programmer
+> > > |> > _indending_ a unsigned compare because he didn't even think about the
+> > > |> > type.
+> >
+> >
+> > #if 0
+> > If the comparison was made unsigned, cast to the largest natural
+> > value on the target, while keeping the types and sizes of the
+> > input variables the same, this macro does about what 99.9999999 percent
+> > of what everybody wants:
+> > #endif
+> >
+> > #include <stdio.h>
+> >
+> > #define min(a,b) ((size_t)(a) < (size_t)(b) ? (a) : (b))
+> >
+> > int main()
+> > {
+> >     printf("%d\n", min(1,2));
+> >     printf("%d\n", min(-1,2));
+> >     printf("%d\n", min(0xffffffff,3));
+> >     printf("%d\n", min(0x8000,4));
+> >     printf("%d\n", min(0x7fff,5));
+> >     printf("%d\n", min(0x80000000,6));
+> >     printf("%d\n", min(0x7fffffff,7));
+> >
+> >     printf("%ld\n", min(1L,2L));
+> >     printf("%ld\n", min(-1L,2L));
+> >     printf("%ld\n", min(0xffffffff,3L));
+> >     printf("%ld\n", min(0x8000,4L));
+> >     printf("%ld\n", min(0x7fff,5L));
+> >     printf("%ld\n", min(0x80000000,6L));
+> >     printf("%ld\n", min(0x7fffffff,7L));
+> >
+> >     printf("%lu\n", min(1L,2LU));
+> >     printf("%lu\n", min(-1L,2LU));
+> >     printf("%lu\n", min(0xffffffff,3LU));
+> >     printf("%lu\n", min(0x8000,4LU));
+> >     printf("%lu\n", min(0x7fff,5LU));
+> >     printf("%lu\n", min(0x80000000,6LU));
+> >     printf("%lu\n", min(0x7fffffff,7LU));
+> >
+> >     printf("%d\n", min(-1, -2));
+> >     printf("%d\n", min(-1, 0));
+> >     printf("%p\n", min((void *)0x80000000, (void *)0x7fffffff));
+> >     return 0;
+> > }
+> >
+> >
+> >
+> > Cheers,
+> > Dick Johnson
+> >
+> > Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+> >
+> >     I was going to compile a list of innovations that could be
+> >     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+> >     was handled in the BIOS, I found that there aren't any.
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+> =====
+> Brad Chapman
+>
+> Permanent e-mail: kakadu_croc@yahoo.com
+> Current e-mail: kakadu@adelphia.net
+> Alternate e-mail: kakadu@netscape.net
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Make international calls for as low as $.04/minute with Yahoo! Messenger
+> http://phonecard.yahoo.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

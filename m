@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261361AbSJYKHi>; Fri, 25 Oct 2002 06:07:38 -0400
+	id <S261354AbSJYKKZ>; Fri, 25 Oct 2002 06:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261362AbSJYKHi>; Fri, 25 Oct 2002 06:07:38 -0400
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:16616 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S261361AbSJYKHh>; Fri, 25 Oct 2002 06:07:37 -0400
-Date: Fri, 25 Oct 2002 11:15:04 +0100
-From: Ian Leonard <ileonard@ntlworld.com>
+	id <S261363AbSJYKKZ>; Fri, 25 Oct 2002 06:10:25 -0400
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:36869 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S261354AbSJYKKY>;
+	Fri, 25 Oct 2002 06:10:24 -0400
 To: linux-kernel@vger.kernel.org
-Subject: HPT372 on Abit KD7 motherboard
-Message-ID: <20021025101504.GE13280@dino>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
+Cc: davem@redhat.com
+Subject: Re: [SECURITY] CERT/CC VU#464113, SYN plus RST/FIN
+References: <87vg3qq4ec.fsf@deneb.enyo.de>
+	<20021025101311.GD3512@riesen-pc.gr05.synopsys.com>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, davem@redhat.com
+Date: Fri, 25 Oct 2002 12:16:37 +0200
+In-Reply-To: <20021025101311.GD3512@riesen-pc.gr05.synopsys.com> (Alex
+ Riesen's message of "Fri, 25 Oct 2002 12:13:11 +0200")
+Message-ID: <87smyuq0vu.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2 (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Alex Riesen <Alexander.Riesen@synopsys.com> writes:
 
-I am trying to get the hpt372 ide to work (not as a raid).
-I have tried 2.4.19 and with patch-2.4.20-pre11.
+>> --- tcp_input.c	2002/10/25 08:45:20	1.1
+>> +++ tcp_input.c	2002/10/25 08:49:21
+>> @@ -3668,6 +3668,8 @@
+>>  	case TCP_LISTEN:
+>>  		if(th->ack)
+>>  			return 1;
+>> +		if(th->rst || th->fin)
+>> +			goto discard;
+>>  
+>>  		if(th->syn) {
+>>  			if(tp->af_specific->conn_request(sk, skb) < 0)
+>> 
+>
+> You mean to place the check below "if(th->syn)", don't you?
 
-On boot, 'ide: lost interrupt' is printed, although the hpt372
-is detected.  Partitions on ide can be mounted but soon
-fail with busy errors.
-
-I tried Highpoints Linux driver. This seems to work but
-uses the scsi interface. Other messages in the archive
-suggest that the 372 should work.
-
-Anybody got this to work?
-
-TIA.
-
---
-Ian Leonard
-eMail: ileonard@ntlworld.com
-Phone: +44 (0)1865 765273
-
-Please ignore spelling and punctuation - I did.
+No, of course not. :-) That's the whole point of the patch.
+A SYN is not a SYN if it comes together with a RST.

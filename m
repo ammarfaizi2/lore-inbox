@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289802AbSBOOW6>; Fri, 15 Feb 2002 09:22:58 -0500
+	id <S289809AbSBOO35>; Fri, 15 Feb 2002 09:29:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289803AbSBOOWi>; Fri, 15 Feb 2002 09:22:38 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:17679 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S289802AbSBOOWa>; Fri, 15 Feb 2002 09:22:30 -0500
-Date: Fri, 15 Feb 2002 15:22:03 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, <davidm@hpl.hp.com>,
-        "David S. Miller" <davem@redhat.com>, <anton@samba.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] move task_struct allocation to arch
-In-Reply-To: <3C6D126B.E5B4810A@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0202151516260.1145-100000@serv>
+	id <S289811AbSBOO3r>; Fri, 15 Feb 2002 09:29:47 -0500
+Received: from c19177.thoms1.vic.optusnet.com.au ([203.164.210.75]:3086 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S289809AbSBOO3o>;
+	Fri, 15 Feb 2002 09:29:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: linux-kernel@vger.kernel.org
+Subject: Wrong priority reporting with new 0(1) scheduler;  USB changes to 2.4.18 pre/rc1 breaks HPOJ
+Date: Sat, 16 Feb 2002 01:29:41 +1100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020215142941.79B12942@pc.kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Priority reporting issue:
 
-On Fri, 15 Feb 2002, Jeff Garzik wrote:
+I've applied the 0(1) scheduler patch in conjunction with the preemptible 
+patch to 2.4.18 pre (sched-O1-2.4.18-pre8-K3.patch and 
+preempt-kernel-rml-2.4.18-rc1-ingo-K3-1.patch)
 
-> > As I mentioned before I more like the byte approach, since atomic bit
-> > field handling is quite expensive on most architectures, where a simple
-> > set/clear byte is only one or two instructions, if there is byte
-> > load/store instruction. So I'd really like to see to leave the decision to
-> > the architecture, whether to use bit or byte fields.
->
-> We have tons of code already using atomic test_and_set_bit type
-> stuff...  why not just make sure your bit set/clear stuff is fast?  :)
+I found that top and other process managers (like kpm) report the priority as 
+9 instead of 0 for nice level 0 applications with the preemptible patch, and 
+15 with both preemptible and 0(1). Nice'd applications can have their 
+priority reported as high as 39. It seems to read it as 15-20 higher than 
+the nice value. The kernel appears to work flawlessly otherwise.
 
-Because in this case there is no atomic test_and_(clear|set)_bit needed.
-We only need to clear the bit/byte before scheduling/signal delivery is
-started.
 
-bye, Roman
+USB issue:
 
+The USB changes after 2.4.17 up to and including 2.4.18 rc1 cause the hp 
+officejet drivers to fail on my machine. While the usb mouse continues to 
+work, the hp ptal-init probe cannot find the device when scanning 
+/dev/usb/lp0. The device is still reported correctly in 
+/proc/bus/usb/devices. This is with both the usb-uhci and the uhci drivers.
+
+Hardware configuration:
+Soltek 65KV apollo pro via motherboard with PIII 933. HP Officejet G55.
+
+Regards,
+Con Kolivas
+
+(Please cc: me if any correspondence is appropriate as I am not subscribed to 
+lkml)

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263701AbUDGOwV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 10:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUDGOwU
+	id S263702AbUDGOwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 10:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUDGOwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 10:52:20 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10112 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263704AbUDGOvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 10:51:36 -0400
-Date: Wed, 7 Apr 2004 15:55:24 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200404071455.i37EtOn8000182@81-2-122-30.bradfords.org.uk>
-To: Redeeman <lkml@metanurb.dk>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1081348038.5049.6.camel@redeeman.linux.dk>
-References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
- <1081348038.5049.6.camel@redeeman.linux.dk>
-Subject: Re: Rewrite Kernel
+	Wed, 7 Apr 2004 10:52:30 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:55219 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S263705AbUDGOvl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 10:51:41 -0400
+Date: Wed, 7 Apr 2004 16:51:26 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Gewj <geweijin@sinosoft.com.cn>, linux-kernel@vger.kernel.org
+Subject: Re: A puzzling thing about RAID5: syslogd write the log success but another process can not read the /var/log/messages
+Message-ID: <20040407145126.GA23517@marowsky-bree.de>
+References: <407400F1.8090809@sinosoft.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <407400F1.8090809@sinosoft.com.cn>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> but, ofcourse, this would require all development to stop on linux(if
-> the linux developers should do it).
-> and that isnt possible. so therefore development goes on to just do the
-> best thing possible with what we got today.
+On 2004-04-07T21:24:01,
+   Gewj <geweijin@sinosoft.com.cn> said:
 
-Not really - there are free, open source OS projects other than Linux in
-fairly advanced stages technically, (I.E. they do more than just boot, and
-can run real applications).
+> hammm,tonight is funny because I got a puzzling thing just as....
+> 
+> my setup is a two-scsi-disk raid5 configuration...
 
-However, to take my attention away from Linux, an OS project would probably
-have to be fairly revolutionary, and represent something that I honestly
-believed could not ever be practically achieved with the Linux model.
+Impossible. RAID5 requires at least three disks.
 
-The only obstacle that I can see to creating something better than the Linux
-kernel, is that nobody is doing it yet.
 
-John.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+

@@ -1,100 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291430AbSAaXsR>; Thu, 31 Jan 2002 18:48:17 -0500
+	id <S291432AbSAaXtr>; Thu, 31 Jan 2002 18:49:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291431AbSAaXsI>; Thu, 31 Jan 2002 18:48:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1284 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S291430AbSAaXrz>; Thu, 31 Jan 2002 18:47:55 -0500
-Date: Thu, 31 Jan 2002 23:47:48 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Stefani Seibold <stefani@seibold.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fix for shared interrupt in serial i/o
-Message-ID: <20020131234748.A1967@flint.arm.linux.org.uk>
-In-Reply-To: <16WQOh-04YPE8C@fmrl10.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16WQOh-04YPE8C@fmrl10.sul.t-online.com>; from stefani@seibold.net on Fri, Feb 01, 2002 at 12:12:33AM +0100
+	id <S291434AbSAaXtl>; Thu, 31 Jan 2002 18:49:41 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:28178 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S291432AbSAaXt0>; Thu, 31 Jan 2002 18:49:26 -0500
+Date: Thu, 31 Jan 2002 15:48:42 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] amiga keyboard input II
+In-Reply-To: <Pine.LNX.4.10.10201311512340.23385-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.10.10201311544430.5906-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 12:12:33AM +0100, Stefani Seibold wrote:
-> the serial driver in linux seems to have some troubles with
-> shared serial interrupts in all know linux kernel.
 
-Could you describe your serial port setup please?
+Here is the second patch with much improvements I got from this list.
+Anyone want to try it out? You need to enable input support and Keyboard
+Interface. Then go down and select Amiga keyboard. This is against the
+Dave Jones tree.
 
-> I don't know, who is currently the maintainer of the serial driver.
-> Can anybody can tell me ;-)
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
 
-I suppose that'd be me, but I'm not intending to be responsible for
-the existing drivers, just the new driver that (hopefully) will make
-it into 2.5 soonish.
-
-Note that anything I've left out of the notes below doesn't mean that
-that part is ok...
-
-> If you like the patch, please apply it. I can make also this patch for
-> kernel 2.4 and 2.5 available, if somebody want apply it to this
-> kernel tree.
-
-There are several things in this patch that could be simplified.
-You can check the IRQ status of any port by reading one register -
-the interrupt reason register (UART_IIR) and checking one bit.
-This means you shouldn't need to modify receive_chars(),
-transmit_chars(), nor check_modem_status(), and you'll be more
-efficient.
-
-> -#ifdef SERIAL_DEBUG_INTR
-> +#ifndef SERIAL_DEBUG_INTR
->  	printk("rs_interrupt(%d)...", irq);
->  #endif
-
-If serial interrupt debugging is not selected, you want to send messages
-to the console?
-
-> +	for(info=IRQ_ports[irq];info;info=info->next_port)
-> +		serial_out(info, UART_IER, 0);
-> +
-> +	info = IRQ_ports[irq];
-> +
-
-Hmm, if we're scanning all ports on this IRQ line anyway, then why not
-do this step within the main loop?
-
-> -	info->timeout = ((info->xmit_fifo_size*HZ*bits*quot) / baud_base);
-> -	info->timeout += HZ/50;		/* Add .02 seconds of slop */
-> +	info->timeout = ((info->xmit_fifo_size*HZ*bits+(baud_base/quot-1))*quot) / baud_base;
-
-I don't think you described your reasoning behind this change, however it
-does look overly complex.  Unfortunately, its a potential division by zero
-bug (when quot = 1).
-
-Lets simplify it a bit anyway:
-
-  (fifosize*HZ*bits*quot) / baudbase + (baudbase / quot - 1) * (quot / baudbase)
-  (fifosize*HZ*bits*quot) / baudbase + (baudbase * quot) / (baudbase * (quot - 1))
-  (fifosize*HZ*bits*quot) / baudbase + quot / (quot - 1)
-
-And n/(n-1) will be:
-
-  n  n/(n-1)
-  1  infinity
-  2  2
->=3  1
-
-We used to always add HZ/50 (which comes out as '2') for all causes.
-
-> +
-> +	if (info->x_char || 
-
-'x_char' isn't anything to do with the transmit queue - its the XON/XOFF
-1 byte buffer.  I don't think you explained the purpose of these changes.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/Config.in linux/drivers/input/keyboard/Config.in
+--- linux-2.5.2-dj7/drivers/input/keyboard/Config.in	Tue Jan 29 17:36:39 2002
++++ linux/drivers/input/keyboard/Config.in	Thu Jan 31 16:38:00 2002
+@@ -12,3 +12,7 @@
+ if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
+    dep_tristate '  Maple bus keyboard support' CONFIG_KEYBOARD_MAPLE $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_MAPLE
+ fi
++
++if [ "$CONFIG_AMIGA" = "y" ]; then
++   dep_tristate '  Amiga keyboard' CONFIG_KEYBOARD_AMIKBD $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD
++fi
+diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/Makefile linux/drivers/input/keyboard/Makefile
+--- linux-2.5.2-dj7/drivers/input/keyboard/Makefile	Tue Jan 29 17:36:39 2002
++++ linux/drivers/input/keyboard/Makefile	Thu Jan 31 16:38:00 2002
+@@ -13,6 +13,7 @@
+ obj-$(CONFIG_KEYBOARD_PS2SERKBD)	+= ps2serkbd.o
+ obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
++obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
+ 
+ # The global Rules.make.
+ 
+diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c linux/drivers/input/keyboard/amikbd.c
+--- linux-2.5.2-dj7/drivers/input/keyboard/amikbd.c	Wed Dec 31 16:00:00 1969
++++ linux/drivers/input/keyboard/amikbd.c	Thu Jan 31 16:38:27 2002
+@@ -0,0 +1,140 @@
++/*
++ * $Id: amikbd.c,v 1.11 2002/01/31 23:05:28 jsimmons Exp $
++ *
++ *  Copyright (c) 2000-2001 Vojtech Pavlik
++ *
++ *  Based on the work of:
++ *	Hamish Macdonald
++ */
++
++/*
++ * Amiga keyboard driver for Linux/m68k
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Should you need to contact me, the author, you can do so either by
++ * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
++ * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/input.h>
++
++#include <asm/amigaints.h>
++#include <asm/amigahw.h>
++#include <asm/irq.h>
++
++MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
++MODULE_DESCRIPTION("Amiga keyboard driver");
++MODULE_LICENSE("GPL");
++
++static unsigned char amikbd_keycode[0x78] = {
++	 41,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 43,  0, 82,
++	 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,  0, 79, 80, 81,
++	 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,  0,  0, 75, 76, 77,
++	  0, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53,  0, 83, 71, 72, 73,
++	 57, 14, 15, 96, 28,  1,111,  0,  0,  0, 74,  0,103,108,106,105,
++	 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 98, 55, 78, 87,
++	 42, 54, 58, 29, 56,100
++}
++
++static char *amikbd_messages[] = {
++	KERN_ALERT "amikbd: Ctrl-Amiga-Amiga reset warning!!\n",
++	KERN_WARNING "amikbd: keyboard lost sync\n",
++	KERN_WARNING "amikbd: keyboard buffer overflow\n",
++	KERN_WARNING "amikbd: keyboard controller failure\n",
++	KERN_ERR "amikbd: keyboard selftest failure\n",
++	KERN_INFO "amikbd: initiate power-up key stream\n",
++	KERN_INFO "amikbd: terminate power-up key stream\n",
++	KERN_WARNING "amikbd: keyboard interrupt\n"
++};
++
++static struct input_dev amikbd_dev;
++
++static char *amikbd_name = "Amiga keyboard";
++static char *amikbd_phys = "amikbd/input0";
++
++static void amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
++{
++	unsigned char scancode, down;
++
++	scancode = ~ciaa.sdr;		/* get and invert scancode (keyboard is active low) */
++	ciaa.cra |= 0x40;		/* switch SP pin to output for handshake */
++	udelay(85);			/* wait until 85 us have expired */
++	ciaa.cra &= ~0x40;		/* switch CIA serial port to input mode */
++
++	scancode = scancode >> 1;	/* lowest bit is release bit */
++	down = scancode & 1;
++
++	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
++
++		scancode = amikbd_keycode[scancode];
++	
++		if (scancode == KEY_CAPS) {	/* CapsLock is a toggle switch key on Amiga */
++			input_report_key(&amikbd_dev, scancode, 1);
++			input_report_key(&amikbd_dev, scancode, 0);
++			return;
++		}
++		
++		input_report_key(&amikbd_dev, scancode, down);
++
++		return;
++	}
++
++	printk(amikbd_messages[scancode - 0x78]);	/* scancodes >= 0x78 are error codes */
++}
++
++static int __init amikbd_init(void)
++{
++	int i;
++
++	if (!AMIGAHW_PRESENT(AMI_KEYBOARD))
++		return -EIO;
++
++	amikbd_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);	
++	amikbd_dev.keycode = amikbd_keycode;
++	
++ 	for (i = 0; i < 0x78; i++)
++		if (amikbd_keycode[i])
++			set_bit(amikbd_keycode[i], amikbd_dev.keybit);
++
++	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
++	request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd", NULL);
++
++	amikbd_dev.name = amikbd_name;
++	amikbd_dev.phys = amikbd_phys;
++	amikbd_dev.idbus = BUS_AMIGA;
++	amikbd_dev.idvendor = 0x0001;
++	amikbd_dev.idproduct = 0x0001;
++	amikbd_dev.idversion = 0x0100;
++
++	input_register_device(&amikbd_dev);
++
++	printk(KERN_INFO "input: %s\n", amikbd_name);
++
++	return 0;
++}
++
++static void __exit amikbd_exit(void)
++{
++	input_unregister_device(&amikbd_dev);
++	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
++}
++
++module_init(amikbd_init);
++module_exit(amikbd_exit);
 

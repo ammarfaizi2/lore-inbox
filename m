@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267895AbTAMFrq>; Mon, 13 Jan 2003 00:47:46 -0500
+	id <S267920AbTAMFwR>; Mon, 13 Jan 2003 00:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267874AbTAMFrq>; Mon, 13 Jan 2003 00:47:46 -0500
-Received: from [207.88.206.43] ([207.88.206.43]:39562 "EHLO
-	intruder-luxul.gurulabs.com") by vger.kernel.org with ESMTP
-	id <S267897AbTAMFrn>; Mon, 13 Jan 2003 00:47:43 -0500
-Subject: Re: [PATCH] Secure user authentication for NFS using RPCSEC_GSS
-	[0/6]
-From: Dax Kelson <Dax.Kelson@gurulabs.com>
-To: trond.myklebust@fys.uio.no
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-In-Reply-To: <15906.1154.649765.791797@charged.uio.no>
-References: <15906.1154.649765.791797@charged.uio.no>
-Content-Type: text/plain
-Organization: Guru Labs
-Message-Id: <1042437391.1677.8.camel@thud>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 12 Jan 2003 22:56:31 -0700
+	id <S267923AbTAMFwR>; Mon, 13 Jan 2003 00:52:17 -0500
+Received: from granger.mail.mindspring.net ([207.69.200.148]:17937 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267920AbTAMFwQ>; Mon, 13 Jan 2003 00:52:16 -0500
+Message-ID: <3E225657.30304@emageon.com>
+Date: Mon, 13 Jan 2003 00:01:59 -0600
+From: Brian Tinsley <btinsley@emageon.com>
+Organization: Emageon
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: qla2300 driver stability, (was Re: 2.4.20, .text.lock.swap cpu
+ usage?)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 17:12, Trond Myklebust wrote:
-> Hi Linus,
-> 
->  The following set of 6 patches implements support for the RPCSEC_GSS
-> security protocol (authentication only) and the Kerberos V5 security
-> mechanism.
 
-As a user and sysadmin, I've been waiting for this for a LONG time.
-Standard NFS security/authentication sucks rocks. Without this NFS home
-directory servers are just waiting to be ransacked by a rouge (or
-compromised) root user on a client machine.
 
-NFSv4 w/RPSEC_GSS is finally a native UNIX filesharing solution that I
-don't have to be ashamed of when hanging with admins of those "other
-OSes".
+>>problem. I've had this driver running in my lab and at numerous client 
+>>sites for quite some time and have never seen it even burp.
+>>    
+>>
+>
+>how hard did you push it in testing?
+>
+I've hit it with simulations of client loads as well as outright abusive 
+load testing for several days nonstop without problem.
 
-Dax
+>in some configurations i've had to subject it to many hours of
+>intensive IO (ie multiple concurrent and continious bonnie++ runs of
+>varying file sizes) in order to get it to spin in
+>qla2x00_intr_handler. but it will eventually hang given enough IO ime.  
+>(in other configurations, heavy sustained IO will lock it up in
+>minutes, even seconds).
+>
+Maybe I need to load bonnie++ in the lab and see what happens.
+
+
+-- 
+
+Brian Tinsley
+Chief Systems Engineer
+Emageon
+
 

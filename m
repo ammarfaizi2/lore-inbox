@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbUAUIkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 03:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265864AbUAUIkJ
+	id S264129AbUAUI5X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 03:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUAUI5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 03:40:09 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:6272 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263803AbUAUIkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 03:40:05 -0500
-Date: Wed, 21 Jan 2004 09:40:09 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.1-mm4
-Message-ID: <20040121084009.GC295@ucw.cz>
-References: <p73r7xwglgn.fsf@verdi.suse.de> <20040121043608.6E4BB2C0CB@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040121043608.6E4BB2C0CB@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Jan 2004 03:57:23 -0500
+Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:20143 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S264129AbUAUI5W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 03:57:22 -0500
+Message-ID: <400E3FBF.8000100@stesmi.com>
+Date: Wed, 21 Jan 2004 10:00:47 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: hanasaki <hanasaki@hanaden.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6 - wrong identifcation of kt600 and usb 2.0 as 1.1
+ - kernel issue? wrong mobo in the box? .....
+References: <400E1EC5.5090809@hanaden.com>
+In-Reply-To: <400E1EC5.5090809@hanaden.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 03:06:57PM +1100, Rusty Russell wrote:
-> In message <p73r7xwglgn.fsf@verdi.suse.de> you write:
-> > Rusty Russell <rusty@rustcorp.com.au> writes:
-> > 
-> > > Migrating to module_param() is the Right Thing here IMHO, which actually
-> > > takes the damn address,
-> > 
-> > The main problem is that module_parm renames the boot time arguments and
-> > makes them long and hard to remember.
+Hi.
+
+> I just bought the Soyo KT600 Dragon Ultra Platinum Edition
+>     http://www.soyousa.com/products/proddesc.php?id=280
+> The below lspci and dmesg output appears to be telling me that the 
+> motherboard has:
+>     REPORTED
+>     ========
+>     KT400
+>     8 usb 1.1 ports
+>     2 usb 2.0 ports
 > 
-> Um, if the module name is neat, and the parameter name is neat, the
-> combination of the two with a "."  between them will be nest.
+>     IN THE MOTHERBOARD SPEC
+>     =======================
+>     KT600
+>     8 usb 2.0 ports
+>     0 usb 1.1 ports
 > 
-> > E.g. the new argument needed to make the mouse work on KVMs is
-> > mindboogling, could be nearly a Windows registry entry.
-> 
-> I have no idea what you are talking about. 8(
+> I am not much of a kernel guru and know zero about USB.  Can someone 
+> explain this to me?  Is it a kernel issue of misidentifying hardware? 
+> Did someone put the wrong motherboard in the box?  I tried looking at 
+> the kt600/kt400 chips under the fan/heatsink but the darn thing seems to 
+> be glued onto the motherboard.
 
-Inbetween the module changes and the input changes there was a
-situation, where you'd have to pass
+The fan/heatsink wasn't glued to my boards at least (I have two of
+those). You just have to squeeze the plastic things on the back
+of the board and it'll go off. I had a fan on mine. You?
 
-	psmouse.psmouse_maxproto=imps2
+All ports are USB 2.0. What you're missing is that you (afaik) use
+UHCI to talk to USB 1.1 devices (1.5 and 12Mbit/s) and EHCI to talk
+to USB 2.0 devices (up to 480Mbit/s). It should just work
+out of the box. Try inserting a USB 2.0 device into each port and
+see what it says. It works as USB 2 here with my Creative Zen NX
+and I tried a few ports. THe only thing that isn't USB2 is the
+card reader package that you got in the box. It's USB1.1 only.
 
-as a kernel argument. This should (I hope so, I have to check) be fixed
-now.
+// Stefan
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

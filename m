@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315805AbSEZIMb>; Sun, 26 May 2002 04:12:31 -0400
+	id <S315794AbSEZINd>; Sun, 26 May 2002 04:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSEZIMa>; Sun, 26 May 2002 04:12:30 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:60450 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S315805AbSEZIM2>; Sun, 26 May 2002 04:12:28 -0400
-Message-Id: <5.1.0.14.2.20020526090557.01ff8200@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 26 May 2002 09:12:32 +0100
+	id <S315806AbSEZINc>; Sun, 26 May 2002 04:13:32 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:12045 "EHLO ns.sul.com.br")
+	by vger.kernel.org with ESMTP id <S315794AbSEZINb>;
+	Sun, 26 May 2002 04:13:31 -0400
+Date: Sun, 26 May 2002 05:08:50 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Riley Williams <rhw@InfraDead.Org>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: Kernel maintainers
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel maintainers
+Message-ID: <20020526080850.GA14203@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Riley Williams <rhw@InfraDead.Org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.21.0205260819210.29968-100000@Consulate.UFP.CX>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:22 26/05/02, Riley Williams wrote:
->Can somebody clarify who maintains which kernel series? I have the
->following table, so if somebody could fill in the blanks, it'd be
->very much appreciated:
->
->         2.0     ???
->         2.2     ???
->         2.4     Alan Cox        <alan@lxorguk.ukuu.org.uk>
->         2.5     Linus Torvalds  <torvalds@transmeta.com>
-
-Your table is wrong! Here is corrected and complete version:
-
->         2.0     David Weinehall <tao@acc.umu.se>
->         2.2     Alan Cox        <alan@lxorguk.ukuu.org.uk>
->         2.4     Marcelo Tosatti <marcelo@conectiva.com.br>
->         2.5     Linus Torvalds  <torvalds@transmeta.com>
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Em Sun, May 26, 2002 at 08:22:56AM +0100, Riley Williams escreveu:
+> Hi there.
+> 
+> Can somebody clarify who maintains which kernel series? I have the
+> following table, so if somebody could fill in the blanks, it'd be
+> very much appreciated:
+> 
+	2.0	David Weinehall <tao@acc.umu.se>
+	2.2	Alan Cox	<alan@lxorguk.ukuu.org.uk>
+	2.4	Marcelo Tosatti	<marcelo@conectiva.com.br>
+	2.5	Linus Torvalds	<torvalds@transmeta.com>

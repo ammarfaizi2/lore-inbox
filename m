@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVBOCk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVBOCme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVBOCk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 21:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVBOCk1
+	id S261405AbVBOCme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 21:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVBOCmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 21:40:27 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:41933 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261602AbVBOCkV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 21:40:21 -0500
-Date: Mon, 14 Feb 2005 18:40:18 -0800
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
+	Mon, 14 Feb 2005 21:42:33 -0500
+Received: from main.gmane.org ([80.91.229.2]:9964 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261405AbVBOClp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 21:41:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <maihem@maihem.org>
 Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050215024018.GA6288@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Ed Tomlinson <tomlins@cam.org>,
-	Jeff Sipek <jeffpc@optonline.net>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <200502142113.15269.tomlins@cam.org>
+Date: Tue, 15 Feb 2005 02:46:04 +0000
+Message-ID: <pan.2005.02.15.02.46.04.22659@maihem.org>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <87wttbq8fd.fsf@freitag.home.jstuber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502142113.15269.tomlins@cam.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host81-158-66-156.range81-158.btcentralplus.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: sss
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 09:13:14PM -0500, Ed Tomlinson wrote:
-> > The way some people are reading the license the price is even higher,
-> > they think it is a forever tainted license as it stands today.  I've had
-> > specific requests to clarify this part of the license.
-> > 
-> > So how would you suggest that we resolve it?  The protection we need is
-> > that people don't get to
-> 
-> How about just reversing it.  If you work on another scm you cannot use
-> _free_ bk for 1 year after you stop. 
+On Mon, 14 Feb 2005 19:54:14 +0100, Juergen Stuber wrote:
 
-Hi Ed, thanks for the thought.  We've discussed this idea before with
-some managers of open source developers and found that no matter which
-one we pick some people don't like it.  People tend to cluster up based on
-whether they value working on $SCM more or using BK more.  If they want to
-preserve the ability to move people to working on competing products then
-they would like the option you suggested.  If they are more interested
-in using BK then they would prefer the other way.  The people we spoke
-with were far more interested in the ability to move people onto BK when
-they needed to.
+> g BK, I can immediately start working on another SCM
+> but I can't go back to BK immediately
 
-But it's a good idea and we'd certainly be willing to flip to your way
-on a case by case basis.
+IMHO, it should be the other way around, and more like two years, then you
+can buy back time at something like 1/12th full BK license price per month
+that you want less than the two years. Two years would be more appropriate
+since you need to make sure that coders who've worked on the other SCM
+before are well and truly out of touch with the code when they go back.
+With that scheme, if you have a serious business case for writing a new
+SCM *today* you just have to factor an extra cost into your plans (double
+BK license), and if you want to work on an open source one, you just have
+to wait while BitMover gets another two years on their head-start. Now
+only people with determined plans can switch from using BK to working on
+an SCM, and BitMover can get new users benefiting from their kindness and
+lifting their market penetration as easily as possible.
+
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Tristan Wibberley
+

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316588AbSGVIf1>; Mon, 22 Jul 2002 04:35:27 -0400
+	id <S316823AbSGVLSs>; Mon, 22 Jul 2002 07:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316589AbSGVIf1>; Mon, 22 Jul 2002 04:35:27 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:35084 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316588AbSGVIf0>; Mon, 22 Jul 2002 04:35:26 -0400
-Date: Mon, 22 Jul 2002 10:37:41 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Keith Owens <kaos@ocs.com.au>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.25 net/core/Makefile
-In-Reply-To: <20020722090704.A2052@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207221032510.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316821AbSGVLRp>; Mon, 22 Jul 2002 07:17:45 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9981 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316768AbSGVLQ5>; Mon, 22 Jul 2002 07:16:57 -0400
+Subject: Re: EINTR on close() in Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ketil Froyn <ketil-kernel@froyn.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40L0.0207221221580.1417-100000@ketil.np>
+References: <Pine.LNX.4.40L0.0207221221580.1417-100000@ketil.np>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 13:32:48 +0100
+Message-Id: <1027341168.31782.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2002-07-22 at 11:38, Ketil Froyn wrote:
+> 
+> If Linux returns EINTR and tears down the fd, this code is bad because
 
-On Mon, 22 Jul 2002, Russell King wrote:
+Linux doesn't return -EINTR from close(). It did for a brief while
+during development by accident.
 
-> Wouldn't it be better to fix the existing config tools to output "=n"
-> instead of "# CONFIG_foo is not set" ?  IIRC they do the translation
-> back and forth internally anyway, so it should be just a matter of
-> removing some code from the tools.
-
-This would mean, tristate symbols had four states instead of three. The
-current shell based config systems simply don't see all symbols.
-Depending on the configuration a symbol could be unset or 'n'.
-
-bye, Roman
+While the standard permits it, sanity suggests otherwise (see earlier
+discussions)
 

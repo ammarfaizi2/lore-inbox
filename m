@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132255AbQLPSWa>; Sat, 16 Dec 2000 13:22:30 -0500
+	id <S132053AbQLPSxY>; Sat, 16 Dec 2000 13:53:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132253AbQLPSWT>; Sat, 16 Dec 2000 13:22:19 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6920 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132252AbQLPSWH>; Sat, 16 Dec 2000 13:22:07 -0500
-Date: Sat, 16 Dec 2000 09:51:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Harald Welte <laforge@gnumonks.org>
-cc: linux-kernel@vger.kernel.org, "Barry K. Nathan" <barryn@pobox.com>,
-        Rusty Russell <rusty@linuxcare.com>, Marc Boucher <marc@mbsi.ca>,
-        James Morris <jmorris@intercode.com.au>
-Subject: Re: test13pre2 - netfilter modiles compile failure
-In-Reply-To: <20001216140941.A7422@coruscant.gnumonks.org>
-Message-ID: <Pine.LNX.4.10.10012160946450.21362-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132130AbQLPSxO>; Sat, 16 Dec 2000 13:53:14 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:7919 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S132053AbQLPSxI>; Sat, 16 Dec 2000 13:53:08 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test13-pre2 has problems
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Canyonlands)
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Sat_Dec_16_10:22:35_2000_559)--"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001216102236W.dyky@df-usa.com>
+Date: Sat, 16 Dec 2000 10:22:36 -0800
+From: Daiki Matsuda <dyky@df-usa.com>
+X-Dispatcher: imput version 20000414(IM141)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----Next_Part(Sat_Dec_16_10:22:35_2000_559)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Hi, all.
+I'm trying kernel 2.4.0-test13-pre2. But it has a problem in
+CONFIG_ATM.
+
+In net/Config.in, we seletct CONFIG_ATM by bool, CONFIG_ATM_LANE
+and CONFIG_ATM_MPOA by tristate. But net/atm/common.c calls two
+function i.e. atm_lane_init and atm_mpoa_init, there also in
+net/atm/{lane_mpoa_init.c,mpoa_caches.c}. When CONFIG_ATM_LANE or
+CONFIG_ATM_MPOA is defined as module, the two functions are
+unreferenced. So, I will put a simple patch. But I feel its patch
+redundancy against two *.c files.
+
+Regards
+Daiki Matsuda
 
 
-On Sat, 16 Dec 2000, Harald Welte wrote:
-> 
-> well... the 'true library' doesn't make sense, because of the exclusiveness.
-> In any case there's only one instance of ip_fw_compat inside the kernel:
+----Next_Part(Sat_Dec_16_10:22:35_2000_559)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="net.atm.commn.c.patch"
 
-The patch looks fine, and thanks for the commentary on why it was done
-this way.
+--- linux/net/atm/common.c.old	Fri Dec 15 23:48:51 2000
++++ linux/net/atm/common.c	Sat Dec 16 00:07:29 2000
+@@ -607,8 +607,10 @@
+ #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
+                 case ATMLEC_CTRL:
+                         if (!capable(CAP_NET_ADMIN)) return -EPERM;
++#ifndef CONFIG_ATM_LANE_MODULE
+                         if (atm_lane_ops.lecd_attach == NULL)
+                                 atm_lane_init();
++#endif
+                         if (atm_lane_ops.lecd_attach == NULL) /* try again */
+                                 return -ENOSYS;
+                         error = atm_lane_ops.lecd_attach(vcc, (int)arg);
+@@ -624,8 +626,10 @@
+ #if defined(CONFIG_ATM_MPOA) || defined(CONFIG_ATM_MPOA_MODULE)
+ 		case ATMMPC_CTRL:
+ 			if (!capable(CAP_NET_ADMIN)) return -EPERM;
++#ifndef CONFIG_ATM_MPOA_MODULE
+                         if (atm_mpoa_ops.mpoad_attach == NULL)
+                                 atm_mpoa_init();
++#endif
+                         if (atm_mpoa_ops.mpoad_attach == NULL) /* try again */
+                                 return -ENOSYS;
+                         error = atm_mpoa_ops.mpoad_attach(vcc, (int)arg);
 
-The other module problem (the fact that nfsd and nfs didn't resolve the
-symbols in lockd, and couldn't be used as modules for that reason) seems
-to be due to the "EXPORT_NO_SYMBOLS" in fs/lockd/svc.c. Thanks to Keith
-Owens for debugging that one (which looks like a potential bug in "ld",
-actually).
-
-Can anybody else find build irregularities with the new Makefiles? Please
-holler..
-
-	Thanks,
-		Linus
-
+----Next_Part(Sat_Dec_16_10:22:35_2000_559)----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

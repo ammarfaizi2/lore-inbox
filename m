@@ -1,96 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130884AbRAWHY5>; Tue, 23 Jan 2001 02:24:57 -0500
+	id <S136254AbRAWH3G>; Tue, 23 Jan 2001 02:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136254AbRAWHYr>; Tue, 23 Jan 2001 02:24:47 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:24193 "EHLO kabuki.eyep.net")
-	by vger.kernel.org with ESMTP id <S130320AbRAWHYe>;
-	Tue, 23 Jan 2001 02:24:34 -0500
-Subject: Re: 2.4 and ipmasq modules
+	id <S136282AbRAWH25>; Tue, 23 Jan 2001 02:28:57 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:26497 "EHLO kabuki.eyep.net")
+	by vger.kernel.org with ESMTP id <S136254AbRAWH2q>;
+	Tue, 23 Jan 2001 02:28:46 -0500
+Subject: Re: Firewall netlink question...
 From: Daniel Stone <daniel@kabuki.eyep.net>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: Rusty Russell <rusty@linuxcare.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010122180158.B24670@vitelus.com>
-In-Reply-To: <20010120144616.A16843@vitelus.com> <E14KsZI-0006IU-00@halfway> 
-	 <20010122180158.B24670@vitelus.com>
+To: scaramanga@barrysworld.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010122115826.A11297@lemsip.lan>
+In-Reply-To: <20010122073343.A3839@lemsip.lan>  
+	<Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>  
+	<20010122102600.A4458@lemsip.lan> <E14Kf9W-0008PJ-00@kabuki.eyep.net>  
+	<20010122115826.A11297@lemsip.lan>
 Content-Type: text/plain
 X-Mailer: Evolution (0.8 - Preview Release)
-Date: 23 Jan 2001 18:29:34 +1100
+Date: 23 Jan 2001 18:33:48 +1100
 Mime-Version: 1.0
-Message-Id: <E14Kxtc-0000KT-00@kabuki.eyep.net>
+Message-Id: <E14Kxxd-0000LD-00@kabuki.eyep.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jan 2001 18:01:58 -0800, Aaron Lehmann wrote:
-> On Tue, Jan 23, 2001 at 12:48:20PM +1100, Rusty Russell wrote:
-> > Those who berated Aaron for not wanting to upgrade: he is the Debian
-> > maintainer for crashme, gtk-theme-switch, koules, pngcrush, and
-> > xdaliclock.  By wasting his time making him convert a perfectly
-> > working system, you are taking away time from those projects.  I'd
-> > rather see him spend time on Cool Stuff(TM) which benefits all of us.
-
-I don't use any of that :P
-
-> Thank you for your support, but it seems clear that they were right.
-> I changed the kernel settings to have pure netfilter configuration,
-> read the NAT-HOWTO, and followed its instructions. I reccomend that any
-> others still trying to use the 2.[02].x style interfaces do the same.
-
-Hallelujiah, brother!
-
-> netfilter seems not only much cleaner than ipchains or ipfwadm, but also
-> much more powerful. I read into the HOWTO a bit and was very impressed
-> by the capabilities. In particular, it's nice to have port forwarding
-> integrated with NAT rather than as a seperate chunk of kernel code using
-> different userspace tools.
-
-Among other things. It originally started out having NAT and filtering
-controlled by two different userspace tools - iptables and ipnatctl, but
-they were eventually merged. 
-
-> I hope that netfilter will last longer than the last two packet
-> filtering/mangling/masquerading mechanisms. :)
-
-
-Looking at something ages ago that I now cannot find, Rusty apparently
-realised that ipchains was wrong when he was writing it; no such
-admission (at least, that I know about) yet.
-
-> P.S.: The only thing I did not get working successfully was IRC DCC. I
-
-> sent a bug report to the maintainer of the patch from the
-> patch-o-matic, but did not recieve an immediate response, so I'll
-> include it below in case anyone else has any ideas.
-> _______________________________________________________________________________
+On 22 Jan 2001 11:58:26 +0000, Scaramanga wrote:
+> Hi,
+> >> What was wrong with the firewall netlink? My re-implementation works great
+> >> here. I can't see why anything else would be needed, QUEUE seems twice as
+> >> complex. Unless with QUEUE the userspce applications can make decisions on
+> >> what to do with the packet? In which case, it would be far too inefficient
+> >> for an application like mine, where all i need is to be able to read the
+> >> IP datagrams..
+> > 
+> > It can modify and then reinject the packet if it so wishes.
 > 
-> >From aaronl@vitelus.com Sun Jan 21 00:44:17 2001
-> Date: Sun, 21 Jan 2001 00:44:17 -0800
-> From: Aaron Lehmann <aaronl@vitelus.com>
-> To: laforge@gnumonks.org
-> Subject: irc-conntrack-nat doesn't work for me
+> Excellent, I didn't pick up on that, with the cursory glance at the code i took.
 > 
-> I applied irc-conntrack-nat from iptables-1.2's patch-o-matic onto a
-> Linux 2.4.0 kernel with XFS support. I tried several different IRC
-> clients on the sending end (which was of course behind this NAT box)
-> and different IRC servers (all on port 6667). On the recieving end, I
-> would always get:
-> 
-> -:- DCC GET request from aaronl_[aaronl@vitelus.com
->           [64.81.36.147:33989]] 150 bytes /* That's the NAT box's IP */
-> -:- DCC Unable to create connection: Connection refused
-> 
-> Any idea what's wrong? I have irc-conntrack-nat compiled into the
-> kernel.
+> I wonder, would there be any interest/point in my NETLINK module, which
+> provides a backward compatible netlink interface. There are a good few
+> apps out there which rely on it, and its nice not to have to run a daemon
+> and install a new library, and re-write them just to continue using them...
 
+This is a great idea.
+Seeing as we have the compatability for ipchains and ipfwadm, this can't
+be an altogether thing. Plus, userspace hacks to detect kernel versions
+are always bad.
 
-Well, it's NAT'ing it OK. Are you sure you have a rule like the
-following:
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-?
+> egg.microsoft.com: Remote operating system guess: Solaris 2.6 - 2.7
 
-d
-
-PS: If you're trying to NAT a DCC RESUME, don't even bother.
+My all-time favourite is Microsoft-IIS/4.0 (Unix) mod_ssl/2.<whatever>
+OpenSSL/0.9.4
 
 -- 
 Daniel Stone

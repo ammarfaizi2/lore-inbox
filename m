@@ -1,150 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTEWNhr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 09:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEWNhr
+	id S264081AbTEWNhz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 09:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEWNht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 09:37:47 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:49024 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264082AbTEWNgo (ORCPT
+	Fri, 23 May 2003 09:37:49 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:35493 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S264078AbTEWNdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 09:36:44 -0400
-Date: Fri, 23 May 2003 15:49:45 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] touchless dependencies for 2.4.x
-Message-ID: <Pine.GSO.4.21.0305231547400.26586-100000@vervain.sonytel.be>
+	Fri, 23 May 2003 09:33:42 -0400
+From: Christian Klose <christian.klose@freenet.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I/O problems in 2.4.19/2.4.20/2.4.21-rc3
+Date: Fri, 23 May 2003 15:46:43 +0200
+User-Agent: KMail/1.5.1
+References: <200305231405.54599.christian.klose@freenet.de>
+In-Reply-To: <200305231405.54599.christian.klose@freenet.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200305231546.27463.christian.klose@freenet.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Friday 23 May 2003 15:00, Christian Klose wrote:
 
-The 2.4.x dependency system depends on being able to `touch' include files in
-case of recursive dependencies.  This fails when using a revision control
-system (e.g. ClearCase) where non-checked out files are read-only and cannot be
-touch'ed.
+Hello all again :-)
 
-The patch below solves this by making object files depend on (recursive) lists,
-containing the list of dependencies for each header file.
+> I have a problem since Linux Kernel 2.4.19. Copying huge amount of data
+> gives me pauses where pauses are disk io pauses, keyboard does not accept
+> input and mouse won't move. This depends, sometimes those pauses are 1 to 2
+> seconds, sometimes even more up to 15 seconds where I can not do anything
+> with my linux but waiting :-(
+I forgot to mention that this is filesystem independant. ext2, ext3, reiserfs; 
+always same problem.
 
-Example:
-  - Dependencies:
-      o file.c includes header.h
-      o header.h includes header2.h
-
-  - Old way:
-
-      o .depend:
-
-	    file.o:	file.c header.h
-
-      o .hdepend:
-
-	    header.h:	header2.h
-			touch header.h
-
-  - New way:
-
-      o .depend:
-
-	    file.o:	file.c header.h $(dep_header.h)
-
-      o .hdepend:
-
-	    dep_header.h += header2.h $(dep_header2.h)
-
-Is this OK? So far I didn't notice any regressions.
-    
---- linux-2.4.x/scripts/mkdep.c.orig	Tue Apr  1 17:04:24 2003
-+++ linux-2.4.x/scripts/mkdep.c	Wed Apr  2 17:39:59 2003
-@@ -45,8 +45,7 @@
- 
- 
- 
--char __depname[512] = "\n\t@touch ";
--#define depname (__depname+9)
-+char depname[512];
- int hasdep;
- 
- struct path_struct {
-@@ -75,9 +74,14 @@
- {
- 	if (!hasdep) {
- 		hasdep = 1;
--		printf("%s:", depname);
--		if (g_filename)
-+		if (g_filename) {
-+			/* Source file (*.[cS]) */
-+			printf("%s:", depname);
- 			printf(" %s", g_filename);
-+		} else {
-+			/* header file (*.h) */
-+			printf("dep_%s +=", depname);
-+		}
- 	}
- }
- 
-@@ -203,7 +207,8 @@
- 		path->buffer[path->len+len] = '\0';
- 		if (access(path->buffer, F_OK) == 0) {
- 			do_depname();
--			printf(" \\\n   %s", path->buffer);
-+			printf(" \\\n   %s $(dep_%s)", path->buffer,
-+			       path->buffer);
- 			return;
- 		}
- 	}
-@@ -520,7 +525,7 @@
- /*
-  * Generate dependencies for one file.
-  */
--void do_depend(const char * filename, const char * command)
-+void do_depend(const char * filename)
- {
- 	int mapsize;
- 	int pagesizem1 = getpagesize()-1;
-@@ -559,9 +564,7 @@
- 	clear_config();
- 	state_machine(map, map+st.st_size);
- 	if (hasdep) {
--		puts(command);
--		if (*command)
--			define_precious(filename);
-+		puts("");
- 	}
- 
- 	munmap(map, mapsize);
-@@ -607,7 +610,6 @@
- 
- 	while (--argc > 0) {
- 		const char * filename = *++argv;
--		const char * command  = __depname;
- 		g_filename = 0;
- 		len = strlen(filename);
- 		memcpy(depname, filename, len+1);
-@@ -615,10 +617,9 @@
- 			if (filename[len-1] == 'c' || filename[len-1] == 'S') {
- 			    depname[len-1] = 'o';
- 			    g_filename = filename;
--			    command = "";
- 			}
- 		}
--		do_depend(filename, command);
-+		do_depend(filename);
- 	}
- 	if (len_precious) {
- 		*(str_precious+len_precious) = '\0';
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+bye, Chris

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbTAMHmD>; Mon, 13 Jan 2003 02:42:03 -0500
+	id <S261375AbTAMHlk>; Mon, 13 Jan 2003 02:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTAMHmC>; Mon, 13 Jan 2003 02:42:02 -0500
-Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:15633 "EHLO
-	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
-	id <S261409AbTAMHmB>; Mon, 13 Jan 2003 02:42:01 -0500
-Date: Mon, 13 Jan 2003 07:49:12 +0000 (GMT)
-From: Paul Jakma <paulj@alphyra.ie>
-X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
-To: Dax Kelson <Dax.Kelson@gurulabs.com>
-cc: trond.myklebust@fys.uio.no, Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH] Secure user authentication for NFS using RPCSEC_GSS
- [0/6]
-In-Reply-To: <1042437391.1677.8.camel@thud>
-Message-ID: <Pine.LNX.4.44.0301130745510.26185-100000@dunlop.admin.ie.alphyra.com>
+	id <S261409AbTAMHlk>; Mon, 13 Jan 2003 02:41:40 -0500
+Received: from pat.uio.no ([129.240.130.16]:15756 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261375AbTAMHlj>;
+	Mon, 13 Jan 2003 02:41:39 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15906.28604.625977.386301@charged.uio.no>
+Date: Mon, 13 Jan 2003 08:50:20 +0100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       NFS maillist <nfs@lists.sourceforge.net>
+Subject: Re: [PATCH] Secure user authentication for NFS using RPCSEC_GSS [0/6]
+In-Reply-To: <20030113022039.GF18756@gtf.org>
+References: <15906.1154.649765.791797@charged.uio.no>
+	<20030113021951.GE18756@gtf.org>
+	<20030113022039.GF18756@gtf.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jan 2003, Dax Kelson wrote:
+>>>>> " " == Jeff Garzik <jgarzik@pobox.com> writes:
 
-> Standard NFS security/authentication sucks rocks. Without this NFS home
-> directory servers are just waiting to be ransacked by a rouge (or
-> compromised) root user on a client machine.
+     > On Sun, Jan 12, 2003 at 09:19:51PM -0500, Jeff Garzik wrote:
+    >> OTOH why not do all this authentication and stuff in userspace?
 
-AIUI, A root user still can. The users krbv5 credentials will
-generally have been cached to storage. (though i suppose one could
-mount that storage via NFS and use root_squash, but that's little 
-protection.).
+     > Please forgive me: ENOCAFFEINE.  I re-read your mail...
 
-> NFSv4 w/RPSEC_GSS is finally a native UNIX filesharing solution that
-> I don't have to be ashamed of when hanging with admins of those
-> "other OSes".
+Right. This is doing exactly what you suggested ;-).
 
-Unless NFSv4 has dealt with the problem above, it isnt much protection 
-from rogue root users.
+All that is added to the kernel is the code that we need to repackage
+a user context that was negotiated in userspace into the RPC header.
 
-> Dax
-
-regards,
--- 
-Paul Jakma	Sys Admin	Alphyra
-	paulj@alphyra.ie
-Warning: /never/ send email to spam@dishone.st or trap@dishone.st
-
+Cheers,
+  Trond

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRAZNqI>; Fri, 26 Jan 2001 08:46:08 -0500
+	id <S129561AbRAZNx3>; Fri, 26 Jan 2001 08:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRAZNp7>; Fri, 26 Jan 2001 08:45:59 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:27629 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S129534AbRAZNpl>;
-	Fri, 26 Jan 2001 08:45:41 -0500
-Date: Fri, 26 Jan 2001 13:44:53 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Lars Marowsky-Bree <lmb@suse.de>
-cc: "David S. Miller" <davem@redhat.com>,
-        Matti Aarnio <matti.aarnio@zmailer.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re:  hotmail not dealing with ECN
-In-Reply-To: <20010126124426.O2360@marowsky-bree.de>
-Message-ID: <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk>
+	id <S129818AbRAZNxW>; Fri, 26 Jan 2001 08:53:22 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129561AbRAZNwu>; Fri, 26 Jan 2001 08:52:50 -0500
+Date: Fri, 26 Jan 2001 08:49:31 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Rob Kaper <cap@capsi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Renaming lost+found
+In-Reply-To: <20010126141350.Q6979@capsi.com>
+Message-ID: <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001, Lars Marowsky-Bree wrote:
+On Fri, 26 Jan 2001, Rob Kaper wrote:
 
-> On 2001-01-26T11:40:36,
->    James Sutherland <jas88@cam.ac.uk> said:
+> If this is ext2 specific, just say so and I'll find a better list to discuss
+> this: (any good ext2 lists available for example?)
 > 
-> > A delayed retry without ECN might be a good compromise...
-> 
-> _NO!!!!!_
+> Is there a way to rename lost+found ?? It bothers me to see it in ls all the
+> time because 99.9% of my time it's just useless and I really think
+> .lost+found (a hidden file) would make much more sense for daily use. I
+> assume this would require some ext2 changes as well as a patch to e2fsck
+> etc. (with backwards compatibility of course)
 
-Why? As it stands, I have ECN disabled. It's staying disabled until I know
-it won't degrade my Net access.
+Get used to it. This is part of the Linux/Unix heritage!  A file-system
+without a lost+found directory is like love without sex.
 
 
-James.
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

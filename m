@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314596AbSGIMSB>; Tue, 9 Jul 2002 08:18:01 -0400
+	id <S314602AbSGIMZw>; Tue, 9 Jul 2002 08:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314602AbSGIMSA>; Tue, 9 Jul 2002 08:18:00 -0400
-Received: from oak.sktc.net ([208.46.69.4]:42759 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id <S314596AbSGIMR7>;
-	Tue, 9 Jul 2002 08:17:59 -0400
-Message-ID: <3D2AD518.6090706@sktc.net>
-Date: Tue, 09 Jul 2002 07:20:40 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020612
-X-Accept-Language: en-us, en
+	id <S314634AbSGIMZv>; Tue, 9 Jul 2002 08:25:51 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:27141 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314602AbSGIMZu> convert rfc822-to-8bit; Tue, 9 Jul 2002 08:25:50 -0400
+Message-ID: <3D2AD6EE.6020303@evision-ventures.com>
+Date: Tue, 09 Jul 2002 14:28:30 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Driverfs updates
-References: <Pine.LNX.3.95.1020709073843.24291A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Paul Bristow <paul@paulbristow.net>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+References: <20020703155113.GA26299@zombie.inka.de> <3D2913C9.3030409@evision-ventures.com> <3D29F70D.6020001@paulbristow.net>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been following this thread for some time, and one aspect of it 
-disturbs me - the principle of symmetry.
+U¿ytkownik Paul Bristow napisa³:
+> OK.  I kept quiet while the IDE re-write went on so that when it was 
+> over I could fix up ide-floppy and start adding some of the requested 
+> features that were only really possible with the taskfile capabilities. 
+> But I have to jump in with the latest statements from Martin... 
+> Martin Dalecki wrote:
+> 
+>> U¿ytkownik Eduard Bloch napisa³:
+>>  
+>>
+>>> Why not another way round? Just make the ide-scsi driver be prefered,
+>>> and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
+>>> that are expected as /dev/hd* by some user's configuration?
+>>>   
+>>
+>>
+>> This is the intention.
+>>
+> Since when?  I thought Jens was in the process of getting rid of the 
+> ide-scsi kludge with his moves to support cd/dvd writing directly in 
+> ide-cd?
 
-I've found that generally, in design thing should be symmetric - if you 
-can turn a thing on, you could be able to turn it off, if you can heat a 
-thing, you should be able to cool it, and if you can load a thing, you 
-should be able to unload it.
+Well code decides. And in reality I have tried the much simpler goal
+to unify the ide-floppy ide-tape and ide-cd parts which
+should be common. Like for example a simple SCSI multi media command set
+preparation library. Admittedly I have failed. Therefore and in
+fact of the 2.6 release schedule it's simple not practical to
+persue this road further. It makes much more sense to just
 
-In the old days, a computer was "complete" when it booted - all things 
-that ever would be in the machine during that run were present at boot, 
-and the only way something could be added would be to turn the machine 
-off. In such an environment, a monolithic kernel loaded at boot made sense.
+1. Scrap the specific atapi drivers.
 
-Now, we have things like Firewire, USB, Bluetooth, PCMCIA, Hot-Plug PCI 
-and TCP/IP attached devices, all of which can come and go as they 
-please. Loadable modules made supporting such things easy - witness the 
-trouble WinNT had dealing with PCMCIA vs. Linux.
+2. Try to make ide-scsi independant from SCSI subsystem from users view.
 
-However, if you cannot unload modules, then the kernel grows without 
-bound - the mere fact that a Bluetooth camera came into range causes the 
-kernel to grow as the driver gets loaded. True, you could go in as root 
-and clean up, but it seems to me that requiring root to do that sort of 
-periodic maintainance prevents Linux from being able to be the Energizer 
-Bunny OS - "it keeps going and going...." without much diddling.
+3. Replicate some of the workarounds in the previous ide-xxxx drivers.
 
-It seems to me the problem is in designing modules to unload, and saying 
-"Then don't unload them" is not even a band-aid - it is willful 
-ignorance. If there is a potential race condition unloading a module, 
-then the module is BROKEN.
+> 
+> The current system may be ugly, but if we have to break it in the name 
+> of progress we have at least to make the new, improved version work as 
+> well (and hopefully better) than the old one.
+> 
+>>> Other operating systems did switch to constitent (scsi-based) way of
+>>> accessing all kinds of removable media drivers. Why does Linux have to
+>>> keep a kludge, written years ago without having a good concept?
+>>>
+>>>   
+>>
+> If we can address all these issues I will be extremely happy to helping 
+> create a sensible removeable media subsystem.
+
+That's a deal.
+
+
 

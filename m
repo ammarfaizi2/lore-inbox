@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKQK0D>; Fri, 17 Nov 2000 05:26:03 -0500
+	id <S131597AbQKQKpN>; Fri, 17 Nov 2000 05:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131487AbQKQKZy>; Fri, 17 Nov 2000 05:25:54 -0500
-Received: from [213.128.193.82] ([213.128.193.82]:2827 "EHLO
-	mail.ixcelerator.com") by vger.kernel.org with ESMTP
-	id <S129183AbQKQKZj>; Fri, 17 Nov 2000 05:25:39 -0500
-Date: Fri, 17 Nov 2000 12:54:41 +0300
-From: Oleg Drokin <green@ixcelerator.com>
-To: jerdfelt@valinux.com
-Cc: linux-kernel@vger.kernel.org
-Subject: hardcoded HZ in hub.c
-Message-ID: <20001117125441.A28208@iXcelerator.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S131795AbQKQKo5>; Fri, 17 Nov 2000 05:44:57 -0500
+Received: from h55t105.delphi.afb.lu.se ([130.235.188.122]:64521 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S131597AbQKQKoi>;
+	Fri, 17 Nov 2000 05:44:38 -0500
+Date: Fri, 17 Nov 2000 11:14:27 +0100 (CET)
+From: Peter Svensson <petersv@psv.nu>
+To: Robert Cohen <robert@coorong.anu.edu.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux and 802.IQ
+In-Reply-To: <3A14EE30.C1E65B84@tltsu.anu.edu.au>
+Message-ID: <Pine.LNX.4.30.0011171021380.6318-100000@cheetah.psv.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 17 Nov 2000, Robert Cohen wrote:
 
-    hub.c in 2.4.0-test10 and above contains hardcoded HZ value,
-    which is wrong. Here is the patch:
+> Anyway is Linux 802.IQ compliant? Is Linux 2.2 or just 2.4.
+>  How long has 802.IQ been around and how widespread is it. Is Solaris
+> compliant. How about NT/ Win 2000.
+
+See http://vlan.sourceforge.net/ and
+http://scry.wanfear.com/~greear/vlan.html for two implementations for
+Linux.
+
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+<petersv@df.lth.se> !
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
 
 
---- drivers/usb/hub.c.orig	Fri Nov 17 12:51:34 2000
-+++ drivers/usb/hub.c	Fri Nov 17 12:51:59 2000
-@@ -813,7 +813,7 @@
- 	ret = kill_proc(khubd_pid, SIGTERM, 1);
- 	if (!ret) {
- 		/* Wait 10 seconds */
--		int count = 10 * 100;
-+		int count = 10 * HZ;
- 
- 		while (khubd_running && --count) {
- 			current->state = TASK_INTERRUPTIBLE;
-
-Bye,
-    Oleg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbTI1U1C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 16:27:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbTI1U1C
+	id S262723AbTI1UsG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 16:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbTI1UsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 16:27:02 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5341 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262718AbTI1U07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 16:26:59 -0400
-Date: Sun, 28 Sep 2003 22:26:51 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, jgarzik@pobox.com, sailer@ife.ee.ethz.ch
-Subject: [patch] 2.6.0-test6: correct hdlcdrv.h prototypes
-Message-ID: <20030928202651.GP15338@fs.tum.de>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+	Sun, 28 Sep 2003 16:48:06 -0400
+Received: from pD9FFBA7B.dip.t-dialin.net ([217.255.186.123]:44444 "EHLO
+	oscar.local.net") by vger.kernel.org with ESMTP id S262723AbTI1UsB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 16:48:01 -0400
+Date: Sun, 28 Sep 2003 22:47:53 +0200
+From: Patrick Mau <mau@oscar.ping.de>
+To: Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] [2.6.0-test6] Stale NFS file handle
+Message-ID: <20030928204753.GA28255@oscar.prima.de>
+Reply-To: Patrick Mau <mau@oscar.ping.de>
+References: <200309282031.54043.MalteSch@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200309282031.54043.MalteSch@gmx.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 27, 2003 at 06:27:35PM -0700, Linus Torvalds wrote:
->...
-> Summary of changes from v2.6.0-test5 to v2.6.0-test6
-> ============================================
->...
-> Stephen Hemminger:
->...
->   o (1/4) Update baycom drivers for 2.6
->...
+On Sun, Sep 28, 2003 at 08:30:50PM +0200, Malte Schröder wrote:
+> Hi,
+> since 2.6.0-test6 I get "Stale NFS file handle" when transferring
+> huge amounts of data from a nfs-server which is running on -test6.
+> The client also runs -test6. Transfers from a server running kernel 2.4.22 
+> work flawless.
+> 
+> I use the nfs-kernel-server 1.0.6 on Debian/sid.
 
-This patch changed two functions but not the corresponding prototypes in 
-the header file resulting in some compile warnings.
+Hallo Malte,
+Hallo list-members,
 
-The patch below updates hdlcdrv.h .
+my solution for getting a reliable NFS Server with 2.5 kernels was
+to use "no_subtree_check" in /etc/exports.
 
-cu
-Adrian
+(The next thing is pasted, please read below the code)
 
---- linux-2.6.0-test6-full/include/linux/hdlcdrv.h.old	2003-09-28 21:52:00.000000000 +0200
-+++ linux-2.6.0-test6-full/include/linux/hdlcdrv.h	2003-09-28 22:16:37.000000000 +0200
-@@ -359,11 +359,11 @@
- void hdlcdrv_receiver(struct net_device *, struct hdlcdrv_state *);
- void hdlcdrv_transmitter(struct net_device *, struct hdlcdrv_state *);
- void hdlcdrv_arbitrate(struct net_device *, struct hdlcdrv_state *);
--int hdlcdrv_register_hdlcdrv(struct net_device *dev, const struct hdlcdrv_ops *ops,
--			     unsigned int privsize, char *ifname,
-+struct net_device *hdlcdrv_register(const struct hdlcdrv_ops *ops,
-+			     unsigned int privsize, const char *ifname,
- 			     unsigned int baseaddr, unsigned int irq, 
- 			     unsigned int dma);
--int hdlcdrv_unregister_hdlcdrv(struct net_device *dev);
-+void hdlcdrv_unregister(struct net_device *dev);
- 
- /* -------------------------------------------------------------------- */
- 
+I stumbled over the following lines of code in fs/nfsd/nfsfh.c:
+
+int nfsd_acceptable(void *expv, struct dentry *dentry)
+{
+        struct svc_export *exp = expv;
+        int rv;
+        struct dentry *tdentry;
+        struct dentry *parent;
+
+        if (exp->ex_flags & NFSEXP_NOSUBTREECHECK)
+                return 1;
+
+        tdentry = dget(dentry);
+        while (tdentry != exp->ex_dentry && ! IS_ROOT(tdentry)) {
+                /* make sure parents give x permission to user */
+                int err;
+                parent = dget_parent(tdentry);
+                err = permission(parent->d_inode, S_IXOTH, NULL);
+                                                  ^^^^^^^ <- !!!!
+                if (err < 0) {
+                        dput(parent);
+                        break;
+                }
+
+First, nfsd_acceptable always returns success if subtree_checks are
+diabled. Second, I think, the line marked above is not correct.
+
+The comment says "give x permission to user", but the call looks
+suspiciously wrong.
+
+You can also make the error disappear by allowing setting all x bits
+for "other" from your mount-point down to the directory where the error
+appears.
+
+Echoing "32767" to /proc/sys/sunrpx/nfs_debug helped me a great deal
+to find that error.
+
+Cheers,
+Patrick

@@ -1,235 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267783AbUJCLAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUJCLLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267783AbUJCLAh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 07:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267792AbUJCLAh
+	id S267792AbUJCLLl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 07:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267804AbUJCLLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 07:00:37 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:33548 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267783AbUJCLAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 07:00:01 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: YOSHIFUJI Hideaki /
-	 =?utf-8?q?=E5=90=89=E8=97=A4=E8=8B=B1=E6=98=8E?= 
-	<yoshfuji@linux-ipv6.org>
-Subject: Re: [PATCH] add rotate left/right ops to bitops.h
-Date: Sun, 3 Oct 2004 13:59:45 +0300
-User-Agent: KMail/1.5.4
-Cc: jmorris@redhat.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-References: <200410031344.54182.vda@port.imtp.ilyichevsk.odessa.ua> <20041003.195645.08061913.yoshfuji@linux-ipv6.org>
-In-Reply-To: <20041003.195645.08061913.yoshfuji@linux-ipv6.org>
+	Sun, 3 Oct 2004 07:11:41 -0400
+Received: from uk134.internetdsl.tpnet.pl ([80.55.140.134]:50186 "EHLO
+	mail.piramida.slask.pl") by vger.kernel.org with ESMTP
+	id S267792AbUJCLLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 07:11:39 -0400
+From: Krzysztof Taraszka <dzimi@pld-linux.org>
+Organization: PLD Linux
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] s/whirlpool_tv_template/wp512_tv_template/g
+Date: Sun, 3 Oct 2004 13:10:13 +0200
+User-Agent: KMail/1.7
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_hu9XBEhFl7UnU+R"
-Message-Id: <200410031359.45549.vda@port.imtp.ilyichevsk.odessa.ua>
+  boundary="Boundary-00=_V49XBxJyHPHPLOU"
+Message-Id: <200410031310.13666.dzimi@pld-linux.org>
+X-MIME-Warning: Serious MIME defect detected ()
+X-Scan-Signature: f2498c739a08eb396ea26c4028c8770a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_hu9XBEhFl7UnU+R
+--Boundary-00=_V49XBxJyHPHPLOU
 Content-Type: text/plain;
-  charset="koi8-r"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-> > extern inline u32 rol32(u32 x, int num)
->
-> Please do not use use extern inline; use static inline instead.
+patch for 2.4.28-pre3-bk6, fix compilation error
 
-We shall fold it into #define once and for all eventually.
+-- 
+Krzysztof Taraszka                                   (dzimi@pld-linux.org)
+http://cyborg.kernel.pl/~dzimi/
+http://dzimi.jogger.pl/
 
-Meanwhile, s/extern/static/ patch is attached.
---
-vda
-
---Boundary-00=_hu9XBEhFl7UnU+R
+--Boundary-00=_V49XBxJyHPHPLOU
 Content-Type: text/x-diff;
-  charset="koi8-r";
-  name="269r3rot.diff"
+  charset="us-ascii";
+  name="patch-2.4.28-pre3-bk6-wp512-tcrypt.c.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="269r3rot.diff"
+	filename="patch-2.4.28-pre3-bk6-wp512-tcrypt.c.patch"
 
-diff -urpN linux-2.6.9-rc3.src/include/asm-i386/bitops.h linux-2.6.9-rc3rot.src/include/asm-i386/bitops.h
---- linux-2.6.9-rc3.src/include/asm-i386/bitops.h	Fri Oct  1 21:30:16 2004
-+++ linux-2.6.9-rc3rot.src/include/asm-i386/bitops.h	Sun Oct  3 12:48:46 2004
-@@ -431,9 +431,130 @@ static inline int ffs(int x)
- #define hweight16(x) generic_hweight16(x)
- #define hweight8(x) generic_hweight8(x)
+--- linux-2.4.28-pre3-bk6.orig/crypto/tcrypt.c	2004-10-03 13:03:26.000000000 +0200
++++ linux-2.4.28-pre3-bk6/crypto/tcrypt.c	2004-10-03 13:07:49.266052776 +0200
+@@ -581,7 +581,7 @@
  
--#endif /* __KERNEL__ */
-+/*
-+ * 64bit rotations
-+ * (gcc3 seems to be clever enough to do 32bit ones just fine)
-+ *
-+ * Why "i" and "I" constraints do not work? gcc says:
-+ * "warning: asm operand 2 probably doesn't match constraints"
-+ * "error: impossible constraint in 'asm'"
-+ * Will use "Ic" for now. If gcc will fail to do const propagation
-+ * and will try to stuff constant into ecx, shld %3,... will expand
-+ * to shld %ecx,... and assembler will moan.
-+ * Do not 'fix' by changing to shld %b3,...
-+ *
-+ * Have to stick to edx,eax pair only because
-+ * gcc has limited support for 64bit asm parameters
-+ */
-+#define constant_rol64(v,c) \
-+	({						\
-+	u64 vv = (v);					\
-+	if(!(c&63)) {					\
-+	} else if((c&63)==1) {				\
-+		asm (					\
-+		"	shldl	$1,%%edx,%%eax	\n"	\
-+		"	rcll	$1,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv)				\
-+		);					\
-+	} else if((c&63)==63) {				\
-+		asm (					\
-+		"	shrdl	$1,%%edx,%%eax	\n"	\
-+		"	rcrl	$1,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv)				\
-+		);					\
-+	} else if((c&63)<32) {				\
-+		asm (					\
-+		"	shldl	%3,%%edx,%%eax	\n"	\
-+		"	shldl	%3,%2,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv),				\
-+		  "r" (vv),				\
-+		  "Ic" (c&63)				\
-+		);					\
-+	} else if((c&63)>32) {				\
-+		asm (					\
-+		"	shrdl	%3,%%edx,%%eax	\n"	\
-+		"	shrdl	%3,%2,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv),				\
-+		  "r" (vv),				\
-+		  "Ic" (64-(c&63))			\
-+		);					\
-+	} else /* (c&63)==32 */ {			\
-+		asm (					\
-+		"	xchgl	%%edx,%%eax	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv)				\
-+		);					\
-+	}						\
-+	vv;						\
-+	})
-+#define constant_ror64(v,c) \
-+	({						\
-+	u64 vv = (v);					\
-+	if(!(c&63)) {					\
-+	} else if((c&63)==1) {				\
-+		asm (					\
-+		"	shrdl	$1,%%edx,%%eax	\n"	\
-+		"	rcrl	$1,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv)				\
-+		);					\
-+	} else if((c&63)==63) {				\
-+		asm (					\
-+		"	shldl	$1,%%edx,%%eax	\n"	\
-+		"	rcll	$1,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv)				\
-+		);					\
-+	} else if((c&63)<32) {				\
-+		asm (					\
-+		"	shrdl	%3,%%edx,%%eax	\n"	\
-+		"	shrdl	%3,%2,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv),				\
-+		  "r" (vv),				\
-+		  "Ic" (c&63)				\
-+		);					\
-+	} else if((c&63)>32) {				\
-+		asm (					\
-+		"	shldl	%3,%%edx,%%eax	\n"	\
-+		"	shldl	%3,%2,%%edx	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv),				\
-+		  "r" (vv),				\
-+		  "Ic" (64-(c&63))			\
-+		);					\
-+	} else /* (c&63)==32 */ {			\
-+		asm (					\
-+		"	xchgl	%%edx,%%eax	\n"	\
-+		: "=&A" (vv)				\
-+		: "0" (vv)				\
-+		);					\
-+	}						\
-+	vv;						\
-+	})
-+/*
-+ * Unfortunately 64bit rotations with non-constant count
-+ * have issues with cnt>=32. Using C code instead
-+ */
-+static inline u64 rol64(u64 x,int num) {
-+	if(__builtin_constant_p(num))
-+		return constant_rol64(x,num);
-+	/* Hmmm... shall we do cnt&=63 here? */
-+	return ((x<<num) | (x>>(64-num)));
-+}
-+static inline u64 ror64(u64 x,int num) {
-+	if(__builtin_constant_p(num))
-+		return constant_ror64(x,num);
-+	return ((x>>num) | (x<<(64-num)));
-+}
-+
-+#define ARCH_HAS_ROL64
-+#define ARCH_HAS_ROR64
+ 		test_hash("sha384", sha384_tv_template, SHA384_TEST_VECTORS);
+ 		test_hash("sha512", sha512_tv_template, SHA512_TEST_VECTORS);
+-		test_hash("whirlpool", whirlpool_tv_template, WHIRLPOOL_TEST_VECTORS);
++		test_hash("whirlpool", wp512_tv_template, WHIRLPOOL_TEST_VECTORS);
+ 		test_deflate();		
+ #ifdef CONFIG_CRYPTO_HMAC
+ 		test_hmac("md5", hmac_md5_tv_template, HMAC_MD5_TEST_VECTORS);
+@@ -688,7 +688,7 @@
+ 		test_cipher ("khazad", MODE_ECB, DECRYPT, khazad_dec_tv_template, KHAZAD_DEC_TEST_VECTORS);
+ 		break;
+ 	case 22:
+-		test_hash("whirlpool", whirlpool_tv_template, WHIRLPOOL_TEST_VECTORS);
++		test_hash("whirlpool", wp512_tv_template, WHIRLPOOL_TEST_VECTORS);
+ 		break;
  
--#ifdef __KERNEL__
- 
- #define ext2_set_bit(nr,addr) \
- 	__test_and_set_bit((nr),(unsigned long*)addr)
-diff -urpN linux-2.6.9-rc3.src/include/linux/bitops.h linux-2.6.9-rc3rot.src/include/linux/bitops.h
---- linux-2.6.9-rc3.src/include/linux/bitops.h	Sat Aug 14 13:56:23 2004
-+++ linux-2.6.9-rc3rot.src/include/linux/bitops.h	Sun Oct  3 12:43:51 2004
-@@ -4,6 +4,38 @@
- #include <asm/bitops.h>
- 
- /*
-+ * bit rotations
-+ */
-+
-+#ifndef ARCH_HAS_ROL32
-+static inline u32 rol32(u32 x, int num)
-+{
-+	return (x << num) | (x >> (32 - num));
-+}
-+#endif
-+
-+#ifndef ARCH_HAS_ROR32
-+static inline u32 ror32(u32 x, int num)
-+{
-+	return (x >> num) | (x << (32 - num));
-+}
-+#endif
-+
-+#ifndef ARCH_HAS_ROL64
-+static inline u64 rol64(u64 x, int num)
-+{
-+	return (x << num) | (x >> (64 - num));
-+}
-+#endif
-+
-+#ifndef ARCH_HAS_ROR64
-+static inline u64 ror64(u64 x, int num)
-+{
-+	return (x >> num) | (x << (64 - num));
-+}
-+#endif
-+
-+/*
-  * ffs: find first bit set. This is defined the same way as
-  * the libc and compiler builtin ffs routines, therefore
-  * differs in spirit from the above ffz (man ffs).
+ #ifdef CONFIG_CRYPTO_HMAC
 
---Boundary-00=_hu9XBEhFl7UnU+R--
-
+--Boundary-00=_V49XBxJyHPHPLOU--

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312391AbSC3Ebs>; Fri, 29 Mar 2002 23:31:48 -0500
+	id <S312392AbSC3FH4>; Sat, 30 Mar 2002 00:07:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312392AbSC3Ebh>; Fri, 29 Mar 2002 23:31:37 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:24769 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312391AbSC3EbW>;
-	Fri, 29 Mar 2002 23:31:22 -0500
-Date: Fri, 29 Mar 2002 20:25:53 -0800 (PST)
-Message-Id: <20020329.202553.54452899.davem@redhat.com>
-To: akpm@zip.com.au
-Cc: kaos@ocs.com.au, jerj@coplanar.net, linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] which kernel debugger is "best"?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CA53DE5.668AC7AB@zip.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S312394AbSC3FHq>; Sat, 30 Mar 2002 00:07:46 -0500
+Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:18705 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S312392AbSC3FHh>;
+	Sat, 30 Mar 2002 00:07:37 -0500
+Date: Fri, 29 Mar 2002 21:07:35 -0800
+From: andrew may <acmay@acmay.homeip.net>
+To: Neil Spring <nspring@cs.washington.edu>
+Cc: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: TCP hashing function
+Message-ID: <20020329210735.N1097@ecam.san.rr.com>
+In-Reply-To: <Pine.NEB.4.33.0203281945150.16010-100000@girardin.cs.stevens-tech.edu> <20020329080757.GA32052@cs.washington.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@zip.com.au>
-   Date: Fri, 29 Mar 2002 20:24:05 -0800
-   
-   I *have* had problems with -fno-inline.  I'd very much like
-   to be able to turn that on, but the presence of `extern inline'
-   functions causes a link failure with `-fno-inline'.
+On Fri, Mar 29, 2002 at 12:08:18AM -0800, Neil Spring wrote:
+> On Thu, Mar 28, 2002 at 08:11:27PM -0500, Marek Zawadzki wrote:
+> > Hello,
+> 
+> >  static __inline__ int dcp_hashfn(__u32 laddr, __u16 lport,
+> >                                   __u32 faddr, __u16 fport)
+> >  {
+> >          int h = ((laddr ^ lport) ^ (faddr ^ fport));
+> >          h ^= h>>16;
+> >          h ^= h>>8;
+> >          /* make it always < size : */
+> >          return h & (MY_HTABLE_SIZE - 1);   /* MY_HT... = 128 */
+> >  }
+> > 
+> > Although I am treating it as a blackbox and it works fine for me, my
+> > professor pointed the following about this function:
+> 
+> If you're a student, you should probably try to figure
+> this out for yourself; it's the only way to learn.  
 
-Feel free to submit the patch that converts the remaining extern
-inline into static inline.  That is the correct solution.
+Add one to the homework on the list tally.
 
-GCC has every right not to inline and expect the function name to be
-referencable externally if you say extern inline, so this is another
-reason to fix the remaining extern inline instances.
+> > If both IP addresses have the same upper 16 bits (like 155.246.10.5 and
+> > 155.246.120.30), then the 1st 4-way XOR will put 16 bits of zero in h.
+> > Then "h ^= h>>16" will preserve the upper 16 bits as zero.  Then
+> > "h ^= h>>8" will preserve the upper 24 bits!
+> > [...]
 
-
+Look at the size and see why it doesn't matter.

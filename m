@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316883AbSHOMjq>; Thu, 15 Aug 2002 08:39:46 -0400
+	id <S316882AbSHOM7X>; Thu, 15 Aug 2002 08:59:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316886AbSHOMjq>; Thu, 15 Aug 2002 08:39:46 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:6666 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S316883AbSHOMjp>;
-	Thu, 15 Aug 2002 08:39:45 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: serial console (was Re: [patch] printk from userspace)
-Date: Thu, 15 Aug 2002 12:43:23 +0000 (UTC)
-Organization: Cistron
-Message-ID: <ajg7lb$rtr$2@ncc1701.cistron.net>
-References: <ajd2k5$h8l$1@ncc1701.cistron.net> <87eld1s9l7.fsf_-_@arm.t19.ds.pwr.wroc.pl>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1029415403 28603 62.216.29.67 (15 Aug 2002 12:43:23 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S316878AbSHOM7X>; Thu, 15 Aug 2002 08:59:23 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33766 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S316882AbSHOM7X>;
+	Thu, 15 Aug 2002 08:59:23 -0400
+Date: Thu, 15 Aug 2002 15:03:33 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] user-vm-unlock-2.5.31-A2
+In-Reply-To: <20020815113148.A28398@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.44.0208151502001.7855-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <87eld1s9l7.fsf_-_@arm.t19.ds.pwr.wroc.pl>,
-Arkadiusz Miskiewicz  <misiek@pld.ORG.PL> wrote:
->btw. is there any reason to not display initscripts messages
->on all consoles in such setup:
->append="console=tty0 console=ttyS0,57600n8"
->serial=0,57600n8
->?
 
-Yes. It is not implemented in the kernel and it would not
-be trivial to do so (or even wanted)
+On Thu, 15 Aug 2002, Jamie Lokier wrote:
 
->kernel messages are available on both - tty0 and ttyS0 while
->userspace messages (from initscripts) only on last specified
->- in such case ttyS0. 
+>    - intercept all the system calls that might call mmput(); that is,
+>      exit() and execve()), just so it can move the thread-specific data
+>      (including the stack) onto the "potentially free list".
 
-That's because printk() in the kernel uses a very different codepath than
-the userland write(console, "hello")
+(there's no need to intercept anything - glibc *is* the only legitimate
+code that might call the raw sys_execve() & sys_exit() system-calls.)
 
-Mike.
+>    - free the stack memory as soon as possible after a thread has died,
+>      _without_ depending on garbage collection.  What if all the other
+>      threads are compute-bound?  There's a lump of unnecessary stack
+>      taking up memory for an indefinite time.
+> 
+> It seems that you're using a futex anyway -- so why not eliminate that
+> pesky system call _and_ make sure pthread_join() work if some library
+> you're linked to exits without calling pthread_exit()..
+
+so how would it work exactly? My prediction is that you wont be able to
+suggest any better methods than what i outlined in the original email, so
+the best (and fastest) solution is some (minimal) kernel help.
+
+	Ingo
 

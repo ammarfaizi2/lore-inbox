@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271924AbTHSQPf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270805AbTHSQP3
+	id S270754AbTHSQSj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270858AbTHSQPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:15:29 -0400
+	Tue, 19 Aug 2003 12:15:51 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:53499 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S271924AbTHSQN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:13:27 -0400
-Date: Tue, 19 Aug 2003 15:04:58 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-In-Reply-To: <20030818122933.A970@pclin040.win.tue.nl>
-Message-ID: <Pine.GSO.3.96.1030819143241.29184C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	by vger.kernel.org with ESMTP id S271283AbTHSQNU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:13:20 -0400
+Subject: RE: [patch] 2.4.x ACPI updates
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC79@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FC79@hdsmsx402.hd.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1061299838.30566.38.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 19 Aug 2003 14:30:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003, Andries Brouwer wrote:
-
-> >  Well, mode #3 with no translation in the i8042 looks quite sanely. 
+On Maw, 2003-08-19 at 03:04, Brown, Len wrote:
+> The ISO_8859_1 acute accent, u with diaeresis, and registered sign, have been in Config.info since Feb 2002.
 > 
-> In theory perhaps. In practice it isnt sane at all.
+> Andy's tools seem to have extended them to 16-bit characters during a merge. 
+> A "minor gaff"?  Okay, I guess that's fair.  He promises that he
+> doesn't know how to type a latin capital A with a circumflex on his 
+> keyboard;-).
 
- Yep, the design is clean.  And we can handle it for good devices, for its
-additional functionality (e.g. autorepeat of <Pause> ;-) ) and to have a
-clean reference design of code.  I see no reason to "punish" good devices
-for the faults of bad ones. 
+8859-1 is wrong by all accounts even though the file uses it for
+historical reasons. If anything his change is a good one since UTF-8
+actually has all the accents for even European names (ñ, ŵ , ï etc) many
+of which are missing from 8859-1.
 
-> (That is, the majority of the keyboards sold today do not do as one
-> would wish. Since Microsoft does not require anything for Set 3,
-> behaviour in Set 3 is essentially random, especially for these
-> additional keys and buttons. A single keypress may give several
-> scancodes, or none at all. Many laptops do not have any support
+For kernel messages we use 7bit ascii and fixed the 8bit oddments to
+keep sysklogd happy, for Configure.help it is down picking something. In
+the 2.5 case I'd definitely vote for UTF-8 since the configuration tools
+are using libraries that grok UTF-8 properly. For 2.4 we might want to
+be more conservative and use 7bit since fixing the tools is a PITA and
+its wrong in most of the world to emit 8859-1 arbitarily and its wrong
+in the USA to emit UTF-8 arbitarily since lots of US folks still use
+8859-*
 
- Well, we need not take care of non-standard keys -- as such they need to
-be handled on a case-by-case basis (with customized key maps).  The sort
-of standard Win keys seem to have a consistent definition across devices;
-at least it was the case with the ones I've encountered.
 
- If standard keys are broken, then we can still revert to mode #2 with all
-its limits as we do now.  At least we can disable the translation in the
-i8042 to get full and unambiguous scan codes.
-
-> for Set 3. USB compatibility only implements compatibility with
-> translated Set 2.)
-
- That's actually irrelevant -- it's already an emulation.  AFAIK, we can
-handle USB keyboards natively just fine, so we don't need to make use of
-this translation layer.
-
-  Maciej
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

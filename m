@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268161AbUHFP5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUHFQX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268161AbUHFP5U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUHFPuX
+	id S268177AbUHFQX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 12:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268168AbUHFQVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:50:23 -0400
-Received: from s-und-t-linnich.de ([217.160.180.132]:32995 "HELO
-	s-und-t-linnich.de") by vger.kernel.org with SMTP id S268156AbUHFPsS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:48:18 -0400
-Date: Fri, 6 Aug 2004 19:47:22 +0200
-From: "admin@wodkahexe.de" <admin@wodkahexe.de>
-To: linux-kernel@vger.kernel.org
-Subject: MTRR problem, maybe FB related
-Message-Id: <20040806194722.6298b00f.admin@wodkahexe.de>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 6 Aug 2004 12:21:33 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29117 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268172AbUHFQVO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 12:21:14 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: Altix I/O code reorganization
+Date: Fri, 6 Aug 2004 09:19:20 -0700
+User-Agent: KMail/1.6.2
+Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org>
+In-Reply-To: <20040806141836.A9854@infradead.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408060919.20993.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Friday, August 6, 2004 6:18 am, Christoph Hellwig wrote:
+> Yikes, this is truely horrible.  First your patch ordering doesn't make
+> any sense, with just the first patch applied the system won't work at all.
+> Please submit a series of _small_ patches going from A to B keeping the
+> code working everywhere inbetween.
 
-i'm getting the following problem since 2.6.8-rc1. maybe with 2.6.7 too, i don't remember.
+Much of this stuff is clearly interdependent (and dependent on PROM changes), 
+so I don't think that would make sense.
 
-vesafb: framebuffer at 0xb0000000, mapped to 0xdf80d000, size 6144k
-vesafb: mode is 1024x768x32, linelength=4096, pages=4
-vesafb: protected mode interface info at 00ff:44f0
-vesafb: scrolling: redraw
-vesafb: directcolor: size=8:8:8:8, shift=24:16:8:0
-.
-.
-.
-
-agpgart: AGP aperture is 128M @ 0xb0000000
-mtrr: 0xb0000000,0x8000000 overlaps existing 0xb0000000,0x400000
-[drm] Initialized i830 1.3.2 20021108 on minor 0: Intel Corp. 82852/855GM Integrated Graphics Device
-mtrr: 0xb0000000,0x8000000 overlaps existing 0xb0000000,0x400000
-[drm] Initialized i830 1.3.2 20021108 on minor 1: Intel Corp. 82852/855GM Integrated Graphics Device (#2)
-
-
-when starting X i'm getting the following in dmesg:
-
-mtrr: base(0xb0020000) is not aligned on a size(0x180000) boundary
-mtrr: 0xb0000000,0x8000000 overlaps existing 0xb0000000,0x400000
-
-is there any way to get both working together? (fb + mtrr)
-
-Thanks, sebastian
+Jesse

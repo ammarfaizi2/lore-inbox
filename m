@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130633AbRAaVZg>; Wed, 31 Jan 2001 16:25:36 -0500
+	id <S129027AbRAaVbG>; Wed, 31 Jan 2001 16:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbRAaVZ0>; Wed, 31 Jan 2001 16:25:26 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:34492 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130633AbRAaVZO>; Wed, 31 Jan 2001 16:25:14 -0500
-Date: Wed, 31 Jan 2001 21:24:51 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: James Simmons <jsimmons@suse.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CPU error codes
-In-Reply-To: <E14Nz6N-0002Vj-00@the-village.bc.nu>
-Message-ID: <Pine.SOL.4.21.0101312122380.1537-100000@orange.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129028AbRAaVa4>; Wed, 31 Jan 2001 16:30:56 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:772 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129027AbRAaVas>;
+	Wed, 31 Jan 2001 16:30:48 -0500
+Message-ID: <20010131223006.A231@bug.ucw.cz>
+Date: Wed, 31 Jan 2001 22:30:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: ACPI breaks maestro
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Alan Cox wrote:
+Hi!
 
-> > > In the intel databook. Generally an MCE indicates hardware/power/cooling
-> > > issues
-> > 
-> > Doesn't an MCE also cover some hardware memory problems - parity/ECC
-> > issues etc?
-> 
-> Parity/ECC on main memory is reported by the chipset and needs seperate
-> drivers or apps to handle this
-
-Yes - MCE only covers errors in the CPU's cache, IIRC? (Is there still an
-NMI on main memory parity errors, or has this changed on modern
-chipsets? Presumably ECC is handled differently, being recoverable??)
+With acpi support turned on, maestro does not work. Turn acpi off, and
+maestro is working, again.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 
 
-James.
+----- End forwarded message -----
 
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

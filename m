@@ -1,43 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUI2PlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268592AbUI2Pnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268580AbUI2PlR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 11:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUI2PlR
+	id S268592AbUI2Pnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 11:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbUI2Pnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 11:41:17 -0400
-Received: from zero.aec.at ([193.170.194.10]:36877 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268580AbUI2PlM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 11:41:12 -0400
-To: Timur Tabi <timur.tabi@ammasso.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: get_user_pages() still broken in 2.6
-References: <2JyXo-77W-19@gated-at.bofh.it> <2JzgH-7rT-11@gated-at.bofh.it>
-	<2JOpu-1y1-21@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 29 Sep 2004 17:41:09 +0200
-In-Reply-To: <2JOpu-1y1-21@gated-at.bofh.it> (Timur Tabi's message of "Wed,
- 29 Sep 2004 17:20:14 +0200")
-Message-ID: <m3acv93wx6.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Sep 2004 11:43:46 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:16266 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268592AbUI2PnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 11:43:21 -0400
+Subject: Re: IDE Hotswap
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Cc: Suresh Grandhi <Sureshg@ami.com>,
+       "'linux-ide@vger.kernel.org'" <linux-ide@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409291408.55211.bzolnier@elka.pw.edu.pl>
+References: <8CCBDD5583C50E4196F012E79439B45C069657DB@atl-ms1.megatrends.com>
+	 <200409290354.38440.bzolnier@elka.pw.edu.pl>
+	 <1096422632.14637.30.camel@localhost.localdomain>
+	 <200409291408.55211.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096468515.15905.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 29 Sep 2004 15:35:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi <timur.tabi@ammasso.com> writes:
+On Mer, 2004-09-29 at 13:08, Bartlomiej Zolnierkiewicz wrote:
+> > Even in 2.4 ide drive hotplug was easy. The drive hotplug comes out
+> > trivially because your controllers are fairly constant. As we all know
+> > driver level hotplug is a bit trickier although the block layer has
+> > really made this vastly easier in 2.6
+> > 
+> > For drive level hotplug you don't actually need refcounting at all
+> > providing you've got a couple of locking issues dealt with.
+> 
+> These issues can't be solved without refcounting.
 
-> Christoph Hellwig wrote:
->
->> get_user_pages locks the page in memory.  It doesn't do anything about ptes.
->
-> I don't understand the difference.  I thought a locked page is one
-> that stays in memory (i.e. isn't swapped out) and whose physical
-> address never changes.  Is that wrong?  All I need to do is keep a
-> page in memory at the same physical address until I'm done with it.
+So you keep saying, but you refcount objects that are going away, you
+don't need to refcount objects that are staying put.
 
-After get_user_pages you don't need the page tables anymore. 
-The struct page *s returned by it can be used for DMA.
+> Feel free to probe me wrong, you can start with fixing
+> ->open vs unregister race (drive->usage involved). :)
 
--Andi
+Doesn't occur in the 2.4 situation or the 2.6 stuff with the locking in
+the 2.6.8.1-ac patch.
+
+> > Firstly the drive never goes away as a high level object (in fact you
+> > don't want it to as then you can't ioctl it to make it come back!). That
+> > means the upper layers don't know anything about it.
+> 
+> ioctls on not present devices are layering VIOLATION
+
+Oh dear then I guess most of Linux is misdesigned. You aren't thinking
+about the semantics at all. 
+
+If /dev/hda is a CD-ROM drive I can issue commands to it with no CD 
+present. Thats not a layering violation, and its how the IDE code works.
+So whats the difference between hotplugging a drive and removing
+a CD. Both are removing the media but leaving the controller behind.
+
+On that item I think you are talking out of your backside.
+
+> > At the IDE layer the 2.4 code simply enforced the rule that you must be
+> > the only opener of the device in order to hot unplug it. That means we
+> 
+> "enforced" - there are a couple of races, sorry but ROTFL
+> 
+> > know its quiescent and not mounted. The only 2.4 race I know about is
+> 
+> - double unlock obvious mistake
+Details ?
+> - ->open() vs unregister
+unregister is hot plug controller not drive and thats unfixable in 2.4
+> - /proc races (the same you fixed in your 2.6 patch)
+yeah that lot postdates the 2.4 work. hotplug drives is not the cause
+however.
+> - ioctl races
+Details ?
+
+> gendisk layer and block layer enforces you to make /dev/hda disappear.
+
+No it does not. The block layer couldn't give a flying **** whether
+/dev/hda disappears or not. SCSI devices that are offlined don't need to
+disappear either you just hand back commands with an error. You know -
+like every CD-ROM does...
+
+> Does sysfs ring any bells?  Ask viro about static objects vs sysfs.
+> And yes not only gendisk and block enforces this, Patrick added basic,
+> premature sysfs support to IDE driver in the middle of 2.5 series.
+> 
+> We can get back to discussion when you get familiar with issues involved.
+
+Ditto...
+
+Alan
 

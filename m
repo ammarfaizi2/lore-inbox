@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268431AbTBNPJd>; Fri, 14 Feb 2003 10:09:33 -0500
+	id <S268443AbTBNPYf>; Fri, 14 Feb 2003 10:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268426AbTBNPJd>; Fri, 14 Feb 2003 10:09:33 -0500
-Received: from bitmover.com ([192.132.92.2]:50342 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S268422AbTBNPJb>;
-	Fri, 14 Feb 2003 10:09:31 -0500
-Date: Fri, 14 Feb 2003 07:19:20 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Dillow <dillowd@y12.doe.gov>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 3Com 3cr990 driver release
-Message-ID: <20030214151920.GA3188@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Dillow <dillowd@y12.doe.gov>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-References: <3E4C9FAA.FC8A2DC7@y12.doe.gov> <1045233209.7958.11.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S268447AbTBNPYf>; Fri, 14 Feb 2003 10:24:35 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:26332 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S268443AbTBNPYe>; Fri, 14 Feb 2003 10:24:34 -0500
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EISA/sysfs update
+References: <1044241767.3924.14.camel@mulgrave>
+	<wrp3cmrrwuf.fsf@hina.wild-wind.fr.eu.org>
+	<20030214173217.A17730@jurassic.park.msu.ru>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 14 Feb 2003 16:32:50 +0100
+Message-ID: <wrpisvmri71.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030214173217.A17730@jurassic.park.msu.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1045233209.7958.11.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 02:33:30PM +0000, Alan Cox wrote:
-> On Fri, 2003-02-14 at 07:50, David Dillow wrote:
-> > There are a few issues with the firmware -- DMA to a 2 byte aligned address
-> > hangs the firmware, so we cannot easily align the IP header, and the firmware
-> > will always strip the VLAN tags on packet reception, regardless of our
-> > desires. I hope to work with 3Com to resolve these issues.
-> > 
-> > The code is available via BK at
-> > http://typhoon.bkbits.net/typhoon-2.4
-> > http://typhoon.bkbits.net/typhoon-2.5
-> 
-> Would you care to make the patches available in a format those of us who
-> work on open source version control systems can use. Right now Mr McVoy
-> prohibits me from reviewing your patches.
+>>>>> "Ivan" == Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
 
-That seems a bit extreme, Alan.  I don't recall prohibiting you from anything
-of the kind.
+Ivan> On Fri, Feb 14, 2003 at 11:16:24AM +0100, Marc Zyngier wrote:
+>> # - Add driver for i82375 PCI/EISA bridge.
+
+Ivan> I believe this driver will work for any PCI/EISA bridge without
+Ivan> any changes, not only for i82375. Probably we need to look for a
+Ivan> class code rather than a device id.
+
+Unfortunately, the i82375 appears to be unclassified :
+
+00:07.0 Non-VGA unclassified device: Intel Corp. 82375EB (rev 03)
+
+I'll had PCI_CLASS_BRIDGE_EISA anyway, just in case.
+
+Ivan> Also, to get rid of that x86-ism I'd suggest something like
+
+Ivan> -	i82375_root.bus_base_addr    = 0; /* Warning, this is a x86-ism */
+Ivan> -	i82375_root.res		     = &ioport_resource;
+Ivan> +	i82375_root.res		     = pdev->bus->resource[0];
+Ivan> +	i82375_root.bus_base_addr    = pdev->bus->resource[0]->start;
+Ivan> 	i82375_root.slots	     = EISA_MAX_SLOTS;
+
+Ivan> Without that you'll have resource conflicts on multi-hose alphas.
+
+Applied, thanks.
+
+        M.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Places change, faces change. Life is so very strange.

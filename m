@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUFCOId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUFCOKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUFCOId (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUFCOId
+	id S264113AbUFCOKn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:10:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbUFCOKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:08:33 -0400
-Received: from unthought.net ([212.97.129.88]:56006 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S263775AbUFCOIb (ORCPT
+	Thu, 3 Jun 2004 10:10:43 -0400
+Received: from any.83.147.212.vtx.ch ([212.147.83.66]:20359 "EHLO idfw.idsa.ch")
+	by vger.kernel.org with ESMTP id S264073AbUFCOKd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:08:31 -0400
-Date: Thu, 3 Jun 2004 16:08:30 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Michael De Nil <michael@flex-it.be>, linux-kernel@vger.kernel.org
-Subject: Re: Promise PDC20378 Raid Accelerator
-Message-ID: <20040603140829.GB30687@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Jeff Garzik <jgarzik@pobox.com>, Michael De Nil <michael@flex-it.be>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0406012040380.6191@lisa.flex-it.be> <40BD1032.604@pobox.com>
+	Thu, 3 Jun 2004 10:10:33 -0400
+Message-Id: <s0bf4d74.020@idfw.idsa.ch>
+X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
+Date: Thu, 03 Jun 2004 16:10:09 +0200
+From: "Francois Pernet" <WebMonster@idsa.ch>
+To: <linux-kernel@vger.kernel.org>
+Subject: .config question
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <40BD1032.604@pobox.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 07:24:34PM -0400, Jeff Garzik wrote:
-> Michael De Nil wrote:
-> >Can someone tell me if I will be able to run 2 SATA discs on a raid1 with
-> >this chip, and if yes, what driver you would prefer? I am a litle bit
-> >afraid for using non-stable drivers... ;)
-> 
-> 
-> The all-open-source solution...  Linux "md" raid, and Linux SATA drivers :)
+Hi,
+Sorry to not be part of the mailing list and ask question. Please,
+could you post any answer (CC) to this question, if relevant ? Many
+TIA.
 
-One caveat: you *may* have to create "one disk RAID-0" arrays of your
-disks (which is equivalent to the single disk), in order to make the
-SATA controller boot from the disk.  So, with two disks, you would
-create two RAID-0 arrays, each containing one disk.  Silly really, but
-at least I had to do this with the Promise TX4.
+I've got a kernel already installed in my machine (SuSe Pro 9). I would
+like to modify something and recompile the kernel. Since it has been
+installed from rpm, there is no .config in /usr/src/linux. Is there any
+way to create this file from the image and modules, so i do not need to
+verify all my config prior to change something ?
 
-Other than that; Standard Linux SATA drivers + Software RAID + LVM2 is a
-beautiful all-open-source solution for cheap flexible and reliable
-storage  -  my mom is using that   ;)
-
--- 
-
- / jakob
-
+Thx

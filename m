@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbUDPTk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 15:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUDPTk4
+	id S262425AbUDPTjX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 15:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUDPTjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 15:40:56 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:34198 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262514AbUDPTku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 15:40:50 -0400
-Date: Fri, 16 Apr 2004 12:40:48 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to make stack executable on demand?
-Message-ID: <20040416194048.GA23015@lucon.org>
-References: <20040416170915.GA20260@lucon.org> <408020E2.9060900@domdv.de>
+	Fri, 16 Apr 2004 15:39:23 -0400
+Received: from mail.shareable.org ([81.29.64.88]:51618 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262425AbUDPTjW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 15:39:22 -0400
+Date: Fri, 16 Apr 2004 20:39:14 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, shannon@widomaker.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: NFS and kernel 2.6.x
+Message-ID: <20040416193914.GA25792@mail.shareable.org>
+References: <20040416011401.GD18329@widomaker.com> <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <20040416090331.GC22226@mail.shareable.org> <1082130906.2581.10.camel@lade.trondhjem.org> <20040416184821.GA25402@mail.shareable.org> <1082142401.2581.131.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <408020E2.9060900@domdv.de>
+In-Reply-To: <1082142401.2581.131.camel@lade.trondhjem.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 08:07:30PM +0200, Andreas Steinmetz wrote:
-> H. J. Lu wrote:
-> >is set with executable stack. Is there a third option that a process
-> >starts with non-executable stack and can change the stack permission
-> >later?
-> >
+Trond Myklebust wrote:
+> > In other words, with adaptive rtt the concept of "retrans" being a
+> > fixed number is fundamentally flawed -- unless it's also accompanied
+> > by a minimum timeout time.  You'd need a retrans value of 20 or so for
+> > the above perfectly normal LAN situation, but then that's far too
+> > large on other occasions with other networks or servers.
 > 
-> Well, in my opinion your request is equivalent to "keep all these cute 
-> buffer overflows forever". Take any protected app, LD_PRELOAD or drop in 
-> a bad/malicious library and your're done for good. Not really a good idea.
+> At that point, it makes sense to drop the entire "retrans+timeo"
+> paradigm, and just state that soft timeouts take a single parameter
+> ("timeo") that determines the timeout value.
 
-The current scheme doesn't work too well. Linker doesn't combine
-PT_GNU_STACK from DSO:
+I agree.  30 seconds seems like a good default.
 
-http://sources.redhat.com/ml/binutils/2004-04/msg00341.html
+> That's something that is dead easy to do...
 
-for a reason. It expects the dynamic linker to do that at the run-time,
-which kernel won't allow. I am looking for a reasonable solution.
+I'll test a patch for 2.6.5 if you provide one.
 
-
-H.J.
+-- Jamie

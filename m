@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUEKFWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUEKFYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbUEKFWN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 01:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUEKFWN
+	id S262138AbUEKFYb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 01:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUEKFYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 01:22:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11483 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262080AbUEKFWL (ORCPT
+	Tue, 11 May 2004 01:24:31 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:40613 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263020AbUEKFY2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 01:22:11 -0400
-Date: Mon, 10 May 2004 22:21:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-Id: <20040510222143.6ab44a87.akpm@osdl.org>
-In-Reply-To: <20040510162012.B3856@infradead.org>
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-	<20040510162012.B3856@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 11 May 2004 01:24:28 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       randy.dunlap@osdl.org, Sam Ravnborg <sam@ravnborg.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k 
+In-reply-to: Your message of "Tue, 11 May 2004 15:08:55 +1000."
+             <1084252135.31802.312.camel@bach> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 11 May 2004 15:23:28 +1000
+Message-ID: <22374.1084253008@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, 11 May 2004 15:08:55 +1000, 
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>Admittedly, anyone who sets CONFIG_KALLSYMS doesn't care about space,
+>it's a fairly trivial change.
 >
-> Btw, one more thing as you're probably sending the i_shared_sem re-
-> spinlockification to Linus just about now: as we're renaming the thing
-> anyway can we give it a less confusing name like i_mmap_lock?  It's not
-> been about shared mapping only for ages.
+>Name: Sort Kallsyms for Stem Compression
+>Status: Booted on 2.6.6
+>Depends: Misc/kallsyms-include-aliases.patch.gz
+>
+>Leaving the symbols sorted by name rather than address, so stem
+>compression works more effectively.  Saves a little over 30k here.
 
-sure...
+Not sure this is a good idea.  proc_pid_wchan() calls kallsyms_lookup()
+and has been identified as a bottleneck on systems with a large number
+of processes.  top can consume a complete cpu out of 128 cpus, all
+because of this bottleneck.  I was toying with the idea of doing a
+binary chop on the address lookup, but this patch prevents that fix.
+

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262925AbSJGIez>; Mon, 7 Oct 2002 04:34:55 -0400
+	id <S262919AbSJGIdz>; Mon, 7 Oct 2002 04:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262926AbSJGIez>; Mon, 7 Oct 2002 04:34:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59652 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262925AbSJGIey>; Mon, 7 Oct 2002 04:34:54 -0400
-Date: Mon, 7 Oct 2002 09:40:26 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: DevilKin <devilkin-lkml@blindguardian.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.50 - 8250_cs does NOT work
-Message-ID: <20021007094026.B803@flint.arm.linux.org.uk>
-References: <20021002120540.D24770@flint.arm.linux.org.uk> <200210021257.43121.devilkin-lkml@blindguardian.org> <20021002120540.D24770@flint.arm.linux.org.uk> <18990.1033979667@passion.cambridge.redhat.com>
-Mime-Version: 1.0
+	id <S262925AbSJGIdy>; Mon, 7 Oct 2002 04:33:54 -0400
+Received: from denise.shiny.it ([194.20.232.1]:38623 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S262919AbSJGIdy>;
+	Mon, 7 Oct 2002 04:33:54 -0400
+Message-ID: <XFMail.20021007103901.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <18990.1033979667@passion.cambridge.redhat.com>; from dwmw2@infradead.org on Mon, Oct 07, 2002 at 09:34:27AM +0100
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <200210060130.g961UjY2206214@pimout2-ext.prodigy.net>
+Date: Mon, 07 Oct 2002 10:39:01 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Rob Landley <landley@trommello.org>
+Subject: RE: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 n
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 09:34:27AM +0100, David Woodhouse wrote:
-> Doesn't compile. ALPHA_KLUDGE_MCR undefined. That crap in the generic 8250
-> code should go away in favour of some mask bits set by the platform-specific
-> code when it registers the ports. You probably want to set the default _and_
-> the permitted bits that way.
 
-Oddly, thats what DevilKin reported.  This isn't the patch I sent Linus.
-8)
+> important, but in reality an awful lot of the windows "look and feel" issues 
+> boil down to the simple fact that enough of their windowing system is welded 
+> into the kernel that their mouse pointer keeps updating smoothly no matter 
+> how  heavily loaded the system is, and when you click on a window its Z-order 
+> gets  promoted snappily under just about all circumstances.  That's it.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I feel linux more responsive than M$ windos. But AmigaOS was better. In
+AmigaOS the GUI was handled is a different way. UI, widgets, windows, etc.
+run in a separate process, so even if the application is busy you can press
+buttons, and the events are queued. GTK, QT, etc.. have a different behaviour
+and you can't interact with the UI while the application is busy. It is
+possible, but it requires a lot of extra work for the developer and almost
+nobody does it. To get more GUI responsiveness, the right way is to change
+UI toolkits. The kernel works just fine now.
+
+And about sound skipping, I found that libtool is the most offender. I
+don't know why (it's a shell script...), but it it. It causes a short
+pause of everything. I use a ppc, perhaps on other archs it's harmless.
+
+
+Bye.
 

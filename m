@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268406AbRGXSBM>; Tue, 24 Jul 2001 14:01:12 -0400
+	id <S268416AbRGXSGW>; Tue, 24 Jul 2001 14:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268415AbRGXSBC>; Tue, 24 Jul 2001 14:01:02 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:30960 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268406AbRGXSAx>; Tue, 24 Jul 2001 14:00:53 -0400
-Date: Tue, 24 Jul 2001 19:02:12 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: variable length array on stack
-Message-ID: <Pine.LNX.4.21.0107241830350.1726-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268414AbRGXSGM>; Tue, 24 Jul 2001 14:06:12 -0400
+Received: from [64.7.140.42] ([64.7.140.42]:18402 "EHLO inet.connecttech.com")
+	by vger.kernel.org with ESMTP id <S268411AbRGXSFy>;
+	Tue, 24 Jul 2001 14:05:54 -0400
+Message-ID: <018501c1146b$d24862e0$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0107241447440.20326-100000@duckman.distro.conectiva>
+Subject: Re: [RFC] Optimization for use-once pages
+Date: Tue, 24 Jul 2001 14:09:45 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I was surprised to notice a variable length array on stack
-in the 2.4.7 (== 2.4.6-ac5) drivers/media/video/meye.c:
+From: "Rik van Riel" <riel@conectiva.com.br>
+> Actually, the length of this interval could be even smaller
+> and is often a point of furious debating.
 
-static void *ptable_alloc(int npages, u32 *pt_addr) {
-	int i = 0;
-	void *vmem;
-	u32 ptable[npages+1];
-	....
+Which is why I was avoiding flames earlier; I sorta
+figured this might be a hot issue.
 
-I had no idea you could do that!  gcc extension?  Sincere thanks
-for teaching me that.  But maybe the construction is inappropriate
-in the kernel?  In practice npages here is always 1024, which means
-a deeper stack than we'd like to risk.  Wouldn't the (untested)
-patch below be better?  Am I missing something when I substitute
-kvirt_to_bus(adr) for virt_to_bus(__va(kvirt_to_pa(adr)))?
+> Let me give you an example:
+>
+> - sequential access of a file
+> - script reads the file in 80-byte segments
+>   (parsing some arcane data structure)
+> - these segments are accessed in rapid succession
+> - each 80-byte segment is accessed ONCE
+>
+> In this case, even though the data is accessed only
+> once, each page is touched PAGE_SIZE/80 times, with
+> one 80-byte read() each time.
 
-Hugh
+I'd figured that sort of scenario was the basis for counting
+them all as one. What about
 
---- linux-2.4.7/drivers/media/video/meye.c	Wed Jul  4 22:41:33 2001
-+++ linux/drivers/media/video/meye.c	Tue Jul 24 18:17:08 2001
-@@ -209,28 +209,23 @@
- 
- /* return a page table pointing to N pages of locked memory */
- static void *ptable_alloc(int npages, u32 *pt_addr) {
--	int i = 0;
-+	int i;
- 	void *vmem;
--	u32 ptable[npages+1];
--	signed long size;
-+	u32 *ptable;
- 	unsigned long adr;
- 
--	size = (npages + 1) * PAGE_SIZE;
--	vmem = rvmalloc(size);
-+	vmem = rvmalloc((npages + 1) * PAGE_SIZE);
- 	if (!vmem)
- 		return NULL;
- 
--	memset(ptable, 0, sizeof(ptable));
--        adr = (unsigned long)vmem;
--	while (size > 0) {
--		ptable[i++] = virt_to_bus(__va(kvirt_to_pa(adr)));
-+	adr = (unsigned long)vmem;
-+	ptable = (u32 *)(vmem + npages * PAGE_SIZE);
-+	for (i = 0; i < npages; i++) {
-+		ptable[i] = (u32) kvirt_to_bus(adr);
- 		adr += PAGE_SIZE;
--		size -= PAGE_SIZE;
- 	}
- 
--	memcpy(vmem + npages * PAGE_SIZE, ptable, PAGE_SIZE);
--	*pt_addr = ptable[npages];
--
-+	*pt_addr = (u32) kvirt_to_bus(adr);
- 	return vmem;
- }
- 
+- random access of same file
+- script reads one arcane 80 byte struct
+- script updates that struct say PAGE_SIZE/80
+times, with one 80-byte write() each time
+
+If they're all counted as one, would the page age
+correctly, if the script happens to take a few seconds
+break between another flurry of all-as-one updating?
+
+..Stu
+
 

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbTHZPnG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTHZPnG
+	id S261364AbTHZPsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbTHZPsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:43:06 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:7325 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261367AbTHZPnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:43:03 -0400
-Subject: Re: vesafb mtrr setup question
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arvind Sankar <arvinds@MIT.EDU>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030825194304.GA14893@m66-080-17.mit.edu>
-References: <20030825194304.GA14893@m66-080-17.mit.edu>
-Content-Type: text/plain
+	Tue, 26 Aug 2003 11:48:22 -0400
+Received: from fep03.swip.net ([130.244.199.131]:30350 "EHLO
+	fep03-svc.swip.net") by vger.kernel.org with ESMTP id S261364AbTHZPsS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:48:18 -0400
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4 and /etc/modules.conf
+Date: Tue, 26 Aug 2003 17:48:19 +0200
+User-Agent: KMail/1.5.3
+References: <200308252332.46101.cijoml@volny.cz> <200308261428.07929.cijoml@volny.cz> <20030826123312.GD7038@fs.tum.de>
+In-Reply-To: <20030826123312.GD7038@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061912542.20846.50.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 26 Aug 2003 16:42:23 +0100
+Content-Disposition: inline
+Message-Id: <200308261748.20002.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-08-25 at 20:43, Arvind Sankar wrote:
-> In the first place, the power of two computation computes the largest
-> power of 2 that is _smaller_ than video_size, so it looks like an
-> off-by-1 bug.
+Hi,
 
-Not a bug - we don't know what lives above it so we can't extend the
-mtrr safely
+I have in /etc/modules.conf defined which modules to use. 2.4.22 uses it well, 
+but 2.6.0-test4 doesn't.
 
-> >         /* Try and find a power of two to add */
-> >         while (temp_size && mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
-> >                 temp_size >>= 1;
-> >         }
-> > }
-> 
-> Secondly, what's the point of requesting a smaller write-combining
-> segment that won't cover all the video memory being used?
+I tried add these defs into /etc/modprobe.d/aliases but without success.
 
-Generally we don't use all the videoram. Its a heuristic rather than
-perfection. You might want to play with improvements
+When I by hand call for example modprobe hid module is loaded and device 
+works.
+
+Can somebody help me?
+
+Michal
 

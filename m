@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVBXCI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVBXCNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVBXCI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 21:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVBXCI6
+	id S261764AbVBXCNi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 21:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVBXCLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 21:08:58 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:49610 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261694AbVBXCHy (ORCPT
+	Wed, 23 Feb 2005 21:11:04 -0500
+Received: from waste.org ([216.27.176.166]:46489 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261690AbVBXCJH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 21:07:54 -0500
-Date: Wed, 23 Feb 2005 18:07:32 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Jay Lan <jlan@sgi.com>
-Cc: kaigai@ak.jp.nec.com, akpm@osdl.org, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
-       tim@physik3.uni-rostock.de, erikj@subway.americas.sgi.com,
-       limin@dbear.engr.sgi.com, jbarnes@sgi.com
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050223180732.3ecd3894.pj@sgi.com>
-In-Reply-To: <421D3448.7050209@sgi.com>
-References: <42168D9E.1010900@sgi.com>
-	<20050218171610.757ba9c9.akpm@osdl.org>
-	<421993A2.4020308@ak.jp.nec.com>
-	<421B955A.9060000@sgi.com>
-	<421C2B99.2040600@ak.jp.nec.com>
-	<20050223172551.6771ce7a.pj@sgi.com>
-	<421D3448.7050209@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 23 Feb 2005 21:09:07 -0500
+Date: Wed, 23 Feb 2005 18:08:49 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Benoit Boissinot <bboissin@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Steven Cole <elenstev@mesatop.com>,
+       linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
+Message-ID: <20050224020849.GT3120@waste.org>
+References: <20050223014233.6710fd73.akpm@osdl.org> <421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org> <421CFF5E.4030402@mesatop.com> <421D09AE.4090100@mesatop.com> <20050223161653.7cb966c3.akpm@osdl.org> <20050224004159.GH3163@waste.org> <40f323d005022318032d737779@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40f323d005022318032d737779@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay wrote:
-> I think the microbenchmarking your link provides is irrelevant.
+On Thu, Feb 24, 2005 at 03:03:33AM +0100, Benoit Boissinot wrote:
+> On Wed, 23 Feb 2005 16:41:59 -0800, Matt Mackall <mpm@selenic.com> wrote:
+> > On Wed, Feb 23, 2005 at 04:16:53PM -0800, Andrew Morton wrote:
+> > > Steven Cole <elenstev@mesatop.com> wrote:
+> > > >
+> > > > > Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be
+> > > > > missing.
+> > >
+> > > Looking at the IDE update in rc4-mm1:
+> > >
+> > > +void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
+> > > +{
+> > > +     ide_hwif_t *hwif = drive->hwif;
+> > > +     unsigned int unit = drive->select.all & (1 << 4);
+> > > +
+> 
+> If i grep in the tree, for select.all, it looks like from the initialization
+> that you can not recover the unit from select.all (ide.c line 235 and 1882)
+> since the function used is not invertible.
 
-In the cases such as you describe where it's just some sort of empty
-function call, then yes, I am willing to accept a wave of the hands and
-a simple explanation of how it's not significant.  I've done the same
-myself ;).
+They're fine, if a bit ugly. Unit is either 0 or 1. So:
 
-What about the case where accounting is enabled, and thus actually has
-to do work?
+  (unit<<4) | 0xa0
 
-How does that compare with just doing the traditional BSD accounting?
+is equivalent to unit * 16 as the mask won't mask off any bits.
+ 
+> > >
+> > > Could someone try this?
+> > >
+> > > -     unsigned int unit = drive->select.all & (1 << 4);
+> > > +     unsigned int unit = (drive->select.all >> 4) & 1;
+> > 
+> > Apparently there's already an 'hdb' sitting in drive->name, perhaps we
+> > ought to do disk->disk_name = drive->name for the non-devfs case.
+> >
+> init_hwif_default initialized it right.
+> 
+> Could something like this work ?
 
-I presume in that case that the benchmarking is no longer irrelevant.
-Though if you can make a decent case that it is, I'm willing to listen.
+No, because they're arrays and not pointers. I've booted with the
+obvious strcpy, works fine.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+Mathematics is the supreme nostalgia of our time.

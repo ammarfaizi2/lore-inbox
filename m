@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267987AbTBMHrp>; Thu, 13 Feb 2003 02:47:45 -0500
+	id <S267991AbTBMIBj>; Thu, 13 Feb 2003 03:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267991AbTBMHrp>; Thu, 13 Feb 2003 02:47:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55559 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267987AbTBMHro>;
-	Thu, 13 Feb 2003 02:47:44 -0500
-Message-ID: <3E4B4FD0.5090807@pobox.com>
-Date: Thu, 13 Feb 2003 02:57:04 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S267992AbTBMIBj>; Thu, 13 Feb 2003 03:01:39 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56846
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267991AbTBMIBj> convert rfc822-to-8bit; Thu, 13 Feb 2003 03:01:39 -0500
+Date: Thu, 13 Feb 2003 00:08:30 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA chips
+In-Reply-To: <yw1xd6lxadbs.fsf@magnum.e.kth.se>
+Message-ID: <Pine.LNX.4.10.10302130007370.31904-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [BK PATCHES] net driver fixes
-Content-Type: multipart/mixed;
- boundary="------------080504020602070608060604"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080504020602070608060604
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
+NOPE !!
 
---------------080504020602070608060604
-Content-Type: text/plain;
- name="net-drivers-2.5.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net-drivers-2.5.txt"
+Neither Promise or I can agree to a contract to develop them.
+Use Silicon Image products.
 
-Linus, please do a
+On 12 Feb 2003, Måns Rullgård wrote:
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+> 
+> Are there any drivers being developed for Promise's SATA chips
+> (e.g. the pdc20275 with PCI id 0x3375)?  Or do I have to disassemble
+> their driver to use it on non-intel machines?
+> 
+> -- 
+> Måns Rullgård
+> mru@users.sf.net
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-This will update the following files:
-
- drivers/net/amd8111e.c        |    2 +-
- drivers/net/arlan.c           |    2 +-
- drivers/net/fc/iph5526.c      |    2 +-
- drivers/net/tg3.c             |    7 +++++--
- drivers/net/tokenring/smctr.c |    2 +-
- 5 files changed, 9 insertions(+), 6 deletions(-)
-
-through these ChangeSets:
-
-<jgarzik@redhat.com> (03/02/13 1.1037)
-   [netdrvr arlan] fix the fixed fix. really.
-   
-   struct arlan_private clearly needs to be a pointer.
-
-<jgarzik@redhat.com> (03/02/13 1.1036)
-   [netdrvr tg3] DMA MRM bit only exists on 5700, 5701
-   
-   Fixed by David Miller, spotted by Manish Lachwani.
-
-<jgarzik@redhat.com> (03/02/13 1.1035)
-   [netdrvr amd8111e] remove stray ';', fixing register dump [#311]
-   
-   Fixes bugzilla bug #311.
-
-<jgarzik@redhat.com> (03/02/13 1.1034)
-   [tokenring smctr] remove stray ';' that prevented a loop from working [#312]
-   
-   Fixes broken node address check, and bugzilla bug #312.
-
-<jgarzik@redhat.com> (03/02/13 1.1033)
-   [netdrvr fc/iphase] correct PCI probe loop-end test logic [#323]
-   
-   Fixes bugzilla bug #323.
-
-
---------------080504020602070608060604--
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318736AbSIKMBD>; Wed, 11 Sep 2002 08:01:03 -0400
+	id <S318738AbSIKMFh>; Wed, 11 Sep 2002 08:05:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318738AbSIKMBD>; Wed, 11 Sep 2002 08:01:03 -0400
-Received: from i050225.ap.plala.or.jp ([218.47.50.225]:8576 "HELO
-	mana.fennel.org") by vger.kernel.org with SMTP id <S318736AbSIKMBC>;
-	Wed, 11 Sep 2002 08:01:02 -0400
-Date: Wed, 11 Sep 2002 21:05:40 +0900 (JST)
-Message-Id: <20020911.210540.103443979.sian@big.or.jp>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.34 partition off by one
-From: Hiroshi Takekawa <sian@big.or.jp>
-X-Mailer: Mew version 3.0.64 on Emacs 21.3 / Mule 5.0
- =?iso-2022-jp?B?KBskQjgtTFobKEIvU0FLQUtJKQ==?=
+	id <S318742AbSIKMFh>; Wed, 11 Sep 2002 08:05:37 -0400
+Received: from angband.namesys.com ([212.16.7.85]:2432 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S318738AbSIKMFh>; Wed, 11 Sep 2002 08:05:37 -0400
+Date: Wed, 11 Sep 2002 16:10:21 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: 2.5 Problem Status Report
+Message-ID: <20020911161021.A962@namesys.com>
+References: <20020911112808.A6341@namesys.com> <Pine.LNX.4.44.0209110937190.5764-100000@localhost.localdomain> <20020911120551.A937@namesys.com> <20020911102507.GA1364@suse.de> <20020911102926.GB1364@suse.de> <20020911144740.A911@namesys.com> <20020911105807.GF1089@suse.de> <20020911151602.A830@namesys.com> <20020911111726.GJ1089@suse.de> <20020911114903.GK1089@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20020911114903.GK1089@suse.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-I needed this patch to boot my machine, Linux-2.5.34 devfs enabled.
-My root fs is on /dev/hda6, the last partition of /dev/hda.
-create_dev("/dev/root", ...) in do_mounts.c failed because /dev/hda6
-was not found by devfs_get_handle().  It appears that
-devfs_register_partition() is not called for /dev/hda6...
+On Wed, Sep 11, 2002 at 01:49:03PM +0200, Jens Axboe wrote:
+> > > Ok, with other patch it still fails in the same way.
+> > > I have not backed out other patch so I tested with both patches perent.
+> > alright, seems I do have to try it myself... ok will do that.
+> with both patches I sent applied, the bug does _not_ exist here as
+> expected. could you please double check that they are applied, and that
+> you have booted the right kernel? a make clean just to be on the safe
+> side might be a good idea :-)
 
-Please apply if this patch is right and it hasn't been fixed yet.
+Well, now it works for me too. Not sure why it was working previous time,
+because all the patches were in place. I will play more with it later today.
 
-Sincerely,
+Thanks.
 
---
-Hiroshi Takekawa <sian@big.or.jp>
-
-
---- check.c~    Tue Sep 10 19:34:55 2002
-+++ check.c     Wed Sep 11 19:55:29 2002
-@@ -327,7 +327,7 @@
-        devfs_auto_unregister(dev->disk_de, slave);
-        if (!(dev->flags & GENHD_FL_DEVFS))
-                devfs_auto_unregister (slave, dir);
--       for (part = 1, p++; part < max_p; part++, p++)
-+       for (part = 1; part < max_p; part++, p++)
-                if (p->nr_sects)
-                        devfs_register_partition(dev, part);
- #endif
+Bye,
+    Oleg

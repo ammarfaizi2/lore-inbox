@@ -1,54 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313688AbSDPOOc>; Tue, 16 Apr 2002 10:14:32 -0400
+	id <S313690AbSDPORL>; Tue, 16 Apr 2002 10:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313692AbSDPOOb>; Tue, 16 Apr 2002 10:14:31 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51073 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313688AbSDPOOa>; Tue, 16 Apr 2002 10:14:30 -0400
-Date: Tue, 16 Apr 2002 08:14:05 -0600
-Message-Id: <200204161414.g3GEE5808527@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: David Lang <david.lang@digitalinsight.com>,
-        Vojtech Pavlik <vojtech@suse.cz>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <3CBBE42D.7030906@evision-ventures.com>
+	id <S313694AbSDPORK>; Tue, 16 Apr 2002 10:17:10 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:29756 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S313690AbSDPORJ>; Tue, 16 Apr 2002 10:17:09 -0400
+Date: Tue, 16 Apr 2002 16:17:22 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, hch@infradead.org
+Subject: Re: Linux 2.4.19-pre7
+Message-ID: <20020416161722.F25328@dualathlon.random>
+In-Reply-To: <Pine.LNX.4.21.0204160049130.18896-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
-> David Lang wrote:
-> > The common thing I use byteswap for is to mount my tivo (kernel 2.1.x)
-> > drives on my PC (2.4/5.x).  those drives are byteswapped throughout the
-> > entire drive, including the partition table.
-> > 
-> > It sounds as if you are removing this capability, am I misunderstaning you
-> > or is there some other way to do this? (and duplicating the drive to use
-> > dd to byteswap is not practical for 100G+)
-> 
-> Same problem as with SCSI disks, which are even more commonly moved
-> between different system types - please look there for a solution.
-> BTW. I hardly beleve that your tivo is containing a DOS partition
-> table - otherwise the partition table will handle it all
-> autmagically.
+On Tue, Apr 16, 2002 at 12:50:13AM -0300, Marcelo Tosatti wrote:
+> <hch@infradead.org> (02/04/15 1.409)
+> 	[PATCH] unlock buffer_head _after_ end_kio_request
 
-Well, there *is* a partition table on the drive, but the byte-swapping
-isn't handled automatically. Otherwise people wouldn't need to bswap
-their TiVo drives when plugging into an x86 box.
+This is wrong.
 
-Having the bswap option is definately useful. With it, you can "bless"
-the drive and then mount the partitions and poke around. Please don't
-remove the bswap option. You'll make life harder for a bunch of
-people.
-
-This gratuitous removal of features in the guise of "cleanups" is why
-you got flamed earlier this year. I thought you'd learned :-/
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Andrea

@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbUKKWbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbUKKWcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUKKWbL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUKKWbL
+	id S262376AbUKKWcT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKKWcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:31:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52461 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262374AbUKKWbF (ORCPT
+	Thu, 11 Nov 2004 17:32:19 -0500
+Received: from lugor.de ([217.160.170.124]:1410 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S262376AbUKKWbR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 17:31:05 -0500
-Date: Thu, 11 Nov 2004 14:30:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Len Brown <len.brown@intel.com>
-cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>
-Subject: Re: [PATCH] fix  platform_rename_gsi related ia32 build breakage
-In-Reply-To: <1100211749.5510.753.camel@d845pe>
-Message-ID: <Pine.LNX.4.58.0411111427050.2301@ppc970.osdl.org>
-References: <4192A959.9020806@conectiva.com.br>  <4192A9BF.2080606@conectiva.com.br>
- <4192ADF4.1050907@conectiva.com.br>  <Pine.LNX.4.58.0411101621020.2301@ppc970.osdl.org>
- <1100211749.5510.753.camel@d845pe>
+	Thu, 11 Nov 2004 17:31:17 -0500
+From: Christian Hesse <christian.hesse@linuxob.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: FB: vesafb garbled after using X11 with nv driver
+Date: Thu, 11 Nov 2004 23:31:00 +0100
+User-Agent: KMail/1.7.1
+Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+References: <20041111215530.GB24338@charite.de>
+In-Reply-To: <20041111215530.GB24338@charite.de>
+Organization: Linux Oberhausen
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart3055503.0t3B4W7MdI";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411112331.05405.christian.hesse@linuxob.de>
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.86
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart3055503.0t3B4W7MdI
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+On Thursday 11 November 2004 22:55, Ralf Hildebrandt wrote:
+> I use the nv driver in XFree and the vesafb for the framebuffer console.
+> vesafb works fine, I get the bootlogo and all during boot.
+>
+> Once X11 starts up and I want to switch back to the framebuffer
+> console using CTRL-ALT-F1, the framebuffer is garbled. The screen is
+> flickering, as if the vertical synchronisation is lost. Colors seem to
+> be OK, I get grey garbage on black background.
+>
+> Switching back to X11 using ALT-F7 works OK, the X11 screen looks fine.
+>
+> I made two screenshots to illuminate what I'm seeing:
+> http://www.stahl.bau.tu-bs.de/~hildeb/bugreport/dsc02089.jpg
+> http://www.stahl.bau.tu-bs.de/~hildeb/bugreport/dsc02090.jpg
+> (watch out, high resolution)
+>
+> It's not entirely clear if it's an issue of the nv driver or the vesafb
+> in the kernel.
 
-On Thu, 11 Nov 2004, Len Brown wrote:
-> 
-> I used a function pointer here because the same kernel binary must be
-> able to run on an ES7000 or a non-ES7000, so the compile-time inline
-> idiom doesn't work. 
+I have a similar problem. With open source nv and vesafb the virtual termin=
+al=20
+looks like this if I switch back to the framebuffer:
 
-Sure it does. Do something like this in a header file
+http://linux.eworm.net/nv_offset.jpg
 
-	static inline int translate_irq_number(...)
-	{
-		#ifdef CONFIG_ACPI_BOOT
-			return fn_ptr_xxx();
-		#else
-			return irq;
-		#endif
-	}
+Everything is moved to the left, the right area is repeated some time and=20
+fills the rest of the screen.
 
-which means that yes, it uses the function pointer when it is meaningful, 
-but if there is no point, the code just goes away.
+As binary nvidia module works without this problem I support it's a problem=
+ of=20
+nv...
 
-> If you read this far and have suggestions for a more descriptive name
-> than platform_rename_gsi(), just let me know.
+=2D-=20
+Christian Hesse
 
-At _least_ write out what the hell "gsi" is.
+geek by nature
+linux by choice
 
-TLA's are bad. "gsi" apparently isn't the Geological Survey of Ireland, 
-but that's all I can tell from google.
+--nextPart3055503.0t3B4W7MdI
+Content-Type: application/pgp-signature
 
-		Linus
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.10 (GNU/Linux)
+
+iD8DBQBBk+gplZfG2c8gdSURAvfdAKDX/cS0gxILI7HEx3rWHsp1+ceYoQCgl3Vi
+4cUdLAANcvmkuV3UsqscF9Y=
+=W9to
+-----END PGP SIGNATURE-----
+
+--nextPart3055503.0t3B4W7MdI--

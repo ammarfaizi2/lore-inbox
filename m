@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315734AbSHIUS2>; Fri, 9 Aug 2002 16:18:28 -0400
+	id <S315748AbSHIUTP>; Fri, 9 Aug 2002 16:19:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315760AbSHIUS2>; Fri, 9 Aug 2002 16:18:28 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:48097 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S315734AbSHIUS1>;
-	Fri, 9 Aug 2002 16:18:27 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S315783AbSHIUTP>; Fri, 9 Aug 2002 16:19:15 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30983 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315760AbSHIUTL>; Fri, 9 Aug 2002 16:19:11 -0400
+Message-ID: <3D542482.2080109@zytor.com>
+Date: Fri, 09 Aug 2002 13:22:26 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
+X-Accept-Language: en, sv
 MIME-Version: 1.0
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: klibc development release
+References: <200208092016.g79KGVk87834@saturn.cs.uml.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15700.9328.817832.974840@napali.hpl.hp.com>
-Date: Fri, 9 Aug 2002 13:22:08 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-In-Reply-To: <3D541E2C.3010000@zytor.com>
-References: <aivdi8$r2i$1@cesium.transmeta.com>
-	<200208090934.g799YVZe116824@d12relay01.de.ibm.com>
-	<200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com>
-	<3D541018.4050004@zytor.com>
-	<15700.4689.876752.886309@napali.hpl.hp.com>
-	<3D541E2C.3010000@zytor.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 09 Aug 2002 12:55:24 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
+Albert D. Cahalan wrote:
+>>klibc is a tiny C library subset intended to be integrated into the
+>>kernel source tree and being used for initramfs stuff.  Thus,
+>>initramfs+rootfs can be used to move things that are currently in
+>>kernel space, such as ip autoconfiguration or nfsroot (in fact,
+>>mounting root in general) into user space.
+> 
+> Could I link 4-clause BSD source against this?
+> (the GPL is incompatible with the 4-clause BSD license)
+> 
 
-  HPA> You mean alpha calls umount2() "umount" and umount()
-  HPA> "oldumount"?
+I'm planning to release this under a BSD-like license, such as 3-clause
+BSD, MIT or the X license.  I'm still looking at each of those.
 
-Yes.
+> 
+>>I would particularly appreciate portability comments, since I'm flying
+>>blind on non-i386 machines (anyone want to send me hardware?),
+>>although any bug reports would be appreciated.
+>>
+>>    ftp://ftp.kernel.org/pub/linux/libs/klibc/klibc.tar.gz
+>>
+>>I haven't bothered putting a version number on it, since it changes
+>>quite often.  I have also published the CVS repository in the
+>>directory above.
+> 
+> I could test on PowerPC, but wouldn't be able to tell you
+> if I'm testing the latest code or not. You don't need to
+> get creative with the version number; an integer is fine.
+> 
 
-	--david
+Good point.
+
+	-hpa
+
+

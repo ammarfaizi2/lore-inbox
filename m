@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264016AbTE0STQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbTE0SSM
+	id S264063AbTE0SP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbTE0SOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:18:12 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:47622 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264016AbTE0SRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:17:10 -0400
-Subject: Re: [BK PATCHES] add ata scsi driver
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030527182126.GO845@suse.de>
-References: <1053972773.2298.177.camel@mulgrave>
-	<20030526181852.GL845@suse.de> <1053974830.1768.190.camel@mulgrave>
-	<20030526190707.GM845@suse.de> <1053976644.2298.194.camel@mulgrave>
-	<20030526193327.GN845@suse.de> <20030527123901.GJ845@suse.de>
-	<1054045594.1769.24.camel@mulgrave> <20030527171605.GL845@suse.de>
-	<1054058946.1769.223.camel@mulgrave>  <20030527182126.GO845@suse.de>
-Content-Type: text/plain
+	Tue, 27 May 2003 14:14:04 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:31750 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264071AbTE0SMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:12:55 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Date: Tue, 27 May 2003 20:25:11 +0200
+User-Agent: KMail/1.5.2
+Cc: manish <manish@storadinc.com>, linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <3ED2DE86.2070406@storadinc.com> <200305271958.51924.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271516220.756@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0305271516220.756@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 27 May 2003 14:30:20 -0400
-Message-Id: <1054060221.1974.228.camel@mulgrave>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200305272025.11495.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-27 at 14:21, Jens Axboe wrote:
-> Oh yes you are right. How does the attached look? With real_max_depth,
-> that should work as well since we'll only ever alloc a bigger area.
+On Tuesday 27 May 2003 20:16, Marcelo Tosatti wrote:
 
-That looks perfect.  You submit the block layer changes, I'll plumb it
-into SCSI and we can try it out....just as soon as I convert the one
-SCSI driver that uses the block queue tags to do dynamic queue
-adjustment...
+Hi Marcelo,
 
-James
+> > I repeat this now for the $high_number'th time ;):
+> > - 2.4.18 worked perfect
+> > - 2.4.19-pre not
+> Thats very useful information. Can you track down which -pre introduced
+> the hangs?
+If I am not on drugs and my last test was not under drugs, the causing patch 
+is this one:
 
+http://linux.bkbits.net:8080/linux-2.4/diffs/drivers/block/ll_rw_blk.c@1.29?nav=index.html|ChangeSet@-2y|cset@1.160|hist/drivers/block/ll_rw_blk.c
+
+ciao, Marc
 

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132137AbRDNNCv>; Sat, 14 Apr 2001 09:02:51 -0400
+	id <S132140AbRDNNbm>; Sat, 14 Apr 2001 09:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132140AbRDNNCl>; Sat, 14 Apr 2001 09:02:41 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:1294 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S132137AbRDNNCV> convert rfc822-to-8bit; Sat, 14 Apr 2001 09:02:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SW-RAID0 Performance problems
-Date: Sat, 14 Apr 2001 15:09:37 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041411380600.00516@debian> <20010414142839.A12760@ping.be>
-In-Reply-To: <20010414142839.A12760@ping.be>
-MIME-Version: 1.0
-Message-Id: <01041415093700.01502@debian>
-Content-Transfer-Encoding: 7BIT
+	id <S132142AbRDNNbc>; Sat, 14 Apr 2001 09:31:32 -0400
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:34320 "EHLO
+	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S132140AbRDNNbV>; Sat, 14 Apr 2001 09:31:21 -0400
+Date: Sat, 14 Apr 2001 15:00:28 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MO-Drive under 2.4.3
+Message-ID: <20010414150028.A456@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <01041310475000.02120@majestix> <E14o3Jb-0002q9-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.12i
+In-Reply-To: <E14o3Jb-0002q9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Apr 13, 2001 at 02:08:41PM +0100
+From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 14. April 2001 14:28 schrieb Kurt Roeckx:
-> Does turning unmaskirq on help?
+On Fri, Apr 13, 2001 at 02:08:41PM +0100, Alan Cox wrote:
+> > I have a problem using my MO-Drive under kernel 2.4.3. I have several disks 
+> > formated with a VFAT filesystem. Under kernel 2.2.19 everything works fine. 
+> > Under kernel 2.4.3 I cannot write anything to the disk without hanging the 
+> > complete system so that I have to use the reset button. For disks with an 
+> > ext2 filesystem it works okay.
+> 
+> This is a bug in the scsi layer. linux-scsi@vger.kernel.org, not that any of
+> the scsi maintainers seem to care about it right now.
 
-Already tried this, but it doesn't help
-The actual settings (same on /dev/hdc):
+Err..., now I'm confused. Last time this issue popped up, it was my
+understanding that it's generic_file_{read,write}'s limitation to filesystems
+with logical_blksize >= hw_blksize that makes MOs fail with VFAT. Now, is
+this all moot, or is the SCSI thing just an additional problem?
 
-bash-2.04# hdparm /dev/hda
- 
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 59556/16/63, sectors = 60032448, start = 0
+Regards,
 
-bash-2.04# hdparm -tT /dev/md0
- 
-/dev/md0:
- Timing buffer-cache reads:   128 MB in  1.30 seconds = 98.46 MB/sec
- Timing buffered disk reads:  64 MB in  3.14 seconds = 20.38 MB/sec
+Daniel.
 
-bash-2.04# hdparm -tT /dev/hda3
- 
-/dev/hda3:
- Timing buffer-cache reads:   128 MB in  1.31 seconds = 97.71 MB/sec
- Timing buffered disk reads:  64 MB in  2.26 seconds = 28.32 MB/sec
-
-Andreas
 -- 
-Andreas Peter *** ujq7@rz.uni-karlsruhe.de
-
+	GNU/Linux Audio Mechanics - http://www.glame.de
+	      Cutting Edge Office - http://www.c10a02.de
+	      GPG Key ID 89BF7E2B - http://www.keyserver.net

@@ -1,58 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUG0BRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUG0BKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUG0BRG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 21:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUG0BN1
+	id S266213AbUG0BKU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 21:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUG0BJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 21:13:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40151 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266234AbUG0BLq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 21:11:46 -0400
-Date: Mon, 26 Jul 2004 18:09:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: kernel@kolivas.org, Joel.Becker@oracle.com, linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-Message-Id: <20040726180943.4c871e4f.akpm@osdl.org>
-In-Reply-To: <4105A761.9090905@tequila.co.jp>
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org>
-	<20040725173652.274dcac6.akpm@osdl.org>
-	<cone.1090802581.972906.20693.502@pc.kolivas.org>
-	<20040726202946.GD26075@ca-server1.us.oracle.com>
-	<20040726134258.37531648.akpm@osdl.org>
-	<cone.1090882721.156452.20693.502@pc.kolivas.org>
-	<4105A761.9090905@tequila.co.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 26 Jul 2004 21:09:19 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:5559 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266215AbUG0BFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 21:05:22 -0400
+MIME-Version: 1.0
+Date: Tue, 27 Jul 2004 10:05:28 +0900
+Subject: [PATCH] ia64 memory hotplug for hugetlbpages [2/3]
+From: Nobuhiko Yoshida <n-yoshida@pst.fujitsu.com>
+To: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Message-ID: <JP200407271005287.5176656@pst.fujitsu.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
+X-Mailer: JsvMail 5.5 (Shuriken Pro3)
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clemens Schwaighofer <cs@tequila.co.jp> wrote:
->
-> Con Kolivas wrote:
-> | Andrew Morton writes:
-> 
-> |> Yes, I think 60% is about right for a 512-768M box.  Too high for the
-> |> smaller machines, too low for the larger ones.
-> |
-> |
-> | Sigh..
-> | I have a 1Gb desktop machine that refuses to keep my applications in ram
-> | overnight if I have a swappiness higher than the default so I think lots
-> | of desktop users with more ram will be unhappy with higher settings.
-> 
-> I have 1 GB and I had a setting of 51 (seemed to be perhaps gentoo
-> default or so) and I especially after a weekend (2 days off) it is
-> always the "monday-morning-swap-hell" where I have to wait 5min until he
-> swapped in the apps he swapped out during weekend.
-> 
-> I changed that to 20 now, but I don't know if this will make things
-> worse or better.
-> 
-
-It may appear to be better, but you now have 100, maybe 200 megabytes less
-pagecache available across the entire working day.
-
+diff -dupr linux-2.6.7/arch/ia64/mm/hugetlbpage.c linux-2.6.7-RMAP/arch/ia64/mm/hugetlbpage.c
+--- linux-2.6.7/arch/ia64/mm/hugetlbpage.c	2004-07-09 15:51:19.000000000 +0900
++++ linux-2.6.7-RMAP/arch/ia64/mm/hugetlbpage.c	2004-07-15 11:28:52.000000000 +0900
+@@ -14,6 +14,7 @@
+ #include <linux/mm.h>
+ #include <linux/hugetlb.h>
+ #include <linux/pagemap.h>
++#include <linux/rmap.h>
+ #include <linux/smp_lock.h>
+ #include <linux/slab.h>
+ #include <linux/sysctl.h>
+@@ -108,6 +109,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 		if (!pte_none(entry)) {
+ 			ptepage = pte_page(entry);
+ 			get_page(ptepage);
++			page_dup_rmap(ptepage);
+ 			dst->rss += (HPAGE_SIZE / PAGE_SIZE);
+ 		}
+ 		set_pte(dst_pte, entry);
+@@ -261,6 +263,7 @@ void unmap_hugepage_range(struct vm_area
+ 		if (pte_none(*pte))
+ 			continue;
+ 		page = pte_page(*pte);
++		page_remove_rmap(page);
+ 		put_page(page);
+ 		pte_clear(pte);
+ 		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
+@@ -315,6 +318,7 @@ int hugetlb_prefault(struct address_spac
+ 			}
+ 		}
+ 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
++		page_add_file_rmap(page);
+ 	}
+ out:
+ 	spin_unlock(&mm->page_table_lock);
+@@ -371,6 +375,7 @@ again:
+ 	}
+ 	if (pte_none(*pte)) {
+ 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
++		page_add_file_rmap(page);
+ 		flush_tlb_range(vma, address, address + HPAGE_SIZE);
+ 		update_mmu_cache(vma, address, *pte);
+ 	} else {
+@@ -383,6 +388,89 @@ out:
+ 	return ret;
+ }
+ 
++/*
++ * At what user virtual address is page expected in vma?
++ */
++static inline unsigned long
++huge_vma_address(struct page *page, struct vm_area_struct *vma)
++{
++	pgoff_t pgoff = page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
++	unsigned long address;
++
++	address = vma->vm_start + ((pgoff - vma->vm_pgoff) << HPAGE_SHIFT);
++	if (unlikely(address < vma->vm_start || address >= vma->vm_end)) {
++		/* page should be within any vma from prio_tree_next */
++		BUG_ON(!PageAnon(page));
++		return -EFAULT;
++	}
++	return address;
++}
++
++/*
++ * Try to clear the PTE which map the hugepage.
++ */
++int try_to_unmap_hugepage(struct page *page, struct vm_area_struct *vma,
++			struct list_head *force)
++{
++	pte_t *pte;
++	pte_t pteval;
++	int ret = SWAP_AGAIN;
++	struct mm_struct *mm = vma->vm_mm;
++	unsigned long address;
++
++	address = huge_vma_address(page, vma);
++	if (address == -EFAULT)
++		goto out;
++
++	/*
++	 * We need the page_table_lock to protect us from page faults,
++	 * munmap, fork, etc...
++	 */
++	if (!spin_trylock(&mm->page_table_lock))
++		goto out;
++
++	pte = huge_pte_offset(mm, address);
++	if (!pte || pte_none(*pte))
++		goto out_unlock;
++	if (!pte_present(*pte))
++		goto out_unlock;
++
++	if (page_to_pfn(page) != pte_pfn(*pte))
++		goto out_unlock;
++
++	BUG_ON(!vma);
++
++#if 0
++	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
++		ptep_test_and_clear_young(pte)) {
++		ret = SWAP_FAIL;
++		goto out_unlock;
++	}
++#endif
++
++	/* Nuke the page table entry. */
++	flush_cache_page(vma, address);
++	pteval = ptep_get_and_clear(pte);
++	flush_tlb_range(vma, address, address + HPAGE_SIZE);
++
++	/* Move the dirty bit to the physical page now the pte is gone. */
++	if (pte_dirty(pteval))
++		set_page_dirty(page);
++
++	BUG_ON(PageAnon(page));
++
++	mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
++	BUG_ON(!page->mapcount);
++	page->mapcount--;
++	page_cache_release(page);
++
++out_unlock:
++	spin_unlock(&mm->page_table_lock);
++
++out:
++	return ret;
++}
++
+ unsigned long hugetlb_get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
+ 		unsigned long pgoff, unsigned long flags)
+ {

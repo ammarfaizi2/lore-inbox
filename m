@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291741AbSBNQIX>; Thu, 14 Feb 2002 11:08:23 -0500
+	id <S291749AbSBNQJx>; Thu, 14 Feb 2002 11:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291742AbSBNQIG>; Thu, 14 Feb 2002 11:08:06 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:55443 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S291741AbSBNQHt>; Thu, 14 Feb 2002 11:07:49 -0500
-Date: Thu, 14 Feb 2002 17:07:48 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, torvalds@transmeta.com
-Subject: Re: setuid/pthread interaction broken? 'clone_with_uid()?'
-Message-ID: <20020214170748.B17490@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Dave McCracken <dmccr@us.ibm.com>, linux-kernel@vger.kernel.org,
-	drepper@redhat.com, torvalds@transmeta.com
-In-Reply-To: <20020214165143.A16601@outpost.ds9a.nl> <38300000.1013702447@baldur>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <38300000.1013702447@baldur>; from dmccr@us.ibm.com on Thu, Feb 14, 2002 at 04:03:47PM +0000
+	id <S291742AbSBNQJn>; Thu, 14 Feb 2002 11:09:43 -0500
+Received: from donna.siteprotect.com ([64.41.120.44]:49163 "EHLO
+	donna.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S291743AbSBNQJX>; Thu, 14 Feb 2002 11:09:23 -0500
+Date: Thu, 14 Feb 2002 11:09:21 -0500 (EST)
+From: Vince Weaver <vince@deater.net>
+X-X-Sender: <vince@hal.deaternet.vmw>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: /proc key naming consistency
+In-Reply-To: <Pine.LNX.4.33.0202141020140.5260-100000@dbsydn2001.aus.deuba.com>
+Message-ID: <Pine.LNX.4.31.0202141104570.14558-100000@hal.deaternet.vmw>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 14, 2002 at 04:03:47PM +0000, Dave McCracken wrote:
+On Thu, 14 Feb 2002, Luke Burton wrote:
+> Shell parseable /proc/* entries would be so much more elegant to deal with
+> compared to the old system. I would guess that maintainers for things like
+> KDE would jump at the opportunity to decrease the complexity of their
+> code.
 
-> It's the expected behavior for a task-based model like Linux.  Each task is
-> independent and inherits the uid/gid from whoever called clone().  It's
-> just one of several resources that are specified as process-wide in POSIX,
-> but are per-task in Linux.
+as a maintainer of "linux_logo" which delves heavily (and perhaps
+unwisely) into /proc/cpuinfo and its ilk, I would definitely say I would
+not be jumping at the opportunity.
 
-Could this also be solved by making threads call 'clone' themselves? 
+Remember as maintainers of userspace apps, we have to keep compatibility,
+in this case for me it involves /proc/cpuinfo from all the architectures,
+plus kernels going back to the 1.2.13 time-frame.
 
-> I've been working on a patch to allow clone() to specify shared
-> credentials, but it's been on the back burner.
+So changing /proc/cpuinfo yet again does not simplify the code, in fact it
+just adds one more incompatible special case.
 
-Would be much appreciated.
+And since 2.2 and 2.4 kernels will be around for ages to come, it will
+make code bigger rather than smaller.
 
-Regards,
+I agree a cleanup, if done properly, would be welcomed.  but don't use
+"simplification of user-space code" as an argument.. because it's a lie ;)
 
-bert hubert
+Vince
+
+who is perhaps bitter because of all the gratuitious "spaces.. no, tabs..
+no, underscores" and "bogomips BOGOmips BogoMips BoGoMiPs bobo_mips" type
+changes over the years
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
+____________
+\  /\  /\  /  Vince Weaver        Linux 2.4.17-rc1 on a K6-2+, Up 59 days
+ \/__\/__\/   vince@deater.net    http://www.deater.net/weave
+

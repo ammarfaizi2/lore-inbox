@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266114AbTBTQvw>; Thu, 20 Feb 2003 11:51:52 -0500
+	id <S266120AbTBTQ6v>; Thu, 20 Feb 2003 11:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266120AbTBTQvw>; Thu, 20 Feb 2003 11:51:52 -0500
-Received: from sunmgr.hti.com ([130.210.206.69]:35535 "EHLO issun6.hti.com")
-	by vger.kernel.org with ESMTP id <S266114AbTBTQvv>;
-	Thu, 20 Feb 2003 11:51:51 -0500
-Message-ID: <3E5509C8.DFE6FD34@link.com>
-Date: Thu, 20 Feb 2003 11:00:56 -0600
-From: "Casey Lancour" <cjlancour@link.com>
-X-Mailer: Mozilla 4.7 [en]C-CCK-MCD   (WinNT; U)
-X-Accept-Language: en
+	id <S266135AbTBTQ6v>; Thu, 20 Feb 2003 11:58:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60937 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266120AbTBTQ6u>; Thu, 20 Feb 2003 11:58:50 -0500
+Date: Thu, 20 Feb 2003 09:06:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Alex Larsson <alexl@redhat.com>,
+       <procps-list@redhat.com>
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+In-Reply-To: <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302200902260.2493-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 8x AGP under linux?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know the status to 8x agp support under linux?
-I am using the Granite bay 7205 chipset and I cant get my geforce4 card
-to use agpgart or nvidia's agp support, it seems to be defaulting to pci
-mode (not even using 4x agp).
-I do a:
 
-cat /proc/driver/nvidia/agp/status
+On Thu, 20 Feb 2003, Ingo Molnar wrote:
+>
+> the main problem with threads in /proc is that there's a big slowdown when
+> using lots of threads.
 
-which is my indication that i am not using agp bus to its fullest.
+Well, part of the problem (I think) is that you added all the threads to 
+the same main directory.
 
+Putting a "." in front of the name doesn't fix the /proc level directory
+scalability issues, it only means that you can avoid some of the user- 
+level scalability ones.
 
-     -=Casey
+So to offset that bad design, you then add other cruft, like the lookup
+cursor and the "." marker. Which is not a bad idea in itself, but I claim
+that if you'd made the directory structure saner you wouldn't have needed
+it in the first place.
+
+It would just be _so_ much nicer if the threads would show up as 
+subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable, 
+and just generally more sane.
+
+		Linus
 

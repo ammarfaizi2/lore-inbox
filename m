@@ -1,93 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279990AbRJ3P7Y>; Tue, 30 Oct 2001 10:59:24 -0500
+	id <S279963AbRJ3QFn>; Tue, 30 Oct 2001 11:05:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279991AbRJ3P7N>; Tue, 30 Oct 2001 10:59:13 -0500
-Received: from hermes.toad.net ([162.33.130.251]:22492 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S279996AbRJ3P65>;
-	Tue, 30 Oct 2001 10:58:57 -0500
-Subject: Re: apm suspend broken ?
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 30 Oct 2001 10:58:51 -0500
-Message-Id: <1004457533.4243.98.camel@thanatos>
-Mime-Version: 1.0
+	id <S279971AbRJ3QFe>; Tue, 30 Oct 2001 11:05:34 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:50311 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S279963AbRJ3QFZ>; Tue, 30 Oct 2001 11:05:25 -0500
+Date: Tue, 30 Oct 2001 16:07:45 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: need help interpreting 'free' output.
+In-Reply-To: <200110301132.MAA22471@lambik.cc.kuleuven.ac.be>
+Message-ID: <Pine.LNX.4.21.0110301557560.1229-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I, by the way, had my Latitude suspend perfectly with 2.4.12-ac5.
-> Now, with 2.4.13-ac[34] pressing Fn+Suspend just blanks the screen (it
-> doesn't shut it off, _just_ blanks it) and hangs the machine.
+On Tue, 30 Oct 2001, Frank Dekervel wrote:
 > 
-> Any ideas on how to proceed in order to find out where the problem
-> lies?
+> since i saw strange things happening with my free memory numbers, i tried 
+> this:
+> - i compiled and booted a fresh kernel (no proprietary modules, no patches, 
+> just 2.4.14-pre4)
+> - i did free.
+> 
+> bakvis:~# free
+>              total       used       free     shared    buffers     cached
+> Mem:        384912      55644     329268          0       3652      29880
+> -/+ buffers/cache:      22112     362800
+> Swap:       136512          0     136512
+> 
+> so i have 22 meg used right ?
+> 
+> - i started the daily cron jobs (updatedb and htdig  and some minor things 
+> like log rotation)
+> 
+> - i did 'free' again.
+> 
+> bakvis:~# free
+>              total       used       free     shared    buffers     cached
+> Mem:        384912     377060       7852          0      29424     125660
+> -/+ buffers/cache:     221976     162936
+> Swap:       136512        752     135760
+> 
+> so now there is 220 meg used memory right ?
+> and the memory is definitely used, because as soon as i start a memory hog 
+> the system hits swap ...
+> 
+> so what am i missing here ?
+> should i provide more info about my kernel configuration ? vmstat numbers ?
 
-The apm driver was changed so that clients who open
-the apm device without the write flag won't be expected
-to return standby or suspend events; and clients who
-open the apm device without the read flag won't be
-notified of apm events.
+I'm fairly sure /proc/slabinfo will show large inode_cache and large
+dentry_cache: which is natural after updatedb, nothing wrong with that.
 
-For consistency, clients without the write flag should
-not be able to request standbys or suspends.  Thus
-this patch seems required:
---- linux-2.4.13-ac2/arch/i386/kernel/apm.c	Mon Oct 22 09:22:38 2001
-+++ linux-2.4.13-ac2-fix/arch/i386/kernel/apm.c	Tue Oct 30 10:29:41 2001
-@@ -1473,6 +1473,8 @@
- 		return -EIO;
- 	if (!as->suser)
- 		return -EPERM;
-+	if (!as->writer)
-+		return -EPERM;
- 	switch (cmd) {
- 	case APM_IOC_STANDBY:
- 		if (as->standbys_read > 0) {
+However, unlike 2.4.13, 2.4.14-pre (you tried pre4, I just tried pre5)
+seems much too unwilling to shrink_dcache and shrink_icache: your
+memory hog should shrink them, but it seems not to.  Linus?
 
-Applying this patch may solve your problem.
-
-Scenario: You have a client that is opening the apm
-device O_RDONLY, yet has been acking standby events
-back to the apm driver.  Formerly the driver would
-ignore the lack of write permission, but now, since
-the client does not have write permission, the driver
-does not count the standby event that it sends to the
-client as "pending".  So when the client acks the
-event, it looks to the driver like a new request.
-Without the above patch, the driver will process this
-request, dutifully  queueing it to the other clients.
-If there is more than one client of this kind, then
-an infinite series of standby requests will result.
-
-The patch should prevent that from happening.
-
-However, if there are apm clients that expect the
-driver to inform them of standby and suspend events
-and to wait for an ack before going ahead with the
-standby or suspend, then such clients should be
-modified to open the apm device O_RDWR.  So long
-as such a client opens the apm device O_RDONLY,
-the driver will not wait for it to reply and
-(patched with the above) will reject its reply
-when it comes.
-
-The changelog at the top of apm.c cites me as the
-originator of the idea behind the change.  The
-motivation was to eliminate queue overflows for
-clients that aren't interested in the events and
-don't read them.  The idea of not waiting for 
-feedback from clients without write perm seems
-like a good one too, since some clients might
-just want to hear about events, not generate or
-ack them.  However this does constitute an API
-change, so either (1) we should disable the
-change until 2.5, or (2) we should check that
-clients such as apmd are opening the apm device
-with O_RDWR.
-
---
-Thomas Hood
-
+Hugh
 

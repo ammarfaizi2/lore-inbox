@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314003AbSDKGiB>; Thu, 11 Apr 2002 02:38:01 -0400
+	id <S314002AbSDKGhk>; Thu, 11 Apr 2002 02:37:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314004AbSDKGiA>; Thu, 11 Apr 2002 02:38:00 -0400
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:10766 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S314003AbSDKGh7>; Thu, 11 Apr 2002 02:37:59 -0400
-Date: Thu, 11 Apr 2002 16:39:09 +1000
-From: john slee <indigoid@higherplane.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Mouse interrupts: the death knell of a VP6
-Message-ID: <20020411063908.GF11940@higherplane.net>
-In-Reply-To: <20020410192339.A22777@namesys.com> <20020410112810.L60900-100000@ozma.union.utexas.edu> <20020410124924.A2311@node0.opengeometry.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S314003AbSDKGhj>; Thu, 11 Apr 2002 02:37:39 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:51725 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314002AbSDKGhj>; Thu, 11 Apr 2002 02:37:39 -0400
+Message-Id: <200204110634.g3B6YPX08966@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: esger@bumblebeast.com, linux-kernel@vger.kernel.org
+Subject: Re: Problem using mandatory locks (other apps can read/delete etc)
+Date: Thu, 11 Apr 2002 09:37:37 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200204101708.TAA01151@fikkie.vesc.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 12:49:24PM -0400, William Park wrote:
-> I have VP6, and it freezes when PS/2 mouse is unplugged and then plugged
-> back in.  When the mouse is pulled out, it's okey.  But, when the mouse
-> is plugged back in, the machine hangs.  This occurs in BP6 as well, I've
-> been tolded.
+On 10 April 2002 15:08, E. Abbink wrote:
+> I'm trying to solve a problem using mandatory locks but am having some
+> difficulty in doing so. (if there's a more appropriate place for
+> discussing this please ignore the rest of this post. pointers to that
+> place would be appreciated ;) )
+>
+> my problem:
+>
+> when I lock a file with a mandatory write lock (ie. fcntl, +s-x bits and
+> mand mount option. for code see below) it is still possible:
+>
+> - for me to rm the file in question
+> - for the file to be read by an other process
 
-doesn't happen on my bp6, with one or two processors.
+[snip]
 
-j.
+>     lock.l_type = F_WRLCK ;   <================
+>     lock.l_whence = SEEK_SET ;
+>     lock.l_start = 0 ;
+>     lock.l_len = 0 ;
+>     lock.l_pid = 0 ; // ignored
+>
+>     int err = fcntl (fd, F_SETLK, &lock) ;
 
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+I know nothing about file locking in Unix, but it looks like you
+requested write lock, i.e. forbid writing to a file. Why are you
+surprised that reads are allowed?
+
+Probably someone else would comment on why rm is working, though...
+--
+vda

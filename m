@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbUJ0Xml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUJ0XcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbUJ0Xml (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 19:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbUJ0XiN
+	id S262772AbUJ0XcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 19:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbUJ0X2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 19:38:13 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:29850 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262679AbUJ0UwR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:52:17 -0400
-Message-ID: <41800B12.5020405@tmr.com>
-Date: Wed, 27 Oct 2004 16:54:42 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: James Cloos <cloos@jhcloos.com>, linux-kernel@vger.kernel.org,
-       david@gibson.dropbear.id.au
-Subject: Re: MAP_SHARED bizarrely slow
-References: <m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us><20041027064527.GJ1676@zax> <20041027010659.15ec7e90.akpm@osdl.org>
-In-Reply-To: <20041027010659.15ec7e90.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 19:28:39 -0400
+Received: from cantor.suse.de ([195.135.220.2]:60089 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262772AbUJ0X1R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 19:27:17 -0400
+Date: Thu, 28 Oct 2004 01:27:15 +0200
+From: Andi Kleen <ak@suse.de>
+To: Chris Wright <chrisw@osdl.org>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Early call_usermodehelper causes double fault on x86_64
+Message-ID: <20041027232715.GE23595@wotan.suse.de>
+References: <20041027124055.B2357@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027124055.B2357@build.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> James Cloos <cloos@jhcloos.com> wrote:
+On Wed, Oct 27, 2004 at 12:40:55PM -0700, Chris Wright wrote:
+> Hi,
 > 
->>>>>>>"David" == David Gibson <david@gibson.dropbear.id.au> writes:
->>
->>David> http://www.ozlabs.org/people/dgibson/maptest.tar.gz
->>
->>David> On a number of machines I've tested - both ppc64 and x86 - the
->>David> SHARED version is consistently and significantly (50-100%)
->>David> slower than the PRIVATE version.
->>
->>Just gave it a test on my laptop and server.  Both are p3.  The
->>laptop is under heavier mem pressure; the server has just under
->>a gig with most free/cache/buff.  Laptop is still running 2.6.7
->>whereas the server is bk as of 2004-10-24.
->>
->>Buth took about 11 seconds for the private and around 30 seconds
->>for the shared tests.
->>
+> I'm seeing a double fault on recent (2.6.10-rc1-bk) kernels during
+> driver_init().  The upcall to userspace gets far enough to schedule the
+> work, khelper picks it up, calls kernel_thread, the child thread does
+> execve, then double faults.  Bootup continues, I get three more double
+> faults, then the system appears fine (even w/ continued upcalls).
 > 
-> 
-> I get the exact opposite, on a P4:
-> 
-> vmm:/home/akpm/maptest> time ./mm-sharemmap 
-> ./mm-sharemmap  10.81s user 0.05s system 100% cpu 10.855 total
-> vmm:/home/akpm/maptest> time ./mm-sharemmap
-> ./mm-sharemmap  11.04s user 0.05s system 100% cpu 11.086 total
-> vmm:/home/akpm/maptest> time ./mm-privmmap 
-> ./mm-privmmap  26.91s user 0.02s system 100% cpu 26.903 total
-> vmm:/home/akpm/maptest> time ./mm-privmmap
-> ./mm-privmmap  26.89s user 0.02s system 100% cpu 26.894 total
-> vmm:/home/akpm/maptest> uname -a
-> Linux vmm 2.6.10-rc1-mm1 #14 SMP Tue Oct 26 23:23:23 PDT 2004 i686 i686 i386 GNU/Linux
-> 
-> It's all user time so I can think of no reason apart from physical page
-> allocation order causing additional TLB reloads in one case.  One is using
-> anonymous pages and the other is using shmem-backed pages, although I can't
-> think why that would make a difference.
+> I have an example of the fault below.  It shows a rip and rsp
+> of 0.  I poked about a bit and see that the FAKE_STACK_FRAME $0 in
+> arch/x86-64/kernel/entry.S sets up a 0 rip, and if I change the \rip
+> in that macro call, that's the rip in the double fault.  Any ideas on
+> further debugging?
 
-I think the cause was covered in another post, I'm surprised that the 
-page overhead is reported as user time. It would have been a good hint 
-if the big jump were in system time.
+It looks like do_execve returned with a zero return without
+executing start_thread properly. I would add a printk to 
+all error exits in the execve path and see which one triggers.
 
-Yes, I know some kernel time is charged to the user, I'm just not sure 
-diddling the page tables should be, since it might mask the effect of vm 
-changes, etc.
-
-That's comment not a suggestion.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+-Andi

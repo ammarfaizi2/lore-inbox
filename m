@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129455AbQKLAS4>; Sat, 11 Nov 2000 19:18:56 -0500
+	id <S129121AbQKLAT0>; Sat, 11 Nov 2000 19:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129234AbQKLASq>; Sat, 11 Nov 2000 19:18:46 -0500
-Received: from slc644.modem.xmission.com ([166.70.7.136]:36871 "EHLO
+	id <S129745AbQKLATS>; Sat, 11 Nov 2000 19:19:18 -0500
+Received: from slc644.modem.xmission.com ([166.70.7.136]:37895 "EHLO
 	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129121AbQKLAS3>; Sat, 11 Nov 2000 19:18:29 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S129234AbQKLATH>; Sat, 11 Nov 2000 19:19:07 -0500
+To: Adam Lazur <alazur@progeny.com>
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Q: Linux rebooting directly into linux.
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001109113524.C14133@animx.eu.org> <m1g0kycm0x.fsf@frodo.biederman.org> <8ukaeb$eh6$1@cesium.transmeta.com>
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <3A0ABB0C.99075A61@holly-springs.nc.us> <m1k8aacmvo.fsf@frodo.biederman.org> <20001111174632.A17737@progenylinux.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Nov 2000 17:09:10 -0700
-In-Reply-To: "H. Peter Anvin"'s message of "11 Nov 2000 12:33:15 -0800"
-Message-ID: <m13dgycaqh.fsf@frodo.biederman.org>
+Date: 11 Nov 2000 17:06:49 -0700
+In-Reply-To: Adam Lazur's message of "Sat, 11 Nov 2000 17:46:32 -0500"
+Message-ID: <m17l6acaue.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+Adam Lazur <alazur@progeny.com> writes:
 
-> Followup to:  <m1g0kycm0x.fsf@frodo.biederman.org>
-> By author:    ebiederm@xmission.com (Eric W. Biederman)
-> In newsgroup: linux.dev.kernel
-> > > > 
-> > > > The interface is designed to be simple and inflexible yet very
-> > > > powerful.  To that end the code just takes an elf binary, and a
-> > > > command line.  The started image also takes an environment generated
-> > > > by the kernel of all of the unprobeable hardware details.
-> > > 
-> > > Isn't this what milo does on alpha?
+> Eric W. Biederman (ebiederm@xmission.com) said:
+> > Michael Rothwell <rothwell@holly-springs.nc.us> writes:
+> > > This would rock. One place I can think of using it is with distro
+> > > installers. The installer boots a generic i386 kernel, and then installs
+> > > an optimized (i.e, PIII, etc.) kernel for run-time.
 > > 
-> > Similar milo uses kernel drivers in it's own framework.  
-> > This has proved to be a major maintenance problem.  Milo is nearly
-> > a kernel fork.  
-> > 
-> > The design is for the long term to get this incorporated into the
-> > kernel, and even if not a small kernel patch should be easier to
-> > maintain that a harness for calling kernel drivers.
-> > 
+> > This would rock?  It already does.  Of course the installers need
+> > to actually uses this.
 > 
-> I'm working on something similiar in "Genesis".  It pretty much is (or
-> rather, will be) a kernel *port*, not a fork; the port is such that it
-> can run on top of a simple BIOS extender and thus access the boot
-> media.
+> Actually, along the lines of what Scyld uses two kernel monte for with
+> their Beowulf2 distribution.
+> 
+> They boot a network enabled kernel which pulls a kernel off of a server
+> and then uses two kernel monte to boot with that one.  This allows you
+> to centrally admin your cluster with one server. Good stuff...
 
-Hmm.  You must mean similiar to milo.
+Yep.  You can also do this with etherboot flashed on one a nick card as well.
 
-Have fun.  With linuxBIOS I'm working exactly the other way.  Killing
-off the BIOS.  And letting the initial firmware be just a boot loader.
-The reduction is complexity should make it more reliable.
+I also intend to use my work for this functionality as well.  
+FYI I work for linux networx which builds hardware for linux clusters.
+
+The fact that Scyld is using arp and a fixed network socket is a 
+design decision I don't agree with.   
+
+Truly slick will be when linuxBIOS is solid.  Then you even get remote
+control of the BIOS, and remote booting all from within the BIOS.  Only
+time will tell if it is worth the effort :)
 
 Eric
 

@@ -1,109 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267041AbTBQMdK>; Mon, 17 Feb 2003 07:33:10 -0500
+	id <S267052AbTBQMpQ>; Mon, 17 Feb 2003 07:45:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267042AbTBQMdJ>; Mon, 17 Feb 2003 07:33:09 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:24526 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S267041AbTBQMdI>;
-	Mon, 17 Feb 2003 07:33:08 -0500
-Reply-To: <camber@yakko.cs.wmich.edu>
-From: "Edward Killips" <camber@yakko.cs.wmich.edu>
-To: "Brian Jackson" <brian@mdrx.com>, <linux-kernel@vger.kernel.org>,
-       <davej@codemonkey.org.uk>, <brian@brianandsara.net>
-Subject: RE: 2.5 AGP for 2.4.21-pre4
-Date: Mon, 17 Feb 2003 07:43:05 -0500
-Message-ID: <JJEJKAPBMJAOOFPKFDFKAEDOCEAA.camber@yakko.cs.wmich.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <200302152135.22425.brian@mdrx.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S267059AbTBQMpQ>; Mon, 17 Feb 2003 07:45:16 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:58642 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267052AbTBQMpO>; Mon, 17 Feb 2003 07:45:14 -0500
+Date: Mon, 17 Feb 2003 12:55:04 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Miles Bader <miles@gnu.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  Make sysctl vm subdir dependent on CONFIG_MMU
+Message-ID: <20030217125504.A25066@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miles Bader <miles@gnu.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030217105900.5E2683728@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030217105900.5E2683728@mcspd15.ucom.lsi.nec.co.jp>; from miles@lsi.nec.co.jp on Mon, Feb 17, 2003 at 07:59:00PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 17, 2003 at 07:59:00PM +0900, Miles Bader wrote:
+> diff -ruN -X../cludes linux-2.5.61-uc0.orig/kernel/sysctl.c linux-2.5.61-uc0/kernel/sysctl.c
+> --- linux-2.5.61-uc0.orig/kernel/sysctl.c	2002-12-16 12:53:59.000000000 +0900
+> +++ linux-2.5.61-uc0/kernel/sysctl.c	2003-02-17 19:24:58.000000000 +0900
+> @@ -111,7 +111,9 @@
+>  	{ root_table, LIST_HEAD_INIT(root_table_header.ctl_entry) };
+>  
+>  static ctl_table kern_table[];
+> +#ifdef CONFIG_MMU
+>  static ctl_table vm_table[];
+> +#endif
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-You patch deleted the definitions for the Via chipsets. After I added them
-back the agpgart driver appeared to load correctly. When I try to start X I
-get a black screen and have to shutdown and reboot to get video back. This
-is with an AIW 9700 Pro and a Gigabyte GA-7VAXP KT400 based motherboard .
-
-- -- Edward Killips
-
-- -----Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Brian Jackson
-Sent: Saturday, February 15, 2003 10:35 PM
-To: linux-kernel@vger.kernel.org; davej@codemonkey.org.uk;
-brian@brianandsara.net
-Subject: 2.5 AGP for 2.4.21-pre4
-
-
-This is a poor attempt at a backport of the 2.5.61 AGP subsystem by someone
-who doesn't know what he is doing and is in way over his head. That said,
-are
-there any "brave" souls out there that want to try this out with an AGP3
-card
-and 2.4.21pre4. I compile/boot tested it with an old ati card, but I don't
-have an AGP 3.0 card/MB to test it on. I got into X and ran glxgears using
-this kernel(I am using it to finish writing this email)
-
-http://www.mdrx.com/brian/2.4.21-pre4-2.5agp.diff.gz
-
-caveats:
-agp has to be built in to the kernel (no modules)
-
-I did the following:
-copied the drivers/char/agp directory from 2.5.61
-copied include/asm-*/agp.h from 2.5.61
-copied include/linux/*agp.h from 2.5.61
-made some changes to drivers/char/agp/Makefile
-on line 619&635 of frontend.c changed remap_page_range to only have 4
-	arguments
-line 705 generic.c changed SetPageLocked -->SetPageReserved
-	(not sure if this is right, but Locked doesn't exist in 2.4 and I thought
-	Reserved might work -- Let me know if this should be something else)
-backend.c:241 & backend.c:263 commented references to 2.5 module stuff
-	(therefore this only safe to be built into the kernel for now, any ideas
-what
-	I should use here instead?)
-added some device id's to drivers/char/agp/agp.h from
-	2.5.61/include/linux/pci_ids.h
-uninclude gfp.h & linux/page-flags.h from amd-k7-agp.c
-
-What else I need to do:
-change to old style module init stuff
-
-This is nowhere near suitable for production use, but I would like some
-people
-that actually have AGP3 cards/MB's to try this out
-
-- --Brian Jackson
-
-P.S. All criticism is welcome even flaming since I am in a decent mood right
-now
-
-P.S.S. To Dave Jones -- I thought 2.5 had support for VIA chipsets & AGP3,
-but
-I only saw config options for the 7205/7505
-
-- -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: PGP 8.0
-
-iQA/AwUBPlDY2Xg7wzlNS3haEQLFswCfU0OJLlObv53E0kII4VpQJfQeDNEAoLSz
-0h6O30p+lfi7kjuj28Mv6vpN
-=kwgx
------END PGP SIGNATURE-----
-
+These ifdefs are ugly - please move the whole table into a file that
+isn't compiled when CONFIG_MMU isn't set (e.g. memory.c) and use
+register_sysctl_table()

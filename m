@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVB0WuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVB0Wwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVB0WuN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 17:50:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVB0WuN
+	id S261502AbVB0Wwf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 17:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVB0Wwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 17:50:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:11476 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261501AbVB0WuJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 17:50:09 -0500
-Date: Sun, 27 Feb 2005 14:49:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: zwane@arm.linux.org.uk, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, nathanl@austin.ibm.com
-Subject: Re: [PATCH] PPC64: Generic hotplug cpu support
-Message-Id: <20050227144928.6c71adaf.akpm@osdl.org>
-In-Reply-To: <1109542971.14993.217.camel@gaston>
-References: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
-	<20050227031655.67233bb5.akpm@osdl.org>
-	<1109542971.14993.217.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Feb 2005 17:52:35 -0500
+Received: from alog0110.analogic.com ([208.224.220.125]:33920 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261502AbVB0Wwb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 17:52:31 -0500
+Date: Sun, 27 Feb 2005 17:49:06 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: calling call_usermodehelper from interrupt context
+In-Reply-To: <Pine.LNX.4.60.0502261319130.31181@lantana.cs.iitm.ernet.in>
+Message-ID: <Pine.LNX.4.61.0502271747260.20728@chaos.analogic.com>
+References: <Pine.LNX.4.60.0502261319130.31181@lantana.cs.iitm.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Sat, 26 Feb 2005, Payasam Manohar wrote:
+
 >
-> > -		if (cpu_is_offline(smp_processor_id()) &&
->  > +		if (cpu_is_offline(_smp_processor_id()) &&
->  >  		    system_state == SYSTEM_RUNNING)
->  >  			cpu_die();
->  >  	}
->  > _
-> 
->  This is the idle loop. Is that ever supposed to be preempted ?
+> hai all,
+>    Is it possible to call call_usermodehelper from interrupt context.
 
-Nope, it's a false positive.  We had to do the same in x86's idle loop and
-probably others will hit it.
+Of course not! I've seen this message before. Either it's a joke
+or you have no clue about what interrupts are.
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

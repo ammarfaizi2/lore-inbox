@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135249AbRECVtn>; Thu, 3 May 2001 17:49:43 -0400
+	id <S135251AbRECVxm>; Thu, 3 May 2001 17:53:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135251AbRECVtd>; Thu, 3 May 2001 17:49:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40713 "EHLO
+	id <S135263AbRECVxc>; Thu, 3 May 2001 17:53:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43017 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135249AbRECVtY>; Thu, 3 May 2001 17:49:24 -0400
-Subject: Re: [RFC] Direct Sockets Support??
-To: Venkateshr@ami.com (Venkatesh Ramamurthy)
-Date: Thu, 3 May 2001 22:52:43 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), pollard@tomcat.admin.navo.hpc.mil,
-        Venkateshr@ami.com (Venkatesh Ramamurthy),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9DECE@ATL_MS1> from "Venkatesh Ramamurthy" at May 03, 2001 04:40:31 PM
+	id <S135251AbRECVx0>; Thu, 3 May 2001 17:53:26 -0400
+Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
+To: hugh@veritas.com (Hugh Dickins)
+Date: Thu, 3 May 2001 22:56:27 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), brownfld@irridia.com (Ken Brownfield),
+        macro@ds2.pg.gda.pl (Maciej W. Rozycki), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105032206260.3039-100000@localhost.localdomain> from "Hugh Dickins" at May 03, 2001 10:24:42 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14vR1g-0006HT-00@the-village.bc.nu>
+Message-Id: <E14vR5J-0006Hn-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Thats exactly my point, we need to define a new protocol family to
-> support it. This means that all applications using PF_INET needs to be
-> changed and recompiled. My basic argument goes like this if hardware can
+> Got good reviews at the time, and I thought it was more general than
+> ne2k.  I don't remember it going forward to Linus (but I've not looked).
 
-Thanks to the magic of shared libraries and LD_PRELOAD a library hook can
-actually make the decision underneath the application
+ne2k is the big one it shows up on. Its on my for Linus list in the next few
+pushes of stuff.

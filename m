@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSFOK5V>; Sat, 15 Jun 2002 06:57:21 -0400
+	id <S315265AbSFOK5N>; Sat, 15 Jun 2002 06:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSFOK5U>; Sat, 15 Jun 2002 06:57:20 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:29960 "EHLO
+	id <S315266AbSFOK5M>; Sat, 15 Jun 2002 06:57:12 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:28936 "EHLO
 	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S315266AbSFOK5R>; Sat, 15 Jun 2002 06:57:17 -0400
-Date: Sat, 15 Jun 2002 12:30:16 +0200
+	id <S315265AbSFOK5L>; Sat, 15 Jun 2002 06:57:11 -0400
+Date: Sat, 15 Jun 2002 10:25:41 +0200
 From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Roberto Fichera <kernel@tekno-soft.it>
-Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: Developing multi-threading applications
-Message-ID: <20020615123016.M22429@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <5.1.1.6.0.20020613171707.03f09720@mail.tekno-soft.it> <20020614205601.AAA9369@shell.webmaster.com@whenever> <5.1.1.6.0.20020615104206.05291720@mail.tekno-soft.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.20 - Xircom PCI Cardbus doesn't work
+Message-ID: <20020615102541.L22429@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3D0A449C.5030304@mandrakesoft.com> <Pine.LNX.4.44.0206141803260.31514-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,37 +19,31 @@ User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 15, 2002 at 11:01:44AM +0200, Roberto Fichera wrote:
-> >         Even if that's true, and it's often not, how many different types 
-> > of data
-> >acquisition can you have? Ten? Twenty? That's a far cry from 300.
-> 
-> Currently are 190! Always active are ~110! So thinking by separating I/O from
-> the computation we double the threads.
+Hi,
 
-So basically you are just traversing your data depedency graph
-wrongly. Do a level order traversion if it is a dependency forest
-or an breadth first traversion if not.
+On Fri, Jun 14, 2002 at 06:25:15PM -0500, Kai Germaschewski wrote:
+> We only request the regions we're going to use, so the others may even 
+> stay unassigned and disabled.
+[...]
+> These functions return directly what we need: an address for 
+> in/out[bwl], a cookie for read/write[bwl] - well, and the irq
+> which however is only for informational purposes.
 
-If this node require IO -> schedule the IO and return back to the upper
-level noticing it, that you like to be woken, if the IO is
-finished.
+I like it! 
 
-If this node require Computation -> do it, if this CPU is the one with
-lowest load, else schedule it for the CPU with lowest load.
+This also allows us to remove the anal checking & cleanup
+duplicated in each and every driver to be removed.
 
-Continue with next node.
+So your solution will save lots of code at least in all PCI-only
+drivers.
 
-(load is meant "number of compuations with same metric scheduled
-on this thread")
+I even wrote my own routine that does exactly that, to save the code.
 
-Use only one thread per CPU. Try to make the IO-Waiting as unique
-as possible (poll would be perfect).
+Some people can not use pci_enable_resources(), because sometimes
+one of the resources is a PCI-Interface chip, that has a
+different driver, which enabled one resource already itself.
 
-
-So this is all doable, once you analyze your data dependency
-graph properly and make the simulation data driven (which it
-usally is).
+So splitting this out alone is already a win.
 
 Regards
 

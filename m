@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbTDRVBF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 17:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTDRVBF
+	id S263243AbTDRVAX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 17:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTDRVAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 17:01:05 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19986
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263250AbTDRVBB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 17:01:01 -0400
-Subject: mknod64(1)
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com
-Content-Type: text/plain
-Message-Id: <1050700383.745.48.camel@localhost>
+	Fri, 18 Apr 2003 17:00:23 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:233 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S263243AbTDRVAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 17:00:22 -0400
+Date: Fri, 18 Apr 2003 22:11:47 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: My P3 runs at.... zero Mhz (bug rpt)
+Message-ID: <20030418211147.GA1225@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jurriaan <thunder7@xs4all.nl>, Jeff Garzik <jgarzik@pobox.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <3E9F5EAD.2070006@pobox.com> <20030418044454.GA5349@middle.of.nowhere>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
-Date: 18 Apr 2003 17:13:03 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030418044454.GA5349@middle.of.nowhere>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So I wrote a mknod64(1) tool, so we can play with 64-bit device
-numbers.  It is available at:
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/mknod64
-
-for testing.  And that is really its whole purpose because I see no
-reason why the mknod in coreutils will not eventually support
-mknod64(2).
-
-But for now this version works and supports the 64-bit dev_t with a
-32:32 split.  It is also identical in functionality to mknod(1), except
-it does not support an initial mode other than the default (i.e., no
---mode option).
-
-Installation is simple but RPM packages are also available.
-
-Usage is the same as mknod, except you may specify a 32-bit value for
-the major and the minor device number.
-
-This currently requires 2.5.67-mm4, but I suspect the 64-bit dev_t work
-will eventually make its way into Linus's tree.
-
-Note that most utilities cannot see the 64-bit device numbers, i.e.
-ls(1) only displays 8-bits of each.  You can do a homemade stat64() or
-just trust the code.
-
-With the above kernel and this utility, you can play with 64-bit device
-numbers.  Enjoy.
-
-	Robert Love
+On Fri, Apr 18, 2003 at 06:44:54AM +0200, Jurriaan wrote:
+ > From: Jeff Garzik <jgarzik@pobox.com>
+ > Date: Thu, Apr 17, 2003 at 10:10:53PM -0400
+ > > Just booted into 2.5.67-BK-latest (plus my __builtin_memcpy patch). 
+ > > Everything seems to be running just fine, so naturally one must nitpick 
+ > > little things like being told my CPU is running at 0.000 Mhz.  :)
+ > > 
+ > fwiw, my Athlon XP2400 does the same in 2.5.67-ac1:
+ > 
+ > processor	: 0
+ > vendor_id	: AuthenticAMD
+ > cpu family	: 6
+ > model		: 8
+ > model name	: AMD Athlon(tm) XP 2400+
+ > stepping	: 1
+ > cpu MHz		: 0.000
+ > cache size	: 256 KB
+ > bogomips	: 1970.17
 
 
+Curious. Do either of you have any cpufreq bits enabled?
+If so, does it go away if you disable them?
+That frobs with cpu_khz, so it *could* be not initialising
+it someplace.  Especially if your hardware turns out to be
+unsupported by any of the cpufreq backend drivers..
+
+		Dave

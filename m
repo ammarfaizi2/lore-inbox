@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261747AbSJMU1t>; Sun, 13 Oct 2002 16:27:49 -0400
+	id <S261748AbSJMU3N>; Sun, 13 Oct 2002 16:29:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261746AbSJMU1s>; Sun, 13 Oct 2002 16:27:48 -0400
-Received: from f213.law8.hotmail.com ([216.33.241.213]:9476 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261747AbSJMU1q>;
-	Sun, 13 Oct 2002 16:27:46 -0400
-X-Originating-IP: [24.44.249.150]
-From: "sean darcy" <seandarcy@hotmail.com>
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT400 & VT8235 support
-Date: Sun, 13 Oct 2002 16:33:33 -0400
+	id <S261739AbSJMU3M>; Sun, 13 Oct 2002 16:29:12 -0400
+Received: from holomorphy.com ([66.224.33.161]:9355 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261748AbSJMU2U>;
+	Sun, 13 Oct 2002 16:28:20 -0400
+Date: Sun, 13 Oct 2002 13:29:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: riel@surriel.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.42-mm2
+Message-ID: <20021013202926.GD27878@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, riel@surriel.com,
+	linux-kernel@vger.kernel.org
+References: <3DA7C3A5.98FCC13E@digeo.com> <20021013101949.GB2032@holomorphy.com> <3DA9B1A7.A747ADD6@digeo.com> <20021013195236.GC27878@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F21342AEykwwgjUwkbz000172d1@hotmail.com>
-X-OriginalArrivalTime: 13 Oct 2002 20:33:33.0374 (UTC) FILETIME=[CC87DDE0:01C272F7]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021013195236.GC27878@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 13, 2002 at 12:52:36PM -0700, William Lee Irwin III wrote:
+> (2) The logs still show the show_free_areas() call immediately after
+> 	free_all_bootmem_core() seeing the garbage ->reserved values.
+
+Disregard this. I reread the logs too early in the morning.
 
 
-
->From: Vojtech Pavlik <vojtech@suse.cz>
-.............
->
->On Sat, Oct 12, 2002 at 04:40:15PM -0400, sean darcy wrote:
->
-> > Before spending money on a new VIA motherboard with the KT400 and VT8235
-> > south bridge, I'd like to know if they're supported in 2.4 and 2.5. Are
-> > they?
->
->2.5 supports it, 2.4 needs a patch.
->
->--
->Vojtech Pavlik
->SuSE Labs
-
-
-Well, sort of. I actually found someone who had one. Booted up 2.5.42. 
-Everything seems to work except agpgart:
-
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Unsupported Via chipset (device id: 3189), you might want to try 
-agp_try_unsupported=1.
-agpgart: no supported devices found.
-
-Is there a patch for 2.4? In one of the pre's?
-
-thanks
-jay
-
-
-
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
-
+Bill

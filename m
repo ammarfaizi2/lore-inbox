@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310515AbSCVVTF>; Fri, 22 Mar 2002 16:19:05 -0500
+	id <S312826AbSCVVVf>; Fri, 22 Mar 2002 16:21:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312844AbSCVVSz>; Fri, 22 Mar 2002 16:18:55 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:27532 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S310515AbSCVVSw>;
-	Fri, 22 Mar 2002 16:18:52 -0500
-Date: Fri, 22 Mar 2002 23:18:51 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ORBZ is dead, don't use it...
-Message-ID: <20020322231851.C27741@mea-ext.zmailer.org>
-In-Reply-To: <20020322225305.B27741@mea-ext.zmailer.org> <Pine.LNX.4.44.0203221303400.1434-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S312844AbSCVVV0>; Fri, 22 Mar 2002 16:21:26 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:60552 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S312826AbSCVVVQ>; Fri, 22 Mar 2002 16:21:16 -0500
+Date: Fri, 22 Mar 2002 16:20:31 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: walt <walt@nea-fast.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: printing from command line
+In-Reply-To: <3C9B9129.8F8D64C9@nea-fast.com>
+Message-ID: <Pine.LNX.4.44.0203221619480.25003-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 22, 2002 at 01:05:39PM -0800, Davide Libenzi wrote:
-> On Fri, 22 Mar 2002, Matti Aarnio wrote:
-....
-> >   I see both DNS lookup timeouts, and SERVFAIL returns.
-> >   In my books neither should lead to rejection, but
-> >   a) others may have better wisdom that I have,
-> >   b) some popular software are known to be unable to
-> >      separate any sort of temporary failures (timeouts
-> >      at DNS lookup) from real things (actual DNS-RBL)
-> 
-> Only positive lookups should lead to rejection, IMHO. Timeouts & Co.
-> should default to acception.
 
-  Teach sendmail to differentiate the cases...
-  (and qmail, and ...)
+	Hello Walt , man a2ps .  Give that a try or if not found give the
+	net a search on it .  Hth ,  JimL
 
-> - Davide
+On Fri, 22 Mar 2002, walt wrote:
 
-/Matti Aarnio
+> This is a general linux question, not really a kernel question. Does
+> anyone know if there is a "simple" good way to print code from linux at
+> the command promt.  On a Solaris machine,
+> /usr/openwin/bin/mp -o -l filename
+> gives me a page with 2 columuns, user_name, date, and pagenumber at the
+> top of each column, and the filename at the bottom of each column. I've
+> read  lots of howtos and man pages, even wrote a perl script to wrap the
+> lines for me, but I haven't figured out how to get the same format from
+> Linux as I do from Solaris.
+>
+> Thanks!
+>
+> --
+> Walter Anthony
+> System Administrator
+> National Electronic Attachment
+> "If it's not broke....tweak it"
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

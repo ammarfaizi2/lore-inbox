@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265828AbSKFRI0>; Wed, 6 Nov 2002 12:08:26 -0500
+	id <S265840AbSKFRFF>; Wed, 6 Nov 2002 12:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265839AbSKFRI0>; Wed, 6 Nov 2002 12:08:26 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:2576 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S265828AbSKFRIZ>; Wed, 6 Nov 2002 12:08:25 -0500
-Date: Wed, 6 Nov 2002 12:16:36 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: linux-kernel@vger.kernel.org
-Subject: Compile errors with devicemapper/2.5.46
-Message-ID: <Pine.LNX.4.44.0211061210200.26467-100000@ibm-ps850.purdueriots.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265841AbSKFRFE>; Wed, 6 Nov 2002 12:05:04 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:29887 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265840AbSKFRFE>;
+	Wed, 6 Nov 2002 12:05:04 -0500
+Date: Wed, 6 Nov 2002 17:10:42 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: vasya vasyaev <vasya197@yahoo.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Machine's high load when HIGHMEM is enabled
+Message-ID: <20021106171042.GA11614@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andrew Morton <akpm@digeo.com>, vasya vasyaev <vasya197@yahoo.com>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>,
+	linux-kernel@vger.kernel.org
+References: <F2DBA543B89AD51184B600508B68D4000F2ED497@fmsmsx103.fm.intel.com> <20021106101445.42142.qmail@web20502.mail.yahoo.com> <3DC94885.AD5B8A3B@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC94885.AD5B8A3B@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try compiling the devicemapper as a module in 2.5.46, I get the
-following error:
+On Wed, Nov 06, 2002 at 08:51:17AM -0800, Andrew Morton wrote:
+ > For some reason your mtrr table was not covering the last 32 megabytes
+ > of memory.  Probably you could also have fixed this by altering the
+ > mtrr settings.  See Documentation/mtrr.txt in the kernel source tree.
 
-------------------------------------------------------------
-make -f scripts/Makefile.build obj=drivers/md
-  gcc-3.2 -Wp,-MD,drivers/md/.dm-ioctl.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DMODULE   -DKBUILD_BASENAME=dm_ioctl   -c -o drivers/md/dm-ioctl.o
-drivers/md/dm-ioctl.c
-drivers/md/dm-ioctl.c: In function `create':
-drivers/md/dm-ioctl.c:588: incompatible type for argument 1 of
-`set_device_ro'
-drivers/md/dm-ioctl.c: In function `reload':
-drivers/md/dm-ioctl.c:874: incompatible type for argument 1 of
-`set_device_ro'
-make[2]: *** [drivers/md/dm-ioctl.o] Error 1
-make[1]: *** [drivers/md] Error 2
-make: *** [drivers] Error 2
-------------------------------------------------------------
+I've seen this happen on systems with onboard graphics cards
+that share system RAM as video RAM. The end result is that Linux
+sees an amount of mem that isn't a power of two.
 
-I've tried with gcc 2.95.4, and have the same error, so I'm fairly sure
-it's not gcc.
+In extreme cases, the BIOS has done really mad things like
+instead of covering the 1GB with 1 MTRR, it splits it into
+7 MTRRs covering 512MB,256MB,128MB,64MB,32MB,16MB,8MB.
+Icky.
 
-Here's the relevant part of .config:
+		Dave
 
-------------------------------------------------------------
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=m
-CONFIG_MD_LINEAR=m
-CONFIG_MD_RAID0=m
-CONFIG_MD_RAID1=m
-CONFIG_MD_RAID5=m
-# CONFIG_MD_MULTIPATH is not set
-CONFIG_BLK_DEV_DM=m
-------------------------------------------------------------
-
-My entire .config file is up at:
-http://purdueriots.com/linux-2.5.46.config
-
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
-
-http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,115 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286462AbSBKChX>; Sun, 10 Feb 2002 21:37:23 -0500
+	id <S286447AbSBKChy>; Sun, 10 Feb 2002 21:37:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286447AbSBKChO>; Sun, 10 Feb 2002 21:37:14 -0500
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:48901 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S286411AbSBKChG>;
-	Sun, 10 Feb 2002 21:37:06 -0500
-Date: Sun, 10 Feb 2002 21:37:02 -0500 (EST)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH-2.4] 2nd try, drivers/char/pcwd.c
-Message-ID: <Pine.LNX.4.33.0202102135540.26027-100000@pita.lan>
+	id <S286647AbSBKChf>; Sun, 10 Feb 2002 21:37:35 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:28164
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S286411AbSBKChW>; Sun, 10 Feb 2002 21:37:22 -0500
+Date: Sun, 10 Feb 2002 21:38:32 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH *] rmap based VM 12e
+In-Reply-To: <Pine.LNX.4.33L.0202110012460.12554-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.40.0202102138060.1295-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, after screwing up the first time, and corresponding with Alan, here's
-a version of the patch that should actually do something (thanks, Alan!).
 
-Regards,
-Rob Radez
+Giving this a shot shortly. Will report results.
 
-diff -ruN linux-2.4.18-pre9-old/drivers/char/pcwd.c linux-2.4.18-pre9-new/drivers/char/pcwd.c
---- linux-2.4.18-pre9-old/drivers/char/pcwd.c	Sun Feb 10 18:44:53 2002
-+++ linux-2.4.18-pre9-new/drivers/char/pcwd.c	Sun Feb 10 20:53:49 2002
-@@ -40,6 +40,8 @@
-  *		fairly useless proc entry.
-  * 990610	removed said useless proc code for the merge <alan>
-  * 000403	Removed last traces of proc code. <davej>
-+ * 020210	Backported 2.5 open_allowed changes, and got rid of a useless
-+ *		variable <rob@osinvestor.com>
-  */
+Shawn.
 
- #include <linux/module.h>
-@@ -100,7 +102,8 @@
- #define WD_SRLY2                0x80	/* Software external relay triggered */
+On Mon, 11 Feb 2002, Rik van Riel wrote:
 
- static int current_readport, revision, temp_panic;
--static int is_open, initial_status, supports_temp, mode_debug;
-+static atomic_t open_allowed = ATOMIC_INIT(1);
-+static int initial_status, supports_temp, mode_debug;
- static spinlock_t io_lock;
-
- /*
-@@ -237,7 +240,7 @@
- static int pcwd_ioctl(struct inode *inode, struct file *file,
- 		      unsigned int cmd, unsigned long arg)
- {
--	int i, cdat, rv;
-+	int cdat, rv;
- 	static struct watchdog_info ident=
- 	{
- 		WDIOF_OVERHEAT|WDIOF_CARDRESET,
-@@ -250,8 +253,9 @@
- 		return -ENOTTY;
-
- 	case WDIOC_GETSUPPORT:
--		i = copy_to_user((void*)arg, &ident, sizeof(ident));
--		return i ? -EFAULT : 0;
-+		if(copy_to_user((void*)arg, &ident, sizeof(ident)))
-+			return -EFAULT;
-+		return 0;
-
- 	case WDIOC_GETSTATUS:
- 		spin_lock(&io_lock);
-@@ -402,8 +406,10 @@
-         switch (MINOR(ino->i_rdev))
-         {
-                 case WATCHDOG_MINOR:
--                    if (is_open)
-+                    if (!atomic_dec_and_test(&open_allowed)){
-+                        atomic_inc(&open_allowed);
-                         return -EBUSY;
-+                    }
-                     MOD_INC_USE_COUNT;
-                     /*  Enable the port  */
-                     if (revision == PCWD_REVISION_C)
-@@ -412,7 +418,6 @@
-                     	outb_p(0x00, current_readport + 3);
-                     	spin_unlock(&io_lock);
-                     }
--                    is_open = 1;
-                     return(0);
-                 case TEMP_MINOR:
-                     return(0);
-@@ -452,8 +457,6 @@
- {
- 	if (MINOR(ino->i_rdev)==WATCHDOG_MINOR)
- 	{
--		lock_kernel();
--	        is_open = 0;
- #ifndef CONFIG_WATCHDOG_NOWAYOUT
- 		/*  Disable the board  */
- 		if (revision == PCWD_REVISION_C) {
-@@ -463,7 +466,7 @@
- 			spin_unlock(&io_lock);
- 		}
- #endif
--		unlock_kernel();
-+		atomic_inc(&open_allowed);
- 	}
- 	return 0;
- }
-@@ -574,7 +577,6 @@
- 	printk("pcwd: v%s Ken Hollis (kenji@bitgate.com)\n", WD_VER);
-
- 	/* Initial variables */
--	is_open = 0;
- 	supports_temp = 0;
- 	mode_debug = 0;
- 	temp_panic = 0;
+> Both RSS limits and page aging seem to work now, please test.
+>
+> The fifth maintenance release of the 12th version of the reverse
+> mapping based VM is now available.
+> This is an attempt at making a more robust and flexible VM
+> subsystem, while cleaning up a lot of code at the same time.
+> The patch is available from:
+>
+>            http://surriel.com/patches/2.4/2.4.17-rmap-12e
+> and        http://linuxvm.bkbits.net/
+>
+>
+> My big TODO items for a next release are:
+>   - auto-tuning readahead, readahead per VMA
+>   - fix starvation issue in get_request_wait()
+>
+> rmap 12e
+>   - RSS limit fix, the limit can be 0 for some reason     (me)
+>   - clean up for_each_zone define to not need pgdata_t    (William Lee Irwin)
+>   - fix i810_dma bug introduced with page->wait removal   (William Lee Irwin)
+> rmap 12d:
+>   - fix compiler warning in rmap.c                        (Roger Larsson)
+>   - read latency improvement   (read-latency2)            (Andrew Morton)
+> rmap 12c:
+>   - fix small balancing bug in page_launder_zone          (Nick Piggin)
+>   - wakeup_kswapd / wakeup_memwaiters code fix            (Arjan van de Ven)
+>   - improve RSS limit enforcement                         (me)
+> rmap 12b:
+>   - highmem emulation (for debugging purposes)            (Andrea Arcangeli)
+>   - ulimit RSS enforcement when memory gets tight         (me)
+>   - sparc64 page->virtual quickfix                        (Greg Procunier)
+> rmap 12a:
+>   - fix the compile warning in buffer.c                   (me)
+>   - fix divide-by-zero on highmem initialisation  DOH!    (me)
+>   - remove the pgd quicklist (suspicious ...)             (DaveM, me)
+> rmap 12:
+>   - keep some extra free memory on large machines         (Arjan van de Ven, me)
+>   - higher-order allocation bugfix                        (Adrian Drzewiecki)
+>   - nr_free_buffer_pages() returns inactive + free mem    (me)
+>   - pages from unused objects directly to inactive_clean  (me)
+>   - use fast pte quicklists on non-pae machines           (Andrea Arcangeli)
+>   - remove sleep_on from wakeup_kswapd                    (Arjan van de Ven)
+>   - page waitqueue cleanup                                (Christoph Hellwig)
+> rmap 11c:
+>   - oom_kill race locking fix                             (Andres Salomon)
+>   - elevator improvement                                  (Andrew Morton)
+>   - dirty buffer writeout speedup (hopefully ;))          (me)
+>   - small documentation updates                           (me)
+>   - page_launder() never does synchronous IO, kswapd
+>     and the processes calling it sleep on higher level    (me)
+>   - deadlock fix in touch_page()                          (me)
+> rmap 11b:
+>   - added low latency reschedule points in vmscan.c       (me)
+>   - make i810_dma.c include mm_inline.h too               (William Lee Irwin)
+>   - wake up kswapd sleeper tasks on OOM kill so the
+>     killed task can continue on its way out               (me)
+>   - tune page allocation sleep point a little             (me)
+> rmap 11a:
+>   - don't let refill_inactive() progress count for OOM    (me)
+>   - after an OOM kill, wait 5 seconds for the next kill   (me)
+>   - agpgart_be fix for hashed waitqueues                  (William Lee Irwin)
+> rmap 11:
+>   - fix stupid logic inversion bug in wakeup_kswapd()     (Andrew Morton)
+>   - fix it again in the morning                           (me)
+>   - add #ifdef BROKEN_PPC_PTE_ALLOC_ONE to rmap.h, it
+>     seems PPC calls pte_alloc() before mem_map[] init     (me)
+>   - disable the debugging code in rmap.c ... the code
+>     is working and people are running benchmarks          (me)
+>   - let the slab cache shrink functions return a value
+>     to help prevent early OOM killing                     (Ed Tomlinson)
+>   - also, don't call the OOM code if we have enough
+>     free pages                                            (me)
+>   - move the call to lru_cache_del into __free_pages_ok   (Ben LaHaise)
+>   - replace the per-page waitqueue with a hashed
+>     waitqueue, reduces size of struct page from 64
+>     bytes to 52 bytes (48 bytes on non-highmem machines)  (William Lee Irwin)
+> rmap 10:
+>   - fix the livelock for real (yeah right), turned out
+>     to be a stupid bug in page_launder_zone()             (me)
+>   - to make sure the VM subsystem doesn't monopolise
+>     the CPU, let kswapd and some apps sleep a bit under
+>     heavy stress situations                               (me)
+>   - let __GFP_HIGH allocations dig a little bit deeper
+>     into the free page pool, the SCSI layer seems fragile (me)
+> rmap 9:
+>   - improve comments all over the place                   (Michael Cohen)
+>   - don't panic if page_remove_rmap() cannot find the
+>     rmap in question, it's possible that the memory was
+>     PG_reserved and belonging to a driver, but the driver
+>     exited and cleared the PG_reserved bit                (me)
+>   - fix the VM livelock by replacing > by >= in a few
+>     critical places in the pageout code                   (me)
+>   - treat the reclaiming of an inactive_clean page like
+>     allocating a new page, calling try_to_free_pages()
+>     and/or fixup_freespace() if required                  (me)
+>   - when low on memory, don't make things worse by
+>     doing swapin_readahead                                (me)
+> rmap 8:
+>   - add ANY_ZONE to the balancing functions to improve
+>     kswapd's balancing a bit                              (me)
+>   - regularize some of the maximum loop bounds in
+>     vmscan.c for cosmetic purposes                        (William Lee Irwin)
+>   - move page_address() to architecture-independent
+>     code, now the removal of page->virtual is portable    (William Lee Irwin)
+>   - speed up free_area_init_core() by doing a single
+>     pass over the pages and not using atomic ops          (William Lee Irwin)
+>   - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
+> rmap 7:
+>   - clean up and document vmscan.c                        (me)
+>   - reduce size of page struct, part one                  (William Lee Irwin)
+>   - add rmap.h for other archs (untested, not for ARM)    (me)
+> rmap 6:
+>   - make the active and inactive_dirty list per zone,
+>     this is finally possible because we can free pages
+>     based on their physical address                       (William Lee Irwin)
+>   - cleaned up William's code a bit                       (me)
+>   - turn some defines into inlines and move those to
+>     mm_inline.h (the includes are a mess ...)             (me)
+>   - improve the VM balancing a bit                        (me)
+>   - add back inactive_target to /proc/meminfo             (me)
+> rmap 5:
+>   - fixed recursive buglet, introduced by directly
+>     editing the patch for making rmap 4 ;)))              (me)
+> rmap 4:
+>   - look at the referenced bits in page tables            (me)
+> rmap 3:
+>   - forgot one FASTCALL definition                        (me)
+> rmap 2:
+>   - teach try_to_unmap_one() about mremap()               (me)
+>   - don't assign swap space to pages with buffers         (me)
+>   - make the rmap.c functions FASTCALL / inline           (me)
+> rmap 1:
+>   - fix the swap leak in rmap 0                           (Dave McCracken)
+> rmap 0:
+>   - port of reverse mapping VM to 2.4.16                  (me)
+>
+> Rik
+> --
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+>
+> http://www.surriel.com/		http://distro.conectiva.com/
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

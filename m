@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUEZUvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265796AbUEZUuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUEZUvF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 16:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUEZUvF
+	id S265796AbUEZUuh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 16:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265798AbUEZUuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 16:51:05 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:32991 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265795AbUEZUvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 16:51:00 -0400
-Date: Wed, 26 May 2004 16:52:06 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, Ingo Molnar <mingo@elte.hu>,
-       lkml <linux-kernel@vger.kernel.org>, zwane@linuxpower.ca
-Subject: RE: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
-In-Reply-To: <7F740D512C7C1046AB53446D372001730182B346@scsmsx402.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.58.0405261641510.1794@montezuma.fsmlabs.com>
-References: <7F740D512C7C1046AB53446D372001730182B346@scsmsx402.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 May 2004 16:50:37 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:1220 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265796AbUEZUu3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 16:50:29 -0400
+Date: Wed, 26 May 2004 22:47:30 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: r8169 backport for 2.4.27-pre3 (was: Re: nforce2 keeps crashing with 2.4.27pre3)
+Message-ID: <20040526224730.A7569@electric-eye.fr.zoreil.com>
+References: <200405261756.35333.cleanerx@au.hadiko.de> <40B4C4D4.8070100@pobox.com> <20040526191619.B6244@electric-eye.fr.zoreil.com> <40B4D243.5030500@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40B4D243.5030500@pobox.com>; from jgarzik@pobox.com on Wed, May 26, 2004 at 01:22:11PM -0400
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 May 2004, Nakajima, Jun wrote:
+Jeff Garzik <jgarzik@pobox.com> :
+[...]
+> I prefer to have the 2.4 and 2.6 drivers as close as possible to each 
+> other, to reduce the maintenance burden.
+> 
+> If the mainline r8169.c looks stable, then I would take that source and 
+> backport it to 2.4.x.
 
-> >Anyone have any idea why this is happening?
-> >
-> Does this happen when you run the kernel on top of VMWare, as far as I
-> understand? If so, it is likely that VMWare is not simulating the
-> behavior of cpuid regarding HT support (especially, mapping between
-> logical and processor package). Then, you should get the same result
-> even when you run 2.6.6 kernel. Do you have dmesg output from some older
-> kernel or 2.6.6?
+Imho 2.6.6 seems a good candidate:
+- most of it has been fixed/tested for a few months before it was integrated;
+- to my surprize, it did not trigger a storm of bug reports after its
+  integration;
+- its late features have no strong equivalent in 2.4 and even if _less_
+  tested, they have been tested and are isolated/simple (knock on wood).
+- the previous 2.4.x backport which were based on the same tree seemed sane.
 
-It's a vmware thing as far as i know, it just runs the cpuid from the host
-and will therefore report what it finds there, but then the kernel gets
-confused when it finds that it really doesn't have a sibling processor.
-The crash on boot is just a side effect of the new sched domains code
-which depends more on this information.
+I have made a single patch for it against 2.4.27-pre3:
+http://www.fr.zoreil.com/people/francois/misc/20040526-2.4.27-pre3-r8169.c-stable.patch
+
+The relevant serie of patches is available at:
+http://www.fr.zoreil.com/linux/kernel/2.4.x/2.4.27-pre3-a
+
+rsync does not crash, it survives link removal, packet storm and so (though
+it will complain from excess work in interrupt context as the patch does not
+include napi nor latest link/ethtool goodies). So I hope nothing trivially
+broken went in.
+
+When you want this serie submitted by mail, just ask.
+
+--
+Ueimor 

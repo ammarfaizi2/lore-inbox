@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265320AbUBFNVS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 08:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUBFNVS
+	id S265436AbUBFNUx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 08:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUBFNUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 08:21:18 -0500
-Received: from smtp.freestart.hu ([213.197.64.6]:48908 "EHLO
-	relay.freestart.hu") by vger.kernel.org with ESMTP id S265320AbUBFNVO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 08:21:14 -0500
-Date: Fri, 6 Feb 2004 13:53:40 +0100 (CET)
-From: "Peter S. Mazinger" <ps.m@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: BUG in 2.4.25-rc1: attempt to access beyond end of device
-Message-ID: <Pine.LNX.4.44.0402061347160.27376-100000@lnx.bridge.intra>
+	Fri, 6 Feb 2004 08:20:53 -0500
+Received: from pop.gmx.net ([213.165.64.20]:50886 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265431AbUBFNUw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 08:20:52 -0500
+X-Authenticated: #4512188
+Message-ID: <402394AB.5070705@gmx.de>
+Date: Fri, 06 Feb 2004 14:20:43 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-freestart-banner: Yes
+To: Craig Bradney <cbradney@zip.com.au>
+CC: Daniel Drake <dan@reactivated.net>,
+       =?ISO-8859-1?Q?Luis_Miguel_Ga?= =?ISO-8859-1?Q?rc=EDa?= 
+	<ktech@wanadoo.es>,
+       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org,
+       a.verweij@student.tudelft.nl
+Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
+References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org>	 <1076026496.16107.23.camel@athlonxp.bradney.info>	 <4022DE3C.1080905@wanadoo.es> <4022E209.3040909@gmx.de>	 <4022E3C8.4020704@wanadoo.es>  <4022E69B.5070606@gmx.de>	 <1076029281.23586.36.camel@athlonxp.bradney.info> <40235DBA.4030408@gmx.de>	 <1076062051.16107.49.camel@athlonxp.bradney.info> <40236F06.5050103@gmx.de>	 <40236207.7050104@reactivated.net> <402374B0.8080907@gmx.de>	 <40237765.6080602@gmx.de> <1076071864.1036.3.camel@athlonxp.bradney.info>
+In-Reply-To: <1076071864.1036.3.camel@athlonxp.bradney.info>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>>OK, I appended apic_tack=2 and yes, it survives several hdparms! Great, 
+>>so gonna try if it is really stable.Then I can try =1. CPU cooling down. 
+>>Already at 46°C. :-)
+>>
+>>Not bad,not bad, though I saw a small performace degration: hdparm gives 
+>>me 60-61mb/s instead of >62mb/s, but I won't complain. :-)
+>>
+> 
+> 
+> Ahh yes.. missing the kernel line argument will make a difference. I'm
+> running apic_tack=2 as well. From what I remember =2 was the "better"
+> patch option if it made your system stable.
 
-my hardware:
-x86
-ide controller (builtin driver)
-ext3 partitions (as modules loaded from initrd)
+Yes, you're right. So far 2 seems to be pretty stable.Nice. :-)
 
-if I shutdown -h now the computer, I get as last messages:
-attempt to access beyond end of device
-03:03 rw=0, want=1044228, limit=1044225
-(3 times, 03:03/want/limit with other numbers), for all mounted
-(remounted ro) partitions
-
-distro: RedHat 7.3 (with all updates up to december)
-kernel is pristine: only 2.4.25-rc1 applied (EXPERIMENTAL code disabled)
-util-linux: 2.11n-12.7.3 (used umount, if it matters)
-
-Peter
-
--- 
-Peter S. Mazinger <ps dot m at gmx dot net>           ID: 0xA5F059F2
-Key fingerprint = 92A4 31E1 56BC 3D5A 2D08  BB6E C389 975E A5F0 59F2
-
-
-____________________________________________________________________
-Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
-Probald ki most! http://www.freestart.hu
+Prakash

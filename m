@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVC2M3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVC2Mbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbVC2M3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 07:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVC2M27
+	id S262234AbVC2Mbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 07:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVC2Mbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 07:28:59 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20362 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262262AbVC2M0j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 07:26:39 -0500
-Date: Tue, 29 Mar 2005 14:26:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Rankin <rankincj@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
-Message-ID: <20050329122635.GP16636@suse.de>
-References: <20050329122226.94666.qmail@web52902.mail.yahoo.com>
+	Tue, 29 Mar 2005 07:31:42 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:3082 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262234AbVC2MbZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 07:31:25 -0500
+Subject: Re: forkbombing Linux distributions
+From: Natanael Copa <mlists@tanael.org>
+To: 20050323135317.GA22959@roonstrasse.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050328172820.GA31571@linux.ensimag.fr>
+References: <20050328172820.GA31571@linux.ensimag.fr>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 14:31:23 +0200
+Message-Id: <1112099483.4784.10.camel@nc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050329122226.94666.qmail@web52902.mail.yahoo.com>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29 2005, Chris Rankin wrote:
-> >> > I have one IDE hard disc, but I was using a USB memory stick at one
-> > > point. (Notice the usb-storage and vfat modules in my list.) Could
-> > > that be the troublesome SCSI device?
+On Mon, 2005-03-28 at 19:28 +0200, Matthieu Castet wrote:
+> > The memory limits aren't good enough either: if you set them low
+> > enough that memory-forkbombs are unperilous for
+> > RLIMIT_NPROC*RLIMIT_DATA, it's probably too low for serious
+> > applications.
 > 
-> --- Jens Axboe <axboe@suse.de> wrote:
-> > Yes, it probably is. What happens is that you insert the stick and do io
-> > against it, which sets up a process io context for that device. That
-> > context persists until the process exits (or later, if someone still
-> > holds a reference to it), but the queue_lock will be dead when you yank
-> > the usb device.
-> > 
-> > It is quite a serious problem, not just for CFQ. SCSI referencing is
-> > badly broken there.
+> yes, if you want to run application like openoffice.org you need at
+> least 200Mo. If you want that your system is usable, you need at least 40 process per user. So 40*200 = 8Go, and it don't think you have all this memory...
 > 
-> That would explain why it was nautilus which caused the oops then.
-> Does this mean that the major distros aren't using the CFQ then?
-> Because how else can they be avoiding this oops with USB storage
-> devices?
+> I think per user limit could be a solution.
 
-CFQ with io contexts is relatively new, only there since 2.6.10 or so.
-On UP, we don't grab the queue lock effetively so the problem isn't seen
-there.
+You have /etc/limits and /etc/security/limits.conf.
 
-You can work around this issue by using a different default io scheduler
-at boot time, and then select cfq for your ide hard drive when the
-system has booted with:
+I think it would solve many problems by simply lowering the default
+max_treads in kernel/fork.c. RLIMIT_NPROC is calculated from this value.
 
-# echo cfq > /sys/block/hda/queue/scheduler
+--- kernel/fork.c.orig  2005-03-02 08:37:48.000000000 +0100
++++ kernel/fork.c       2005-03-21 15:22:50.000000000 +0100
+@@ -119,7 +119,7 @@
+         * value: the thread structures can take up at most half
+         * of memory.
+         */
+-       max_threads = mempages / (8 * THREAD_SIZE / PAGE_SIZE);
++       max_threads = mempages / (16 * THREAD_SIZE / PAGE_SIZE);
 
-(substitute hda for any other solid storage device).
+        /*
+         * we need to allow at least 20 threads to boot a system
 
--- 
-Jens Axboe
+I don't think this will cause much problems for most users. (compare the
+default maximum process limit in the BSD's and OSX)
+
+This will also limit deamons/services started from boot scripts by
+default. The /etc/limits and /etc/security/limits.conf does not.
+
+If it does cause problems for extrem users, they can easily raise the
+limits in either initrd and/or using /proc/sys/kernel/threads-max (or
+systctl).
+
+BTW... does anyone know *why* the default max number of processes is so
+high in Linux?
+
+--
+Natanael Copa
+
 

@@ -1,28 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263782AbTJETVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263783AbTJETVZ
+	id S263805AbTJETe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTJETe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:21:25 -0400
-Received: from h1ab.lcom.net ([216.51.237.171]:1152 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S263782AbTJETVX (ORCPT
+	Sun, 5 Oct 2003 15:34:59 -0400
+Received: from h1ab.lcom.net ([216.51.237.171]:6016 "EHLO digitasaru.net")
+	by vger.kernel.org with ESMTP id S263805AbTJETe4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:21:23 -0400
-Date: Sun, 5 Oct 2003 14:21:19 -0500
+	Sun, 5 Oct 2003 15:34:56 -0400
+Date: Sun, 5 Oct 2003 14:34:54 -0500
 From: Joseph Pingenot <trelane@digitasaru.net>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Scott West <swest3@cogeco.ca>, linux-kernel@vger.kernel.org
-Subject: Re: cs4281 driver missing from 2.6.0-test6-bk6?
-Message-ID: <20031005192117.GA3445@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: aironet cannot talk to base station
+Message-ID: <20031005193453.GC3445@digitasaru.net>
 Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Muli Ben-Yehuda <mulix@mulix.org>,
-	Scott West <swest3@cogeco.ca>, linux-kernel@vger.kernel.org
-References: <20031005012438.GG4274@digitasaru.net> <20031004224102.64ff35c6.swest3@cogeco.ca> <20031005031754.GA8483@digitasaru.net> <20031005073613.GB29140@actcom.co.il>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031005073613.GB29140@actcom.co.il>
 X-School: University of Iowa
 X-vi-or-emacs: vi *and* emacs!
 X-MSMail-Priority: High
@@ -33,26 +29,18 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Muli Ben-Yehuda on Sunday, 05 October, 2003:
->On Sat, Oct 04, 2003 at 10:17:55PM -0500, Joseph Pingenot wrote:
->> Aaaah.  Close.  It was "Gameport Support" that dunnit.  This laptop doesn't
->>   have such on it, so I thought I'd give it a whirl sans, especially since
->>   I'm trying to figure out why stuff is locking up on it.
->> Seems like an odd dependency.  You know why that is set up so?
->You can look in the archives for the exact details
->(http://marc.theaimsgroup.com/?l=linux-kernel&m=106479206731633&w=2),
->but the bottom line is that it's a bug and already fixed in Alsa CVS
->(equivalent patch also attached). Now we just need to wait until Linus
->pulls it in... 
+Hello again.
 
-Ah.  Makes sense.  Is just a curious minor annoyance.  Unfortunately,
-  the major annoyances I find with 2.6.0-test6-bk6 are about to be posted.
-  :)
-
-Thanks!
+The aironet driver under 2.6.0-test6-bk6 doesn't seem to be able to see
+  my access point anymore.  /proc/driver/aironet/eth1/Config is set the same
+  between 2.4.21 and 2.6.0-test6-bk6, yet the 2.4 driver can talk to the
+  base station and the 2.6 driver cannot.  Indeed, no AP is listed in Status,
+  and a MAC of all FFs is listed in iwconfig's AP listing.
+Any ideas?  I see no oopses, just no traffic.  The radio is going, and I
+  can see the lights blinking.
+Thanks again!
 
 -Joseph
-
 
 -- 
 Joseph===============================================trelane@digitasaru.net

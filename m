@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263389AbUECBQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263394AbUECBQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263389AbUECBQN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 21:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUECBQN
+	id S263394AbUECBQe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 21:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263399AbUECBQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 21:16:13 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:18513 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263389AbUECBQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 21:16:08 -0400
-Message-ID: <003201c4309c$fd93cd90$0202a8c0@boxa>
-From: "Bill Catlan" <wcatlan@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Possible to delay boot process to boot from USB subsystem?
-Date: Sun, 2 May 2004 19:27:08 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Sun, 2 May 2004 21:16:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48565 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263394AbUECBQa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 21:16:30 -0400
+Date: Mon, 3 May 2004 02:16:29 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC] removal of legacy cdrom drivers (Re: [PATCH] mcdx.c insanity removal)
+Message-ID: <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk>
+References: <20040502024637.GV17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Aiiee...
 
-The below message appeared on linux-kernel in June 2002.  The patch allows
-booting from a USB harddrive and was designed for the 2.4.14-pre8-ext3 kernel,
-but I was able to manually apply it to a Debian 2.4.18 kernel.
+You know, mcdx.c is like a roadkill - just can't stop looking at the thing.
 
-I am now trying to upgrade to a 2.4.26 kernel, and I am unable to create the
-same "boot from floppy with rootfs on a USB drive" scenario that I created with
-the modified 2.4.18 kernel.  I believe my current issue with the 2.4.26 kernel
-is the same race condition as on the 2.4.18 kernel since I get the "Initializing
-USB Mass Storage driver..." notice, but then i get "Kernel panic: No init found.
-Try passing init= option to kernel."  Given time, I suspect that the USB storage
-subsystem would come online and the kernel would be able to mount the rootfs on
-it.
+a) it doesn't initialize when non-modular.  Since 2.5.0.  Fixed, can send.
+b) it leaks on failure exits; since forever.  Fixed, can send.
+c) it has several lovely bugs (e.g. foo = bar | SINGLE ? ... : ..., where
+SINGLE is defined as 1; from the context it's obvious that it should've
+been bar & SINGLE; there since 1.3.71).  Fixed, can send.
+d) it has tons of crimes against decency - e.g.
+	foo = bar > (foo += baz) ? bar : foo;
+where foo, bar and baz and fairly long expressions.  Partially fixed, can send.
+Oh, and let's not forget the lovely variable names - e.g. "stuffp" through
+the entire thing.  That's "pointer to all stuff we have about that device".
 
-fs/super.c has change dramatically and the below patch now seems obsolete.
+e) it does *entire* *damn* *IO* without dropping queue lock.  And yes, it
+*does* block in there.  A lot.  Always had.
 
-Is there a similar patch for newer kernels - or any other way to cause the boot
-process to pause between loading the kernel and modules and running /sbin/init?
+I can fix the last one, however at that point I'm really starting to wonder
+if we want to keep the FPOS in the tree.  I don't have the hardware and while
+I'm reasonably sure that I can split the transition into provably correct
+small steps, I doubt that there's any point in doing that.  Driver is obviously
+not used by anyone and hadn't been used for years.
 
-TIA.
+The same goes for the rest of drivers/cdrom - cdrom.c is used, all right
+(ide-cd, sr, pcd), but everything else is
+	* abandoned by maintainers 5-6 years ago
+	* broken
+	* obviously not used by anybody
+	* impossible to debug due to lack of hardware
+	* fucking ugly
 
-Bill
+How about removing all that stuff instead of keeping the known broken shit
+in the tree?  If somebody wants it back, they can always pick the versions
+circa 2.6.0 from archives.
 
-On Sun, Jun 02, 2002 at 10:13:22PM +0200, Paul Stoeber wrote:
-> It simply sleeps 10 seconds before mount_block_root().
->
-> I get an 'Unable to mount root' panic if I don't apply it,
-> because the attached device rolls in too late.
-
-A while ago I made the patch below. I retries every second until the root
-device appears. Advantages:
-- no delay when the device is already there
-- it also works if it takes longer than 10s to find the harddisk
-  (for example, if you plug it in later)
-
-I don't know if it applies cleanly to current kernels.
-
-Eric
-
---- linux-2.4.14-pre8-ext3/fs/super.c.orig	Fri Nov 16 00:59:18 2001
-+++ linux-2.4.14-pre8-ext3/fs/super.c	Fri Nov 16 01:07:26 2001
-@@ -1009,11 +1009,13 @@
- 		 * Allow the user to distinguish between failed open
- 		 * and bad superblock on root device.
- 		 */
--		printk ("VFS: Cannot open root device \"%s\" or %s\n",
-+		printk ("VFS: Cannot open root device \"%s\" or %s, retrying in 1s.\n",
- 			root_device_name, kdevname (ROOT_DEV));
--		printk ("Please append a correct \"root=\" boot option\n");
--		panic("VFS: Unable to mount root fs on %s",
--			kdevname(ROOT_DEV));
-+
-+		/* wait 1 second and try again */
-+		current->state = TASK_INTERRUPTIBLE;
-+		schedule_timeout(HZ);
-+		goto retry;
- 	}
-
- 	check_disk_change(ROOT_DEV);
--
-
+If you are OK with that (and nobody on l-k stands up and claims that they want
+it alive and *claims* *that* *right* *fucking* *NOW*) I'll send you a patch
+putting these buggers out of their misery.

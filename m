@@ -1,74 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUDSIER (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 04:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUDSIER
+	id S263945AbUDSIEs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 04:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUDSIEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 04:04:17 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:17366 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264238AbUDSIEP
+	Mon, 19 Apr 2004 04:04:48 -0400
+Received: from b099166.adsl.hansenet.de ([62.109.99.166]:9109 "EHLO
+	aj.andaco.de") by vger.kernel.org with ESMTP id S263945AbUDSIEm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 04:04:15 -0400
-Date: Mon, 19 Apr 2004 10:04:13 +0200
-From: Romain Lievin <lkml@lievin.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Greg Kroah <greg@kroah.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH] tipar char driver: wrong timeout value
-Message-ID: <20040419080413.GA13695@lievin.net>
+	Mon, 19 Apr 2004 04:04:42 -0400
+Date: Mon, 19 Apr 2004 10:04:39 +0200
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] tg3 driver - make use of binary-only firmware optional
+Message-ID: <20040419080439.GB11586@andaco.de>
+References: <20040418135534.GA6142@andaco.de> <20040418180811.0b2e2567.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040418180811.0b2e2567.davem@redhat.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Andreas Jochens <aj@andaco.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 04-Apr-18 18:08, David S. Miller wrote:
+> However, that in no way means that Jeff and myself have to split
+> the firmware out of the driver either.  In fact, I do not want to
+> as I like keeping all of the network drivers I write in single
+> foo.c and foo.h files.
 
-this patch (2.4 & 2.6) fixes a bug about the timeout value. The formula 
-used to calculate jiffies from timeout is wrong.
-The new formula is ok and takes care of integer computation/rounding.
-There is the same bug in the tiglusb.c module which will be fixed by another
-patch.
+Would the patch be acceptable if the firmware parts were kept in tg3.c
+as they are now but #ifdef'd out when CONFIG_TIGON3_FIRMWARE is not set?
 
-Please apply, Romain.
-==============================[cut here]================================
-diff -Naur linux-2.4.26.orig/drivers/char/tipar.c linux-2.4.26/drivers/char/tipar.c
---- linux-2.4.26.orig/drivers/char/tipar.c	2004-02-18 14:36:31.000000000 +0100
-+++ linux-2.4.26/drivers/char/tipar.c	2004-04-19 09:22:36.000000000 +0200
-@@ -124,7 +124,7 @@
+At least this would make it clear that the driver is usable even without 
+the firmware. Or is there perhaps any technical problem which might 
+occur when firmware loading is optionally disabled as indicated below?
+
+Thank you for your attention.
+
+Andreas Jochens
+
+diff -urN linux-2.6.5.orig/drivers/net/Kconfig linux-2.6.5/drivers/net/Kconfig
+--- linux-2.6.5.orig/drivers/net/Kconfig	2004-04-03 21:38:10.000000000 -0600
++++ linux-2.6.5/drivers/net/Kconfig	2004-04-19 01:16:17.726738720 -0500
+@@ -2060,6 +2060,14 @@
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called tg3.  This is recommended.
  
- /* ----- global defines ----------------------------------------------- */
++config TIGON3_FIRMWARE
++	bool "Include firmware (for TSO support and for 5701_a0)" 
++	depends on TIGON3
++	default y
++	help
++	  This includes binary-only firmware for TSO support and a 
++          binary-only firmware fix for the 5701_a0 chipset. If unsure, say Y.
++
+ endmenu
  
--#define START(x) { x=jiffies+HZ/(timeout/10); }
-+#define START(x) { x = jiffies + (HZ * timeout) / 10; }
- #define WAIT(x)  { \
-   if (time_before((x), jiffies)) return -1; \
-   if (need_resched()) schedule(); }
-
-==============================[cut here]================================
-diff -Naur linux-2.6.5.orig/drivers/char/tipar.c linux-2.6.5/drivers/char/tipar.c
---- linux-2.6.5.orig/drivers/char/tipar.c	2004-04-04 05:37:37.000000000 +0200
-+++ linux-2.6.5/drivers/char/tipar.c	2004-04-19 09:23:25.000000000 +0200
-@@ -121,7 +121,7 @@
+ #
+diff -urN linux-2.6.5.orig/drivers/net/tg3.c linux-2.6.5/drivers/net/tg3.c
+--- linux-2.6.5.orig/drivers/net/tg3.c	2004-04-03 21:37:23.000000000 -0600
++++ linux-2.6.5/drivers/net/tg3.c	2004-04-19 01:24:48.284122200 -0500
+@@ -46,6 +46,10 @@
+ #define TG3_VLAN_TAG_USED 0
+ #endif
  
- /* ----- global defines ----------------------------------------------- */
++#ifndef CONFIG_TIGON3_FIRMWARE
++#undef NETIF_F_TSO
++#endif
++
+ #ifdef NETIF_F_TSO
+ #define TG3_TSO_SUPPORT	1
+ #else
+@@ -3541,6 +3545,8 @@
+ 	return 0;
+ }
  
--#define START(x) { x=jiffies+HZ/(timeout/10); }
-+#define START(x) { x = jiffies + (HZ * timeout) / 10; }
- #define WAIT(x)  { \
-   if (time_before((x), jiffies)) return -1; \
-   if (need_resched()) schedule(); }
-
-==============================[cut here]================================
--- 
-Romain Liévin (roms):         <lkml@lievin.net>
-Web site:                     http://www.lievin.net
-"Linux, y'a moins bien mais c'est plus cher !"
-
-
-
-
-
-
++#ifdef CONFIG_TIGON3_FIRMWARE
++
+ #define TG3_FW_RELEASE_MAJOR	0x0
+ #define TG3_FW_RELASE_MINOR	0x0
+ #define TG3_FW_RELEASE_FIX	0x0
+@@ -4411,6 +4417,8 @@
+ 
+ #endif /* TG3_TSO_SUPPORT != 0 */
+ 
++#endif /* CONFIG_TIGON3_FIRMWARE */
++
+ /* tp->lock is held. */
+ static void __tg3_set_mac_addr(struct tg3 *tp)
+ {
+@@ -4947,9 +4955,17 @@
+ 	tw32(SNDBDS_MODE, SNDBDS_MODE_ENABLE | SNDBDS_MODE_ATTN_ENABLE);
+ 
+ 	if (tp->pci_chip_rev_id == CHIPREV_ID_5701_A0) {
++#ifdef CONFIG_TIGON3_FIRMWARE
+ 		err = tg3_load_5701_a0_firmware_fix(tp);
+ 		if (err)
+ 			return err;
++#else
++		printk(KERN_ERR PFX "%s: tg3_reset_hardware - "
++			"5701_a0 firmware fix not loaded\n",
++			tp->dev->name );
++		return -ENODEV;
++#endif
++
+ 	}
+ 
+ #if TG3_TSO_SUPPORT != 0

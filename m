@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264926AbUEMUD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUEMUGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264926AbUEMUD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 16:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUEMUCG
+	id S265170AbUEMUGX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 16:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUEMTwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 16:02:06 -0400
-Received: from maxipes.logix.cz ([81.0.234.97]:6607 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S264926AbUEMUAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 16:00:14 -0400
-Date: Thu, 13 May 2004 22:00:14 +0200 (CEST)
-From: Michal Ludvig <michal@logix.cz>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: Andrew Morton <akpm@osdl.org>, jmorris@redhat.com, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Support for VIA PadLock crypto engine
-In-Reply-To: <40A3C639.4FD98046@users.sourceforge.net>
-Message-ID: <Pine.LNX.4.53.0405132157060.19062@maxipes.logix.cz>
-References: <Xine.LNX.4.44.0405120933010.10943-100000@thoron.boston.redhat.com>
-   <Pine.LNX.4.53.0405121546200.24118@maxipes.logix.cz>  
- <40A37118.ED58E781@users.sourceforge.net> <20040513113028.085194a3.akpm@osdl.org>
- <40A3C639.4FD98046@users.sourceforge.net>
+	Thu, 13 May 2004 15:52:40 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:17897 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264894AbUEMTuX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:50:23 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>
+Subject: Re: PATCH: (as279) Don't delete interfaces until all are unbound
+Date: Thu, 13 May 2004 21:50:21 +0200
+User-Agent: KMail/1.5.4
+Cc: Nuno Ferreira <nuno.ferreira@graycell.biz>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sf.net>
+References: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0405131352500.651-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405132150.21710.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 May 2004, Jari Ruusu wrote:
+Hi Alan,
 
-> Andrew Morton wrote:
-> > Jari Ruusu <jariruusu@users.sourceforge.net> wrote:
-> > >  The cryptoloop implementation is busted in more than one way, so it is
-> > >  useless for security needs:
-> >
-> > Is dm-crypt any better?
->
-> Nope. dm-crypt has same exploitable cryptographic flaws.
+> +		/* Now that the interfaces are unbound, nobody should
+> +		 * try to access them.
+> +		 */
 
-Could you be more descriptive?
+how is usbfs going to claim interfaces after this?
 
-Michal Ludvig
--- 
-* A mouse is a device used to point at the xterm you want to type in.
-* Personal homepage - http://www.logix.cz/michal
+> + * Don't call this function unless you are bound to one of the interfaces
+> + * on this device or you own the dev->serialize semaphore!
+
+Owning dev->serialize won't stop an Oops if the interfaces are all NULL...
+
+All the best,
+
+Duncan.

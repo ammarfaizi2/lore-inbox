@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287488AbSCLXDj>; Tue, 12 Mar 2002 18:03:39 -0500
+	id <S288174AbSCLXFk>; Tue, 12 Mar 2002 18:05:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSCLXDU>; Tue, 12 Mar 2002 18:03:20 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:26607 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S287488AbSCLXDM>; Tue, 12 Mar 2002 18:03:12 -0500
-Message-ID: <3C8E8912.64435C1E@us.ibm.com>
-Date: Tue, 12 Mar 2002 15:02:42 -0800
-From: Larry Kessler <kessler@us.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S288071AbSCLXFV>; Tue, 12 Mar 2002 18:05:21 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:46018 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S287862AbSCLXFL>; Tue, 12 Mar 2002 18:05:11 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7CDE@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Mario 'BitKoenig' Holbe'" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: RE: [patch] ACPI: kbd-pw-on/WOL don't work anymore since 2.4.14
+Date: Tue, 12 Mar 2002 15:05:04 -0800
 MIME-Version: 1.0
-To: Dominik Kubla <kubla@sciobyte.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18
-In-Reply-To: <3C8E7E08.C3CF4227@us.ibm.com> <20020312224101.GB12952@duron.intern.kubla.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Kubla wrote:
-> 
-> On Tue, Mar 12, 2002 at 02:15:36PM -0800, Larry Kessler wrote:
-> > 2) If the buffer overruns the oldest events are kept, newest
-> >    discarded, and a count of discarded events is reported.
-> 
-> Hmm. That sounds like a possible security problem to me: simply generate a
-> bunch of harmless messages to fill the buffer and then one can do the nasty
-> stuff...
+> From: Mario 'BitKoenig' Holbe [mailto:Mario.Holbe@RZ.TU-Ilmenau.DE]
 
-I assume that you mean do the nasty stuff but never have anything in
-your
-event log indicating that it happened.  Good point, but if the buffer is
-sized appropriately for the incoming volume of events and the logging
-daemon 
-is reading the events out of the kernel buffer (as should normally be
-the case), 
-then you would see the events.  
+[explanation of problem and various code paths snipped]
 
-The reasoning behind this approach is to increase the liklihood that
-events
-indicating "root cause" would be logged and not over-written by a flood
-of 
-secondary events.  Keep in mind that only events originating in the
-kernel (or
-kernel module) are stored in this buffer.
+> And if there can't be any, why should I'm not be able to work
+> around this bug?
+> And yes - I consider this as bug :) There is code, which is never
+> called, afaics.
+
+Well sure, you can work around this bug on your particular machine, but I
+can't do the same because then, unlike your machine where not enough devices
+are enabled for wake, *too many* devices will be enabled for wake on some
+machines. This results in them not turning off properly -- they come right
+back on. ;-)
+
+So, there is a general-purpose fix for this, it just is going to take more
+than deleting one line.
+
+Regards -- Andy

@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbVCBVaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbVCBVd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbVCBVaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 16:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVCBV3L
+	id S262554AbVCBVd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 16:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVCBVa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 16:29:11 -0500
-Received: from mailhub2.nextra.sk ([195.168.1.110]:23305 "EHLO toe.nextra.sk")
-	by vger.kernel.org with ESMTP id S262463AbVCBV1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 16:27:19 -0500
-Message-ID: <42263069.9000306@rainbow-software.org>
-Date: Wed, 02 Mar 2005 22:30:17 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
-References: <20050228192001.GA14221@apps.cwi.nl> <1109721162.15795.47.camel@localhost.localdomain> <20050302075037.GH20190@apps.cwi.nl> <4225D4B4.6020002@rainbow-software.org> <20050302191802.GB1512@redhat.com>
-In-Reply-To: <20050302191802.GB1512@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 16:30:57 -0500
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:49670 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S262547AbVCBVaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 16:30:15 -0500
+Message-Id: <200503022130.j22LU6H02463@blake.inputplus.co.uk>
+To: Corey Minyard <cminyard@mvista.com>
+cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Documentation for krefs 
+In-Reply-To: <422617F1.2080404@mvista.com> 
+Date: Wed, 02 Mar 2005 21:30:06 +0000
+From: Ralph Corderoy <ralph@inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, Mar 02, 2005 at 03:59:00PM +0100, Ondrej Zary wrote:
->  > >>The failure to invoke the ->init operator appears to be the bug.
->  > >>The centaur code definitely wants the mcr init function to be called.
->  > >
->  > >Yes, I expected that to be the answer. Therefore #if 0 instead of deleting.
->  > >But if calling ->init() is needed, and it has not been done the past
->  > >three years, the question arises whether there are any users.
->  > 
->  > I'm running 2.6.10 on Cyrix MII PR333 and it works. Maybe the code is 
->  > broken but I haven't noticed :-)
-> 
-> your /proc/mtrr is likely broken/suboptimal.
 
-It looks fine to me:
+Hi Corey,
 
-rainbow@pentium:~$ cat /proc/mtrr
-reg01: base=0x000c0000 (   0MB), size= 256KB: uncachable, count=1
-reg02: base=0xe1000000 (3600MB), size=   4MB: write-combining, count=2
-reg07: base=0x00000000 (   0MB), size= 128MB: write-back, count=1
+> Here is the documentation for krefs, with the kref_checked stuff
+> removed and a few other things cleaned up.
 
-The machine has 128MB memory, there's 4MB Matrox Mystique card:
+Great, more documentation.  :-)  A few minor points...
 
-00:14.0 VGA compatible controller: Matrox Graphics, Inc. MGA 1064SG 
-[Mystique] (rev 02) (prog-if 00 [VGA])
-         Subsystem: Matrox Graphics, Inc. MGA-1084SG Mystique
-         Flags: bus master, stepping, medium devsel, latency 64, IRQ 6
-         Memory at e0000000 (32-bit, non-prefetchable) [size=16K]
-         Memory at e1000000 (32-bit, prefetchable) [size=8M]
-         Memory at e2000000 (32-bit, non-prefetchable) [size=8M]
-         Expansion ROM at <unassigned> [disabled] [size=64K]
+> +To use a kref, add a one to your data structures like:
+
+s/a one/one/
+
+> +You must initialize the kref after you allocate it.  To do this, call
+> +kref init as so:
+
+s/kref init/kref_init/
+
+> +Once you have a refcount, you must follow the following rules:
+
+s/refcount/initialised kref/
+
+> +	if (task == ERR_PTR(-ENOMEM)) {
+> +		rv = -ENOMEM;
+> +	        kref_put(&data->refcount);
+
+s/)/, data_release)/
+
+> +		goto out;
+> +	}
+> +
+> +	.
+> +	. do stuff with data here
+> +	.
+> + out:
+> +	kref_put(data, data_release);
+
+s/data/\&data->refcount/ ?
+
+> +	return rv;
+> +}
+> +
+> +This way, it doesn't matter what order the two threads handle the
+> +data, the put handles knowing when the data is free and releasing it.
+
+s/put/kref_put()/
+
+> +The kref_get() does not require a lock, since we already have a valid
+> +pointer that we own a refcount for.  The put needs no lock because
+> +nothing tries to get the data without already holding a pointer.
+
+Cheers,
 
 
--- 
-Ondrej Zary
+Ralph.
+

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317371AbSHBAvb>; Thu, 1 Aug 2002 20:51:31 -0400
+	id <S317580AbSHBBMX>; Thu, 1 Aug 2002 21:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317385AbSHBAvb>; Thu, 1 Aug 2002 20:51:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3743 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317371AbSHBAva>;
-	Thu, 1 Aug 2002 20:51:30 -0400
-Date: Thu, 01 Aug 2002 17:43:01 -0700 (PDT)
-Message-Id: <20020801.174301.123634127.davem@redhat.com>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, rohit.seth@intel.com,
-       sunil.saxena@intel.com, asit.k.mallick@intel.com
-Subject: Re: large page patch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D49D45A.D68CCFB4@zip.com.au>
-References: <3D49D45A.D68CCFB4@zip.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317605AbSHBBMX>; Thu, 1 Aug 2002 21:12:23 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:35085 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S317580AbSHBBMW>; Thu, 1 Aug 2002 21:12:22 -0400
+Message-ID: <3D49DD2C.2070604@namesys.com>
+Date: Fri, 02 Aug 2002 05:15:24 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+References: <20020727085931.X26813@work.bitmover.com> <Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com> <20020727092223.B26813@work.bitmover.com> <3D44EC66.5020104@namesys.com> <20020801162716.B27939@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@zip.com.au>
-   Date: Thu, 01 Aug 2002 17:37:46 -0700
+I'd just like to add that I respect Larry's problems regarding:
 
-   Some observations which have been made thus far:
-   
-   - Minimal impact on the VM and MM layers
-   
-Well the downside of this is that it means it isn't transparent
-to userspace.  For example, specfp2000 results aren't going to
-improve after installing these changes.  Some of the other large
-page implementations would.
+* small number of seats means large number of dollars per seat is 
+necessary to justify the business investment
 
-   - The change to MAX_ORDER is unneeded
-   
-This is probably done to increase the likelyhood that 4MB page orders
-are available.  If we collapse 4MB pages deeper, they are less likely
-to be broken up because smaller orders would be selected first.
+* people modifying the source to turn off open logging and thus 
+defeating his original business model  (this would really piss me off also)
 
-Maybe it doesn't make a difference....
+He is also an all around nice guy who has given us some nice tools, and 
+tries hard to be generous while keeping his business alive.
 
-   - swapping of large pages and making them pagecache-coherent is
-     unpopular.
-   
-Swapping them is easy, any time you hit a large PTE you unlarge it.
-This is what some of other large page implementations do.  Basically
-the implementation is that set_pte() breaks apart large ptes when
-necessary.
+I would like to see him try making his license such that if open logging 
+is not used, and he is not paid a license fee, then the user has agreed 
+that the software is GPL'd and any potential user may sue to claim that 
+software.  I think this would scare managers into paying their fees, and 
+I think it would work, but I also understand and respect that it is not 
+my business that would go under if I was wrong, and it is not I who 
+would have to explain to his workers why payroll couldn't be met.
 
-I agree on the pagecache side.
+-- 
+Hans
 
-Actually to be honest the other implementations seemed less
-intrusive and easier to add support for.  The downside is that
-handling of weird cases like x86 using pmd's for 4MB pages
-was not complete last time I checked.
+
+

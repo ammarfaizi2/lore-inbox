@@ -1,123 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311876AbSCOAUE>; Thu, 14 Mar 2002 19:20:04 -0500
+	id <S311879AbSCOAug>; Thu, 14 Mar 2002 19:50:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311878AbSCOATz>; Thu, 14 Mar 2002 19:19:55 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:45976 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S311876AbSCOATk>; Thu, 14 Mar 2002 19:19:40 -0500
-Message-ID: <3C913DFE.9020306@didntduck.org>
-Date: Thu, 14 Mar 2002 19:19:10 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S311882AbSCOAu0>; Thu, 14 Mar 2002 19:50:26 -0500
+Received: from mail.actcom.co.il ([192.114.47.13]:41398 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S311879AbSCOAuV>; Thu, 14 Mar 2002 19:50:21 -0500
+Message-Id: <200203150050.g2F0oR615927@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Greg KH <greg@kroah.com>
+Subject: Re: USB-Storage in 2.4.19-pre
+Date: Fri, 15 Mar 2002 02:50:15 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200203141432.g2EEWL628078@lmail.actcom.co.il> <200203142321.g2ENL1632499@lmail.actcom.co.il> <20020314152617.B3109@kroah.com>
+In-Reply-To: <20020314152617.B3109@kroah.com>
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct super_block cleanup - msdos/vfat
-In-Reply-To: <3C8FE8E3.2040204@didntduck.org>	<87k7sfoi8c.fsf@devron.myhome.or.jp>	<87bsdrohu3.fsf@devron.myhome.or.jp> <3C90A9C4.4030801@didntduck.org> <874rjjnp5t.fsf@devron.myhome.or.jp>
-Content-Type: multipart/mixed;
- boundary="------------010200010708030600060500"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010200010708030600060500
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Friday 15 March 2002 01:26 am, Greg KH wrote:
+> On Fri, Mar 15, 2002 at 01:20:49AM +0200, Itai Nahshon wrote:
+> > No go. I still get that device not responding (error=-84).
+> > If I understand your patch, disabling hotplug and loading
+> > usb-storage manually shoud work. It isn't. Actually
+> > I believe that it never got to call hotplug.
+> > usbview does not see the device.
+>
+> No the main problem is that usbmodules starts talking to the device
+> before it is initialized properly by the kernel driver, causing both
+> programs to get messed up, and then the device is usually in a
+> uninitialized state.
+>
+> > I forgot to say. On one of those computers where I do the testing
+> > I have a USB mouse - which is working just fine.
+>
+> Does that mouse work if you plug it into the same port that you are
+> plugging the drive into?  I have noticed a lot more errors from flaky
+> hubs with the new code.
+>
+> thanks,
+>
+> greg k-h
 
-OGAWA Hirofumi wrote:
-> Brian Gerst <bgerst@didntduck.org> writes:
-> 
-> 
->>OGAWA Hirofumi wrote:
->>
->>>OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
->>>
->>>
->>>>Hi,
->>>>
->>>>Brian Gerst <bgerst@didntduck.org> writes:
->>>>
->>>>
->>>>
->>>>>diff -urN linux-2.5.7-pre1/fs/msdos/namei.c linux/fs/msdos/namei.c
->>>>>--- linux-2.5.7-pre1/fs/msdos/namei.c	Thu Mar  7 21:18:32 2002
->>>>>+++ linux/fs/msdos/namei.c	Wed Mar 13 08:20:12 2002
->>>>>@@ -603,17 +603,14 @@
->>>>>int msdos_fill_super(struct super_block *sb,void *data, int silent)
->>>>>{
->>>>>-	struct super_block *res;
->>>>>+	int res;
->>>>>-	MSDOS_SB(sb)->options.isvfat = 0;
->>>>>-	res = fat_read_super(sb, data, silent, &msdos_dir_inode_operations);
->>>>>-	if (IS_ERR(res))
->>>>>-		return PTR_ERR(res);
->>>>>-	if (res == NULL) {
->>>>>+	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
->>>>>+	if (res) {
->>>>>		if (!silent)
->>>>>			printk(KERN_INFO "VFS: Can't find a valid"
->>>>>			       " MSDOS filesystem on dev %s.\n", sb->s_id);
->>>>
->>>>If the error is I/O error, I think we shouldn't output this message.
->>>
->>>  ^^^^^^^^^^^^^^^^^^^^^^^^^^
->>>If the error is except -EINVAL,
->>>Sorry.
->>>
->>>
->>>>What do you think about this?
->>>
->>Why not?  The statement is true, and other filesystems do complain
->>when there is an I/O error.
-> 
-> 
-> Umm, almost all filesystems doesn't output this message when the I/O error
-> occurs, AFAIK.
-> 
-> I think that this message indicate that a device isn't a FAT
-> filesystem.  And, of course, if error is the I/O error,
-> fat_full_super() can't detect whether it is FAT filesystem or not.
+That's on an ASUS CUV4X with 4 USB ports on the main board. Moving
+things between ports do not make a difference - the mouse still works
+and the disk does not. Perhaps the the flaky part i s the USB port in the
+disk side. I could never make it work thru a hub - but then
+it initialized correctly and failed only during data transfer.
 
-Patch attached.
+I just put a scanner on he same system. The scanner is working OK
+where the disk has failed.
 
--- 
+Again, I do not see the disk usind usbview (or in /proc/bus/usb/devices)
+so I believe the problem is more with detection than with initialization.
 
-						Brian Gerst
+-- Itai
 
---------------010200010708030600060500
-Content-Type: text/plain;
- name="sb-fat-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sb-fat-2"
 
-diff -urN linux/fs/msdos/namei.c linux2/fs/msdos/namei.c
---- linux/fs/msdos/namei.c	Thu Mar 14 10:53:20 2002
-+++ linux2/fs/msdos/namei.c	Thu Mar 14 10:54:53 2002
-@@ -607,7 +607,7 @@
- 
- 	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
- 	if (res) {
--		if (!silent)
-+		if (res == -EINVAL && !silent)
- 			printk(KERN_INFO "VFS: Can't find a valid"
- 			       " MSDOS filesystem on dev %s.\n", sb->s_id);
- 		return res;
-diff -urN linux/fs/vfat/namei.c linux2/fs/vfat/namei.c
---- linux/fs/vfat/namei.c	Thu Mar 14 10:53:20 2002
-+++ linux2/fs/vfat/namei.c	Thu Mar 14 10:55:20 2002
-@@ -1290,7 +1290,7 @@
-   
- 	res = fat_fill_super(sb, data, silent, &vfat_dir_inode_operations, 1);
- 	if (res) {
--		if (!silent)
-+		if (res == -EINVAL && !silent)
- 			printk(KERN_INFO "VFS: Can't find a valid"
- 			       " VFAT filesystem on dev %s.\n", sb->s_id);
- 		return res;
-
---------------010200010708030600060500--
 

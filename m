@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135489AbRECXvL>; Thu, 3 May 2001 19:51:11 -0400
+	id <S135443AbRECXyb>; Thu, 3 May 2001 19:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135494AbRECXvB>; Thu, 3 May 2001 19:51:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37253 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135489AbRECXut>;
-	Thu, 3 May 2001 19:50:49 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S135494AbRECXyV>; Thu, 3 May 2001 19:54:21 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:18490 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S135443AbRECXyF>; Thu, 3 May 2001 19:54:05 -0400
+From: James Washer <washer@sequent.com>
+Message-Id: <200105032354.QAA18993@crg8.sequent.com>
+Subject: scan_scsis limits LUNs to max_scsi_luns... is this what we want?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 3 May 2001 16:54:01 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15089.61128.43878.611369@pizda.ninka.net>
-Date: Thu, 3 May 2001 16:50:32 -0700 (PDT)
-To: Jim Freeman <jfree@sovereign.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: iproute2, ETH_P_ECHO, linux/if_ether.h
-In-Reply-To: <20010503164206.A19818@sovereign.org>
-In-Reply-To: <20010503164206.A19818@sovereign.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Jim Freeman writes:
- > Documentation/Changes sez:
- > 
- > 	Ip-route2 
- > 	---------
- > 	o  <ftp://ftp.inr.ac.ru/ip-routing/iproute2-2.2.4-now-ss991023.tar.gz>
- > 
- > 
- > But iproute2's lib/ll_proto.c  tries to use ETH_P_ECHO from
- > linux/if_ether.h, and that manifest constant has (recently ?)
- > been yanked?
+In the routine  scan_scsis(),  The following code would appear to limit 
+the number of luns a given apapter can use to max_scsi_luns, as opposed 
+to the limit the low-level driver passed in the Scsi_Host structure.
 
-Just remove the references to that ETH_P_ECHO constant in the
-iproute2 sources.
+Is that the behaviour we want? or should the '<' become a '>' in the ternary, 
+thereby scanning the greater of the passed max_lun or the system max_scsi_luns.
 
-Later,
-David S. Miller
-davem@redhat.com
+It seems to me that if a low level driver passes a large number of luns, 
+the midlayer should accept that value.
+
+Of course, the use of the CONFIG_SCSI_MULTI_LUN #define would lead me to 
+believe that the kernel does indeed want to limit the number of luns probed 
+to the lesser of the two values... but why?? 
+
+
+
+
+
+	max_dev_lun = (max_scsi_luns < shpnt->max_lun ?
+		max_scsi_luns : shpnt->max_lun);
+	sparse_lun = 0;
+	for (lun = 0; lun < max_dev_lun; ++lun) {
+		if (!scan_scsis_single(channel, order_dev, lun, &max_dev_lun,
+			&sparse_lun, &SDpnt, shpnt,
+			scsi_result)
+			&& !sparse_lun) break;
+
+	}
+	-- 
+	+==============================================================+
+	| James W Washer    IBM NUMA-Q Service   KG7HH(US) M0BOR(UK)   |
+	|                                                              |
+	| 15450 SW Koll Pkwy                                           |
+	| MS RHE2-501                                                  |
+	| Beaverton, OR 97006                                          |
+	|                                                              |
+	| 1-800-854-9969   1-503-578-3171(direct line)                 |
+	| washer@us.ibm.com                                            |
+	+==============================================================+

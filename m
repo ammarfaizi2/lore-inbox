@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S449449AbUKBHxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S382223AbUKBIDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S449449AbUKBHxE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 02:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S449439AbUKBHxA
+	id S382223AbUKBIDR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 03:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S450407AbUKBIDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 02:53:00 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:45292 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S380442AbUKBHwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 02:52:49 -0500
-Date: Tue, 2 Nov 2004 08:51:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Kumar Gala <kumar.gala@freescale.com>, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>,
-       Pantelis Antoniou <panto@intracom.gr>,
-       Linuxppc-Embedded <linuxppc-embedded@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "Gala Kumar K.-galak" <kumar.gala@motorola.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] Fix early request_irq
-Message-ID: <20041102075136.GA21077@elte.hu>
-References: <20041029161101.GS2097@smtp.west.cox.net> <Pine.GSO.4.44.0411011140100.17740-100000@sysperf.somerset.sps.mot.com> <20041101195911.GL24459@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041101195911.GL24459@smtp.west.cox.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 2 Nov 2004 03:03:17 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:7591 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S382223AbUKBIDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 03:03:08 -0500
+Message-ID: <41873F38.7030609@yahoo.com.au>
+Date: Tue, 02 Nov 2004 19:03:04 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Brad Campbell <brad@wasp.net.au>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc1-bk page allocation failure. order:2, mode:0x20
+References: <41873452.8040804@wasp.net.au>
+In-Reply-To: <41873452.8040804@wasp.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Tom Rini <trini@kernel.crashing.org> wrote:
-
-> On Mon, Nov 01, 2004 at 11:41:44AM -0600, Kumar Gala wrote:
+Brad Campbell wrote:
+> G'day all,
 > 
-> > Andrew,
-> > 
-> > Please apply this patch from Tom Rini.  I've tested it for PowerPC MPC85xx
-> > parts and it works.
-> > 
-> > Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+> I'm still getting quite a lot of these come up in the logs when the 
+> system is under mild load.
+> I suspect it might have something to do with running an MTU of 9000 on 
+> the main ethernet port which is directly feeding a workstation with an 
+> NFS root (and thus gets quite a high load at times)
 > 
-> I've attached a slightly different version, which applies against
-> current -bk (Linus applied a patch from Ben that fixed pmac booting
-> which made my patch not apply), which is the only change.
+> It's not so much an issue but it does cause the workstation to stall for 
+> up to a second while it waits for data every time it occurs.
 > 
-> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> The loaded ethernet port is this one on an PCI card
+> 
+> 0000:00:0d.0 Ethernet controller: Marvell Technology Group Ltd. Yukon 
+> Gigabit Ethernet 10/100/1000Base-T Adapter (rev 12)
+> 
+> This started rearing its ugly head when I moved from 2.6.5 to 2.6.9-preX 
+> and persists with BK as of about 2 days ago.
+> 
 
-thanks, this one looks so much cleaner than the early-kmalloc hack.
+There are patches in the newest -mm kernels that should help the
+problem. If you're willing to test them, the feedback would be
+welcome.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+Thanks
+Nick

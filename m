@@ -1,153 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293400AbSCFJQF>; Wed, 6 Mar 2002 04:16:05 -0500
+	id <S293408AbSCFJUF>; Wed, 6 Mar 2002 04:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293394AbSCFJP5>; Wed, 6 Mar 2002 04:15:57 -0500
-Received: from gw-nl4.philips.com ([212.153.190.6]:6667 "EHLO
-	gw-nl4.philips.com") by vger.kernel.org with ESMTP
-	id <S293379AbSCFJPk>; Wed, 6 Mar 2002 04:15:40 -0500
-From: fabrizio.gennari@philips.com
-To: Ed Vance <EdV@macrolink.com>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        "'linux-serial'" <linux-serial@vger.kernel.org>,
-        "'Andrey Panin'" <pazke@orbita1.ru>,
-        "'Russell King'" <rmk@arm.linux.org.uk>
-Subject: RE: Oxford Semiconductor's OXCB950 UART not recognized by serial.	c
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFEB6EFF7E.7F3A82B2-ONC1256B74.002DB609@diamond.philips.com>
-Date: Wed, 6 Mar 2002 10:14:49 +0100
-X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
- 22, 2000) at 06/03/2002 10:34:25,
-	Serialize complete at 06/03/2002 10:34:25
+	id <S293410AbSCFJT4>; Wed, 6 Mar 2002 04:19:56 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:58521 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S293408AbSCFJTo> convert rfc822-to-8bit; Wed, 6 Mar 2002 04:19:44 -0500
+Importance: Normal
+Subject: Re: s390 is totally broken in 2.4.18
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OFDEDB80A6.8491BBDE-ONC1256B74.0031662E@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Wed, 6 Mar 2002 10:17:26 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 06/03/2002 10:22:26
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ed,
 
-Thank you for the clear explanation.
+Hi Pete,
 
-As you probably have noticed, the last two entries of serial_pci_tbl[] 
-match PCI_ANY_ID for both vendor and device, respectively for serial ports 
-and modems. Therefore, any serial or modem PCI card is in 
-serial_pci_tbl[]! The associated entry in pci_boards[] is pbn_default 
-(=0). So, all "pbn_default" entries that match serial_pci_guess_board() 
-are marked as redundant!
+>Certainly, I do. I worked around the partitions part with "obvious"
+>fixup:
+>
+>-       if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
+>+       if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo))
+>-       data = read_dev_sector(bdev, inode->label_block*blocksize, &sect);
+>+       data = read_dev_sector(bdev, info->label_block*blocksize, &sect);
+>
+>But that code did not look too good, in particular it was
+>not checking return codes. So, it was on my TODO list to
+>clean it up.
 
-Probably, the right way could be to replace the message "Redundant entry" 
-with something like:
-"The settings of your serial card (vendor_id:dev_id) have been 
-successfully guessed. In order help developers add a proper entry for your 
-card, send this message along with the output of lspci -vv to 
-an_address_where_somebody_reads_your_messages@unlike_serial_pci_info_where_nobody_cares_about_you".
+This won't work. The trouble we have is that a partition detection can be
+done in two completely different situations. First the "normal" detection
+with a builtin dasd driver. ibm_partition is called with no locks held and
+with a non-open block device. Second the detection can be done as part of
+a block device open with an automated module load. In this case the
+get_blkfops functions requests the module which in turn calls the partition
+detection. That is done with the bd_sem semaphore of the block device held.
+The call to ioctl_by_bdev with the builtin dasd driver fails because the
+block device is not open. So we would need to add an open to the partition
+detection but we can't do that because then the automated module load
+would dead-lock.
+Your hack to get it running only works by chance. The first ioctl_by_bdev
+that is supposed to get the block number of the label block will fail as
+well. So normally you'll end up loading the wrong block. The hack we are
+currently using looks like this:
 
-By the way, here is a patch that adds OXCB950 properly to 
-serial_pci_tbl[]. pbn_b0_bt_1_115200 has been used instead of 
-pbn_b0_1_115200, because the latter is identical to pbn_default, and the 
-effect should be the same since OXCB950 is single-port.
+diff -urN linux-2.4.18/fs/block_dev.c linux-2.4.18-s390/fs/block_dev.c
+--- linux-2.4.18/fs/block_dev.c Mon Feb 25 20:38:08 2002
++++ linux-2.4.18-s390/fs/block_dev.c    Fri Mar  1 15:47:25 2002
+@@ -530,11 +530,18 @@
+ {
+        int res;
+        mm_segment_t old_fs = get_fs();
++       struct block_device_operations *bd_op;
 
-Another proposed change: why not create separate entries in pci_boards[] 
-for pbn_b0_1_115200 and pbn_default?
+-       if (!bdev->bd_op->ioctl)
++       bd_op = bdev->bd_op;
++       if (bd_op == NULL) {
++               bd_op = blkdevs[MAJOR(to_kdev_t(bdev->bd_dev))].bdops;
++               if (bd_op == NULL)
++                       return -EINVAL;
++       }
++       if (!bd_op->ioctl)
+                return -EINVAL;
+        set_fs(KERNEL_DS);
+-       res = bdev->bd_op->ioctl(bdev->bd_inode, NULL, cmd, arg);
++       res = bd_op->ioctl(bdev->bd_inode, NULL, cmd, arg);
+        set_fs(old_fs);
+        return res;
+ }
 
-diff -ruN linux/drivers/char/serial.c linux-new/drivers/char/serial.c
---- linux/drivers/char/serial.c Fri Dec 21 18:41:54 2001
-+++ linux-new/drivers/char/serial.c     Fri Mar  1 09:43:42 2002
-@@ -4658,6 +4658,9 @@
-        {       PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_16PCI952,
-                PCI_ANY_ID, PCI_ANY_ID, 0, 0, 
-                pbn_b0_2_115200 },
-+       {       PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_OXCB950,
-+               PCI_ANY_ID, PCI_ANY_ID, 0, 0, 
-+               pbn_b0_bt_1_115200 },
- 
-        /* Digitan DS560-558, from jimd@esoft.com */
-        {       PCI_VENDOR_ID_ATT, PCI_DEVICE_ID_ATT_VENUS_MODEM,
-diff -ruN linux/include/linux/pci_ids.h linux-new/include/linux/pci_ids.h
---- linux/include/linux/pci_ids.h       Fri Dec 21 18:42:03 2001
-+++ linux-new/include/linux/pci_ids.h   Fri Mar  1 09:43:52 2002
-@@ -1458,6 +1458,7 @@
- #define PCI_DEVICE_ID_OXSEMI_12PCI840  0x8403
- #define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9501
- #define PCI_DEVICE_ID_OXSEMI_16PCI952  0x950A
-+#define PCI_DEVICE_ID_OXSEMI_OXCB950   0x950B
- #define PCI_DEVICE_ID_OXSEMI_16PCI95N  0x9511
- #define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
+The idea is to get ioctl_by_bdev to work for non-open devices. But it is
+a hack because I do not safe-guard against module unloading.
 
-Fabrizio Gennari
-Philips Research Monza
-via G.Casati 23, 20052 Monza (MI), Italy
-tel. +39 039 2037816, fax +39 039 2037800
+blue skies,
+   Martin
 
+P.S. I will sent you the patches I sent Marcelo in a private mail.
 
-
-
-Ed Vance <EdV@macrolink.com>
-06/03/2002 01.56
-
- 
-        To:     Fabrizio Gennari/MOZ/RESEARCH/PHILIPS@EMEA1
-"'Andrey Panin'" <pazke@orbita1.ru>
-        cc:     "'Russell King'" <rmk@arm.linux.org.uk>
-"'linux-serial'" <linux-serial@vger.kernel.org>
-"'linux-kernel'" <linux-kernel@vger.kernel.org>
-        Subject:        RE: Oxford Semiconductor's OXCB950 UART not recognized by serial.       c
-        Classification: 
-
-
-
-Hi Fabrizio and Andrey,
-
-About that function in serial.c, serial_pci_guess_board() ... 
-
-On Wed, Feb 20, 2002 at 7:14 AM, Fabrizio Gennari wrote:
-> But, when not using serial_cb, the function serial_pci_guess_board 
-> in serial.c doesn't [recognize the 950 UART] (kernel 2.4.17 tested). 
-> The problem is that the card advertises 3 i/o memory regions and 2 
-> ports. If one replaces the line
-> 
-> if (num_iomem <= 1 && num_port == 1) {
-> 
-> with
-> 
-> if (num_port >= 1) {
-> 
-> in the function serial_pci_guess_board(), the card is detected and 
-> works perfectly. Only, when inserting it, the kernel displays the 
-> message:
-> 
-> Redundant entry in serial pci_table.  Please send the output of
-> lspci -vv, this message (1415,950b,1415,0001)
-> and the manufacturer and name of serial board or modem board
-> to serial-pci-info@lists.sourceforge.net. 
-
-I have dug deeper and found that the "port type guessing" functionality 
-was broken when the driver was ported to the newer PCI interfaces. As 
-it is, the probe function in serial.c (serial_init_one()) is *never* 
-called for devices that do not already match an entry in the PCI id 
-table (serial_pci_tbl[]). The probe function is coded as if non-matching 
-devices would cause the probe to be called with a default table index of 
-zero (pbn_default). This does not happen, because pci_announce_device() 
-bypasses the probe call (pci.c:577) when the driver provides an id table 
-and pci_match_device() cannot find a match in the id table. (pci.c:574)
-
-There is not much point in trying to guess the type of a port that has 
-already been identified. Devices that are not already in the table do 
-not cause the probe and guess functions to be called. 
-
-An older serial.c (rev 5.02 2000-08-09) checks each device against the 
-PCI id table and only attempts a guess if there were no matches. 
-
-At the very least, we could just rip out the guess function and not 
-change the requirement of already being in the table. Or an attempt 
-could be made to fix it to guess on devices that do not match the id 
-table, as it used to work. This would move the id scan back to serial.c
-from the PCI subsystem.
-
-Your opinions please. How should this be fixed? Is there a "right" way?
-
-Best regards,
-Ed Vance                                 serial24@macrolink.com
-
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
 

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVAPMEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVAPMGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbVAPMEm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 07:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVAPMEl
+	id S262490AbVAPMGD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 07:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVAPMGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 07:04:41 -0500
-Received: from verein.lst.de ([213.95.11.210]:56029 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262488AbVAPMEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 07:04:38 -0500
-Date: Sun, 16 Jan 2005 13:04:36 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Thomas Viehmann <tv@beamnet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: permissions of /proc/tty/driver
-Message-ID: <20050116120436.GA13906@lst.de>
-References: <41E80535.1060309@beamnet.de>
+	Sun, 16 Jan 2005 07:06:03 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16395 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262490AbVAPMFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 07:05:54 -0500
+Date: Sun, 16 Jan 2005 13:05:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix CONFIG_AGP depencies
+Message-ID: <20050116120550.GQ4274@stusta.de>
+References: <20050116114457.GA13506@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41E80535.1060309@beamnet.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <20050116114457.GA13506@lst.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 06:45:25PM +0100, Thomas Viehmann wrote:
-> Hi.
-> 
-> This may not be stritly on topic, but I couln't figure out a better 
-> place to ask:
-> 
-> During the packaging of an application, I have the following problem:
-> I would like to run a daemon as non-root. The daemon likes to 
-> (continually) check /proc/tty/driver/usbserial to see whether or not 
-> interesting USB devices  are connected. The permissions of this actual 
-> file is (on a kernel compiled from Debian's kernel-source-2.6.10) 0444, 
-> so this isn't a problem. However, the parent directory /proc/tty/driver 
-> is 0500. I'm not sure whether this is related to Debian DSAs 358 or 423 
-> (where /proc/tty/driver/serial is mentioned as leaking sensitive 
-> information), to me the contents of usbserial look innocent enough.
-> Do you have any hints on what might be a good solution?
+On Sun, Jan 16, 2005 at 12:44:57PM +0100, Christoph Hellwig wrote:
 
-The permissions on the directory look indeed too strict to me.  It might
-be better to just use strict permissions on /proc/tty/driver/serial
-indeed.
+> When I did an allmodconfig on ppc64 it selected agp although ppc64
+> doesn't support agp and has not agp.h so the build failed.
+> 
+> This patch makes CONFIG_AGP depend on the architectures that actually
+> support agp.
+> 
+> 
+> --- 1.39/drivers/char/agp/Kconfig	2005-01-08 01:15:52 +01:00
+> +++ edited/drivers/char/agp/Kconfig	2005-01-16 11:39:56 +01:00
+> @@ -1,5 +1,6 @@
+>  config AGP
+> -	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU && !M68K && !ARM
+> +	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU
+> +	depends on ALPHA || IA64 || PPC || X86
+>  	default y if GART_IOMMU
+>  	---help---
+>  	  AGP (Accelerated Graphics Port) is a bus system mainly used to
 
-Counter-question:  What information is available in
-/proc/tty/driver/usbserial but not in sysfs?
+This doesn't seem to achieve what you want:
+PPC is defined on ppc64...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

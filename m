@@ -1,79 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281682AbRKUJFb>; Wed, 21 Nov 2001 04:05:31 -0500
+	id <S281684AbRKUJIw>; Wed, 21 Nov 2001 04:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281684AbRKUJFV>; Wed, 21 Nov 2001 04:05:21 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:21509 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S281682AbRKUJFH>; Wed, 21 Nov 2001 04:05:07 -0500
-From: Nikita Danilov <Nikita@namesys.com>
+	id <S281685AbRKUJIm>; Wed, 21 Nov 2001 04:08:42 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:34565 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S281684AbRKUJIb>;
+	Wed, 21 Nov 2001 04:08:31 -0500
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slab: avoid linear search in kmalloc? (GCC Guru wanted :)
+In-Reply-To: <20011121024525.A18750@lina.inka.de>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20011121024525.A18750@lina.inka.de>
+Date: 21 Nov 2001 11:14:55 +0200
+Message-ID: <873d38wkmo.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15355.31671.983925.611542@beta.reiserfs.com>
-Date: Wed, 21 Nov 2001 13:02:31 +0300
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        ReiserFS List <reiserfs-list@namesys.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-list] Re: [REISERFS TESTING] new patches on ftp.namesys.com: 2.4.15-pre7
-In-Reply-To: <20011121011655.M1308@lynx.no>
-In-Reply-To: <200111210110.fAL1Atc11275@beta.namesys.com>
-	<15355.27299.252362.983624@beta.reiserfs.com>
-	<20011121011655.M1308@lynx.no>
-X-Mailer: VM 6.96 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
- > On Nov 21, 2001  11:49 +0300, Nikita Danilov wrote:
- > > Dieter NJtzel writes:
- > >  > but kernel 2.4.15-pre7 + preempt + ReiserFS A-N do _NOT_ boot for me.
- > >  > I've tried it with "old" and "new" (current) N-inode-attrs.patch.
- > >  > But that doesn't matter.
- > >  > 
- > >  > [-]
- > >  > IP: routing cache hash table of 8192 buckets, 64Kbytes
- > >  > TCP: Hash tables configured (established 262144 bind 65536)
- > >  > NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
- > >  > reiserfs: checking transaction log (device 08:03) ...
- > >  > Using r5 hash to sort names
- > >  > ReiserFS version 3.6.25
- > >  > VFS: Mounted root (reiserfs filesystem) readonly.
- > >  > Freeing unused kernel memory: 208k freed
- > >  > "Warning: unable to open an initial console." 
- > > 
- > > N-inode-attrs.patch uses previously unused field in reiserfs on-disk
- > > inode structure to store inode attributes. It seems that in some cases
- > > this field actually contains garbage. It may happen that you have got
- > > immutable bit for your console device this way.
- > 
- > Hmm, this may be a kernel bug also, in a way.  I don't know if ext2
- > allows you to set attributes on char/block special files, but if it
- > does, then the "immutable" attribute should _probably_ apply to
- > changing the device inode, rather than writing to the device itself.
- > 
- > In any case, it is also a bad thing to leave garbage in unused parts of
- > on-disk data structs for just this reason, so mkreiserfs should zero
- > everything that is unused inside allocated structs (and the kernel too,
- > because reiserfs allocates inode tables dynamically, right?).
+>>>>> "Bernd" == Bernd Eckenfels <ecki@lina.inka.de> writes:
 
-Yes, it's right, but currently we have what we have currently. I am
-going to extend inode-attrs.patch and add new mount option
-"noattrs". With it ioctls to set and get attributes will continue to
-work, but attributes themselves will not have any effect. Then, one can
-boot with "rootflags=noattrs" and read-write root, clear all attributes
-by chattr -R and remount root.
+Bernd> Hello,
+Bernd> I noticed that kmalloc and kmem_find_general_cachep are doing a linear
+Bernd> search in the cache_sizes array. Isnt it better to speed that up by doing a
+Bernd> binary search or a b-tree if like the following patch?
 
-I put new version of the patch in the same place, Dieter, can you please
-try it?
+Here is a patch using a gcc extension. gcc generates binary search for the case.  
 
- > 
- > Cheers, Andreas
+Regards,
+-velco
 
-Nikita.
-
- > --
- > Andreas Dilger
- > http://sourceforge.net/projects/ext2resize/
- > http://www-mddsp.enel.ucalgary.ca/People/adilger/
+--- slab.c.orig	Wed Sep 19 00:16:26 2001
++++ slab.c	Wed Nov 21 11:11:09 2001
+@@ -1533,15 +1533,9 @@ void * kmem_cache_alloc (kmem_cache_t *c
+  */
+ void * kmalloc (size_t size, int flags)
+ {
+-	cache_sizes_t *csizep = cache_sizes;
+-
+-	for (; csizep->cs_size; csizep++) {
+-		if (size > csizep->cs_size)
+-			continue;
+-		return __kmem_cache_alloc(flags & GFP_DMA ?
+-			 csizep->cs_dmacachep : csizep->cs_cachep, flags);
+-	}
+-	return NULL;
++	kmem_cache_t *cp = kmem_find_general_cachep (size, flags);
++	
++	return cp == NULL ? NULL : __kmem_cache_alloc(cp, flags);
+ }
+ 
+ /**
+@@ -1589,18 +1583,66 @@ void kfree (const void *objp)
+ 
+ kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
+ {
+-	cache_sizes_t *csizep = cache_sizes;
++	int idx;
+ 
+-	/* This function could be moved to the header file, and
+-	 * made inline so consumers can quickly determine what
+-	 * cache pointer they require.
+-	 */
+-	for ( ; csizep->cs_size; csizep++) {
+-		if (size > csizep->cs_size)
+-			continue;
++	switch (size) {
++#if PAGE_SIZE == 4096
++	case 0 ... 32: 
++		idx = 0;
++		break;
++	case 33 ... 64:
++		idx = 1;
++		break;
++#else
++	case 0 ... 64:
++		idx = 1;
++		break;
++#endif
++	case 65 ... 128:
++		idx = 2;
++		break;
++	case 129 ... 256:
++		idx = 3;
++		break;
++	case 257 ...512:
++		idx = 4;
++		break;
++	case 513 ... 1024:
++		idx = 5;
++		break;
++	case 1025 ... 2048:
++		idx = 6;
++		break;
++	case 2049 ... 4096:
++		idx = 7;
++		break;
++	case 4097 ... 8192:
++		idx = 8;
++		break;
++	case 8193 ... 16384:
++		idx = 9;
++		break;
++	case 16385 ... 32768:
++		idx = 10;
++		break;
++	case 32769 ... 65536:
++		idx = 11;
++		break;
++	case 65537 ... 131072:
++		idx = 12;
++		break;
++	default:
++		idx = -1;
+ 		break;
+ 	}
+-	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
++
++	if (idx == -1)
++		return NULL;
++
++#if PAGE_SIZE != 4096
++	idx = idx - 1;
++#endif
++	return (gfpflags & GFP_DMA) ? cache_sizes [idx].cs_dmacachep : cache_sizes [idx].cs_cachep;
+ }
+ 
+ #ifdef CONFIG_SMP

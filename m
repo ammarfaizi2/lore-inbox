@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131414AbRAXAJx>; Tue, 23 Jan 2001 19:09:53 -0500
+	id <S132061AbRAXAJx>; Tue, 23 Jan 2001 19:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132061AbRAXAJo>; Tue, 23 Jan 2001 19:09:44 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:20276 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S131414AbRAXAJh>; Tue, 23 Jan 2001 19:09:37 -0500
-Message-Id: <4.3.2.7.2.20010123160116.00bb4180@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 23 Jan 2001 16:07:26 -0800
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        jearle@nortelnetworks.com,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: RE: [OT?] Coding Style
-In-Reply-To: <200101231647.KAA39761@tomcat.admin.navo.hpc.mil>
+	id <S132068AbRAXAJn>; Tue, 23 Jan 2001 19:09:43 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:10040 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132061AbRAXAJi>; Tue, 23 Jan 2001 19:09:38 -0500
+Date: Wed, 24 Jan 2001 01:09:36 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Sasi Peter <sape@iq.rulez.org>
+Cc: Godfrey Livingstone <godfrey@hattaway-associates.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Ingo's RAID patch for 2.2.18 final?
+Message-ID: <20010124010936.A1201@athlon.random>
+In-Reply-To: <3A61315C.37318059@hattaway-associates.com> <Pine.LNX.4.30.0101240044040.3522-100000@iq.rulez.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0101240044040.3522-100000@iq.rulez.org>; from sape@iq.rulez.org on Wed, Jan 24, 2001 at 12:52:57AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:47 AM 1/23/01 -0600, Jesse Pollard wrote:
->Code is written by the few.
->Code is read by the many, and having _ in there makes it MUCH easier to
->read. Visual comparison of "SomeFunctionName" and "some_function_name"
->is faster even for a coder where there may be a typo (try dropping a 
->character)
->or mis identifing two different symbols with similar names:
->
->         d_hash_mask
->         d_hash_shift
->
->This is relatively easy to read. conversely:
->
->         DHashMask
->         DHashShift
->
->Are more difficult to spot.
+On Wed, Jan 24, 2001 at 12:52:57AM +0100, Sasi Peter wrote:
+> On Sun, 14 Jan 2001, Godfrey Livingstone wrote:
+> 
+> > You MUST apply this patch before the two raid patches. The VM patch stablises
+> > the 2.2.18 virtual memory system and if you don't apply my two repackaged
+> > patches will fail. The above VM patch has been accepted into 2.2.19pre3 and
+> > many people are using it so is not untested.
+> 
+> 2.2.19preXaaX Virtually disabled I/O cache extention-by-swapout, working
+> on previous (semi)stock kernels (raid+ide patched) :(
 
-Depends on what you are used to.  I'm used to both, being both an old-world 
-C programmer from the very beginning (where underscore was the preferred 
-way) and also a Pascal programmer (where the mixed-case form was the 
-preferred way).  Remember a language where dollar signs broke up words?
+Can you measure a performance degradation because of that? Previous kernels was
+certainly not a good example because they was swapping out stuff even with
+`cp /dev/zero .`.
 
-But then again, one reason I'm so fond of structures is that you can get 
-away from the whole thing by being able to read
+> Thus I wouldn't advise VM global till it gets somewhatbalanced to
+> non-swapless configs...
 
-        d.hash.mask
-        d.hash.shift
+You said me your machine start to swapout when the filesystem cache reaches
+100mbytes (on your 384Mbyte box). That seems sane behaviour on a misc load. We
+could add some additional bit of page aging to swapout more when it worth
+indeed, but current balance looks just quite sane.
 
-(It's really too bad that you can't have structured enum constants, isn't it?)
-
-By the way, just so everyone hates me, I would tend to key the above two 
-names as
-
-      DHash_mask
-      DHash_shift
-
-so that, as another person has commented, you identify the class of a 
-variable and the specifics as easily identifiable entities.  That assumes 
-that your "class" names are sufficiently different that a mis-key will be 
-caught by that master of book-keeping, the compiler.
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

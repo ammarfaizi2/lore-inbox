@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262233AbRERCAJ>; Thu, 17 May 2001 22:00:09 -0400
+	id <S262235AbRERCPv>; Thu, 17 May 2001 22:15:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262232AbRERB7u>; Thu, 17 May 2001 21:59:50 -0400
-Received: from ns1.SuSE.com ([202.58.118.2]:9996 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S262233AbRERB7q>;
-	Thu, 17 May 2001 21:59:46 -0400
-Date: Thu, 17 May 2001 18:59:41 -0700
-From: Mads Martin =?iso-8859-1?Q?J=F8rgensen?= <mmj@suse.com>
-To: Bill Nottingham <notting@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac11
-Message-ID: <20010517185941.K776@suse.com>
-In-Reply-To: <E150XLO-0006NY-00@the-village.bc.nu> <20010517214700.A15306@nostromo.devel.redhat.com>
+	id <S262236AbRERCPm>; Thu, 17 May 2001 22:15:42 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:30748 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S262235AbRERCPd>;
+	Thu, 17 May 2001 22:15:33 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Joel Cordonnier <jocordonnier@yahoo.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: newbie problem: compiling kernel 2.4.4, make modules_install , Help please ! 
+In-Reply-To: Your message of "Thu, 17 May 2001 20:50:46 +0200."
+             <20010517185046.353.qmail@web13703.mail.yahoo.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010517214700.A15306@nostromo.devel.redhat.com>; from notting@redhat.com on Thu, May 17, 2001 at 09:47:00PM -0400
+Date: Fri, 18 May 2001 12:15:23 +1000
+Message-ID: <24420.990152123@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bill Nottingham <notting@redhat.com> [May 17. 2001 18:55]:
-> (catching up...)
-> 
-> Alan Cox (alan@lxorguk.ukuu.org.uk) said: 
-> > 2.4.4-ac9
-> ...
-> > o	Further tulip updates				(Jeff Garzik)
-> ...
-> > 2.4.4-ac8
-> > o	Tulip driver updates				(Jeff Garzik)
-> 
-> These updates (sorry, haven't tracked down which of the two) conspire to
-> break the tulip on my ia64, it's a:
+On Thu, 17 May 2001 20:50:46 +0200 (CEST), 
+Joel Cordonnier <jocordonnier@yahoo.fr> wrote:
+>It's the first time that i try to compile my own
+>kernel. At the moment, I have an old RH 6.1 with a
+>2.2.12 kernel.
+>- make modules_install ==> PROBLEM !
+>FIRST the message say that no argument -F exist for
+>the command /sbin/depmod.
 
-You should try the newest driver from:
+Always read Documentation/Changes and check that *all* your utilities
+are up to date before working on a new kernel.
 
-http://sourceforge.net/projects/tulip/
-
--- 
-Mads Martin Joergensen, http://mmj.dk
-"Why make things difficult, when it is possible to make them cryptic and
-totally illogic, with just a little bit more effort."
-                                -- A. P. J.

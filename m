@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUGaXYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUHAAS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUGaXYm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 19:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUGaXYm
+	id S263429AbUHAAS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 20:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUHAAS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 19:24:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21976 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263626AbUGaXXJ (ORCPT
+	Sat, 31 Jul 2004 20:18:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40678 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261474AbUHAAQI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 19:23:09 -0400
-Date: Sat, 31 Jul 2004 19:22:27 -0400
+	Sat, 31 Jul 2004 20:16:08 -0400
+Date: Sat, 31 Jul 2004 20:15:22 -0400
 From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: PATCH: Add support for IT8212 IDE controllers
-Message-ID: <20040731232227.GA28455@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: PATCH: Fix HPT366 crash and support HPT372N
+Message-ID: <20040801001522.GA13954@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,710 +22,372 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a messy scsi faking vendor driver for this card but this instead
-is a standard Linux IDE layer driver.
+On a board containing the HPT372N IDE controller the 2.6.x series kernels will
+misbehave. If the HPT372N is set up with the newer PCI identifier it is 
+ignored. If it is set up with the HPT372 identifier then the kernel crashes
+on boot.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/ide/Kconfig linux-2.6.8-rc2/drivers/ide/Kconfig
---- linux.vanilla-2.6.8-rc2/drivers/ide/Kconfig	2004-07-27 19:22:42.000000000 +0100
-+++ linux-2.6.8-rc2/drivers/ide/Kconfig	2004-07-31 17:15:35.000000000 +0100
-@@ -621,6 +621,12 @@
- 	  <http://www.ite.com.tw/ia/brief_it8172bsp.htm>; picture of the
- 	  board at <http://www.mvista.com/partners/semiconductor/ite.html>.
+This patch is a forward port of my 2.4 driver fixes that have been in 2.4
+for a year but somehow escaped 2.6. Ronny Buchmann caught a couple
+of merge details I missed and those are fixed in this diff too.
+
+As well as adding 372N support this also fixes the unknown revision case
+to avoid crashes should any future 37x variants with weird class_rev's appear
+
+Alan
+
+Signed-off-by: Alan Cox <alan@redhat.com>
+
+--- linux.vanilla-2.6.8-rc2/drivers/ide/pci/hpt366.c	2004-07-27 19:22:42.000000000 +0100
++++ linux-2.6.8-rc2/drivers/ide/pci/hpt366.c	2004-08-01 00:58:30.948290640 +0100
+@@ -1,8 +1,9 @@
+ /*
+- * linux/drivers/ide/pci/hpt366.c		Version 0.34	Sept 17, 2002
++ * linux/drivers/ide/pci/hpt366.c		Version 0.36	April 25, 2003
+  *
+  * Copyright (C) 1999-2003		Andre Hedrick <andre@linux-ide.org>
+  * Portions Copyright (C) 2001	        Sun Microsystems, Inc.
++ * Portions Copyright (C) 2003		Red Hat Inc
+  *
+  * Thanks to HighPoint Technologies for their assistance, and hardware.
+  * Special Thanks to Jon Burchmore in SanDiego for the deep pockets, his
+@@ -39,6 +40,13 @@
+  * Reset the hpt366 on error, reset on dma
+  * Fix disabling Fast Interrupt hpt366.
+  * 	Mike Waychison <crlf@sun.com>
++ *
++ * Added support for 372N clocking and clock switching. The 372N needs
++ * different clocks on read/write. This requires overloading rw_disk and
++ * other deeply crazy things. Thanks to <http://www.hoerstreich.de> for
++ * keeping me sane. 
++ *		Alan Cox <alan@redhat.com>
++ *
+  */
  
-+config BLK_DEV_IT8212
-+	tristate "IT8212 IDE support (Experimental)"
-+	help
-+	  This driver adds support for the ITE 8212 IDE RAID controller in
-+	  both RAID and pass-through mode. 
-+
- config BLK_DEV_NS87415
- 	tristate "NS87415 chipset support"
- 	help
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/ide/pci/it8212.c linux-2.6.8-rc2/drivers/ide/pci/it8212.c
---- linux.vanilla-2.6.8-rc2/drivers/ide/pci/it8212.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.8-rc2/drivers/ide/pci/it8212.c	2004-07-31 22:18:14.000000000 +0100
-@@ -0,0 +1,664 @@
+ 
+@@ -168,6 +176,9 @@
+ 	class_rev &= 0xff;
+ 
+ 	switch(dev->device) {
++		/* Remap new 372N onto 372 */
++		case PCI_DEVICE_ID_TTI_HPT372N:
++			class_rev = PCI_DEVICE_ID_TTI_HPT372; break;
+ 		case PCI_DEVICE_ID_TTI_HPT374:
+ 			class_rev = PCI_DEVICE_ID_TTI_HPT374; break;
+ 		case PCI_DEVICE_ID_TTI_HPT371:
+@@ -217,6 +228,11 @@
+ 	return mode;
+ }
+ 
 +/*
-+ * linux/drivers/ide/pci/it8212.c		Version 0.01	July 2004
-+ *
-+ * Copyright (C) 2004		Red Hat <alan@redhat.com>
-+ *
-+ *  May be copied or modified under the terms of the GNU General Public License
-+ *
-+ *  Documentation available from
-+ * 	http://www.ite.com.tw/pc/IT8212F_V04.pdf
-+ *
-+ *  The ITE8212 isn't exactly a standard IDE controller. It has two
-+ *  modes. In pass through mode then it is an IDE controller. In its smart
-+ *  mode its actually quite a capable hardware raid controller disguised
-+ *  as an IDE controller.
-+ *
-+ *  Errata:
-+ *	Rev 0x10 also requires master/slave use the same UDMA timing and
-+ *	cannot do ATAPI DMA, while the other revisions can do ATAPI UDMA
-+ *	but not MWDMA.
-+ *
-+ *  This has a few impacts on the driver
-+ *  - In pass through mode we do all the work you would expect
-+ *  - In smart mode the clocking set up is done by the controller generally
-+ *  - There are a few extra vendor commands that actually talk to the 
-+ *    controller but only work PIO with no IRQ.
-+ *
-+ *  Vendor areas of the identify block in smart mode are used for the
-+ *  timing and policy set up. Each HDD in raid mode also has a serial
-+ *  block on the disk. The hardware extra commands are get/set chip status,
-+ *  rebuild, get rebuild status.
-+ *
-+ *  In Linux the driver supports pass through mode as if the device was
-+ *  just another IDE controller. If the smart mode is running then
-+ *  volumes are managed by the controller firmware and each IDE "disk"
-+ *  is a raid volume. Even more cute - the controller can do automated
-+ *  hotplug and rebuild.
-+ *
-+ *  The pass through controller itself is a little demented. It has a
-+ *  flaw that it has a single set of PIO/MWDMA timings per channel so
-+ *  non UDMA devices restrict each others performance. It also has a 
-+ *  single clock source per channel so mixed UDMA100/133 performance
-+ *  isn't perfect and we have to pick a clock. Thankfully none of this
-+ *  matters in smart mode. ATAPI DMA is not supported. 
-+ *
-+ *  TODO
-+ *	-	Rev 0x10 in pass through mode needs UDMA clock whacking
-+ *		to work around h/w issues
-+ *	-	Is rev 0x10 out anywhere - test it if so
-+ *	-	More testing
-+ *	-	Find an Innovision 8401D or R board somewhere to test that
-+ *	-	See if we can kick the cheapo board into smart mode
-+ *		ourselves 8)
-+ *	-	ATAPI UDMA is ok but not MWDMA it seems
-+ *	-	Better clock strategy
-+ *	-	RAID configuration ioctls
++ *	Note for the future; the SATA hpt37x we must set
++ *	either PIO or UDMA modes 0,4,5
 + */
 + 
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/delay.h>
-+#include <linux/hdreg.h>
-+#include <linux/ide.h>
-+#include <linux/init.h>
-+
-+#include <asm/io.h>
-+
-+struct it8212_dev
-+{
-+	int	smart:1,		/* Are we in smart raid mode */
-+		timing10:1;		/* Rev 0x10 */
-+	u8	clock_mode;		/* 0, 50 or 66 */
-+	u8	want[2][2];		/* Mode/Pri log for master slave */
-+	
-+	/* We need these for switching the clock when DMA goes on/off */
-+	u8	pio[2];			/* Cached PIO values */
-+	u8	mwdma[2];		/* Cached MWDMA values */
-+};
-+
+ static u8 hpt3xx_ratefilter (ide_drive_t *drive, u8 speed)
+ {
+ 	struct pci_dev *dev	= HWIF(drive)->pci_dev;
+@@ -672,6 +688,69 @@
+ 	return __ide_dma_end(drive);
+ }
+ 
 +/**
-+ *	it8212_clock_strategy
-+ *	@hwif: hardware interface
++ *	hpt372n_set_clock	-	perform clock switching dance
++ *	@drive: Drive to switch
++ *	@mode: Switching mode (0x21 for write, 0x23 otherwise)
 + *
-+ *	Select between the 50 and 66Mhz base clocks to get the best
-+ *	results for this interface. Right now our approach is stupidity
-+ *	first until we have the driver stable
++ *	Switch the DPLL clock on the HPT372N devices. This is a
++ *	right mess.
 + */
 + 
-+static void it8212_clock_strategy(ide_drive_t *drive)
-+{
-+	u8 v;
-+	int sel = 0;
-+	ide_hwif_t *hwif = HWIF(drive);
-+	int clock;
-+	struct it8212_dev *itdev = ide_get_hwifdata(hwif);
-+	/* FIXME: Just to simplify we don't switch clocks once set */
-+	if(itdev->clock_mode == 0)
-+	{
-+		if(itdev->want[0][0] > itdev->want[1][0])
-+			clock = itdev->want[0][1];
-+		else
-+			clock = itdev->want[1][1];
-+		/* Load this into the controller ? */
-+		if(clock == 66)
-+			itdev->clock_mode = 66;
-+		else
-+		{
-+			itdev->clock_mode = 50;
-+			sel = 1;
-+		}
-+		pci_read_config_byte(hwif->pci_dev, 0x50, &v);
-+		v &= ~(1 << (1 + hwif->channel));
-+		v |= sel << (1 + hwif->channel);
-+		pci_write_config_byte(hwif->pci_dev, 0x50, v);
-+		
-+		printk(KERN_INFO "it8212: selected %dMHz clock.\n", itdev->clock_mode);
-+	}
-+}
-+
-+/**
-+ *	it8212_ratemask	-	Compute available modes
-+ *	@drive: IDE drive
-+ *
-+ *	Compute the available speeds for the devices on the interface. This
-+ *	is all modes to ATA133 clipped by drive cable setup.
-+ */
-+ 
-+static byte it8212_ratemask (ide_drive_t *drive)
-+{
-+	u8 mode	= 4;
-+	if (!eighty_ninty_three(drive))
-+		mode = min(mode, (u8)1);
-+	return mode;
-+}
-+
-+/**
-+ *	it8212_tuneproc	-	tune a drive 
-+ *	@drive: drive to tune
-+ *	@mode_wanted: the target operating mode
-+ *
-+ *	Load the timing settings for this device mode into the
-+ *	controller. By the time we are called the mode has been 
-+ *	modified as neccessary to handle the absence of seperate
-+ *	master/slave timers for MWDMA/PIO.
-+ *
-+ *	This code is only used in pass through mode.
-+ */
-+ 
-+static void it8212_tuneproc (ide_drive_t *drive, byte mode_wanted)
++static void hpt372n_set_clock(ide_drive_t *drive, int mode)
 +{
 +	ide_hwif_t *hwif	= HWIF(drive);
-+	struct it8212_dev *itdev = ide_get_hwifdata(hwif);
-+	int unit = drive->select.b.unit;
-+	int channel = hwif->channel;
-+	u8 conf;
 +	
-+				/* Spec says 89 ref driver uses 88 */
-+	static u8 pio_50[]	= { 0x88, 0x82, 0x81, 0x32, 0x21 };
-+	static u8 pio_66[]   	= { 0xAA, 0xA3, 0xA1, 0x33, 0x31 };
++	/* FIXME: should we check for DMA active and BUG() */
++	/* Tristate the bus */
++	outb(0x80, hwif->dma_base+0x73);
++	outb(0x80, hwif->dma_base+0x77);
 +	
-+	static u8 pio_want[]	= { 66, 66, 66, 66, 0 };
++	/* Switch clock and reset channels */
++	outb(mode, hwif->dma_base+0x7B);
++	outb(0xC0, hwif->dma_base+0x79);
 +	
-+	/* We prefer 66Mhz clock for PIO 0-3, don't care for PIO4 */
-+	itdev->want[unit][0] = pio_want[mode_wanted];
-+	itdev->want[unit][1] = 1;	/* PIO is lowest priority */
++	/* Reset state machines */
++	outb(0x37, hwif->dma_base+0x70);
++	outb(0x37, hwif->dma_base+0x74);
 +	
-+	it8212_clock_strategy(drive);
++	/* Complete reset */
++	outb(0x00, hwif->dma_base+0x79);
 +	
-+	/* Program PIO/MWDMA timing bits */
-+	pci_read_config_byte(hwif->pci_dev, 0x54 + 4 * channel, &conf);
-+	if(itdev->clock_mode == 66)
-+		conf = pio_66[mode_wanted];
-+	else	
-+		conf = pio_50[mode_wanted];
-+	pci_write_config_byte(hwif->pci_dev, 0x54 + 4 * channel, conf);
-+	itdev->pio[unit] = conf	;
++	/* Reconnect channels to bus */
++	outb(0x00, hwif->dma_base+0x73);
++	outb(0x00, hwif->dma_base+0x77);
 +}
 +
 +/**
-+ *	it8212_tune_mwdma	-	tune a channel for MWDMA
-+ *	@drive: drive to set up
-+ *	@mode_wanted: the target operating mode
++ *	hpt372n_rw_disk		-	wrapper for I/O
++ *	@drive: drive for command
++ *	@rq: block request structure
++ *	@block: block number
 + *
-+ *	Load the timing settings for this device mode into the
-+ *	controller when doing MWDMA in pass through mode. The caller
-+ *	must manage the whole lack of per device MWDMA/PIO timings and
-+ *	the shared MWDMA/PIO timing register.
++ *	This is called when a disk I/O is issued to the 372N instead
++ *	of the default functionality. We need it because of the clock
++ *	switching
 + *
-+ *	FIXME: before we can enable MWDMA we need to cache PIO/MWDMA
-+ *	timings and reload them on ide_dma_on/ide_dma_off_* because they
-+ *	occupy the same register.
 + */
 + 
-+static void it8212_tune_mwdma (ide_drive_t *drive, byte mode_wanted)
++static ide_startstop_t hpt372n_rw_disk(ide_drive_t *drive, struct request *rq, sector_t block)
 +{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	struct it8212_dev *itdev = (void *)ide_get_hwifdata(hwif);
-+	int unit = drive->select.b.unit;
-+	int channel = hwif->channel;
-+	u8 conf;
++	int wantclock;
 +	
-+	static u8 dma_50[]	= { 0x66, 0x22, 0x21 };
-+	static u8 dma_66[]	= { 0x88, 0x32, 0x31 };
-+	
-+	static u8 mwdma_want[]	= { 0, 66, 0 };
-+	
-+	itdev->want[unit][0] = mwdma_want[mode_wanted];
-+	itdev->want[unit][1] = 2;	/* MWDMA is low priority */
-+	
-+	it8212_clock_strategy(drive);
-+	
-+	/* UDMA bits off */
-+	pci_read_config_byte(hwif->pci_dev, 0x50, &conf);
-+	conf |= 1 << (3 + 2 * channel + unit);
-+	pci_write_config_byte(hwif->pci_dev, 0x50, conf);
-+	
-+	/* Program PIO/MWDMA timing bits */
-+	pci_read_config_byte(hwif->pci_dev, 0x54 + 4 * channel, &conf);
-+	if(itdev->clock_mode == 66)
-+		conf = dma_66[mode_wanted];
-+	else	
-+		conf = dma_50[mode_wanted];
-+	pci_write_config_byte(hwif->pci_dev, 0x54 + 4 * channel, conf);
-+	itdev->mwdma[unit] = conf;	
-+}
-+
-+/**
-+ *	it8212_tune_udma	-	tune a channel for UDMA
-+ *	@drive: drive to set up
-+ *	@mode_wanted: the target operating mode
-+ *
-+ *	Load the timing settings for this device mode into the
-+ *	controller when doing UDMA modes in pass through.
-+ */
-+ 
-+static void it8212_tune_udma (ide_drive_t *drive, byte mode_wanted)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	struct it8212_dev *itdev = ide_get_hwifdata(hwif);
-+	int unit = drive->select.b.unit;
-+	int channel = hwif->channel;
-+	u8 conf;
-+
-+	static u8 udma_50[]= { 0x33, 0x31, 0x21, 0x21, 0x11, 0x11, 0x11 };
-+	static u8 udma_66[]= { 0x44, 0x42, 0x31, 0x21, 0x11, 0x22, 0x11 };
-+	
-+	static u8 udma_want[]	= { 0, 50, 0, 66, 66, 50, 66 };
-+	
-+	itdev->want[unit][0] = udma_want[mode_wanted];
-+	itdev->want[unit][1] = 3;	/* UDMA is high priority */
-+	
-+	it8212_clock_strategy(drive);
-+	
-+	/* UDMA on */
-+	pci_read_config_byte(hwif->pci_dev, 0x50, &conf);
-+	conf &= ~ (1 << (3 + 2 * channel + unit));
-+	pci_write_config_byte(hwif->pci_dev, 0x50, conf);
-+	
-+	/* Program UDMA timing bits */
-+	pci_read_config_byte(hwif->pci_dev, 0x56 + 4 * channel + unit, &conf);
-+	if(itdev->clock_mode == 66)
-+		conf = udma_66[mode_wanted];
++	if(rq_data_dir(rq) == READ)
++		wantclock = 0x21;
 +	else
-+		conf = udma_50[mode_wanted];
-+	
-+	if(mode_wanted >= 5)
-+		conf |= 0x80;	/* UDMA 5/6 select on */
++		wantclock = 0x23;
 +		
-+	pci_write_config_byte(hwif->pci_dev, 0x56 + 4 * channel + unit, conf);
-+	itdev->mwdma[unit] = 0;
-+}
-+
-+/**
-+ *	config_it8212_chipset_for_pio	-	set drive timings
-+ *	@drive: drive to tune
-+ *	@speed we want
-+ *
-+ *	Compute the best pio mode we can for a given device. We must
-+ *	pick a speed that does not cause problems with the other device
-+ *	on the cable.
-+ */
-+ 
-+static void config_it8212_chipset_for_pio (ide_drive_t *drive, byte set_speed)
-+{
-+	u8 unit = drive->select.b.unit;
-+	ide_hwif_t *hwif = HWIF(drive);
-+	ide_drive_t *pair = &hwif->drives[1-unit];
-+	u8 speed = 0, set_pio	= ide_get_best_pio_mode(drive, 4, 5, NULL);
-+	u8 pair_pio;
-+	
-+	/* We have to deal with this mess in pairs */
-+	if(pair != NULL)
++	if(HWIF(drive)->config_data != wantclock)
 +	{
-+		pair_pio = ide_get_best_pio_mode(pair, 4, 5, NULL);
-+		/* Trim PIO to the slowest of the master/slave */
-+		if(pair_pio < set_pio)
-+			set_pio = pair_pio;
++		hpt372n_set_clock(drive, wantclock);
++		HWIF(drive)->config_data = wantclock;
 +	}
-+	it8212_tuneproc(drive, set_pio);
-+	speed = XFER_PIO_0 + set_pio;
-+	/* XXX - We trim to the lowest of the pair so the other drive
-+	   will always be fine at this point until we do hotplug passthru */
-+	   
-+	if (set_speed)
-+		(void) ide_config_drive_speed(drive, speed);
++	return __ide_do_rw_disk(drive, rq, block);
 +}
 +
-+static void config_chipset_for_pio (ide_drive_t *drive, byte set_speed)
-+{
-+	config_it8212_chipset_for_pio(drive, set_speed);
-+}
-+
-+/**
-+ *	it8212_dma_read	-	DMA hook
-+ *	@drive: drive for DMA
-+ *
-+ *	The IT8212 has a single timing register for MWDMA and for PIO
-+ *	operations. As we flip back and forth we have to reload the
-+ *	clock.
-+ *
-+ *	FIXME: for 0x10 model we should reprogram UDMA here
-+ */
-+ 
-+static int it8212_dma_begin(ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif = HWIF(drive);
-+	struct it8212_dev *itdev = ide_get_hwifdata(hwif);
-+	int unit = drive->select.b.unit;
-+	if(itdev->mwdma[unit])
-+		pci_write_config_byte(hwif->pci_dev, 0x54 + 4 * hwif->channel, itdev->mwdma[drive->select.b.unit]);
-+	return __ide_dma_begin(drive);
-+}
-+
-+/**
-+ *	it8212_dma_write	-	DMA hook
-+ *	@drive: drive for DMA stop
-+ *
-+ *	The IT8212 has a single timing register for MWDMA and for PIO
-+ *	operations. As we flip back and forth we have to reload the
-+ *	clock.
-+ *
-+ *	FIXME: for 0x10 model we should reprogram UDMA here
-+ */
-+ 
-+static int it8212_dma_end(ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif = HWIF(drive);
-+	int unit = drive->select.b.unit;
-+	struct it8212_dev *itdev = ide_get_hwifdata(hwif);
-+	int ret = __ide_dma_end(drive);
+ /*
+  * Since SUN Cobalt is attempting to do this operation, I should disclose
+  * this has been a long time ago Thu Jul 27 16:40:57 2000 was the patch date
+@@ -793,13 +872,23 @@
+ 	u16 freq;
+ 	u32 pll;
+ 	u8 reg5bh;
+-
+-#if 1
+ 	u8 reg5ah = 0;
++	unsigned long dmabase = pci_resource_start(dev, 4);
++	u8 did, rid;	
++	int is_372n = 0;
 +	
-+	if(itdev->mwdma[unit])
-+		pci_write_config_byte(hwif->pci_dev, 0x54 + 4 * hwif->channel, itdev->pio[drive->select.b.unit]);
-+	return ret;
-+}
+ 	pci_read_config_byte(dev, 0x5a, &reg5ah);
+ 	/* interrupt force enable */
+ 	pci_write_config_byte(dev, 0x5a, (reg5ah & ~0x10));
+-#endif
 +
++	if(dmabase)
++	{
++		did = inb(dmabase + 0x22);
++		rid = inb(dmabase + 0x28);
 +	
-+/**
-+ *	it8212_tune_chipset	-	set controller timings
-+ *	@drive: Drive to set up
-+ *	@xferspeed: speed we want to achieve
-+ *
-+ *	Tune the ITE chipset for the desired mode. If we can't achieve
-+ *	the desired mode then tune for a lower one, but ultimately
-+ *	make the thing work.
-+ */
-+ 
-+static int it8212_tune_chipset (ide_drive_t *drive, byte xferspeed)
-+{
-+
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	struct it8212_dev *itdev = ide_get_hwifdata(hwif);
-+	u8 speed		= ide_rate_filter(it8212_ratemask(drive), xferspeed);
-+				    
-+	switch(speed) {
-+		case XFER_PIO_4:
-+		case XFER_PIO_3:
-+		case XFER_PIO_2:
-+		case XFER_PIO_1:
-+		case XFER_PIO_0:
-+			if(!itdev->smart)
-+				it8212_tuneproc(drive, (speed - XFER_PIO_0));
-+			break;
-+		/* MWDMA tuning is really hard because our MWDMA and PIO
-+		   timings are kept in the same place. We can switch in the 
-+		   host dma on/off callbacks */
-+		case XFER_MW_DMA_2:
-+		case XFER_MW_DMA_1:
-+		case XFER_MW_DMA_0:
-+			if(!itdev->smart)
-+				it8212_tune_mwdma(drive, (speed - XFER_MW_DMA_0));
-+			break;
-+		case XFER_UDMA_6:
-+		case XFER_UDMA_5:
-+		case XFER_UDMA_4:
-+		case XFER_UDMA_3:
-+		case XFER_UDMA_2:
-+		case XFER_UDMA_1:
-+		case XFER_UDMA_0:
-+			if(!itdev->smart)
-+				it8212_tune_udma(drive, (speed - XFER_UDMA_0));
-+			break;
-+		default:
-+			return 1;
++		if((did == 4 && rid == 6) || (did == 5 && rid > 1))
++			is_372n = 1;
 +	}
+ 
+ 	/*
+ 	 * default to pci clock. make sure MA15/16 are set to output
+@@ -810,47 +899,86 @@
+ 	/*
+ 	 * set up the PLL. we need to adjust it so that it's stable. 
+ 	 * freq = Tpll * 192 / Tpci
++	 *
++	 * Todo. For non x86 should probably check the dword is
++	 * set to 0xABCDExxx indicating the BIOS saved f_CNT
+ 	 */
+ 	pci_read_config_word(dev, 0x78, &freq);
+ 	freq &= 0x1FF;
+-	if (freq < 0xa0) {
+-		pll = F_LOW_PCI_33;
+-		if (hpt_minimum_revision(dev,8))
+-			pci_set_drvdata(dev, (void *) thirty_three_base_hpt374);
+-		else if (hpt_minimum_revision(dev,5))
+-			pci_set_drvdata(dev, (void *) thirty_three_base_hpt372);
+-		else if (hpt_minimum_revision(dev,4))
+-			pci_set_drvdata(dev, (void *) thirty_three_base_hpt370a);
++	
 +	/*
-+	 *	In smart mode the clocking is done by the host controller
-+	 * 	snooping the mode we picked. The rest of it is not our problem
++	 * The 372N uses different PCI clock information and has
++	 * some other complications
++	 *	On PCI33 timing we must clock switch
++	 *	On PCI66 timing we must NOT use the PCI clock
++	 *
++	 * Currently we always set up the PLL for the 372N
 +	 */
-+	return (ide_config_drive_speed(drive, speed));
-+}
-+
-+/**
-+ *	config_chipset_for_dma	-	configure for DMA
-+ *	@drive: drive to configure
-+ *
-+ *	Called by the IDE layer when it wants the timings set up.
-+ */
-+ 
-+static int config_chipset_for_dma (ide_drive_t *drive)
-+{
-+	u8 speed	= ide_dma_speed(drive, it8212_ratemask(drive));
-+
-+	config_chipset_for_pio(drive, !speed);
-+
-+	if (!speed)
-+		return 0;
-+
-+	if (ide_set_xfer_rate(drive, speed))
-+		return 0;
-+
-+	if (!drive->init_speed)
-+		drive->init_speed = speed;
-+
-+	return ide_dma_enable(drive);
-+}
-+
-+/**
-+ *	it8212_configure_drive_for_dma	-	set up for DMA transfers
-+ *	@drive: drive we are going to set up
-+ *
-+ *	Set up the drive for DMA, tune the controller and drive as 
-+ *	required. If the drive isn't suitable for DMA or we hit
-+ *	other problems then we will drop down to PIO and set up
-+ *	PIO appropriately
-+ */
-+ 
-+static int it8212_config_drive_for_dma (ide_drive_t *drive)
-+{
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	struct hd_driveid *id	= drive->id;
-+
-+	if ((id->capability & 1) != 0 && drive->autodma) {
-+		/* Consult the list of known "bad" drives */
-+		if (__ide_dma_bad_drive(drive))
-+			goto fast_ata_pio;
-+
-+		if ((id->field_valid & 4) && it8212_ratemask(drive)) {
-+			if (id->dma_ultra & hwif->ultra_mask) {
-+				/* Force if Capable UltraDMA */
-+				int dma = config_chipset_for_dma(drive);
-+				if ((id->field_valid & 2) && !dma)
-+					goto try_dma_modes;
-+			}
-+		} else if (id->field_valid & 2) {
-+try_dma_modes:
-+			if ((id->dma_mword & hwif->mwdma_mask) ||
-+			    (id->dma_1word & hwif->swdma_mask)) {
-+				/* Force if Capable regular DMA modes */
-+				if (!config_chipset_for_dma(drive))
-+					goto no_dma_set;
-+			}
-+		} else if (__ide_dma_good_drive(drive) &&
-+			   (id->eide_dma_time < 150)) {
-+			/* Consult the list of known "good" drives */
-+			if (!config_chipset_for_dma(drive))
-+				goto no_dma_set;
++	 
++	pci_set_drvdata(dev, NULL);
++	
++	if(is_372n)
++	{
++		printk(KERN_INFO "hpt: HPT372N detected, using 372N timing.\n");
++		if(freq < 0x55)
++			pll = F_LOW_PCI_33;
++		else if(freq < 0x70)
++			pll = F_LOW_PCI_40;
++		else if(freq < 0x7F)
++			pll = F_LOW_PCI_50;
+ 		else
+-			pci_set_drvdata(dev, (void *) thirty_three_base_hpt370);
+-		printk("HPT37X: using 33MHz PCI clock\n");
+-	} else if (freq < 0xb0) {
+-		pll = F_LOW_PCI_40;
+-	} else if (freq < 0xc8) {
+-		pll = F_LOW_PCI_50;
+-		if (hpt_minimum_revision(dev,8))
+-			pci_set_drvdata(dev, NULL);
+-		else if (hpt_minimum_revision(dev,5))
+-			pci_set_drvdata(dev, (void *) fifty_base_hpt372);
+-		else if (hpt_minimum_revision(dev,4))
+-			pci_set_drvdata(dev, (void *) fifty_base_hpt370a);
++			pll = F_LOW_PCI_66;
++			
++		printk(KERN_INFO "FREQ: %d PLL: %d\n", freq, pll);
++			
++		/* We always use the pll not the PCI clock on 372N */
++	}
++	else
++	{
++		if(freq < 0x9C)
++			pll = F_LOW_PCI_33;
++		else if(freq < 0xb0)
++			pll = F_LOW_PCI_40;
++		else if(freq <0xc8)
++			pll = F_LOW_PCI_50;
+ 		else
+-			pci_set_drvdata(dev, (void *) fifty_base_hpt370a);
+-		printk("HPT37X: using 50MHz PCI clock\n");
+-	} else {
+-		pll = F_LOW_PCI_66;
+-		if (hpt_minimum_revision(dev,8))
+-		{
+-			printk(KERN_ERR "HPT37x: 66MHz timings are not supported.\n");
+-			pci_set_drvdata(dev, NULL);
++			pll = F_LOW_PCI_66;
++	
++		if (pll == F_LOW_PCI_33) {
++			if (hpt_minimum_revision(dev,8))
++				pci_set_drvdata(dev, (void *) thirty_three_base_hpt374);
++			else if (hpt_minimum_revision(dev,5))
++				pci_set_drvdata(dev, (void *) thirty_three_base_hpt372);
++			else if (hpt_minimum_revision(dev,4))
++				pci_set_drvdata(dev, (void *) thirty_three_base_hpt370a);
++			else
++				pci_set_drvdata(dev, (void *) thirty_three_base_hpt370);
++			printk("HPT37X: using 33MHz PCI clock\n");
++		} else if (pll == F_LOW_PCI_40) {
++			/* Unsupported */
++		} else if (pll == F_LOW_PCI_50) {
++			if (hpt_minimum_revision(dev,8))
++				pci_set_drvdata(dev, NULL);
++			else if (hpt_minimum_revision(dev,5))
++				pci_set_drvdata(dev, (void *) fifty_base_hpt372);
++			else if (hpt_minimum_revision(dev,4))
++				pci_set_drvdata(dev, (void *) fifty_base_hpt370a);
++			else
++				pci_set_drvdata(dev, (void *) fifty_base_hpt370a);
++			printk("HPT37X: using 50MHz PCI clock\n");
 +		} else {
-+			goto fast_ata_pio;
-+		}
-+		return hwif->ide_dma_on(drive);
-+	} else if ((id->capability & 8) || (id->field_valid & 2)) {
-+fast_ata_pio:
-+no_dma_set:
-+		config_chipset_for_pio(drive, 1);
-+		return hwif->ide_dma_off_quietly(drive);
-+	}
-+	/* IORDY not supported */
-+	return 0;
-+}
-+
-+/**
-+ *	init_chipset_it8212	-	set up an ITE device
-+ *	@dev: PCI device
-+ *	@name: device name
-+ *
-+ */
-+
-+static unsigned int __devinit init_chipset_it8212(struct pci_dev *dev, const char *name)
-+{
-+	return 0;
-+}
-+
-+/**
-+ *	ata66_it8212	-	check for 80 pin cable
-+ *	@hwif: interface to check
-+ *
-+ *	Check for the presence of an ATA66 capable cable on the
-+ *	interface. Note that the firmware writes bits 4-7 having done 
-+ *	the drive side sampling. This may impact hotplug.
-+ */
-+
-+static unsigned int __devinit ata66_it8212(ide_hwif_t *hwif)
-+{
-+	u16 iocfg;
-+	
-+	pci_read_config_word(hwif->pci_dev, 0x40, &iocfg);
-+	if(iocfg & (1 << (4 + 2*hwif->channel)))
-+		return 1;
-+	return 0;
-+}
-+
-+/**
-+ *	init_hwif_it8212	-	set up hwif structs
-+ *	@hwif: interface to set up
-+ *
-+ *	We do the basic set up of the interface structure. The IT8212
-+ *	requires several custom handlers so we override the default
-+ *	ide DMA handlers appropriately
-+ */
-+
-+static void __devinit init_hwif_it8212(ide_hwif_t *hwif)
-+{
-+	struct it8212_dev *idev = kmalloc(sizeof(struct it8212_dev), GFP_KERNEL);
-+	u8 conf;
-+	
-+	if(idev == NULL)
++			if (hpt_minimum_revision(dev,8))
++			{
++				printk(KERN_ERR "HPT37x: 66MHz timings are not supported.\n");
++			}
++			else if (hpt_minimum_revision(dev,5))
++				pci_set_drvdata(dev, (void *) sixty_six_base_hpt372);
++			else if (hpt_minimum_revision(dev,4))
++				pci_set_drvdata(dev, (void *) sixty_six_base_hpt370a);
++			else
++				pci_set_drvdata(dev, (void *) sixty_six_base_hpt370);
++			printk("HPT37X: using 66MHz PCI clock\n");
+ 		}
+-		else if (hpt_minimum_revision(dev,5))
+-			pci_set_drvdata(dev, (void *) sixty_six_base_hpt372);
+-		else if (hpt_minimum_revision(dev,4))
+-			pci_set_drvdata(dev, (void *) sixty_six_base_hpt370a);
+-		else
+-			pci_set_drvdata(dev, (void *) sixty_six_base_hpt370);
+-		printk("HPT37X: using 66MHz PCI clock\n");
+ 	}
+ 	
+ 	/*
+@@ -863,6 +991,11 @@
+ 	if (pci_get_drvdata(dev)) 
+ 		goto init_hpt37X_done;
+ 	
++	if (hpt_minimum_revision(dev,8))
 +	{
-+		printk(KERN_ERR "it8212: out of memory, falling back to legacy behaviour.\n");
-+		goto fallback;
++		printk(KERN_ERR "HPT374: Only 33MHz PCI timings are supported.\n");
++		return -EOPNOTSUPP;
 +	}
-+	memset(idev, 0, sizeof(*idev));
-+	ide_set_hwifdata(hwif, idev);
+ 	/*
+ 	 * adjust PLL based upon PCI clock, enable it, and wait for
+ 	 * stabilization.
+@@ -1000,12 +1133,27 @@
+ {
+ 	struct pci_dev *dev		= hwif->pci_dev;
+ 	u8 ata66 = 0, regmask		= (hwif->channel) ? 0x01 : 0x02;
+-
++	u8 did, rid;
++	unsigned long dmabase		= hwif->dma_base;
++	int is_372n = 0;
 +	
-+	pci_read_config_byte(hwif->pci_dev, 0x50, &conf);
-+	if(conf & 1)
++	if(dmabase)
 +	{
-+		if(hwif->channel == 0)
-+			printk(KERN_INFO "it8212: controller in RAID mode.\n");
-+		idev->smart = 1;
-+	}
-+	else if(hwif->channel == 1)
-+		printk(KERN_INFO "it8212: controller in pass through mode.\n");
-+		
-+	/*
-+	 *	Not in the docs but according to the reference driver
-+	 *	this is neccessary.
-+	 */
-+	pci_read_config_byte(hwif->pci_dev, 0x08, &conf);
-+	if(conf == 0x10)
-+		idev->timing10 = 1;
-+#if 0	/* Needs more research */
-+	else
-+		hwif->atapi_dma = 1;
-+#endif
-+
-+	if(idev->timing10 && !idev->smart)
-+	{
-+		printk(KERN_WARNING "it8212: DMA is not currently supported on revision 0x10 in pass through.\n");
-+		goto fallback;
++		did = inb(dmabase + 0x22);
++		rid = inb(dmabase + 0x28);
++	
++		if((did == 4 && rid == 6) || (did == 5 && rid > 1))
++			is_372n = 1;
 +	}
 +		
-+	hwif->speedproc = &it8212_tune_chipset;
-+	hwif->tuneproc	= &it8212_tuneproc;
+ 	hwif->tuneproc			= &hpt3xx_tune_drive;
+ 	hwif->speedproc			= &hpt3xx_tune_chipset;
+ 	hwif->quirkproc			= &hpt3xx_quirkproc;
+ 	hwif->intrproc			= &hpt3xx_intrproc;
+ 	hwif->maskproc			= &hpt3xx_maskproc;
 +	
-+	/* MWDMA/PIO clock switching for pass through mode */
-+	if(!idev->smart)
-+	{
-+		hwif->ide_dma_begin = &it8212_dma_begin;
-+		hwif->ide_dma_end = &it8212_dma_end;
-+	}
-+
-+	if (!hwif->dma_base)
-+		goto fallback;
-+
-+	hwif->ultra_mask = 0x7f;
-+	hwif->mwdma_mask = 0x07;
-+	hwif->swdma_mask = 0x07;
-+	
-+
-+	hwif->ide_dma_check = &it8212_config_drive_for_dma;
-+	if (!(hwif->udma_four))
-+		hwif->udma_four = ata66_it8212(hwif);
-+
-+	/*
-+	 *	The BIOS often doesn't set up DMA on this controller
-+	 *	so we always do it.
-+	 */
-+
-+	hwif->autodma = 1;
-+	hwif->drives[0].autodma = hwif->autodma;
-+	hwif->drives[1].autodma = hwif->autodma;
-+	return;
-+
-+fallback:
-+	hwif->autodma = 0;
-+	hwif->drives[0].autotune = 1;
-+	hwif->drives[1].autotune = 1;
-+	return;
-+}
-+
-+#define DECLARE_ITE_DEV(name_str)			\
-+	{						\
-+		.name		= name_str,		\
-+		.init_chipset	= init_chipset_it8212,	\
-+		.init_hwif	= init_hwif_it8212,	\
-+		.channels	= 2,			\
-+		.autodma	= AUTODMA,		\
-+		.bootable	= ON_BOARD,		\
-+	}
-+
-+static ide_pci_device_t it8212_chipsets[] __devinitdata = {
-+	/* 0 */ DECLARE_ITE_DEV("IT8212"),
-+};
-+
-+/**
-+ *	it8212_init_one	-	pci layer discovery entry
-+ *	@dev: PCI device
-+ *	@id: ident table entry
-+ *
-+ *	Called by the PCI code when it finds an ITE8212 controller.
-+ *	We then use the IDE PCI generic helper to do most of the work.
-+ */
-+ 
-+static int __devinit it8212_init_one(struct pci_dev *dev, const struct pci_device_id *id)
-+{
-+	ide_setup_pci_device(dev, &it8212_chipsets[id->driver_data]);
-+	return 0;
-+}
-+
-+static struct pci_device_id it8212_pci_tbl[] = {
-+	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8212,  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-+	{ 0, },
-+};
-+
-+MODULE_DEVICE_TABLE(pci, it8212_pci_tbl);
-+
-+static struct pci_driver driver = {
-+	.name		= "ITE8212 IDE",
-+	.id_table	= it8212_pci_tbl,
-+	.probe		= it8212_init_one,
-+};
-+
-+static int it8212_ide_init(void)
-+{
-+	return ide_pci_register_driver(&driver);
-+}
-+
-+module_init(it8212_ide_init);
-+
-+MODULE_AUTHOR("Alan Cox");
-+MODULE_DESCRIPTION("PCI driver module for the ITE 8212");
-+MODULE_LICENSE("GPL");
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/ide/pci/Makefile linux-2.6.8-rc2/drivers/ide/pci/Makefile
---- linux.vanilla-2.6.8-rc2/drivers/ide/pci/Makefile	2004-07-27 19:21:37.000000000 +0100
-+++ linux-2.6.8-rc2/drivers/ide/pci/Makefile	2004-07-31 17:16:01.000000000 +0100
-@@ -13,6 +13,7 @@
- obj-$(CONFIG_BLK_DEV_HPT366)		+= hpt366.o
- #obj-$(CONFIG_BLK_DEV_HPT37X)		+= hpt37x.o
- obj-$(CONFIG_BLK_DEV_IT8172)		+= it8172.o
-+obj-$(CONFIG_BLK_DEV_IT8212)		+= it8212.o
- obj-$(CONFIG_BLK_DEV_NS87415)		+= ns87415.o
- obj-$(CONFIG_BLK_DEV_OPTI621)		+= opti621.o
- obj-$(CONFIG_BLK_DEV_PDC202XX_OLD)	+= pdc202xx_old.o
-
-
------ End forwarded message -----
-
--- 
---
-  "Have you noticed the way people's intelligence capabilities decline
-   sharply the minute they start waving guns around?"
- 		-- Dr. Who
++	if(is_372n)
++		hwif->rw_disk = &hpt372n_rw_disk;
+ 
+ 	/*
+ 	 * The HPT37x uses the CBLID pins as outputs for MA15/MA16
+@@ -1179,7 +1327,8 @@
+ 	u8 pin1 = 0, pin2 = 0;
+ 	unsigned int class_rev;
+ 	char *chipset_names[] = {"HPT366", "HPT366",  "HPT368",
+-				 "HPT370", "HPT370A", "HPT372"};
++				 "HPT370", "HPT370A", "HPT372",
++				 "HPT372N" };
+ 
+ 	if (PCI_FUNC(dev->devfn) & 1)
+ 		return;
+@@ -1187,9 +1336,14 @@
+ 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+ 	class_rev &= 0xff;
+ 
+-	strcpy(d->name, chipset_names[class_rev]);
++	if(dev->device == PCI_DEVICE_ID_TTI_HPT372N)
++		class_rev = 6;
++		
++	if(class_rev <= 6)
++		d->name = chipset_names[class_rev];
+ 
+ 	switch(class_rev) {
++		case 6:
+ 		case 5:
+ 		case 4:
+ 		case 3: ide_setup_pci_device(dev, d);
+@@ -1243,6 +1397,7 @@
+ 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT302, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2},
+ 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT371, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3},
+ 	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT374, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4},
++	{ PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT372N, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, hpt366_pci_tbl);
+--- linux.vanilla-2.6.8-rc2/include/linux/pci_ids.h	2004-07-31 17:25:49.000000000 +0100
++++ linux-2.6.8-rc2/include/linux/pci_ids.h	2004-07-31 17:28:37.000000000 +0100
+@@ -1184,6 +1184,7 @@
+ #define PCI_DEVICE_ID_TTI_HPT302	0x0006
+ #define PCI_DEVICE_ID_TTI_HPT371	0x0007
+ #define PCI_DEVICE_ID_TTI_HPT374	0x0008
++#define PCI_DEVICE_ID_TTI_HPT372N	0x0009	// apparently a 372N variant?
+ 
+ #define PCI_VENDOR_ID_VIA		0x1106
+ #define PCI_DEVICE_ID_VIA_8763_0	0x0198

@@ -1,67 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268588AbUJDV2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268655AbUJDVfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268588AbUJDV2z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268589AbUJDV11
+	id S268655AbUJDVfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268650AbUJDVeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:27:27 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52422 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268580AbUJDVY4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:24:56 -0400
-Date: Mon, 4 Oct 2004 23:26:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: annabellesgarden@yahoo.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2
-Message-ID: <20041004212633.GA13527@elte.hu>
-References: <200410041634.24937.annabellesgarden@yahoo.de> <20041004122304.4f545f3c.akpm@osdl.org> <20041004122533.0a85a1ad.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 4 Oct 2004 17:34:22 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:31435 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268641AbUJDVcJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:32:09 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH/RFC: pci wakeup hooks (2/4)
+Date: Mon, 4 Oct 2004 14:03:00 -0700
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041004122533.0a85a1ad.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200410041403.00219.david-b@pacbell.net>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_UwbYB3J14qpqdeC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+--Boundary-00=_UwbYB3J14qpqdeC
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > You're the second person who is seeing in_interrupt() returning true when
-> >  clearly it should not be doing so.  Ingo, did you do soemthing which might
-> >  have caused this?
-> 
-> I'm suspecting that something is causing preempt_count() to overflow
-> into the softirq counter.  An imbalanced preempt_disable(), for
-> example.
+This adds minimal PCI hooks.  Maybe they should be more minimal.
 
-yes, that was it. Must not put side-effects into a macro that is NOP on
-!SMP.
 
-	Ingo
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
---- linux/include/net/neighbour.h.orig
-+++ linux/include/net/neighbour.h
-@@ -113,8 +113,9 @@ struct neigh_statistics
+
+--Boundary-00=_UwbYB3J14qpqdeC
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="wake-pci.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="wake-pci.patch"
+
+This makes PCI use the new pmcore wakeup bits.
+
+ - Initialized in pci_enable_device()
+ - Disabled in pci_disable_device()
+ - Lets userspace change the initial may_wakeup policy.
+
+Previously, wakeup policies were driver-specific (other than ethtool).
+This patch lets all drivers outsource such decisions.
+
+NOTE:  the init could presumably be done in probe() and never changed,
+except maybe when ACPI and PCI disagree.  But since I (mis?)remember
+hearing about devices that choke on capability accesses during probe(),
+it's done this way instead.
+
+ALSO:  I think some boards can support system wakeup using signals other
+then PME# ... handling wakeup without PCI PM.  Presumably board-specific
+logic (ACPI bytecodes?) would kick in to mark the devices appropriately;
+playing well with such logic might mean never clearing can_wakeup.
+
+[ against 2.6.9-rc3 ]
+
+
+--- 1.70/drivers/pci/pci.c	Wed Aug  4 18:20:19 2004
++++ edited/drivers/pci/pci.c	Mon Oct  4 12:42:04 2004
+@@ -382,6 +382,16 @@
+ int
+ pci_enable_device(struct pci_dev *dev)
+ {
++#ifdef	CONFIG_PM
++	/* with PCI PM capability, it can maybe issue PME# */
++	u16 pm = pci_find_capability(dev, PCI_CAP_ID_PM);
++	device_init_wakeup(&dev->dev, 0);
++	if (pm) {
++		pci_read_config_word(dev, pm + PCI_PM_PMC, &pm);
++		if (pm & PCI_PM_CAP_PME)
++			device_init_wakeup(&dev->dev, 1);
++	}
++#endif
+ 	dev->is_enabled = 1;
+ 	return pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
+ }
+@@ -400,6 +410,7 @@
+ 	
+ 	dev->is_enabled = 0;
+ 	dev->is_busmaster = 0;
++	device_init_wakeup(&dev->dev, 0);
  
- #define NEIGH_CACHE_STAT_INC(tbl, field)				\
- 	do {								\
--		(per_cpu_ptr((tbl)->stats, get_cpu())->field)++;	\
--		put_cpu();						\
-+		preempt_disable();					\
-+		(per_cpu_ptr((tbl)->stats, smp_processor_id())->field)++; \
-+		preempt_enable();					\
- 	} while (0)
+ 	pci_read_config_word(dev, PCI_COMMAND, &pci_command);
+ 	if (pci_command & PCI_COMMAND_MASTER) {
+@@ -434,6 +445,10 @@
+ 	 * wake events, it's a nop; otherwise fail */
+ 	if (!pm) 
+ 		return enable ? -EIO : 0; 
++
++	/* don't enable unless driver core lets us */
++	if (!device_may_wakeup(&dev->dev) && enable)
++		return -EROFS;
  
- struct neighbour
+ 	/* Check device's ability to generate PME# */
+ 	pci_read_config_word(dev,pm+PCI_PM_PMC,&value);
+
+--Boundary-00=_UwbYB3J14qpqdeC--

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312413AbSDEJIH>; Fri, 5 Apr 2002 04:08:07 -0500
+	id <S312414AbSDEJJH>; Fri, 5 Apr 2002 04:09:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312414AbSDEJH5>; Fri, 5 Apr 2002 04:07:57 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:39634 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S312413AbSDEJHq>; Fri, 5 Apr 2002 04:07:46 -0500
-Date: Fri, 5 Apr 2002 11:07:44 +0200 (CEST)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Oleg Drokin <green@namesys.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] reiserfs error message at boot-time
-In-Reply-To: <20020405124022.A18140@namesys.com>
-Message-ID: <Pine.LNX.4.40.0204051103280.13870-100000@infcip10.uni-trier.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312416AbSDEJI7>; Fri, 5 Apr 2002 04:08:59 -0500
+Received: from albireo.ucw.cz ([194.213.206.36]:31748 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312414AbSDEJIs>;
+	Fri, 5 Apr 2002 04:08:48 -0500
+Date: Fri, 5 Apr 2002 11:08:46 +0200
+From: Martin Mares <mj@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
+Message-ID: <20020405090846.GL609@ucw.cz>
+In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org> <20020405080115.GA409@ucw.cz> <m1k7rmpmyq.fsf@frodo.biederman.org> <20020405084733.GG609@ucw.cz> <m1g02aplmm.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Apr 2002, Oleg Drokin wrote:
+Hello!
 
-> Hello!
->
-> On Fri, Apr 05, 2002 at 10:37:06AM +0200, Daniel Nofftz wrote:
-> > > > i just moved my linux partitition from ext3 to reiserfs.
-> > > > now my problem:
-> > > > when i boot, i get this error-message:
-> > > > reiserfs: Unrecognized mount option errors
-> > > > reiserfs: Unrecognized mount option errors
-> > > Can you show content of your /etc/fstab?
-> > > It complains you passed it unrecognised "errors" option.
-> > /dev/hda2       /               reiserfs        defaults,errors=remount-ro
-> > 0       1
-> > i think it's the "errors=remount-ro" then, or ?
->
-> Exactly.
-> Get rid of that errors=... option and you'll be fine
+> Show me a linker script that can link together bootsect.o and bsetup.o.
 
-thanks ... will test it afap
+I don't have enough time to experiment with it at this very moment
+and I admit that the linker bugs you've mentioned make it impossible,
+but the objdump solution I mentioned (and tried a couple of minutes ago)
+works and although it isn't perfect, it's lovely compared to the
+"-start" hack.
 
-daniel
-
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+hAS ANYONE SEEN MY cAPSLOCK KEY?

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262667AbREZO3E>; Sat, 26 May 2001 10:29:04 -0400
+	id <S261247AbREZOfk>; Sat, 26 May 2001 10:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262659AbREZO2z>; Sat, 26 May 2001 10:28:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60676 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262663AbREZO2l>;
-	Sat, 26 May 2001 10:28:41 -0400
-Date: Sat, 26 May 2001 10:54:16 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vm in 2.4.5
-In-Reply-To: <20010526102544.A1152@werewolf.able.es>
-Message-ID: <Pine.LNX.4.21.0105261049130.30264-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261355AbREZOfa>; Sat, 26 May 2001 10:35:30 -0400
+Received: from web12304.mail.yahoo.com ([216.136.173.102]:6674 "HELO
+	web12304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261247AbREZOfV>; Sat, 26 May 2001 10:35:21 -0400
+Message-ID: <20010526124840.261.qmail@web12304.mail.yahoo.com>
+Date: Sat, 26 May 2001 05:48:40 -0700 (PDT)
+From: Mariam George <mariam_reeny@yahoo.com>
+Subject: QOS &fair queuing modules- can't load
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, J . A . Magallon wrote:
+Hello all,
+   Let me put across my situation. I need to load the
+modules for QOS & Fair Queuing . I have compiled my
+kernel with modular support for these modules. When I
+try to load these modules a series of error messages
+all indicating unresolved symbols are coming. The
+unresolved symbols  are all defined in
+/usr/src/linux/include/net/pkt_sched.h. 
+I have checked out /proc/ksyms file and these symbols
+are listed there, 
+(not the usual way). Here is an entry from the file
+for one of the unresolved symbols. 
+ c01558cc register_qdisc_R__ver_register_qdisc
+Can anyone please help me figure out what the problem
+is? 
+Thanking You in advance,
+          Mariam.
+NB: Please reply to me personally as I am not
+subscribed to this list.
 
-> It does not begin to use swap in a growing fashion, it just appears
-> full in a moment.
-
-It gets _allocated_ in a moment, but things don't actually get
-swapped out. This isn't a problem.
-
-The real problem is that we don't actively reclaim swap space
-when it gets full. We just assign swap to parts of processes,
-but we never reclaim it when we need swap space for something
-else; at least, not until the process exit()s or exec()s.
-
-> And when all the gcc process ends, my mem ends up like:
-
->              total       used       free     shared    buffers     cached
-> Swap:       152576     152576          0
-> 
-> What process do belong the 150Mb of swap ???!!!!
-> Shouldn't that pages have been freed when gcc ends ?
-
-Linux reclaims swap cache (and swap space) when it encounters
-them in its scan of memory. It doesn't take the trouble of
-freeing the swap on exit() but the swap space will be freed
-later.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263400AbTKCVv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTKCVv5
+	id S263310AbTKCVrG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 16:47:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTKCVrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:51:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50649 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263400AbTKCVvz (ORCPT
+	Mon, 3 Nov 2003 16:47:06 -0500
+Received: from ale.atd.ucar.edu ([128.117.80.15]:32199 "EHLO ale.atd.ucar.edu")
+	by vger.kernel.org with ESMTP id S263310AbTKCVrD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:51:55 -0500
-Date: Mon, 3 Nov 2003 13:51:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Charles Martin <martinc@ucar.edu>
-cc: linux-kernel@vger.kernel.org
+	Mon, 3 Nov 2003 16:47:03 -0500
+From: "Charles Martin" <martinc@ucar.edu>
+To: <linux-kernel@vger.kernel.org>
+Cc: <martinc@atd.ucar.edu>
 Subject: RE: interrupts across  PCI bridge(s) not handled
-In-Reply-To: <000001c3a249$2f9f30a0$c3507580@atdsputnik>
-Message-ID: <Pine.LNX.4.44.0311031344180.20373-100000@home.osdl.org>
+Date: Mon, 3 Nov 2003 14:46:57 -0700
+Message-ID: <000001c3a254$043d88c0$c3507580@atdsputnik>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.44.0311031218250.20373-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 3 Nov 2003, Charles Martin wrote:
 > 
-> I do notice that bus #6, which is the backplane extender,
-> has an APIC id of 0, but an APIC #0 was not enumerated. All other
-> buses get assigned to the identified APICs of 8, 9 and 10. 
+> Hmm..
+> 
+> The MP tables mention IRQ's up to 51, but no further.
+> 
+> But the PIRQ routing tables talk about irqs 92-95 for bus 6.
+> 
+> It really looks like the IRQ routing entries are just broken. One 
+> potential fix is to enable ACPI, and hope that the ACPI irq 
+> routing isn't 
+> as broken as the PIRQ stuff.
+> 
+> Other than that I don't see anything we can do. Anybody else?
+> 
+> 		Linus
+> 
 
-Yes. However, I have this suspicion that that is just more confusion by 
-the BIOS tables. 
+I enabled ACPI, and the interrupts are now assigned correctly,
+and in the range of 48-51:
 
-The reason APIC #0 wasn't enumerated is that it doesn't seem to exist in 
-the MP tables. So not only does the PIRQ table not contain any information 
-about that bus, but the MP tables are very silent about it too.
+           CPU0       CPU1       
+ 
+ 48:        878        389   IO-APIC-level  piraq
+ 49:        923        336   IO-APIC-level  piraq
+ 50:      17239        838   IO-APIC-level  ioc2, piraq
+ 51:        879        404   IO-APIC-level  piraq
 
-I dunno.. Maybe I'm reading this wrong, but it really looks like your BIOS 
-tables are just pretty broken. 
+They are now getting handled properly, i.e. I am receiveing 
+interrupts from the boards located in the backplane extender. 
+This is with 2.4.22.
 
-It would really be interesting to hear whether using ACPI enumeration 
-fixes it or at least whether the symptoms are different. Especially with 
-newer hardware, the BIOS people have only ever tested their tables with 
-Windows, and ACPI will have overridden any MPtable information, so..
+I didn't realize that ACPI is related to interrupt management 
+as well as power control. Is there any downside to using ACPI?
 
-		Linus
+Thanks,
+Charlie
 

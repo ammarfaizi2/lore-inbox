@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUIJPkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUIJPqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUIJPkR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUIJPjn
+	id S267494AbUIJPqU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUIJPqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:39:43 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58254 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S267494AbUIJPjA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:39:00 -0400
-Message-ID: <4141CAAB.4020708@tmr.com>
-Date: Fri, 10 Sep 2004 11:39:23 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Latest microcode data from Intel.
-References: <Pine.LNX.4.44.0409091726010.2713-100000@einstein.homenet>
-In-Reply-To: <Pine.LNX.4.44.0409091726010.2713-100000@einstein.homenet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Sep 2004 11:46:20 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64923
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S267494AbUIJPjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:39:47 -0400
+Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux-IDE <linux-ide@vger.kernel.org>
+In-Reply-To: <4141C8C6.1030307@inet6.fr>
+References: <1094826555.7868.186.camel@thomas.tec.linutronix.de>
+	 <4141BFDF.1050200@inet6.fr>
+	 <1094828803.13450.4.camel@thomas.tec.linutronix.de>
+	 <4141C8C6.1030307@inet6.fr>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1094830352.13450.21.camel@thomas.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 17:32:32 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> Hello,
-> 
-> I have received and tested the latest microcode data file from Intel, The
-> file is dated 2nd September 2004. You can download it both as standalone
-> (bzip2-ed) text file and bundled with microcode_ctl utility from the
-> Download section of the website:
-> 
-> http://urbanmyth.org/microcode/
-> 
-> Please let me know if you find any problems with this data file or with
-> the Linux microcode driver. Thank you.
+On Fri, 2004-09-10 at 17:31, Lionel Bouton wrote:
 
-Why are you using /dev/cpu/microcode instead of /dev/cpu/N/microcode for 
-each CPU? Today they are all the same device, but for the future I would 
-think this was an obvious CYA.
+> I see it's not really a cutting-edge design (2002). Apparently nobody 
+> seemed to care about Linux IDE performance before :-|
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+The chipset was often used in Notebooks. I just checked one of them and
+it has both the 5513 fake bits set, so I never noticed. :) 
+I think most developers were following the recommended settings in the
+manual, but some obviously did not.
+
+tglx
+
+

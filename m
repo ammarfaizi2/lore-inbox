@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbQLKJt7>; Mon, 11 Dec 2000 04:49:59 -0500
+	id <S129688AbQLKJ44>; Mon, 11 Dec 2000 04:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQLKJtt>; Mon, 11 Dec 2000 04:49:49 -0500
-Received: from mail11.voicenet.com ([207.103.0.37]:60889 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S129688AbQLKJtl>;
-	Mon, 11 Dec 2000 04:49:41 -0500
-Message-ID: <3A349C12.4000408@voicefx.com>
-Date: Mon, 11 Dec 2000 04:19:14 -0500
-From: "John O'Donnell" <johnod@voicefx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; m18) Gecko/20001130
-X-Accept-Language: en
+	id <S129765AbQLKJ4r>; Mon, 11 Dec 2000 04:56:47 -0500
+Received: from web1.clubnet.net ([206.126.128.3]:62728 "EHLO web1.clubnet.net")
+	by vger.kernel.org with ESMTP id <S129688AbQLKJ4c>;
+	Mon, 11 Dec 2000 04:56:32 -0500
+Message-ID: <000901c06354$7732e240$598d7ece@snowline.net>
+From: "Eddy" <edmc@snowline.net>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E144syy-0005sE-00@the-village.bc.nu>
+Subject: Re: Linux 2.2.18 almost...
+Date: Mon, 11 Dec 2000 01:26:28 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: YUP- Almost 2.2.18
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-I was trying to re-install my VMware with the latest 2.2.18 kernel.
-It failed to try to re-compile the modules.
+did we lose ip=autoconf. I see dhcp and arp transmitting infinitely. I was
+able to boot only after completely entering nfsroot= and ip= boot commands.
 
---------------------
-What is the location of the directory of C header files that match your 
-running kernel? [/usr/src/linux/include]
+2.2.17 worked thusley.
 
-The directory of kernel headers (version 2.2.17) does not match your 
-running
-kernel (version 2.2.18). Consequently, even if the compilation of the 
-module wassuccessful, the module would not load into the running kernel.
------------------------
+root=/dev/nfs ether=0,0,eth0
 
-Upon inspection of /usr/src/linux/include/linux/version.h
-it plainly says 2.2.17.... ????  I changed it to 2.2.18 and all is well.
-Johnny O
+2.2.18-pre26 works only
 
--- 
-=== Never ask a geek why, just nod your head and slowly back away.===
-+==============================+====================================+
-| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
-| Voice FX Corporation (a subsidiary of Student Advantage)          |
-| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
-| Suite 610                    |           www.voicefx.com          |
-| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
-+==============================+====================================+
+root=/dev/nfs
+nfsroot=192.168.50.11:/tftpboot/191.168.50.2,rsize=8192,wsize=8192
+ip=192.168.50.2:192.168.50.11:::Eddys486:eth0:off ether=0,0,eth0
+
+for some reason
+
+root=/dev/nfs ether=0,0,eth0   gives this result
+
+Dec 10 22:48:24 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:48:24 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
+(00:50:ba:05:7b:fb) via eth0
+Dec 10 22:48:26 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:48:26 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
+(00:50:ba:05:7b:fb) via eth0
+Dec 10 22:48:29 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:48:29 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
+(00:50:ba:05:7b:fb) via eth0
+Dec 10 22:48:36 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:48:36 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
+(00:50:ba:05:7b:fb) via eth0
+Dec 10 22:48:47 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:48:47 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
+(00:50:ba:05:7b:fb) via eth0
+
+and
+
+root=/dev/nfs ip=both ether=0,0,eth0     gives this result
+
+Dec 10 22:50:52 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:50:52 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
+via eth0
+Dec 10 22:50:55 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:50:55 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
+via eth0
+Dec 10 22:51:00 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:51:00 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
+via eth0
+Dec 10 22:51:09 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
+Dec 10 22:51:09 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
+via eth0
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

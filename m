@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbTIMWYx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 18:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTIMWYx
+	id S262243AbTIMWc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 18:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbTIMWc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 18:24:53 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57851 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262224AbTIMWYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 18:24:51 -0400
-Date: Sun, 14 Sep 2003 00:24:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
+	Sat, 13 Sep 2003 18:32:57 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:44998 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S262237AbTIMWcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 18:32:17 -0400
+From: Folkert van Heusden <folkert@vanheusden.com>
+Reply-To: folkert@vanheusden.com
+Organization: vanheusdendotcom
 To: linux-kernel@vger.kernel.org
-Subject: [0/4] [2.6 patch] better i386 CPU selection
-Message-ID: <20030913222443.GN27368@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: 2.6.0test-1 error while writing files to loopback UDF filesystem UDF-fs DEBUG fs/udf/balloc.c:192:udf_
+bitmap_free_blocks: bit 3128 already set
+Date: Sun, 14 Sep 2003 00:32:15 +0200
+User-Agent: KMail/1.5.3
+WebSite: http://www.vanheusden.com/
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309140032.15116.folkert@vanheusden.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch is now splitted into the following four patches:
+Hi,
 
-[1/4]
-- changed the i386 CPU selection from a choice to single options for
-  every cpu
-- renamed the M* variables to CPU_*, this is needed to ask the users
-  upgrading from older kernels instead of silently changing the
-  semantics
-- X86_GOOD_APIC -> X86_BAD_APIC
-- AMD Elan is a different subarch, you can't configure a kernel that
-  runs on both the AMD Elan and other i386 CPUs
-- added optimizing CFLAGS for the AMD Elan
-- gcc 2.95 supports -march=k6 (no need for check_gcc)
-- help text changes/updates
-
-[2/4]
-move "struct movsl_mask movsl_mask" to usercopy.c 
-(CONFIG_X86_INTEL_USERCOPY is used on non-Intel CPUs)
-
-[3/4]
-- made arch/i386/kernel/cpu/Makefile CPU specific
-
-[4/4]
-- made arch/i386/kernel/cpu/mtrr/Makefile CPU specific
-
-Dependencies between these patches:
-- patch 3 requires 1+2
-- patch 4 requires 1
-
-The main part is patch 1.
-
-Patch 2 fixes a small issue that only shows up with patch 3.
-
-Patches 3+4 add some space optimizations by omitting unneeded code. They 
-are _not_ required, the main part is patch 1.
+I created an UDF filesystem (dd of=file if=... && mkudffs file && mount -o 
+loop -t udf /mnt) and then added some files to it (tar cf - * | (cd /mnt ; 
+tar xvpf -)).
+That went well for a while, but after aprox 2GB (beware: no file was longer 
+then +/- 1GB), I got these errors in syslog:
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
+bitmap_free_blocks: bit 3125 already set
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
+bitmap_free_blocks: byte=20
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
+bitmap_free_blocks: bit 3125 already set
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
+bitmap_free_blocks: byte=60
+etc.
+I then did a compare (cmp -l) and found that the copied file was different 
+from the original one, so it seems something is going wrong while writing to 
+the UDF filesystem.
+As I wrote in the subjectline, I'm using 2.6.0-test1.
 
 
-TODO:
-- which CPUs exactly need X86_ALIGNMENT_16?
-- change include/asm-i386/module.h to use some kind of bitmask
+Folkert van Heusden
 
++--------------------------------------------------------------------------+
+| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
+| a try, it brings monitoring logfiles (and such) to a different level!    |
++---------------------------------------------------= www.vanheusden.com =-+
 
-cu
-Adrian

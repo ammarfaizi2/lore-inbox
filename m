@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263292AbTJUTeX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTJUTeX
+	id S263244AbTJUTYb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263254AbTJUTYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:34:23 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31507 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263292AbTJUTeV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:34:21 -0400
+	Tue, 21 Oct 2003 15:24:31 -0400
+Received: from mra01.ex.eclipse.net.uk ([212.104.129.110]:44510 "EHLO
+	mra01.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S263244AbTJUTYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:24:02 -0400
+From: Ian Hastie <ianh@iahastie.clara.net>
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [RFC] frandom - fast random generator module
-Date: 21 Oct 2003 19:24:20 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bn4154$i74$1@gatekeeper.tmr.com>
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com>
-X-Trace: gatekeeper.tmr.com 1066764260 18660 192.168.12.62 (21 Oct 2003 19:24:20 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Subject: Re: Uncorrectable Error on IDE, significant accumulation
+Date: Tue, 21 Oct 2003 20:23:58 +0100
+User-Agent: KMail/1.5.4
+References: <20031020132705.GA1171@synertronixx3> <20031020230510.GD15563%konsti@ludenkalle.de> <200310210203.45512.ianh@iahastie.local.net>
+In-Reply-To: <200310210203.45512.ianh@iahastie.local.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310212024.00096.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3F8E8101.70009@pobox.com>, Jeff Garzik  <jgarzik@pobox.com> wrote:
+On Tuesday 21 Oct 2003 02:03, Ian Hastie wrote:
+> On Tuesday 21 Oct 2003 00:05, Konstantin Kletschke wrote:
+> > The new K7S5A Pro behaves strange.
+> >
+> > When lilo comes up, it gets keyboard input containing of 4-6 lines
+> > "t:t:t:t:t:t:t:t:t:t:t:t:"...
+> > When hitting backspace whole line gets cleared, enter boots default then.
+> > WTF?
+> > even with no keyboard plugged in. My first thought was disabling
+> > "usb-keyboard support for dos" but... only a usb printer, ethernet and
+> > serial modem are plugged in...
+>
+> Kernel configuration optins aren't going to affect LILO
 
-| In this case, there is no such requirement.  More below.
+Oh well. *8}  It's that funny thing called the BIOS isn't it.  Doh!!
 
-If the result is used for crypto that is a requirement, as noted in the
-original post. See below. And if it's in a shared library it's subject
-to various other attempts at control or duplication of results.
-| 
-| 
-| > But it's really a matter of taste. That's why I bring up the subject here.
-| 
-| 
-| Processors are trending towards putting RNG on the CPU.  VIA won't be 
-| the last, I predict.  When generating random bits is a single 
-| instruction, "xstore", userspace applications _should_ be directly using 
-| this.  It should not be in-kernel.  And similarly, if there is no 
-| requirement that the kernel's entropy pool is used, the userspace 
-| application _should_ be where the implementation lives.
+: USB Function for DOS
+: Enable this item if you plan to use the USB ports on this mainboard in a DOS
+: environment.
 
-If you are running multiple threads you may really want some independent
-random numbers. Looking at this, I believe that if I open the device and
-then various threads read blocks from the device, each will get
-independent random numbers.
+Well assuming it implies some kind of 16bit related access mode then I suppose 
+it should be disabled anyway.  However I didn't see a specific "usb-keyboard 
+support for dos" in the manual.  What happens if you disable "USB Function 
+Support" completely?
 
-Take this as "there are benefits to having this in the kernel" and not
-"this really should be in the kernel." A contribution to the discussion.
-
-What I don't hear is results from testing, from doing this as a
-procedure, etc.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Ian.
+
+

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312887AbSDKUGO>; Thu, 11 Apr 2002 16:06:14 -0400
+	id <S312885AbSDKUGQ>; Thu, 11 Apr 2002 16:06:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312886AbSDKUGN>; Thu, 11 Apr 2002 16:06:13 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:46608 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S312885AbSDKUGN>; Thu, 11 Apr 2002 16:06:13 -0400
-Date: Thu, 11 Apr 2002 13:05:59 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-In-Reply-To: <a94p5a$2sa$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10204111302350.28825-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312886AbSDKUGP>; Thu, 11 Apr 2002 16:06:15 -0400
+Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:50450 "HELO
+	jose.vato.org") by vger.kernel.org with SMTP id <S312885AbSDKUGO>;
+	Thu, 11 Apr 2002 16:06:14 -0400
+From: "Tim Pepper" <tpepper@vato.org>
+Date: Thu, 11 Apr 2002 13:06:07 -0700
+To: Greg KH <greg@kroah.com>
+Cc: Guillaume Boissiere <boissiere@attbi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [STATUS]  Spring cleanup
+Message-ID: <20020411130607.A1527@vato.org>
+Mail-Followup-To: Tim Pepper <tpepper@vato.org>, Greg KH <greg@kroah.com>,
+	Guillaume Boissiere <boissiere@attbi.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CB48512.17441.E3FE393@localhost> <20020411020354.GA19074@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Mailer: None of your business.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> >  Many many moons ago, the GGI project promised us the ability to buy a
-> > four-processor box, four PCI video cards, four USB mice & keyboards, and
-> > let four people use that machine at once, with benefits all around.
+On Wed 10 Apr at 19:03:54 -0700 greg@kroah.com done said:
+> On Wed, Apr 10, 2002 at 06:31:46PM -0400, Guillaume Boissiere wrote:
 > > 
+> > o Pending     Finalize new device naming convention           (Linus Torvalds)
+> > --> ???  I am not sure what is going on here -- it seems Linus is
+> > waiting for someone to step up and submit a patch following the new
+> > device naming convention he vaguely outlined a while back?
 > 
-> "Benefits all around?"  Such a machine would be slower and more
-> expensive than four single processor boxes, so what's the point?
+> People are slowly working on this, so I'd mark it "in development /
+> planning" or something like that.
 
-Not with the right hardware combinations. The four processors is over
-kill. I have a multi-desktop system that is dual and it is plenty of
-power. With a regular machine just put in two matrox g450 cards and enable
-dual head support. Attach 3 extra USB keyboards and 3 USB mice and you
-are ready to go. With purpore kernel support of course. So the cost is
-no longer a issue.
+There's a big thread this week on linux-scsi about this wrt to scsi devices,
+which is probably one of the places where it's more visible.
 
+t.
+
+-- 
+*********************************************************
+*  tpepper@vato dot org             * Venimus, Vidimus, *
+*  http://www.vato.org/~tpepper     * Dolavimus         *
+*********************************************************

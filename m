@@ -1,58 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270911AbTGPPFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 11:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270913AbTGPPFK
+	id S270900AbTGPPJK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270904AbTGPPJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 11:05:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48854 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270911AbTGPPFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 11:05:05 -0400
-Date: Wed, 16 Jul 2003 08:16:39 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: root@mauve.demon.co.uk
-Cc: stephane.wirtel@belgacom.net, linux-kernel@vger.kernel.org
-Subject: Re: How to test the new kernel 2.6.0-test1 ?
-Message-Id: <20030716081639.4f40b6b0.rddunlap@osdl.org>
-In-Reply-To: <200307161025.LAA01549@mauve.demon.co.uk>
-References: <20030716082731.GA6202@stargate.brutele.be>
-	<200307161025.LAA01549@mauve.demon.co.uk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 16 Jul 2003 11:09:10 -0400
+Received: from ATuileries-102-1-2-177.w193-253.abo.wanadoo.fr ([193.253.207.177]:36251
+	"EHLO ttimo.net") by vger.kernel.org with ESMTP id S270900AbTGPPIm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 11:08:42 -0400
+Date: Wed, 16 Jul 2003 17:23:31 +0200
+From: Timothee Besset <ttimo@idsoftware.com>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20030716172331.3bd3610e.ttimo@idsoftware.com>
+In-Reply-To: <200307161608.34637.m.watts@eris.qinetiq.com>
+References: <200307161406.h6GE6iHt002041@sirius.nix.badanka.com>
+	<200307161608.34637.m.watts@eris.qinetiq.com>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
+X-SA-Exim-Mail-From: ttimo@idsoftware.com
+Subject: Re: VESA Framebuffer dead in 2.6.0-test1
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0 (built Sun Jun  8 21:12:30 CEST 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jul 2003 11:25:18 +0100 (BST) root@mauve.demon.co.uk wrote:
+I have the same problem. It boots but I have no console. In 2.5 there was
+an item 'enable virtual console' (in Character Devices) which I had
+enabled, and the boot console was showing. I didn't see this option
+displayed when I configured 2.6 from scratch (CONFIG_VT stuff)
 
-| > I am using the kernel 2.6.0-test1 on my computer, and it works perfectly.
-| > 
-| > Which are the weaknesses of the new kernel, an idea ?
-| 
-| It almost certainly has bugs.
-| Most of the ones present probably don't show up much on an average 
-| machine, with an average load.
-| 
-| Try the edge cases, such as plugging in twenty thousand USB mice, running
-| it on a 386/20 with 4Mb ram, unplugging USB devices when in use, ...
-| 
-| The rarer bugs that do present on an average machine, with average loading
-| just need more people to test, and report oopses or other errors related
-| to the kernel.
-| 
-| Just running it helps, if only because it lowers the probability of such
-| bugs being present before 2.6.0 is released.
+TTimo
 
-The I/O schedulers and process(or) scheduler want to be beaten on
-very badly.  For process scheduler, try playing music and writing
-a CD while building kernels etc. and see how well you can move the
-mouse around in X.
+On Wed, 16 Jul 2003 16:08:34 +0100
+Mark Watts <m.watts@eris.qinetiq.com> wrote:
 
---
-~Randy
-| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> > Hi.
+> >
+> > A number of people have experienced the same problem as I have; the VESA
+> > framebuffer is just..black on boot. I haven't seen any reports on this,
+> > though. dmesg says what it always have said before about the fb.
+> >
+> > I boot with vga=791 (as specified in lilo.conf).. Have something changed
+> > or is it just broken? :o)
+> >
+> > Thanks.
+> 
+> I boot with vga=0x343 (1400x1050) and its working fine (2.6.0-test1)
+> 
+> This is a Dell Latitude C610 laptop, so it may be using the ati framebuffer 
+> stuff, although I get this in dmesg:
+> 
+> vesafb: framebuffer at 0xe0000000, mapped to 0xd8800000, size 16384k
+> vesafb: mode is 1400x1050x24, linelength=4200, pages=2
+> vesafb: protected mode interface info at c000:5378
+> vesafb: scrolling: redraw
+> vesafb: directcolor: size=0:8:8:8, shift=0:16:8:0
+> fb0: VESA VGA frame buffer device
+> Console: switching to colour frame buffer device 175x65
+> 
+> Mark.
+> 
+> - -- 
+> Mark Watts
+> Senior Systems Engineer
+> QinetiQ TIM
+> St Andrews Road, Malvern
+> GPG Public Key ID: 455420ED
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.1 (GNU/Linux)
+> 
+> iD8DBQE/FWpyBn4EFUVUIO0RAjqwAJ43U2vmUw7kMFkoeIsdDLyxhAbLBQCgmMST
+> LO8Pk8CAhCD0Uq/kuPd9hBo=
+> =W+2A
+> -----END PGP SIGNATURE-----
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

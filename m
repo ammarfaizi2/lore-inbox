@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131235AbRA3AUm>; Mon, 29 Jan 2001 19:20:42 -0500
+	id <S130982AbRA3AZ2>; Mon, 29 Jan 2001 19:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130982AbRA3AUc>; Mon, 29 Jan 2001 19:20:32 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:1671 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131235AbRA3AUM>; Mon, 29 Jan 2001 19:20:12 -0500
-Date: Tue, 30 Jan 2001 01:20:02 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Cc: John Levon <moz@compsoc.man.ac.uk>, Timur Tabi <ttabi@interactivesi.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-Message-ID: <20010130012002.S1173@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.21.0101291708140.30959-100000@mrworry.compsoc.man.ac.uk> <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>; from pgpkeys@hislinuxbox.com on Mon, Jan 29, 2001 at 10:27:50AM -0800
+	id <S131283AbRA3AZS>; Mon, 29 Jan 2001 19:25:18 -0500
+Received: from mail.lcisp.com ([24.142.167.15]:48393 "EHLO lcisp.com")
+	by vger.kernel.org with ESMTP id <S130982AbRA3AZJ>;
+	Mon, 29 Jan 2001 19:25:09 -0500
+From: "Kevin Krieser" <kkrieser_list@footballmail.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Recommended swap for 2.4.x.
+Date: Mon, 29 Jan 2001 18:24:49 -0600
+Message-ID: <004b01c08a53$0e5da270$0700a8c0@thinkpad>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+In-Reply-To: <Pine.LNX.4.21.0101291826280.20955-100000@benatar.snurgle.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 10:27:50AM -0800, David D.W. Downey wrote:
-> And don't tell me "Well, then you shouldn't be touching the kernel if
-> you're not a developer" because that's crap too.
+You mean my current 1.9 gig of swap is overkill? :)
 
-No this is a good advise. "Never touch anything you don't
-understand." If you like to develop for Linux, you should
-understand the API you use and if you don't understand it, either
-learn more about it (e.g. reading the source ;-)) or stop using
-it.
+I have 256MB of RAM, and am currently not using any of the swap.
 
-Regards
+So, I probably have too much swap allocated.  But I wanted to find an use
+for a gig SCSI drive I have, and it was just easiest to add it as swap.
 
-Ingo Oeser, reading it since 1996
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281236AbRKMAIt>; Mon, 12 Nov 2001 19:08:49 -0500
+	id <S281241AbRKMAMt>; Mon, 12 Nov 2001 19:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281252AbRKMAIj>; Mon, 12 Nov 2001 19:08:39 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62971
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281236AbRKMAI3>; Mon, 12 Nov 2001 19:08:29 -0500
-Date: Mon, 12 Nov 2001 16:08:22 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Andrew Morton <akpm@zip.com.au>, Ben Israel <ben@genesis-one.com>,
+	id <S281248AbRKMAMi>; Mon, 12 Nov 2001 19:12:38 -0500
+Received: from www.marchia.RWTH-Aachen.DE ([137.226.136.9]:665 "EHLO
+	server.marchia.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id <S281244AbRKMAMb>; Mon, 12 Nov 2001 19:12:31 -0500
+Message-Id: <200111130012.fAD0C4722481@server.marchia.rwth-aachen.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Markus Kohls <markusk@bnet-ibb.de>
+To: =?iso-8859-1?q?J=E9r=F4me=20Marant?= <jerome.marant@free.fr>,
         linux-kernel@vger.kernel.org
-Subject: Re: File System Performance
-Message-ID: <20011112160822.E32099@mikef-linux.matchmail.com>
-Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Andrew Morton <akpm@zip.com.au>, Ben Israel <ben@genesis-one.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net> <3BEFF9D1.3CC01AB3@zip.com.au> <00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net> <3BF02702.34C21E75@zip.com.au> <200111121959.fACJxsj08462@vindaloo.ras.ucalgary.ca> <20011112150740.B32099@mikef-linux.matchmail.com> <200111130004.fAD04v912703@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200111130004.fAD04v912703@vindaloo.ras.ucalgary.ca>
-User-Agent: Mutt/1.3.23i
+Subject: Re: Slow down problems (VM related?) with 2.4.1x kernels
+Date: Tue, 13 Nov 2001 01:12:08 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <1005599658.3bf03baaa786b@imp.free.fr>
+In-Reply-To: <1005599658.3bf03baaa786b@imp.free.fr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-scanner: scanned by Inflex 1.0.6 - using Sophos AntiVir
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 05:04:57PM -0700, Richard Gooch wrote:
-> Mike Fedyk writes:
-> > On Mon, Nov 12, 2001 at 12:59:54PM -0700, Richard Gooch wrote:
-> > > Here's an idea: add a "--compact" option to tar, so that it creates
-> > > *all* inodes (files and directories alike) in the base directory, and
-> > > then renames newly created entries to shuffle them into their correct
-> > > positions. That should limit the number of block groups that are used,
-> > > right?
-> > > 
-> > > It would probably also be a good idea to do that for cp as well, so
-> > > that when I do a "cp -al" of a virgin kernel tree, I can keep all the
-> > > directory inodes together. It will make a cold diff even faster.
-> > 
-> > I don't think that would help at all... With the current file/dir
-> > allocator it will choose a new block group for each directory no
-> > matter what the parent is...
-> 
-> I thought the current implementation was that when creating a
-> directory, ext2fs searches forward from the block group the parent
-> directory is in, looking for a "relatively free" block group. So, a
-> number of successive calls to mkdir(2) with the same parent directory
-> will result in the child directories being in the same block group.
-> 
-> So, creating the directory tree by creating directories in the base
-> directory and then shuffling should result in the directories be
-> spread out over a modest number of block groups, rather than a large
-> number.
-> 
-> Addendum to my scheme: leaf nodes should be created in their
-> directories, not in the base directory. IOW, it's only directories
-> that should use this trick.
-> 
-> Am I wrong in my understanding of the current algorithm?
-> 
+On Monday 12 November 2001 22:14, Jérôme Marant wrote:
+>   I hope this helps.
+> ... 
 
-You are almost describing the new algo to a "T"...
+/me too. Watching .m2v Videos with mplayer (mplayer.sourceforge.net) results 
+in a bit slower Playback. I don't had the problems until i switched to the 
+latest ac-Patches.. I really think, that this can be lead back to the change 
+of the vm in the ac-tree. Before, i sometimes switched between linus kernel 
+tree, and ac-patches, and always i got the result, that playback seemed to be 
+a bit slower with linus kernel. Hope this helps.
 
-It deals very well with fast growth, but not so well with slow growth, as
-mentioned in previous posts in this thread...
+cya. markus
+-- 
+Markus Kohls - Postmaster http://www.bnet-ibb.de
 
-There is a lengthy thread in ext2-devel right now, if you read it it'll
-answer many of your questions.
+eMail: markusk@bnet-ibb.de
 
-Mike

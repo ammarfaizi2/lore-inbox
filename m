@@ -1,93 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265658AbUANJP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265517AbUANJOx
+	id S265952AbUANJ15 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 04:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUANJZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:14:53 -0500
-Received: from [151.99.250.84] ([151.99.250.84]:4350 "EHLO
-	ciliegio.cs.interbusiness.it") by vger.kernel.org with ESMTP
-	id S265439AbUANJNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:13:43 -0500
-From: "Andrea Pusceddu" <a.pusceddu@remosa-valves.com>
-Organization: Remosa SpA | www.remosa-valves.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 14 Jan 2004 10:13:20 +0100
-MIME-Version: 1.0
-Subject: [USB-STORAGE] Repeatable lost files problem
-Reply-to: a.pusceddu@remosa-valves.com
-Message-ID: <40051640.20530.684C08@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Wed, 14 Jan 2004 04:25:48 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:49643 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S265294AbUANJZ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 04:25:26 -0500
+Date: Wed, 14 Jan 2004 10:25:01 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Jones <davej@redhat.com>, paul.devriendt@amd.com,
+       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+       mark.langsdorf@amd.com
+Subject: Re: Cleanups for powernow-k8
+Message-ID: <20040114092501.GA11381@dominikbrodowski.de>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Dave Jones <davej@redhat.com>, paul.devriendt@amd.com,
+	cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+	mark.langsdorf@amd.com
+References: <99F2150714F93F448942F9A9F112634C080EF39F@txexmtae.amd.com> <20040114034237.GT14674@redhat.com> <20040114090138.GB260@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+In-Reply-To: <20040114090138.GB260@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have a weird repeateable problem using a mp3 player (Medion PRO2 256 MB) 
-seen under linux as a usb mass storage, through usb-storage module.
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Device: MP3 Player and USB storage device (256MB)
+On Wed, Jan 14, 2004 at 10:01:39AM +0100, Pavel Machek wrote:
+> Hi!
+>=20
+> >  > >> Dave had a good idea of a minimal ACPI parser for trying to retri=
+eve the
+> >  > >> table of p-states from an ACPI BIOS without needing the full AML =
+interpreter.
+> >  > >> I will see if I can get that to work in powernow-k8-acpi=20
+> >  > > =20
+> >  > > If done properly, that parsing code could be shared by the K7=20
+> >  > > driver too.
+> >  >=20
+> >  > Agreed. Function in a header file? Don't want the drivers attempting=
+ to
+> >  > call each other at runtime.
+> >=20
+> > Works for me, or shove it out into its own .c file, and have both drive=
+rs link against it.
+>=20
+> Would acpi parsing be usefull for non-amd systems, too?
 
-vendor ID 0x66f (Sigmatel Inc)
-chipset ID :  0x8000 
+The acpi "performance library", whether it uses the CONFIG_ACPI parser or
+some small independent parser, is (at least) also useful for
 
-It is reported to work correctly with usb-storage on 
-http://www.qbik.ch/usb/devices/index.php
+- ACPI 2.0 P-States using I/O-port access [current
+  arch/i386/kernel/cpu/cpufreq/acpi.c driver -- it can be cleaned up by
+  that. In fact, I'm currently working on it.]
 
-relevant modules: usb-storage, usb-ohci
-Debian Woody (stable) with default kernel 2.4.18bf
-hotplug or usbmgr (same problem with both)
+- speedstep-centrino driver [can use ACPI info instead of built-in tables]
+  [sample patch based on earlier acpi-perflib patch is in the cpufreq and
+   acpi-devel archives]
 
-This is how to reproduce the trouble:
-1) plug in the device 
-2) mount -t auto  /dev/sda  /mnt/usbdrive
-3) cp ./filecopiedfromlinux.foo  /mnt/usbdrive
-4) ls /mnt/usbdrive :
-	filecopiedfromwindows.foo
-	filecopiedfromlinux.foo
-5) umount /mnt/usbdrive
-6) unplug physically the device, i.e. disconnect it from usb port
-7) from the Player LCD display i can actually see both files, and I can 
-even listen to them, if they are MP3 audio files. So the files ARE in the 
-usb drive! I do swear it :)
+	Dominik
 
-But if now the weirdness comes up: if  I do as follows:
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-8) plug in the device again
-9) mount again as in step 2)
-10) ls /mnt/usbdrive :
-	filecopiedfromwindows.foo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-The file copied from Linux has been deleted! What's weird, IMHO, is that 
-ONLY the file(s) copied from Linux are lost, regardless of file content and 
-size. File(s) copied by means of windows are not "volatile" , i.e. they 
-persist between the sessions! Astonishing, isn't it?
+iD8DBQFABQrtZ8MDCHJbN8YRAjbnAJ0a+nBryCp+Kxopt++/el0K/IebvACggM4m
+8xtkleb3YO6sF54QKzXUeGQ=
+=oWEi
+-----END PGP SIGNATURE-----
 
-Some additional info:
-a) If I skip step 6), thus I don't  disconnect physically the device, then 
-the problem disappears.
-b) If I perform steps the corresponding of steps 8, 9, 10 using windows, 
-the filecopiedfromlinux are lost as well.
-I think there's something wrong with the chipset, even if its reported as 
-working.
-c) I can read and copy and use all files in the usb drive, without any 
-problems. If don't remove the usb player, I don't experience any 
-corruption.
-d) My Linux Box is rather old (AMD K6-II 400 MHz, 512 MB Ram), but it works 
-well and is stable. 
-e) Sometimes it's possible to recover files using some undelete utility.
-
-I can post dmesg output if this can help, or give you any other information 
-you may need to focus the problem.
-
-Sorry for the very long message, but I wanted to be as more precise as i 
-can. 
-Thank you for the time you all spend in developing Linux kernel,  I think 
-that our poor world is a bit better also because of you. 
-
--- 
-Call me Ishmael
-
+--X1bOJ3K7DJ5YkBrT--

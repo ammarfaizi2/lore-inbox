@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291106AbSBLPZa>; Tue, 12 Feb 2002 10:25:30 -0500
+	id <S291110AbSBLP0U>; Tue, 12 Feb 2002 10:26:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291110AbSBLPZU>; Tue, 12 Feb 2002 10:25:20 -0500
-Received: from [199.203.178.211] ([199.203.178.211]:53943 "EHLO
-	exchange.store-age.com") by vger.kernel.org with ESMTP
-	id <S291106AbSBLPZM> convert rfc822-to-8bit; Tue, 12 Feb 2002 10:25:12 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
-Subject: RE: Linux console at boot
+	id <S291114AbSBLP0L>; Tue, 12 Feb 2002 10:26:11 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31756 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291110AbSBLPZv>; Tue, 12 Feb 2002 10:25:51 -0500
+Subject: Re: Linux 2.4.18-pre9-ac1
+To: tcaprice@logatique.fr (Thomas Capricelli)
+Date: Tue, 12 Feb 2002 15:39:23 +0000 (GMT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020212151128.5555123CC9@persephone.dmz.logatique.fr> from "Thomas Capricelli" at Feb 12, 2002 04:13:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="x-user-defined"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 12 Feb 2002 17:25:05 +0200
-Message-ID: <DCC3761A6EC31643A3BAF8BB584B26CC0AAE55@exchange.store-age.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux console at boot
-Thread-Index: AcGz2Idr/H/rnDR1SLGyfz2bh+xAZQAAIi7Q
-From: "Alexander Sandler" <ASandler@store-age.com>
-To: "Bradley D. LaRonde" <brad@ltc.com>
-Cc: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16af1f-00029U-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> 	I'm sure lot of people would like to know. Are you considering using bk ? 
+> Are you waiting for linus to make a final decision, will you never use it, do 
+> you prefer some other tools ? do you prefer the way it's now ?
 
-> > > Is there any way to stop the console scrolling during 
-> boot? My reason
-> > > for this is I am trying to troubleshoot a boot problem with
-> > > 2.4.18-pre7 and I would like to give a more useful report than "it
-> > > won't boot" but the screen outputs information every few 
-> seconds and I
-> > > can't "freeze" the display so I can copy down the initial 
-> error(s).
-> > >
-> > > This is an Intel unit using the standard console (not 
-> serial console).
-> > > pre7 will not boot but pre6 boots every time.
+For what I'm doing it doesnt really make much sense unless Marcelo does. If
+Marcelo did I might play with it
 
-You may try to make to make a system to sleep for a while (until you'll
-press something for instance) from the initrd image. Take a look at the
-Documentation/initrd.txt (???).
-Depending on the message you are interested to see, this should help.
+> 	Oh, and does RH use any source management software internally ? 
 
-Alexandr Sandler.
+yes

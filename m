@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbULSWtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbULSW5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbULSWtK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 17:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbULSWtK
+	id S261348AbULSW5I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 17:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbULSW5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 17:49:10 -0500
-Received: from main.gmane.org ([80.91.229.2]:6364 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261347AbULSWtI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 17:49:08 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ari Pollak <aripollak@gmail.com>
-Subject: Re: 2.6.10-rc3-mm1: swsusp
-Date: Sun, 19 Dec 2004 17:48:39 -0500
-Message-ID: <cq50gt$ppc$1@sea.gmane.org>
-References: <200412181852.31942.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Sun, 19 Dec 2004 17:57:08 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:18528 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261348AbULSW5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 17:57:05 -0500
+Message-ID: <41C6073B.6030204@yahoo.com.au>
+Date: Mon, 20 Dec 2004 09:56:59 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lista4@comhem.se
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, mr@ramendik.ru,
+       kernel@kolivas.org
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+In-Reply-To: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-In-Reply-To: <200412181852.31942.rjw@sisk.pl>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Still, unfortunately, today it crashed on suspend and I wasn't able to get any 
-> useful information related to the crash,
+Voluspa wrote:
+> Found the first kernel version with the regression. It's linux-2.6.9-rc1
+> 
 
-Have you tried an -rc3-bk13 snapshot? Some changes went in related to 
-ALSA drivers and swsusp/ACPI suspend, perhaps it will fix the problem.
+Thanks!
+
+"[PATCH] token based thrashing control" would be a prime suspect.
+
+None of my infamous VM patches (which did cause random problems) had gone
+into 2.6.9-rc1. The first ones were in 2.6.9-rc2.
+
+Well, "[PATCH] make shrinker_sem an rwsem" was in -rc1; I guess that would
+be worthwhile testing, if only because it touches vmscan.c
+
+It would be nice to find out what is going on before 2.6.10 gets released,
+but Mats isn't going to be able to do any more testing for the moment.
+Andrew, what should we do?
+
 

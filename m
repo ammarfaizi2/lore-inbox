@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbTLYU6H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 15:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTLYU6G
+	id S264359AbTLYUwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 15:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264361AbTLYUwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 15:58:06 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:22424 "EHLO
+	Thu, 25 Dec 2003 15:52:19 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:54410 "EHLO
 	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264364AbTLYU5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 15:57:53 -0500
-Date: Thu, 25 Dec 2003 12:57:21 -0800
+	id S264359AbTLYUwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 15:52:18 -0500
+Date: Thu, 25 Dec 2003 12:52:09 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: azarah@nosferatu.za.org, Christoph Hellwig <hch@infradead.org>
-cc: Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-Message-ID: <176520000.1072385840@[10.10.2.4]>
-In-Reply-To: <1072381287.7638.52.camel@nosferatu.lan>
-References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com> <20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur> <20031223163904.A8589@infradead.org> <pan.2003.12.25.17.47.43.603779@dungeon.inka.de> <20031225184553.A25397@infradead.org> <1072381287.7638.52.camel@nosferatu.lan>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.6.0-mjb1
+Message-ID: <175850000.1072385528@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.58.0312252019070.23168@student.dei.uc.pt>
+References: <165810000.1072370137@[10.10.2.4]> <Pine.LNX.4.58.0312252019070.23168@student.dei.uc.pt>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,30 +26,29 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > On Tue, 23 Dec 2003 16:47:44 +0000, Christoph Hellwig wrote:
->> > > I disagree. For fully static devices like the mem devices the udev
->> > > indirection is completely superflous.
->> > 
->> > If sysfs does not contain data on mem devices, we will need makedev.
->> > 
->> > devfs did replace makedev. until udev can create all devices,
->> > it would need to re-introduce makedev.
->> 
->> So what?
->> 
+>> I'd be very interested in feedback from anyone willing to test on any
+>> platform, however large or small.
 > 
-> So maybe suggest an solution rather than shooting one down all the
-> time (which do seem logical, and is only apposed by one person currently
-> - namely you =).
+> It's working perfectly for me: in fact it's what I'm running right now.
+> I'm running it on an Asus M3700N laptop...
+> Any tests you want me to do, just e-mail asking them.
 
-Nah, most of us just trust Christoph to fight the good fight for us ;-)
+Cool - thanks. It probably doesn't get as much testing under memory 
+pressure as it should on laptop-sized systems (though I do my best on
+my own boxes). I'd be interested to see how it performs for people on 
+desktop/laptops compared to virgin 2.6.0 - objrmap pays a little during
+pageout for what it gains during regular usage. Just regular desktop
+workload stuff, but measuring performance can be somewhat subjective
+unless you have a more formal (and artificial) test. As long as it's
+tangibly worse, that's fine.
 
-I for one certainly agree with him that for static stuff, we don't need 
-(or want) udev. For inherently hotplug stuff like USB cameras, or large 
-SCSI raid arrays, it's nice, but not for basic things like mem devices 
-and the disk devices I'm booting from - it's just added complexity.
+Or if people are bored, and want something functional to test ... ;-) 
+Fiddle with some of the new config options, eg turn on 4/4 split or 
+2/2 split, or HZ=100, kgdb, kcg, schedstat, etc. Early printk is 
+interesting too, but harder to test - you really need to make it
+lock up before console_init somehow (adding a BUG() or something).
 
-If it works as is, don't screw with it.
+Thanks,
 
 M.
 

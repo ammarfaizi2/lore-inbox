@@ -1,94 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310699AbSCHGaP>; Fri, 8 Mar 2002 01:30:15 -0500
+	id <S310703AbSCHGa7>; Fri, 8 Mar 2002 01:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310702AbSCHGaG>; Fri, 8 Mar 2002 01:30:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22799 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310699AbSCHGaB>; Fri, 8 Mar 2002 01:30:01 -0500
-Message-ID: <3C885A58.4040307@zytor.com>
-Date: Thu, 07 Mar 2002 22:29:44 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S310704AbSCHGaq>; Fri, 8 Mar 2002 01:30:46 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:38148 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S310703AbSCHGa2>; Fri, 8 Mar 2002 01:30:28 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 7 Mar 2002 22:34:02 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Doug Siebert <dsiebert@divms.uiowa.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fast Userspace Mutexes (futex) vs. msem_*
+In-Reply-To: <200203080615.g286Fqh24770@server.divms.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0203072232420.938-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: furwocks: Fast Userspace Read/Write Locks
-In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au>	<20020307153228.3A6773FE06@smtp.linux.ibm.com>	<20020307104241.D24040@devserv.devel.redhat.com>	<20020307191043.9C5F33FE15@smtp.linux.ibm.com>	<a68htg$bc1$1@cesium.transmeta.com> <20020308172706.1e4d3f5e.rusty@rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+On Fri, 8 Mar 2002, Doug Siebert wrote:
 
-> On 7 Mar 2002 12:17:52 -0800
-> "H. Peter Anvin" <hpa@zytor.com> wrote:
-> 
-> 
->>Followup to:  <20020307191043.9C5F33FE15@smtp.linux.ibm.com>
->>By author:    Hubertus Franke <frankeh@watson.ibm.com>
->>In newsgroup: linux.dev.kernel
->>
->>>Take a look at Rusty's futex-1.2, the code is not that different, however
->>>if its all inlined it creates additional code on the critical path 
->>>and why do it if not necessary.
->>>
->>>In this case the futexes are the well tested path, the rest is a cludge on
->>>top of it.
->>>
->>>
->>Perhaps someone could give a high-level description of how these
->>"futexes" work?
->>
-> 
-> Certainly!  This is how Futexes IV (and Futexes V, ignoring the fairness
-> stuff that adds) works:
-> 
-> One or more userspace processes share address space, so they can both do
-> simple atomic operations on the same memory (hence the new PROT_SEM flag to
-> mmap/mprotect for architectures which need to know).  They agree that "this
-> address contains an integer which we use as a mutex" (aka. struct futex).
-> 
-> The futex starts at 1 (available).  down() looks like:
-> 	if (atomic_dec_and_test(futex)) return 0; /* We got it! */
-> 	else sys_futex(futex, DOWN); /* Go to kernel, wait. */
-> 
-> up() looks like:
-> 	if (atomic_inc_positive(futex)) return 0; /* Noone waiting */
-> 	else sys_futex(futex, UP); /* go to kernel, wake people */
-> 
-> Inside the kernel, we do what you'd expect.  For sys_futex(futex, DOWN):
-> 	Pin the page containing the futex, for convenience.
-> 	Hash the kernel address of the futex to get a waitqueue.
-> 	Add ourselves to the waitqueue.
-> 	While !atomic_dec_and_test() (ie. futex still unavailable):
-> 		sleep
-> 		if signal pending, break;
-> 	Unhash from waitqueue
-> 	unpin page.
-> 	return success or -EINTR.
-> 
-> For sys_futex(futex, UP):
-> 	Pin page for convenience.
-> 	Hash kernel address of futex to get the waitqueue.
-> 	set futex to 1 (ie. available).
-> 	Wake up the first one on the waitqueue waiting for this futex.
-> 	unpin page
-> 
-> The only two twists to add are that we don't keep atomic_dec_and_test'ing
-> in the loop forever (if it's already negative we don't bother), so counter
-> doesn't wrap, and we don't use actual waitqueues because we share them, but
-> we want to know which futex each waiter is waiting on.
-> 
+> The direction that the futex implementation is going is looking a lot like
+> how they are implemented on HP-UX (as well as Tru64 and AIX)  I am curious
+> though why the case of "what happens if the process holding the lock dies"
+> is considered unimportant by some people.  It wouldn't be all that much
+> more work to "do it right" (IMHO) and handle this case.  AFAIK, on HP-UX
+> the implementation kept a "locker id" and a linked list of waiters' lock
+> ids (to allow first come first served as well as handling the case of a
+> lock holder dying)  There was an underlying system call that was made when
+> the userspace part in libc found the lock already held and waiting for the
+> lock was desired.
+
+Rusty, you should really make a futex-FAQ :-)
 
 
-Okay, dumb question...
 
-What can this do that shared memory + existing semaphores can't do?
 
-	-hpa
-
+- Davide
 
 

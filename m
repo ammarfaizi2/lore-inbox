@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbSKBUid>; Sat, 2 Nov 2002 15:38:33 -0500
+	id <S261416AbSKBVBA>; Sat, 2 Nov 2002 16:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbSKBUid>; Sat, 2 Nov 2002 15:38:33 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:45956 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S261459AbSKBUi2>;
-	Sat, 2 Nov 2002 15:38:28 -0500
-Date: Sat, 2 Nov 2002 12:44:57 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: LA Walsh <law@tlinx.org>
-Cc: "'Alexander Viro'" <viro@math.psu.edu>, "'Dax Kelson'" <dax@gurulabs.com>,
-       "'Rik van Riel'" <riel@conectiva.com.br>,
-       "'Linus Torvalds'" <torvalds@transmeta.com>,
-       "'Rusty Russell'" <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-Message-ID: <20021102204457.GA6625@tapu.f00f.org>
-References: <Pine.GSO.4.21.0210310241230.13031-100000@weyl.math.psu.edu> <000001c28296$35f8d380$1403a8c0@sc.tlinx.org>
+	id <S261424AbSKBVBA>; Sat, 2 Nov 2002 16:01:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64523 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261416AbSKBVA7>; Sat, 2 Nov 2002 16:00:59 -0500
+Date: Sat, 2 Nov 2002 21:07:24 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Nero <neroz@iinet.net.au>, Romain Lievin <rlievin@free.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+Message-ID: <20021102210724.B8549@flint.arm.linux.org.uk>
+Mail-Followup-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	Nero <neroz@iinet.net.au>, Romain Lievin <rlievin@free.fr>,
+	linux-kernel@vger.kernel.org
+References: <20020625222135.GA617@free.fr> <3DC378D0.5080703@iinet.net.au> <20021102203608.GB731@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000001c28296$35f8d380$1403a8c0@sc.tlinx.org>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021102203608.GB731@gallifrey>; from gilbertd@treblig.org on Sat, Nov 02, 2002 at 08:36:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 09:35:17AM -0800, LA Walsh wrote:
+On Sat, Nov 02, 2002 at 08:36:08PM +0000, Dr. David Alan Gilbert wrote:
+> Wouldn't it be more helpful to iron the (few) small glitches out of the
+> qt based one than write a new one just because you don't happen to like
+> the library?
 
-> Then why do we need 'non-repudiation' w/r/t certificates?
+Maybe, maybe not.  Most, if not all of my boxes here don't have qt, and
+they're not going to get qt any time soon.  qt has a long list of
+dependencies which gtk doesn't have, which, imho is an overriding factor
+for why we should have a gtk implementation.
 
-we dont
+Not that I used the old xconfig often anyway. 8)
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-  --cw

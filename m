@@ -1,62 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261690AbSJ1WfB>; Mon, 28 Oct 2002 17:35:01 -0500
+	id <S261572AbSJ1WVX>; Mon, 28 Oct 2002 17:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261696AbSJ1WfB>; Mon, 28 Oct 2002 17:35:01 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60063 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261690AbSJ1Wey>; Mon, 28 Oct 2002 17:34:54 -0500
-Subject: [EXAMPLE CODE] linux-2.5.44_vsyscall_A1
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, andrea <andrea@suse.de>, ak@muc.de,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       george anzinger <george@mvista.com>, Jeff Dike <jdike@karaya.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>
-In-Reply-To: <1035844155.984.77.camel@cog>
-References: <1035844155.984.77.camel@cog>
-Content-Type: multipart/mixed; boundary="=-olwhRtnc+g8w51mCVeER"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 28 Oct 2002 14:30:22 -0800
-Message-Id: <1035844223.984.80.camel@cog>
-Mime-Version: 1.0
+	id <S261573AbSJ1WVW>; Mon, 28 Oct 2002 17:21:22 -0500
+Received: from dp.samba.org ([66.70.73.150]:50857 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261572AbSJ1WVQ>;
+	Mon, 28 Oct 2002 17:21:16 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: mingming cao <cmm@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]updated ipc lock patch 
+In-reply-to: Your message of "Mon, 28 Oct 2002 14:21:47 -0000."
+             <Pine.LNX.4.44.0210281311001.10156-100000@localhost.localdomain> 
+Date: Tue, 29 Oct 2002 08:47:31 +1100
+Message-Id: <20021028222738.201E02C4D6@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <Pine.LNX.4.44.0210281311001.10156-100000@localhost.localdomain> you
+ write:
+> (Since you're bringing our discussion to linux-kernel,
+> I've restored the full paragraph of my side of the argument above.)
 
---=-olwhRtnc+g8w51mCVeER
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi Hugh,
 
-Linus, All,
-	Here again is the tarball containing the example vsyscall LD_PRELOAD
-library, and the quick/rough performance measuring tool. 
-        
-thanks
--john
+	Thanks for your complete reply.  I thought it was my fault
+that it fell off lkml, and "corrected" it.  Sorry about that.
 
+> > Two oom kills.  Three oom kills.  Four oom kills.  Where's the bound
+> > here?
+> 
+> No bound to the number of possible OOM kills, but what problem is that?
 
+Sorry, I'm obviously not making myself clear, since I've said this
+three times now.
 
---=-olwhRtnc+g8w51mCVeER
-Content-Disposition: attachment; filename=vsyscall_test.tar.gz
-Content-Type: application/x-gzip; name=vsyscall_test.tar.gz
-Content-Transfer-Encoding: base64
+1) The memory is required for one whole RCU period (whether from
+   kmalloc or the mempool).  This can be an almost arbitrarily long
+   time (I've seen it take a good fraction of a second).
 
-H4sIAB2rrz0AA+2X3W/aMBDAeSV/xYmqU8JHcCAh0iiTpnYPlSitOqG9TEJZYiCbSVDioNFp//vO
-CQkERCtNtFU3/x4S+e58/rj4zlnF69h1GJtwGvN25VkgxCS2beHbMCzD3HkXVIhtWV27Yxk9lBsm
-MewKWM8znTJJzJ0IoPI95gnjD0ftntK/UVal+Oct3T3lGMQgpNczj8a/Y9t5/LuG3UX7HumYFSCn
-nMQx/vP4n/mByxKPwkXMPT/U5x+Ukoj534RMWYW+B2pdfCCaGvMocTlwf0FXDqs3YU+gwQBU0aOu
-kZ9ThGKUx8P+xs2McmEZTj1nve8L+AoO/AF/0JRfSjUfn6+aKOkrv5XX3r43T/n83zg/6NRn9LRj
-PHX+u0Y3P/+mSUT+t0zTkuf/JcDQv1eqM9eF1vTu+hJakbcOnIWP7Rm08PkFLWBbFza28dyJqAeo
-Zq04xA60WdjEoW5AK4SSQCcoLCQhtBh6YR7L/M146LXEF6i7omfRVBSXUSfAGUYLqOs7mkPvMhf8
-DeXzvxOHE46Rnn/z6Pk3jG6vqP+2TdL6b3fk+X8JHq//67gtanB6AzjzsDQEFEbjm8n9ePQZjCx8
-heLm+vL+tpAqfsBh4fiBmpbuckUHselc1Plw2QQU9JWqsPfxnQSxPwswubAwmGUPjzLuoGrKQofD
-kkYuDTi2txZ8scR26WLxbjPGaDwcaqJzGKn+gPTBh4tiEdhqNDSlutcVZ7TtuO9VTHmjE+sKlzpf
-TWKKmWuQrWvT7m+1yb46yfTpwsRl6XDR2o7nera1OM1q41HbzK1S3WyR8JzumZYO1FbzZTcMsbBl
-hHs+VWu7CwQVzhlLkhjacO5HOBaI29z5NIm/BrWmmEPqq1lsYTMPCLoEJKI8iQIg8nr2Fijnf4y3
-Hs9PPYbI/4/9/xuY7PP/f2LZ4v6HFUDm/5eAuvMQaqMwWmBW3k0ENUXfXgeUzCz/WGB4Nbm7/zS8
-/Xi112erGOjtwwvgrsvXXrlEIpFIJBKJRCKRSCQSiUQikfzb/AGCgp9CACgAAA==
+2) This is a problem, because other tasks could be OOM killed during
+   that period, and could also try to use this mempool.
 
---=-olwhRtnc+g8w51mCVeER--
+3) So, the size of the mempool which guarantees there will be enough?
+   It's equal to the number of things you might free, which means
+   you might as well allocate them together.
 
+This is the correctness problem with the mempool IPC implementation.
+
+> > Our allocator behavior for GFP_KERNEL has changed several times.  Are
+> > you sure that it won't *ever* fail under other circomstances?
+> 
+> Well, I'll be surprised if we change kmalloc(GFP_KERNEL) to fail for
+> reasons other than memory shortage ("insufficient privilege"? hmm,
+> we'd change the names before that); though how hard it tries to decide
+> if there's really a memory shortage certainly changes from one kernel
+> to another.  But so long as it doesn't fail very often in normal
+> circumstances, it's okay: the reserved mempool buffers back it up.
+
+Once again, if ever returns NULL other than for tasks being OOM
+killed, the problem gets wider.
+
+It would be reasonable for the page allocator one day to say "hmm, at
+the rate kswapd is going, it's going to take > 1 minute to fill this
+allocation.  Let's fail it immediately instead".
+
+This is the fragility problem with the mempool IPC implementation: you
+are relying on the kmalloc implementation details which you are
+explicitly not allowed to do (see previous "should kmalloc fail?"
+threads).
+
+> Your_patch shows that it need not be ugly, and reduces the normal
+> waste to 16 bytes per msq, sema, shmseg.  These are not struct pages,
+> that amount will often be wasted by cacheline alignment too, so I'm
+> not going to get into a fight over it.
+
+It could be reduced to 12 bytes by cutting out the "arg", and 8 bytes
+by making it a single linked list.  I've posted this separately.
+
+> I think your patch looks quite nice - apart from the subtle hacky
+> fragile tasteless void *data[0]; but if something like that is
+> necessary, I'm sure someone can come up with a better there.
+
+Yes, it's tasteless, but not fragile.  Skipping it would be fragile
+(it's unneccessary since struct rcu_head has a pointer in it).
+
+I'm not sure that the alternative is nicer, either, though 8(
+
+> But I wish you'd introduced your patch as "Here, I think this is
+> a nicer way of doing it, and doesn't waste as much as you thought:
+> you don't have to bother with a mempool this way" instead of getting
+> so mysteriously upset about it, implying some idiot failure in the
+> mempool method which you've not yet revealed to us.
+
+You're right.  This took far more time than simply producing the patch
+myself would have taken.
+
+But despite that, I prefer to take the un-Viro-like approach of
+believing that my fellow programmers cleverer than I am, and hence
+require only a few subtle pointers when I manage to spot errors.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUFNUas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUFNUbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbUFNUas (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 16:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUFNUas
+	id S263881AbUFNUbq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 16:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUFNUbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 16:30:48 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:56472 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S263879AbUFNUaq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 16:30:46 -0400
-X-Ironport-AV: i="3.81R,115,1083560400"; 
-   d="scan'208"; a="46522173:sNHT21604402"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [PATCH] proper bios handoff in ehci-hcd
-Date: Mon, 14 Jun 2004 15:30:44 -0500
-Message-ID: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] proper bios handoff in ehci-hcd
-Thread-Index: AcRSTneKNA+TPV1KSjmNobra8uQYGw==
-From: <Gary_Lerhaupt@Dell.com>
-To: <linux-usb-devel@lists.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>, <Stuart_Hayes@Dell.com>
-X-OriginalArrivalTime: 14 Jun 2004 20:30:46.0121 (UTC) FILETIME=[78D29590:01C4524E]
+	Mon, 14 Jun 2004 16:31:46 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:31609 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263881AbUFNUbm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 16:31:42 -0400
+Date: Mon, 14 Jun 2004 22:40:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 0/5] kbuild
+Message-ID: <20040614204029.GA15243@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Hayes here at Dell has identified this or/and mix-up in the ehci-hcd driver.  Because of this, ehci-hcd is not properly released by BIOSes supporting full 2.0 and port behavior can then become erratic.
+Hi Andrew. Here follows a number of kbuild patches.
 
-This is broken in latest 2.4 and 2.6.
+The first replaces kbuild-specify-default-target-during-configuration.patch
 
-Gary Lerhaupt
-Dell Linux Development
-http://linux.dell.com
+They have seen ligiht testing here, but on the other hand the do not touch
+any critical part of kbuild.
 
---- linux/drivers/usb/host/ehci-hcd.c.orig	2004-06-05 03:12:18.000000000 -0500
-+++ linux/drivers/usb/host/ehci-hcd.c	2004-06-05 01:18:51.000000000 -0500
-@@ -290,7 +290,7 @@ static int bios_handoff (struct ehci_hcd
- 		int msec = 500;
- 
- 		/* request handoff to OS */
--		cap &= 1 << 24;
-+		cap |= 1 << 24;
- 		pci_write_config_dword (ehci->hcd.pdev, where, cap);
- 
- 		/* and wait a while for it to happen */
+Patches:
+
+default kernel image:		Specify default target at config
+				time rather then hardcode it.
+				Only enabled for i386 for now.
+move rpm to scripts/package: 	Move rpm support so we are ready for
+				more package types
+add deb-pkg target:		Pack kernel in debian format
+make clean improved:		make clean removes a few more files
+external module build doc:	Add documentation for building external modules
+
+
+Above changes can be pulled from linux-sam.bkbits.net/kbuild:
+bk pull bk://linux-sam.bkbits.net/kbuild
+(Being updated as I type)
+
+Patches follows as individual mails.
+
+If anyone like to cook up a targz-pkg target please feel free.
+
+	Sam

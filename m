@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbUKISgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbUKIShz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbUKISgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 13:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUKISgO
+	id S261615AbUKIShz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 13:37:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbUKIShy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 13:36:14 -0500
-Received: from neapel230.server4you.de ([217.172.187.230]:37086 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S261613AbUKISf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 13:35:57 -0500
-Date: Tue, 9 Nov 2004 19:35:56 +0100
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] Return better error codes from vfat_valid_longname()
-Message-ID: <20041109183556.GB15288@neapel230.server4you.de>
-References: <41901DD1.mail5VX1GOOYK@lsrfire.ath.cx> <20041109013848.GC6835@neapel230.server4you.de> <87vfcf3uu0.fsf@devron.myhome.or.jp> <20041109164902.GA14088@neapel230.server4you.de> <87bre7j58b.fsf@devron.myhome.or.jp>
+	Tue, 9 Nov 2004 13:37:54 -0500
+Received: from [12.177.129.25] ([12.177.129.25]:11204 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S261615AbUKISgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 13:36:22 -0500
+Message-Id: <200411092048.iA9Kmjg9004223@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       cw@f00f.org
+Subject: Re: Synchronization primitives in UML (was: Re: [uml-devel] Re: [patch 09/20] uml: use SIG_IGN for empty sighandler) 
+In-Reply-To: Your message of "Tue, 09 Nov 2004 18:44:35 +0100."
+             <200411091844.44218.blaisorblade_spam@yahoo.it> 
+References: <200411052036.55541.blaisorblade_spam@yahoo.it> <20041106051306.GA3038@ccure.user-mode-linux.org>  <200411091844.44218.blaisorblade_spam@yahoo.it> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87bre7j58b.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Nov 2004 15:48:45 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 02:35:00AM +0900, OGAWA Hirofumi wrote:
-> Rene Scharfe <rene.scharfe@lsrfire.ath.cx> writes:
-> 
-> > At least ENAMETOOLONG and ENOENT are properly defined error codes. :)
-> 
-> Ah, yes. IIRC I already fixed the ENOENT case.
-> We shouldn't need "len == 0" check, right?
+blaisorblade_spam@yahoo.it said:
+> I also understand now what all this is for. When I have time for this,
+> I'll at  least copy and paste your mail into a comment, with any
+> needed adjustment.
 
-Yes. I removed the check and rediffed the patch against the one I sent
-a few minutes ago.
+That would be a good idea.
 
-René
+> For the semaphore issue, I have some ideas (like using futexes) which
+> need to  be developed a bit:
 
+> 1) I want to create a semaphore API in os_*. 
+> 2) It will be able to use socketpairs. 
+> 3) It will be able to use futexes, if they are
+> non-persistant and usable  without too much issues (the same way we
+> are going to support Async I/O). 
+> 4) It will be used first by the code
+> which could really benefit from the  performance increase.
+> 5) It won't
+> use persistant objects.
 
+This all sounds good, although there are simplicity benefits to just using
+one underlying mechanism, as long as there are no overriding disadvantages
+to it.
 
---- ./fs/vfat/namei.c.orig	2004-11-09 19:32:40.000000000 +0100
-+++ ./fs/vfat/namei.c	2004-11-09 19:32:24.000000000 +0100
-@@ -200,10 +200,10 @@ static inline int vfat_is_used_badchars(
- 
- static int vfat_valid_longname(const unsigned char *name, unsigned int len)
- {
--	if (len && name[len-1] == ' ')
--		return 0;
-+	if (name[len-1] == ' ')
-+		return -EINVAL;
- 	if (len >= 256)
--		return 0;
-+		return -ENAMETOOLONG;
- 
- 	/* MS-DOS "device special files" */
- 	if (len == 3 || (len > 3 && name[3] == '.')) {	/* basename == 3 */
-@@ -211,18 +211,18 @@ static int vfat_valid_longname(const uns
- 		    !strnicmp(name, "con", 3) ||
- 		    !strnicmp(name, "nul", 3) ||
- 		    !strnicmp(name, "prn", 3))
--			return 0;
-+			return -EINVAL;
- 	}
- 	if (len == 4 || (len > 4 && name[4] == '.')) {	/* basename == 4 */
- 		/* "com1", "com2", ... */
- 		if ('1' <= name[3] && name[3] <= '9') {
- 			if (!strnicmp(name, "com", 3) ||
- 			    !strnicmp(name, "lpt", 3))
--				return 0;
-+				return -EINVAL;
- 		}
- 	}
- 
--	return 1;
-+	return 0;
- }
- 
- static int vfat_find_form(struct inode *dir, unsigned char *name)
-@@ -625,8 +625,9 @@ static int vfat_build_slots(struct inode
- 	loff_t offset;
- 
- 	*slots = 0;
--	if (!vfat_valid_longname(name, len))
--		return -EINVAL;
-+	res = vfat_valid_longname(name, len);
-+	if (res)
-+		return res;
- 
- 	if(!(page = __get_free_page(GFP_KERNEL)))
- 		return -ENOMEM;
+> Any comment on these issues? Also, apart TT context switching, is
+> there any  other performance-sensitive use of semaphores, which would
+> benefit from using  futexes? 
+
+Offhand, I think context switching is the most sensitive one.
+
+> Yes, semget and friends are uglier.
+> But don't think that the current nested code is simple to read - three
+>  semaphores at a time, without a clear name, are not the clearer code
+> on the  world. 
+
+What nested code are you talking about?
+
+				Jeff
+

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285621AbRLVA15>; Fri, 21 Dec 2001 19:27:57 -0500
+	id <S285936AbRLVAfr>; Fri, 21 Dec 2001 19:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285634AbRLVA1r>; Fri, 21 Dec 2001 19:27:47 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:61739 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S285621AbRLVA1o>; Fri, 21 Dec 2001 19:27:44 -0500
-Date: Fri, 21 Dec 2001 19:27:42 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Chris Wedgwood <cw@f00f.org>, Rik van Riel <riel@conectiva.com.br>,
-        "Eric S. Raymond" <esr@thyrsus.com>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Anonymous List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011221192742.B17377@redhat.com>
-In-Reply-To: <20011221161030.L15926@redhat.com> <Pine.LNX.4.43.0112211803150.26909-100000@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.43.0112211803150.26909-100000@waste.org>; from oxymoron@waste.org on Fri, Dec 21, 2001 at 06:07:20PM -0600
+	id <S285705AbRLVAfi>; Fri, 21 Dec 2001 19:35:38 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:60136 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S285936AbRLVAfS>; Fri, 21 Dec 2001 19:35:18 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D819@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Hans-Christian Armingeon'" <linux.johnny@gmx.net>,
+        linux-kernel@vger.kernel.org
+Subject: RE: link errors with CONFIG_SERIAL_ACPI enabled
+Date: Fri, 21 Dec 2001 16:35:08 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 06:07:20PM -0600, Oliver Xymoron wrote:
-> To summarize: don't use it widely until it's widely used.
+CONFIG_SERIAL_ACPI should be an IA64 only option (but it's not) so just
+deselect it for now if you're on IA32.
 
-Actually, I just find it the most gratingly ugly thing I've ever seen, 
-and pointless as everyone already knows the meaning by context.
+Regards -- Andy
 
-		-ben
--- 
-Fish.
+> From: Hans-Christian Armingeon [mailto:linux.johnny@gmx.net]
+> Am Freitag, 21. Dezember 2001 22:45 schrieb Hans-Christian Armingeon:
+> > Hi folks,
+> > I noticed, that every time I switch on CONFIG_SERIAL_ACPI 
+> as a Module, I
+> > get some linker errors when make bzImage tries to link the bzImage
+> > together. I don't have the exact output at hands, but I'll 
+> reproduce it if
+> > needed.
+> here it comes

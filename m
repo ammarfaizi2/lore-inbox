@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUGHQ0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUGHQ2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUGHQ0I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 12:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUGHQ0I
+	id S263159AbUGHQ2u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 12:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUGHQ2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 12:26:08 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:20143 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262932AbUGHQ0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 12:26:00 -0400
-Date: Thu, 8 Jul 2004 17:23:57 +0100
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Miles Bader <miles@gnu.org>, "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, chrisw@osdl.org,
+	Thu, 8 Jul 2004 12:28:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39592 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263790AbUGHQ2F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 12:28:05 -0400
+Date: Thu, 8 Jul 2004 09:27:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Timothy Miller <miller@techsource.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>, Chris Wright <chrisw@osdl.org>,
        akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
        jmorris@redhat.com, mika@osdl.org
 Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-Message-ID: <20040708162357.GB19685@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Miles Bader <miles@gnu.org>,
-	"David S. Miller" <davem@redhat.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, chrisw@osdl.org,
-	akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
-	jmorris@redhat.com, mika@osdl.org
-References: <20040707122525.X1924@build.pdx.osdl.net> <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <20040707202746.1da0568b.davem@redhat.com> <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org> <buosmc3gix6.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407080855120.1764@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407080855120.1764@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0407080917420.1764@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0407080926240.1764@ppc970.osdl.org>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+ <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <40ED71BC.2030609@techsource.com>
+ <Pine.LNX.4.58.0407080917420.1764@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 08:58:18AM -0700, Linus Torvalds wrote:
 
- > Me, I don't accept the kind of entries the OCC accepts. 
 
-drivers/char/drm/ disagrees 8-)
+On Thu, 8 Jul 2004, Linus Torvalds wrote:
+> 
+> The fact is, when somebody else picks up a mistake, that doesn't make it 
+> any less of a mistake.
 
-SCNR
+Whee. Five seconds after writing the above and sending it off, what do I 
+see on CNN but:
 
-		Dave
+	Another 'Police Academy' in works
+	New film would be eighth in series
 
+	LOS ANGELES, California (Hollywood Reporter) -- "Police Academy"
+	is back.  After a decade's absence from the big screen, the cop
+	comedy franchise is gearing up for an eighth installment.
+
+I rest my case.
+
+		Linus

@@ -1,300 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUI1VsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUI1Vtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268053AbUI1VsV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUI1VsV
+	id S268057AbUI1Vtu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 17:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268055AbUI1Vtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:48:21 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:26801 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268053AbUI1Vr2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:47:28 -0400
-Subject: [patch] inotify: use the idr layer
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, iggy@gentoo.org
-In-Reply-To: <1096250524.18505.2.camel@vertex>
-References: <1096250524.18505.2.camel@vertex>
-Content-Type: multipart/mixed; boundary="=-903Nt7lx05yBKo4yfLEw"
-Date: Tue, 28 Sep 2004 17:46:04 -0400
-Message-Id: <1096407964.4911.90.camel@betsy.boston.ximian.com>
+	Tue, 28 Sep 2004 17:49:33 -0400
+Received: from [81.3.11.18] ([81.3.11.18]:52928 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S268054AbUI1VtD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 17:49:03 -0400
+Date: Tue, 28 Sep 2004 23:48:58 +0200
+From: Konstantin Kletschke <lists@ku-gbr.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 Oops on IDE load
+Message-ID: <20040928214857.GC7765@ku-gbr.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040928211116.GB7765@ku-gbr.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040928211116.GB7765@ku-gbr.de>
+User-Agent: Mutt/1.5.6i
+X-Spam-Score: 1.6
+X-Spam-Report: Spam detection software, running on the system "kermit", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	admin@mail.ku-gbr.de for details.
+	Content preview:  Am 2004-09-28 23:11 +0200 schrieb Konstantin Kletschke:
+	I am an idiot, it is an network related Oops when I read the decoded
+	Oops correctly... > I wanted to try out 2.6.9-rc2 on my intel i865
+	Chipset Computer and > realize, that it does hard freezes when IDE load
+	occurs. For example an > "emerge sync" (using gentoo on it) triggers
+	the freeze reliable. [...] 
+	Content analysis details:   (1.6 points, 10.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.23.246.12 listed in dnsbl.sorbs.net]
+	1.6 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.23.246.12 listed in combined.njabl.org]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am 2004-09-28 23:11 +0200 schrieb Konstantin Kletschke:
 
---=-903Nt7lx05yBKo4yfLEw
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I am an idiot, it is an network related Oops when I read the decoded
+Oops correctly...
 
-OK, I told John I would post this ASAP, as soon as I finished testing
-it, but I got backed up, so here it is without much testing.  It does
-compile fine.
+> I wanted to try out 2.6.9-rc2 on my intel i865 Chipset Computer and
+> realize, that it does hard freezes when IDE load occurs. For example an
+> "emerge sync" (using gentoo on it) triggers the freeze reliable.
 
-This patch removes our current bitmap-based allocation system and
-replaces it with the idr layer.  The idr layer allows us to use a radix
-tree, rooted at each device instance, to trivially map between watcher
-descriptors and watcher structures.  In idr terminology, the watcher
-descriptor is the id and the watcher structure is the pointer.
+The Oops also occurs reliable when starting gtk-gnutella. I thought it
+was related to IDE load because I thought gtk-gnutella also scans a
+couple of (not really) ~600MB big files. But it also opens many network
+connections to search for hosts on startup. So I thought its the high
+IDE load because "emerge sync" rsyncs many (couple of 1000) files...
 
-Allocating a new watcher descriptor and associating it with a given
-watcher structure is done in the same place as before,
-inotify_dev_get_wd().  The code for doing this is a bit weird.  The idr
-layer's interface leaves a bit to be desired.
+I use the onboard e1000 ethernet chip.
 
-The function dev_find_wd() is used to map from a given watcher
-descriptor to a watcher structure.  This used to be our least scalable
-function: O(n), but at a small fixed n, so you could call it O(1).  Now
-it is O(lg n); n is still fixed, so you can still call it O(1).
+I updated pciutils and the unknown devices are gone:
 
-I also cleaned up some locking and added some comments.
+0000:00:00.0 Host bridge: Intel Corp. 82845G/GL[Brookdale-G]/GE/PE DRAM Controller/Host-Hub Interface (rev 02)
+0000:00:01.0 PCI bridge: Intel Corp. 82845G/GL[Brookdale-G]/GE/PE Host-to-AGP Bridge (rev 02)
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 02)
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 02)
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 02)
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB2 EHCI Controller (rev 02)
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 82)
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DB/DBL (ICH4/ICH4-L) LPC Interface Bridge (rev 02)
+0000:00:1f.1 IDE interface: Intel Corp. 82801DB (ICH4) IDE Controller (rev 02)
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 02)
+0000:01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4400] (rev a2)
+0000:02:01.0 SCSI storage controller: Adaptec AHA-7850 (rev 03)
+0000:02:03.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+0000:02:04.0 Ethernet controller: Davicom Semiconductor, Inc. 21x4x DEC-Tulip compatible 10/100 Ethernet (rev 31)
+0000:02:05.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+0000:02:05.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+0000:02:09.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
+0000:02:0a.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+0000:02:0d.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Controller (rev 02)
+0000:02:0e.0 RAID bus controller: Promise Technology, Inc. PDC20376 (FastTrak 376) (rev 02)
 
-Like I said, I have not tested this, probably won't until tomorrow, but
-here it is to play with earlier if anyone so chooses.  The idr layer is
-rather nice for this sort of thing.
+The davicom chip is not in use, its module is not loaded.
 
-Patch is on top of all of my previous patches.
+0000:02:0d.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Controller (rev 02)
+        Subsystem: Intel Corp. PRO/1000 MT Desktop Adapter
+        Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 23
+        Memory at dfec0000 (32-bit, non-prefetchable) [size=dfe40000]
+        Memory at dfe60000 (32-bit, non-prefetchable) [size=128K]
+        I/O ports at c000 [size=64]
+        Expansion ROM at 00020000 [disabled]
+        Capabilities: [dc] Power Management version 2
+        Capabilities: [e4] PCI-X non-bridge device.
+        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
 
-	Robert Love
+Regards, Konsti
 
-
---=-903Nt7lx05yBKo4yfLEw
-Content-Disposition: attachment; filename=inotify-idr-layer-1.patch
-Content-Type: text/x-patch; name=inotify-idr-layer-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-idr layer support for inotify
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/inotify.c |   93 +++++++++++++++++++++++++++----------------------
- 1 files changed, 53 insertions(+), 40 deletions(-)
-
-diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-inotify/drivers/char/inotify.c	2004-09-28 15:22:02.152818864 -0400
-+++ linux/drivers/char/inotify.c	2004-09-28 15:27:03.994931888 -0400
-@@ -17,15 +17,14 @@
- /* TODO: 
-  * rename inotify_watcher to inotify_watch
-  * need a way to connect MOVED_TO/MOVED_FROM events in user space
-- * use b-tree so looking up watch by WD is faster
-  */
- 
- #include <linux/bitops.h>
--#include <linux/bitmap.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
-+#include <linux/idr.h>
- #include <linux/slab.h>
- #include <linux/fs.h>
- #include <linux/namei.h>
-@@ -61,22 +60,19 @@
-  * For each inotify device, we need to keep track of the events queued on it,
-  * a list of the inodes that we are watching, and so on.
-  *
-- * 'bitmask' holds one bit for each possible watcher descriptor: a set bit
-- * implies that the given WD is valid, unset implies it is not.
-- *
-  * This structure is protected by 'lock'.  Lock ordering:
-  *	dev->lock
-  *		dev->wait->lock
-  * FIXME: Define lock ordering wrt inode and dentry locking!
-  */
- struct inotify_device {
--	DECLARE_BITMAP(bitmask, MAX_INOTIFY_DEV_WATCHERS);
- 	wait_queue_head_t 	wait;
-+	struct idr		idr;
- 	struct list_head 	events;
- 	struct list_head 	watchers;
- 	spinlock_t		lock;
- 	unsigned int		event_count;
--	int			nr_watches;
-+	unsigned int		nr_watches;
- };
- 
- struct inotify_watcher {
-@@ -179,10 +175,6 @@
- 		return;
- 
- 	event_object_count--;
--	INIT_LIST_HEAD(&kevent->list);
--	kevent->event.wd = -1;
--	kevent->event.mask = 0;
--
- 	iprintk(INOTIFY_DEBUG_ALLOC, "free'd kevent %p\n", kevent);
- 	kmem_cache_free(kevent_cache, kevent);
- }
-@@ -282,20 +274,30 @@
- /*
-  * inotify_dev_get_wd - returns the next WD for use by the given dev
-  *
-- * Caller must hold dev->lock before calling.
-+ * This function sleeps.
-  */
--static int inotify_dev_get_wd(struct inotify_device *dev)
-+static int inotify_dev_get_wd(struct inotify_device *dev,
-+			      struct inotify_watcher *watcher)
- {
--	int wd;
-+	int ret;
- 
--	if (!dev || dev->nr_watches == MAX_INOTIFY_DEV_WATCHERS)
-+	if (dev->nr_watches == MAX_INOTIFY_DEV_WATCHERS)
- 		return -1;
- 
-+repeat:
-+	if (!idr_pre_get(&dev->idr, GFP_KERNEL))
-+		return -1;
-+
-+	spin_lock(&dev->lock);
-+	ret = idr_get_new(&dev->idr, watcher, &watcher->wd);
-+	spin_lock(&dev->lock);
-+	if (ret == -EAGAIN)	/* more memory is required, try again */
-+		goto repeat;
-+	if (ret == -ENOSPC)	/* the idr is full! */
-+		return -1;
- 	dev->nr_watches++;
--	wd = find_first_zero_bit(dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
--	set_bit(wd, dev->bitmask);
- 
--	return wd;
-+	return 0;
- }
- 
- /*
-@@ -309,7 +311,7 @@
- 		return -1;
- 
- 	dev->nr_watches--;
--	clear_bit(wd, dev->bitmask);
-+	idr_remove(&dev->idr, wd);
- 
- 	return 0;
- }
-@@ -331,7 +333,6 @@
- 		return NULL;
- 	}
- 
--	watcher->wd = -1;
- 	watcher->mask = mask;
- 	watcher->inode = inode;
- 	watcher->dev = dev;
-@@ -339,11 +340,7 @@
- 	INIT_LIST_HEAD(&watcher->i_list);
- 	INIT_LIST_HEAD(&watcher->u_list);
- 
--	spin_lock(&dev->lock);
--	watcher->wd = inotify_dev_get_wd(dev);
--	spin_unlock(&dev->lock);
--
--	if (watcher->wd < 0) {
-+	if (inotify_dev_get_wd(dev, watcher)) {
- 		iprintk(INOTIFY_DEBUG_ERRORS,
- 			"Could not get wd for watcher %p\n", watcher);
- 		iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
-@@ -387,15 +384,18 @@
- 	return NULL;
- }
- 
--static struct inotify_watcher *dev_find_wd(struct inotify_device *dev, int wd)
-+/*
-+ * dev_find_wd - given a (dev,wd) pair, returns the matching inotify_watcher
-+ *
-+ * Returns the results of looking up (dev,wd) in the idr layer.  NULL is
-+ * returned on error.
-+ *
-+ * The caller must hold dev->lock.
-+ */
-+static inline struct inotify_watcher *dev_find_wd(struct inotify_device *dev,
-+						  int wd)
- {
--	struct inotify_watcher *watcher;
--
--	list_for_each_entry(watcher, &dev->watchers, d_list) {
--		if (watcher->wd == wd)
--			return watcher;
--	}
--	return NULL;
-+	return idr_find(&dev->idr, wd);
- }
- 
- static int inotify_dev_is_watching_inode(struct inotify_device *dev,
-@@ -411,6 +411,11 @@
- 	return 0;
- }
- 
-+/*
-+ * inotify_dev_add_watcher - add the given watcher to the given device instance
-+ *
-+ * Caller must hold dev->lock.
-+ */
- static int inotify_dev_add_watcher(struct inotify_device *dev,
- 				   struct inotify_watcher *watcher)
- {
-@@ -570,11 +575,11 @@
- 	struct inotify_device *dev;
- 	struct inode *inode;
- 
--	spin_lock(&watcher->dev->lock);
--	spin_lock(&watcher->inode->i_lock);
--
--	inode = watcher->inode;
- 	dev = watcher->dev;
-+	inode = watcher->inode;
-+
-+	spin_lock(&dev->lock);
-+	spin_lock(&inode->i_lock);
- 
- 	if (event)
- 		inotify_dev_queue_event(dev, watcher, event, NULL);
-@@ -590,7 +595,8 @@
- 	unref_inode(inode);
- }
- 
--static void process_umount_list(struct list_head *umount) {
-+static void process_umount_list(struct list_head *umount)
-+{
- 	struct inotify_watcher *watcher, *next;
- 
- 	list_for_each_entry_safe(watcher, next, umount, u_list)
-@@ -598,7 +604,7 @@
- }
- 
- static void build_umount_list(struct list_head *head, struct super_block *sb,
--			       struct list_head *umount)
-+			      struct list_head *umount)
- {
- 	struct inode *	inode;
- 
-@@ -766,7 +772,7 @@
- 	if (!dev)
- 		return -ENOMEM;
- 
--	bitmap_zero(dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
-+	idr_init(&dev->idr);
- 
- 	INIT_LIST_HEAD(&dev->events);
- 	INIT_LIST_HEAD(&dev->watchers);
-@@ -898,9 +904,16 @@
- {
- 	struct inotify_watcher *watcher;
- 
-+	/*
-+	 * FIXME: Silly to grab dev->lock here and then drop it, when
-+	 * ignore_helper() grabs it anyway a few lines down.
-+	 */
-+	spin_lock(&dev->lock);
- 	watcher = dev_find_wd(dev, wd);
-+	spin_unlock(&dev->lock);
- 	if (!watcher)
- 		return -EINVAL;
-+
- 	ignore_helper(watcher, 0);
- 
- 	return 0;
-
---=-903Nt7lx05yBKo4yfLEw--
-
+-- 
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF

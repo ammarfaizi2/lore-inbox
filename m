@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135783AbRAZQ1C>; Fri, 26 Jan 2001 11:27:02 -0500
+	id <S136130AbRAZQ2M>; Fri, 26 Jan 2001 11:28:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136059AbRAZQ0w>; Fri, 26 Jan 2001 11:26:52 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:34312 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S135783AbRAZQ0h>;
-	Fri, 26 Jan 2001 11:26:37 -0500
-From: Michael Peddemors <michael@linuxmagic.com>
-Organization: Wizard Internet Services
-To: "Svenning Soerensen" <svenning@post5.tele.dk>,
-        "Ferdinand Tempel" <f.tempel@chello.nl>,
-        "Linux Ipsec mailing list" <linux-ipsec@freeswan.org>
-Subject: Re: 2.4 updates
-Date: Fri, 26 Jan 2001 09:35:03 -0800
-X-Mailer: KMail [version 1.1.95.0]
-Content-Type: text/plain
-In-Reply-To: <003f01c08788$d2de9b40$1400a8c0@sss.dk>
-In-Reply-To: <003f01c08788$d2de9b40$1400a8c0@sss.dk>
-Cc: linux-kernel@vger.kernel.org
+	id <S136120AbRAZQ2D>; Fri, 26 Jan 2001 11:28:03 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:15507 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136059AbRAZQ1y>;
+	Fri, 26 Jan 2001 11:27:54 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Message-Id: <0101260935031Y.00191@mistress>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14961.42315.441894.892277@pizda.ninka.net>
+Date: Fri, 26 Jan 2001 08:26:51 -0800 (PST)
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Odd network trace... 
+In-Reply-To: <200101261621.RAA19330@cave.bitwizard.nl>
+In-Reply-To: <200101261621.RAA19330@cave.bitwizard.nl>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001, Svenning Soerensen wrote:
 
-Agreed, 
+Rogier Wolff writes:
+ > Am I missing something?
+ ...
+ > 17:05:59.961324 server.http > client.1880: . 1:1(0) ack 287912 win 0 <nop,nop,timestamp 2800084 363441235> (DF)
 
-> Of course, the ideal solution would be to have just one instance of zlib
-> in the kernel, which the different parts could make use of. That would
-> require some cooperation with the kernel developers though.
->
-> > Regards,
-> >
-> > Ferdinand O. Tempel
->
-> Svenning
+server advertises zero window, no data may be sent.
 
--- 
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-Unix Administration - WebSite Hosting
-Network Services - Programming
-Wizard Internet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604) 589-0037 Beautiful British Columbia, Canada
---------------------------------------------------------
+Until server advertises a non-zero window, the data transfer
+may not proceed.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

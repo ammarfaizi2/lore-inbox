@@ -1,56 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbUKZTzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbUKZVlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbUKZTzI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263951AbUKZTyh
+	id S262591AbUKZVlu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbUKZVjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:54:37 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262473AbUKZTbN (ORCPT
+	Fri, 26 Nov 2004 16:39:52 -0500
+Received: from xenon2.um.es ([155.54.212.101]:23777 "EHLO smtp.um.es")
+	by vger.kernel.org with ESMTP id S264035AbUKZUEY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:31:13 -0500
-Date: Thu, 25 Nov 2004 18:07:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 9/51: init/* changes.
-Message-ID: <20041125170718.GA1417@openzaurus.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101293918.5805.221.camel@desktop.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101293918.5805.221.camel@desktop.cunninghams>
-User-Agent: Mutt/1.3.27i
+	Fri, 26 Nov 2004 15:04:24 -0500
+Date: Fri, 26 Nov 2004 09:04:04 +0100 (CET)
+From: Juan Piernas Canovas <piernas@ditec.um.es>
+To: linux-kernel@vger.kernel.org
+Message-ID: <Pine.LNX.4.61.0411260903540.22644@ditec.um.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> 1) Make name_to_dev_t non init. Why should you need to reboot if all you
-> want to do is change the device you're using to suspend? That's M_'s way
-
-Well, if you change it using /proc and forget to change kernel cmd line, you'll have
-a problem. Do you really change this so often?
-
-And if you really want to make it changeable, pass major:minor from userland; once
-userland is running getting them is easy.
-
-> 2) Hooks for resuming. Suspend2 functionality can be compiled as modules
-> or built in. Resuming can be activated via an initrd. These hooks allow
-> for all of the combinations of the above. Allowing resuming from within
-> an initrd is important because then you can set up LVM volumes
-> (including encrypted devices), compile drivers for your resume device as
-> modules and so on.
-
-Hmm , this will need a lot of testing and a lot of care... You for example
-mah not write to your fs's before activating it. And if you use this feature,
-kernel no longer has chance to kill suspend signature on normal boot,
-making "shoot(self, foot)" easier.
-
-But for encrypted stuff it is probably only way to go, so... Just
-make sure people are not using it unless they *have* to.
-				Pavel
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+subscribe

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRC3Gdh>; Fri, 30 Mar 2001 01:33:37 -0500
+	id <S130900AbRC3HDa>; Fri, 30 Mar 2001 02:03:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130824AbRC3Gd2>; Fri, 30 Mar 2001 01:33:28 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:32525 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130820AbRC3GdJ>;
-	Fri, 30 Mar 2001 01:33:09 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: george anzinger <george@mvista.com>
-cc: Dipankar Sarma <dipankar@sequent.com>, nigel@nrg.org,
-   linux-kernel@vger.kernel.org, mckenney@sequent.com
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: Your message of "Wed, 28 Mar 2001 12:51:02 PST."
-             <3AC24EB6.1F0DD551@mvista.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 29 Mar 2001 22:32:13 -0800
-Message-ID: <6732.985933933@ocs3.ocs-net>
+	id <S130940AbRC3HDU>; Fri, 30 Mar 2001 02:03:20 -0500
+Received: from mailgate.bridgetrading.com ([62.49.201.178]:61447 "EHLO 
+	directcommunications.net") by vger.kernel.org with ESMTP
+	id <S130900AbRC3HDQ>; Fri, 30 Mar 2001 02:03:16 -0500
+From: "Chris Funderburg" <chris@directcommunications.net>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: memcpy in 2.2.19
+Date: Fri, 30 Mar 2001 08:04:17 +0100
+Message-ID: <CHEEIAEEAIFDOCGJIAKPOEDCCJAA.chris@directcommunications.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Mar 2001 12:51:02 -0800, 
-george anzinger <george@mvista.com> wrote:
->Dipankar Sarma wrote:
->> 1. Disable pre-emption during the time when references to data
->> structures
->> updated using such Two-phase updates are held.
->
->Doesn't this fly in the face of the whole Two-phase system?  It seems to
->me that the point was to not require any locks.  Preemption disable IS a
->lock.  Not as strong as some, but a lock none the less.
+What's wrong with this picture:
 
-The aim is to remove all module locks from the main kernel path and
-move the penalty for module unloading into the task doing the unload.
-Only the unload code needs to worry about preemption, not the main
-kernel code paths, so main line code runs faster and scales better.  I
-don't care how long (within reason) it takes to unload a module, it is
-such a rare event.  I want module unload to be race free with zero
-impact on the fast code paths, the current design penalizes the fast
-code paths.
+ld -m elf_i386 -T /usr/src/kernel/stable/linux/arch/i386/vmlinux.lds -e
+stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
+fs/fs.o ipc/ipc.o \
+        fs/filesystems.a \
+        net/network.a \
+        drivers/block/block.a drivers/char/char.o drivers/misc/misc.a
+drivers/net/net.a drivers/scsi/scsi.a drivers/cdrom/cdrom.a
+drivers/pci/pci.a drivers/pnp/pnp.a drivers/video/video.a \
+        /usr/src/kernel/stable/linux/arch/i386/lib/lib.a
+/usr/src/kernel/stable/linux/lib/lib.a
+/usr/src/kernel/stable/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/scsi/scsi.a(aic7xxx.o): In function `aic7xxx_load_seeprom':
+aic7xxx.o(.text+0x116bf): undefined reference to `memcpy'
+make: *** [vmlinux] Error 1
+
+Is this something outside the kernel tree that I've lost?  Seems a bit weird
+since memcpy must be
+used in thousands of other place.
+
+
+---------------------------------------------------------------------
+'E's not pinin'!
+'E's passed on!
+This parrot is no more!
+He has ceased to be!
+'E's expired and gone to meet 'is maker!
+'E's a stiff!
+Bereft of life, 'e rests in peace!
+If you hadn't nailed 'im to the perch 'e'd be pushing up the daisies!
+'Is metabolic processes are now 'istory!
+'E's off the twig!
+'E's kicked the bucket, 'e's shuffled off 'is mortal coil, run
+down the curtain and joined the bleedin' choir invisibile!!
+THIS IS AN EX-PARROT!!
 

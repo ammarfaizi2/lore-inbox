@@ -1,114 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264540AbUEaGRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264546AbUEaGRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbUEaGRP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 02:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUEaGRP
+	id S264546AbUEaGRi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 02:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbUEaGRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 02:17:15 -0400
-Received: from ozlabs.org ([203.10.76.45]:44492 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264540AbUEaGRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 02:17:12 -0400
-Date: Mon, 31 May 2004 16:14:42 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: Add watchdog timer to iseries_veth driver
-Message-ID: <20040531061442.GA28167@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 May 2004 02:17:38 -0400
+Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:58568 "EHLO
+	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264546AbUEaGRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 02:17:32 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: swappiness=0 makes software suspend fail.
+Date: Mon, 31 May 2004 16:18:36 +1000
+User-Agent: KMail/1.6.2
+Cc: Pavel Machek <pavel@suse.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@zip.com.au>, Rob Landley <rob@landley.net>,
+       seife@suse.de, Oliver Neukum <oliver@neukum.org>,
+       Con Kolivas <kernel@kolivas.org>
+References: <200405280000.56742.rob@landley.net> <40B94546.4040605@yahoo.com.au> <20040530194731.GA895@elf.ucw.cz>
+In-Reply-To: <20040530194731.GA895@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405311618.36739.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+On Mon, 31 May 2004 05:47, Pavel Machek wrote:
+> > Nick Piggin wrote:
+> > > Pavel Machek wrote: 
+>
+> > >Andrew, in 2.6.6 shrink_all_memory() does not work if swappiness ==
+> > >0. shrink_all_memory() calls balance_pgdat(), that calls
+> > >shrink_zone(), and that calls refill_inactive_zone(), which looks at
+> > >swappiness.
+> > >
+> > >Additional parameter to all these calls neutralizing swappiness would
+> > >help, as would temporarily setting swappiness to 100 in
+> > >shrink_all_memory. Is there a less ugly solution?
+> >
+> > I have a cleanup patch that allows this sort of thing to easily
+> > be passed into the lower levels of reclaim functions. I don't
+> > know if it would be to Andrew's taste though...
+> >
+> > It basically replaces all function parameters in vmscan.c with
+> >
+> > struct scan_control {
+> > 	unsigned long nr_to_scan;
+> > 	unsigned long nr_scanned;
+> > 	unsigned long nr_reclaimed;
+> > 	unsigned int gfp_mask;
+> > 	struct page_state ps;
+> > 	int may_writepage;
+> > };
+> >
+> > So you could easily add a field for swsusp.
+> >
+> > Until something like this goes through, please don't fuglify
+> > vmscan.c any more than it is... do the saving and restoring
+> > thing that Nigel suggested please.
+>
+> Okay, this should solve it.
+> 							Pavel
+>
+> --- clean/mm/vmscan.c	2004-05-20 23:08:37.000000000 +0200
+> +++ linux/mm/vmscan.c	2004-05-30 21:45:41.000000000 +0200
+> @@ -1098,10 +1098,13 @@
+>  	pg_data_t *pgdat;
+>  	int nr_to_free = nr_pages;
+>  	int ret = 0;
+> +	int old_swappiness = vm_swappiness;
+>  	struct reclaim_state reclaim_state = {
+>  		.reclaimed_slab = 0,
+>  	};
+>
+> +	vm_swappiness = 100;
+> +
+>  	current->reclaim_state = &reclaim_state;
+>  	for_each_pgdat(pgdat) {
+>  		int freed;
+> @@ -1115,6 +1118,8 @@
+>  			break;
+>  	}
+>  	current->reclaim_state = NULL;
+> +
+> +	vm_swappiness = old_swappiness;
+>  	return ret;
+>  }
+>  #endif
 
-Currently the iSeries virtual ethernet driver has no Tx watchdog
-timer.  This makes it vulnerable to clagging up if the other end of
-connection is misbehaving - in particular if it is not giving timely
-hypervisor level acks to our data frams.
+Good stuff. I've cc'ed Con Kolivas in on this as he's just recently posted his 
+updated "Autoregulated VM swappiness" patch. In particular, this could also 
+cause some issues if it made it into the main tree, as then this code might 
+fail/cause issues (eg: as both could end up writing to vm_swappiness at the 
+same time). This could possibly be a race condition as per Oliver's earlier 
+observation (even if it's non-fatal, it's at least annoying).
 
-This patch adds a watchdog timer which resets the connection to any
-lpar we seem to be having trouble sending to.  With any luck the other
-end might behave better after the reset.  If not, this will at least
-unclag the queue for a while so we can keep talking to the lpars which
-are behaving correctly.
-
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-
-Index: working-2.6/drivers/net/iseries_veth.c
-===================================================================
---- working-2.6.orig/drivers/net/iseries_veth.c	2004-05-31 14:32:10.257660120 +1000
-+++ working-2.6/drivers/net/iseries_veth.c	2004-05-31 15:42:30.639623512 +1000
-@@ -807,6 +807,48 @@
- 	return -EOPNOTSUPP;
- }
- 
-+static void veth_tx_timeout(struct net_device *dev)
-+{
-+	struct veth_port *port = (struct veth_port *)dev->priv;
-+	struct net_device_stats *stats = &port->stats;
-+	unsigned long flags;
-+	int i;
-+
-+	stats->tx_errors++;
-+
-+	spin_lock_irqsave(&port->pending_gate, flags);
-+
-+	printk(KERN_WARNING "%s: Tx timeout!  Resetting lp connections: %08x\n",
-+	       dev->name, port->pending_lpmask);
-+
-+	/* If we've timed out the queue must be stopped, which should
-+	 * only ever happen when there is a pending packet. */
-+	WARN_ON(! port->pending_lpmask);
-+
-+	for (i = 0; i < HVMAXARCHITECTEDLPS; i++) {
-+		struct veth_lpar_connection *cnx = veth_cnx[i];
-+
-+		if (! (port->pending_lpmask & (1<<i)))
-+			continue;
-+
-+		/* If we're pending on it, we must be connected to it,
-+		 * so we should certainly have a structure for it. */
-+		BUG_ON(! cnx);
-+
-+		/* Theoretically we could be kicking a connection
-+		 * which doesn't deserve it, but in practice if we've
-+		 * had a Tx timeout, the pending_lpmask will have
-+		 * exactly one bit set - the connection causing the
-+		 * problem. */
-+		spin_lock(&cnx->lock);
-+		cnx->state |= VETH_STATE_RESET;
-+		veth_kick_statemachine(cnx);
-+		spin_unlock(&cnx->lock);
-+	}
-+
-+	spin_unlock_irqrestore(&port->pending_gate, flags);
-+}
-+
- struct net_device * __init veth_probe_one(int vlan)
- {
- 	struct net_device *dev;
-@@ -854,6 +896,9 @@
- 	dev->set_multicast_list = veth_set_multicast_list;
- 	dev->do_ioctl = veth_ioctl;
- 
-+	dev->watchdog_timeo = 2 * (VETH_ACKTIMEOUT * HZ / 1000000);
-+	dev->tx_timeout = veth_tx_timeout;
-+
- 	rc = register_netdev(dev);
- 	if (rc != 0) {
- 		veth_printk(KERN_ERR,
-
+Just thinking that Con could check to see somehow wether we're going to 
+suspend, and not touch vm_swappiness anymore if that's the case. Yes I know 
+the code isn't in the main tree yet, but who knows when another writer to 
+vm_swappiness might end up in the main tree. It may also prove a good example 
+for other potential writers. Pavel, Nigel, (anyone?) suggestions?
 
 -- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263177AbUC2X3W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUC2X3W
+	id S263207AbUC2XiV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUC2XiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:29:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24706 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263177AbUC2X3V (ORCPT
+	Mon, 29 Mar 2004 18:38:21 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:9195 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263207AbUC2XiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:29:21 -0500
-Date: Mon, 29 Mar 2004 15:31:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: stern@rowland.harvard.edu, david-b@pacbell.net, viro@math.psu.edu,
-       maneesh@in.ibm.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Unregistering interfaces
-Message-Id: <20040329153117.558c3263.akpm@osdl.org>
-In-Reply-To: <20040329231604.GA29494@kroah.com>
-References: <20040328063711.GA6387@kroah.com>
-	<Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org>
-	<20040328123857.55f04527.akpm@osdl.org>
-	<20040329210219.GA16735@kroah.com>
-	<20040329132551.23e12144.akpm@osdl.org>
-	<20040329231604.GA29494@kroah.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 29 Mar 2004 18:38:20 -0500
+Date: Tue, 30 Mar 2004 01:38:13 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Andries.Brouwer@cwi.nl, greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       USB Storage List <usb-storage@lists.one-eyed-alien.net>
+Subject: Re: [patch] datafab fix and unusual devices
+Message-ID: <20040329233812.GA17179@apps.cwi.nl>
+References: <UTC200403292244.i2TMi9f11131.aeb@smtp.cwi.nl> <20040329231508.GH28472@one-eyed-alien.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040329231508.GH28472@one-eyed-alien.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> > The module should remain in memory, "unhashed", until the final kobject
-> > reference falls to zero.  Destruction of that kobject causes the refcount
-> > on the module to fall to zero which causes the entire module to be
-> > released.
-> > 
-> > (hmm, the existence of a kobject doesn't appear to contribute to its
-> > module's refcount.  Why not?)
+On Mon, Mar 29, 2004 at 03:15:08PM -0800, Matthew Dharm wrote:
+> On Tue, Mar 30, 2004 at 12:44:09AM +0200, Andries.Brouwer@cwi.nl wrote:
+> > datafab.c has an often-seen bug: the SCSI READ_CAPACITY command
+> > does not need the number of sectors but the last sector.
 > 
-> It does, if a file for that kobject is opened.  In this case, there was
-> no file opened, so the module refcount isn't incremented.
-
-hm, surprised.  Shouldn't the existence of a kobject contribute to its
-module's refcount?
-
-> > Maybe a shrink_dcache_parent(dentry) on entry to simple_rmdir() would
-> > suffice?
+> The first part of the patch (which fixes this bug) certainly looks good to
+> me for 2.6 -- we need to check that 2.4 doesn't also have the problem.
 > 
-> Will that get rid of the references properly nwhen we remove the
-> kobject?
+> The second part of your patch I don't like (it seems to violate the
+> 'principal of least suprise' to me).... but I'm also ready and willing to
+> consider a beter alternative.  What do you suggest?
 
-That's one the dcache guys could address better, but I was mainly proposing
-it as a way of removing any negative dentries.  But it appears that we have
-problems beyond negative dentries?
+Well, the entire patch should be applied. Nothing wrong with it.
+
+That will enable people to use (0x0c0b,0xa109) to read CF,
+or to read SM, but not both. (Without the patch the device
+does not work at all.)
+The situation is precisely the same as that for (0x07c4,0xa109).
+
+To do something better we need infrastructure that does not exist today,
+at least not in the vanilla kernel. That is why I call for discussion.
+
+The points are ordinary use and error recovery.
+For ordinary use the main point seems to be the us->extra
+pointer to private data. Since each driver needs private data,
+a single pointer does not suffice.
+
+Andries

@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbTCZIjE>; Wed, 26 Mar 2003 03:39:04 -0500
+	id <S261505AbTCZIsm>; Wed, 26 Mar 2003 03:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbTCZIjE>; Wed, 26 Mar 2003 03:39:04 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:59298 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261508AbTCZIjC>;
-	Wed, 26 Mar 2003 03:39:02 -0500
-Date: Wed, 26 Mar 2003 09:50:10 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Arne Koewing <ark@gmx.net>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: [patch] Synaptics touchpad with Trackpoint needs ps/2 reset
-Message-ID: <20030326095010.A17442@ucw.cz>
-References: <87r88uv7hf.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me>
+	id <S261510AbTCZIsm>; Wed, 26 Mar 2003 03:48:42 -0500
+Received: from 210-55-37-99.dialup.xtra.co.nz ([210.55.37.99]:260 "EHLO
+	riven.neverborn.ORG") by vger.kernel.org with ESMTP
+	id <S261505AbTCZIsl>; Wed, 26 Mar 2003 03:48:41 -0500
+Date: Wed, 26 Mar 2003 20:59:45 +1200
+From: "leon j. breedt" <ljb@neverborn.org>
+To: linux-kernel@vger.kernel.org
+Subject: No SB Audigy2 analog output in 2.5.66 emu10k1 driver?
+Message-ID: <20030326085945.GA4433@riven.neverborn.ORG>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87r88uv7hf.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me>; from ark@gmx.net on Tue, Mar 25, 2003 at 08:25:47AM +0100
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 08:25:47AM +0100, Arne Koewing wrote:
-> Hi!
-> 
-> I recently posted this to linux-kernel (with a different subject)
-> I had included a wrong ptch there, i think this one is ok.
+hi,
 
-Do we really need RESET_BAT? Doesn't any other command help?
+i don't know if i'm missing something here, but
+i'm getting no output from the analog output (third
+from the firewire port) on my SB Audigy2 on 2.5.66 (or
+any previous version i've tried for that matter).
 
-> As some people before I had the 'Dell trackpoint does not work' problem
-> after upgrading to 2.5.XX:
-> That was:
->      
-> the trackpoint of your dell won't work until:
->     - hibernate and wake up the system again
->     - plug in an external mouse (you may remove it immediately)
-> 
-> it seems that dells hardware is disabling the trackpoint if you
-> probed for the touchpad.
-> A device reset after probing does help, but I've no idea how this
-> would affect other synaptics touchpad devices although I think
-> most devices will not complain about one extra reset.
-> 
-> 
->   Arne
-> 
-> 
-> diff -bruN   linux-2.5.65-old/drivers/input/mouse/psmouse.c linux-2.5.65/drivers/input/mouse/psmouse.c 
-> --- linux-2.5.65-old/drivers/input/mouse/psmouse.c      2003-03-05 04:29:03.000000000 +0100
-> +++ linux-2.5.65/drivers/input/mouse/psmouse.c  2003-03-26 09:11:10.000000000 +0100
-> @@ -345,6 +345,7 @@
->                    thing up. */
->                 psmouse->vendor = "Synaptics";
->                 psmouse->name = "TouchPad";
-> +              psmouse_command(psmouse, param, PSMOUSE_CMD_RESET_BAT);
->                 return PSMOUSE_PS2;
->         }
+i've checked mixer settings, all settable items are on
+maximum output.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+i have also tried the emu10k1 driver from sourceforge
+on 2.4.x, with the same result.
+
+it works fine with the OSS/Linux and windows drivers,
+here is the dmesg line:
+
+Advanced Linux Sound Architecture Driver Version 0.9.2 (Thu Mar 20 13:31:57 2003 UTC).
+request_module: failed /sbin/modprobe -- snd-card-0. error = -16
+ALSA device list:
+  #0: Sound Blaster Audigy (rev.4) at 0xb800, irq 18
+
+i don't know why the request_module was even executed, since i've
+compiled everything in:
+
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+
+any suggestions?
+
+thanks,
+leon

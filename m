@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271141AbTGPVwf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271144AbTGPVwf
+	id S271148AbTGPVyw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271144AbTGPVyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:52:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19869 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271141AbTGPVwd (ORCPT
+	Wed, 16 Jul 2003 17:54:17 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:57260 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S271148AbTGPVyA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:52:33 -0400
-Date: Wed, 16 Jul 2003 15:00:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
+	Wed, 16 Jul 2003 17:54:00 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <greg@kroah.com>, Fredrik Tolf <fredrik@dolda2000.cjb.net>
+Subject: Re: Input layer demand loading
+Date: Thu, 17 Jul 2003 00:07:04 +0200
+User-Agent: KMail/1.5.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-Id: <20030716150010.6ba8416f.akpm@osdl.org>
-In-Reply-To: <20030716213607.GA2773@kroah.com>
-References: <20030716184609.GA1913@kroah.com>
-	<20030716130915.035a13ca.akpm@osdl.org>
-	<20030716210253.GD2279@kroah.com>
-	<20030716141320.5bd2a8b3.akpm@osdl.org>
-	<20030716213607.GA2773@kroah.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307162323.31836.fredrik@dolda2000.cjb.net> <20030716215452.GB2773@kroah.com>
+In-Reply-To: <20030716215452.GB2773@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307170007.04782.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> Who else prints out the dev_t value?
 
-There are only a few places where it happens.  It is random junk like
-"mounted filesystem foo on device %d"
+> > Huh? Look at it this way: As it is now, if you have a non-hotplug joystick, 
+> > then you can't load anything automatically, not even the hardware drivers.
+> 
+> Correct.
+> 
+> > If you have demand-loading in the input layer, on the other hand, you can have 
+> > "above" directives in modules.conf (or "install" directives in modprobe.conf) 
+> > to pull in the hardware drivers along with joydev.
+> 
+> Where do you get the hardware driver coming along with joydev?
+
+By editing /etc/modules.conf
+ 
+> I must be missing something here...
+
+Yes, there are non hotpluggable devices out there.
+It is easy to forget :-)
+ 
+	Regards
+		Oliver
 

@@ -1,42 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbSI3IYA>; Mon, 30 Sep 2002 04:24:00 -0400
+	id <S261962AbSI3IVa>; Mon, 30 Sep 2002 04:21:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261967AbSI3IYA>; Mon, 30 Sep 2002 04:24:00 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:59890 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S261966AbSI3IX7>; Mon, 30 Sep 2002 04:23:59 -0400
-Date: Mon, 30 Sep 2002 01:22:00 -0700
-From: Chris Wright <chris@wirex.com>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Greg KH <greg@kroah.com>,
-       Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] accessfs v0.6 ported to 2.5.35-lsm1 - 1/2
-Message-ID: <20020930012200.G12641@figure1.int.wirex.com>
-Mail-Followup-To: James Morris <jmorris@intercode.com.au>,
-	Greg KH <greg@kroah.com>,
-	Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-	linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-References: <20020927214642.GS12909@kroah.com> <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>
+	id <S261965AbSI3IVa>; Mon, 30 Sep 2002 04:21:30 -0400
+Received: from angband.namesys.com ([212.16.7.85]:23684 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S261962AbSI3IV3>; Mon, 30 Sep 2002 04:21:29 -0400
+Date: Mon, 30 Sep 2002 12:26:48 +0400
+From: Oleg Drokin <green@namesys.com>
+To: jdike@karaya.com, user-mode-linux-user@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make UML to compile in 2.5 bk-curr
+Message-ID: <20020930122648.A14360@namesys.com>
+References: <20020930121248.A14194@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>; from jmorris@intercode.com.au on Sun, Sep 29, 2002 at 10:56:33PM +1000
+In-Reply-To: <20020930121248.A14194@namesys.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@intercode.com.au) wrote:
-> > 
-> > As for the ip_prot_sock hook in general, does it look ok to the other
-> > developers?
-> 
-> This hook is not necessary: any related access control decision can be
-> made via the more generic and flexible socket_bind() hook (like SELinux).
+Hello!
 
-Yes, I had the same impression.
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+On Mon, Sep 30, 2002 at 12:12:48PM +0400, Oleg Drokin wrote:
+>    After MIngo's patches named "atomic-thread-signals" and "tq_struct removal
+>    fixups.." were merged into bk current, patch below is necessary for
+>    UML to compile.
+
+And here is forgotten patch.
+
+
+===== arch/um/drivers/chan_kern.c 1.1 vs edited =====
+--- 1.1/arch/um/drivers/chan_kern.c	Fri Sep  6 21:29:28 2002
++++ edited/arch/um/drivers/chan_kern.c	Mon Sep 30 11:49:05 2002
+@@ -409,7 +409,7 @@
+ 		do {
+ 			if((tty != NULL) && 
+ 			   (tty->flip.count >= TTY_FLIPBUF_SIZE)){
+-				queue_task(task, &tq_timer);
++				schedule_task(task);
+ 				goto out;
+ 			}
+ 			err = chan->ops->read(chan->fd, &c, chan->data);
+===== arch/um/kernel/signal_kern.c 1.1 vs edited =====
+--- 1.1/arch/um/kernel/signal_kern.c	Thu Sep 12 16:22:53 2002
++++ edited/arch/um/kernel/signal_kern.c	Mon Sep 30 11:56:06 2002
+@@ -101,12 +101,12 @@
+ 		ka->sa.sa_handler = SIG_DFL;
+ 
+ 	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+-		spin_lock_irq(&current->sigmask_lock);
++		spin_lock_irq(&current->sig->siglock);
+ 		sigorsets(&current->blocked, &current->blocked, 
+ 			  &ka->sa.sa_mask);
+ 		sigaddset(&current->blocked, signr);
+ 		recalc_sigpending();
+-		spin_unlock_irq(&current->sigmask_lock);
++		spin_unlock_irq(&current->sig->siglock);
+ 	}
+ 
+ 	sp = PT_REGS_SP(regs);
+@@ -188,11 +188,11 @@
+ 	sigset_t saveset;
+ 
+ 	mask &= _BLOCKABLE;
+-	spin_lock_irq(&current->sigmask_lock);
++	spin_lock_irq(&current->sig->siglock);
+ 	saveset = current->blocked;
+ 	siginitset(&current->blocked, mask);
+ 	recalc_sigpending();
+-	spin_unlock_irq(&current->sigmask_lock);
++	spin_unlock_irq(&current->sig->siglock);
+ 
+ 	while (1) {
+ 		current->state = TASK_INTERRUPTIBLE;
+@@ -214,11 +214,11 @@
+ 		return -EFAULT;
+ 	sigdelsetmask(&newset, ~_BLOCKABLE);
+ 
+-	spin_lock_irq(&current->sigmask_lock);
++	spin_lock_irq(&current->sig->siglock);
+ 	saveset = current->blocked;
+ 	current->blocked = newset;
+ 	recalc_sigpending();
+-	spin_unlock_irq(&current->sigmask_lock);
++	spin_unlock_irq(&current->sig->siglock);
+ 
+ 	while (1) {
+ 		current->state = TASK_INTERRUPTIBLE;
+@@ -234,13 +234,13 @@
+ 	void *mask = sp_to_mask(PT_REGS_SP(&regs));
+ 	int sig_size = (_NSIG_WORDS - 1) * sizeof(unsigned long);
+ 
+-	spin_lock_irq(&current->sigmask_lock);
++	spin_lock_irq(&current->sig->siglock);
+ 	copy_from_user(&current->blocked.sig[0], sc_sigmask(sc), 
+ 		       sizeof(current->blocked.sig[0]));
+ 	copy_from_user(&current->blocked.sig[1], mask, sig_size);
+ 	sigdelsetmask(&current->blocked, ~_BLOCKABLE);
+ 	recalc_sigpending();
+-	spin_unlock_irq(&current->sigmask_lock);
++	spin_unlock_irq(&current->sig->siglock);
+ 	copy_sc_from_user(current->thread.regs.regs.sc, sc,
+ 			  &signal_frame_sc.arch);
+ 	return(PT_REGS_SYSCALL_RET(&current->thread.regs));
+@@ -252,11 +252,11 @@
+ 	void *mask = sp_to_rt_mask(PT_REGS_SP(&regs));
+ 	int sig_size = _NSIG_WORDS * sizeof(unsigned long);
+ 
+-	spin_lock_irq(&current->sigmask_lock);
++	spin_lock_irq(&current->sig->siglock);
+ 	copy_from_user(&current->blocked, mask, sig_size);
+ 	sigdelsetmask(&current->blocked, ~_BLOCKABLE);
+ 	recalc_sigpending();
+-	spin_unlock_irq(&current->sigmask_lock);
++	spin_unlock_irq(&current->sig->siglock);
+ 	copy_sc_from_user(current->thread.regs.regs.sc, sc,
+ 			  &signal_frame_sc.arch);
+ 	return(PT_REGS_SYSCALL_RET(&current->thread.regs));

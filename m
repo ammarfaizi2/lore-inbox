@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135283AbREITI5>; Wed, 9 May 2001 15:08:57 -0400
+	id <S135323AbREITQ7>; Wed, 9 May 2001 15:16:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135266AbREITIs>; Wed, 9 May 2001 15:08:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7948 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130900AbREITIk>; Wed, 9 May 2001 15:08:40 -0400
-Subject: Re: Nasty Requirements for non-GPL Linux Kernel Modules?
-To: lm@bitmover.com (Larry McVoy)
-Date: Wed, 9 May 2001 20:11:51 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), scott@CS.Princeton.EDU,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010509114816.K14127@work.bitmover.com> from "Larry McVoy" at May 09, 2001 11:48:16 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132526AbREITQv>; Wed, 9 May 2001 15:16:51 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:15118 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135266AbREITQn>; Wed, 9 May 2001 15:16:43 -0400
+Date: Wed, 9 May 2001 14:38:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <15096.42935.213398.64003@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0105091437130.13878-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xZNJ-00033f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     and can be reasonably considered independent and separate works in
->     themselves, then this License, and its terms, do not apply to those
->     sections when you distribute them as separate works. 
+
+On Tue, 8 May 2001, David S. Miller wrote:
+
 > 
-> For example, suppose I ship you a tarball that has the source & binaries
-> for both a GPLed program and a non GPLed helper program in it - does the
-> non GPLed program become GPLed?  I tend to doubt it and so do the lawyers.
+> Marcelo Tosatti writes:
+>  > Ok, this patch implements thet thing and also changes ext2+swap+shm
+>  > writepage operations (so I could test the thing).
+>  > 
+>  > The performance is better with the patch on my restricted swapping tests.
+> 
+> Nice.  Now the only bit left is moving the referenced bit
+> checking and/or state into writepage as well.  This is still
+> part of the plan right?
 
-The counter example is the Objective C compiler. There the helper was not usable
-without the GPL compiler so was not a 'seperate work'
+Hum...
 
-> Note that I'm not a lawyer, so my opinion on this is just that,
-> my opinion.  I have spent a fair amount of time and money trying to
+You want writepage() to check/clean the referenced bit and move the page
+to the active list itself ?
 
-Ditto but I spent favours not $15K chunks 8)
 
-> you stand, it'll cost you around $15K and that, in my opinion, is fine.
-> If it isn't worth $15K to protect your code then it is worth so little to
-> you that there really is no good reason not to just GPL it from the start.
-
-Smart advice.
+ 
 

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUJDUmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUJDUro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268479AbUJDUmc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268482AbUJDUmc
+	id S268486AbUJDUro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268503AbUJDUro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:42:32 -0400
-Received: from mail.dif.dk ([193.138.115.101]:62935 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268479AbUJDUlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:41:44 -0400
-Date: Mon, 4 Oct 2004 22:49:07 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Linus Torvalds <torvalds@osdl.org>, Larry Ewing <lewing@isc.tamu.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] How about making Tux official - it's about time...
-In-Reply-To: <20041004203521.GE30858@thundrix.ch>
-Message-ID: <Pine.LNX.4.61.0410042246270.2925@dragon.hygekrogen.localhost>
-References: <20041004203521.GE30858@thundrix.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Oct 2004 16:47:44 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:9187 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268486AbUJDUoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 16:44:20 -0400
+Subject: Re: [PATCH] I/O space write barrier
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: jbarnes@engr.sgi.com, benh@kernel.crashing.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1096922369.2666.177.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 Oct 2004 16:39:30 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Oct 2004, Tonnerre wrote:
+> diff -Nru a/include/asm-ppc/io.h b/include/asm-ppc/io.h
+> --- a/include/asm-ppc/io.h 2004-09-27 10:48:41 -07:00
+> +++ b/include/asm-ppc/io.h 2004-09-27 10:48:41 -07:00
+> @@ -197,6 +197,8 @@
+>  #define memcpy_fromio(a,b,c)   memcpy((a),(void *)(b),(c))
+>  #define memcpy_toio(a,b,c) memcpy((void *)(a),(b),(c))
+> 
+> +#define mmiowb() asm volatile ("eieio" ::: "memory")
+> +
+>  /*
+>   * Map in an area of physical address space, for accessing
+>   * I/O devices etc.
 
-> Salut,
-> On Mon, Oct 04, 2004 at 10:39:10PM +0200, Jesper Juhl wrote:
-> > Also, on a related note; how about a PNG version instead of a GIF in
-> the 
-> > kernel source? PNG is a nice open format, GIF has this unpleasant
-> patent 
-> > smell...?
-> The LZW  patent from Unisys has  timed out some monthes  ago. The only
-> point that's left against GIF is that it's terribly ugly.
+I don't think this is right. For ppc, eieio is
+already included as part of the assembly for the
+IO operations. If you could delete that, great,
+but I suspect that nearly all drivers would break.
 
-Yes, you are right. I was aware of the patent expiration (should probably 
-have said), but the smell lingers ;)  but yes, a PNG could be nicer as 
-well simply by having more colours available, GIF's are sadly limited 
-there.
+There's an existing eieio() inline function that
+you could use, instead of fresh assembly code.
 
---
-Jesper Juhl
+BTW, the "eieio" name is better. The "wb" part
+of "mmiowb" looks like "write back" to me, as if
+it were some sort of cache push operation. It is
+also lacking an appropriate song. :-)
 
 

@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbRBNLMk>; Wed, 14 Feb 2001 06:12:40 -0500
+	id <S129055AbRBNLOu>; Wed, 14 Feb 2001 06:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129197AbRBNLMb>; Wed, 14 Feb 2001 06:12:31 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:23550 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129057AbRBNLMU>; Wed, 14 Feb 2001 06:12:20 -0500
-Message-ID: <3A8A6A42.66F727FA@uow.edu.au>
-Date: Wed, 14 Feb 2001 22:21:38 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-CC: Tim Waugh <twaugh@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
+	id <S129197AbRBNLOa>; Wed, 14 Feb 2001 06:14:30 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:38678 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129055AbRBNLOW>; Wed, 14 Feb 2001 06:14:22 -0500
+Date: Wed, 14 Feb 2001 05:14:19 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Tim Waugh <twaugh@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: [patch] 2.4.2-pre3: parport_pc init_module bug
-In-Reply-To: <20010213234349.O9459@redhat.com> <Pine.LNX.3.96.1010214020126.28011B-100000@mandrakesoft.mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20010214105332.U9459@redhat.com>
+Message-ID: <Pine.LNX.3.96.1010214051314.12910E-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, 14 Feb 2001, Tim Waugh wrote:
+
+> On Wed, Feb 14, 2001 at 02:03:07AM -0600, Jeff Garzik wrote:
 > 
-> Bad patch.  It should be
+> > If pci_register_driver returns < 0, the driver is not registered with
+> > the system.
 > 
->         if (r >= 0) {
->                 registered_parport = 1;
->                 if (r > 0)
->                         count += r;
->         }
+> Thanks.  Okay, second try:
 > 
-> If pci_register_driver returns < 0, the driver is not registered with
-> the system.
+> 2001-01-14  Tim Waugh  <twaugh@redhat.com>
+> 
+> 	* parport_pc.c: Fix PCI driver list corruption on
+> 	unsuccessful module load (Andrew Morton).
+> 
+> --- linux/drivers/parport/parport_pc.c.init	Wed Feb 14 10:49:28 2001
+> +++ linux/drivers/parport/parport_pc.c	Wed Feb 14 10:50:31 2001
+> @@ -89,6 +89,7 @@
+>  } superios[NR_SUPERIOS] __devinitdata = { {0,},};
+>  
+>  static int user_specified __devinitdata = 0;
+> +static int registered_parport;
+>  
+>  /* frob_control, but for ECR */
+>  static void frob_econtrol (struct parport *pb, unsigned char m,
+> @@ -2605,8 +2606,10 @@
+>  	count += parport_pc_find_nonpci_ports (autoirq, autodma);
+>  
+>  	r = pci_register_driver (&parport_pc_pci_driver);
+> -	if (r > 0)
+> +	if (r >= 0) {
+> +		registered_parport = 1;
+>  		count += r;
+> +	}
+>  
+>  	return count;
+>  }
 
-eh?
+Should the call to pci_unregister_driver in cleanup_module be
+conditional on registered_parport as well?  I didn't check...
 
-pci_register_driver(struct pci_driver *drv)
-{
-        struct pci_dev *dev;
-        int count = 0;
+Also, is it possible to convert parport_pc to new-style module_init()?
 
-        list_add_tail(&drv->node, &pci_drivers);
-        pci_for_each_dev(dev) {
-                if (!pci_dev_driver(dev))
-                        count += pci_announce_device(drv, dev);
-        }
-        return count;
-}
+	Jeff
 
-Maybe you're thinking of pci_module_init?
 
-Now, if there were some actual COMMENTS (scary, I know) in the pci
-code which described the API, stuff like this wouldn't happen.
 
--
+

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267626AbUHPOFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267630AbUHPOGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267626AbUHPOFn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHPOFn
+	id S267630AbUHPOGY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267643AbUHPOGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:05:43 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:65507 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267626AbUHPOFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:05:42 -0400
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-Cc: John Wendel <jwendel10@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040816143817.0de30197.Ballarin.Marc@gmx.de>
-References: <411FD919.9030702@comcast.net>
-	 <20040816143817.0de30197.Ballarin.Marc@gmx.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092661385.20528.25.camel@localhost.localdomain>
+	Mon, 16 Aug 2004 10:06:24 -0400
+Received: from nevyn.them.org ([66.93.172.17]:15011 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S267630AbUHPOGT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 10:06:19 -0400
+Date: Mon, 16 Aug 2004 10:06:10 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Willy Tarreau <willy@w.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
+Subject: Re: Linux v2.6.8 - Oops on NFSv3
+Message-ID: <20040816140610.GA24688@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Willy Tarreau <willy@w.ods.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
+References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 Aug 2004 14:03:06 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-16 at 13:38, Marc Ballarin wrote:
-> Due to the newly added command filtering, you now need to run cdrecord as
-> root. Since cdrecord will drop root privileges before accessing the drive,
-> setuid root won't help
+On Sat, Aug 14, 2004 at 04:05:56AM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 14 Aug 2004, Christoph Hellwig wrote:
+> > 
+> > Cane we make this 2.6.9 to avoid breaking all kinds of scripts expecting
+> > three-digit kernel versions?
+> 
+> Well, we've been discussing the 2.6.x.y format for a while, so I see this 
+> as an opportunity to actually do it... Will it break automated scripts? 
+> Maybe. But on the other hand, we'll never even find out unless we try it 
+> some time.
 
-cdrecord should be fine. k3b is issuing something not on the filter
-list.
+This will break glibc's OS version checks.  It won't show up as a problem
+now, since it's mostly used to ignore versions of libraries which are
+too new for the running kernel, and 2.6.8.1 is as new as it gets.  But
+that code is going to think the version is humongously greater than
+2.6.8 and 2.6.9.
 
-> This patch restores the behaviour of previous kernels, security issues included:
+See Uli's response:
+  http://sources.redhat.com/ml/libc-alpha/2003-11/msg00025.html
 
-Like allowing any user to erase your drive firmware. What you could do
-which is much more useful is printk the command byte that gets refused
-and see if you can pin down what commands are being blocked that
-are needed by K3B 
-
-Alan
-
+-- 
+Daniel Jacobowitz

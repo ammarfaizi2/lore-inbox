@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbTIDKyy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 06:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264906AbTIDKyx
+	id S264912AbTIDLCs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 07:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTIDLCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 06:54:53 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:10931 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263788AbTIDKyw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 06:54:52 -0400
-From: Tomasz =?ISO-8859-1?Q?=20B=B1tor?= <tomba@bartek.tu.kielce.pl>
-Date: Thu, 4 Sep 2003 12:53:44 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the SiI 0680 chipset status?
-Message-ID: <20030904105344.GA14315@bartek.tu.kielce.pl>
-References: <20030902165537.GA1830@bartek.tu.kielce.pl> <1062589779.19059.8.camel@dhcp23.swansea.linux.org.uk> <20030904014207.GA8579@bartek.tu.kielce.pl> <1062669964.21777.1.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 4 Sep 2003 07:02:48 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:48338 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264912AbTIDLCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 07:02:47 -0400
+Subject: Re: drivers/sound/i810_audio.c bug and patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Mehmet Ceyran <mceyran@web.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030904014327.GK16361@matchmail.com>
+References: <200309031429.01672.m.c.p@wolk-project.de>
+	 <005d01c37273$88183840$0100a8c0@server1>
+	 <20030904014327.GK16361@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062673303.21777.14.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1062669964.21777.1.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Thu, 04 Sep 2003 12:01:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Witam,
-Dnia Thu, Sep 04, 2003 at 11:06:06AM +0100 Alan Cox napisal(a):
+On Iau, 2003-09-04 at 02:43, Mike Fedyk wrote:
+> >  		set_current_state(TASK_UNINTERRUPTIBLE);
+> >  		schedule_timeout(HZ/20);
 
-> On Iau, 2003-09-04 at 02:42, Tomasz B??tor wrote:
-> > It doesn't for me. I have no idea what could I possibly do wrong, but
-> > I've tried dozens of possibilities without any luck. Compiling in
-> > siimage.c = drive errors, ide2 reset and infinite loop of "lost
-> > interrupt" messages at boot time. Without siimage.c compiled and with
-> > ide2=xxx ide3=xxx parameters in lilo, disks are visible, but of course
-> > there is no DMA.
-> > 
-> > Any ideas?
-> 
-> If you disable both APIC and ACPI support is it any happier ?
+> Why busy wait especially when you can sleep 1ms each time and poll less?
 
-Now it's:
+I think you read it wrong - its sleeping...
 
-CONFIG_X86_GOOD_APIC=y
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_X86_UP_IOAPIC is not set
-# CONFIG_ACPI is not set
-
-At night I'll try turning APIC on (I've never used this before) and disable
-it in cmos like Bob said. We'll see.
-
-t.
-
--- 
-  Tomasz Bator  e-mail: tomba@bartek.tu.kielce.pl  ICQ: 101194886
- ------ ---- -- - -  -    -   -  -  -   -    -  - - -- ---- ------
-"Today it's a race between programmers making better idiot proof software,
-and the universe making better idiots. So far the universe is winning"

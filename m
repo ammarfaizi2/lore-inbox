@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310529AbSCEHtY>; Tue, 5 Mar 2002 02:49:24 -0500
+	id <S310523AbSCEHsL>; Tue, 5 Mar 2002 02:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310528AbSCEHtP>; Tue, 5 Mar 2002 02:49:15 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29709 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S310525AbSCEHtD>;
-	Tue, 5 Mar 2002 02:49:03 -0500
-Date: Tue, 5 Mar 2002 08:48:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
-        James Bottomley <James.Bottomley@steeleye.com>,
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Message-ID: <20020305074853.GD716@suse.de>
-In-Reply-To: <phillips@bonn-fries.net> <1201480000.1015262195@tiny> <20020304180537.F1444@redhat.com> <E16hyRG-0000fO-00@starship.berlin>
+	id <S310526AbSCEHsB>; Tue, 5 Mar 2002 02:48:01 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:36285 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S310523AbSCEHr5> convert rfc822-to-8bit;
+	Tue, 5 Mar 2002 02:47:57 -0500
+Date: Mon, 04 Mar 2002 23:45:48 -0800 (PST)
+Message-Id: <20020304.234548.39156672.davem@redhat.com>
+To: linux-kernel@vger.kernel.org, tlan@stud.ntnu.no
+Cc: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020304172617.B1648@stud.ntnu.no>
+In-Reply-To: <20020304164453.A27587@stud.ntnu.no>
+	<3C83993A.94FE655E@mandrakesoft.com>
+	<20020304172617.B1648@stud.ntnu.no>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16hyRG-0000fO-00@starship.berlin>
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04 2002, Daniel Phillips wrote:
-> But the bio layer can manage it, by sending a write barrier down all relevant 
-> queues.  We can send a zero length write barrier command, yes?
+   From: Thomas Langås <tlan@stud.ntnu.no>
+   Date: Mon, 4 Mar 2002 17:26:17 +0100
 
-Actually, yes that was indeed one of the things I wanted to achieve with
-the block layer rewrite -- the ability to send down other commands than
-read/write down the queue. So not exactly bio, but more of a new block
-feature.
-
-See, now fs requests have REQ_CMD set in the request flag bits. This
-means that it's a "regular" request, which has a string of bios attached
-to it. Doing something ala
-
-	struct request *rq = get_request();
-
-	init_request(rq);
-	rq->rq_dev = target_dev;
-	rq->cmd[0] = GPCMD_FLUSH_CACHE;
-	rq->flags = REQ_PC;
-	/* additional info... */
-	queue_request(rq);
-
-would indeed be possible. The attentive reader will now know where
-ide-scsi is headed and why :-)
-
-This would work for any SCSI and psueo-SCSI device, basically all the
-stuff out there. For IDE, the request pre-handler would transform this
-into an IDE command (or taskfile).
-
--- 
-Jens Axboe
-
+   However, there seems to be a problem with the bw_tcp-tool, cause it just
+   hangs, trying to strace it won't gimme me much usefull info about why it
+   hangs either. (it worked like a charm with 1500 MTUs).
+   
+Expect a 0.95 release later tonight, which should fix this.

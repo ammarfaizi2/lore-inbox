@@ -1,48 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265954AbUBQEMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 23:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUBQEMP
+	id S265972AbUBQESh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 23:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUBQESh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 23:12:15 -0500
-Received: from dp.samba.org ([66.70.73.150]:49855 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265954AbUBQEMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 23:12:14 -0500
+	Mon, 16 Feb 2004 23:18:37 -0500
+Received: from [218.5.74.208] ([218.5.74.208]:64201 "EHLO vhost.bizcn.com")
+	by vger.kernel.org with ESMTP id S265972AbUBQESe (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 23:18:34 -0500
+Message-ID: <40318FB0.6060109@lovecn.org>
+Date: Tue, 17 Feb 2004 11:51:12 +0800
+From: Coywolf Qi Hunt <coywolf@lovecn.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, zh
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: tao@acc.umu.se
+CC: Riley@Williams.Name, davej@suse.de, hpa@zytor.com,
+       alan@lxorguk.ukuu.org.uk, Linux-Kernel@vger.kernel.org,
+       root@chaos.analogic.com
+Subject: [2.0.40 2.2.25 2.4.25] Fix boot GDT limit 0x800 to 0x7ff in setup.S
+ or not
+References: <403114D9.2060402@lovecn.org>
+In-Reply-To: <403114D9.2060402@lovecn.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16433.38038.881005.468116@samba.org>
-Date: Tue, 17 Feb 2004 15:12:06 +1100
-To: linux-kernel@vger.kernel.org
-Subject: UTF-8 and case-insensitivity
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given how much pain the "kernel is agnostic to charset encoding"
-attitude has cost me in terms of programming pain, I thought I should
-de-cloak from lurk mode and put my 2c into the UTF-8 issue.
+Coywolf Qi Hunt wrote:
 
-Personally I think that eventually the Linux kernel will have to
-embrace the interpretation of the byte streams that applications have
-given it, despite the fact that this will be very painful and
-potentially quite complex. The reason is that I think that eventually
-the Linux kernel will need to efficiently support a userspace policy
-of case-insensitivity and the only way to do case-insensitive filename
-operations is to interpret those byte streams as a particular
-encoding.
+> Hello 2.4.xx hackers,
+>
+> In setup.S, i feel like that the gdt limit 0x8000 is not proper and it 
+> should be 0x800.  How came 0x800 into 0x8000 in 2.4.xx code?  Is there 
+> a story?  It shouldn't be a careless typo. 256 gdt entries should be 
+> enough and since it's boot gdt, 256 is ok even if the code is run on 
+> SMP with 64 cpus.
+> At least the comment doesn't match the code. Either fix the code or 
+> fix the comment.  We really needn't so many GDT entries. Let's use the 
+> intel segmentation in a most limited way. Below follows a patch fixing 
+> the code.
+>
+> I don't have the latest 2.4.24, but setup.S isn't changed from 2.4.23 
+> to 2.4.24.
+>
+> Regards, Coywolf
+>
+>------------------------------------------------------------------------
+>
+>--- arch/i386/boot/setup.S.orig	2003-11-29 02:26:20.000000000 +0800
+>+++ arch/i386/boot/setup.S	2004-02-17 01:15:42.000000000 +0800
+>@@ -1093,7 +1093,7 @@
+> 	.word	0				# idt limit = 0
+> 	.word	0, 0				# idt base = 0L
+> gdt_48:
+>-	.word	0x8000				# gdt limit=2048,
+>+	.word	0x800				# gdt limit=2048,
+> 						#  256 GDT entries
+> 
+> 	.word	0, 0				# gdt base (filled in later)
+>
+>  
+>
 
-Personally I much prefer the systems I use to be case-sensitive, but
-there are important applications that require case-insensitivity for
-interoperability. Right now it is not possible to write a case
-insensitive application on Linux in an efficient manner. With the
-current "encoding agnostic" APIs a simple open() or stat() call
-becomes a horrendously expensive operation and one that is fraught
-with race conditions. Providing the same functionality in the kernel
-is dirt cheap by comparison (not cheap in terms of code complexity,
-but cheap in terms of runtime efficiency).
+Hello all hackers, from 2.0 to 2.4,
 
-Cheers, Tridge
+In setup.S,  from the very beginning (in boot/boot.s for 0.01 kernel),
+all boot GDT limits are set to 0x800. GDT limit is the LIMIT, not SIZE.
+So all these 0x800 should be 0x7ff. And actually in the current 2.4.24,
+it is even an odd 0x8000 which I previously just sent a patch to fix to
+0x800. But it should be set to 0x7ff really.  Until now only 2.6 sets it
+properly. Although these will never cause any runtime problem at all,
+they are ugly. Please consider fix them.
+
+Since it is always 0x800, i even get used to 0x800 rather then the
+proper 0x7ff. If leave it 0x800, it's useful to distinguish the boot GDT
+from the later final GDT setting in arch/i386/kernel/head.S. So fix it
+or not.
+
+
+Regards,
+Coywolf
+
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
+

@@ -1,88 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbTE0ESg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 00:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTE0ESg
+	id S263332AbTE0E0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 00:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTE0E0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 00:18:36 -0400
-Received: from adsl-67-122-203-155.dsl.snfc21.pacbell.net ([67.122.203.155]:1195
-	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
-	id S263322AbTE0ESc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 00:18:32 -0400
-Message-ID: <3ED2EA26.9060100@storadinc.com>
-Date: Mon, 26 May 2003 21:31:34 -0700
-From: manish <manish@storadinc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-References: <3ED2DE86.2070406@storadinc.com> <Pine.LNX.4.55L.0305270103220.32094@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 00:26:47 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:62215 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263332AbTE0E0q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 00:26:46 -0400
+Date: Tue, 27 May 2003 06:39:36 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, Willy Tarreau <willy@w.ods.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, gibbs@scsiguy.com,
+       acme@conectiva.com.br
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+Message-ID: <20030527043936.GB19309@alpha.home.local>
+References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net> <1053995708.17151.42.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1053995708.17151.42.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+On Tue, May 27, 2003 at 01:35:09AM +0100, Alan Cox wrote:
+ 
+> One thing I will say however - I'd have done the *same* thing as Marcelo
+> with aic7xxx during -rc which is to defer it.
 
->
->On Mon, 26 May 2003, manish wrote:
->
->>Hello !
->>
->>I am running the 2.4.20 kernel on a system with 3.5 GB RAM and dual CPU.
->>I am running bonnie accross four drives in parallel:
->>
->>bonnie -s 1000 -d /<dir-name>
->>
->>bdflush settings on this system:
->>
->>[root@dyn-10-123-130-235 vm]# cat bdflush
->>2       50      32      100     50      300     1       0       0
->>
->>All the bonnie process and any other process (like df, ps -ef etc.) are
->>hung in __lock_page. Breaking into kdb, I observe the following for one
->>such bonnie process:
->>
->>schedule(..)
->>__lock_page(..)
->>lock_page(..)
->>do_generic_file_read(..)
->>generic_file_read(..)
->>
->>After this, the processes never exit the hang. At times, a couple of
->>bonnie processes complete but the hang still occurs with the remaining
->>processes and with the other processes.
->>
->>I tried out the 2.5.33 kernel (one of the 2.5 series) and observed that
->>the hang does not occur. If I run, two bonnie processes, they never get
->>stuck. Actually, if I run 4 parallel mke2fs, they too get stuck.
->>
->>Any clues where this could be happening?
->>
->
->Hi,
->
->Are you sure there is no disk activity ?
->
->Run vmstat and check that, please.
->
-Hello !
+I think you would at least have forwarded problem reports to Justin, expecting
+him to look into the problem first.
 
-My bad. This is one of the kernels that had modified the IO subsystem to 
-replace the io_request_lock with a finer grained host_lock and queue_lock.
+I don't reproach Marcelo of not including the last aic7xxx driver in mainline,
+but of reverting an enormous amount of code at the last minute without prior
+asking the maintainer if he has an idea about the problem people encounter. Of
+course, if he hasn't, the driver has to be removed, but he gave him no chance
+to fix it, nor any detail about who had problems and what type of problems they
+had. And reverting to what it was in 2.4.20 is not safer than trying to fix,
+since other code touched in 2.4.21 may bring side effects (APIC ?) which might
+explain why it doesn't work for some people.
 
-I also noticed that the hang occurs when the settings of bdflush are the 
-following:
+> The simple truth is that when you give something to 10,000 users instead of
+> 20 something breaks. Its not that authors suck its just another testimony to
+> the fact computer programming is still firmly at the alchemy not the
+> chemistry end of its history.
 
-root@dyn-10-123-130-235 vm]# cat bdflush
-30      50      32      100     50      300     60      0       0
+and that computer makers can't read the specs !
 
-Thanks
--Manish
+> If the driver works well fine, but maintainers don't have the ability to
+> see into the future either.
 
+It reminds me that I often worry when one of my programs runs right on the
+first compilation, because it doesn't give me the opportunity of puting my
+nose into sensible places where I could find obvious bugs :-)
 
-
-
+Regards,
+Willy
 

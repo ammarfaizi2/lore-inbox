@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270814AbRHSWI7>; Sun, 19 Aug 2001 18:08:59 -0400
+	id <S270819AbRHSWRA>; Sun, 19 Aug 2001 18:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270816AbRHSWIt>; Sun, 19 Aug 2001 18:08:49 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:5092 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S270814AbRHSWIe>;
-	Sun, 19 Aug 2001 18:08:34 -0400
-Date: Sun, 19 Aug 2001 23:08:46 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, lists@sapience.com,
-        Robert Love <rml@tech9.net>
-Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Entropy from net devices - keyboard & IDE just as 'bad' [was Re:
- [PATCH] let Net Devices feed Entropy, updated (1/2)]
-Message-ID: <481261630.998262525@[169.254.45.213]>
-In-Reply-To: <479225540.998260489@[169.254.45.213]>
-In-Reply-To: <479225540.998260489@[169.254.45.213]>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
+	id <S270818AbRHSWQu>; Sun, 19 Aug 2001 18:16:50 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:38156 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S270817AbRHSWQh>;
+	Sun, 19 Aug 2001 18:16:37 -0400
+Date: Mon, 20 Aug 2001 00:16:46 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Steven Cole <elenstev@mesatop.com>
+cc: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, <gars@lanm-pc.com>
+Subject: Re: Swap size for a machine with 2GB of memory
+In-Reply-To: <200108191753.f7JHr8e27206@thor.mesatop.com>
+Message-ID: <Pine.LNX.4.33.0108200009310.7105-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because it looks at inter-IRQ timing, the risk is mainly (as per
-> previous posting) the theoretical risk of being able to determine
-> that inter-IRQ timing from observation of the network(s) connected.
+Yes, i changed this value.
+But i also changed a lot of other #define with bigger values, because
+of the eavy use of all HW resources my users were needing. (maximum number
+of processes and so on...)
 
-So I looked at this a bit more. The stuff which increases entropy
-is meant to be secure from non-root users.
+It has been funny.
+First i installed via NFS the slackware-current for sparc (now obsoleted,
+and developed at sourceforge as splackware),
+then i upgraded the kernel, then i installed a new disk
+to make the swap and so on...
 
-However (standard debian install - headless machine), unpriveleged
-account:
+The latest kernel i used before the 3500 was sended to other uses
+was 2.4.7.
 
-$ cat /proc/interrupts
-           CPU0
-  0: 1116302985          XT-PIC  timer
-  1:          2          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
-  9:   28980016          XT-PIC  usb-uhci, eth0
- 14:  698146587          XT-PIC  ide0
- 15:          5          XT-PIC  ide1
-NMI:          0
-ERR:          0
+The worser kernel on that server was 2.4.5, absolutelly it had the worst
+VM i ever saw on ultrasparc.
 
-Shock horror - I can continually poll this and spot
-when an IRQ occurs.
+Luigi
 
-So polling /proc/interrupts gives me a pretty good indication
-of timing for ide0 interrupts (and, if I had one, keyboard
-interrupts). The /proc reading routine is sufficiently fast
-that by repeating reading (as a user) I should be able to
-get the inter-IRQ timing down to a few tens of microseconds,
-which I think is a few tens of possible values added to the
-entropy pool. This tells me that actually keyboard and ide
-interrupt timings are no less observable by non-root people than
-network interrupts.
 
-Now if you have an IR or radio keyboard, the situation is even worse.
+On Sun, 19 Aug 2001, Steven Cole wrote:
 
-So I don't think Robert's patch is any more flawed than using
-k/b, mouse, ide IRQs.
+> On Sunday 19 August 2001 01:29 pm, Luigi Genoni wrote:
+> [snipped]
+> > On my ultrasparc linux with 4 GByte of RAM running 2.4.X kernels,
+> > I needed to add a 8 GB disk just for
+> > swap (16 partitions of 512 MB each one).
+> --------^^
+> Just curious, in linux-2.4.9/include/linux/swap.h line 11, we have:
+>
+> #define MAX_SWAPFILES 8
+>
+> Did you change this to 16, or does this not matter anymore?
+> This value is the same in 2.4.8-ac7.
+>
+> Steven
+>
 
---
-Alex Bligh

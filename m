@@ -1,72 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbTH0Nk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 09:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbTH0Nk3
+	id S262997AbTH0NmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 09:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTH0NmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 09:40:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:16834 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262347AbTH0Nk1
+	Wed, 27 Aug 2003 09:42:20 -0400
+Received: from mxrelay.osnanet.de ([212.95.97.103]:10176 "EHLO
+	mxrelay.osnanet.de") by vger.kernel.org with ESMTP id S262997AbTH0Nl2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 09:40:27 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-Reply-To: habanero@us.ibm.com
-To: root@chaos.analogic.com, Andy Isaacson <adi@hexapodia.org>
-Subject: Re: 2.6.0-test4 shocking (HT) benchmarking (wrong logic./phys. HT CPU distinction?)
-Date: Wed, 27 Aug 2003 08:40:33 -0500
-User-Agent: KMail/1.5
-Cc: max@vortex.physik.uni-konstanz.de,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <200308261552.44541.max@vortex.physik.uni-konstanz.de> <20030826135051.A16285@hexapodia.org> <Pine.LNX.4.53.0308261455590.4526@chaos>
-In-Reply-To: <Pine.LNX.4.53.0308261455590.4526@chaos>
+	Wed, 27 Aug 2003 09:41:28 -0400
+Message-ID: <3F4CB452.2060207@lilymarleen.de>
+Date: Wed, 27 Aug 2003 15:38:26 +0200
+From: LGW <large@lilymarleen.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030711 Thunderbird/0.1a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: porting driver to 2.6, still unknown relocs... :(
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308270840.33932.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 August 2003 14:12, Richard B. Johnson wrote:
-> On Tue, 26 Aug 2003, Andy Isaacson wrote:
-> > On Tue, Aug 26, 2003, max@vortex.physik.uni-konstanz.de wrote:
-> > > in our fine physics group we recently bought a DUAL XEON P4 2666MHz,
-> > > 2GB, with
-> > > hyper-threading support and I had the honour of making the thing work.
-> > > In the
-> > > process I also did some benchmarking using two different kernels (stock
-> > > SuSE-8.2-Pro 2.4.20-64GB-SMP, and the latest and greatest vanilla
-> > > 2.6.0-test4). I benchmarked
+Hi again.
 
-Chances are -neither- of these kernels have HT enhancements for the scheduler.  
-I am positive the 260test kernels do not have shared runqueues for HT 
-siblings and the scheduler does not make use of the cpu_sibling_map.  Test 
-make -j2 with HT disabled, and I bet you get better results than make -j2 
-with HT enabled....
+As I described before, I try to port an audio driver from 2.4.x to 2.6.x.
 
-> P.S. HT References I found online have not compared HT between 2.4 and 2.6, 
-> but they all assume improvements in 2.6.
-> http://www.linuxworld.com/story/33885.htm
+It compiles, but on load I get "module snd_echoaudio: Unknown 
+relocation: 0" from dmesg.
 
-This article is incorrect.  The scheduler changes did not make it in to 2.5.32
+I looked into arch/*/kernel/module.c, and this error appears if the 
+loaded module contains a relocation other than R_386_32 or R_386_PC32 
+(for intel).
 
-> http://www-106.ibm.com/developerworks/linux/library/l-htl/
+Now I wonder, what would be an relocation type 0? The printk should also 
+print the type in clear text I think, but it just prints 0. 0 also does 
+not look very much like a valid value at all, or does it?
 
-This article discusses the changes needed, but does not state that the changes 
-are in the 2.5 kernel.
+These are the commands used to build the modules (taken from the .*.cmd 
+files):
 
-This is still a problem, even the "What to Expect From 2.6" is incorrect:
-http://ftp.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
+// for the main module file:
+gcc -Wp,-MD,sound/pci/echoaudio/.echoaudio.o.d -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon 
+-Iinclude/asm-i386/mach-default -D__KERNEL__ -Iinclude  -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE 
+-I/usr/include -Isound/pci/echoaudio/DSP -Isound/pci/echoaudio/ASIC 
+-DGINA_20 -DECHO_LINUX -DECHOGALS_FAMILY  -DKBUILD_BASENAME=echoaudio 
+-DKBUILD_MODNAME=snd_echoaudio -c
+-o sound/pci/echoaudio/echoaudio.o sound/pci/echoaudio/echoaudio.c
 
-Ingo's latest patch that fixes this is here:
-http://people.redhat.com/mingo/O(1)-scheduler/sched-2.5.68-B2
+// for the c++ helper files:
+g++ -fno-rtti -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
+-fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=athlon 
+-Iinclude/asm-i386/mach-default -D__KERNEL__ -Iinclude  -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -nostdinc 
+-iwithprefix include -DMODULE -Isound/pci/echoaudio/DSP 
+-Isound/pci/echoaudio/ASIC -DGINA_20 -DECHO_LINUX -DECHOGALS_FAMILY  
+-DKBUILD_BASENAME=echoaudio -DKBUILD_MODNAME=snd_echoaudio 
+-I/usr/include -o $@.o $@.cpp
 
-And here for 2.4:
-http://people.redhat.com/mingo/O(1)-scheduler/sched-HT-2.4.21-rc7-ac1-A1
+// linking echoaudio.o
+ld -m elf_i386  -r -o sound/pci/echoaudio/snd-echoaudio.o 
+sound/pci/echoaudio/echoaudio.o sound/pci/echoaudio/OsSupportLinux.o 
+sound/pci/echoaudio/CDaffyDuck.o sound/pci/echoaudio/CEchoGals_info.o
+sound/pci/echoaudio/CEchoGals_transport.o 
+sound/pci/echoaudio/CPipeOutCtrl.o sound/pci/echoaudio/CEchoGals_mixer.o 
+sound/pci/echoaudio/CMidiInQ.o sound/pci/echoaudio/CEchoGals_midi.o 
+sound/pci/echoaudio/CEchoGals_power.o sound/pci/echoaudio/CEchoGals.o 
+sound/pci/echoaudio/CLineLevel.o sound/pci/echoaudio/CMonitorCtrlL.o 
+sound/pci/echoaudio/CChannelMask.o 
+sound/pci/echoaudio/CGdDspCommObject.o 
+sound/pci/echoaudio/CDspCommObject.o 
+sound/pci/echoaudio/CGinaDspCommObject.o sound/pci/echoaudio/CGina.o
 
-Not sure why the FFT results are so much lower on 2.6, but I'm not sure sure 
-it has anything to do with HT, maybe something else?  Can you try turning off 
-HT and see what happens?
+// linking snd-echoaudio.o
+ld -m elf_i386  -r -o sound/pci/echoaudio/snd-echoaudio.o 
+sound/pci/echoaudio/echoaudio.o sound/pci/echoaudio/OsSupportLinux.o 
+sound/pci/echoaudio/CDaffyDuck.o sound/pci/echoaudio/CEchoGals_info.o
+sound/pci/echoaudio/CEchoGals_transport.o 
+sound/pci/echoaudio/CPipeOutCtrl.o sound/pci/echoaudio/CEchoGals_mixer.o 
+sound/pci/echoaudio/CMidiInQ.o sound/pci/echoaudio/CEchoGals_midi.o 
+sound/pci/echoaudio/CEchoGals_power.o sound/pci/echoaudio/CEchoGals.o 
+sound/pci/echoaudio/CLineLevel.o sound/pci/echoaudio/CMonitorCtrlL.o 
+sound/pci/echoaudio/CChannelMask.o 
+sound/pci/echoaudio/CGdDspCommObject.o 
+sound/pci/echoaudio/CDspCommObject.o 
+sound/pci/echoaudio/CGinaDspCommObject.o sound/pci/echoaudio/CGina.o
 
--Andrew Theurer
+// linking snd-echoaudio.ko
+ld -m elf_i386 -r -o sound/pci/echoaudio/snd-echoaudio.ko 
+sound/pci/echoaudio/snd-echoaudio.o sound/pci/echoaudio/snd-echoaudio.mod.o
+
+I have no idea why those commands should lead to a file with broken 
+relocations. Please help me...
+
+thanks,
+  Lars
+

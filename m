@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267297AbSLELeV>; Thu, 5 Dec 2002 06:34:21 -0500
+	id <S267287AbSLELrm>; Thu, 5 Dec 2002 06:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267299AbSLELeV>; Thu, 5 Dec 2002 06:34:21 -0500
-Received: from holomorphy.com ([66.224.33.161]:25738 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267297AbSLELeT>;
-	Thu, 5 Dec 2002 06:34:19 -0500
-Date: Thu, 5 Dec 2002 03:41:18 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net, jgarzik@pobox.com,
-       miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
-       pavel@ucw.cz
-Subject: Re: [warnings] [2/8] fix uninitialized quot in drivers/serial/core.c
-Message-ID: <20021205114118.GC18600@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net, jgarzik@pobox.com,
-	miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
-	pavel@ucw.cz
-References: <0212050252.hdcd1a.b3aUbzb5bCbGc3dkcCd8a1atc20143@holomorphy.com> <0212050252.AaCdAbid6d9cabJbEbmaTdZb7daa.c5a20143@holomorphy.com> <20021205111913.A18253@flint.arm.linux.org.uk>
+	id <S267291AbSLELrm>; Thu, 5 Dec 2002 06:47:42 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:53253 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267287AbSLELrl>; Thu, 5 Dec 2002 06:47:41 -0500
+Date: Thu, 5 Dec 2002 12:55:13 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: #! incompatible -- binfmt_script.c broken?
+Message-ID: <20021205115513.GD15405@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021204113419.GA20282@merlin.emma.line.org> <20021204142628.GE26745@riesen-pc.gr05.synopsys.com> <20021204142628.GE26745@riesen-pc.gr05.synopsys.com> <20021204183710.GA4004@merlin.emma.line.org> <E18JgHI-0006Gx-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021205111913.A18253@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <E18JgHI-0006Gx-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 02:52:59AM -0800, wli@holomorphy.com wrote:
->> Give quot a default value so it's initialized. rmk, this is yours
->> to ack.
+On Wed, 04 Dec 2002, Matthew Garrett wrote:
 
-On Thu, Dec 05, 2002 at 11:19:13AM +0000, Russell King wrote:
-> Why can't we get this obvious compiler bug fixed?  I'd rather have
-> the compiler bug fixed rather than trying to work around the bogus
-> warning.
-> It's obvious that the loop:
-> 	for (try = 0; try < 3; try++)
-> is going to be executed at least once, which will initialise quot.
-> As for the second hunk, its correct in so far as it'll catch the case
-> where we can't even do 9600 baud.  However, I think we should just
-> bound the lowest baud rate such that we can always do 9600 baud (and
-> therefore this function will never return zero.)
+> See http://www.uni-ulm.de/~s_smasch/various/shebang/ . FreeBSD is the
+> *only* OS to pass multiple arguments. SUS says nothing about it, and
+> pretty much every single implementation varies. It does not work
+> everywhere else.
 
+Now that's a useful resource.
 
-Linus, please count this as a NAK wrt. the serial changes in this set.
-They'll be dealt with at the toolchain level.
+> File a bug against perlrun(1).
 
+Hum, no. In fact, the offending line will work:
 
-Thanks,
-Bill
+- on systems that only pass on the first argument or none at all
+- on systems that split on whitespace
+- on /bin/sh that silently ignore options starting with "-- "
+
+So it's somewhat compatible already.

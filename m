@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312296AbSC2XHL>; Fri, 29 Mar 2002 18:07:11 -0500
+	id <S312294AbSC2XNc>; Fri, 29 Mar 2002 18:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312295AbSC2XHB>; Fri, 29 Mar 2002 18:07:01 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:43269 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312296AbSC2XGo>;
-	Fri, 29 Mar 2002 18:06:44 -0500
-Subject: no locking on sys_stat() and smp race condition
-From: Daniel McNeil <daniel@osdl.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 29 Mar 2002 15:06:40 -0800
-Message-Id: <1017443200.3058.228.camel@IBM-C>
+	id <S312295AbSC2XNW>; Fri, 29 Mar 2002 18:13:22 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:53639 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312294AbSC2XNK>;
+	Fri, 29 Mar 2002 18:13:10 -0500
+Date: Sat, 30 Mar 2002 00:11:00 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jos Hulzink <josh@stack.nl>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] FAT driver enhancement
+Message-ID: <20020329231100.GE9974@elf.ucw.cz>
+In-Reply-To: <20020328135555.U6796-100000@snail.stack.nl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that the kernel does not do any locking when copying the
-inode stat info.  This make stat very fast, but there is a small
-race condition on SMP machines that can cause stat to return unexpected
-results for if another process is simulteously changing something
-returned by stat that is not updated atomically.
+Hi!
 
-One example, is a stat() at the same time of a chown(new_uid, new_gid).
-Since uid and gid are updated individually, the stat() can
-return new_uid and old_gid.  I have a test program that sees
-this on my 2 processor system running 2.4.18.  I am not sure if this
-is a bug, but it is unexpected behavior.  One would expect to see the
-stat() return the old_uid,old_gid OR new_uid,new_gid.
+> A while ago I initiated a thread about mounting a NTFS partition as FAT
+> partition. The problem is that FAT partitions do not have a real
+> fingerprint, so the FAT driver mounts almost anything.
+> 
+> The current 2.5 driver only tests if some values in the bootsector are
+> non-zero. IMHO, this is not strict enough. For example, the number of FATs
+> is always 1 or 2 (anyone ever seen more ?). Besides, when there are two
+> FATs, all entries in those FATs should be equal. If they are not, we deal
+> with a non-FAT or broken FAT partition, and we should not mount.
+> 
+> It's not a real fingerprint, but what are the chances all sectors of what
+> we think is the FAT are equal on non-FAT filesystems ? Yes, when you just
+> did a
+> 
+> dd if=/dev/zero of=/dev/partition; mkfs.somefs /dev/partition
+> 
+> there is a chance, but that's an empty filesystem. Data corruption isn't
+> that bad on an empty disk. We know that a FAT is at the beginning of a
+> partition and I assume that any other filesystem will fill up those first
+> sectors very soon.
+> 
+> Questions:
+> 
+> 1) How do you think about the checking of the FAT tables ? It definitely
+>    will slow down the mount.
 
-The 2nd example is a stat64() at the same time as a write() on a 32bit
-cpu that causes the upper 32bits to be modified -- like a write causing
-the length of a file to grow from 4GB-1 to 4GB. Obviously, compiling the
-application for large file support is required.  Since the 64bit size
-is not atomically updated on a 32bit cpu, it is possible, very rarely,
-to see an incorrect size of 8GB-1 returned by stat64() in this case.
-I have a test program that sees this on my 2 processor x86.  Also,
-a stat64() racing with a truncate64() can see this on a x86 as well.  
-This is a bug.
+Reading FATs is very fast, and they are probably going to be needed,
+anyway. I guess its okay.
 
-Both of these race conditions could be considered to be bugs.  The
-second is more serious.  However, both are rare.  Can anyone tell me of
-a case where the uid/gid race or the 64-bit increment race would cause a
-problem for an application or utility?
+> 2) If I implement it, where shoud it go ? At the moment, I hacked
+>    fat_read_super, for there the FAT fs is validated, but I got the
+>    feeling this is not the place to be.
+> 3) Anyone seen more than two FATs on a filesystem ? Can I assume there is
+>    a limit ?
 
-Daniel
+No. I think you can only have two.
 
-
-
-
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

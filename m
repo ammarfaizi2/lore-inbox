@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283311AbRLWEEw>; Sat, 22 Dec 2001 23:04:52 -0500
+	id <S282962AbRLWEHc>; Sat, 22 Dec 2001 23:07:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282962AbRLWEEn>; Sat, 22 Dec 2001 23:04:43 -0500
-Received: from b0rked.dhs.org ([216.99.196.11]:11398 "HELO b0rked.dhs.org")
-	by vger.kernel.org with SMTP id <S283311AbRLWEE2>;
-	Sat, 22 Dec 2001 23:04:28 -0500
-Date: Sat, 22 Dec 2001 20:04:24 -0800 (PST)
-From: Chris Vandomelen <chrisv@b0rked.dhs.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Assigning syscall numbers for testing
-In-Reply-To: <20011222182556.A19700@redhat.com>
-Message-ID: <Pine.LNX.4.31.0112221956280.23282-100000@b0rked.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283340AbRLWEHM>; Sat, 22 Dec 2001 23:07:12 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:5553 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S282962AbRLWEHG>;
+	Sat, 22 Dec 2001 23:07:06 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 23 Dec 2001 04:06:50 GMT
+Message-Id: <UTC200112230406.EAA67448.aeb@cwi.nl>
+To: bcrl@redhat.com, cw@f00f.org
+Subject: Re: Configure.help editorial policy
+Cc: esr@thyrsus.com, garfield@irving.iisd.sra.com,
+        linux-kernel@vger.kernel.org, riel@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, that's not the case I'm talking about: what happens when a vendor
-> starts shipping this patch and Linus decides to add a new syscall that
-> uses a syscall number that the old kernel used for dynamic syscalls?
+Benjamin LaHaise writes:
 
-Isn't that a non-issue, based on the patch that was sent? So, you change
-a few #define statements to point to other unused slots in the syscall
-table, and you're good to go.
+> GiB is not a useful standard because NOBODY USES IT.
 
-If I understood correctly, /proc/dynamic_syscalls contains the information
-about dynamically registered syscall name->number associations, which are
-placed beyond the end of the currently registered set of syscalls. Later
-on down the line when we have 500 syscalls (exaggeration of course), the
-patch should still work as intended by just telling it that the empty
-slots in the syscall table begin at 501. So now your syscall that was
-registered as syscall 241 with the dynamic syscall patch in 2.4.17 now
-gets number 502 (or anything else for that matter) with the same patch
-under 5.4.23. Whee.
+If everybody waits until all others use it, nothing will
+ever happen. But in fact usage has been increasing over the
+past two years. Also if one restricts attention to the Linux world.
 
-Chris
+But in fact the main purpose is to emphasize that 1000000 and
+1048576 are different numbers and therefore need different
+abbreviations. M always means 1000000. Mi always means 1048576.
+There are not many contexts where an abbreviation for 1048576
+is useful, so no great use is ever expected.
+The goal is not to promote the abbreviation Gi.
+The goal is to stop the people who believe that k means 1024.
 
+
+Rik van Riel writes:
+
+> the kB vs KiB mess is so ambiguous and complex
+
+Mistake. k always means 1000. Ki always means 1024.
+
+> In many cases binary and decimal units are mixed,
+> leading to something which is impossible to "get right".
+> Disk space would be one example of this.
+
+No. All disk manufacturers only use decimal units.
+
+Andries
 

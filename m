@@ -1,53 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266490AbUA2XQI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 18:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbUA2XQI
+	id S266487AbUA2XPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 18:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUA2XPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 18:16:08 -0500
-Received: from main.gmane.org ([80.91.224.249]:9930 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266490AbUA2XQE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 18:16:04 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 29 Jan 2004 18:15:46 -0500
+Received: from p13109-ipadfx01funabasi.chiba.ocn.ne.jp ([220.96.188.109]:6528
+	"HELO achurch.org") by vger.kernel.org with SMTP id S266487AbUA2XPn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 18:15:43 -0500
+From: achurch@achurch.org (Andrew Church)
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: OT: try a search for "bastards" on google
-Date: Fri, 30 Jan 2004 00:16:01 +0100
-Message-ID: <yw1xznc6z6q6.fsf@kth.se>
-References: <40190128.6010103@alvie.com> <1075400259.40194e4327596@horde.sandall.us>
- <1075408410.19897.10.camel@garaged.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-Gmane-NNTP-Posting-Host: ti200710a080-2939.bb.online.no
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:Q0EZy7rInnaO03HNsAYcIgxvZXY=
+Subject: Crypto/cryptoloop(?) bug in 2.6.1
+Date: Fri, 30 Jan 2004 08:10:12 JST
+Content-Type: text/plain; charset=ISO-2022-JP
+X-Mailer: MMail v5.15
+Message-ID: <4019941c.02327@achurch.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Valdez <maxvalde@fis.unam.mx> writes:
+[Note: I am not subscribed to the LKML--please CC any replies.]
 
-> Max On Thu, 2004-01-29 at 12:17, Eric Sandall wrote:
->> Quoting Alvaro Lopes <alvieboy@alvie.com>:
->> > .... and first hit will lead you to SCO group.
->> > 
->> > Rather funny, heh?
->> > 
->> > Álvaro
->> 
->> Led me to bastards.org first...didn't even see SCO mentioned on the
->> first page.
->> 
->> -sandalle
-> I did the search, and the first entry was www.sco.com
->
-> Now it's giving completly new items
+     While trying unsuccessfully to get encrypted loop filesystems working
+under kernel 2.6.1, I found that the crypto system is not properly copying
+data to and from pages used by the cryptoloop driver (possibly only for
+file-backed loop filesystems).  Using the following script with losetup
+from util-linux 2.12:
 
-Like caldera.com.
+---- cut here ----
+yes 0000000 | head -65536c > /tmp/test
+head -8c /tmp/test
+losetup /dev/loop0 /tmp/test
+echo 1234567 > /dev/loop0
+losetup -d /dev/loop0
+head -8c /tmp/test
+echo abcdefgh | losetup -e aes-cbc -p 0 /dev/loop0 /tmp/test
+echo 7654321 >/dev/loop0
+losetup -d /dev/loop0
+head -8c /tmp/test
+---- cut here ----
 
--- 
-Måns Rullgård
-mru@kth.se
+kernel 2.4.21 with the kerneli.org and jari cryptoloop patches performs as
+expected (the first head -8c outputs "1234567", while the second outputs
+encrypted data), but kernel 2.6.1 outputs "1234567" both times, and
+attempting to decrypt the "7654321" encrypted under 2.4.21 produces
+garbage.  Inserting debug printk's shows:
 
+cryptoloop: cipher=[aes-cbc] keysize=32 key=[6162636465666768000000000000000000000000000000000000000000000000
+[[ crypt ]]
+  enc=0 in=31323334 3536370A 30303030 3030300A
+  in: data=ffff1000 tmp=f7c63da0 // which_buf chose ffff1000
+  in: src_p is 55D8893C 24895C24 04FF1085 C074758B
+  after copy:  55D8893C 24895C24 04FF1085 C074758B
+
+i.e., the right data is being passed into crypt(), but scatterwalk_map()
+isn't mapping it correctly.  Likewise, the data encrypted on write isn't
+making it to the page allocated for writing by the cryptoloop driver.  The
+patch below fixes the problem by bypassing the mapping completely and
+directly accessing the pages passed in, but I have no idea whether this is
+safe or not.
+
+     Is this a known problem, and if so, is there a solution for it?
+
+  --Andrew Church
+    achurch@achurch.org
+    http://achurch.org/
+
+---------------------------------------------------------------------------
+
+--- crypto/cipher.c.old	2004-01-29 12:10:00 +0900
++++ crypto/cipher.c	2004-01-29 12:49:43 +0900
+@@ -98,7 +98,7 @@
+ 
+ static void scatterwalk_map(struct scatter_walk *walk, int out)
+ {
+-	walk->data = crypto_kmap(walk->page, out) + walk->offset;
++	walk->data = pfn_to_kaddr(page_to_pfn(walk->page)) + walk->offset;
+ }
+ 
+ static void scatter_page_done(struct scatter_walk *walk, int out,
+@@ -127,7 +127,6 @@
+ 
+ static void scatter_done(struct scatter_walk *walk, int out, int more)
+ {
+-	crypto_kunmap(walk->data, out);
+ 	if (walk->len_this_page == 0 || !more)
+ 		scatter_page_done(walk, out, more);
+ }
+@@ -145,7 +144,6 @@
+ 			buf += walk->len_this_page;
+ 			nbytes -= walk->len_this_page;
+ 
+-			crypto_kunmap(walk->data, out);
+ 			scatter_page_done(walk, out, 1);
+ 			scatterwalk_map(walk, out);
+ 		}

@@ -1,116 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264173AbTEGSPT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 14:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbTEGSPT
+	id S264174AbTEGSSc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 14:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbTEGSSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 14:15:19 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:9383 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264173AbTEGSPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 14:15:14 -0400
-Date: Wed, 7 May 2003 11:28:12 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB changes for 2.5.69
-Message-ID: <20030507182812.GA2516@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 7 May 2003 14:18:32 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1667 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264174AbTEGSSb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 14:18:31 -0400
+Date: Wed, 7 May 2003 14:33:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: petter wahlman <petter@bluezone.no>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <1052330844.3739.840.camel@badeip>
+Message-ID: <Pine.LNX.4.53.0305071429390.13499@chaos>
+References: <1052321673.3727.737.camel@badeip>  <Pine.LNX.4.53.0305071147510.12652@chaos>
+  <1052323711.3739.750.camel@badeip>  <Pine.LNX.4.53.0305071247360.12878@chaos>
+ <1052330844.3739.840.camel@badeip>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 7 May 2003, petter wahlman wrote:
 
-Here are some USB changes and fixes for 2.5.69.  The majority of these
-changes are cleanups to the usb_register_dev() and usb_deregister_dev()
-functions, moving all of the minor handling and other misc things usb
-drivers had to do to use the usb major number into the usb core.  This
-removed a number of static arrays in some of the different USB drivers.
-I've also gotten rid of the kdev_t that the usb core was using for this,
-as it's not really needed at all.  It also adds a usb class for those
-drivers using the usb major in sysfs.
+> On Wed, 2003-05-07 at 18:59, Richard B. Johnson wrote:
+> > On Wed, 7 May 2003, petter wahlman wrote:
+> >
+> > > On Wed, 2003-05-07 at 18:00, Richard B. Johnson wrote:
+> > > > On Wed, 7 May 2003, petter wahlman wrote:
+> > > >
+> > > > >
+> > > > > It seems like nobody belives that there are any technically valid
+> > > > > reasons for hooking system calls, but how should e.g anti virus
+> > > > > on-access scanners intercept syscalls?
+> > > > > Preloading libraries, ptracing init, patching g/libc, etc. are
+> > > >   ^^^^^^^^^^^^^^^^^^^
+> > > >                     |________  Is the way to go. That's how
+> > > > you communicate every system-call to a user-mode daemon that
+> > > > does whatever you want it to do, including phoning the National
+> > > > Security Administrator if that's the policy.
+> > > >
+> > > > > obviously not the way to go.
+> > > > >
+> > > >
+> > > > Oviously wrong.
+> > >
+> > >
+> > > And how would you force the virus to preload this library?
+> > >
+> > > -p.
+> > >
+> >
+> > The same way you would force a virus to not be statically linked.
+> > You make sure that only programs that interface with the kernel
+> > thorugh your hooks can run on that particular system.
+> >
+>
+> Can you please elaborate.
+> How would you implement the access control without modifying the
+> respective syscalls or the system_call(), and would you'r
+> solution be possible to implement run time?
+>
+> Regards,
+>
 
-There are some other bugfixes, and some added usb-storage device fixups
-in these patches too.
+The program loader for shared-library programs is ld.so or
+ld-linux.so. It's the thing that mmaps the shared libraries
+and, eventually calls _start: in the beginning of the program:
+
+execve("/bin/ps", ["ps"], [/* 32 vars */]) = 0
+brk(0)                                  = 0x804c748
+open("/etc/ld.so.preload", O_RDONLY)    = 3 <<<<<<--- your hooks here!!
+fstat(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+old_mmap(NULL, 0, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = 0
+close(3)                                = 0
 
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
 
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
- drivers/usb/class/usblp.c          |   41 ++++--------
- drivers/usb/core/file.c            |  123 +++++++++++++++++++++++++------------
- drivers/usb/core/usb.c             |   12 ++-
- drivers/usb/host/ehci-hcd.c        |   24 ++++---
- drivers/usb/host/ehci-q.c          |   35 +++-------
- drivers/usb/host/ehci.h            |   51 ++++++++++++++-
- drivers/usb/image/mdc800.c         |   17 +++--
- drivers/usb/image/scanner.c        |   54 ++++++----------
- drivers/usb/image/scanner.h        |    6 -
- drivers/usb/input/hiddev.c         |   37 +++++------
- drivers/usb/input/xpad.c           |    1 
- drivers/usb/media/dabusb.c         |   17 +++--
- drivers/usb/media/dabusb.h         |    4 -
- drivers/usb/media/vicam.c          |   30 ---------
- drivers/usb/misc/auerswald.c       |   71 ++++++---------------
- drivers/usb/misc/brlvger.c         |   65 ++++++-------------
- drivers/usb/misc/rio500.c          |   28 +++-----
- drivers/usb/misc/speedtch.c        |    1 
- drivers/usb/misc/usblcd.c          |   16 +++-
- drivers/usb/net/rtl8150.c          |   17 ++---
- drivers/usb/serial/console.c       |    2 
- drivers/usb/serial/usb-serial.h    |    2 
- drivers/usb/storage/unusual_devs.h |   50 ++++++++++++---
- drivers/usb/usb-skeleton.c         |   66 ++++++-------------
- include/linux/brlvger.h            |    8 --
- include/linux/usb.h                |   44 +++++++++++--
- 27 files changed, 428 insertions(+), 394 deletions(-)
------
-
-<nicolas:dupeux.net>:
-  o USB: UNUSUAL_DEV for aiptek pocketcam
-
-<per.winkvist:telia.com>:
-  o USB: more unusual_devs.h changes
-
-<philipp:void.at>:
-  o USB: unusual_devs.h patch
-
-Adrian Bunk:
-  o USB: kill the last occurances of usb_serial_get_by_minor
-
-David Brownell:
-  o USB: ehci i/o watchdog
-
-David S. Miller:
-  o USB speedtouch fix
-
-Geert Uytterhoeven:
-  o USB: Big endian RTL8150
-
-Greg Kroah-Hartman:
-  o USB: converted hiddev over to new usb_register_dev() changes
-  o USB: remove #include <linux/devfs_fs_kernel.h> from some drivers that do not need it
-  o USB: converted usb-skeleton over to new usb_register_dev() changes
-  o USB: converted usblcd over to new usb_register_dev() changes
-  o USB: converted rio500 over to new usb_register_dev() changes
-  o USB: converted brlvger over to new usb_register_dev() changes
-  o USB: converted auerswald over to new usb_register_dev() changes
-  o USB: converted dabusb over to new usb_register_dev() changes
-  o USB: converted scanner over to new usb_register_dev() changes
-  o USB: converted mdc800 over to new usb_register_dev() changes
-  o USB: converted usblp over to new usb_register_dev() changes
-  o USB: add usb class support for usb drivers that use the USB major
-  o USB: vicam: fix bugs in writing to proc files that were found by the CHECKER project
-  o Cset exclude: linux-usb@gemeinhardt.info|ChangeSet|20030429230539|30870
-  o USB: replace kdev_t with int in usb_interface structure, as only drivers with the USB major use it
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

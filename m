@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137019AbRATFib>; Sat, 20 Jan 2001 00:38:31 -0500
+	id <S136908AbRATFof>; Sat, 20 Jan 2001 00:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136908AbRATFiV>; Sat, 20 Jan 2001 00:38:21 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:9736 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S136653AbRATFiM>; Sat, 20 Jan 2001 00:38:12 -0500
-Date: Sat, 20 Jan 2001 00:38:12 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
+	id <S136860AbRATFoZ>; Sat, 20 Jan 2001 00:44:25 -0500
+Received: from f237.law10.hotmail.com ([64.4.15.237]:49670 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S136841AbRATFoS>;
+	Sat, 20 Jan 2001 00:44:18 -0500
+X-Originating-IP: [203.134.142.79]
+From: "Simon Liu" <simonliu149@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
-Message-ID: <20010120003812.G9156@sventech.com>
+Subject: How do I compile a PPPoE client right into the kernel?
+Date: Sat, 20 Jan 2001 16:44:08 +1100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <3A691043.F18CA6CA@megapathdsl.net>; from Miles Lane on Fri, Jan 19, 2001 at 08:12:51PM -0800
+Content-Type: text/plain; format=flowed
+Message-ID: <F237rdusluCBcKfExvW00002ef7@hotmail.com>
+X-OriginalArrivalTime: 20 Jan 2001 05:44:08.0782 (UTC) FILETIME=[021916E0:01C082A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2001, Miles Lane <miles@megapathdsl.net> wrote:
-> Johannes Erdfelt wrote:
-> 
-> > TODO
-> > ----
-> > - The PCI DMA architecture is horribly inefficient on x86 and ia64. The
-> >   result is a page is allocated for each TD. This is evil. Perhaps a slab
-> >   cache internally? Or modify the generic slab cache to handle PCI DMA
-> >   pages instead?
-> 
-> This might be the kind of thing to run past Linus when the 2.5 tree 
-> opens up.  Are these inefficiencies necessary evils due to workarounds 
-> for whacky bugs in BIOSen or PCI chipsets or are they due to poor 
-> design/implementation?
+Hello,
 
-Looks like poor design/implementation. Or perhaps it was designed for
-another reason than I want to use it for.
+How do I compile a PPPoE client into the kernel? I have read a book about 
+compiling modules into the kernel but it doesn't give me a good idea about 
+it.
 
-2.5 is probably where any core changes will happen, if any. But for now
-I suspect I'll need to workaround it in my driver.
+Thank you,
 
-I should also check architectures other than x86 and ia64.
-
-JE
+Simon Liu
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUJIUnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUJIUn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267386AbUJIUnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUJIUlc
+	id S267370AbUJIUn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUJIUlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:41:32 -0400
-Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:16621 "EHLO
-	mail.shipmail.org") by vger.kernel.org with ESMTP id S267410AbUJIUkY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:41:22 -0400
+Received: from [145.85.127.2] ([145.85.127.2]:38786 "EHLO mail.il.fontys.nl")
+	by vger.kernel.org with ESMTP id S267405AbUJIUkY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 9 Oct 2004 16:40:24 -0400
-Message-ID: <41684CA6.3020201@shipmail.org>
-Date: Sat, 09 Oct 2004 22:40:06 +0200
-From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <unichrome@shipmail.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6)
- Gecko/20040115
-X-Accept-Language: en-us, en
+Message-ID: <59887.217.121.83.210.1097354414.squirrel@217.121.83.210>
+In-Reply-To: <200410091315.10988.lkml@lpbproductions.com>
+References: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210>
+    <200410091315.10988.lkml@lpbproductions.com>
+Date: Sat, 9 Oct 2004 22:40:14 +0200 (CEST)
+Subject: Re: [Patch 1/5] xbox: add 'CONFIG_X86_XBOX' to kernel configuration
+From: "Ed Schouten" <ed@il.fontys.nl>
+To: lkml@lpbproductions.com
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Dave Airlie <airlied@linux.ie>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: Re: [rfc] VIA drm patch and bk tree for inclusion in
- kernel..
-References: <Pine.LNX.4.58.0410091447170.25574@skynet>
-In-Reply-To: <Pine.LNX.4.58.0410091447170.25574@skynet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-BitDefender-Spam: No (0)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello Matt,
 
-Dave Airlie wrote:
+On Sat, October 9, 2004 10:15 pm, Matt Heler said:
+> Why can't theese patches be maintained outside the kernel tree , as it is
+> now ?
+>
+> I'm strongly against this because the X-Box is a gaming platform and last
+> I heard ( and I could be wrong here ) is that you had to hack your X-Box in
+> order to load any other os then the one supplied with it. I just don't see
+> a justified reason why theese patches should be included into the kernel.
 
->Hi,
->       Okay the VIA DRM people have asked to include it in the kernel, it
->only allows accelerated XvMC for non-root users, and 3d for root users
->(the 3d paths are still not secure)...
->
->The bk tree at
->
->bk://drm.bkbits.net/drm-via
->
->the patch against Linus latest (along with some cleanup patches...)
->
->is at (it is quite big...)
->
->http://www.skynet.ie/~airlied/patches/dri/via_unichrome_patch.diff
->
->Can VIA people test this tree for me? either use bk or grab Linus latest
->and apply the patch...
->
->  
->
-Works as expected with Linus latest.
+It is true that you have to make some modifications to your Xbox, for
+example: flashing the BIOS with Cromwell (BIOS with a Linux loader).
 
-/Thomas
+The main reason why it should be merged (in my opinion) is that a lot of
+Linux distro's reject Xbox-Linux because it's not in the mainline
+sourcetree (Debian for example, they only want vanilla platforms).
 
+These patches are only 102 lines together, which is a small amount to
+support a new platform.
 
->Dave.
->
->  
->
-
-
+Yours,
+-- 
+ Ed Schouten <ed@il.fontys.nl>
+ Website: http://g-rave.nl/

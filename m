@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289685AbSBGTPl>; Thu, 7 Feb 2002 14:15:41 -0500
+	id <S289836AbSBGTYC>; Thu, 7 Feb 2002 14:24:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289836AbSBGTPa>; Thu, 7 Feb 2002 14:15:30 -0500
-Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:53136 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289685AbSBGTPV>;
-	Thu, 7 Feb 2002 14:15:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mike Touloumtzis <miket@bluemug.com>
-Subject: Re: How to check the kernel compile options ?
-Date: Thu, 7 Feb 2002 20:19:36 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16YoRQ-0000aS-00@starship.berlin> <20020207182653.GA26664@bluemug.com>
-In-Reply-To: <20020207182653.GA26664@bluemug.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Yu52-00015I-00@starship.berlin>
+	id <S291154AbSBGTXy>; Thu, 7 Feb 2002 14:23:54 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:62639 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S289836AbSBGTXi>;
+	Thu, 7 Feb 2002 14:23:38 -0500
+Date: Thu, 7 Feb 2002 20:26:57 +0100
+From: Sebastian =?ISO-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+To: Jaroslav Kysela <perex@perex.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.4pre2] ALSA
+Message-Id: <20020207202657.77902cd4.sebastian.droege@gmx.de>
+In-Reply-To: <Pine.LNX.4.31.0202071953230.538-100000@pnote.perex-int.cz>
+In-Reply-To: <20020207192709.00336f41.sebastian.droege@gmx.de>
+	<Pine.LNX.4.31.0202071953230.538-100000@pnote.perex-int.cz>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.m'TG6xyfVTep7G"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 7, 2002 07:26 pm, Mike Touloumtzis wrote:
-> On Thu, Feb 07, 2002 at 02:18:20PM +0100, Daniel Phillips wrote:
-> > On February 7, 2002 05:13 am, Mike Touloumtzis wrote:
-> > > 
-> > > The kernel is just a program, and this is a tools problem.  You don't
-> > > see people arguing that cat's documentation should be moved into /bin/cat
-> > > in case administrators misplace "cat.1.gz".
-> > 
-> > Cat is standard, kernels aren't.  When was the last time you installed a
-> > custom cat?
-> 
-> I installed a custom rsync just the other day, and I did it by downloading
-> the Debian rsync source, patching it, and building a Debian package.
-> I would certainly do the same for cat if I needed to.
-> 
-> Sorry, I still don't see any fundamental difference.
+--=.m'TG6xyfVTep7G
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Yes, and would you configure cat?  Which options would you select?
+Hi,
+Thanks, the patch works perfect ;)
+But there are two problems left:
+1. I have an ESS1938 soundcard and an ENS1371 soundcard...
+When I compile both into kernel only one is shown in /dev/sound and only /dev/dsp exists
+/dev/snd seems to show all devices
+I think this is somehow related to devfs
+2. My ENS1371 works perfect with quake3arena or return to castle wolfenstein.
+But my ESS1938 has very noise and hacked sound. The game also runs slowlier than with the ENS1371
+Normal sound applications like xmms and so work perfect with both cards
 
-I'm trying to avoid just saying 'you're being silly', but it's what I really
-mean.
+Bye
+--=.m'TG6xyfVTep7G
+Content-Type: application/pgp-signature
 
--- 
-Daniel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8YtUHe9FFpVVDScsRAhGTAJ9b3MGxKVxlHuvmzjmaGYZSp2PPAwCgugOm
+MU2p9e3eI80VH7N2al09cPI=
+=qEvD
+-----END PGP SIGNATURE-----
+
+--=.m'TG6xyfVTep7G--
+

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbUK2WjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbUK2WoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbUK2WjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUK2Wft
+	id S261861AbUK2WoL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbUK2WoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:35:49 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:53386 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261849AbUK2WeH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:34:07 -0500
-Date: Mon, 29 Nov 2004 23:32:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Darren Hart <dvhltc@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: scheduler BUGON lifespan
-Message-ID: <20041129223247.GA27705@elte.hu>
-References: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 29 Nov 2004 17:44:00 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:57006 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261861AbUK2WnT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 17:43:19 -0500
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, riel@redhat.com, mason@suse.com,
+       ckrm-tech@lists.sourceforge.net
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [PATCH] CKRM: 0/10 Class Based Kernel Resource Management 
+In-reply-to: Your message of Mon, 29 Nov 2004 12:23:58 PST.
+             <20041129122358.02593a2a.akpm@osdl.org> 
+Date: Mon, 29 Nov 2004 14:33:32 -0800
+Message-Id: <E1CYu5M-00015C-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Darren Hart <dvhltc@us.ibm.com> wrote:
+On Mon, 29 Nov 2004 12:23:58 PST, Andrew Morton wrote:
+> Gerrit Huizenga <gh@us.ibm.com> wrote:
+> >
+> > The following ten patches add the core of CKRM (Class Based Resource
+> > Management) to Linux.
+> 
+> How useful is this code at present?  What are its limitations?  And what is
+> the plan for future enhancements?
 
-> I submitted a patch to active_load_balance() that was accepted into mm
-> and then mainline.  The patch included a fix to prevent the system
-> entering what should have been an impossible state.  The previous code
-> tested for it and then continued, rather than crashing or complaining.
-> My patch added a BUGON(impossible state) just in case by some fluke it
-> still happened.  How long should this BUGON remain in the kernel?  A
-> month, a year?  Is there an accepted duration for such safety nets?
+This set of code alone allows for creation of classes which include
+per-class resource accounting (including delay accounting), basic
+task management for memory, CPU and disk IO, limited socket & listener
+queue management for networking, and the related rules based infrastructure.
 
-it's pretty random how long it survives. Sometimes i remove one after
-never having seen it for months/years and grepping lkml and googling
-around for the file & line. The BUG_ON()s are pretty cheap, as they
-often check what is being fetched anyway.
+So, in short, it is a useful set of code to work with to demonstrate
+real utility with CKRM.  However, this submission is not as full featured
+as is being used by those on the ckrm-tech list, such as the PlanetLab
+work.  There are also things in SLES9 that are more featureful than
+this set although those will be worked into here in time.
 
-	Ingo
+It does not have the full memory management and scheduler support that
+other versions do and I'm not yet convinced that those are ready to
+submit.  Future enhancements will start with the cleanups as recommended
+by lkml so far (thanks all ;-) followed by more work on the scheduler
+and memory management side in the short term.  There are also ways
+to hook in additional resource controllers for any exhaustible resource,
+e.g. file handles. setrlimit style resources, etc.
+
+Most of the next level of changes will build on these and are based
+on work currently in progress on the ckrm-tech list.  However, this is
+a stripped down set of code which is believed to be stable (tested on
+IA32, x86-64, PPC64) with a variety of config options using both
+standard regression suites (e.g. LTP, kernbench, the ckrm tests, etc.).
+
+gerrit

@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292181AbSBTSvG>; Wed, 20 Feb 2002 13:51:06 -0500
+	id <S292031AbSBTS40>; Wed, 20 Feb 2002 13:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292188AbSBTSu4>; Wed, 20 Feb 2002 13:50:56 -0500
-Received: from web10502.mail.yahoo.com ([216.136.130.152]:60084 "HELO
-	web10502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292181AbSBTSup>; Wed, 20 Feb 2002 13:50:45 -0500
-Message-ID: <20020220185044.31163.qmail@web10502.mail.yahoo.com>
-Date: Wed, 20 Feb 2002 10:50:44 -0800 (PST)
-From: S W <egberts@yahoo.com>
-Subject: Re: Dlink DSL PCI Card
-To: Andrew Hatfield <lkml@secureone.com.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <007b01c1b9a6$ab4351b0$0f01000a@brisbane.hatfields.com.au>
+	id <S292182AbSBTS4Q>; Wed, 20 Feb 2002 13:56:16 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:17680 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S292031AbSBTS4I>; Wed, 20 Feb 2002 13:56:08 -0500
+Message-ID: <3C73F139.8000007@lexus.com>
+Date: Wed, 20 Feb 2002 10:55:53 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nikita Gergel <fc@yauza.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: opengl-nvidia not compiling
+In-Reply-To: <20020220015358.A26765@suse.de>	<1014182978.21280.14.camel@imyourhandiman>	<20020220170454.5e700732.fc@yauza.ru>	<1014218667.22795.1.camel@imyourhandiman>	<20020220192123.25786b72.fc@yauza.ru>	<3C73DEA4.7010703@lexus.com> <20020220211241.64a19953.fc@yauza.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having observed Linux driver development on Efficient
-3060 and Efficient 3061 DSL PCI products, I've also
-managed to track other competitor's Linux DSL
-developments as well.  Now that I'm out of DSL
-industry forever... I can speak my opinion on this
-Linux DSL driver quagmire.
+Nikita Gergel wrote:
 
-The basic problem of DSL (and Winmodem) PCI adapter
-and getting to produce open source drivers is: 
-Manufacturer Non-Disclosure Agreement (aka N.D.A. or
-NDA).
+>On Wed, 20 Feb 2002 09:36:36 -0800
+>J Sloan <jjs@lexus.com> wrote:
+>
+>>Sire, may I make so bold as to press one
+>>point I wish to be clear on?
+>>
+>>Have you actually run the nvidia drivers
+>>in a 2.5 kernel?
+>>
+>
+>yes, I'm using now 2.5.2-pre10 and have to game Quake I/II/III, Tux Racer, BZFlag and everything works well, except Return To Castle Wolfenstein.
+>
+hmm, castle wolfenstein is right up there
+with q3a, that's too bad - but it may be
+worth a try anyway...
 
-NDA basically prevents its resultant driver code from
-becoming open-source (GNU, GPL, LGPL, much less public
-domain).
+>>if so, I would be encouraged to try, as the
+>>nvidia drivers were one reason I've stayed
+>>with 2.4 on my gaming machine.
+>>
+>
+>Of course, If you want only game you must use 2.4 now, but why are you subscribed lkml then? =)
+>
+ROFL!
 
-I've struggled with various industry chipset
-manufacturers in getting them to release us from such
-NDAs for three years, tactfully0.  It is not only
-their marketing decision, but a legal one as well
-(i.e., how to undo a group of already-signed NDAs). 
-The only clean break is to manufacture a DSL chipset
-and distribute them without having a single NDA signed
-(this prevents unlevel competitions and future
-lawsuits from other NDA signers).
+I assume the question is rhetorical.
 
-The closest I've seen to getting the DSL chipset to be
-un-NDA'd is Alcatel Microelectronics.  But Alcatel
-legal team shut them down to protect Alcatel
-Networking division (Sting Ray DSL modem) from losing
-future sales (an oxymoron, if I've seen any).
+There's lots of Linux stuff going on here besides games...
 
-So, to summarized it best.  Don't buy PCI adapters
-that have microcodes loaded to them NOR require
-proprietary microcodes accessed to memory by DMA.  In
-other word, don't buy winmodem nor DSL PCI adapters,
-until those chipset manufacturers publish those
-datasheets.
+;-)
 
-It staggers my mind that chipset marketing groups are
-missing a huge revenues streams by having those
-product supported on multiple O/S platforms.  I've
-already computed (many times) the cost of development
-as trivial to the sales of such products (even
-low-margin PCI adapters).  It is more than
-self-sustaining.  NDA is the primary blocker here.
+Joe
 
-Safest bet is to buy external DSL modem with Ethernet
-(or ATM-25) interface(s).
 
-Direct further threads to the ummm, oh... there isn't
-a linux-driver thread...
-http://vger.kernel.org/vger-lists.html
-
-Steve Egbert
-mailto:egberts@yahoo.com
-
-BTW:  ENI 3060/3061 driver is in binary-only driver
-and built only to work with Linux-2.3.99-something (snicker).
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - Coverage of the 2002 Olympic Games
-http://sports.yahoo.com

@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbTEMNbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 09:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbTEMNbQ
+	id S261225AbTEMNcF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 09:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTEMNcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 09:31:16 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:56827 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261212AbTEMNbN (ORCPT
+	Tue, 13 May 2003 09:32:05 -0400
+Received: from corky.net ([212.150.53.130]:33726 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S261213AbTEMNcC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 09:31:13 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F196@EXA-ATLANTA.se.lsil.com>
-From: "Mukker, Atul" <atulm@lsil.com>
-To: "'Mike Anderson'" <andmike@us.ibm.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: RE: unique entry points for all driver hosts
-Date: Tue, 13 May 2003 09:43:52 -0400
+	Tue, 13 May 2003 09:32:02 -0400
+Date: Tue, 13 May 2003 16:44:41 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: 76306.1226@compuserve.com, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <03051307114300.19075@tabby>
+Message-ID: <Pine.LNX.4.44.0305131633030.20904-100000@marcellos.corky.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why doesn't mid-layer allow LLDs to specify separate entry 
-> > points to various
-> > hosts attached to the same driver. Like some other entries 
-> > in the Scsi Host
-> > Template, entry points should also  allowed to be overridden.
-> 
-> Is there a issue you are hitting of common host template functions and
-> selecting unique host instance functions using hostdata?
+> > Until linux gets a real encrypted swap (the kind OpenBSD implements), you
+> > can settle for encrypting your whole swap with one random key that gets
+> > lost on reboot.  Encrypted loop dev with a key from /dev/random easily
+> > gives you that.
+>
+> Ahhh not a good idea if you want job restart or suspend/resume. And large
+> systems DO want a job restart... as do laptops. During suspension you can
+> do anything to the disk (as in remove it, insert in another system, read
+> it, then put it back ...)
+>
 
-No, We simply want to have unique hot-path entry point (queuecommand) and
-error handling hooks for each class of supported hosts. This is required
-because these classes of controllers have disparate queue and error handling
-mechanisms.
+While I agree with most of what you said in your post, I fail to see the
+problem with this one.  My laptop has encrypted swap and it poses no
+problem when suspending.  The disk can be taken out and read, but its
+encrypted with a random key that exists only in memory so its harder to
+extract.  (and if someone can extract my memory, the swap is the least of
+my concerns).
 
-The work around we have today is to have common queue routine for example.
-This queue routine then routes the scsi packet to appropriate host's
-queuecommand hook using hostdata information.
-
-looks like it is limiting to have a 'driver' specific structure(SHT) instead
-of a self sufficient host-centric view (struct Scsi_Host).
-
-IMHO, declaring multiple SHTs as suggested by Christoph Hellwig may not be a
-good idea since it might appear like a hack, would lose the "template"
-ideology and is not object-oriented :-)
-
-Host structure would be best place to have pointers to these hooks as well.
-
--Atul Mukker
+Maybe you're talking about hibernation rather than suspension.  (when
+everything is written to disk and the memory is wiped).  In this case,
+again, the encrypted swap's key is the least of your concern since all
+your memory is written to disk plaintext anyway.  If hibernation is
+implemented in software, you can have it encrypted too, and require a
+user-supplied key upon restarting.  If its implemented by the hardware, I
+guess there isn't much you can do.  Just have the kernel do the
+hibernation into an encrypted loopdev and halt the machine.
 
 
-> -----Original Message-----
-> From: Mike Anderson [mailto:andmike@us.ibm.com]
-> Sent: Monday, May 12, 2003 7:38 PM
-> To: Mukker, Atul
-> Cc: linux-scsi@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: unique entry points for all driver hosts
-> 
-> 
-> Mukker, Atul [atulm@lsil.com] wrote:
-> > Why doesn't mid-layer allow LLDs to specify separate entry 
-> points to various
-> > hosts attached to the same driver. Like some other entries 
-> in the Scsi Host
-> > Template, entry points should also  allowed to be overridden.
-> > 
-> > 
-> > Thanks
-> 
-> Is there a issue you are hitting of common host template functions and
-> selecting unique host instance functions using hostdata?
-> 
-> -andmike
-> --
-> Michael Anderson
-> andmike@us.ibm.com
-> 

@@ -1,49 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbQKIRQw>; Thu, 9 Nov 2000 12:16:52 -0500
+	id <S130148AbQKIRRw>; Thu, 9 Nov 2000 12:17:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbQKIRQm>; Thu, 9 Nov 2000 12:16:42 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:56567 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S129159AbQKIRQc>;
-	Thu, 9 Nov 2000 12:16:32 -0500
-Date: Thu, 9 Nov 2000 09:15:33 -0800
-From: Greg KH <greg@wirex.com>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-Cc: "'David Ford'" <david@linux.com>, linux-kernel@vger.kernel.org
-Subject: Re: [bug] usb-uhci locks up on boot half the time
-Message-ID: <20001109091533.A14922@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	"Dunlap, Randy" <randy.dunlap@intel.com>,
-	'David Ford' <david@linux.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC82@orsmsx31.jf.intel.com>
+	id <S130152AbQKIRRm>; Thu, 9 Nov 2000 12:17:42 -0500
+Received: from ns.caldera.de ([212.34.180.1]:39954 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130148AbQKIRRh>;
+	Thu, 9 Nov 2000 12:17:37 -0500
+Date: Thu, 9 Nov 2000 18:17:16 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>,
+        nils@kernelconcepts.de
+Subject: Re: OOPS loading cs46xx module, test11-pre1
+Message-ID: <20001109181716.A25109@caldera.de>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>,
+	nils@kernelconcepts.de
+In-Reply-To: <200011091239.NAA05580@ns.caldera.de> <3A0AD8B5.9BB73A7D@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC82@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Thu, Nov 09, 2000 at 09:06:31AM -0800
-X-Operating-System: Linux 2.4.0-test10 (i686)
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3A0AD8B5.9BB73A7D@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 09, 2000 at 12:02:45PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2000 at 09:06:31AM -0800, Dunlap, Randy wrote:
+On Thu, Nov 09, 2000 at 12:02:45PM -0500, Jeff Garzik wrote:
+> > I have an (untested) update for the cs46xx driver in Linux 2.4.
+> > It includes Nils' 2.2 changes, use of initcalls (so compiled-in
+> > should work) and use of the 2.4 PCI interface.
 > 
-> Bus-powered != self-powered.
+> Patch Generally looks ok.  Comments:
 > 
-> Self-powered means that it has its own power cord.
+> 1) This code is weird:
+> >                if (copy_to_user(buffer, dmabuf->rawbuf + swptr, cnt)) {
+> >-                       if (!ret) ret = -EFAULT;
+> >-                       return ret;
+> >+                       if (!ret)
+> >+                               ret = -EFAULT;
+> >+                       break;
+> >                }
 > 
-> Bus-powered means that it gets its power from the USB cable.
+> If you have an error condition (ret != 0), then you should not attempt
+> the copy_to_user at all.
+> If you do not have an error condition, you should unconditionally assign
+> -EFAULT to 'ret'.
 
-You're right, I used the wrong terms (but used the correct
-descriptions).  I meant that "bus-powered" hubs are flaky and have
-problems, like Randy said.
+Makes sense. But I did not change the logic at all ...
+Ask the Author (Alan or Nils) what this is about.
 
-Sorry any confusion this might have caused.
+> 2) this patch enabled cs_mmap, and removes a check for vma->vm_offset !=
+> 0.  Also that is clearly 2.2.x code, simply removing the check is
+> wrong.  You should replace the check with one that checks vma->vm_pgoff
+> != 0.
 
-greg k-h
+Sorry, forgot to add this back in the patch I sent.
+
+> 3) is there method or madness to the delay changes?  they are not
+> explained, just changed...
+
+Not shure.  This was accepted in 2.2.18pre, so it should be sane.
+
+
+> 4) cs_probe is marked __init but cs_remove is marked __devexit.  on
+> hotplug, cs_probe simply doesn't exist in the kernel anymore... boom.
+
+Ok, should be fixed.
+
+> 5) there is no need to appear zeroes to the end of these cs_pci_tbl
+> entries.  Just end each with "PCI_ANY_ID,"...
+> +       { PCI_VENDOR_ID_CIRRUS, 0x6001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0
+> },
+> +       { PCI_VENDOR_ID_CIRRUS, 0x6003, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0
+> },
+> +       { PCI_VENDOR_ID_CIRRUS, 0x6004, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0
+> },
+
+That's true.  But i think it looks cleaner if all members are present.
+
+> 6) remove check for pci_present(), redundant
+
+Lot's of pci drivers do this.  Anyway I will removed this in the next version.
+
+> 7) use pci_module_init for hotplug. quite simply:
+> 
+> 	init_module() { return pci_module_init(&my_driver); }
+
+Ok.
+
+> of course for cs46xx, you will want to keep the version printk...
+> 
+> 8) xxx_MODULE_NAME was a dumb and overly-lengthy creation of mine.  Use
+> instead MODNAME.
+
+It doesn't really matter ...
+
+	Christoph
+
 
 -- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

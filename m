@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSIPIcq>; Mon, 16 Sep 2002 04:32:46 -0400
+	id <S261228AbSIPIfh>; Mon, 16 Sep 2002 04:35:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261228AbSIPIcq>; Mon, 16 Sep 2002 04:32:46 -0400
-Received: from server0027.freedom2surf.net ([194.106.33.36]:45981 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S261205AbSIPIcq>; Mon, 16 Sep 2002 04:32:46 -0400
-Date: Mon, 16 Sep 2002 09:50:04 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-Id: <20020916095004.3ae2b901.spyro@f2s.com>
-In-Reply-To: <200209160236.g8G2a6Qn022070@pimout3-ext.prodigy.net>
-References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
-	<E17qRfU-0001qz-00@starship>
-	<20020915020739.A22101@devserv.devel.redhat.com>
-	<200209160236.g8G2a6Qn022070@pimout3-ext.prodigy.net>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.1cvs22 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261238AbSIPIfh>; Mon, 16 Sep 2002 04:35:37 -0400
+Received: from mxintern.kundenserver.de ([212.227.126.201]:47816 "EHLO
+	mxintern.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S261228AbSIPIfh>; Mon, 16 Sep 2002 04:35:37 -0400
+User-Agent: Pan/0.11.1.90 (Unix)
+From: "Michael" <mwohlwend@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: via8235 support...
+Date: Mon, 16 Sep 2002 10:40:34 +0200
+Reply-To: mwohlwend@web.de
+Message-Id: <E17qrQo-0005At-00@mxintern.kundenserver.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002 17:35:59 -0400
-Rob Landley <landley@trommello.org> wrote:
+HI,
 
-> I think we agree.  So why recommend against debuggers if they save
-> time and effort while producing patches of equal quality?
+is there allready support for the southbridge via8235? in the via82cxxx.c
+file the chip is commented out with #ifdef FUTURE_BRIDGES ... #endif
+I am not able to turn on dma mode for my hard discs, since the kernel say
+unknown bridge. 
+Is there a patch somewhere?
 
-I think the point here is that debuggers are not for everyone. They are
-a tool, in much the same way as an adjustable wrench is. I prefer a set
-of spanners.
-
-Is there anything wrong with NOT wanting to use a debugger? really?
+thanks
+ michael

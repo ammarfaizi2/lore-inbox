@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbUBZUry (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:47:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUBZUrx
+	id S261215AbUBZUp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbUBZUp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:47:53 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:13818 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S261318AbUBZUrU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:47:20 -0500
-Date: Thu, 26 Feb 2004 13:47:14 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Greg KH <greg@kroah.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Fix dev_printk to work with unclaimed devices
-Message-ID: <20040226204714.GB17722@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <20040226183439.GA17722@plexity.net> <20040226185324.GA11980@kroah.com>
+	Thu, 26 Feb 2004 15:45:57 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:19865 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261215AbUBZUp4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 15:45:56 -0500
+Date: Thu, 26 Feb 2004 12:45:54 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       irda-users@lists.sourceforge.net
+Subject: Re: Bunch of janitor IrDA patches
+Message-ID: <20040226204554.GA17458@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20040226031054.GA32263@bougret.hpl.hp.com> <20040226123519.76d4535b.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040226185324.GA11980@kroah.com>
+In-Reply-To: <20040226123519.76d4535b.davem@redhat.com>
 User-Agent: Mutt/1.3.28i
-Organization: Plexity Networks
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 26 2004, at 10:53, Greg KH was caught saying:
-> On Thu, Feb 26, 2004 at 11:34:39AM -0700, Deepak Saxena wrote:
-> > 
-> > I need to do some fixup in platform_notify() and when trying to 
-> > use the dev_* print functions for informational messages, they OOPs 
-> > b/c the current code assumes that dev->driver exists. This is not the 
-> > case since platform_notify() is called before a device has been attached
-> > to any driver. 
+On Thu, Feb 26, 2004 at 12:35:19PM -0800, David S. Miller wrote:
+> On Wed, 25 Feb 2004 19:10:54 -0800
+> Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
 > 
-> Yeah, this "limitation" of the dev_* printks have been known for a
-> while, and it was determined that for situations like this, it's not
-> worth using those calls.
+> > 	Stephen and Martin are still working on the stir4200 driver
+> > and will send you a patch later (we are not forgetting about
+> > it). Meanwhile, a problem did show up in smsc-ircc2 driver that need
+> > fixing. I'm also taking this opportunity to send you the vast majority
+> > of janitorial patches that Stephen sent me. There's many of them, but
+> > most are really trivial.
+> > 	Tested here on 2.6.3. Please send upwards.
+> 
+> Phew!  All applied, thanks Jean.
 
-I can just use printks as it is only two quick log messages at
-init time.
+	Yes, Stephen has done an incredible job. Blame me for not
+keeping up with him.
 
-Tnx,
-~Deepak
-
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+	Jean

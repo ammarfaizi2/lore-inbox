@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263720AbTDGWOp (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTDGWOp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:14:45 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:50621
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263720AbTDGWOo (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 18:14:44 -0400
-Message-ID: <3E91FAF0.4060400@redhat.com>
-Date: Mon, 07 Apr 2003 15:25:52 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030406
-X-Accept-Language: en-us, en
+	id S263183AbTDGWXd (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 18:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263706AbTDGWXd (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 18:23:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:55724 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263183AbTDGWXc convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 18:23:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: More Testing with 4000 disks
+Date: Mon, 7 Apr 2003 14:32:08 -0800
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200304071454.49849.pbadari@us.ibm.com> <20030407141551.5900e44f.akpm@digeo.com>
+In-Reply-To: <20030407141551.5900e44f.akpm@digeo.com>
 MIME-Version: 1.0
-To: Fredrik Tolf <fredrik@dolda2000.cjb.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new syscall: flink
-References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org> <200304072255.47254.fredrik@dolda2000.cjb.net> <3E91F0FD.1040507@redhat.com> <200304080017.21799.fredrik@dolda2000.cjb.net>
-In-Reply-To: <200304080017.21799.fredrik@dolda2000.cjb.net>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304071532.08472.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 07 April 2003 02:15 pm, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > Hi,
+> >
+> > Here is more on testing with simulated 4000 disks.
+> >
+> > I mounted 4000 simulated (scsi_debug) disks. But
+> > when I tried to do IO on 200 of them (just reads),
+> > system is 100% busy. Here are the vmstat,
+> > 10-sec profile output and sysrq-t output.
+> >
+> > I am wondering why 100% sys ?
+>
+> This doesn't make sense.  You're showing 50% CPU time in schedule(), yet
+> the (undescribed) machine is doing only 11k context switches/sec.
 
-Fredrik Tolf wrote:
+Machine is:
+8x 900MHz P-III
+4GB RAM
 
-> If I've missed the introduction of a fexecve syscall, I'm sorry for wasting 
-> your time.
+>
+> How come?
+>
+> What context switch rate and profile were you getting when performing IO
+> against a large number of real disks?
 
-There is no syscall.  The people who don't want to use /proc for
-security reasons better come up with fixes to make it acceptable.  The
-kernel lacks a number of syscalls which allow getting various pieces of
-information and the only way to implement the functionality is via
-/proc.  The use of /proc is growing and you'll find that more than just
-fexecve() will fail if you don't have /proc.
+I have only 50 real disks. I can get info on these.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+kfrw2ijCOnn/RHQRArnmAJ4y6lXO3Msq3NvnnVLp/NHzJK6oUwCgvIFu
-Aw+0YsJzlYFtawxSjR5xPEQ=
-=SYEg
------END PGP SIGNATURE-----
+Thanks,
+Badari
 

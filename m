@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267569AbTBGBSV>; Thu, 6 Feb 2003 20:18:21 -0500
+	id <S267608AbTBGBVs>; Thu, 6 Feb 2003 20:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267608AbTBGBSV>; Thu, 6 Feb 2003 20:18:21 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:52490 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S267569AbTBGBSU>; Thu, 6 Feb 2003 20:18:20 -0500
-Date: Fri, 7 Feb 2003 02:27:55 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Sowmya.Krishnaswamy@nokia.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with bootimg (wish to be personally CC'ed the answers/comments posted to the list in response to this posting)
-Message-ID: <20030207012755.GF1623@arthur.ubicom.tudelft.nl>
-References: <4D7B558499107545BB45044C63822DDE0219C291@mvebe001.americas.nokia.com>
+	id <S267638AbTBGBVs>; Thu, 6 Feb 2003 20:21:48 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:58899 "EHLO w-patman.des")
+	by vger.kernel.org with ESMTP id <S267608AbTBGBVr>;
+	Thu, 6 Feb 2003 20:21:47 -0500
+Date: Thu, 6 Feb 2003 17:24:34 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, mikeand@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Broken SCSI code in the BK tree (was: 2.5.59-mm8)
+Message-ID: <20030206172434.A15559@beaverton.ibm.com>
+References: <20030203233156.39be7770.akpm@digeo.com><167540000.1044346173@[10.10.2.4]> <20030204001709.5e2942e8.akpm@digeo.com><384960000.1044396931@flay> <211570000.1044508407@[10.10.2.4]> <265170000.1044564655@[10.10.2.4]> <275930000.1044570608@[10.10.2.4]> <1044573927.2332.100.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dgjlcl3Tl+kb3YDk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4D7B558499107545BB45044C63822DDE0219C291@mvebe001.americas.nokia.com>
-User-Agent: Mutt/1.4i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1044573927.2332.100.camel@mulgrave>; from James.Bottomley@steeleye.com on Thu, Feb 06, 2003 at 05:25:25PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 06, 2003 at 05:25:25PM -0600, James Bottomley wrote:
 
---dgjlcl3Tl+kb3YDk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > say for sure (if this wasn't related to some SCSI subsystem change, 
+> > can I just revert out this section?)
+> 
+> No, I'm afraid not.  That was just the elimination of those fields from
+> Scsi_Cmnd so now it has to be indirect through cmnd->device.  It won't
+> compile without this.
+> 
+> James
 
-On Tue, Feb 04, 2003 at 04:33:24PM -0800, Sowmya.Krishnaswamy@nokia.com wro=
-te:
-> We are trying to use bootimg for dual boot:=20
->=20
-> # bootimg -f bzImage -n -i ram40.img.gz -v console=3DttyS0,115200n8 ramdi=
-sk_size=3D131072 root=3D/dev/ram
->=20
-> bzImage "2.4.17_MVL21CGENOKIA_4-cpi1-lb-arun (abalasub@mvaserg011) #5 SMP=
- Wed Nov 27 17:27:00 PST 2002"
->=20
->     1439613 bytes (352 pages) 0x4109cc08-0x411fcc07 -> 0x100000-0x25fff
->     16161140 bytes (3946 pages) 0x40131008-0x4109b007 -> 0x8668c-0xff068b
->     4096 bytes (1 page) 0x804b908-0x804c907 -> 0x90000-0x90fff
->=20
-> Total 4299 pages, start address is 0x100000
->=20
-> Loading Kernel Image vmlinuz
-> Running boot code at 0x03011000
->=20
-> SYSTEM STOPS PRINTING MESSAGES AND HANGS. Has anyone faced a similar prob=
-lem before. Any Suggestions?
+wli has hit this several times prior to 2.5.59 (months ago), pretty much
+with any across disk IO loads. The driver sets queue depth to 1 for all
+LUNs.
 
-I'd say you selected support for the wrong CPU (a P3 optimised kernel
-won't run on a PII, for example). I have no idea how bootimg works, so
-it could still be a problem with your bootimg setup.
+I modified my fsck to run in parallel (well it wasn't running any fsck's
+on non-root disks before that), and am hitting hit it on a NUMAQ box.
 
-
-Erik
-
---=20
-J.A.K. (Erik) Mouw
-Email: J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
-
---dgjlcl3Tl+kb3YDk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+Qwub/PlVHJtIto0RAgFxAJ4pw1pWrehCP2m7cPq4wphIsNrF7QCffUj4
-btHshfR9GP3/IWzSGlMJFfs=
-=SkHu
------END PGP SIGNATURE-----
-
---dgjlcl3Tl+kb3YDk--
+-- Patrick Mansfield

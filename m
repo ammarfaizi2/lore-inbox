@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273172AbRIJC6t>; Sun, 9 Sep 2001 22:58:49 -0400
+	id <S273176AbRIJDCS>; Sun, 9 Sep 2001 23:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273173AbRIJC6j>; Sun, 9 Sep 2001 22:58:39 -0400
-Received: from warden.digitalinsight.com ([208.29.163.2]:38084 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S273172AbRIJC6b>; Sun, 9 Sep 2001 22:58:31 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: John Ripley <jripley@riohome.com>, linux-kernel@vger.kernel.org,
-        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Date: Sun, 9 Sep 2001 19:58:27 -0700 (PDT)
-Subject: Re: COW fs (Re: Editing-in-place of a large file)
-In-Reply-To: <20010910023641Z16066-26183+701@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0109091957120.31268-100000@dlang.diginsite.com>
+	id <S273175AbRIJDCI>; Sun, 9 Sep 2001 23:02:08 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:11206
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S273173AbRIJDB7>; Sun, 9 Sep 2001 23:01:59 -0400
+Date: Sun, 09 Sep 2001 23:02:18 -0400
+From: Chris Mason <mason@suse.com>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <1381380000.1000090938@tiny>
+In-Reply-To: <20010910023312Z16066-26183+700@humbolt.nl.linux.org>
+In-Reply-To: <20010910001556Z16150-26183+680@humbolt.nl.linux.org>
+ <20010910021513Z16066-26183+696@humbolt.nl.linux.org>
+ <1324600000.1000088434@tiny>
+ <20010910023312Z16066-26183+700@humbolt.nl.linux.org>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if sectors full of zeros are really that common then they should never be
-swapped out, just a new page allocated and zeroed when it would be swapped
-back in. Even better then combining all of them into one block on disk.
 
-David Lang
 
- On Mon, 10 Sep 2001, Daniel Phillips wrote:
+On Monday, September 10, 2001 04:40:21 AM +0200 Daniel Phillips
+<phillips@bonn-fries.net> wrote:
 
-> Date: Mon, 10 Sep 2001 04:43:53 +0200
-> From: Daniel Phillips <phillips@bonn-fries.net>
-> To: John Ripley <jripley@riohome.com>, linux-kernel@vger.kernel.org
-> Cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-> Subject: Re: COW fs (Re: Editing-in-place of a large file)
->
-> On September 9, 2001 06:30 pm, John Ripley wrote:
-> > Interesting results for the swap partitions. Probably full of zeros.
->
-> It doesn't make a lot of sense to spend 30-35% of your swap bandwidth
-> swapping zeros in and out, does it?
->
-> --
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>> How about subsequent calls for the same offset with the same blocksize
+>> need to return the same buffer head?
+> 
+> Are we picking nits?  Better add "the same dev" and "until the buffer
+> head is  freed" ;-)
+
+;-)  Really, wasn't trying for that.  If we just say later calls for the
+same offset, we get in trouble later on if we also want variable, very
+large blocksizes.  If we relax the rules to allow multiple buffer heads for
+the same physical spot on disk, things get easier, and the FS is
+responsible for not doing something stupid with it.  
+
+The data is still consistent either way, there are just multiple io handles.
+
+-chris
+

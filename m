@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267984AbUHKINM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUHKIZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267984AbUHKINM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 04:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267987AbUHKINM
+	id S267986AbUHKIZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 04:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267991AbUHKIZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 04:13:12 -0400
-Received: from gprs214-124.eurotel.cz ([160.218.214.124]:10368 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267984AbUHKINF (ORCPT
+	Wed, 11 Aug 2004 04:25:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:15158 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267986AbUHKIZX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 04:13:05 -0400
-Date: Wed, 11 Aug 2004 10:09:36 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: "'James Bottomley'" <James.Bottomley@steeleye.com>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: [PATCH] SCSI midlayer power management
-Message-ID: <20040811080935.GA26098@elf.ucw.cz>
-References: <4119611D.60401@optonline.net>
+	Wed, 11 Aug 2004 04:25:23 -0400
+Message-ID: <d577e5690408110125d8e2ec2@mail.gmail.com>
+Date: Wed, 11 Aug 2004 04:25:23 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+To: root@chaos.analogic.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, alan@lxorguk.ukuu.org.uk,
+       axboe@suse.de, dwmw2@infradead.org, eric@lammerts.org,
+       james.bottomley@steeleye.com,
+       Linux kernel <linux-kernel@vger.kernel.org>, skraw@ithnet.com
+In-Reply-To: <Pine.LNX.4.53.0408101159170.12681@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4119611D.60401@optonline.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200408101544.i7AFic0s014401@burner.fokus.fraunhofer.de> <Pine.LNX.4.53.0408101159170.12681@chaos>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This proposed patch implements enough power-management support within
-> the SCSI midlayer to get ACPI S3 working on my system. Changes as follows:
+On Tue, 10 Aug 2004 12:05:23 -0400 (EDT), Richard B. Johnson
+<root@chaos.analogic.com> wrote:
 > 
-> * Add generic_scsi_{suspend,resume} methods to scsi.c
-> * Add suspend and resume callbacks to the scsi_driver structure, and
-> implement those callbacks in sd.c
-> * In sd.c, we call sd_shutdown on suspend, in order to synchronize the
-> write-back cache.
-> * In sd.c, we call sd_rescan from sd_resume in order to ensure that
-> drives have spun up and avoid passing not ready errors back to the block
-> layer.
-> * In generic_scsi_suspend, we call scsi_device_quiesce before calling
-> the scsi_driver suspend callback. We resume from quiesce state in
-> reverse order in generic_scsi_resume.
+> Sorry to break into this wonderful conversation, but it seems
+> I have all the actors corralled in one place.
 > 
-> ACPI S1 and S4/swsusp are untested, but I think there should be no
-> regressions with S1. To do S1 properly, we probably need to tell the
-> drive to spin down, and I don't know what the SCSI command is for
-> that... For S4, the call to scsi_device_quiesce might pose a problem for
-> the subsequent state dump to disk. But I'm not sure swsusp ever worked
-> for SCSI.
+> The fascist US government forced 321software out-of-business. It
+> was a company that provided software that could copy DVDs.
 
-swsusp will then resume disk and write the image, that should not be a
-problem. Is it guaranteed that after generic_scsi_suspend() no DMA is
-going on?
+If you're saying that they'll sue us (us as in authors of "evil"
+software), then I doubt they will, simply for one reason. MPAA
+proponents aren't smart enough to use Linux.
 
-Anyway, you should try swsusp, preferably on some IDE notebook first
-and prefereably -mm one, to get feel how it works. It should be
-possible/easy to make it work with SCSI...
-
-> This might help SATA drives, too, but I seem to remember that the SATA
-> layer doesn't properly emulate the SYNCHRONIZE_CACHE command.
-> 
-> Comments, anybody? Can this be applied upstream? I think it's a step in
-> the right direction.
-
-Looks good to me.
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

@@ -1,177 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSLSQxr>; Thu, 19 Dec 2002 11:53:47 -0500
+	id <S265727AbSLSRVV>; Thu, 19 Dec 2002 12:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265800AbSLSQxr>; Thu, 19 Dec 2002 11:53:47 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:20712 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S265791AbSLSQxo>; Thu, 19 Dec 2002 11:53:44 -0500
-Date: Thu, 19 Dec 2002 17:02:59 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: mremap use-after-free [was Re: 2.5.52-mm2]
-In-Reply-To: <3E01943B.4170B911@digeo.com>
-Message-ID: <Pine.LNX.4.44.0212191602190.1893-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S265816AbSLSRVV>; Thu, 19 Dec 2002 12:21:21 -0500
+Received: from skyline.vistahp.com ([65.67.58.21]:25285 "HELO
+	escalade.vistahp.com") by vger.kernel.org with SMTP
+	id <S265727AbSLSRVU>; Thu, 19 Dec 2002 12:21:20 -0500
+Message-ID: <20021219173329.32340.qmail@escalade.vistahp.com>
+References: <200212191335.gBJDZRDL000704@darkstar.example.net>
+In-Reply-To: <200212191335.gBJDZRDL000704@darkstar.example.net>
+From: "Brian Jackson" <brian-kernel-list@mdrx.com>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Date: Thu, 19 Dec 2002 11:33:29 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, Andrew Morton wrote:
-> Andrew Morton wrote:
-> > ...
-> > slab-poisoning.patch
-> >   more informative slab poisoning
+I would just like to second what somebody said about bugzilla yesterday, 
+that it is hard to search for bugs that have already been entered. Just 
+something to think about. 
+
+ --Brian Jackson 
+
+John Bradford writes: 
+
+> Following on from yesterday's discussion about there not being much
+> interaction between the kernel Bugzilla and the developers, I began
+> wondering whether Bugzilla might be a bit too generic to be suited to
+> kernel development, and that maybe a system written from the ground up
+> for reporting kernel bugs would be better? 
 > 
-> This patch has exposed a quite long-standing use-after-free bug in
-> mremap().  It make the machine go BUG when starting the X server if
-> memory debugging is turned on.
-
-Good catch, shame about the patch!
-Please don't apply this, or its 2.4 sister, as is.
-
-> The bug might be present in 2.4 as well..
-
-I doubt that (but may be wrong, I haven't time right now to think as
-twistedly as mremap demands).  The code (patently!) expects new_vma
-to be good at the end, it certainly wasn't intending to unmap it;
-but 2.5 split_vma has been through a couple of convulsions, either
-of which might have resulted in the potential for new_vma to be
-freed where before it was guaranteed to remain.
-
-Do you know the vmas before and after, and the mremap which did this?
-I couldn't reproduce it starting X here, and an example would help to
-uncloud my mind.  But you can reasonably answer that one example won't
-prove anything, and where there's doubt, the code must be defensive.
-(Besides, I'll be offline shortly.)
-
-On to the patch...
-
-> --- 25/mm/mremap.c~move_vma-use-after-free	Thu Dec 19 00:51:49 2002
-> +++ 25-akpm/mm/mremap.c	Thu Dec 19 01:08:45 2002
-> @@ -183,14 +183,16 @@ static unsigned long move_vma(struct vm_
->  	next = find_vma_prev(mm, new_addr, &prev);
->  	if (next) {
->  		if (prev && prev->vm_end == new_addr &&
-> -		    can_vma_merge(prev, vma->vm_flags) && !vma->vm_file && !(vma->vm_flags & VM_SHARED)) {
-> +				can_vma_merge(prev, vma->vm_flags) &&
-> +				!(vma->vm_flags & VM_SHARED)) {
->  			spin_lock(&mm->page_table_lock);
->  			prev->vm_end = new_addr + new_len;
->  			spin_unlock(&mm->page_table_lock);
->  			new_vma = prev;
->  			if (next != prev->vm_next)
->  				BUG();
-> -			if (prev->vm_end == next->vm_start && can_vma_merge(next, prev->vm_flags)) {
-> +			if (prev->vm_end == next->vm_start &&
-> +					can_vma_merge(next, prev->vm_flags)) {
->  				spin_lock(&mm->page_table_lock);
->  				prev->vm_end = next->vm_end;
->  				__vma_unlink(mm, next, prev);
-> @@ -201,7 +203,8 @@ static unsigned long move_vma(struct vm_
->  				kmem_cache_free(vm_area_cachep, next);
->  			}
->  		} else if (next->vm_start == new_addr + new_len &&
-> -			   can_vma_merge(next, vma->vm_flags) && !vma->vm_file && !(vma->vm_flags & VM_SHARED)) {
-> +					can_vma_merge(next, vma->vm_flags) &&
-> +					!(vma->vm_flags & VM_SHARED)) {
->  			spin_lock(&mm->page_table_lock);
->  			next->vm_start = new_addr;
->  			spin_unlock(&mm->page_table_lock);
-> @@ -210,7 +213,8 @@ static unsigned long move_vma(struct vm_
->  	} else {
->  		prev = find_vma(mm, new_addr-1);
->  		if (prev && prev->vm_end == new_addr &&
-> -		    can_vma_merge(prev, vma->vm_flags) && !vma->vm_file && !(vma->vm_flags & VM_SHARED)) {
-> +				can_vma_merge(prev, vma->vm_flags) &&
-> +				!(vma->vm_flags & VM_SHARED)) {
->  			spin_lock(&mm->page_table_lock);
->  			prev->vm_end = new_addr + new_len;
->  			spin_unlock(&mm->page_table_lock);
-
-Hmmm.  Am I right to suppose that all the changes above are "cleanup"
-which you couldn't resist making while you looked through this code,
-but entirely irrelevant to the bug in question?  If those mods above
-were right, they should be the subject of a separate patch.
-
-There's certainly room for cleanup there, but my preference would be
-to remove "can_vma_merge" completely, or at least its use in mremap.c,
-using its explicit tests instead.  It looks like it was originally
-quite appropriate for a use or two in mmap.c, but obscurely unhelpful
-here - because in itself it is testing a bizarre asymmetric subset of
-what's needed (that subset which remained to be tested in its original
-use in mmap.c).
-
-The problem with your changes above is, you've removed the !vma->vm_file
-tests, presumably because you noticed that can_vma_merge already tests
-!vma->vm_file.  But "vma" within can_vma_merge is "prev" or "next" here:
-they are distinct tests, and you're now liable to merge an anonymous
-mapping with a private file mapping - nice if it's from /dev/zero,
-but otherwise not.  Please just cut those hunks out.
-
-(Of course, I wouldn't have spotted this if I hadn't embarked on,
-then retreated from, a similar cleanup myself a few months back.)
-
-> @@ -227,12 +231,16 @@ static unsigned long move_vma(struct vm_
->  	}
->  
->  	if (!move_page_tables(vma, new_addr, addr, old_len)) {
-> +		unsigned long must_fault_in;
-> +		unsigned long fault_in_start;
-> +		unsigned long fault_in_end;
-> +
->  		if (allocated_vma) {
->  			*new_vma = *vma;
->  			INIT_LIST_HEAD(&new_vma->shared);
->  			new_vma->vm_start = new_addr;
->  			new_vma->vm_end = new_addr+new_len;
-> -			new_vma->vm_pgoff += (addr - vma->vm_start) >> PAGE_SHIFT;
-> +			new_vma->vm_pgoff += (addr-vma->vm_start) >> PAGE_SHIFT;
-
-Hrrmph.
-
->  			if (new_vma->vm_file)
->  				get_file(new_vma->vm_file);
->  			if (new_vma->vm_ops && new_vma->vm_ops->open)
-> @@ -251,19 +259,25 @@ static unsigned long move_vma(struct vm_
->  		} else
->  			vma = NULL;		/* nothing more to do */
->  
-> -		do_munmap(current->mm, addr, old_len);
+> I.E. I am prepared to write it myself, if people think it's
+> worthwhile. 
+> 
+> For example, we get a lot of posts on LKML like this: 
+> 
+> "Hi, foobar doesn't work in 2.4.19" 
+> 
+> Now, does that mean: 
+> 
+> * The bug first appeared in 2.4.19, and is still in 2.4.20
+> * The bug reporter hasn't tested 2.4.20
+> * The bug reporter can't test 2.4.20 because something else is broken
+> * The bug actually first appeared in 2.4.10, but it didn't irritate
+>   them enough to complain until now. 
+> 
+> A bug database designed from scratch could allow such information to
+> be indexed in a way that could be processed and searched usefully.  A
+> list of tick-boxes for worked/didn't work/didn't test/couldn't test
+> for several kernel versions could be presented. 
+> 
+> Also, we could have a non-web interface, (telnet or gopher to the bug
+> DB, or control it by E-Mail). 
+> 
+> It could warn the user if they attach an un-decoded oops that their
+> bug report isn't as useful as it could be, and if they mention a
+> distribution kernel version, that it's not a tree that the developers
+> will necessarily be familiar with. 
+> 
+> I'm not criticising the fact that we've got Bugzilla up and running,
+> but just pointing out that we could do better, (and I'm prepared to
+> put in the time and effort).  I just need ideas, really. 
+> 
+> John.
 > -
-
-Anguished cry!  There was careful manipulation of VM_ACCOUNT before and
-after do_munmap, now you've for no reason moved do_munmap down outside.
-
->  		/* Restore VM_ACCOUNT if one or two pieces of vma left */
->  		if (vma) {
->  			vma->vm_flags |= VM_ACCOUNT;
->  			if (split)
->  				vma->vm_next->vm_flags |= VM_ACCOUNT;
->  		}
-> +
-> +		must_fault_in = new_vma->vm_flags & VM_LOCKED;
-> +		fault_in_start = new_vma->vm_start;
-> +		fault_in_end = new_vma->vm_end;
-> +
-> +		do_munmap(current->mm, addr, old_len);
-> +
-> +		/* new_vma could have been invalidated by do_munmap */
-> +
->  		current->mm->total_vm += new_len >> PAGE_SHIFT;
-> -		if (new_vma->vm_flags & VM_LOCKED) {
-> +		if (must_fault_in) {
->  			current->mm->locked_vm += new_len >> PAGE_SHIFT;
-> -			make_pages_present(new_vma->vm_start,
-> -					   new_vma->vm_end);
-> +			make_pages_present(fault_in_start, fault_in_end);
->  		}
->  		return new_addr;
->  	}
-
-But the bugfix part of it looks good.
-
-Hugh
-
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+ 

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265503AbRGBXy6>; Mon, 2 Jul 2001 19:54:58 -0400
+	id <S265507AbRGCAFJ>; Mon, 2 Jul 2001 20:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265509AbRGBXyt>; Mon, 2 Jul 2001 19:54:49 -0400
-Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:62084 "EHLO
-	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S265503AbRGBXyn>; Mon, 2 Jul 2001 19:54:43 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] I/O Access Abstractions
-Date: Tue, 3 Jul 2001 01:54:47 +0200
-Message-Id: <20010702235447.1201@smtp.wanadoo.fr>
-In-Reply-To: <E15HByZ-0006hZ-00@the-village.bc.nu>
-In-Reply-To: <E15HByZ-0006hZ-00@the-village.bc.nu>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S265515AbRGCAEt>; Mon, 2 Jul 2001 20:04:49 -0400
+Received: from tsukuba.m17n.org ([192.47.44.130]:1986 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S265507AbRGCAEs>;
+	Mon, 2 Jul 2001 20:04:48 -0400
+Date: Tue, 3 Jul 2001 09:04:42 +0900 (JST)
+Message-Id: <200107030004.f6304gL08049@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Cache issues
+In-Reply-To: <15168.64008.256248.834586@pizda.ninka.net>
+In-Reply-To: <200106270051.f5R0pkl19282@mule.m17n.org>
+	<Pine.LNX.4.21.0106270710050.1291-100000@freak.distro.conectiva>
+	<200106280007.f5S07qQ04446@mule.m17n.org>
+	<20010628012349.L1554@redhat.com>
+	<200106280041.f5S0fDr05278@mule.m17n.org>
+	<15162.32433.598824.599520@pizda.ninka.net>
+	<200106280104.f5S14XA05644@mule.m17n.org>
+	<200106291418.f5TEI0i09541@mule.m17n.org>
+	<200107021123.f62BNwj02290@mule.m17n.org>
+	<15168.64008.256248.834586@pizda.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Can you give me an idea of what sort of cookie decoding a PPC/PMac would need
->and why - Im working off things like pa-risc so I dont have a full picture.
+David S. Miller wrote:
+ > So these older intefaces may not be arbitrarily removed in 2.4.x
+ > 
+ > The goal is to eventually remove them, this is true.  But it must
+ > be done in 2.5.x at the earliest.
 
-Each domain provide an IO space (size depends on the bridge, recent Apple
-UniNorth hosts have 16Mb per domain). 
+Yes, agreed.
 
-That IO space can be in any location (depends on the box, bridge config,
-..), so basically, we must assume that each host bridge can have it's IO
-space anywhere in CPU mem space.
+I mean, it's almost ready for port maintainers to migrate new
+interface (only two issues remain:
+include/linux/highmem.h:memclear_highpage_flush and ptrace), as soon
+as 2.5.x starts. 
 
-Currently, we store the physical address of those in our pci_controller
-structure, and ioremap all of them. One is picked up as the "ISA" io base
-(for VGA and such things as legacy devices on non-pmac PPCs). That
-isa_io_base is used as an offset to inx/outx, and all PCI IO_RESOURCES
-are fixed up to be their real virtual address offset'ed with isa_io_base.
-(A bit weird but works and we have only an addition in inx/outx).
-
-I'm more concerned about having all that space mapped permanently in
-kernel virtual space. I'd prefer mapping on-demand, and that would
-require a specific ioremap for IOs.
-
-Ben.
-
-
-
-
+For the time being, I let SH-4 port have null definitions of
+flush_page_to_ram and flush_icache_page, and see how things are going.
+-- 

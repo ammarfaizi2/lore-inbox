@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVBGWiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVBGWi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVBGWiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVBGWiQ
+	id S261288AbVBGWi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVBGWiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:38:16 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:63905 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261292AbVBGWgW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:36:22 -0500
-Date: Mon, 7 Feb 2005 23:36:09 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: pageexec@freemail.hu
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050207223609.GA12609@elte.hu>
-References: <4202BFDB.24670.67046BC@localhost> <42080689.15768.1B0C5E5F@localhost>
+	Mon, 7 Feb 2005 17:38:55 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3808 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261288AbVBGWih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:38:37 -0500
+Date: Mon, 7 Feb 2005 23:38:33 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Brian King <brking@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] PCI: Dynids - passing driver data
+Message-ID: <20050207223833.GA2651@atrey.karlin.mff.cuni.cz>
+References: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com> <20050207221820.GA27543@kroah.com> <4207ECDB.7060506@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42080689.15768.1B0C5E5F@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <4207ECDB.7060506@us.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-btw., do you consider PaX as a 100% sure solution against 'code
-injection' attacks (meaning that the attacker wants to execute an
-arbitrary piece of code, and assuming the attacked application has a
-stack overflow)? I.e. does PaX avoid all such attacks in a guaranteed
-way?
+> >Which is a good thing, right?  "driver_data" is usually a pointer to
+> >somewhere.  Having userspace specify it would not be a good thing.
+> 
+> That depends on the driver usage, and the patch allows it to be 
+> configurable and defaults to not being used.
 
-	Ingo
+Maybe we could just define the operation as cloning of an entry
+for another device ID, including its driver_data.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Only dead fish swim with the stream.

@@ -1,99 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUJ3Ult@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbUJ3UnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbUJ3Ult (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 16:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUJ3Uls
+	id S261320AbUJ3UnF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 16:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUJ3UnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 16:41:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8881 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261243AbUJ3Ulp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 16:41:45 -0400
-Date: Sat, 30 Oct 2004 21:41:44 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] stifb bugfixes against 2.6.10-rc1-bk9
-Message-ID: <20041030204144.GK8958@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 30 Oct 2004 16:43:04 -0400
+Received: from lrsehosting.com ([69.55.238.31]:27921 "EHLO
+	scoop.lrsehosting.com") by vger.kernel.org with ESMTP
+	id S261320AbUJ3Umz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 16:42:55 -0400
+Message-ID: <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com>
+In-Reply-To: <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com>
+References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+    <Pine.LNX.4.61.0410252350240.17266@scrub.home>
+    <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+    <Pine.LNX.4.61.0410270223080.877@scrub.home>
+    <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+    <4180B9E9.3070801@andrew.cmu.edu>
+    <20041028135348.GA18099@work.bitmover.com>
+    <1098972379.3109.24.camel@gonzales>
+    <20041028151004.GA3934@work.bitmover.com>
+    <41827B89.4070809@hispalinux.es>
+    <20041029173642.GA5318@work.bitmover.com>
+    <41828707.3050803@hispalinux.es>
+    <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com>
+    <4182923D.5040500@hispalinux.es>
+    <40231.65.208.227.246.1099077274.squirrel@www.lrsehosting.com>
+    <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com>
+Date: Sat, 30 Oct 2004 13:42:50 -0700 (PDT)
+Subject: Re: BK kernel workflow
+From: "Scott Lockwood" <lkml@www.lrsehosting.com>
+To: "Kyle Moffett" <mrmacman_g4@mac.com>
+Cc: "Scott Lockwood" <lkml@www.lrsehosting.com>,
+       "James Bruce" <bruce@andrew.cmu.edu>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       =?iso-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>,
+       "Xavier Bestel" <xavier.bestel@free.fr>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Larry McVoy" <lm@bitmover.com>,
+       "Roman Zippel" <zippel@linux-m68k.org>,
+       "Andrea Arcangeli" <andrea@novell.com>
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You wrote:
 
- - Fix "sti= parameter ignored by stifb" bug (Stuart Brady)
- - Fix the STI crash with HCRX-24 in 32bpp mode (Helge Deller)
+To my knowledge, there has not been a single significant instance of
+a EULA made _after_ the point-of-sale being found binding by a court
+of law.  There _have_ been many cases where Copyright law forbids
+some action of a user also forbidden in an EULA, but in no other case
+have they been upheld.
 
-diff -urpNX dontdiff linux-2.6.10-rc1-bk9/drivers/video/stifb.c parisc-2.6-bk/drivers/video/stifb.c
---- linux-2.6.10-rc1-bk9/drivers/video/stifb.c	Fri Oct 22 15:40:35 2004
-+++ parisc-2.6-bk/drivers/video/stifb.c	Sat Oct 30 09:31:49 2004
-@@ -112,6 +112,7 @@ struct stifb_info {
- 	ngle_rom_t ngle_rom;
- 	struct sti_struct *sti;
- 	int deviceSpecificConfig;
-+	u32 pseudo_palette[16];
- };
- 
- static int __initdata bpp = 8;	/* parameter from modprobe */
-@@ -1030,6 +1031,14 @@ stifb_setcolreg(u_int regno, u_int red, 
- 				/* 0x100 is same as used in WRITE_IMAGE_COLOR() */
- 		START_COLORMAPLOAD(fb, lutBltCtl.all);
- 		SETUP_FB(fb);
-+
-+		/* info->var.bits_per_pixel == 32 */
-+		if (regno < 16) 
-+		  ((u32 *)(info->pseudo_palette))[regno] =
-+			(red   << info->var.red.offset)   |
-+			(green << info->var.green.offset) |
-+			(blue  << info->var.blue.offset);
-+
- 	} else {
- 		/* cleanup colormap hardware */
- 		FINISH_IMAGE_COLORMAP_ACCESS(fb);
-@@ -1327,6 +1336,7 @@ stifb_init_fb(struct sti_struct *sti, in
- 	info->screen_base = (void*) REGION_BASE(fb,1);
- 	info->flags = FBINFO_DEFAULT;
- 	info->currcon = -1;
-+	info->pseudo_palette = &fb->pseudo_palette;
- 
- 	/* This has to been done !!! */
- 	fb_alloc_cmap(&info->cmap, 256, 0);
-@@ -1383,6 +1393,7 @@ int __init
- stifb_init(void)
- {
- 	struct sti_struct *sti;
-+	struct sti_struct *def_sti;
- 	int i;
- 	
- #ifndef MODULE
-@@ -1397,9 +1408,19 @@ stifb_init(void)
- 		return -ENXIO;
- 	}
- 	
-+	def_sti = sti_get_rom(0);
-+	if (def_sti) {
-+		for (i = 1; i < MAX_STI_ROMS; i++) {
-+			sti = sti_get_rom(i);
-+			if (sti == def_sti && bpp > 0)
-+				stifb_force_bpp[i] = bpp;
-+		}
-+		stifb_init_fb(def_sti, stifb_force_bpp[i]);
-+	}
-+
- 	for (i = 1; i < MAX_STI_ROMS; i++) {
- 		sti = sti_get_rom(i);
--		if (!sti)
-+		if (!sti || sti==def_sti)
- 			break;
- 		if (bpp > 0)
- 			stifb_force_bpp[i] = bpp;
+Now read:
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+http://www.freedom-to-tinker.com/doc/2004/bnetd_30sep.pdf

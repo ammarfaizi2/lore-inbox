@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTLPN2I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 08:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTLPN2I
+	id S261575AbTLPNWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 08:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTLPNWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 08:28:08 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:20010 "EHLO
-	thoron.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S261605AbTLPN2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 08:28:05 -0500
-Date: Tue, 16 Dec 2003 08:27:24 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Felix von Leitner <felix-kernel@fefe.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: request: capabilities that allow users to drop privileges further
-In-Reply-To: <20031215213912.GA29281@codeblau.de>
-Message-ID: <Xine.LNX.4.44.0312160826290.16300-100000@thoron.boston.redhat.com>
+	Tue, 16 Dec 2003 08:22:48 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:31979 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261575AbTLPNWs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 08:22:48 -0500
+Date: Tue, 16 Dec 2003 11:08:52 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Kristian Peters <kristian.peters@korseby.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Peter Bergmann <bergmann.peter@gmx.net>, <linux-kernel@vger.kernel.org>,
+       <nfedera@esesix.at>, <andrea@suse.de>, <riel@redhat.com>
+Subject: Re: Configurable OOM killer Re: old oom-vm for 2.4.32 (was oom killer
+  in 2.4.23)
+In-Reply-To: <20031209193412.39c1ca71.kristian.peters@korseby.net>
+Message-ID: <Pine.LNX.4.44.0312161056110.1533-100000@logos.cnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003, Felix von Leitner wrote:
 
-> I would like to be able to drop capabilities that every normal user has,
-> so that network servers can limit the impact of possible future security
-> problems further.  For example, I want my non-cgi web server to be able
-> to drop the capabilities to
+
+On Tue, 9 Dec 2003, Kristian Peters wrote:
+
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> schrieb:
+> > The following patch makes OOM killer configurable (its the same as the 
+> > other patches posted except its around CONFIG_OOM_KILLER).
+> > 
+> > I hope the Configure.help entry is clear enough.
 > 
->   * fork
->   * execve
->   * ptrace
->   * load kernel modules
->   * mknod
->   * write to the file system
+> What about the PF_MEMDIE issues Andrea has argued ? Are they solved by the added code in page_alloc.c ?
 > 
-> and I would like to modify my smtpd to not be able to
-> 
->   * fork
->   * execve
->   * ptrace
->   * load kernel modules
->   * mknod
+> As Andrea has pointed out earlier, a yield() after out_of_memory() is safe and should be added too.
 
-You can specify policy under SELinux to acheive this (without modifying 
-any applications).
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+out_of_memory() calls yield() so its not necessary. 
 

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131177AbQK1VjX>; Tue, 28 Nov 2000 16:39:23 -0500
+        id <S131004AbQK1VkD>; Tue, 28 Nov 2000 16:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131027AbQK1VjO>; Tue, 28 Nov 2000 16:39:14 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22523 "EHLO
-        webber.adilger.net") by vger.kernel.org with ESMTP
-        id <S131004AbQK1VjA>; Tue, 28 Nov 2000 16:39:00 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011282108.eASL8nd10539@webber.adilger.net>
-Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
-In-Reply-To: <20001128214309.F2680@sith.mimuw.edu.pl> "from Jan Rekorajski at
- Nov 28, 2000 09:43:09 pm"
-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-Date: Tue, 28 Nov 2000 14:08:49 -0700 (MST)
-CC: Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+        id <S131027AbQK1Vjy>; Tue, 28 Nov 2000 16:39:54 -0500
+Received: from site3.talontech.com ([208.179.68.88]:58218 "EHLO
+        site3.talontech.com") by vger.kernel.org with ESMTP
+        id <S131004AbQK1VjR>; Tue, 28 Nov 2000 16:39:17 -0500
+Message-ID: <3A241EDC.7646C388@talontech.com>
+Date: Tue, 28 Nov 2000 13:08:44 -0800
+From: Ben Ford <bford@talontech.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jakob Østergaard <jakob@unthought.net>
+CC: Kevin Krieser <kkrieser@delphi.com>, linux-kernel@vger.kernel.org
+Subject: Re: out of swap
+In-Reply-To: <3A22EC94.2A434703@mindspring.com> <000b01c058ec$6791abe0$0701a8c0@thinkpad> <20001128164721.I21902@unthought.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan R_korajski writes:
-> Why is RLIMIT_NPROC apllied to root(uid 0) processes? It's not kernel job to
-> prevent admin from shooting him/her self in the foot.
+Jakob Østergaard wrote:
 
-> -	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur)
+<snip>
 
-By default, root has no real process limits anyways, so this test should
-always succeed.  However, it would be nice to be _able_ to set process
-limits on root for one reason or another.  Also, as we move towards more
-secure systems, it is bad (IMHO) to special case root (uid=0) cases.
-It just makes more to fix to get a system where root != god.
+> comments, Riel or Andrea ?).  I don't know of any good solution to this problem
+> other than just having enough swap space - after all, seriously, with today's
+> disks, who can't spare an extra few hundred megs (which would usually be more
+> than enough).
 
-> root should be able to do fork() regardless of any limits,
-> and IMHO the following patch is the right thing.
+An embedded system for one . . . .
 
-Then set the rlim_cur to unlimited, and blow your system up as you like.
+-b
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

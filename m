@@ -1,86 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265975AbUBPX5N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 18:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUBPX5N
+	id S265924AbUBQAEt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 19:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBQAEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 18:57:13 -0500
-Received: from gate.crashing.org ([63.228.1.57]:51617 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265975AbUBPX5L (ORCPT
+	Mon, 16 Feb 2004 19:04:49 -0500
+Received: from gate.crashing.org ([63.228.1.57]:53921 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265924AbUBQAEs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 18:57:11 -0500
-Subject: [PATCH] Fix rtasd zombie on PowerMac G5
+	Mon, 16 Feb 2004 19:04:48 -0500
+Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Eger <eger@theboonies.us>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402161546460.30742@home.osdl.org>
+References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
+	 <1076904084.12300.189.camel@gaston>
+	 <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
+	 <1076968236.3648.42.camel@gaston>
+	 <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
+	 <1076969892.3649.66.camel@gaston>
+	 <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
+	 <1076972267.3649.81.camel@gaston>
+	 <Pine.LNX.4.58.0402161503490.30742@home.osdl.org>
+	 <1076974304.1046.102.camel@gaston>
+	 <Pine.LNX.4.58.0402161546460.30742@home.osdl.org>
 Content-Type: text/plain
-Message-Id: <1076975790.3648.108.camel@gaston>
+Message-Id: <1076976245.3648.114.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 17 Feb 2004 10:56:31 +1100
+Date: Tue, 17 Feb 2004 11:04:05 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+> Oh, there is no hurry with this. In fact, I'd rather take it slow than try 
+> to make any big changes to something that _largely_ works but has problems 
+> in some special cases.
+> 
+> In fact, I'd be happiest if the first step would be to just rename the
+> interface and change the argument infrastructure, but actually keep all
+> the behaviour "obviously the same". Bugs and all, if it comes to that. So
+> I'd rather take several small steps (and let people use it for a while in
+> between) than try to do everything. And yes, 2.6.3 is not even a target.
 
-The rtasd kernel thread would exit before daemoniz'ing itself if
-RTAS wasn't present (or if allocation of the buffer failed), thus
-leaving a zombie. This patch fixes it (and remove #if 0'ed code)
+That's fine with me. 
 
-Please apply,
 Ben.
-
-===== arch/ppc64/kernel/rtasd.c 1.15 vs edited =====
---- 1.15/arch/ppc64/kernel/rtasd.c	Mon Jan 19 17:28:25 2004
-+++ edited/arch/ppc64/kernel/rtasd.c	Tue Feb 17 10:54:22 2004
-@@ -347,6 +347,8 @@
- 	int event_scan = rtas_token("event-scan");
- 	int rc;
- 
-+	daemonize("rtasd");
-+
- 	if (event_scan == RTAS_UNKNOWN_SERVICE || get_eventscan_parms() == -1)
- 		goto error;
- 
-@@ -359,15 +361,9 @@
- 	/* We can use rtas_log_buf now */
- 	no_more_logging = 0;
- 
--	DEBUG("will sleep for %d jiffies\n", (HZ*60/rtas_event_scan_rate) / 2);
--
--	daemonize("rtasd");
-+	printk(KERN_ERR "RTAS daemon started\n");
- 
--#if 0
--	/* Rusty unreal time task */
--	current->policy = SCHED_FIFO;
--	current->nice = sys_sched_get_priority_max(SCHED_FIFO) + 1;
--#endif
-+	DEBUG("will sleep for %d jiffies\n", (HZ*60/rtas_event_scan_rate) / 2);
- 
- 	/* See if we have any error stored in NVRAM */
- 	memset(logdata, 0, rtas_error_log_max);
-@@ -423,7 +419,9 @@
- 	goto repeat;
- 
- error_vfree:
--	vfree(rtas_log_buf);
-+	if (rtas_log_buf)
-+		vfree(rtas_log_buf);
-+	rtas_log_buf = NULL;
- error:
- 	/* Should delete proc entries */
- 	return -EINVAL;
-@@ -450,8 +448,6 @@
- 
- 	if (kernel_thread(rtasd, 0, CLONE_FS) < 0)
- 		printk(KERN_ERR "Failed to start RTAS daemon\n");
--
--	printk(KERN_ERR "RTAS daemon started\n");
- 
- 	/* Make room for the sequence number */
- 	rtas_error_log_buffer_max = rtas_error_log_max + sizeof(int);
 
 

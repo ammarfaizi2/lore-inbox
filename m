@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbTIDI7l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 04:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbTIDI7l
+	id S264812AbTIDJHV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 05:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264806AbTIDJHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 04:59:41 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:34131 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264795AbTIDI7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 04:59:40 -0400
-Date: Thu, 4 Sep 2003 04:59:21 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: linas@austin.ibm.com
-cc: Anton Blanchard <anton@samba.org>, <linux-kernel@vger.kernel.org>,
-       <davem@redhat.com>, <riel@redhat.com>, <mranweil@us.ibm.com>
-Subject: Re: PATCH: kernel-2.4 brlock livelock
-In-Reply-To: <20030903151043.B51004@forte.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44.0309040457560.5452-100000@devserv.devel.redhat.com>
+	Thu, 4 Sep 2003 05:07:20 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.26]:13775 "EHLO
+	mwinf0503.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S264812AbTIDJHQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 05:07:16 -0400
+From: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Call of tty->driver.write provides segmentation fault
+Date: Thu, 4 Sep 2003 11:07:11 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200309041107.12393.laurent.huge@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 3 Sep 2003 linas@austin.ibm.com wrote:
+I'm currently contriving a network driver using the serial port.
+I've created my own line discipline (and tests prove it reads well), but I
+can't write to the port : I tried to use tty->driver.write(tty, 0, msg,
+strlen(msg)) (the same way that in printk.c, i.e. after testing that
+tty->driver.write exists) but it crashs into a segmentation fault.
+Since the driver implementation is not mine (I'm just using the serial
+module), I can't check the function's address, but I believe the tty is ok (it 
+is the same I use for the line discipline).
 
-> OK, how about the following: readers on a given cpu are held off if the
-> write lock is held *and* the read-count on that cpu is zero?
-> 
-> That way, 'recursive' readers on other CPU's can get a read-lock if
-> there's already a non-zero read-lock-count on that CPU.
-> 
-> That should work if the thread holding the lock can't get scheduled to
-> another cpu.  Can these things wander around?
-> 
-> If they can wander around, then oone would have to order the cpus: wait
-> for read count to drop to zero on cpu 0 then on 1 then on 2, meanwhile
-> the read-lock can be gotten on the higher ordered CPUs ...
-> 
-> If this sounds reasonable, would you care to see a revised patch?
-
-could you try this approach on your box that shows the livelock situation?
-
-certainly we can add code that only triggers if there's some write attempt
-- the important thing is to have the right read-mostly behavior.
-
-	Ingo
+Does anyone know in which way I can search a solution ?
+Thanks,
+-- 
+Laurent Hugé.
 

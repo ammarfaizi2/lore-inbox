@@ -1,31 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUG2R0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUG2Rgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265799AbUG2R0R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 13:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUG2RWp
+	id S267452AbUG2Rgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 13:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267510AbUG2RdC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 13:22:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33460 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264833AbUG2RTv (ORCPT
+	Thu, 29 Jul 2004 13:33:02 -0400
+Received: from holomorphy.com ([207.189.100.168]:36757 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267505AbUG2RcJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 13:19:51 -0400
-Date: Thu, 29 Jul 2004 13:19:07 -0400
-From: Alan Cox <alan@redhat.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: VLAN support for 3c59x/3c90x
-Message-ID: <20040729171907.GA29841@devserv.devel.redhat.com>
-References: <20040728124256.GA31246@devserv.devel.redhat.com> <41081BC4.6040607@candelatech.com> <20040728221554.GA22747@devserv.devel.redhat.com> <4108291D.7000804@candelatech.com>
+	Thu, 29 Jul 2004 13:32:09 -0400
+Date: Thu, 29 Jul 2004 10:32:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Avi Kivity <avi@exanet.com>
+Cc: jmoyer@redhat.com, suparna@in.ibm.com, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, linux-osdl@osdl.org
+Subject: Re: [PATCH 20/22] AIO poll
+Message-ID: <20040729173201.GV2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Avi Kivity <avi@exanet.com>, jmoyer@redhat.com, suparna@in.ibm.com,
+	linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+	linux-osdl@osdl.org
+References: <20040702130030.GA4256@in.ibm.com> <20040702163946.GJ3450@in.ibm.com> <16649.5485.651481.534569@segfault.boston.redhat.com> <41091FAA.6080409@exanet.com> <20040729171037.GS2334@holomorphy.com> <410932C2.6080102@exanet.com> <20040729172659.GU2334@holomorphy.com> <41093421.3080601@exanet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4108291D.7000804@candelatech.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41093421.3080601@exanet.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 03:30:53PM -0700, Ben Greear wrote:
-> So if you try to configure the MTU to 1504 using ifconfig or whatever,
-> will that actually work?
+On Thu, Jul 29, 2004 at 08:30:09PM +0300, Avi Kivity wrote:
+> Yes. Sorry for being so terse. But busy-waiting isn't acceptable for 
+> anything more than a demonstration, or (extermely) special-purpose 
+> servers, like maybe embedded stuff.
 
-It should work fine yes.
+Agreed. One of the points of my demonstration was to emphasize how dire
+the state of affairs is.
+
+
+-- wli

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318046AbSGLWjr>; Fri, 12 Jul 2002 18:39:47 -0400
+	id <S318044AbSGLWjs>; Fri, 12 Jul 2002 18:39:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318044AbSGLWjR>; Fri, 12 Jul 2002 18:39:17 -0400
-Received: from holomorphy.com ([66.224.33.161]:37279 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318046AbSGLWiP>;
-	Fri, 12 Jul 2002 18:38:15 -0400
-Date: Fri, 12 Jul 2002 15:40:03 -0700
+	id <S318050AbSGLWjE>; Fri, 12 Jul 2002 18:39:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:37791 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318047AbSGLWiU>;
+	Fri, 12 Jul 2002 18:38:20 -0400
+Date: Fri, 12 Jul 2002 15:40:09 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Cc: rml@tech9.net
-Subject: NUMA-Q breakage 5/7 in_interrupt() race
-Message-ID: <20020712224003.GC25360@holomorphy.com>
+Cc: axboe@kernel.org, akpm@zip.com.au
+Subject: NUMA-Q breakage 6/7 lack of bio splitting workaround
+Message-ID: <20020712224009.GD25360@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, rml@tech9.net
+	linux-kernel@vger.kernel.org, axboe@kernel.org, akpm@zip.com.au
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Description: brief message
@@ -23,46 +23,27 @@ Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On smaller machines, bootstrapping proceeds far enough to see races
-in kmaps near generic_file_read() etc. This is precisely the
-in_interrupt() BUG(), but it's quite clear this is happening in
-process context. Not even the smaller machines can survive this.
-That is, it is impossible to run at all without it (or an equivalent).
-
-Robert, please apply.
+NUMA-Q's have qlogicisp adapters for their boot bays. Until the block
+I/O issue is resolved, they can't boot. I've bugged you about this
+before, but for completeness' sake, here it is.
 
 
-Thanks,
+Workaround (due to akpm) below.
+
+
+Cheers,
 Bill
 
 
-===== include/asm-i386/hardirq.h 1.7 vs edited =====
---- 1.7/include/asm-i386/hardirq.h	Mon May 20 10:51:17 2002
-+++ edited/include/asm-i386/hardirq.h	Thu Jul 11 19:51:02 2002
-@@ -22,8 +22,24 @@
-  * Are we in an interrupt context? Either doing bottom half
-  * or hardware interrupt processing?
+===== fs/mpage.c 1.10 vs edited =====
+--- 1.10/fs/mpage.c	Thu Jul  4 09:17:30 2002
++++ edited/fs/mpage.c	Fri Jul 12 01:03:03 2002
+@@ -24,7 +24,7 @@
+  * The largest-sized BIO which this code will assemble, in bytes.  Set this
+  * to PAGE_CACHE_SIZE if your drivers are broken.
   */
--#define in_interrupt() ({ int __cpu = smp_processor_id(); \
--	(local_irq_count(__cpu) + local_bh_count(__cpu) != 0); })
-+static inline int in_interrupt(void)
-+{
-+	int total_count, retval, cpu;
-+
-+	preempt_disable();
-+	cpu = smp_processor_id();
-+
-+	total_count = local_irq_count(cpu) + local_bh_count(cpu);
-+
-+	if (total_count)
-+		retval = 1;
-+	else
-+		retval = 0;
-+
-+	preempt_disable();
-+
-+	return retval;
-+}
+-#define MPAGE_BIO_MAX_SIZE BIO_MAX_SIZE
++#define MPAGE_BIO_MAX_SIZE PAGE_CACHE_SIZE
  
- #define in_irq() (local_irq_count(smp_processor_id()) != 0)
- 
+ /*
+  * I/O completion handler for multipage BIOs.

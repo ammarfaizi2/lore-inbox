@@ -1,97 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272333AbTGYVSO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272332AbTGYUkp
+	id S272327AbTGYVXE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 17:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272311AbTGYVXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:40:45 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:44434 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S272309AbTGYUic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:38:32 -0400
-Date: Fri, 25 Jul 2003 22:51:03 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: David Miller <davem@redhat.com>
-Cc: Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] netfilter ipt_recent Configure.help fix
-Message-ID: <20030725205103.GM3244@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	David Miller <davem@redhat.com>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3BjoNV5KkjW1cxnK"
-Content-Disposition: inline
-X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
-X-Date: Today is Prickle-Prickle, the 53rd day of Confusion in the YOLD 3169
-User-Agent: Mutt/1.5.4i
+	Fri, 25 Jul 2003 17:23:03 -0400
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:39584
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S272309AbTGYVWY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 17:22:24 -0400
+Message-ID: <3F21A5AE.3020802@rogers.com>
+Date: Fri, 25 Jul 2003 17:48:30 -0400
+From: gaxt <gaxt@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben Collins <bcollins@debian.org>
+CC: Torrey Hoffman <thoffman@arnor.net>, Sam Bromley <sbromley@cogeco.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+References: <20030725154009.GF1512@phunnypharm.org> <20030725160706.GK23196@ruvolo.net> <20030725161803.GJ1512@phunnypharm.org> <1059155483.2525.16.camel@torrey.et.myrio.com> <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org> <3F217A39.2020803@rogers.com> <20030725182642.GD607@phunnypharm.org> <20030725184506.GE607@phunnypharm.org> <20030725193515.GQ23196@ruvolo.net> <20030725201128.GA535@phunnypharm.org>
+In-Reply-To: <20030725201128.GA535@phunnypharm.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.157.78.60] using ID <dw2price@rogers.com> at Fri, 25 Jul 2003 17:37:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ben. Firewire is working here too- iPod is running again :-) Pleasure 
+working with you on the testing. I'm using the tarballed ieee1394 code 
+from www.linux1394.org's viewcvs
 
---3BjoNV5KkjW1cxnK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ben Collins wrote:
+> On Fri, Jul 25, 2003 at 12:35:15PM -0700, Chris Ruvolo wrote:
+> 
+>>On Fri, Jul 25, 2003 at 02:45:06PM -0400, Ben Collins wrote:
+>>
+>>>Maybe it wont. Try reverting back to stock, and apply this patch. I am
+>>>pretty sure this will fix the problem for anyone having this issue.
+>>
+>>Yes, I think this did it!  One change: needed to change HSBP_VERBOSE to
+>>HSBP_DEBUG in csr.c.  
+>>
+>>I will try turning on my DV camera tonight (I'm remote now) and I'll let you
+>>know how that goes.
+> 
+> 
+> Kick ass. I've commited this change to the 1394 repo. Linus will get the
+> fix soon. I'll also send it to Marcelo for 2.4.22.
+> 
+> Please, if you are testing, use the code at www.linux1394.org's viewcvs
+> (trunk tarball will replace drivers/ieee1394 in 2.6, branches/linux-2.4
+> will do the same for 2.4).
+> 
+> 
+> Thanks for help in tracking this down.
+> 
 
-Hi Dave!
 
-This is the 6th of a set of bugfixes (all tested against 2.4.22-pre7).
-You might need to apply them incrementally (didn't test it in a
-different order).  You will receive 2.6 merges of those patches soon.
-
-
-Author: Adrian Bunk <bunk@fs.tum.de>, Harald Welte <laforge@netfilter.org>
-
-Add the missing Configure.help entry for ipt_recent
-
-Please apply,
-
---- linuxppc-040703-nfpending/Documentation/Configure.help	2003-07-02 09:07=
-:33.000000000 +0200
-+++ linuxppc-040703-nfpom/Documentation/Configure.help	2003-07-18 19:17:31.=
-000000000 +0200
-@@ -2589,6 +2700,17 @@
-   If you want to compile it as a module, say M here and read
-   <file:Documentation/modules.txt>.  If unsure, say `N'.
-=20
-+recent match support
-+CONFIG_IP_NF_MATCH_RECENT
-+  This match is used for creating one or many lists of recently
-+  used addresses and then matching against that/those list(s).
-+
-+  Short options are available by using 'iptables -m recent -h'
-+  Official Website: <http://snowman.net/projects/ipt_recent/>
-+
-+  If you want to compile it as a module, say M here and read
-+  Documentation/modules.txt.  If unsure, say `N'.
-+
- limit match support
- CONFIG_IP_NF_MATCH_LIMIT
-   limit matching allows you to control the rate at which a rule can be
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---3BjoNV5KkjW1cxnK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/IZg3XaXGVTD0i/8RAgmsAJ9loN+mJIMHIS35HvLxmlDSOGZPaACfWtiE
-LgKbR7d+pr6+x5lRKJA9bco=
-=Aagn
------END PGP SIGNATURE-----
-
---3BjoNV5KkjW1cxnK--

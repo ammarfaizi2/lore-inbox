@@ -1,113 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318144AbSHZUtr>; Mon, 26 Aug 2002 16:49:47 -0400
+	id <S318242AbSHZUym>; Mon, 26 Aug 2002 16:54:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318148AbSHZUtr>; Mon, 26 Aug 2002 16:49:47 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:37383
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318144AbSHZUtp>; Mon, 26 Aug 2002 16:49:45 -0400
-Subject: Re: [PATCH] hyperthreading scheduler improvement
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1030392337.15007.413.camel@phantasy>
-References: <1030392337.15007.413.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Aug 2002 16:53:58 -0400
-Message-Id: <1030395238.1184.449.camel@phantasy>
+	id <S318243AbSHZUym>; Mon, 26 Aug 2002 16:54:42 -0400
+Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:25021 "HELO
+	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S318242AbSHZUym>; Mon, 26 Aug 2002 16:54:42 -0400
+Message-ID: <20020826205858.6612.qmail@thales.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Mon, 26 Aug 2002 22:58:58 +0200
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: MM patches against 2.5.31
+References: <3D644C70.6D100EA5@zip.com.au> <E17jO6g-0002XU-00@starship> <20020826200048.3952.qmail@thales.mathematik.uni-ulm.de> <E17jQB8-0002Zi-00@starship>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17jQB8-0002Zi-00@starship>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-26 at 16:05, Robert Love wrote:
-
-Linus,
-
-> This patch implements a per-arch load balancing scheme for P4s to better
-> balance across the virtual CPUs (e.g. prefer fully unused CPUs to a
-> single available HT unit).  This is the same logic in 2.4-ac, 2.4-aa,
-> etc.
+On Mon, Aug 26, 2002 at 10:09:38PM +0200, Daniel Phillips wrote:
+> On Monday 26 August 2002 22:00, Christian Ehrhardt wrote:
+> > On Mon, Aug 26, 2002 at 07:56:52PM +0200, Daniel Phillips wrote:
+> > > On Monday 26 August 2002 17:29, Christian Ehrhardt wrote:
+> > > > On Mon, Aug 26, 2002 at 04:22:50PM +0200, Daniel Phillips wrote:
+> > > > > On Monday 26 August 2002 11:10, Christian Ehrhardt wrote:
+> > > > > > + * A special Problem is the lru lists. Presence on one of these lists
+> > > > > > + * does not increase the page count.
+> > > > > 
+> > > > > Please remind me... why should it not?
+> > > > 
+> > > > Pages that are only on the lru but not reference by anyone are of no
+> > > > use and we want to free them immediatly. If we leave them on the lru
+> > > > list with a page count of 1, someone else will have to walk the lru
+> > > > list and remove pages that are only on the lru.
+> > > 
+> > > I don't understand this argument.  Suppose lru list membership is worth a 
+> > > page count of one.  Then anyone who finds a page by way of the lru list can 
+> > 
+> > This does fix the double free problem but think of a typical anonymous
+> > page at exit. The page is on the lru list and there is one reference held
+> > by the pte. According to your scheme the pte reference would be freed
+> > (obviously due to the exit) but the page would remain on the lru list.
+> > However, there is no point in leaving the page on the lru list at all.
 > 
-> This patch uses the previously posted per-arch load balancing
-> infrastructure.
+> If you want the page off the lru list at that point (which you probably do)
+> then you take the lru lock and put_page_testzero.
 
-This is an updated version, to use the new asm/sched.h infrastructure
-hch suggested (see previous patch).
+Could you clarify what you mean with "at that point"? Especially how
+do you plan to test for "this point". Besides it is illegal to use
+the page after put_page_testzero (unless put_page_testzero returns true).
 
-	Robert Love
+> > If you think about who is going to remove the page from the lru you'll
+> > see the problem.
+> 
+> Nope, still don't see it.  Whoever hits put_page_testzero frees the page,
+> secure in the knowlege that there are no other references to it.
 
-diff -urN linux-dogmeat/arch/i386/config.in linux/arch/i386/config.in
---- linux-dogmeat/arch/i386/config.in	Mon Aug 26 16:30:53 2002
-+++ linux/arch/i386/config.in	Mon Aug 26 16:45:57 2002
-@@ -103,6 +103,7 @@
-    define_bool CONFIG_X86_TSC y
-    define_bool CONFIG_X86_GOOD_APIC y
-    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-+   define_bool CONFIG_X86_HYPERTHREADING y
- fi
- if [ "$CONFIG_MK6" = "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-diff -urN linux-dogmeat/include/asm-i386/sched.h linux/include/asm-i386/sched.h
---- linux-dogmeat/include/asm-i386/sched.h	Mon Aug 26 16:31:12 2002
-+++ linux/include/asm-i386/sched.h	Mon Aug 26 16:46:37 2002
-@@ -1,7 +1,55 @@
- #ifndef _I386_SCHED_H
- #define _I386_SCHED_H
- 
--/* nothing to see here, move along */
--#include <asm-generic/sched.h>
-+/*
-+ * We have an architecture-specific SMP load balancer to improve
-+ * scheduling behavior on hyperthreaded CPUs.  Since only P4s have
-+ * HT, we only use the code if CONFIG_MPENTIUM4 is set.
-+ *
-+ * Distributions may want to make this unconditional to support all
-+ * x86 machines on one kernel.  The overhead in the non-P4 case is
-+ * minimal while the benefit to SMP P4s is probably decent.
-+ */
-+#if defined(CONFIG_X86_HYPERTHREADING)
-+
-+/*
-+ * Find any idle processor package (i.e. both virtual processors are idle)
-+ */
-+static inline int find_idle_package(int this_cpu)
-+{
-+	int i;
-+
-+	i = this_cpu;
-+
-+	for (i = (this_cpu + 1) % NR_CPUS;
-+	     i != this_cpu;
-+	     i = (i + 1) % NR_CPUS) {
-+		int sibling = cpu_sibling_map[i];
-+
-+		if (idle_cpu(i) && idle_cpu(sibling))
-+			return i;
-+	}
-+	return -1;	/* not found */
-+}
-+
-+static inline int arch_load_balance(int this_cpu, int idle)
-+{
-+	/* Special hack for hyperthreading */
-+       if (unlikely(smp_num_siblings > 1 && idle && !idle_cpu(cpu_sibling_map[this_cpu]))) {
-+               int found;
-+               struct runqueue *rq_target;
-+
-+               if ((found = find_idle_package(this_cpu)) >= 0 ) {
-+                       rq_target = cpu_rq(found);
-+                       resched_task(rq_target->idle);
-+                       return 1;
-+               }
-+       }
-+       return 0;
-+}
-+
-+#else
-+#define arch_load_balance(x, y)		(0)
-+#endif
- 
- #endif /* _I386_SCHED_H */
+Well yes, but we cannot remove the page from the lru atomatically
+at page_cache_release time if we follow your proposal. If you think we can,
+show me your implementation of page_cache_release and I'll show
+you where the races are (unless you do everything under the lru_lock
+of course).
 
+    regards   Christian
+
+-- 
+THAT'S ALL FOLKS!

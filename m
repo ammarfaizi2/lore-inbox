@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319050AbSIJGdV>; Tue, 10 Sep 2002 02:33:21 -0400
+	id <S319051AbSIJGjh>; Tue, 10 Sep 2002 02:39:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319051AbSIJGdV>; Tue, 10 Sep 2002 02:33:21 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:65037 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S319050AbSIJGdU>;
-	Tue, 10 Sep 2002 02:33:20 -0400
-Message-Id: <200209100637.g8A6bMm01628@fokkensr.vertis.nl>
-Content-Type: text/plain; charset=US-ASCII
-From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] USER_HZ & NTP problems
-Date: Tue, 10 Sep 2002 08:37:17 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <200209092314.g89NEnA05992@fokkensr.vertis.nl> <20020910080941.A6298@ucw.cz>
-In-Reply-To: <20020910080941.A6298@ucw.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S319053AbSIJGjg>; Tue, 10 Sep 2002 02:39:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10711 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319051AbSIJGjf>;
+	Tue, 10 Sep 2002 02:39:35 -0400
+Date: Tue, 10 Sep 2002 08:43:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@digeo.com>, Jesse Barnes <jbarnes@sgi.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       "'David S. Miller'" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Calculating kernel logical address ..
+Message-ID: <20020910064354.GM8719@suse.de>
+References: <019f01c25826$c553f310$9e10a8c0@IMRANPC> <E17oTES-0006qj-00@starship> <3D7CF93A.972FCC8D@digeo.com> <E17oVLe-0006uT-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17oVLe-0006uT-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 08:09, Vojtech Pavlik wrote:
-> Actually, the clock true frequency is 1193181.8 Hz, although most
-> manuals say 1.19318 MHz, which, because truncating more digits, also
-> correct. But 1193180 Hz isn't. If you're trying to count the time
-> correctly, you should better use 1193182 Hz if staying in integers.
+On Mon, Sep 09 2002, Daniel Phillips wrote:
+> On Monday 09 September 2002 21:40, Andrew Morton wrote:
+> > We need a general-purpose "read or write these pages to this blockdev"
+> > library function.
+> 
+> I thought bio was supposed to be that.  In what way does it not suffice?
+> Simply because of not having a suitable wrapper?
 
-I copied the clock frequency from the kernel source, timex.h defines:
+a bio _can_ hold a number of pages, it's just that noone has written the
+bio_rw_pages() yet. Not that it would be hard...
 
-#define CLOCK_TICK_RATE 1193180
+-- 
+Jens Axboe
 
-If what you're saying is correct, timex.h uses the wrong value as wel I guess.

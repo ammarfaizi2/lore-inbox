@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266919AbRGHQsl>; Sun, 8 Jul 2001 12:48:41 -0400
+	id <S266920AbRGHQs6>; Sun, 8 Jul 2001 12:48:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266920AbRGHQs3>; Sun, 8 Jul 2001 12:48:29 -0400
-Received: from geos.coastside.net ([207.213.212.4]:38887 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S266919AbRGHQsQ>; Sun, 8 Jul 2001 12:48:16 -0400
+	id <S266921AbRGHQst>; Sun, 8 Jul 2001 12:48:49 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:6660 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266920AbRGHQsq>;
+	Sun, 8 Jul 2001 12:48:46 -0400
+Date: Sat, 30 Jun 2001 14:10:23 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Barry Wu <wqb123@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: about linux mips ext2fs
+Message-ID: <20010630141022.B142@toy.ucw.cz>
+In-Reply-To: <20010625155706.66345.qmail@web13907.mail.yahoo.com>
 Mime-Version: 1.0
-Message-Id: <p05100312b76e3e9b2e53@[207.213.214.37]>
-In-Reply-To: <Pine.GSO.4.21.0107080320280.28651-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0107080320280.28651-100000@weyl.math.psu.edu>
-Date: Sun, 8 Jul 2001 09:46:18 -0700
-To: Alexander Viro <viro@math.psu.edu>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Eugene Crosser <crosser@average.org>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010625155706.66345.qmail@web13907.mail.yahoo.com>; from wqb123@yahoo.com on Mon, Jun 25, 2001 at 08:57:06AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:26 AM -0400 2001-07-08, Alexander Viro wrote:
->On Sat, 7 Jul 2001, Jamie Lokier wrote:
->
->>  Daniel Phillips wrote:
->>  > > Reading a tarball is the distillation of what you describe into
->>  > > efficient form :)
->>  >
->>  > /me downloads tar file definition
->>  >
->>  > Um, gnu tar or posix tar? or some new, improved tar?
->>
->>  I suggest cpio, which is more compact and in some ways more standard.
->>  (tar has a silly pad-to-multiple-of-512-byte per file rule, which is
->>  inappropriate for this).  GNU cpio creates cpio format just fine.
->
->GNU cpio is a race-ridden unmaintained pile of junk. Look at the size
->of, say it, Debian patch to upstream source. Then try to read the
->patched code.  Quite a few of us simply don't have that FPOS on their
->boxen.
->
->Using cpio archive layout is OK, but _please_, don't make it dependent
->on GNU cpio.
+Hi!
 
-If size is an issue (and of course it is), presumably the archive 
-would be compressed. As long as tar can be convinced to pad with 
-(say) nulls, the padding shouldn't have that much of an impact on 
-archive size.
+> I want port linux to our mipsel system. The kernel
+> can work and system stop at mount root file system.
+> I download root file system for mipsel from MIPS
+> company. Because our system have no ethernet
+> interface,
+> I have to copy root file system directly to our hard
+> disk. I put hard disk under intel linux, and using 
+> fdisk and make ex2fs on it. Then I copy root file 
+> system to hard disk. After finished, I place this hard
+> disk under our mipsel environment. I do not know if 
+> it can work under this environment, the kernel can
+> mount root file system? If someone knows, please help
+> me.
+
+Yes, it can work.
+
 -- 
-/Jonathan Lundell.
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

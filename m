@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbTEILjt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 07:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbTEILjt
+	id S262567AbTEILuq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 07:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTEILuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 07:39:49 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:41462 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262485AbTEILjr (ORCPT
+	Fri, 9 May 2003 07:50:46 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37600 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262567AbTEILup (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 07:39:47 -0400
-MIME-Version: 1.0
+	Fri, 9 May 2003 07:50:45 -0400
+Date: Fri, 9 May 2003 14:03:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Sanitize hwif/drive addressing (was Re: [PATCH] 2.5 ide 48-bit usage)
+Message-ID: <20030509120318.GB812@suse.de>
+References: <20030509082837.GG20941@suse.de> <Pine.SOL.4.30.0305091305080.2995-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16059.38513.197275.134938@gargle.gargle.HOWL>
-Date: Fri, 9 May 2003 13:52:17 +0200
-From: mikpe@csd.uu.se
-To: Andi Kleen <ak@muc.de>
-Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: hammer: MAP_32BIT
-In-Reply-To: <20030509113845.GA4586@averell>
-References: <3EBB5A44.7070704@redhat.com>
-	<20030509092026.GA11012@averell>
-	<16059.37067.925423.998433@gargle.gargle.HOWL>
-	<20030509113845.GA4586@averell>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0305091305080.2995-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > 
- > On Fri, May 09, 2003 at 01:28:11PM +0200, mikpe@csd.uu.se wrote:
- > > I have a potential use for mmap()ing in the low 4GB on x86_64.
- > 
- > Just use MAP_32BIT
+On Fri, May 09 2003, Bartlomiej Zolnierkiewicz wrote:
+> 
+> On Fri, 9 May 2003, Jens Axboe wrote:
+> 
+> > On Fri, May 09 2003, Jens Axboe wrote:
+> > > On Thu, May 08 2003, Alan Cox wrote:
+> > > > On Iau, 2003-05-08 at 17:34, Jens Axboe wrote:
+> > > > > Might not be a bad idea, drive->address_mode is a heck of a lot more to
+> > > > > the point. I'll do a swipe of this tomorrow, if no one beats me to it.
+> > > >
+> > > > We don't know if in the future drives will support some random mask of modes.
+> > > > Would
+> > > >
+> > > > 	drive->lba48
+> > > > 	drive->lba96
+> > > > 	drive->..
+> > > >
+> > > > be safer ?
+> > >
+> > > I had the same thought yesterday, that just because a device does lba89
+> > > does not need it supports all of the lower modes. How about just using
+> 
+> Actually it does for 48-bit.
 
-Will that be corrected to use the full 4GB space? 2GB is too small.
+Sure, that's not the example :-)
 
- > > Sounds like your MAP_32BIT really is MAP_31BIT :-( which is too limiting.
- > > What about a more generic way of indicating which parts of the address
- > > space one wants? The simplest that would work for me is a single byte
- > > 'nrbits' specifying the target address space as [0 .. 2^nrbits-1].
- > > This could be specified on a per-mmap() basis or as a settable process attribute.
- > 
- > On x86-64 an mmap extension for that would be fine, but on i386 you get
- > problems because mmap64() already maxes out the argument limit and you 
- > cannot add more.
+Somewhere down the line, lba28 might (is it already?) be deprecated, for
+instance.
 
-This would only be used on x86_64. i386 compat is a non-issue.
-(This is for runtime systems stuff, not applictions.)
+> > > the drive->address_mode as a supported field of modes?
+> > >
+> > > if (drive->address_mode & IDE_LBA48)
+> > > 	lba48 = 1;
+> >
+> > How about something like the attached? Removes ->addressing from both
+> > drive and hwif, and adds:
+> >
+> > drive->addr_mode: capability mask of addressing modes the drive supports
+> > hwif->na_addr_mode: negated capability mask
+> 
+> Sounds sane.
 
- > prctl is probably better. You really want [start; end] right ? 
+Can I commit?
 
-I just want mmap() to return addresses that fit in 32 bits.
+-- 
+Jens Axboe
 
-MAP_32BIT would do nicely, if it wasn't limited to 2GB.
-
-/Mikael

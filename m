@@ -1,75 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272413AbTGaGqM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 02:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272421AbTGaGqM
+	id S272405AbTGaGnN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 02:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272410AbTGaGnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 02:46:12 -0400
-Received: from dyn-ctb-210-9-243-68.webone.com.au ([210.9.243.68]:2067 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S272413AbTGaGqG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 02:46:06 -0400
-Message-ID: <3F28BB20.6040707@cyberone.com.au>
-Date: Thu, 31 Jul 2003 16:45:52 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: as / scheduler question
-References: <200307290908.09065.kernel@kolivas.org> <20030728160117.3f679f01.akpm@osdl.org> <200307290925.10876.kernel@kolivas.org>
-In-Reply-To: <200307290925.10876.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 31 Jul 2003 02:43:13 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:1877 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S272405AbTGaGnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 02:43:10 -0400
+Subject: Re: [More Info] Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's -
+	all needed rpms installed)
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Greg KH <greg@kroah.com>, arjanv@redhat.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F21C5FA.5020507@pacbell.net>
+References: <1058196612.3353.2.camel@aurora.localdomain>
+	 <3F12FF53.7060708@pobox.com> <1058210139.5981.6.camel@laptop.fenrus.com>
+	 <1058217601.4441.1.camel@aurora.localdomain>
+	 <1058299838.3358.4.camel@aurora.localdomain>
+	 <20030715210240.GA5345@kroah.com>  <3F21C5FA.5020507@pacbell.net>
+Content-Type: text/plain
+Message-Id: <1059633777.4720.7.camel@aurora.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
+Date: 31 Jul 2003 02:42:57 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-07-25 at 20:06, David Brownell wrote:
+
+> See if this patch resolves it.
+> 
+> The patch adds an explicit reset to HCD initialization, and then makes
+> EHCI use it.  (OHCI could do so even more easily ... but nobody's reported
+> firmware acting that type of strange with OHCI.)   It should prevent IRQs
+> being enabled while the HC is still in an indeterminate state.
+> 
+> This also fixes a missing local_irq_restore() that was generating some
+> annoying might_sleep() messages, and a missing readb() that affects some
+> ARM (and other) PCI systems.
+> 
+> - Dave
+
+Applied it against test2.  I think the problem is indeed ACPI handling
+PCI irqs.  This is an nVidia nForce2 board, I should check to see if the
+patch someone posted fixes this (Did it get folded into test2?).
+
+Anyway, the first oops only happens if I have the mouse plugged in as
+USB (Intellimouse USB... I usually use the dumb little PS/2 adapter). 
+The second happens now, but didn't before.  It is 1394 related. 
+Interrupts are at 100k+ on both usb and 1394 ohci almost instantly with
+ACPI on.
+
+irq 11: nobody cared!
+Call Trace:
+[<c010c12a>] __report_bad_irq+0x2a/0x90
+[<c010c21c>] note_interrupt+0x6c/0xb0
+[<c010c42d>] do_IRQ+0xed/0x110
+[<c010a9f8>] common_interrupt+0x18/0x20
+[<c011f780>] do_softirq+0x40/0xa0
+[<c010c414>] do_IRQ+0xd4/0x110
+[<c010a9f8>] common_interrupt+0x18/0x20
+[<c010c84e>] setup_irq+0x6e/0xb0
+[<e087f350>] usb_hcd_irq+0x0/0x60 [usbcore]
+[<c010c4d0>] request_irq+0x80/0xd0
+[<e08824e0>] usb_hcd_pci_probe+0x200/0x4a0 [usbcore]
+[<e087f350>] usb_hcd_irq+0x0/0x60
+[<c01aa1f2>] pci_device_probe_static+0x52/0x70
+[<c01aa30c>] __pci_device_probe+0x3c/0x50
+[<c01aa34f>] pci_device_probe+0x2f/0x50
+[<c01eb695>] bus_match+0x45/0x80
+[<c01eb7ac>] driver_attach+0x5c/0x60
+[<c01eba97>] bus_add_driver+0xa7/0xc0
+[<c01ebf1f>] driver_register+0x2f/0x40
+[<c01aa600>] pci_register_driver+0x70/0xa0
+[<e0824021>] init+0x21/0x4f [ehci_hcd]
+[<c0130afb>] sys_init_module+0x10b/0x200
+[<c010a839>] sysenter_past_esp+0x52/0x71
+
+handlers:
+[<e087f350>] (usb_hcd_irq+0x0/0x60 [usbcore])
+Disabling IRQ #11
+ehci_hcd 0000:00:02.2: irq 11, pci mem e0815000
+ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
 
 
-Con Kolivas wrote:
+irq 4: nobody cared!
+Call Trace:
+[<c010c12a>] __report_bad_irq+0x2a/0x90
+[<c010c21c>] note_interrupt+0x6c/0xb0
+[<c010c42d>] do_IRQ+0xed/0x110
+[<c010a9f8>] common_interrupt+0x18/0x20
+[<c011f780>] do_softirq+0x40/0xa0
+[<c010c414>] do_IRQ+0xd4/0x110
+[<c010a9f8>] common_interrupt+0x18/0x20
+[<c010c84e>] setup_irq+0x6e/0xb0
+[<e08536d0>] ohci_irq_handler+0x0/0x720 [ohci1394]
+[<c010c4d0>] request_irq+0x80/0xd0
+[<e0855603>] ohci1394_pci_probe+0x3d3/0x580 [ohci1394]
+[<e08536d0>] ohci_irq_handler+0x0/0x720 [ohci1394]
+[<c01aa1f2>] pci_device_probe_static+0x52/0x70
+[<c01aa30c>] __pci_device_probe+0x3c/0x50
+[<c01aa34f>] pci_device_probe+0x2f/0x50
+[<c01eb695>] bus_match+0x45/0x80
+[<c01eb7ac>] driver_attach+0x5c/0x60
+[<c01eba97>] bus_add_driver+0xa7/0xc0
+[<c01ebf1f>] driver_register+0x2f/0x40
+[<c01aa600>] pci_register_driver+0x70/0xa0
+[<e0817013>] ohci1394_init+0x13/0x3d [ohci1394]
+[<c0130afb>] sys_init_module+0x10b/0x200
+[<c010a839>] sysenter_past_esp+0x52/0x71
 
->On Tue, 29 Jul 2003 09:01, Andrew Morton wrote:
->
->>Con Kolivas <kernel@kolivas.org> wrote:
->>
->>>Nick
->>>
->>>With the sheduler work Ingo and I have been doing I was wondering if
->>>there was possibly a problem with requeuing kernel threads at certain
->>>intervals? Ingo's current version requeues all threads at 25ms and I just
->>>wondered if this number might be a multiple or factor of a magic number
->>>in the AS workings, as we're seeing a few changes in behaviour with AS
->>>only. I'm planning on leaving kernel threads out of this requeuing, but I
->>>thought I could also pick your brain.
->>>
->>What does "requeues all threads at 25ms" mean?
->>
->>The only dependency we should have there is that kblockd should be
->>scheduled promptly after it is woken.  It is reniced by -10 so it should be
->>OK. Renicing it further or making it SCHED_RR/FIFO would be interesting.
->>
->
->Ingo introduced the concept of TIMESLICE_GRANULARITY a while ago. All 
->processes currently running on the active queue get interrupted in their 
->timeslice after TIMESLICE_GRANULARITY (currently set at 25ms and the subject 
->of another thread), and put on the tail of the active array to continue their 
->timeslice after other processes at the same priority on the active queue get 
->to run, also for at most TIMESLICE_GRANULARITY. If kblockd is reniced to -10 
->it wont have a problem unless something else ends up with the same dynamic 
->priority which would only happen if there are interactive tasks reniced to 
->-10. If it's the only process on the active array at that priority it 
->_should_ run unaffected.
->
+handlers:
+[<e08536d0>] (ohci_irq_handler+0x0/0x720 [ohci1394])
+Disabling IRQ #4
 
-OK, well if they've been running for more than 6ms then AS goes out of
-the picture, so no, shouldn't make a difference.
+Anyway, so either it is ACPI and fixable, or I just forget pci routing
+with ACPI.
 
-In general, on the read side, the disk scheduler can determine how
-tasks get woken after waiting on reads, and on the write side its more
-the request allocation. If CPU bound processes are running as well
-though, then its a process scheduler decision about how soon a woken
-process gets to run - I think IO performance wants this figure to be
-nice and low.
-
+Trever Adams
+--
+"If a revolution destroys a systematic government, but the systematic
+patterns of thought that produced that government are left intact, then
+those patterns will repeat themselves in the succeding government." --
+Robert M. Pirsig
 

@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUJIUlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUJIUnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267375AbUJIUlP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUJIUlO
+	id S267386AbUJIUnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUJIUlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:41:14 -0400
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:20646
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S267401AbUJIUgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:36:48 -0400
-Message-ID: <41684BC1.5000500@ppp0.net>
-Date: Sat, 09 Oct 2004 22:36:17 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+	Sat, 9 Oct 2004 16:41:32 -0400
+Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:16621 "EHLO
+	mail.shipmail.org") by vger.kernel.org with ESMTP id S267410AbUJIUkY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:40:24 -0400
+Message-ID: <41684CA6.3020201@shipmail.org>
+Date: Sat, 09 Oct 2004 22:40:06 +0200
+From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <unichrome@shipmail.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6)
+ Gecko/20040115
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: lkml@lpbproductions.com
-CC: Ed Schouten <ed@il.fontys.nl>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Patch 1/5] xbox: add 'CONFIG_X86_XBOX' to kernel configuration
-References: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210> <200410091315.10988.lkml@lpbproductions.com>
-In-Reply-To: <200410091315.10988.lkml@lpbproductions.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Dave Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+Subject: Re: [rfc] VIA drm patch and bk tree for inclusion in
+ kernel..
+References: <Pine.LNX.4.58.0410091447170.25574@skynet>
+In-Reply-To: <Pine.LNX.4.58.0410091447170.25574@skynet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-BitDefender-Spam: No (0)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Heler wrote:
-> Why can't theese patches be maintained outside the kernel tree , as it is 
-> now ? 
-> 
-> I'm strongly against this because the X-Box is a gaming platform and last I 
-> heard ( and I could be wrong here ) is that you had to hack your X-Box in 
-> order to load any other os then the one supplied with it. I just don't see a 
-> justified reason why theese patches should be included into the kernel. 
-> 
+Hi!
 
-<TrollMode>
-Well, Altix is a server platform, last I heard I had to hack my credit
-card institute in order to get one.
-I suspect there are more people using xbox w/ linux than altix users.
-</TrollMode>
+Dave Airlie wrote:
 
-Really, Linux already supports so many varieties of hardware used by
-only a small number of people. It's just convenient to have it in
-mainline and adapted when api changes.
+>Hi,
+>       Okay the VIA DRM people have asked to include it in the kernel, it
+>only allows accelerated XvMC for non-root users, and 3d for root users
+>(the 3d paths are still not secure)...
+>
+>The bk tree at
+>
+>bk://drm.bkbits.net/drm-via
+>
+>the patch against Linus latest (along with some cleanup patches...)
+>
+>is at (it is quite big...)
+>
+>http://www.skynet.ie/~airlied/patches/dri/via_unichrome_patch.diff
+>
+>Can VIA people test this tree for me? either use bk or grab Linus latest
+>and apply the patch...
+>
+>  
+>
+Works as expected with Linus latest.
 
-Jan
+/Thomas
+
+
+>Dave.
+>
+>  
+>
+
+

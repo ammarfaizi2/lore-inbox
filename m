@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVBCBXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVBCBTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbVBCBXo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVBCBXo
+	id S262489AbVBCBTN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262828AbVBCBOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:23:44 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:60561
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262747AbVBCBX2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 20:23:28 -0500
-Date: Wed, 2 Feb 2005 17:17:01 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Einar =?ISO-8859-1?Q?L=FCck?= <lkml@einar-lueck.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 1/2] ipv4 routing: splitting of
- ip_route_[in|out]put_slow, 2.6.10-rc3
-Message-Id: <20050202171701.18a81a6a.davem@davemloft.net>
-In-Reply-To: <41C6B3D4.6060207@einar-lueck.de>
-References: <41C6B3D4.6060207@einar-lueck.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 2 Feb 2005 20:14:36 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:29577 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S262898AbVBCBNQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 20:13:16 -0500
+Date: Wed, 2 Feb 2005 20:13:15 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@localhost.localdomain
+To: Joseph Pingenot <trelane@digitasaru.net>
+cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: Please open sysfs symbols to proprietary modules
+In-Reply-To: <20050203000917.GA12204@digitasaru.net>
+Message-ID: <Pine.LNX.4.62.0502021950040.19812@localhost.localdomain>
+References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+ <20050203000917.GA12204@digitasaru.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004 12:13:24 +0100
-Einar Lück <lkml@einar-lueck.de> wrote:
+Hi, Joseph!
 
-> This patch splits up ip_route_[in|out]put_slow in inlined functions.
-> Basic idea:
-> * improve overall comprehensibility
-> * allow for an easier application of patch for improved multipath 
->   support
+On Wed, 2 Feb 2005, Joseph Pingenot wrote:
 
-Patch applied to my 2.6.12 pending tree.  Thanks a lot Einar.
+>> From Pavel Roskin on Wednesday, 02 February, 2005:
+>> All I want to do is to have a module that would create subdirectories for
+>> some network interfaces under /sys/class/net/*/, which would contain
+>> additional parameters for those interfaces.  I'm not creating a new
+>> subsystem or anything like that.  sysctl is not good because the data is
+>> interface specific.  ioctl on a socket would be OK, although it wouldn't
+>> be easily scriptable.  The restriction on sysfs symbols would just force
+>> me to write a proprietary userspace utility to set those parameters
+>> instead of using a shell script.
+>
+> Please pardon my ignorance, but if the existing network device management
+>  framework is insufficient, it seems that the optimal way to deal with
+>  this is to work with the community to address the insufficiencies, not
+>  hacking in a new interface to the device.
 
-One minor comment is that there are some minor cases where
-excessing in_dev get/put can be eliminated.  For example,
-in __mkroute_output() we really only need to do the
-in_dev_get(dev_out) once, yet we do it twice due to how
-the return path of this function always puts the reference
-even in the non-error case.
+OK, then the "insufficiency" is inability to set and get additional named 
+variables for network interfaces.
+
+I won't open all details, but suppose I want the bridge to handle certain 
+frames in a special way, just like BPDU frames are handled if STP is 
+enabled.  There is a hook for that already - see br_handle_frame_hook. 
+The proprietary module would just have to change it.
+
+What I want it to tell that module what to do with those special frames. 
+I also want to get information like what was in the last special frame and 
+how many of them have been received.  In other words, I want the 
+proprietary module to communicate with userspace.  Ideally, the userspace 
+application should be a simple shell script, so I'm reluctant to use 
+ioctl.
+
+-- 
+Regards,
+Pavel Roskin

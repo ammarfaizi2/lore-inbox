@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317187AbSFRAQG>; Mon, 17 Jun 2002 20:16:06 -0400
+	id <S317185AbSFRAPP>; Mon, 17 Jun 2002 20:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSFRAQF>; Mon, 17 Jun 2002 20:16:05 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:37296 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S317187AbSFRAQD>; Mon, 17 Jun 2002 20:16:03 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Initcall depends 
-In-reply-to: Your message of "Mon, 17 Jun 2002 17:43:11 EST."
-             <Pine.LNX.4.44.0206171658470.22308-100000@chaos.physics.uiowa.edu> 
-Date: Tue, 18 Jun 2002 10:17:10 +1000
-Message-Id: <E17K6gI-0001Ga-00@wagner.rustcorp.com.au>
+	id <S317187AbSFRAPO>; Mon, 17 Jun 2002 20:15:14 -0400
+Received: from twinlark.arctic.org ([208.44.199.239]:44230 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S317185AbSFRAPM>; Mon, 17 Jun 2002 20:15:12 -0400
+Date: Mon, 17 Jun 2002 17:15:13 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 3x slower file reading oddity
+In-Reply-To: <3D0E7041.860710CA@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206171649270.18507-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0206171658470.22308-100000@chaos.physics.uiowa.edu> y
-ou write:
-> Parts of a solution could be (based on yours above).
-> 
-> o Define KBUILD_OBJECT during the build, which contains the
->   name of the module the file we're building will/would end up.
-> 
-> o Use that to rename the __initcall_whatever to
->   __initcall__module__whatever.
-> 
-> o Make a symlink tree pointing to the objects that will be linked in
->   (Basically $(obj-y))
-> 
-> o Go through the symlink tree and for all objects which export objects
->   and have __initcalls, record that relation.
+On Mon, 17 Jun 2002, Andrew Morton wrote:
 
-Hmm... how about "put export symbols in __ksymtab in object file even
-if CONFIG_MODULE=n", just discard them in the final link.
+> I rather depends on what is in /tmp/filelist.  I assume it's
+> something like the output of `find'.  And I assume you're
+> using ext2 or ext3?
 
-Then build up table from that (we're looking at the objects anyway).
+yup: find mail1 mail2 -type f -print0 >/tmp/filelist
 
-> o For all __initcall__moduleA__ in the objects to be linked into 
->   vmlinux, find the object that defines it in the symlink tree (its name
->   will be moduleA.o).
-> 
-> o Find the unresolved symbols in that object moduleA.o.
-> 
-> o For each unresolved symbol in moduleA.o, if you find the symbol in the 
->   previously recorded pairs of (exported symbols, __initcall__moduleB), 
->   move __initcall_moduleA behind __initcall_moduleB.
-> 
-> Probably some issues come up when actually trying to do this, but it 
-> sounds doable at least in principle.
+ext3.
 
-I'll have to think some more and see if I can come up with something
-along these lines.
+thanks for the description of the block groups... that all makes more
+sense now.
 
-> 
-> Then again, there's also the possibility of completing initramsfs, making
-> it mandatory, compiling things always as modules and leaving it to
-> "depmod" in initramfs to do the right thing.
+> You'll get best throughput with a single read thread.
 
-If that ever happens... 8)
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+what if you have a disk array with lots of spindles?  it seems at some
+point that you need to give the array or some lower level driver a lot of
+i/os to choose from so that it can get better parallelism out of the
+hardware.
+
+i see similar slowdowns on a 4-IDE-disk softRAID5+LVM+ext3 setup (SMP
+2.4.19-pre7-ac4).  not nearly as bad as on the single disk.
+
+-dean
+

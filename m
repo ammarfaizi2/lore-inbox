@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUBTPBa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 10:01:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUBTPBa
+	id S261272AbUBTPKb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 10:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUBTPKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 10:01:30 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:62917 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261244AbUBTPBK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 10:01:10 -0500
-Subject: Re: JFS default behavior / UTF-8 filenames
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: kernel@mikebell.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040219234746.GG432@tinyvaio.nome.ca>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
-	 <20040219105913.GE432@tinyvaio.nome.ca>
-	 <1077199506.2275.12.camel@shaggy.austin.ibm.com>
-	 <20040219234746.GG432@tinyvaio.nome.ca>
-Content-Type: text/plain
-Message-Id: <1077289257.2533.23.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 20 Feb 2004 09:00:58 -0600
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Feb 2004 10:10:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61668 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261272AbUBTPK0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 10:10:26 -0500
+Date: Fri, 20 Feb 2004 07:15:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, greg@kroah.com,
+       akpm@osdl.org, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB update for 2.6.3
+In-Reply-To: <20040219233214.56f5b0ce.davem@redhat.com>
+Message-ID: <Pine.LNX.4.58.0402200714270.1107@ppc970.osdl.org>
+References: <20040220012802.GA16523@kroah.com> <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
+ <1077256996.20789.1091.camel@gaston> <Pine.LNX.4.58.0402192221560.2244@ppc970.osdl.org>
+ <1077258504.20781.1121.camel@gaston> <Pine.LNX.4.58.0402192243170.14296@ppc970.osdl.org>
+ <1077259375.20787.1141.camel@gaston> <Pine.LNX.4.58.0402192257190.1107@ppc970.osdl.org>
+ <20040219230407.063ef209.davem@redhat.com> <1077261041.20787.1181.camel@gaston>
+ <20040219233214.56f5b0ce.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-19 at 17:47, kernel@mikebell.org wrote:
-> While I don't really care one way or the other about the whole
-> "rejecting non-UTF8 filenames" thing, trying to store 8bit strings in
-> UTF2 (no such thing, is there? Is JFS UCS-2 or UTF-16?)
 
-UCS-2 - I can't keep this stuff straight.
 
->  seems really
-> ugly. In general at least, maybe it's not so bad in JFS's case
-> specifically because of there not being much sharing of JFS filesystems
-> between linux and non-linux systems.
+On Thu, 19 Feb 2004, David S. Miller wrote:
+> On Fri, 20 Feb 2004 18:10:41 +1100
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 > 
-> But if JFS uses that "make the high byte zero and return the low byte
-> only" scheme, what does it do when it encounters a UCS-2 filename that
-> has a non-NUL high byte on an existing filesystem? I can't see any ways
-> of dealing with this that aren't much more horribly broken than merely
-> refusing to create filenames that aren't valid in the current encoding.
-> If it throws the high byte away then you've made it impossible to open
-> said files, and up to 256 files per character of the filename can now
-> appear to have the same filename.
+> > Hrm... so if the USB device drivers are actually doing the dma mapping
+> > themselves, it make sense for them to pass their own struct device, no ?
 > 
-> So what does JFS do in its "throw away the high byte and store binary
-> character strings in the low byte" mode? How does it deal with an
-> existing filesystem that has filenames that don't conform to said rule?
+> That's right, at least that was the idea.
 
-With no iocharset specified, a filename with such a character will be
-inaccessible.  Probably the best thing for readdir to do is to
-substitute a '?' and print a message to the syslog to mount the volume
-with iocharset=utf8 to be able to access the file.  Of course I would
-limit the number of printk's to something small.  I'll submit a patch to
-do this.
--- 
-David Kleikamp
-IBM Linux Technology Center
+No. That would be _fundamentally_ wrong.
 
+There's no way a USB device can do DMA in the first place. It has no DMA 
+controller, and no way to read/write memory except through the USB host.
+
+So it is the host - and only the host - that matters. Anything else is a 
+bug.
+
+		Linus

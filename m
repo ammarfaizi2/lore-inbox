@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284197AbRLAShS>; Sat, 1 Dec 2001 13:37:18 -0500
+	id <S284198AbRLASnh>; Sat, 1 Dec 2001 13:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284194AbRLAShI>; Sat, 1 Dec 2001 13:37:08 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:41405 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284195AbRLAShA>; Sat, 1 Dec 2001 13:37:00 -0500
-Date: Sat, 1 Dec 2001 11:36:59 -0700
-Message-Id: <200112011836.fB1IaxY31897@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre5 not easy to boot with devfs
-In-Reply-To: <3C0898AD.FED8EF4A@wanadoo.fr>
-In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr>
-	<9u9qas$1eo$1@penguin.transmeta.com>
-	<200112010701.fB171N824084@vindaloo.ras.ucalgary.ca>
-	<3C0898AD.FED8EF4A@wanadoo.fr>
+	id <S284206AbRLASnU>; Sat, 1 Dec 2001 13:43:20 -0500
+Received: from bitmover.com ([192.132.92.2]:38596 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284194AbRLASm7>;
+	Sat, 1 Dec 2001 13:42:59 -0500
+Date: Sat, 1 Dec 2001 10:42:38 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Ricardo Galli <gallir@uib.es>
+Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011201104238.A21766@work.bitmover.com>
+Mail-Followup-To: Ricardo Galli <gallir@uib.es>,
+	linux-kernel@vger.kernel.org, lm@bitmover.com
+In-Reply-To: <E16AF2A-0002HG-00@linux.uib.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16AF2A-0002HG-00@linux.uib.es>; from gallir@uib.es on Sat, Dec 01, 2001 at 07:38:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet writes:
-> Richard Gooch wrote:
-> > Indeed I do. Please Cc: me on devfs related stuff. And please apply
-> > devfs-patch-v200, which fixes a stupid typo. I'd also be interested in
-> > knowing the behaviour with 2.4.17-pre1.
-
-Did you apply devfs-patch-v200?
-
-> > and boot messages. And booting with
+On Sat, Dec 01, 2001 at 07:38:42PM +0100, Ricardo Galli wrote:
+> > Amen to that. STREAMS would be one of the strongest arguments in favor
+> > of Linus' theory that evolution takes care of it. STREAMS were done at
+> > Sun by some "architects" who thought they would be better than sockets.
 > 
-> Difficult, I have no log in this case. I don't see unusual message
-> before the oops except :
-
-I need those boot messages.
-
-> none already mounted on /dev
-
-Edit your /etc/fstab and remove the line for devfs. You don't
-need/want that if you have CONFIG_DEVFS_MOUNT=y.
-
-> /dev is only a mountpoint on my system. I have no other fallback without
-> devfs but a working kernel (thanksfully there are plenty).
+> Wasn't Dennis Ritchie one of the "architects" of STREAMS at Bell Labs?
 > 
-> > "devfs=dall" is required as well.
-> 
-> No option appended (no 'devfs='). grub.
+>   A Stream Input-Output System : AT&T Bell Laboratories Technical Journal 
+>   63,  No. 8 Part 2 (October, 1984)
 
-I know nothing about grub. Somehow, you need to pass "devfs=dall" to
-the kernel when booting. And I need to see the boot messages when this
-option is given to the kernel. If it's too verbose, you can try
-"devfs=dreg,dunreg,dfree" instead. Copy the messages down by hand if
-you need to, but I need to see them. Do yourself a favour and set up a
-serial console so you can capture boot messages easily.
-
-Also, make sure you are not using any proprietary drivers (like
-NVidia). If you have such drivers, move them to another directory to
-prevent their being loaded. Even if you load but don't use such
-drivers, they still make debugging information unreliable.
-
-I've had a look at the code, and I see no reason for devfs to fail in
-this way, unless some driver is abusing it.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Dennis wrote something called "streams" not be confused with "STREAMS".
+He was trying to provide a more flexible mechanism for tty line 
+disciplines.  The Sys III guys grabbed it and decided to promote it as 
+a networking infrastructure, because System III et al did not have
+networking.  Dennis doesn't like the result any better than any of us.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

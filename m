@@ -1,81 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264830AbSJaLMA>; Thu, 31 Oct 2002 06:12:00 -0500
+	id <S264850AbSJaLUw>; Thu, 31 Oct 2002 06:20:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264850AbSJaLMA>; Thu, 31 Oct 2002 06:12:00 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25565 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264830AbSJaLL6>; Thu, 31 Oct 2002 06:11:58 -0500
-Date: Thu, 31 Oct 2002 12:18:20 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alexander Viro <viro@math.psu.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S264854AbSJaLUw>; Thu, 31 Oct 2002 06:20:52 -0500
+Received: from mail.scram.de ([195.226.127.117]:27333 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S264850AbSJaLUw>;
+	Thu, 31 Oct 2002 06:20:52 -0500
+Date: Thu, 31 Oct 2002 12:21:30 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux v2.5.45
-In-Reply-To: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
-Message-ID: <Pine.NEB.4.44.0210311214210.10655-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <Pine.LNX.4.44.0210311138490.7997-100000@gfrw1044.bocc.de>
+Message-ID: <Pine.LNX.4.44.0210311220260.7997-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Oct 2002, Linus Torvalds wrote:
+Hi,
 
->...
-> Summary of changes from v2.5.44 to v2.5.45
-> ============================================
->...
-> Alexander Viro <viro@math.psu.edu>:
->...
->   o ps2esdi
->...
+On Thu, 31 Oct 2002, Jochen Friedrich wrote:
 
+> 2.4.45 compile on Alpha fails:
 
-This patch changed the parameters of ps2esdi_readwrite but didn't change
-the function prototype resulting in the following compile error:
+the old patch from Ivan Kokshaysky <ink@jurassic.park.msu.ru> fixed this,
+but then i hit the next one:
 
-<--  snip  -->
+  gcc -Wp,-MD,drivers/char/.eventpoll.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5
+-Wa,-mev6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=eventpoll
+-DEXPORT_SYMTAB  -c -o drivers/char/eventpoll.o drivers/char/eventpoll.c
+drivers/char/eventpoll.c:226: warning: initialization from incompatible
+pointer type
+drivers/char/eventpoll.c: In function `write_eventpoll':
+drivers/char/eventpoll.c:993: `POLLREMOVE' undeclared (first use in this
+function)
+drivers/char/eventpoll.c:993: (Each undeclared identifier is reported only
+once
+drivers/char/eventpoll.c:993: for each function it appears in.)
+drivers/char/eventpoll.c: In function `ep_poll':
+drivers/char/eventpoll.c:1056: warning: comparison is always false due to
+limited range of data type
+make[2]: *** [drivers/char/eventpoll.o] Error 1
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
 
-...
-  gcc -Wp,-MD,drivers/block/.ps2esdi.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic
--nostdinc -iwithprefix include    -DKBUILD_BASENAME=ps2esdi   -c -o
-drivers/block/ps2esdi.o drivers/block/ps2esdi.c
-...
-drivers/block/ps2esdi.c:566: conflicting types for `ps2esdi_readwrite'
-drivers/block/ps2esdi.c:77: previous declaration of `ps2esdi_readwrite'
-make[2]: *** [drivers/block/ps2esdi.o] Error 1
-
-<--  snip   -->
-
-
-The fix is simple:
-
-
---- linux-2.5.45-full/drivers/block/ps2esdi.c.old	2002-10-31 11:42:27.000000000 +0100
-+++ linux-2.5.45-full/drivers/block/ps2esdi.c	2002-10-31 12:11:50.000000000 +0100
-@@ -74,7 +74,7 @@
-
- static void do_ps2esdi_request(request_queue_t * q);
-
--static void ps2esdi_readwrite(int cmd, u_char drive, u_int block, u_int count);
-+static void ps2esdi_readwrite(int cmd, struct request *req);
-
- static void ps2esdi_fill_cmd_block(u_short * cmd_blk, u_short cmd,
- u_short cyl, u_short head, u_short sector, u_short length, u_char drive);
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--jochen
 

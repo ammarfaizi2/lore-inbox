@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130454AbQKPQ7M>; Thu, 16 Nov 2000 11:59:12 -0500
+	id <S130771AbQKPRAc>; Thu, 16 Nov 2000 12:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130497AbQKPQ6w>; Thu, 16 Nov 2000 11:58:52 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:56836 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S130454AbQKPQ6q>;
-	Thu, 16 Nov 2000 11:58:46 -0500
-Date: Thu, 16 Nov 2000 17:28:15 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com,
-        dhinds@valinux.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcmcia event thread. (fwd) 
-In-Reply-To: <12129.974384071@redhat.com>
-Message-ID: <Pine.LNX.4.21.0011161719180.23397-100000@svea.tellus>
+	id <S130770AbQKPRAW>; Thu, 16 Nov 2000 12:00:22 -0500
+Received: from slc1038.modem.xmission.com ([166.70.8.22]:15625 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S130497AbQKPRAJ> convert rfc822-to-8bit; Thu, 16 Nov 2000 12:00:09 -0500
+To: Juan <piernas@ditec.um.es>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Addressing logically the buffer cache
+In-Reply-To: <Pine.GSO.4.21.0011141445450.5482-100000@weyl.math.psu.edu> <3A11C480.A27E406B@ditec.um.es>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Nov 2000 09:18:31 -0700
+In-Reply-To: Juan's message of "Wed, 15 Nov 2000 00:02:24 +0100"
+Message-ID: <m1y9yj7uw8.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, David Woodhouse wrote:
+Juan <piernas@ditec.um.es> writes:
+
+> Alexander Viro escribió:
+> > 
+> > On Tue, 14 Nov 2000, Juan wrote:
+> > 
+> > > Hi!.
+> > >
+> > > Is there any patch or project to address logically the buffer cache?.
+> > > Now, you use three parameters to find a buffer in cache: device, block
+> > > number, and block size. But, what about if I want to find a buffer using
+> > > a super block, an inode number, and a block number within the file
+> > > specified by the inode number.
+> > 
+> > What's wrong with using the pagecache and per-page buffer_heads?
 > 
-> alan@lxorguk.ukuu.org.uk said:
-> >  Umm..  Linus drivers dont appear to be SMP safe on unload 
+> Suppose you are implementing a log-structured file system and a process
+> adds a new logical block to a file. Besides, suppose that the segment is
+> 512 KBytes in size. Usually, you don't want to write the segment before
+> it is full. The logical block hasn't got a physical address because you
+> don't build the segment until it is written to disk. So, what happens if
+> another process wants to access to the new block?.
 > 
-> AFAIK, no kernel threads are currently SMP safe on unload. However, 
-> the PCMCIA thread would be safe with the patch below, and we could fairly 
-> easily convert the others to use up_and_exit() once it's available.
+> You can't assign a physical address to the new block because the address
+> can change when the buffer is written to disk.
+
+So you don't assign a buffer head until you make the final decision.
+There are some interesting issues with how you track that your data
+is dirty but otherwise all is well.
 > 
-> Anyone using PCMCIA or CardBus with 2.4, even if you have a non-CardBus
-> i82365 or TCIC controller for which the driver was disabled in test11-pre5,
-> please could you test this? Especially if you have TCIC, in fact, because
-> it's already been tested successfully on yenta and i82365. 
-> 
-> (pcmcia-dif-7). Linus, this is the full patch against pre5, including the 
-> incremental part I sent this morning.
+> Perhaps, I'm wrong, but I think that the implementation of the BSD-LFS
+> needs to address logically the buffer cache.
 
-I have finally managed to find time to test it, and after five minutes, I
-must say that it looks very good. I was able to both plug and unplug
-cards, and cardmgr did what it was supposed to do. If something bad turns
-up, I will let you know.
+The linux vfs is quite different from the berkley one.  The linux page
+cache is much closer to the berkley block cache, then the depricated
+linux block cache.
 
-I vote for inclusion! :-)
-
-/Tobias
-
-
-dmesg info:
-
-Linux PCMCIA Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-Intel PCIC probe: 
-  Vadem VG-469 ISA-to-PCMCIA at port 0x3e0 ofs 0x00, 2 sockets
-    host opts [0]: none
-    host opts [1]: none
-    ISA irqs (scanned) = 3,4,5,7 polling interval = 1000 ms
-
-
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265211AbSK1LmM>; Thu, 28 Nov 2002 06:42:12 -0500
+	id <S265414AbSK1Lro>; Thu, 28 Nov 2002 06:47:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265414AbSK1LmM>; Thu, 28 Nov 2002 06:42:12 -0500
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:39431 "EHLO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
-	id <S265211AbSK1LmL> convert rfc822-to-8bit; Thu, 28 Nov 2002 06:42:11 -0500
-Date: Thu, 28 Nov 2002 12:49:29 +0100 (CET)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PROBLEM] NFS trouble - file corruptions
-In-Reply-To: <Pine.LNX.4.44.0211280930530.1818-100000@grignard.amagerkollegiet.dk>
-Message-ID: <Pine.LNX.4.44.0211281244570.1818-100000@grignard.amagerkollegiet.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S265423AbSK1Lrn>; Thu, 28 Nov 2002 06:47:43 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:8891 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S265414AbSK1Lrn>; Thu, 28 Nov 2002 06:47:43 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: Linux v2.5.50
+Date: 28 Nov 2002 11:35:43 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrnaubvsf.91i.kraxel@bytesex.org>
+References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com> <20021128014905.5378c5b2.us15@os.inf.tu-dresden.de> <slrnaubncv.7ef.kraxel@bytesex.org>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1038483343 9267 127.0.0.1 (28 Nov 2002 11:35:43 GMT)
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Nov 2002, Rasmus Bøg Hansen wrote:
+>  I'll rediff and put up a new patch later today for download (and resend
+>  stuff to Linus ...).
 
-> On 27 Nov 2002, Trond Myklebust wrote:
->
-> > >>>>> " " == Rasmus Bøg Hansen <moffe@amagerkollegiet.dk> writes:
-> >
-> >      > [1.] One line summary of the problem: Files created with
-> >      > bzip2/gzip directly to NFS file system gets corrupted
+Available now at http://bytesex.org/patches/2.5/
 
-> Both client and server now running 2.4.20-rc4, but unfortunately this
-> does not solve the problem:
-
-I just tried NFS over TCP and the problem occurs here too.
-
-If I have understood TCP correctly, this should make sure, that this is
-not a physical cabling error or data corruption in the NIC's...
-
-/Rasmus
+  Gerd
 
 -- 
--- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
-I think the sum of intelligence on the internet is constant.
-Only the number of users grows.
-                                 - Uwe Ohse in the monastery
-----------------------------------[ moffe at amagerkollegiet dot dk ] --
-
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

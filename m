@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311424AbSCWXwe>; Sat, 23 Mar 2002 18:52:34 -0500
+	id <S311445AbSCXAzk>; Sat, 23 Mar 2002 19:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311425AbSCWXwY>; Sat, 23 Mar 2002 18:52:24 -0500
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:30900 "EHLO
-	ringstrom.mine.nu") by vger.kernel.org with ESMTP
-	id <S311424AbSCWXwN>; Sat, 23 Mar 2002 18:52:13 -0500
-Date: Sun, 24 Mar 2002 00:52:05 +0100 (CET)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: tori@boris.prodako.se
-To: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CNet Fast Etherenet (Davicom DM9102AF)
-In-Reply-To: <20020323125942.13354efa.davidgn@servidor.unam.mx>
-Message-ID: <Pine.LNX.4.44.0203240036210.7457-100000@boris.prodako.se>
+	id <S311452AbSCXAza>; Sat, 23 Mar 2002 19:55:30 -0500
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:41175 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S311445AbSCXAzU>;
+	Sat, 23 Mar 2002 19:55:20 -0500
+Message-ID: <3C9D23F5.1020008@tmsusa.com>
+Date: Sat, 23 Mar 2002 16:55:17 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020321
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Trash <trash@thux.net>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Automatic Reply from Trash
+In-Reply-To: <THX6061C3453@thux.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Mar 2002, David Eduardo Gomez Noguera wrote:
+How did this fool get on the list?
 
-> Hello.
-> I have just got this card.
-> On the 3 1/2 diskette there is code for the module. these two files:
-> dm9xs.c  dmfe.c
-> but the linux kernel 2.4.17 has got dmfe.c only.
+Joe
 
-The version in the kernel is based on the latest dm9xs.c driver, but is 
-called dmfe.c.  I have no idea why Davicom decided to rename the driver 
-for 2.4.
+Trash wrote:
 
-> The files that came with the card are said to be for 2.4 and 2.2
-> respectively.
+>Your message :- 
+>  "Re: kfree_skb on hard IRQ c019aa41" on 	Wed, 20 Mar 2002 10:32:48 -0800
+>has been trashed.
+>
+>All e-mail from you has been barred permanently from 
+>being received by any e-mail addresses at this site - 
+>please take your spam and numerous mailing list to 
+>which I have never subscribed and put them elsewhere
+>
 
-Correct.  
 
-> How does the dmfe.c from the latest kernel differs from the ones that
-> come with the card? and which should I stick with?
-
-The version in the kernel is based on the latest dm9xs.c driver, but
-contains some fixes that are not present in Davicom's driver.  I recommend
-using the one included with the Linux kernel.
-
-As Alan mentioned, you can also use the tulip driver with this card since
-it is (yet) a(nother) tulip clone.  With your card you will probably get
-better tx performance using the tulip driver at the moment.
-
-/Tobias
 

@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbTBVEhb>; Fri, 21 Feb 2003 23:37:31 -0500
+	id <S266810AbTBVEzm>; Fri, 21 Feb 2003 23:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266851AbTBVEhb>; Fri, 21 Feb 2003 23:37:31 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:62911 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S264908AbTBVEha>; Fri, 21 Feb 2003 23:37:30 -0500
-Message-ID: <3E5700EA.9070905@blue-labs.org>
-Date: Fri, 21 Feb 2003 23:47:38 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OOPS] 2.5.62, bootup, do_add_mount
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266851AbTBVEzm>; Fri, 21 Feb 2003 23:55:42 -0500
+Received: from bitmover.com ([192.132.92.2]:52639 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S266810AbTBVEzm>;
+	Fri, 21 Feb 2003 23:55:42 -0500
+Date: Fri, 21 Feb 2003 21:05:14 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
+       lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030222050514.GA3148@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
+	lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
+References: <96700000.1045871294@w-hlinder> <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay> <20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14450000.1045888349@[10.10.2.4]>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pentium II, kernel compiled with gcc 2.95.3
+On Fri, Feb 21, 2003 at 08:32:30PM -0800, Martin J. Bligh wrote:
+> > "fixing it", huh?  Your "fixes" may be great for your tiny segment of 
+> > the market but they are not going to be welcome if they turn Linux into
+> > BloatOS 9.8.
+> 
+> They won't - the maintainers would never allow us to do that.
 
-[...]
-802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
-All bugs added by David S. Miller <davem@redhat.com>
-BIOS EDD facility v0.09 2003-Jan-22, 3 devices found
-ACPI: (supports S0 S1 S4 S5)
-Started krxiod 12
-Started krxsecd 13
-(filter_get_filter_fs,l. 234): ops at c05d4918
-(fs/intermezzo/super.c:presto_get_sb,l. 253 1): Presto: unrecognized fs 
-type or cache type
-Unable to handle kernel NULL pointer dereference at virtual address 0000003c
- printing eip:
-c016a6a4
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c016a6a4>]    Not tainted
-EFLAGS: 00010217
-EIP is at do_kern_mount+0x58/0xa8
-eax: 00000000   ebx: c3fe9720   ecx: c3f55000   edx: c3f55010
-esi: 00000000   edi: c05124a0   ebp: c3fcbee0   esp: c3fcbed4
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c3fca000 task=c3fc8000)
-Stack: 00008001 c3fca000 c3e2800a c3fcbf04 c0186546 c3e28000 00008001 
-c11ff000
-       00000000 00008001 00000000 c3fcbf38 c3fcbf54 c018683d c3fcbf38 
-c3e28000
-       00008001 00000000 c11ff000 00000000 c3fca000 00000001 c3e29000 
-c11ff000
-Call Trace:
- [<c0186546>] do_add_mount+0x62/0x150
- [<c018683d>] do_mount+0x139/0x150
- [<c018718e>] sys_mount+0x136/0x224
- [<c010545e>] prepare_namespace+0xfe/0x140
- [<c01051a5>] init+0xcd/0x288
- [<c01050d8>] init+0x0/0x288
- [<c0107211>] kernel_thread_helper+0x5/0xc
+The path to hell is paved with good intentions.  
 
-Code: 8b 46 3c 85 c0 74 06 ff 00 80 48 04 08 89 43 10 8b 46 3c 89
- <0>Kernel panic: Attempted to kill init!
+> > Really?  How about some figures?  You'd need HUGE profit margins to 
+> > justify your position, how about some actual hard cold numbers?
+> 
+> I don't have them to hand, but if you think anyone's making money on
+> PCs nowadays, you're delusional (with respect to hardware). 
 
+Let's see, Dell has a $66B market cap, revenues of $8B/quarter and 
+$500M/quarter in profit.    
+
+Lots of people working for companies who haven't figured out how to do
+it as well as Dell *say* it can't be done but numbers say differently.
 -- 
-I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
-
-When it absolutely, positively, has to be destroyed overnight.
-                           AIR FORCE
-
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbUBUKIU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 05:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUBUKIU
+	id S261540AbUBUKaK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 05:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUBUKaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 05:08:20 -0500
-Received: from 0x50c49cd1.adsl-fixed.tele.dk ([80.196.156.209]:64516 "EHLO
-	redeeman") by vger.kernel.org with ESMTP id S261538AbUBUKIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 05:08:18 -0500
-Message-ID: <1271.192.168.1.7.1077358097.squirrel@redeeman.linux.dk>
-In-Reply-To: <20040220230529.GB32153@elf.ucw.cz>
-References: <33009.192.168.1.7.1077217546.squirrel@redeeman.linux.dk>
-    <20040220230529.GB32153@elf.ucw.cz>
-Date: Sat, 21 Feb 2004 11:08:17 +0100 (CET)
-Subject: Re: powernow-k8 havent been tested on preemptive - have now
-From: "Redeeman" <redeeman@metanurb.dk>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 21 Feb 2004 05:30:10 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:60631 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261540AbUBUKaG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 05:30:06 -0500
+Message-ID: <40372BCE.7090708@us.ibm.com>
+Date: Sat, 21 Feb 2004 01:58:38 -0800
+From: Mike Christie <mikenc@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joe Thornber <thornber@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/6] dm: endio method
+References: <20040220153145.GN27549@reti> <20040220153403.GO27549@reti>
+In-Reply-To: <20040220153403.GO27549@reti>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-Importance: Normal
-X-Mime-Autoconverted: from 8bit to 7bit by courier 0.44
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yes, this is how i fixed it myself too, but i thought it would need more
-than this. but obviously not.
+Joe Thornber wrote:
 
-Greets, Redeeman
+> Add an endio method to targets.  This method is allowed to request
+> another shot at failed ios (think multipath). 
 
 
-> Hi!
->
->> hi, i have been seeing the message that powernow-k8 havent been tested
->> on
->> a preemptive system, for a couple of kernel versions i have been
->> running,
->> and i just want to tell you that it is working absolutely perfect, great
->> job!
->>
->> if there is any questions/comments i would be glad if you would cc them
->> to
->> redeeman@<no-spam>metanurb.dk , thanks!
->
-> Okay, in such case we should probably do this:
-> 									Pavel
->
-> --- tmp/linux/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2004-02-21
-> 00:04:41.000000000 +0100
-> +++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2004-02-21
-> 00:04:20.000000000 +0100
-> @@ -34,10 +34,6 @@
->  #define VERSION "version 1.00.08a"
->  #include "powernow-k8.h"
->
-> -#ifdef CONFIG_PREEMPT
-> -#warning this driver has not been tested on a preempt system
-> -#endif
-> -
->  static u32 vstable;	/* voltage stabalization time, from PSB, units 20 us
-> */
->  static u32 plllock;	/* pll lock time, from PSB, units 1 us */
->  static u32 numps;	/* number of p-states, from PSB */
->
->
-> --
-> When do you have a heart between your knees?
-> [Johanka's followup: and *two* hearts?]
->
->
+> +	if (endio) {
+> +		/* Restore bio fields. */
+> +		bio->bi_sector = tio->bi_sector;
+> +		bio->bi_bdev = tio->bi_bdev;
+> +		bio->bi_size = tio->bi_size;
+> +		bio->bi_idx = tio->bi_idx;
+> +
+> +		r = endio(tio->ti, bio, error, &tio->info);
 
+
+> +	r = ti->type->map(ti, clone, &tio->info);
+> +	if (r > 0) {
+> +		/* Save the bio info so we can restore it during endio. */
+> +		tio->bi_sector = clone->bi_sector;
+> +		tio->bi_bdev = clone->bi_bdev;
+> +		tio->bi_size = clone->bi_size;
+> +		tio->bi_idx = clone->bi_idx;
+
+
+Saving and restoring bi_bdev is going to break multipath. When a bio is 
+remapped and resent multiple times by the target becuase of multiple 
+path failures, restoring bi_bdev to the original value will cause only 
+that path to be marked as failed instead of the paths that the bio was 
+remapped to.
+
+This is DM's cloned bio. Is there a guarantee that this value should be 
+safe from lower level drivers overwriting it, or is it similar to b_rdev 
+for buffer_heads?
+
+Mike Christie

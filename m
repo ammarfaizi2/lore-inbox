@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSBMV1N>; Wed, 13 Feb 2002 16:27:13 -0500
+	id <S288959AbSBMVfX>; Wed, 13 Feb 2002 16:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288955AbSBMV0y>; Wed, 13 Feb 2002 16:26:54 -0500
-Received: from pat.uio.no ([129.240.130.16]:16292 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S288953AbSBMV0r>;
-	Wed, 13 Feb 2002 16:26:47 -0500
-To: Craig Christophel <merlin@transgeek.com>
-Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-Subject: Re: [PATCH] -- filesystems.c::sys_nfsservctl
-In-Reply-To: <20020213205144Z282414-24962+32@thor.valueweb.net>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 Feb 2002 22:26:35 +0100
-In-Reply-To: <20020213205144Z282414-24962+32@thor.valueweb.net>
-Message-ID: <shsd6z9dqes.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S288969AbSBMVfO>; Wed, 13 Feb 2002 16:35:14 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:3245 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S288959AbSBMVfH>; Wed, 13 Feb 2002 16:35:07 -0500
+Message-Id: <200202132047.NAA03164@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [PATCH] 2.5.4, add 1 help text to drivers/video/Config.help
+Date: Wed, 13 Feb 2002 14:33:55 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Craig Christophel <merlin@transgeek.com> writes:
+The drivers/video/Config.in file contains 3 options which do not have any 
+help text in drivers/video/Config.help (or anywhere else).
 
-     > Ok guys get ready to flame me....
-     > 	The attached patch removes the lock/unlock in this function.
-     > 	Now I am 80%
-     > sure of this one, but would like a word from the kmod
-     > maintainer about whether request_module needs the BKL or not.
-     > do_nfsservctl already takes the BKL inside the function so as
-     > long as request_module is safe this pair can be removed --
-     > effectively making do_nfsservctl responsible for it's own
-     > locking scheme.
+The following patch provides a help text for CONFIG_FB_TX3912.  The other
+two options which could use help texts are CONFIG_FB_PCI and CONFIG_FB_SUN3.
 
-What would remain to protect 'nfsd_linkage' if you removed the BKL?
+Steven
 
-Cheers,
-  Trond
+--- linux-2.5.4/drivers/video/Config.help.orig  Wed Feb 13 13:55:31 2002
++++ linux-2.5.4/drivers/video/Config.help       Wed Feb 13 13:55:42 2002
+@@ -569,6 +569,12 @@
+   The IMS Twin Turbo is a PCI-based frame buffer card bundled with
+   many Macintosh and compatible computers.
+
++CONFIG_FB_TX3912
++  The TX3912 is a Toshiba RISC processor based on the MIPS 3900 core;
++  see <http://www.toshiba.com/taec/components/Generic/risc/tx3912.htm>.
++
++  Say Y here to enable kernel support for the on-board framebuffer.
++
+ CONFIG_FB_VIRTUAL
+   This is a `virtual' frame buffer device. It operates on a chunk of
+   unswappable kernel memory instead of on the memory of a graphics

@@ -1,171 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131186AbRAGMpK>; Sun, 7 Jan 2001 07:45:10 -0500
+	id <S131338AbRAGMsL>; Sun, 7 Jan 2001 07:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbRAGMpB>; Sun, 7 Jan 2001 07:45:01 -0500
-Received: from [202.158.36.82] ([202.158.36.82]:27384 "EHLO
-	asmuni.trustix.co.id") by vger.kernel.org with ESMTP
-	id <S131186AbRAGMox>; Sun, 7 Jan 2001 07:44:53 -0500
-Date: Sun, 7 Jan 2001 19:44:38 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] plan9 partition support 
-Message-ID: <Pine.LNX.4.30.0101071943310.27014-200000@asmuni.trustix.co.id>
+	id <S131430AbRAGMrv>; Sun, 7 Jan 2001 07:47:51 -0500
+Received: from slamp.tomt.net ([195.139.204.145]:56719 "HELO slamp.tomt.net")
+	by vger.kernel.org with SMTP id <S131338AbRAGMro>;
+	Sun, 7 Jan 2001 07:47:44 -0500
+From: "Andre Tomt" <andre@tomt.net>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: "Ville Herva" <vherva@mail.niksula.cs.hut.fi>
+Subject: RE: Which kernel fixes the VM issues?
+Date: Sun, 7 Jan 2001 13:47:39 +0100
+Message-ID: <OPECLOJPBIHLFIBNOMGBKENCCHAA.andre@tomt.net>
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="-1463811051-2042799760-978869960=:26662"
-Content-ID: <Pine.LNX.4.30.0101071943311.27014@asmuni.trustix.co.id>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20010107140607.J1265@niksula.cs.hut.fi>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+> > This issue is fixed in 2.2.18 AFAIK (never seen it since).
+>
+> Nope.
+>
+> It's fixed 2.2.19pre2 (which includes the Andrea Arcangeli's vm-global-7
+> patch that (among other things) fixes this.)
 
----1463811051-2042799760-978869960=:26662
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.30.0101071943312.27014@asmuni.trustix.co.id>
+I stand corrected. Still, with almost-vanilla 2.2.18 (+ ow patches) on a
+highly loaded webserver has not shown any "LRU block list corruption"
+crashes in over 6 weeks, even when it usually died after a week on 2.2.17
+with the same error (if memory serves me right). Could be the system tuning
+that has "fixed" this by making the usual load not - err - load the server
+as much as before.
 
+> You can also apply the vm-global-patch to 2.2.18 if you like.
 
+Yep, as stated in my previous mail :-)
 
-	hi all,
+Ah well, time to go pack for military service (1 year, bleh).
 
+Thanks.
 
-	this one patch i believe is harmless as it only
-	reads partition table, but who knows. the diff
-	is against 2.4.0.
+--
+Andre? Alfred.
 
-	the patch locates partitions inside the plan9
-	partition table.
-
-	as you may know, a plan9 partition table has three
-	type of partitions inside (9fat, fs, and swap).
-	9fat is fat16.
-
-	plan9 puts its boot loader in the 9fat partition.
-	with this patch i can locate the 9fat partition so
-	lilo could boot plan9.
-
-	with msdos file system, linux will mount 9fat partition,
-	so you could use the 9fat partition from linux and plan9.
-
-	i can't find anyone with plan9 to test, but it works for
-	me, so... i'm not on the list anymore, so please cc.
-
-
-		imel
-
----1463811051-2042799760-978869960=:26662
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-plan9.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0101071944380.27014@asmuni.trustix.co.id>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-plan9.diff"
-
-ZGlmZiAtdXIgbGludXh+L0RvY3VtZW50YXRpb24vQ29uZmlndXJlLmhlbHAg
-bGludXgvRG9jdW1lbnRhdGlvbi9Db25maWd1cmUuaGVscA0KLS0tIGxpbnV4
-fi9Eb2N1bWVudGF0aW9uL0NvbmZpZ3VyZS5oZWxwCUZyaSBKYW4gIDUgMTY6
-Mjc6NDMgMjAwMQ0KKysrIGxpbnV4L0RvY3VtZW50YXRpb24vQ29uZmlndXJl
-LmhlbHAJU3VuIEphbiAgNyAxODoyMjoyNSAyMDAxDQpAQCAtMTE0NzAsNiAr
-MTE0NzAsMTcgQEANCiAgIFNheSBZIGhlcmUgaWYgeW91IHdvdWxkIGxpa2Ug
-dG8gdXNlIGhhcmQgZGlza3MgdW5kZXIgTGludXggd2hpY2gNCiAgIHdlcmUg
-cGFydGl0aW9uZWQgb24gYW4geDg2IFBDIChub3QgbmVjZXNzYXJpbHkgYnkg
-RE9TKS4NCiANCitQbGFuOSBwYXJ0aXRpb24gdGFibGUgc3VwcG9ydCAoRVhQ
-RVJJTUVOVEFMKQ0KK0NPTkZJR19QTEFOOV9QQVJUSVRJT04NCisgIFBsYW45
-IHVzZXMgaXRzIG93biBoYXJkIGRpc2sgcGFydGl0aW9uIHNjaGVtZSBvbiB5
-b3VyIFBDLiBJdA0KKyAgcmVxdWlyZXMgb25seSBvbmUgZW50cnkgaW4gdGhl
-IHByaW1hcnkgcGFydGl0aW9uIHRhYmxlIG9mIHlvdXIgZGlzaw0KKyAgYW5k
-IG1hbmFnZXMgaXQgc2ltaWxhcmx5IHRvIERPUyBleHRlbmRlZCBwYXJ0aXRp
-b25zLiBQbGFuOSBoYXMgRkFUMTYNCisgIGZpbGVzeXN0ZW0gYXMgdGhlIGZp
-cnN0IHBhcnRpdGlvbiB0byBwdXQgaXRzIGJvb3QgbG9hZGVyLiBTYXlpbmcg
-WQ0KKyAgaGVyZSBhbGxvd3MgeW91IHRvIHJlYWQgdGhlIGV4aXN0aW5nIHBh
-cnRpdGlvbiwgYW5kIG1vdW50IHRoZSBGQVQNCisgIHBhcnRpdGlvbiBmcm9t
-IHdpdGhpbiBMaW51eCAoaWYgeW91IGhhdmUgYWxzbyBzYWlkIFkgdG8gIk1T
-RE9TIGZpbGUNCisgIHN5c3RlbSBzdXBwb3J0IiksIHdoaWNoIGdpdmVzIHlv
-dSB0aGUgYWJpbGl0eSB0byBtYWtlIExJTE8gd29yayB3aXRoDQorICBQbGFu
-OS4gSWYgeW91IGRvbid0IGtub3cgd2hhdCBhbGwgdGhpcyBpcyBhYm91dCwg
-c2F5IE4uDQorDQogQlNEIGRpc2tsYWJlbCAoRnJlZUJTRCBwYXJ0aXRpb24g
-dGFibGVzKSBzdXBwb3J0DQogQ09ORklHX0JTRF9ESVNLTEFCRUwNCiAgIEZy
-ZWVCU0QgdXNlcyBpdHMgb3duIGhhcmQgZGlzayBwYXJ0aXRpb24gc2NoZW1l
-IG9uIHlvdXIgUEMuIEl0DQpkaWZmIC11ciBsaW51eH4vZnMvcGFydGl0aW9u
-cy9Db25maWcuaW4gbGludXgvZnMvcGFydGl0aW9ucy9Db25maWcuaW4NCi0t
-LSBsaW51eH4vZnMvcGFydGl0aW9ucy9Db25maWcuaW4JTW9uIEp1bCAxMCAx
-MjoyMTo0MSAyMDAwDQorKysgbGludXgvZnMvcGFydGl0aW9ucy9Db25maWcu
-aW4JU3VuIEphbiAgNyAxODozNzoyNyAyMDAxDQpAQCAtMjMsNiArMjMsNyBA
-QA0KICAgICAgIGJvb2wgJyAgICBCU0QgZGlza2xhYmVsIChGcmVlQlNEIHBh
-cnRpdGlvbiB0YWJsZXMpIHN1cHBvcnQnIENPTkZJR19CU0RfRElTS0xBQkVM
-DQogICAgICAgYm9vbCAnICAgIFNvbGFyaXMgKHg4NikgcGFydGl0aW9uIHRh
-YmxlIHN1cHBvcnQnIENPTkZJR19TT0xBUklTX1g4Nl9QQVJUSVRJT04NCiAg
-ICAgICBib29sICcgICAgVW5peHdhcmUgc2xpY2VzIHN1cHBvcnQnIENPTkZJ
-R19VTklYV0FSRV9ESVNLTEFCRUwNCisgICAgICBkZXBfYm9vbCAnICAgIFBs
-YW45IHBhcnRpdGlvbiBzdXBwb3J0IChFWFBFUklNRU5UQUwpJyBDT05GSUdf
-UExBTjlfUEFSVElUSU9OICRDT05GSUdfRVhQRVJJTUVOVEFMDQogICAgZmkN
-CiAgICBib29sICcgIFNHSSBwYXJ0aXRpb24gc3VwcG9ydCcgQ09ORklHX1NH
-SV9QQVJUSVRJT04NCiAgICBib29sICcgIFVsdHJpeCBwYXJ0aXRpb24gdGFi
-bGUgc3VwcG9ydCcgQ09ORklHX1VMVFJJWF9QQVJUSVRJT04NCmRpZmYgLXVy
-IGxpbnV4fi9mcy9wYXJ0aXRpb25zL21zZG9zLmMgbGludXgvZnMvcGFydGl0
-aW9ucy9tc2Rvcy5jDQotLS0gbGludXh+L2ZzL3BhcnRpdGlvbnMvbXNkb3Mu
-YwlGcmkgTm92IDE3IDE3OjE4OjQ2IDIwMDANCisrKyBsaW51eC9mcy9wYXJ0
-aXRpb25zL21zZG9zLmMJU3VuIEphbiAgNyAxODo0NjozNCAyMDAxDQpAQCAt
-MTcsNiArMTcsOCBAQA0KICAqICBDaGVjayBwYXJ0aXRpb24gdGFibGUgb24g
-SURFIGRpc2tzIGZvciBjb21tb24gQ0hTIHRyYW5zbGF0aW9ucw0KICAqDQog
-ICogIFJlLW9yZ2FuaXNlZCBGZWIgMTk5OCBSdXNzZWxsIEtpbmcNCisgKg0K
-KyAqICBwbGFuOSBwYXJ0aXRpb24gaGFjayAyMDAxIEphbiwgaW1lbDk2QHRy
-dXN0aXguY29tDQogICovDQogDQogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5o
-Pg0KQEAgLTIyOCw2ICsyMzAsNTUgQEANCiB9DQogI2VuZGlmDQogDQorI2lm
-ZGVmIENPTkZJR19QTEFOOV9QQVJUSVRJT04NCisNCitzdGF0aWMgdm9pZCBh
-ZGRfcGxhbjlfcGFydGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwgc3RydWN0
-IHBsYW45X3BhcnRpdGlvbg0KKwkqcGxhbjlfcCwgaW50IG1pbm9yKQ0KK3sN
-CisJYWRkX2dkX3BhcnRpdGlvbihoZCwgY3VycmVudF9taW5vciwgcGxhbjlf
-cC0+cF9vZmZzZXQsIHBsYW45X3AtPnBfc2l6ZSk7DQorCWN1cnJlbnRfbWlu
-b3IrKzsNCit9DQorDQorLyogDQorICogQ3JlYXRlIGRldmljZXMgZm9yIHBs
-YW45IHBhcnRpdGlvbnMgbGlzdGVkIGluIGEgZGlza2xhYmVsLCB1bmRlciBh
-DQorICogZG9zLWxpa2UgcGFydGl0aW9uLiBTZWUgYnNkIGNvZGUgZm9yIG1v
-cmUgaW5mb3JtYXRpb24uDQorICovDQorc3RhdGljIHZvaWQgcGxhbjlfZGlz
-a2xhYmVsX3BhcnRpdGlvbihzdHJ1Y3QgZ2VuZGlzayAqaGQsIGludCBtaW5v
-ciwgaW50IHN0X3NlYykNCit7DQorCXN0cnVjdCBidWZmZXJfaGVhZCAqYmg7
-DQorCXN0cnVjdCBwbGFuOV9wYXJ0aXRpb24gcDsNCisJY2hhciAqIHB0cjsN
-CisJY2hhciBidWZbNDBdOw0KKw0KKwlpZiAoIShiaCA9IGdldF9wYXJ0aXRp
-b25fdGFibGVfYmxvY2soaGQsIG1pbm9yLCAwKSkpDQorCQlyZXR1cm47DQor
-DQorCXByaW50aygiICVzOiA8cGxhbjk6IiwgZGlza19uYW1lKGhkLCBtaW5v
-ciwgYnVmKSk7DQorCXB0ciA9IGJoLT5iX2RhdGEgKyAweDIwMDsNCisNCisJ
-d2hpbGUgKCFzdHJuY21wKHB0ciwgInBhcnQiLCA0KSkgew0KKw0KKwkJLyog
-bG9jYXRlIG9mZnNldCBudW1iZXIgKHdoaWNoIGlzIHR3byBzcGFjZXMgYXdh
-eSkgKi8NCisJCXdoaWxlICgqcHRyKysgIT0gJyAnKTsNCisJCXdoaWxlICgq
-cHRyKysgIT0gJyAnKTsNCisJCXAucF9vZmZzZXQgPSBzaW1wbGVfc3RydG91
-bChwdHIsIE5VTEwsIDEwKTsNCisNCisJCS8qIGZpbmQgZW5kIHNlY3RvciBu
-dW1iZXIgKG5leHQgbnVtYmVyKSAqLw0KKwkJd2hpbGUgKCpwdHIrKyAhPSAn
-ICcpOw0KKwkJcC5wX3NpemUgPSBzaW1wbGVfc3RydG91bChwdHIsIE5VTEws
-IDEwKSAtIHAucF9vZmZzZXQ7DQorCQlwLnBfb2Zmc2V0ICs9IHN0X3NlYzsN
-CisNCisJCWFkZF9wbGFuOV9wYXJ0aXRpb24oaGQsICZwLCBtaW5vcik7DQor
-DQorCQkvKiBnbyBvbiB0byBuZXh0IHBhcnRpdGlvbiAqLw0KKwkJd2hpbGUg
-KCpwdHIrKyAhPSAnXG4nKTsNCisJfQ0KKwliZm9yZ2V0KGJoKTsNCisJcHJp
-bnRrKCIgPlxuIik7DQorfQ0KKw0KKyNlbmRpZg0KKw0KICNpZmRlZiBDT05G
-SUdfQlNEX0RJU0tMQUJFTA0KIHN0YXRpYyB2b2lkDQogY2hlY2tfYW5kX2Fk
-ZF9ic2RfcGFydGl0aW9uKHN0cnVjdCBnZW5kaXNrICpoZCwNCkBAIC00OTks
-NiArNTUwLDEwIEBADQogCQkgICAgU1lTX0lORChwKSA9PSBORVRCU0RfUEFS
-VElUSU9OIHx8DQogCQkgICAgU1lTX0lORChwKSA9PSBPUEVOQlNEX1BBUlRJ
-VElPTikNCiAJCQlic2RfZGlza2xhYmVsX3BhcnRpdGlvbihoZCwgbWlub3Is
-IFNZU19JTkQocCkpOw0KKyNlbmRpZg0KKyNpZmRlZiBDT05GSUdfUExBTjlf
-UEFSVElUSU9ODQorCQlpZiAoU1lTX0lORChwKSA9PSBQTEFOOV9QQVJUSVRJ
-T04pDQorCQkJcGxhbjlfZGlza2xhYmVsX3BhcnRpdGlvbihoZCwgbWlub3Is
-IFNUQVJUX1NFQ1QocCkpOw0KICNlbmRpZg0KICNpZmRlZiBDT05GSUdfVU5J
-WFdBUkVfRElTS0xBQkVMDQogCQlpZiAoU1lTX0lORChwKSA9PSBVTklYV0FS
-RV9QQVJUSVRJT04pDQpkaWZmIC11ciBsaW51eH4vaW5jbHVkZS9saW51eC9n
-ZW5oZC5oIGxpbnV4L2luY2x1ZGUvbGludXgvZ2VuaGQuaA0KLS0tIGxpbnV4
-fi9pbmNsdWRlL2xpbnV4L2dlbmhkLmgJRnJpIE5vdiAxNyAxNzoyMzo1NiAy
-MDAwDQorKysgbGludXgvaW5jbHVkZS9saW51eC9nZW5oZC5oCVN1biBKYW4g
-IDcgMTc6NTU6MTUgMjAwMQ0KQEAgLTEwMyw2ICsxMDMsMTcgQEANCiANCiAj
-ZW5kaWYgLyogQ09ORklHX1NPTEFSSVNfWDg2X1BBUlRJVElPTiAqLw0KIA0K
-KyNpZmRlZiBDT05GSUdfUExBTjlfUEFSVElUSU9ODQorDQorI2RlZmluZSBQ
-TEFOOV9QQVJUSVRJT04JMHgzOQ0KKw0KK3N0cnVjdAlwbGFuOV9wYXJ0aXRp
-b24gewkvKiB0aGUgcGFydGl0aW9uIHRhYmxlICovDQorCV9fdTMyCXBfc2l6
-ZTsJCS8qIG51bWJlciBvZiBzZWN0b3JzIGluIHBhcnRpdGlvbiAqLw0KKwlf
-X3UzMglwX29mZnNldDsJLyogc3RhcnRpbmcgc2VjdG9yICovDQorfTsNCisN
-CisjZW5kaWYNCisNCiAjaWZkZWYgQ09ORklHX0JTRF9ESVNLTEFCRUwNCiAv
-Kg0KICAqIEJTRCBkaXNrbGFiZWwgc3VwcG9ydCBieSBZb3NzaSBHb3R0bGll
-YiA8eW9nb0BtYXRoLnRhdS5hYy5pbD4NCg==
----1463811051-2042799760-978869960=:26662--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

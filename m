@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287731AbSANRAc>; Mon, 14 Jan 2002 12:00:32 -0500
+	id <S287720AbSANRGW>; Mon, 14 Jan 2002 12:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287720AbSANRAM>; Mon, 14 Jan 2002 12:00:12 -0500
-Received: from zeke.inet.com ([199.171.211.198]:16782 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S287734AbSANRAH>;
-	Mon, 14 Jan 2002 12:00:07 -0500
-Message-ID: <3C430E89.E65DCEDC@inet.com>
-Date: Mon, 14 Jan 2002 10:59:53 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-10enterprise i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA hardware discovery -- the elegant solution
-In-Reply-To: <F50839283B51D211BC300008C7A4D63F0C10759D@eukgunt002.uk.eu.ericsson.se> <20020114111141.A14332@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S287743AbSANRGM>; Mon, 14 Jan 2002 12:06:12 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:41639 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S287720AbSANRF6>; Mon, 14 Jan 2002 12:05:58 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 14 Jan 2002 08:32:28 -0800
+Message-Id: <200201141632.IAA15002@adam.yggdrasil.com>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: linux-2.5.2-pre11/drivers/block/loop.c -- garbage reads
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> 
-> Michael Lazarou (ETL) <Michael.Lazarou@etl.ericsson.se>:
-> > Doesn't this mean that you would need a fully functional kernel
-> > before you get to run the autoconfigurator?
-> 
-> Yes, but this was always true.
+	This does not affect the patch that I posted, but I wish to
+update one remark that I made:
 
-And if the reason you are building a new kernel is that the old one is
-mis-identifying some of your hardware? ;)
+>         By the way, there are plenty of other problems with
+> loop.c, such as the fact that it hangs my note book computer
+> in "disk I/O" (presumably to /dev/loop/0) every time it boots,
 
-Could you maybe describe the problem you are trying to solve a bit more
-clearly than "the hardware-discovery problem for ISA devices"?  If you
-are trying to discover the ISA devices, but rely upon them having
-already been discovered, what are you accomplishing?
+	I must apologize for suggesting that that was another loop.c
+bug.  It turns out that this is a devfsd quirk that disappeared when I
+updated to the latest devfsd (it has to do with recent kernels
+using a different test to determine which processes are children of
+devfsd).
 
-Puzzled,
-
-Eli
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

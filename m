@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261952AbSJITpP>; Wed, 9 Oct 2002 15:45:15 -0400
+	id <S261920AbSJITnT>; Wed, 9 Oct 2002 15:43:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261990AbSJITpP>; Wed, 9 Oct 2002 15:45:15 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:54154 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261952AbSJIToi>;
-	Wed, 9 Oct 2002 15:44:38 -0400
-Message-ID: <3DA48875.6020604@colorfullife.com>
-Date: Wed, 09 Oct 2002 21:50:13 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S261936AbSJITnT>; Wed, 9 Oct 2002 15:43:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63755 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261920AbSJITnR>; Wed, 9 Oct 2002 15:43:17 -0400
+Date: Wed, 9 Oct 2002 12:47:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.GSO.4.21.0210091520000.8980-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0210091241050.24067-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] CONFIG_DEBUG_SLAB broken on SMP
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem appears to be in the SMP version of __kmem_cache_alloc()
-> and __kmem_cache_free(), where it simply sticks the obj in the per-CPU
-> list without doing the poison or redzone stuff that is done inside
-> kmem_cache_free_one_tail().
-> 
-The simplest solution is to skip the code that enables the per-cpu 
-caches if debugging is enabled:
 
-Search for enable_all_cpucaches in mm/slab.c, and skip the call if DEBUG 
-is enabled.
+On Wed, 9 Oct 2002, Alexander Viro wrote:
+>
+> Even aside of the problems with putting filesystems (and filesystem types)
+> into driverfs (can_unload() for each fs module?), partitions _ARE_ reused.
+> So logics with ->release() will be a killer.
 
-2.5.41-mm1 contains a partially rewritten slab, which performs the 
-poisoning before adding an object into the cpu caches. Additionally, 
-even caches with constructors are not poisoned - ctor and dtor calls are 
-performed in kmem_cache_alloc/free.
+Note that we don't actually do this yet, and when/if we do it it obviously
+will require us to have the association data structures in place. And
+clearly the rule would have to be that a partition can't be re-used while
+a filesystem is busily bound to it - and that has nothing to do with
+driverfs/kernel/sysfs/xxxfs.
 
---
-	Manfred
+(That rule pretty much exists already, although we obviously don't
+_enforce_ the rule, since we don't even have the data structure linkages
+in place).
+
+As to the "can_unload()" thing, I really suspect that the reason it shows 
+up is because module unloading is fundamentally broken - again regardless 
+of any driverfs issues. Talk to Rusty some day about it ;)
+
+(Side note: it may be that we could _fix_ module unloading by adding a
+driverfs node to modules too, and getting rid of the "single module count"  
+thing, and replacing it with a more generic "list of nodes using it".  
+The reason module unloading is so painful largely is exactly the fact that
+we only have a count, and the generic module layer has no idea what is
+actually _using_ the module - except for other modules. In other words, we
+get the inter-module dependencies right, but we don't see any other
+dependencies).
+
+		Linus
+
 

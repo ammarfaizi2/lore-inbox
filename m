@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbUJ1N5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbUJ1OKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbUJ1N5e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 09:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUJ1N5V
+	id S261211AbUJ1OKA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUJ1OKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 09:57:21 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21654 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261211AbUJ1Nz5 (ORCPT
+	Thu, 28 Oct 2004 10:10:00 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:10637 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261211AbUJ1OJ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 09:55:57 -0400
-Date: Thu, 28 Oct 2004 15:57:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
-Message-ID: <20041028135706.GA25849@elte.hu>
-References: <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93> <20041028093215.GA27694@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028093215.GA27694@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 28 Oct 2004 10:09:58 -0400
+Message-ID: <4180FDB3.8080305@g-house.de>
+Date: Thu, 28 Oct 2004 16:09:55 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.6+ (Windows/20041008)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa-devel] Oops in 2.6.10-rc1
+References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz>
+In-Reply-To: <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jaroslav Kysela wrote:
+> On Thu, 28 Oct 2004, Christian wrote:
+> 
+> 
+>>  [<c01fc7b8>] pci_enable_device_bars+0x28/0x40
+>>  [<c01fc7ef>] pci_enable_device+0x1f/0x40
+>>  [<e082729d>] snd_ensoniq_create+0x1d/0x480 [snd_ens1371]
+>>  [<e08469cf>] snd_card_new+0x1cf/0x2c0 [snd]
+> 
+> 
+> It's a bit dead-lock, because we cannot help you. It seems that
+> the pci structure passed to our code is broken. The driver has had
+> no changes in initialization for a long time.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+so, it's a kernel problem again, not related to the alsa framework?
 
-> (right now it's not possible to do wakeup-timing without
-> LATENCY_TRACE, i'll fix that.)
+i see in
 
-i've fixed this in -RT-V0.5.2. Also, the trace_enabled=4 method is
-deprecated now and the new mechanism is to use:
+http://www.kernel.org/pub/linux/kernel/v2.6/testing/ChangeLog-2.6.10-rc1
 
-    /proc/sys/kernel/preempt_wakeup_timing
+[...]
+<rddunlap@osdl.org>
+	[PATCH] i386/io_apic init section fixups
 
-this flag is default-enabled. So starting at -RT-V0.5.2 to activate
-wakeup timing it's enough to enable PREEMPT_TIMING and reset the max
-after bootup:
+<wli@holomorphy.com>
+	[PATCH] vm: convert users of remap_page_range() under sound/ to
+	use remap_pfn_range()
+[...]
 
-    echo 0 > /proc/sys/kernel/preempt_max_latency
+so i'll revert the patches and see what it gives.
 
-this will switch back to critical-section timing/tracing:
+thank you,
+Christian
+-- 
+BOFH excuse #131:
 
-    echo 0 > /proc/sys/kernel/preempt_wakeup_timing
-
-	Ingo
+telnet: Unable to connect to remote host: Connection refused

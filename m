@@ -1,121 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264647AbUFPXtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264669AbUFPXy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264647AbUFPXtA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 19:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFPXs7
+	id S264669AbUFPXy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 19:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFPXy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 19:48:59 -0400
-Received: from mail.dif.dk ([193.138.115.101]:29868 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S264647AbUFPXs0 (ORCPT
+	Wed, 16 Jun 2004 19:54:58 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:62111 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id S264669AbUFPXy4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 19:48:26 -0400
-Date: Thu, 17 Jun 2004 01:47:30 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix warning in fbmem.c
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F93@difpst1a.dif.dk>
+	Wed, 16 Jun 2004 19:54:56 -0400
+Organization: 
+Date: Thu, 17 Jun 2004 02:54:41 +0300 (EEST)
+From: Panagiotis Papadakos <papadako@csd.uoc.gr>
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stairacse scheduler v6.E for 2.6.7-rc3
+In-Reply-To: <40D044BA.4080009@kolivas.org>
+Message-ID: <Pine.GSO.4.58.0406170250430.8103@thanatos.csd.uoc.gr>
+References: <1087333441.40cf6441277b5@vds.kolivas.org> <40D04439.5080100@gmx.de>
+ <40D044BA.4080009@kolivas.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+UT2004 works just fine here on a 2.6.7-rc3-mm2 with s6.E!
+By the way great work Con!
 
-Hi,
+P.S.
+There is some problem with the patch for the mm2.
+All hunks succeeded but somehow there was a compilation error in kernel/sched.c.
+After commenting out the following line I was able to compile the kernel:
+line 118:
+/*prio_array_t *active, *expired, arrays[2];*/
 
-Here are two proposed patches to fix the following warning in fbmem.c :
-drivers/video/fbmem.c:933: warning: passing arg 1 of `copy_from_user' discards qualifiers from pointer target type
+	Panagiotis Papadakos
 
-The cause of the warning is that the .data member of struct fb_image is of
-type 'const char *' and copy_from_user() takes a 'void *' as it's first
-'to' argument.
-I see two ways to fix it;
-a) use a simple cast to hide the warning
-b) rewrite the code to copy into a buffer pointed to by a non-const
-pointer, then assign the pointer to cursor.image.data
+On Wed, 16 Jun 2004, Con Kolivas wrote:
 
-Personally I prefer the second approach since just casting away const
-defeats the whole purpose of having something const in the first place
-(yes, I do realize it's quite safe in this case) and makes it look like it
-could be hiding a bug on casual inspection. Better to make it completely
-explicit that first we allocate a buffer and fill it, then we assign it to
-this const member since it's not supposed to be changed again from this
-point forward.
-But, I've prepared patches implementing both solutions in case your
-preference is different from mine.
-Patching against 2.6.7
-
-
-Here's first the patch that simply casts the pointer :
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.7-orig/drivers/video/fbmem.c	2004-06-16 07:18:37.000000000 +0200
-+++ linux-2.6.7/drivers/video/fbmem.c	2004-06-17 00:59:48.000000000 +0200
-@@ -930,7 +930,7 @@ fb_cursor(struct fb_info *info, struct f
- 			return -ENOMEM;
- 		}
-
--		if (copy_from_user(cursor.image.data, sprite->image.data, size) ||
-+		if (copy_from_user((void *)cursor.image.data, sprite->image.data, size) ||
- 		    copy_from_user(cursor.mask, sprite->mask, size)) {
- 			kfree(cursor.image.data);
- 			kfree(cursor.mask);
-
-
-and here is the (in my oppinion better) patch that makes use of a
-sepperate pointer and then assigns to cursor.image.data at the end :
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.7-orig/drivers/video/fbmem.c	2004-06-16 07:18:37.000000000 +0200
-+++ linux-2.6.7/drivers/video/fbmem.c	2004-06-17 00:55:16.000000000 +0200
-@@ -901,6 +901,7 @@ fb_cursor(struct fb_info *info, struct f
- {
- 	struct fb_cursor cursor;
- 	int err;
-+	char *image_data;
-
- 	if (copy_from_user(&cursor, sprite, sizeof(struct fb_cursor)))
- 		return -EFAULT;
-@@ -920,22 +921,23 @@ fb_cursor(struct fb_info *info, struct f
- 		    (cursor.image.width != info->cursor.image.width))
- 			cursor.set |= FB_CUR_SETSIZE;
-
--		cursor.image.data = kmalloc(size, GFP_KERNEL);
--		if (!cursor.image.data)
-+		image_data = kmalloc(size, GFP_KERNEL);
-+		if (!image_data)
- 			return -ENOMEM;
-
- 		cursor.mask = kmalloc(size, GFP_KERNEL);
- 		if (!cursor.mask) {
--			kfree(cursor.image.data);
-+			kfree(image_data);
- 			return -ENOMEM;
- 		}
-
--		if (copy_from_user(cursor.image.data, sprite->image.data, size) ||
-+		if (copy_from_user(image_data, sprite->image.data, size) ||
- 		    copy_from_user(cursor.mask, sprite->mask, size)) {
--			kfree(cursor.image.data);
-+			kfree(image_data);
- 			kfree(cursor.mask);
- 			return -EFAULT;
- 		}
-+		cursor.image.data = image_data;
- 	}
- 	info->cursor.set = cursor.set;
- 	info->cursor.rop = cursor.rop;
-
-
-Notes:
-I've only done compile testing of the first (simple cast) patch.
-The second patch I've compile and boot tested and it seems to be OK.
-If anyone on linux-fbdev-devel@lists.sourceforge.net want reply to this,
-then please CC me as I'm not subscribed to that specific list.
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
+> Prakash K. Cheemplavam wrote:
+> > Con Kolivas wrote:
+> >
+> >> Here is an updated version of the staircase scheduler. I've been
+> >> trying to hold
+> >> off for 2.6.7 final but this has not been announced yet. Here is a
+> >> brief update
+> >> summary.
+> >
+> >
+> > Hi, does this resolve the issue with ut2004? (Or is another setting for
+> > it needed?) I haven't tried myself, but others reported that setting
+> > interactive to 0 didn't help, nor giving ut2004 more priority via (re)nice.
+>
+> Good question. I don't own UT2004 so I was hoping a tester might
+> enlighten me.
+>
+> Con
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

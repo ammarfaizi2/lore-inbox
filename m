@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269580AbRHAA4n>; Tue, 31 Jul 2001 20:56:43 -0400
+	id <S269590AbRHABIy>; Tue, 31 Jul 2001 21:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269586AbRHAA4d>; Tue, 31 Jul 2001 20:56:33 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:30471 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269580AbRHAA4X>; Tue, 31 Jul 2001 20:56:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] using writepage to start io
-Date: Wed, 1 Aug 2001 03:01:17 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-mm@kvack.org, torvalds@transmeta.com
-In-Reply-To: <233400000.996606471@tiny>
-In-Reply-To: <233400000.996606471@tiny>
+	id <S269587AbRHABIf>; Tue, 31 Jul 2001 21:08:35 -0400
+Received: from gear.torque.net ([204.138.244.1]:33032 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S269586AbRHABId>;
+	Tue, 31 Jul 2001 21:08:33 -0400
+Message-ID: <3B6755E7.B63FA6D5@torque.net>
+Date: Tue, 31 Jul 2001 21:05:43 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01080103011705.00303@starship>
-Content-Transfer-Encoding: 7BIT
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFT] Support for ~2144 SCSI discs
+In-Reply-To: <200107310030.f6V0UeJ13558@mobilix.ras.ucalgary.ca>
+		<rgooch@ras.ucalgary.ca>
+		<10107310041.ZM233282@classic.engr.sgi.com>
+		<200107311225.f6VCPj003249@mobilix.ras.ucalgary.ca>
+		<20010731125926.B10914@us.ibm.com> <200108010048.f710miA05150@mobilix.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi, Chris
+Richard Gooch wrote:
+> 
+> Mike Anderson writes:
+> > In previous experiments trying to connect up to 512 devices we
+> > switched to vmalloc because the static nature of sd.c's allocation
+> > exceeds 128k which I assumed was the max for kmalloc YMMV.
+> 
+> Yes, I figure on switching to vmalloc() and putting in an
+> in_interrupt() test in sd_init() to make sure the vmalloc() is safe.
+> 
+> Eric: do you happen to know why there are these GFP_ATOMIC flags?
+> To my knowledge, nothing calls sd_init() outside of process context.
 
-On Tuesday 31 July 2001 21:07, Chris Mason wrote:
-> I had to keep some of the flush_dirty_buffer calls as page_launder
-> wasn't triggering enough i/o on its own.  What I'd like to do now is
-> experiment with changing bdflush to only write pages off the inactive
-> dirty lists.
+Richard,
+I've seen GFP_KERNEL take 10 minutes in lk 2.4.6 . The 
+mm gets tweaked pretty often so it is difficult to know 
+exactly how it will react when memory is tight. A time 
+bound would be useful on GFP_KERNEL.
 
-Will kupdate continue to enforce the "no dirty buffer older than 
-XX" guarantee?
+<opinion> It is best to find out quickly there is 
+not enough memory and have some alternate strategy 
+to cope with that problem. GFP_KERNEL in its current 
+form should be taken out and shot. </opinion>
 
---
-Daniel
+Doug Gilbert

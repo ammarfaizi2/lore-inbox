@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264969AbTABQjy>; Thu, 2 Jan 2003 11:39:54 -0500
+	id <S265249AbTABQq0>; Thu, 2 Jan 2003 11:46:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbTABQjx>; Thu, 2 Jan 2003 11:39:53 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:26383 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264969AbTABQjx>; Thu, 2 Jan 2003 11:39:53 -0500
-Date: Thu, 2 Jan 2003 16:48:22 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Loic Jaquemet <jaquemet@fiifo.u-psud.fr>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.5.54 I2C drivers/media update..
-Message-ID: <20030102164822.A25818@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Loic Jaquemet <jaquemet@fiifo.u-psud.fr>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <3E146967.E8DC4941@fiifo.u-psud.fr>
+	id <S265262AbTABQq0>; Thu, 2 Jan 2003 11:46:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6792
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265249AbTABQqY>; Thu, 2 Jan 2003 11:46:24 -0500
+Subject: Re: [OT] Re: Why is Nvidia given GPL'd code to use in closed source
+	drivers?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Milosz Tanski <mtanski@wideopenwest.com>
+Cc: david.lang@digitalinsight.com, paul@clubi.ie, riel@conectiva.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, rms@gnu.org
+In-Reply-To: <20030102013405.4f0d3417.mtanski@wideopenwest.com>
+References: <0a5713612060213DTVMAIL4@smtp.cwctv.net> 
+	<20030102013405.4f0d3417.mtanski@wideopenwest.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Jan 2003 17:37:39 +0000
+Message-Id: <1041529059.24829.13.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E146967.E8DC4941@fiifo.u-psud.fr>; from jaquemet@fiifo.u-psud.fr on Thu, Jan 02, 2003 at 04:31:35PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 04:31:35PM +0000, Loic Jaquemet wrote:
+On Thu, 2003-01-02 at 06:34, Milosz Tanski wrote:
+> There is (was) an effort for opensource 3d drivers (including nvidia
+> ones), infact i rember they got quake II and III working in 32bit color
+> mode, if i rember correctly. If you go grieff, then go visit
+> http://utah-glx.sourceforge.net/ and help out. Make the drivers better
+> then the nvidia ones (ya right!) so they will be forced to use your code
+> on other paltforms (and then nvidia would be forced to use it, and thus
+> open up their code). I'll see you in two years, when you fully complete
+> the drivers? Ok, bye. 
 > 
-> struct i2c_driver has changed .
+> P.S: I think the code there is under a BSD (BSDish, MITish licence,
 
-Once you're at it you could convert them to named initializer :)
+Utah-GLX supports the older Nvidia cards, and works in XFree86 4.2 at
+least - although since its based on an older Mesa not all stuff works
+well with it.
+
+Alan
 

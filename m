@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265213AbSJaITa>; Thu, 31 Oct 2002 03:19:30 -0500
+	id <S265214AbSJaIRz>; Thu, 31 Oct 2002 03:17:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264827AbSJaITa>; Thu, 31 Oct 2002 03:19:30 -0500
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:22883 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265219AbSJaISV>;
-	Thu, 31 Oct 2002 03:18:21 -0500
-Date: Thu, 31 Oct 2002 09:24:40 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031092440.B5815@jaquet.dk>
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Thu, Oct 31, 2002 at 01:53:14AM +0100
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S265219AbSJaIRz>; Thu, 31 Oct 2002 03:17:55 -0500
+Received: from netcore.fi ([193.94.160.1]:36878 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id <S265214AbSJaIRy>;
+	Thu, 31 Oct 2002 03:17:54 -0500
+Date: Thu, 31 Oct 2002 10:24:11 +0200 (EET)
+From: Pekka Savola <pekkas@netcore.fi>
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>, <davem@redhat.com>,
+       <kuznet@ms2.inr.ac.ru>, <usagi@linux-ipv6.org>
+Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address
+ Autoconfiguration in IPv6
+In-Reply-To: <20021031.164940.672083668.yoshfuji@linux-ipv6.org>
+Message-ID: <Pine.LNX.4.44.0210311021560.19356-100000@netcore.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Oct 2002, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
+> In article <Pine.LNX.4.44.0210310942030.19356-100000@netcore.fi> (at Thu, 31 Oct 2002 09:43:40 +0200 (EET)), Pekka Savola <pekkas@netcore.fi> says:
+> 
+> > Generating and re-generating new temporary addresses seems to be a useless 
+> > work and just new addresses unless they're being used at least by some 
+> > applications.
+> 
+> set default to 0 (don't use it) for now is ok?
 
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure, ok for me.  (I'm assuming we'll be able to change the default at 
+some point when more knowledge and experience is gained but we're talking 
+about at least a year or two here, I think).
 
-On Thu, Oct 31, 2002 at 01:53:14AM +0100, Adrian Bunk wrote:
+(This is why I never perceived privacy addresses as a critical work item 
+at the moment -- e.g. multicast routing might be more interesting.)
 
-Hi Adrian,
->=20
-> could you try to use "-Os" instead of "-O2" as gcc optimization option
-> when CONFIG_TINY is enabled? Something like the following (completely
-> untested) patch:
+I don't know how Dave and Alexey feel, of course.
 
-I tried -Os once, and it didn't boot for me. So I dumped it.
-However, reading a mail from Zwane <somethingorother> about
-booting 2.5.x on a 4MB system I got the impression that he
-used Os, so I might give it another shot. Dropping down to
-i386 support, perhaps.
+-- 
+Pekka Savola                 "Tell me of difficulties surmounted,
+Netcore Oy                   not those you stumble over and fall"
+Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
 
-Thanks for reading,
-  Rasmus
-
---oC1+HKm2/end4ao3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9wOjHlZJASZ6eJs4RAvzNAJ4lYl35ymoCa9ptrbRnCQCLfUCZTACgg+LH
-1qzJsxmRGM51XbwqLmW/Puk=
-=xt4w
------END PGP SIGNATURE-----
-
---oC1+HKm2/end4ao3--

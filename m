@@ -1,103 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbTEAKKz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 06:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTEAKKz
+	id S261196AbTEAKLY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 06:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbTEAKLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 06:10:55 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:11280 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261195AbTEAKKx
+	Thu, 1 May 2003 06:11:24 -0400
+Received: from AMarseille-201-1-1-130.abo.wanadoo.fr ([193.252.38.130]:25127
+	"EHLO gaston") by vger.kernel.org with ESMTP id S261196AbTEAKLT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 06:10:53 -0400
-Date: Thu, 1 May 2003 12:22:30 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: hugang <hugang@soulinfo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Faster generic_fls
-Message-ID: <20030501102230.GA308@pcw.home.local>
-References: <200304300446.24330.dphillips@sistina.com> <20030430135512.6519eb53.akpm@digeo.com> <20030501131605.02066260.hugang@soulinfo.com>
+	Thu, 1 May 2003 06:11:19 -0400
+Subject: Re: [HINTS] Re:  More radeonfb fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <20030501011950.GA641@pasky.ji.cz>
+References: <1050062592.562.14.camel@zion.wanadoo.fr>
+	 <20030501011950.GA641@pasky.ji.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051784603.10240.53.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030501131605.02066260.hugang@soulinfo.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 May 2003 12:23:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 01:16:05PM +0800, hugang wrote:
 
-> Here is table version of the fls. Yes it fast than other.
-
-Sorry, but this code returns wrong results. Test it with less
-iterations, it doesn't return the same result.
-
->         unsigned i = 0;
 > 
->         do {
->                 i++;
->         } while (n <= fls_table[i].max && n > fls_table[i].min);
+> thanks a lot, this patch solved my quite annoying framebuffer problems with the
+> stock 2.4.21rc1 radeonfb driver on ATI Radeon 7000 w/ 64MB RAM :-).
 
-You never even compare with table[0] !
+Good ;)
 
-> --test log is here----
+> If you are interested in some bugreports and don't want to read the following
+> semi-minihowto, please just look for the [PERHAPS-BUGREPORT] string.
+> 
+> In order to give advice to the fellow googlers possibly seeing this in
+> archives: if you have annoying long delays when switching between consoles or
+> the video mode you specify on the cmdline carefully results in just an ugly
+> mess,
 
-I recoded a table based on your idea, and it's clearly faster than others, and
-even faster than yours :
+Known. I have to work on this next
 
-============
-static unsigned tbl[33] = { 2147483648, 1073741824, 536870912, 268435456,
-			    134217728, 67108864, 33554432, 16777216,
-			    8388608, 4194304, 2097152, 1048576,
-			    524288, 262144, 131072, 65536,
-			    32768, 16384, 8192, 4096,
-			    2048, 1024, 512, 256,
-			    128, 64, 32, 16,
-			    8, 4, 2, 1, 0 };
+> [PERHAPS-BUGREPORT]
+> 
+>   - BE CAREFUL when specifying depth! This is basically where I was most burnt,
+>     I kept specifying 24 but for some strange reason, this did very strange
+>     things here. If you will specify some other depth (8,15,16,32,...), you may
+>     experience problems with cursor (or it just won't work at all ;) --- it
+>     could have different colors (which will change by time), eventually
+>     disappearing completely (this could mean it just went black..?).
+> 
+>     The best solution is probably not to specify the depth at all. Apparently,
+>     24 is used by default, but it seems to work when chosen defaultly :^).
 
+8 is the default and works fine. 15,16 and 32 work but the cursor isn't
+properly rendered, this is a known fbdev problem in 2.4, I'll probably
+fix it by implementing HW cursor support in radeonfb. 24 bpp is a weird
+mode that isn't really supported by the driver
 
-static inline int fls_tbl_fls(unsigned n)
-{
-        unsigned i = 0;
+> * when you will have your Radeon in some weird state (after trying to run some
+>   svgalibish application or naively selecting vesa video output in mplayer or
+>   so..), you can either:
+> 
+> [PERHAPS-BUGREPORT]
+> 
+>   - startx or switch to X and back if you have it already running. This will
+>     repair it, but it won't reset all the flags (ie. accel), so you will get
+>     delays when switching to the affected console caused by video mode changes.
+> 
+>   - fbset on the affected console, which will also properly reset all these
+>     flags. You can obviously first get usable console by letting X to reset it
+>     and then running fbset on it, if you like to see what are you typing. Note
+>     that you should reset the console to the same mode you are running on the
+>     other consoles, otherwise you won't get rid of that delays.
 
-	while (n < tbl[i])
-	    i++;
+What is a bug ? the delays ? The fact that some apps leave garbage ? The
+former is normal when an actual mode switch occurs. The later is a
+problem with apps that bang the HW (and with X as well in some cases as
+it will occasionally fuck up the accel engine configuration).
 
-        return 32 - i;
-}
-===========
+The problem is that currently, the fbcon/fbdev interface doesn't provide
+a hook for fbdev's to force a restore of the mode & engine setting when
+an app leaves the KD_GRAPHICS mode.
+ 
+> [PERHAPS-BUGREPORT]
+> 
+> * you will have that ugly video mode change also the first time you switch to
+>   some console. This appears to be a bug, I think it could be fixed quite
+>   easily. You can either live with it or fix it or workaround it by doing
+>   something smart with for, seq and chvt in your rc scripts (let this be a
+>   homework ;-).
 
-it returns the right result. Compiled with gcc 2.95.3 -march=i686 -O3, athlon
-1.533 GHz (1800+) :
-
-4294967295 iterations of new... checksum = 4294967265
-
-real    1m6.182s
-user    1m6.060s
-sys     0m0.133s
-4294967295 iterations of new2... checksum = 4294967265
-
-real    0m36.504s
-user    0m36.294s
-sys     0m0.202s
-4294967295 iterations of fls_table... checksum = 4294967295
-
-real    0m21.962s
-user    0m21.833s
-sys     0m0.124s
-4294967295 iterations of fls_tbl... checksum = 4294967265
-
-real    0m19.268s
-user    0m19.102s
-sys     0m0.168s
-
-The same compiled with gcc-3.2.3 :
-
-4294967295 iterations of fls_table... checksum = 4294967295
-
-real    0m14.211s
-user    0m14.210s
-sys     0m0.000s
-
-Cheers,
-Willy
-
+The "new" consoles aren't initialized, thus the driver do a mode change
+when switching to them. Well... I can try to fix that...
+> 
+> It is just a mix of generic fb usage advices and Radeon-specific ones... well,
+> what I had to discover by myself in the last few hours ;-). Perhaps it could
+> find a comfortable place in Documentation/fb/, dunno.
+> 
+> Kind regards,
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>

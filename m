@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292466AbSCDQ3j>; Mon, 4 Mar 2002 11:29:39 -0500
+	id <S292491AbSCDQa3>; Mon, 4 Mar 2002 11:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292485AbSCDQ3b>; Mon, 4 Mar 2002 11:29:31 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6413 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292482AbSCDQ3V>;
-	Mon, 4 Mar 2002 11:29:21 -0500
-Date: Mon, 4 Mar 2002 13:28:58 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020304171030.K20606@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203041327510.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292481AbSCDQaL>; Mon, 4 Mar 2002 11:30:11 -0500
+Received: from elin.scali.no ([62.70.89.10]:6673 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S292476AbSCDQaD>;
+	Mon, 4 Mar 2002 11:30:03 -0500
+Date: Mon, 4 Mar 2002 17:29:58 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+To: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
+        <jgarzik@mandrakesoft.com>, <linux-net@vger.kernel.org>
+Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
+In-Reply-To: <20020304164453.A27587@stud.ntnu.no>
+Message-ID: <Pine.LNX.4.30.0203041724330.11390-100000@elin.scali.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
+On Mon, 4 Mar 2002, Thomas Langås wrote:
 
-> > you care about how well the VM chooses which pages to swap out
-> > and which pages to keep in RAM.
+> David S. Miller:
+> > How does this thing perform for people?  In particular lmbench
+> > 'bw_tcp' and 'lat_tcp' numbers over gigabit on beefy hardware are
+> > considered very interesting...
 >
-> and for that the aging fair scan for the acessed bitflag has a chance to
-> be better than the unfair accessed bit handling in rmap that can lead to
-> not evaluating correctly the accessed-virtual-age of the pages.
+> Ok, here I am again; doing some benchmarking :)
+>
+> (all this is done with same hardware as before, and your tg3 v0.94 driver in
+> both ends):
+> test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./bw_tcp 129.241.56.160
+> initial bandwidth measurement: move=10485760, usecs=117352: 89.35 MB/sec
+> move=693633024, XFERSIZE=65536
+> Socket bandwidth using 129.241.56.160: 104.73 MB/sec
+>
 
-Ummm, what do you mean by this ?
+Hi guys,
 
-> Also threating mapped pages in a special manner is beneficial.
+Excuse me for beeing off topic here, but I'm running the LMbench TCP test
+on a ethernet emulation driver I've written for SCI, and I can't seem to
+get the correct numbers. This is what I get :
 
-Note that -rmap already does this.
+sci3:/root# ./bw_tcp sci4
+initial bandwidth measurement: move=10485760, usecs=60059: 174.59 MB/sec
+move=1365245952, XFERSIZE=65536
+Socket bandwidth using sci4: 371.53 MB/sec
 
-regards,
+The initial measurement seems ok (based on the chipset and so on), but the
+last one is _way_ too high. Can it be that the bw_tcp test measures it
+wrongly ? Maybe this is a case for the LMbench maintainer...
 
-Rik
+
+Regards,
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
+ mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
 

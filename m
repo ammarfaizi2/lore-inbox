@@ -1,124 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbTCIAiy>; Sat, 8 Mar 2003 19:38:54 -0500
+	id <S262328AbTCIBB7>; Sat, 8 Mar 2003 20:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262325AbTCIAiy>; Sat, 8 Mar 2003 19:38:54 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:22581 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S262324AbTCIAiw>; Sat, 8 Mar 2003 19:38:52 -0500
-Message-ID: <3E6A1FB2.8040007@myrealbox.com>
-Date: Sat, 08 Mar 2003 16:52:02 +0000
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S262329AbTCIBB7>; Sat, 8 Mar 2003 20:01:59 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:55190 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S262328AbTCIBB6>; Sat, 8 Mar 2003 20:01:58 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 8 Mar 2003 17:21:13 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Zack Brown <zbrown@tumblerings.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+In-Reply-To: <20030309000514.GB1807@work.bitmover.com>
+Message-ID: <Pine.LNX.4.50.0303081714530.2974-100000@blue1.dev.mcafeelabs.com>
+References: <200303020011.QAA13450@adam.yggdrasil.com>
+ <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org>
+ <20030307190848.GB21023@atrey.karlin.mff.cuni.cz> <b4b98v$14m$1@penguin.transmeta.com>
+ <20030308225252.GA23972@renegade> <20030309000514.GB1807@work.bitmover.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre5-ac2:  kernel oops with "swapoff -a"
-References: <fa.ft2aqc1.154k31h@ifi.uio.no> <fa.ohdbn4e.1rgcs92@ifi.uio.no>
-In-Reply-To: <fa.ohdbn4e.1rgcs92@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sat, 2003-03-08 at 11:07, walt wrote:
-> 
->>When I do "swapoff -a" I still see the kernel oops that began with -pre4-ac7
->>and has propagated to every 'ac' kernel since then.
+On Sat, 8 Mar 2003, Larry McVoy wrote:
 
-> Can you send me an strace swapoff -a ?
+> > > Give it up.  BitKeeper is simply superior to CVS/SVN, and will stay that
+> > > way indefinitely since most people don't seem to even understand _why_
+> > > it is superior.
+> >
+> > You make it sound like no one is even interested ;-). But it's not true! A
+> > lot of people currently working on alternative version control systems would
+> > like very much to know what it would take to satisfy the needs of kernel
+> > development. Maybe, being on the inside of the process and well aware of
+> > your own needs, you don't realize how difficult it is to figure these things
+> > out from the outside. I think only very few people (perhaps only one) really
+> > understand this issue, and they aren't communicating with the horde of people
+> > who really want to help, if only they knew how.
+>
+> [Long rant, summary: it's harder than you think, read on for the details]
+>
+> There are parts of BitKeeper which required multiple years of thought by
+> people a lot smarter than me.  You guys are under the mistaken impression
+> that BitKeeper is my doing; it's not.  There are a lot of people who
+> work here and they have some amazing brains.  To create something like
+> BK is actually more difficult than creating a kernel.
 
-# strace swapon -a
-execve("/sbin/swapon", ["swapon", "-a"], [/* 36 vars */]) = 0
-uname({sys="Linux", node="k9.localnet", ...}) = 0
-brk(0)                                  = 0x804aa08
-open("/etc/ld.so.preload", O_RDONLY)    = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-close(3)                                = 0
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=49489, ...}) = 0
-mmap2(NULL, 49489, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40014000
-close(3)                                = 0
-open("/lib/libc.so.6", O_RDONLY)        = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\0_\1\000"..., 1024) = 1024
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1411261, ...}) = 0
-mmap2(NULL, 1236740, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40021000
-mprotect(0x40146000, 36612, PROT_NONE)  = 0
-mmap2(0x40146000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x124) 
-= 0x40146000
-mmap2(0x4014b000, 16132, PROT_READ|PROT_WRITE, 
-MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4014b000
-close(3)                                = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0x4014f000
-munmap(0x40014000, 49489)               = 0
-brk(0)                                  = 0x804aa08
-brk(0x804ba08)                          = 0x804ba08
-brk(0x804c000)                          = 0x804c000
-open("/proc/swaps", O_RDONLY|O_LARGEFILE) = 3
-fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0x40014000
-read(3, "Filename\t\t\tType\t\tSize\tUsed\tPrior"..., 1024) = 36
-read(3, "", 1024)                       = 0
-close(3)                                = 0
-munmap(0x40014000, 4096)                = 0
-open("/etc/fstab", O_RDONLY)            = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=1205, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0x40014000
-read(3, "# Copyright 1999-2002 Gentoo Tec"..., 4096) = 1205
-stat64("/dev/hda10", {st_mode=S_IFBLK|0600, st_rdev=makedev(3, 10), ...}) = 0
-swapon("/dev/hda10")                    = 0
-read(3, "", 4096)                       = 0
-_exit(0)                                = ?
+Larry, how many years are that you're working as a developer and side by
+side with developers ? 15 maybe 20 ? Do you know what's the best way to
+keep developers out of doing something ? Well, just say the task is
+trivial, easy, for dummies. And you will see developers stay away from the
+project like cats from water. Try, even remotely, to dress the project
+with complexity, and they'll come in storms ...
 
-========================================================================
 
-# strace swapoff -a
-execve("/sbin/swapoff", ["swapoff", "-a"], [/* 36 vars */]) = 0
-uname({sys="Linux", node="k9.localnet", ...}) = 0
-brk(0)                                  = 0x804aa08
-open("/etc/ld.so.preload", O_RDONLY)    = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-close(3)                                = 0
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=49489, ...}) = 0
-mmap2(NULL, 49489, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40014000
-close(3)                                = 0
-open("/lib/libc.so.6", O_RDONLY)        = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\0_\1\000"..., 1024) = 1024
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1411261, ...}) = 0
-mmap2(NULL, 1236740, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40021000
-mprotect(0x40146000, 36612, PROT_NONE)  = 0
-mmap2(0x40146000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x124) 
-= 0x40146000
-mmap2(0x4014b000, 16132, PROT_READ|PROT_WRITE, 
-MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4014b000
-close(3)                                = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0x4014f000
-munmap(0x40014000, 49489)               = 0
-brk(0)                                  = 0x804aa08
-brk(0x804ba08)                          = 0x804ba08
-brk(0x804c000)                          = 0x804c000
-open("/proc/swaps", O_RDONLY|O_LARGEFILE) = 3
-fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0x40014000
-read(3, "Filename\t\t\tType\t\tSize\tUsed\tPrior"..., 1024) = 99
-read(3, "", 1024)                       = 0
-close(3)                                = 0
-munmap(0x40014000, 4096)                = 0
-swapoff("/dev/ide/host0/bus0/target0/lun0/part10") = 0
-open("/etc/fstab", O_RDONLY)            = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=1205, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 
-0x40014000
-read(3, "# Copyright 1999-2002 Gentoo Tec"..., 4096) = 1205
-swapoff("/dev/hda10")                   = -1 EINVAL (Invalid argument)
-read(3, "", 4096)                       = 0
-_exit(0)                                = ?
+
+
+- Davide
 

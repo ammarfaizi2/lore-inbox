@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUEKCjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUEKCrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUEKCjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 22:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUEKCjj
+	id S261786AbUEKCrN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 22:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEKCrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 22:39:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63968 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261369AbUEKCji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 22:39:38 -0400
-Date: Mon, 10 May 2004 19:39:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-Message-Id: <20040510193901.59cebd6a.akpm@osdl.org>
-In-Reply-To: <200405102031.i4AKVXLg022041@eeyore.valparaiso.cl>
-References: <c7om3o$akd$1@gatekeeper.tmr.com>
-	<200405102031.i4AKVXLg022041@eeyore.valparaiso.cl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 10 May 2004 22:47:13 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:38321 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261786AbUEKCrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 22:47:10 -0400
+Date: Mon, 10 May 2004 19:47:01 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: nautilus-list@gnome.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+Message-ID: <20040511024701.GA19489@taniwha.stupidest.org>
+References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org> <1084227460.28663.8.camel@vertex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1084227460.28663.8.camel@vertex>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
->
-> Bill Davidsen <davidsen@tmr.com> said:
-> 
-> [...]
-> 
-> > I tried 4k stack, I couldn't measure any improvement in anything (as in 
-> > no visible speedup or saving in memory).
-> 
-> 4K stacks lets the kernel create new threads/processes as long as there is
-> free memory; with 8K stacks it needs two consecutive free page frames in
-> physical memory, when memory is fragmented (and large) they are hard to
-> come by...
+On Mon, May 10, 2004 at 06:17:40PM -0400, John McCutchan wrote:
 
-This is true to a surprising extent.  A couple of weeks ago I observed my
-256MB box freeing over 20MB of pages before it could successfully acquire a
-single 1-order page.
+> According to everyone who uses dnotify it is.
 
-That was during an updatedb run.
+I don't buy that.  I have used dnotify and signals where not an issue.
+Why is this an issue for others?
 
-And a 1-order GFP_NOFS allocation was actually livelocking, because
-!__GFP_FS allocations aren't allowed to enter dentry reclaim.  Which is why
-VFS caches are now forced to use 0-order allocations.
+> > 3) dnotify cannot easily watch changes for a directory hierarchy
+
+> People don't seem to really care about this one. Alexander Larsson
+> has said he doesn't care about it. It might be nice to add in the
+> future.
+
+I don't know who that is and why it matters.
+
+Without being able to watch a hierarchy, I'm not sure inotify buys
+anything that we can't get from dnotify right now though.  It's also
+more complex.
+
+> The idea is to encourage use of a user-space daemon that will
+> multiplex all requests, so if 5 people want to watch /somedir the
+> daemon will only use one watcher in the kernel. The number might be
+> too low, but its easily upped.
+
+If you are to use a daemon for this, why no use dnotify?
 
 
+
+   --cw

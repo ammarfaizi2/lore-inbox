@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUJPUhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268856AbUJPUk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268851AbUJPUhx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUJPUhx
+	id S268856AbUJPUk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268864AbUJPUk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:37:53 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:4510 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268851AbUJPUhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:37:52 -0400
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Daniel Walker <dwalker@mvista.com>,
-       Bill Huey <bhuey@lnxw.com>, Andrew Morton <akpm@osdl.org>,
-       Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Andrew Rodland <arodland@entermail.net>
-In-Reply-To: <200410162230.14363.dominik.karall@gmx.net>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	 <200410161621.34657.dominik.karall@gmx.net>
-	 <20041016152427.GA16334@elte.hu>
-	 <200410162230.14363.dominik.karall@gmx.net>
-Content-Type: text/plain
-Message-Id: <1097958703.2148.27.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 16 Oct 2004 16:31:43 -0400
+	Sat, 16 Oct 2004 16:40:57 -0400
+Received: from mail.timesys.com ([65.117.135.102]:23594 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S268856AbUJPUkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:40:53 -0400
+Message-ID: <4171871D.3000601@timesys.com>
+Date: Sat, 16 Oct 2004 16:39:57 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, john cooper <john.cooper@timesys.com>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
+References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <Pine.LNX.4.58.0410161426020.1223@gradall.private.brainfood.com> <20041016193626.GB10626@elte.hu> <Pine.LNX.4.58.0410161457410.1223@gradall.private.brainfood.com> <20041016201417.GA12371@elte.hu>
+In-Reply-To: <20041016201417.GA12371@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Oct 2004 20:36:04.0406 (UTC) FILETIME=[C1C20560:01C4B3BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-16 at 16:30, Dominik Karall wrote:
-> sorry, i tried to reproduce this bug, but can't. i even don't know _when_ this 
-> bug occurred, as i just wanted to take a look in the dmesg output after 
-> loading sg module. but it does not depend on sg, as i unloaded it and tried 
-> again to load.
-> 
+Ingo,
+    In reading your -U3 patch the test below (#156)
+wasn't clear to me.   It would seem in the case of
+softirq_preemption, __do_softirq() should be called
+to kick ksoftirqd, otherwise ___do_softirq() would
+be called to exec softirqs in the immediate context.
 
-The trace looks like mplayer reading from a FAT filesystem.  Can you
-reproduce the problem if you do whatever you were doing with mplayer 
-again?
+kernel/softirq.c:
 
-Lee
+  153   asmlinkage void _do_softirq(void)
+  154   {
+  155           local_irq_disable();
+  156           if (!softirq_preemption)
+  157                   __do_softirq();
+  158           else
+  159                   ___do_softirq();
+  160           local_irq_enable();
+  161   }
+
+-john
+
+-- 
+john.cooper@timesys.com
 

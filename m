@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUH1QeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUH1QmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUH1QeN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267438AbUH1QcG
+	id S267445AbUH1QmP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbUH1QlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:32:06 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:49562 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S267478AbUH1Q0G
+	Sat, 28 Aug 2004 12:41:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9095 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267438AbUH1QfZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:26:06 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Sat, 28 Aug 2004 12:35:25 -0400
+Date: Sat, 28 Aug 2004 17:35:21 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040828163521.GD16196@parcelfarce.linux.theplanet.co.uk>
+References: <20040827164303.GW16196@parcelfarce.linux.theplanet.co.uk> <20040827222938.12618.qmail@web14922.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16688.45596.829372.249785@thebsh.namesys.com>
-Date: Sat, 28 Aug 2004 20:26:04 +0400
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: flx@msu.ru, Christophe Saout <christophe@saout.de>,
-       Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-       reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
-In-Reply-To: <20040828161113.GA27278@delft.aura.cs.cmu.edu>
-References: <412D9FE6.9050307@namesys.com>
-	<20040826014542.4bfe7cc3.akpm@osdl.org>
-	<1093522729.9004.40.camel@leto.cs.pocnet.net>
-	<20040826124929.GA542@lst.de>
-	<1093525234.9004.55.camel@leto.cs.pocnet.net>
-	<20040826130718.GB820@lst.de>
-	<1093526273.11694.8.camel@leto.cs.pocnet.net>
-	<20040826132439.GA1188@lst.de>
-	<1093527307.11694.23.camel@leto.cs.pocnet.net>
-	<20040828111807.GC6746@alias>
-	<20040828161113.GA27278@delft.aura.cs.cmu.edu>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <20040827222938.12618.qmail@web14922.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Harkes writes:
- > On Sat, Aug 28, 2004 at 03:18:07PM +0400, Alexander Lyamin wrote:
- > > And I honestly dont understand whats the other Christoph's worries are about.
- > 
+On Fri, Aug 27, 2004 at 03:29:38PM -0700, Jon Smirl wrote:
+> I would think that it would return 4MB. If it can't find standard ROM
+> headers it should return the window size. 
 
-[...]
+The patch I just sent changes this ... if we can find PCI headers,
+we should return nothing.
 
- > - When reiserfs3 got merged, it introduced iget3 and read_inode2 in the
- >   VFS layer. Later on when I started to use them for Coda I almost
- >   immediately found serious consistency problems, resulting in the
- >   iget4_locked implementation in the 2.5 kernels.
- >   
- >   I don't think anyone ever fixed that race in reiser3. It should hit
+> Are you sure you are getting the correct contents of those ROMs? Would
+> it be worthwhile to try and get the author of the ROMs to add standard
+> ROM headers? The content you included doesn't look that useful unless
+> that is what IA64 instructions look like.
 
-Err... it was fixed.
+It looks like nothing that makes any sense to me.  Maybe it's a blanked
+EEPROM or something.  This particular device is on the motherboard of a
+prototype machine, so there could be almost anything going on with it ;-)
 
+> If reading past 1MB for those ROMs causes a reboots, could something be
+> wrong in the IA64 fault handing code?
 
- > Jan
- > 
+No, that's normal behaviour on ia64 -- unacknowledged PCI reads cause a
+machine check rather than reading ffffffff like x86 does.
 
-Nikita.
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

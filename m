@@ -1,70 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVBDBjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVBDBi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVBDBjb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 20:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVBDBj1
+	id S262966AbVBDBi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 20:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVBDB2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 20:39:27 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:10166 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263312AbVBDBhk (ORCPT
+	Thu, 3 Feb 2005 20:28:10 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:61405 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261800AbVBDBLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 20:37:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=JSNA5yev8nDz+D+DpNIYbIDYi+yqOIHIkLiIYm1PiPNlblkIV9+7d8jkllPcV+WNLvwzsKiVZScKqmALRJYQNgoOJY836D/sLwxXtHbncT6nnF5nGlCuM7HgR2oyV3OdezE+8P+BT0Y+JfQpErPo0i95UJKEJ1AWMthoIU9Gj5w=
-Message-ID: <58cb370e05020317375ae36558@mail.gmail.com>
-Date: Fri, 4 Feb 2005 02:37:40 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 29/29] ide: make data_phase explicit in NO_DATA cases
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <4202C8EA.7060802@home-tj.org>
+	Thu, 3 Feb 2005 20:11:06 -0500
+Date: Thu, 3 Feb 2005 17:11:04 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [UPDATE PATCH]: include/jiffies: fix  usecs_to_jiffies()/jiffies_to_usecs() math
+Message-ID: <20050204011104.GC2635@us.ibm.com>
+References: <1107446835.7087.8.camel@levlinux.boston.bmc.com> <20050203184805.GA2635@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050202024017.GA621@htj.dyndns.org>
-	 <20050202031238.GN1187@htj.dyndns.org>
-	 <58cb370e050203094326ddfce8@mail.gmail.com>
-	 <4202C8EA.7060802@home-tj.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050203184805.GA2635@us.ibm.com>
+X-Operating-System: Linux 2.6.10-mts (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 04 Feb 2005 09:59:22 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Wed, 2 Feb 2005 12:12:38 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> >
-> >>>29_ide_explicit_TASKFILE_NO_DATA.patch
-> >>>
-> >>>      Make data_phase explicit in NO_DATA cases.
-> >>
-> >>Signed-off-by: Tejun Heo <tj@home-tj.org>
-> >>
-> >>Index: linux-ide-export/drivers/ide/ide-disk.c
-> >>===================================================================
-> >>--- linux-ide-export.orig/drivers/ide/ide-disk.c        2005-02-02 10:28:07.852771465 +0900
-> >>+++ linux-ide-export/drivers/ide/ide-disk.c     2005-02-02 10:28:08.121727827 +0900
-> >>@@ -300,6 +300,7 @@ static unsigned long idedisk_read_native
-> >>        args.tfRegister[IDE_SELECT_OFFSET]      = 0x40;
-> >>        args.tfRegister[IDE_COMMAND_OFFSET]     = WIN_READ_NATIVE_MAX;
-> >>        args.command_type                       = IDE_DRIVE_TASK_NO_DATA;
-> >>+       args.data_phase                         = TASKFILE_NO_DATA;
-> >>        args.handler                            = &task_no_data_intr;
-> >
-> >
-> > Could you add small helper to ide.h for doing this?
-> >
-> > static inline void ide_prep_no_data_cmd(ide_task_t *task)
-> > {
-> >         task->command_type = IDE_DRIVE_TASK_NO_DATA;
-> >         task->data_phase      = TASKFILE_NO_DATA;
-> >         task->handler            = &task_no_data_intr;
-> > }
+On Thu, Feb 03, 2005 at 10:48:05AM -0800, Nishanth Aravamudan wrote:
+> On Thu, Feb 03, 2005 at 10:07:15AM -0600, Makhlis, Lev wrote:
+> > Nishanth Aravamudan <nacc@us.ibm.com> wrote:
+> > 
+> > > +static inline unsigned long usecs_to_jiffies(const unsigned int u)
+> > > +{
+> > > +	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
+> > > +		return MAX_JIFFY_OFFSET;
+> > > +#if HZ <= 1000 && !(1000 % HZ)
+> > > +	return (u + (1000000 / HZ) - 1000) / (1000000 / HZ);
+> > > +#elif HZ > 1000 && !(HZ % 1000)
+> > > +	return u * (HZ / 1000000);
+> > > +#else
+> > > +	return (u * HZ + 999999) / 1000000;
+> > > +#endif
+> > > +}
+> > 
+> > Shouldn't this use 1000000 instead of 1000 everywhere?
+> > It returns 0 if HZ=10000.
 > 
-> I am thinking about removing task->handler initialization.  Such that it
-> defaults to task_no_data_intr if data_phase == TASKFILE_NO_DATA and so
-> on for all other data_phases.  Currently, the same information is
-> specified repeatedly.  What do you think?
+> Thanks for your feedback!
+> 
+> I believe you are correct... Thanks for catching this! This ends up also being a
+> problem for jiffies_to_usecs() actually, as it improperly converts certain
+> values as it is coded. The attached patch, which overrides the previous one
+> seems to be more correct. Andrew, if you would prefer an incremental patch,
+> please let me know.
+> 
+> Description: Add a usecs_to_jiffies() function. With the potential for dynamic HZ
 
-Please do it.
+As was kindly pointed out to me, usecs_to_jiffies() has already exists! :) The
+currently included patch is for 2.6.11-rc3 and fixes the math in that version.
+
+Thanks,
+Nish
+
+Description: Fixes the math of both jiffies_to_usecs() and usecs_to_jiffies()
+which improperly assume the same rounding point -- 1,000 -- as jiffies_to_msecs()
+and msecs_to_jiffies(), when in fact it should be 1,000,000. Furthermore, the
+actual math of both functions is actually wrong and will lead to more than just
+rounding errors.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+--- 2.6.11-rc3-kj-v/include/linux/jiffies.h	2005-02-03 17:05:13.000000000 -0800
++++ 2.6.11-rc3-kj/include/linux/jiffies.h	2005-02-03 17:01:48.000000000 -0800
+@@ -265,10 +265,10 @@ static inline unsigned int jiffies_to_ms
+ 
+ static inline unsigned int jiffies_to_usecs(const unsigned long j)
+ {
+-#if HZ <= 1000 && !(1000 % HZ)
++#if HZ <= 1000000 && !(1000000 % HZ)
+ 	return (1000000 / HZ) * j;
+-#elif HZ > 1000 && !(HZ % 1000)
+-	return (j*1000 + (HZ - 1000))/(HZ / 1000);
++#elif HZ > 1000000 && !(HZ % 1000000)
++	return (j + (HZ / 1000000) - 1)/(HZ / 1000000);
+ #else
+ 	return (j * 1000000) / HZ;
+ #endif
+@@ -291,9 +291,9 @@ static inline unsigned long usecs_to_jif
+ {
+ 	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
+ 		return MAX_JIFFY_OFFSET;
+-#if HZ <= 1000 && !(1000 % HZ)
+-	return (u + (1000000 / HZ) - 1000) / (1000000 / HZ);
+-#elif HZ > 1000 && !(HZ % 1000)
++#if HZ <= 1000000 && !(1000000 % HZ)
++	return (u + (1000000 / HZ) - 1) / (1000000 / HZ);
++#elif HZ > 1000000 && !(HZ % 1000000)
+ 	return u * (HZ / 1000000);
+ #else
+ 	return (u * HZ + 999999) / 1000000;

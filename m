@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318194AbSHDS7Y>; Sun, 4 Aug 2002 14:59:24 -0400
+	id <S318171AbSHDTCT>; Sun, 4 Aug 2002 15:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318169AbSHDS7Y>; Sun, 4 Aug 2002 14:59:24 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:12704 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318194AbSHDS7V>; Sun, 4 Aug 2002 14:59:21 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Richard Zidlicky <rz@linux-m68k.org>, Jeff Dike <jdike@karaya.com>,
-       Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode linux]
-References: <1028294887.18635.71.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain>
-From: Andi Kleen <ak@muc.de>
-Date: 04 Aug 2002 08:46:40 +0200
-In-Reply-To: Ingo Molnar's message of "Sat, 03 Aug 2002 14:20:04 +0200"
-Message-ID: <m3u1mb5df3.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+	id <S318174AbSHDTCT>; Sun, 4 Aug 2002 15:02:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22800 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318171AbSHDTCT>; Sun, 4 Aug 2002 15:02:19 -0400
+Date: Sun, 4 Aug 2002 12:05:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Hans Reiser <reiser@namesys.com>, Andreas Gruenbacher <agruen@suse.de>,
+       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Caches that shrink automatically
+In-Reply-To: <Pine.LNX.4.44L.0208041555500.23404-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0208041202390.10314-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
 
-
-> actually the opposite is true, on a 2.2 GHz P4:
+On Sun, 4 Aug 2002, Rik van Riel wrote:
 > 
->   $ ./lat_sig catch
->   Signal handler overhead: 3.091 microseconds
+> > In particular, it is useless for the sub-caches to try to maintain their
+> > own LRU lists and their own accessed bits. But that doesn't mean that
+> > they can _act_ as if they updated their own accessed bits, while really
+> > just telling the page-based thing that that page is active.
 > 
->   $ ./lat_ctx -s 0 2
->   2 0.90
-> 
-> ie. *process to process* context switches are 3.4 times faster than signal
-> delivery. Ie. we can switch to a helper thread and back, and still be
-> faster than a *single* signal.
+> I'm not sure I agree with this.  For eg. the dcache you will want
+> to reclaim the less used entries on a page even if there are a few
+> very intensely used entries on that page.
 
-This is because the signal save/restore does a lot of unnecessary stuff.
-One optimization I implemented at one time was adding a SA_NOFP signal
-bit that told the kernel that the signal handler did not intend 
-to modify floating point state (few signal handlers need FP) It would 
-not save the FPU state then and reached quite some speedup in signal
-latency. 
+True in theory, but I doubt you will see it very much in practice. 
 
-Linux got a lot slower in signal delivery when the SSE2 support was
-added. That got this speed back.
+Most of the time when you want to free dentries, it is because you have a 
+_ton_ of them. 
 
-The target were certain applications that use signal handlers for async
-IO. 
+The fact that some will look cold even if they aren't should not matter 
+that much statistically.
 
-If there is interest I can dig up the old patches. They were really simple.
+Yah, it's a guess. We can test it.
 
-x86-64 does it also faster by FXSAVE'ing directly to the user space
-frame with exception handling instead of copying manually. But that's
-not possible in i386 because it still has to use the baroque iBCS 
-FP context format on the stack.
+		Linus
 
--Andi

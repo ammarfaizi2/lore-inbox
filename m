@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269353AbTGJPg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbTGJPg2
+	id S269466AbTGJPp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269423AbTGJPp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:36:28 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:40845 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S269353AbTGJPgZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:36:25 -0400
-Date: Thu, 10 Jul 2003 17:50:33 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: CONFIG_QFMT_V2 vs. `VFS v0 quota format support'
-Message-ID: <Pine.GSO.4.21.0307101748020.3972-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Jul 2003 11:45:57 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:62338 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S269451AbTGJPnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 11:43:47 -0400
+Date: Fri, 11 Jul 2003 01:58:02 +1000
+From: CaT <cat@zip.com.au>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, pekkas@netcore.fi
+Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
+Message-ID: <20030710155802.GF1722@zip.com.au>
+References: <20030710154302.GE1722@zip.com.au> <20030711.005542.04973601.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711.005542.04973601.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 11, 2003 at 12:55:42AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> > ip addr add 3ffe:8001:000c:ffff::37/127 dev sit1
+> >  ip route add ::/0 via 3ffe:8001:000c:ffff::36 
+> > RTNETLINK answers: Invalid argument
+> 
+> This is not bug, but rather misconfiguration;
+> you cannot use prefix::, which is mandatory subnet routers 
+> anycast address, as unicast address.
 
-Why does the help text for CONFIG_QFMT_V2 say `VFS v0 quota format support' and
-not `VFS v2 quota format support'?
+Ok. I'm a bit lost then. What should the line be then? To me the above
+makes sense (and used to work), but then I'm not that experienced with
+IPv6...
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
-
+-- 
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://www.toledoblade.com/apps/pbcs.dll/artikkel?SearchID=73139162287496&Avis=TO&Dato=20030624&Kategori=NEWS28&Lopenr=106240111&Ref=AR

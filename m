@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262639AbTDMAze (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 20:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbTDMAze (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 20:55:34 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:27045 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262639AbTDMAzd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 20:55:33 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Jan Knutar <jk-lkml@sci.fi>, "Timothy Miller" <tmiller10@cfl.rr.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Page compression in lieu of swap?
-Date: Sun, 13 Apr 2003 11:09:10 +1000
-User-Agent: KMail/1.5.1
-References: <000d01c30143$ccf54ad0$6801a8c0@epimetheus> <03041303065500.26409@polaris>
-In-Reply-To: <03041303065500.26409@polaris>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id S262675AbTDMBGE (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 21:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbTDMBGE (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 21:06:04 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:14974 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262675AbTDMBGD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 21:06:03 -0400
+Date: Sat, 12 Apr 2003 18:18:05 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: J Sloan <joe@tmsusa.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug: slab corruption in 2.5.67-mm1
+Message-Id: <20030412181805.1b90bee8.akpm@digeo.com>
+In-Reply-To: <3E988DA2.4080600@tmsusa.com>
+References: <3E988DA2.4080600@tmsusa.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304131109.10326.kernel@kolivas.org>
+X-OriginalArrivalTime: 13 Apr 2003 01:17:44.0954 (UTC) FILETIME=[7CD53DA0:01C3015A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Apr 2003 10:06, Jan Knutar wrote:
-> On Sunday 13 April 2003 01:35, Timothy Miller wrote:
-> > I did some searching of the kernel archives and the only things
-> > related to the forthcoming idea had to do with compressing pages when
-> > writing to swap and doing compressed disks.  Here's a different
-> > idea...
->
-> http://linuxcompressed.sourceforge.net/
->
-> This the same thing?
+J Sloan <joe@tmsusa.com> wrote:
+> 
+> This may be of interest -
+> 
+> kernel: 2.5.67-mm1
+> 
+> Linux distro: Red Hat 8.0 + updates
+> 
+> Hardware:
+> Celeron 1.2 Ghz on Intel Motherboard
+> 512 MB RAM, 2x e100 ethernet
 
-Yes it is and works very well. However it isn't smp or preemptible aware yet. 
-I have a patch against -ck* as well, but it isn't popular because of preempt 
-incompatibility.
+whoa.  Uniprocessor.
 
-Con
+> ---- snip ----
+> Freeing unused kernel memory: 312k freed
+> EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,3), internal journal
+> Adding 514072k swap on /dev/hda2.  Priority:42 extents:1
+> kjournald starting.  Commit interval 5 seconds
+> EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,1), internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+> Slab corruption: start=dfa2f320, expend=dfa2f97f, problemat=dfa2f328
+> Data: ********6A 
+
+Yes, this means that someone ran put_task_struct() against an already-freed
+task_struct.  There's some deubg code in -mm which is supposed to trap this,
+but it obviously didn't trigger for some reason.
+
+Until someone finds a way to reproduce this we're a bit stuck.  A code audit
+may find it.

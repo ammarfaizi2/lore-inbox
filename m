@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267536AbUIWWjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUIWWvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267536AbUIWWjm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 18:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267528AbUIWWf3
+	id S267482AbUIWWvB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 18:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUIWWr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 18:35:29 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:26244 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S267526AbUIWWeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 18:34:14 -0400
-Date: Fri, 24 Sep 2004 02:33:57 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, parisc-linux@parisc-linux.org
-Subject: Re: [PATCH] Sort generic PCI fixups after specific ones
-Message-ID: <20040924023357.A2526@jurassic.park.msu.ru>
-References: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk> <20040923172038.GA8812@kroah.com> <20040923173151.GX16153@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040923173151.GX16153@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Thu, Sep 23, 2004 at 06:31:51PM +0100
+	Thu, 23 Sep 2004 18:47:56 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:5892 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267478AbUIWWpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 18:45:22 -0400
+In-Reply-To: <415339D3.2080206@skynet.be>
+References: <4151E749.7060107@skynet.be> <47612A96-0CDB-11D9-BC62-000D9352858E@linuxmail.org> <415339D3.2080206@skynet.be>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <3E89F45D-0DB2-11D9-BBF4-000D9352858E@linuxmail.org>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: 2.6.x ( unable to open an initial console & unable to mount devfs, err: -5 )
+Date: Fri, 24 Sep 2004 00:45:18 +0200
+To: Madnux <madnux@skynet.be>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 06:31:51PM +0100, Matthew Wilcox wrote:
-> Not really.  There's two types of fixup (well, four if you multiply by
-> the header vs later possibility).  There's the incredibly specific ("this
-> device from this manufacturer forgets to set something properly") and
-> the incredibly general ("if this is a cardbus / IDE device, then ...").
-> This patch simply distinguishes between the two.  Obviously the general
-> ones run after the specific ones -- there's specific devices that forget
-> to set their class code, for example.
+On Sep 23, 2004, at 23:02, Madnux wrote:
 
-This is way not obvious. Example: some architecture requires to put
-_all_ PCI IDE devices in native mode (obviously with a general fixup),
-but what if some specific chips need additional "native mode only"
-workarounds? Your logic won't work then.
+> Sorry but i'm not running udev !
 
-I believe we do need third level of fixups, specifically for devices like
-IDE which can change the PCI header contents (class code, BAR layout etc.)
-depending on some magic bits in their registers.
-Such "early" or "pre-header" fixups should be called right after the device
-discovery, before probing the BARs. Apparently pci_setup_device()
-is a proper place for that.
+That's the problem... FC3T2 is supposed to use udev.
+>
+> I've run /sbin/MAKEDEV but it doesn't work anymore.
 
-Ivan.
+How? What commands did you run?
+>
+> I still get "Unable to open an initial console"
+
+Please, check if /dev/console exists. I guess this special chardev is 
+missing.
+

@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130643AbRAFQHl>; Sat, 6 Jan 2001 11:07:41 -0500
+	id <S131901AbRAFQQR>; Sat, 6 Jan 2001 11:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131393AbRAFQHb>; Sat, 6 Jan 2001 11:07:31 -0500
-Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:30724
-	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S130643AbRAFQHU>; Sat, 6 Jan 2001 11:07:20 -0500
-Date: Sun, 7 Jan 2001 05:07:18 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-Message-ID: <20010107050718.C696@metastasis.f00f.org>
-In-Reply-To: <20010107045346.B696@metastasis.f00f.org> <E14Evjb-0001Dk-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14Evjb-0001Dk-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Jan 06, 2001 at 03:58:20PM +0000
-X-No-Archive: Yes
+	id <S132301AbRAFQQI>; Sat, 6 Jan 2001 11:16:08 -0500
+Received: from mail6.svr.pol.co.uk ([195.92.193.212]:35335 "EHLO
+	mail6.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S131901AbRAFQQC>; Sat, 6 Jan 2001 11:16:02 -0500
+From: "Jared Sulem" <jsulem@sulem.freeserve.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: [non-kernel patch] Re: bug of Nvidia (0.9.5) Drivers in 2.4 Kernel Enviroment
+Date: Sat, 6 Jan 2001 16:19:19 -0000
+Message-ID: <NEBBKEIJMLEIHACEGKDMAEAECAAA.jsulem@sulem.freeserve.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2001 at 03:58:20PM +0000, Alan Cox wrote:
+(replies - cc: jsulem@sulem.freeserve.co.uk)
 
-    Ext2 handles large files almost properly. (properly on 2.2 +
-    patches) NFSv3 handles large files but might be missing the
-    O_LARGEFILE check.  I believe reiserfs went to at least 4Gig.
+Driver should work after applying the following patch.  I'm not a kernel
+hacker so I don't know how good a solution this is (especially suspicious
+of the work around in os-interface.c) but X works on my machine and it has
+not crashed (yet) - have not tried any OpenGL though.
 
-reiserfs 3.6.x under 2.4.x should go much higher unless i am reading
-something wrong
+Apply this to the extracted tar.gz version of the driver and compile that.
+Don't just try and rebuild the binary rpm from the spec file as it will
+extract
+the tar.gz again and all changes will be lost (there should be a tar.gz
+hanging
+around once the src.rpm has been installed).
 
-<pause>
+diff -u NVIDIA_kernel-0.9-5/nv.c NVIDIA_kernel-0.9-5-kern2.4/nv.c
+--- NVIDIA_kernel-0.9-5/nv.c	Sat Aug 26 01:48:38 2000
++++ NVIDIA_kernel-0.9-5-kern2.4/nv.c	Sat Jan  6 14:53:02 2001
+@@ -84,6 +84,9 @@
 
-yup, it does.
+ #include <nv_ref.h>
 
++#define mem_map_inc_count(p) atomic_inc(&(p->count))
++#define mem_map_dec_count(p) atomic_dec(&(p->count))
++
+ #define LINUX_VMA_DEV(vma)  ((vma)->vm_file->f_dentry->d_inode->i_rdev)
 
-as for NFS, I'm not sure how to pass O_LARGEFILE via the protocol and
-since NFS isn't really POSIX like anyhow decided we might as well
-just ingore it and have all sys_open calls for NFS look like
-O_LARGEFILE was specified
+ #ifdef KERNEL_2_3
+@@ -850,7 +853,7 @@
+ struct vm_operations_struct nv_vm_ops = {
+     open:     nv_vma_open,
+     close:    nv_vma_release,
+-    unmap:    nv_vma_unmap,
++    nv_vma_unmap,
+ };
+ #endif
 
+diff -u NVIDIA_kernel-0.9-5/os-interface.c
+NVIDIA_kernel-0.9-5-kern2.4/os-interface.c
+--- NVIDIA_kernel-0.9-5/os-interface.c	Fri Sep  1 03:19:17 2000
++++ NVIDIA_kernel-0.9-5-kern2.4/os-interface.c	Sat Jan  6 14:59:36 2001
+@@ -81,6 +81,9 @@
 
+ #include <os-interface.h>
 
-move this check and also write/seek check into the VFS would make
-sense; right now you can 
++static inline unsigned long get_module_symbol(char *unused1, char *unused2)
+{ return 0; };
++static inline void put_module_symbol(unsigned long unused) { };
++
+ // registry controls
 
+ #define NV_MODULE_NAME       "NVdriver"
 
-  f = open("blah",O_RDWR & ~O_LARGEFILE);
-  lseek(f,1024*1024*1024,SEEK_CUR);
-  lseek(f,1024*1024*1024,SEEK_CUR);
-  lseek(f,1024*1024*1024,SEEK_CUR);
-  write(f,"alan's beard",12);
-  close(f);
-
-and create a file you cannot open again with the same application
-
-
-
-
-  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbUKPVAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbUKPVGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbUKPVAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 16:00:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUKPVAX
+	id S261812AbUKPVGn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:06:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUKPVGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:00:23 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:18912 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S261804AbUKPVAU
+	Tue, 16 Nov 2004 16:06:43 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:28073 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261812AbUKPVGl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:00:20 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 Nov 2004 16:06:41 -0500
+Subject: Re: [patch] prefer TSC over PM Timer
+From: john stultz <johnstul@us.ibm.com>
+To: Dominik Brodowski <linux@dominikbrodowski.de>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041116202944.GA8982@dominikbrodowski.de>
+References: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org>
+	 <1100569104.21267.58.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.61.0411151843190.22091@twinlark.arctic.org>
+	 <1100598645.13732.22.camel@leatherman>
+	 <20041116202944.GA8982@dominikbrodowski.de>
+Content-Type: text/plain
+Message-Id: <1100639185.21267.72.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 16 Nov 2004 13:06:26 -0800
 Content-Transfer-Encoding: 7bit
-Message-ID: <16794.27234.878948.164327@thebsh.namesys.com>
-Date: Wed, 17 Nov 2004 00:00:18 +0300
-To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: pthread_cond_signal not waking thread
-In-Reply-To: <NFBBICMEBHKIKEFBPLMCKEPHJMAA.aathan-linux-kernel-1542@cloakmail.com>
-References: <16794.25535.97260.366902@thebsh.namesys.com>
-	<NFBBICMEBHKIKEFBPLMCKEPHJMAA.aathan-linux-kernel-1542@cloakmail.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew A. writes:
- > 
- > Nikita:
- > 
- > I am running 2.6.10-rc1-bk7 ... what version of the kernel are you
- > talking about?  The link you included does not work.
+On Tue, 2004-11-16 at 12:29, Dominik Brodowski wrote:
+> On Tue, Nov 16, 2004 at 01:50:44AM -0800, john stultz wrote: 
+> > Dominik: are you cool with this?
+> 
+> I agree with handling TMTA specially, as it uses such a different approach
+> to CPU frequency scaling _and_ gets TSC right. Therefore, ACK.
 
-Sorry, I wasn't specific enough. This is URL to the official "Linus tree"
-kept in Bitkeeper. Install Bitkeeper and do 
+Dean: Ok, I'll defer to Dominik then. He's the expert on this. 
 
-    bk clone http://linux.bkbits.net/linux-2.5
+thanks
+-john
 
-to download it.
-
-Nikita.

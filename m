@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbUK3PpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUK3PoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbUK3PpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 10:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbUK3PpQ
+	id S262138AbUK3PoY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 10:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUK3PoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 10:45:16 -0500
-Received: from mailer2.psc.edu ([128.182.66.106]:52173 "EHLO mailer2.psc.edu")
-	by vger.kernel.org with ESMTP id S262110AbUK3Po5 (ORCPT
+	Tue, 30 Nov 2004 10:44:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7655 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262138AbUK3PoH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 10:44:57 -0500
-Date: Tue, 30 Nov 2004 10:44:43 -0500 (EST)
-From: John Heffner <jheffner@psc.edu>
-To: kernel <kernel@nea-fast.com>
-cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 tcp problems
-In-Reply-To: <41AB6476.8060405@nea-fast.com>
-Message-ID: <Pine.LNX.4.58.0411301038150.14716@dexter.psc.edu>
-References: <41AB6476.8060405@nea-fast.com>
+	Tue, 30 Nov 2004 10:44:07 -0500
+Date: Tue, 30 Nov 2004 07:43:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: tvrtko.ursulin@sophos.com
+cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       marcelo.tosatti@cyclades.com, urban@teststation.com
+Subject: Re: [BUG ?] smbfs open always succeeds
+In-Reply-To: <OF080E710F.7E04A0F5-ON80256F5C.0053BD9B-80256F5C.00542AB4@sophos.com>
+Message-ID: <Pine.LNX.4.58.0411300741270.22796@ppc970.osdl.org>
+References: <OF080E710F.7E04A0F5-ON80256F5C.0053BD9B-80256F5C.00542AB4@sophos.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Nov 2004, kernel wrote:
 
-> I've run into a problem with 2.6.(8.1,9) after installing a secondary
-> firewall. When I try to pull data through the original firewall (mail,
-> http, ssh), it stops after approx. 260k. Running ethereal tells me "A
-> segment before the frame was lost" followed by a bunch of  "This is a
-> TCP duplicate ack" when using ssh. All 2.4.x machines and windows
-> clients work fine. I built 2.4.28 and it works fine from my machine. I
-> also fiddled with tcp_ecn and that didn't fix it either. I don't have
-> any problems communicating to "local" machines. I've attached the
-> tcpdump output from an scp attempt. NIC is a 3Com Corporation 3c905B.
 
-Try `echo 0 > /proc/sys/net/ipv4/tcp_window_scaling'.  If this makes it
-work, it's almost certainly a buggy firewall.
+On Tue, 30 Nov 2004 tvrtko.ursulin@sophos.com wrote:
+> 
+> I investigated a bit and found a nfs_open function at 
+> linux-2.6.9/fs/nfs/inode.c line 906 which also always returns 0. So is 
+> this a network filesystem way of handling opens and not a bug after all? I 
+> am not sure though that both nfs and smbfs operate in the same way and am 
+> not claiming that.
 
-Also, tcpdumps are far more useful if they are binary (tcpdump -w) and
-capture the beginning of the connection.
+Many networked filesystems end up doing most of the _real_ permissions
+checking at IO time, not opens. That said, "open()" should return
+definitive errors as early as possible, but sometimes you really have the
+case that the real error only happens when you try to read or write
+something.
 
-  -John
+Not saying that smbfs is right, just explaining that it _might_ be right. 
+
+Urban, did you see the thread?
+
+		Linus

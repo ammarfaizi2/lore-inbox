@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264899AbTFWHqK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 03:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbTFWHqK
+	id S264728AbTFWHpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 03:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTFWHpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 03:46:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61960 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264899AbTFWHqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 03:46:04 -0400
-Date: Mon, 23 Jun 2003 09:00:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@redhat.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix mtdblock / mtdpart / mtdconcat
-Message-ID: <20030623090006.A23411@flint.arm.linux.org.uk>
-Mail-Followup-To: David Woodhouse <dwmw2@redhat.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030623010031.E16537@flint.arm.linux.org.uk> <1056352749.29264.0.camel@passion.cambridge.redhat.com> <20030623082235.A22114@flint.arm.linux.org.uk> <1056353561.29264.4.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1056353561.29264.4.camel@passion.cambridge.redhat.com>; from dwmw2@redhat.com on Mon, Jun 23, 2003 at 08:32:41AM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 23 Jun 2003 03:45:20 -0400
+Received: from mail.uptime.at ([62.116.87.11]:25271 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id S264728AbTFWHpJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 03:45:09 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
+Cc: "'Willy Tarreau'" <willy@w.ods.org>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+Date: Mon, 23 Jun 2003 09:57:39 +0200
+Organization: UPtime system solutions
+Message-ID: <000201c3395d$1e8c0360$020b10ac@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <Pine.LNX.4.55L.0305271701430.9487@freak.distro.conectiva>
+Importance: Normal
+X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
+X-MailScanner: clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-5.4,
+	required 4.1, BAYES_10 -4.70, IN_REP_TO -0.30,
+	QUOTED_EMAIL_TEXT -0.38)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 08:32:41AM +0100, David Woodhouse wrote:
-> On Mon, 2003-06-23 at 08:22, Russell King wrote:
-> > On Mon, Jun 23, 2003 at 08:19:09AM +0100, David Woodhouse wrote:
-> > > On Mon, 2003-06-23 at 01:00, Russell King wrote:
-> > > > Dirtily disable ECC support; it doesn't work when mtdpart is layered
-> > > > on top of mtdconcat on top of CFI flash.
-> > > 
-> > > Please define "doesn't work".
-> > 
-> > Remember those errors I reported to you last night?  That "doesn't work".
-> 
-> /me reads the scrollback.... oh, I see.
-> 
-> You'd do better to disable it in mtdconcat not mtdpart.
+Hi Marcello!
 
-As I said in the original mail, its a quick and dirty hack.  I have
-little interest in finding a better solution at present - I have more
-pressing things that need my attention at present.
+Marcello Tosatti wrote:
+[ ... ]
+> > I also changed the whole server (the one which had the aix7xxx 
+> > problems) in the meantime... Changed the Adaptec 2940, now 
+> > there is a 
+> > Adaptec 29160. I switched from a Dual-P3 to a P4. And well, the 
+> > interessting part, I switched from
+> > 2.4.20(-XX) to 2.4.19. EVERYTHING runs faster and stable now!
+> 
+> Does 2.4.21-rc5 work for you?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Blame me for this! I was very busy the last few weeks, that's why I answer this
+mail soooooo late. Because I have the machine now at home and no longer in a
+production environment, I'm able to test everything...
+
+(FYI. The P4 machine still runs stable. :-) ).
+
+I'll try the latest kernel 2.4.22-pre1 on the dual-machine and tell you if it
+runs stable or not. I believe there are not too much people who have a Dual-PIII
+with an Adaptec controller...(!?)
+
+However...
+
+Keep on going!
+
+Best regards,
+ Oliver
 

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbQLKIBT>; Mon, 11 Dec 2000 03:01:19 -0500
+	id <S129314AbQLKIMv>; Mon, 11 Dec 2000 03:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129824AbQLKIBK>; Mon, 11 Dec 2000 03:01:10 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:46992 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S129415AbQLKIA4>;
-	Mon, 11 Dec 2000 03:00:56 -0500
-Date: Mon, 11 Dec 2000 08:30:06 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-fbdev@vuser.vu.union.edu
-Subject: Re: [linux-fbdev] [PATCH] aty128fb & >8bit
-In-Reply-To: <20001210134847.F4810@opus.bloom.county>
-Message-ID: <Pine.GSO.4.10.10012110829230.29067-100000@escobaria.sonytel.be>
+	id <S129345AbQLKIMl>; Mon, 11 Dec 2000 03:12:41 -0500
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:32008 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S129314AbQLKIM2>; Mon, 11 Dec 2000 03:12:28 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Mon, 11 Dec 2000 08:41:57 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.4.0test11: "nanoseconds patch" (prerelease) available
+Message-ID: <3A34934D.11549.2458DA@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2000, Tom Rini wrote:
-> Hello.  I just noticed that in 2.2.18pre27 you can only use the aty128fb
-> driver at 8 bit, because of some missing bits to drivers/video/Config.in.
-> w/o this you can't use console at > 8 bit nor X.  I would consider this to
-> be a good thing to squash for 2.2.18 final because 2.2.18 is the 1st release
-> in a while that works well on PPC, and lots of PPCs have a rage128.
+Hi,
 
-You mean the FBCON_CFBx options with x > 8? You're correct that you need them
-for a text console, but you don't need them for X.
+related to my question about having nanoseconds in xtime for Linux 2.5, 
+two (or three) people were interested, or at least managed to route 
+their message to me. As promised I have made an early release patch 
+against 2.4.0test11 available at
 
-Gr{oetje,eeting}s,
+ftp.kernel.org:/pub/linux/daemons/ntp/PPS/pps-2.4-pre1.tar.bz2 (63kB, 
+patch + digital signature)
 
-						Geert
+The modified sources compile, link and boot (for arch/i386), but 
+consider this code as alpha quality, and don't use it for production 
+use. It is possible that it works perfectly, but I simply don't have 
+the experience.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Fixes for any architectures are appreciated. Finally I want to get rid 
+of gettimeoffset() and a lot of redundant code.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I noticed that the ATM drivers access xtime directly. If jiffies are 
+not fine enough, do_gettimeofday() has to be called for now. If that's 
+too slow, we have to think about an alternative.
+
+Regards,
+Ulrich
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264327AbTEZJtR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 05:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTEZJtR
+	id S264284AbTEZJnj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 05:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbTEZJnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 05:49:17 -0400
-Received: from snoopy.pacific.net.au ([61.8.0.36]:48057 "EHLO
-	snoopy.pacific.net.au") by vger.kernel.org with ESMTP
-	id S264327AbTEZJtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 05:49:16 -0400
-Date: Mon, 26 May 2003 20:01:50 +1000
-From: Andrew Steele <fozzy@zip.com.au>
-To: mec@shout.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Menuconfig abort error report with mdk 9.1 +skas patch
-Message-ID: <20030526100150.GC29649@zipworld.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 26 May 2003 05:43:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:57770 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264284AbTEZJni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 05:43:38 -0400
+Date: Mon, 26 May 2003 11:55:20 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] signal-latency-2.5.69-B0
+Message-ID: <Pine.LNX.4.44.0305261143140.4970-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm trying to build a kernel using the kernel source from Mandrake 9.1
+the attached patch, against BK-curr, further optimizes the 'kick wakeup'
+scheduler feature:
 
-When I try and go into the ALSA selection off the sound menu
-menuconfig aborts with the following message:
+ - do not kick any CPU on UP
 
--------------------------------------------------------------------
+ - no need to mark the target task for reschedule - it's enough to send an 
+   interrupt to that CPU, that will initiate a signal processing pass.
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+tested on x86 SMP and UP.
 
- Q> scripts/Menuconfig: line 832: MCmenu71: command not found
+	Ingo
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -500,9 +500,12 @@ repeat_lock_task:
+ 					resched_task(rq->curr);
+ 			}
+ 			success = 1;
+-		} else
+-			if (unlikely(kick) && task_running(rq, p))
+-				resched_task(rq->curr);
++		}
++#if CONFIG_SMP
++	       	else
++			if (unlikely(kick) && task_running(rq, p) && (p->thread_info->cpu != smp_processor_id()))
++				smp_send_reschedule(p->thread_info->cpu);
++#endif
+ 		p->state = TASK_RUNNING;
+ 	}
+ 	task_rq_unlock(rq, &flags);
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-
--------------------------------------------------------------------
-
-This is a standard Mandrake 9.1 kernel (which I realise isn't really
-that "standard").  The only patching I've done to it is apply the User
-Mode Linux SKAs patch.
-
-I hope this is helpful to you.
-
-Thanks
-Andrew

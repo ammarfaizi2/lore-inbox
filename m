@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277946AbRJRSgV>; Thu, 18 Oct 2001 14:36:21 -0400
+	id <S277924AbRJRSjb>; Thu, 18 Oct 2001 14:39:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277951AbRJRSgL>; Thu, 18 Oct 2001 14:36:11 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:55048 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S277949AbRJRSf4>; Thu, 18 Oct 2001 14:35:56 -0400
-Message-ID: <3BCF207F.DF01BBB8@zip.com.au>
-Date: Thu, 18 Oct 2001 11:33:36 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-CC: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>,
-        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-Subject: Re: Kernel performance in reference to 2.4.5pre1
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D57B@xfc01.fc.hp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277949AbRJRSjW>; Thu, 18 Oct 2001 14:39:22 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:39320 "EHLO
+	apone.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S277924AbRJRSjH>; Thu, 18 Oct 2001 14:39:07 -0400
+Date: Thu, 18 Oct 2001 14:40:43 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: Todd <todd@unm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ia64 gcc compile prob
+Message-ID: <20011018144042.A2099@apone.devel.redhat.com>
+Mail-Followup-To: Todd <todd@unm.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.A41.4.33.0110181103240.31982-100000@aix07.unm.edu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.A41.4.33.0110181103240.31982-100000@aix07.unm.edu>; from todd@unm.edu on Thu, Oct 18, 2001 at 11:05:38AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"DICKENS,CARY (HP-Loveland,ex2)" wrote:
-> 
-> 2.4.5pre1 is the base for comparison,
-> 
-> [ figures showing that more recent kernels suck ]
-> 
 
-SFS is a rather specialised workload, and synchronous NFS exports
-are not a thing which gets a lot of attention.  It could be one
-small, hitherto unnoticed change which caused this performance
-regression.  And it appears that the change occurred between 2.4.5
-and 2.4.7.
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-We don't know whether this slowdown is caused by changes in the VM,
-the filesystem, the block device layer, nfsd or networking. For example,
-ksoftirqd was introduced between 2.4.5 and 2.4.7.  Could it be that?
+Todd (todd@unm.edu) said: 
+> scsi_ioctl.c: In function `scsi_ioctl_send_command':
+> scsi_ioctl.c:366: Internal compiler error in rws_access_regno, at
+> config/ia64/ia64.c:3689
 
-For all these reasons it would be really helpful if you could
-go back and test the 2.4.6-preX and 2.4.7-preX kernels (binary search)
-and tell us if there was a particular release which caused this decrease in
-throughput.
+It's a compiler bug; fixed in a later release (2.96-9x, 3.0).
+Attached is a hack workaround patch.
 
-If it can be pinned down to a particular patch then there's a good
-chance that it can be fixed.
+Bill
+
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.3-ia64-compile.patch"
+
+--- linux/drivers/scsi/scsi_ioctl.c.foo	Tue May 29 12:59:24 2001
++++ linux/drivers/scsi/scsi_ioctl.c	Tue May 29 12:58:01 2001
+@@ -200,6 +200,7 @@
+ 	unsigned int needed, buf_needed;
+ 	int timeout, retries, result;
+ 	int data_direction;
++	int foo;
+ 
+ 	if (!sic)
+ 		return -EINVAL;
+@@ -209,10 +210,12 @@
+ 	if (verify_area(VERIFY_READ, sic, sizeof(Scsi_Ioctl_Command)))
+ 		return -EFAULT;
+ 
+-	if(__get_user(inlen, &sic->inlen))
++	foo = __get_user(inlen, &sic->inlen);
++	if (foo)
+ 		return -EFAULT;
+ 		
+-	if(__get_user(outlen, &sic->outlen))
++	foo = __get_user(outlen, &sic->outlen);
++	if (foo)
+ 		return -EFAULT;
+ 
+ 	/*
+
+--TB36FDmn/VVEgNH/--

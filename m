@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264495AbSIVTWU>; Sun, 22 Sep 2002 15:22:20 -0400
+	id <S264497AbSIVTZB>; Sun, 22 Sep 2002 15:25:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264497AbSIVTWU>; Sun, 22 Sep 2002 15:22:20 -0400
-Received: from ns.suse.de ([213.95.15.193]:65036 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264495AbSIVTWT>;
-	Sun, 22 Sep 2002 15:22:19 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S264500AbSIVTZB>; Sun, 22 Sep 2002 15:25:01 -0400
+Received: from nameservices.net ([208.234.25.16]:20457 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S264497AbSIVTZA>;
+	Sun, 22 Sep 2002 15:25:00 -0400
+Message-ID: <3D8E1AF8.91C1915D@opersys.com>
+Date: Sun, 22 Sep 2002 15:33:12 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-References: <Pine.LNX.4.44.0209221830400.8911-100000@serv.suse.lists.linux.kernel> <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 22 Sep 2002 21:27:29 +0200
-In-Reply-To: Linus Torvalds's message of "22 Sep 2002 20:36:41 +0200"
-Message-ID: <p734rchu8ny.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+References: <Pine.LNX.4.44.0209221222060.21475-100000@localhost.localdomain> <3D8E14B6.F98A86E4@opersys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
-> 
-> I suspect we'll want to have some form of event tracing eventually, but
-> I'm personally pretty convinced that it needs to be a per-CPU thing, and 
-> the core mechanism would need to be very lightweight. It's easier to build 
-> up complexity on top of a lightweight interface than it is to make a 
-> lightweight interface out of a heavy one.
 
-There is an old patch around from SGI that does exactly this. It is a
-very lightweight binary value tracer that has per CPU buffers. It
-traces using macros that you can easily add. It's called ktrace (not
-to be confused with Ingo's ktrace). I've been porting it for some time
-for my own tracing needs (adding tracing macros as needed but never submitting
-them). If you're interested I can submit it for 2.5 (without any hooks, people
-should just add them as needed and then remove them again) 
+err...
 
--Andi
+Karim Yaghmour wrote:
+> retrieve the information they need easily from LTT without using
+                                                     ^^^^^^^ => by
+> clean interfaces and no table redirection.
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUJES0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUJES1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUJES0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJES0r
+	id S264113AbUJES1s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUJES1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:26:47 -0400
-Received: from secundus.edoceo.com ([216.162.208.165]:54402 "EHLO
-	secundus.edoceo.com") by vger.kernel.org with ESMTP id S262418AbUJES0a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:26:30 -0400
-From: "David Busby" <busby@edoceo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: /dev/misc/inotify 0.11
-Date: Tue, 5 Oct 2004 11:26:29 -0700
-Message-ID: <82C88232E64C7340BF749593380762021166F5@seattleexchange.SMC.LOCAL>
+	Tue, 5 Oct 2004 14:27:48 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:46722 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261405AbUJES1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 14:27:40 -0400
+Message-ID: <4162E754.9020905@sgi.com>
+Date: Tue, 05 Oct 2004 13:26:28 -0500
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Christoph Hellwig <hch@infradead.org>
+CC: tony.luck@intel.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+References: <200410042157.i94Lv7UC104750@fsgi900.americas.sgi.com> <20041005164842.A19754@infradead.org>
+In-Reply-To: <20041005164842.A19754@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <82C88232E64C7340BF749593380762021166F3@seattleexchange.SMC.LOCAL>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> List,
->   I patched my 2.6.8.1 kernel with the inotify-0.11.  There 
-> were some sample utils that in C that came with it.  Thanks.  
-> I've successfully used those to work with inotify.  Here's what's bad:
+Christoph Hellwig wrote:
+> On Mon, Oct 04, 2004 at 04:57:06PM -0500, Pat Gefre wrote:
 > 
-> 1> When I say `cat /dev/misc/inotify' my machine stops responding
-> instantly.  I've not had a chance to see what happens.  I 
-> know I'll not normally say that but when I say something else 
-> dumb like cat /dev/misc/rtc cat will simply wait, not choke 
-> up my whole system.
-> 
-> 2> Reading from /dev/misc/inotify with PERL produces the same effect.
-> 
-> I don't know enough about kernel hacking to really debug this 
-> really well.  I peeked at the code and there still seems to 
-> be calls to dnotify functions, can't I remove those?  I said this in
-> drivers/char/inotify.c(54) static int inotify_debug_flags = 
-> INOTIFY_DEBUG_ALL; so I'll recompile and see what happens.
+>>We have redone the I/O layer in the Altix code.
+>>
+>>We've broken the patch set down to 2 patches. One to remove the files,
+>>the other to add in the new code. Most of the changes from the last
+>>posting are in response to review comments.
 > 
 > 
-> David Busby
-> Edoceo, Inc.
-> http://www.edoceo.com/
+> This looks pretty nice already, but a few small but important issues
+> need sorting out.
 
-So now I upgraded to inotify-0.12 against the same kernel.  I'm still
-having the same issues.
+>  - the patch reformats various unrelated or only slightly related files.
+>    Please don't do that - in general the new style is better than the old
+>    one, but it doesn't belong in this patchA
 
+Guess I don't understand this. Either the code base is Lindent'd or it isn't.

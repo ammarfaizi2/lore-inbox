@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUFRBW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264916AbUFRB3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUFRBW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 21:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUFRBW2
+	id S264916AbUFRB3U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUFRB3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 21:22:28 -0400
-Received: from sol.linkinnovations.com ([203.94.173.142]:49538 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264915AbUFRBV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 21:21:58 -0400
-Date: Fri, 18 Jun 2004 11:21:50 +1000
-From: CaT <cat@zip.com.au>
-To: 4Front Technologies <dev@opensound.com>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 17 Jun 2004 21:29:20 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:53391 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S264916AbUFRB3S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 21:29:18 -0400
+Message-ID: <40D24564.8040307@netscape.net>
+Date: Thu, 17 Jun 2004 21:29:08 -0400
+From: "Nicholas S. Wourms" <nwourms@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 MultiZilla/1.6.4.0b
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618012150.GA8706@zip.com.au>
-References: <40D232AD.4020708@opensound.com> <77709e76040617180749cd1f09@mail.gmail.com> <40D24163.5000006@opensound.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D24163.5000006@opensound.com>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+References: <40D232AD.4020708@opensound.com> <20040617173953.39eae56c.akpm@osdl.org>
+In-Reply-To: <20040617173953.39eae56c.akpm@osdl.org>
+X-Enigmail-Version: 0.76.8.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AOL-IP: 130.127.121.131
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 06:12:03PM -0700, 4Front Technologies wrote:
-> Our software doesn't need any patches like Win4Lin. Our software works
-> off the standard Linux kernel sources (if they were intact).
-> 
-> THe problem here is that SuSE has gone and changed all the kernel headers
-> so that now software doesn't compile. It does work if you were using
-> the stock kerne.org sources.
+> b) They shipped the kitchen sink with 2.4 and their customers still want
+>    to wash the dishes in 2.6.
 
-Personally I'd make sure the drivers worked with the stock kernel and if
-they don't work with a distro's release then the bug is theirs. File it
-with them, include detail and see what happens. If they choose to deviate
-from the default by such a large degree that what is correctly written
-and works with the default no longer works with them, the ball is in their
-court.
+Heh, very funny.  Seriously, though, one "kitchen sink" feature that 
+they had been shipping in 2.4 was iBCS.  Given the recent revival in 
+UFS1/2 FS support, it really would be "nice to see" the iBCS binary 
+compatibility code revived and merged into 2.6.  I'm sure that people in 
+the scientific community would really appreciate this since there are 
+still many new and legacy apps which were/are only for solaris/x86 
+and/or sco/x86.
 
-If need be, tell them you'll accept patches. :)
+I know I'm sure to invite flames for this one, but serious thought 
+should be given to re-merging the khttpd using Ingo Molnar's tux code. 
+The khttpd been part of the kernel for such a long time and since it now 
+works in 2.6 again, why not re-instate it?  FWICT, it is "fairly" 
+self-contained, so the overall impact on existing code should be minimal.
 
-Just my 2c.
+Cheers,
+Nicholas
 
--- 
-    Red herrings strewn hither and yon.

@@ -1,390 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUCBUwT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 15:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUCBUwK
+	id S261769AbUCBU7P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 15:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUCBU7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 15:52:10 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7573 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261763AbUCBUud
+	Tue, 2 Mar 2004 15:59:14 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:22912 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261769AbUCBU7F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 15:50:33 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] update for pdc202xx_new driver
-Date: Tue, 2 Mar 2004 21:57:38 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
+	Tue, 2 Mar 2004 15:59:05 -0500
+Date: Tue, 2 Mar 2004 15:59:48 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: poll 2.6 and beyond
+Message-ID: <Pine.LNX.4.53.0403021550320.2150@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403022157.38433.bzolnier@elka.pw.edu.pl>
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-278847438-1078261188=:2150"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Many thanks to Promise for their support.
-Expect more updates/fixes for Promise PATA soon.
+--1678434306-278847438-1078261188=:2150
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Bartlomiej
 
-[IDE] update for pdc202xx_new driver
+Hello all,
+The provided driver and test code clearly shows that
+poll_wait is returning to the driver as soon as it is
+called, therefore not able to return the correct status.
 
-- fix PIO (auto-)tuning - use pdcnew_new_tune_chipset()
-  and always tune PIO mode even if (U)DMA is used
-- cleanup cable verification code a bit
-- remove leftovers from driver split-up
-- remove duplicate DISPLAY_PDC202XX_TIMINGS define
+It must remain sleeping until awakened by the driver so
+that the driver can provide the correct return status.
 
- linux-2.6.4-rc1-root/drivers/ide/pci/pdc202xx_new.c |  165 --------------------
- linux-2.6.4-rc1-root/drivers/ide/pci/pdc202xx_new.h |  119 --------------
- 2 files changed, 7 insertions(+), 277 deletions(-)
+This driver code doesn't even provide a method of waking
+up poll_wait().  There is no wake_up_interruptible() in
+the code at all!!!
 
-diff -puN drivers/ide/pci/pdc202xx_new.c~pdc27x_update drivers/ide/pci/pdc202xx_new.c
---- linux-2.6.4-rc1/drivers/ide/pci/pdc202xx_new.c~pdc27x_update	2004-03-02 21:14:04.000000000 +0100
-+++ linux-2.6.4-rc1-root/drivers/ide/pci/pdc202xx_new.c	2004-03-02 21:14:04.000000000 +0100
-@@ -140,108 +140,6 @@ static int check_in_drive_lists (ide_dri
- 	return 0;
- }
- 
--static int pdcnew_tune_chipset (ide_drive_t *drive, u8 xferspeed)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	struct pci_dev *dev	= hwif->pci_dev;
--	u8 drive_pci		= 0x60 + (drive->dn << 2);
--	u8 speed	= ide_rate_filter(pdcnew_ratemask(drive), xferspeed);
--
--	u32			drive_conf;
--	u8			AP, BP, CP, DP;
--	u8			TA = 0, TB = 0, TC = 0;
--
--	if ((drive->media != ide_disk) && (speed < XFER_SW_DMA_0))
--		return -1;
--
--	pci_read_config_dword(dev, drive_pci, &drive_conf);
--	pci_read_config_byte(dev, (drive_pci), &AP);
--	pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
--	pci_read_config_byte(dev, (drive_pci)|0x02, &CP);
--	pci_read_config_byte(dev, (drive_pci)|0x03, &DP);
--
--	if (speed < XFER_SW_DMA_0) {
--		if ((AP & 0x0F) || (BP & 0x07)) {
--			/* clear PIO modes of lower 8421 bits of A Register */
--			pci_write_config_byte(dev, (drive_pci), AP &~0x0F);
--			pci_read_config_byte(dev, (drive_pci), &AP);
--
--			/* clear PIO modes of lower 421 bits of B Register */
--			pci_write_config_byte(dev, (drive_pci)|0x01, BP &~0x07);
--			pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
--
--			pci_read_config_byte(dev, (drive_pci), &AP);
--			pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
--		}
--	} else {
--		if ((BP & 0xF0) && (CP & 0x0F)) {
--			/* clear DMA modes of upper 842 bits of B Register */
--			/* clear PIO forced mode upper 1 bit of B Register */
--			pci_write_config_byte(dev, (drive_pci)|0x01, BP &~0xF0);
--			pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
--
--			/* clear DMA modes of lower 8421 bits of C Register */
--			pci_write_config_byte(dev, (drive_pci)|0x02, CP &~0x0F);
--			pci_read_config_byte(dev, (drive_pci)|0x02, &CP);
--		}
--	}
--
--	pci_read_config_byte(dev, (drive_pci), &AP);
--	pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
--	pci_read_config_byte(dev, (drive_pci)|0x02, &CP);
--
--	switch(speed) {
--		case XFER_UDMA_6:	speed = XFER_UDMA_5;
--		case XFER_UDMA_5:
--		case XFER_UDMA_4:	TB = 0x20; TC = 0x01; break;
--		case XFER_UDMA_2:	TB = 0x20; TC = 0x01; break;
--		case XFER_UDMA_3:
--		case XFER_UDMA_1:	TB = 0x40; TC = 0x02; break;
--		case XFER_UDMA_0:
--		case XFER_MW_DMA_2:	TB = 0x60; TC = 0x03; break;
--		case XFER_MW_DMA_1:	TB = 0x60; TC = 0x04; break;
--		case XFER_MW_DMA_0:
--		case XFER_SW_DMA_2:	TB = 0x60; TC = 0x05; break;
--		case XFER_SW_DMA_1:	TB = 0x80; TC = 0x06; break;
--		case XFER_SW_DMA_0:	TB = 0xC0; TC = 0x0B; break;
--		case XFER_PIO_4:	TA = 0x01; TB = 0x04; break;
--		case XFER_PIO_3:	TA = 0x02; TB = 0x06; break;
--		case XFER_PIO_2:	TA = 0x03; TB = 0x08; break;
--		case XFER_PIO_1:	TA = 0x05; TB = 0x0C; break;
--		case XFER_PIO_0:
--		default:		TA = 0x09; TB = 0x13; break;
--	}
--
--	if (speed < XFER_SW_DMA_0) {
--		pci_write_config_byte(dev, (drive_pci), AP|TA);
--		pci_write_config_byte(dev, (drive_pci)|0x01, BP|TB);
--	} else {
--		pci_write_config_byte(dev, (drive_pci)|0x01, BP|TB);
--		pci_write_config_byte(dev, (drive_pci)|0x02, CP|TC);
--	}
--
--#if PDC202XX_DECODE_REGISTER_INFO
--	pci_read_config_byte(dev, (drive_pci), &AP);
--	pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
--	pci_read_config_byte(dev, (drive_pci)|0x02, &CP);
--	pci_read_config_byte(dev, (drive_pci)|0x03, &DP);
--
--	decode_registers(REG_A, AP);
--	decode_registers(REG_B, BP);
--	decode_registers(REG_C, CP);
--	decode_registers(REG_D, DP);
--#endif /* PDC202XX_DECODE_REGISTER_INFO */
--#if PDC202XX_DEBUG_DRIVE_INFO
--	printk(KERN_DEBUG "%s: %s drive%d 0x%08x ",
--		drive->name, ide_xfer_verbose(speed),
--		drive->dn, drive_conf);
--		pci_read_config_dword(dev, drive_pci, &drive_conf);
--	printk("0x%08x\n", drive_conf);
--#endif /* PDC202XX_DEBUG_DRIVE_INFO */
--
--	return (ide_config_drive_speed(drive, speed));
--}
--
- static int pdcnew_new_tune_chipset (ide_drive_t *drive, u8 xferspeed)
- {
- 	ide_hwif_t *hwif	= HWIF(drive);
-@@ -288,19 +186,14 @@ static int pdcnew_new_tune_chipset (ide_
-  * 180, 120,  90,  90,  90,  60,  30
-  *  11,   5,   4,   3,   2,   1,   0
-  */
--static int config_chipset_for_pio (ide_drive_t *drive, u8 pio)
-+static void pdcnew_tune_drive(ide_drive_t *drive, u8 pio)
- {
--	u8 speed = 0;
-+	u8 speed;
- 
- 	if (pio == 5) pio = 4;
- 	speed = XFER_PIO_0 + ide_get_best_pio_mode(drive, 255, pio, NULL);
--        
--	return ((int) pdcnew_tune_chipset(drive, speed));
--}
- 
--static void pdcnew_tune_drive (ide_drive_t *drive, u8 pio)
--{
--	(void) config_chipset_for_pio(drive, pio);
-+	(void)pdcnew_new_tune_chipset(drive, speed);
- }
- 
- static u8 pdcnew_new_cable_detect (ide_hwif_t *hwif)
-@@ -312,56 +205,15 @@ static int config_chipset_for_dma (ide_d
- {
- 	struct hd_driveid *id	= drive->id;
- 	ide_hwif_t *hwif	= HWIF(drive);
--	struct pci_dev *dev	= hwif->pci_dev;
- 	u8 speed		= -1;
--	u8 cable		= 0;
-+	u8 cable;
- 
- 	u8 ultra_66		= ((id->dma_ultra & 0x0010) ||
- 				   (id->dma_ultra & 0x0008)) ? 1 : 0;
- 
--	switch(dev->device) {
--		case PCI_DEVICE_ID_PROMISE_20277:
--		case PCI_DEVICE_ID_PROMISE_20276:
--		case PCI_DEVICE_ID_PROMISE_20275:
--		case PCI_DEVICE_ID_PROMISE_20271:
--		case PCI_DEVICE_ID_PROMISE_20269:
--		case PCI_DEVICE_ID_PROMISE_20270:
--		case PCI_DEVICE_ID_PROMISE_20268:
--			cable = pdcnew_new_cable_detect(hwif);
--#if PDC202_DEBUG_CABLE
--			printk(KERN_DEBUG "%s: %s-pin cable, %s-pin cable, %d\n",
--				hwif->name, hwif->udma_four ? "80" : "40",
--				cable ? "40" : "80", cable);
--#endif /* PDC202_DEBUG_CABLE */
--			break;
--		default:
--			/* If it's not one we know we should never
--			   arrive here.. */
--			BUG();
--	}
-+	cable = pdcnew_new_cable_detect(hwif);
- 
--	/*
--	 * Set the control register to use the 66Mhz system
--	 * clock for UDMA 3/4 mode operation. If one drive on
--	 * a channel is U66 capable but the other isn't we
--	 * fall back to U33 mode. The BIOS INT 13 hooks turn
--	 * the clock on then off for each read/write issued. I don't
--	 * do that here because it would require modifying the
--	 * kernel, separating the fop routines from the kernel or
--	 * somehow hooking the fops calls. It may also be possible to
--	 * leave the 66Mhz clock on and readjust the timing
--	 * parameters.
--	 */
--
--	if ((ultra_66) && (cable)) {
--#ifdef DEBUG
--		printk(KERN_DEBUG "ULTRA 66/100/133: %s channel of Ultra 66/100/133 "
--			"requires an 80-pin cable for Ultra66 operation.\n",
--			hwif->channel ? "Secondary" : "Primary");
--		printk(KERN_DEBUG "         Switching to Ultra33 mode.\n");
--#endif /* DEBUG */
--		/* Primary   : zero out second bit */
--		/* Secondary : zero out fourth bit */
-+	if (ultra_66 && cable) {
- 		printk(KERN_WARNING "Warning: %s channel requires an 80-pin cable for operation.\n", hwif->channel ? "Secondary":"Primary");
- 		printk(KERN_WARNING "%s reduced to Ultra33 mode.\n", drive->name);
- 	}
-@@ -590,10 +442,7 @@ static void __init init_hwif_pdc202new (
- 	hwif->speedproc = &pdcnew_new_tune_chipset;
- 	hwif->resetproc = &pdcnew_new_reset;
- 
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
--		return;
--	}
-+	hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
- 
- 	hwif->ultra_mask = 0x7f;
- 	hwif->mwdma_mask = 0x07;
-diff -puN drivers/ide/pci/pdc202xx_new.h~pdc27x_update drivers/ide/pci/pdc202xx_new.h
---- linux-2.6.4-rc1/drivers/ide/pci/pdc202xx_new.h~pdc27x_update	2004-03-02 21:14:04.000000000 +0100
-+++ linux-2.6.4-rc1-root/drivers/ide/pci/pdc202xx_new.h	2004-03-02 21:14:04.000000000 +0100
-@@ -5,15 +5,6 @@
- #include <linux/pci.h>
- #include <linux/ide.h>
- 
--#define DISPLAY_PDC202XX_TIMINGS
--
--#ifndef SPLIT_BYTE
--#define SPLIT_BYTE(B,H,L)	((H)=(B>>4), (L)=(B-((B>>4)<<4)))
--#endif
--
--#define PDC202XX_DEBUG_DRIVE_INFO		0
--#define PDC202XX_DECODE_REGISTER_INFO		0
--
- const static char *pdc_quirk_drives[] = {
- 	"QUANTUM FIREBALLlct08 08",
- 	"QUANTUM FIREBALLP KA6.4",
-@@ -26,116 +17,6 @@ const static char *pdc_quirk_drives[] = 
- 	NULL
- };
- 
--/* A Register */
--#define	SYNC_ERRDY_EN	0xC0
--
--#define	SYNC_IN		0x80	/* control bit, different for master vs. slave drives */
--#define	ERRDY_EN	0x40	/* control bit, different for master vs. slave drives */
--#define	IORDY_EN	0x20	/* PIO: IOREADY */
--#define	PREFETCH_EN	0x10	/* PIO: PREFETCH */
--
--#define	PA3		0x08	/* PIO"A" timing */
--#define	PA2		0x04	/* PIO"A" timing */
--#define	PA1		0x02	/* PIO"A" timing */
--#define	PA0		0x01	/* PIO"A" timing */
--
--/* B Register */
--
--#define	MB2		0x80	/* DMA"B" timing */
--#define	MB1		0x40	/* DMA"B" timing */
--#define	MB0		0x20	/* DMA"B" timing */
--
--#define	PB4		0x10	/* PIO_FORCE 1:0 */
--
--#define	PB3		0x08	/* PIO"B" timing */	/* PIO flow Control mode */
--#define	PB2		0x04	/* PIO"B" timing */	/* PIO 4 */
--#define	PB1		0x02	/* PIO"B" timing */	/* PIO 3 half */
--#define	PB0		0x01	/* PIO"B" timing */	/* PIO 3 other half */
--
--/* C Register */
--#define	IORDYp_NO_SPEED	0x4F
--#define	SPEED_DIS	0x0F
--
--#define	DMARQp		0x80
--#define	IORDYp		0x40
--#define	DMAR_EN		0x20
--#define	DMAW_EN		0x10
--
--#define	MC3		0x08	/* DMA"C" timing */
--#define	MC2		0x04	/* DMA"C" timing */
--#define	MC1		0x02	/* DMA"C" timing */
--#define	MC0		0x01	/* DMA"C" timing */
--
--#if PDC202XX_DECODE_REGISTER_INFO
--
--#define REG_A		0x01
--#define REG_B		0x02
--#define REG_C		0x04
--#define REG_D		0x08
--
--static void decode_registers (u8 registers, u8 value)
--{
--	u8	bit = 0, bit1 = 0, bit2 = 0;
--
--	switch(registers) {
--		case REG_A:
--			bit2 = 0;
--			printk("A Register ");
--			if (value & 0x80) printk("SYNC_IN ");
--			if (value & 0x40) printk("ERRDY_EN ");
--			if (value & 0x20) printk("IORDY_EN ");
--			if (value & 0x10) printk("PREFETCH_EN ");
--			if (value & 0x08) { printk("PA3 ");bit2 |= 0x08; }
--			if (value & 0x04) { printk("PA2 ");bit2 |= 0x04; }
--			if (value & 0x02) { printk("PA1 ");bit2 |= 0x02; }
--			if (value & 0x01) { printk("PA0 ");bit2 |= 0x01; }
--			printk("PIO(A) = %d ", bit2);
--			break;
--		case REG_B:
--			bit1 = 0;bit2 = 0;
--			printk("B Register ");
--			if (value & 0x80) { printk("MB2 ");bit1 |= 0x80; }
--			if (value & 0x40) { printk("MB1 ");bit1 |= 0x40; }
--			if (value & 0x20) { printk("MB0 ");bit1 |= 0x20; }
--			printk("DMA(B) = %d ", bit1 >> 5);
--			if (value & 0x10) printk("PIO_FORCED/PB4 ");
--			if (value & 0x08) { printk("PB3 ");bit2 |= 0x08; }
--			if (value & 0x04) { printk("PB2 ");bit2 |= 0x04; }
--			if (value & 0x02) { printk("PB1 ");bit2 |= 0x02; }
--			if (value & 0x01) { printk("PB0 ");bit2 |= 0x01; }
--			printk("PIO(B) = %d ", bit2);
--			break;
--		case REG_C:
--			bit2 = 0;
--			printk("C Register ");
--			if (value & 0x80) printk("DMARQp ");
--			if (value & 0x40) printk("IORDYp ");
--			if (value & 0x20) printk("DMAR_EN ");
--			if (value & 0x10) printk("DMAW_EN ");
--
--			if (value & 0x08) { printk("MC3 ");bit2 |= 0x08; }
--			if (value & 0x04) { printk("MC2 ");bit2 |= 0x04; }
--			if (value & 0x02) { printk("MC1 ");bit2 |= 0x02; }
--			if (value & 0x01) { printk("MC0 ");bit2 |= 0x01; }
--			printk("DMA(C) = %d ", bit2);
--			break;
--		case REG_D:
--			printk("D Register ");
--			break;
--		default:
--			return;
--	}
--	printk("\n        %s ", (registers & REG_D) ? "DP" :
--				(registers & REG_C) ? "CP" :
--				(registers & REG_B) ? "BP" :
--				(registers & REG_A) ? "AP" : "ERROR");
--	for (bit=128;bit>0;bit/=2)
--		printk("%s", (value & bit) ? "1" : "0");
--	printk("\n");
--}
--
--#endif /* PDC202XX_DECODE_REGISTER_INFO */
--
- #define set_2regs(a, b)					\
- 	do {						\
- 		hwif->OUTB((a + adj), indexreg);	\
+The first
 
-_
+	Linux Thingy : poll() called
+	Linux Thingy : poll() returned
 
+... group occurred when the user-mode code called poll(). The
+second identical group occurred when ^C was used to signal
+termination.
+
+
+Script started on Tue Mar  2 15:46:50 2004
+# make clean
+rm -f *.o THINK tester
+# make
+gcc -Wall -O2 -D__KERNEL__ -DMODULE -DMAJOR_NR=199  -I/usr/src/linux-2.4.24/include -c -o thingy.o thingy.c
+gcc -Wall -o tester -O2 tester.c
+rm -f THING
+mknod THING c 199 0
+# insmod thingy.o
+# strace ./tester
+execve("./tester", ["./tester"], [/* 32 vars */]) = 0
+brk(0)                                  = 0x8049710
+open("/etc/ld.so.preload", O_RDONLY)    = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
+old_mmap(NULL, 0, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = 0
+close(3)                                = 0
+open("/lib/libc.so.6", O_RDONLY)        = 3
+old_mmap(NULL, 4096, PROT_READ, MAP_PRIVATE, 3, 0) = 0x4000c000
+munmap(0x4000c000, 4096)                = 0
+old_mmap(NULL, 644232, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x4000c000
+mprotect(0x40097000, 74888, PROT_NONE)  = 0
+old_mmap(0x40097000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x8b000) = 0x40097000
+old_mmap(0x4009d000, 50312, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4009d000
+close(3)                                = 0
+mprotect(0x4000c000, 569344, PROT_READ|PROT_WRITE) = 0
+mprotect(0x4000c000, 569344, PROT_READ|PROT_EXEC) = 0
+personality(PER_LINUX)                  = 0
+getpid()                                = 2122
+open("THING", O_RDONLY)                 = 3
+poll(
+ <unfinished ...>
+# dmesg | tail
+Linux Thingy : module removed
+Linux Thingy : initialization complete
+Linux Thingy : poll() called
+Linux Thingy : poll() returned
+Linux Thingy : poll() called
+Linux Thingy : poll() returned
+# exit
+exit
+
+Script done on Tue Mar  2 15:47:48 2004
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+
+--1678434306-278847438-1078261188=:2150
+Content-Type: APPLICATION/octet-stream; name="module.tar.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0403021559480.2150@chaos>
+Content-Description: 
+Content-Disposition: attachment; filename="module.tar.gz"
+
+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
+
+--1678434306-278847438-1078261188=:2150--

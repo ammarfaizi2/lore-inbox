@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280402AbRK1TeM>; Wed, 28 Nov 2001 14:34:12 -0500
+	id <S280357AbRK1TdJ>; Wed, 28 Nov 2001 14:33:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280365AbRK1TeB>; Wed, 28 Nov 2001 14:34:01 -0500
-Received: from [128.165.17.254] ([128.165.17.254]:48336 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S280402AbRK1Tdq>; Wed, 28 Nov 2001 14:33:46 -0500
-Date: Wed, 28 Nov 2001 12:33:41 -0700
-From: Eric Weigle <ehw@lanl.gov>
-To: Lars Brinkhoff <lars.spam@nocrew.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Magic Lantern
-Message-ID: <20011128123341.K22767@lanl.gov>
-In-Reply-To: <Pine.LNX.3.95.1011128090654.10732B-100000@chaos.analogic.com> <20011128081305.I22767@lanl.gov> <85oflmvi8g.fsf@junk.nocrew.org>
-Mime-Version: 1.0
+	id <S280257AbRK1Tcu>; Wed, 28 Nov 2001 14:32:50 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:56069 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280357AbRK1Tcp>; Wed, 28 Nov 2001 14:32:45 -0500
+Message-ID: <3C053BA7.874FCE12@zip.com.au>
+Date: Wed, 28 Nov 2001 11:31:51 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Unresponiveness of 2.4.16
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CAE1@mail0.myrio.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <85oflmvi8g.fsf@junk.nocrew.org>
-User-Agent: Mutt/1.3.18i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28, 2001 at 07:54:39PM +0100, Lars Brinkhoff wrote:
-> Eric Weigle <ehw@lanl.gov> writes:
-> > > > "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> > > > > Basically, a "tee" to capture all network packets and pass them
-> > > > > on to a filtering task without affecting normal network activity.
-> > > > The af_packet module can read and write raw ethernet frames.
-> > The af_packet module may also be fairly inefficient. If you need
-> > performance over, say, a gigabit link, you may have trouble.
+Torrey Hoffman wrote:
 > 
-> Are you (or anyone else) aware of any alternative?
-I'm sure it's just something silly that's hurt the performance of the
-af_packet module (perhaps already fixed, perhaps in my methodology :|)
+> Hmm. Speaking of dbench, I tried the combination of 2.4.16,
+> your 2.4.16 low latency patch, and the IO scheduling patch
+> on my dual PIII.
+> 
+> After starting it up I did a dbench 32 on a 180 GB reiserfs
+> running on software RAID 5, just to see if it would
+> fall over, and during the run I got the following error/
+> warning message printed about 20 times on the console
+> and in the kernel log:
+> 
+> vs-4150: reiserfs_new_blocknrs, block not free<4>
+> 
 
-For the purposes of the work I was doing here (totally unrelated to this
-Magic Lantern BS, which I didn't even know what it was until after I posted
-the first response in this thread), I just needed to saturate a gigE link for
-testing. To do this I just used three boxes flooding UDP packets and that
-worked. As far as traffic collection goes (which is what I was testing),
-we went with another approach-- an optical tap to snarf off a copy of all
-the data on a link, and then a custom kernel I hacked up to do the work
-in the kernel itself (avoiding the kernel--user space copy and the stack
-entirely). This is not for the faint of heart.
+uh-oh.  I probably broke reiserfs in the low-latency patch.
 
+It's fairly harmless - we drop the big kernel lock, schedule
+away.  Upon resumption, the block we had decided to allocate
+has been allocated by someone else.  The filesystem emits a
+warning and goes off to find a different block.
 
--Eric
+Will fix.
 
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------
+-

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTLaMoq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 07:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTLaMoq
+	id S264450AbTLaMnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 07:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTLaMnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 07:44:46 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:53679 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263653AbTLaMon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 07:44:43 -0500
-X-Sender-Authentication: net64
-Date: Wed, 31 Dec 2003 13:44:41 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with SYM53C8XX SCSI support in 2.4.23
-Message-Id: <20031231134441.5045155f.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 31 Dec 2003 07:43:32 -0500
+Received: from 195-23-16-24.nr.ip.pt ([195.23.16.24]:40320 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S264450AbTLaMnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 07:43:31 -0500
+Message-ID: <3FF2C45D.6090004@grupopie.com>
+Date: Wed, 31 Dec 2003 12:43:09 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+References: <20031231002942.GB2875@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Greg KH wrote:
 
-does anybody know if the following messages point to a broken controller or drive or some other reason:
+> Oh yeah, and there are the insolvable race conditions with the devfs
+> implementation in the kernel, but I'm not going to talk about them right
+> now, sorry.  See the linux-kernel archives if you care about them (and
+> if you use devfs, you should care...)
 
-Dec 30 01:20:30 box kernel: sym53c1010-33-0:0: ERROR (81:0) (8-af-80) (3e/18) @ (script 50:f31c0004).
-Dec 30 01:20:30 box kernel: sym53c1010-33-0: script cmd = 90080000
-Dec 30 01:20:30 box kernel: sym53c1010-33-0: regdump: da 10 80 18 47 3e 00 0e 00 08 80 af 00 00 07 02 01 00 00 00 0a 00 00 00.
-Dec 30 01:20:30 box kernel: sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
-Dec 30 01:20:30 box kernel: sym53c1010-33-0: Downloading SCSI SCRIPTS.
-Dec 30 01:20:57 box kernel: sym53c1010-33-0:0: ERROR (81:0) (8-af-80) (3e/18) @ (script 50:f31c0004).
-Dec 30 01:20:57 box kernel: sym53c1010-33-0: script cmd = 90080000
-Dec 30 01:20:57 box kernel: sym53c1010-33-0: regdump: da 10 80 18 47 3e 00 0e 00 08 80 af 00 00 07 02 01 00 00 00 0a 00 00 00.
-Dec 30 01:20:57 box kernel: sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
-Dec 30 01:20:57 box kernel: sym53c1010-33-0: Downloading SCSI SCRIPTS.   
-Dec 30 01:49:30 box kernel: sym53c1010-33-0:0: ERROR (81:0) (8-0-0) (3e/18) @ (script 50:f31c0004).
-Dec 30 01:49:30 box kernel: sym53c1010-33-0: script cmd = 90080000
-Dec 30 01:49:30 box kernel: sym53c1010-33-0: regdump: da 00 00 18 47 3e 00 0f 00 08 80 00 00 00 07 02 01 00 00 00 02 00 00 00.
-Dec 30 01:49:30 box kernel: sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
-Dec 30 01:49:30 box kernel: sym53c1010-33-0: Downloading SCSI SCRIPTS.
+I really think you should, because IMHO this is *the* major argument against devfs.
 
-There is no heavy action going on during this time. The hardware worked for flawlessly for years.
+I spent days trying to tweak a mandrake distribution into running from a Compact 
+Flash card.
 
-Regards,
-Stephan
+The init sequence would fail with I/O errors as if the card had hardware 
+problems. It took me a long time to realize that it was devfs and devfsd the 
+culprits. With *exactly* the same setup, but static device nodes the system 
+worked just fine.
+
+Maybe it was the slow compact flash PIO modes that were triggering the bug, but 
+the truth was that devfs had bugs in it, and I never saw anyone trying to 
+correct them later.
+
+So my opinion is: udev is *really* needed and you're doing a great job with it. 
+Don't let anyone tell you otherwise :)
+
+Just my 2 cents,
+
+-- 
+Paulo Marques - www.grupopie.com
+
+"In a world without walls and fences who needs windows and gates?"
+

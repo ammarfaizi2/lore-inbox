@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265335AbTFMQzo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbTFMQzn
+	id S265239AbTFMREP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 13:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbTFMREO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:55:43 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:931 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S265335AbTFMQz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:55:29 -0400
-Date: Fri, 13 Jun 2003 12:08:12 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Torrey Hoffman <thoffman@arnor.net>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: scsi_add_device() broken? (was Re: SBP2 hotplug doesn't update /proc/partitions)
-Message-ID: <20030613160812.GA520@hopper.phunnypharm.org>
-References: <1054770509.1198.79.camel@torrey.et.myrio.com> <3EDE870C.1EFA566C@digeo.com> <1054838369.1737.11.camel@torrey.et.myrio.com> <20030605175412.GF625@phunnypharm.org> <1054858724.3519.19.camel@torrey.et.myrio.com> <20030606025721.GJ625@phunnypharm.org> <1055446080.3480.291.camel@torrey.et.myrio.com> <20030612195243.GV4695@phunnypharm.org> <20030613024044.GA499@hopper.phunnypharm.org>
+	Fri, 13 Jun 2003 13:04:14 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:27284 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265239AbTFMREO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 13:04:14 -0400
+Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- blkdev_put() problem?
+From: Andy Pfiffer <andyp@osdl.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: christophe@saout.de, adam@yggdrasil.com, linux-kernel@vger.kernel.org,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Unai Garro Arrazola <Unai.Garro@ee.ed.ac.uk>,
+       Max Valdez <maxvalde@fis.unam.mx>,
+       Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
+In-Reply-To: <20030613010149.359cb4dd.akpm@digeo.com>
+References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
+	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+	 <1052513725.15923.45.camel@andyp.pdx.osdl.net>
+	 <1055369326.1158.252.camel@andyp.pdx.osdl.net>
+	 <1055373692.16483.8.camel@chtephan.cs.pocnet.net>
+	 <1055377253.1222.8.camel@andyp.pdx.osdl.net>
+	 <20030611172958.5e4d3500.akpm@digeo.com>
+	 <1055438856.1202.6.camel@andyp.pdx.osdl.net>
+	 <20030612105347.6ea644b7.akpm@digeo.com>
+	 <1055441028.1202.11.camel@andyp.pdx.osdl.net>
+	 <1055442331.1225.11.camel@andyp.pdx.osdl.net>
+	 <20030613010149.359cb4dd.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055524632.1233.1.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030613024044.GA499@hopper.phunnypharm.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Jun 2003 10:17:12 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> scsi0 : SCSI emulation for IEEE-1394 SBP-2 Devices
-> ieee1394: sbp2: Query logins to SBP-2 device successful
-> ieee1394: sbp2: Maximum concurrent logins supported: 1
-> ieee1394: sbp2: Number of active logins: 0
-> ieee1394: sbp2: Logged into SBP-2 device
-> ieee1394: sbp2: Node[02:1023]: Max speed [S400] - Max payload [2048]
->   Vendor: FireWire  Model:  1394 Disk Drive  Rev: G603
->   Type:   Direct-Access                      ANSI SCSI revision: 02
-> SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
-> sda: cache data unavailable
-> sda: assuming drive cache: write through
->  sda: unknown partition table
-> devfs_mk_dir: invalid argument.<5>Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+On Fri, 2003-06-13 at 01:01, Andrew Morton wrote:
+> Fix this by just leaving the inode dirty and moving on to inspect the other
+> blockdev inodes on sb->s_io.
 
-Here's the scenario. scsi_add_lun doesn't set sdp->devfs_name before
-calling scsi_register_device(). Since scsi_register_device calls down to
-things like sd_probe, which do try to use sdp->devfs_name, things fail.
+Yup, this fixed it for me, too.  Thanks for your help.  --Andy
 
-Just an easy change, moving the sdp->devfs_name creation before calling
-scsi_register_device(). Patch fixes this.
 
-Index: linux-2.5/drivers/scsi/scsi_scan.c
-===================================================================
---- linux-2.5/drivers/scsi/scsi_scan.c	(revision 10937)
-+++ linux-2.5/drivers/scsi/scsi_scan.c	(working copy)
-@@ -619,12 +619,12 @@
- 	if (inq_result[7] & 0x10)
- 		sdev->sdtr = 1;
- 
--	scsi_device_register(sdev);
--
- 	sprintf(sdev->devfs_name, "scsi/host%d/bus%d/target%d/lun%d",
- 				sdev->host->host_no, sdev->channel,
- 				sdev->id, sdev->lun);
- 
-+	scsi_device_register(sdev);
-+
- 	/*
- 	 * End driverfs/devfs code.
- 	 */
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265484AbSKWABC>; Fri, 22 Nov 2002 19:01:02 -0500
+	id <S265470AbSKVX5T>; Fri, 22 Nov 2002 18:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265543AbSKWABB>; Fri, 22 Nov 2002 19:01:01 -0500
-Received: from pool-151-197-236-210.phil.east.verizon.net ([151.197.236.210]:15257
-	"EHLO ingchai.lan") by vger.kernel.org with ESMTP
-	id <S265484AbSKWABA>; Fri, 22 Nov 2002 19:01:00 -0500
-Date: Fri, 22 Nov 2002 19:08:23 -0500
-From: SLion <s.lion@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.49 bk 
-Message-ID: <20021123000823.GA11439@ingchai.lan>
+	id <S266100AbSKVX5T>; Fri, 22 Nov 2002 18:57:19 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:15249 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265470AbSKVX5T>;
+	Fri, 22 Nov 2002 18:57:19 -0500
+Date: Sat, 23 Nov 2002 00:06:17 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: David Schwartz <davids@webmaster.com>
+Cc: gianni@ecsc.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: TCP memory pressure question
+Message-ID: <20021123000616.GB19162@bjl1.asuk.net>
+References: <1037966789.6079.33.camel@lemsip> <20021122202855.AAA322@shell.webmaster.com@whenever>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20021122202855.AAA322@shell.webmaster.com@whenever>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just pulled 2.5.49 and get the following while doing menuconfig.
+David Schwartz wrote:
+> 	So this would be a case where 'poll' or 'select' would return
+> a write hit for a socket but 'write' would return -1 and set errno
+> to EAGAIN.
 
-  gcc  -o scripts/lxdialog/lxdialog scripts/lxdialog/checklist.o
-  scripts/lxdialog/menubox.o scripts/lxdialog/textbox.o
-  scripts/lxdialog/yesno.o scripts/lxdialog/inputbox.o
-  scripts/lxdialog/util.o scripts/lxdialog/lxdialog.o
-  scripts/lxdialog/msgbox.o -lncurses 
-  ./scripts/kconfig/mconf arch/i386/Kconfig
-  drivers/char/Kconfig:640: can't open file
-  "drivers/char/watchdog/Kconfig"
-  make: *** [menuconfig] Error 1
+Is this really true?  It would livelock several servers I've worked on...
 
-Looks like something got lost here.
-
--SL
+-- Jamie

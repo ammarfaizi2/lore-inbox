@@ -1,155 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265908AbUAMWYV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 17:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbUAMWXi
+	id S265865AbUAMWcT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 17:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265873AbUAMWcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 17:23:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62158 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265865AbUAMWXM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 17:23:12 -0500
-Date: Tue, 13 Jan 2004 14:22:04 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: jt@hpl.hp.com
-Cc: jt@bougret.hpl.hp.com, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.X] SIOCSIFNAME wilcard suppor & name validation
-Message-Id: <20040113142204.0b41403b.shemminger@osdl.org>
-In-Reply-To: <20040112234332.GA1785@bougret.hpl.hp.com>
-References: <20040112234332.GA1785@bougret.hpl.hp.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Tue, 13 Jan 2004 17:32:18 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:45705
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S265865AbUAMWcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 17:32:14 -0500
+Date: Tue, 13 Jan 2004 17:44:22 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org
+Subject: Re: Proposed enhancements to MD
+Message-ID: <20040113174422.B16728@animx.eu.org>
+References: <40033D02.8000207@adaptec.com> <1074031592.4981.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <1074031592.4981.1.camel@laptop.fenrus.com>; from Arjan van de Ven on Tue, Jan 13, 2004 at 11:06:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is an enhanced version of the previous patch.
-It adds both the wildcard support that Jean did, and validation of network
-device names.
+> > Adaptec has been looking at the MD driver for a foundation for their
+> > Open-Source software RAID stack.
+> 
+> Hi,
+> 
+> Is there a (good) reason you didn't use Device Mapper for this? It
+> really sounds like Device Mapper is the way to go to parse and use
+> raid-like formats to the kernel, since it's designed to be independent
+> of on disk formats, unlike MD.
 
-It doesn't check the error return from class_device_rename because
-that will not fail unless object or name are null.
+As I've understood it, the configuration for DM is userspace and the kernel
+can't do any auto detection.  This would be a "put off" for me to use as a
+root filesystem.  Configurations like this (and lvm too last I looked at it)
+require an initrd or some other way of setting up the device.  Unfortunately
+this means that there's configs in 2 locations (one not easily available,  if
+using initrd.  easily != mounting via loop!)
 
-diff -Nru a/net/core/dev.c b/net/core/dev.c
---- a/net/core/dev.c	Tue Jan 13 14:20:51 2004
-+++ b/net/core/dev.c	Tue Jan 13 14:20:51 2004
-@@ -621,6 +621,21 @@
- }
- 
- /**
-+ *	dev_valid_name - check if name is okay for network device
-+ *	@name: name string
-+ *
-+ *	Network device names need to be valid file names to
-+ *	to allow sysfs to work
-+ */
-+int dev_valid_name(const char *name)
-+{
-+	return !(*name == '\0' 
-+		 || !strcmp(name, ".")
-+		 || !strcmp(name, "..")
-+		 || strchr(name, '/'));
-+}
-+
-+/**
-  *	dev_alloc_name - allocate a name for a device
-  *	@dev: device
-  *	@name: name format string
-@@ -660,6 +675,41 @@
- 	return -ENFILE;	/* Over 100 of the things .. bail out! */
- }
- 
-+
-+/**
-+ *	dev_change_name - change name of a device
-+ *	@dev: device
-+ *	@name: name (or format string) must be at least IFNAMSIZ
-+ *
-+ *	Change name of a device, can pass format strings "eth%d".
-+ *	for wildcarding.
-+ */
-+int dev_change_name(struct net_device *dev, char *newname)
-+{
-+	ASSERT_RTNL();
-+
-+	if (dev->flags & IFF_UP)
-+		return -EBUSY;
-+
-+	if (!dev_valid_name(newname))
-+		return -EINVAL;
-+
-+	if (strchr(newname, '%')) {
-+		int err = dev_alloc_name(dev, newname);
-+		if (err)
-+			return err;
-+		strcpy(newname, dev->name);
-+	}
-+	else if (__dev_get_by_name(newname))
-+		return -EEXIST;
-+	else
-+		strlcpy(dev->name, newname, IFNAMSIZ);
-+
-+	class_device_rename(&dev->class_dev, dev->name);
-+	notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
-+	return 0;
-+}
-+
- /**
-  *	dev_alloc - allocate a network device and name
-  *	@name: name format string
-@@ -2359,20 +2409,8 @@
- 			return 0;
- 
- 		case SIOCSIFNAME:
--			if (dev->flags & IFF_UP)
--				return -EBUSY;
- 			ifr->ifr_newname[IFNAMSIZ-1] = '\0';
--			if (__dev_get_by_name(ifr->ifr_newname))
--				return -EEXIST;
--			err = class_device_rename(&dev->class_dev, 
--						  ifr->ifr_newname);
--			if (!err) {
--				strlcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
--
--				notifier_call_chain(&netdev_chain,
--						    NETDEV_CHANGENAME, dev);
--			}
--			return err;
-+			return dev_change_name(dev, ifr->ifr_newname);
- 
- 		/*
- 		 *	Unknown or private ioctl
-@@ -2505,6 +2543,7 @@
- 		 */
- 		case SIOCGMIIPHY:
- 		case SIOCGMIIREG:
-+		case SIOCSIFNAME:
- 			if (!capable(CAP_NET_ADMIN))
- 				return -EPERM;
- 			dev_load(ifr.ifr_name);
-@@ -2536,7 +2575,6 @@
- 		case SIOCDELMULTI:
- 		case SIOCSIFHWBROADCAST:
- 		case SIOCSIFTXQLEN:
--		case SIOCSIFNAME:
- 		case SIOCSMIIREG:
- 		case SIOCBONDENSLAVE:
- 		case SIOCBONDRELEASE:
-@@ -2685,6 +2723,11 @@
- 				ret = -EIO;
- 			goto out_err;
- 		}
-+	}
-+ 
-+	if (!dev_valid_name(dev->name)) {
-+		ret = -EINVAL;
-+		goto out_err;
- 	}
- 
- 	dev->ifindex = dev_new_index();
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

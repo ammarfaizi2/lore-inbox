@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269640AbUHZVAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269469AbUHZVAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269640AbUHZVAi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 17:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269469AbUHZVA0
+	id S269469AbUHZVAj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 17:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269635AbUHZU7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 17:00:26 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30648 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269662AbUHZU5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:57:19 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christophe Saout <christophe@saout.de>
-Cc: Will Dyson <will_dyson@pobox.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <1093553429.13881.48.camel@leto.cs.pocnet.net>
-References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de>
-	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-	 <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
-	 <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
-	 <20040826001152.GB23423@mail.shareable.org>
-	 <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk>
-	 <20040826010049.GA24731@mail.shareable.org>
-	 <20040826100530.GA20805@taniwha.stupidest.org>
-	 <20040826110258.GC30449@mail.shareable.org>  <412E06B2.7060106@pobox.com>
-	 <1093552705.5678.96.camel@krustophenia.net>
-	 <1093553429.13881.48.camel@leto.cs.pocnet.net>
-Content-Type: text/plain
-Message-Id: <1093553846.5678.102.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 26 Aug 2004 16:57:26 -0400
+	Thu, 26 Aug 2004 16:59:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34299 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269657AbUHZU4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:56:54 -0400
+Date: Thu, 26 Aug 2004 13:55:36 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.6.9-rc1-mm1
+Message-ID: <52540000.1093553736@flay>
+In-Reply-To: <412E11ED.7040300@kolivas.org>
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl> <412E11ED.7040300@kolivas.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-26 at 16:50, Christophe Saout wrote:
-> Am Donnerstag, den 26.08.2004, 16:38 -0400 schrieb Lee Revell:
-> 
-> > > It has always bugged me that Gnome and KDE implement their own VFS layers. 
-> > 
-> > Same here.  This always seemed like something the kernel should be able
-> > to handle.  It seems to me that if reiser4 had been available at the
-> > time the Gnome and KDE developers would not have needed to do this.
-> 
-> Well, the kernel doesn't have a filesystem that speaks http, scp and
-> those things. GnomeVFS is URL-based. It has some pseudo-protocols that
-> extract a pseudo directory-tree for all installed applications + the
-> changes the used made, created on the fly from a set of XML files that
-> are read-only and system-wide and the user-overridden changes. I don't
-> know if all of these things would really make sense inside the kernel.
-> 
+--On Friday, August 27, 2004 02:38:05 +1000 Con Kolivas <kernel@kolivas.org> wrote:
 
-True.  FWIW, I never use most of those features.  It's just too damn
-slow.  Windows seems to implement all of the useful features of
-GnomeVFS, and they are 10x faster.
+> Rafael J. Wysocki wrote:
+>> On Thursday 26 of August 2004 13:07, Con Kolivas wrote:
+>> 
+>>> Andrew Morton wrote:
+>>> 
+>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2
+>>>> .6.9-rc1-mm1/
+>>>> 
+>>>> 
+>>>> - nicksched is still here.  There has been very little feedback, except
+>>>> that it seems to slow some workloads on NUMA.
+>>> 
+>>> That's because most people aren't interested in a new cpu scheduler for
+>>> 2.6.
+>> 
+>> 
+>> I am, but I have no benchmarks that give any useful numbers.
+> 
+> That's because there are none for interactivity; you're simply 
+> reinforcing my point.
 
-Lee
+Rick's schedstats stuff had some ways to measure latency that seemed to work
+quite nicely. Hard to simulate exactly mozilla, email, etc, but probably
+close enough to be far more use than "ooh, it feels faster".
+
+He did a whole paper at OLS ... Rick ... pointer?
+
+>> Actually, with the current scheduler, updatedb really sucks.  It's supposed to 
+>> be a background task, but it hogs IO resources and memory like crazy 
+>> (disclaimer: it's my personal subjective observation).
+> 
+> The cpu scheduler plays almost no part in this. It's the I/O scheduler and the vm. IOnice will help the former _when it comes out_. Dropping the swappiness kind of helps the latter; although there are numerous alternative tweaks appearing for that too.
+
+Yup. I can open a large 8Mpixel camera image in "display" and hang the whole
+system for about 30s too ;-(
+
+M.
 

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269806AbRHDFoF>; Sat, 4 Aug 2001 01:44:05 -0400
+	id <S269805AbRHDFtF>; Sat, 4 Aug 2001 01:49:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269807AbRHDFnz>; Sat, 4 Aug 2001 01:43:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20996 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269806AbRHDFnq>;
-	Sat, 4 Aug 2001 01:43:46 -0400
-Date: Sat, 4 Aug 2001 02:43:41 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Jeremy Linton <jlinton@interactivesi.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Free memory starvation in a zone?
-In-Reply-To: <Pine.LNX.4.33.0108040724320.873-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33L.0108040243040.2526-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S269807AbRHDFs4>; Sat, 4 Aug 2001 01:48:56 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:4796 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269805AbRHDFsr>;
+	Sat, 4 Aug 2001 01:48:47 -0400
+Date: Sat, 4 Aug 2001 01:48:56 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic
+ change patch)
+In-Reply-To: <20010804055307.H16516@emma1.emma.line.org>
+Message-ID: <Pine.GSO.4.21.0108040140390.5264-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Aug 2001, Mike Galbraith wrote:
 
-> > Are you sure you're seeing kreclaimd looping too much here ?
->
-> Snippet from one of Dirk's logs.
->
->   PID  PPID USER     PRI  SIZE SWAP  RSS SHARE   D STAT %CPU %MEM   TIME COMMA
->     3     1 root      20     0    0    0     0   0 RW   58.8  0.0   2:41 kswapd
->  1494  1421 novatest  15 2009M 640M 1.3G 51476  0M R N  40.8 34.5   6:26 ceqsim
->  1751  1747 root      14  1048    4 1044   824  55 R    28.0  0.0   0:02 top
->     4     1 root      14     0    0    0     0   0 SW   27.1  0.0   1:06 krecla
 
-I'm pretty sure this is because kreclaimd is woken up from
-__alloc_pages() all the time and cannot find anything useful
-to do ...
+On Sat, 4 Aug 2001, Matthias Andree wrote:
 
-regards,
+> On Fri, 03 Aug 2001, Alexander Viro wrote:
+> 
+> > It has nothing to bindings/mount/etc. fsync /a/b/c. While c is written
+> > out, mv a/b/c /a/d/c. While d is written out, mv a/d/c a/b/c && mv a/d e/d
+> > Through all these renames /a remained the grandparent of c. You won't sync it -
+> > you sync c, then d, then e, then root.
+> 
+> Which looks like the right thing, what used to be a/b/c is now e/d/c --
+> and you synced c, d, and e.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Like hell it is.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+/        /a        /a/b        /a/b/c        /a/d        /e
+                               ^^^^^^
+/        /a        /a/b        /a/d/c        /a/d        /e
+                               ^^^^^^
+/        /a        /a/b        /a/b/c        /a/d        /e
+                                             ^^^^
+/        /a        /a/b        /a/b/c        /e/d        /e
+                                             ^^^^
+/        /a        /a/b        /a/b/c        /e/d        /e
+                                                         ^^
+/        /a        /a/b        /a/b/c        /e/d        /e
+^
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Result of these renames is the same as mv /a/d /e/d. See above for names
+and currently synced inode during that sequence...
 

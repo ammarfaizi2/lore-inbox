@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316517AbSEOXI0>; Wed, 15 May 2002 19:08:26 -0400
+	id <S316519AbSEOXLm>; Wed, 15 May 2002 19:11:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316518AbSEOXIZ>; Wed, 15 May 2002 19:08:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16645 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316517AbSEOXIZ>;
-	Wed, 15 May 2002 19:08:25 -0400
-Message-ID: <3CE2EA24.961D2CF@zip.com.au>
-Date: Wed, 15 May 2002 16:07:16 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Kravetz <kravetz@us.ibm.com>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bug with shared memory.
-In-Reply-To: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com> <3CE16683.29A888F8@zip.com.au> <20020515154200.B8975@w-mikek2.des.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316520AbSEOXLl>; Wed, 15 May 2002 19:11:41 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:32273 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316519AbSEOXLl>; Wed, 15 May 2002 19:11:41 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, sfr@canb.auug.org.au
+Subject: Re: [PATCH] Hotplug CPU prep V: x86 non-linear CPU numbers 
+In-Reply-To: Your message of "Wed, 15 May 2002 12:13:14 +0200."
+             <20020515101314.GA1152@elf.ucw.cz> 
+Date: Thu, 16 May 2002 09:14:47 +1000
+Message-Id: <E1787yp-0000RO-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz wrote:
+In message <20020515101314.GA1152@elf.ucw.cz> you write:
+> > @@ -1585,7 +1581,7 @@
+> >  
+> >  	p = buf;
+> >  
+> > -	if ((smp_num_cpus == 1) &&
+> > +	if ((num_online_cpus() == 1) &&
+> >  	    !(error = apm_get_power_status(&bx, &cx, &dx))) {
+> >  		ac_line_status = (bx >> 8) & 0xff;
+> >  		battery_status = bx & 0xff;
 > 
-> On Tue, May 14, 2002 at 12:33:23PM -0700, Andrew Morton wrote:
-> > Martin Schwidefsky wrote:
-> > >                                          The system call that caused
-> > > this has been sys_ipc with IPC_RMID and from there the call chain is
-> > > as follows: sys_shmctl, shm_destroy, fput, dput, iput, truncate_inode_pages,
-> > > truncate_list_pages, schedule. The scheduler picked a process that called
-> > > sys_shmat. It tries to get the lock and hangs.
-> >
-> > There's no way the kernel can successfully hold a spinlock
-> > across that call chain.
-> >
-> 
-> Is adding a check for this type of situation (under CONFIG_DEBUG_SPINLOCK
-> of course) worth the effort?  One would simply add a 'locks_held' count
-> for each task and check for zero at certain places such as return to
-> user mode, and during context switching.
+> Are you sure? What if you add another CPU just after the test?
 
-I think it would be worth the effort.  One approach would be to
-create a `can_sleep()' macro.  Add that to functions which may
-schedule.  It's useful for documentation purposes as well as runtime
-checks.
+APM is special: what it *really* wants to know is if only CPU 0 is
+online (this test will almost certainly fail miserably if the single
+online CPU is CPU 1, which previously wasn't possible).
 
-The Stanford checker caught a lot of these, but it seems that
-the (high) amount of source-level obfuscation in the ipc code
-defeated it.
+I'll check with the APM maintainer what guarantees he needs: we may
+actually need to grab to cpu control lock here.  Anyway apparently I
+broke something else in APM.
 
-> One would think these types of things are easily found, but this example
-> suggests otherwise.  Has anyone run the kernel through an extensive
-> (stress) test suite with any of the kernel debug options enabled?
+(BTW, in general, we use magic to avoid locks around num_online_cpus()
+et al: we make changes then wait for everyone to voluntarily schedule
+before exposing it).
 
-There are at present no tools in the tree to trap this
-problem.
-
--
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

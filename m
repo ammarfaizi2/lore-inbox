@@ -1,57 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272246AbRIERwW>; Wed, 5 Sep 2001 13:52:22 -0400
+	id <S272202AbRIESBW>; Wed, 5 Sep 2001 14:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272249AbRIERwN>; Wed, 5 Sep 2001 13:52:13 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:56326 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S272246AbRIERv5>; Wed, 5 Sep 2001 13:51:57 -0400
-Message-ID: <3B9665FB.C3E5DCAF@t-online.de>
-Date: Wed, 05 Sep 2001 19:50:51 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S272206AbRIESBN>; Wed, 5 Sep 2001 14:01:13 -0400
+Received: from smtp2.vol.cz ([195.250.128.42]:14347 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S272202AbRIESBE>;
+	Wed, 5 Sep 2001 14:01:04 -0400
+Message-ID: <001501c13637$a5c16260$0aa76cc0@desktop>
+From: =?iso-8859-2?Q?Petr_Tit=ECra?= <owl@volny.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Noexec flag on VFAT
+Date: Wed, 5 Sep 2001 20:19:40 +0200
 MIME-Version: 1.0
-To: oscarcvt@galileo.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic, a cry for help
-In-Reply-To: <E15efKa-0006Cj-00@the-village.bc.nu> <999707202.3b965242145d5@webmail.galileo.edu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oscarcvt@galileo.edu schrieb:
-> 
-> ive started with a rescue disk, /sbin/init is present, lilo.conf seems fine,
-> where might i go next?
-> 
+Hello,
 
-Is /sbin/init executable ?
+    somewhere between 2.4.9 and 2.4.9-ac5 noexec flag on VFAT filesystem
+stop to work. Is it intentional?
 
-Check it with ls:
-ls -l /sbin/init should get you
--rwxr-xr-x    1 root     root        26876 Jun 21 20:58 /sbin/init
+Petr Titera
 
-Is it the correct file ?
-Compare it against another maschine or copy it from there (same
-Distribution, save the old file)
-
-Try giving the Kernel a parameter at bootime: at the LILO-Prompt, press
-<tab>, then enter the imagename followed by the parameter, e.g. "linux
-init=/bin/bash"
-The kernel should boot up and give you a single (root-) shell.
-
-Uses the kernel the right root-device ?
-If not, give it to him at boottime like the init=Stuff: "root=/dev/hda1"
-says the kernel to mount /dev/hda1 as rootdevice ("/") and search on
-this device for "init".
-
-Solong..
-Frank.
-
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-

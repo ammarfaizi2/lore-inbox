@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266977AbUBRXQf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267183AbUBRXQf
+	id S266518AbUBRXEH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267001AbUBRXEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:16:35 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:49796 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S267077AbUBRXQO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:16:14 -0500
-Subject: Re: [PATCH] Intel x86-64 support merge
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c10qkr$gdu$1@terminus.zytor.com>
-References: <200402182006.i1IK6CsS022562@hera.kernel.org>
-	 <1077139308.4479.8.camel@laptop.fenrus.com>
-	 <c10qkr$gdu$1@terminus.zytor.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1077146161.4479.10.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 19 Feb 2004 00:16:02 +0100
+	Wed, 18 Feb 2004 18:04:07 -0500
+Received: from wc-131.r-195-85-146.essentkabel.com ([195.85.146.131]:3706 "EHLO
+	mail-relay") by vger.kernel.org with ESMTP id S266518AbUBRXCW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:02:22 -0500
+From: menu3@milonic.com
+Message-Id: <200402182302.AAA10480@mail-relay>
+To: linux-kernel@vger.kernel.org
+Subject: unknown
+Date: Wed, 18 Feb 2004 20:49:28 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="03543740"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-18 at 23:57, H. Peter Anvin wrote:
+--03543740
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> 
-> Because they were caught by surprise and just hacked the chips they
-> had in the pipeline, presumably.
+*** eSafe detected a hostile content in this email and removed it. ***
+/creditcard.txt.com   Infected with Win32.Nodoom.a (Non-Removable), Blocked 
+is that your account?
 
-fair enough; I hope this means the next generation has this wart
-fixed...
+--03543740--
 

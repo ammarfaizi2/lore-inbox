@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266059AbTGIQTT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 12:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266057AbTGIQTT
+	id S268407AbTGIQWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 12:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268412AbTGIQWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 12:19:19 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:45871 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266059AbTGIQTS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 12:19:18 -0400
-Date: Wed, 9 Jul 2003 11:33:56 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modutils-2.3.15 'insmod'
-Message-ID: <20030709113356.B9732@hexapodia.org>
-References: <Pine.LNX.4.53.0307091119450.470@chaos> <20030709160823.GC267@kurtwerks.com>
+	Wed, 9 Jul 2003 12:22:13 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:13063 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S268407AbTGIQVd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 12:21:33 -0400
+Date: Wed, 9 Jul 2003 18:36:02 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: green@namesys.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre3 and reiserfs boot problem
+Message-Id: <20030709183602.7083dd82.skraw@ithnet.com>
+In-Reply-To: <20030709154015.GJ150921@niksula.cs.hut.fi>
+References: <20030706183453.74fbfaf2.skraw@ithnet.com>
+	<1057515223.20904.1315.camel@tiny.suse.com>
+	<20030709140138.141c3536.skraw@ithnet.com>
+	<1057757764.26768.170.camel@tiny.suse.com>
+	<20030709134837.GJ18307@namesys.com>
+	<20030709154015.GJ150921@niksula.cs.hut.fi>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030709160823.GC267@kurtwerks.com>; from kwall@kurtwerks.com on Wed, Jul 09, 2003 at 12:08:23PM -0400
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 12:08:23PM -0400, Kurt Wall wrote:
-> Quoth Richard B. Johnson:
-> > modutils-2.3.15, and probably later, has a bug that can prevent
-> > modules from being loaded from initrd, this results in not
-> > being able to mount a root file-system. The bug assumes that
-> > malloc() will return a valid pointer when given an allocation
-> > size of zero.
+On Wed, 9 Jul 2003 18:40:15 +0300
+Ville Herva <vherva@niksula.hut.fi> wrote:
+
+>> > ok, I did the reiserfsck and it works flawlessly. No errors no problems no
+> > hang.
+> > I tried mount afterwards and it still hangs.
+> > Is there some recent change around the mount procedure itself? maybe it is
+> > really unrelated to reiserfs and 3ware...
 > 
-> This isn't a bug. The standard allow returning a non-null pointer
-> for malloc(0).
+> Is it just this partition or any reiserfs fs on 3ware?
 
-It's not literally a bug in libc -- the C standard says it's
-implementation-defined whether malloc(0) returns NULL or a cookie -- but
-it is definitely a bug (in a portable program) to depend on either
-behavior from libc.  See ISO/IEC 9899:1999 7.20.3 paragraph 1.
+Hm, unfortunately I can't tell, I have no other partition available on 3ware
+...
 
-> > The most recent `man` pages that RH 9.0 distributes states that
-> > malloc() can return either NULL of a pointer that is valid for
-> > free(). This, of course, depends upon the 'C' runtime library's
-> > malloc() implementation.
+> > Oleg Drokin <green@namesys.com> wrote:
+> > > Then next step would be probably to try and mount the partition from
+> > > usermodelinux if you are able to conduct such a test.
 > 
-> Perhaps, but IIRC, the rationale in the GNU C library was that
-> existing programs assume malloc(0) != 0, which allows you to call
-> realloc on the pointer. Returning NULL only makes sense if the 
-> malloc() call fails.
+> It it possible to mount raw partitions with UML?
 
-This paragraph is nonsensical, because realloc(malloc(0), 10) is
-allowed, regardless of whether malloc(0) returns NULL or a cookie.
-realloc(NULL, n) is allowed, and defined to be identical to malloc(n).
-7.20.3.4 paragraph 3.
+Hm, I never tried UML. I really wonder if there is nobody else with 3ware and
+reiserfs available for re-checking 2.4.22-pre3. Only to see if this is a
+singular problem or reproducable elsewhere.
 
-Geez, why does a trivial post about a bug in some program have to turn
-into a pile of misleading statements and citations to ISO documents?
-
--andy
+Regards,
+Stephan

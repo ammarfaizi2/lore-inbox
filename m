@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbSKUXJW>; Thu, 21 Nov 2002 18:09:22 -0500
+	id <S265477AbSKUXOf>; Thu, 21 Nov 2002 18:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265477AbSKUXJW>; Thu, 21 Nov 2002 18:09:22 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:46231 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265385AbSKUXJW>;
-	Thu, 21 Nov 2002 18:09:22 -0500
-Date: Thu, 21 Nov 2002 23:14:32 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Stian Jordet <liste@jordet.nu>
+	id <S265960AbSKUXOf>; Thu, 21 Nov 2002 18:14:35 -0500
+Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:48848 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265477AbSKUXOe>; Thu, 21 Nov 2002 18:14:34 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 21 Nov 2002 15:21:11 -0800
+Message-Id: <200211212321.PAA16033@adam.yggdrasil.com>
+To: vandrove@vc.cvut.cz, zippel@linux-m68k.org
+Subject: Re: [RFC] module fs or how to not break everything at once
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unsupported AGP-bridge on VIA VT8633
-Message-ID: <20021121231432.GA28783@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Stian Jordet <liste@jordet.nu>, linux-kernel@vger.kernel.org
-References: <1037916067.813.7.camel@chevrolet.hybel> <20021121221134.GA25741@suse.de> <1037917231.3ddd5c2f5d98a@webmail.jordet.nu> <20021121224035.GA28094@suse.de> <1037919383.856.3.camel@chevrolet.hybel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037919383.856.3.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 11:56:23PM +0100, Stian Jordet wrote:
- > >  > I'll do that now. But why do I have to use agp_try_unsupported=1?
- > > Because if it works, we can then add it to the ID table.
- > It works, i think. I get this message when I load it:
- > Linux agpgart interface v0.99 (c) Jeff Hartmann
- > agpgart: Maximum main memory to use for agp memory: 439M
- > agpgart: Trying generic Via routines for device id: 3091
- > agpgart: AGP aperture is 64M @ 0xf8000000
+Hi Roman,
 
-And it survives a 3d app / testgart run ?
- 
- > Thank you very much. I'm very sorry if this was a lame question.
+	Can you tell me what problem in the existing userland module
+code (i.e., before 2.5.48) modulefs solves?  Does it actually make
+the kernel smaller?  Can you give me an example?
 
-No problem. I'll add this ID to the pending patch I have
-for Linus to add various other GARTs.
+	I agree with you that module linking should be done in user
+space.  I have asked repeatedly for someone to show real benefits to
+in-kernel module linking, and, so far, nobody has.  To my knowledge,
+your proposal hasn't passed this test either, but I'll make a few
+suggestions on it anyway.
 
-		Dave
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+	1. Please take Petr's advice and just make module removal
+occur when you rmdir the directory.  Making the removal happen in
+two stages introduces additioal states that have to be defined, such
+as the state where the "module unmap" command has been received
+but the module's directory has been removed.  What if somebody else
+wants to load the same module again at this time?  Either you will
+get flakiness in facilities that rely on automatic kernel module
+loading or modprobe has to be modified to deal with that
+possibility and perhaps try to do the remove itself.
+
+	2. I would really like insmod to be able to flock modules (or
+do something similar).  This would increment the reference count on a
+module until insmod would exit (or would do an execve, I suppose).
+This would eliminate a race when insmod is loading a module that
+references symbols in other modules.  I don't think flock is actually
+propagated down the vfs layer, so perhaps some other primitive could be
+used.  Perhaps just holding open an open file descriptor on each of
+the modules in question would be a better interface.
+
+	3. It's not a modulefs thing, but you might want to consider
+moving all symbol management to user space, including that for the
+core kernel symbols.  The symbol tables can be maintained in user
+files by the insmod and rmmod programs, they could even be inferred
+from the module's start address and the module's .o in the file
+system.  If people really want to store this data to be stored in
+kernel memory, they can allocate extra space where the module is
+actually loaded and their favorite symbol table format there.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

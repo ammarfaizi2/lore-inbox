@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUFEVsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUFEVxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUFEVsS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 17:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUFEVsS
+	id S262085AbUFEVxy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 17:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUFEVxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 17:48:18 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:19905 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262062AbUFEVsD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 17:48:03 -0400
-Subject: Re: clone() <-> getpid() bug in 2.6?
-From: Robert Love <rml@ximian.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+	Sat, 5 Jun 2004 17:53:54 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:26281 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262085AbUFEVxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 17:53:53 -0400
+Date: Sat, 5 Jun 2004 14:53:46 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Russell Leighton <russ@elegant-software.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406051405110.7010@ppc970.osdl.org>
-References: <40C1E6A9.3010307@elegant-software.com>
-	 <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-	 <20040605205547.GD20716@devserv.devel.redhat.com>
-	 <Pine.LNX.4.58.0406051405110.7010@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Sat, 05 Jun 2004 17:48:02 -0400
-Message-Id: <1086472082.7940.48.camel@localhost>
+Subject: Re: clone() <-> getpid() bug in 2.6?
+Message-ID: <20040605215346.GB29525@taniwha.stupidest.org>
+References: <40C1E6A9.3010307@elegant-software.com> <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> <20040605205547.GD20716@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 (1.5.8-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040605205547.GD20716@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-06-05 at 14:13 -0700, Linus Torvalds wrote:
+On Sat, Jun 05, 2004 at 10:55:47PM +0200, Arjan van de Ven wrote:
 
-> Uli, if Arjan is right, then please fix this. It's a buggy and pointless 
-> optimization. Anybody who optimizes purely for benchmarks should be 
-> ashamed of themselves.
+> ... or glibc internally caches the getpid() result and doesn't
+> notice the app calls clone() internally... strace seems to show 1
+> getpid() call total not 2.
 
-Eh, it definitely does, in nptl/sysdeps/unix/sysv/linux/getpid.c:
+glibc caches getpid() ?!?
 
-	pid_t result = THREAD_GETMEM (THREAD_SELF, pid);
-	if (__builtin_expect (result <= 0, 0))
-	  result = really_getpid (result);
+it's not like it's a slow syscall or used often
 
-A few places, including the fork code, fix it:
 
-	/* Adjust the PID field for the new process.  */
-	THREAD_SETMEM (self, pid, THREAD_GETMEM (self, tid));
-
-But not direct calls to clone(2).
-
-	Robert Love
-
+  --cw
 

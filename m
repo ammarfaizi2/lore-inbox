@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbTCXXPM>; Mon, 24 Mar 2003 18:15:12 -0500
+	id <S263180AbTCXXUz>; Mon, 24 Mar 2003 18:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263245AbTCXXPM>; Mon, 24 Mar 2003 18:15:12 -0500
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:54707 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S261274AbTCXXPK>; Mon, 24 Mar 2003 18:15:10 -0500
+	id <S263206AbTCXXUz>; Mon, 24 Mar 2003 18:20:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14861 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263180AbTCXXUx>; Mon, 24 Mar 2003 18:20:53 -0500
+Date: Mon, 24 Mar 2003 23:31:58 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: CONFIG_VT_CONSOLE in 2.5.6x ?
-From: Steven Cole <elenstev@mesatop.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: louisg00@bellsouth.net, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <33453.4.64.238.61.1048547120.squirrel@www.osdl.org>
-References: <1048546447.3058.3.camel@tiger> 
-	<33453.4.64.238.61.1048547120.squirrel@www.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 24 Mar 2003 16:21:43 -0700
-Message-Id: <1048548103.2464.78.camel@spc9.esa.lanl.gov>
+Message-ID: <20030324233158.E10370@flint.arm.linux.org.uk>
+Mail-Followup-To: Louis Garcia <louisg00@bellsouth.net>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+References: <1048546447.3058.3.camel@tiger> <33453.4.64.238.61.1048547120.squirrel@www.osdl.org> <1048548310.3388.7.camel@tiger>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1048548310.3388.7.camel@tiger>; from louisg00@bellsouth.net on Mon, Mar 24, 2003 at 06:25:10PM -0500
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 16:05, Randy.Dunlap wrote:
-> > I can't find CONFIG_VT_CONSOLE anywhere in menuconfig. I am having problems
-> > not viewing the bootup messages on my monitor. I do have
-> > console=tty0 in grub.conf.
-> 
-> It's the second line of the Character Devices menu:
-> 
->   &#9474; &#9474;[*] Virtual terminal
->   &#9474; &#9474;[*]   Support for console on virtual terminal     <<<<<
-> 
-> ~Randy
+On Mon, Mar 24, 2003 at 06:25:10PM -0500, Louis Garcia wrote:
+> Well I can't find it there. I have a 2.5.65 tree and under character
+> devices I have
 
-If you can't get Randy to answer your question, here's another way to
-find this out:
-[steven@spc5 testing-2.5]$ find . -name Kconfig | xargs grep VT_CONSOLE
-./arch/m68k/Kconfig:config VT_CONSOLE
-./arch/mips/Kconfig:config VT_CONSOLE
-./arch/mips/Kconfig:config VT_CONSOLE
-./arch/sh/Kconfig:config VT_CONSOLE
-./arch/sparc/Kconfig:config VT_CONSOLE
-./arch/sparc64/Kconfig:config VT_CONSOLE
-./drivers/char/Kconfig:config VT_CONSOLE
-[steven@spc5 testing-2.5]$ uptime && uname -r
-  4:05pm  up 23 min,  2 users,  load average: 103.78, 102.87, 58.59
-2.5.66
+you need:
 
-Steven
+CONFIG_INPUT=y
 
+to allow the option you're looking for to show up.
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-

@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318044AbSG2GrZ>; Mon, 29 Jul 2002 02:47:25 -0400
+	id <S318058AbSG2GyW>; Mon, 29 Jul 2002 02:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318047AbSG2GrZ>; Mon, 29 Jul 2002 02:47:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29452 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318044AbSG2GrY>;
-	Mon, 29 Jul 2002 02:47:24 -0400
-Message-ID: <3D44E7C9.1302DF56@zip.com.au>
-Date: Sun, 28 Jul 2002 23:59:21 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
+	id <S318069AbSG2GyW>; Mon, 29 Jul 2002 02:54:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33546 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318058AbSG2GyV>; Mon, 29 Jul 2002 02:54:21 -0400
+Date: Sun, 28 Jul 2002 23:58:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Marcin Dalecki <dalecki@evision.ag>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
+In-Reply-To: <20020729083409.D4445@suse.de>
+Message-ID: <Pine.LNX.4.44.0207282352030.10092-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
-References: <20020728.231017.40779367.davem@redhat.com> <Pine.LNX.4.44.0207282324340.872-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 28 Jul 2002, David S. Miller wrote:
-> >
-> > So when the user's reference is dropped, does that operation kill it
-> > from the LRU or will the socket's remaining reference to that page
-> > defer the LRU removal?
-> 
-> That is indeed the question. Right now it will defer, which looks like a
-> bug. Or at least it is a bug without the interrupt-safe LRU manipulations.
-> 
-> I'm starting to be more convinced about Andrew's alternate patch, the
-> "move LRU lock innermost and make it irq-safe".
-> 
-> Which also would make it saner to do the LRU handling inside
-> __put_pages_ok() (and actually remove the BUG_ON(in_interrupt()) that
-> Andrew had there in the old patch).
-> 
 
-That was a big lump of patch, and I need to get all the other
-MM developers to say "yes, we can live with this".  Everything which
-takes the LRU lock needed to be redone to get the holdtimes and
-acquisition frequency down.
 
-It's quite unfeasible for 2.4.   The only 2.4 kernel which
-has the in_interrupt() check is Andrea's.  And, I assume,
-the SuSE production kernel.  So empirically, we're probably OK there.
-But the RH kernel has AIO (yes?) which may change the picture.
+On Mon, 29 Jul 2002, Jens Axboe wrote:
+>
+> I think Martin's was wrong in concept, mine was wrong in implementation.
 
-A simple little hack which would prevent it in 2.4 would be,
-in __free_pages_ok():
+I don't understand why you think the concept is wrong. Right now all users
+clearly do want to free the tag on re-issue, and doing so clearly cleans
+up the code and avoids duplication.
 
-	if (PageLRU(page)) {
-		if (in_interrupt()) {
-			SetPageFoo(page);
-			return;
-		}
-		lru_cache_del(page);
-	}
+So I still don't see the advantage of your patch, even once you've fixed
+the locking issue.
 
-and in shrink_cache(), inside pagemap_lru_lock:
+HOWEVER, if you really think that some future users might not want to have
+the tag played with, how about making the "at_head" thing a flags field,
+and letting people say so by having "INSERT_NOTAG" (and making the
+existing bit be INSERT_ATHEAD).
 
-	if (PageFoo(page)) {
-		__lru_cache_del(page);
-		BUG_ON(page_count(page) != 0);
-		page_cache_get(page);
-		__free_page(page);
-		continue;
-	}
+So then the SCSI users would look like
 
-This is basically Dave's "defer it to process context", with kswapd
-doing the work.
-		
--
+	blk_insert_request(q, SRpnt->sr_request,
+		at_head ? INSERT_ATHEAD : 0,
+		SRpnt)
+
+while your future non-tag user might do
+
+	blk_insert_request(q, newreq,
+		INSERT_ATHEAD | INSERT_NOTAG,
+		channel);
+
+_without_ having that unnecessary code duplication.
+
+			Linus
+

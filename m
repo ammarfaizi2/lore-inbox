@@ -1,98 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbUDSP1C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 11:27:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUDSP1B
+	id S264258AbUDSPcv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 11:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUDSPcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 11:27:01 -0400
-Received: from fire.osdl.org ([65.172.181.4]:6037 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S263743AbUDSP06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 11:26:58 -0400
-Subject: Re: 2.6.6-rc1-mm1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040418230131.285aa8ae.akpm@osdl.org>
-References: <20040418230131.285aa8ae.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1082388416.7942.1.camel@cherrypit.pdx.osdl.net>
+	Mon, 19 Apr 2004 11:32:50 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:62179 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S264258AbUDSPc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 11:32:29 -0400
+Date: Mon, 19 Apr 2004 17:32:20 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc1 visor USB - data xfer fails
+Message-ID: <20040419153220.GE30650@charite.de>
+Mail-Followup-To: linux kernel <linux-kernel@vger.kernel.org>
+References: <407FFB5E.4070406@rgadsdon2.giointernet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 19 Apr 2004 08:26:56 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <407FFB5E.4070406@rgadsdon2.giointernet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good run.  Just have one new error in the allnoconfig compile 
-(which developers tend not to run)...
+* Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>:
+> Data transfer/sync to Clie via visor/USB fails/disconnects with 2.6.6-rc1:
+> 
+> (from var/log/messages)
+> Apr 16 12:04:27 xxlinux kernel: visor ttyUSB2: visor_write - 
+> usb_submit_urb(write bulk) failed with status = -19
+> Apr 16 12:04:27 xxlinux last message repeated 12 times
+> Apr 16 12:04:27 xxlinux udev[8283]: removing device node '/udev/ttyUSB1'
+> Apr 16 12:04:27 xxlinux udev[8297]: removing device node '/udev/ttyUSB2'
+> Apr 16 12:04:27 xxlinux kernel: visor ttyUSB2: visor_write - 
+> usb_submit_urb(write bulk) failed with status = -19
+> Apr 16 12:04:27 xxlinux last message repeated 8 times
+> Apr 16 12:04:27 xxlinux kernel: visor ttyUSB1: Handspring Visor / Palm 
+> OS converter now disconnected from ttyUSB1
+> Apr 16 12:04:27 xxlinux kernel: visor ttyUSB2: Handspring Visor / Palm 
+> OS converter now disconnected from ttyUSB2
 
-  CC      kernel/kmod.o
-kernel/kmod.c: In function `call_usermodehelper':
-kernel/kmod.c:253: `khelper_wq' undeclared (first use in this function)
-kernel/kmod.c:253: (Each undeclared identifier is reported only once
-kernel/kmod.c:253: for each function it appears in.)
-kernel/kmod.c: In function `usermodehelper_init':
-kernel/kmod.c:267: `khelper_wq' undeclared (first use in this function)
-make[1]: [kernel/kmod.o] Error 1 (ignored)
+Same here with 2.6.6-rc1-mm1:
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+Apr 19 14:19:54 hummus2 kernel: visor ttyUSB1: visor_write - usb_submit_urb(write bulk) failed with status = -19
+Apr 19 14:19:56 hummus2 kernel: visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected from ttyUSB0
+Apr 19 14:19:56 hummus2 kernel: visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected from ttyUSB1
+Apr 19 14:22:38 hummus2 kernel: visor 2-2.3:1.0: Handspring Visor / Palm OS converter detected
+Apr 19 14:23:27 hummus2 kernel: visor 2-2.3:1.0: device disconnected
+Apr 19 14:23:42 hummus2 kernel: visor ttyUSB1: visor_write - usb_submit_urb(write bulk) failed with status = -19
+Apr 19 14:26:09 hummus2 kernel: visor 2-2.3:1.0: Handspring Visor / Palm OS converter detected
+Apr 19 14:26:09 hummus2 usb.agent[20908]:      visor: already loaded
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-
-John
-
-
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix

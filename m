@@ -1,59 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbTLRRWc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 12:22:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbTLRRWc
+	id S265238AbTLRRcU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 12:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265241AbTLRRcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 12:22:32 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:21376
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S265233AbTLRRWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 12:22:31 -0500
-Date: Thu, 18 Dec 2003 12:21:08 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Miroslaw KLABA <totoro@totoro.be>
-cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Double Interrupt with HT
-In-Reply-To: <20031218173528.370211b6.totoro@totoro.be>
-Message-ID: <Pine.LNX.4.58.0312181219570.1710@montezuma.fsmlabs.com>
-References: <20031215155843.210107b6.totoro@totoro.be>
- <1071603069.991.194.camel@cog.beaverton.ibm.com> <1071615336.3fdf8d6840208@ssl0.ovh.net>
- <1071618630.1013.11.camel@cog.beaverton.ibm.com> <1071630228.3fdfc794eb353@ssl0.ovh.net>
- <1071717730.1117.26.camel@cog.beaverton.ibm.com> <20031218131437.239e69e5.totoro@totoro.be>
- <Pine.LNX.4.58.0312180849480.1710@montezuma.fsmlabs.com>
- <20031218173528.370211b6.totoro@totoro.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Dec 2003 12:32:20 -0500
+Received: from datasink.webmonster.de ([194.162.162.209]:15620 "HELO
+	mail.webmonster.de") by vger.kernel.org with SMTP id S265238AbTLRRcK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 12:32:10 -0500
+Date: Thu, 18 Dec 2003 18:32:09 +0100
+From: Sebastian Benoit <benoit-lists@fb12.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: vojtech@suse.cz
+Subject: Re: 2.6.0 keyboard not working
+Message-ID: <20031218173231.GB41396@mail.webmonster.de>
+Mail-Followup-To: Sebastian Benoit <benoit-lists@fb12.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+References: <20031218060053.GA645@gnu.org> <Pine.LNX.4.58.0312180230150.1710@montezuma.fsmlabs.com> <20031218145434.GA20303@gnu.org> <20031218150431.GA20543@gnu.org> <Pine.LNX.4.58.0312181129260.1710@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nmemrqcdn5VTmUEE"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312181129260.1710@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
+Organisation: Organisation for the bulletization of popular thought as a result of the increasing prevalence of Microsoft PowerPoint(TM)
+X-MSMail-Priority: High
+x-gpg-fingerprint: D02B D0E0 3790 1AA1 DA3A  B508 BF48 87BF D777 DBA7
+x-gpg-key: http://wwwkeys.de.pgp.net:11371/pks/lookup?op=get&search=0xD777DBA7
+x-gpg-keyid: 0xD777DBA7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Dec 2003, Miroslaw KLABA wrote:
 
-> My fault...
-> It works now.
-> `while true; do date; sleep 1; done` counts well now.
-> Thanks.
-> But now, how may I help to find this bug in apic code?
+--nmemrqcdn5VTmUEE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for verifying that Miroslaw, could you also test the following
-patch (against 2.4.23) ?
+Zwane Mwaikambo(zwane@arm.linux.org.uk) on 2003.12.18 11:30:27 +0000:
+> On Thu, 18 Dec 2003, Lennert Buytenhek wrote:
+>=20
+> > > > > Halfway between having uncompressed the kernel and starting init,=
+ the console
+> > > > > starts to scroll "atkbd.c: Unknown key pressed", mentioning key c=
+ode 0 (IIRC),
+> > > > > even though no keys are pressed at all.  After a while, the scrol=
+ling stops,
+> > > > > but the keyboard still doesn't work.  2.4 works fine on the same =
+hardware.
+> > > > >
+> > > > > Hardware is an Intel SE7505VB2 board with dual 2.40GHz Xeon proce=
+ssors,
+> > > > > and a Logitech PS/2 "Internet keyboard."
+> > > > >
+> > > > > Ideas?
+> > > >
+> > > > May we have a look at your .config?
+>=20
+> Thanks Lennert, could you try without CONFIG_HIGHMEM64G, perhaps just
+> CONFIG_HIGHMEM4G, how much memory in the system? dmesg also would be nice.
 
-Ta,
-	Zwane
+I had exactly the same symptoms (Unknown key pressed, scrolling) with a
+Cherry PS/2 keyboard an a PS/2 mouse, starting with 2.6.0-test6 (i think).
+The mouse also stopped working.
 
-Index: linux-2.4.23/include/asm-i386/smpboot.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.4.23/include/asm-i386/smpboot.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smpboot.h
---- linux-2.4.23/include/asm-i386/smpboot.h	4 Dec 2003 22:20:21 -0000	1.1.1.1
-+++ linux-2.4.23/include/asm-i386/smpboot.h	18 Dec 2003 17:19:28 -0000
-@@ -57,7 +57,7 @@ static inline void detect_clustered_apic
- #define esr_disable (0)
- #define detect_clustered_apic(x,y)
- #define INT_DEST_ADDR_MODE (APIC_DEST_LOGICAL)	/* logical delivery */
--#define INT_DELIVERY_MODE (dest_LowestPrio)
-+#define INT_DELIVERY_MODE (dest_Fixed)
- #endif /* CONFIG_X86_CLUSTERED_APIC */
- #define BAD_APICID 0xFFu
+Unfortunatly it was a heisenbug - every time i tried to find out what caused
+the problem (there where drivers/input/mouse* - changes at that time) the
+problem disapeared. I then exchanged the mouse for a USB-type and the
+problem disappeared completly.
 
+/B.
+--=20
+Sebastian Benoit <benoit-lists@fb12.de>
+My mail is GnuPG signed -- Unsigned ones are bogus -- http://www.gnupg.org/
+GnuPG 0xD777DBA7 2003-09-10 D02B D0E0 3790 1AA1 DA3A  B508 BF48 87BF D777 D=
+BA7
+
+Konzepte sind Kokolores. -- Erich Ribbeck
+
+--nmemrqcdn5VTmUEE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (FreeBSD)
+
+iD8DBQE/4eSvv0iHv9d326cRAn1hAJ9jdfHK1Bbtw7wZwJBPmPmIZY/0nwCdE9Ys
+usrl6oNTJyOJMVVu0GCmlX8=
+=amme
+-----END PGP SIGNATURE-----
+
+--nmemrqcdn5VTmUEE--

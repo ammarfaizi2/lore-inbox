@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266389AbUGJUbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266409AbUGJUdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266389AbUGJUbe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 16:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266419AbUGJUbe
+	id S266409AbUGJUdL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 16:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266425AbUGJUdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 16:31:34 -0400
-Received: from mail.linicks.net ([217.204.244.146]:23567 "EHLO linicks.net")
-	by vger.kernel.org with ESMTP id S266389AbUGJUba (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 16:31:30 -0400
-Date: Sat, 10 Jul 2004 21:31:24 +0100 (BST)
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-cc: hants@mailman.lug.org.uk
-Subject: 1000 days uptime.
-Message-ID: <Pine.LNX.4.44.0407102122060.21103-100000@linicks.net>
+	Sat, 10 Jul 2004 16:33:10 -0400
+Received: from [195.205.111.101] ([195.205.111.101]:44595 "EHLO
+	[195.205.111.101]") by vger.kernel.org with ESMTP id S266409AbUGJUcn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 16:32:43 -0400
+From: Marcin =?iso-8859-2?q?Gibu=B3a?= <mg@iceni.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.7-mm7
+Date: Sat, 10 Jul 2004 22:32:39 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040708235025.5f8436b7.akpm@osdl.org> <200407102204.35889.mg@iceni.pl> <20040710132711.52ee2343.akpm@osdl.org>
+In-Reply-To: <20040710132711.52ee2343.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407102232.39132.mg@iceni.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No big deal :)
+> Is it repeatable at all?  If so, does using a different I/O scheduler fix
+> it up?
 
-This is a 486 box serving web pages from a home base (via NFS to gateway).  
-No UPS, no special treatment expect dust and usual day-to-day abuse stuck
-under two other boxes in a 'stack' of sorts I done a long time ago...
-
-[nick@486Linux nick]$ uptime
-  9:29pm  up 6 days,  1:40,  1 user,  load average: 0.15, 0.05, 0.10
-
-[nick@486Linux nick]$ last -xf /var/run/utmp runlevel
-runlevel (to lvl 3)                    Sun Oct 14 16:07 - 21:29 
-(1000+05:22)
-
-[nick@486Linux nick]$ uname -a
-Linux 486Linux 2.2.13-7mdk #1 Wed Sep 15 18:02:18 CEST 1999 i486 unknown
-
-I 'cut my teeth' with Linux on this box and it still going :)
-
-Thank _you all_ for the great work :)
-
-Nick
+Sorry, i've made a mistake, it's not cfq but an anticipatory scheduler :(
+And no, I can't reproduce it (so far).
 
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+mg
 

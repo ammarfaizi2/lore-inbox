@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129305AbRAZJKj>; Fri, 26 Jan 2001 04:10:39 -0500
+	id <S132698AbRAZJMt>; Fri, 26 Jan 2001 04:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129390AbRAZJKb>; Fri, 26 Jan 2001 04:10:31 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:42501 "HELO
+	id <S132699AbRAZJMj>; Fri, 26 Jan 2001 04:12:39 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:43013 "HELO
 	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129305AbRAZJKI>; Fri, 26 Jan 2001 04:10:08 -0500
-Date: Fri, 26 Jan 2001 22:09:59 +1300
+	id <S132698AbRAZJMW>; Fri, 26 Jan 2001 04:12:22 -0500
+Date: Fri, 26 Jan 2001 22:12:20 +1300
 From: Chris Wedgwood <cw@f00f.org>
-To: kuznet@ms2.inr.ac.ru
-Cc: "David S. Miller" <davem@redhat.COM>, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
-Message-ID: <20010126220959.C11097@metastasis.f00f.org>
-In-Reply-To: <14960.22256.322768.447815@pizda.ninka.net> <200101251940.WAA10110@ms2.inr.ac.ru>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+Message-ID: <20010126221220.D11097@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com> <14960.29127.172573.22453@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101251940.WAA10110@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Jan 25, 2001 at 10:40:40PM +0300
+In-Reply-To: <14960.29127.172573.22453@pizda.ninka.net>; from davem@redhat.com on Thu, Jan 25, 2001 at 10:34:47AM -0800
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 25, 2001 at 10:40:40PM +0300, kuznet@ms2.inr.ac.ru wrote:
+On Thu, Jan 25, 2001 at 10:34:47AM -0800, David S. Miller wrote:
 
-    It simply does not exist for 82559* in all the steppings.
-    eepro100 is pretty poor device.
-    
-    Probably, it exists for card identified as Gamla (D102) (82559 is
-    D101).
+    That's it, in 4 weeks time I am putting a kernel onto
+    vger.kernel.org that speaks ECN.  This is my official and only
+    warning.
 
-I have code from Audrey to enable HWCK for received only and code
-from you for SG -- but no way to enable HWCK for TX. The Intel
-provided drivers themselves don't seem to have any way of doing this
-so i wonder if it is either undocumented so Intel can sell the same
-hardware at a premium (as they do for NT, the only different being
-drivers) or simply because the HW is poor.
-
+Why wait 4 weeks at all? You seem to be very clear how you feel about
+the issue; do it now then.
 
 
   --cw

@@ -1,74 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263262AbTIGNR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 09:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263263AbTIGNR2
+	id S263241AbTIGNSo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 09:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263243AbTIGNSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 09:17:28 -0400
-Received: from wooledge.org ([209.142.155.49]:16462 "HELO pegasus.wooledge.org")
-	by vger.kernel.org with SMTP id S263262AbTIGNR0 (ORCPT
+	Sun, 7 Sep 2003 09:18:43 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:26077 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263241AbTIGNSd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 09:17:26 -0400
-Date: Sun, 7 Sep 2003 09:17:14 -0400
-From: Greg Wooledge <greg@wooledge.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: moving a window makes the system 'hang' until button is released
-Message-ID: <20030907131714.GB11333@pegasus.wooledge.org>
-References: <20030906205320.GA21490@pegasus.wooledge.org> <3F5ACA93.6020302@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MW5yreqqjyrRcusr"
-Content-Disposition: inline
-In-Reply-To: <3F5ACA93.6020302@cyberone.com.au>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: OpenBSD 3.3
-X-www.distributed.net: 95 packets (6131.54 stats units) [5.30 Mnodes/s]
+	Sun, 7 Sep 2003 09:18:33 -0400
+Message-ID: <3F5B3021.9090107@colorfullife.com>
+Date: Sun, 07 Sep 2003 15:18:25 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Cherry <cherry@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mwave locking (was: IA32 - 1 New warnings)
+Content-Type: multipart/mixed;
+ boundary="------------050405000701030709020907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050405000701030709020907
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---MW5yreqqjyrRcusr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+John wrote:
 
-Nick Piggin (piggin@cyberone.com.au) wrote:
+>drivers/char/mwave/mwavedd.c:331:2: warning: #warning "Sleeping on spinlock"
+>  
+>
+Interesting locking strategy:
+A spinlock is placed on the stack and then 
+spin_lock_irqsave(&local_lock, flags).
 
-> Hi Greg,
-> Can you give my scheduler a try if you have time?
+Attached is a patch that removes that. Untested due to lack of hardware. 
+Anyone around such hardware (IBM Thinkpad?)
+--
+    Manfred
 
-After discussion with Paul Cassella and some more experimentation
-on my side, I've concluded that this is not a Linux kernel issue
-at all -- it's a "feature" of fvwm.  Specifically, fvwm grabs the
-entire X server when it's doing a non-opaque move, and xmms only
-keeps playing music until its buffer is drained.  The xmms buffer
-size seems to be dramatically smaller under ALSA, which is why I
-never saw the problem until I moved to 2.6.0-test4 and ALSA.
+--------------050405000701030709020907
+Content-Type: text/plain;
+ name="patch-mwave"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-mwave"
 
-I've changed "OpaqueMoveSize" in my .fvwm2rc file to 90, so it will
-only use outline-mode for moving windows which are 90% of the size
-of the screen -- i.e. never, for me.  (Another workaround might be
-to increase xmms's buffer size, but I haven't pursued that side yet.)
+--- 2.6/drivers/char/mwave/mwavedd.c	2003-09-07 12:29:10.000000000 +0200
++++ build-2.6/drivers/char/mwave/mwavedd.c	2003-09-07 15:04:00.000000000 +0200
+@@ -293,8 +293,6 @@
+ 	
+ 		case IOCTL_MW_GET_IPC: {
+ 			unsigned int ipcnum = (unsigned int) ioarg;
+-			spinlock_t ipc_lock = SPIN_LOCK_UNLOCKED;
+-			unsigned long flags;
+ 	
+ 			PRINTK_3(TRACE_MWAVE,
+ 				"mwavedd::mwave_ioctl IOCTL_MW_GET_IPC"
+@@ -310,32 +308,29 @@
+ 			}
+ 	
+ 			if (pDrvData->IPCs[ipcnum].bIsEnabled == TRUE) {
++				DECLARE_WAITQUEUE(wait, current);
++
+ 				PRINTK_2(TRACE_MWAVE,
+ 					"mwavedd::mwave_ioctl, thread for"
+ 					" ipc %x going to sleep\n",
+ 					ipcnum);
+-	
+-				spin_lock_irqsave(&ipc_lock, flags);
++				add_wait_queue(&pDrvData->IPCs[ipcnum].ipc_wait_queue, &wait);
++				pDrvData->IPCs[ipcnum].bIsHere = TRUE;
++				set_current_state(TASK_INTERRUPTIBLE);
+ 				/* check whether an event was signalled by */
+ 				/* the interrupt handler while we were gone */
+ 				if (pDrvData->IPCs[ipcnum].usIntCount == 1) {	/* first int has occurred (race condition) */
+ 					pDrvData->IPCs[ipcnum].usIntCount = 2;	/* first int has been handled */
+-					spin_unlock_irqrestore(&ipc_lock, flags);
+ 					PRINTK_2(TRACE_MWAVE,
+ 						"mwavedd::mwave_ioctl"
+ 						" IOCTL_MW_GET_IPC ipcnum %x"
+ 						" handling first int\n",
+ 						ipcnum);
+ 				} else {	/* either 1st int has not yet occurred, or we have already handled the first int */
+-					pDrvData->IPCs[ipcnum].bIsHere = TRUE;
+-#warning "Sleeping on spinlock"
+-					interruptible_sleep_on(&pDrvData->IPCs[ipcnum].ipc_wait_queue);
+-					pDrvData->IPCs[ipcnum].bIsHere = FALSE;
++					schedule();
+ 					if (pDrvData->IPCs[ipcnum].usIntCount == 1) {
+-						pDrvData->IPCs[ipcnum].
+-						usIntCount = 2;
++						pDrvData->IPCs[ipcnum].usIntCount = 2;
+ 					}
+-					spin_unlock_irqrestore(&ipc_lock, flags);
+ 					PRINTK_2(TRACE_MWAVE,
+ 						"mwavedd::mwave_ioctl"
+ 						" IOCTL_MW_GET_IPC ipcnum %x"
+@@ -343,6 +338,9 @@
+ 						" application\n",
+ 						ipcnum);
+ 				}
++				pDrvData->IPCs[ipcnum].bIsHere = FALSE;
++				remove_wait_queue(&pDrvData->IPCs[ipcnum].ipc_wait_queue, &wait);
++				set_current_state(TASK_RUNNING);
+ 				PRINTK_2(TRACE_MWAVE,
+ 					"mwavedd::mwave_ioctl IOCTL_MW_GET_IPC,"
+ 					" returning thread for ipc %x"
 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D98091 is also
-relevant here.
+--------------050405000701030709020907--
 
---=20
-Greg Wooledge                  |   "Truth belongs to everybody."
-greg@wooledge.org              |    - The Red Hot Chili Peppers
-http://wooledge.org/~greg/     |
-
---MW5yreqqjyrRcusr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (OpenBSD)
-
-iD8DBQE/Wy/akAkqAYpL9t8RAtdEAJ9Wlp0zLntYROXvShRpOhnc7s20AACgop8p
-3u7++g4ExNAMxHMyGp5CBsU=
-=n+Z4
------END PGP SIGNATURE-----
-
---MW5yreqqjyrRcusr--

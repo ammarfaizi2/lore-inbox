@@ -1,49 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279818AbRJ0OB4>; Sat, 27 Oct 2001 10:01:56 -0400
+	id <S278792AbRJ0OJ0>; Sat, 27 Oct 2001 10:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279820AbRJ0OBq>; Sat, 27 Oct 2001 10:01:46 -0400
-Received: from B5aee.pppool.de ([213.7.90.238]:42510 "HELO Nicole.fhm.edu")
-	by vger.kernel.org with SMTP id <S279818AbRJ0OBl>;
-	Sat, 27 Oct 2001 10:01:41 -0400
-Date: Sat, 27 Oct 2001 15:37:48 +0200 (CEST)
-From: degger@fhm.edu
-Reply-To: degger@fhm.edu
-Subject: Re: [PATCH] make pcmcia use correct parent resources
-To: paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15308.53916.81722.466476@cargo.ozlabs.ibm.com>
+	id <S279820AbRJ0OJH>; Sat, 27 Oct 2001 10:09:07 -0400
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:41554 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id <S278792AbRJ0OI7>; Sat, 27 Oct 2001 10:08:59 -0400
+Date: Sat, 27 Oct 2001 16:09:51 +0100
+Message-ID: <vines.sxdD+zsgqvA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: fix for broken pc_keyb.c (late 2.2.x all 2.4.x kernel)
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20011027135037.3495D72FF@Nicole.fhm.edu>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Oct, Paul Mackerras wrote:
 
-> I put a similar patch up some time ago and there was some discussion
-> but no conclusion was reached.  This patch is almost identical except
-> that I have changed the request_io/mem_resource functions that I add
-> to take a pci_dev * instead of the socket_info_t * that I had before.
- 
-> Comments, anyone?  Linus, would you be willing to apply this to your
-> tree?
 
-I just tried a kernel with this patch but still have the same troubles
-on insertion of a Cisco Aironet 340 card in my Ti PowerBook. 
+hi list,
+there is a logical problem with pc_keyb.c. if setting the leds does not work the keyboard will no longer exists.
+attention:  
+pckbd_leds() is also know as kbd_leds() what is used quit often !
 
-This is what I get in the kernel message log:
-cs: unable to map card memory!
-cs: unable to map card memory!
+This is a quick fix ! (read: no real solution !)
 
-I believe this worked at the point when I got this notebook but didn't
-have the AirPort card builtin so maybe this is the culprit;
-unfortunately I'm not in the mood to disassemble the notebook again
-to verify that.
+some comments from my side:
 
-Ideas?
+1. the kbd_exists stuff is not realy documented. I should be removed or explaind properly.
 
---
-Servus,
-       Daniel
+2. the next better way is to check for the returncode from
+send_data() and send kbd_exists accordingly.
+
+3. kdb_rate works the same way but does not set kbd_exists
+
+
+	walter
+
+
+
+
+
+
+
+
+
+
+
+*** pc_keyb.c   Sat Oct 27 15:57:20 2001
+--- pc_keyb.c.broken    Sat Oct 27 15:46:45 2001
+***************
+*** 525,543 ****
+        return 0;
+  }
+  
+- 
+- /* someone added kbd_exists i dont know when or why    */
+- /* but there a few routines that ever check kdb_exists */
+- /* if somebody understands it *please* document        */ 
+- /* The old code liked to shut down my keyboad          */
+- /* the routine is also known as kbd_leds()           */ 
+- /* walter.harms@informatik.uni-oldenburg.de            */
+- 
+  void pckbd_leds(unsigned char leds)
+  {
+        if (kbd_exists && (!send_data(KBD_CMD_SET_LEDS) || !send_data(leds))) {
+                send_data(KBD_CMD_ENABLE);      /* re-enable kbd if any errors */
+!               kbd_exists = 1;
+        }
+  }
+  
+--- 525,535 ----
+        return 0;
+  }
+  
+  void pckbd_leds(unsigned char leds)
+  {
+        if (kbd_exists && (!send_data(KBD_CMD_SET_LEDS) || !send_data(leds))) {
+                send_data(KBD_CMD_ENABLE);      /* re-enable kbd if any errors */
+!               kbd_exists = 0;
+        }
+  }
+
 

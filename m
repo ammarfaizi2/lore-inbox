@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262373AbSKUUKR>; Thu, 21 Nov 2002 15:10:17 -0500
+	id <S263968AbSKUUPC>; Thu, 21 Nov 2002 15:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbSKUUKR>; Thu, 21 Nov 2002 15:10:17 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:50133 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S262373AbSKUUKQ>; Thu, 21 Nov 2002 15:10:16 -0500
-Date: Thu, 21 Nov 2002 12:17:11 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Wim Coekaerts <Wim.Coekaerts@oracle.com>
-Subject: [RFC] hangcheck-timer module
-Message-ID: <20021121201711.GG770@nic1-pc.us.oracle.com>
+	id <S264624AbSKUUPC>; Thu, 21 Nov 2002 15:15:02 -0500
+Received: from pa158.zgierz.sdi.tpnet.pl ([213.77.180.158]:47525 "HELO
+	ekatalog.com.pl") by vger.kernel.org with SMTP id <S263968AbSKUUPB>;
+	Thu, 21 Nov 2002 15:15:01 -0500
+Date: Thu, 21 Nov 2002 21:22:09 +0100
+From: Filip djMedrzec Zyzniewski <lkml@filip.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Strange relations between scsi emulation and networking code.
+Message-ID: <20021121202209.GA28005@ekatalog.com.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
-	Attached is a module, hangcheck-timer.  It is used to detect
-when the system goes out to lunch for a period of time, such as when a
-driver like qla2x00 udelays a bunch.
-	The module sets a timer.  When the timer goes off, it then uses
-the TSC (warning: portability needed) to determine how much real time
-has passed.
-	On a normal system, the real elapsed time will be almost
-identical to the expected timer duration.  However, if a device decided
-to udelay for 60 seconds (or some other circumstance), the module takes
-notice.  If the margin of error passes a threshold, the machine is
-rebooted.
-	The module is currently used in a cluster environment.  After
-some time out to lunch, the rest of the cluster will have given up on a
-machine.  If the machine suddenly comes back and assumes it is still
-"live", bad things can happen.
-	We can also see use for this in a debugging sense, for kernel
-hangs as well as driver code.  That's why I'm proposing it for general
-inclusion.
-	Comments?  Thoughts?
+Hey,
 
-Joel
+That is my first mail here :). I get strange problems recording a cd. It
+almost completely locks my network traffic.
+Sometimes it seems that only TCP is locked, and UDP is fine, sometimes
+everything is fine, and somethimes nothing gets through my link.
 
-Building:
-	The module should happily build against most 2.4 kernels.  The
-usual module building compile line:
-	gcc  -I /scratch/jlbec/kernel/linux-2.4.20-rc2/include \
-		-DMODULE -D__KERNEL__ -DLINUX  -c -o hangcheck-timer.o \
-		hangcheck-timer.c
 
-Running:
-	Load the module with insmod.  There are two options.
-"hangcheck_tick=<seconds>" specifies the timer timeout, and
-"hangcheck_margin=<seconds" specifies the margin of error.
+Hw & sw:
 
-Joel
+recorder:	Teac CD-W58E
+internet link:	through RS232 interface
 
--- 
+software:
+kernel:		2.4.18, 2.4.19.
+pppd:		2.4.1b2
+cdrtools:	1.11a35
 
-"Friends may come and go, but enemies accumulate." 
-        - Thomas Jones
+I'm using a recorder with scsi-emulation. Additional small problem is that
+sometimes (unmounted) cd wouldn't open, and I need to cdrecord -eject.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Kernel logs are clean.
+
+my kernel .config is here: http://www.src.filip.eu.org/kernel/config
+
+I find it hard to trace this problem, that's why I am writing here :).
+
+
+regards,
+
+Filip djMedrzec Zyzniewski

@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135192AbRDRO0r>; Wed, 18 Apr 2001 10:26:47 -0400
+	id <S135193AbRDRO2R>; Wed, 18 Apr 2001 10:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135187AbRDRO0h>; Wed, 18 Apr 2001 10:26:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135185AbRDRO0Z>; Wed, 18 Apr 2001 10:26:25 -0400
-Date: Wed, 18 Apr 2001 10:26:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: schedule() seems to have changed.
-Message-ID: <Pine.LNX.3.95.1010418102332.1771A-100000@chaos.analogic.com>
+	id <S135189AbRDRO2H>; Wed, 18 Apr 2001 10:28:07 -0400
+Received: from upsn13.u-psud.fr ([193.55.10.113]:51357 "EHLO upsn13.u-psud.fr")
+	by vger.kernel.org with ESMTP id <S135185AbRDRO1v>;
+	Wed, 18 Apr 2001 10:27:51 -0400
+Message-ID: <3ADDA465.B936B916@fleming.u-psud.fr>
+Date: Wed, 18 Apr 2001 16:27:50 +0200
+From: Jaquemet Loic <jal@fleming.u-psud.fr>
+X-Mailer: Mozilla 4.75 [fr] (X11; U; Linux 2.4.3-ac9 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS problem
+In-Reply-To: <150220000.987602630@tiny>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Mason a écrit :
 
-It seems that the nature of schedule() has changed in recent
-kernels. I am trying to update my drivers to correspond to
-the latest changes. Here is an example:
+> On Wednesday, April 18, 2001 01:44:04 PM +0200 Jaquemet Loic
+> <jal@fleming.u-psud.fr> wrote:
+>
+> > Jaquemet Loic a écrit :
+> > >> Sorry if this problem has already been disscussed.
+> >> >> I run an linux box with a HD 30Go/reiserfs .
+> >> I tried several 2.4 kernel ( 2.4.2 , 2.4.3 , 2.4.4-pre3 , 2.4.3-ac7)
+> >> After a random time I've got a fs problem which lead to :
+> >> -first a segfault of a process which reads/writes on the partition
+> >> ex:
+> >> [jal@skippy prog]$ ./configure
+> >> ....
+> >> ln -s dialects/linux/machine.h machine.h
+> >> Erreur de segmentation ( SEGFAULT )
+> >> >> -and then the partition freeze .Any attempt to read/write on it leads to
+>
+> Hmmm, are you sure there aren't any reiserfs messages on screen or in the
+> log?
+>
+> -chris
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+there's nothing on the screen neither ine the logs about reiserfs ..
+the onlys thing is that pointer NULL reference ..
+Apr 18 11:55:26 skippy kernel: Unable to handle kernel NULL pointer dereference
+at virtual address 00000000
+Apr 18 11:55:26 skippy kernel:  printing eip:
+Apr 18 11:55:26 skippy kernel: c019671a
+Apr 18 11:55:26 skippy kernel: pgd entry c3f46000: 0000000000000000
+Apr 18 11:55:26 skippy kernel: pmd entry c3f46000: 0000000000000000
+Apr 18 11:55:26 skippy kernel: ... pmd not present!
+Apr 18 11:55:26 skippy kernel: Oops: 0000
+Apr 18 11:55:26 skippy kernel: CPU:    0
 
-This waits for some hardware (interrupt sets flag), time-out in one
-second. This is in an ioctl(), i.e., user context:
-
-    set_current_state(TASK_INTERRUPTIBLE);
-    current->policy = SCHED_YIELD;
-    timer = jiffies + HZ;
-    while(time_before(jiffies, timer))
-    {
-        if(flag) break;
-        schedule();
-    }
-    set_current_state(TASK_RUNNING);
-
-The problem is that schedule() never returns!!! If I use 
-schedule_timeout(1), it returns, but the granularity
-of the timeout interval is such that it slows down the
-driver (0.1 ms).
-
-So, is there something that I'm not doing that is preventing
-schedule() from returning?  It returns on a user-interrupt (^C),
-but otherwise gives control to the kernel forever.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+i've just changed 2.4.3ac7 to ac9 this ?morning? ( in france) . Waiting for the
+crash ....
 
 

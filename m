@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281823AbRKQXOJ>; Sat, 17 Nov 2001 18:14:09 -0500
+	id <S281827AbRKQXfg>; Sat, 17 Nov 2001 18:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281728AbRKQXN6>; Sat, 17 Nov 2001 18:13:58 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:57841 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S281823AbRKQXNq>; Sat, 17 Nov 2001 18:13:46 -0500
-Date: Sun, 18 Nov 2001 00:13:38 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Steve Martin <ecprod@bellsouth.net>
+	id <S281828AbRKQXfZ>; Sat, 17 Nov 2001 18:35:25 -0500
+Received: from mnh-1-21.mv.com ([207.22.10.53]:41481 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S281827AbRKQXfK>;
+	Sat, 17 Nov 2001 18:35:10 -0500
+Message-Id: <200111180054.TAA03342@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Rock Gordon <rockgordon@yahoo.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.14 loop.o missing symbol
-In-Reply-To: <3BF6CE2B.857A2AEB@bellsouth.net>
-Message-ID: <Pine.NEB.4.40.0111180012530.1826-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Executing binaries on new filesystem 
+In-Reply-To: Your message of "Sat, 17 Nov 2001 14:18:21 PST."
+             <20011117221821.66121.qmail@web14809.mail.yahoo.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 17 Nov 2001 19:54:25 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Nov 2001, Steve Martin wrote:
+rockgordon@yahoo.com said:
+> I've written a modest filesystem for fun, it works pretty ok, but when
+> I try to execute binaries from it, bash says "cannot execute binary
+> file" ... If I copy the same binary elsewhere, it executes perfectly.
 
-> FYI: in kernel 2.4.14, symbol "deactivate_page()"
-> is not exported from kernel/ksyms.c, causing
-> unresolved reference in drivers/block/loop.c
+> Does anybody have any clue ? 
 
-This is a known bug (and the right solution is to remove the two lines
-that contain deactivate_page from drivers/block/loop.c).
+Dump it into UML, and stare it with gdb until you see where the error is
+coming from.
 
-cu
-Adrian
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+				Jeff
 

@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264846AbRF3FVy>; Sat, 30 Jun 2001 01:21:54 -0400
+	id <S264847AbRF3Fgl>; Sat, 30 Jun 2001 01:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264847AbRF3FVo>; Sat, 30 Jun 2001 01:21:44 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:43512 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S264846AbRF3FVg>; Sat, 30 Jun 2001 01:21:36 -0400
-Message-ID: <3B3D61D3.CEDACC4D@uow.edu.au>
-Date: Sat, 30 Jun 2001 15:21:23 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S264851AbRF3Fgb>; Sat, 30 Jun 2001 01:36:31 -0400
+Received: from prograine2.raster.krakow.pl ([212.160.153.165]:21121 "EHLO
+	procomnet2.prograine.net") by vger.kernel.org with ESMTP
+	id <S264847AbRF3Fg1>; Sat, 30 Jun 2001 01:36:27 -0400
+Date: Sat, 30 Jun 2001 07:41:38 +0200 (CEST)
+From: <pt@procomnet2.prograine.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Intel SRCU3-1 RAID (I2O) and 2.4.5-ac18
+Message-ID: <Pine.LNX.4.33.0106300635050.1166-100000@procomnet2.prograine.net>
 MIME-Version: 1.0
-To: Dylan Griffiths <Dylan_G@bigfoot.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
-In-Reply-To: <3B3D4A96.A81A13AD@bigfoot.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dylan Griffiths wrote:
-> 
->         Hi.  While doing some file tranfers to our new server (a Compaq Proliant
-> 8way XEON 500 with 4gb ram and an EEPro100 NIC), the box socked solid (no
-> oops, no response via network, no response via console).  The other hardware
-> in the system was a Compaq Smart Array 9SMART2 driver).  It's running
-> Slackware 7.1.  The other system was a dual P3 450 running Redhat 7.1 (Linux
-> velocity.kuro5hin.org 2.4.2-2smp #1 SMP Sun Apr 8 20:21:34 EDT 2001 i686
-> unknown) w/ 3c59x NIC.  The Redhat machine experienced no problems.
->         In Uni processor mode, the system is totally stable.  But only using 1/8th
-> of its power :-/  We had to roll back to 2.2.19 with a bigmem patch, but
-> we'd like to have a stable 2.4 kernel to use (since it's so much better SMP
-> wise, throughput wise, etc).
 
-Some things to try:
+I have configured a RAID5 volume, partitioned it and created
+ext2 on it. I can mount it and everything seems to be ok, but
+trying to copy a large (+-500MB) file from one directory on
+the filesystem on the RAID to another results in something like:
 
-1: Include `magic sysrq' support in the kernel and use ALT-SYSRQ-T and S
-   when it has locked up.   If you get some traces then please feed them
-   into `ksymoops -m System.map' and report back.
+i2o/iop0: No handler for event (0x00000400)
+i2o/iop0 requires user configuration
+Driver "I2O Block OSM" did not release device!
+i2ob_del_device called, but not in dev table!
+Driver "I2O Block OSM" did not release device!
 
-2: If the above doesn't work, add `nmi_watchdog=1' to the kernel boot
-   options.  That may catch the lockup.
+and the copying process is frozen. After that I can read
+some data from the filesystem (tried to ls some directories)
+but cannot umount it and cannot kill the copying process.
+The event code in the message's first line sometimes has different
+values (0x00000020 for example), the first line happens to
+be repeated a few times as well.
+The problem is fully reproducible with my system.
 
-3: Replace the NIC with another eepro100.  If the problem goes away then
-   chuck the old one.
+The system is RedHat 7.1, the kernel is compiled with SMP,
+I2O block OSM, I2O PCI support and without I2O SCSI and I2O net OSMs.
+SCSI support is also off. I enabled the enhanced RTC because a
+somewhat dated document from Intel concerning support for this
+controller with RH62 says it has to be on.
+GCC and binutils versions are: egcs-2.91.66 (stock RH71 "kgcc"),
+binutils-2.10.91.0.2 (stock RH71).
 
-4: Replace the NIC with one of a different type (ie: swap with the other
-   machine). If that fixes it we look at the ethernet driver.  Otherwise
-   we look at, umm, the rest of the kernel.
+I have the controller working in an Intel L440GX+ board with
+two PIII 700MHz processors. The board specs are: 82440GX chipset,
+Cirrus Logic CLGD5480 VGA, Adaptec AIC-7896 SCSI (unused), Intel 82559
+EtherPro100 (unused). The SRCU31 controller works in an ordinary PCI
+slot (32bit/33mhz), the only other PCI card in the system (apart
+from the on-board devices) is an Intel EtherPro100.
+There are four IBM DDYS-T18350 drives on the controller, three of
+them are in the raid. The controller has 32MB RAM as cache,
+the system has 512MB of ECC RAM.
 
--
+greetings,
+
+Przemek Tomala
+
+PS: if you need additional info or you can help with this,
+    please CC me, as I am not subscribed to the list
+

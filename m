@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbRGCFDV>; Tue, 3 Jul 2001 01:03:21 -0400
+	id <S265024AbRGAGjy>; Sun, 1 Jul 2001 02:39:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265433AbRGCFDM>; Tue, 3 Jul 2001 01:03:12 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:50609 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265222AbRGCFC6>; Tue, 3 Jul 2001 01:02:58 -0400
-Date: Sun, 10 Jun 2001 14:45:01 +0530
-From: kiran.thirumalai@in.ibm.com
-To: linux-kernel@vger.kernel.org
-Subject: Validation of memory allocated through kmalloc
-Message-ID: <20010610144501.A14342@localhost.in.ibm.com>
+	id <S265016AbRGAGjo>; Sun, 1 Jul 2001 02:39:44 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:950 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S265017AbRGAGjd>;
+	Sun, 1 Jul 2001 02:39:33 -0400
+Message-Id: <200107010639.CAA26485@razor.cs.columbia.edu>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Cosmetic JFFS patch. 
+In-Reply-To: Your message of "Fri, 29 Jun 2001 13:01:23 +0200."
+             <3B3C6003.BBD93FC0@TeraPort.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Sun, 01 Jul 2001 02:39:32 -0400
+From: Hua Zhong <huaz@cs.columbia.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Is there some kernel api to validate memory allocated using kmalloc.
-Suppose, I allocate some memory using kmalloc and at a later point of execution
-I would like to validate if the memory allocated is not possibly freed by some other thread.
 
-Pls suggest a patch/pointers if any.
-I also noticed a commented 'CONFIG_DEBUG_MALLOC' config option  (2.4.3 source),
-It doesn't seem to be functional.  Any pointers towards the history behind
-it would also be helpful.
+Is Graphics really in the Windows kernel?  I think GDI.EXE runs in user mode.
 
-Thanks in advance,
-Kiran
+> >Olaf Hering wrote: 
+> >> kde.o. 2.5? 
+> >
+> >Good idea! Graphics needs to be in the kernel to be fast. Windows 
+> >proved that. 
+> 
+>  thought SGI proved that :-)
+> 
+> Martin
+> -- 
+> ------------------------------------------------------------------
+> Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+> TeraPort GmbH            |    Phone:  +49-89-510857-309
+> C+ITS                    |    Fax:    +49-89-510857-111
+> http://www.teraport.de   |    Mobile: +49-170-4904759
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+-> From Martin Knoblauch <Martin.Knoblauch@TeraPort.de> :
+
 

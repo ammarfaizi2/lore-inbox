@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264914AbRFZMwz>; Tue, 26 Jun 2001 08:52:55 -0400
+	id <S264912AbRFZMxP>; Tue, 26 Jun 2001 08:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264913AbRFZMwq>; Tue, 26 Jun 2001 08:52:46 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:30080 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S264912AbRFZMw0>; Tue, 26 Jun 2001 08:52:26 -0400
-Message-ID: <3B38860D.8E07353D@kegel.com>
-Date: Tue, 26 Jun 2001 05:54:37 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: A signal fairy tale
+	id <S264913AbRFZMxF>; Tue, 26 Jun 2001 08:53:05 -0400
+Received: from t2.redhat.com ([199.183.24.243]:48367 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264912AbRFZMwu>; Tue, 26 Jun 2001 08:52:50 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Cc: jffs-dev@axis.com, linux-kernel@vger.kernel.org
+Subject: Cosmetic JFFS patch.
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Jun 2001 13:52:08 +0100
+Message-ID: <19708.993559928@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time a hacker named Xman
-wrote a library that used aio, and decided
-to use sigtimedwait() to pick up completion
-notifications.  It worked well, and his I/O
-was blazing fast (since was using a copy
-of Linux that was patched to have good aio).
-But when he tried to integrate his library
-into a large application someone else had
-written, woe! that application's use of signals
-conflicted with his library.  "Fsck!" said Xman.
-At that moment a fairy appeared, and said
-"Young man, watch your language, or I'm going to
-have to turn you into a goon!  I'm the good fairy Eunice.  
-Can I help you?"  Xman explained his problem to Eunice,
-who smiled and said "All you need is right here,
-just type 'man 2 sigopen'".  Xman did, and saw:
+Linus, Alan - Please apply the following self-explanatory patch.
 
+Index: fs/jffs/inode-v23.c
+===================================================================
+RCS file: /inst/cvs/linux/fs/jffs/Attic/inode-v23.c,v
+retrieving revision 1.1.2.11
+diff -u -u -r1.1.2.11 inode-v23.c
+--- fs/jffs/inode-v23.c	2001/06/02 16:19:32	1.1.2.11
++++ fs/jffs/inode-v23.c	2001/06/26 12:50:36
+@@ -1722,6 +1722,12 @@
+ 	printk("JFFS version "
+ 	       JFFS_VERSION_STRING
+ 	       ", (C) 1999, 2000  Axis Communications AB\n");
++	/* LynuxWorks are politely reminded that removing copyright
++	   notices is an offence under the Copyright Design and
++	   Patents Act 1988, and under equivalent non-UK law in
++	   accordance with the Berne Convention. */
++	printk("Portions (C) 2000, 2001 Red Hat, Inc.\n");
++	
+ 	return register_filesystem(&jffs_fs_type);
+ }
  
-SIGOPEN(2)        Linux Programmer's Manual           SIGOPEN(2)
- 
-NAME
-       sigopen - open a signal as a file descriptor
- 
-SYNOPSIS
-       #include <signal.h>
- 
-       int sigopen(int signum);
- 
-DESCRIPTION
-       The sigopen system call opens signal number signum as a file descriptor.
-       That signal is no longer delivered normally or available for pickup
-       with sigwait() et al.  Instead, it must be picked up by calling
-       read() on the file descriptor returned by sigwait(); the buffer passed to
-       read() must have a size which is a multiple of sizeof(siginfo_t).
-       Multiple signals may be picked up with a single call to read().
-       When that file descriptor is closed, the signal is available once more 
-       for traditional use.
-       A signal number cannot be opened more than once concurrently; sigopen() 
-       thus provides a way to avoid signal usage clashes in large programs.
 
-RETURN VALUE
-       signal returns the new file descriptor, or -1 on error (in which case, errno
-       is set appropriately).
 
-ERRORS
-       EWOULDBLOCK signal is already open
 
-NOTES                                
-       read() will block when reading from a file descriptor opened by sigopen()
-       until a signal is available unless fcntl(fd, F_SETFL, O_NONBLOCK) is called
-       to set it into nonblocking mode.
+--
+dwmw2
 
-HISTORY
-       sigopen() first appeared in the 2.5.2 Linux kernel.
 
-Linux                      July, 2001                         1           
-
-When he finished reading, he knew just how to solve his
-problem, and he lived happily ever after.  
-
-The End.
-
-- Dan

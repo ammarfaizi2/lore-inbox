@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264117AbUFPQ2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUFPQ1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264117AbUFPQ2K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 12:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUFPQ2K
+	id S264124AbUFPQ1y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 12:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbUFPQ1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 12:28:10 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:58251 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264117AbUFPQ2C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 12:28:02 -0400
-Subject: Re: PROBLEM: 2.6.7 does not compile (jfs errors)
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Perlbroker <minime@sdf.lonestar.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040616133944.GA1987@8128.biz>
-References: <20040616133944.GA1987@8128.biz>
-Content-Type: text/plain
-Message-Id: <1087403262.29041.25.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 16 Jun 2004 11:27:42 -0500
+	Wed, 16 Jun 2004 12:27:54 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:32015 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264124AbUFPQ1u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 12:27:50 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH]: Option to run cache reap in thread mode
+Date: Wed, 16 Jun 2004 12:25:11 -0400
+User-Agent: KMail/1.6.2
+Cc: Dimitri Sivanich <sivanich@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20040616142413.GA5588@sgi.com> <20040616160355.GA5963@sgi.com> <20040616160714.GA14413@infradead.org>
+In-Reply-To: <20040616160714.GA14413@infradead.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406161225.11946.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-16 at 08:39, Perlbroker wrote:
+On Wednesday, June 16, 2004 12:07 pm, Christoph Hellwig wrote:
+> Well, if you want deterministic interrupt latencies you should go for a
+> realtime OS.
 
-> CC [M]  fs/jfs/jfs_dtree.o
-> fs/jfs/jfs_dtree.c: In function `add_index':
-> fs/jfs/jfs_dtree.c:388: parse error before `struct'
-> fs/jfs/jfs_dtree.c:389: `temp_table' undeclared (first use in this function)
-> fs/jfs/jfs_dtree.c:389: (Each undeclared identifier is reported only once
-> fs/jfs/jfs_dtree.c:389: for each function it appears in.)
-> make[3]: *** [fs/jfs/jfs_dtree.o] Error 1
-> make[2]: *** [fs/jfs] Error 2
-> make[1]: *** [fs] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.6.7'
+Although I don't want to see another kernel thread added as much as the next 
+guy, I think that minimizing the amount of time that irqs are turned off is 
+probably a good thing in general.  For example, the patch to allow interrupts 
+in spin_lock_irq if the lock is already taken is generally a really good 
+thing, because even though reducing lock contention should be a goal, locks 
+by their very nature are taken sometimes, and allowing other CPUs to get 
+useful work done while they're waiting for it is obviously desirable.
 
-This was reported in another thread by Tomas Szepe.  I don't know why
-this sometimes compiles cleanly, but this patch should fix it:
+> I know Linux is the big thing in the industry, but you're 
+> really better off looking for a small Hard RT OS. 
 
-diff -urp linux-2.6.7/fs/jfs/jfs_dtree.c linux/fs/jfs/jfs_dtree.c
---- linux-2.6.7/fs/jfs/jfs_dtree.c	2004-06-16 07:38:20.244688936 -0500
-+++ linux/fs/jfs/jfs_dtree.c	2004-06-16 07:46:38.210986552 -0500
-@@ -374,6 +374,8 @@ static u32 add_index(tid_t tid, struct i
- 		return index;
- 	}
- 	if (index == (MAX_INLINE_DIRTABLE_ENTRY + 1)) {
-+		struct dir_table_slot temp_table[12];
-+
- 		/*
- 		 * It's time to move the inline table to an external
- 		 * page and begin to build the xtree
-@@ -385,7 +387,6 @@ static u32 add_index(tid_t tid, struct i
- 		 * Save the table, we're going to overwrite it with the
- 		 * xtree root
- 		 */
--		struct dir_table_slot temp_table[12];
- 		memcpy(temp_table, &jfs_ip->i_dirtable, sizeof(temp_table));
- 
- 		/*
+Sure, for some applications, an RTOS is necessary.  But it seems like keeping 
+latencies down in Linux is a good thing to do nonetheless.
 
--- 
-David Kleikamp
-IBM Linux Technology Center
+Can you think of other ways to reduce the length of time that interrupts are 
+disabled during cache reaping?  It seems like the cache_reap loop might be a 
+candidate for reorganization (though that would probably imply other 
+changes).
 
+Thanks,
+Jesse

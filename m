@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbVAQUBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVAQUDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbVAQUBk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 15:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbVAQUBk
+	id S262861AbVAQUDk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 15:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbVAQUDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 15:01:40 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:33764 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262857AbVAQUBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 15:01:25 -0500
-Message-ID: <41EC1993.2030105@grupopie.com>
-Date: Mon, 17 Jan 2005 20:01:23 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Park <opengeometry@yahoo.ca>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Thomas Zehetbauer <thomasz@hostmaster.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: usb-storage on SMP?
-References: <1105982247.21895.26.camel@hostmaster.org> <200501171826.33496.rjw@sisk.pl> <20050117194615.GA2028@node1.opengeometry.net>
-In-Reply-To: <20050117194615.GA2028@node1.opengeometry.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 15:03:40 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:29639 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262861AbVAQUCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 15:02:54 -0500
+Date: Mon, 17 Jan 2005 21:03:10 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Matthew Harrell 
+	<mharrell-dated-1106423897.d1fc24@bittwiddlers.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Message-ID: <20050117200310.GA6973@ucw.cz>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <200501122242.51686.dtor_core@ameritech.net> <20050114230637.GA32061@bittwiddlers.com> <200501142031.10119.dtor_core@ameritech.net> <20050117195628.GA6704@ucw.cz> <20050117195815.GA22064@bittwiddlers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050117195815.GA22064@bittwiddlers.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Park wrote:
-> On Mon, Jan 17, 2005 at 06:26:33PM +0100, Rafael J. Wysocki wrote:
+On Mon, Jan 17, 2005 at 02:58:15PM -0500, Matthew Harrell wrote:
+> : 
+> : I expect the problem to be coming from the fact that the keyboard
+> : controller uses ports 0x60 and 0x64, not 0x66 as ACPI tries to tell us
+> : here.
+> : 
 > 
->>On Monday, 17 of January 2005 18:17, Thomas Zehetbauer wrote:
->>
->>>Hi,
->>>
->>>can anyone confirm that writing to usb-storage devices is working on SMP
->>>systems?
->>
->>Generally, it is.  Recently, I've written some stuff to a USB pendrive (using
->>2.6.10-ac7 or -ac9).
-> 
-> 
-> Same here with Abit VP6 dual-P3 and 2.6.10.  It shows up as /dev/sda,
-> and I can do anything that I would do with normal harddisk.
-> 
-> But, I still can't boot from it. :/  I can now mount it as root
-> filesystem, but I can't load the kernel from USB key drive.
-
-huh?? Who's mounting the root filesystem, then :) ?
-
-If you mean that you can't get the BIOS to load the kernel for you, and 
-you're loading the kernel from a floppy or something, you should know 
-that some BIOS are pretty selective about what they consider a valid 
-boot partition.
-
-I recommend that you use fdisk to set up one partition as FAT16 type 
-(even if you use another filesystem later), and make the partition 
-active. You might need to write a proper MBR on the pen also (IIRC LILO 
-as an option to do this).
-
-You might also need to pass a special "disk=/dev/sda bios=0x80" (or 
-something like that) option in your lilo.conf file, but that depends how 
-far in the boot process you're hanging.
+> Interesting - hadn't noticed that.  Is there an easy solution around it that
+> doesn't entail turning off acpi?
+ 
+The only one I see would be using "i8042.noacpi=1" on the kernel command
+line.
 
 -- 
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

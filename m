@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318785AbSHLTgJ>; Mon, 12 Aug 2002 15:36:09 -0400
+	id <S318792AbSHLTk1>; Mon, 12 Aug 2002 15:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318792AbSHLTgJ>; Mon, 12 Aug 2002 15:36:09 -0400
-Received: from feline.chl.chalmers.se ([129.16.214.88]:38925 "EHLO
-	feline.chl.chalmers.se") by vger.kernel.org with ESMTP
-	id <S318785AbSHLTgI>; Mon, 12 Aug 2002 15:36:08 -0400
-Date: Mon, 12 Aug 2002 21:39:54 +0200 (CEST)
-From: Fredrik Ohrn <ohrn@chl.chalmers.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sungem 0.97 driver doesn't work with "Sun GigabitEthernet/P 2.0"
- card.
-Message-ID: <Pine.LNX.4.44.0208122129030.17687-100000@feline.chl.chalmers.se>
+	id <S318798AbSHLTk1>; Mon, 12 Aug 2002 15:40:27 -0400
+Received: from mons.uio.no ([129.240.130.14]:17554 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S318792AbSHLTk1>;
+	Mon, 12 Aug 2002 15:40:27 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15704.4092.969062.891558@charged.uio.no>
+Date: Mon, 12 Aug 2002 21:43:56 +0200
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Simon Kirby <sim@netnation.com>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+In-Reply-To: <3D57594B.C56A1932@zip.com.au>
+References: <20020811031705.GA13878@netnation.com>
+	<Pine.LNX.4.44.0208111121510.9930-100000@home.transmeta.com>
+	<3D572B4C.90F4AF3C@zip.com.au>
+	<20020812062039.GA29420@netnation.com>
+	<3D57594B.C56A1932@zip.com.au>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
 
-On Mon, 12 Aug 2002, David S. Miller wrote:
->
->    From: Fredrik Ohrn <ohrn@chl.chalmers.se>
->    Date: Mon, 12 Aug 2002 15:53:11 +0200 (CEST)
-> 
->    gem: SW reset is ghetto.
-> 
-> If you get this message you won't get a working card at all.
-> 
-> Most likely the BIOS isn't assigning resources to the card
-> correctly. Some x86 guru would need to look at PCI config
-> space dumps to figure out what might be going wrong. 
->
+     > Simon Kirby wrote:
+    >>
+    >> On Sun, Aug 11, 2002 at 08:28:12PM -0700, Andrew Morton wrote:
+    >>
+    >> > So I'd appreciate it if Simon could invetigate a little
+    >> > further with the test app I posted.  Something is up, and it
+    >> > may not be just an NFS thing.  But note that nfs_readpage
+    >> > will go synchronous if rsize is less than PAGE_CACHE_SIZE, so
+    >> > it has to be set up right.
+    >>
+    >> You're right -- my NFS page size is set to 2048.  I can't
+    >> remember if I did this because I was trying to work around huge
+    >> read-ahead or because I was trying to work around the bursts of
+    >> high latency from my Terayon cable modem (which idles at a slow
+    >> line speed and "falls forward" to higher speeds once it detects
+    >> traffic, but with a delay, causing awful latency at the expense
+    >> of "better noise immunity").  Anyway, I will test this
+    >> tomorrow.  I recall that 1024 byte-sized blocks were too small
+    >> because the latency of the cable modem would cause it to not
+    >> have high enough throughput, so I settled with 2048.
 
-OK, I also have an identical card sitting in a Sun Enterprise 450 box.
-In case someone can tell me how to do it in Solaris 8 I can check how 
-the card is configured there.
+     > OK, thanks.
 
-BTW, please CC me as I'm not subscribed to the list.
+Sorry if somebody already covered this (I'm still a bit jetlagged so I
+may have missed part of the argument) but if the read is synchronous,
+why should we care about doing readahead at all?
 
+Wasn't the 2.4.x code designed so that you first scheduled the read
+for the page you are interested in, and only if the page was not
+immediately made available would you then schedule some readahead?
 
-Regards,
-Fredrik
-
--- 
-   "It is easy to be blinded to the essential uselessness of computers by
-   the sense of accomplishment you get from getting them to work at all."
-                                                   - Douglas Adams
-
-Fredrik Öhrn                               Chalmers University of Technology
-ohrn@chl.chalmers.se                                                  Sweden
-
-
+Cheers,
+  Trond

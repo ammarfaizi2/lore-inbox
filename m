@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261776AbTCGU3R>; Fri, 7 Mar 2003 15:29:17 -0500
+	id <S261765AbTCGUba>; Fri, 7 Mar 2003 15:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261777AbTCGU3Q>; Fri, 7 Mar 2003 15:29:16 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:19931 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261776AbTCGU3Q>;
-	Fri, 7 Mar 2003 15:29:16 -0500
-Date: Fri, 7 Mar 2003 21:39:31 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@digeo.com>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
-In-Reply-To: <1047069277.752.45.camel@tux.rsn.bth.se>
-Message-ID: <Pine.LNX.4.44.0303072136590.22681-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261771AbTCGUba>; Fri, 7 Mar 2003 15:31:30 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:9988 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261765AbTCGUba>;
+	Fri, 7 Mar 2003 15:31:30 -0500
+Date: Fri, 7 Mar 2003 21:41:21 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SWSUSP Discontiguous pagedir patch
+Message-ID: <20030307204121.GC2447@elf.ucw.cz>
+References: <20030305180222.GA2781@zaurus.ucw.cz> <Pine.LNX.4.33.0303070950030.991-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0303070950030.991-100000@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On 7 Mar 2003, Martin Josefsson wrote:
+> http://kernel.org/pub/linux/kernel/people/mochel/power/pm-2.5.64.diff.gz
 
-> Some negative things:
++static inline void suspend_restore_mem(void)
 
-if you have time/interest, could you re-test the negative things with X
-reniced to -10, to further isolate the problem? Another thing to try is to
-renice xmms to -10 (or RT priority). Which one makes the larger
-difference?
+This has to be in assembly. You can't trust gcc not to move stack
+pointer.
 
-	Ingo
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

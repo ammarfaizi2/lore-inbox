@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261777AbSIXR5d>; Tue, 24 Sep 2002 13:57:33 -0400
+	id <S261721AbSIXRl1>; Tue, 24 Sep 2002 13:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261713AbSIXR4j>; Tue, 24 Sep 2002 13:56:39 -0400
-Received: from news.cistron.nl ([62.216.30.38]:56335 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S261777AbSIXR4Y>;
-	Tue, 24 Sep 2002 13:56:24 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: UP IO-APIC
-Date: Tue, 24 Sep 2002 18:01:10 +0000 (UTC)
-Organization: Cistron
-Message-ID: <amq996$46e$2@ncc1701.cistron.net>
-References: <Pine.LNX.4.44.0209240331280.20792-100000@montezuma.mastecende.com> <Pine.GSO.4.33.0209241119500.11624-100000@sweetums.bluetronic.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1032890470 4302 62.216.29.67 (24 Sep 2002 18:01:10 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S261742AbSIXRlC>; Tue, 24 Sep 2002 13:41:02 -0400
+Received: from dsl-213-023-039-208.arcor-ip.net ([213.23.39.208]:1468 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261767AbSIXRhu>;
+	Tue, 24 Sep 2002 13:37:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dave Olien <dmo@osdl.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: DAC960 in 2.5.38, with new changes
+Date: Tue, 24 Sep 2002 19:39:50 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, axboe@suse.de,
+       _deepfire@mail.ru, linux-kernel@vger.kernel.org
+References: <20020923120400.A15452@acpi.pdx.osdl.net> <20020923.135447.24672280.davem@redhat.com> <20020924095456.A17658@acpi.pdx.osdl.net>
+In-Reply-To: <20020924095456.A17658@acpi.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ttf4-0003iY-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.33.0209241119500.11624-100000@sweetums.bluetronic.net>,
-Ricky Beam  <jfbeam@bluetronic.net> wrote:
->The local
->APIC makes perfect sense albeit rare.  Single processor IO APICs are very
->rare and are usually MP systems with only one processor.
+On Tuesday 24 September 2002 18:54, Dave Olien wrote:
+> I haven't been ignoring the discussion.  Just thinking it over.
+> I was going to dig out an old PCI spec last night, but got involved
+> with other things.  I wanted to review how 64-bit PCI and 32-bit PCI busses
+> handle 32 and 64-bit writes from the processor.
+> 
+> I don't have a spec for these controllers.  IBM is selling Mylex
+> to LSI logic, so "All contracts, NDA's and agreements are on hold
+> until a transition to lsi is complete"  
 
-I think most AMD Athlon boards have an IO APIC
+Note: I will sign an NDA to get the specs for this card (family) but I
+would much prefer that somebody gets a clue and just releases the spec.
+Frankly, this board needs all the help it can get, based on comparative
+performance.  Keeping the spec secret is just a brilliant way to ensure
+it will die, and thus be worth $0.00 to the purchaser.
 
-Mike.
--- 
-Computers are useless, they only give answers. --Pablo Picasso
+(I sincerely hope somebody in the DAC960 food chain notices this
+comment, or somebody forwards it to one of the aforementioned: give
+the world the spec and we will reciprocate by making the thing go as
+fast as theoretically possible.)
 
+Daniel

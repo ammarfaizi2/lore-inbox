@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263684AbREYKTY>; Fri, 25 May 2001 06:19:24 -0400
+	id <S263685AbREYKbg>; Fri, 25 May 2001 06:31:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263683AbREYKTP>; Fri, 25 May 2001 06:19:15 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:17 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263674AbREYKTG>;
-	Fri, 25 May 2001 06:19:06 -0400
-Date: Fri, 25 May 2001 06:19:05 -0400 (EDT)
-From: Mike Brown <mbrown@cs.uml.edu>
-Message-Id: <200105251019.f4PAJ5h466785@saturn.cs.uml.edu>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] memory leak in scsi_proc.c (fixed patch error)
+	id <S263687AbREYKbR>; Fri, 25 May 2001 06:31:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9230 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263686AbREYKbN>;
+	Fri, 25 May 2001 06:31:13 -0400
+Date: Fri, 25 May 2001 11:30:32 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Philip Blundell <philb@gnu.org>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: Configure.help entries wanted
+Message-ID: <20010525113032.A15080@flint.arm.linux.org.uk>
+In-Reply-To: <20010525012200.A5259@thyrsus.com> <esr@thyrsus.com> <E153C9U-0001op-00@kings-cross.london.uk.eu.org> <20010525040450.A6265@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010525040450.A6265@thyrsus.com>; from esr@thyrsus.com on Fri, May 25, 2001 at 04:04:50AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, May 25, 2001 at 04:04:50AM -0400, Eric S. Raymond wrote:
+> On further investigation I find that neither of these symbols is actually 
+> set in the ARM config file!  This is kind of a mess.  Is it going to be 
+> fixed in the next merge?
 
-fixed patch poster earlier.  PINE's default editor munged it up.  Also changed
-the 8 spaces indentation to a tab character.
+No.  I don't have the fixes for it yet.  (Phil - please supply the fixes).
 
-Sorry about that.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-> If someone writes to a scsi adapter's /proc entry and that scsi adapter
-> has not defined a proc_info() entry point, proc_scsi_write() will leak a
-> page.  Furthermore, no sense asking for a page if said proc_info() entry
-> point does not exist.  This patch fixes the above problem and patches
-> cleanly against 2.4.4
-
-
---- drivers/scsi/scsi_proc.c.orig	Fri May 25 06:01:20 2001
-+++ drivers/scsi/scsi_proc.c	Fri May 25 06:04:16 2001
-@@ -99,6 +99,9 @@
- 	char * page;
- 	char *start;
-     
-+	if (hpnt->hostt->proc_info == NULL)
-+		ret = -ENOSYS;
-+
- 	if (count > PROC_BLOCK_SIZE)
- 		return -EOVERFLOW;
- 
-@@ -106,11 +109,9 @@
- 		return -ENOMEM;
- 	copy_from_user(page, buf, count);
- 
--	if (hpnt->hostt->proc_info == NULL)
--		ret = -ENOSYS;
--	else
--		ret = hpnt->hostt->proc_info(page, &start, 0, count,
--						hpnt->host_no, 1);
-+	ret = hpnt->hostt->proc_info(page, &start, 0, count,
-+				     hpnt->host_no, 1);
-+
- 	free_page((ulong) page);
- 	return(ret);
- }

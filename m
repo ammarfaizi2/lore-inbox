@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262571AbTCITTc>; Sun, 9 Mar 2003 14:19:32 -0500
+	id <S262570AbTCITPu>; Sun, 9 Mar 2003 14:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262575AbTCITTb>; Sun, 9 Mar 2003 14:19:31 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:27911 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262571AbTCITTb>; Sun, 9 Mar 2003 14:19:31 -0500
-Date: Sun, 9 Mar 2003 20:30:02 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kconfig update
-In-Reply-To: <20030309190103.GA1170@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0303092028020.32518-100000@serv>
-References: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
- <20030309190103.GA1170@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262571AbTCITPu>; Sun, 9 Mar 2003 14:15:50 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33974
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262570AbTCITPt>; Sun, 9 Mar 2003 14:15:49 -0500
+Subject: RE: [PATCH] Avoid PC(?) specific cascade dma reservation inkernel
+	/dma.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Starvik <mikael.starvik@axis.com>
+Cc: Johan Adolfsson <johan.adolfsson@axis.com>,
+       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+       "'Linus Torvalds'" <torvalds@transmeta.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE880@mailse01.axis.se>
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE880@mailse01.axis.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047241975.6396.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 09 Mar 2003 20:32:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2003-03-09 at 13:49, Mikael Starvik wrote:
+> >I don't know of any PC cards that can support ISA DMA channel 4 so I
+> >guess simply because of that it hasn't happened. Do you actually
+> >know of any DMA 4 capable ISA devices or is it used for onboard
+> >ISA devices ?
+> 
+> In this case it is used in a non ISA capable system where DMA channel
+> numbers doesn't relate to ISA numbers in any way. 
 
-On Sun, 9 Mar 2003, Sam Ravnborg wrote:
-
-> Hi Roman.
-> Is it on your TODO list to make is more quiet?
-> Today kconfig dumps out a lot of info when run, making sure no-one even
-> notices the warnings that occur in the beginning.
-> When executing
-> $ make defconfig
-> $ make V=0
-> kconfig count for almost half of the output.
-
-What do you mean? 2.5.64 has no V option.
-
-bye, Roman
+So what happens if someone plugs a PCI/ISA bridge into an axis system.
+Surely you should be reporting no ISA DMA and having a set of similar
+axis specific DMA handlers - or does it really look so close to ISA think ?
 

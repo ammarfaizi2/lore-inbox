@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVCPPLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVCPPMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbVCPPLU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 10:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVCPPLU
+	id S262621AbVCPPMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 10:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCPPMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 10:11:20 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:36764 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262613AbVCPPLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 10:11:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bDWxIkD4Sw3Oy0+wrAUGzzCu6sEHxrQiIoB2dAADySGWAwUUzmW4qjGFSFtF3pxBYxsZ8sKiK6AIacVGOrl7fEja2n2hlGfEvAaEKyqreo7GOgWc0b0iP6JKajhQD9QUaclcYkfn7iod5cJxbtbfDEOemu3O3tVfA3scQdrgIjU=
-Message-ID: <5a2cf1f60503160711137dbff3@mail.gmail.com>
-Date: Wed, 16 Mar 2005 16:11:11 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: enabling IOAPIC on C3 processor?
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110918157.17931.18.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <5a2cf1f6050315040956a512a6@mail.gmail.com>
-	 <1110918157.17931.18.camel@mindpipe>
+	Wed, 16 Mar 2005 10:12:38 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:31176 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S262616AbVCPPMN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 10:12:13 -0500
+Date: Wed, 16 Mar 2005 15:07:12 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.11-mm4
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+References: <20050316040654.62881834.akpm@osdl.org>
+X-Mailer: Balsa 2.3.0
+Message-Id: <1110985632l.8879l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005 15:22:36 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Tue, 2005-03-15 at 13:09 +0100, jerome lacoste wrote:
-> > I have a VIA Epia M10000 board that crashes very badly (and pretty
-> > often, especially when using DMA). I want to fix that.
-> >
-> 
-> Are the crashes associated with any particular workload or device?  My
-> M6000 works perfectly.
-> 
-> The one big problem I had with is is the VIA Unichrome XAA driver had a
-> FIFO related bug that caused it to stall the PCI bus, delaying
-> interrupts for tens of ms unless "Option NoAccel" was used.
-> 
-> This bug was fixed over 6 months ago though.
 
-It crashes my box within minutes if not seconds when using mythtv
-(tuner using ivtv driver) while using my network card. If I disable
-DMA on the disk and don't use my card, it's much more stable (several
-hours without problem).
+On 03.16, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/
+> 
+...
+>
+> +revert-gconfig-changes.patch
+> 
+>  Back out a recent change which broke gconfig.
+> 
 
-See this for more details:
-http://forums.viaarena.com/messageview.aspx?catid=28&threadid=60131&enterthread=y
+What was broken ?
 
-J
+Now it does not work:
+
+werewolf:/usr/src/linux# make gconfig
+  HOSTCC  scripts/kconfig/gconf.o
+In file included from /usr/include/gtk-2.0/gtk/gtkactiongroup.h:34,
+                 from /usr/include/gtk-2.0/gtk/gtk.h:38,
+                 from scripts/kconfig/gconf.c:16:
+/usr/include/gtk-2.0/gtk/gtkitemfactory.h:53: warning: function declaration isn't a prototype
+scripts/kconfig/gconf.c: In function `init_main_window':
+scripts/kconfig/gconf.c:225: error: `xpm_single_view' undeclared (first use in this function)
+scripts/kconfig/gconf.c:225: error: (Each undeclared identifier is reported only once
+scripts/kconfig/gconf.c:225: error: for each function it appears in.)
+scripts/kconfig/gconf.c:235: error: `xpm_split_view' undeclared (first use in this function)
+scripts/kconfig/gconf.c:245: error: `xpm_tree_view' undeclared (first use in this function)
+scripts/kconfig/gconf.c: At top level:
+scripts/kconfig/gconf.c:973: warning: 'renderer_toggled' defined but not used
+make[1]: *** [scripts/kconfig/gconf.o] Error 1
+make: *** [gconfig] Error 2
+
+
+An if you just open gconf.glade with glade-2 and just _save_ it without
+doing nothing, it changes a lot of things.
+
+by
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.11-jam4 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-6mdk)) #1
+
+
+
+

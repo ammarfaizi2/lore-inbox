@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbTF0U31 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 16:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbTF0U31
+	id S264786AbTF0Unw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 16:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264792AbTF0Unw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 16:29:27 -0400
-Received: from mail.skjellin.no ([80.239.42.67]:18840 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S264769AbTF0U30 (ORCPT
+	Fri, 27 Jun 2003 16:43:52 -0400
+Received: from smtp0.libero.it ([193.70.192.33]:12012 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S264786AbTF0Unv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 16:29:26 -0400
-Subject: Re: TCP send behaviour leads to cable modem woes
-From: Andre Tomt <andre@tomt.net>
-To: linux-kernel@vger.kernel.org
-Cc: Svein Ove Aas <svein.ove@aas.no>
-In-Reply-To: <200306272224.04335.svein.ove@aas.no>
-References: <200306272020.57502.svein.ove@aas.no>
-	 <3EFCA478.7010404@jpl.nasa.gov>  <200306272224.04335.svein.ove@aas.no>
+	Fri, 27 Jun 2003 16:43:51 -0400
+Subject: Re: PPP Modem connection impossible with 2.5.73-bk2
+From: Flameeyes <daps_mls@libero.it>
+To: Matthew Harrell 
+	<mharrell-dated-1057177236.425fdb@bittwiddlers.com>
+Cc: diegocg@teleline.es, Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030627202032.GA28863@bittwiddlers.com>
+References: <1056567978.931.8.camel@laurelin>
+	 <20030626195238.673bcffd.diegocg@teleline.es>
+	 <20030626164116.1bfbad1e.shemminger@osdl.org>
+	 <20030627022837.3dca1b09.diegocg@teleline.es>
+	 <20030627202032.GA28863@bittwiddlers.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1056746615.12886.459.camel@slurv.ws.pasop.tomt.net>
+Message-Id: <1056747440.1734.32.camel@laurelin>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 27 Jun 2003 22:43:35 +0200
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 27 Jun 2003 22:57:21 +0200
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On fre, 2003-06-27 at 22:24, Svein Ove Aas wrote:
-> > http://lartc.org/wondershaper/
-> 
-> I wrote something like that myself once.
-> It's a good shaper, but it works by *capping* up/download speeds and 
-> rearranging the priorities locally, which wouldn't help me a bit.
-
-By capping the speed below the link speed most modems will usually avoid
-bursting. IMHO it's mostly a net gain in usability even though you don't
-get the same raw download speeds as without capping.
-
+On Fri, 2003-06-27 at 22:20, Matthew Harrell wrote:
+> Let me know if there's anything else I can check.
+The only way I found is to take the drivers/net/ppp_generic.c from the
+original 2.5.73.
+Neither the patch sent me by Diego Calleja García works :/
 -- 
-Cheers,
-André Tomt
-andre@tomt.net
+Flameeyes <dgp85@users.sf.net>
 

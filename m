@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264545AbTL0TiY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 14:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTL0TiY
+	id S264549AbTL0Tyz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 14:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbTL0Tyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 14:38:24 -0500
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:28862 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S264559AbTL0TiW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 14:38:22 -0500
-Date: Sat, 27 Dec 2003 13:38:08 -0600 (CST)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: Carlo <devel@integra-sc.it>
-cc: dan carpenter <error27@email.com>, Oleg Drokin <green@linuxhacker.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ooops with kernel 2.4.22 and reiserfs
-In-Reply-To: <1072529558.21200.111.camel@atena>
-Message-ID: <Pine.GSO.4.21.0312271335550.10175-100000@dirac.phys.uwm.edu>
+	Sat, 27 Dec 2003 14:54:55 -0500
+Received: from fep01.swip.net ([130.244.199.129]:9467 "EHLO fep01-svc.swip.net")
+	by vger.kernel.org with ESMTP id S264549AbTL0Tyx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 14:54:53 -0500
+Message-ID: <3FEDE389.4090103@free.fr>
+Date: Sat, 27 Dec 2003 20:54:49 +0100
+From: Jean-Luc Fontaine <jfontain@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: IDE performance drop between 2.4.23 and 2.6.0
+References: <3FED9A87.4020209@free.fr> <Pine.LNX.4.58.0312270938130.14874@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312270938130.14874@home.osdl.org>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Run some drive self-tests:
-> >    smartctl -t long /dev/hda
-> > and let them complete, then look again at
-> >    smartctl -a /dev/hda
-> > 
-> smartctl version 5.26 Copyright (C) 2002-3 Bruce Allen
-> Home page is http://smartmontools.sourceforge.net/
->                                                                                                  
-> === START OF INFORMATION SECTION ===
-> Device Model:     Maxtor 6Y120L0
-> Serial Number:    Y3K9Q2GE
-> Firmware Version: YAR41BW0
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-<snip>
+Linus Torvalds wrote:
+|
+| On Sat, 27 Dec 2003, Jean-Luc Fontaine wrote:
+|
+|>I solved the problem in a very strange way. Note that the (b) disk
+|>performance only improves after readahead has been increased on another
+|>(c) drive! (the (c) drive performance was also increased by to 2.4
+|>levels but is not shown here). I could reliably repeat this behavior
+|>after rebooting.
+|>
+|>Can any IDE expert explain it?
+|
+|
+| Looks like a bug. If you don't access hdc,
 
-> SMART Error Log Version: 1
-> No Errors Logged
->                                                                                                  
-> SMART Self-test log structure revision number 1
-> Num  Test_Description    Status                  Remaining 
-> LifeTime(hours)  LBA_of_first_error
-> # 1  Extended offline    Completed without error       00%      
-> 997         -
->                                                                                                  
-> Some ideas??
+hdc is / for 2.6, whereas hdb is used for 2.4. So hdc was obviously
+accessed prior to this test.
 
-The only contribution I can make to this discussion is to suggest that
-'your problem is not due to the drive': it doesn't exhibit any of the
-symptoms of a sick Maxtor disk.
+| then the read-ahead on hdc
+| shouldn't matter. I wonder if the read-ahead code (either the setting or
+| the reading) gets the value from the wrong queue or something.
 
-Bruce
+Or could this set something in the VIA chipset? I'll take a look in
+/proc/ide/via and report if needed.
 
+Let me know if you need more tests to be run.
+
+- --
+Jean-Luc Fontaine  mailto:jfontain@free.fr  http://jfontain.free.fr/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/7eOIkG/MMvcT1qQRAjAxAKCr3xDbqELBzY7zsOYCQi/7QsYw7ACeObup
+auyEo8bDPNHOD79+/I8/xPw=
+=rsrt
+-----END PGP SIGNATURE-----

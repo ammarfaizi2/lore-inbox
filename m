@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280254AbRKEGW6>; Mon, 5 Nov 2001 01:22:58 -0500
+	id <S280257AbRKEG25>; Mon, 5 Nov 2001 01:28:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280255AbRKEGWs>; Mon, 5 Nov 2001 01:22:48 -0500
-Received: from ns.suse.de ([213.95.15.193]:30217 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280254AbRKEGWg>;
-	Mon, 5 Nov 2001 01:22:36 -0500
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Special Kernel Modification
-In-Reply-To: <E160aCK-0001Fs-00@localhost.suse.lists.linux.kernel> <200111050552.AAA06451@ccure.karaya.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Nov 2001 07:22:28 +0100
-In-Reply-To: Jeff Dike's message of "5 Nov 2001 05:44:11 +0100"
-Message-ID: <p73vggpybx7.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S280255AbRKEG2r>; Mon, 5 Nov 2001 01:28:47 -0500
+Received: from wiproecmx2.wipro.com ([164.164.31.6]:53991 "EHLO
+	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S280262AbRKEG2h>; Mon, 5 Nov 2001 01:28:37 -0500
+Reply-To: <sivakumar.kuppusamy@wipro.com>
+From: "Sivakumar Kuppusamy" <sivakumar.kuppusamy@wipro.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Patch for finding Memory leak in 2.2 kernel
+Date: Mon, 5 Nov 2001 12:22:48 +0530
+Message-ID: <003401c165c6$7b96e0a0$5f08720a@wipro.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
 
-Jeff Dike <jdike@karaya.com> writes:
+This is a multi-part message in MIME format.
 
-> Ummm, how about O_DIRECT instead of O_SYNC (or maybe as well, my googling
-> hasn't been clear on whether O_DIRECT bypasses the cache on writes as well)?
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-It does, but it has been deimplemented in the Linus tree and never put into
-the -ac tree. You would need -aa for working O_DIRECT or use a raw device.
+Hi All,
+I found a patch for 2.0.29 kernel for finding memory leak.
+Is there any similar patch for 2.2 kernel? 
 
-Also they both have some restrictions on buffer alignment, but these would be 
-already fulfilled if UML internally writes through the page cache (which 
-it does of course)
+Thanks in advance for your replies
+Siva
 
--Andi
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+-----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+------------------------------------------------------------------------------------------------------------------------
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,150 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272737AbRIUJVU>; Fri, 21 Sep 2001 05:21:20 -0400
+	id <S272953AbRIUJZk>; Fri, 21 Sep 2001 05:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272835AbRIUJVK>; Fri, 21 Sep 2001 05:21:10 -0400
-Received: from zeus.eurotux.com ([194.38.142.74]:55448 "HELO zeus.eurotux.com")
-	by vger.kernel.org with SMTP id <S272737AbRIUJVF>;
-	Fri, 21 Sep 2001 05:21:05 -0400
-Message-ID: <3BAB140E.3E42DF27@eurotux.com>
-Date: Fri, 21 Sep 2001 10:18:54 +0000
-From: Ricardo Manuel Oliveira <rmo@eurotux.com>
-Organization: Eurotux =?iso-8859-1?Q?Inform=E1tica?=, SA
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S272913AbRIUJZV>; Fri, 21 Sep 2001 05:25:21 -0400
+Received: from pat.uio.no ([129.240.130.16]:48539 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S272835AbRIUJZM>;
+	Fri, 21 Sep 2001 05:25:12 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Intel 82815 VGA
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <15275.1922.771056.17407@charged.uio.no>
+Date: Fri, 21 Sep 2001 11:25:22 +0200
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS daemons in D state for 2 minutes at shutdown
+In-Reply-To: <1978861221.20010921110112@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <3531863216.20010920164639@port.imtp.ilyichevsk.odessa.ua>
+	<shswv2tpyvq.fsf@charged.uio.no>
+	<1978861221.20010921110112@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hi everyone.
+>>>>> " " == VDA  <VDA@port.imtp.ilyichevsk.odessa.ua> writes:
 
- Problem with i815EM chipset (in ASUS M1000 laptop series) -
-the display blinks *VERY* frequently - seems to blink for
-every disk access or so.
- I've tried the Intel XFCom XFree86 driver AND recompiling
-the agpgart kernel module to no avail. Intel's kernel module
-fails compilation on any 2.4.x kernel, missing MAP_NR
-definition.
+     > Well, do you mean I must update my shutdown script whenever I
+     > install something new just because this "something new" does
+     > not like standard, well accepted method of signalling apps to
+     > exit?  Come on, this sounds like The Wrong Way.
 
- Anyone gone through the same situation? Patches to agpgart,
-available anywhere?
+Bullshit. killall5 is definitely *not* a well accepted method for
+shutting down applications. Try doing that while your network is
+running via a ppp link...
 
+Some programs *have* to be shutdown in a certain order. All RPC
+servers fall into that category.
 
- lspci -v output:
+     > So, why modified killall5 does the job?
 
-00:00.0 Host bridge: Intel Corporation 82815 815 Chipset
-Host Bridge and Memory Controller Hub (rev 11)
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1402
-        Flags: bus master, fast devsel, latency 0
-        Capabilities: [88] #09 [f205]
+I've no idea how you modified killall5, but if it manages to kill nfsd
+before killing the portmapper, then all will work.
 
-00:02.0 VGA compatible controller: Intel Corporation 82815
-CGC [Chipset Graphics Controller]  (rev 11) (prog-if 00
-[VGA])
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1402
-        Flags: bus master, 66Mhz, medium devsel, latency 0,
-IRQ 11
-        Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Memory at f7800000 (32-bit, non-prefetchable)
-[size=512K]
-        Capabilities: [dc] Power Management version 2
+     > Why not make portmapper+NFS daemons killable by TERM, giving
+     > them the chance to do proper cleanups rather than abrupt KILL?
 
-00:1e.0 PCI bridge: Intel Corporation: Unknown device 2448
-(rev 03) (prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=01,
-sec-latency=32
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: f7000000-f77fffff
-00:1f.0 ISA bridge: Intel Corporation: Unknown device 244c
-(rev 03)
-        Flags: bus master, medium devsel, latency 0
+NFS daemons *do* perform proper cleanups. That's the whole essence of
+your problem - they are waiting on the portmapper to acknowledge that
+it has unregistered their service. These are *kernel* daemons and so
+KILL acts just like any signal as far as they are concerned.
 
-00:1f.1 IDE interface: Intel Corporation: Unknown device
-244a (rev 03) (prog-if 80 [Master])
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1402
-        Flags: bus master, medium devsel, latency 0
-        I/O ports at b800 [size=16]
-
-00:1f.2 USB Controller: Intel Corporation 82820 820 (Camino
-2) Chipset USB (Hub A) (rev 03) (prog-if 00 [UHCI])
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1402
-        Flags: bus master, medium devsel, latency 0, IRQ 9
-        I/O ports at b400 [size=32]
-
-00:1f.4 USB Controller: Intel Corporation 82820 820 (Camino
-2) Chipset USB (Hub B) (rev 03) (prog-if 00 [UHCI])
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1402
-        Flags: bus master, medium devsel, latency 0, IRQ 9
-        I/O ports at b000 [size=32]
-
-00:1f.5 Multimedia audio controller: Intel Corporation:
-Unknown device 2445 (rev 03)
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1463
-        Flags: bus master, medium devsel, latency 0, IRQ 9
-        I/O ports at e000 [size=256]
-        I/O ports at e100 [size=64]
-
-00:1f.6 Modem: Intel Corporation: Unknown device 2446 (rev
-03) (prog-if 00 [Generic])
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1466
-        Flags: bus master, medium devsel, latency 0, IRQ 9
-        I/O ports at e200 [size=256]
-        I/O ports at e300 [size=128]
-
-01:07.0 CardBus bridge: Texas Instruments PCI4410 PC card
-Cardbus Controller (rev 02)
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1464
-        Flags: bus master, medium devsel, latency 168, IRQ
-11
-        Memory at f7001000 (32-bit, non-prefetchable)
-[size=4K]
-        Bus: primary=01, secondary=02, subordinate=02,
-sec-latency=176
-        Memory window 0: f7400000-f77ff000 (prefetchable)
-        I/O window 0: 0000d000-0000d0ff
-        I/O window 1: 0000d400-0000d4ff
-        16-bit legacy interface ports at 0001
-
-01:07.1 FireWire (IEEE 1394): Texas Instruments: Unknown
-device 8017 (rev 02) (prog-if 10 [OHCI])
-        Subsystem: Asustek Computer, Inc.: Unknown device
-1467
-        Flags: medium devsel, IRQ 9
-        Memory at f7002000 (32-bit, non-prefetchable)
-[disabled] [size=2K]
-        Memory at f7004000 (32-bit, non-prefetchable)
-[disabled] [size=16K]
-        Capabilities: [44] Power Management version 1
-
-01:08.0 Ethernet controller: Intel Corporation 82820 820
-(Camino 2) Chipset Ethernet (rev 03)
-        Subsystem: Intel Corporation: Unknown device 3013
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        Memory at f7000000 (32-bit, non-prefetchable)
-[size=4K]
-        I/O ports at d800 [size=64]
-        Capabilities: [dc] Power Management version 2
-
-
- Thanks
- Ricardo Oliveira.
-
-
-----
-Ricardo Manuel Oliveira
-Eurotux Informática, SA
-Tel: +351 253257395 // +351 919475934
-Fax: +351 253257396
+Cheers,
+   Trond

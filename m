@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292273AbSBOXaZ>; Fri, 15 Feb 2002 18:30:25 -0500
+	id <S292275AbSBOXbF>; Fri, 15 Feb 2002 18:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292276AbSBOXaP>; Fri, 15 Feb 2002 18:30:15 -0500
-Received: from ns.suse.de ([213.95.15.193]:64516 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292273AbSBOXaE>;
-	Fri, 15 Feb 2002 18:30:04 -0500
-Date: Sat, 16 Feb 2002 00:29:59 +0100
-From: Dave Jones <davej@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216002959.P27880@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
+	id <S292276AbSBOXa4>; Fri, 15 Feb 2002 18:30:56 -0500
+Received: from holomorphy.com ([216.36.33.161]:8322 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S292275AbSBOXau>;
+	Fri, 15 Feb 2002 18:30:50 -0500
+Date: Fri, 15 Feb 2002 15:30:40 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@tech9.net>, Robert Jameson <rj@open-net.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Hard lockup with 2.4.18-pre9 + preempt + lock break + O1k[23] + rmap
+Message-ID: <20020215233040.GA782@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Love <rml@tech9.net>, Robert Jameson <rj@open-net.org>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215143807.L28735@work.bitmover.com> <20020215232312.GB12204@merlin.emma.line.org>
+In-Reply-To: <20020215035135.0c26b130.rj@open-net.org> <1013780277.950.663.camel@phantasy> <20020215201810.GA5310@matchmail.com> <1013810411.803.1045.camel@phantasy> <20020215232221.GB5310@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020215232312.GB12204@merlin.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Sat, Feb 16, 2002 at 12:23:12AM +0100
+In-Reply-To: <20020215232221.GB5310@matchmail.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 16, 2002 at 12:23:12AM +0100, Matthias Andree wrote:
- > Are you telling that kernel programmers don't rewrite code from scratch?
- > Is that a correct interpretation of "improve the existing system"? Note
- > that "it can't be done" can also imply "cannot reasonable be done".
- > Eric has done it, without being of kernel hacker temple's fame.
+On Fri, Feb 15, 2002 at 03:22:21PM -0800, Mike Fedyk wrote:
+> Yep, I understand.  When I was patching in rmap12f I had to manually
+> merge the little bit into mm/bootmem.c and the offset was several hundred
+> lines.  Then I realized just how much WLI's bootmem patch changes.
 
- The kernel hacker approach: Gradual change toward a predefined goal.
- The Eric approach: Rip out existing, replace with new.
+It's a rewrite. Of course it changes the whole file. Lucky for you it
+interacts with nothing else. I seem to remember this conflict being
+somewhat trivial to resolve though.
 
- If Al Viro can rewrite the guts of the VFS without hardly anyone
- noticing any disturbance, and the configuration system can't be
- done this way, something is amiss.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Cheers,
+Bill

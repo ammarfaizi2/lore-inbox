@@ -1,64 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbSJ3BCZ>; Tue, 29 Oct 2002 20:02:25 -0500
+	id <S262662AbSJ3BH2>; Tue, 29 Oct 2002 20:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262547AbSJ3BCZ>; Tue, 29 Oct 2002 20:02:25 -0500
-Received: from [207.224.39.108] ([207.224.39.108]:18440 "EHLO
-	detroit.freenet.org") by vger.kernel.org with ESMTP
-	id <S262525AbSJ3BCY>; Tue, 29 Oct 2002 20:02:24 -0500
-Date: Tue, 29 Oct 2002 20:08:20 -0500 (EST)
-Message-Id: <200210300108.UAA17536@detroit.freenet.org>
-From: av556@detroit.freenet.org (Kenneth M. Howlett)
-To: linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr,
-       chaffee@cs.berkeley.edu, bsg@uniyar.ac.ru
-Subject: PROBLEM: dos filesystem timestamps and daylight savings time
-Reply-To: av556@detroit.freenet.org
+	id <S262641AbSJ3BH2>; Tue, 29 Oct 2002 20:07:28 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:23815
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S262547AbSJ3BH0>; Tue, 29 Oct 2002 20:07:26 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33C7C@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Alex Pavloff'" <apavloff@eason.com>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       "'linux-serial'" <linux-serial@vger.kernel.org>
+Subject: RE: what serial port type are Elan ports?
+Date: Tue, 29 Oct 2002 17:13:40 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alex,
 
+Thanks, I think the Elan SC520 is all I need. I don't know if the other
+chips in the family have the same bug. 
 
+There is a conflict between the Elan work-around and the 16C654 UART. It
+looks like the work-around causes it to drop transmit data. If I can know
+for sure the detected type of the Elan's ports, then I can shield all other
+UART types from the work-around with a quick type field check without losing
+the benefit of the work-around. 
 
-A few days ago, daylight savings time ended, and now
-ls --full-time says the timestamps of all the files on
-my dos partition have increased by one hour.
+Suggestions are welcome.
 
-For example, ls --full-time says the timestamp of command.com is:
-last week: Tue Apr 07 06:00:00 1992
-this week: Tue Apr 07 07:00:00 1992
+Best regards,
+Ed
 
-I think the timestamps of a dos filesystem are stored in local
-time. So the dos filesystem driver needs to convert the local
-time to unix standard time, and then ls converts back to local
-time, and displays the timestamp in local time.
-
-I think that the problem is that the dos filesystem driver's
-local time to unix standard time algorithm is compensating for
-whether or not daylight savings time is in effect NOW. It should
-be compensating for whether or not daylight savings time was in
-effect at the time of the timestamp.
-
-The time conversion algorithm is function date_dos2unix in file
-/usr/src/linux-2.4.19/fs/fat/misc.c. Is there a way to use
-tz_minuteswest from the the time of the timestamp instead of the
-current tz_minuteswest?
-
-Or before returning the number of seconds, function date_dos2unix
-could determine if daylight savings time is in effect now, and if
-daylight savings time was in effect at the time of the timestamp.
-These determinations could return 0 or 1. Then subtract the two
-determinations, which will give us -1, 0, or 1. Multiply by 3600
-and add to the number of seconds.
-
-Function fat_date_unix2dos in file
-/usr/src/linux-2.4.19/fs/fat/misc.c should have a similar fix.
-
-ls appears to convert unix standard time to local time correctly,
-adjusting for whether or not daylight savings time was in effect
-at the time being converted. Maybe we should look at the source
-for ls, to see how ls converts time.
-
-I am running redhat 7.2 on a pcchips741lmrt/pentiumII, with a
-custom 2.4.19 kernel, compiled with gcc version 2.96. My dos
-partition is plain dos, not vfat or umsdos.
-
+> -----Original Message-----
+> From: Alex Pavloff [mailto:apavloff@eason.com]
+> Sent: Tuesday, October 29, 2002 4:19 PM
+> To: 'Ed Vance'; 'linux-kernel'; 'linux-serial'
+> Subject: RE: what serial port type are Elan ports?
+> 
+> 
+> 
+> Elan Sc3x0?
+> Elan Sc4x0?
+> Elan Sc520?
+> 
+> I assume you mean the 520, if you really want to find the 
+> UART for the SC3x0
+> I might be convinced to plug in a hard drive to one of my 
+> many SC320s lying
+> around and let you know.
+> 
+> Alex Pavloff - apavloff@eason.com
+> Eason Technology -- www.eason.com
+> 
+> > -----Original Message-----
+> > From: Ed Vance [mailto:EdV@macrolink.com]
+> > Sent: Tuesday, October 29, 2002 4:14 PM
+> > To: 'linux-kernel'; 'linux-serial'
+> > Subject: what serial port type are Elan ports?
+> > 
+> > 
+> > Hi,
+> > 
+> > I need to know what UART type the serial driver detects for 
+> > the two built-in
+> > serial ports on the AMD Elan Microcontroller?
+> > 
+> > Would some nice person who has an Elan based system please 
+> > send me the first
+> > ten lines of the output of the following command?
+> > 
+> > 	more /proc/tty/driver/serial
+> > 
+> > Thanks in advance,
+> > Ed
+> > 
+> > ---------------------------------------------------------------- 
+> > Ed Vance              edv (at) macrolink (dot) com
+> > Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+> > ----------------------------------------------------------------
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe 
+> > linux-serial" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> 

@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVBFXVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVBFXdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbVBFXVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 18:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBFXVQ
+	id S261322AbVBFXdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 18:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVBFXdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 18:21:16 -0500
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:16778 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S261234AbVBFXVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 18:21:12 -0500
-Date: Mon, 7 Feb 2005 00:21:08 +0100
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       John Richard Moser <nigelenki@comcast.net>,
+	Sun, 6 Feb 2005 18:33:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:26386 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261322AbVBFXdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 18:33:04 -0500
+Date: Mon, 7 Feb 2005 00:33:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: msdos/vfat defaults are annoying
-Message-ID: <20050206232108.GA31813@ojjektum.uhulinux.hu>
-References: <4205AC37.3030301@comcast.net> <20050206070659.GA28596@infradead.org>
+Subject: [2.6 patch] SCSI sym53c416.c: make a function static
+Message-ID: <20050206233301.GF3129@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050206070659.GA28596@infradead.org>
-User-Agent: Mutt/1.5.7i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 07:06:59AM +0000, Christoph Hellwig wrote:
-> On Sun, Feb 06, 2005 at 12:33:43AM -0500, John Richard Moser wrote:
-> > I dunno.  I can never understand the innards of the kernel devs' minds.
-> 
-> filesystem detection isn't handled at the kerne level.
+This patch makes a needlessly global function static.
 
-Yeah, but the link order could be changed... Patch inlined.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-pozsy
+---
 
-diff -Naurd a/fs/Makefile b/fs/Makefile
---- a/fs/Makefile	2004-08-04 10:52:28.000000000 +0200
-+++ b/fs/Makefile	2004-08-04 11:32:04.510913663 +0200
-@@ -57,8 +57,8 @@
- obj-$(CONFIG_MINIX_FS)		+= minix/
- obj-$(CONFIG_FAT_FS)		+= fat/
- obj-$(CONFIG_UMSDOS_FS)		+= umsdos/
--obj-$(CONFIG_MSDOS_FS)		+= msdos/
- obj-$(CONFIG_VFAT_FS)		+= vfat/
-+obj-$(CONFIG_MSDOS_FS)		+= msdos/
- obj-$(CONFIG_BFS_FS)		+= bfs/
- obj-$(CONFIG_ISO9660_FS)	+= isofs/
- obj-$(CONFIG_DEVFS_FS)		+= devfs/
+This patch was already sent on:
+- 15 Nov 2004
 
-Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/sym53c416.c.old	2004-11-14 01:30:23.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/sym53c416.c	2004-11-14 01:30:32.000000000 +0100
+@@ -616,7 +616,7 @@
+ 
+ MODULE_DEVICE_TABLE(isapnp, id_table);
+ 
+-void sym53c416_probe(void)
++static void sym53c416_probe(void)
+ {
+ 	int *base = probeaddrs;
+ 	int ints[2];
+

@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUG1R0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUG1RaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUG1R0u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 13:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUG1R0u
+	id S267165AbUG1RaT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 13:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUG1RaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 13:26:50 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:30166 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S267357AbUG1R0i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 13:26:38 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16647.57801.568015.688380@napali.hpl.hp.com>
-Date: Wed, 28 Jul 2004 10:26:33 -0700
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, roland@redhat.com
-Subject: comment "ptrace_list" and "children" members
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Wed, 28 Jul 2004 13:30:18 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:45222 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267165AbUG1RaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 13:30:10 -0400
+From: jmerkey@comcast.net
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@drdos.com
+Subject: port of Kdebug - Linux 2.6 stability and performance issues
+Date: Wed, 28 Jul 2004 17:30:08 +0000
+Message-Id: <072820041730.18576.4107E2A00004C850000048902200748184970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jun 24 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A while ago I had a "fun" time sorting out how the "ptrace_children"
-and the "children" lists are being used.  I think the two little
-comments would help making that process a lot easier (they're based on
-an earlier email by Roland).
+I have completed the port of the Kdebug kernel debugger to 2.6 and I have found 
+a lot of areas where there are some stability issues.  The backtrace function in KDB 
+and the backtrace function I use in MDB both have problems with __copy_to_user() causing 
+system crashes if the debugger gets interrupted when in user space (0x40000000) 
+code address ranges.  I am also seeing some severe performance issues with 
+__copy_to_user() reading large numbers of small reads i.e. 4 byte reads at a 
+time.  This is done in the debuggers to allow reads from memory to avoid crashes inside the 
+debugger if for some reason you get a bad memory address when dumping memory or reading pointers, etc.   I have gone through all of the console code and I know the 
+problem is not here since I use my own screen manager and basically push the 
+Linux console code to the side so folks can use the debugger to debug console 
+drivers, etc.  so I rely as little as possible on the Linux core code and MDB is 
+basically a self contained "bubble" of code that hooks the IDT and exceptions to 
+allow a much of Linux to be debugged.
 
-	--david
+I have also ported all the file systems and I must say, BIO performance is very 
+stunning in lowering the submission overhead as reported by Linus and Jens, and 
+I am seeing somewhat better I/O performance.  However, the keyboard driver has 
+some problems with the rep flag loosing state in drivers/char/keyboard.c and 
+__copy_to_user() performance absolutely **SUCKS** compared to 2.4.21.  with 
+screen and backtrace displays with large numbers of small writes and reads.  I/O 
+system is better but overall 2.6 does not appear very stable on 2.6 at present.
 
-Document the purpose of the "ptrace_list/ptrace_children" and
-"children/sibling" lists.
+Does anyone have any ideas as to why we would see crashes in calls to 
+__copy_to_user() which result in the system totally hanging up the system.
 
-Signed-off-by: davidm@hpl.hp.com
-
-===== include/linux/sched.h 1.179 vs edited =====
---- 1.179/include/linux/sched.h	2004-07-06 22:19:25 -07:00
-+++ edited/include/linux/sched.h	2004-07-20 21:57:10 -07:00
-@@ -410,6 +410,10 @@
- 	unsigned int time_slice, first_time_slice;
- 
- 	struct list_head tasks;
-+	/*
-+	 * ptrace_list/ptrace_children forms the list of my children
-+	 * that were stolen by a ptracer.
-+	 */
- 	struct list_head ptrace_children;
- 	struct list_head ptrace_list;
- 
-@@ -431,6 +435,10 @@
- 	 */
- 	struct task_struct *real_parent; /* real parent process (when being debugged) */
- 	struct task_struct *parent;	/* parent process */
-+	/*
-+	 * children/sibling forms the list of my children plus the
-+	 * tasks I'm ptracing.
-+	 */
- 	struct list_head children;	/* list of my children */
- 	struct list_head sibling;	/* linkage in my parent's children list */
- 	struct task_struct *group_leader;	/* threadgroup leader */
+Jeff

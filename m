@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVAZH2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVAZHkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbVAZH2U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 02:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVAZH2T
+	id S262372AbVAZHkE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 02:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVAZHkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 02:28:19 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:49292 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262000AbVAZH2H (ORCPT
+	Wed, 26 Jan 2005 02:40:04 -0500
+Received: from holomorphy.com ([66.93.40.71]:11959 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262372AbVAZHkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 02:28:07 -0500
-Date: Wed, 26 Jan 2005 08:27:12 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
-Message-ID: <20050126072712.GA1821@elte.hu>
-References: <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us> <20050125083724.GA4812@elte.hu> <87oefdfaxp.fsf@sulphur.joq.us> <20050125214900.GA9421@elte.hu> <87sm4osrix.fsf@sulphur.joq.us>
+	Wed, 26 Jan 2005 02:40:00 -0500
+Date: Tue, 25 Jan 2005 23:39:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+       spyro@f2s.com
+Subject: Re: [PATCH] Use MM_VM_SIZE in exit_mmap
+Message-ID: <20050126073948.GJ10843@holomorphy.com>
+References: <20050125142210.GI5920@krispykreme.ozlabs.ibm.com> <m1zmyw4rlj.fsf@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87sm4osrix.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <m1zmyw4rlj.fsf@muc.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anton Blanchard <anton@samba.org> writes:
+>> It is possible for one task to end up "owning" an mm from another - we
+>> have seen this with the procfs code when process 1 accesses
+>> /proc/pid/cmdline of process 2 while it is exiting.  Process 2 exits
+>> but does not tear its mm down. Later on process 1 finishes with the proc
+>> file and the mm gets torn down at this point.
 
-* Jack O'Quin <joq@io.com> wrote:
+On Wed, Jan 26, 2005 at 07:44:24AM +0100, Andi Kleen wrote:
+> IMHO that's the root bug. That sounds really dangerous and will likely
+> cause other problems because it is totally unexpected. How about fixing
+> /proc to not do this?
 
-> >> The equivalent rlimits experiment probably requires:
-> >> 
-> >>   (1) editing /etc/security/limits.conf
-> >>   (2) shutting everything down
-> >>   (3) logout
-> >>   (4) login
-> >>   (5) restarting the test
-> >
-> > well, there's setrlimit, so you could add a jackd client callback that
-> > instructs all clients to change their RT_CPU_RATIO rlimit. In theory we
-> > could try to add a new rlimit syscall that changes another task's rlimit
-> > (right now the syscalls only allow the changing of the rlimit of the
-> > current task) - that would enable utilities to change the rlimit of all
-> > tasks in the system, achieving the equivalent of a global sysctl.
-> 
-> Sure, we could.  That does seem like an enormously complicated
-> mechanism to accomplish something so simple.  We are taking a global
-> per-CPU limit, treating it as if it were per-process, then invoking a
-> complex callback scheme to propagate new values, [...]
+It would not be meaningful. It's a natural outcome of reference
+counting the mm, /proc/ is far from the only place that acquires
+references on mm's, and they're all necessary.
 
-this was just a suggestion. It seems a remote-rlimit syscall is
-possible, so there's no need to change Jack if you dont want to - that
-syscall enables a utility that will change the rlimit for all running
-tasks, so you'll get the 'simplicity of experimentation' of a global
-sysctl.
 
-(what you wont get is the ultra-fast time-to-market property of sysctl
-hacks. I know that you'd probably prefer a global sysctl that you could
-start using tomorrow, and i also know that the global sysctl would
-suffice current Jackd needs, but we cannot sacrifice flexibility and
-future utility for the sake of a couple of weeks/months of time
-advantage...)
-
-	Ingo
+-- wli

@@ -1,113 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268072AbRGVVx6>; Sun, 22 Jul 2001 17:53:58 -0400
+	id <S268073AbRGVV42>; Sun, 22 Jul 2001 17:56:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268073AbRGVVxs>; Sun, 22 Jul 2001 17:53:48 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:32924 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S268072AbRGVVxg>;
-	Sun, 22 Jul 2001 17:53:36 -0400
-Message-ID: <3B5B4B64.712A7955@candelatech.com>
-Date: Sun, 22 Jul 2001 14:53:40 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268074AbRGVV4S>; Sun, 22 Jul 2001 17:56:18 -0400
+Received: from jdi.jdimedia.nl ([212.204.192.51]:11224 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S268073AbRGVV4Q>;
+	Sun, 22 Jul 2001 17:56:16 -0400
+Date: Sun, 22 Jul 2001 23:55:50 +0200 (CEST)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+X-X-Sender: <igmar@jdi.jdimedia.nl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: New PCI device
+In-Reply-To: <20010722180243.22142@smtp.wanadoo.fr>
+Message-ID: <Pine.LNX.4.33.0107222344530.3082-100000@jdi.jdimedia.nl>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG REPORT]  Sony VAIO, 2.4.7:  CardBus failures with Tulip & 3c575 
- cards.
-In-Reply-To: <200107222059.f6MKx2212465@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-dump_pirq ouput is found below.
-
-Linus Torvalds wrote:
-> 
-> In article <3B5B1F77.D8B45FFA@candelatech.com> you write:
-> >
-> >This report contains information about my failure to get my
-> >CardBus NICs working correctly.  Hardware involved is:
-> >
-> >Sony VAIO PCG-FX210 laptop (800Mhz Duron...)
-> >DFE-650 16-bit PCMCIA NIC x2
-> >3Com Megahertz 32-bit 3CCFE575BT NIC x2
-> >AmbiCom 32-bit 8100 NIC  (tulip) x2
-> 
-> This looks suspiciously like your slot #1 gets the PCI interrupt routing
-> wrong.
-> 
-> Note especially the kernel reports:
-> 
->         Linux Kernel Card Services 3.1.22
->           options:  [pci] [cardbus] [pm]
->         PCI: Assigned IRQ 9 for device 00:0a.0
->         PCI: Assigned IRQ 10 for device 00:0a.1
->         IRQ routing conflict for 00:07.5, have irq 5, want irq 10
->         IRQ routing conflict for 00:07.6, have irq 5, want irq 10
->         PCI: Sharing IRQ 10 with 00:10.0
-> 
-> it really looks like your slot 1 controller (00:0a.1) really wants irq5,
-> based on the fact that other devices are reported to have irq5.
-> 
-> However, if they _really_ have irq5 already routed, I'm surprised that
-> the PCI irq router "r->get()" function didn't pick up on that fact, and
-> that the "set" function apparently didn't work correctly.
-> 
-> So I'd guess that when you insert a card in slot #1, you get a constant
-> stream of interrupts on irq5, which is not where the kernel is expecting
-> them, so your machine locks up.
-> 
-> Can you do the following:
->  - run dump_pirq on your machine (attached)
-
-Ok, I found a dump_pirq script on the web, maybe it does what
-you want:
 
 
-Interrupt routing table found at address 0xfdf60:
-  Version 1.0, size 0x0080
-  Interrupt router is device 00:07.0
-  PCI exclusive interrupt mask: 0x0000 []
-  Compatible router: vendor 0x1106 device 0x0596
+> >I'm still thinking about what driver to create.. A driver that
+> >emulates a PCMCIA controller is a knightmare, but so is an ethernet driver
+> >for this setup.
+>
+> I didn't follow closely, but Imy understanding is that the prismII is
+> not removable on the PCI card, that's it ? The PLX chip is probably
+> used to bridge the 16 bits PIO prism device, It doesn't make much sense
+> to emulate PCMCIA.
 
-Device 00:07.0 (slot 0): ISA bridge
-  INTA: link 0x55, irq mask 0x9eb8 [3,4,5,7,9,10,11,12,15]
-  INTB: link 0x56, irq mask 0x9eb8 [3,4,5,7,9,10,11,12,15]
-  INTC: link 0x56, irq mask 0x9cb8 [3,4,5,7,10,11,12,15]
-  INTD: link 0x57, irq mask 0x06a0 [5,7,9,10]
+The PLX hardware the PCMCIA interface in the card. This means that it maps
+IO and memory directly into PCI space.
 
-Device 00:00.0 (slot 0): Host bridge
-  INTA: link 0x55, irq mask 0xdef8 [3,4,5,6,7,9,10,11,12,14,15]
-  INTB: link 0x56, irq mask 0xdef8 [3,4,5,6,7,9,10,11,12,14,15]
-  INTC: link 0x56, irq mask 0xdef8 [3,4,5,6,7,9,10,11,12,14,15]
-  INTD: link 0x57, irq mask 0xdef8 [3,4,5,6,7,9,10,11,12,14,15]
+> >The 2.4.x kernel has support for the wireless card itself, but in a PCMCIA
+> >context. Creating a ethernet driver creates a lot of duplicate code.
+>
+> First, get a recent 2.4.x, 2.4.6 should you give you the latest version.
+>
+> The kernel driver for those chipsets is designed in a way that should allow
+> you to easily add new interface types. Look at what's in drivers/net/wireless,
+> more specifically the files hermes.c, orinoco.c, orinoco_cs.c and airport.c.
+>
+> The drivers's layout is basically;
+>
+>      - hermes    : low level routines for talking to the controller,
+>                    you initialize this layer by passing it an IO base
+>                    for use with inx/outx routines. You shouldn't have
+>                    to modify it.
+>
+>      - orinoco   : core driver. Implements the interface to the kernel
+>                    network stack, the wireless interface, etc...
+>                    You shouldn't need to change it neither
+>
+> Now are the bus interfaces :
+>
+>      - orinoco_cs : PCMCIA interface
+>      - airport    : Apple "Airport" interface
+>
+> What you have to do is basically add a module for your card. You should
+> write a basic PCI driver that mostly does what airport does (except
+> the powermac specific stuffs , mostly calls to feature_xxx() functions,
+> just ignore them). That is get the card's IO base address and request
+> an interrupt, implement open() and close() wrappers, and that's it.
 
-Device 00:01.0 (slot 0): PCI bridge
-  INTA: link 0x56, irq mask 0x0020 [5]
+I missed the bus interface when looking at the code.
 
-Device 00:0a.0 (slot 0): CardBus bridge
-  INTA: link 0x55, irq mask 0x0020 [5]
-  INTB: link 0x56, irq mask 0x0020 [5]
+> HOWEVER, the low-level hermes layer can only do PIO for now (inx/outx).
+> If you card requires MMIO, then it will not be that simple. You'll probably
+> have to work on the hermes layer to provide 2 implementations, a PIO one
+> and an MMIO one.
 
-Device 00:10.0 (slot 0): Ethernet controller
-  INTA: link 0x56, irq mask 0x0400 [10]
+Is far as I can tell, it does need the MMIO. I'm looking at how the old
+driver does the mapping.
 
-Device 00:0e.0 (slot 0): FireWire (IEEE 1394)
-  INTA: link 0x57, irq mask 0x0200 [9]
+> For the Airport driver, which is MMIO based, we can "fake" this because
+> the Airport interface exist only on PowerMacs, and on PPC, PIO is actually
+> MMIO in a specific address range.
+>
+> I don't know if the PLX bridge provides anything like GPIOs and/or if
+> there's a separate PLD on your card. In these cases, it's possible that
+> some card-specific IO magic be needed to properly initialize the prism.
+> That's the case with Apple airport on which you have to "emulate" some
+> PCMCIA stuffs for powering it up and resetting the chip.
 
-Interrupt router at 00:07.0: VIA 82C686 PCI-to-ISA bridge
-  PIRQA (link 0x01): irq 9
-  PIRQB (link 0x02): irq 10
-  PIRQC (link 0x03): irq 5
-  PIRQD (link 0x05): irq 9
+As far as I can tell, the PCICIA IO and memory space are simply mapped
+into PCI space.
 
+> So if you have problems getting the chip up, you may have to ask the
+> card manufacturer for some specs.
+
+I've got specs on the card. I'm figuring out now how the thing is wired.
+
+> Ben.
+
+	Igmar
 
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+Igmar Palsenberg
+JDI Media Solutions
+
+Boulevard Heuvelink 102
+6828 KT Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+

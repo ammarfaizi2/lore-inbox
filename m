@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286942AbSBGJkg>; Thu, 7 Feb 2002 04:40:36 -0500
+	id <S286962AbSBGJsg>; Thu, 7 Feb 2002 04:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286962AbSBGJkU>; Thu, 7 Feb 2002 04:40:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:11278 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S286942AbSBGJkN>;
-	Thu, 7 Feb 2002 04:40:13 -0500
-Date: Thu, 7 Feb 2002 10:39:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide-scsi + sg scatterlist fixup
-Message-ID: <20020207103910.C731@suse.de>
-In-Reply-To: <20020207101624.G16105@suse.de> <Pine.LNX.4.44.0202071128550.3592-100000@netfinity.realnet.co.sz>
+	id <S286968AbSBGJs1>; Thu, 7 Feb 2002 04:48:27 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:26967 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S286962AbSBGJsP>; Thu, 7 Feb 2002 04:48:15 -0500
+Date: Thu, 7 Feb 2002 04:48:14 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "David S. Miller" <davem@redhat.com>, hugh@veritas.com,
+        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+Message-ID: <20020207044814.A18023@redhat.com>
+In-Reply-To: <3C6214F0.A66C89CF@zip.com.au>, <Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain> <20020207000930.A17125@redhat.com> <3C6214F0.A66C89CF@zip.com.au> <20020206.215539.33252283.davem@redhat.com> <3C621C74.8A005EB6@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0202071128550.3592-100000@netfinity.realnet.co.sz>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C621C74.8A005EB6@zip.com.au>; from akpm@zip.com.au on Wed, Feb 06, 2002 at 10:19:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07 2002, Zwane Mwaikambo wrote:
-> On Thu, 7 Feb 2002, Jens Axboe wrote:
+On Wed, Feb 06, 2002 at 10:19:32PM -0800, Andrew Morton wrote:
+> It's only a problem if this is the final put_page().  In the
+> case of sendfile(), process-context code can be taught to take
+> a temporary reference on the page, and only release it after the network
+> stack is known to have finished with the page. sendfile is synchronous, yes?
 > 
-> > Following is a patch to make ide-scsi and sg work again. Of course
-> > people can just bk pull the latest changes by now...
-> 
-> Would this patch allow the box to recover somewhat after an idiot (namely 
-> me) does an hdparm -w /dev/hdX on srY?
+> And in the case of all other skb frees, the underlying page
+> won't be on the LRU.  I hope.
 
-It shouldn't have any effect on that, no. I've yet to closely read your
-report on this...
+sendfile isn't synchronous, nor is aio, which also relies on freeing pages 
+acquired from user mappings in irq/bh/whatever context.  Restricting where 
+pages may be freed really ties our hands on what is possible for zero copy 
+io. (ie O_DIRECT, aio, sendfile, TUX all get hosed by this).
 
+		-ben (who is really on vacation)
 -- 
-Jens Axboe
-
+begin 644 fish.com
+866]U(&AA=F4@=&]O(&UU8V@@=&EM92X*
+`
+end

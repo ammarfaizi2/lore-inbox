@@ -1,87 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312198AbSCREVQ>; Sun, 17 Mar 2002 23:21:16 -0500
+	id <S288953AbSCREgr>; Sun, 17 Mar 2002 23:36:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312200AbSCREVG>; Sun, 17 Mar 2002 23:21:06 -0500
-Received: from gear.torque.net ([204.138.244.1]:14863 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S312198AbSCREUv>;
-	Sun, 17 Mar 2002 23:20:51 -0500
-Message-ID: <3C956B65.3648CF37@torque.net>
-Date: Sun, 17 Mar 2002 23:21:57 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.7-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Linux 2.5.6-dj1
-In-Reply-To: <3C94E400.99DCBC12@torque.net> <20020317214256.C5010@suse.de>
+	id <S310458AbSCREg1>; Sun, 17 Mar 2002 23:36:27 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:41467 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S288953AbSCREgU>; Sun, 17 Mar 2002 23:36:20 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Sun, 17 Mar 2002 20:03:17 -0700
+To: Theodore Tso <tytso@mit.edu>, David Rees <dbr@greenhydrant.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: mke2fs (and mkreiserfs) core dumps
+Message-ID: <20020318030317.GC1150@turbolinux.com>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020313123114.A11658@greenhydrant.com> <20020313205537.GC429@turbolinux.com> <20020313133748.A12472@greenhydrant.com> <20020313215420.GD429@turbolinux.com> <20020315182355.A1123@thunk.org> <20020317072653.GB1150@turbolinux.com> <20020317183752.GB27249@matchmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Mar 17, 2002  10:37 -0800, Mike Fedyk wrote:
+> On Sun, Mar 17, 2002 at 12:26:53AM -0700, Andreas Dilger wrote:
+> > Yes, I have always considered this a kernel bug (introduced in 2.4.10),
+> > but my (admittedly feeble) attempts to get it fixed were not accepted.
+> > At one point I thought a fix went into 2.4.18-pre[12] or so, but I
+> > guess not.  I haven't tried in a while, so maybe I should make another
+> > attempt.
+> > 
 > 
-> On Sun, Mar 17, 2002 at 01:44:16PM -0500, Douglas Gilbert wrote:
-> 
->  > Compiled here but didn't link (SMP) :-(
->  >  page_cache_release undefined multiple times in mm/mm.o
-> 
->  Probably a side-effect of me removing the radix tree patch.
->  I'll look into this.
+> Was that part of the 2.4.10-pre11 -aa VM merge, or was it from another
+> seperate patch?
 
-Dave,
-Sorry, false alarm; "make mrproper" fixed that problem.
+Well, at the same time as Linus merged -aa VM, he also merged
+blockdev-in-pagecache from -aa.  This caused this problem, among others.
+With blockdev-in-pagecache, the kernel thinks block device access is the
+same as reading a file, so it imposes file limits.  It also caused the
+problem that the block device (pagecache) and the filesystem (buffer
+cache) were not coherent, causing e2fsck, tune2fs, etc to not work.
 
-So here are some results from testing on my SMP box
-(dual Celeron abit); all these worked:
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-  - advansys driver (*)  holds my root fs
-  - aha1542 driver (*)  lightly tested
-  - imm (*) 100 MB parallel port zip drive
-  - scsi reset [part of James's reservation+reset patch]
-  - usb-storage to an ATA maxtor 6L040J2 disk via a lava
-    external enclosure
-  - usb-storage to a sandisk (8MB compact flash card)
-  - usb-storage to a casio digital camera
-  - scsi_debug driver
-
-Notes:
-  - those drivers marked with (*) are broken on SMP 
-    machines in 2.5.7-pre2
-  - unfortunately my ieee1394 card is another box,
-    the sbp2 driver works in 2.5.7-pre2 (although
-    it does have some quirks: my lava box claims
-    that an ATA disk is SCSI 6 compliant!)
-  - as can be seen, several other subsystems depend on
-    the scsi subsystem. My guess is the scsi subsystem
-    will be seeing more ATA disks (and cd/dvd writers) 
-    in external enclosures via usb-2 and 1394 in the 
-    future
-  - obviously the scsi mid level patches (I'm thinking of
-    the report_lun+twin_inquiry) are not causing any
-    problems.
-  - I noticed the sym53c8xx-2 driver has been updated.
-    There is a dc-390u3w on another machine here. If
-    there is any problem, I'll contact you
-
-So all in all the scsi subsystem looks pretty good in
-"dj1". I did lose some time when my keyboard + mouse
-disappeared (.config problems). For those still having
-trouble finding their mouse read Documentation/input/input.txt
-
->  > There are over 30 scsi subsystem patches backed up in
->  > your tree. Some are over 2 months old. Could
->  > some (or perhaps all) of them get promoted to the
->  > main tree?
-> 
->  Indeed. Once Linus returns from vacation, I'll be doing a
->  patch-bombing on a larger scale than usual 8-)
-> 
->  Any bits I'm uncertain of, I'll bounce your way first for
->  clarification, deal ?
-
-Fine.
-
-Doug Gilbert

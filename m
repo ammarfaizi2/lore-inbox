@@ -1,81 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266297AbSKLIZ4>; Tue, 12 Nov 2002 03:25:56 -0500
+	id <S261368AbSKLIYf>; Tue, 12 Nov 2002 03:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbSKLIZJ>; Tue, 12 Nov 2002 03:25:09 -0500
-Received: from holomorphy.com ([66.224.33.161]:40633 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266314AbSKLIYf>;
-	Tue, 12 Nov 2002 03:24:35 -0500
+	id <S266318AbSKLIYf>; Tue, 12 Nov 2002 03:24:35 -0500
+Received: from holomorphy.com ([66.224.33.161]:41145 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261368AbSKLIYd>;
+	Tue, 12 Nov 2002 03:24:33 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [1/11] hugetlb: revert doublefreeing patch
-Message-Id: <E18BWPl-0005K6-00@holomorphy>
+Subject: [6/11] hugetlb: remove direct usage of struct inode
+Message-Id: <E18BWPl-0005KG-00@holomorphy>
 From: William Lee Irwin III <wli@holomorphy.com>
 Date: Tue, 12 Nov 2002 00:28:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This change introduced doublefree races on both inodes and hugepages.
+Remove the last direct usage of struct inode within the hugetlb functions.
 
- hugetlbpage.c |   33 ---------------------------------
- 1 files changed, 33 deletions(-)
+ hugetlbpage.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
 
-diff -urpN numaq-2.5.47/arch/i386/mm/hugetlbpage.c htlb-2.5.47-1/arch/i386/mm/hugetlbpage.c
---- numaq-2.5.47/arch/i386/mm/hugetlbpage.c	2002-11-10 19:28:30.000000000 -0800
-+++ htlb-2.5.47-1/arch/i386/mm/hugetlbpage.c	2002-11-11 19:44:26.000000000 -0800
-@@ -236,55 +236,22 @@ void huge_page_release(struct page *page
- 	free_huge_page(page);
- }
- 
--static void
--free_rsrc(struct inode * inode)
--{
--	int i;
--	spin_lock(&htlbpage_lock);
--	for (i=0;i<MAX_ID;i++) 
--		if (htlbpagek[i].key == inode->i_ino) {
--			htlbpagek[i].key = 0;
--			htlbpagek[i].in = NULL;
--			break;
--		}
--	spin_unlock(&htlbpage_lock);
--	kfree(inode);
--}
--
- void unmap_hugepage_range(struct vm_area_struct *vma, unsigned long start, unsigned long end)
+diff -urpN htlb-2.5.47-5/arch/i386/mm/hugetlbpage.c htlb-2.5.47-6/arch/i386/mm/hugetlbpage.c
+--- htlb-2.5.47-5/arch/i386/mm/hugetlbpage.c	2002-11-11 21:49:53.000000000 -0800
++++ htlb-2.5.47-6/arch/i386/mm/hugetlbpage.c	2002-11-11 21:55:12.000000000 -0800
+@@ -398,13 +398,13 @@ static int alloc_shared_hugetlb_pages(in
  {
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long address;
- 	pte_t *pte;
- 	struct page *page;
--	int free_more = 0;
--	struct inode *inode = NULL;
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+-	struct inode *inode;
++	struct hugetlb_key *hugetlb_key;
+ 	int retval = -ENOMEM;
+ 	int newalloc = 0;
  
- 	BUG_ON(start & (HPAGE_SIZE - 1));
- 	BUG_ON(end & (HPAGE_SIZE - 1));
- 
--	if (start < end) {
--		pte = huge_pte_offset(mm, start);
--		page = pte_page(*pte);
--		if ((page->mapping != NULL) && (page_count(page) == 2) &&
--			((inode=page->mapping->host)->i_mapping->a_ops == NULL)) 
--			free_more = 1;
--	}
- 	for (address = start; address < end; address += HPAGE_SIZE) {
- 		pte = huge_pte_offset(mm, address);
- 		page = pte_page(*pte);
--		if (free_more) {
--			ClearPageDirty(page);
--			SetPageLocked(page);
--			remove_from_page_cache(page);
--			ClearPageLocked(page);
--			set_page_count(page, 1);
--		}
- 		huge_page_release(page);
- 		pte_clear(pte);
+-	inode = (struct inode *)alloc_key(key, len, prot, flag, &newalloc);
+-	if (IS_ERR(inode)) {
+-		retval = PTR_ERR(inode);
++	hugetlb_key = alloc_key(key, len, prot, flag, &newalloc);
++	if (IS_ERR(hugetlb_key)) {
++		retval = PTR_ERR(hugetlb_key);
+ 		spin_unlock(&htlbpage_lock);
+ 		goto out_err;
+ 	} else
+@@ -421,7 +421,7 @@ static int alloc_shared_hugetlb_pages(in
+ 		goto freeinode;
  	}
--	if (free_more)
--		free_rsrc(inode);
- 	mm->rss -= (end - start) >> PAGE_SHIFT;
- 	flush_tlb_range(vma, start, end);
+ 
+-	retval = prefault_key((struct hugetlb_key *)inode, vma);
++	retval = prefault_key(hugetlb_key, vma);
+ 	if (retval)
+ 		goto out;
+ 
+@@ -429,7 +429,7 @@ static int alloc_shared_hugetlb_pages(in
+ 	vma->vm_ops = &hugetlb_vm_ops;
+ 	spin_unlock(&mm->page_table_lock);
+ 	spin_lock(&htlbpage_lock);
+-	clear_key_busy((struct hugetlb_key *)inode);
++	clear_key_busy(hugetlb_key);
+ 	spin_unlock(&htlbpage_lock);
+ 	return retval;
+ out:
+@@ -448,7 +448,7 @@ out:
+ out_err: spin_unlock(&htlbpage_lock);
+ freeinode:
+ 	if (newalloc)
+-		release_key((struct hugetlb_key *)inode);
++		release_key(hugetlb_key);
+ 	return retval;
  }
+ 

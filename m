@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUIASbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUIASgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266611AbUIASbe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 14:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUIASbe
+	id S267376AbUIASgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 14:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUIASgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 14:31:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26811 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266611AbUIASbc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 14:31:32 -0400
-Date: Wed, 1 Sep 2004 19:31:32 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Roland Dreier <roland@topspin.com>
-Cc: Chris Wright <chrisw@osdl.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040901183132.GS16297@parcelfarce.linux.theplanet.co.uk>
-References: <20040901072245.GF13749@mellanox.co.il> <20040901073218.GQ16297@parcelfarce.linux.theplanet.co.uk> <52zn4a0ysg.fsf@topspin.com> <20040901110225.D1973@build.pdx.osdl.net> <52656x26zl.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Sep 2004 14:36:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52668 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267361AbUIASgk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 14:36:40 -0400
+From: Daniel Phillips <phillips@redhat.com>
+Organization: Red Hat
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] Linux Cluster Infrastructure BOF at Linux Kongress
+Date: Wed, 1 Sep 2004 14:37:47 -0400
+User-Agent: KMail/1.6.2
+Cc: linux-cluster@redhat.com, ssic-linux-devel@lists.sourceforge.net,
+       linux-ha@new.community.tummy.com, dcl_discussion@lists.osdl.org,
+       linux-fsdevel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <52656x26zl.fsf@topspin.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409011437.48032.phillips@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 11:12:46AM -0700, Roland Dreier wrote:
->     Chris> You forgot a driver specific filesystem which exposes
->     Chris> requests in a file per request type style.  Also, there's a
->     Chris> simple_transaction type of file which can allow you
->     Chris> send/recv data and should eliminate the need for tagging.
->     Chris> Example, look at nfsd fs (fs/nfsd/nfsctl.c).
-> 
-> Thanks, I'll take a look at this.  How does one handle the 32-bit
-> userspace / 64-bit kernel compat layer in this setup?
+There will be a Linux Cluster Infrastructure BOF at Linux Kongress in 
+Erlangen, Germany, thursday 2004-09-09 or friday 2004-09-10.  The exact 
+day, time and room number to be posted here:
 
-The sane approach is to have your structure platform-independent and have
-no compat code at all.  Which is what we do with on-disk and over-the-wire
-structures anyway.  And before Albert starts usual wanksession, no, ASCII
-is not the only way to do that...
+    http://www.linux-kongress.org/2004/program.html
+
+This will be round three of the Linux cluster infrastructure community 
+effort.  Rounds one and two were at OLS and Minneapolis, respectively.  
+A summary of the latter is available here:
+
+    http://sources.redhat.com/cluster/events/summit2004/presentations.html
+
+The story so far: We all agree that the time has come to establish a 
+kernel infrastructure for cluster filesystems, which will also be 
+useable by user space applications.  Or at least, most of us agree 
+about that.  At Minneapolis we parted on the understanding that we 
+would all read code and find out why (or why not) the GFS kernel 
+support infrastructure can serve the needs of cluster systems beyond 
+GFS, including other cluster filesystems, user space cluster 
+applications, and the Single System Image project.
+
+    http://sources.redhat.com/cluster/
+
+Last time, Red Hat engineers outnumbered Suse engineers by roughly ten 
+to one.  The Linux Kongress BOF therefore presents an opportunity to 
+redress that imbalance.
+
+Regards,
+
+Daniel

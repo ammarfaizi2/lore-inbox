@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUAWT5S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 14:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUAWT5S
+	id S262683AbUAWUFX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 15:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUAWUFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 14:57:18 -0500
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:38662 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S266679AbUAWT5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 14:57:14 -0500
-Date: Fri, 23 Jan 2004 20:57:15 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Luca Risolia <luca.risolia@studio.unibo.it>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Overflow in w9968cf driver (kernel 2.6.2-rc1)
-Message-Id: <20040123205715.4cc1fba4.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 23 Jan 2004 15:05:23 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:2449 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S262683AbUAWUFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 15:05:13 -0500
+Date: Fri, 23 Jan 2004 21:04:51 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.25-pre7
+Message-Id: <20040123210451.01cf3e1e@argon.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Luca, hi list,
+--Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-I think I've found a possible overflow in w9968cf.c (kernel 2.6.2-rc1).
-Proposed fix follows (also fixes a typo).
+On Fri, 23 Jan 2004 16:58:24 -0200 (BRST) Marcelo Tosatti (MT) wrote:
 
---- linux-2.6.2-rc1/drivers/usb/media/w9968cf.c.orig	2004-01-23 11:28:56 +0100
-+++ linux-2.6.2-rc1/drivers/usb/media/w9968cf.c	2004-01-23 13:47:44 +0100
-@@ -98,7 +98,7 @@
- static int specific_debug = W9968CF_SPECIFIC_DEBUG;
- #endif
- 
--static unsigned int param_nv[23]; /* number of values per paramater */
-+static unsigned int param_nv[24]; /* number of values per parameter */
- 
- module_param(vppmod_load, bool, 0444);
- module_param(simcams, ushort, 0444);
+MT> Here goes -pre number 7 of 2.4.25 series.
+MT> 
+MT> About 2.4 freeze:
+MT> The planned freeze during 2.4.26 can happen only for 2.4.27.
 
+Do you have any plans to merge cryptoloop into 2.4. before the freeze?
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+-Udo.
+
+--Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAEX5jnhRzXSM7nSkRAkDFAKCCiwec6PikeM4ocqnNeP/SxIKk6ACdF0JX
+/KXbZ9W0Xwy6yXWckhJknIU=
+=jQpd
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv--

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSJUFw3>; Mon, 21 Oct 2002 01:52:29 -0400
+	id <S264742AbSJUG2t>; Mon, 21 Oct 2002 02:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264742AbSJUFw3>; Mon, 21 Oct 2002 01:52:29 -0400
-Received: from nameservices.net ([208.234.25.16]:42955 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S264739AbSJUFw2>;
-	Mon, 21 Oct 2002 01:52:28 -0400
-Message-ID: <3DB398C4.6DB5CB0B@opersys.com>
-Date: Mon, 21 Oct 2002 02:03:48 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: landley@trommello.org
-CC: linux-kernel@vger.kernel.org, boissiere@nl.linux.org
-Subject: Re: Crunch time -- Final merge candidates for 3.0 (the list).
-References: <200210201849.23667.landley@trommello.org>
+	id <S264745AbSJUG2t>; Mon, 21 Oct 2002 02:28:49 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:29587 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S264742AbSJUG2s>;
+	Mon, 21 Oct 2002 02:28:48 -0400
+Date: Mon, 21 Oct 2002 08:34:54 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfsd/sunrpc boot on reboot in 2.5.44
+Message-ID: <20021021063454.GA5898@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+References: <20021020173142.GA26384@outpost.ds9a.nl> <15795.29666.121485.737045@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15795.29666.121485.737045@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 21, 2002 at 01:26:26PM +1000, Neil Brown wrote:
 
-Rob Landley wrote:
-> o Ready - Build option for Linux Trace Toolkit (LTT) (Karim Yaghmour)
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0832.html
+> > By the way, can anybody tell me how to convert this:
+> > Oct 20 19:21:32 hubert kernel:  [<c8831060>] auth_domain_drop+0x50/0x60 [sunrpc]
+> > 
+> > To a line in auth_domain_drop()?
+> 
+>  gdb sunrpc.o
+>  disassemble auth_domain_drop
+> 
+>  stare at assembler listing, stare at source code....
 
-LTT has seen a number of changes since the posting above. Mainly,
-we've followed the recommendations of quite a few folks from the LKML.
-Here are some highlights summarizing the changes:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103491640202541&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103423004321305&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103247532007850&w=2
+I also found this to work:
 
-The latest patch is available here:
-http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.44-vanilla-021019-2.2.bz2
-Use this patch with version 0.9.6pre2 of the user tools:
-http://opersys.com/ftp/pub/LTT/TraceToolkit-0.9.6pre2.tgz
+touch sunrpc.c
+make
+[ observe how sunrpc.o gets compiled ]
+[ add a -g to the commandline ]
+gdb sunrpc.o
+l *(auth_domain_drop+0x50)
 
-Karim
+"A #kernelnewbies discovery".
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Thanks for the switch patch! Will check if it helps.
+
+Regards,
+
+bert hubert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

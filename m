@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314340AbSEPQsy>; Thu, 16 May 2002 12:48:54 -0400
+	id <S314442AbSEPQtg>; Thu, 16 May 2002 12:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314442AbSEPQsx>; Thu, 16 May 2002 12:48:53 -0400
-Received: from penguin-ext.wise.edt.ericsson.se ([193.180.251.47]:36065 "EHLO
-	penguin.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id <S314340AbSEPQsw>; Thu, 16 May 2002 12:48:52 -0400
-Message-ID: <3CE3E2EF.DAEB126@uab.ericsson.se>
-Date: Thu, 16 May 2002 18:48:47 +0200
-From: Sverker Wiberg <Sverker.Wiberg@uab.ericsson.se>
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: knfsd misses occasional writes
-In-Reply-To: <3CE250A5.47F71DF@uab.ericsson.se>
-		<15586.20989.992591.474108@notabene.cse.unsw.edu.au>
-		<3CE38E9D.986ACF7F@uab.ericsson.se> <15587.39544.81694.975593@notabene.cse.unsw.edu.au>
+	id <S314446AbSEPQtf>; Thu, 16 May 2002 12:49:35 -0400
+Received: from cpe-24-221-106-102.az.sprintbbd.net ([24.221.106.102]:48044
+	"HELO farnsworth.org") by vger.kernel.org with SMTP
+	id <S314442AbSEPQtd>; Thu, 16 May 2002 12:49:33 -0400
+From: "Dale Farnsworth" <dale@farnsworth.org>
+Date: Thu, 16 May 2002 09:49:26 -0700
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Still no ramfs usage limits in 2.5.9 or 2.4.19-pre8
+Message-ID: <20020516164926.GA16670@farnsworth.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> 
-> On Thursday May 16, Sverker.Wiberg@uab.ericsson.se wrote:
+David Gibson produced a patch about 18 months ago that added usage limits
+to ramfs.  <http://ozlabs.org/people/dgibson/dwg-ramfs.patch>
 
-[on soft mount timeouts]
-> > But shouldn't those timeouts become errors over at the clients?
-> 
-> Yes... but "write" won't see an error.  Only 'fsync' or maybe 'close',
-> and many applications ignore errors from these operations.
+Through 2.4.10, the AC kernel series carried this patch.
 
-How come? Isn't the client side innately synchronous (as RPC clients in
-general)?
-Or is this one of thost thing that are now done differently?
+Linus' kernel from 2.4.11 onward adopted only one line from the
+patch, the following attribution comment:
+	"Usage limits added by David Gibson, Linuxcare Australia."
 
-/Sverker
+The usage limit code is missing, however.
+
+Was this a simple mistake that has been overlooked?  Or are there
+drawbacks to applying the patch that keep it out of the mainstream
+kernels?
+
+-Dale Farnsworth

@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315432AbSELVsc>; Sun, 12 May 2002 17:48:32 -0400
+	id <S315437AbSELWAF>; Sun, 12 May 2002 18:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSELVsb>; Sun, 12 May 2002 17:48:31 -0400
-Received: from mailhost2.teleline.es ([195.235.113.141]:33072 "EHLO
-	tsmtp10.mail.isp") by vger.kernel.org with ESMTP id <S315432AbSELVs3>;
-	Sun, 12 May 2002 17:48:29 -0400
-Date: Sun, 12 May 2002 23:41:53 +0200
-From: Diego Calleja <DiegoCG@teleline.es>
-To: Becki Minich <bminich@earthlink.net>
-Cc: linux-kernel@vger.kernel.org, johnnyo@mindspring.com
-Subject: Re: Reiserfs has killed my root FS!?!
-Message-Id: <20020512234153.55d655d6.DiegoCG@teleline.es>
-In-Reply-To: <3CDEDEA5.2020002@earthlink.net>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S315438AbSELWAE>; Sun, 12 May 2002 18:00:04 -0400
+Received: from p0211.as-l042.contactel.cz ([194.108.237.211]:9600 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S315437AbSELWAD>;
+	Sun, 12 May 2002 18:00:03 -0400
+Date: Mon, 13 May 2002 00:00:08 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pdc202xx.c fails to compile in 2.5.15
+Message-ID: <20020512220008.GA2935@ppc.vc.cvut.cz>
+In-Reply-To: <3CDD4DE5.5030200@evision-ventures.com> <877km99nt1.fsf_-_@atlas.iskon.hr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 May 2002 17:29:09 -0400
-Becki Minich <bminich@earthlink.net> escribió:
+On Sun, May 12, 2002 at 09:19:22PM +0200, Zlatko Calusic wrote:
+> pdc202xx.x fails to compile in 2.5.15. Error messages below.
+> 
+> pdc202xx.c:1453: unknown field `exnablebits' specified in initializer
+> pdc202xx.c:1453: warning: braces around scalar initializer
+> pdc202xx.c:1453: warning: (near initialization for `chipsets[3].init_dma')
+> make[3]: *** [pdc202xx.o] Error 1
 
-> reiserfs: checking transaction log (device 08:12)
-> attempt to access beyond end of device
-> 08:12: rw=0 want=268574776 limit=8747392
+If you have PDC20265 like I have, you must also remove test on device class,
+as 20265 reports itself as generic mass storage (class 0x0180) and not as
+IDE (it is real IDE, not RAID, really). 
 
-I'm not an expert, but this perhaps isn't a reiserfs problem.
-I'm using reiserfs and i've never had a problem. The only corruption i've seen is 
-while compiling kernel. The .o file was being created, and if i shut down the computer,
-at restart, when i try to compile the kernel again, gcc  says that doesn't understands the .o file
-This was because when replaying the journal the file was created, but it has random data. This is normal,
-because reiserfs only assures the metadata integrity, not the data.
+Because of there are apparently devices on which you must check device class
+(2.5.14 talks about CY82C693 and IT8172G), I'll leave proper fix on Martin,
+but simple fix below work fine on my Asus A7V.
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
 
-> vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat 
-> data of [1 2 0x0 SD]
-> Using r5 hash to sort names
-> Reiserfs version 3.6.25
-> VFS: Mounted root (reiserfs filesystem) readonly.
-> Warning: unable to mount devfs, err: -5
-> Freeing unused kernel memory: 224k freed
-> Warning: unable to open an initial console.
-> Kernel panic: No init found.
-> 
-> If someone can get me to the point where I can just get to read my 
-> filesystem read-only, so I get get all my data off of it, I would be 
-> EXTREMELY GRATEFUL!  I have some very important data on that FS.  I went 
-> to the reiserfs web site to discover I'd get charged $25 for asking for 
-> help, so unless someone convinces me otherwise, I will be converting to 
-> EXT3 when this disaster is over...
-> 
-> Slackware Linux 8.1b2
-> Linux 2.4.18
-> ReiserFS 3.6.25
-> GLIBC 2.2.5
-> GCC 2.95.3
-> 
-> Any help please?!?
-> John O'Donnell
-> johnnyo@mindspring.com
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--- drivers/ide/ide-pci.c	Sun May 12 02:46:44 2002
++++ drivers/ide/ide-pci.c	Fri May 10 00:25:29 2002
+@@ -701,7 +701,7 @@
+ 			hpt374_device_order_fixup(dev, d);
+ 	} else if (d->vendor == PCI_VENDOR_ID_PROMISE && d->device == PCI_DEVICE_ID_PROMISE_20268R)
+ 		pdc20270_device_order_fixup(dev, d);
+-	else if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
++	else if (1 || (dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
+ 		printk(KERN_INFO "ATA: %s (%04x:%04x) on PCI slot %s\n",
+ 				dev->name, vendor, device, dev->slot_name);
+ 		setup_pci_device(dev, d);

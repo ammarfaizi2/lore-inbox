@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUHVHMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266425AbUHVHbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266324AbUHVHMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 03:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266425AbUHVHMc
+	id S266425AbUHVHbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 03:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUHVHbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 03:12:32 -0400
-Received: from qfep05.superonline.com ([212.252.122.162]:4775 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S266324AbUHVHMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 03:12:30 -0400
-From: "Josan Kadett" <corporate@superonline.com>
-To: "'Brad Campbell'" <brad@wasp.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
-Date: Sun, 22 Aug 2004 10:12:32 +0200
+	Sun, 22 Aug 2004 03:31:46 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:14255 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S266425AbUHVHbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 03:31:44 -0400
+Message-ID: <56689.210.86.92.219.1093159902.squirrel@mail.metaparadigm.com>
+In-Reply-To: <20040818135314.GJ467@openzaurus.ucw.cz>
+References: <41131120.5060202@metaparadigm.com>
+    <20040818135314.GJ467@openzaurus.ucw.cz>
+Date: Sun, 22 Aug 2004 15:31:42 +0800 (SGT)
+Subject: Re: [PATCH] - Initial dothan speedstep support
+From: "Clark, Michael" <michael@metaparadigm.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Michael Clark" <michael@metaparadigm.com>, jeremy@goop.org,
+       davej@codemonkey.org.uk, "Linux Kernel" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <4128457C.7090001@wasp.net.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcSIFjE9KmKt8sXZTo2aSLaRKosmqwACJcoQ
-Message-Id: <S266324AbUHVHMa/20040822071230Z+15@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel 2.4.18-14 [Redhat 8 standard installation] 
+> Hi!
+>
+>> So here's a patch on top of the above patch that adds all of the
+>> dothan frequency/voltages for processors 715, 725, 735, 745, 755
+>>
+>> Tested and working as it should so far with a 745. The stepping in the
+>> model table for the others may need to be tweaked.
+>>
+>> The Dothan processor datasheet 30218903.pdf defines 4 voltages for
+>> each frequency (VID#A through VID#D) whereas Banias only suggests a
+>> typical voltage and no min or max for each freq so i've used the OP
+>> macro to allow definition of all voltages (A through D) but the macro
+>> currently just uses VID#C at compile time (the second lowest voltage
+>> profile).
+>
+> I thought that whether to use VID#A, B, C or D depends on
+> your concrete chip? Not all chips are certified to run on VID#C...
 
-As I underlined, I have been able to disable IP header checksumming for the
-received packets, so the system will not drop the packets even after CRC
-becomes invalid when the source address changes.
+Yes, I believe this is the case. When I read the processor spec
+document it did not mention this but since then i found this out. I've
+since changed the patch to use the VID#A voltages which is more
+conservative (assuming that all of them will run at the higher voltage
+okay which according to the upper voltage rating of 1.6 volts might be
+okay). It would of course be preferrable to work out the the type
+VID#A,B,C,D via software - not sure if this is possible.
 
-I have been asking this question over ten different mailing list and forums
-and no one has come up with a "solid" solution. I would be exteremely glad
-if I get a working source code.
-
-I know the application will be so very simple, just changing some bits with
-another and putting it back to userspace, but it requires some low-level
-libraries and the knowledge to use them... 
-
------Original Message-----
-From: Brad Campbell [mailto:brad@wasp.net.au] 
-Sent: Sunday, August 22, 2004 9:04 AM
-To: Josan Kadett
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-
-The main reason I suggested correcting the checksum is if it was done that
-way, the kernel would 
-behave normally for all other IP traffic and simply do a dodgy on only
-traffic from 192.168.1.1
-
-If nobody else jumps in, let me think about it for a day or so and I'll see
-what I can do. It's been 
-a couple of years since I last looked at the network code though.
-
-What kernel are you running?
-
-Regards,
-Brad
-
-
-
+~mc

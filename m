@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279407AbRKAR3y>; Thu, 1 Nov 2001 12:29:54 -0500
+	id <S279412AbRKARdy>; Thu, 1 Nov 2001 12:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279412AbRKAR3p>; Thu, 1 Nov 2001 12:29:45 -0500
-Received: from t2.redhat.com ([199.183.24.243]:9465 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S279407AbRKAR3b>; Thu, 1 Nov 2001 12:29:31 -0500
-Message-ID: <3BE18677.556C9CDE@redhat.com>
-Date: Thu, 01 Nov 2001 17:29:27 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
-X-Accept-Language: en
+	id <S279420AbRKARdp>; Thu, 1 Nov 2001 12:33:45 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:16392 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S279412AbRKARdc>;
+	Thu, 1 Nov 2001 12:33:32 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111011733.UAA26651@ms2.inr.ac.ru>
+Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
+To: ak@suse.de (Andi Kleen)
+Date: Thu, 1 Nov 2001 20:33:15 +0300 (MSK)
+Cc: joris@deadlock.et.tudelft.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <p733d3yr2b1.fsf@amdsim2.suse.de> from "Andi Kleen" at Nov 1, 1 03:30:42 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: Stress testing 2.4.14-pre6
-In-Reply-To: <Pine.LNX.4.33.0111010903280.11617-100000@penguin.transmeta.com> <3BE18402.9F958EDC@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Linus Torvalds wrote:
-> > Anyway, I seriously doubt this explains any real-world bad behaviour: the
-> > window for the interrupt hitting a half-way updated list is something like
-> > two instructions long out of the whole memory freeing path. AND most
-> > interrupts don't actually do any allocation.
-> 
-> Network Rx interrupts do....  definitely not as frequent as IDE
-> interrupts, but not infrequent.
+Hello!
 
-Cerberus doesn't use networking in the tested setup iirc
+> > So... Shouldn't dev_queue_xmit_nit() also process ptype_base then ?
+> 
+> Interesting bug.
+
+RTFM of the maillists, Andi.
+
+
+Someone promised me to fix this in right way, but disappeared.
+
+Generally packet sockets MUST NOT tap on output packets. No differences
+of socket of another protocols. UDP does not tap output right?
+What the hell packet socket should do this?
+Snapping on output is feature which must be regulated by a separate option.
+And to be honest I see no tragedy, if this option will not exist for sockets
+bound to specific protocols.
+
+Alexey

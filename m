@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUDNOiL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 10:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbUDNOiL
+	id S263415AbUDNOiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 10:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUDNOiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 10:38:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47256 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261347AbUDNOiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 10:38:08 -0400
-Subject: Re: Shielded CPUs
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "Calin A. Culianu" <calin@ajvar.org>
+	Wed, 14 Apr 2004 10:38:16 -0400
+Received: from mailout2.samsung.com ([203.254.224.25]:33245 "EHLO
+	mailout2.samsung.com") by vger.kernel.org with ESMTP
+	id S263415AbUDNOiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 10:38:12 -0400
+Date: Wed, 14 Apr 2004 20:03:05 +0530
+From: mohanlal jangir <mohanlal@samsung.com>
+Subject: Re: Implementation of events in Linux Kernel
+To: rakesh <raklfs@yahoo.com>, kernelnewbies@nl.linux.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0404141013330.20579-100000@rtlab.med.cornell.edu>
-References: <Pine.LNX.4.33L2.0404141013330.20579-100000@rtlab.med.cornell.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-puIjSx4xY6g47QicUbx4"
-Organization: Red Hat UK
-Message-Id: <1081953482.11976.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 14 Apr 2004 16:38:02 +0200
+Message-id: <020e01c4222d$67440440$7f476c6b@sisodomain.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+X-Mailer: Microsoft Outlook Express 5.50.4927.1200
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <20040414142410.17997.qmail@web20729.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-puIjSx4xY6g47QicUbx4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2004-04-14 at 16:23, Calin A. Culianu wrote:
-> This might be a bit off-topic (and might belong in the rtlinux mailing
-> list), but I wanted people's opinion on LKML...
->=20
-> There's an article in the May 2004 Linux Journal about some CPU affinity
-> features in Redhawk Linux that allow a process and a set of interrupts to
-> be locked to a particular CPU for the purposes of improving real-time
-> performance.
-
-well you can do both of those already in 2.6 and in all recent vendor
-2.4's that I know of..... no patches needed.
+----- Original Message -----
+From: "rakesh" <raklfs@yahoo.com>
+To: <kernelnewbies@nl.linux.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, April 14, 2004 7:54 PM
+Subject: Implementation of events in Linux Kernel
 
 
---=-puIjSx4xY6g47QicUbx4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+>
+> Hi All,
+>
+> Please excuse me if this is not the right place to post this question.
+>
+>       I have an application which runs on MIPS with Embedded Linux. Iwant
+to write a char driver . I have a Rx Task and an Interrupthandler for the
+char driver which will let me know if anything comesat the chip level.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+If you receive interrupt from device, you can establish an interrupt handler
+for that. See function "request_irq". If you want a sleep/wakeup mechanism,
+there are many ways of doing this in Linux kernel. One of them is using
+interruptible_sleep_on/wake_up_interruptible.
 
-iD8DBQBAfUzJxULwo51rQBIRAnqfAJ0avZux+aAp55jIuL+O+5Xlj5MUXACgjx4m
-HSqSphXvw1SiVhliWGFXM5M=
-=KY7O
------END PGP SIGNATURE-----
+Regards
+Mohanlal
 
---=-puIjSx4xY6g47QicUbx4--
+  Assuming its pSOS or other real time operating systems one ofhandling an
+interrupt is sending an event to the Rx Task then Rx Taskwill read from the
+whatever buffer it may be.       If I want to implement the same thing in
+Linux at the kernellevel treating my driver as a module. How ( what system
+call ) can Ipass an event to the task such that it receives the event and
+readsfrom the buffer ?      One more question in general what are all the
+various exceptionsor Traps I have to look while writing a Linux Device
+Driver.Thanks in Advance for all your help.ThanksRakesh
+>
+>
+>
+>
+> ---------------------------------
+> Do you Yahoo!?
+> Yahoo! Tax Center - File online by April 15th
 

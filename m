@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133112AbRDRNAG>; Wed, 18 Apr 2001 09:00:06 -0400
+	id <S133114AbRDRNBq>; Wed, 18 Apr 2001 09:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133114AbRDRM75>; Wed, 18 Apr 2001 08:59:57 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:51342 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S133112AbRDRM7u>; Wed, 18 Apr 2001 08:59:50 -0400
-Message-Id: <5.0.2.1.2.20010418135757.00ad5680@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Wed, 18 Apr 2001 14:01:59 +0100
-To: James Lewis Nance <jlnance@intrex.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH][CFT] ext2 directories in pagecache
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010418084420.A857@bessie.dyndns.org>
-In-Reply-To: <Pine.GSO.4.21.0104121217580.19944-100000@weyl.math.psu.edu>
- <Pine.GSO.4.21.0104121217580.19944-100000@weyl.math.psu.edu>
+	id <S133116AbRDRNBh>; Wed, 18 Apr 2001 09:01:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39688 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S133114AbRDRNBX>;
+	Wed, 18 Apr 2001 09:01:23 -0400
+Date: Wed, 18 Apr 2001 14:00:59 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Chris Evans <chris@scary.beasts.org>
+Cc: David Schleef <ds@schleef.org>, Dawson Engler <engler@csl.Stanford.EDU>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] copy_*_user length bugs?
+Message-ID: <20010418140059.A442@flint.arm.linux.org.uk>
+In-Reply-To: <20010418015254.A29893@stm.lbl.gov> <Pine.LNX.4.30.0104181206130.28455-100000@ferret.lmh.ox.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0104181206130.28455-100000@ferret.lmh.ox.ac.uk>; from chris@scary.beasts.org on Wed, Apr 18, 2001 at 12:14:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:44 18/04/2001, James Lewis Nance wrote:
->On Thu, Apr 12, 2001 at 12:33:42PM -0400, Alexander Viro wrote:
-> >       Folks, IMO ext2-dir-patch got to the stable stage. Currently
-> > it's against 2.4.4-pre2, but it should apply to anything starting with
-> > 2.4.2 or so.
->
->Have you had any feedback about this patch?  I applied it last night to
->2.4.3.  It seemed to work.  When I booted my computer this morning fsck
->complained about problems with the directory on one of my ext2 file systems.
->Since fsck does not run on every boot I dont really have a way of knowing if
->this has anything to do with your patch or not.  I'm running the patched
->kernel again right now.  Ill shutdown and force an fsck later today to see
->if anything shows up.
+On Wed, Apr 18, 2001 at 12:14:56PM +0100, Chris Evans wrote:
+> To justify this, consider if len were set to minus 2 billion. This will
+> pass the sanity check, and pass the value straight on to copy_to_user. The
+> copy_to_user parameter is unsigned, so this value because approximately
+> +2Gb.
 
-Well, here is some feedback. I have been using this patch for quite a while 
-now without any problems what so ever. Including "make -j bzImage" on a 
-dual cpu machine and normal use of a productions system. - Frequent crashes 
-during ntfs development (and hence frequent reboots + fsck) have not shown 
-up any problems in ext2 + this patch, either. - It seems to be stable all 
-right on two different PCs (one SMP, celeron and one UP, pentium 133s).
+For ARM, this isn't a problem (we do 33-bit arithmetic in access_ok
+specifically to catch this type of thing).  x86 does the same thing (or
+did when I wrote the code for ARM.
 
-Best regards,
+> Now, providing the malicious user passes a low user space pointer (e.g.
+> just above 0), the kernel's virtual address space wrap check will not
+> trigger because ~0 + ~2Gb does not exceed 4G. And the result is the user
+> being able to read kernel memory.
 
-Anton
+But ~0 + ~2GB = ~2GB.  Last time I checked, ~2GB is less than 3GB, and 3GB
+is the start of kernel memory on x86.  Therefore, I don't see that the
+user will be able to read kernel memory.
 
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

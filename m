@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289328AbSBKNpO>; Mon, 11 Feb 2002 08:45:14 -0500
+	id <S289377AbSBKNqo>; Mon, 11 Feb 2002 08:46:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289377AbSBKNpE>; Mon, 11 Feb 2002 08:45:04 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12037 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S289328AbSBKNou>; Mon, 11 Feb 2002 08:44:50 -0500
-Date: Mon, 11 Feb 2002 14:44:43 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IDE cleanup for 2.5.4-pre3
-Message-ID: <20020211134443.GC20854@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020208231346.GA1209@elf.ucw.cz> <20020211094230.E1957@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020211094230.E1957@suse.de>
-User-Agent: Mutt/1.3.24i
+	id <S289386AbSBKNqe>; Mon, 11 Feb 2002 08:46:34 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:42926 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S289377AbSBKNq1>;
+	Mon, 11 Feb 2002 08:46:27 -0500
+Date: Mon, 11 Feb 2002 14:45:58 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: New version (2.4.18-pre9.2) of AMD Elan patch
+Message-ID: <Pine.LNX.4.33.0202111442060.24650-100000@callisto.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Here are first small ide cleanups. Jens, please apply,
-> 
-> Looks good to me.
+A new version of the AMD Elan patch is available on
 
-Is it "Looks good to me, applied", or "Looks good to me, good luck
-pushing it to Linus?" :-).
-							Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+  http://www.pengutronix.de/software/elan_en.html
+
+This patch against 2.4.18-pre9 deals with the following stuff:
+
+- serial driver bugfix (was sent to Theodore Ts'o)
+- correct ioport resource reservation for /proc/ioport
+
+If you have an AMD Elan processor (SC400, SC410, SC520) please test this
+fix extensively and send me bug reports. You might also want to test it if
+you don't have this special hardware, as the patch now does also affect
+the normal serial driver.
+
+Robert
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
+
+

@@ -1,554 +1,624 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280928AbRKCDc2>; Fri, 2 Nov 2001 22:32:28 -0500
+	id <S280930AbRKCDvl>; Fri, 2 Nov 2001 22:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280929AbRKCDcU>; Fri, 2 Nov 2001 22:32:20 -0500
-Received: from [212.113.174.249] ([212.113.174.249]:30754 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S280928AbRKCDcG>;
-	Fri, 2 Nov 2001 22:32:06 -0500
-From: Ricardo Ferreira <stormlabs@gmx.net>
+	id <S280931AbRKCDvd>; Fri, 2 Nov 2001 22:51:33 -0500
+Received: from sushi.toad.net ([162.33.130.105]:51360 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S280930AbRKCDvW>;
+	Fri, 2 Nov 2001 22:51:22 -0500
+Subject: [PATCH] PnP BIOS update #9
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: cdrecord, ide-scsi and all 2.4.x kernels
-Date: Sat, 3 Nov 2001 04:31:34 +0100
-X-Mailer: KMail [version 1.3.5]
-MIME-Version: 1.0
-Cc: Andre Hedrick <andre@aslab.com>, Jens Axboe <axboe@suse.de>,
-        Gadi Oxman <gadio@netvision.net.il>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ"
-Message-ID: <EXCH01SMTP012FVbS9s0001fe99@smtp.netcabo.pt>
-X-OriginalArrivalTime: 03 Nov 2001 03:28:14.0371 (UTC) FILETIME=[923EF730:01C16417]
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 02 Nov 2001 22:50:39 -0500
+Message-Id: <1004759442.5995.18.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I neglected to include the patch to pnp_bios.h which
+a declaration of pnpbios_get_device().  This patch
+supersedes patch "#8".
 
---------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+1) Minor documentation changes
+2) One minor bugfix (devs count wrong if error encountered)
+3) Yet more paranoid checking of PnP BIOS results and
+   more verbose error reporting
+4) Slap spinlocks around accesses to those parts of device
+   list info that can be updated at run time.
+5) Add function pnpbios_get_device().
+6) Remove declaration of pnpbios_announce_device() which
+   I added earlier, since no one else uses this function
+   and it seems designed only for internal use.  Omit the 
+   EXPORT_SYMBOL declaration too.
 
-If this message appears twice, its caused by the crappy smtp server of my ISP. Sorry.
+This has been tested by me; and there are no tricky changes,
+so this should be safe to put in.
 
-I CCed this mail to the people in the MAINTAINERS file that i thought might have more knowledge of what
-might be causing this. Gadi Oxman i fetched from ide-scsi.c
+TODO: locking of driver list as well?
+                                             // Thomas
 
-Hardware:
------------
-Abit VP6
-2x PIII-1Ghz
-1GB SDRAM
+The patch:
+--- linux-2.4.13-ac6/drivers/pnp/pnp_bios.c	Fri Oct 26 18:13:48 2001
++++ linux-2.4.13-ac6-fix/drivers/pnp/pnp_bios.c	Fri Nov  2 21:11:07 2001
+@@ -4,7 +4,7 @@
+  * Originally (C) 1998 Christian Schmidt (chr.schmidt@tu-bs.de)
+  * Modifications (c) 1998 Tom Lees <tom@lpsg.demon.co.uk>
+  * Minor reorganizations by David Hinds <dahinds@users.sourceforge.net>
+- * More modifications by Thomas Hood <jdthood_AT_yahoo.co.uk>
++ * Modifications (c) 2001 by Thomas Hood <jdthood@mail.com>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License as published by the
+@@ -46,19 +46,16 @@
+ #include <linux/spinlock.h>
+ #include <asm/system.h>
+ 
+-/* PnP bios signature: "$PnP" */
+-#define PNP_SIGNATURE   (('$' << 0) + ('P' << 8) + ('n' << 16) + ('P' << 24))
+ 
+ /*
+- * Forward declarations
++ *
++ * PNP BIOS LOW LEVEL INTERFACE
++ *
+  */
+ 
+-static void pnpbios_update_devlist( u8 nodenum, struct pnp_bios_node *data );
++/* PnP BIOS signature: "$PnP" */
++#define PNP_SIGNATURE   (('$' << 0) + ('P' << 8) + ('n' << 16) + ('P' << 24))
+ 
+-/*
+- * This is the standard structure used to identify the entry point
+- * to the Plug and Play bios
+- */
+ #pragma pack(1)
+ union pnp_bios_expansion_header {
+ 	struct {
+@@ -81,9 +78,6 @@
+ };
+ #pragma pack()
+ 
+-/*
+- * Local Variables
+- */
+ static struct {
+ 	u16	offset;
+ 	u16	segment;
+@@ -91,13 +85,13 @@
+ 
+ static union pnp_bios_expansion_header * pnp_bios_hdr = NULL;
+ 
+-/* The PnP entries in the GDT */
+-#define PNP_GDT		0x0060
+-#define PNP_CS32	(PNP_GDT+0x00)	/* segment for calling fn */
+-#define PNP_CS16	(PNP_GDT+0x08)	/* code segment for bios */
+-#define PNP_DS		(PNP_GDT+0x10)	/* data segment for bios */
+-#define PNP_TS1		(PNP_GDT+0x18)	/* transfer data segment */
+-#define PNP_TS2		(PNP_GDT+0x20)	/* another data segment */
++/* The PnP BIOS entries in the GDT */
++#define PNP_GDT    (0x0060)
++#define PNP_CS32   (PNP_GDT+0x00)	/* segment for calling fn */
++#define PNP_CS16   (PNP_GDT+0x08)	/* code segment for BIOS */
++#define PNP_DS     (PNP_GDT+0x10)	/* data segment for BIOS */
++#define PNP_TS1    (PNP_GDT+0x18)	/* transfer data segment */
++#define PNP_TS2    (PNP_GDT+0x20)	/* another data segment */
+ 
+ /* 
+  * These are some opcodes for a "static asmlinkage"
+@@ -135,24 +129,6 @@
+ set_limit (gdt [(selname) >> 3], size)
+ 
+ /*
+- * Callable PnP BIOS functions
+- */
+-#define PNP_GET_NUM_SYS_DEV_NODES       0x00
+-#define PNP_GET_SYS_DEV_NODE            0x01
+-#define PNP_SET_SYS_DEV_NODE            0x02
+-#define PNP_GET_EVENT                   0x03
+-#define PNP_SEND_MESSAGE                0x04
+-#define PNP_GET_DOCKING_STATION_INFORMATION 0x05
+-#define PNP_SET_STATIC_ALLOCED_RES_INFO 0x09
+-#define PNP_GET_STATIC_ALLOCED_RES_INFO 0x0a
+-#define PNP_GET_APM_ID_TABLE            0x0b
+-#define PNP_GET_PNP_ISA_CONFIG_STRUC    0x40
+-#define PNP_GET_ESCD_INFO               0x41
+-#define PNP_READ_ESCD                   0x42
+-#define PNP_WRITE_ESCD                  0x43
+-
+-
+-/*
+  * At some point we want to use this stack frame pointer to unwind
+  * after PnP BIOS oopses. 
+  */
+@@ -161,7 +137,7 @@
+ u32 pnp_bios_fault_eip;
+ u32 pnp_bios_is_utter_crap = 0;
+ 
+-static spinlock_t pnp_bios_lock;
++static spinlock_t pnp_bios_lock = SPIN_LOCK_UNLOCKED;
+ 
+ static inline u16 call_pnp_bios(u16 func, u16 arg1, u16 arg2, u16 arg3,
+ 				u16 arg4, u16 arg5, u16 arg6, u16 arg7)
+@@ -170,15 +146,13 @@
+ 	u16 status;
+ 
+ 	/*
+-	 *	PnPBIOS is generally not terribly re-entrant.
+-	 *	Also don't rely on it to save everything correctly
+- 	 *
+- 	 *	On some boxes IRQ's during PnP bios calls seem fatal
++	 * PnP BIOSes are generally not terribly re-entrant.
++	 * Also, don't rely on them to save everything correctly.
+ 	 */
+-
+ 	if(pnp_bios_is_utter_crap)
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
+-		
++
++	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
+ 	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	__cli();
+ 	__asm__ __volatile__(
+@@ -212,7 +186,7 @@
+ 	);
+ 	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	
+-	/* If we got here and this is set the pnp bios faulted on us.. */
++	/* If we get here and this is set then the PnP BIOS faulted on us. */
+ 	if(pnp_bios_is_utter_crap)
+ 	{
+ 		printk(KERN_ERR "PnPBIOS: Warning! Your PnP BIOS caused a fatal error. Attempting to continue.\n");
+@@ -223,6 +197,7 @@
+ 	return status;
+ }
+ 
++
+ /*
+  *
+  * UTILITY FUNCTIONS
+@@ -245,12 +220,30 @@
+ 	return (pnp_bios_hdr != NULL);
+ }
+ 
++/* Forward declaration */
++static void pnpbios_update_devlist( u8 nodenum, struct pnp_bios_node *data );
++
++
+ /*
+  *
+  * PnP BIOS ACCESS FUNCTIONS
+  *
+  */
+ 
++#define PNP_GET_NUM_SYS_DEV_NODES           0x00
++#define PNP_GET_SYS_DEV_NODE                0x01
++#define PNP_SET_SYS_DEV_NODE                0x02
++#define PNP_GET_EVENT                       0x03
++#define PNP_SEND_MESSAGE                    0x04
++#define PNP_GET_DOCKING_STATION_INFORMATION 0x05
++#define PNP_SET_STATIC_ALLOCED_RES_INFO     0x09
++#define PNP_GET_STATIC_ALLOCED_RES_INFO     0x0a
++#define PNP_GET_APM_ID_TABLE                0x0b
++#define PNP_GET_PNP_ISA_CONFIG_STRUC        0x40
++#define PNP_GET_ESCD_INFO                   0x41
++#define PNP_READ_ESCD                       0x42
++#define PNP_WRITE_ESCD                      0x43
++
+ /*
+  * Call PnP BIOS with function 0x00, "get number of system device nodes"
+  */
+@@ -274,8 +267,8 @@
+ }
+ 
+ /*
+- * Note that some PnP BIOSes (on Sony Vaio laptops) die a horrible
+- * death if they are asked to access the "current" configuration
++ * Note that some PnP BIOSes (e.g., on Sony Vaio laptops) die a horrible
++ * death if they are asked to access the "current" configuration.
+  * Therefore, if it's a matter of indifference, it's better to call
+  * get_dev_node() and set_dev_node() with boot=1 rather than with boot=0.
+  */
+@@ -309,6 +302,7 @@
+ 	return status;
+ }
+ 
++
+ /*
+  * Call PnP BIOS with function 0x02, "set system device node"
+  * Input: *nodenum = desired node, 
+@@ -504,9 +498,10 @@
+ }
+ #endif
+ 
++
+ /*
+  *
+- * PnP DOCKING FUNCTIONS
++ * DOCKING FUNCTIONS
+  *
+  */
+ 
+@@ -626,7 +621,8 @@
+ 	complete_and_exit(&unload_sem, 0);
+ }
+ 
+-#endif
++#endif   /* CONFIG_HOTPLUG */
++
+ 
+ /*
+  *
+@@ -781,18 +777,43 @@
+         return;
+ }
+ 
++
+ /*
+  *
+- * PnP BIOS PUBLIC DEVICE MANAGEMENT LAYER FUNCTIONS
++ * DEVICE LIST MANAGEMENT FUNCTIONS
+  *
++ *
++ * Some of these are exported to give public access
++ *
++ * Question: Why maintain a device list when the PnP BIOS can 
++ * list devices for us?  Answer: Some PnP BIOSes can't report
++ * the current configuration, only the boot configuration.
++ * The boot configuration can be changed, so we need to keep
++ * a record of what the configuration was when we booted;
++ * presumably it continues to describe the current config.
++ * For those BIOSes that can change the current config, we
++ * keep the information in the devlist up to date.
++ *
++ * Note that it is currently assumed that the list does not
++ * grow or shrink in size after init time, and slot_name
++ * never changes.
+  */
+ 
+ static LIST_HEAD(pnpbios_devices);
+ 
++static spinlock_t pnpbios_devices_lock = SPIN_LOCK_UNLOCKED;
++
+ static int inline pnpbios_insert_device(struct pci_dev *dev)
+ {
+-	/* FIXME: Need to check for re-add of existing node */
++
++	/*
++	 * FIXME: Check for re-add of existing node;
++	 * return -1 if node already present
++	 */
++
++	/* We don't lock because we only do this at init time */
+ 	list_add_tail(&dev->global_list, &pnpbios_devices);
++
+ 	return 0;
+ }
+ 
+@@ -819,6 +840,10 @@
+ #undef CHAR
+ #undef HEX 
+ 
++/*
++ * Build a linked list of pci_devs in order of ascending node number.
++ * Called only at init time.
++ */
+ static void __init pnpbios_build_devlist(void)
+ {
+ 	int i;
+@@ -839,14 +864,20 @@
+ 	if (!node)
+ 		return;
+ 
+-	for(i=0,nodenum=0;i<0xff && nodenum!=0xff;i++) {
++	for(i=0,nodenum=0; i<0xff && nodenum!=0xff; i++) {
+ 		int thisnodenum = nodenum;
+ 		/* For now we build the list from the "boot" config
+ 		 * because asking for the "current" config causes
+-		 * some BIOSes to crash.
+-		 */
+-		if (pnp_bios_get_dev_node((u8 *)&nodenum, (char )1 , node))
++		 * some BIOSes to crash.                          */
++		if (pnp_bios_get_dev_node((u8 *)&nodenum, (char )1 , node)) {
++			printk(KERN_WARNING "PnPBIOS: PnP BIOS reported error on attempt to get dev node.\n");
+ 			break;
++		}
++		/* The BIOS returns with nodenum = the next node number */
++		if (nodenum < thisnodenum) {
++			printk(KERN_WARNING "PnPBIOS: Node number is out of sequence. Naughty BIOS!\n");
++			break;
++		}
+ 		nodes_got++;
+ 		dev =  pnpbios_kmalloc(sizeof (struct pci_dev), GFP_KERNEL);
+ 		if (!dev)
+@@ -858,7 +889,8 @@
+ 		pnpbios_node_resource_data_to_dev(node,dev);
+ 		if(pnpbios_insert_device(dev)<0)
+ 			kfree(dev);
+-		devs++;
++		else
++			devs++;
+ 	}
+ 	kfree(node);
+ 
+@@ -866,75 +898,118 @@
+ 		nodes_got, nodes_got != 1 ? "s" : "", devs);
+ }
+ 
+-static struct pci_dev *pnpbios_find_device_by_nodenum( u8 nodenum )
++/*
++ * Return pointer to device node after *prev with name pnpid[]
++ *
++ * Deprecated, since the information in the node may change.
++ * Use pnpbios_get_device instead.
++ */
++struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *prev)
+ {
+ 	struct pci_dev *dev;
++	int minnodenum;
++
++	minnodenum = 0;
++	if(prev)
++		minnodenum=prev->devfn + 1;
+ 
++	/*
++	 * We don't lock.  We assume that the list can be
++	 * traversed and slot_name searched at any time,
++	 * since this is static information.
++	 */
+ 	pnpbios_for_each_dev(dev) {
+-		if(dev->devfn == nodenum)
+-			return dev;
++		if(dev->devfn >= minnodenum) {
++			if(memcmp(dev->slot_name, pnpid, 7)==0)
++				return dev;
++		}
+ 	}
+ 
+-	return NULL;
++	return (struct pci_dev *)NULL;
+ }
+ 
+-static void pnpbios_update_devlist( u8 nodenum, struct pnp_bios_node *data )
++EXPORT_SYMBOL(pnpbios_find_device);
++
++/*
++ * Copy device node with node number greater than prevnodenum
++ * and with name pnpid[] to *dev.
++ * Call with prevnodenum = -1 the first time.
++ * Return node number on success, -1 on failure.
++ */
++int pnpbios_get_device(char *pnpid, int prevnodenum, struct pci_dev *usrdev)
+ {
+-	struct pci_dev *dev = pnpbios_find_device_by_nodenum( nodenum );
+-	if ( dev ) {
+-		pnpbios_node_resource_data_to_dev(data,dev);
++	struct pci_dev *dev;
++
++	pnpbios_for_each_dev(dev) {
++		if((int)dev->devfn > prevnodenum && memcmp(dev->slot_name,pnpid,7)==0) {
++			unsigned long flags;
++			/* We lock to prevent updates while we are making a copy */
++			spin_lock_irqsave(&pnpbios_devices_lock, flags);
++			memcpy(usrdev,dev,sizeof(struct pci_dev));
++			spin_unlock_irqrestore(&pnpbios_devices_lock, flags);
++			usrdev->global_list.prev = NULL;
++			usrdev->global_list.next = NULL;
++			return (int)dev->devfn;
++		}
+ 	}
+ 
+-	return;
++	/* Didn't got it */
++	return -1;
+ }
+ 
+-/*
+- *
+- * PUBLIC INTERFACE FUNCTIONS to PnP BIOS ENUMERATION
+- *
+- */
++EXPORT_SYMBOL(pnpbios_get_device);
+ 
+-/*
+- * Find device in list
+- */
+-struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *prev)
++static struct pci_dev *pnpbios_find_device_by_nodenum( u8 nodenum )
+ {
+ 	struct pci_dev *dev;
+-	int nodenum;
+-
+-	nodenum = 0;
+-	if(prev)
+-		nodenum=prev->devfn + 1; /* Encode node number here */
+ 
+ 	pnpbios_for_each_dev(dev) {
+-		if(dev->devfn >= nodenum) {
+-			if(memcmp(dev->slot_name, pnpid, 7)==0)
+-				return dev;
+-		}
++		if(dev->devfn == nodenum)
++			return dev;
+ 	}
+ 
+ 	return NULL;
+ }
+ 
+-EXPORT_SYMBOL(pnpbios_find_device);
++static void pnpbios_update_devlist( u8 nodenum, struct pnp_bios_node *data )
++{
++	struct pci_dev *dev;
++
++	dev = pnpbios_find_device_by_nodenum( nodenum );
++	if ( dev ) {
++		unsigned long flags;
++		spin_lock_irqsave(&pnpbios_devices_lock, flags);
++		pnpbios_node_resource_data_to_dev(data,dev);
++		spin_unlock_irqrestore(&pnpbios_devices_lock, flags);
++	}
++
++	return;
++}
++
+ 
+ /*
+- *  Registration of PnPBIOS drivers and handling of hot-pluggable devices.
++ *
++ * DRIVER REGISTRATION FUNCTIONS
++ *
++ *
++ * Exported to give public access
++ *
+  */
+ 
+ static LIST_HEAD(pnpbios_drivers);
+ 
+ /**
+- * pnpbios_match_device - Tell if a PnPBIOS device structure has a matching PnPBIOS device id structure
++ * pnpbios_match_device - Tell if a PnPBIOS device structure has
++ *                        a matching PnPBIOS device id structure
+  * @ids: array of PnPBIOS device id structures to search in
+  * @dev: the PnPBIOS device structure to match against
+  * 
+  * Used by a driver to check whether a PnPBIOS device present in the
+- * system is in its list of supported devices.Returns the matching
++ * system is in its list of supported devices.  Returns the matching
+  * pnpbios_device_id structure or %NULL if there is no match.
+  */
+ 
+-const struct pnpbios_device_id *
++static const struct pnpbios_device_id *
+ pnpbios_match_device(const struct pnpbios_device_id *ids, const struct pci_dev *dev)
+ {
+ 	while (*ids->id)
+@@ -946,7 +1021,7 @@
+ 	return NULL;
+ }
+ 
+-int pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev)
++static int pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev)
+ {
+ 	const struct pnpbios_device_id *id;
+ 	int ret = 0;
+@@ -971,8 +1046,6 @@
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(pnpbios_announce_device);
+-
+ /**
+  * pnpbios_register_driver - register a new pci driver
+  * @drv: the driver structure to register
+@@ -1007,7 +1080,6 @@
+  * each device it was responsible for, and marks those devices as
+  * driverless.
+  */
+-
+ void
+ pnpbios_unregister_driver(struct pnpbios_driver *drv)
+ {
+@@ -1025,10 +1097,14 @@
+ 
+ EXPORT_SYMBOL(pnpbios_unregister_driver);
+ 
++
+ /*
+  *
+  * RESOURCE RESERVATION FUNCTIONS
+  *
++ *
++ * Used only at init time
++ *
+  */
+ 
+ static void __init pnpbios_reserve_ioport_range(char *pnpid, int start, int end)
+@@ -1093,11 +1169,11 @@
+ 				dev->resource[i].end
+ 			);
+ 		} else if (dev->resource[i].flags & IORESOURCE_MEM) {
+-			/* memory */
++			/* iomem */
+ 			/* For now do nothing */
+ 			continue;
+ 		} else {
+-			/* Neither ioport nor memory */
++			/* Neither ioport nor iomem */
+ 			/* Do nothing */
+ 			continue;
+ 		}
+@@ -1106,13 +1182,7 @@
+ 	return;
+ }
+ 
+-/*
+- * Reserve resources used by system board devices
+- *
+- * We really shouldn't just _reserve_ these regions since
+- * that prevents the device drivers from claiming them.
+- */
+-static void __init pnpbios_reserve_resources( void )
++static void __init pnpbios_reserve_board_resources( void )
+ {
+ 	struct pci_dev *dev;
+ 
+@@ -1129,11 +1199,11 @@
+ 	return;
+ }
+ 
++
+ /* 
+  *
+  * INIT AND EXIT
+  *
+- *
+  */
+ 
+ extern int is_sony_vaio_laptop;
+@@ -1210,7 +1280,7 @@
+ 	}
+ 
+ 	pnpbios_build_devlist();
+-	pnpbios_reserve_resources();
++	pnpbios_reserve_board_resources();
+ #ifdef CONFIG_PROC_FS
+ 	pnpbios_proc_init();
+ #endif
+@@ -1225,7 +1295,7 @@
+ 
+ MODULE_LICENSE("GPL");
+ 
+-/* We have to run it early and specifically in non modular.. */
++/* We have to run it early and not as a module. */
+ module_init(pnpbios_init);
+ 
+ #ifdef CONFIG_HOTPLUG
+--- linux-2.4.13-ac6/include/linux/pnp_bios.h	Fri Oct 26 18:13:49 2001
++++ linux-2.4.13-ac6-fix/include/linux/pnp_bios.h	Fri Nov  2 21:24:58 2001
+@@ -137,8 +137,8 @@
+ 	for(dev = pnpbios_dev_g(pnpbios_devices.next); dev != pnpbios_dev_g(&pnpbios_devices); dev = pnpbios_dev_g(dev->global_list.next))
+ 
+ /* exported functions */
+-extern struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *dev);
+-extern int  pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev);
++extern struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *prevdev);
++extern int  pnpbios_get_device(char *pnpid, int prevnodenum, struct pci_dev *dev);
+ extern int  pnpbios_register_driver(struct pnpbios_driver *drv);
+ extern void pnpbios_unregister_driver(struct pnpbios_driver *drv);
+ 
+@@ -202,11 +202,6 @@
+ static __inline__ struct pci_dev *pnpbios_find_device(char *pnpid, struct pci_dev *dev)
+ {
+ 	return NULL;
+-}
+-
+-static __inline__ int pnpbios_announce_device(struct pnpbios_driver *drv, struct pci_dev *dev)
+-{
+-	return 0;
+ }
+ 
+ static __inline__ int pnpbios_register_driver(struct pnpbios_driver *drv)
 
-IBM 40GB UDMA100 7200rpm connected to 1st channel of onboard HPT370
-Yamaha 8824 CDRW connected to 2nd channel of onboard HPT370
-Seagate 10GB UDMA66 connected to 1st channel of onboard VIA controller
-ASUS 50x CDROM connected to 2nd channel of onboard VIA controller
-Empty Promise ULTRA66 card
 
-Description:
--------------
-Everytime i try to burn a CD i get these messages from the kernel:
-
-ide-scsi: CoD != 0 in idescsi_pc_intr
-hdk: ATAPI reset complete
-ide-scsi: CoD != 0 in idescsi_pc_intr
-hdk: ATAPI reset complete
-ide-scsi: scatter gather table too small, padding with zeros
-ide-scsi: CoD != 0 in idescsi_pc_intr
-hdk: ATAPI reset complete
-ide-scsi: scatter gather table too small, padding with zeros
-ide-scsi: scatter gather table too small, padding with zeros
-ide-scsi: CoD != 0 in idescsi_pc_intr
-hdk: ATAPI reset complete
-
-... and then (after a variable number of those messages) the burn fails. I tried connecting the CDR to other
-controllers and the only one that doesn't have this problem is the VIA controller. 
-Even the promise fails. So this isn't the fault of the HPT370 driver.
-
-I tested kernels 2.4.1 , 2.4.8 & 2.4.12, 2.4.13, 2.4.13-ac5 & ac6 and all have this problem. I then tested 2.2.18
-(when i still had openlinux installed. i since installed RH 7.2) with the ide patches and it runs cleanly. 
-Not a single message from the kernel under the same load and using the same cdrecord binary (1.10) 
-and the same (or equivalent) drivers loaded. So it isn't a hardware problem either.
-
-The only thing i can find in commom between the bug ocorrences in the HPT and the Promise is that they 
-both share an IRQ for their 2 IDE channels. The VIA, which does not misbehave, doesn't share interrupts.
-I even tried removing the Promise and disabling USB and that does not fix it. And the fact that 2.2.18 works
-proves the devices support IRQ sharing. I also found out that this problem also happens when reading from
-the CDR. I did not test if it causes data corruption. Also, booting with nosmp does not fix the problem either.
-
-Any patches i could test ? Ideas ? Something ? Is this a known problem ?
--- 
-[------------------------------------------------][-------------------------]
-|"One World, One Web, One Program" - Microsoft Ad||    stormlabs@gmx.net    |
-|"Ein Volk, Ein Reich, Ein Fuhrer" - Adolf Hitler||http://storm.superzip.net|
-[------------------------------------------------][-------------------------]
-       --> thor up 2 days | sentinel up 59 days | loki up 59 days <--
-
-
-
---------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="interrupts.bug"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="interrupts.bug"
-
-ICAgICAgICAgICBDUFUwICAgICAgIENQVTEgICAgICAgCiAgMDogICAgIDI2Njc5MyAgICAgMTk5
-NjI1ICAgIElPLUFQSUMtZWRnZSAgdGltZXIKICAxOiAgICAgICAgNzMwICAgICAgICA5NzEgICAg
-SU8tQVBJQy1lZGdlICBrZXlib2FyZAogIDI6ICAgICAgICAgIDAgICAgICAgICAgMCAgICAgICAg
-ICBYVC1QSUMgIGNhc2NhZGUKICA4OiAgICAgICAgICAwICAgICAgICAgIDEgICAgSU8tQVBJQy1l
-ZGdlICBydGMKIDEwOiAgICAgIDUxMzcxICAgICAgNTE0NjQgICBJTy1BUElDLWxldmVsICBldGgw
-CiAxMTogICAgMjcwNzIxOSAgICAyNzA3MjcxICAgSU8tQVBJQy1sZXZlbCAgaWRlNCwgaWRlNSwg
-dXNiLXVoY2ksIHVzYi11aGNpCiAxMjogICAgICAgICAxMCAgICAgICAgIDIzICAgIElPLUFQSUMt
-ZWRnZSAgUFMvMiBNb3VzZQogMTQ6ICAgICAgIDQ1OTEgICAgICAgNDI1NyAgICBJTy1BUElDLWVk
-Z2UgIGlkZTAKIDE1OiAgICAgICAgICA3ICAgICAgICAgIDUgICAgSU8tQVBJQy1lZGdlICBpZGUx
-Ck5NSTogICAgICAgICAgMCAgICAgICAgICAwIApMT0M6ICAgICA0NjUwMDcgICAgIDQ2NDgyNiAK
-RVJSOiAgICAgICAgICAwCk1JUzogICAgICAgICAxNwo=
-
---------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="dmesg.bug"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="dmesg.bug"
-
-TGludXggdmVyc2lvbiAyLjQuMTMtYWM2IChyb290QHRob3IpIChnY2MgdmVyc2lvbiAyLjk2IDIw
-MDAwNzMxIChSZWQgSGF0IExpbnV4IDcuMSAyLjk2LTk4KSkgIzEgU01QIEZyaSBOb3YgMiAxNToz
-MjoxOCBXRVQgMjAwMQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4MjA6
-IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1c2FibGUpCiBCSU9TLWU4MjA6
-IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgy
-MDogMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2VydmVkKQogQklPUy1l
-ODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAzZmZmMDAwMCAodXNhYmxlKQogQklPUy1l
-ODIwOiAwMDAwMDAwMDNmZmYwMDAwIC0gMDAwMDAwMDAzZmZmMzAwMCAoQUNQSSBOVlMpCiBCSU9T
-LWU4MjA6IDAwMDAwMDAwM2ZmZjMwMDAgLSAwMDAwMDAwMDQwMDAwMDAwIChBQ1BJIGRhdGEpCiBC
-SU9TLWU4MjA6IDAwMDAwMDAwZmVjMDAwMDAgLSAwMDAwMDAwMGZlYzAxMDAwIChyZXNlcnZlZCkK
-IEJJT1MtZTgyMDogMDAwMDAwMDBmZWUwMDAwMCAtIDAwMDAwMDAwZmVlMDEwMDAgKHJlc2VydmVk
-KQogQklPUy1lODIwOiAwMDAwMDAwMGZmZmYwMDAwIC0gMDAwMDAwMDEwMDAwMDAwMCAocmVzZXJ2
-ZWQpCjEyN01CIEhJR0hNRU0gYXZhaWxhYmxlLgpmb3VuZCBTTVAgTVAtdGFibGUgYXQgMDAwZjU3
-MDAKaG0sIHBhZ2UgMDAwZjUwMDAgcmVzZXJ2ZWQgdHdpY2UuCmhtLCBwYWdlIDAwMGY2MDAwIHJl
-c2VydmVkIHR3aWNlLgpobSwgcGFnZSAwMDBmMTAwMCByZXNlcnZlZCB0d2ljZS4KaG0sIHBhZ2Ug
-MDAwZjIwMDAgcmVzZXJ2ZWQgdHdpY2UuCk9uIG5vZGUgMCB0b3RhbHBhZ2VzOiAyNjIxMjgKem9u
-ZSgwKTogNDA5NiBwYWdlcy4Kem9uZSgxKTogMjI1MjgwIHBhZ2VzLgp6b25lKDIpOiAzMjc1MiBw
-YWdlcy4KSW50ZWwgTXVsdGlQcm9jZXNzb3IgU3BlY2lmaWNhdGlvbiB2MS4xCiAgICBWaXJ0dWFs
-IFdpcmUgY29tcGF0aWJpbGl0eSBtb2RlLgpPRU0gSUQ6IE9FTTAwMDAwIFByb2R1Y3QgSUQ6IFBS
-T0QwMDAwMDAwMCBBUElDIGF0OiAweEZFRTAwMDAwClByb2Nlc3NvciAjMCBQZW50aXVtKHRtKSBQ
-cm8gQVBJQyB2ZXJzaW9uIDE3ClByb2Nlc3NvciAjMSBQZW50aXVtKHRtKSBQcm8gQVBJQyB2ZXJz
-aW9uIDE3CkkvTyBBUElDICMyIFZlcnNpb24gMTcgYXQgMHhGRUMwMDAwMC4KUHJvY2Vzc29yczog
-MgpLZXJuZWwgY29tbWFuZCBsaW5lOiBybyByb290PS9kZXYvaGRhMiBoZGs9aWRlLXNjc2kKaWRl
-X3NldHVwOiBoZGs9aWRlLXNjc2kKSW5pdGlhbGl6aW5nIENQVSMwCkRldGVjdGVkIDk5OC4zNzMg
-TUh6IHByb2Nlc3Nvci4KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUKQ2FsaWJyYXRpbmcgZGVs
-YXkgbG9vcC4uLiAxOTkyLjI5IEJvZ29NSVBTCk1lbW9yeTogMTAyODA1MmsvMTA0ODUxMmsgYXZh
-aWxhYmxlICgxMTc4ayBrZXJuZWwgY29kZSwgMjAwNzJrIHJlc2VydmVkLCAzMzBrIGRhdGEsIDI1
-NmsgaW5pdCwgMTMxMDA4ayBoaWdobWVtKQpEZW50cnktY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVz
-OiAxMzEwNzIgKG9yZGVyOiA4LCAxMDQ4NTc2IGJ5dGVzKQpJbm9kZS1jYWNoZSBoYXNoIHRhYmxl
-IGVudHJpZXM6IDY1NTM2IChvcmRlcjogNywgNTI0Mjg4IGJ5dGVzKQpNb3VudC1jYWNoZSBoYXNo
-IHRhYmxlIGVudHJpZXM6IDE2Mzg0IChvcmRlcjogNSwgMTMxMDcyIGJ5dGVzKQpCdWZmZXItY2Fj
-aGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykKUGFn
-ZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDI2MjE0NCAob3JkZXI6IDgsIDEwNDg1NzYgYnl0
-ZXMpCkNQVTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAwMzg3ZmJmZiAwMDAwMDAwMCAwMDAw
-MDAwMCwgdmVuZG9yID0gMApDUFU6IEwxIEkgY2FjaGU6IDE2SywgTDEgRCBjYWNoZTogMTZLCkNQ
-VTogTDIgY2FjaGU6IDI1NksKQ1BVOiBBZnRlciB2ZW5kb3IgaW5pdCwgY2FwczogMDM4N2ZiZmYg
-MDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKQ1BVIHNlcmlhbCBudW1iZXIgZGlzYWJsZWQuCklu
-dGVsIG1hY2hpbmUgY2hlY2sgYXJjaGl0ZWN0dXJlIHN1cHBvcnRlZC4KSW50ZWwgbWFjaGluZSBj
-aGVjayByZXBvcnRpbmcgZW5hYmxlZCBvbiBDUFUjMC4KQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJpYywg
-Y2FwczogMDM4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKQ1BVOiAgICAgICAgICAg
-ICBDb21tb24gY2FwczogMDM4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKRW5hYmxp
-bmcgZmFzdCBGUFUgc2F2ZSBhbmQgcmVzdG9yZS4uLiBkb25lLgpFbmFibGluZyB1bm1hc2tlZCBT
-SU1EIEZQVSBleGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLgpDaGVja2luZyAnaGx0JyBpbnN0cnVj
-dGlvbi4uLiBPSy4KUE9TSVggY29uZm9ybWFuY2UgdGVzdGluZyBieSBVTklGSVgKbXRycjogdjEu
-NDAgKDIwMDEwMzI3KSBSaWNoYXJkIEdvb2NoIChyZ29vY2hAYXRuZi5jc2lyby5hdSkKbXRycjog
-ZGV0ZWN0ZWQgbXRyciB0eXBlOiBJbnRlbApDUFU6IEJlZm9yZSB2ZW5kb3IgaW5pdCwgY2Fwczog
-MDM4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAsIHZlbmRvciA9IDAKQ1BVOiBMMSBJIGNhY2hlOiAx
-NkssIEwxIEQgY2FjaGU6IDE2SwpDUFU6IEwyIGNhY2hlOiAyNTZLCkNQVTogQWZ0ZXIgdmVuZG9y
-IGluaXQsIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkludGVsIG1h
-Y2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BVIzAuCkNQVTogICAgIEFmdGVyIGdl
-bmVyaWMsIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogICAg
-ICAgICAgICAgQ29tbW9uIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAw
-CkNQVTA6IEludGVsIFBlbnRpdW0gSUlJIChDb3BwZXJtaW5lKSBzdGVwcGluZyAwYQpwZXItQ1BV
-IHRpbWVzbGljZSBjdXRvZmY6IDczMC45NyB1c2Vjcy4KZW5hYmxlZCBFeHRJTlQgb24gQ1BVIzAK
-RVNSIHZhbHVlIGJlZm9yZSBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwCkVTUiB2YWx1ZSBhZnRl
-ciBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwCkJvb3RpbmcgcHJvY2Vzc29yIDEvMSBlaXAgMjAw
-MApJbml0aWFsaXppbmcgQ1BVIzEKbWFza2VkIEV4dElOVCBvbiBDUFUjMQpFU1IgdmFsdWUgYmVm
-b3JlIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDAKRVNSIHZhbHVlIGFmdGVyIGVuYWJsaW5nIHZl
-Y3RvcjogMDAwMDAwMDAKQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxOTkyLjI5IEJvZ29NSVBT
-CkNQVTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAwMzg3ZmJmZiAwMDAwMDAwMCAwMDAwMDAw
-MCwgdmVuZG9yID0gMApDUFU6IEwxIEkgY2FjaGU6IDE2SywgTDEgRCBjYWNoZTogMTZLCkNQVTog
-TDIgY2FjaGU6IDI1NksKQ1BVOiBBZnRlciB2ZW5kb3IgaW5pdCwgY2FwczogMDM4N2ZiZmYgMDAw
-MDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKQ1BVIHNlcmlhbCBudW1iZXIgZGlzYWJsZWQuCkludGVs
-IG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BVIzEuCkNQVTogICAgIEFmdGVy
-IGdlbmVyaWMsIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTog
-ICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAw
-MDAwCkNQVTE6IEludGVsIFBlbnRpdW0gSUlJIChDb3BwZXJtaW5lKSBzdGVwcGluZyAwYQpUb3Rh
-bCBvZiAyIHByb2Nlc3NvcnMgYWN0aXZhdGVkICgzOTg0LjU4IEJvZ29NSVBTKS4KRU5BQkxJTkcg
-SU8tQVBJQyBJUlFzClNldHRpbmcgMiBpbiB0aGUgcGh5c19pZF9wcmVzZW50X21hcAouLi5jaGFu
-Z2luZyBJTy1BUElDIHBoeXNpY2FsIEFQSUMgSUQgdG8gMiAuLi4gb2suCmluaXQgSU9fQVBJQyBJ
-UlFzCiBJTy1BUElDIChhcGljaWQtcGluKSAyLTAsIDItMTYsIDItMTcsIDItMTgsIDItMTksIDIt
-MjAsIDItMjEsIDItMjIsIDItMjMgbm90IGNvbm5lY3RlZC4KLi5USU1FUjogdmVjdG9yPTB4MzEg
-cGluMT0yIHBpbjI9MApudW1iZXIgb2YgTVAgSVJRIHNvdXJjZXM6IDE3LgpudW1iZXIgb2YgSU8t
-QVBJQyAjMiByZWdpc3RlcnM6IDI0Lgp0ZXN0aW5nIHRoZSBJTyBBUElDLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4KCklPIEFQSUMgIzIuLi4uLi4KLi4uLiByZWdpc3RlciAjMDA6IDAyMDAwMDAwCi4u
-Li4uLi4gICAgOiBwaHlzaWNhbCBBUElDIGlkOiAwMgouLi4uIHJlZ2lzdGVyICMwMTogMDAxNzgw
-MTEKLi4uLi4uLiAgICAgOiBtYXggcmVkaXJlY3Rpb24gZW50cmllczogMDAxNwouLi4uLi4uICAg
-ICA6IFBSUSBpbXBsZW1lbnRlZDogMQouLi4uLi4uICAgICA6IElPIEFQSUMgdmVyc2lvbjogMDAx
-MQouLi4uIHJlZ2lzdGVyICMwMjogMDAwMDAwMDAKLi4uLi4uLiAgICAgOiBhcmJpdHJhdGlvbjog
-MDAKLi4uLiBJUlEgcmVkaXJlY3Rpb24gdGFibGU6CiBOUiBMb2cgUGh5IE1hc2sgVHJpZyBJUlIg
-UG9sIFN0YXQgRGVzdCBEZWxpIFZlY3Q6ICAgCiAwMCAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAg
-IDAgICAgMCAgICAwICAgIDAwCiAwMSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAg
-ICAxICAgIDM5CiAwMiAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDMx
-CiAwMyAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDQxCiAwNCAwMDMg
-MDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDQ5CiAwNSAwMDMgMDMgIDEgICAg
-MSAgICAwICAgMSAgIDAgICAgMSAgICAxICAgIDUxCiAwNiAwMDMgMDMgIDAgICAgMCAgICAwICAg
-MCAgIDAgICAgMSAgICAxICAgIDU5CiAwNyAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAg
-MSAgICAxICAgIDYxCiAwOCAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAg
-IDY5CiAwOSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDcxCiAwYSAw
-MDMgMDMgIDEgICAgMSAgICAwICAgMSAgIDAgICAgMSAgICAxICAgIDc5CiAwYiAwMDMgMDMgIDEg
-ICAgMSAgICAwICAgMSAgIDAgICAgMSAgICAxICAgIDgxCiAwYyAwMDMgMDMgIDAgICAgMCAgICAw
-ICAgMCAgIDAgICAgMSAgICAxICAgIDg5CiAwZCAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAg
-ICAgMSAgICAxICAgIDkxCiAwZSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAx
-ICAgIDk5CiAwZiAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIEExCiAx
-MCAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwCiAxMSAwMDAgMDAg
-IDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwCiAxMiAwMDAgMDAgIDEgICAgMCAg
-ICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwCiAxMyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAg
-IDAgICAgMCAgICAwICAgIDAwCiAxNCAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAg
-ICAwICAgIDAwCiAxNSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAw
-CiAxNiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwCiAxNyAwMDAg
-MDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwCklSUSB0byBwaW4gbWFwcGlu
-Z3M6CklSUTAgLT4gMDoyCklSUTEgLT4gMDoxCklSUTMgLT4gMDozCklSUTQgLT4gMDo0CklSUTUg
-LT4gMDo1CklSUTYgLT4gMDo2CklSUTcgLT4gMDo3CklSUTggLT4gMDo4CklSUTkgLT4gMDo5CklS
-UTEwIC0+IDA6MTAKSVJRMTEgLT4gMDoxMQpJUlExMiAtPiAwOjEyCklSUTEzIC0+IDA6MTMKSVJR
-MTQgLT4gMDoxNApJUlExNSAtPiAwOjE1Ci4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLiBkb25lLgpVc2luZyBsb2NhbCBBUElDIHRpbWVyIGludGVycnVwdHMuCmNhbGlicmF0aW5n
-IEFQSUMgdGltZXIgLi4uCi4uLi4uIENQVSBjbG9jayBzcGVlZCBpcyA5OTguMzI5NyBNSHouCi4u
-Li4uIGhvc3QgYnVzIGNsb2NrIHNwZWVkIGlzIDEzMy4xMTA1IE1Iei4KY3B1OiAwLCBjbG9ja3M6
-IDEzMzExMDUsIHNsaWNlOiA0NDM3MDEKQ1BVMDxUMDoxMzMxMTA0LFQxOjg4NzM5MixEOjExLFM6
-NDQzNzAxLEM6MTMzMTEwNT4KY3B1OiAxLCBjbG9ja3M6IDEzMzExMDUsIHNsaWNlOiA0NDM3MDEK
-Q1BVMTxUMDoxMzMxMTA0LFQxOjQ0MzY5NixEOjYsUzo0NDM3MDEsQzoxMzMxMTA1PgpjaGVja2lu
-ZyBUU0Mgc3luY2hyb25pemF0aW9uIGFjcm9zcyBDUFVzOiBwYXNzZWQuCldhaXRpbmcgb24gd2Fp
-dF9pbml0X2lkbGUgKG1hcCA9IDB4MikKQWxsIHByb2Nlc3NvcnMgaGF2ZSBkb25lIGluaXRfaWRs
-ZQptdHJyOiB5b3VyIENQVXMgaGFkIGluY29uc2lzdGVudCBmaXhlZCBNVFJSIHNldHRpbmdzCm10
-cnI6IHlvdXIgQ1BVcyBoYWQgaW5jb25zaXN0ZW50IHZhcmlhYmxlIE1UUlIgc2V0dGluZ3MKbXRy
-cjogcHJvYmFibHkgeW91ciBCSU9TIGRvZXMgbm90IHNldHVwIGFsbCBDUFVzClBDSTogUENJIEJJ
-T1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGZiMzcwLCBsYXN0IGJ1cz0xClBDSTogVXNpbmcg
-Y29uZmlndXJhdGlvbiB0eXBlIDEKUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQpVbmtub3duIGJy
-aWRnZSByZXNvdXJjZSAwOiBhc3N1bWluZyB0cmFuc3BhcmVudApQQ0k6IFVzaW5nIElSUSByb3V0
-ZXIgVklBIFsxMTA2LzA2ODZdIGF0IDAwOjA3LjAKUENJOiBFbmFibGluZyBWaWEgZXh0ZXJuYWwg
-QVBJQyByb3V0aW5nCmlzYXBucDogU2Nhbm5pbmcgZm9yIFBuUCBjYXJkcy4uLgppc2FwbnA6IE5v
-IFBsdWcgJiBQbGF5IGRldmljZSBmb3VuZApQblBCSU9TOiBGb3VuZCBQblAgQklPUyBpbnN0YWxs
-YXRpb24gc3RydWN0dXJlIGF0IDB4YzAwZmJkODAuClBuUEJJT1M6IFBuUCBCSU9TIHZlcnNpb24g
-MS4wLCBlbnRyeSAweGYwMDAwOjB4YmRiMCwgZHNlZyAweGYwMDAwLgpQblBCSU9TOiAxNSBub2Rl
-cyByZXBvcnRlZCBieSBQblAgQklPUzsgMTUgcmVjb3JkZWQgYnkgZHJpdmVyLgpMaW51eCBORVQ0
-LjAgZm9yIExpbnV4IDIuNApCYXNlZCB1cG9uIFN3YW5zZWEgVW5pdmVyc2l0eSBDb21wdXRlciBT
-b2NpZXR5IE5FVDMuMDM5CkluaXRpYWxpemluZyBSVCBuZXRsaW5rIHNvY2tldApTdGFydGluZyBr
-c3dhcGQgdjEuOAphbGxvY2F0ZWQgMzIgcGFnZXMgYW5kIDMyIGJocyByZXNlcnZlZCBmb3IgdGhl
-IGhpZ2htZW0gYm91bmNlcwpWRlM6IERpc2txdW90YXMgdmVyc2lvbiBkcXVvdF82LjUuMCBpbml0
-aWFsaXplZApwdHk6IDIwNDggVW5peDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwgZHJpdmVyIHZl
-cnNpb24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9QT1JUUyBNVUxUSVBPUlQgU0hBUkVf
-SVJRIFNFUklBTF9QQ0kgSVNBUE5QIGVuYWJsZWQKdHR5UzAwIGF0IDB4MDNmOCAoaXJxID0gNCkg
-aXMgYSAxNjU1MEEKdHR5UzAxIGF0IDB4MDJmOCAoaXJxID0gMykgaXMgYSAxNjU1MEEKUmVhbCBU
-aW1lIENsb2NrIERyaXZlciB2MS4xMGUKYmxvY2s6IHF1ZXVlZCBzZWN0b3JzIG1heC9sb3cgNjgz
-MTA2a0IvNTUyMDM0a0IsIDIwNDggc2xvdHMgcGVyIHF1ZXVlClJBTURJU0sgZHJpdmVyIGluaXRp
-YWxpemVkOiAxNiBSQU0gZGlza3Mgb2YgNDA5Nksgc2l6ZSAxMDI0IGJsb2Nrc2l6ZQpVbmlmb3Jt
-IE11bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5n
-IDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVi
-dXM9eHgKVlBfSURFOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAzOQpWUF9JREU6
-IGNoaXBzZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHBy
-b2JlIGlycXMgbGF0ZXIKVlBfSURFOiBWSUEgdnQ4MmM2ODZiIChyZXYgNDApIElERSBVRE1BMTAw
-IGNvbnRyb2xsZXIgb24gcGNpMDA6MDcuMQogICAgaWRlMDogQk0tRE1BIGF0IDB4OTAwMC0weDkw
-MDcsIEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpwaW8KICAgIGlkZTE6IEJNLURNQSBhdCAw
-eDkwMDgtMHg5MDBmLCBCSU9TIHNldHRpbmdzOiBoZGM6RE1BLCBoZGQ6cGlvClBEQzIwMjYyOiBJ
-REUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiA2OApQREMyMDI2MjogY2hpcHNldCByZXZp
-c2lvbiAxClBEQzIwMjYyOiBub3QgMTAwJSBuYXRpdmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxh
-dGVyClBEQzIwMjYyOiAoVSlETUEgQnVyc3QgQml0IEVOQUJMRUQgUHJpbWFyeSBQQ0kgTW9kZSBT
-ZWNvbmRhcnkgUENJIE1vZGUuCiAgICBpZGUyOiBCTS1ETUEgYXQgMHhiNDAwLTB4YjQwNywgQklP
-UyBzZXR0aW5nczogaGRlOnBpbywgaGRmOnBpbwogICAgaWRlMzogQk0tRE1BIGF0IDB4YjQwOC0w
-eGI0MGYsIEJJT1Mgc2V0dGluZ3M6IGhkZzpwaW8sIGhkaDpwaW8KSFBUMzcwOiBJREUgY29udHJv
-bGxlciBvbiBQQ0kgYnVzIDAwIGRldiA3MApIUFQzNzA6IGNoaXBzZXQgcmV2aXNpb24gMwpIUFQz
-NzA6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHByb2JlIGlycXMgbGF0ZXIKICAgIGlkZTQ6
-IEJNLURNQSBhdCAweGM4MDAtMHhjODA3LCBCSU9TIHNldHRpbmdzOiBoZGk6RE1BLCBoZGo6cGlv
-CiAgICBpZGU1OiBCTS1ETUEgYXQgMHhjODA4LTB4YzgwZiwgQklPUyBzZXR0aW5nczogaGRrOnBp
-bywgaGRsOnBpbwpoZGE6IFNUMzEwMjEyQSwgQVRBIERJU0sgZHJpdmUKaGRjOiBBU1VTIENELVM1
-MDAvQSwgQVRBUEkgQ0QvRFZELVJPTSBkcml2ZQpoZGk6IElDMzVMMDQwQVZFUjA3LTAsIEFUQSBE
-SVNLIGRyaXZlCmhkazogWUFNQUhBIENSVzg4MjRFLCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmlk
-ZTAgYXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0CmlkZTEgYXQgMHgxNzAtMHgxNzcsMHgz
-NzYgb24gaXJxIDE1CmlkZTQgYXQgMHhiODAwLTB4YjgwNywweGJjMDIgb24gaXJxIDExCmlkZTUg
-YXQgMHhjMDAwLTB4YzAwNywweGM0MDIgb24gaXJxIDExCmhkYTogMjAwMDU2NTAgc2VjdG9ycyAo
-MTAyNDMgTUIpIHcvNTEyS2lCIENhY2hlLCBDSFM9MTI0NS8yNTUvNjMsIFVETUEoNjYpCmhkaTog
-ODA0MTgyNDAgc2VjdG9ycyAoNDExNzQgTUIpIHcvMTkxNktpQiBDYWNoZSwgQ0hTPTc5NzgwLzE2
-LzYzLCBVRE1BKDQ0KQppZGUtZmxvcHB5IGRyaXZlciAwLjk3LnN2ClBhcnRpdGlvbiBjaGVjazoK
-IGhkYTogaGRhMSBoZGEyIGhkYTMKIGhkaTogaGRpMQpGbG9wcHkgZHJpdmUocyk6IGZkMCBpcyAx
-LjQ0TQpGREMgMCBpcyBhIHBvc3QtMTk5MSA4MjA3NwppZGUtZmxvcHB5IGRyaXZlciAwLjk3LnN2
-Cm1kOiBtZCBkcml2ZXIgMC45MC4wIE1BWF9NRF9ERVZTPTI1NiwgTURfU0JfRElTS1M9MjcKbWQ6
-IEF1dG9kZXRlY3RpbmcgUkFJRCBhcnJheXMuCm1kOiBhdXRvcnVuIC4uLgptZDogLi4uIGF1dG9y
-dW4gRE9ORS4KcGNpX2hvdHBsdWc6IFBDSSBIb3QgUGx1ZyBQQ0kgQ29yZSB2ZXJzaW9uOiAwLjMK
-TkVUNDogTGludXggVENQL0lQIDEuMCBmb3IgTkVUNC4wCklQIFByb3RvY29sczogSUNNUCwgVURQ
-LCBUQ1AsIElHTVAKSVA6IHJvdXRpbmcgY2FjaGUgaGFzaCB0YWJsZSBvZiA4MTkyIGJ1Y2tldHMs
-IDY0S2J5dGVzClRDUDogSGFzaCB0YWJsZXMgY29uZmlndXJlZCAoZXN0YWJsaXNoZWQgMjYyMTQ0
-IGJpbmQgNjU1MzYpCkxpbnV4IElQIG11bHRpY2FzdCByb3V0ZXIgMC4wNiBwbHVzIFBJTS1TTQpO
-RVQ0OiBVbml4IGRvbWFpbiBzb2NrZXRzIDEuMC9TTVAgZm9yIExpbnV4IE5FVDQuMC4KUkFNRElT
-SzogQ29tcHJlc3NlZCBpbWFnZSBmb3VuZCBhdCBibG9jayAwCkZyZWVpbmcgaW5pdHJkIG1lbW9y
-eTogMzIyayBmcmVlZApWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MiBmaWxlc3lzdGVtKS4KSm91cm5h
-bGxlZCBCbG9jayBEZXZpY2UgZHJpdmVyIGxvYWRlZApram91cm5hbGQgc3RhcnRpbmcuICBDb21t
-aXQgaW50ZXJ2YWwgNSBzZWNvbmRzCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9y
-ZGVyZWQgZGF0YSBtb2RlLgpGcmVlaW5nIHVudXNlZCBrZXJuZWwgbWVtb3J5OiAyNTZrIGZyZWVk
-CkFkZGluZyBTd2FwOiAyNjUwNjRrIHN3YXAtc3BhY2UgKHByaW9yaXR5IC0xKQp1c2IuYzogcmVn
-aXN0ZXJlZCBuZXcgZHJpdmVyIHVzYmRldmZzCnVzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIg
-aHViCnVzYi11aGNpLmM6ICRSZXZpc2lvbjogMS4yNjggJCB0aW1lIDE1OjUyOjAyIE5vdiAgMiAy
-MDAxCnVzYi11aGNpLmM6IEhpZ2ggYmFuZHdpZHRoIG1vZGUgZW5hYmxlZAp1c2ItdWhjaS5jOiBV
-U0IgVUhDSSBhdCBJL08gMHg5NDAwLCBJUlEgMTEKdXNiLXVoY2kuYzogRGV0ZWN0ZWQgMiBwb3J0
-cwp1c2IuYzogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciAxCmh1
-Yi5jOiBVU0IgaHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRzIGRldGVjdGVkCnVzYi11aGNpLmM6IFVT
-QiBVSENJIGF0IEkvTyAweDk4MDAsIElSUSAxMQp1c2ItdWhjaS5jOiBEZXRlY3RlZCAyIHBvcnRz
-CnVzYi5jOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMgbnVtYmVyIDIKaHVi
-LmM6IFVTQiBodWIgZm91bmQKaHViLmM6IDIgcG9ydHMgZGV0ZWN0ZWQKdXNiLXVoY2kuYzogdjEu
-MjY4OlVTQiBVbml2ZXJzYWwgSG9zdCBDb250cm9sbGVyIEludGVyZmFjZSBkcml2ZXIKRVhUMyBG
-UyAyLjQtMC45LjEzLCAyMSBPY3QgMjAwMSBvbiBpZGUwKDMsMiksIGludGVybmFsIGpvdXJuYWwK
-a2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcwpFWFQzIEZTIDIu
-NC0wLjkuMTMsIDIxIE9jdCAyMDAxIG9uIGlkZTAoMywxKSwgaW50ZXJuYWwgam91cm5hbApFWFQz
-LWZzOiBtb3VudGVkIGZpbGVzeXN0ZW0gd2l0aCBvcmRlcmVkIGRhdGEgbW9kZS4Ka2pvdXJuYWxk
-IHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcwpFWFQzIEZTIDIuNC0wLjkuMTMs
-IDIxIE9jdCAyMDAxIG9uIGlkZTQoNTYsMSksIGludGVybmFsIGpvdXJuYWwKRVhUMy1mczogbW91
-bnRlZCBmaWxlc3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1vZGUuCmhkYzogQVRBUEkgNTBYIENE
-LVJPTSBkcml2ZSwgMTI4a0IgQ2FjaGUsIFVETUEoMzMpClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBS
-ZXZpc2lvbjogMy4xMgpTQ1NJIHN1YnN5c3RlbSBkcml2ZXIgUmV2aXNpb246IDEuMDAKc2NzaTAg
-OiBTQ1NJIGhvc3QgYWRhcHRlciBlbXVsYXRpb24gZm9yIElERSBBVEFQSSBkZXZpY2VzCiAgVmVu
-ZG9yOiBZQU1BSEEgICAgTW9kZWw6IENSVzg4MjRFICAgICAgICAgIFJldjogMS4wMAogIFR5cGU6
-ICAgQ0QtUk9NICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBTlNJIFNDU0kgcmV2aXNpb246
-IDAyCnBhcnBvcnQ6IFBuUCBCSU9TIHJlcG9ydHMgZGV2aWNlIFBOUEJJT1MgUE5QMDQwMCAobm9k
-ZSBudW1iZXIgMHhlKSBpcyBjb25maWd1cmVkIHRvIHVzZSBpbyAweDAzNzgsIGlycSA3CnBhcnBv
-cnQwOiBQQy1zdHlsZSBhdCAweDM3OCwgaXJxIDcgW1BDU1BQLEVQUF0KcGFycG9ydDA6IGNwcF9k
-YWlzeTogYWE1NTAwZmYoMzgpCnBhcnBvcnQwOiBhc3NpZ25fYWRkcnM6IGFhNTUwMGZmKDM4KQpw
-YXJwb3J0MDogY3BwX2RhaXN5OiBhYTU1MDBmZigzOCkKcGFycG9ydDA6IGFzc2lnbl9hZGRyczog
-YWE1NTAwZmYoMzgpCnBhcnBvcnRfcGM6IFN0cmFuZ2UsIGNhbid0IHByb2JlIFZpYSA2ODZBIHBh
-cmFsbGVsIHBvcnQ6IGlvPTB4Mzc4LCBpcnE9LTEsIGRtYT0tMQpORVQ0OiBMaW51eCBJUFggMC40
-NyBmb3IgTkVUNC4wCklQWCBQb3J0aW9ucyBDb3B5cmlnaHQgKGMpIDE5OTUgQ2FsZGVyYSwgSW5j
-LgpJUFggUG9ydGlvbnMgQ29weXJpZ2h0IChjKSAyMDAwLCAyMDAxIENvbmVjdGl2YSwgSW5jLgpO
-RVQ0OiBBcHBsZVRhbGsgMC4xOGEgZm9yIExpbnV4IE5FVDQuMAo4MTM5dG9vIEZhc3QgRXRoZXJu
-ZXQgZHJpdmVyIDAuOS4yMApldGgwOiBSZWFsVGVrIFJUTDgxMzkgRmFzdCBFdGhlcm5ldCBhdCAw
-eGY4OGE1MDAwLCAwMDpjMDpkZjowNDowZDpkMCwgSVJRIDEwCmV0aDA6ICBJZGVudGlmaWVkIDgx
-MzkgY2hpcCB0eXBlICdSVEwtODEzOUInCmV0aDA6IFNldHRpbmcgMTAwbWJwcyBmdWxsLWR1cGxl
-eCBiYXNlZCBvbiBhdXRvLW5lZ290aWF0ZWQgcGFydG5lciBhYmlsaXR5IDQ1ZTEuCmlkZS1zY3Np
-OiBDb0QgIT0gMCBpbiBpZGVzY3NpX3BjX2ludHIKaGRrOiBBVEFQSSByZXNldCBjb21wbGV0ZQpp
-ZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazogQVRBUEkgcmVzZXQgY29t
-cGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVyIHRhYmxlIHRvbyBzbWFsbCwgcGFkZGluZyB3
-aXRoIHplcm9zCmlkZS1zY3NpOiBDb0QgIT0gMCBpbiBpZGVzY3NpX3BjX2ludHIKaGRrOiBBVEFQ
-SSByZXNldCBjb21wbGV0ZQppZGUtc2NzaTogc2NhdHRlciBnYXRoZXIgdGFibGUgdG9vIHNtYWxs
-LCBwYWRkaW5nIHdpdGggemVyb3MKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVyIHRhYmxlIHRvbyBz
-bWFsbCwgcGFkZGluZyB3aXRoIHplcm9zCmlkZS1zY3NpOiBDb0QgIT0gMCBpbiBpZGVzY3NpX3Bj
-X2ludHIKaGRrOiBBVEFQSSByZXNldCBjb21wbGV0ZQppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRl
-c2NzaV9wY19pbnRyCmhkazogQVRBUEkgcmVzZXQgY29tcGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIg
-Z2F0aGVyIHRhYmxlIHRvbyBzbWFsbCwgcGFkZGluZyB3aXRoIHplcm9zCmlkZS1zY3NpOiBzY2F0
-dGVyIGdhdGhlciB0YWJsZSB0b28gc21hbGwsIHBhZGRpbmcgd2l0aCB6ZXJvcwppZGUtc2NzaTog
-Q29EICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazogQVRBUEkgcmVzZXQgY29tcGxldGUKaWRl
-LXNjc2k6IENvRCAhPSAwIGluIGlkZXNjc2lfcGNfaW50cgpoZGs6IEFUQVBJIHJlc2V0IGNvbXBs
-ZXRlCmlkZS1zY3NpOiBzY2F0dGVyIGdhdGhlciB0YWJsZSB0b28gc21hbGwsIHBhZGRpbmcgd2l0
-aCB6ZXJvcwppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazogQVRBUEkg
-cmVzZXQgY29tcGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVyIHRhYmxlIHRvbyBzbWFsbCwg
-cGFkZGluZyB3aXRoIHplcm9zCmlkZS1zY3NpOiBDb0QgIT0gMCBpbiBpZGVzY3NpX3BjX2ludHIK
-aGRrOiBBVEFQSSByZXNldCBjb21wbGV0ZQppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9w
-Y19pbnRyCmhkazogQVRBUEkgcmVzZXQgY29tcGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVy
-IHRhYmxlIHRvbyBzbWFsbCwgcGFkZGluZyB3aXRoIHplcm9zCmlkZS1zY3NpOiBDb0QgIT0gMCBp
-biBpZGVzY3NpX3BjX2ludHIKaGRrOiBBVEFQSSByZXNldCBjb21wbGV0ZQppZGUtc2NzaTogQ29E
-ICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazogQVRBUEkgcmVzZXQgY29tcGxldGUKaWRlLXNj
-c2k6IHNjYXR0ZXIgZ2F0aGVyIHRhYmxlIHRvbyBzbWFsbCwgcGFkZGluZyB3aXRoIHplcm9zCmlk
-ZS1zY3NpOiBDb0QgIT0gMCBpbiBpZGVzY3NpX3BjX2ludHIKaGRrOiBBVEFQSSByZXNldCBjb21w
-bGV0ZQppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazogQVRBUEkgcmVz
-ZXQgY29tcGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVyIHRhYmxlIHRvbyBzbWFsbCwgcGFk
-ZGluZyB3aXRoIHplcm9zCmlkZS1zY3NpOiBDb0QgIT0gMCBpbiBpZGVzY3NpX3BjX2ludHIKaGRr
-OiBBVEFQSSByZXNldCBjb21wbGV0ZQppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9wY19p
-bnRyCmhkazogQVRBUEkgcmVzZXQgY29tcGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVyIHRh
-YmxlIHRvbyBzbWFsbCwgcGFkZGluZyB3aXRoIHplcm9zCmlkZS1zY3NpOiBDb0QgIT0gMCBpbiBp
-ZGVzY3NpX3BjX2ludHIKaGRrOiBBVEFQSSByZXNldCBjb21wbGV0ZQppZGUtc2NzaTogc2NhdHRl
-ciBnYXRoZXIgdGFibGUgdG9vIHNtYWxsLCBwYWRkaW5nIHdpdGggemVyb3MKaWRlLXNjc2k6IENv
-RCAhPSAwIGluIGlkZXNjc2lfcGNfaW50cgpoZGs6IEFUQVBJIHJlc2V0IGNvbXBsZXRlCmlkZS1z
-Y3NpOiBDb0QgIT0gMCBpbiBpZGVzY3NpX3BjX2ludHIKaGRrOiBBVEFQSSByZXNldCBjb21wbGV0
-ZQppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazogQVRBUEkgcmVzZXQg
-Y29tcGxldGUKaWRlLXNjc2k6IHNjYXR0ZXIgZ2F0aGVyIHRhYmxlIHRvbyBzbWFsbCwgcGFkZGlu
-ZyB3aXRoIHplcm9zCmhkazogc3RhdHVzIGVycm9yOiBzdGF0dXM9MHg1OCB7IERyaXZlUmVhZHkg
-U2Vla0NvbXBsZXRlIERhdGFSZXF1ZXN0IH0KaGRrOiBkcml2ZSBub3QgcmVhZHkgZm9yIGNvbW1h
-bmQKaWRlLXNjc2k6IENvRCAhPSAwIGluIGlkZXNjc2lfcGNfaW50cgpoZGs6IEFUQVBJIHJlc2V0
-IGNvbXBsZXRlCmlkZS1zY3NpOiBzY2F0dGVyIGdhdGhlciB0YWJsZSB0b28gc21hbGwsIHBhZGRp
-bmcgd2l0aCB6ZXJvcwppZGUtc2NzaTogQ29EICE9IDAgaW4gaWRlc2NzaV9wY19pbnRyCmhkazog
-QVRBUEkgcmVzZXQgY29tcGxldGUKaWRlLXNjc2k6IENvRCAhPSAwIGluIGlkZXNjc2lfcGNfaW50
-cgpoZGs6IEFUQVBJIHJlc2V0IGNvbXBsZXRlCg==
-
---------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="cpuinfo.bug"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="cpuinfo.bug"
-
-cHJvY2Vzc29yCTogMAp2ZW5kb3JfaWQJOiBHZW51aW5lSW50ZWwKY3B1IGZhbWlseQk6IDYKbW9k
-ZWwJCTogOAptb2RlbCBuYW1lCTogUGVudGl1bSBJSUkgKENvcHBlcm1pbmUpCnN0ZXBwaW5nCTog
-MTAKY3B1IE1IegkJOiA5OTguMzczCmNhY2hlIHNpemUJOiAyNTYgS0IKZmRpdl9idWcJOiBubwpo
-bHRfYnVnCQk6IG5vCmYwMGZfYnVnCTogbm8KY29tYV9idWcJOiBubwpmcHUJCTogeWVzCmZwdV9l
-eGNlcHRpb24JOiB5ZXMKY3B1aWQgbGV2ZWwJOiAyCndwCQk6IHllcwpmbGFncwkJOiBmcHUgdm1l
-IGRlIHBzZSB0c2MgbXNyIHBhZSBtY2UgY3g4IGFwaWMgc2VwIG10cnIgcGdlIG1jYSBjbW92IHBh
-dCBwc2UzNiBtbXggZnhzciBzc2UKYm9nb21pcHMJOiAxOTkyLjI5Cgpwcm9jZXNzb3IJOiAxCnZl
-bmRvcl9pZAk6IEdlbnVpbmVJbnRlbApjcHUgZmFtaWx5CTogNgptb2RlbAkJOiA4Cm1vZGVsIG5h
-bWUJOiBQZW50aXVtIElJSSAoQ29wcGVybWluZSkKc3RlcHBpbmcJOiAxMApjcHUgTUh6CQk6IDk5
-OC4zNzMKY2FjaGUgc2l6ZQk6IDI1NiBLQgpmZGl2X2J1Zwk6IG5vCmhsdF9idWcJCTogbm8KZjAw
-Zl9idWcJOiBubwpjb21hX2J1Zwk6IG5vCmZwdQkJOiB5ZXMKZnB1X2V4Y2VwdGlvbgk6IHllcwpj
-cHVpZCBsZXZlbAk6IDIKd3AJCTogeWVzCmZsYWdzCQk6IGZwdSB2bWUgZGUgcHNlIHRzYyBtc3Ig
-cGFlIG1jZSBjeDggYXBpYyBzZXAgbXRyciBwZ2UgbWNhIGNtb3YgcGF0IHBzZTM2IG1teCBmeHNy
-IHNzZQpib2dvbWlwcwk6IDE5OTIuMjkKCg==
-
---------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="lspci.bug"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lspci.bug"
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDgyQzY5MSBbQXBv
-bGxvIFBST10gKHJldiBjNCkKCVN1YnN5c3RlbTogQUJJVCBDb21wdXRlciBDb3JwLjogVW5rbm93
-biBkZXZpY2UgYTIwNAoJQ29udHJvbDogSS9PLSBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBN
-ZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1
-czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9y
-dC0gPFRBYm9ydC0gPE1BYm9ydCsgPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogOAoJUmVnaW9uIDA6
-IE1lbW9yeSBhdCBkODAwMDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUpIFtzaXplPTY0TV0KCUNh
-cGFiaWxpdGllczogW2EwXSBBR1AgdmVyc2lvbiAyLjAKCQlTdGF0dXM6IFJRPTMxIFNCQSsgNjRi
-aXQtIEZXKyBSYXRlPXgxLHgyCgkJQ29tbWFuZDogUlE9MCBTQkEtIEFHUC0gNjRiaXQtIEZXLSBS
-YXRlPTxub25lPgoJQ2FwYWJpbGl0aWVzOiBbYzBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAy
-CgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEt
-LEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2Nh
-bGU9MCBQTUUtCgowMDowMS4wIFBDSSBicmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4
-MkM1OTgvNjk0eCBbQXBvbGxvIE1WUDMvUHJvMTMzeCBBR1BdIChwcm9nLWlmIDAwIFtOb3JtYWwg
-ZGVjb2RlXSkKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lO
-Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENh
-cCsgNjZNaHorIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxU
-QWJvcnQtIDxNQWJvcnQrID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUJ1czogcHJpbWFyeT0w
-MCwgc2Vjb25kYXJ5PTAxLCBzdWJvcmRpbmF0ZT0wMSwgc2VjLWxhdGVuY3k9MAoJSS9PIGJlaGlu
-ZCBicmlkZ2U6IDAwMDBmMDAwLTAwMDAwZmZmCglNZW1vcnkgYmVoaW5kIGJyaWRnZTogZGMwMDAw
-MDAtZGRmZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRnZTogZDAwMDAwMDAt
-ZDdmZmZmZmYKCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSLSBOb0lTQSsgVkdBKyBNQWJvcnQtID5S
-ZXNldC0gRmFzdEIyQi0KCUNhcGFiaWxpdGllczogWzgwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNp
-b24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDErIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAt
-LEQxLSxEMi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAg
-RFNjYWxlPTAgUE1FLQoKMDA6MDcuMCBJU0EgYnJpZGdlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMu
-IFZUODJDNjg2IFtBcG9sbG8gU3VwZXIgU291dGhdIChyZXYgNDApCglTdWJzeXN0ZW06IEFCSVQg
-Q29tcHV0ZXIgQ29ycC46IFVua25vd24gZGV2aWNlIDAwMDAKCUNvbnRyb2w6IEkvTysgTWVtKyBC
-dXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmcr
-IFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQi0gUGFyRXJy
-LSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0K
-CUxhdGVuY3k6IDAKCUNhcGFiaWxpdGllczogW2MwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24g
-MgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQx
-LSxEMi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNj
-YWxlPTAgUE1FLQoKMDA6MDcuMSBJREUgaW50ZXJmYWNlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMu
-IEJ1cyBNYXN0ZXIgSURFIChyZXYgMDYpIChwcm9nLWlmIDhhIFtNYXN0ZXIgU2VjUCBQcmlQXSkK
-CVN1YnN5c3RlbTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBCdXMgTWFzdGVyIElERQoJQ29udHJv
-bDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFy
-RXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBG
-YXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0g
-PlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMzIKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgOTAwMCBb
-c2l6ZT0xNl0KCUNhcGFiaWxpdGllczogW2MwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJ
-CUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxE
-Mi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxl
-PTAgUE1FLQoKMDA6MDcuMiBVU0IgQ29udHJvbGxlcjogVklBIFRlY2hub2xvZ2llcywgSW5jLiBV
-SENJIFVTQiAocmV2IDE2KSAocHJvZy1pZiAwMCBbVUhDSV0pCglTdWJzeXN0ZW06IFVua25vd24g
-ZGV2aWNlIDA5MjU6MTIzNAoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xl
-LSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0
-YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRB
-Ym9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMzIsIGNhY2hl
-IGxpbmUgc2l6ZSAwOAoJSW50ZXJydXB0OiBwaW4gRCByb3V0ZWQgdG8gSVJRIDExCglSZWdpb24g
-NDogSS9PIHBvcnRzIGF0IDk0MDAgW3NpemU9MzJdCglDYXBhYmlsaXRpZXM6IFs4MF0gUG93ZXIg
-TWFuYWdlbWVudCB2ZXJzaW9uIDIKCQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3Vy
-cmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQoJCVN0YXR1czogRDAgUE1F
-LUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0KCjAwOjA3LjMgVVNCIENvbnRyb2xsZXI6IFZJ
-QSBUZWNobm9sb2dpZXMsIEluYy4gVUhDSSBVU0IgKHJldiAxNikgKHByb2ctaWYgMDAgW1VIQ0ld
-KQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmljZSAwOTI1OjEyMzQKCUNvbnRyb2w6IEkvTysgTWVt
-KyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
-bmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQi0gUGFy
-RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
-Ui0KCUxhdGVuY3k6IDMyLCBjYWNoZSBsaW5lIHNpemUgMDgKCUludGVycnVwdDogcGluIEQgcm91
-dGVkIHRvIElSUSAxMQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCA5ODAwIFtzaXplPTMyXQoJQ2Fw
-YWJpbGl0aWVzOiBbODBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNs
-ay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hvdC0sRDNj
-b2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMDow
-Ny40IEJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBWVDgyQzY4NiBbQXBvbGxvIFN1cGVy
-IEFDUEldIChyZXYgNDApCglDb250cm9sOiBJL08tIE1lbS0gQnVzTWFzdGVyLSBTcGVjQ3ljbGUt
-IE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3Rh
-dHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFi
-b3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglJbnRlcnJ1cHQ6IHBpbiA/IHJv
-dXRlZCB0byBJUlEgOQoJQ2FwYWJpbGl0aWVzOiBbNjhdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0s
-RDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBE
-U2NhbGU9MCBQTUUtCgowMDowOS4wIE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogVHJpZGVu
-dCBNaWNyb3N5c3RlbXMgNERXYXZlIERYIChyZXYgMDIpCglTdWJzeXN0ZW06IFRyaWRlbnQgTWlj
-cm9zeXN0ZW1zIDREV2F2ZSBEWAoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5
-Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0K
-CVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0g
-PlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMzIgKDUw
-MG5zIG1pbiwgMTI1MG5zIG1heCkKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSA1CglS
-ZWdpb24gMDogSS9PIHBvcnRzIGF0IDljMDAgW3NpemU9MjU2XQoJUmVnaW9uIDE6IE1lbW9yeSBh
-dCBkZjAyMTAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10KCUNhcGFiaWxp
-dGllczogWzQ4XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMQoJCUZsYWdzOiBQTUVDbGstIERT
-SS0gRDErIEQyKyBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0p
-CgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQoKMDA6MGEuMCBF
-dGhlcm5ldCBjb250cm9sbGVyOiBSZWFsdGVrIFNlbWljb25kdWN0b3IgQ28uLCBMdGQuIFJUTC04
-MTM5IChyZXYgMTApCglTdWJzeXN0ZW06IFJlYWx0ZWsgU2VtaWNvbmR1Y3RvciBDby4sIEx0ZC4g
-UlQ4MTM5CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYt
-IFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAr
-IDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFi
-b3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAzMiAoODAwMG5zIG1pbiwgMTYw
-MDBucyBtYXgpCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTAKCVJlZ2lvbiAwOiBJ
-L08gcG9ydHMgYXQgYTAwMCBbc2l6ZT0yNTZdCglSZWdpb24gMTogTWVtb3J5IGF0IGRmMDIyMDAw
-ICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTI1Nl0KCUNhcGFiaWxpdGllczogWzUw
-XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDErIEQy
-KyBBdXhDdXJyZW50PTM3NW1BIFBNRShEMC0sRDErLEQyKyxEM2hvdCssRDNjb2xkKykKCQlTdGF0
-dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMDowYi4wIE11bHRpbWVk
-aWEgdmlkZW8gY29udHJvbGxlcjogQnJvb2t0cmVlIENvcnBvcmF0aW9uIEJ0ODQ4IFRWIHdpdGgg
-RE1BIHB1c2ggKHJldiAxMikKCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNs
-ZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglT
-dGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5U
-QWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDMyICg0MDAw
-bnMgbWluLCAxMDAwMG5zIG1heCkKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxMAoJ
-UmVnaW9uIDA6IE1lbW9yeSBhdCBkZjAyMDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUpIFtzaXpl
-PTRLXQoKMDA6MGQuMCBVbmtub3duIG1hc3Mgc3RvcmFnZSBjb250cm9sbGVyOiBQcm9taXNlIFRl
-Y2hub2xvZ3ksIEluYy4gMjAyNjIgKHJldiAwMSkKCVN1YnN5c3RlbTogUHJvbWlzZSBUZWNobm9s
-b2d5LCBJbmMuOiBVbmtub3duIGRldmljZSA0ZDMzCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFz
-dGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJS
-LSBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVW
-U0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRl
-bmN5OiAzMgoJSW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDExCglSZWdpb24gMDogSS9P
-IHBvcnRzIGF0IGE0MDAgW3NpemU9OF0KCVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQgYTgwMCBbc2l6
-ZT00XQoJUmVnaW9uIDI6IEkvTyBwb3J0cyBhdCBhYzAwIFtzaXplPThdCglSZWdpb24gMzogSS9P
-IHBvcnRzIGF0IGIwMDAgW3NpemU9NF0KCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgYjQwMCBbc2l6
-ZT02NF0KCVJlZ2lvbiA1OiBNZW1vcnkgYXQgZGYwMDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNo
-YWJsZSkgW3NpemU9MTI4S10KCUV4cGFuc2lvbiBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxl
-ZF0gW3NpemU9NjRLXQoJQ2FwYWJpbGl0aWVzOiBbNThdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAxCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0s
-RDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBE
-U2NhbGU9MCBQTUUtCgowMDowZS4wIFVua25vd24gbWFzcyBzdG9yYWdlIGNvbnRyb2xsZXI6IEhp
-Z2hQb2ludCBUZWNobm9sb2dpZXMsIEluYy4gSFBUMzY2LzM3MCBVbHRyYURNQSA2Ni8xMDAgSURF
-IENvbnRyb2xsZXIgKHJldiAwMykKCVN1YnN5c3RlbTogSGlnaFBvaW50IFRlY2hub2xvZ2llcywg
-SW5jLjogVW5rbm93biBkZXZpY2UgMDAwMQoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3Rlcisg
-U3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFz
-dEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oeisgVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1t
-ZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTog
-MTIwICgyMDAwbnMgbWluLCAyMDAwbnMgbWF4KSwgY2FjaGUgbGluZSBzaXplIDA4CglJbnRlcnJ1
-cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTEKCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgYjgwMCBb
-c2l6ZT04XQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCBiYzAwIFtzaXplPTRdCglSZWdpb24gMjog
-SS9PIHBvcnRzIGF0IGMwMDAgW3NpemU9OF0KCVJlZ2lvbiAzOiBJL08gcG9ydHMgYXQgYzQwMCBb
-c2l6ZT00XQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBjODAwIFtzaXplPTI1Nl0KCUV4cGFuc2lv
-biBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxpdGll
-czogWzYwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSSsg
-RDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0pCgkJ
-U3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQoKMDE6MDAuMCBWR0Eg
-Y29tcGF0aWJsZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRpb24gTlYxMSAocmV2IGExKSAo
-cHJvZy1pZiAwMCBbVkdBXSkKCVN1YnN5c3RlbTogR3VpbGxlbW90IENvcnBvcmF0aW9uOiBVbmtu
-b3duIGRldmljZSA3MTAwCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUt
-IE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3Rh
-dHVzOiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFi
-b3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAzMiAoMTI1MG5z
-IG1pbiwgMjUwbnMgbWF4KQoJSW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDUKCVJlZ2lv
-biAwOiBNZW1vcnkgYXQgZGMwMDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9
-MTZNXQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBkMDAwMDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUp
-IFtzaXplPTEyOE1dCglFeHBhbnNpb24gUk9NIGF0IDx1bmFzc2lnbmVkPiBbZGlzYWJsZWRdIFtz
-aXplPTY0S10KCUNhcGFiaWxpdGllczogWzYwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJ
-CUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxE
-Mi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxl
-PTAgUE1FLQoJQ2FwYWJpbGl0aWVzOiBbNDRdIEFHUCB2ZXJzaW9uIDIuMAoJCVN0YXR1czogUlE9
-MzEgU0JBLSA2NGJpdC0gRlcrIFJhdGU9eDEseDIKCQlDb21tYW5kOiBSUT0wIFNCQS0gQUdQLSA2
-NGJpdC0gRlctIFJhdGU9PG5vbmU+Cgo=
-
---------------Boundary-00=_MGG7WTJ3XLIVRYWRGGVZ--

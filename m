@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUEDQun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264515AbUEDQzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUEDQun (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 12:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264168AbUEDQun
+	id S264515AbUEDQzC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 12:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbUEDQzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 12:50:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45767 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264045AbUEDQuk (ORCPT
+	Tue, 4 May 2004 12:55:02 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:18092 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S264517AbUEDQy7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 12:50:40 -0400
-Date: Tue, 4 May 2004 18:47:15 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: davidm@hpl.hp.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       bunk@fs.tum.de, eyal@eyal.emu.id.au, linux-dvb-maintainer@linuxtv.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
-Message-ID: <20040504164715.GA1077@devserv.devel.redhat.com>
-References: <20040501161035.67205a1f.akpm@osdl.org> <Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org> <20040501175134.243b389c.akpm@osdl.org> <16534.35355.671554.321611@napali.hpl.hp.com> <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org> <16534.45589.62353.878714@napali.hpl.hp.com> <1083618424.3843.12.camel@laptop.fenrus.com> <16534.51724.578183.845357@napali.hpl.hp.com> <20040504075555.GB13287@devserv.devel.redhat.com> <16535.51307.910896.950581@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Content-Disposition: inline
-In-Reply-To: <16535.51307.910896.950581@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 4 May 2004 12:54:59 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: linux-kernel@vger.kernel.org
+Date: Tue, 4 May 2004 18:54:54 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Accessing sysenter page by kernel syscalls
+X-mailer: Pegasus Mail v3.50
+Message-ID: <5737E6105A3@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+  is there any reason why copy_from_user does not punch hole in
+kernel space to get it possible to access sysenter page? I do not think
+that it would add too big overhead to copy_*_user (which is already long),
+but I cannot think about any other reason why sysenter page is not
+accessible through write().
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+  Today I wanted to confirm whether my kernel uses sysenter or int 0x80, 
+and I found that simple program below does not work and I had to copy page 
+first to some temporary location, and then write it from this temporary 
+location to stdout.
+  
+void main(void) {
+  write(1, (void*)0xFFFFE000, 4096);
+}
+                                                    Thanks,
+                                                        Petr Vandrovec
+                                                
 
-On Tue, May 04, 2004 at 09:44:27AM -0700, David Mosberger wrote:
-> 
-> You may well be right (it's hard to tell what they're using mlock()
-> for since its called from the binary-only portion of the driver).
-> However, as long as x86 supports the _syscallN() macros, they won't
-> change.
-
-I got the impression that just changed ;)
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAl8kSxULwo51rQBIRAnZMAJ453R5byWiXRj5nnshLSV0qFsnG/QCeMx8k
-DmPojXef8y/5JhHldkag+GI=
-=7qDO
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--

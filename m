@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAERmT>; Fri, 5 Jan 2001 12:42:19 -0500
+	id <S129593AbRAERmp>; Fri, 5 Jan 2001 12:42:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbRAERmK>; Fri, 5 Jan 2001 12:42:10 -0500
-Received: from [158.111.6.80] ([158.111.6.80]:47112 "EHLO
-	mcdc-us-smtp4.cdc.gov") by vger.kernel.org with ESMTP
-	id <S129387AbRAERl5>; Fri, 5 Jan 2001 12:41:57 -0500
-Message-ID: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F99@mcdc-atl-5.cdc.gov>
-X-Sybari-Space: 00000000 00000000 00000000
-From: Heitzso <xxh1@cdc.gov>
-To: "'antirez@invece.org'" <antirez@invece.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'Johannes Erdfelt'" <johannes@erdfelt.com>
-Subject: USB broken in 2.4.0
-Date: Fri, 5 Jan 2001 12:38:25 -0500 
+	id <S130232AbRAERmb>; Fri, 5 Jan 2001 12:42:31 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:52751 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129593AbRAERmZ>; Fri, 5 Jan 2001 12:42:25 -0500
+Date: Fri, 05 Jan 2001 12:41:39 -0500
+From: Chris Mason <mason@suse.com>
+To: Rik van Riel <riel@conectiva.com.br>, Chris Evans <chris@scary.beasts.org>
+cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs patch for 2.4.0-final
+Message-ID: <767090000.978716499@tiny>
+In-Reply-To: <Pine.LNX.4.21.0101051454110.1295-100000@duckman.distro.conectiva>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just tested with fresh-out-of-the-box
-2.4.0 and using the newer libusb 0.1.2 
-as suggested by antirez  (see email chain
-below for more info).  I compiled libusb
-and s10sh code this AM under 2.4.0. 
-
-It blows up BAD by finding increasingly
-larger photo images in the camera over
-the usb link and extracting them to disk.
-So by the third file you're trying to
-extract gig sized files.  Obviously the
-filesystem files up, the sytem chokes, etc.
-
-This is the same code that works fine
-under 2.2.18 kernel (I use it all of the
-time there).
 
 
-Heitzso
+On Friday, January 05, 2001 02:54:53 PM -0200 Rik van Riel
+<riel@conectiva.com.br> wrote:
 
------Original Message-----
-From: antirez [mailto:antirez@invece.org]
-Sent: Wednesday, January 03, 2001 6:00 PM
-To: Heitzso
-Cc: 'Johannes Erdfelt'; 'antirez@invece.org'
-Subject: Re: usb broken in 2.4.0 prerelease versus 2.2.18
+> On Fri, 5 Jan 2001, Chris Evans wrote:
+>> On Fri, 5 Jan 2001, Chris Mason wrote:
+>> 
+>> > > Could someone create one single patch for the 2.4.0 ?
+>> > > 
+>> > I put all the code into CVS, and Yura is making the official patch now.
+>> 
+>> Since 2.4.0 final should fix a few i/o performance issues
+>> (particuarly under heavy write loads), a quick few ext2 vs.
+>> reiserfs benchmarks would make very interesting reading ;-)
+> 
+> An easy way to gain a performance edge on ext2 would
+> be to do proper write clustering in the reiserfs
+> ->writepage() function...  </hint>
+> 
 
+;-)
 
-On Wed, Jan 03, 2001 at 12:33:34PM -0500, Heitzso wrote:
+The current 2.4 code has lots of room for tuning, since I've been trying to
+keep it clean/stable for now (and our dbench numbers show it).  The first
+optimization is tuning for reiserfs_get_block, I think writepage clustering
+will be easier (and more beneficial) if we work out the buffer.c changes
+I've been posting.
 
-Hi Heitzso!
+I also want to change the log block allocation a bit, so the log blocks are
+allocated as the transaction progresses, instead of all at the end.  I
+think that will make us much more VM friendly, and let me get rid of the
+inode writing kludges.  It'll be a busy weekend ;-)
 
-> (Salvatore Sanfilippo ... I'm cc'ing you
-> to note that s10sh -u (usb mode) works fine
-> with 2.2.18 but is breaking under 2.4.0 prerelease.
+-chris
 
-Too bad. The problem can't be of s10sh itself I guess.
-It's more likely that some USB userspace ioctl() changed
-so the USB subsystem isn't access without problems,
-even if it's possible that some s10sh bug grow up
-with a more robust USB implementation in 2.4.0.
-I tested s10sh in 2.4.0-testxxx and it worked:
-I suggest to try the new libusb 0.1.2 at
-http://sourceforge.net/project/showfiles.php?group_id=1674&release_id=13538
-and try to make s10sh working with this updated library.
-I'll try. If you is able to fix s10sh or to make it working
-using modified libusb version please drop me a mail!
-
-thanks for your effort,
-regars,
-antirez
-
--- 
-Salvatore Sanfilippo              |
-<antirez@invece.org>
-http://www.kyuzz.org/antirez      |      PGP: finger
-antirez@tella.alicom.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

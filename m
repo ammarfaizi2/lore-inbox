@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132508AbRDNAPx>; Fri, 13 Apr 2001 20:15:53 -0400
+	id <S132545AbRDNAe5>; Fri, 13 Apr 2001 20:34:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132531AbRDNAPo>; Fri, 13 Apr 2001 20:15:44 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:23289 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S132508AbRDNAPc>;
-	Fri, 13 Apr 2001 20:15:32 -0400
-To: Jerry Hong <jhong001@yahoo.com>
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: thread problem with libc for Linux
-In-Reply-To: <20010413204557.21595.qmail@web4306.mail.yahoo.com>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: GCC Team, Red Hat
-Date: 13 Apr 2001 21:15:13 -0300
-In-Reply-To: <20010413204557.21595.qmail@web4306.mail.yahoo.com>
-Message-ID: <orzodk49ri.fsf@guarana.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S132593AbRDNAer>; Fri, 13 Apr 2001 20:34:47 -0400
+Received: from panchito.Austria.EU.net ([193.154.160.103]:61656 "EHLO
+	relay3.austria.eu.net") by vger.kernel.org with ESMTP
+	id <S132545AbRDNAei>; Fri, 13 Apr 2001 20:34:38 -0400
+Message-ID: <3AD79B1B.84F9F29D@eunet.at>
+Date: Sat, 14 Apr 2001 02:34:35 +0200
+From: Michael Reinelt <reinelt@eunet.at>
+Organization: netWorks
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Multi-function PCI devices
+In-Reply-To: <Pine.LNX.4.10.10104071507230.1561-100000@linux.local> <3ACF5E15.2A6E4F3C@eunet.at> <3ACF5FFE.24ECA0CA@mandrakesoft.com> <3AD04DA0.A1BC49B7@eunet.at> <3AD7830D.BD326BFE@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.6.0.12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 13, 2001, Jerry Hong <jhong001@yahoo.com> wrote:
+Jeff Garzik wrote:
+> 
+> Michael Reinelt wrote:
+> >
+> > Thats clear to me. But the probe and remove routine can only be called
+> > if the module is already loaded. My question was: who will load the
+> > module? (I'll call it 'netmos.o')
+> 
+> typically a hotplug agent, cardmgr in this case.
 
-> Program received signal SIGSEGV, Segmentation fault.
-> 0x401ca0d6 in chunk_free (ar_ptr=0x4025ed60,
-> p=0x80a1ba8) at malloc.c:3097
+huh? cardmgr?
 
-This is usually a symptom of memory corruption in your own program.
-It's damaging libc's internal data structures.  I.e., this probably
-has nothing to do with GCC or the kernel.
+I agree with the hotplug agent, but cardmgr? I know cardmgr and use it
+on my laptop, but I've never heard of it dealing with PCI devices?
+Doesn't he need some sort of 'card services' and stuff, none of them
+available on a desktop PC?
+
+bye, Michael
 
 -- 
-Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
-Red Hat GCC Developer                  aoliva@{cygnus.com, redhat.com}
-CS PhD student at IC-Unicamp        oliva@{lsd.ic.unicamp.br, gnu.org}
-Free Software Evangelist    *Please* write to mailing lists, not to me
+netWorks       	                                  Vox: +43 316  692396
+Michael Reinelt                                   Fax: +43 316  692343
+Geisslergasse 4					  GSM: +43 676 3079941
+A-8045 Graz, Austria			      e-mail: reinelt@eunet.at

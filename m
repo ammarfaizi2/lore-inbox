@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133105AbRDRMYE>; Wed, 18 Apr 2001 08:24:04 -0400
+	id <S133106AbRDRMYF>; Wed, 18 Apr 2001 08:24:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133106AbRDRMXp>; Wed, 18 Apr 2001 08:23:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39173 "EHLO
+	id <S133103AbRDRMXq>; Wed, 18 Apr 2001 08:23:46 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39429 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133103AbRDRMXj>; Wed, 18 Apr 2001 08:23:39 -0400
-Subject: Re: Linux 2.4.3-ac9
-To: jamagallon@able.es (J . A . Magallon)
-Date: Wed, 18 Apr 2001 13:25:38 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010418103245.A4458@werewolf.able.es> from "J . A . Magallon" at Apr 18, 2001 10:32:45 AM
+	id <S133105AbRDRMXm>; Wed, 18 Apr 2001 08:23:42 -0400
+Subject: Re: Supplying missing entries for Configure.help, part 4
+To: philb@gnu.org (Philip Blundell)
+Date: Wed, 18 Apr 2001 13:24:34 +0100 (BST)
+Cc: esr@snark.thyrsus.com (Eric S. Raymond),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com,
+        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <E14pn6x-00049s-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Apr 18, 2001 09:14:51 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14pr1h-0004cD-00@the-village.bc.nu>
+Message-Id: <E14pr0g-0004bw-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 2.4.3-ac8
-> > o	ACPI updates					(Andrew Grover)
+> >+Support for Cobalt Micro Server
+> >+CONFIG_COBALT_MICRO_SERVER
+> >+  Support for ARM-based Cobalt boxes (they have been bought by Sun and
+> >+  are now the "Server Appliance Business Unit") including the 2700 series
 > 
-> Patch for ac9 generates a file named linux/acpi-20010413.diff. It partially
-> applies, some hunks failed and some offset. Is this rest of your work ?
+> Aren't those machines MIPS based?
 
-Oops my screwup. I applied it, it wouldnt build. I removed it and forgot to
-update the entry and clean up
+They are mips based and support for them was also removed from the kernel so
+the entry doesnt want to go in. I'd rather have missing than wrong entries
 

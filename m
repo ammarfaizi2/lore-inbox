@@ -1,110 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312381AbSEHIjY>; Wed, 8 May 2002 04:39:24 -0400
+	id <S312411AbSEHImQ>; Wed, 8 May 2002 04:42:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312411AbSEHIjX>; Wed, 8 May 2002 04:39:23 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:63749 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S312381AbSEHIjW>; Wed, 8 May 2002 04:39:22 -0400
-Message-ID: <3CD8D57B.4080702@evision-ventures.com>
-Date: Wed, 08 May 2002 09:36:27 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S312426AbSEHImP>; Wed, 8 May 2002 04:42:15 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:42115 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S312411AbSEHImO>;
+	Wed, 8 May 2002 04:42:14 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Padraig Brady <padraig@antefacto.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com> <3CD800FE.4050004@antefacto.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15576.58488.179061.846058@argo.ozlabs.ibm.com>
+Date: Wed, 8 May 2002 18:40:24 +1000 (EST)
+To: jsimmons@transvirtual.com
+Cc: linux-kernel@vger.kernel.org
+Subject: cmap problems with aty128fb.c
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Padraig Brady napisa?:
-> Linus Torvalds wrote:
-> 
->>  [ First off: any IDE-only thing that doesn't work for SCSI or other 
->> disks
->>    doesn't solve a generic problem, so the complaint that some generic
->>    tools might use it is totally invalid. ]
->>
->> On Tue, 7 May 2002, Anton Altaparmakov wrote:
->>
->>> Linux's power is exactly that it can be used on anything from a 
->>> wristwatch
->>> to a huge server and that it is flexible about everything. You are 
->>> breaking
->>> this flexibility for no apparent reason. (I don't accept "I can't 
->>> cope with
->>> this so I remove it." as a reason, sorry).
->>
->>
->>
->> Run the 57 patch, and complain if something doesn't work.
->>
->> Linux's power is that we FIX stuff. That we make it the best system
->> possible, and that we don't just whine and argue about things.
->>
->>
->>> As the new IDE maintainer so far we have only seen you removing one
->>> feature after the other in the name of cleanup, without adequate or even
->>> any at all(!) replacements,
->>
->>
->>
->> Who cares? Have you found _anything_ that Martin removed that was at all
->> worthwhile? I sure haven't.
->>
->> Guys, you have to realize that the IDE layer has eight YEARS of absolute
->> crap in it. Seriously. It's _never_ been cleaned up before. It has stuff
->> so distasteful that t's scary.
->>
->> Take it from me: it's a _lot_ easier to add cruft and crap on top of 
->> clean
->> code. You can do it yourself if you want to. You don't need a maintainer
->> to add barnacles.
->>
->> All the information that /proc/ide gave you is basically available in
->> hdparm, and for your dear embedded system it apparently takes up less
->> space by being in user space. So what is the problem?
-> 
-> 
-> Well my "dear" embedded system doesn't have libc :-(
-> So 35664 saved in kernel (less on disk), requires 25212
-> extra for hdparm + more for static linked uclibc (hope
-> it works ;-)). As a side note if this happens hdparm would
-> be a requirement for busybox IMHO, anyway getting back on topic...
-> 
-> All the info I've ever needed is /proc/ide/hdx/capacity
-> which I could get from /proc/partitions with more a bit
-> more effort, so I vote for removing /proc/ide.
-> 
-> I think everyone realises Martin is doing great and much needed work
-> on IDE (btw I'll have those flash support patches soon Martin ;-)),
-> but I did think this change needed debate. In general I know it's a
-> hard decision what to export in proc, especially if there are
-> existing dependencies, a few already mentioned possibles in RH7.1:
-> 
-> /sbin/mkinitrd
-> /sbin/fdisk
-> /sbin/sfdisk
-> /sbin/sndconfig
-> /usr/sbin/mouseconfig
-> /usr/sbin/kudzu
-> /usr/sbin/module_upgrade
-> /usr/sbin/updfstab
-> /usr/sbin/glidelink
-> /usr/sbin/sndconfig
-> /usr/lib/python1.5/site-packages/_kudzumodule.so
-> /usr/bin/X11/Xconfigurator
-> 
-> For e.g. could the same arguments could be made for lspci only
-> interface to pci info rather than /proc/bus/pci? The following
-> references are made to /proc/bus/pci on my system:
+I have been having difficulties with aty128fb.c in 2.5.14.  The
+version in Linus' tree crashes on boot for me with a null pointer
+dereference in memcpy, called from fb_copy_cmap from gen_set_cmap,
+from fbcon_show_logo via the fbops->fb_set_cmap pointer.
 
-In esp. in sigth of the fact that we have a device tree filesystem, I
-rather think that /prco/bus/pci is obsolete indeed.
+At the lowest level the null pointer dereference is caused by a
+signed/unsigned bug in fb_copy_cmap.  We are ending up with size > 0
+even when to->start and to->len were both zero.  The patch below fixes
+that.
 
+At the next level up, the problem seems to be that info->cmap is never
+getting initialized.  How and where is it supposed to be initialized?
+
+Paul.
+
+diff -urN linux-2.5/drivers/video/fbcmap.c pmac-2.5/drivers/video/fbcmap.c
+--- linux-2.5/drivers/video/fbcmap.c	Mon Apr 29 16:25:24 2002
++++ pmac-2.5/drivers/video/fbcmap.c	Wed May  8 16:29:04 2002
+@@ -150,9 +150,9 @@
+     else
+ 	tooff = from->start-to->start;
+     size = to->len-tooff;
+-    if (size > from->len-fromoff)
++    if (size > (int)(from->len-fromoff))
+ 	size = from->len-fromoff;
+-    if (size < 0)
++    if (size <= 0)
+ 	return;
+     size *= sizeof(u16);
+     

@@ -1,51 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbUKIUTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbUKIUXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbUKIUTk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 15:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbUKIUTk
+	id S261676AbUKIUXX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 15:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbUKIUXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 15:19:40 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:7784 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261676AbUKIUT1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 15:19:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=c/ysT5WsjmgkRx5HVqjMaeZceadBg9BUF2p8lYQO9XLzdVirgq5kdBytEcK+TMiVtfWhF9zqcySao3fst4iLlzFZIh1UioUEfLEOUYslMC4KG5Y9ynuiUvbSoVEO/7Hnk3vQdjoeDnUaSaA6M8R1d2WsVtZmzqffu/CzD3M/RcY=
-Message-ID: <84144f0204110912192c04b8d7@mail.gmail.com>
-Date: Tue, 9 Nov 2004 22:19:26 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] kobject: fix double kobject_put() in error path of kobject_add()
-Cc: Linus Torvalds <torvalds@osdl.org>, Christian Kujau <evil@g-house.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       matt_domsch@dell.com
-In-Reply-To: <20041109190809.GA2628@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Nov 2004 15:23:23 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:9478 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261676AbUKIUXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 15:23:15 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <cfriesen@nortelnetworks.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+Date: Tue, 9 Nov 2004 12:23:08 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-References: <418F6E33.8080808@g-house.de> <418FDE1F.7060804@g-house.de>
-	 <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de>
-	 <84144f02041108234050d0f56d@mail.gmail.com>
-	 <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de>
-	 <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org>
-	 <20041109190420.GA2498@kroah.com> <20041109190809.GA2628@kroah.com>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <41911E43.1090607@nortelnetworks.com>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 09 Nov 2004 11:59:37 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 09 Nov 2004 11:59:41 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
 
-On Tue, 9 Nov 2004 11:08:09 -0800, Greg KH <greg@kroah.com> wrote:
-> Christian, I don't know if this patch explicitly fixes your problem, but
-> it fixes problems other people have been having with the driver core
-> lately.  I'd appreciate it if you could test it out and let me know if
-> it solves your problem, with CONFIG_EDD enabled, or if it doesn't help
-> at all.
+> David Schwartz wrote:
+>
+> > 	They don't stop you, they just restrict you.
+>
+> They restrict you from getting new updates, they don't restrict you from
+> distributing.
 
-The broken kobject_add fix is not in -rc1 proper which oopses on
-Christian's machine. I don't think this patch has anything to do with
-his problem.
+	Umm, they restrict you from distributing. You don't get new updates if you
+distribute.
 
-                               Pekka
+	If I say to my son, "if you hang out with people I don't like, I won't let
+you use the car". This is a restriction on his hanging out with who he likes
+and his using the car. If I promised not to put any further restrictions on
+*either* his hanging out with who he like *or* his using the car, I'd be
+violating my promise by the restriction.
+
+> The GPL says, "You may not impose any further restrictions on the
+> recipients'
+> exercise of the rights granted herein."   Note the "granted
+> herein" part.  They
+> can put all kinds of other restrictions on anything else, as long
+> as they don't
+> keep you from excercising your rights to modify and/or
+> redistribute the code
+> released under the GPL.
+
+	Exactly. But by conditioning the receipt of updates on failure to
+distribute, they restrict distribution. (They also restrict the distribution
+of updates, of course.) Any restriction of the form "If X, then Y" restricts
+both X and Y.
+
+	I can't imagine what would constitute an "additional restriction" if this
+isn't one.
+
+> > 	Look, this really is simple. When the GPL talks about "additional
+> > restrictions", it doesn't mean the restrictions found in the
+> > GPL. It means
+> > restrictions found elsewhere, such as in private contracts. (Where else
+> > would the restrictions be?!)
+
+> I believe you have misunderstood the GPL.  They only disallow further
+> restrictions on the rights that the GPL grants.  They don't say
+> anything about
+> other contracts or obligations.
+
+	Yes, they do. The whole point of the "additional restrictions" clause is to
+*prohibit* other contracts or obligations that act to restrict your ability
+to exercise the rights under the GPL.
+
+	If not to prevent other contracts or obligations that act as restrictions,
+what purpose does the GPL "additional restriction" clause serve?!
+
+	DS
+
+

@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135489AbRDZORr>; Thu, 26 Apr 2001 10:17:47 -0400
+	id <S135474AbRDZOW5>; Thu, 26 Apr 2001 10:22:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135491AbRDZORi>; Thu, 26 Apr 2001 10:17:38 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:31981 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S135489AbRDZORZ>; Thu, 26 Apr 2001 10:17:25 -0400
-Date: Thu, 26 Apr 2001 15:17:38 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S135483AbRDZOWt>; Thu, 26 Apr 2001 10:22:49 -0400
+Received: from www.wen-online.de ([212.223.88.39]:43536 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S135474AbRDZOWb>;
+	Thu, 26 Apr 2001 10:22:31 -0400
+Date: Thu, 26 Apr 2001 16:21:55 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
         lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104260526020.2416-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0104261446470.1730-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0104261100490.19012-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0104261608460.334-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Linus Torvalds wrote:
-> 
-> On the other hand, to offset some of these, we actually count the page
-> accessed _twice_ sometimes: we count it on lookup, and we count it when we
-> see the accessed bit in vmscan.c. Which results in some pages getting aged
-> up twice for just one access if we go through the vmscan logic, while if
-> we just map and unmap them they get counted just once.
+On Thu, 26 Apr 2001, Rik van Riel wrote:
 
-And sometimes three times, if you count the PAGE_AGE_START bonus
-points you get whenever your age is found to be 0 (or less than
-PAGE_AGE_START).  I think I see the idea, but seems more voodoo.
+> On Thu, 26 Apr 2001, Mike Galbraith wrote:
+>
+> > 1. pagecache is becoming swapcache and must be aged before anything is
+> > done.  Meanwhile we're calling refill_inactive_scan() so fast that noone
+> > has a chance to touch a page.   Age becomes a simple counter.. I think.
+> > When you hit a big surge, swap pages are at the back of all lists, so all
+> > of your valuable cache gets reclaimed before we write even one swap page.
+>
+> Does the patch I sent to linux-mm@kvack.org last night help in
+> this ?
+>
+> I found that the way refill_inactive_scan() and swap_out() are being
+> called from the main loop in refill_inactive() aren't equal and have
+> fixed that in a way which (IMHO) also beautifies the code a bit.
+>
+> (and makes sure background aging doesn't get out of hand with a few
+> simple checks)
 
-If you're looking to _simplify_ in this area, there's a confusing
-host (9) of intercoupled age-up-and-down de/activate functions.
-Aren't those better decoupled? i.e. the ageing ones ageonly,
-the de/activate ones not messing with age at all.
+That patch livelocked my box with only ~1000 pages on any list.
 
-Then I think you're left with just age_page_up() and age_page_down()
-(maybe inlines as below, assuming the PAGE_AGE_START voodoo), plus
-activate_page(), deactivate_page() and deactivate_page_nolock().
+I can go back and test some more if you want.  (I've seen this so
+many times here that I generally just curse a lot [frustration] and
+burn the whole tree to it's roots as soon as it shows up)
 
-static inline void age_page_up(struct page *page)
-{
-	page->age += PAGE_AGE_ADV;
-	if (page->age > PAGE_AGE_MAX)
-		page->age = PAGE_AGE_MAX;
-	else if (page->age < PAGE_AGE_START + PAGE_AGE_ADV)
-		page->age = PAGE_AGE_START + PAGE_AGE_ADV;
-}
-
-static inline void age_page_down(struct page *page)
-{
-	page->age >>= 1;
-}
-
-But this is no more than tidying, don't let me distract you.
-
-Hugh
+SysRq: Show Memory
+Mem-info:
+Free pages:        1404kB (     0kB HighMem)
+( Active: 975, inactive_dirty: 28, inactive_clean: 0, free: 351 (351 702 1053) )
+0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB = 512kB)
+1*4kB 5*8kB 1*16kB 0*32kB 1*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB = 892kB)
+= 0kB)
+Swap cache: add 72, delete 63, find 17/67
+Free swap:       264864kB
+32752 pages of RAM
+0 pages of HIGHMEM
+1183 reserved pages
+27657 pages shared
+9 pages swap cached
+0 pages in page table cache
+Buffer memory:      112kB
 

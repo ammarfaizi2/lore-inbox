@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264369AbTLKHGT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 02:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTLKHGT
+	id S264377AbTLKHLb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 02:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTLKHLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 02:06:19 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:34702 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264369AbTLKHGR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 02:06:17 -0500
-content-class: urn:content-classes:message
+	Thu, 11 Dec 2003 02:11:31 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:10634 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S264377AbTLKHJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 02:09:45 -0500
+Date: Wed, 10 Dec 2003 23:08:38 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Ed Sweetman <ed.sweetman@wmich.edu>
+cc: Nick Piggin <piggin@cyberone.com.au>, Donald Maner <donjr@maner.org>,
+       Raul Miller <moth@magenta.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
+Message-ID: <1289530000.1071126517@[10.10.2.4]>
+In-Reply-To: <20031211054111.GX8039@holomorphy.com>
+References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [ACPI] ACPI global lock macros
-Date: Thu, 11 Dec 2003 15:06:10 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401720C21@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] ACPI global lock macros
-Thread-Index: AcO+NiHM8fvw4HHhRdS72mZFlESBTQBfQIgw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Paul Menage" <menage@google.com>, <agrover@groveronline.com>
-Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 11 Dec 2003 07:06:10.0967 (UTC) FILETIME=[41C12A70:01C3BFB5]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>#define ACPI_ACQUIRE_GLOBAL_LOCK(GLptr, Acq) \
->>     do { \
->>        asm volatile("1:movl   (%1),%%eax;" \
->>             "movl   %%eax,%%edx;" \
->>             "andl   %2,%%edx;" \
->>             "btsl   $0x1,%%edx;" \
->>             "adcl   $0x0,%%edx;" \
->>             "lock;  cmpxchgl %%edx,(%1);" \
->>             "jnz    1b;" \
->>             "cmpb   $0x3,%%dl;" \
->>             "sbbl   %0,%0" \
->>             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx", "ax"); \
->>     } while(0)
+--William Lee Irwin III <wli@holomorphy.com> wrote (on Wednesday, December 10, 2003 21:41:11 -0800):
 
-Above code have a bug! Considering below code:
+> On Thu, Dec 11, 2003 at 12:33:39AM -0500, Ed Sweetman wrote:
+>> I thought highmem wasn't necesarily needed for memory <=2GB? Highmem 
+>> incurs some performance hits doesn't it and so the urge to move to it 
+>> with only 2GB is not very attractive.  Anyways i'm just interested in if 
+>> that's the case or not since 2GB is easy to get to these days and i had 
+>> heard that highmem could be avoided passed the 1GB barrier.
+> 
+> You're probably thinking of 2:2 split patches.
+> 
+> 2:2 splits are at least technically ABI violations, which is probably
+> why this isn't merged etc. Applications sensitive to it are uncommon.
+> 
+> Yes, the SVR4 i386 ELF/ABI spec literally mandates 0xC0000000 as the
+> top of the process address space.
 
-u8	acquired = FALSE;
+You mean like we place the stack in the "ABI compliant place"? 
+Yeah, right ;-)
 
-ACPI_ACQUIRE_GLOBAL_LOC(acpi_gbl_common_fACS.global_lock, acquired);
-if(acquired) {
-....
-}
-
-Gcc will complain " ERROR: '%cl' not allowed with sbbl ". And I think any other compiler will
-complain that  too !
-
-How about  below changes to your proposal code.
-
-<             "sbbl   %0,%0" \
-<             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx","ax"); \
----
->             "sbbl   %%eax,%%eax" \
->             :"=a"(Acq):"r"(GLptr),"i"(~1L):"dx"); \
-
-PS. I'm very curious about how could you find this bug.  
-
-Thanks
-Luming
+M.
 

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282646AbRKZXSg>; Mon, 26 Nov 2001 18:18:36 -0500
+	id <S282655AbRKZX16>; Mon, 26 Nov 2001 18:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282642AbRKZXS0>; Mon, 26 Nov 2001 18:18:26 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:42960 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S282646AbRKZXSS>;
-	Mon, 26 Nov 2001 18:18:18 -0500
-Date: Tue, 27 Nov 2001 00:18:04 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: n0ano@indstorage.com
-Cc: =?iso-8859-1?Q?Achim_Kr=FCmmel?= <akruemmel@dohle.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Intel I860
-Message-ID: <20011127001804.U5770@khan.acc.umu.se>
-In-Reply-To: <3BFD0F19.86D23BEB@dohle.com> <20011126152803.A8684@tlaloc.indstorage.com>
+	id <S282652AbRKZX1t>; Mon, 26 Nov 2001 18:27:49 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:17843 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S282651AbRKZX1f>;
+	Mon, 26 Nov 2001 18:27:35 -0500
+Date: Tue, 27 Nov 2001 00:25:25 +0100
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3: kjournald and spun-down disks
+Message-ID: <20011127002525.A2912@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0111231859510.4162-100000@waste.org> <3BFEF71A.F32176FE@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011126152803.A8684@tlaloc.indstorage.com>; from n0ano@indstorage.com on Mon, Nov 26, 2001 at 03:28:03PM -0700
+User-Agent: Mutt/1.1.12i
+In-Reply-To: <3BFEF71A.F32176FE@zip.com.au>; from akpm@zip.com.au on Fri, Nov 23, 2001 at 05:25:46PM -0800
+From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 03:28:03PM -0700, n0ano@indstorage.com wrote:
-> Achim-
-> 
-> Uh, what exactly do you think you have here?  The I860 was a
-> completely new architecture that Intel dropped over 5 years
-> ago.  I've got one running Unix SVR4 in my basement but you
-> can't buy an I860 motherboard today.
-> 
-> (For the record the 860 was a great architecture for the time
-> and I'm still bitter that Intel dropped it but that's a different
-> story.)
+On Fri, Nov 23, 2001 at 05:25:46PM -0800, Andrew Morton wrote:
+> Also, if we had appropriate hooks into the request layer, we could detect
+> when the disk was being spun up for a read, and opporunistically flush
+> out any pending writes.
 
-Uh? You're using the word i860 (the processor, I gather) and great
-in the same sentence, and not in combination with disaster?! That's
-a first... The i960 is fully ok, but the i860 was a pile of crap.
+Actually you can't. SCSI spinup code isn't very useful anyway, and IDE disks
+mostly handle spinup themselves. The kernel has too issue a reset to get a
+disk back alive from sleep mode, but revival from standby doesn't involve
+the kernel at all. When using the disk's internal timer, it isn't involved in
+spindown either. Teaching the request layer about disk state might therefore
+turn out to become rather messy, I suspect.
 
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+> Tell me if this is joyful:
+[...]
+> -	transaction->t_expires = jiffies + journal->j_commit_interval;
+> +	transaction->t_expires = jiffies + dirty_buffer_flush_interval();
+
+This change doesn't take care of kupdated's most interesting feature, i.e.
+that you can entirely stop it (with a flush interval of zero and/or a
+SIGSTOP). Now, if kjournald honoured SIGSTOP/SIGCONT, I could teach noflushd
+to handle the spindown issue in userland. Uh, at least for one small detail:
+Is there a way to tell which kjournald process is associated to which
+partition? A fake cmdline, or an fd to the partition's device node that
+shows up in /proc/<pid>/fd would indeed be quite helpful.
+
+Regards,
+
+Daniel.
+

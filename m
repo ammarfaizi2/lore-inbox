@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284966AbSADVAe>; Fri, 4 Jan 2002 16:00:34 -0500
+	id <S284899AbSADVAY>; Fri, 4 Jan 2002 16:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbSADVAZ>; Fri, 4 Jan 2002 16:00:25 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4242
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284966AbSADVAI>; Fri, 4 Jan 2002 16:00:08 -0500
-Date: Fri, 4 Jan 2002 15:44:13 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020104154413.E20097@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-	Lionel Bouton <Lionel.Bouton@free.fr>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020103133454.A17280@suse.cz> <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl> <20020104200410.E21887@suse.cz> <20020104140538.A19746@thyrsus.com> <20020104202151.A22445@suse.cz> <20020104144146.A20097@thyrsus.com> <20020104212017.B22908@suse.cz>
+	id <S284970AbSADVAP>; Fri, 4 Jan 2002 16:00:15 -0500
+Received: from t2.redhat.com ([199.183.24.243]:56817 "EHLO
+	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
+	id <S284933AbSADVAC>; Fri, 4 Jan 2002 16:00:02 -0500
+Date: Fri, 4 Jan 2002 14:59:49 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "Steffen Persvold" <sp@scali.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Short question about the mmap method
+Message-Id: <20020104145949.682d51c4.reynolds@redhat.com>
+In-Reply-To: <3C360FD5.91285F5D@scali.no>
+In-Reply-To: <3C360FD5.91285F5D@scali.no>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.6.6cvs17 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020104212017.B22908@suse.cz>; from vojtech@suse.cz on Fri, Jan 04, 2002 at 09:20:17PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.bEa.B5jokgb3,D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz>:
-> I think I understand you. The problem is that many ISA chips (sound,
-> others) that are normally used on ISA cards, and thus handled by drivers
-> most likely labeled by the ISA_CARDS flag, can be, and were often
-> integrated onto mainboards, even if those didn't have any ISA slots.
-> 
-> Think (possibly older generation, like P-MMX based) notebooks ... there
-> you can have
-> 
-> X86 ... true
-> PCI ... true
-> DMI ... true
-> DMI_ISA ... false
-> BLACKLISTED ... possibly true, if you blacklist most notebooks
-> 
-> and yet have many ISA drivers needed for proper operation of the
-> machine.
+--=.bEa.B5jokgb3,D
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-That would sure pump up the blacklist, all right.
+Uttered "Steffen Persvold" <sp@scali.no>, spoke thus:
 
-I think at this point the right thing for me to do is gather data on the
-scope of the problem.  I have some ideas about that.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> Hi lkml readers,
+> 
+> I have a question regarding drivers implementing the mmap and nopage methods.
+> In some references I've read that pages in kernel allocated memory (either
+> allocated with kmalloc, vmalloc or__get_free_pages) should be set to reserved
+> (mem_map_reserve or set_bit(PG_reserved, page->flags) before they can be
+> mmap'ed to guarantee that they can't be swapped out. Is this true ?
 
-It is the assumption of this book that a work of art is a gift, not a
-commodity.  Or, to state the modern case with more precision, that works of
-art exist simultaneously in two "economies," a market economy and a gift
-economy.  Only one of these is essential, however: a work of art can survive
-without the market, but where there is no gift there is no art.
-	-- Lewis Hyde, The Gift: Imagination and the Erotic Life of Property
+[kv]malloc memory is _never_ subject to paging and can be mmap'ed with a
+vengeance without resorting to mucking about with marking pages or the like.
+
+You're working too hard ;-)
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- -- -- --
+Tommy Reynolds                               | mailto: <reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923
+
+--=.bEa.B5jokgb3,D
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjw2F8kACgkQWEn3bOOMcur7ogCfc0lTICsWiXKgrFHEDjrIkCPJ
+YFIAoLCUpzPKgkDHPLoDmxeIGF5mGGIu
+=vKSN
+-----END PGP SIGNATURE-----
+
+--=.bEa.B5jokgb3,D--
+

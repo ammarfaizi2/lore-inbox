@@ -1,70 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262622AbTJPC0k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 22:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTJPC0k
+	id S262640AbTJPDB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 23:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbTJPDB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 22:26:40 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:20364 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262622AbTJPC0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 22:26:39 -0400
-Date: Wed, 15 Oct 2003 22:25:47 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: kakadu_croc@yahoo.com, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test7-mm1
-Message-ID: <20031016022547.GA615@phunnypharm.org>
-References: <20031015032215.58d832c1.akpm@osdl.org> <20031015123444.46223.qmail@web40904.mail.yahoo.com> <20031015102810.4017950f.akpm@osdl.org> <20031015174047.GE971@phunnypharm.org> <20031015105359.31c016c3.akpm@osdl.org>
+	Wed, 15 Oct 2003 23:01:56 -0400
+Received: from CPE-24-163-213-80.mn.rr.com ([24.163.213.80]:38811 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S262640AbTJPDBw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 23:01:52 -0400
+Subject: Re: Transparent compression in the FS
+From: Shawn <core@enodev.com>
+To: Chris Meadors <clubneon@hereintown.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1066270291.514.17.camel@clubneon.clubneon.com>
+References: <200310151854.TAA09370@mauve.demon.co.uk>
+	 <1066270291.514.17.camel@clubneon.clubneon.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1066273302.22768.23.camel@www.enodev.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031015105359.31c016c3.akpm@osdl.org>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 15 Oct 2003 22:01:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 10:53:59AM -0700, Andrew Morton wrote:
-> Ben Collins <bcollins@debian.org> wrote:
-> >
-> > > highlevel_add_host() does read_lock() and then proceeds to do things like
-> >  > starting kernel threads under that lock.  The locking is pretty broken
-> >  > in there :(
-> > 
-> >  No, highlevel_add_host() itself doesn't start any threads. But it does
-> >  pass around data that needs to be locked from changes, and one of the
-> >  handlers happens to start a thread, and other things allocate memory
-> >  (such as this case).
-> > 
-> >  It's ugly, and I've been trying to clean it up. This case can be fixed
-> >  quickly with a simple check in hpsb_create_hostinfo() to pass GFP_ATOMIC
-> >  to kmalloc.
+You know, I've seen a lot of mostly-N/A benchmarks, but no real-world
+examples. I've seen many folks talking back and forth about data
+throughput, but little talk of I/O latency.
+
+Regardless what your unloaded CPU can do, does anyone care to realize
+that your CPU usually has to act on the data you're reading/writing from
+said filesystem, probably at the expense of throughput?
+
+Now, this is not to say that certain workloads wouldn't benefit
+tremendously from compression, especially these days when we seem to
+have processor to spare. I may have a giganimonstrous file full of zeros
+I just need to read from and write to... I actually remember working
+with "Jam drive" (a "Stacker" work-alike) on DOS which really did make
+my little 33 Mhz box throw up X-appeal
+(http://www.xtreme.it/xappeal.html) twice as fast... That was a good
+real-world example relevant to me.
+
+Anyway, I guess I'm not arguing for or against anything here. Just
+trying to make people realize most of the benchmarks cited do NOT
+represent the common scenario.
+
+Also, I would hope that if ext3+compressFS existed I could mount a
+compressed ext3 filesystem as vanilla ext3 and gunzip/bunzip2 a file I
+know to be compressed to recover the data. Nice to have [back|for]ward
+compatibility.
+
+On Wed, 2003-10-15 at 21:11, Chris Meadors wrote:
+> On Wed, 2003-10-15 at 14:54, root@mauve.demon.co.uk wrote:
 > 
-> nodemgr_add_host() looks like the hard one.  Maybe make hl_drivers_lock a
-> sleeping lock?
-
-Problem is, things like bus resets happen in interrupt, and while I can
-push off some things to occur in the nodemgr thread, a lot of other
-stuff has to happen in the interrupt, and they require the same lock.
-
-It's all a matter of just tossing out my todo list for a good week and
-redoing all of this logic from the ground up. I have high hopes this
-will happen in the next few weeks, but I'm not signing any contracts to
-hold me to it :)
-
-> >  My problem right now, is I don't use any architectures that support
-> >  preempt, so I don't see a lot of these problems, like I catch with
-> >  CONFIG_SMP.
+> > I haven't got the original message (mail problems) so I'm responding here.
+> > 
+> > I misread your message, and thought you said compression.
+> > My Duron 1300 (hardly the fastest machine) compresses (gzip -1) at around
+> > 40Mb/sec (repetitive log-files that compress to 5% using gzip -1) and 
+> > 10Mb/sec on text (compressing to 40%).
+> > 
+> > On expansion, it decompresses compressed text at around 14Mb/sec (resulting
+> > in 30Mb/sec, around my disk speed), and logfiles at 110Mb/sec, which is 
+> > significantly faster.
+> > 
+> > This is with a single stick of PC133 RAM, and a tiny 64K cache.
+> > I would be very surprised if even a high end consumer machine couldn't handle
+> > 50Mb/sec.
 > 
-> Anton had a ppc64 patch which implemented the preempt_count beancounting
-> without actually implementing premption.  So might_sleep() does the right
-> thing.
-
-I might have to dig that out and try to make use of it. Thanks for the
-pointer.
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+> chris@prime:/tmp$ dd if=/dev/urandom of=random_data bs=1024 count=100k
+> 102400+0 records in
+> 102400+0 records out
+> chris@prime:/tmp$ time gzip -9 random_data
+>  
+> real    0m10.572s
+> user    0m10.271s
+> sys     0m0.298s
+> chris@prime:/tmp$ time gunzip random_data.gz
+>  
+> real    0m1.506s
+> user    0m1.205s
+> sys     0m0.301s
+> chris@prime:/tmp$ time gzip -1 random_data
+>  
+> real    0m9.959s
+> user    0m9.632s
+> sys     0m0.326s
+> chris@prime:/tmp$ time gunzip random_data.gz
+>  
+> real    0m1.523s
+> user    0m1.218s
+> sys     0m0.305s
+> 
+> 
+> chris@prime:/tmp$ dd if=/dev/zero of=zero_data bs=1024 count=100k
+> 102400+0 records in
+> 102400+0 records out
+> chris@prime:/tmp$ time gzip -9 zero_data
+>  
+> real    0m2.947s
+> user    0m2.812s
+> sys     0m0.134s
+> chris@prime:/tmp$ time gunzip zero_data.gz
+>  
+> real    0m1.062s
+> user    0m0.920s
+> sys     0m0.142s
+> chris@prime:/tmp$ time gzip -1 zero_data
+>  
+> real    0m1.840s
+> user    0m1.717s
+> sys     0m0.123s
+> chris@prime:/tmp$ time gunzip zero_data.gz
+>  
+> real    0m0.707s
+> user    0m0.542s
+> sys     0m0.165s
+> 
+> 
+> I can get pretty close to 50MB/sec compressing a nice long string of
+> zeros.  Over 100MB/sec decompressing the same.  But from the first test,
+> spinning my wheels on relatively uncompressible data gets me no where
+> slowly.
+> 
+> Of course the disk subsystem of this machine is also a hardware RAID
+> array of 8 (4 per channel) 10,000 RPM SCSI U320 drives.  So I'm not
+> approaching the speeds that I can get from it anyway.

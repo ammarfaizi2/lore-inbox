@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbUAHMF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 07:05:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbUAHMF4
+	id S264364AbUAHMBR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 07:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUAHMBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 07:05:56 -0500
-Received: from mail1.drkw.com ([62.129.121.35]:7879 "EHLO mail1.drkw.com")
-	by vger.kernel.org with ESMTP id S264372AbUAHMFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 07:05:53 -0500
-From: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
-To: linux-kernel@vger.kernel.org
-Subject: SIS 648FX AGP fixed - but clarification needed
-Content-Type: text/plain
-Message-Id: <1073563512.502.66.camel@cobra>
+	Thu, 8 Jan 2004 07:01:17 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55939 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264364AbUAHMA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 07:00:29 -0500
+Date: Thu, 8 Jan 2004 13:00:28 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, Patrick Mochel <mochel@osdl.org>
+Subject: Re: s3 sleep: Kill obsolete debugging code
+Message-ID: <20040108120028.GC31912@atrey.karlin.mff.cuni.cz>
+References: <20040102224644.GA466@elf.ucw.cz> <20040108002254.E50AB2C2BB@lists.samba.org>
 Mime-Version: 1.0
-Date: Thu, 08 Jan 2004 12:05:12 +0000
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: Oliver.Heilmann@drkw.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040108002254.E50AB2C2BB@lists.samba.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an SIS 648FX in a notebook computer with an ATI Radeon9600 (M10)
-AGP card. AGP did not work so I had a look and found that ATTBASE had
-moved to caps + 0x18, AGPCTRL needed to be set and that there was a
-weird delay after the bridge has been enabled(see below). Things work
-now.
+Hi!
 
-I would like to put my fix into a proper patch but am still unclear on
-the following points:
+> > wakeup.S includes some rather nasty, and unneccessary debugging
+> > code. (It used to try to flush caches/tlbs; now its totally
+> > useless). Please apply,
+> > 							Pavel
+> 
+> Removing asm not really trivial unless the author sent it...
 
-1. According to sis_agp_device_ids the 648 chipset is supported. Does
-this mean that the "plain" 648 is actually supported and my "FX"
-iteration is so fundamentally different (even thought is has the same
-device id).
-
-2. Once the agpEnable bit is set in the bridge's cmd register the config
-space of the master is completely screwed up for a while. Trying to
-configure/enable the master during that period mostly crashes the
-system. Waiting does the trick. (Annoyingly, simply waiting for the
-master to become readable again is not good enough, one still needs to
-wait longer for things to become stable). None of the other chipsets
-seem to need this. Can anybody explain? Perhaps I missed something? If
-there is no other way and I do have to stick with the delay, then I
-suppose it would not be a good idea to polute the generic agp_enable
-with it?!
-
-Oliver
-
+I was author of original debugging code, than Patrick simplified it,
+and by now its totaly useless. Anyway it seems that Andrew took the
+patch, so it is on its way to linus.
+								Pavel
 
 -- 
-Oliver Heilmann <oliver.heilmann@drkw.com>
-
-
---------------------------------------------------------------------------------
-The information contained herein is confidential and is intended solely for the
-addressee. Access by any other party is unauthorised without the express 
-written permission of the sender. If you are not the intended recipient, please 
-contact the sender either via the company switchboard on +44 (0)20 7623 8000, or
-via e-mail return. If you have received this e-mail in error or wish to read our
-e-mail disclaimer statement and monitoring policy, please refer to 
-http://www.drkw.com/disc/email/ or contact the sender.
---------------------------------------------------------------------------------
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

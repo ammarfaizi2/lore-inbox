@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267369AbUG2AxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267389AbUG2A7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267369AbUG2AxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 20:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUG2AxP
+	id S267389AbUG2A7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 20:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267390AbUG2A7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 20:53:15 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:27855 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S267369AbUG2AxJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 20:53:09 -0400
-Subject: Re: [Patch] Per kthread freezer flags
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
-	 <20040728142026.79860177.akpm@osdl.org>
-	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
-	 <1091054194.8867.26.camel@laptop.cunninghams>
-	 <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain
-Message-Id: <1091061983.8867.95.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 29 Jul 2004 10:46:23 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+	Wed, 28 Jul 2004 20:59:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57272 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267389AbUG2A7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 20:59:05 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       jbarnes@engr.sgi.com
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<20040725235705.57b804cc.akpm@osdl.org>
+	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
+	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	<20040728133337.06eb0fca.akpm@osdl.org>
+	<1091044742.31698.3.camel@localhost.localdomain>
+	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
+	<20040728164457.732c2f1d.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jul 2004 18:58:02 -0600
+In-Reply-To: <20040728164457.732c2f1d.akpm@osdl.org>
+Message-ID: <m1d62f6351.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Andrew Morton <akpm@osdl.org> writes:
 
-On Thu, 2004-07-29 at 09:21, Felipe Alfaro Solana wrote:
-> kirdad? No... That sounds like Infrared which my laptop does not have.
+> Shutdown methods will typically call into the slab allocator and the page
+> allocator to free stuff, and they are pretty common sources of oopses. 
+> Often with locks held.  You run an excellent change of deadlocking.
 
-Did to me too. I was clutching at straws. :>
+Hmm..  Last I looked shutdown methods typically don't exist at all.
+The shutdown methods are explicitly separated from the remove methods
+for exactly this reason.  It is a BUG for any shutdown method to
+free memory.  Their only function is to shutdown the hardware. 
 
-> Here is a digest of ps -axf:
+> Possibly one could add
 > 
->   PID TTY      STAT   TIME COMMAND
->     1 ?        S      0:00 init [5]
->     2 ?        S<     0:03 [irqd/0]
->     3 ?        S<     0:00 [events/0]
->     4 ?        S<     0:00  \_ [khelper]
->     5 ?        S<     0:00  \_ [kacpid]
->    22 ?        S<     0:00  \_ [kblockd/0]
->    32 ?        S      0:00  \_ [pdflush]
->    33 ?        S      0:00  \_ [pdflush]
->    35 ?        S<     0:00  \_ [aio/0]
->    36 ?        S<     0:00  \_ [xfslogd/0]
->    37 ?        S<     0:00  \_ [xfsdatad/0]
->    34 ?        S      0:00 [kswapd0]
->    38 ?        S      0:00 [xfsbufd]
->   120 ?        S      0:00 [kseriod]
->   125 ?        S      0:00 [xfssyncd]
->   273 ?        Ss     0:00 minilogd
->   286 ?        S      0:00 [xfssyncd]
->   287 ?        S      0:00 [xfssyncd]
->   567 ?        S      0:00 [khubd]
->   871 ?        S      0:00 [pccardd]
->   877 ?        S      0:00 [pccardd]
+> #ifdef CONFIG_WHATEVER
+> 	if (unlikely(oops_in_progress))
+> 		return;
+> #endif
+> 
+> to the relevant entry points.
+> 
+> The shutdown routines may also call into sysfs/kobject/procfs release entry
+> points, and they're even more popular oops sites.
 
-It doesn't look like I've touched any of those threads. I have doubts
-about irqd/0 (is that kirqd reworked?), so you might try making setting
-PF_NOFREEZE and seeing if it makes a difference. I haven't done the
-switch to rc2-mm1 yet, so haven't gotten to those issues.
+Again.  If a shutdown method does that it is a BUG.  Only the remove method
+should do that.  
 
-Nigel
+If I actually believed that shutdown methods existed, and did that 
+I would be in favor of writing a patch to test for any accesses of
+memory management or sysfs/kobject/procfs release stuff and BUG
+if it happened.
 
+> We really want to get into the new kernel ASAP and clean stuff up from
+> in there.
+
+I agree.  However the gymnastics for doing that have not been worked out.
+The drivers cannot clean up stuff yet, nor do we have a good way to run
+in memory where DMA transfers on not ongoing.
+
+So for a first pass I think calling the shutdown methods make sense.
+
+For a second pass we need to use a relocatable that can do everything itself.
+And we should run it out of a reserved area of memory.
+
+But the first pass is worth it (at least in the kexec tree) to sort out all
+of the interface issues and catch the low hanging fruit.
+
+Eric

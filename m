@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275843AbRJBGuT>; Tue, 2 Oct 2001 02:50:19 -0400
+	id <S275841AbRJBHCy>; Tue, 2 Oct 2001 03:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275841AbRJBGuJ>; Tue, 2 Oct 2001 02:50:09 -0400
-Received: from fw.sthlm.cendio.se ([213.212.13.67]:65264 "EHLO
-	jarlsberg.sthlm.cendio.se") by vger.kernel.org with ESMTP
-	id <S275843AbRJBGtx>; Tue, 2 Oct 2001 02:49:53 -0400
+	id <S275845AbRJBHCn>; Tue, 2 Oct 2001 03:02:43 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:45719 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S275841AbRJBHCb>; Tue, 2 Oct 2001 03:02:31 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200110020702.IAA22663@mauve.demon.co.uk>
+Subject: Re: [PATCH] Stateful Magic Sysrq Key
 To: linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.4.33.0110012305350.3280-200000@localhost.localdomain>
-From: Marcus Sundberg <marcus@cendio.se>
-Date: 02 Oct 2001 08:50:19 +0200
-In-Reply-To: <Pine.LNX.4.33.0110012305350.3280-200000@localhost.localdomain>
-Message-ID: <ve8zeuy1qs.fsf@inigo.sthlm.cendio.se>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Date: Tue, 2 Oct 2001 08:02:37 +0100 (BST)
+In-Reply-To: <20011001234437.A10994@mueller.datastacks.com> from "Crutcher Dunnavant" at Oct 01, 2001 11:44:37 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mingo@elte.hu (Ingo Molnar) writes:
+> The following patch is a reworked patch which originated from Amazon.
+> It makes the sysrq key stateful, giving it the following behaviours:
 
-> (note that in case of shared interrupts, another 'innocent' device might
-> stay disabled for some short amount of time as well - but this is not an
-> issue because this mitigation does not make that device inoperable, it
-> just delays its interrupt by up to 10 msecs. Plus, modern systems have
-> properly distributed interrupts.)
+IMO, this is needed for broken keyboards, but in this exact form will
+cause problems for those without them.
+Pressing alt-sysrq accidentally is rare, but happens, typically when 
+I'm going for vt-12 in a hurry, or cleaning out crumbs.
+Normally this is fairly harmless, as most of the dangerous keys are
+on a different quadrant.
+Making it sticky makes accidents much more likely.
 
-Guess my P3-based laptop doesn't count as modern then:
+I'd suggest either making this behaviour optional, or making it so that
+hitting alt-sysrq twice, without any other keys being pressed makes the
+next key stick.
 
-  0:    7602983          XT-PIC  timer
-  1:      10575          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
- 11:    1626004          XT-PIC  Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support, Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (#2), usb-uhci, eth0, BreezeCom Card, Intel 440MX, irda0
- 12:       1342          XT-PIC  PS/2 Mouse
- 14:      23605          XT-PIC  ide0
-
-I can't even imagine why they did it like this...
-
-//Marcus
--- 
----------------------------------+---------------------------------
-         Marcus Sundberg         |      Phone: +46 707 452062
-   Embedded Systems Consultant   |     Email: marcus@cendio.se
-        Cendio Systems AB        |      http://www.cendio.com

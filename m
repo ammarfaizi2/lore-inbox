@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUEIVDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264388AbUEIVGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUEIVDm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 17:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbUEIVDm
+	id S264388AbUEIVGw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 17:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbUEIVGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 17:03:42 -0400
-Received: from waste.org ([209.173.204.2]:60129 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264389AbUEIVDl (ORCPT
+	Sun, 9 May 2004 17:06:52 -0400
+Received: from lech.pse.pl ([194.92.3.7]:59336 "EHLO lech.pse.pl")
+	by vger.kernel.org with ESMTP id S264388AbUEIVGv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 17:03:41 -0400
-Date: Sun, 9 May 2004 16:03:12 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "David S. Miller" <davem@redhat.com>, akpm@osdl.org, dipankar@in.ibm.com,
-       manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org, maneesh@in.ibm.com,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: dentry bloat.
-Message-ID: <20040509210312.GL5414@waste.org>
-References: <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <20040508135512.15f2bfec.akpm@osdl.org> <20040508211920.GD4007@in.ibm.com> <20040508171027.6e469f70.akpm@osdl.org> <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org> <20040508201215.24f0d239.davem@redhat.com> <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org>
+	Sun, 9 May 2004 17:06:51 -0400
+Date: Sun, 9 May 2004 23:06:43 +0200
+From: Lech Szychowski <lech.szychowski@pse.pl>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Distributions vs kernel development
+Message-ID: <20040509210643.GA29044@lech.pse.pl>
+Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20040507085312.3247d70d@dell_ss3.pdx.osdl.net> <409BB334.7080305@pobox.com> <20040509.084923.558886277.rene@rocklinux-consulting.de> <20040509073331.GY1397@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040509073331.GY1397@holomorphy.com>
+Organization: Polskie Sieci Elektroenergetyczne S.A.
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One also wonders about whether all the RCU stuff is needed on UP. I'm
-not sure if I grok all the finepoints here, but it looks like the
-answer is no and that we can make struct_rcu head empty and have
-call_rcu fall directly through to the callback. This would save
-something like 16-32 bytes (32/64bit), not to mention a bunch of
-dinking around with lists and whatnot.
+> I've been quite eager to see a distro whose kernel
+> is based on mainline without significant adulteration.
 
-So what am I missing?
+Take a look at Slackware, it uses the vanilla/Linus source.
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+	Leszek.
+
+-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+-- speaking just for myself...

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSHIOtm>; Fri, 9 Aug 2002 10:49:42 -0400
+	id <S313898AbSHIPS5>; Fri, 9 Aug 2002 11:18:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313508AbSHIOtm>; Fri, 9 Aug 2002 10:49:42 -0400
-Received: from mail3.alphalink.com.au ([202.161.124.59]:18443 "EHLO
-	mail3.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S313477AbSHIOtl>; Fri, 9 Aug 2002 10:49:41 -0400
-Message-ID: <3D53D783.C9ACDC64@alphalink.com.au>
-Date: Sat, 10 Aug 2002 00:53:55 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
+	id <S314078AbSHIPS5>; Fri, 9 Aug 2002 11:18:57 -0400
+Received: from dsl-213-023-043-103.arcor-ip.net ([213.23.43.103]:34956 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313898AbSHIPS4>;
+	Fri, 9 Aug 2002 11:18:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: frankeh@watson.ibm.com, davidm@hpl.hp.com,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: large page patch (fwd) (fwd)
+Date: Fri, 9 Aug 2002 17:20:52 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, torvalds@transmeta.com,
+       gh@us.ibm.com, Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com> <15692.37018.693984.745251@napali.hpl.hp.com> <200208041319.05210.frankeh@watson.ibm.com>
+In-Reply-To: <200208041319.05210.frankeh@watson.ibm.com>
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>
-CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
-References: <20020808174227.GE380@cadcamlab.org> <Pine.LNX.4.44.0208091204360.28515-100000@serv> <20020809114741.GB4818@cadcamlab.org> <20020809130728.A31506@flint.arm.linux.org.uk> <20020809124920.GA687@cadcamlab.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17dBZN-0001Ng-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
-> 
-> [Russell King]
-> > Erm, !n == n ???
-> 
-> Duh.  I need some serious sleep.  That wasn't the only semantically
-> significant typo in my post, only the worst.  Obviously, !n == y.
+On Sunday 04 August 2002 19:19, Hubertus Franke wrote:
+> "General Purpose Operating System Support for Multiple Page Sizes"
+> htpp://www.usenix.org/publications/library/proceedings/usenix98/full_papers/ganapathy/ganapathy.pdf
 
-So what is !"" ?
+This reference describes roughly what I had in mind for active 
+defragmentation, which depends on reverse mapping.  The main additional
+wrinkle I'd contemplated is introducing a new ZONE_LARGE, and GPF_LARGE,
+which means the caller promises not to pin the allocation unit for long
+periods and does not mind if the underlying physical page changes
+spontaneously.  Defragmenting in this zone is straightforward.
 
-Greg.
 -- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+Daniel

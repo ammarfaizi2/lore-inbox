@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265208AbUELT5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUELUDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265208AbUELT5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 15:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUELT5L
+	id S265207AbUELUDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbUELUDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 15:57:11 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:57576 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S265208AbUELT5B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 15:57:01 -0400
-Message-ID: <40A2812B.4080004@keyaccess.nl>
-Date: Wed, 12 May 2004 21:55:23 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-CC: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-References: <fa.jr282gn.1ni2t37@ifi.uio.no> <fa.cmd38j8.1tgg9ro@ifi.uio.no> <008201c437e7$b1a35160$6601a8c0@northbrook> <20040512185224.GA2658@bounceswoosh.org>
-In-Reply-To: <20040512185224.GA2658@bounceswoosh.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Wed, 12 May 2004 16:03:25 -0400
+Received: from 213-0-215-121.dialup.nuria.telefonica-data.net ([213.0.215.121]:3204
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S265207AbUELUDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 16:03:23 -0400
+Date: Wed, 12 May 2004 22:03:22 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: John Covici <covici@ccs.covici.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6 breaks VMware compile..
+Message-ID: <20040512200322.GA4947@localhost>
+Mail-Followup-To: John Covici <covici@ccs.covici.com>,
+	linux-kernel@vger.kernel.org
+References: <407CF31D.8000101@rgadsdon2.giointernet.co.uk> <m365b15vls.fsf@ccs.covici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m365b15vls.fsf@ccs.covici.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric D. Mudama wrote:
+On Wednesday, 12 May 2004, at 14:49:35 -0400,
+John Covici wrote:
 
-Thanks much for responding. I have one of these maxtor drives.
+> How do Iget that patch since its still broke in 2.6.6?
+> 
+Maybe you forgot to "apply" the "patch" to VMware to allow it to compile
+its interface and run OK in newer kernels. Check:
+ftp://platan.vc.cvut.cz/pub/vmware
 
-> Note that this only affects newer drives (last 18 months or so) that
-> are <120GB. (Yes, I know that is still a truckload)
+for the latest version of the "patch" (vmware-any-any-update66.tar.gz).
 
-Possibly <=, but at least both 6Y120P0 (120G, 8M cache) en 6Y120L0 
-(120G, 2M cache) are affected. Experiencing it myself on 6Y120P0.
+Greetings.
 
-> There are a gazillion of these in the field (we sell ~60 million
-> drives/year?) so I don't believe a firmware "upgrade" or equivalent
-> simply is logistically possible, but this inconsistency is going to be
-> addressed in future products, I'm making sure of it.
-
-As to logistics... must say I'd already be satisfied with a new firmware 
-  downloadable from the maxtor site and a means to upload it. Of course, 
-a linux means would be best for me. If not possible, real-mode DOS is 
-useable.
-
-> If anyone has questions, please don't hesitate to email and I'll do my
-> best to help.
-
-Thanks for responding! Please do consider making an updated firmware 
-available through the site...
-
-Rene.
-
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.6)

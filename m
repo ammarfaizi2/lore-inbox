@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135992AbRD0Jk1>; Fri, 27 Apr 2001 05:40:27 -0400
+	id <S133044AbRD0Jur>; Fri, 27 Apr 2001 05:50:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135994AbRD0JkR>; Fri, 27 Apr 2001 05:40:17 -0400
-Received: from t2.redhat.com ([199.183.24.243]:61688 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135992AbRD0JkF>; Fri, 27 Apr 2001 05:40:05 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se> 
-In-Reply-To: <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se> 
-To: Bjorn Wesen <bjorn@sparta.lu.se>
-Cc: Padraig Brady <padraig@antefacto.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramdisk/tmpfs/ramfs/memfs ? 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 27 Apr 2001 10:36:18 +0100
-Message-ID: <21093.988364178@redhat.com>
+	id <S135354AbRD0Juh>; Fri, 27 Apr 2001 05:50:37 -0400
+Received: from smtprelay.gecm.com ([62.172.222.133]:57863 "EHLO
+	smtprelay.gecm.com") by vger.kernel.org with ESMTP
+	id <S133044AbRD0Ju3>; Fri, 27 Apr 2001 05:50:29 -0400
+Date: Fri, 27 Apr 2001 10:52:20 +0100
+From: dave.fraser@baesystems.com
+Subject: Resetting a PCI device
+To: linux-kernel@vger.kernel.org
+Message-id: <001901c0ceff$c0ae88e0$64ccdd89@edinbr.gmav.gecm.com>
+Organization: BAE Systems
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+Content-type: text/plain;	charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there any way of issuing a PCI reset (safely) without rebooting?  I am
+developing a peripheral device (using a pci card with an FPGA and a plx9080
+pci interface), and find that its local bus is prone to hanging up.  It
+would be nice if I could just reset the entire device via the PCI reset,
+without having to go through the hassle of a reboot.  Is this wishful
+thinking?
 
-bjorn@sparta.lu.se said:
->  you could try using jffs2 on a RAM-simulated MTD partition. i think
-> that would work but i have not tried it..
+- Dave
 
-It works. Most of the early testing and development was done on it. It 
-wouldn't give you dynamic sizing like ramfs though. 
-
-It would be nice to have a version of ramfs which compresses pages into a 
-separate backing store when they're unused. Shame somebody nicked the name 
-'cramfs' for something else, really :)
-
-But I'm confused. Padraig, if you have no backing store, where do the 
-initial contents of your root filesystem come from?
-
---
-dwmw2
-
+---------------------------------------------------------------------
+ Dave Fraser
+ Development Engineer
+ BAE Systems, Ferry Road,
+ Edinburgh, EH5 2XS
+ Tel: +44 131 3434729
+ Fax: +44 131 3434124
+---------------------------------------------------------------------
 

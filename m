@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbSI2TEb>; Sun, 29 Sep 2002 15:04:31 -0400
+	id <S261730AbSI2S4j>; Sun, 29 Sep 2002 14:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261739AbSI2TEb>; Sun, 29 Sep 2002 15:04:31 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:23278 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261721AbSI2TE2>; Sun, 29 Sep 2002 15:04:28 -0400
-Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
-From: Arjan van de Ven <arjanv@fenrus.demon.nl>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0209292050390.591-100000@pnote.perex-int.cz>
-References: <Pine.LNX.4.33.0209292050390.591-100000@pnote.perex-int.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-Cd/yAp59i6q+E+SqwRJc"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 29 Sep 2002 21:12:23 +0200
-Message-Id: <1033326744.2419.9.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261731AbSI2S4j>; Sun, 29 Sep 2002 14:56:39 -0400
+Received: from gate.perex.cz ([194.212.165.105]:15888 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S261730AbSI2S4i>;
+	Sun, 29 Sep 2002 14:56:38 -0400
+Date: Sun, 29 Sep 2002 21:01:23 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ALSA update [9/10] - 2002/08/01
+Message-ID: <Pine.LNX.4.33.0209292054180.591-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Cd/yAp59i6q+E+SqwRJc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The 9-th patch is large. Please, download it from this URL:
 
-On Sun, 2002-09-29 at 20:51, Jaroslav Kysela wrote:
-> +	sgbuf =3D snd_magic_cast(snd_pcm_sgbuf_t, substream->dma_private, retur=
-n -EINVAL);
+ftp://ftp.alsa-project.org/pub/kernel-patches/set#1/9.patch
 
-hummmm magic casts?? why ?
+						Jaroslav
 
-> +		ptr =3D snd_malloc_pci_pages(sgbuf->pci, PAGE_SIZE, &addr);
-
-what is wrong with the PCI DMA API that makes ALSA wants a private
-interface/implementation ?
-
->  EXPORT_SYMBOL(snd_wrapper_kmalloc);
->  EXPORT_SYMBOL(snd_wrapper_kfree);
-> +EXPORT_SYMBOL(snd_wrapper_vmalloc);
-> +EXPORT_SYMBOL(snd_wrapper_vfree);
-
-why do you need a wrapper for vfree?=20
+ChangeSet@1.605.2.20, 2002-09-26 14:07:49+02:00, perex@pnote.perex-int.cz
+  ALSA update 2002/08/01 :
+    - CS46xx - added support for the new DSP image
+      - S/PDIF and dual-codec support
+    - sequencer
+      - fixed deadlock at snd_seq_timer_start/stop
 
 
-
-
---=-Cd/yAp59i6q+E+SqwRJc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9l1CXxULwo51rQBIRAqwiAJwJly9DE66y4muuZnrbgmsPbZf78ACglbo3
-v1uQruhq52jbXdp8sCYVV5M=
-=sEN9
------END PGP SIGNATURE-----
-
---=-Cd/yAp59i6q+E+SqwRJc--
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

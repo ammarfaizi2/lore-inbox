@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264352AbUEYGc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUEYGrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbUEYGc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 02:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264779AbUEYGc2
+	id S264640AbUEYGrw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 02:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264779AbUEYGrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 02:32:28 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:28853 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S264352AbUEYGc0 (ORCPT
+	Tue, 25 May 2004 02:47:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24266 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264640AbUEYGru (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 02:32:26 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-Date: Tue, 25 May 2004 02:32:28 -0400
-User-Agent: KMail/1.6.2
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
-MIME-Version: 1.0
+	Tue, 25 May 2004 02:47:50 -0400
+Date: Tue, 25 May 2004 08:47:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: braam <braam@clusterfs.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       "'Phil Schwan'" <phil@clusterfs.com>
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+Message-ID: <20040525064730.GB14792@suse.de>
+References: <20040524114650.GV1952@suse.de> <20040525014902.245C8310127@moraine.clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405250232.29103.phillips@arcor.de>
+In-Reply-To: <20040525014902.245C8310127@moraine.clusterfs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, May 25 2004, braam wrote:
+> Hi Jens,
+> 
+> We use this patch on servers as follows. 
+> 
+> Lustre servers give an immediate response for RPC's to clients, and
+> later indicate what transactions numbers have been committed to disk.
+> At known points in the execution we sync all transactions to disk,
+> execute our ioctl.  When the ioctl is issues Lustre is also instructed
+> not to send disk commit confirmation to clients. Then the system
+> continues to execute some transactions, but only in memory, and send
+> responses to clients.   We are sure they are lost if we powercycle
+> that system.  This enables tests for replay of transactions by client
+> nodes in the cluster.
+> 
+> If we were to return errors, (which, I agree, _seems_ much more sane,
+> and we _did_ try that for a while!) then there is a good chance,
+> namely immediately when something is flushed to disk, that the system
+> will detect the errors and not continue to execute transactions making
+> consistent testing of our replay mechanisms impossible.
+> 
+> I hope that this explains why we do not return errors.  Now if you
+> tell me that I can turn off I/O, and not get errors, with existing
+> ioctls then I certainly should existing ioctls. Can you clarify that.
+> 
+> Am I making sense to you now?
 
-On Sunday 23 May 2004 02:46, Linus Torvalds wrote:
-> This basically allows people to sign off on other peoples patches, as long
-> as they see that the previous entry in the chain has been signed off on.
+Not really, since you are not answering my question at all... My
+question is not why you need this codeo or how you are using it, it's
+why you cannot use existing functionality to do the same? Look at
+genhd.c, it has functions for checking/marking/clearing read-only bit on
+a block_device.
 
-Does that mean that when the submission arrives at your end it's supposed to 
-have a whole list of Signed-off-bys, one for each person who handled the 
-patch?  Or is it only supposed to have one Signed-off-by, as close to the 
-original author as possible?  Or one Signed-off-by with multiple upstream 
-emails on it?
+And if this it to make sense for inclusion, io _must_ be ended with
+-EROFS or similar.
 
-Regards,
+It seems to me that this probably belongs in your test harness for
+debugging purposes. At least in its current state it's not acceptable
+for inclusion.
 
-Daniel
+-- 
+Jens Axboe
+

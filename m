@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317032AbSFFRjl>; Thu, 6 Jun 2002 13:39:41 -0400
+	id <S317025AbSFFRnM>; Thu, 6 Jun 2002 13:43:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSFFRjk>; Thu, 6 Jun 2002 13:39:40 -0400
-Received: from web10407.mail.yahoo.com ([216.136.130.99]:15115 "HELO
-	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317032AbSFFRjj>; Thu, 6 Jun 2002 13:39:39 -0400
-Message-ID: <20020606173940.52363.qmail@web10407.mail.yahoo.com>
-Date: Thu, 6 Jun 2002 18:39:40 +0100 (BST)
-From: =?iso-8859-1?q?Mike=20Martin?= <redtuxxx@yahoo.co.uk>
-Subject: modules oddity with 2.4.19-pre9
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S317036AbSFFRnL>; Thu, 6 Jun 2002 13:43:11 -0400
+Received: from earth.ayrnetworks.com ([64.166.72.139]:34493 "EHLO 
+	ayrnetworks.com") by vger.kernel.org with ESMTP id <S317025AbSFFRnK>;
+	Thu, 6 Jun 2002 13:43:10 -0400
+Date: Thu, 6 Jun 2002 10:40:37 -0700
+From: William Jhun <wjhun@ayrnetworks.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "linux-kernel@vger.kernel.org"@ayrnetworks.com,
+        "linux-mips@oss.sgi.com"@ayrnetworks.com
+Subject: Re: Deprecate pci_dma_sync_{single,sg}()?
+Message-ID: <20020606104036.A11943@ayrnetworks.com>
+In-Reply-To: <20020605131231.B10773@ayrnetworks.com> <20020605.154747.58455261.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to compile 2.4.19-pre 9 on my RH7.3 system
+On Wed, Jun 05, 2002 at 03:47:47PM -0700, David S. Miller wrote:
+>    From: William Jhun <wjhun@ayrnetworks.com>
+>    Date: Wed, 5 Jun 2002 13:12:31 -0700
+>    
+>    In the current linux-mips implementation, this has some subtle problems:
+>    pci_unmap_{single,sg}() is essentially a no-op.
+> 
+> Right, I see the problem.  I'll think about this some more.
+> 
+> As it stands now, I think the correct solution is to require
+> pci_dma_prep_single() before giving the buffer back to the
+> device after the read.
 
-Eveything seems to compile and install howver when I try to boot with
-the new kernel every modules comes up with an undefined sybol error
-and fails to load
+Right, that's what I was thinking. Is it asking a lot to demand that all
+existing drivers that use this interface add pci_dma_prep_single()? How
+will backward compatiblility with older drivers work? That's why I
+suggested leaving pci_dma_sync_single() and adding
+pci_dma_release_single() which can leave the cache flush to
+pci_dma_prep_single(). It seems like elsewhere, like the D-cache
+flushing interface (for virtual aliasing), both old and new interfaces
+co-exist. Does this seem to work out O.K. in your experience?
 
-System boots if I dont have a initrd - just no modules 
-
-1. Has anyone else come across this
-2. Anyone any idea what could be the problem
-
-No need to cc, I will check the list
-
-
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+Will

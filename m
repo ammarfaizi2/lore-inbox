@@ -1,99 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVBQNCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVBQNFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVBQNCP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 08:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVBQNCP
+	id S262147AbVBQNFO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 08:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVBQNFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 08:02:15 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31219 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262149AbVBQNBq
+	Thu, 17 Feb 2005 08:05:13 -0500
+Received: from alog0254.analogic.com ([208.224.222.30]:7040 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262147AbVBQNFA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 08:01:46 -0500
-Message-ID: <421495B3.3050106@mvista.com>
-Date: Thu, 17 Feb 2005 05:01:39 -0800
-From: Frank Rowand <frowand@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Thu, 17 Feb 2005 08:05:00 -0500
+Date: Thu, 17 Feb 2005 08:04:13 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Davide Rossetti <davide.rossetti@roma1.infn.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rmmod while module is in use
+In-Reply-To: <4214926B.3030707@roma1.infn.it>
+Message-ID: <Pine.LNX.4.61.0502170757150.15033@chaos.analogic.com>
+References: <4214926B.3030707@roma1.infn.it>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Realtime preempt support for PPC
-References: <200502162056.j1GKuIkt005783@localhost.localdomain> <20050217080304.GA21887@elte.hu>
-In-Reply-To: <20050217080304.GA21887@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Frank Rowand <frowand@mvista.com> wrote:
-> 
-> 
->>I have attached a patch to add realtime support for PowerPC (32 bit
->>only). [...]
-> 
-> 
-> two comments:
-> 
-> - why is us_to_tb needed? It just seems to add alot of unnecessary
->   clutter to the patch, while it's not used anywhere.
+On Thu, 17 Feb 2005, Davide Rossetti wrote:
 
-Sorry, the usage of us_to_tb got dropped from the patch when I moved
-it from one of my development trees to another.  It gets used in
-usecs_to_cycles().  The patch to add that is attached below.
+> maybe RTFM...
+> a module:
+> - char device driver for..
+> - a PCI device
+>
+> any clue as to how to protect from module unloading while there is still some 
+> process opening it??? have I to sleep in the remove_one() pci driver function 
+> till last process closes its file descriptor???
+>
 
-Even with the usage of us_to_tb by usecs_to_cycles(), there is a lot
-of added clutter for what is accomplished.  I considered a nasty hack
-to try to derive the proper value from other sources, but adding
-us_to_tb seemed a lot easier to understand.
+The kernel code is supposed to prevent module removal when it
+is still in use. Have you discovered a bug where the kernel
+will allow unloading when it's still being used???
 
-This patch also adds the dreaded #ifdefs, so I suspect it will not be
-the correct implementation long term.  I'm not sure if Manish's patch
-included the ARM implementation of usecs_to_cycles() - it is a third
-case in the #ifdef.
+There used to be MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT
+macros to be using in open() and close(). However their
+use has been depreciated in favor of some internal kernel
+magic. So, unless you have discovered a bug, your code
+doesn't have to worry anymore.
 
-Performance instrumentation is also going to need mcount() and
-_mcount(), which is currently a work in progress.
+> static void __devexit apedev_remove_one(struct pci_dev *pdev)
+> {
+>   ApeDev* apedev = pci_get_drvdata(pdev);
+>
+>   if(test_bit(APEDEV_FLAG_OPEN, &apedev->flags)) {
+>       PERROR("still open flag on!!! (flags=0x%08x)\n", apedev->flags);
+>
+>       // sleep here till it gets closed...
+>
+>   }
+>   ...
+> }
+>
+> static struct pci_driver apedev_driver = {
+>   .name     =  DEVNAME,
+>   .id_table =  apedev_pci_tbl,
+>   .probe    =  apedev_init_one,
+>   .remove   =  __devexit_p(apedev_remove_one),
+> };
+>
 
-> 
-> - could you submit the drivers/net/ibm_emac/ibm_emac_core.c patch
->   upstream as well?
-
-Yes, I will do that.
-
-
-> 
-> otherwise it looks pretty clean and straightforward.
-> 
-> 	Ingo
-
-
-Source: MontaVista Software, Inc.
-Signed-off-by: Frank Rowand <frowand@mvista.com>
-
-Index: linux-2.6.10/kernel/latency.c
-===================================================================
---- linux-2.6.10.orig/kernel/latency.c
-+++ linux-2.6.10/kernel/latency.c
-@@ -192,7 +192,11 @@ static unsigned long notrace cycles_to_u
-
-  static cycles_t notrace usecs_to_cycles(unsigned long delta)
-  {
-+#if defined CONFIG_X86
-  	return (cycles_t) delta * (cycles_t) (cpu_khz/1000+1);
-+#elif defined(CONFIG_PPC)
-+	return delta * us_to_tb;
-+#endif
-  }
-
-  #ifdef CONFIG_LATENCY_TRACE
-
-
-
-Thanks,
-
--Frank (off to vacation for a couple days)
--- 
-Frank Rowand <frank_rowand@mvista.com>
-MontaVista Software, Inc
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

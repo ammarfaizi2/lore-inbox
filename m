@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270823AbRIAQoc>; Sat, 1 Sep 2001 12:44:32 -0400
+	id <S270814AbRIARB0>; Sat, 1 Sep 2001 13:01:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270818AbRIAQoW>; Sat, 1 Sep 2001 12:44:22 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:41630 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270800AbRIAQoN>;
-	Sat, 1 Sep 2001 12:44:13 -0400
-Date: Sat, 1 Sep 2001 12:44:29 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFD] readonly/read-write semantics
-In-Reply-To: <20010901164238.P9870@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21.0109011226580.18705-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270818AbRIARBP>; Sat, 1 Sep 2001 13:01:15 -0400
+Received: from scispor.dolphinics.no ([193.71.152.117]:39184 "EHLO
+	scispor.dolphinics.no") by vger.kernel.org with ESMTP
+	id <S270814AbRIARBI> convert rfc822-to-8bit; Sat, 1 Sep 2001 13:01:08 -0400
+Message-ID: <200109011905240984.24422290@scispor.dolphinics.no>
+In-Reply-To: <200109011619480531.23AA844A@scispor.dolphinics.no>
+In-Reply-To: <200109011619480531.23AA844A@scispor.dolphinics.no>
+X-Mailer: Calypso Version 3.00.03.02 (1)
+Date: Sat, 01 Sep 2001 19:05:24 +0200
+From: "Simen Thoresen" <simen-tt@online.no>
+To: "alan" <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of the VIA KT133a and 2.4.x debacle?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Alan, list, et all,
+>
+I've now realised that this discussion is ongoing, and would just like to chip in with my newer results.
 
+<znip>
 
-On Sat, 1 Sep 2001, Ingo Oeser wrote:
+>I have not determined if it is static void fast_clear_page(void *page), or  static void fast_copy_page(void *to, void >*from) which is to blame here, but I will continue investigating.
+>
 
-> On Sat, Sep 01, 2001 at 12:23:05AM -0400, Alexander Viro wrote:
-> > > 2) I'd like to see a readonly mount state defined as "the filesystem will
-> > > not change.  Period."  Not for system calls in progress, not for cache
-> > > synchronization, not to set an "unmounted" flag, not for writes that are
-> > > queued in the device driver or device.  (That last one may stretch
-> > > feasability, but it's a worthy goal anyway).
-> > 
-> > It doesn't work.  Think of r/o mounting of remote filesystem.  Do you
-> > suggest that it should make it impossible to change from other clients?
-> 
-> It's sufficient for local file systems. Or see it this way: The
-> machine, that mounted it r/o will NOT write to it until it is
-> mounted r/w again.
+I've determined that with the Athlon-optimized fast_copy_page, the machine is easy to push into oopsing. Just starting a dd with blocksize 128M (half available ram) provokes an oops. This is repeatable, consistent and almost fun.
 
-That's _also_ not true for remote filesystems.  We can mount the same
-filesystem over NFS again without unmounting the old instance.  Always
-could.
+With the Athlon-optimized fast_clear_page, tho, the machine seems stable. I can start the above dd, and two more like it (eating some 128MB into swap as well), and then start using the machine.
 
-IMO a part of the problem is that we are mixing "I'm not asking that
-to be writable" with "I won't let you write".  The former belongs
-to the mounting side, the latter - to filesystem.
+It's now been churning away like that for half an hour, and I've never had to wait that long for an oops.
 
-Notice that setups along the lines "mount /dev/sda5 read-only on /home/jail/pub
-and read-write on /home/ftp/pub" are not that unreasonable, so even for local
-filesystems it might make sense.
+How much is gained using the Athlon-optimized fast_copy_page over the normal fast_copy_page?
 
-IOW, I suspect that right solution would have two separate layers -
-	* does anyone get write access under that mountpoint? (VFS)
-	* is this fs asked to handle write access and had it agreed with that?
-(filesystem)
+Yours,
+-S
+--
+Simen Thoresen, Beowulf-cleaner and random artist - close and personal.
+
+Er det ikke rart?
+The gnu RART-project on http://valinor.dolphinics.no:1080/~simentt/rart
+
 

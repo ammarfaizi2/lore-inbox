@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVAYPMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVAYPMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVAYPMV (ORCPT <rfc822;willy@w.ods.org>);
+	id S261976AbVAYPMV (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 25 Jan 2005 10:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVAYPKf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVAYPK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:10:35 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:19716 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261971AbVAYPKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:10:10 -0500
-Message-ID: <41F66131.1@techsource.com>
-Date: Tue, 25 Jan 2005 10:09:37 -0500
-From: Timothy Miller <miller@techsource.com>
+	Tue, 25 Jan 2005 10:10:26 -0500
+Received: from smtp.hickorytech.net ([216.114.192.16]:44681 "EHLO
+	avalanche.hickorytech.net") by vger.kernel.org with ESMTP
+	id S261976AbVAYPJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:09:53 -0500
+Message-ID: <41F6613F.6030509@mnsu.edu>
+Date: Tue, 25 Jan 2005 09:09:51 -0600
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OT] News about the Open Graphics Project
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jakob Oestergaard <jakob@unthought.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
+       linux-kernel <linux-kernel@vger.kernel.org>, kruty@fi.muni.cz
+Subject: Re: journaled filesystems -- known instability; Was: XFS: inode	with
+ st_mode == 0
+References: <20041209125918.GO9994@fi.muni.cz>	 <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>	 <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net>	 <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com>	 <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org>	 <20050117100746.GI347@unthought.net>  <41EC2ECF.6010701@mnsu.edu> <1106657254.1985.294.camel@sisko.sctweedie.blueyonder.co.uk>
+In-Reply-To: <1106657254.1985.294.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of you may recall my post back in October 
-(http://marc.theaimsgroup.com/?l=linux-kernel&m=109831011607347&w=2) 
-about an open-source-friendly graphics board.  We've been working on 
-that, and we've made a lot of progress on it.  A LOT has changed, and 
-we're now working on an OpenGL-compliant 3D GPU.
+Stephen C. Tweedie wrote:
 
-This morning, KernelTrap put up an interview that we've been working on 
-which talks about the project and its current status.  Here's a link to 
-the article:
+>Hi,
+>
+>On Mon, 2005-01-17 at 21:31, Jeffrey Hundstad wrote:
+>  
+>
+>>For more of this look up subjects:
+>>  Bad things happening to journaled filesystem machines
+>>  Oops in kjournald
+>>    
+>>
+>
+>That seems to have been due to the xattr problems recently fixed in
+>Linus's tree.  The xattr race was allowing one process to delete an
+>unshared xattr block while another was trying to share it, and the
+>journaling code was getting upset when the second process then tried to
+>commit the now-deleted block.
+>  
+>
 
-http://kerneltrap.org/node/4622
+Thanks for the update.
 
-Usually, KernelTrap quotes LKML.  Therefore, I figure it wouldn't be too 
-bad for me to quote KernelTrap on LKML.  :)  Here's a relevant bit of 
-the article:
+I wonder if there are several problems.  Alan Cox claimed that there was 
+a fix in linux-2.6.10-ac10 that might alleviate the problem.
 
-The Open Graphics Project is a collaboration between the Free and Open 
-Source Software (FOSS) Community and Tech Source Inc. to develop new 3D 
-graphics products that are compatible with Free Software, both 
-philosophically and practically. The project is currently designing an 
-"open source friendly graphics card" which will offer quality 3D and 2D 
-acceleration with an impressive feature set at an affordable price, 
-aiming for availability as early as June of 2005. Though the project was 
-only started in October of 2004, it has already released the card's 
-specifications, a design document, and a software model for early 
-testing and driver development. In this interview, Timothy provides a 
-wealth of information about the project and its current status, 
-highlights contributions needed from the free and open source community, 
-and fully describes the specific capabilities of the card.
+On linux-2.6.10-ac10 I've got one machine that's been up for 6 days now 
+that would never last more then 1 before.  On the other hand I have one 
+machine that did die after two days.
 
+Does linux-2.6.11-rc2 have both the linux-2.6.10-ac10 fix and the xattr 
+problem fixed?  If so, I'll test there.
 
-
-[Note:  I used to subscribe to LKML, but this project and my own mailing 
-list have made it impossible for me to keep up with LKML.  If you have 
-questions, feel free to email me directly.]
+-- 
+Jeffrey Hundstad

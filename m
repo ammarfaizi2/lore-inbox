@@ -1,76 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269591AbUINR2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269516AbUINRXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269591AbUINR2W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269604AbUINR1m
+	id S269516AbUINRXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269530AbUINRTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:27:42 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:28068 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S269607AbUINRYp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 13:24:45 -0400
-Date: Tue, 14 Sep 2004 19:26:46 +0200
-From: DervishD <lkml@dervishd.net>
-To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/config reducing kernel image size
-Message-ID: <20040914172646.GA614@DervishD>
-Mail-Followup-To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>,
-	linux-kernel@vger.kernel.org
-References: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no>
+	Tue, 14 Sep 2004 13:19:37 -0400
+Received: from mail5.bluewin.ch ([195.186.1.207]:38804 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269598AbUINRRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:17:01 -0400
+Date: Tue, 14 Sep 2004 19:16:10 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Albert Cahalan <albert@users.sf.net>
+Subject: Re: [pidhashing] [2/3] lower PID_MAX_LIMIT for 32-bit machines
+Message-ID: <20040914171610.GB14031@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Albert Cahalan <albert@users.sf.net>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040914022530.GO9106@holomorphy.com> <20040914022827.GP9106@holomorphy.com> <20040914023114.GQ9106@holomorphy.com> <20040914105527.GB11238@k3.hellgate.ch> <20040914154144.GQ9106@holomorphy.com> <20040914154750.GA13978@k3.hellgate.ch> <20040914164157.GU9106@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-PopBeforeSMTPSenders: raul@dervishd.net
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20040914164157.GU9106@holomorphy.com>
+X-Operating-System: Linux 2.6.8 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Tom :)
+On Tue, 14 Sep 2004 09:41:57 -0700, William Lee Irwin III wrote:
+> Please check to see that the above message arrived.
 
- * Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no> dixit:
-> There is no point in storing all the comments and unused options in the
-> kernel image. This typically reduces the config size to about 1/5th
-> before compressing, and to about 1/4th after compressing.
+It's in the archive. Sorry for the noise.
 
-    I'm with you in that there is no point in storing the comments,
-but I disagree about the unused options. Storing the unused options
-as comments is more useful than it seems ;)
-
-    Look at this example. You want to know if you have 'CONFIG_PNP'
-enabled, so you do something like 'grep CONFIG_PMP /proc/config' (the
-typo PNP->PMP is intended here). Of course that commands doesn't
-print anything due to the typo. If you store the disabled options as
-comments and a grep fails, you probably mispelled the config option,
-or you're referring to a config option not present in your old
-kernel, but if you remove them and you mispell the config option
-there is no (automatic) way of knowing if you made a typo or if the
-option is disabled. Any automatic search can, potentially, give you a
-false negative.
-
-    I'm not really sure about it, but I think that the unset options
-are left as comments for the sake of automation. The space saving
-doesn't (IMHO) worth the pain.
-
-> I've also added the configuration option of how you want to compress it.
-
-    Compression is always welcome, I suppose ;) Thanks for the idea.
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Roger

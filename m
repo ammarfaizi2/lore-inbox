@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265087AbUEYVXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265090AbUEYVXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265087AbUEYVXj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 17:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbUEYVXi
+	id S265090AbUEYVXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 17:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUEYVXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 17:23:38 -0400
-Received: from amber.ccs.neu.edu ([129.10.116.51]:46995 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S265087AbUEYVXh
+	Tue, 25 May 2004 17:23:49 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:4245 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S265090AbUEYVXq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 17:23:37 -0400
-Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: Andi Kleen <ak@muc.de>
-Cc: Malte Schr?der <MalteSch@gmx.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040525123636.GA13817@colin2.muc.de>
-References: <1ZqbC-5Gl-13@gated-at.bofh.it>
-	 <m3r7t9d3li.fsf@averell.firstfloor.org>
-	 <20040525122659.395783f4@highlander.Home.LAN>
-	 <20040525123636.GA13817@colin2.muc.de>
-Content-Type: text/plain
-Message-Id: <1085520021.1393.4168.camel@duergar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 25 May 2004 17:20:22 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 17:23:46 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) - Not out of memory
+Date: Tue, 25 May 2004 14:20:23 -0700
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) - Not out of memory
+Thread-Index: AcRCi32BdSsgNeTDQEqvO0A7gK2YZAAEk+sA
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Doug Dumitru" <doug@easyco.com>
+Cc: <linux-kernel@vger.kernel.org>, "cramerj" <cramerj@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>, <jgarzik@pobox.com>
+X-OriginalArrivalTime: 25 May 2004 21:20:24.0729 (UTC) FILETIME=[17F31890:01C4429E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-25 at 08:36, Andi Kleen wrote:
-> On Tue, May 25, 2004 at 12:26:59PM +0200, Malte Schr?der wrote:
-> > New information :)
-> > I didn't profile it yet but I think I found what caused the problem.
-> > It turned out that I have to disable alsa mmap-support in xine (mplayer worked w/o problems, it does not offer alsa mmap), so X is not involved at all. Do you still need a profile or is this a known thing?
-> 
-> Ask the xine guys if it's known, I don't know much about xine.
-> If a user space change fixes it then I don't need any profiles.
-> 
+Marcelo Tosatti wrote:
 
-I can confirm that xine with alsa-mmap option set does cuase strange
-behaviour, though I notice it mostly as audio and video getting out of
-sync when playing videos.  I've noticed this behaviour since I started
-doing weekly xine CVS builds.  I've never bothered reporting it however,
-I just turned off the option... which leads me to my question, what is
-the advantage of using alsa-mmap in an app if it is used correctly?
+> It seems we are calling alloc_skb(GFP_KERNEL) from inside an 
+> interrupt handler. Oops. 
 
-And Malte, are you using emu10k1 driver per chance?
+We're calling dev_alloc_skb() from hard interrupt context, but it uses
+GFP_ATOMIC, not GFP_KERNEL, so this is OK, right?  I don't see the
+problem with e1000.
+ 
+> e1000 maintainers, can you look at this please? 
 
--sb
-
-> -Andi
-
-
+-scott

@@ -1,67 +1,228 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265515AbTGBW7u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 18:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265454AbTGBW6E
+	id S265566AbTGBXCE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 19:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTGBXAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 18:58:04 -0400
-Received: from holomorphy.com ([66.224.33.161]:22970 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265529AbTGBW5M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 18:57:12 -0400
-Date: Wed, 2 Jul 2003 16:11:22 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030702231122.GI26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay> <20030702174700.GJ23578@dualathlon.random> <20030702214032.GH20413@holomorphy.com> <20030702220246.GS23578@dualathlon.random> <20030702221551.GH26348@holomorphy.com> <20030702222641.GU23578@dualathlon.random>
+	Wed, 2 Jul 2003 19:00:52 -0400
+Received: from 213-0-202-117.dialup.nuria.telefonica-data.net ([213.0.202.117]:54423
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S265544AbTGBW7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 18:59:04 -0400
+Date: Thu, 3 Jul 2003 01:13:25 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [2.5.73]: Bad page state at free_hot_cold_page
+Message-ID: <20030702231325.GA28040@localhost>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030702222641.GU23578@dualathlon.random>
-Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 03:15:51PM -0700, William Lee Irwin III wrote:
->> What complexity? Just unmap it if you can't allocate a pte_chain and
->> park it on the LRU.
+Hi:
 
-On Thu, Jul 03, 2003 at 12:26:41AM +0200, Andrea Arcangeli wrote:
-> the complexity in munlock to rebuild what you destroyed in mlock, that's
-> linear at best (and for anonymous mappings there's no objrmap, plus
-> objrmap isn't even linear but quadratic in its scan [hence the problem
-> with it], though in practice it would be normally faster than the linear
-> of the page scanning ;)
-
-Computational complexity; okay.
-
-It's not quadratic; at each munlock(), it's not necessary to do
-anything more than:
-
-for each page this mlock()'er (not _all_ mlock()'ers) maps of this thing
-	grab some pagewise lock
-	if pte_chain allocation succeeded
-		add pte_chain
-	else
-		/* you'll need to put anon pages in swapcache in mlock() */
-		unmap the page
-	decrement lockcount
-	if lockcount vanished
-	park it on the LRU
-	drop the pagewise lock
-
-Individual mappers whose mappings are not mlock()'d add pte_chains when
-faulting the things in just like before.
+While compiling some application I got a "signal 11" on the compiler,
+and the following in the logs. As this box is known to have random
+hungs, specially after minutes of heavy compiling (CPU hot), take this
+bug report with a BIG grain of salt, it could be another case of crappy
+hardware, though "memtest86" showed no problems at all.
 
 
--- wli
+Jul  3 00:48:16 dardhal kernel: Bad page state at free_hot_cold_page
+Jul  3 00:48:16 dardhal kernel: flags:0x01000010 mapping:00000000 mapped:1 count:0
+Jul  3 00:48:16 dardhal kernel: Backtrace:
+Jul  3 00:48:16 dardhal kernel: Call Trace:
+Jul  3 00:48:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:48:16 dardhal kernel: [<c01319f3>] free_hot_cold_page+0x53/0xe0
+Jul  3 00:48:16 dardhal kernel: [<c013918e>] zap_pte_range+0x16e/0x1c0
+Jul  3 00:48:16 dardhal kernel: [<c012e396>] unlock_page+0x16/0x50
+Jul  3 00:48:16 dardhal kernel: [<c013922e>] zap_pmd_range+0x4e/0x70
+Jul  3 00:48:16 dardhal kernel: [<c0139291>] unmap_page_range+0x41/0x70
+Jul  3 00:48:16 dardhal kernel: [<c013938d>] unmap_vmas+0xcd/0x220
+Jul  3 00:48:16 dardhal kernel: [<c013ceee>] exit_mmap+0x6e/0x170
+Jul  3 00:48:16 dardhal kernel: [<c011725c>] mmput+0x4c/0x90
+Jul  3 00:48:16 dardhal kernel: [<c011a8ba>] do_exit+0xfa/0x330
+Jul  3 00:48:16 dardhal kernel: [<c011abb2>] do_group_exit+0x52/0x80
+Jul  3 00:48:16 dardhal kernel: [<c01090ef>] syscall_call+0x7/0xb
+Jul  3 00:48:16 dardhal kernel: 
+Jul  3 00:48:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:48:16 dardhal kernel: Bad page state at prep_new_page
+Jul  3 00:48:16 dardhal kernel: flags:0x01000000 mapping:00000000 mapped:1 count:0
+Jul  3 00:48:16 dardhal kernel: Backtrace:
+Jul  3 00:48:16 dardhal kernel: Call Trace:
+Jul  3 00:48:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:48:16 dardhal kernel: [<c01317f3>] prep_new_page+0x33/0x50
+Jul  3 00:48:16 dardhal kernel: [<c0131b3f>] buffered_rmqueue+0x9f/0x110
+Jul  3 00:48:16 dardhal kernel: [<c0131c3d>] __alloc_pages+0x8d/0x330
+Jul  3 00:48:16 dardhal kernel: [<c013ed03>] pte_chain_alloc+0x53/0x90
+Jul  3 00:48:16 dardhal kernel: [<c0139cc0>] do_wp_page+0xc0/0x310
+Jul  3 00:48:16 dardhal kernel: [<c013a503>] do_anonymous_page+0x123/0x1f0
+Jul  3 00:48:16 dardhal kernel: [<c013aa9f>] handle_mm_fault+0x13f/0x150
+Jul  3 00:48:16 dardhal kernel: [<c011443d>] do_page_fault+0x15d/0x4a2
+Jul  3 00:48:16 dardhal kernel: [<c0148033>] __fput+0xa3/0xf0
+Jul  3 00:48:16 dardhal kernel: [<c013c7c5>] unmap_vma+0x75/0x80
+Jul  3 00:48:16 dardhal kernel: [<c013c7ef>] unmap_vma_list+0x1f/0x30
+Jul  3 00:48:16 dardhal kernel: [<c013cb79>] do_munmap+0x119/0x150
+Jul  3 00:48:16 dardhal kernel: [<c012588a>] sys_getrlimit+0x7a/0x80
+Jul  3 00:48:16 dardhal kernel: [<c01142e0>] do_page_fault+0x0/0x4a2
+Jul  3 00:48:16 dardhal kernel: [<c0109299>] error_code+0x2d/0x38
+Jul  3 00:48:16 dardhal kernel: 
+Jul  3 00:48:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:48:16 dardhal kernel: Bad page state at free_hot_cold_page
+Jul  3 00:48:16 dardhal kernel: flags:0x01000010 mapping:00000000 mapped:1 count:0
+Jul  3 00:48:16 dardhal kernel: Backtrace:
+Jul  3 00:48:16 dardhal kernel: Call Trace:
+Jul  3 00:48:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:48:16 dardhal kernel: [<c01319f3>] free_hot_cold_page+0x53/0xe0
+Jul  3 00:48:16 dardhal kernel: [<c013918e>] zap_pte_range+0x16e/0x1c0
+Jul  3 00:48:16 dardhal kernel: [<c013922e>] zap_pmd_range+0x4e/0x70
+Jul  3 00:48:16 dardhal kernel: [<c0139291>] unmap_page_range+0x41/0x70
+Jul  3 00:48:16 dardhal kernel: [<c013938d>] unmap_vmas+0xcd/0x220
+Jul  3 00:48:16 dardhal kernel: [<c013ceee>] exit_mmap+0x6e/0x170
+Jul  3 00:48:16 dardhal kernel: [<c011725c>] mmput+0x4c/0x90
+Jul  3 00:48:16 dardhal kernel: [<c011a8ba>] do_exit+0xfa/0x330
+Jul  3 00:48:16 dardhal kernel: [<c011abb2>] do_group_exit+0x52/0x80
+Jul  3 00:48:16 dardhal kernel: [<c01090ef>] syscall_call+0x7/0xb
+Jul  3 00:48:16 dardhal kernel: 
+Jul  3 00:48:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:48:16 dardhal kernel: Bad page state at prep_new_page
+Jul  3 00:48:16 dardhal kernel: flags:0x01000000 mapping:00000000 mapped:1 count:0
+Jul  3 00:48:16 dardhal kernel: Backtrace:
+Jul  3 00:48:16 dardhal kernel: Call Trace:
+Jul  3 00:48:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:48:16 dardhal kernel: [<c01317f3>] prep_new_page+0x33/0x50
+Jul  3 00:48:16 dardhal kernel: [<c0131b3f>] buffered_rmqueue+0x9f/0x110
+Jul  3 00:48:16 dardhal kernel: [<c0131c3d>] __alloc_pages+0x8d/0x330
+Jul  3 00:48:16 dardhal kernel: [<c012f480>] filemap_nopage+0x1d0/0x2c0
+Jul  3 00:48:16 dardhal kernel: [<c013ed03>] pte_chain_alloc+0x53/0x90
+Jul  3 00:48:16 dardhal kernel: [<c013a78b>] do_no_page+0x1bb/0x2b0
+Jul  3 00:48:16 dardhal kernel: [<c013aa45>] handle_mm_fault+0xe5/0x150
+Jul  3 00:48:16 dardhal kernel: [<c011443d>] do_page_fault+0x15d/0x4a2
+Jul  3 00:48:16 dardhal kernel: [<c010ec51>] old_mmap+0x131/0x160
+Jul  3 00:48:16 dardhal kernel: [<c01468eb>] filp_close+0x4b/0x80
+Jul  3 00:48:16 dardhal kernel: [<c01142e0>] do_page_fault+0x0/0x4a2
+Jul  3 00:48:16 dardhal kernel: [<c0109299>] error_code+0x2d/0x38
+Jul  3 00:48:16 dardhal kernel: 
+Jul  3 00:48:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:48:16 dardhal kernel: Bad page state at free_hot_cold_page
+Jul  3 00:48:16 dardhal kernel: flags:0x01000010 mapping:00000000 mapped:1 count:0
+Jul  3 00:48:16 dardhal kernel: Backtrace:
+Jul  3 00:48:16 dardhal kernel: Call Trace:
+Jul  3 00:48:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:48:16 dardhal kernel: [<c01319f3>] free_hot_cold_page+0x53/0xe0
+Jul  3 00:48:16 dardhal kernel: [<c013918e>] zap_pte_range+0x16e/0x1c0
+Jul  3 00:48:16 dardhal kernel: [<c013922e>] zap_pmd_range+0x4e/0x70
+Jul  3 00:48:16 dardhal kernel: [<c0139291>] unmap_page_range+0x41/0x70
+Jul  3 00:48:16 dardhal kernel: [<c013938d>] unmap_vmas+0xcd/0x220
+Jul  3 00:48:16 dardhal kernel: [<c013ceee>] exit_mmap+0x6e/0x170
+Jul  3 00:48:16 dardhal kernel: [<c011725c>] mmput+0x4c/0x90
+Jul  3 00:48:16 dardhal kernel: [<c011a8ba>] do_exit+0xfa/0x330
+Jul  3 00:48:16 dardhal kernel: [<c011abb2>] do_group_exit+0x52/0x80
+Jul  3 00:48:16 dardhal kernel: [<c01090ef>] syscall_call+0x7/0xb
+Jul  3 00:48:16 dardhal kernel: 
+Jul  3 00:48:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:48:16 dardhal kernel: Bad page state at prep_new_page
+Jul  3 00:48:16 dardhal kernel: flags:0x01000000 mapping:00000000 mapped:1 count:0
+Jul  3 00:48:16 dardhal kernel: Backtrace:
+Jul  3 00:48:16 dardhal kernel: Call Trace:
+Jul  3 00:48:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:48:16 dardhal kernel: [<c01317f3>] prep_new_page+0x33/0x50
+Jul  3 00:48:16 dardhal kernel: [<c0131b3f>] buffered_rmqueue+0x9f/0x110
+Jul  3 00:48:16 dardhal kernel: [<c0131c3d>] __alloc_pages+0x8d/0x330
+Jul  3 00:48:16 dardhal kernel: [<c012f480>] filemap_nopage+0x1d0/0x2c0
+Jul  3 00:48:16 dardhal kernel: [<c013ed03>] pte_chain_alloc+0x53/0x90
+Jul  3 00:48:16 dardhal kernel: [<c013a78b>] do_no_page+0x1bb/0x2b0
+Jul  3 00:48:16 dardhal kernel: [<c013aa45>] handle_mm_fault+0xe5/0x150
+Jul  3 00:48:16 dardhal kernel: [<c011443d>] do_page_fault+0x15d/0x4a2
+Jul  3 00:48:16 dardhal kernel: [<c010ec51>] old_mmap+0x131/0x160
+Jul  3 00:48:16 dardhal kernel: [<c01468eb>] filp_close+0x4b/0x80
+Jul  3 00:48:16 dardhal kernel: [<c01142e0>] do_page_fault+0x0/0x4a2
+Jul  3 00:48:16 dardhal kernel: [<c0109299>] error_code+0x2d/0x38
+Jul  3 00:48:16 dardhal kernel: 
+Jul  3 00:48:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:52:16 dardhal kernel: Bad page state at free_hot_cold_page
+Jul  3 00:52:16 dardhal kernel: flags:0x01000010 mapping:00000000 mapped:1 count:0
+Jul  3 00:52:16 dardhal kernel: Backtrace:
+Jul  3 00:52:16 dardhal kernel: Call Trace:
+Jul  3 00:52:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:52:16 dardhal kernel: [<c01319f3>] free_hot_cold_page+0x53/0xe0
+Jul  3 00:52:16 dardhal kernel: [<c013918e>] zap_pte_range+0x16e/0x1c0
+Jul  3 00:52:16 dardhal kernel: [<c012e396>] unlock_page+0x16/0x50
+Jul  3 00:52:16 dardhal kernel: [<c013922e>] zap_pmd_range+0x4e/0x70
+Jul  3 00:52:16 dardhal kernel: [<c0139291>] unmap_page_range+0x41/0x70
+Jul  3 00:52:16 dardhal kernel: [<c013938d>] unmap_vmas+0xcd/0x220
+Jul  3 00:52:16 dardhal kernel: [<c013ceee>] exit_mmap+0x6e/0x170
+Jul  3 00:52:16 dardhal kernel: [<c011725c>] mmput+0x4c/0x90
+Jul  3 00:52:16 dardhal kernel: [<c011a8ba>] do_exit+0xfa/0x330
+Jul  3 00:52:16 dardhal kernel: [<c0115c30>] default_wake_function+0x0/0x30
+Jul  3 00:52:16 dardhal kernel: [<c011abb2>] do_group_exit+0x52/0x80
+Jul  3 00:52:16 dardhal kernel: [<c01090ef>] syscall_call+0x7/0xb
+Jul  3 00:52:16 dardhal kernel: 
+Jul  3 00:52:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:52:16 dardhal kernel: Bad page state at prep_new_page
+Jul  3 00:52:16 dardhal kernel: flags:0x01000000 mapping:00000000 mapped:1 count:0
+Jul  3 00:52:16 dardhal kernel: Backtrace:
+Jul  3 00:52:16 dardhal kernel: Call Trace:
+Jul  3 00:52:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:52:16 dardhal kernel: [<c01317f3>] prep_new_page+0x33/0x50
+Jul  3 00:52:16 dardhal kernel: [<c0131b3f>] buffered_rmqueue+0x9f/0x110
+Jul  3 00:52:16 dardhal kernel: [<c0131c3d>] __alloc_pages+0x8d/0x330
+Jul  3 00:52:16 dardhal kernel: [<c013a44a>] do_anonymous_page+0x6a/0x1f0
+Jul  3 00:52:16 dardhal kernel: [<c013aa45>] handle_mm_fault+0xe5/0x150
+Jul  3 00:52:16 dardhal kernel: [<c011443d>] do_page_fault+0x15d/0x4a2
+Jul  3 00:52:16 dardhal kernel: [<c013cd5b>] do_brk+0x12b/0x200
+Jul  3 00:52:16 dardhal kernel: [<c013b790>] sys_brk+0xf0/0x120
+Jul  3 00:52:16 dardhal kernel: [<c01142e0>] do_page_fault+0x0/0x4a2
+Jul  3 00:52:16 dardhal kernel: [<c0109299>] error_code+0x2d/0x38
+Jul  3 00:52:16 dardhal kernel: 
+Jul  3 00:52:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:52:16 dardhal kernel: Bad page state at free_hot_cold_page
+Jul  3 00:52:16 dardhal kernel: flags:0x01000014 mapping:00000000 mapped:1 count:0
+Jul  3 00:52:16 dardhal kernel: Backtrace:
+Jul  3 00:52:16 dardhal kernel: Call Trace:
+Jul  3 00:52:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:52:16 dardhal kernel: [<c01319f3>] free_hot_cold_page+0x53/0xe0
+Jul  3 00:52:16 dardhal kernel: [<c013918e>] zap_pte_range+0x16e/0x1c0
+Jul  3 00:52:16 dardhal kernel: [<c013922e>] zap_pmd_range+0x4e/0x70
+Jul  3 00:52:16 dardhal kernel: [<c0139291>] unmap_page_range+0x41/0x70
+Jul  3 00:52:16 dardhal kernel: [<c013938d>] unmap_vmas+0xcd/0x220
+Jul  3 00:52:16 dardhal kernel: [<c013ceee>] exit_mmap+0x6e/0x170
+Jul  3 00:52:16 dardhal kernel: [<c011725c>] mmput+0x4c/0x90
+Jul  3 00:52:16 dardhal kernel: [<c011a8ba>] do_exit+0xfa/0x330
+Jul  3 00:52:16 dardhal kernel: [<c011abb2>] do_group_exit+0x52/0x80
+Jul  3 00:52:16 dardhal kernel: [<c01090ef>] syscall_call+0x7/0xb
+Jul  3 00:52:16 dardhal kernel: 
+Jul  3 00:52:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+Jul  3 00:52:16 dardhal kernel: Bad page state at prep_new_page
+Jul  3 00:52:16 dardhal kernel: flags:0x01000004 mapping:00000000 mapped:1 count:0
+Jul  3 00:52:16 dardhal kernel: Backtrace:
+Jul  3 00:52:16 dardhal kernel: Call Trace:
+Jul  3 00:52:16 dardhal kernel: [<c013150d>] bad_page+0x5d/0x90
+Jul  3 00:52:16 dardhal kernel: [<c01317f3>] prep_new_page+0x33/0x50
+Jul  3 00:52:16 dardhal kernel: [<c0131b3f>] buffered_rmqueue+0x9f/0x110
+Jul  3 00:52:16 dardhal kernel: [<c0131c3d>] __alloc_pages+0x8d/0x330
+Jul  3 00:52:16 dardhal kernel: [<c012eb67>] do_generic_mapping_read+0x347/0x390
+Jul  3 00:52:16 dardhal kernel: [<c012ebb0>] file_read_actor+0x0/0x120
+Jul  3 00:52:16 dardhal kernel: [<c012ee79>] __generic_file_aio_read+0x1a9/0x1f0
+Jul  3 00:52:16 dardhal kernel: [<c012ebb0>] file_read_actor+0x0/0x120
+Jul  3 00:52:16 dardhal kernel: [<c012ef12>] generic_file_aio_read+0x52/0x70
+Jul  3 00:52:16 dardhal kernel: [<c0146f89>] do_sync_read+0x89/0xc0
+Jul  3 00:52:16 dardhal kernel: [<c0214995>] __ide_do_rw_disk+0x405/0x760
+Jul  3 00:52:16 dardhal kernel: [<c0209605>] start_request+0x175/0x290
+Jul  3 00:52:16 dardhal kernel: [<c020994a>] ide_do_request+0x1fa/0x390
+Jul  3 00:52:16 dardhal kernel: [<c0217ded>] ide_dma_intr+0x9d/0xc0
+Jul  3 00:52:16 dardhal kernel: [<c014706d>] vfs_read+0xad/0x120
+Jul  3 00:52:16 dardhal kernel: [<c01473d4>] sys_pread64+0x54/0x80
+Jul  3 00:52:16 dardhal kernel: [<c01090ef>] syscall_call+0x7/0xb
+Jul  3 00:52:16 dardhal kernel: 
+Jul  3 00:52:16 dardhal kernel: Trying to fix it up, but a reboot is needed
+
+
+Hope it helps.
+
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.5.73)

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbUKDTh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbUKDTgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbUKDTh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 14:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUKDTYW
+	id S262435AbUKDTgG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbUKDTdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 14:24:22 -0500
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:13660 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S262376AbUKDTWG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 14:22:06 -0500
-Subject: Re: belkin usb serial converter (mct_u232), break not working
-From: Paul Fulghum <paulkf@microgate.com>
-To: Thomas Stewart <thomas@stewarts.org.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200411041820.21847.thomas@stewarts.org.uk>
-References: <200410201946.35514.thomas@stewarts.org.uk>
-	 <1098362487.2815.9.camel@deimos.microgate.com>
-	 <1098387861.3288.51.camel@deimos.microgate.com>
-	 <200411041820.21847.thomas@stewarts.org.uk>
-Content-Type: text/plain
-Message-Id: <1099596101.2834.33.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 04 Nov 2004 13:21:41 -0600
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 14:33:36 -0500
+Received: from msgbas1tx.cos.agilent.com ([192.25.240.37]:11714 "EHLO
+	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S262427AbUKDT3W convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 14:29:22 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: QM_MODULES not implemented in 2.6.9
+Date: Thu, 4 Nov 2004 11:29:17 -0800
+Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC50F85B5@wcosmb07.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: QM_MODULES not implemented in 2.6.9
+thread-index: AcTCoZuR5N1QjyT6Qh6GbiNHZ/kBTAAAsbXQ
+From: <yiding_wang@agilent.com>
+To: <rddunlap@osdl.org>, <yiding_wang@agilent.com>, <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Nov 2004 19:29:18.0258 (UTC) FILETIME=[93C19920:01C4C2A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 12:20, Thomas Stewart wrote:
-> I tried the converter on a XP machine and unfortunately while using the 
-> manufacturer provided drivers I was unable to produce a break :-(
+Thanks all! I thought 2.6.9 has populated that support already. 
 
-That seems consistent with the code, comments,
-and observed behavior.
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org]
+Sent: Thursday, November 04, 2004 10:57 AM
+To: yiding_wang@agilent.com
+Cc: linux-kernel@vger.kernel.org; Yidng_wang@agilent.com
+Subject: Re: QM_MODULES not implemented in 2.6.9
 
-I doubt this device can generate a break.
 
-> was told the product (F5U109ea) was designed for PDA use only and it would 
-> generate breaks fine if connected to them.
+yiding_wang@agilent.com wrote:
+> I noticed that this issue was there before but thought it was being taken care of since my Linux-2.6.2 kernel did not complain. Now I loaded Linux-2.6.9 and this QM_MODULES Function not implemented error pops up whenever I run module related command.
+> 
+> If I need update module patch, could someone tell which module patch I should apply? If something else is wrong, please advice. The kernel is configured to support module.
 
-Sounds like garbage (industry standard for phone support) to me.
-
-I can't see how the bit pattern generated on TxD is dependent
-on the attached device. The support person probably
-has no idea what a break pattern is.
-
-> Interestingly I got my hands on a F5U103 and it works fine (uses another chip 
-> and consequently module).
-
-This all looks like a missing/non-functioning feature
-for the F5U109.
+You need to use module-init-tools that are made for 2.6.x kernels.
+They can be found here:
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+and are often already part of most current Linux distros.
 
 -- 
-Paul Fulghum
-paulkf@microgate.com
-
+~Randy

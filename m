@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267071AbUBMPzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 10:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267073AbUBMPzJ
+	id S267064AbUBMPil (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 10:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267059AbUBMPik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 10:55:09 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:33744 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S267071AbUBMPzD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 10:55:03 -0500
-Date: Fri, 13 Feb 2004 16:55:00 +0100
-From: cheuche+lkml@free.fr
-To: linux-kernel@vger.kernel.org
-Subject: Nforce2, APIC, CPU Disconnect and setup_boot_APIC_clock()
-Message-ID: <20040213155500.GA6378@localnet>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au>
+	Fri, 13 Feb 2004 10:38:40 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:24239 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S267061AbUBMPhe (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 10:37:34 -0500
+Message-Id: <200402131537.i1DFbMYZ025413@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, tytso@thunk.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Updated dynamic pty patch available 
+In-Reply-To: Your message of "Wed, 11 Feb 2004 22:00:46 PST."
+             <402B168E.4020000@zytor.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <402B168E.4020000@zytor.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IrhDeMKUP4DT/M7F"
-Content-Disposition: inline
-In-Reply-To: <200402140041.17584.ross@datscreative.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/signed; boundary="==_Exmh_-977561752P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Feb 2004 10:37:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---IrhDeMKUP4DT/M7F
+--==_Exmh_-977561752P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hello all,
+On Wed, 11 Feb 2004 22:00:46 PST, "H. Peter Anvin" said:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/dynpty-test-2.patch
+> 
+> ... against the current top-of-bkcvs 2.6 kernel.
+> 
+> This version of the patch makes *both* legacy and Unix98 ptys configure 
+> options (Unix98 only if EMBEDDED), and the number of legacy ptys is a 
+> configuration option -- useful if you want to reduce the memory 
+> footprint, or if you really wants lots of these guys (256 is no longer a 
+> hard limit.)
 
-I once noticed there was a drift between the 8254 timer and the APIC
-timer. With vanilla and -mm kernels, APIC timer is running faster. With
-Ross' patches I noticed it was running slower, and the crashes go away.
-I dig in that direction and found that with a APIC timer directly
-programmed slower than calibrated, adding ~20 more bus cycles to the
-counter, hangs disappear, at least during the tests (for a few minutes,
-maybe they are made much rarer). I eventually disabled altogether the
-APIC timer with the patchlet attached, and did an entire test (dumping
-the whole hard drive to /dev/null with very high network and soundcard
-activity), and it survived. I will continue to test, just to make
-sure...
+Patches, compiles, boots, and runs against 2.6.3-rc2-mm1, both with
+and without legacy ptys.  Haven't gotten brave enough to try without
+Unix98 ptys, as I need those :)
 
-At least there is a way to get nforce2 + APIC + CPU disconnect and
-actually have a cooler idle CPU. Side effects are no more LOC rising
-counter in /proc/interrupts, no more nmi_watchdog=2 and if you work
-around the bios acpi apic source override to get the timer on pin #0, no
-more nmi_watchdog=1. This is of course not the best solution.
 
-Now the experts may look why commenting out setup_boot_APIC_clock() in
-APIC_init_uniprocessor() of arch/i386/kernel/apic.c works, and find a
-better fix if any.
+--==_Exmh_-977561752P
+Content-Type: application/pgp-signature
 
-Mathieu
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---IrhDeMKUP4DT/M7F
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="no_boot_apic_clock.patch"
+iD8DBQFALO8ycC3lWbTT17ARAnKLAKDF0fA26T224qKxfCy7fSoYrWCWcwCdHeby
+BP9tiLWmb3EPQzXt/IKWo1c=
+=2BWB
+-----END PGP SIGNATURE-----
 
---- arch/i386/kernel/apic.c.old	2004-02-13 16:13:39.000000000 +0100
-+++ arch/i386/kernel/apic.c	2004-02-13 14:29:29.000000000 +0100
-@@ -1198,7 +1198,7 @@
- 		if (!skip_ioapic_setup && nr_ioapics)
- 			setup_IO_APIC();
- #endif
--	setup_boot_APIC_clock();
-+	/*setup_boot_APIC_clock();*/
- 
- 	return 0;
- }
-
---IrhDeMKUP4DT/M7F--
+--==_Exmh_-977561752P--

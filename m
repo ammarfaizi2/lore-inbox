@@ -1,386 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265441AbSJSBKd>; Fri, 18 Oct 2002 21:10:33 -0400
+	id <S265445AbSJSBVW>; Fri, 18 Oct 2002 21:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265442AbSJSBKd>; Fri, 18 Oct 2002 21:10:33 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:12461 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265441AbSJSBKZ>;
-	Fri, 18 Oct 2002 21:10:25 -0400
-Date: Sat, 19 Oct 2002 06:52:10 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Dave Miller <davem@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] lockfree rtcache using RCU
-Message-ID: <20021019065210.A26806@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S265447AbSJSBVW>; Fri, 18 Oct 2002 21:21:22 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:11450 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S265445AbSJSBVU>; Fri, 18 Oct 2002 21:21:20 -0400
+From: "Tervel Atanassov" <noxidog@earthlink.net>
+To: "'John Myers'" <jgmyers@netscape.com>,
+       "'Charles 'Buck' Krasic'" <krasic@acm.org>
+Cc: "'Davide Libenzi'" <davidel@xmailserver.org>,
+       "'Benjamin LaHaise'" <bcrl@redhat.com>, "'Dan Kegel'" <dank@kegel.com>,
+       "'Shailabh Nagar'" <nagar@watson.ibm.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       "'linux-aio'" <linux-aio@kvack.org>, "'Andrew Morton'" <akpm@digeo.com>,
+       "'David Miller'" <davem@redhat.com>,
+       "'Linus Torvalds'" <torvalds@transmeta.com>,
+       "'Stephen Tweedie'" <sct@redhat.com>
+Subject: RE: epoll (was Re: [PATCH] async poll for 2.5)
+Date: Fri, 18 Oct 2002 18:27:34 -0700
+Message-ID: <005c01c2770e$ba9cf050$0e00000a@turchodog>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <3DB0AFCE.5030205@netscape.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch was discussed along with results months ago and Davem
-asked me to send it to him for inclusion when RCU core is in.
-Now that the RCU core is in, please include it. This however
-depends on the RCU helper patches I had submitted earlier to
-Linus which haven't yet been merged AFAICS. If however they have been
-merged, then this can be applied.
+I am just joining your discussion today for the fist time.  I come from
+a Windows implementation of async I/O, so please don't hold it against
+me.  I can't say that I am following 100% percent, but I think you guys
+are talking about what the user API will look like, correct?
 
-It speeds up route cache lookup by 30-50% approximately as measured
-with synthetic benchmark suggested by Dave.
+Assuming the answer is yes.  Here are my two cents.  The code you have
+below seems a bit awkward -- the line while(do_io(fd) != EAGAIN) appears
+twice.  I think the reason for that is that you're trying to do too many
+things at once, namely, you're trying to handle both the initial
+accept/setup of the socket and its steady state servicing.  I don't see
+any benefit to that -- it definitely doesn't make for cleaner code.  Why
+not do things separately.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102258603404836&w=2
+1.  Have a setup phase which more or less does:
 
-The entire discussion is in -
-http://marc.theaimsgroup.com/?t=102258611100001&r=1&w=2
+*  listen()
+*  accept()
+*  add the new fd/socket to an "event" which all the worker threads are
+waiting on.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+2.  Have the worker tread/steady state operation be:
 
-rt_rcu-2.5.43-1.patch
----------------------
+*  event_wait() which returns the fd, some descriptor of what exactly
+happened (read/write), the number of bytes transferred.
+*  based upon the return from event wait the user updates his state, and
+posts the next operation (read/write).
 
-diff -urN linux-2.5.43-base/include/net/dst.h linux-2.5.43-rt_rcu/include/net/dst.h
---- linux-2.5.43-base/include/net/dst.h	Wed Oct 16 08:59:04 2002
-+++ linux-2.5.43-rt_rcu/include/net/dst.h	Sat Oct 19 03:25:26 2002
-@@ -9,6 +9,7 @@
- #define _NET_DST_H
- 
- #include <linux/config.h>
-+#include <linux/rcupdate.h>
- #include <net/neighbour.h>
- 
- /*
-@@ -62,6 +63,7 @@
- #endif
- 
- 	struct  dst_ops	        *ops;
-+	struct rcu_head		rcu_head;
- 		
- 	char			info[0];
- };
-diff -urN linux-2.5.43-base/net/ipv4/route.c linux-2.5.43-rt_rcu/net/ipv4/route.c
---- linux-2.5.43-base/net/ipv4/route.c	Wed Oct 16 08:59:06 2002
-+++ linux-2.5.43-rt_rcu/net/ipv4/route.c	Sat Oct 19 04:05:16 2002
-@@ -85,6 +85,7 @@
- #include <linux/mroute.h>
- #include <linux/netfilter_ipv4.h>
- #include <linux/random.h>
-+#include <linux/rcupdate.h>
- #include <net/protocol.h>
- #include <net/ip.h>
- #include <net/route.h>
-@@ -188,7 +189,7 @@
- 
- struct rt_hash_bucket {
- 	struct rtable	*chain;
--	rwlock_t	lock;
-+	spinlock_t	lock;
- } __attribute__((__aligned__(8)));
- 
- static struct rt_hash_bucket 	*rt_hash_table;
-@@ -226,8 +227,8 @@
- 		len = 128;
-   	}
- 	
-+	rcu_read_lock();
- 	for (i = rt_hash_mask; i >= 0; i--) {
--		read_lock_bh(&rt_hash_table[i].lock);
- 		for (r = rt_hash_table[i].chain; r; r = r->u.rt_next) {
- 			/*
- 			 *	Spin through entries until we are ready
-@@ -238,6 +239,7 @@
- 				len = 0;
- 				continue;
- 			}
-+			read_barrier_depends();
- 			sprintf(temp, "%s\t%08lX\t%08lX\t%8X\t%d\t%u\t%d\t"
- 				"%08lX\t%d\t%u\t%u\t%02X\t%d\t%1d\t%08X",
- 				r->u.dst.dev ? r->u.dst.dev->name : "*",
-@@ -262,14 +264,13 @@
- 			sprintf(buffer + len, "%-127s\n", temp);
- 			len += 128;
- 			if (pos >= offset+length) {
--				read_unlock_bh(&rt_hash_table[i].lock);
- 				goto done;
- 			}
- 		}
--		read_unlock_bh(&rt_hash_table[i].lock);
-         }
- 
- done:
-+	rcu_read_unlock();
-   	*start = buffer + len - (pos - offset);
-   	len = pos - offset;
-   	if (len > length)
-@@ -318,13 +319,13 @@
-   
- static __inline__ void rt_free(struct rtable *rt)
- {
--	dst_free(&rt->u.dst);
-+	call_rcu(&rt->u.dst.rcu_head, (void (*)(void *))dst_free, &rt->u.dst);
- }
- 
- static __inline__ void rt_drop(struct rtable *rt)
- {
- 	ip_rt_put(rt);
--	dst_free(&rt->u.dst);
-+	call_rcu(&rt->u.dst.rcu_head, (void (*)(void *))dst_free, &rt->u.dst);
- }
- 
- static __inline__ int rt_fast_clean(struct rtable *rth)
-@@ -377,7 +378,7 @@
- 		i = (i + 1) & rt_hash_mask;
- 		rthp = &rt_hash_table[i].chain;
- 
--		write_lock(&rt_hash_table[i].lock);
-+		spin_lock(&rt_hash_table[i].lock);
- 		while ((rth = *rthp) != NULL) {
- 			if (rth->u.dst.expires) {
- 				/* Entry is expired even if it is in use */
-@@ -396,7 +397,7 @@
- 			*rthp = rth->u.rt_next;
- 			rt_free(rth);
- 		}
--		write_unlock(&rt_hash_table[i].lock);
-+		spin_unlock(&rt_hash_table[i].lock);
- 
- 		/* Fallback loop breaker. */
- 		if ((jiffies - now) > 0)
-@@ -419,11 +420,11 @@
- 	rt_deadline = 0;
- 
- 	for (i = rt_hash_mask; i >= 0; i--) {
--		write_lock_bh(&rt_hash_table[i].lock);
-+		spin_lock_bh(&rt_hash_table[i].lock);
- 		rth = rt_hash_table[i].chain;
- 		if (rth)
- 			rt_hash_table[i].chain = NULL;
--		write_unlock_bh(&rt_hash_table[i].lock);
-+		spin_unlock_bh(&rt_hash_table[i].lock);
- 
- 		for (; rth; rth = next) {
- 			next = rth->u.rt_next;
-@@ -547,7 +548,7 @@
- 
- 			k = (k + 1) & rt_hash_mask;
- 			rthp = &rt_hash_table[k].chain;
--			write_lock_bh(&rt_hash_table[k].lock);
-+			spin_lock_bh(&rt_hash_table[k].lock);
- 			while ((rth = *rthp) != NULL) {
- 				if (!rt_may_expire(rth, tmo, expire)) {
- 					tmo >>= 1;
-@@ -558,7 +559,7 @@
- 				rt_free(rth);
- 				goal--;
- 			}
--			write_unlock_bh(&rt_hash_table[k].lock);
-+			spin_unlock_bh(&rt_hash_table[k].lock);
- 			if (goal <= 0)
- 				break;
- 		}
-@@ -619,7 +620,7 @@
- restart:
- 	rthp = &rt_hash_table[hash].chain;
- 
--	write_lock_bh(&rt_hash_table[hash].lock);
-+	spin_lock_bh(&rt_hash_table[hash].lock);
- 	while ((rth = *rthp) != NULL) {
- 		if (memcmp(&rth->fl, &rt->fl, sizeof(rt->fl)) == 0) {
- 			/* Put it first */
-@@ -630,7 +631,7 @@
- 			rth->u.dst.__use++;
- 			dst_hold(&rth->u.dst);
- 			rth->u.dst.lastuse = now;
--			write_unlock_bh(&rt_hash_table[hash].lock);
-+			spin_unlock_bh(&rt_hash_table[hash].lock);
- 
- 			rt_drop(rt);
- 			*rp = rth;
-@@ -646,7 +647,7 @@
- 	if (rt->rt_type == RTN_UNICAST || rt->fl.iif == 0) {
- 		int err = arp_bind_neighbour(&rt->u.dst);
- 		if (err) {
--			write_unlock_bh(&rt_hash_table[hash].lock);
-+			spin_unlock_bh(&rt_hash_table[hash].lock);
- 
- 			if (err != -ENOBUFS) {
- 				rt_drop(rt);
-@@ -687,7 +688,7 @@
- 	}
- #endif
- 	rt_hash_table[hash].chain = rt;
--	write_unlock_bh(&rt_hash_table[hash].lock);
-+	spin_unlock_bh(&rt_hash_table[hash].lock);
- 	*rp = rt;
- 	return 0;
- }
-@@ -754,7 +755,7 @@
- {
- 	struct rtable **rthp;
- 
--	write_lock_bh(&rt_hash_table[hash].lock);
-+	spin_lock_bh(&rt_hash_table[hash].lock);
- 	ip_rt_put(rt);
- 	for (rthp = &rt_hash_table[hash].chain; *rthp;
- 	     rthp = &(*rthp)->u.rt_next)
-@@ -763,7 +764,7 @@
- 			rt_free(rt);
- 			break;
- 		}
--	write_unlock_bh(&rt_hash_table[hash].lock);
-+	spin_unlock_bh(&rt_hash_table[hash].lock);
- }
- 
- void ip_rt_redirect(u32 old_gw, u32 daddr, u32 new_gw,
-@@ -802,10 +803,11 @@
- 
- 			rthp=&rt_hash_table[hash].chain;
- 
--			read_lock(&rt_hash_table[hash].lock);
-+			rcu_read_lock();
- 			while ((rth = *rthp) != NULL) {
- 				struct rtable *rt;
- 
-+				read_barrier_depends();
- 				if (rth->fl.fl4_dst != daddr ||
- 				    rth->fl.fl4_src != skeys[i] ||
- 				    rth->fl.fl4_tos != tos ||
-@@ -823,7 +825,7 @@
- 					break;
- 
- 				dst_clone(&rth->u.dst);
--				read_unlock(&rt_hash_table[hash].lock);
-+				rcu_read_unlock();
- 
- 				rt = dst_alloc(&ipv4_dst_ops);
- 				if (rt == NULL) {
-@@ -834,6 +836,7 @@
- 
- 				/* Copy all the information. */
- 				*rt = *rth;
-+ 				INIT_RCU_HEAD(&rt->u.dst.rcu_head);
- 				rt->u.dst.__use		= 1;
- 				atomic_set(&rt->u.dst.__refcnt, 1);
- 				if (rt->u.dst.dev)
-@@ -869,7 +872,7 @@
- 					ip_rt_put(rt);
- 				goto do_next;
- 			}
--			read_unlock(&rt_hash_table[hash].lock);
-+			rcu_read_unlock();
- 		do_next:
- 			;
- 		}
-@@ -1049,9 +1052,10 @@
- 	for (i = 0; i < 2; i++) {
- 		unsigned hash = rt_hash_code(daddr, skeys[i], tos);
- 
--		read_lock(&rt_hash_table[hash].lock);
-+		rcu_read_lock();
- 		for (rth = rt_hash_table[hash].chain; rth;
- 		     rth = rth->u.rt_next) {
-+			read_barrier_depends();
- 			if (rth->fl.fl4_dst == daddr &&
- 			    rth->fl.fl4_src == skeys[i] &&
- 			    rth->rt_dst  == daddr &&
-@@ -1087,7 +1091,7 @@
- 				}
- 			}
- 		}
--		read_unlock(&rt_hash_table[hash].lock);
-+		rcu_read_unlock();
- 	}
- 	return est_mtu ? : new_mtu;
- }
-@@ -1639,8 +1643,9 @@
- 	tos &= IPTOS_RT_MASK;
- 	hash = rt_hash_code(daddr, saddr ^ (iif << 5), tos);
- 
--	read_lock(&rt_hash_table[hash].lock);
-+	rcu_read_lock();
- 	for (rth = rt_hash_table[hash].chain; rth; rth = rth->u.rt_next) {
-+		read_barrier_depends();
- 		if (rth->fl.fl4_dst == daddr &&
- 		    rth->fl.fl4_src == saddr &&
- 		    rth->fl.iif == iif &&
-@@ -1653,12 +1658,12 @@
- 			dst_hold(&rth->u.dst);
- 			rth->u.dst.__use++;
- 			rt_cache_stat[smp_processor_id()].in_hit++;
--			read_unlock(&rt_hash_table[hash].lock);
-+			rcu_read_unlock();
- 			skb->dst = (struct dst_entry*)rth;
- 			return 0;
- 		}
- 	}
--	read_unlock(&rt_hash_table[hash].lock);
-+	rcu_read_unlock();
- 
- 	/* Multicast recognition logic is moved from route cache to here.
- 	   The problem was that too many Ethernet cards have broken/missing
-@@ -1998,8 +2003,9 @@
- 
- 	hash = rt_hash_code(flp->fl4_dst, flp->fl4_src ^ (flp->oif << 5), flp->fl4_tos);
- 
--	read_lock_bh(&rt_hash_table[hash].lock);
-+	rcu_read_lock();
- 	for (rth = rt_hash_table[hash].chain; rth; rth = rth->u.rt_next) {
-+		read_barrier_depends();
- 		if (rth->fl.fl4_dst == flp->fl4_dst &&
- 		    rth->fl.fl4_src == flp->fl4_src &&
- 		    rth->fl.iif == 0 &&
-@@ -2013,12 +2019,12 @@
- 			dst_hold(&rth->u.dst);
- 			rth->u.dst.__use++;
- 			rt_cache_stat[smp_processor_id()].out_hit++;
--			read_unlock_bh(&rt_hash_table[hash].lock);
-+			rcu_read_unlock();
- 			*rp = rth;
- 			return 0;
- 		}
- 	}
--	read_unlock_bh(&rt_hash_table[hash].lock);
-+	rcu_read_unlock();
- 
- 	return ip_route_output_slow(rp, flp);
- }	
-@@ -2208,9 +2214,10 @@
- 		if (h < s_h) continue;
- 		if (h > s_h)
- 			s_idx = 0;
--		read_lock_bh(&rt_hash_table[h].lock);
-+		rcu_read_lock();
- 		for (rt = rt_hash_table[h].chain, idx = 0; rt;
- 		     rt = rt->u.rt_next, idx++) {
-+			read_barrier_depends();
- 			if (idx < s_idx)
- 				continue;
- 			skb->dst = dst_clone(&rt->u.dst);
-@@ -2218,12 +2225,12 @@
- 					 cb->nlh->nlmsg_seq,
- 					 RTM_NEWROUTE, 1) <= 0) {
- 				dst_release(xchg(&skb->dst, NULL));
--				read_unlock_bh(&rt_hash_table[h].lock);
-+				rcu_read_unlock();
- 				goto done;
- 			}
- 			dst_release(xchg(&skb->dst, NULL));
- 		}
--		read_unlock_bh(&rt_hash_table[h].lock);
-+		rcu_read_unlock();
- 	}
- 
- done:
-@@ -2505,7 +2512,7 @@
- 
- 	rt_hash_mask--;
- 	for (i = 0; i <= rt_hash_mask; i++) {
--		rt_hash_table[i].lock = RW_LOCK_UNLOCKED;
-+		rt_hash_table[i].lock = SPIN_LOCK_UNLOCKED;
- 		rt_hash_table[i].chain = NULL;
- 	}
- 
+Thanks,
+
+Tervel Atanassov
+
+-----Original Message-----
+From: owner-linux-aio@kvack.org [mailto:owner-linux-aio@kvack.org] On
+Behalf Of John Myers
+Sent: Friday, October 18, 2002 6:05 PM
+To: Charles 'Buck' Krasic
+Cc: Davide Libenzi; Benjamin LaHaise; Dan Kegel; Shailabh Nagar;
+linux-kernel; linux-aio; Andrew Morton; David Miller; Linus Torvalds;
+Stephen Tweedie
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+
+Charles 'Buck' Krasic wrote:
+
+>Or we could have (to make John happier?):
+>
+>1 for(;;) {
+>2      fd = event_wait(...);
+>3      if(fd == my_listen_fd) {
+>4           /* new connections */
+>5           while((new_fd = my_accept(my_listen_fd, ...) != EAGAIN)) {
+>6*                  epoll_addf(new_fd, &pfd, ...);
+>7*                  if(pfd.revents & POLLIN) {
+>7*                      while(do_io(new_fd) != EAGAIN);
+>8*                  } 
+>8           }
+>9       } else {
+>10           /* established connections */
+>11           while(do_io(fd) != EAGAIN)
+>12      }
+>13 }
+>  
+>
+Close.  What we would have is a modification of the epoll_addf() 
+semantics such that it would have an additional postcondition that if 
+the new_fd is in the ready state (has data available) then at least one 
+notification has been generated.  In the code above, the three lines 
+comprising the if statement labeled "7*" would be removed.
+
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-aio' in
+the body to majordomo@kvack.org.  For more info on Linux AIO,
+see: http://www.kvack.org/aio/
+

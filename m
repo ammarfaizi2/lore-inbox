@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282298AbRKXAIR>; Fri, 23 Nov 2001 19:08:17 -0500
+	id <S282299AbRKXAOS>; Fri, 23 Nov 2001 19:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282299AbRKXAIH>; Fri, 23 Nov 2001 19:08:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58629 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282298AbRKXAIC>; Fri, 23 Nov 2001 19:08:02 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Moving ext3 journal file
-Date: 23 Nov 2001 16:07:44 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tmocg$jfn$1@cesium.transmeta.com>
-In-Reply-To: <E167Fuw-00001K-00@DervishD> <Pine.LNX.4.33.0111231944430.2891-100000@fargo> <20011123155901.C1308@lynx.no>
+	id <S282300AbRKXAN5>; Fri, 23 Nov 2001 19:13:57 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:39073 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282299AbRKXAN4>;
+	Fri, 23 Nov 2001 19:13:56 -0500
+Date: Fri, 23 Nov 2001 19:13:55 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.0 breakage even with fix?
+In-Reply-To: <A0A71547524@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.4.21.0111231909421.4000-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011123155901.C1308@lynx.no>
-By author:    Andreas Dilger <adilger@turbolabs.com>
-In newsgroup: linux.dev.kernel
-> 
-> Don't do that.  That is only good if the filesystem thinks that there
-> is no journal, or it is using a hidden inode for the journal (i.e. if
-> you run "tune2fs -l /dev/whatever" and it doesn't have "has_journal"
-> listed in the filesystem features (this is what happened with 2.4.10).
-> Otherwise, you will delete your real journal, tune2fs will complain,
-> and then you will need to run e2fsck to clean up after yourself, before
-> re-creating your journal again.
-> 
-> If you have a filesystem with a .journal file, and you want to "hide"
-> it, just run e2fsck 1.25 while the filesystem is unmounted, and it
-> will do it for you.  If you don't want to have a .journal in the first
-> place, run tune2fs -j while the filesystem is unmounted.
-> 
 
-This is all fine and good except for the root partition (I'm pleased
-to hear that e2fsck 1.25 will move the journal to the hidden inode for
-non-root partitions.)  It would be nice if this was done automagically
-by the mounting code instead of by fsck; that way migration would
-truly be painless.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+On Sat, 24 Nov 2001, Petr Vandrovec wrote:
+
+> After reboot fsck was NOT run, so it is possible that there
+> might be some corruption - but I ran fsck on my non-root partition
+> after boot, and it did not show any problems.
+
+fsck -f
+
+Filesystem _is_ marked clean, so unless you do forced fsck no checks
+are done.
+
+Moreover, attempt to work with corrupted fs can break in very interesting
+ways, so unless you do fsck -f even correct kernel (be it patched 2.4.15
+or something earlier than 2.4.15-pre9) will not help.
+

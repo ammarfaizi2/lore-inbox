@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265081AbTLRLbh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 06:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbTLRLbh
+	id S265094AbTLRLcf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 06:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbTLRLce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 06:31:37 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:44476 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265081AbTLRLbf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 06:31:35 -0500
-Date: Thu, 18 Dec 2003 17:11:29 +0500
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: linux-diag-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, dsteklof@us.ibm.com, greg@kroah.com
-Subject: [ANNOUNCE] libsysfs v0.4.0
-Message-ID: <20031218121129.GA17422@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Thu, 18 Dec 2003 06:32:34 -0500
+Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:40327
+	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
+	id S265094AbTLRLcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 06:32:32 -0500
+Message-ID: <3FE1904D.7030204@tupshin.com>
+Date: Thu, 18 Dec 2003 03:32:29 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla Thunderbird 0.5a (20031216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can't bk clone linux-2.5
+References: <20031218104348.GA9007@neon> <20031218112543.GA10230@neon>
+In-Reply-To: <20031218112543.GA10230@neon>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Axel Siebenwirth wrote:
 
-Release 0.4.0 for libsysfs is now available at:
+>Doing a "bk pull" on an existing repository results in an error as well.
+>Is it just me?
+>
+Nope...even just trying to view a changeset on bkbits.net results in no 
+contents. Something is majorly fubared.
 
-	http://linux-diag.sourceforge.net 
-
-A number of changes have been made in this release which will 
-require a few modifications to applications already using 
-the library. (udev-009 already has a bulk of these changes).
-
-Here are the important additions/changes:
-
-	* Postponed reading directories and attributes until 
-		absolutely necessary. 
-	* Structure elements that are lists or references to 
-		structures are not populated by default. APIs 
-		have now been provided to populate them.
-	* All "open" functions that take absolute path as argument
-		now have a "_path" suffix.
-	* Provided attribute "refresh" functions to read in updated
-		attribute values.
-	* Changes for klibc compatibility.
-	* Provided APIs to retrieve device/class_device "parent".
-	* Added manpages for lsbus and systool (Thanks to Martin Pitt).
-
-Please visit http://linux-diag.sourceforge.net/Sysfsutils.html for 
-more information.
-
-Comments, suggestions welcome! 
-
-
-Thanks,
-Ananth
--- 
-Ananth Narayan <ananth@in.ibm.com>
-Linux Technology Center,
-IBM Software Lab, INDIA
-
+-Tupshin

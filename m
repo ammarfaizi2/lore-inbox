@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262456AbSI3QZo>; Mon, 30 Sep 2002 12:25:44 -0400
+	id <S262510AbSI3Q2Y>; Mon, 30 Sep 2002 12:28:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262465AbSI3QZo>; Mon, 30 Sep 2002 12:25:44 -0400
-Received: from [198.149.18.6] ([198.149.18.6]:14241 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S262456AbSI3QZm>;
-	Mon, 30 Sep 2002 12:25:42 -0400
-Date: Mon, 30 Sep 2002 19:45:29 -0400
-From: Christoph Hellwig <hch@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lord@sgi.com, Arjan van de Ven <arjanv@redhat.com>, cw@f00f.org,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
-Message-ID: <20020930194529.A15138@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Ingo Molnar <mingo@elte.hu>, lord@sgi.com,
-	Arjan van de Ven <arjanv@redhat.com>, cw@f00f.org,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20020930193713.A13195@sgi.com> <Pine.LNX.4.44.0209301835190.18614-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S262541AbSI3Q2X>; Mon, 30 Sep 2002 12:28:23 -0400
+Received: from 62-190-216-107.pdu.pipex.net ([62.190.216.107]:56836 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262510AbSI3Q1s>; Mon, 30 Sep 2002 12:27:48 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209301640.g8UGe0ef006799@darkstar.example.net>
+Subject: Re: v2.6 vs v3.0
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 30 Sep 2002 17:39:59 +0100 (BST)
+Cc: jdickens@ameritech.net, mingo@elte.hu, jgarzik@pobox.com,
+       kessler@us.ibm.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, saw@saw.sw.com.sg, rusty@rustcorp.com.au,
+       richardj_moore@uk.ibm.com
+In-Reply-To: <Pine.LNX.4.44.0209291040420.2240-100000@home.transmeta.com> from "Linus Torvalds" at Sep 29, 2002 10:42:04 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209301835190.18614-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Sep 30, 2002 at 06:38:03PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 06:38:03PM +0200, Ingo Molnar wrote:
-> see the workqueues patch i posted a couple of minutes ago. Does this solve
-> XFS's problems?
+> > How many people are sitting on the sidelines waiting for guarantee that ide is 
+> > not going to blow up on our filesystems and take our data with it. Guarantee 
+> > that ide is working and not dangerous to our data, then I bet a lot more 
+> > people will come back and bang on 2.5. 
+> 
+> How the hell can I _guarantee_ anything like that?
 
-Not exactly.  All your work on one queue is internally serialize.  An
-totally unserialized workqueue would be best for XFS.
+You don't need to - just post "2.5.x ide is working, and not dangerous to your data", and loads of people will start using it.  That way, we get it tested a decent amount.
 
-> why is it ugly? I can add a simple interface to the workqueues subsystem
-> that will bind the XFS worker threads to given sets of CPUs. That should
-> give you per-CPU workqueues, with separate per-CPU locking.
+Of course when somebody's root fs get fsck'ed, (pun intended), the list is bound to get a flamewar^Whelpfully worded bug report.
 
-That would also work, but would require more code in XFS than my
-above suggestion.
+The false rumors that IDE was fubar for a long time in 2.5.x, coupled with the fact that a lot of recent 2.5.x kernels don't compile, seem to have scared off people which is rediculous.
 
+John.

@@ -1,23 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130521AbRBMG7v>; Tue, 13 Feb 2001 01:59:51 -0500
+	id <S130531AbRBMHLg>; Tue, 13 Feb 2001 02:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130612AbRBMG7l>; Tue, 13 Feb 2001 01:59:41 -0500
-Received: from sense-gold-134.oz.net ([216.39.162.134]:3076 "EHLO
-	sense-gold-134.oz.net") by vger.kernel.org with ESMTP
-	id <S130521AbRBMG7e>; Tue, 13 Feb 2001 01:59:34 -0500
-Date: Mon, 12 Feb 2001 22:59:50 -0800 (PST)
-From: al goldstein <gold@sense-gold-134.oz.net>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.1 swaps hardware addresses for ethernet cards
-Message-ID: <Pine.LNX.4.21.0102122250180.848-100000@sense-gold-134.oz.net>
+	id <S130612AbRBMHL0>; Tue, 13 Feb 2001 02:11:26 -0500
+Received: from smtp-out1.bellatlantic.net ([199.45.40.143]:37044 "EHLO
+	smtp-out1.bellatlantic.net") by vger.kernel.org with ESMTP
+	id <S130531AbRBMHLP>; Tue, 13 Feb 2001 02:11:15 -0500
+Message-ID: <3A88DE0E.42EE74F5@cdi.com>
+Date: Tue, 13 Feb 2001 02:11:10 -0500
+From: "Rafael E. Herrera" <raffo@cdi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+In-Reply-To: <20010201183231.A373@tuxia.com> <l03130323b6ae7005d490@[192.168.239.101]>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 2 ether cards 59x (eth0) and 509 (eth1). I have been adding 509
-at boot in lilo.conf. Using this same config in 2.4.1 results in 
-the hardware addresses for the cards to be swapped. If I remove 509 from 
-Lilo I get the same result. Suggestions would be appreciated  
+> Not good enough in isolation.  Suppose the kernel freezes at a very early
+> stage, such as while detecting the CPU(s) or PCI bridge - are your geeky
+> reaction times fast enough to dismiss the logo in time to see the relevant
+> messages?  I agree with others that this should be a boot option - and not
+...
+> Eg: in lilo.conf use append = "bootlogo" to turn the logo on (it should
+> always be off by default, but can be turned on by distro makers or
+> end-users) - but then if you type "linux nologo" at the LILO prompt, the
+> "nologo" should over-ride the "bootlogo" so there's always a way to see all
+> the messages.
 
+In a PC and if using lilo, you always get a lilo prompt (if so
+configured) after the initial power on tests. Passing a "nologo" option
+to lilo would seem a reasonable way to turn the feature off. The same
+could apply to othe boot loaders and other archs. By the way, suse 7.1
+has a graphical boot, no animation though, just a big penguin; some
+hacked lilo version, maybe?
+-- 
+     Rafael

@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269420AbUINPBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269381AbUINPB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269420AbUINPBy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269381AbUINO74
+	id S269381AbUINPB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269021AbUINO6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 10:59:56 -0400
-Received: from mail1.smlink.com ([212.143.64.225]:38001 "EHLO
-	smmail.server.smlink.com") by vger.kernel.org with ESMTP
-	id S269392AbUINO44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 10:56:56 -0400
-Date: Tue, 14 Sep 2004 17:59:49 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-To: David Lloyd <dmlloyd@tds.net>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97  
- patch)
-Message-ID: <20040914175949.6b59a032@sashak.lan>
-In-Reply-To: <Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net>
-References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
-	<20040912011128.031f804a@localhost>
-	<Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 14 Sep 2004 10:58:23 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:47237 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269029AbUINOxc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 10:53:32 -0400
+Date: Tue, 14 Sep 2004 16:54:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040914145457.GA13113@elte.hu>
+References: <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Sep 2004 15:56:58.0273 (UTC) FILETIME=[7710E910:01C49A73]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4146F33C.9030504@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Sep 2004 15:26:35 -0500 (CDT)
-David Lloyd <dmlloyd@tds.net> wrote:
 
-> On Sun, 12 Sep 2004, SashaK wrote:
-> 
-> > On Sat, 11 Sep 2004 20:50:58 +0200 (MEST)
-> > Mikael Pettersson <mikpe@csd.uu.se> wrote:
-> >
-> >> No, I meant the 'slamr' kernel driver module, which is
-> >> built from a big binary-only library (amrlibs.o) and
-> >> a small amount of kernel glue source code. As long as
-> >> amrlibs.o is distributed only as a 32-bit x86 binary,
-> >> I won't be able to use it with a 64-bit amd64 kernel.
-> >
-> > This is exactly that was discussed - 'slamr' is going to be replaced
-> > by ALSA drivers. I don't know which modem you have, but recent ALSA
-> > driver (CVS version) already supports ICH, SiS, NForce
-> > (snd-intel8x0m), ATI IXP (snd-atiixp-modem) and VIA
-> > (snd-via82xx-modem) AC97 modems.
-> 
-> Are these all motherboard-chipset modems, or is there such a thing as
-> an AC97-based PCI modem card?
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Such modems also exist (AC97 controller + MC97 codec + DAA), but less
-popular (especially with laptops there modem are mostly used).
+> Another thing, I don't mean this to sound like a rhetorical question,
+> but if we have a preemptible kernel, why is it a good idea to sprinkle
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> cond_rescheds everywhere? Isn't this now the worst of both worlds? Why
+> would someone who really cares about latency not enable preempt?
 
-Sasha.
+two things:
 
+1) none of the big distros enables CONFIG_PREEMPT in their kernels - not
+even SuSE. This is pretty telling.
+
+2) 10 new cond_resched()'s are not precisely 'sprinkle everywhere'.
+
+	Ingo

@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUIGOEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUIGOGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268072AbUIGOEn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUIGOEn
+	id S268076AbUIGOGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUIGOGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:04:43 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:30220 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268072AbUIGOEl (ORCPT
+	Tue, 7 Sep 2004 10:06:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35228 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268076AbUIGOGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:04:41 -0400
-Message-ID: <9e47339104090707045d009de6@mail.gmail.com>
-Date: Tue, 7 Sep 2004 10:04:37 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Helge Hafting <helge.hafting@hist.no>
-Subject: Re: New proposed DRM interface design
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-In-Reply-To: <413D74A5.3070002@hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040904102914.B13149@infradead.org>
-	 <4139FEB4.3080303@tungstengraphics.com>
-	 <9e473391040904110354ba2593@mail.gmail.com>
-	 <1094386050.1081.33.camel@localhost.localdomain>
-	 <9e47339104090508052850b649@mail.gmail.com>
-	 <1094393713.1264.7.camel@localhost.localdomain>
-	 <9e473391040905083326707923@mail.gmail.com>
-	 <1094395462.1271.12.camel@localhost.localdomain>
-	 <9e47339104090509056e54866e@mail.gmail.com> <413D74A5.3070002@hist.no>
+	Tue, 7 Sep 2004 10:06:10 -0400
+Date: Tue, 7 Sep 2004 07:06:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Steve French <smfltc@us.ibm.com>
+Subject: Re: [PATCH 4/4] copyfile: copyfile
+In-Reply-To: <20040907121520.GC27297@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.58.0409070656150.2299@ppc970.osdl.org>
+References: <20040907120908.GB26630@wohnheim.fh-wedel.de>
+ <20040907121118.GA27297@wohnheim.fh-wedel.de> <20040907121235.GB27297@wohnheim.fh-wedel.de>
+ <20040907121520.GC27297@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Sep 2004 10:43:17 +0200, Helge Hafting <helge.hafting@hist.no> wrote:
-> Jon Smirl wrote:
-> >I would also like to fix things so that we can have two logged in
-> >users, one on each head. This isn't going to work if one them uses
-> >fbdev and keeps swithing the chip to 2D mode while the other user is
-> >in 3D mode. The chip needs to stay in 3D mode with the CP running.
-> >
-> Yes!  I use the ruby patch and have two users logged in on the
-> two heads of a G550.  It works fine - as long as no mode
-> change is attempted.  And only one user can use 3D (or even 2D),
-> the other is stuck with a unaccelerated framebuffer.
 
-There is nothing in the hardware preventing both users from having 3D
-displays. This is a problem in the way fbdev and DRM are designed. I
-would like to work towards fixing this.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+On Tue, 7 Sep 2004, Jörn Engel wrote:
+>
+> Again, the syscall itself may be a stupid idea, but Steve indicated
+> interest for cifs.  I'll hide behind his back and let him fight for
+> it. ;)
+
+Well, this isn't useful for cifs.
+
+For cifs to be able to use it, the "copyfile()" interface needs to
+basically just be a pathname operation (ie a "dir->i_op->copy()"), not a
+"struct file" operation.  It's more like the VFS "->rename()" or "->link"
+operations, in other words. And it should return -EXDEV the same way
+rename returns EXDEV if the files aren't on the same filesystem.
+
+Then you could (and should) make a "generic_file_copy()" function that
+takes that pathname format, and then uses sendfile() to do the copy for
+regular disk-based filesystems.
+
+I think you should be able to copy the "sys_link()" code for almost all of 
+the top-level stuff. The only real difference being
+
+-	error = dir->i_op->link(old_dentry, dir, new_dentry);
++	error = dir->i_op->copy(old_dentry, dir, new_dentry);
+
+or something.
+
+And no, I don't know how to handle interruptability. I think the right
+answer may be that filesystems that don't support this as a "native op"  
+and can't do it quickly should just return an error, and then users can
+copy their multi-gigabyte files by hand, like they used to.
+
+So if we do this, we do this _right_. We also make sure that we error out 
+"too much" rather than "too little", so that people don't start depending 
+on behaviour that we don't want them to depend on. 
+
+		Linus

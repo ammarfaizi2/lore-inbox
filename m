@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310878AbSCHOeH>; Fri, 8 Mar 2002 09:34:07 -0500
+	id <S310886AbSCHOpM>; Fri, 8 Mar 2002 09:45:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310879AbSCHOd6>; Fri, 8 Mar 2002 09:33:58 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:19481 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S310878AbSCHOdr>;
-	Fri, 8 Mar 2002 09:33:47 -0500
-Date: Fri, 8 Mar 2002 15:33:45 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Boszormenyi Zoltan <zboszor@mail.externet.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext2/Ext3 partition label abuse
-Message-ID: <20020308143345.GA13406@win.tue.nl>
-In-Reply-To: <3C88890C.6010303@mail.externet.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C88890C.6010303@mail.externet.hu>
-User-Agent: Mutt/1.3.25i
+	id <S310884AbSCHOpE>; Fri, 8 Mar 2002 09:45:04 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:50948 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S310881AbSCHOoz>;
+	Fri, 8 Mar 2002 09:44:55 -0500
+Date: Fri, 8 Mar 2002 15:44:54 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6 IDE oops with i810 chipset
+In-Reply-To: <Pine.LNX.4.44.0203081514430.28035-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.44.0203081544210.28168-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 10:49:00AM +0100, Boszormenyi Zoltan wrote:
+I forgot to specify that the oops occourse when initializing the IDE
+controller.
 
-[I had two disks with the same labels on one machine and that caused
-problems with booting]
 
-Yes, if you have an fstab file that says: mount the filesystem with
-label "ROOTDISK" on /, and then come with two filesystems that both are
-labeled "ROOTDISK", then it is hardly surprising when problems arise.
-The same will happen if you use UUID instead of label but created the
-other disk by copying the first using dd.
+On Fri, 8 Mar 2002, Luigi Genoni wrote:
 
-You can change fstab for example with an editor.
-You can change labels for example with the e2label utility.
+> HI,
+>
+> It is almost impossible to boot 2.5.6 with IDE disk with
+> chipset :
+>
+> 00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
+> [Master])
+>         Subsystem: Intel Corporation 82801AA IDE
+>         Flags: bus master, medium devsel, latency 0
+>         I/O ports at 2460 [size=16]
+>
+>
+> I get an oops with every configuration I tried.
+> Of course I have no way to save log this oops,
+> and I had no time to write it down. Anyway it is the usual
+> "attemped to kill init" message.
+>
+> Apart of this there is the old OSS driver with still
+> a virt_to_bus() in dma.c file,
+> and drm/i810.c has the same problem too, also if a trivial
+> (and of course wrong, also if it works temporally) fix
+> is quite fast.
+>
+>
+> I am willing to test any patch
+>
+> Luigi
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Labels have an advantage for example when you add or remove a SCSI disk:
-the label stays the same but the disks are renumbered.
-Also when you add or remove partitions, causing a renumbering.
-Using UUID is slightly more stable, slightly less user-friendly.
-
-Attaching a significance to the order of items in /proc/partitions
-is a bad idea.

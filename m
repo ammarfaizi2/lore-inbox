@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290237AbSA3Rp1>; Wed, 30 Jan 2002 12:45:27 -0500
+	id <S289954AbSA3RrH>; Wed, 30 Jan 2002 12:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289987AbSA3RoB>; Wed, 30 Jan 2002 12:44:01 -0500
-Received: from mustard.heime.net ([194.234.65.222]:485 "EHLO mustard.heime.net")
-	by vger.kernel.org with ESMTP id <S290054AbSA3RnG>;
-	Wed, 30 Jan 2002 12:43:06 -0500
-Date: Wed, 30 Jan 2002 18:42:38 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>, Knut Olav Boehmer <knuto@linpro.no>,
-        Frank Ronny Larsen <gobo@gimle.nu>
-Subject: still problems with heavy i/o load
-Message-ID: <Pine.LNX.4.30.0201301825470.31732-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290054AbSA3Rpj>; Wed, 30 Jan 2002 12:45:39 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:13054 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S290219AbSA3RpN>;
+	Wed, 30 Jan 2002 12:45:13 -0500
+Date: Wed, 30 Jan 2002 10:41:58 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Cc: Rik van Riel <riel@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>,
+        Larry McVoy <lm@bitmover.com>, Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130104158.C763@lynx.adilger.int>
+Mail-Followup-To: Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+	Rik van Riel <riel@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>,
+	Larry McVoy <lm@bitmover.com>, Tom Rini <trini@kernel.crashing.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Alexander Viro <viro@math.psu.edu>,
+	Rob Landley <landley@trommello.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201301933390.11022-100000@localhost.localdomain> <Pine.LNX.4.33L.0201301445430.11594-100000@imladris.surriel.com> <20020130085902.C11593@helen.CS.Berkeley.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020130085902.C11593@helen.CS.Berkeley.EDU>; from jmacd@CS.Berkeley.EDU on Wed, Jan 30, 2002 at 08:59:03AM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On Jan 30, 2002  08:59 -0800, Josh MacDonald wrote:
+> Quoting Rik van Riel (riel@conectiva.com.br):
+> > On Wed, 30 Jan 2002, Ingo Molnar wrote:
+> > > On Wed, 30 Jan 2002, Larry McVoy wrote:
+> > >
+> > > > How much of the out order stuff goes away if you could send changes
+> > > > out of order as long as they did not overlap (touch the same files)?
+> > >
+> > > could this be made: 'as long as they do not touch the same lines of
+> > > code, taking 3 lines of context into account'? (ie. unified diff
+> > > definition of 'collisions' context.)
+> > 
+> > That would be _wonderful_ and fix the last bitkeeper
+> > problem I'm having once in a while.
+> 
+> This would seem to require a completely new tool for you to specify which 
+> hunks within a certain file belong to which changeset.  I can see why
+> Larry objects.  What's your solution?
 
-I don't know what this might be, but still, now on -rmap12a, i get the
-following behaviour:
+Please see my other email on this subject (out of order BK CSETs).
+One relatively easy solution is "proxy CSETs", which describe on a
+per-line basis (or xdelta checksum boundaries, even better) the changes
+made in "false parent" CSETs, but do not actually contain the changes.
+This allows the reciever to resolve the false dependencies, and also
+allows the sender to validate (at proxy CSET creation time) that the
+out-of-order CSET they are about to send, in fact, does not depend on
+any of the "false parent" CSETs.
 
-* streaming starts
-* speed is initially >40MB/s
-* when cache is used up, it falls to ~30MB/s - then (after a while) down
-  to ~25MB/s
-* then down to 0, which might show the wget processes on the remote
-  computer should be finished, but they aren't. They (59 of the original
-  100) are in Sleeping state. The server won't push more data.
-
-This problem is _not_ rmap specific, as mentioned in
-http://karlsbakk.net/dev/kernel/vm-fsckup.txt. With 2.4.17-vanilla, the
-data transfer halts after reading 2xRAM bytes.
-
-strangely, rmap11c seems to be quite stable, but only gives me ~32MB/s,
-whereas the initial is close to 50.
-
-I have posted mesages about this bug so many times now, that I really soon
-will try to install CP/M or something. At least a stable system!
-
-And - yes! - I have tried Andrea's patches. The only fscking thing that
-seems to be close to solving it is rmap11c
-
-Please help me about this
-
+Cheers, Andreas
 --
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

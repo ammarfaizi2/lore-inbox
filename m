@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272309AbRH3QUN>; Thu, 30 Aug 2001 12:20:13 -0400
+	id <S272313AbRH3QVn>; Thu, 30 Aug 2001 12:21:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272312AbRH3QUD>; Thu, 30 Aug 2001 12:20:03 -0400
-Received: from pD903CA2F.dip.t-dialin.net ([217.3.202.47]:23228 "EHLO
-	no-maam.dyndns.org") by vger.kernel.org with ESMTP
-	id <S272309AbRH3QT6>; Thu, 30 Aug 2001 12:19:58 -0400
-Date: Thu, 30 Aug 2001 18:18:56 +0200
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac4
-Message-ID: <20010830181856.A6691@no-maam.dyndns.org>
-In-Reply-To: <20010830154637.A4570@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010830154637.A4570@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.20i
-From: erik.tews@gmx.net (Erik Tews)
+	id <S272312AbRH3QVd>; Thu, 30 Aug 2001 12:21:33 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:37905 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S272315AbRH3QV1>;
+	Thu, 30 Aug 2001 12:21:27 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200108301621.UAA05134@ms2.inr.ac.ru>
+Subject: Re: tcp connection hangs on connect
+To: val@nmt.edu (Val Henson)
+Date: Thu, 30 Aug 2001 20:21:16 +0400 (MSK DST)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010829195259.B11544@boardwalk> from "Val Henson" at Aug 29, 1 07:53:02 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 03:46:37PM +0100, Alan Cox wrote:
-> 2.4.9-ac4
-> o	Fix X.75 with new hisax drivers and an isdn	(Kai Germaschewski)
-> 	disconnect race
+Hello!
 
-What is that exactly? I got the problem that mppp is not working
-correctly with 2.4.9 and 2.4.10-pre2 (and I tried some 2.4.9-ac too).
-When I came to my router, I had the following lines on my console
+> :) I was hoping Alexey would respond with "Oh yeah, here's that patch,
 
-isdn_ppp_mp_receive: lpq->ppp_slot -1
-isdn_ppp_mp_receive: lpq->ppp_slot -1
-isdn_ppp_mp_receive: lpq->ppp_slot -1
-isdn_ppp_mp_receive: lpq->ppp_slot -1
-isdn_ppp_xmit: lp->ppp_slot -1
+Your hopes were groundless.
+Actually, you could change subject, this apparently has nothing
+to do with your problem and this is misleading.
 
-And after these lines I had a kernel-oops on my console. After running
-ksymoops I found out, that the kernel was doing something in the
-sceduler (if I understand the output of ksymoops right). But these
-crashes must be mppp-related, because if I never execute isdnctrl
-addlink ippp0 the system never crashes and these error-messages never
-appear.
+I have no idea what happens in your case, apparently, retransmission
+timer is lost on sender, which is absolutely impossible. :-)
+Well, send me cat of /proc/tcp after the stall happened.
+
+Alexey

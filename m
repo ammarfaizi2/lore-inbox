@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTHaVMl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 17:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTHaVMk
+	id S262674AbTHaVFi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 17:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTHaVFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 17:12:40 -0400
-Received: from mail.wlanmail.com ([194.100.155.139]:8968 "HELO
-	mail.wlanmail.com") by vger.kernel.org with SMTP id S262690AbTHaVMk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 17:12:40 -0400
-From: Joonas Koivunen <rzei@mbnet.fi>
-Reply-To: rzei@mbnet.fi
-To: linux-kernel@vger.kernel.org
-Subject: O18.1int problems
-Date: Mon, 1 Sep 2003 00:12:53 +0300
-User-Agent: KMail/1.5.9
+	Sun, 31 Aug 2003 17:05:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60289 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262674AbTHaVFi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 17:05:38 -0400
+Date: Sun, 31 Aug 2003 14:05:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       <linux-kernel@vger.kernel.org>, <jun.nakajima@intel.com>
+Subject: Re: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take
+ 2
+In-Reply-To: <20030829210335.GA3150@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0308311404430.1581-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200309010012.53716.rzei@mbnet.fi>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-after reading some mails and discussion about Con Kolivas' patches I decided 
-to give a try. Got latest (-test4) vanilla and applied patch-test4-O18.1int. 
-Desktop (kde pre 3.2) runs smoother than with vanilla 2.6.0-test3.
+On Fri, 29 Aug 2003, Erik Andersen wrote:
+> 
+> gcc then generates code calling __udivdi3 and __umoddi3.  Since
+> the kernel does not provide these, people keep reinventing them.
+> Perhaps it is time to kill off do_div and all its little friends
+> and simply copy __udivdi3 and __umoddi3 from libgcc.....
 
-But when I tried to recompile my kde sources (first updating from cvs) 
-starting with rebuilding makefile templates (make -f Makefile.cvs) (some 
-autoconf/automake stuff, don't really know :) it froze. In Konsole window I 
-tried ctrl-c, ctrl-d, no effect. A brief ps aux | grep make shows that make 
-is in D state and so is it's find task. This D state didn't clear in 24 
-houres and I seem to be unable of reproducing it under vanilla 2.6.0-test4. 
-Killing of those processes didn't work (though I'm not sure if it should kill 
-those instantly).
+No. do_div() does _nothing_ like __udivdi3/__umoddi3.
 
-Is this problem with my configuration or some sneaky bug? System had been up 
-some time (24-48 houres) so I'll try reproducing it later also.
+Read the documentation.
 
--rzei
+
+		Linus
+

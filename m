@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265783AbTFVS7F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 14:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265788AbTFVS7F
+	id S265453AbTFVS5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 14:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbTFVS5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 14:59:05 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:39693 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S265783AbTFVS7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 14:59:00 -0400
-Date: Sun, 22 Jun 2003 21:12:52 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 22 Jun 2003 14:57:47 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:55243 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S265453AbTFVS5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 14:57:46 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@digeo.com>
 Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-Message-ID: <20030622191252.GA1406@mars.ravnborg.org>
-Mail-Followup-To: "Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel@vger.kernel.org
-References: <20030621125111.0bb3dc1c.akpm@digeo.com> <20030622103251.158691c3.akpm@digeo.com> <bd4u7s$jkp$1@tangens.hometree.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Jun 2003 21:12:45 +0200
+User-Agent: KMail/1.5.2
+Cc: acme@conectiva.com.br, cw@f00f.org, torvalds@transmeta.com,
+       geert@linux-m68k.org, alan@lxorguk.ukuu.org.uk, perex@suse.cz,
+       linux-kernel@vger.kernel.org
+References: <20030621125111.0bb3dc1c.akpm@digeo.com> <200306221522.29653.phillips@arcor.de> <20030622103251.158691c3.akpm@digeo.com>
+In-Reply-To: <20030622103251.158691c3.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <bd4u7s$jkp$1@tangens.hometree.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306222112.45115.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 22, 2003 at 06:58:04PM +0000, Henning P. Schmiedehausen wrote:
-> Andrew Morton <akpm@digeo.com> writes:
-> 
-> Your problem is not the compiler but the build tool / system which
-> forces you to recompile all of your kernel if you change only small
-> parts.
+On Sunday 22 June 2003 19:32, Andrew Morton wrote:
+> Daniel Phillips <phillips@arcor.de> wrote:
+> > As for compilation speed, yes, that sucks.  I doubt there's any rational
+> >  reason for it, but I also agree with the idea that correctness and
+> > binary code performance should come first, then the compilation speed
+> > issue should be addressed.
+>
+> No.  Compilation inefficiency directly harms programmer efficiency and the
+> quality and volume of code the programmer produces.  These are surely the
+> most important things by which a toolchain's usefulness should be judged.
+>
+> I compile with -O1 all the time and couldn't care the teeniest little bit
+> about the performance of the generated code - it just doesn't matter.
 
-If you know of any cases where too much is build after a change in
-the 2.5 kernel I would like to know that.
+True, and then gdb works much better as well.  I was really thinking about 
+production quality.  Well, I want to have it all, I wonder if the gcc crew 
+could come up with a compile speed optimization switch, which produces sucky 
+code but does it in record time.
 
-In the above keep in mind that the finest granularity is on a file basis,
-except for .config, where it is on a config entry granularity.
+There are many other ways of improving kernel build speed of course.  One of 
+the best was to use Keith Owen's kbuild 2.5, which did an impressive job of 
+speeding the build up, especially the incremental stuff that matters most to 
+developers.  But alas, it died on the horns of politics.
 
-	Sam
+> Compilation inefficiency is the most serious thing wrong with gcc.
+
+If that's the case then it's a good sign I think.
+
+Regards,
+
+Daniel
+

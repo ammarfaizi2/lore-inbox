@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVBCB31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVBCB2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVBCB31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVBCB3U
+	id S262288AbVBCB2x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVBCBT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:29:20 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7041 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262896AbVBCB17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 20:27:59 -0500
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] [PATCH] Minor Kexec bug fix (2.6.11-rc2-mm2)
-References: <1107352593.11609.146.camel@2fwv946.in.ibm.com>
-	<42016B55.4000804@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 02 Feb 2005 18:26:03 -0700
-In-Reply-To: <42016B55.4000804@osdl.org>
-Message-ID: <m1hdku8mdw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Feb 2005 20:19:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:6480 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262905AbVBCBR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 20:17:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=hQBixunv35npkC8WFfUkFf2c3UfZXB/ZsLvrtdeWBxDa0qBvsmk73wZzpUCU82jYIwI/A7jh3aO2fLHXILCqTslkwSQysWQbMQCqF6QZcGOiRa47vWXMrc//xEfH9wBWZhCNMCCtuNryw9bWhUiPy0qsHzyN230FMIrgFGoxHFo=
+Message-ID: <58cb370e0502021717d26ba12@mail.gmail.com>
+Date: Thu, 3 Feb 2005 02:17:58 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 18/29] ide: comment fixes
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050202030254.GC1187@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202030254.GC1187@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
-
-> Vivek Goyal wrote:
-> > Hi Andrew,
-> > This patch has been generated against 2.6.11-rc2-mm2. This fixes a very
-> > minor bug in kexec.
+On Wed, 2 Feb 2005 12:02:54 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > 18_ide_comment_fixes.patch
+> >
+> >       Comment fixes.
 > 
-> Have you run sparse on a kexec-patched kernel tree?
-> I have, but not lately.  It needed some s/0/NULL/ in several places,
-> but that was before the latest big changes...
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-I have been avoiding adding more but I have not done had a flag
-day and killed them all either.
-
-The one bit int bug was a stupid thinko in the new code.
-Totally obvious when someone tried it, to use it.
-
-I think I am about ready to provide a sysrq panic interface.
-At least for testing that code path it would be good.  And
-if we actually have kernel core dumps it might be useful
-beyond that.
-
-Eric
-
-
+applied

@@ -1,86 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbULFAQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbULFAUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbULFAQx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 19:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbULFAQx
+	id S261431AbULFAUp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 19:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbULFAUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 19:16:53 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:7864 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261432AbULFAQu (ORCPT
+	Sun, 5 Dec 2004 19:20:45 -0500
+Received: from 4.Red-80-32-108.pooles.rima-tde.net ([80.32.108.4]:7552 "EHLO
+	gimli") by vger.kernel.org with ESMTP id S261431AbULFAUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 19:16:50 -0500
-Date: Mon, 6 Dec 2004 11:16:34 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: [RFC] Strange code in cpu_idle()
-Message-Id: <20041206111634.44d6d29c.sfr@canb.auug.org.au>
-In-Reply-To: <20041205004557.GA2028@us.ibm.com>
-References: <20041205004557.GA2028@us.ibm.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__6_Dec_2004_11_16_34_+1100_49NeqwgKqF5T0f0o"
+	Sun, 5 Dec 2004 19:20:36 -0500
+Message-ID: <41B3A683.8060008@sombragris.com>
+Date: Mon, 06 Dec 2004 01:23:31 +0100
+From: Miguel Angel Flores <maf@sombragris.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: aic7xxx driver large integer warning
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__6_Dec_2004_11_16_34_+1100_49NeqwgKqF5T0f0o
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hi list.
 
-Hi Paul,
+As I said yesterday, the 2.6.10rc3 kernel warns compiling the aic7xxxx 
+SCSI driver:
 
-On Sat, 4 Dec 2004 16:45:57 -0800 "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->
-> OK, I believe I found the other end of this:
-> 
-> static void __exit apm_exit(void)
-> {
-> 	int	error;
-> 
-> 	if (set_pm_idle) {
-> 		pm_idle = original_pm_idle;
-> 		/*
-> 		 * We are about to unload the current idle thread pm callback
-> 		 * (pm_idle), Wait for all processors to update cached/local
-> 		 * copies of pm_idle before proceeding.
-> 		 */
-> 		synchronize_kernel();
-> 	}
-> 
-> Unfortunately, the idle loop is a quiescent state, so it is
-> possible for synchronize_kernel() to return before the idle threads
-> have returned.  So I don't believe RCU is useful here.  One other
-> approach would be to keep a cpu mask, in which apm_exit() sets all
-> bits, and pm_idle() clears its CPU's bit only if it is set.
-> Then apm_exit() could wait for all CPU's bits to clear.
-> 
-> There is probably a better way to do this, but that is what comes
-> to mind immediately.
-> 
-> Thoughts?
+---
+drivers/scsi/aic7xxx/aic7xxx_osm_pci.c: In function 
+`ahc_linux_pci_dev_probe':
+drivers/scsi/aic7xxx/aic7xxx_osm_pci.c:229: warning: large integer 
+implicitly truncated to unsigned type
+---
 
-None, sorry :-)
+[aic7xxx_osm_pci.c]
+    mask_39bit = 0x7FFFFFFFFFULL;
 
-I don't even remember that piece of code going in (I certainly didn't
-write it), though I can see what it was trying to do.
+mask_39bit type is dma_addr_t. However the length of dma_addr_t is 
+defined in types.h.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+[types.h]
+    #ifdef CONFIG_HIGHMEM64G
+    typedef u64 dma_addr_t;
+    #else
+    typedef u32 dma_addr_t;
+    #endif
+    typedef u64 dma64_addr_t;
 
---Signature=_Mon__6_Dec_2004_11_16_34_+1100_49NeqwgKqF5T0f0o
-Content-Type: application/pgp-signature
+I think the correct solution is to make the assignement only if 
+CONFIG_HIGHMEM64G is defined:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+[aic7xxx_osm_pci.c]
+        mask_39bit = 0x7FFFFFFFFFULL;  //assignement
+        if (sizeof(dma_addr_t) > 4 //CONFIG_HIGHMEM64G is defined
+         && ahc_linux_get_memsize() > 0x80000000
+         && pci_set_dma_mask(pdev, mask_39bit) == 0) {
 
-iD8DBQFBs6Tr4CJfqux9a+8RAi4AAKCYCeiIgfG906bhTvKDhlZD5aCnnACgltCu
-EQ8GZi5JjXxg5nJO1vMic40=
-=d49U
------END PGP SIGNATURE-----
+            /* the correct position of the assignement IMHO */
 
---Signature=_Mon__6_Dec_2004_11_16_34_+1100_49NeqwgKqF5T0f0o--
+            ahc->flags |= AHC_39BIT_ADDRESSING;
+            ahc->platform_data->hw_dma_mask = mask_39bit;
+        } else {
+            if (pci_set_dma_mask(pdev, 0xFFFFFFFF)) {
+                printk(KERN_WARNING "aic7xxx: No suitable DMA 
+available.\n");
+                        return (-ENODEV);
+            }
+            ahc->platform_data->hw_dma_mask = 0xFFFFFFFF;
+
+Before I post a new patch, I wish to know your opinion.
+
+Thanks,
+MaF
+

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270067AbRHMKaD>; Mon, 13 Aug 2001 06:30:03 -0400
+	id <S270073AbRHMKip>; Mon, 13 Aug 2001 06:38:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270069AbRHMK3x>; Mon, 13 Aug 2001 06:29:53 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:8894
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S270067AbRHMK3k>; Mon, 13 Aug 2001 06:29:40 -0400
-Date: Mon, 13 Aug 2001 03:29:53 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Are we going too fast?
-In-Reply-To: <20010813105059.B1071-100000@gerard>
-Message-ID: <Pine.LNX.4.33.0108130327460.27721-100000@kobayashi.soze.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S270075AbRHMKif>; Mon, 13 Aug 2001 06:38:35 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:41785 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S270073AbRHMKiZ>; Mon, 13 Aug 2001 06:38:25 -0400
+Date: Mon, 13 Aug 2001 12:38:28 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: Jarno Paananen <jpaana@s2.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "scsi0:0:6:0: Attempting to queue an ABORT message" and friends hang
+Message-ID: <20010813123828.A6676@oisec.net>
+In-Reply-To: <m3d762c4sw.fsf@kalahari.s2.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3d762c4sw.fsf@kalahari.s2.org>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Gérard Roudier wrote:
+On Sun, Aug 12, 2001 at 06:53:19AM +0300, Jarno Paananen wrote:
 
-> You may want to elaborate on the ncr53c8xx problems (I maintain this
-> driver). More generally, you must not ignore the thousands of bugs in the
-> hardware you are using, but software developpers haven't access to all
-> errata descriptions since hardware vendors donnot like to make this
-> information freely available.
+> I've lately come across these messages a bit too many times:
+> 
+> scsi0:0:6:0: Attempting to queue an ABORT message
+> scsi0:0:6:0: Cmd aborted from QINFIFO
+> aic7xxx_abort returns 8194
+> scsi0:0:6:0: Attempting to queue an ABORT message
+> scsi0:0:6:0: Cmd aborted from QINFIFO
+> aic7xxx_abort returns 8194
+> 
+> [repeat ad infinitum]
+> 
+> and then all disk activity hangs. Is this a bug in the driver or a
+> symptom from failing disks/cable or something? It happens on both
+> my disks (sometimes the 0:6:0 is 0:5:0) so I hope it isn't the
+> disks. I'm running 2.4.8-ac1 now, but it has come up every now and
+> then since 2.4.6 kernels at least.
 
-I've got a quick unrelated question.
+My Adaptec 7890 onboard of my P2B-S experienced the same problems.
+However since i'm running 2.4.7-ac9 and up i have not experienced
+any problem.
 
-Why not change the name (or at least the description) of sym53c8xx to
-include the 53c1010 chips, which this driver seems to work on (and on a
-SMP box, no less)?
-
-
-justin
-
+-- 
+Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
+cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740

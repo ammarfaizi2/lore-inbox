@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267235AbTAPTnF>; Thu, 16 Jan 2003 14:43:05 -0500
+	id <S267238AbTAPTsC>; Thu, 16 Jan 2003 14:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267233AbTAPTnF>; Thu, 16 Jan 2003 14:43:05 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:57225 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267235AbTAPTnD>;
-	Thu, 16 Jan 2003 14:43:03 -0500
-Message-ID: <004001c2bd98$3854dec0$645e2909@atheurer>
-From: "Andrew Theurer" <habanero@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Linus Torvalds" <torvalds@transmeta.com>,
-       "Ingo Molnar" <mingo@elte.hu>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <2050000.1042741643@flay>
-Subject: Re: [PATCH] (0/3) NUMA aware scheduler
-Date: Thu, 16 Jan 2003 13:48:19 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S267243AbTAPTsC>; Thu, 16 Jan 2003 14:48:02 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:4756 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S267238AbTAPTsA>;
+	Thu, 16 Jan 2003 14:48:00 -0500
+Date: Thu, 16 Jan 2003 20:56:53 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jim Houston <jim.houston@attbi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] IDE OnTrack remap for 2.5.58
+Message-ID: <20030116195653.GA22359@win.tue.nl>
+References: <200301161814.h0GIEbb02258@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301161814.h0GIEbb02258@linux.local>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Following is a sequence of patches to add NUMA awareness to the scheduler.
-> These have been submitted to you several times before, but in my opinion
-> were structured in such a way to make them too invasive to non-NUMA
-machines.
-> I propsed a new scheme of working in "concentric circles" which this set
-> follows (Erich did most of the hard work of restructuring), and is now
-> completely non-invasive to non-NUMA systems. It has no effect whatsoever
-> on standard machines. This can be seen by code inspection, and has been
-> checked by benchmarking.
+On Thu, Jan 16, 2003 at 01:14:37PM -0500, Jim Houston wrote:
 
-FYI, I have used a topology to map HT aware processors (in this case P4) to
-a NUMA topology while using this scheduler.  This was done to help address
-the same problems that Ingo's shared runqueue implementation fixed.  The
-topology is quite simple. Sibling logical procs are members of a node.
-Number of nodes = number of physical procs.
+> I'm running a Seagate 80 GB disk in an old Pentium Pro dual processor.
+> I installed the current Redhat (phoebe) beta, and it works fine until
+> I try to boot a 2.5.58 kernel.  It fails to mount the root disk because
+> the disk has been setup with OnTrack remaping.  I didn't do anything
+> to ask for this remapping.  Perhaps Seagate is shipping with this pre-
+> installed?
+> 
+> I went back and looked through the patches and found that the remapping
+> support was removed in patch-2.5.30.  The comments in the mailing list
+> suggest that it belonged in user space.  I have not found code/instructions
+> on how to do this.  Since then, most of IDE code has been reverted to the
+> 2.4 versions but not this bit.
+> 
+> The attached patch is just the bit of code which was removed in 2.5.30
+> with the obvious changes needed to make it work in a 2.5.58 kernel.
+> I have a dream of upgrading my test machine to something clean and modern
+> unpolluted by backwards compatible cruft.  Until then, this bit of code
+> doesn't seem too bad.
 
-This primarily avoids sharing cpu cores (and avoiding resource contention)
-on low loads.  In my case, 4 tasks on 8 logical proc system, we want to load
-balance the tasks across nodes/cores for better performance.  For my test, I
-did a make -j4 on a 2.4.18 kernel.  Results are:
+My point of view:
+(i) We must not carry this geometry nonsense forward in all
+eternity. It is superfluous today. Get rid of it.
+(ii) So, the automatic remapping is killed.
+Most likely, there will be some people that still have old machines where
+this remapping is necessary. Then there are two possible responses:
+(iia) Don't run the latest kernel on an old cruft setup. Or,
+(iib) Use boot parameters.
 
-stock sched, no numa:    56.523 elapsed  202.899 user,  18.266 sys,  390.6%
-numa sched, ht topo:      53.088 elapsed  189.424 user,  18.36 sys,    391%
+So, I am waiting a little, but if there is sufficient demand
+we must have boot parameters that ask for an OnTrack remapping.
 
-~6.5% better.  These results are the average of 10 kernel compiles.
-* I did make one minor change to sched_best_cpu(). The first test case was
-elimintaed, and that change is currently under discussion.
+Concerning your particular case, I expect that you'll find that
+your remapping is entirely superfluous.
 
-I did this mainly to demonstrate that a numa scheduler's policies may be
-able to help HT systems and to capture a wider interest in numa scheduler.
-By no means is P4 HT required to use this.  This is simply a numa topology
-implemantation.  I would like some feedback on any interest in this.
+If you like low level fiddling, boot from a floppy, e.g. tomsrtbt,
+adapt the partition table and reboot. Now all should be well,
+both under old and under new kernels. No data loss.
 
-One of the reasons we probably have not had much interest in numa patches is
-that numa systems are not that prevailent.  However, numa-like qualites are
-showing up in commonly available systems, and I believe we can take
-advantage of policies that these patches, such as numa scheduler provide.
-Does anyone have any other ideas where numa like qualities lie?  x86-64?
+If you don't know how to fiddle, boot from a floppy, wipe the MBR
+using dd if=/dev/zero, and reinstall. All data is lost.
 
--Andrew Theurer
+Many intermediate approaches are possible.
+We can discuss details in case you are interested.
 
-P.S. I am working on a topology patch to send out.  It's quite hackish right
-now.
-
+Andries
+aeb@cwi.nl
 

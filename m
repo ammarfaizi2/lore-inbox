@@ -1,79 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264360AbTEGXNt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 19:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTEGXLt
+	id S264337AbTEGXHB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 19:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264353AbTEGXGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 19:11:49 -0400
-Received: from hypatia.llnl.gov ([134.9.11.73]:5248 "EHLO hypatia.llnl.gov")
-	by vger.kernel.org with ESMTP id S264332AbTEGXKH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 19:10:07 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Dave Peterson <dsp@llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fixes for linked list bugs in block I/O code
-Date: Wed, 7 May 2003 16:22:36 -0700
-User-Agent: KMail/1.4.1
-Cc: axboe@suse.de, davej@suse.de, dsp@llnl.gov
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200305071622.36352.dsp@llnl.gov>
+	Wed, 7 May 2003 19:06:42 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:49852 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S264346AbTEGXFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 19:05:43 -0400
+Date: Thu, 8 May 2003 01:16:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: John Levon <levon@movementarian.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, lm@bitmover.org
+Subject: Re: bkcvs not up-to-date?
+Message-ID: <20030507231603.GA699@elf.ucw.cz>
+References: <20030507111552.GA325@elf.ucw.cz> <20030507115759.GA38506@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030507115759.GA38506@compsoc.man.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found a couple of small linked list bugs in __make_request() in
-drivers/block/ll_rw_blk.c.  The bugs exist in both kernels
-2.4.20 and 2.5.69.  Therefore I have made patches for both
-kernels.  The problem is that when inserting a new buffer_head
-into the linked list of buffer_head structures maintained by
-"struct request", the b_reqnext field is not initialized.
+Hi!
 
--Dave Peterson
- dsp@llnl.gov
+> > and checked out the tree, but cvs log Makefile still indicates 2.5.68
+> > is the lastest version. What am I doing wrong?
+> 
+> I have the same problem, the CVS gateway got stuck some point in the
+> middle of 2.5.68 and has had no apparen t updates since
 
-
-========== START OF 2.4.20 PATCH FOR drivers/block/ll_rw_blk.c ===========
---- ll_rw_blk.c.old     Wed May  7 15:54:58 2003
-+++ ll_rw_blk.c.new     Wed May  7 15:58:07 2003
-@@ -973,6 +973,7 @@
-                                insert_here = &req->queue;
-                                break;
-                        }
-+                       bh->b_reqnext = req->bhtail->b_reqnext;
-                        req->bhtail->b_reqnext = bh;
-                        req->bhtail = bh;
-                        req->nr_sectors = req->hard_nr_sectors += count;
-@@ -1061,6 +1062,7 @@
-        req->waiting = NULL;
-        req->bh = bh;
-        req->bhtail = bh;
-+       bh->b_reqnext = NULL;
-        req->rq_dev = bh->b_rdev;
-        req->start_time = jiffies;
-        req_new_io(req, 0, count);
-========== END OF 2.4.20 PATCH FOR drivers/block/ll_rw_blk.c =============
-
-
-========== START OF 2.5.69 PATCH FOR drivers/block/ll_rw_blk.c ===========
---- ll_rw_blk.c.old     Wed May  7 15:55:18 2003
-+++ ll_rw_blk.c.new     Wed May  7 16:01:56 2003
-@@ -1721,6 +1721,7 @@
-                                break;
-                        }
-
-+                       bio->bi_next = req->biotail->bi_next;
-                        req->biotail->bi_next = bio;
-                        req->biotail = bio;
-                        req->nr_sectors = req->hard_nr_sectors += nr_sectors;
-@@ -1811,6 +1812,7 @@
-        req->buffer = bio_data(bio);    /* see ->buffer comment above */
-        req->waiting = NULL;
-        req->bio = req->biotail = bio;
-+       bio->bi_next = NULL;
-        req->rq_disk = bio->bi_bdev->bd_disk;
-        req->start_time = jiffies;
-        add_request(q, req, insert_here);
-========== END OF 2.5.69 PATCH FOR drivers/block/ll_rw_blk.c =============
+Its even worse: part of updates gets there. Like CREDITS file is
+up-to-date but Makefile is not.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

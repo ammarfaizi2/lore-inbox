@@ -1,82 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVARUSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVARUkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVARUSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 15:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVARUSL
+	id S261320AbVARUkW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 15:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVARUkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 15:18:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41380 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261409AbVARUR5 (ORCPT
+	Tue, 18 Jan 2005 15:40:22 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:9357 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261320AbVARUkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 15:17:57 -0500
-Date: Tue, 18 Jan 2005 12:17:11 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: davidm@hpl.hp.com, carl.staelin@hp.com
-cc: "Luck, Tony" <tony.luck@intel.com>, lmbench-users@bitmover.com,
-       linux-ia64@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pipe performance regression on ia64
-In-Reply-To: <16877.21998.984277.551515@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.58.0501181200460.8178@ppc970.osdl.org>
-References: <200501181741.j0IHfGf30058@unix-os.sc.intel.com>
- <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org> <16877.21998.984277.551515@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Jan 2005 15:40:13 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Jan Hubicka <jh@suse.cz>,
+       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] booting a kernel compiled with -mregparm=0 
+In-reply-to: Your message of "Mon, 17 Jan 2005 09:30:17 -0000."
+             <Pine.LNX.4.61.0501170909040.4593@ezer.homenet> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 19 Jan 2005 07:38:26 +1100
+Message-ID: <7152.1106080706@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Jan 2005 09:30:17 +0000 (GMT), 
+Tigran Aivazian <tigran@veritas.com> wrote:
+>Hmmm, interesting, then -g compiled Linux kernel should also be useable, 
+>with perhaps some tweaks to kdb to decode these frames correctly, right?
 
+kdb on i386 uses heuristics to guess at what parameters have been
+passed on stack.  When the parameters are passed by register, there is
+not enough information in the code to work out which parameters have
+been passed nor what gcc has done with them once the function has been
+entered.
 
-On Tue, 18 Jan 2005, David Mosberger wrote:
->
-> >>>>> On Tue, 18 Jan 2005 10:11:26 -0800 (PST), Linus Torvalds <torvalds@osdl.org> said:
-> 
->   Linus> I don't know how to make the benchmark look repeatable and
->   Linus> good, though.  The CPU affinity thing may be the right thing.
-> 
-> Perhaps it should be split up into three cases:
-> 
-> 	- producer/consumer pinned to the same CPU
-> 	- producer/consumer pinned to different CPUs
-> 	- producer/consumer lefter under control of the scheduler
-> 
-> The first two would let us observe any changes in the actual pipe
-> code, whereas the 3rd case would tell us which case the scheduler is
-> leaning towards (or if it starts doing something real crazy, like
-> reschedule the tasks on different CPUs each time, we'd see a bandwith
-> lower than case 2 and that should ring alarm bells).
+Why use heuristics and guess?  Because when kdb was started we were
+still using a.out and stabs.  In those days there was no way for code
+in the running kernel to access the kernel's debugging information to
+track the parameter and register usage.
 
-Yes, that would be good.
+Since then the world has moved on.  The IA64 ABI mandates that the
+information required to do backtrace is stored in the running kernel,
+and kdb uses that unwind data, including tracking parameters passed in
+registers.
 
-However, I don't know who (if anybody) maintains lmbench any more. It 
-might be Carl Staelin (added to cc), and there used to be a mailing list 
-which may or may not be active any more..
+Nobody has been concerned enough about the backtraces on i386 and
+x86_64 to add the required unwind data to the kernel for those
+platforms.  If you want to extract the dwarf data from a kernel
+compiled with -g, include the dwarf data in the running kernel and add
+a dwarf unwinder to the kernel then I will happily accept patches to
+kdb.  Don't forget about support for adding and removing unwind data as
+modules are loaded and unloaded.
 
-[ Background for Carl (and/or lmbench-users): 
+To hpa: kdb is designed to run completely in kernel.  It is not (repeat
+not) intended to be a remote client debugger.
 
-  The "pipe bandwidth" test ends up giving wildly fluctuating (and even
-  when stable, pretty nonsensical, since they depend very strongly on the
-  size of the buffer being used to do the writes vs the buffer size in the
-  kernel) numbers purely depending on where the reader/writer got
-  scheduled.
+BTW, even on IA64 which has unwind data, we still get problems because
+the unwind data only says what parameters are passed in registers, it
+says nothing about register reuse.  gcc can reuse a parameter register
+if the parameter value is no longer required, for example :-
 
-  So a recent kernel buffer management change made lmbench numbers vary 
-  radically, ranging from huge improvements to big decreases. It would be 
-  useful to see the numbers as a function of CPU selection on SMP (the 
-  same is probably true also for the scheduling latency benchmark, which 
-  is also extremely unstable on SMP).
+  void function foo(struct bar *b)
+  {
+    // On entry, ia64 r32 contains *b
+    int i = b->i;
+    // If b is not used after this point, gcc can reuse r32 for the value of i.
+    // Debugging after this point will show a misleading value in r32 for b.
+    ...
+  }
 
-  It's not just that it has big variance - you can't just average out many 
-  runs. It has very "modal" operation, making averages meaningless. 
-
-  A trivial thing that would work for most cases is just a simple (change 
-  the "1" to whatever CPU-mask you want for some case)
-
-	long affinity = 1;	/* bitmask: CPU0 only */
-	sched_setaffinity(0, sizeof(long), &affinity);
-
-  but I don't know what other OS's do, so it's obviously not portable ]
-
-Hmm?
-
-			Linus

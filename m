@@ -1,1246 +1,937 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbUKXNQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbUKXNWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbUKXNQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbUKXNOl
+	id S262688AbUKXNWM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbUKXNTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:14:41 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:5525 "HELO
+	Wed, 24 Nov 2004 08:19:49 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:56724 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262647AbUKXND4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:03:56 -0500
-Subject: Suspend 2 merge: 34/51: Includes
+	id S262656AbUKXNCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:02:37 -0500
+Subject: Suspend 2 merge: 23/51: PPC support.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101297843.5805.324.camel@desktop.cunninghams>
+Message-Id: <1101296245.5805.282.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 00:00:06 +1100
+Date: Wed, 24 Nov 2004 23:58:54 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are the include changes files for suspend2.
+>From Steve.
 
-I seek to keep this swsusp compatible, but it might be a little out of sync with Pavel's changes.
+Not updated for a while, so I'm not sure if it still works. If not, it
+shouldn't take much to get it going again.
 
-diff -ruN 822-includes-old/include/asm-i386/suspend.h 822-includes-new/include/asm-i386/suspend.h
---- 822-includes-old/include/asm-i386/suspend.h	2004-11-24 09:53:09.000000000 +1100
-+++ 822-includes-new/include/asm-i386/suspend.h	2004-11-24 18:51:50.270377720 +1100
-@@ -3,6 +3,7 @@
-  * Based on code
-  * Copyright 2001 Patrick Mochel <mochel@osdl.org>
-  */
-+#include <linux/errno.h>
- #include <asm/desc.h>
- #include <asm/i387.h>
+diff -ruN 701-mac-old/arch/ppc/Kconfig 701-mac-new/arch/ppc/Kconfig
+--- 701-mac-old/arch/ppc/Kconfig	2004-11-03 21:55:01.000000000 +1100
++++ 701-mac-new/arch/ppc/Kconfig	2004-11-04 16:27:40.000000000 +1100
+@@ -225,6 +225,8 @@
  
-diff -ruN 822-includes-old/include/linux/suspend.h 822-includes-new/include/linux/suspend.h
---- 822-includes-old/include/linux/suspend.h	2004-11-03 21:52:41.000000000 +1100
-+++ 822-includes-new/include/linux/suspend.h	2004-11-24 18:51:50.298373464 +1100
-@@ -4,58 +4,125 @@
- #ifdef CONFIG_X86
- #include <asm/suspend.h>
- #endif
--#include <linux/swap.h>
--#include <linux/notifier.h>
--#include <linux/config.h>
--#include <linux/init.h>
--#include <linux/pm.h>
--
--#ifdef CONFIG_PM
--/* page backup entry */
--typedef struct pbe {
--	unsigned long address;		/* address of the copy */
--	unsigned long orig_address;	/* original address of page */
--	swp_entry_t swap_address;	
--	swp_entry_t dummy;		/* we need scratch space at 
--					 * end of page (see link, diskpage)
--					 */
--} suspend_pagedir_t;
--
--#define SWAP_FILENAME_MAXLENGTH	32
--
--
--#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
--   
--/* mm/vmscan.c */
--extern int shrink_mem(void);
--
--/* mm/page_alloc.c */
--extern void drain_local_pages(void);
+ 	  If in doubt, say Y here.
  
--/* kernel/power/swsusp.c */
--extern int software_suspend(void);
-+#include <linux/kernel.h>
-+extern char __nosave_begin, __nosave_end;
++source kernel/power/Kconfig
++
+ source arch/ppc/platforms/4xx/Kconfig
+ source arch/ppc/platforms/85xx/Kconfig
  
--#else	/* CONFIG_SOFTWARE_SUSPEND */
--static inline int software_suspend(void)
--{
--	printk("Warning: fake suspend called\n");
--	return -EPERM;
--}
--#endif	/* CONFIG_SOFTWARE_SUSPEND */
-+#ifdef CONFIG_PM
+diff -ruN 701-mac-old/arch/ppc/kernel/signal.c 701-mac-new/arch/ppc/kernel/signal.c
+--- 701-mac-old/arch/ppc/kernel/signal.c	2004-11-03 21:55:01.000000000 +1100
++++ 701-mac-new/arch/ppc/kernel/signal.c	2004-11-04 16:27:40.000000000 +1100
+@@ -604,6 +604,15 @@
+ 	unsigned long frame, newsp;
+ 	int signr, ret;
  
++	if (current->flags & PF_FREEZE) {
++		refrigerator(PF_FREEZE);
++		signr = 0;
++		ret = regs->gpr[3];
++		recalc_sigpending();
++		if (!signal_pending(current))
++			goto no_signal;
++	}
++
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+ 
+@@ -626,6 +635,7 @@
+ 			regs->gpr[3] = EINTR;
+ 			/* note that the cr0.SO bit is already set */
+ 		} else {
++no_signal:
+ 			regs->nip -= 4;	/* Back up & retry system call */
+ 			regs->result = 0;
+ 			regs->trap = 0;
+diff -ruN 701-mac-old/arch/ppc/kernel/vmlinux.lds.S 701-mac-new/arch/ppc/kernel/vmlinux.lds.S
+--- 701-mac-old/arch/ppc/kernel/vmlinux.lds.S	2004-11-03 21:55:04.000000000 +1100
++++ 701-mac-new/arch/ppc/kernel/vmlinux.lds.S	2004-11-04 16:27:40.000000000 +1100
+@@ -74,6 +74,12 @@
+     CONSTRUCTORS
+   }
+ 
++  . = ALIGN(4096);
++  __nosave_begin = .;
++  .data_nosave : { *(.data.nosave) }
++  . = ALIGN(4096);
++  __nosave_end = .;
++
+   . = ALIGN(32);
+   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
+ 
+diff -ruN 701-mac-old/arch/ppc/Makefile 701-mac-new/arch/ppc/Makefile
+--- 701-mac-old/arch/ppc/Makefile	2004-11-03 21:51:14.000000000 +1100
++++ 701-mac-new/arch/ppc/Makefile	2004-11-04 16:27:40.000000000 +1100
+@@ -61,6 +61,7 @@
+ drivers-$(CONFIG_8xx)		+= arch/ppc/8xx_io/
+ drivers-$(CONFIG_4xx)		+= arch/ppc/4xx_io/
+ drivers-$(CONFIG_CPM2)		+= arch/ppc/8260_io/
++drivers-$(CONFIG_PM)		+= arch/ppc/power/
+ 
+ drivers-$(CONFIG_OPROFILE)	+= arch/ppc/oprofile/
+ 
+diff -ruN 701-mac-old/arch/ppc/mm/init.c 701-mac-new/arch/ppc/mm/init.c
+--- 701-mac-old/arch/ppc/mm/init.c	2004-11-03 21:51:56.000000000 +1100
++++ 701-mac-new/arch/ppc/mm/init.c	2004-11-04 16:27:40.000000000 +1100
+@@ -31,6 +31,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/highmem.h>
+ #include <linux/initrd.h>
++#include <linux/suspend.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/prom.h>
+@@ -149,6 +150,7 @@
+ 
+ 	while (start < end) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		cnt++;
+@@ -188,6 +190,7 @@
+ 
+ 	for (; start < end; start += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(start));
++		ClearPageNosave(virt_to_page(start));
+ 		set_page_count(virt_to_page(start), 1);
+ 		free_page(start);
+ 		totalram_pages++;
+@@ -424,8 +427,10 @@
+ 	/* if we are booted from BootX with an initial ramdisk,
+ 	   make sure the ramdisk pages aren't reserved. */
+ 	if (initrd_start) {
+-		for (addr = initrd_start; addr < initrd_end; addr += PAGE_SIZE)
++		for (addr = initrd_start; addr < initrd_end; addr += PAGE_SIZE) {
+ 			ClearPageReserved(virt_to_page(addr));
++			ClearPageNosave(virt_to_page(addr));
++		}
+ 	}
+ #endif /* CONFIG_BLK_DEV_INITRD */
+ 
+@@ -451,6 +456,12 @@
+ 	     addr += PAGE_SIZE) {
+ 		if (!PageReserved(virt_to_page(addr)))
+ 			continue;
++		/*
++		 * Mark nosave pages
++		 */
++		if (addr >= (void *)&__nosave_begin && addr < (void *)&__nosave_end)
++			SetPageNosave(virt_to_page(addr));
++
+ 		if (addr < (ulong) etext)
+ 			codepages++;
+ 		else if (addr >= (unsigned long)&__init_begin
+@@ -468,6 +479,7 @@
+ 			struct page *page = mem_map + pfn;
+ 
+ 			ClearPageReserved(page);
++			ClearPageNosave(page);
+ 			set_bit(PG_highmem, &page->flags);
+ 			set_page_count(page, 1);
+ 			__free_page(page);
+@@ -501,7 +513,6 @@
+ 			pg->index = addr;
+ 		}
+ 	}
+-
+ 	mem_init_done = 1;
+ }
+ 
+diff -ruN 701-mac-old/arch/ppc/platforms/pmac_feature.c 701-mac-new/arch/ppc/platforms/pmac_feature.c
+--- 701-mac-old/arch/ppc/platforms/pmac_feature.c	2004-11-03 21:55:00.000000000 +1100
++++ 701-mac-new/arch/ppc/platforms/pmac_feature.c	2004-11-04 16:27:40.000000000 +1100
+@@ -2146,7 +2146,10 @@
+ 	},
+ 	{	"PowerBook6,1",			"PowerBook G4 12\"",
+ 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
+-		PMAC_MB_HAS_FW_POWER | PMAC_MB_MOBILE,
++		PMAC_MB_HAS_FW_POWER | PMAC_MB_MOBILE
++#ifdef CONFIG_SOFTWARE_REPLACE_SLEEP
++		| PMAC_MB_CAN_SLEEP,
++#endif
+ 	},
+ 	{	"PowerBook6,2",			"PowerBook G4",
+ 		PMAC_TYPE_UNKNOWN_INTREPID,	intrepid_features,
+diff -ruN 701-mac-old/arch/ppc/power/cpu.c 701-mac-new/arch/ppc/power/cpu.c
+--- 701-mac-old/arch/ppc/power/cpu.c	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/arch/ppc/power/cpu.c	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,61 @@
++#include <linux/config.h>
 +#include <linux/init.h>
- 
--#ifdef CONFIG_PM
--extern void refrigerator(unsigned long);
--extern int freeze_processes(void);
--extern void thaw_processes(void);
-+/* For swsusp */
-+#include <linux/swap.h>
- 
--extern int pm_prepare_console(void);
--extern void pm_restore_console(void);
-+#define SUSPEND_CORE_VERSION "2.1.5.7"
-+#ifndef KERNEL_POWER_SWSUSP_C
-+#define name_suspend "Software Suspend " SUSPEND_CORE_VERSION ": "
-+#endif
- 
-+extern unsigned long suspend_action;
-+extern unsigned long suspend_result;
-+extern unsigned long suspend_debug_state;
-+
-+#define TEST_RESULT_STATE(bit) (test_bit(bit, &suspend_result))
-+#define SET_RESULT_STATE(bit) (test_and_set_bit(bit, &suspend_result))
-+#define CLEAR_RESULT_STATE(bit) (test_and_clear_bit(bit, &suspend_result))
-+
-+#define TEST_ACTION_STATE(bit) (test_bit(bit, &suspend_action))
-+#define SET_ACTION_STATE(bit) (test_and_set_bit(bit, &suspend_action))
-+#define CLEAR_ACTION_STATE(bit) (test_and_clear_bit(bit, &suspend_action))
-+
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
-+#define TEST_DEBUG_STATE(bit) (test_bit(bit, &suspend_debug_state))
-+#define SET_DEBUG_STATE(bit) (test_and_set_bit(bit, &suspend_debug_state))
-+#define CLEAR_DEBUG_STATE(bit) (test_and_clear_bit(bit, &suspend_debug_state))
- #else
--static inline void refrigerator(unsigned long flag) {}
--#endif	/* CONFIG_PM */
-+#define TEST_DEBUG_STATE(bit) (0)
-+#define SET_DEBUG_STATE(bit) (0)
-+#define CLEAR_DEBUG_STATE(bit) (0)
-+#endif
- 
-+/* first status register - this is suspend's return code. */
-+#define SUSPEND_ABORTED			0
-+#define SUSPEND_ABORT_REQUESTED		1
-+#define SUSPEND_NOSTORAGE_AVAILABLE	2
-+#define SUSPEND_INSUFFICIENT_STORAGE	3
-+#define SUSPEND_FREEZING_FAILED		4
-+#define SUSPEND_UNEXPECTED_ALLOC	5
-+#define SUSPEND_KEPT_IMAGE		6
-+#define SUSPEND_WOULD_EAT_MEMORY	7
-+#define SUSPEND_UNABLE_TO_FREE_ENOUGH_MEMORY 8
-+
-+/* second status register */
-+#define SUSPEND_REBOOT		0
-+#define SUSPEND_PAUSE		2
-+#define SUSPEND_SLOW		3
-+#define SUSPEND_NOPAGESET2	7
-+#define SUSPEND_LOGALL		8
-+/* Set to disable compression when compiled in */
-+#define SUSPEND_NO_COMPRESSION	9
-+//#define SUSPEND_ENABLE_KDB	10
-+#define SUSPEND_CAN_CANCEL	11
-+#define SUSPEND_KEEP_IMAGE	13
-+#define SUSPEND_FREEZER_TEST	14
-+#define SUSPEND_FREEZER_TEST_SHOWALL 15
-+#define SUSPEND_SINGLESTEP	16
-+#define SUSPEND_PAUSE_NEAR_PAGESET_END 17
-+#define SUSPEND_USE_ACPI_S4	18
-+#define SUSPEND_KEEP_METADATA	19
-+#define SUSPEND_TEST_FILTER_SPEED	20
-+#define SUSPEND_FREEZE_TIMERS	21
-+#define SUSPEND_DISABLE_SYSDEV_SUPPORT 22
-+
-+/* debug sections  - if debugging compiled in */
-+#define SUSPEND_ANY_SECTION	0
-+#define SUSPEND_FREEZER		1
-+#define SUSPEND_EAT_MEMORY 	2
-+#define SUSPEND_PAGESETS	3
-+#define SUSPEND_IO		4
-+#define SUSPEND_BMAP		5
-+#define SUSPEND_HEADER		6
-+#define SUSPEND_WRITER		9
-+#define SUSPEND_MEMORY		10
-+#define SUSPEND_RANGES		11
-+#define SUSPEND_SPINLOCKS	12
-+#define SUSPEND_MEM_POOL	13
-+#define SUSPEND_RANGE_PARANOIA	14
-+#define SUSPEND_NOSAVE		15
-+#define SUSPEND_INTEGRITY	16
-+/* debugging levels. */
-+#define SUSPEND_STATUS		0
-+#define SUSPEND_ERROR		2
-+#define SUSPEND_LOW	 	3
-+#define SUSPEND_MEDIUM	 	4
-+#define SUSPEND_HIGH	  	5
-+#define SUSPEND_VERBOSE		6
-+
-+extern void __suspend_message(unsigned long section, unsigned long level, int log_normally,
-+		const char *fmt, ...);
-+
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
-+extern int suspend_memory_pool_level(int only_lowmem);
-+extern int real_nr_free_pages(void);
-+#define suspend_message(sn, lev, log, fmt, a...) \
-+do { \
-+	if (TEST_DEBUG_STATE(sn)) \
-+		suspend2_core_ops->suspend_message(sn, lev, log, fmt, ##a); \
-+} while(0)
-+#define PRINTFREEMEM(desn) \
-+	suspend_message(SUSPEND_MEMORY, SUSPEND_HIGH, 1, \
-+		"Free memory %s: %d+%d.\n", desn, \
-+		real_nr_free_pages() + suspend_amount_grabbed, \
-+		suspend_memory_pool_level(0));
-+#else /* CONFIG_SOFTWARE_SUSPEND_DEBUG */
-+#define PRINTFREEMEM(desn) do { } while(0)
-+#define suspend_message(sn, lev, log, fmt, a...) \
-+do { \
-+	if (lev == 0) \
-+		suspend2_core_ops->suspend_message(sn, lev, log, fmt, ##a); \
-+} while(0)
-+#endif /* CONFIG_SOFTWARE_SUSPEND_DEBUG */
-+  
- #ifdef CONFIG_SMP
- extern void disable_nonboot_cpus(void);
- extern void enable_nonboot_cpus(void);
-@@ -64,10 +131,140 @@
- static inline void enable_nonboot_cpus(void) {}
- #endif
- 
--void save_processor_state(void);
--void restore_processor_state(void);
--struct saved_context;
--void __save_processor_state(struct saved_context *ctxt);
--void __restore_processor_state(struct saved_context *ctxt);
-+extern int software_suspend(void);
-+	
-+/* Suspend 2 */
-+
-+#define SUSPEND_DISABLED		0
-+#define SUSPEND_RUNNING			1
-+#define SUSPEND_RESUME_DEVICE_OK	2
-+#define SUSPEND_NORESUME_SPECIFIED	3
-+#define SUSPEND_COMMANDLINE_ERROR 	4
-+#define SUSPEND_IGNORE_IMAGE		5
-+#define SUSPEND_SANITY_CHECK_PROMPT	6
-+#define SUSPEND_FREEZER_ON		7
-+#define SUSPEND_DISABLE_SYNCING		8
-+#define SUSPEND_BLOCK_PAGE_ALLOCATIONS	9
-+#define SUSPEND_USE_MEMORY_POOL		10
-+#define SUSPEND_STAGE2_CONTINUE		11
-+#define SUSPEND_FREEZE_SMP		12
-+#define SUSPEND_PAGESET2_NOT_LOADED	13
-+#define SUSPEND_CONTINUE_REQ		14
-+#define SUSPEND_RESUMED_BEFORE		15
-+#define SUSPEND_RUNNING_INITRD		16
-+#define SUSPEND_RESUME_NOT_DONE		17
-+#define SUSPEND_BOOT_TIME		18
-+#define SUSPEND_NOW_RESUMING		19
-+#define SUSPEND_SLAB_ALLOC_FALLBACK	20
-+#define SUSPEND_IGNORE_LOGLEVEL		21
-+#define SUSPEND_TIMER_FREEZER_ON	22
-+
-+extern unsigned long software_suspend_state;
-+#define test_suspend_state(bit) \
-+	(test_bit(bit, &software_suspend_state))
-+
-+#define clear_suspend_state(bit) \
-+	(clear_bit(bit, &software_suspend_state))
-+
-+#define set_suspend_state(bit) \
-+	(set_bit(bit, &software_suspend_state))
-+
-+#define get_suspend_state() 		(software_suspend_state)
-+#define restore_suspend_state(saved_state) \
-+	do { software_suspend_state = saved_state; } while(0)
-+	
-+/* kernel/suspend.c */
-+extern void suspend_try_suspend(void);
-+extern unsigned int suspend_task;
-+
-+/* Kernel threads are type 3 */
-+#define FREEZER_ALL_THREADS 0
-+#define FREEZER_KERNEL_THREADS 3
-+
-+extern int freeze_processes(int no_progress);
-+extern void thaw_processes(int which_threads);
-+
-+extern int pm_prepare_console(void);
-+extern void pm_restore_console(void);
-+
-+#define SUSPEND_KEY_KEYBOARD 1
-+#define SUSPEND_KEY_SERIAL 2
-+
-+struct page;
-+
-+struct suspend2_core_ops {
-+	/* Entry points for suspending & resuming */
-+	void (* do_suspend) (void);
-+	int (* do_resume) (void);
-+
-+	/* Pre and post lowlevel routines */
-+	void (* suspend1) (void);
-+	void (* suspend2) (void);
-+	void (* resume1) (void);
-+	void (* resume2) (void);
-+	
-+	void (* free_pool_pages) (struct page *page, unsigned int order);
-+	struct page * (* get_pool_pages) (unsigned int gfp_mask, unsigned int order);
-+
-+	unsigned long (* get_grabbed_pages) (int order);
-+	void (* cleanup_finished_io) (void);
-+
-+	void (* suspend_message) (unsigned long, unsigned long, int, const char *, ...);
-+	unsigned long (* update_status) (unsigned long value, unsigned long maximum,
-+		const char *fmt, ...);
-+	void (*prepare_status) (int printalways, int clearbar, const char *fmt, ...);
-+	void (* schedule_message) (int message_number);
-+	void (* early_boot_plugins) (void);
-+	int (* keypress) (unsigned int keycode);
-+
-+	void (* verify_checksums) (void);
-+};
-+extern volatile struct suspend2_core_ops * suspend2_core_ops;
-+#ifdef CONFIG_SOFTWARE_SUSPEND2
-+extern void software_suspend_try_resume(void);
-+extern void suspend_handle_keypress(unsigned int keycode, int source);
-+#else
-+#define software_suspend_try_resume()	do { } while(0)
-+#define suspend_handle_keypress(a, b) do { } while(0)
-+#endif
-+
-+#define suspend2_free_pool_pages(page, order)	suspend2_core_ops->free_pool_pages(page, order)
-+#define suspend2_get_pool_pages(mask, order)	suspend2_core_ops->get_pool_pages(mask, order)
-+#define suspend2_get_grabbed_pages(order)	suspend2_core_ops->get_grabbed_pages(order)
-+#define suspend2_cleanup_finished_io()		suspend2_core_ops->cleanup_finished_io()
-+#define suspend2_verify_checksums()		suspend2_core_ops->verify_checksums()
-+
-+#else /* CONFIG_PM off */
-+
-+#define suspend_try_suspend()		do { } while(0)
-+#define suspend_task			(0)
-+#define software_suspend_state		(0)
-+#define test_suspend_state(bit) 	(0)
-+#define clear_suspend_state(bit)	do { } while (0)
-+#define set_suspend_state(bit)		do { } while(0)
-+#define get_suspend_state() 		(0)
-+#define restore_suspend_state(saved_state) do { } while(0)
-+#define software_suspend_try_resume()	do { } while(0)
-+
-+static inline int suspend_bug(void)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+#define suspend2_free_pool_pages(page, order) suspend_bug()
-+#define suspend2_get_pool_pages(mask, order) (struct page *) suspend_bug()
-+#define suspend2_get_grabbed_pages(order) (struct page *) suspend_bug()
-+#define suspend2_cleanup_finished_io()	do { BUG(); } while(0)
-+#define suspend2_verify_checksums() do { BUG(); } while(0)
-+
-+static inline int software_suspend(void)
-+{
-+	printk("Warning: fake suspend called\n");
-+	return -EPERM;
-+}
-+#define software_resume()		do { } while(0)
-+#define suspend_handle_keypress(a, b) do { } while(0)
-+#endif
- 
- #endif /* _LINUX_SWSUSP_H */
-diff -ruN 822-includes-old/kernel/power/block_io.h 822-includes-new/kernel/power/block_io.h
---- 822-includes-old/kernel/power/block_io.h	1970-01-01 10:00:00.000000000 +1000
-+++ 822-includes-new/kernel/power/block_io.h	2004-11-24 18:51:50.301373008 +1100
-@@ -0,0 +1,52 @@
-+/*
-+ * block_io.h
-+ *
-+ * Copyright 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * Distributed under GPLv2.
-+ *
-+ * This file contains declarations for functions exported from
-+ * block_io.c, which contains low level io functions.
-+ */
-+
-+/* 8192 4k pages = 32MB */
-+#define MAX_READAHEAD (int) (8192)
-+
-+/* Forward Declarations */
-+
-+struct submit_params {
-+	swp_entry_t swap_address;
-+	struct page * page;
-+	struct block_device * dev;
-+	long blocks[PAGE_SIZE/512];
-+	int blocks_used;
-+	int readahead_index;
-+	struct submit_params * next;
-+};
-+
-+
-+extern int max_async_ios;
-+#define REAL_MAX_ASYNC ((max_async_ios ? max_async_ios : 128))
-+
-+/* 
-+ * Our exported interface so the swapwriter and NFS writer don't
-+ * need these functions built in.
-+ */
-+struct suspend_bio_ops {
-+	int (*set_block_size) (struct block_device * bdev, int size);
-+	int (*get_block_size) (struct block_device * bdev);
-+	int (*submit_io) (int rw, 
-+		struct submit_params * submit_info, int syncio);
-+	int (*bdev_page_io) (int rw, struct block_device * bdev, long pos,
-+			struct page * page);
-+	void (*wait_on_readahead) (int readahead_index);
-+	void (*check_io_stats) (void);
-+	void (*reset_io_stats) (void);
-+	void (*finish_all_io) (void);
-+	int (*prepare_readahead) (int index);
-+	void (*cleanup_readahead) (int index);
-+	struct page ** readahead_pages;
-+	int (*readahead_ready) (int readahead_index);
-+};
-+
-+extern struct suspend_bio_ops suspend_bio_ops;
-diff -ruN 822-includes-old/kernel/power/pageflags.h 822-includes-new/kernel/power/pageflags.h
---- 822-includes-old/kernel/power/pageflags.h	1970-01-01 10:00:00.000000000 +1000
-+++ 822-includes-new/kernel/power/pageflags.h	2004-11-24 18:51:50.304372552 +1100
-@@ -0,0 +1,80 @@
-+/*
-+ * kernel/power/pageflags.h
-+ *
-+ * Copyright (C) 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * Suspend2 needs a few pageflags while working that aren't otherwise
-+ * used. To save the struct page pageflags, we dynamically allocate
-+ * a bitmap and use that. These are the only non order-0 allocations
-+ * we do.
-+ */
-+extern unsigned long * in_use_map;
-+extern unsigned long * pageset2_map;
-+extern unsigned long * checksum_map;
-+#ifdef CONFIG_DEBUG_PAGEALLOC
-+extern unsigned long * unmap_map;
-+#endif
-+
-+#define PAGENUMBER(page) (page-mem_map)
-+#define PAGEINDEX(page) ((PAGENUMBER(page))/(8*sizeof(unsigned long)))
-+#define PAGEBIT(page) ((int) ((PAGENUMBER(page))%(8 * sizeof(unsigned long))))
-+
-+/* 
-+ * freepagesmap is used in two ways: 
-+ * - During suspend, to tag pages which are not used (to speed up 
-+ *   count_data_pages);
-+ * - During resume, to tag pages which are in pagedir1. This does not tag 
-+ *   pagedir2 pages, so !== first use.
-+ */
-+#define PageInUse(page) \
-+	test_bit(PAGEBIT(page), &in_use_map[PAGEINDEX(page)])
-+#define SetPageInUse(page) \
-+	set_bit(PAGEBIT(page), &in_use_map[PAGEINDEX(page)])
-+#define ClearPageInUse(page) \
-+	clear_bit(PAGEBIT(page), &in_use_map[PAGEINDEX(page)])
-+
-+#define PagePageset2(page) \
-+	(pageset2_map ? \
-+		test_bit(PAGEBIT(page), &pageset2_map[PAGEINDEX(page)]) : \
-+		0)
-+			
-+#define SetPagePageset2(page) \
-+	set_bit(PAGEBIT(page), &pageset2_map[PAGEINDEX(page)])
-+#define TestAndSetPagePageset2(page) \
-+	test_and_set_bit(PAGEBIT(page), &pageset2_map[PAGEINDEX(page)])
-+#define TestAndClearPagePageset2(page) \
-+	test_and_clear_bit(PAGEBIT(page), &pageset2_map[PAGEINDEX(page)])
-+#define ClearPagePageset2(page)	\
-+do { \
-+	if (pageset2_map) \
-+		clear_bit(PAGEBIT(page), &pageset2_map[PAGEINDEX(page)]); \
-+} while(0)
-+
-+#define PageChecksumIgnore(page) \
-+	(checksum_map ? \
-+		test_bit(PAGEBIT(page), &checksum_map[PAGEINDEX(page)]) : \
-+		0)
-+
-+#define SetPageChecksumIgnore(page) \
-+do { \
-+	if (checksum_map) \
-+		set_bit(PAGEBIT(page), &checksum_map[PAGEINDEX(page)]); \
-+} while(0)
-+
-+#define ClearPageChecksumIgnore(page) \
-+do { \
-+	if (checksum_map) \
-+		clear_bit(PAGEBIT(page), &checksum_map[PAGEINDEX(page)]); \
-+} while(0)
-+
-+
-+#define SetPageUnmap(page) \
-+	set_bit(PAGEBIT(page), &unmap_map[PAGEINDEX(page)])
-+#define PageUnmap(page) \
-+	test_bit(PAGEBIT(page), &unmap_map[PAGEINDEX(page)])
-+
-+extern int allocate_local_pageflags(unsigned long ** pagemap, int setnosave);
-+extern int free_local_pageflags(unsigned long ** pagemap);
-+extern void clear_map(unsigned long * pagemap);
-diff -ruN 822-includes-old/kernel/power/plugins.h 822-includes-new/kernel/power/plugins.h
---- 822-includes-old/kernel/power/plugins.h	1970-01-01 10:00:00.000000000 +1000
-+++ 822-includes-new/kernel/power/plugins.h	2004-11-24 18:51:50.305372400 +1100
-@@ -0,0 +1,205 @@
-+/*
-+ * kernel/power/plugin.h
-+ *
-+ * Copyright (C) 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * It contains declarations for plugins. Plugins are additions to
-+ * suspend2 that provide facilities such as image compression or
-+ * encryption, backends for storage of the image and user interfaces.
-+ *
-+ */
-+
-+/* This is the maximum size we store in the image header for a plugin name */
-+#define SUSPEND_MAX_PLUGIN_NAME_LENGTH 30
-+
-+struct plugin_header {
-+	char name[SUSPEND_MAX_PLUGIN_NAME_LENGTH];
-+	int disabled;
-+	int type;
-+	int index;
-+	int data_length;
-+	unsigned long magic;
-+};
-+
-+extern unsigned long memory_for_plugins(void);
-+extern int num_plugins;
-+
-+#define FILTER_PLUGIN 1
-+#define WRITER_PLUGIN 2
-+#define UI_PLUGIN 3
-+#define MISC_PLUGIN 4 // Block writer, eg.
-+#define CHECKSUM_PLUGIN 5
-+
-+#define SUSPEND_ASYNC 0
-+#define SUSPEND_SYNC  1
-+
-+#define SUSPEND_COMMON_IO_OPS \
-+	/* Writing the image proper */ \
-+	int (*write_init) (int stream_number); \
-+	int (*write_chunk) (struct page * buffer_page); \
-+	int (*write_cleanup) (void); \
-+\
-+	/* Reading the image proper */ \
-+	int (*read_init) (int stream_number); \
-+	int (*read_chunk) (struct page * buffer_page, int sync); \
-+	int (*read_cleanup) (void); \
-+\
-+	/* Reset plugin if image exists but reading aborted */ \
-+	void (*noresume_reset) (void);
-+
-+struct suspend_filter_ops {
-+	SUSPEND_COMMON_IO_OPS
-+	int (*expected_compression) (void);
-+	struct list_head filter_list;
-+};
-+
-+struct suspend_writer_ops {
-+	
-+	SUSPEND_COMMON_IO_OPS
-+
-+	/* Calls for allocating storage */
-+
-+	long (*storage_available) (void); // Maximum size of image we can save
-+					  // (incl. space already allocated).
-+	
-+	unsigned long (*storage_allocated) (void);
-+					// Amount of storage already allocated
-+	int (*release_storage) (void);
-+	
-+	/* 
-+	 * Header space is allocated separately. Note that allocation
-+	 * of space for the header might result in allocated space 
-+	 * being stolen from the main pool if there is no unallocated
-+	 * space. We have to be able to allocate enough space for
-+	 * the header. We can eat memory to ensure there is enough
-+	 * for the main pool.
-+	 */
-+	long (*allocate_header_space) (unsigned long space_requested);
-+	int (*allocate_storage) (unsigned long space_requested);
-+	
-+	/* Read and write the metadata */	
-+	int (*write_header_init) (void);
-+	int (*write_header_chunk) (char * buffer_start, int buffer_size);
-+	int (*write_header_cleanup) (void);
-+
-+	int (*read_header_init) (void);
-+	int (*read_header_chunk) (char * buffer_start, int buffer_size);
-+	int (*read_header_cleanup) (void);
-+
-+	/* Prepare metadata to be saved (relativise/absolutise ranges) */
-+	int (*prepare_save_ranges) (void);
-+	int (*post_load_ranges) (void);
-+	
-+	/* Attempt to parse an image location */
-+	int (*parse_image_location) (char * buffer, int only_writer);
-+
-+	/* Determine whether image exists that we can restore */
-+	int (*image_exists) (void);
-+	
-+	/* Mark the image as having tried to resume */
-+	void (*mark_resume_attempted) (void);
-+
-+	/* Destroy image if one exists */
-+	int (*invalidate_image) (void);
-+	
-+	/* Wait on I/O */
-+	int (*wait_on_io) (int flush_all);
-+
-+	struct list_head writer_list;
-+};
-+
-+struct suspend_ui_ops {
-+	void (*early_boot_message_prep) (void);
-+	void (*prepare) (void);
-+	void (*message) (
-+		unsigned long type, unsigned long level,
-+		int normally_logged,
-+		const char *format, va_list args);
-+	void (*log_level_change) (void);
-+	unsigned long (*update_progress) (
-+		unsigned long value, unsigned long maximum,
-+		const char *fmt, va_list args);
-+	void (*cleanup) (void);
-+	int (*keypress) (unsigned int key);
-+	void (*post_kernel_restore_redraw) (void);
-+
-+	struct list_head ui_list;
-+};
-+
-+struct suspend_checksum_ops {
-+	void (*calculate_checksums) (void);
-+	void (*check_checksums) (void);
-+	void (*print_differences) (void);
-+	int (*allocate_pages) (void);
-+};
-+
-+struct suspend_plugin_ops {
-+	/* Functions common to all plugins */
-+	int type;
-+	char * name;
-+	int disabled;
-+	struct list_head plugin_list;
-+	unsigned long (*memory_needed) (void);
-+	unsigned long (*storage_needed) (void);
-+	int (*print_debug_info) (char * buffer, int size);
-+	int (*save_config_info) (char * buffer);
-+	void (*load_config_info) (char * buffer, int len);
-+	
-+	/* Initialise & cleanup - general routines called
-+	 * at the start and end of a cycle. */
-+	int (*initialise) (void);
-+	void (*cleanup) (void);
-+
-+	/* Set list of devices not to be suspended/resumed */
-+	void (*dpm_set_devices) (void);
-+
-+	union {
-+		struct suspend_filter_ops filter;
-+		struct suspend_writer_ops writer;
-+		struct suspend_ui_ops ui;
-+		struct suspend_checksum_ops checksum;
-+	} ops;
-+};
-+
-+extern struct suspend_plugin_ops * active_writer;
-+extern struct list_head suspend_filters, suspend_writers, suspend_plugins, suspend_ui;
-+extern struct suspend_plugin_ops * checksum_plugin;
-+extern void prepare_console_plugins(void);
-+extern void cleanup_console_plugins(void);
-+extern struct suspend_plugin_ops * find_plugin_given_name(char * name);
-+extern struct suspend_plugin_ops * get_next_filter(struct suspend_plugin_ops *);
-+extern int suspend_register_plugin(struct suspend_plugin_ops * plugin);
-+extern void suspend_move_plugin_tail(struct suspend_plugin_ops * plugin);
-+
-+extern int initialise_suspend_plugins(void);
-+extern void cleanup_suspend_plugins(void);
-+extern unsigned long header_storage_for_plugins(void);
-+extern unsigned long memory_for_plugins(void);
-+extern int print_plugin_debug_info(char * buffer, int buffer_size);
-+extern int suspend_register_plugin(struct suspend_plugin_ops * plugin);
-+extern void suspend_unregister_plugin(struct suspend_plugin_ops * plugin);
-+extern int initialise_suspend_plugins(void);
-+extern void cleanup_suspend_plugins(void);
-+extern void suspend_post_restore_redraw(void);
-+
-+static inline void suspend_checksum_calculate_checksums(void)
-+{
-+	if (checksum_plugin)
-+		checksum_plugin->ops.checksum.calculate_checksums();
-+}
-+
-+static inline void suspend_checksum_print_differences(void)
-+{
-+	if (checksum_plugin)
-+		checksum_plugin->ops.checksum.print_differences();
-+}
-+
-+static inline int suspend_allocate_checksum_pages(void)
-+{
-+	if (checksum_plugin)
-+		return checksum_plugin->ops.checksum.allocate_pages();
-+	else
-+		return 0;
-+}
-diff -ruN 822-includes-old/kernel/power/power.h 822-includes-new/kernel/power/power.h
---- 822-includes-old/kernel/power/power.h	2004-11-24 18:52:16.759350784 +1100
-+++ 822-includes-new/kernel/power/power.h	2004-11-24 18:51:50.306372248 +1100
-@@ -1,6 +1,8 @@
- #include <linux/suspend.h>
- #include <linux/utsname.h>
- 
-+#include "suspend.h"
-+
- /* With SUSPEND_CONSOLE defined, it suspend looks *really* cool, but
-    we probably do not take enough locks for switching consoles, etc,
-    so bad things might happen.
-diff -ruN 822-includes-old/kernel/power/proc.h 822-includes-new/kernel/power/proc.h
---- 822-includes-old/kernel/power/proc.h	1970-01-01 10:00:00.000000000 +1000
-+++ 822-includes-new/kernel/power/proc.h	2004-11-24 18:51:50.307372096 +1100
-@@ -0,0 +1,64 @@
-+/*
-+ * kernel/power/proc.h
-+ *
-+ * Copyright (C) 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * It provides declarations for suspend to use in managing
-+ * /proc/software_suspend. When we switch to kobjects,
-+ * this will become redundant.
-+ *
-+ */
-+
-+struct suspend_proc_data {
-+	char * filename;
-+	int permissions;
-+	int type;
-+	union {
-+		struct {
-+			unsigned long * bit_vector;
-+			int bit;
-+		} bit;
-+		struct {
-+			int * variable;
-+			int minimum;
-+			int maximum;
-+		} integer;
-+		struct {
-+			unsigned long * variable;
-+			unsigned long minimum;
-+			unsigned long maximum;
-+		} ul;
-+		struct {
-+			char * variable;
-+			int max_length;
-+		} string;
-+		struct {
-+			void * read_proc;
-+			void * write_proc;
-+			void * data;
-+		} special;
-+	} data;
-+	
-+	/* Side effects routines. Used, eg, for reparsing the
-+	 * resume2 entry when it changes */
-+	int (* read_proc) (void);
-+	int (* write_proc) (void); 
-+	struct list_head proc_data_list;
-+};
-+
-+#define SUSPEND_PROC_DATA_CUSTOM	0
-+#define SUSPEND_PROC_DATA_BIT		1
-+#define SUSPEND_PROC_DATA_INTEGER	2
-+#define SUSPEND_PROC_DATA_UL		3
-+#define SUSPEND_PROC_DATA_STRING	4
-+
-+#define PROC_WRITEONLY 0200
-+#define PROC_READONLY 0400
-+#define PROC_RW 0600
-+
-+struct proc_dir_entry * suspend_register_procfile(
-+		struct suspend_proc_data * suspend_proc_data);
-+void suspend_unregister_procfile(struct suspend_proc_data * suspend_proc_data);
-+
-diff -ruN 822-includes-old/kernel/power/range.h 822-includes-new/kernel/power/range.h
---- 822-includes-old/kernel/power/range.h	1970-01-01 10:00:00.000000000 +1000
-+++ 822-includes-new/kernel/power/range.h	2004-11-24 18:51:50.308371944 +1100
-@@ -0,0 +1,105 @@
-+/*
-+ * kernel/power/range.h
-+ *
-+ * Copyright (C) 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * It contains declarations related to ranges. Ranges (otherwise
-+ * known as an extent, I'm told), is suspend's method of storing
-+ * all of the metadata for the image. See range.c for more info.
-+ *
-+ */
-+
-+struct rangechain {
-+	struct range * first;
-+	struct range * last;
-+	int size; /* size of the range ie sum (max-min+1) */
-+	int allocs;
-+	int frees;
-+	int debug;
-+	int timesusedoptimisation;
-+	char * name;
-+	struct range * lastaccessed, *prevtolastaccessed, *prevtoprev;
-+};
-+
-+/*
-+ * We rely on ranges not fitting evenly into a page.
-+ * The last four bytes are used to store the number
-+ * of the page, to make saving & reloading pages simpler.
-+ */
-+struct range {
-+	unsigned long minimum;
-+	unsigned long maximum;
-+	struct range * next;
-+};
-+
-+
-+#define RANGES_PER_PAGE (PAGE_SIZE / (sizeof(struct range)))
-+#define RANGEPAGELINK(x) ((unsigned long *) \
-+		((((unsigned long) x) & PAGE_MASK) + PAGE_SIZE - \
-+		 sizeof(unsigned long)))
-+
-+#define range_for_each(rangechain, rangepointer, value) \
-+if ((rangechain)->first) \
-+	for ((rangepointer) = (rangechain)->first, (value) = \
-+			(rangepointer)->minimum; \
-+	     ((rangepointer) && ((rangepointer)->next || (value) <= \
-+				 (rangepointer)->maximum)); \
-+	     (((value) == (rangepointer)->maximum) ? \
-+		((rangepointer) = (rangepointer)->next, (value) = \
-+		 ((rangepointer) ? (rangepointer)->minimum : 0)) : \
-+			(value)++))
-+
-+/*
-+ * When using compression and expected_compression > 0,
-+ * we allocate fewer swap entries, so GET_RANGE_NEXT can
-+ * validly run out of data to return.
-+ */
-+#define GET_RANGE_NEXT(currentrange, currentval) \
-+{ \
-+	if (currentrange) { \
-+		if ((currentval) == (currentrange)->maximum) { \
-+			if ((currentrange)->next) { \
-+				(currentrange) = (currentrange)->next; \
-+				(currentval) = (currentrange)->minimum; \
-+			} else { \
-+				(currentrange) = NULL; \
-+				(currentval) = 0; \
-+			} \
-+		} else \
-+			currentval++; \
-+	} \
-+}
-+
-+extern int max_ranges_used;
-+extern int num_range_pages;
-+int add_to_range_chain(struct rangechain * chain, unsigned long value);
-+void put_range_chain(struct rangechain * chain);
-+void print_chain(int debuglevel, struct rangechain * chain, int printasswap);
-+int free_ranges(void);
-+int append_to_range_chain(int chain, unsigned long min, unsigned long max);
-+void relativise_ranges(void);
-+void relativise_chain(struct rangechain * chain);
-+void absolutise_ranges(void);
-+void absolutise_chain(struct rangechain * chain);
-+int get_rangepages_list(void);
-+void put_rangepages_list(void);
-+unsigned long * get_rangepages_list_entry(int index);
-+int relocate_rangepages(void);
-+
-+extern struct range * first_range_page, * last_range_page;
-+
-+#define RANGE_RELATIVE(x) (struct range *) ((((unsigned long) x) & \
-+			(PAGE_SIZE - 1)) | \
-+		((*RANGEPAGELINK(x) & (PAGE_SIZE - 1)) << PAGE_SHIFT))
-+#define RANGE_ABSOLUTE(entry) (struct range *) \
-+	((((unsigned long) (entry)) & (PAGE_SIZE - 1)) | \
-+	 (unsigned long) get_rangepages_list_entry(((unsigned long) (entry)) >> PAGE_SHIFT))
-+
-+/* swap_entry_to_range_val & range_val_to_swap_entry: 
-+ * We are putting offset in the low bits so consecutive swap entries
-+ * make consecutive range values */
-+#define swap_entry_to_range_val(swp_entry) (swp_entry.val)
-+#define range_val_to_swap_entry(val) (swp_entry_t) { (val) }
-+
-diff -ruN 822-includes-old/kernel/power/smp.c 822-includes-new/kernel/power/smp.c
---- 822-includes-old/kernel/power/smp.c	2004-11-03 21:55:01.000000000 +1100
-+++ 822-includes-new/kernel/power/smp.c	2004-11-24 18:51:50.315370880 +1100
-@@ -15,6 +15,7 @@
- #include <linux/module.h>
- #include <asm/atomic.h>
- #include <asm/tlbflush.h>
-+#include "suspend.h"
- 
- static atomic_t cpu_counter, freeze;
- 
-diff -ruN 822-includes-old/kernel/power/suspend.h 822-includes-new/kernel/power/suspend.h
---- 822-includes-old/kernel/power/suspend.h	1970-01-01 10:00:00.000000000 +1000
-+++ 822-includes-new/kernel/power/suspend.h	2004-11-24 18:51:50.316370728 +1100
-@@ -0,0 +1,298 @@
-+/*
-+ * kernel/power/suspend2.h
-+ *
-+ * Copyright (C) 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * It contains declarations used throughout swsusp and suspend2.
-+ *
-+ */
-+#ifndef KERNEL_POWER_SUSPEND_H
-+#define KERNEL_POWER_SUSPEND_H
-+
++#include <linux/sched.h>
++#include <linux/kernel.h>
++#include <linux/mm.h>
++#include <linux/tty.h>
++#include <linux/string.h>
++#include <linux/adb.h>
++#include <linux/cuda.h>
++#include <linux/pmu.h>
++#include <linux/suspend.h>
 +#include <linux/delay.h>
-+#include "range.h"
++#include <linux/module.h>
 +
-+/* ---------------------------- swsusp only ----------------------------- */
++#include <asm/mmu_context.h>
 +
-+typedef struct pbe {
-+	unsigned long address;		/* address of the copy */
-+	unsigned long orig_address;	/* original address of page */
-+	swp_entry_t swap_address;	
-+	swp_entry_t dummy;		/* we need scratch space at 
-+					 * end of page (see link, diskpage)
-+					 */
-+} suspend_pagedir_t;
++extern void enable_kernel_altivec(void);
 +
-+#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
-+   
-+/* mm/page_alloc.c */
-+extern void drain_local_pages(void);
++static inline void do_pmu_resume(void)
++{
++	struct adb_request req;
 +
-+void save_processor_state(void);
-+void restore_processor_state(void);
-+struct saved_context;
-+void __save_processor_state(struct saved_context *ctxt);
-+void __restore_processor_state(struct saved_context *ctxt);
++	printk("resume pmu");	
++	/* Tell PMU we are ready */
++	pmu_request(&req, NULL, 2, PMU_SYSTEM_READY, 2);
++	pmu_wait_complete(&req);
 +
-+/* ---------------------------- Suspend2 -------------------------------- */
++	/* Resume PMU event interrupts */
++	pmu_resume();	
++	printk(".\n");
++}
 +
-+/* Page Backup Entry.
-+ *
-+ * This is an abstraction which contains the data for one
-+ * page of the image. (The data is really stored in ranges).
-+ */
++void save_processor_state(void)
++{
++	printk("suspend pmu");	
++	pmu_suspend();
++	printk(".\n");
++	printk("current is 0x%p\n", current);
++}
 +
-+struct pbe2 {
-+	struct page * origaddress;	/* Original address of page */
-+	struct page * address;		/* Address of copy of page */
-+	struct range * currentorigrange;
-+	struct range * currentdestrange;
++void restore_processor_state(void)
++{
++	printk("seting context, 0x%p", current);
++	local_irq_disable();
++	/* Restore userland MMU context */
++	set_context(current->active_mm->context, current->active_mm->pgd);
++	printk(".\n");
 +
-+	struct pagedir * pagedir;
-+};
-+
-+/* Pagedir
-+ *
-+ * Contains the metadata for a set of pages saved in the image.
-+ */
-+struct pagedir {
-+	int pagedir_num;
-+	int pageset_size;
-+	int lastpageset_size;
-+	struct rangechain origranges;
-+	struct rangechain destranges;
-+	struct rangechain allocdranges;
-+};
-+
-+/* Function for setting the chain names for a pagedir (used
-+ * for debugging */
-+void set_chain_names(struct pagedir * p);
-+
-+#define pageset1_size (pagedir1.pageset_size)
-+#define pageset2_size (pagedir2.pageset_size)
-+
-+/* Pagedir_nosave is pagedir1, loaded back in at the beginning
-+ * of resuming and relocated so we can do our atomic restoration
-+ * of the original kernel.
-+ * Pagedir1 is the metadata for pageset 1 pages. Ditto for pageset 2.
-+ */
-+extern suspend_pagedir_t *pagedir_nosave __nosavedata;
-+extern struct pagedir pagedir1, pagedir2;
-+
-+/* Non-plugin data saved in our image header */
-+struct suspend_header {
-+	u32 version_code;
-+	unsigned long num_physpages;
-+	char machine[65];
-+	char version[65];
-+	int num_cpus;
-+	int page_size;
-+	unsigned long orig_mem_free;
-+	int num_range_pages;
-+	struct range * unused_ranges;
-+	int pageset_2_size;
-+	int param0;
-+	int param1;
-+	int param2;
-+	int param3;
-+	int param4;
-+	int progress0;
-+	int progress1;
-+	int progress2;
-+	int progress3;
-+	int io_time[2][2];
-+	
-+	/* Implementation specific variables */
-+#ifdef KERNEL_POWER_SWSUSP_C
-+	suspend_pagedir_t *suspend_pagedir;
-+	unsigned int num_pbes;
-+#else
-+	struct pagedir pagedir;
++#ifdef CONFIG_ALTIVEC
++	if (cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC)
++		enable_kernel_altivec();
 +#endif
-+};
++	printk("enable kernel fp");
++	enable_kernel_fp();
++	printk(".\n");
++	do_pmu_resume();
++	local_irq_enable();
++}
 +
-+/* Suspend memory pool functions */
-+struct page * get_suspend_pool_pages(unsigned int gfp_mask, unsigned int order);
-+void free_suspend_pool_pages(struct page *page, unsigned int order);
-+
-+extern void schedule_suspend_message(int message_number);
-+extern int suspend_min_free;
-+
-+extern void suspend_restore_avenrun(void);
-+extern void suspend_save_avenrun(void);
-+
-+extern unsigned long get_highstart_pfn(void);
-+
-+#define SWAP_FILENAME_MAXLENGTH	32
-+
-+extern int suspend_default_console_level;
-+extern int max_async_ios;
-+extern int image_size_limit;
-+
-+struct pageset_sizes_result {
-+	int size1; /* Can't be unsigned - breaks MAX function */
-+	int size1low;
-+	int size2;
-+	int size2low;
-+	int needmorespace;
-+};
-+
-+#define MB(x) ((x) >> (20 - PAGE_SHIFT))
-+
-+extern int suspend_amount_grabbed;
++EXPORT_SYMBOL(save_processor_state);
++EXPORT_SYMBOL(restore_processor_state);
+diff -ruN 701-mac-old/arch/ppc/power/cpu_reg.S 701-mac-new/arch/ppc/power/cpu_reg.S
+--- 701-mac-old/arch/ppc/power/cpu_reg.S	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/arch/ppc/power/cpu_reg.S	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,325 @@
++/*
++ * This code base on pmdisk.S by Benjamin Herrenschmidt <benh@kernel.crashing.org>
++ *
++ * changed for swsusp2 by Hu Gang <hugang@soulinfo.com>
++ */
++#include <linux/config.h>
++#include <linux/threads.h>
++#include <asm/processor.h>
++#include <asm/page.h>
++#include <asm/cputable.h>
++#include <asm/thread_info.h>
++#include <asm/ppc_asm.h>
++#include <asm/offsets.h>
 +
 +/*
-+ * XXX: We try to keep some more pages free so that I/O operations succeed
-+ * without paging. Might this be more?
++ * Structure for storing CPU registers on the save area.
 + */
-+#ifdef CONFIG_HIGHMEM
-+#define MIN_FREE_RAM (get_highstart_pfn() >> 7)
-+#else
-+#define MIN_FREE_RAM (max_mapnr >> 7)
-+#endif
++#define SL_SP		0
++#define SL_PC		4
++#define SL_MSR		8
++#define SL_SDR1		0xc
++#define SL_SPRG0	0x10	/* 4 sprg's */
++#define SL_DBAT0	0x20
++#define SL_IBAT0	0x28
++#define SL_DBAT1	0x30
++#define SL_IBAT1	0x38
++#define SL_DBAT2	0x40
++#define SL_IBAT2	0x48
++#define SL_DBAT3	0x50
++#define SL_IBAT3	0x58
++#define SL_TB		0x60
++#define SL_R2		0x68
++#define SL_CR		0x6c
++#define SL_LR		0x70
++#define SL_R12		0x74	/* r12 to r31 */
++#define SL_SIZE		(SL_R12 + 80)
 +
-+extern void prepare_status(int printalways, int clearbar, const char *fmt, ...);
-+extern void abort_suspend(const char *fmt, ...);
-+
-+extern int suspend_snprintf(char * buffer, int buffer_size,
-+		const char *fmt, ...);
-+
-+/* ------ prepare_image.c ------ */
-+extern unsigned long get_grabbed_pages(int order);
-+
-+/* ------ io.c ------ */
-+int suspend_early_boot_message(int can_erase_image, char *reason, ...);
-+
-+/* ------ console.c ------ */
-+void check_shift_keys(int pause, char * message);
-+unsigned long update_status(unsigned long value, unsigned long maximum,
-+		const char *fmt, ...);
-+
-+extern int expected_compression_ratio(void);
-+
-+#define MAIN_STORAGE_NEEDED(USE_ECR) \
-+	((pageset1_size + pageset2_size) * \
-+	 (USE_ECR ? expected_compression_ratio() : 100) / 100)
-+
-+#define HEADER_BYTES_NEEDED \
-+	((num_range_pages << PAGE_SHIFT) + \
-+	 sizeof(struct suspend_header) + \
-+	 sizeof(struct plugin_header) + \
-+	 (int) header_storage_for_plugins() + \
-+	 num_plugins * \
-+	 	(sizeof(struct plugin_header) + sizeof(int)))
++#define CPU_REG_MEM_DEFINE \
++	.section .data					  ; \
++	.align	5					  ; \
++\
++_GLOBAL(cpu_reg_save_area)				  ; \
++	.space	SL_SIZE	
 +	
-+#define HEADER_STORAGE_NEEDED ((HEADER_BYTES_NEEDED + (int) PAGE_SIZE - 1) >> PAGE_SHIFT)
++#define CPU_REG_MEM_SAVE \
++	lis	r11,cpu_reg_save_area@h;\
++	ori	r11,r11,cpu_reg_save_area@l;\
++;\
++	mflr	r0					  ; \
++	stw	r0,SL_LR(r11);\
++	mfcr	r0;\
++	stw	r0,SL_CR(r11);\
++	stw	r1,SL_SP(r11);\
++	stw	r2,SL_R2(r11);\
++	stmw	r12,SL_R12(r11);\
++;\
++	/* Save MSR & SDR1 */;\
++	mfmsr	r4;\
++	stw	r4,SL_MSR(r11);\
++	mfsdr1	r4;\
++	stw	r4,SL_SDR1(r11);\
++;\
++	/* Get a stable timebase and save it */;\
++1:	mftbu	r4;\
++	stw	r4,SL_TB(r11);\
++	mftb	r5;\
++	stw	r5,SL_TB+4(r11);\
++	mftbu	r3;\
++	cmpw	r3,r4;\
++	bne	1b;\
++;\
++	/* Save SPRGs */;\
++	mfsprg	r4,0;\
++	stw	r4,SL_SPRG0(r11);\
++	mfsprg	r4,1;\
++	stw	r4,SL_SPRG0+4(r11);\
++	mfsprg	r4,2;\
++	stw	r4,SL_SPRG0+8(r11);\
++	mfsprg	r4,3;\
++	stw	r4,SL_SPRG0+12(r11);\
++;\
++	/* Save BATs */;\
++	mfdbatu	r4,0;\
++	stw	r4,SL_DBAT0(r11);\
++	mfdbatl	r4,0;\
++	stw	r4,SL_DBAT0+4(r11);\
++	mfdbatu	r4,1;\
++	stw	r4,SL_DBAT1(r11);\
++	mfdbatl	r4,1;\
++	stw	r4,SL_DBAT1+4(r11);\
++	mfdbatu	r4,2;\
++	stw	r4,SL_DBAT2(r11);\
++	mfdbatl	r4,2;\
++	stw	r4,SL_DBAT2+4(r11);\
++	mfdbatu	r4,3;\
++	stw	r4,SL_DBAT3(r11);\
++	mfdbatl	r4,3;\
++	stw	r4,SL_DBAT3+4(r11);\
++	mfibatu	r4,0;\
++	stw	r4,SL_IBAT0(r11);\
++	mfibatl	r4,0;\
++	stw	r4,SL_IBAT0+4(r11);\
++	mfibatu	r4,1;\
++	stw	r4,SL_IBAT1(r11);\
++	mfibatl	r4,1;\
++	stw	r4,SL_IBAT1+4(r11);\
++	mfibatu	r4,2;\
++	stw	r4,SL_IBAT2(r11);\
++	mfibatl	r4,2;\
++	stw	r4,SL_IBAT2+4(r11);\
++	mfibatu	r4,3;\
++	stw	r4,SL_IBAT3(r11);\
++	mfibatl	r4,3;\
++	stw	r4,SL_IBAT3+4(r11);\
++	/* Backup various CPU config stuffs */;\
++	/* bl	__save_cpu_setup; */
 +
-+#define STORAGE_NEEDED(USE_ECR) \
-+	(MAIN_STORAGE_NEEDED(USE_ECR) + HEADER_STORAGE_NEEDED)
++#define CPU_REG_MEM_DISABLE_MMU \
++	/* Disable MSR:DR to make sure we don't take a TLB or	;\
++	 * hash miss during the copy, as our hash table will	;\
++	 * for a while be unuseable. For .text, we assume we are;\
++	 * covered by a BAT. This works only for non-G5 at this	;\
++	 * point. G5 will need a better approach, possibly using;\
++	 * a small temporary hash table filled with large mappings,;\
++	 * disabling the MMU completely isn't a good option for	;\
++	 * performance reasons.	;\
++	 * (Note that 750's may have the same performance issue as;\
++	 * the G5 in this case, we should investigate using moving;\
++	 * BATs for these CPUs);\
++	 */;\
++	mfmsr	r0	;\
++	sync	;\
++	rlwinm	r0,r0,0,28,26		/* clear MSR_DR */ ;\
++	mtmsr	r0 ;\
++	sync ;\
++	isync
 +
-+#define RAM_TO_SUSPEND (1 + max((pageset1_size - pageset2_sizelow), 0) + \
-+		MIN_FREE_RAM + memory_for_plugins())
++#define CPU_REG_MEM_FLUSH_CACHE \
++	/* Do a very simple cache flush/inval of the L1 to ensure \
++	 * coherency of the icache \
++	 */ \
++	lis	r3,0x0002 ;\
++	mtctr	r3 ;\
++	li	r3, 0 ;\
++1: ;\
++	lwz	r0,0(r3) ;\
++	addi	r3,r3,0x0020 ;\
++	bdnz	1b ;\
++	isync ;\
++	sync ;\
++;\
++	/* Now flush those cache lines */ ;\
++	lis	r3,0x0002 ;\
++	mtctr	r3 ;\
++	li	r3, 0 ;\
++1:;\
++	dcbf	0,r3 ;\
++	addi	r3,r3,0x0020 ;\
++	bdnz	1b
 +
-+#ifndef KERNEL_POWER_SWSUSP_C
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
-+#define cond_show_pcp_lists() \
-+do { \
-+	if (TEST_DEBUG_STATE(SUSPEND_FREEZER)) \
-+		show_pcp_lists(); \
-+} while(0)
++#define CPU_REG_MEM_RESTORE \
++/* Ok, we are now running with the kernel data of the old;\
++	 * kernel fully restored. We can get to the save area;\
++	 * easily now. As for the rest of the code, it assumes the;\
++	 * loader kernel and the booted one are exactly identical;\
++	 */;\
++	lis	r11,cpu_reg_save_area@h;\
++	ori	r11,r11,cpu_reg_save_area@l;\
++	tophys(r11,r11);\
++	/* Restore various CPU config stuffs */;\
++	/* bl	__restore_cpu_setup; */\
++	/* Restore the BATs, and SDR1.  Then we can turn on the MMU. ;\
++	 * This is a bit hairy as we are running out of those BATs,;\
++	 * but first, our code is probably in the icache, and we are;\
++	 * writing the same value to the BAT, so that should be fine,;\
++	 * though a better solution will have to be found long-term;\
++	 */;\
++	lwz	r4,SL_SDR1(r11);\
++	mtsdr1	r4;\
++	lwz	r4,SL_SPRG0(r11);\
++	mtsprg	0,r4;\
++	lwz	r4,SL_SPRG0+4(r11);\
++	mtsprg	1,r4;\
++	lwz	r4,SL_SPRG0+8(r11);\
++	mtsprg	2,r4;\
++	lwz	r4,SL_SPRG0+12(r11);\
++	mtsprg	3,r4;\
++;\
++/*	lwz	r4,SL_DBAT0(r11);\
++	mtdbatu	0,r4;\
++	lwz	r4,SL_DBAT0+4(r11);\
++	mtdbatl	0,r4;\
++	lwz	r4,SL_DBAT1(r11);\
++	mtdbatu	1,r4;\
++	lwz	r4,SL_DBAT1+4(r11);\
++	mtdbatl	1,r4;\
++	lwz	r4,SL_DBAT2(r11);\
++	mtdbatu	2,r4;\
++	lwz	r4,SL_DBAT2+4(r11);\
++	mtdbatl	2,r4;\
++	lwz	r4,SL_DBAT3(r11);\
++	mtdbatu	3,r4;\
++	lwz	r4,SL_DBAT3+4(r11);\
++	mtdbatl	3,r4;\
++	lwz	r4,SL_IBAT0(r11);\
++	mtibatu	0,r4;\
++	lwz	r4,SL_IBAT0+4(r11);\
++	mtibatl	0,r4;\
++	lwz	r4,SL_IBAT1(r11);\
++	mtibatu	1,r4;\
++	lwz	r4,SL_IBAT1+4(r11);\
++	mtibatl	1,r4;\
++	lwz	r4,SL_IBAT2(r11);\
++	mtibatu	2,r4;\
++	lwz	r4,SL_IBAT2+4(r11);\
++	mtibatl	2,r4;\
++	lwz	r4,SL_IBAT3(r11);\
++	mtibatu	3,r4;\
++	lwz	r4,SL_IBAT3+4(r11);\
++	mtibatl	3,r4;\
++; */ \
++BEGIN_FTR_SECTION;\
++	li	r4,0;\
++	mtspr	SPRN_DBAT4U,r4;\
++	mtspr	SPRN_DBAT4L,r4;\
++	mtspr	SPRN_DBAT5U,r4;\
++	mtspr	SPRN_DBAT5L,r4;\
++	mtspr	SPRN_DBAT6U,r4;\
++	mtspr	SPRN_DBAT6L,r4;\
++	mtspr	SPRN_DBAT7U,r4;\
++	mtspr	SPRN_DBAT7L,r4;\
++	mtspr	SPRN_IBAT4U,r4;\
++	mtspr	SPRN_IBAT4L,r4;\
++	mtspr	SPRN_IBAT5U,r4;\
++	mtspr	SPRN_IBAT5L,r4;\
++	mtspr	SPRN_IBAT6U,r4;\
++	mtspr	SPRN_IBAT6L,r4;\
++	mtspr	SPRN_IBAT7U,r4;\
++	mtspr	SPRN_IBAT7L,r4;\
++END_FTR_SECTION_IFSET(CPU_FTR_HAS_HIGH_BATS);\
++;\
++	/* Flush all TLBs */;\
++	lis	r4,0x1000;\
++1:	addic.	r4,r4,-0x1000;\
++	tlbie	r4;\
++	blt	1b;\
++	sync;\
++;\
++	/* restore the MSR and turn on the MMU */;\
++	lwz	r3,SL_MSR(r11);\
++	bl	turn_on_mmu;\
++	tovirt(r11,r11);\
++;\
++	/* Restore TB */;\
++	li	r3,0;\
++	mttbl	r3;\
++	lwz	r3,SL_TB(r11);\
++	lwz	r4,SL_TB+4(r11);\
++	mttbu	r3;\
++	mttbl	r4;\
++; \
++	lwz	r0,SL_CR(r11);\
++	mtcr	r0;\
++	lwz	r2,SL_R2(r11);\
++	lmw	r12,SL_R12(r11);\
++	lwz	r1,SL_SP(r11);\
++	lwz	r4,SL_LR(r11)
 +
-+#define MDELAY(a) do { if (TEST_ACTION_STATE(SUSPEND_SLOW)) mdelay(a); } \
-+	while (0)
-+#define MAX_FREEMEM_SLOTS 25
-+enum {
-+	SUSPEND_FREE_BASE,
-+	SUSPEND_FREE_CONSOLE_ALLOC,
-+	SUSPEND_FREE_DRAIN_PCP,
-+	SUSPEND_FREE_IN_USE_MAP,
-+	SUSPEND_FREE_PS2_MAP,
-+	SUSPEND_FREE_CHECKSUM_MAP,
-+	SUSPEND_FREE_UNMAP_MAP,
-+	SUSPEND_FREE_RELOAD_PAGES,
-+	SUSPEND_FREE_INIT_PLUGINS,
-+	SUSPEND_FREE_MEM_POOL,
-+	SUSPEND_FREE_FREEZER,
-+	SUSPEND_FREE_EAT_MEMORY,
-+	SUSPEND_FREE_SYNC,
-+	SUSPEND_FREE_GRABBED_MEMORY,
-+	SUSPEND_FREE_RANGE_PAGES,
-+	SUSPEND_FREE_EXTRA_PD1,
-+	SUSPEND_FREE_WRITER_STORAGE,
-+	SUSPEND_FREE_HEADER_STORAGE,
-+	SUSPEND_FREE_CHECKSUM_PAGES,
-+	SUSPEND_FREE_KSTAT,
-+	SUSPEND_FREE_DEBUG_INFO,
-+	SUSPEND_FREE_INVALIDATE_IMAGE,
-+	SUSPEND_FREE_IO,
-+	SUSPEND_FREE_IO_INFO,
-+	SUSPEND_FREE_START_ONE
-+};
-+extern void suspend_store_free_mem(int slot, int side);
-+extern int suspend_free_mem_values[MAX_FREEMEM_SLOTS][2];
-+#else
-+#define suspend_store_free_mem(a, b) do { } while(0)
-+#define MDELAY(a) do { } while (0)
-+#define cond_show_pcp_lists() do { } while(0)
++#define CPU_REG_MEM_RESTORE_END \
++	/* Restore LR from the save area */		  ; \
++	lis	r11,cpu_reg_save_area@h			  ; \
++	ori	r11,r11,cpu_reg_save_area@l		  ; \
++	lwz	r0,SL_CR(r11)				  ; \
++	mtcr r0					  ; \
++	lwz	r2,SL_R2(r11)				  ; \
++	lmw	r12,SL_R12(r11)				  ; \
++	lwz	r1,SL_SP(r11)
++
++#define CPU_REG_TURN_ON_MMU \
++/* FIXME:This construct is actually not useful since we don't shut ; \
++ * down the instruction MMU, we could just flip back MSR-DR on.	; \
++ */							  ; \
++turn_on_mmu:						  ; \
++	mflr	r4					  ; \
++	mtsrr0	r4					  ; \
++	mtsrr1	r3					  ; \
++	sync						  ; \
++	isync						  ; \
++	rfi
++
++#define CPU_REG_STACK_SAVE \
++	mflr	r0					  ; \
++	stw	r0,4(r1)				  ; \
++	stwu	r1,-SL_SIZE(r1)				  ; \
++	mfcr	r0					  ; \
++	stw	r0,SL_CR(r1)				  ; \
++	stw	r2,SL_R2(r1)				  ; \
++	stmw	r12,SL_R12(r1)				  ; \
++	/* Save SPRGs */				  ; \
++	mfsprg	r4,0					  ; \
++	stw	r4,SL_SPRG0(r1)				  ; \
++	mfsprg	r4,1					  ; \
++	stw	r4,SL_SPRG0+4(r1)			  ; \
++	mfsprg	r4,2					  ; \
++	stw	r4,SL_SPRG0+8(r1)			  ; \
++	mfsprg	r4,3					  ; \
++	stw	r4,SL_SPRG0+12(r1)	
++
++#define CPU_REG_STACK_RESTORE \
++	lwz	r4,SL_SPRG0(r1)				  ; \
++	mtsprg	0,r4					  ; \
++	lwz	r4,SL_SPRG0+4(r1)			  ; \
++	mtsprg	1,r4					  ; \
++	lwz	r4,SL_SPRG0+8(r1)			  ; \
++	mtsprg	2,r4					  ; \
++	lwz	r4,SL_SPRG0+12(r1)			  ; \
++	mtsprg	3,r4					  ; \
++	lwz	r0,SL_CR(r1)				  ; \
++	mtcr	r0					  ; \
++	lwz	r2,SL_R2(r1)				  ; \
++	lmw	r12,SL_R12(r1)				  ; \
++	addi	r1,r1,SL_SIZE				  ; \
++	lwz	r0,4(r1)				  ; \
++	mtlr	r0					  ; \
++	blr
+diff -ruN 701-mac-old/arch/ppc/power/Makefile 701-mac-new/arch/ppc/power/Makefile
+--- 701-mac-old/arch/ppc/power/Makefile	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/arch/ppc/power/Makefile	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_PM) += cpu.o
++obj-$(CONFIG_SOFTWARE_SUSPEND2) += swsusp2-asm.o
+diff -ruN 701-mac-old/arch/ppc/power/swsusp2-asm.S 701-mac-new/arch/ppc/power/swsusp2-asm.S
+--- 701-mac-old/arch/ppc/power/swsusp2-asm.S	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/arch/ppc/power/swsusp2-asm.S	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,53 @@
++/*
++ * This code base on pmdisk.S by Benjamin Herrenschmidt <benh@kernel.crashing.org>
++ *
++ * changed for swsusp2 by Hu Gang <hugang@soulinfo.com>
++ */
++#include <linux/config.h>
++#include <asm/processor.h>
++#include <asm/page.h>
++#include <asm/ppc_asm.h>
++#include <asm/cputable.h>
++#include <asm/cache.h>
++#include <asm/thread_info.h>
++#include <asm/offsets.h>
++#include "cpu_reg.S"
++
++	CPU_REG_MEM_DEFINE
++
++	.section .text
++	.align 5
++_GLOBAL(do_suspend2_lowlevel)
++	CPU_REG_STACK_SAVE
++	cmpwi	0,r3,0
++	bne	do_resume
++	bl	save_processor_state
++	bl	do_suspend2_suspend_1
++	CPU_REG_MEM_SAVE
++	bl	do_suspend2_suspend_2
++	CPU_REG_MEM_RESTORE_END 
++	CPU_REG_STACK_RESTORE
++	
++do_resume:
++	bl save_processor_state
++	bl do_suspend2_resume_1
++
++	/* Stop pending alitvec streams and memory accesses */
++BEGIN_FTR_SECTION
++	DSSALL
++END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
++ 	sync
++
++	CPU_REG_MEM_DISABLE_MMU 
++#include "swsusp2-copyback.S"
++	CPU_REG_MEM_FLUSH_CACHE
++	
++	CPU_REG_MEM_RESTORE
++	bl	do_suspend2_resume_2
++	bl	restore_processor_state
++	CPU_REG_MEM_RESTORE_END
++	CPU_REG_STACK_RESTORE
++
++	CPU_REG_TURN_ON_MMU
++
++	.section .text
+diff -ruN 701-mac-old/arch/ppc/power/swsusp2.c 701-mac-new/arch/ppc/power/swsusp2.c
+--- 701-mac-old/arch/ppc/power/swsusp2.c	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/arch/ppc/power/swsusp2.c	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,170 @@
++ /*
++  * Copyright 2003 Nigel Cunningham.
++  *
++  * This is the code that the code in swsusp2-asm.S for
++  * copying back the original kernel is based upon. It
++  * was based upon code that is...
++  * Copyright 2001-2002 Pavel Machek <pavel@suse.cz>
++  * Based on code
++  * Copyright 2001 Patrick Mochel <mochel@osdl.org>
++  * Copyright 2004 Hu Gang <hugang@soulinfo.com
++  *  port to PowerPC
++  */
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/types.h>
++#include <linux/spinlock.h>
++#include <linux/poll.h>
++#include <linux/delay.h>
++#include <linux/sysrq.h>
++#include <linux/proc_fs.h>
++#include <linux/irq.h>
++#include <linux/pm.h>
++#include <linux/device.h>
++#include <linux/suspend.h>
++#include <linux/suspend-debug.h>
++#include <linux/suspend-common.h>
++#include <asm/uaccess.h>
++#if 0
++/* Local variables for do_swsusp2_suspend */
++volatile static int state1 __nosavedata = 0;
++volatile static int state2 __nosavedata = 0;
++volatile static int state3 __nosavedata = 0;
++volatile static int loop __nosavedata = 0;
++volatile static struct range *origrange __nosavedata;
++volatile static struct range *copyrange __nosavedata;
++volatile static int origoffset __nosavedata;
++volatile static int copyoffset __nosavedata;
++volatile static unsigned long * origpage __nosavedata;
++volatile static unsigned long * copypage __nosavedata;
 +#endif
-+#endif /* Not swsusp */
 +
-+extern int expected_compression_ratio(void);
-+int print_module_list_to_buffer(char * buffer, int size);
-+
-+extern unsigned int nr_suspends;
-+extern char resume2_file[];
-+
-+extern int suspend_wait_for_keypress(void);
-+
-+#ifdef CONFIG_SMP
-+extern void smp_suspend(void);
-+extern void smp_continue(void);
-+#else
-+#define smp_suspend() do { } while(0)
-+#define smp_continue() do { } while(0)
++//volatile static int orig_min_free __nosavedata;
++#ifndef CONFIG_SMP
++//static unsigned long c_loops_per_jiffy_ref __nosavedata = 0;
++//static unsigned long cpu_khz_ref __nosavedata = 0;
 +#endif
 +
-+/* For user interface */
-+#include <linux/syscalls.h>
-+extern asmlinkage ssize_t sys_write(unsigned int fd, const char __user * buf, 
-+	size_t count);
++extern void do_swsusp2_suspend_1(void);
++extern void do_swsusp2_suspend_2(void);
++extern void do_swsusp2_resume_1(void);
++extern void do_swsusp2_resume_2(void);
++extern struct pagedir __nosavedata pagedir_resume;
 +
-+#ifdef CONFIG_BOOTSPLASH
-+#include <linux/console.h>
-+#include <linux/fb.h>
-+#include "../../drivers/video/console/fbcon.h"
-+static inline struct splash_data * get_splash_data(int consolenr)
++/*
++ * FIXME: This function should really be written in assembly. Actually
++ * requirement is that it does not touch stack, because %esp will be
++ * wrong during resume before restore_processor_context(). Check
++ * assembly if you modify this.
++ */
++#if 0
++static inline void pre_copyback(void)
 +{
-+	BUG_ON(consolenr >= MAX_NR_CONSOLES);
++#ifdef CONFIG_PREEMPT
++	/*
++	 * Preempt disabled in kernel we're about to restore.
++	 * Make sure we match state now.
++	 */
++	preempt_disable();
++	PRINTPREEMPTCOUNT("Prior to copying old kernel back.");
++#endif
 +
-+	if (vc_cons[consolenr].d)
-+		return vc_cons[consolenr].d->vc_splash_data;
-+	
-+	return NULL;
++	state1 = swsusp_action;
++	state2 = swsusp_debug_state;
++	state3 = console_loglevel;
++
++#ifndef CONFIG_SMP
++	//c_loops_per_jiffy_ref = cpu_data->loops_per_jiffy;
++	//cpu_khz_ref = cpu_khz;
++#endif
++}
++static inline void post_copyback(void)
++{
++#ifndef CONFIG_SMP
++	//cpu_data->loops_per_jiffy = c_loops_per_jiffy_ref;
++	//loops_per_jiffy = c_loops_per_jiffy_ref;
++	//cpu_khz = cpu_khz_ref;
++#endif
++	swsusp_action = state1;
++	swsusp_debug_state = state2;
++	console_loglevel = state3;
++	//swsusp_min_free = orig_min_free;
++
 +}
 +#endif
++static inline void do_swsusp2_copyback(void)
++{
++	/* PowerPC has a lots register, use local register is possible */
++	register int origoffset, copyoffset;
++	register unsigned long * origpage, * copypage;
++	register struct range *origrange, *copyrange;
++//	register int pagesize;
 +
-+extern asmlinkage ssize_t sys_write(unsigned int fd, const char __user * buf, size_t count);
++//	pre_copyback();
 +
-+extern struct pm_ops * pm_ops;
-+extern dev_t name_to_dev_t(char *line);
-+extern char _text[], _etext[], _edata[], __bss_start[], _end[];
-+extern void signal_wake_up(struct task_struct *t, int resume);
++	origrange = pagedir_resume.origranges.first;
++//	pagesize = pagedir_resume.pageset_size;
++//	printk("%d\n", pagesize);
++	origoffset = origrange->minimum;
++	origpage = (unsigned long *) (page_address(mem_map + origoffset));
++	
++	copyrange = pagedir_resume.destranges.first;
++	copyoffset = copyrange->minimum;
++	copypage = (unsigned long *) (page_address(mem_map + copyoffset));
++	//orig_min_free = swsusp_min_free;
 +
-+extern struct partial_device_tree * suspend_device_tree;
++	while (origrange) {
++		register int loop;
++		for (loop = 0; loop < (PAGE_SIZE / sizeof(unsigned long)); loop++)
++			*(origpage + loop) = *(copypage + loop);
++		
++		if (origoffset < origrange->maximum) {
++			origoffset++;
++			origpage += (PAGE_SIZE / sizeof(unsigned long));
++		} else {
++			origrange = origrange->next;
++			if (origrange) {
++				origoffset = origrange->minimum;
++				origpage = (unsigned long *) (page_address(mem_map + origoffset));
++			}
++		}
 +
-+/* Returns whether it was already in the requested state */
-+extern int suspend_map_kernel_page(struct page * page, int enable);
++		if (copyoffset < copyrange->maximum) {
++			copyoffset++;
++			copypage += (PAGE_SIZE / sizeof(unsigned long));
++		} else {
++			copyrange = copyrange->next;
++			if (copyrange) {
++				copyoffset = copyrange->minimum;
++				copypage = (unsigned long *) (page_address(mem_map + copyoffset));
++			}
++		}
++	}
++	
++/* Ahah, we now run with our old stack, and with registers copied from
++   suspend time */
 +
-+#ifdef CONFIG_DEBUG_PAGEALLOC
-+extern void suspend_map_atomic_copy_pages(void);
-+extern void suspend_unmap_atomic_copy_pages(void);
-+#else
-+#define suspend_map_atomic_copy_pages() do { } while(0)
-+#define suspend_unmap_atomic_copy_pages() do { } while(0)
++//	post_copyback();
++}
++
++void do_swsusp_lowlevel(int resume)
++{
++	if (!resume) {
++		do_swsusp2_suspend_1();
++		save_processor_state();
++		/* saving stack */
++		
++		do_swsusp2_suspend_2();
++		return;
++	}
++
++	/* setup swapper_pg_dir in x86 */
++
++	do_swsusp2_resume_1();
++	do_swsusp2_copyback();
++	/* setup segment register */
++	restore_processor_state();
++	do_swsusp2_resume_2();
++}
+diff -ruN 701-mac-old/arch/ppc/power/swsusp2-copyback.S 701-mac-new/arch/ppc/power/swsusp2-copyback.S
+--- 701-mac-old/arch/ppc/power/swsusp2-copyback.S	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/arch/ppc/power/swsusp2-copyback.S	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,73 @@
++#define PAGE_TO_POINTER(in, out, p)	\
++	lwz out,0(in)					  ; \
++	slwi r9,out,2					  ; \
++	add r9,r9,out					  ; \
++	slwi r9,r9,3					  ; \
++	mullw r9,r9,r4					  ; \
++	slwi r9,r9,9					  ; \
++	addis p,r9,0xc000				  ; \
++	tophys(p,p)
++
++	.section ".text"
++swsusp2_copyback:
++	lis r20,pagedir_resume@ha	/* can't ture this is right FIXME */
++	addi r20,r20,pagedir_resume@l
++	tophys(r20,r20)
++#if 0
++	lwz	r4,4(r20)
++	twi	31,r0,0	/* triger trap */
++#endif	
++	lis r4,0xcccc /* FIXME */
++	ori r4,r4,52429
++
++	lwz r6,12(r20)		/* r6 is origranges.first */
++	cmpwi r6,0
++	beq- swsusp2_end_copyback
++		
++	tophys(r6,r6)
++	PAGE_TO_POINTER(r6,r8,r10)				  
++
++	lwz r5,56(r20)		/* r5 is copyranges.first */
++	tophys(r5,r5)
++	PAGE_TO_POINTER(r5,r7,r11) 
++	
++swsusp2_copy_one_page:
++	li r0,1024		/* r9 is loop */
++	mtctr r0		/* prepare for branch */
++	li r9,0
++swsusp2_copy_data:
++	lwzx r0,r9,r11
++	stwx r0,r9,r10
++	addi r9,r9,4
++
++	bdnz swsusp2_copy_data
++
++	lwz r0,4(r6)					  /* r0 is maximum */
++	cmplw r8,r0
++	bge- next_orig
++	addi r8,r8,1
++	addi r10,r10,4096
++	b end_orig
++next_orig:
++	lwz r6,8(r6)	/* r6 origrange */
++	cmpwi r6,0
++	beq- end_orig
++	tophys(r6,r6)
++	PAGE_TO_POINTER(r6,r8,r10)
++end_orig:
++	lwz r0,4(r5)					  /* r0 is maximum */
++	cmplw r7,r0
++	bge- next_copy
++	addi r7,r7,1
++	addi r11,r11,4096
++	b end_copy
++next_copy:
++	lwz r5,8(r5)	/* r5 is copypage */
++	cmpwi r5,0
++	beq- end_copy
++	tophys(r5,r5)
++	PAGE_TO_POINTER(r5,r7,r11)
++end_copy:
++	cmpwi 0,r6,0
++	bc r4,r2,swsusp2_copy_one_page
++swsusp2_end_copyback:
+diff -ruN 701-mac-old/drivers/macintosh/Kconfig 701-mac-new/drivers/macintosh/Kconfig
+--- 701-mac-old/drivers/macintosh/Kconfig	2004-11-03 21:53:37.000000000 +1100
++++ 701-mac-new/drivers/macintosh/Kconfig	2004-11-04 16:27:40.000000000 +1100
+@@ -187,4 +187,8 @@
+ 	tristate "Support for ANS LCD display"
+ 	depends on ADB_CUDA && PPC_PMAC
+ 
++config SOFTWARE_REPLACE_SLEEP
++	bool "Using Software suspend replace broken sleep function"
++	depends on SOFTWARE_SUSPEND2
++
+ endmenu
+diff -ruN 701-mac-old/drivers/macintosh/via-pmu.c 701-mac-new/drivers/macintosh/via-pmu.c
+--- 701-mac-old/drivers/macintosh/via-pmu.c	2004-11-03 21:55:00.000000000 +1100
++++ 701-mac-new/drivers/macintosh/via-pmu.c	2004-11-04 16:27:40.000000000 +1100
+@@ -2891,6 +2891,13 @@
+ 			return -EACCES;
+ 		if (sleep_in_progress)
+ 			return -EBUSY;
++#ifdef CONFIG_SOFTWARE_REPLACE_SLEEP
++		{
++		extern void software_suspend_pending(void);
++		software_suspend_pending();
++		return (0);
++		}
 +#endif
+ 		sleep_in_progress = 1;
+ 		switch (pmu_kind) {
+ 		case PMU_OHARE_BASED:
+diff -ruN 701-mac-old/include/asm-ppc/suspend.h 701-mac-new/include/asm-ppc/suspend.h
+--- 701-mac-old/include/asm-ppc/suspend.h	1970-01-01 10:00:00.000000000 +1000
++++ 701-mac-new/include/asm-ppc/suspend.h	2004-11-04 16:27:40.000000000 +1100
+@@ -0,0 +1,14 @@
++#ifndef _PPC_SUSPEND_H
++#define _PPC_SUSPEND_H
++
++static inline void flush_tlb_all(void)
++{
++	/* Flush all TLBs */
++	__asm__ __volatile__("lis 4, 0x1000");
++	__asm__ __volatile__("1: addic. 4,4,-0x1000");
++	__asm__ __volatile__("tlbie 4");
++	__asm__ __volatile__("blt 1b");
++	__asm__ __volatile__("sync");
++}
 +
 +#endif
-diff -ruN 822-includes-old/kernel/power/swsusp.c 822-includes-new/kernel/power/swsusp.c
---- 822-includes-old/kernel/power/swsusp.c	2004-11-24 18:52:16.550382552 +1100
-+++ 822-includes-new/kernel/power/swsusp.c	2004-11-24 18:51:50.318370424 +1100
-@@ -36,6 +36,8 @@
-  * For TODOs,FIXMEs also look in Documentation/power/swsusp.txt
-  */
- 
-+#define KERNEL_POWER_SWSUSP_C
-+
- #include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/suspend.h>
-@@ -51,9 +53,7 @@
- #include <linux/keyboard.h>
- #include <linux/spinlock.h>
- #include <linux/genhd.h>
--#include <linux/kernel.h>
- #include <linux/major.h>
--#include <linux/swap.h>
- #include <linux/pm.h>
- #include <linux/device.h>
- #include <linux/buffer_head.h>
-@@ -70,9 +70,7 @@
- #include <asm/io.h>
- 
- #include "power.h"
--
--/* References to section boundaries */
--extern char __nosave_begin, __nosave_end;
-+#include "suspend.h"
- 
- extern int is_head_of_free_region(struct page *);
- 
 
 

@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266440AbUFQKJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266442AbUFQKLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266440AbUFQKJH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 06:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUFQKJH
+	id S266442AbUFQKLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 06:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUFQKLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 06:09:07 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:48846 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266440AbUFQKJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 06:09:03 -0400
-Date: Thu, 17 Jun 2004 11:08:14 +0100
-From: Dave Jones <davej@redhat.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Daniel Pittman <daniel@rimspace.net>, linux-kernel@vger.kernel.org,
-       Ext3-users@redhat.com
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-Message-ID: <20040617100813.GA19280@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Hans Reiser <reiser@namesys.com>,
-	Daniel Pittman <daniel@rimspace.net>, linux-kernel@vger.kernel.org,
-	Ext3-users@redhat.com
-References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan> <1087322976.1874.36.camel@pla.lokal.lan> <40D06C0B.7020005@techsource.com> <871xkfroph.fsf@enki.rimspace.net> <40D12DB6.3080606@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D12DB6.3080606@namesys.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 17 Jun 2004 06:11:41 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:59280 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266444AbUFQKKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 06:10:33 -0400
+Date: Thu, 17 Jun 2004 12:10:23 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Nuno Monteiro <nuno@itsari.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: rwsem-spinlock error (was: Re: Linux 2.4.27-pre6)
+In-Reply-To: <20040616183343.GA9940@logos.cnet>
+Message-ID: <Pine.GSO.4.58.0406171206470.22919@waterleaf.sonytel.be>
+References: <20040616183343.GA9940@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 10:35:50PM -0700, Hans Reiser wrote:
+On Wed, 16 Jun 2004, Marcelo Tosatti wrote:
+> <nickpiggin:yahoo.com.au>:
+>   o rwsem race fixes backported from 2.6
 
- > >the reluctance of the developers to adapt to the 4K kernel stacks in
- > >2.6.recent,
- > >
- > do you use them?  I don't know real users who do, or else I would be 
- > quicker to care.
+> Nuno Monteiro:
+>   o Fix rwsem-fix typo
+>   o Complete rwsem typo fix
 
-The Fedora Core 2 kernel (and what will be RHEL4) is currently
-using 4K stacks.  This makes up quite a large userbase.
+| rwsem-spinlock.c: In function `__rwsem_wake_one_writer':
+| rwsem-spinlock.c:111: `tsk' undeclared (first use in this function)
+| rwsem-spinlock.c:111: (Each undeclared identifier is reported only once
+| rwsem-spinlock.c:111: for each function it appears in.)
 
- > On the one hand, you complain about how we were unstable, and on the 
- > other hand you complain about how we aren't willing to destabilize the 
- > code to add new features to what is no longer the development branch.  
- > Seems pretty inconsistent logically to me.
+How can this ever compile on any architecture?
 
-If you really are reluctant it fix it, there's always the option of
-marking CONFIG_REISER4 as dependant on CONFIG_BROKEN if CONFIG_4KSTACKS
-is selected.
+| static inline struct rw_semaphore *__rwsem_wake_one_writer(struct rw_semaphore *sem)
+| {
+| 	struct rwsem_waiter *waiter;
+|
+| 	sem->activity = -1;
+|
+| 	waiter = list_entry(sem->wait_list.next,struct rwsem_waiter,list);
+| 	list_del(&waiter->list);
+|
+| 	tsk = waiter->task;
+| 	mb();
+| 	waiter->task = NULL;
+| 	wake_up_process(tsk);
+| 	free_task_struct(tsk);
+| 	return sem;
+| }
 
-		Dave
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

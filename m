@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSDIQ7Y>; Tue, 9 Apr 2002 12:59:24 -0400
+	id <S310241AbSDIRAl>; Tue, 9 Apr 2002 13:00:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310241AbSDIQ7X>; Tue, 9 Apr 2002 12:59:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13697 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S310224AbSDIQ7W>; Tue, 9 Apr 2002 12:59:22 -0400
-Date: Tue, 9 Apr 2002 12:58:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: C++ and the kernel
-In-Reply-To: <xb7u1qk6cil.fsf@camaro.informatik.uni-freiburg.de>
-Message-ID: <Pine.LNX.3.95.1020409125455.5166B-100000@chaos.analogic.com>
+	id <S310258AbSDIRAk>; Tue, 9 Apr 2002 13:00:40 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:43462 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S310241AbSDIRAj>;
+	Tue, 9 Apr 2002 13:00:39 -0400
+Message-ID: <794826DE8867D411BAB8009027AE9EB911C10AE8@FMSMSX38>
+From: "Mathew, Tisson K" <tisson.k.mathew@intel.com>
+To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Inserting modules w/o version check
+Date: Tue, 9 Apr 2002 10:00:27 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Apr 2002, Sau Dan Lee wrote:
-[SNIPPED ... all]
-We need to take this off linux-kernel. Anybody who wants to
-continue, please contact me directly. No Holy Wars. I know
-that everybody I have communicated with has good points to
-ponder.
+Thanks Dick
+
+-----Original Message-----
+From: Richard B. Johnson [mailto:root@chaos.analogic.com] 
+Sent: Tuesday, April 09, 2002 9:48 AM
+To: Mathew, Tisson K
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Inserting modules w/o version check
+
+
+On Tue, 9 Apr 2002, Mathew, Tisson K wrote:
+
+> All ,
+> 
+> Can we enforce no version check for modules when they are inserted ( 
+> insmod
+
+insmod -f module.o
+        |_______________ force loading
+
+> ) ? If yes , can this be implemented in the module itself ?
+> 
+
+No. `insmod` wouldn't load it so the module doesn't get a chance to "check"
+anything.
+
+> Thanks in advance
+
+Also, note that `struct file_operations` has different member- locations for
+different kernel versions. Even if the module loaded, you might end up with
+'read' being 'seek', etc. Bad idea.
 
 Cheers,
 Dick Johnson
@@ -32,4 +56,3 @@ Dick Johnson
 Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
                  Windows-2000/Professional isn't.
-

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293366AbSBYKnu>; Mon, 25 Feb 2002 05:43:50 -0500
+	id <S293375AbSBYK7N>; Mon, 25 Feb 2002 05:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293368AbSBYKnb>; Mon, 25 Feb 2002 05:43:31 -0500
-Received: from zamok.crans.org ([138.231.136.6]:28650 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id <S293366AbSBYKnT>;
-	Mon, 25 Feb 2002 05:43:19 -0500
-To: linux-kernel@vger.kernel.org
-Subject: static arp table doesn't size up ?
-X-PGP-KeyID: 0xF22A794E
-X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
-From: Vincent Bernat <bernat@free.fr>
-Organization: Kabale Inc
-Date: Mon, 25 Feb 2002 11:43:15 +0100
-Message-ID: <m34rk5suyk.fsf@neo.loria>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
- i686-pc-linux)
+	id <S293376AbSBYK7D>; Mon, 25 Feb 2002 05:59:03 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:55570 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S293375AbSBYK6s>; Mon, 25 Feb 2002 05:58:48 -0500
+Message-ID: <3C7A189F.8871B328@aitel.hist.no>
+Date: Mon, 25 Feb 2002 11:57:35 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.4-dj1 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+In-Reply-To: <200202221557.g1MFvp004149@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+James Bottomley wrote:
+[...]
+> Unfortunately, there's actually a hole in the SCSI spec that means ordered
+> tags are actually extremely difficult to use in the way you want (although I
+> think this is an accident, conceptually, I think they were supposed to be used
+> for this).  For the interested, I attach the details at the bottom.
+> 
+[...]
+> The SCSI tag system allows all devices to have a dynamic queue.  This means
+> that there is no a priori guarantee about how many tags the device will accept
+> before the queue becomes full.
+> 
 
-We have a 2.4.16 generic kernel and we run into troubles with arp. We
-have an ethernet segment of 600+ machines. On one of these machines, I
-have set up a static arp table by entering every mac-ip couple.
+I just wonder - isn't the amount of outstanding requests a device
+can handle constant?  If so, the user could determine this (from spec or
+by running an utility that generates "too much" traffic.)  
 
-For several days, I have left the ARP learning (ifconfig eth0 arp) and
-there was no problem. Every 5 minutes, I have checked if there was
-learned address in the arp cache : there was none, so it didn't learn
-any new address.
+The max number of requests may then be compiled in or added as
+a kernel boot parameter.  The kernel would honor this and never ever
+have more outstanding requests than it believes the device
+can handle.  
 
-Today, I have switch to a real static arp table (with ifconfig eth0
--arp). Randomly, some machines were then unable to ping the
-host.
+Those who don't want to bother can use some low default or accept the
+risk.
 
-After a "ifconfig eth0 arp ; ifconfig eth0 -arp", this some other
-machine which were unable to ping the host where the first machines
-are able to do it again. arp table is correct but randomly, some
-machines are unable to get their echo reply, even if its entry is in
-the arp table.
-
-Are there known issues about large arp tables ?
+Helge Hafting

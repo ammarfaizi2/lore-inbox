@@ -1,64 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293306AbSCRXna>; Mon, 18 Mar 2002 18:43:30 -0500
+	id <S292466AbSCRXta>; Mon, 18 Mar 2002 18:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293314AbSCRXnV>; Mon, 18 Mar 2002 18:43:21 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48395 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S293306AbSCRXnO>; Mon, 18 Mar 2002 18:43:14 -0500
-Date: Tue, 19 Mar 2002 00:43:15 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper licence issues
-Message-ID: <20020318234315.GJ1740@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz> <20020319002241.K17410@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S291401AbSCRXtL>; Mon, 18 Mar 2002 18:49:11 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:19596 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S291148AbSCRXs6> convert rfc822-to-8bit; Mon, 18 Mar 2002 18:48:58 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 18 Mar 2002 15:53:32 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <Pine.LNX.4.33.0203181434440.10517-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0203181541360.1606-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 18 Mar 2002, Linus Torvalds wrote:
 
->  > > Pavel, the problem here is your fundamental distrust.  
->  > By giving me binary-only installer you ask me to trust you. You ask me
->  > to trust you without good reason [it only generates .tar.gz and
->  > shellscript, why should it be binary? Was not shar designed to handle
->  > that?], and that's pretty suspect.
-> 
->  Bitmover doing anything remotely suspect in an executable installer
->  would be commercial suicide, do you distrust realplayer too?
+>
+> On Mon, 18 Mar 2002, Dieter [iso-8859-15] Nützel wrote:
+> >
+> > it seems to be that it depends on gcc and flags.
+>
+> That instability doesn't seem to show up on a PII. Interesting. Looks like
+> the athlon may be reordering TLB accesses, while the PII apparently
+> doesn't.
+>
+> Or maybe the program is just flawed, and the interesting 1/8 pattern comes
+> from something else altogether.
 
-I've seen windows installers doing *very* suspect stuff.
 
-I distrust realplayer, too, but I think those people are bad enough
-that there's no point complaining. I believed Larry could see that
-binary installers are evil.
+Umhh, something magic should happen inside the Athlon p/line to explain this :
 
->  did you distrust early netscape before they released source?
 
-Yep.
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 999.561
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+			pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 1992.29
 
->  yada yada countless other programs..
 
-Actually, I only ever did binary installation of realplayer, as far as
-I can remember. And that was at time national television died, and I
-wanted to know what's going on.
 
->  If your distrust of commercial organisations providing binaries
->  is so great, you know where objdump, strace and friends are.
+$ gcc -o tlb_test tlb_test.c
 
-strace does not solve the problem (it is trivial to detect you are
-traced), and I do not think Larry should require me to objdump
-installer.
+#APP
+    rdtsc
+#NO_APP
+    movl    %eax, -16(%ebp)
+    movl    -4(%ebp), %eax
+    addl    -12(%ebp), %eax
+    movl    (%eax), %eax
+#APP
+    rdtsc
+#NO_APP
+    movl    %eax, -20(%ebp)
 
-[You see, binary-only installers are total nightmare from security
-perspective. They are widespread on windoze, and it *is* problem
-there. I do not want them on linux.]
 
-							Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+98.76: 21
+
+
+
+$ gcc -O2 -o tlb_test tlb_test.c
+
+#APP
+    rdtsc
+#NO_APP
+    movl    -16(%ebp), %edx
+    movl    %eax, %ecx
+    movl    (%ebx,%edx), %eax
+#APP
+    rdtsc
+#NO_APP
+    subl    %ecx, %eax
+
+
+97.59: 94
+
+
+The only thing i can think is that stuff is moved between the two rdtsc
+... maybe a barrier should help to have more consistent results.
+
+
+
+
+- Davide
+
+

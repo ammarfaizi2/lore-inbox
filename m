@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316507AbSEOWaR>; Wed, 15 May 2002 18:30:17 -0400
+	id <S316509AbSEOWb4>; Wed, 15 May 2002 18:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316508AbSEOWaQ>; Wed, 15 May 2002 18:30:16 -0400
-Received: from bitmover.com ([192.132.92.2]:21217 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316507AbSEOWaP>;
-	Wed, 15 May 2002 18:30:15 -0400
-Date: Wed, 15 May 2002 15:30:16 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Kenneth Johansson <ken@canit.se>
-Cc: David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020515153016.H13795@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Kenneth Johansson <ken@canit.se>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Larry McVoy <lm@bitmover.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020515130831.C13795@work.bitmover.com> <20020515122003.A13795@work.bitmover.com> <30386.1021456050@redhat.com> <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com> <20020515122003.A13795@work.bitmover.com> <18732.1021493020@redhat.com> <19065.1021493737@redhat.com> <1021496614.917.33.camel@tiger>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316510AbSEOWbz>; Wed, 15 May 2002 18:31:55 -0400
+Received: from waste.org ([209.173.204.2]:51340 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S316509AbSEOWbx>;
+	Wed, 15 May 2002 18:31:53 -0400
+Date: Wed, 15 May 2002 17:31:31 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "chen, xiangping" <chen_xiangping@emc.com>
+cc: "'Jes Sorensen'" <jes@wildopensource.com>,
+        "'Steve Whitehouse'" <Steve@ChyGwyn.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel deadlock using nbd over acenic driver.
+In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A52@srgraham.eng.emc.com>
+Message-ID: <Pine.LNX.4.44.0205151723390.24102-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also I have found that it is a pain in the a** to have debug code that I
-> really don't want to save but it's temporary usefull. When I do a pull
+On Tue, 14 May 2002, chen, xiangping wrote:
 
-bk park		# saves work as a patch
-bk pull
-bk unpark	# restores the patch
+> But how to avoid system hangs due to running out of memory?
+> Is there a safe guide line? Generally slow is tolerable, but
+> crash is not.
 
-park/unpark are undocumented because they puke when there are patch rejects.
-If we document them, then we have to explain to people what to do when there
-are patch rejects, and if you need that explanation, we probably can't help
-you.  You guys all grok patch rejects, so try park/unpark.
+If the system runs out of memory, it may try to flush pages that are
+queued to your NBD device. That will try to allocate more memory for
+sending packets, which will fail, meaning the VM can never make progress
+freeing pages. Now your box is dead.
+
+The only way to deal with this is to have a scheme for per-socket memory
+reservations in the network layer and have NBD reserve memory for sending
+and acknowledging packets. NFS and iSCSI also need this, though it's a
+bit harder to tickle for NFS. SCSI has DMA reserved memory for analogous
+reasons.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,107 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287626AbSAIPcg>; Wed, 9 Jan 2002 10:32:36 -0500
+	id <S287615AbSAIPfG>; Wed, 9 Jan 2002 10:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287681AbSAIPcU>; Wed, 9 Jan 2002 10:32:20 -0500
-Received: from [200.10.161.32] ([200.10.161.32]:40367 "EHLO lila.inti.gov.ar")
-	by vger.kernel.org with ESMTP id <S287626AbSAIPcP>;
-	Wed, 9 Jan 2002 10:32:15 -0500
-Message-ID: <3C3C62F1.E9773931@inti.gov.ar>
-Date: Wed, 09 Jan 2002 12:34:09 -0300
-From: salvador <salvador@inti.gov.ar>
-Reply-To: salvador@inti.gov.ar
-Organization: INTI
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: es-AR, en, es
+	id <S287657AbSAIPe5>; Wed, 9 Jan 2002 10:34:57 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:52456 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S287615AbSAIPel>;
+	Wed, 9 Jan 2002 10:34:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Rene Rebe <rene.rebe@gmx.net>
+Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
+Date: Wed, 9 Jan 2002 07:34:39 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.40.0201082057560.936-100000@blue1.dev.mcafeelabs.com> <Pine.LNX.4.33.0201091154440.2276-100000@localhost.localdomain> <20020109.121916.424252478.rene.rebe@gmx.net>
+In-Reply-To: <20020109.121916.424252478.rene.rebe@gmx.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andre Hedrick <andre@linux-ide.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [Patch][RFC] IDE driver for ALi M5229 (alim15x3.c) using UDMA(100) disks
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16OKkR-0001Km-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel: 2.4.17
-Hardware: ALi M5229 IDE controller and UDMA(100) disks.
-Problem: The driver disables UDMA for UDMA>=100 disks.
+On January 9, 2002 03:19, Rene Rebe wrote:
+> Could someone tell a non-kernel-hacker why this benchmark is nearly
+> twice as fast when running reniced??? Shouldn't it be slower when it
+> runs with lower priority (And you execute / type some commands during
+> it)?
 
-I think that's an error in the code because it is masking out the UDMA(100)
-disks. The code selects UDMA(100) and calls the routine that should enable
-it but if this routine returns that the speed was configured for UDMA(100)
-the value is interpreted as an error.
-I see 2 options:
-1) Take it as a success. I tried it but the /proc entry that reports
-information about the driver shows ??? in the timing fields so I taked
-approach 2 which looks safier.
-2) Use UDMA(66) for it.
+In addition for using the nice level as a priority hint, the new scheduler 
+also uses it as a hint of how "CPU-bound" a process it. Negative (higher 
+priority) nice levels give the process short, frequent timeslices. Positive 
+priorities give the process long, infrequent time slices. On an otherwise 
+(mostly) idle system, both processes will get the same amount of CPU time, 
+but distributed in a different way.
 
-The following patch implements both things. If the FORCE_UDMA66 is defined
-the option (2) takes effect.
+In applications that really don't care about interactivity, the long time 
+slice will increase their efficency greatly. In addition to having a fewer 
+context switches (and therefore less context switch overhead), the longer 
+time slices give them more time to warm up the cache. This has been referred 
+to as "batching", as the process is executing at once what would normally 
+take many shorter timeslices to complete.
 
-Doubts:
-1) is (2) really needed?
-2) what about UDMA(133) (already available) and UDMA(166) (already
-specified) disks?
+So, what you're actually seeing is the reniced task not taking up more CPU 
+time (it's probably actually using slightly less), just using the CPU time 
+more efficently.
 
-Patch:
+<worships Ingo>
 
-diff -ru linux-2.4.17.ori/drivers/ide/alim15x3.c
-linux-2.4.17/drivers/ide/alim15x3.c
---- linux-2.4.17.ori/drivers/ide/alim15x3.c     Sun Jul 15 20:22:23 2001
-+++ linux-2.4.17/drivers/ide/alim15x3.c Tue Jan  8 22:24:07 2002
-@@ -28,6 +28,8 @@
-
- #include "ide_modes.h"
-
-+/* Safe(?) fall back to UDMA66 when UDMA100 is available */
-+#define FORCE_UDMA66
- #define DISPLAY_ALI_TIMINGS
-
- #if defined(DISPLAY_ALI_TIMINGS) && defined(CONFIG_PROC_FS)
-@@ -373,7 +375,11 @@
-        int  rval;
-
-        if ((id->dma_ultra & 0x0020) && (ultra100) && (ultra66) &&
-(ultra33)) {
--               speed = XFER_UDMA_5;
-+#ifdef FORCE_UDMA66
-+               speed = XFER_UDMA_4;
-+#else
-+      speed = XFER_UDMA_5;
-+#endif
-        } else if ((id->dma_ultra & 0x0010) && (ultra66) && (ultra33)) {
-                speed = XFER_UDMA_4;
-        } else if ((id->dma_ultra & 0x0008) && (ultra66) && (ultra33)) {
-@@ -405,7 +411,7 @@
-        if (!drive->init_speed)
-                drive->init_speed = speed;
-
--       rval = (int)(   ((id->dma_ultra >> 11) & 3) ? ide_dma_on :
-+       rval = (int)(   ((id->dma_ultra >> 11) & 0x1F) ? ide_dma_on :
-                        ((id->dma_ultra >> 8) & 7) ? ide_dma_on :
-                        ((id->dma_mword >> 8) & 7) ? ide_dma_on :
-                        ((id->dma_1word >> 8) & 7) ? ide_dma_on :
-<------------End of patch
-
-Important note: I extended the mask to accept UDMA(133)/(166), currently not
-requested by the code.
-
-PCI information of the device:
-  Bus  0, device   4, function  0:
-    IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 196).
-      IRQ 14.
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
-      I/O at 0xff00 [0xff0f].
-
---
-Salvador Eduardo Tropea (SET). (Electronics Engineer)
-Visit my home page: http://welcome.to/SetSoft or
-http://www.geocities.com/SiliconValley/Vista/6552/
-Alternative e-mail: set@computer.org set@ieee.org
-Address: Curapaligue 2124, Caseros, 3 de Febrero
-Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
-
-
-
+-Ryan

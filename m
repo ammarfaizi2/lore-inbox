@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261832AbTCGWc0>; Fri, 7 Mar 2003 17:32:26 -0500
+	id <S261834AbTCGWlS>; Fri, 7 Mar 2003 17:41:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261831AbTCGWc0>; Fri, 7 Mar 2003 17:32:26 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:23224 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261825AbTCGWcY>; Fri, 7 Mar 2003 17:32:24 -0500
-Date: Fri, 7 Mar 2003 14:43:34 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Andries.Brouwer@cwi.nl, Patrick Mansfield <patmans@us.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, torvalds@transmeta.com
-Subject: Re: [PATCH] scsi_error fix
-Message-ID: <20030307224334.GC1148@beaverton.ibm.com>
-Mail-Followup-To: James Bottomley <James.Bottomley@steeleye.com>,
-	Andries.Brouwer@cwi.nl, Patrick Mansfield <patmans@us.ibm.com>,
-	linux-kernel@vger.kernel.org,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	torvalds@transmeta.com
-References: <UTC200303072019.h27KJXX12872.aeb@smtp.cwi.nl> <20030307211732.GA1148@beaverton.ibm.com> <1047075661.3444.27.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047075661.3444.27.camel@mulgrave>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S261829AbTCGWlR>; Fri, 7 Mar 2003 17:41:17 -0500
+Received: from s383.jpl.nasa.gov ([137.78.170.215]:42977 "EHLO
+	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP
+	id <S261813AbTCGWlP>; Fri, 7 Mar 2003 17:41:15 -0500
+Message-ID: <3E692281.10906@jpl.nasa.gov>
+Date: Fri, 07 Mar 2003 14:51:45 -0800
+From: Bryan Whitehead <driver@jpl.nasa.gov>
+Organization: Jet Propulsion Laboratory
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org
+Subject: devfs + PCI serial card = no extra serial ports
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley [James.Bottomley@steeleye.com] wrote:
+It seems devfsd has an annoying "feature". I bought a PCI card to get a 
+couple (2) more serial ports. The kernel doesn't seem to set up the 
+serial ports at boot, so devfs never creates an entry. However, post 
+boot, since there is no entries, I cannot configure the serial ports 
+with setserial. So basically devfsd = no PCI based serial add on?
 
-> @@ -702,8 +701,14 @@
->  		 * if the result was normal, then just pass it along to the
->  		 * upper level.
->  		 */
-> -		if (rtn == SUCCESS)
-> +		if (rtn == SUCCESS) {
-> +			/* we don't want this command reissued, just
-> +			 * finished with the sense data, so set
-> +			 * retries to the max allowed to ensure it
-> +			 * won't get reissued */
-> +			scmd->retries = scmd->allowed;
->  			scsi_eh_finish_cmd(scmd, done_q);
-> +		}
->  		if (rtn != NEEDS_RETRY)
->  			continue;
->  
-
-We might need to cover the case down below if we succeed on retry without
-reaching allowed.
-
-Another option is to look into re-sending the command from the
-scsi_queue_insert handler like we do with timeouts. The interface to the
-device should be the same from the LLDD's point of view just delayed
-some.
+03:05.0 Serial controller: NetMos Technology 222N-2 I/O Card (2S+1P) 
+(rev 01) (prog-if 02 [16550])
+	Subsystem: LSI Logic / Symbios Logic (formerly NCR): Unknown device 0002
+	Flags: medium devsel, IRQ 17
+	I/O ports at ecf8 [size=8]
+	I/O ports at ece8 [size=8]
+	I/O ports at ecd8 [size=8]
+	I/O ports at ecc8 [size=8]
+	I/O ports at ecb8 [size=8]
+	I/O ports at eca0 [size=16]
 
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+mknod ttyS2 c 4 66
+mknod ttyS3 c 4 67
+setserial ttyS2 port 0xecf8 UART 16550A irq 17 Baud_base 9600
+setserial ttyS3 port 0xece8 UART 16550A irq 17 Baud_base 9600
+
+I hoped after "setting up" the serial ports with setserial some magic 
+would happen and they would apear in /dev/tts... but I was wrong.
+
+gets me working serial ports... but it's not in /dev... :O
+
+Am I just screwed?
+
+If so, what would be a good add on PCI based solution for more serial 
+ports that WORKS with devfsd? (I don't want to disable devfs as this 
+opens up a different set of problems)
+
+Thanks for any replay!
+
+-- 
+Bryan Whitehead
+SysAdmin - JPL - Interferometry Systems and Technology
+Phone: 818 354 2903
+driver@jpl.nasa.gov
 

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263915AbTFILsv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 07:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTFILsv
+	id S264042AbTFILtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 07:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTFILtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 07:48:51 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:63419 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263915AbTFILsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 07:48:50 -0400
-Date: Mon, 9 Jun 2003 14:02:11 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sch_ingress.c includes <asm/smp.h>
-In-Reply-To: <1055159413.9884.4.camel@rth.ninka.net>
-Message-ID: <Pine.GSO.4.21.0306091401550.1347-100000@vervain.sonytel.be>
+	Mon, 9 Jun 2003 07:49:31 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:412 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S264042AbTFILt3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 07:49:29 -0400
+Date: Mon, 9 Jun 2003 13:57:58 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+In-Reply-To: <Pine.LNX.4.50.0306051352500.3503-100000@montezuma.mastecende.com>
+Message-ID: <Pine.GSO.3.96.1030609135224.2806A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jun 2003, David S. Miller wrote:
-> On Mon, 2003-06-09 at 03:37, Geert Uytterhoeven wrote:
-> > sch_ingress.c includes <asm/smp.h>, causing build failures on UMP-only
-> > architectures
+On Thu, 5 Jun 2003, Zwane Mwaikambo wrote:
+
+> >  You may have a valid SMP table and discrete local APICs (i82489DX) which
+> > are not reported in CPU capability bits.  The "nolocalapic" option should
+> > handle them, too.  Otherwise it would be a surprising inconsistency. 
 > 
-> Geert you should know better than anyone else that
-> you should send NET fixes to the NET maintainers.
-> 
-> So why aren't you doing that?
+> Good point, out of interest, have you come across broken system like that? 
 
-Sorry, forgot about that.
+ So far I've met three users of i82489DX-based systems, two of whom helped
+me making them work with 2.4.  So at least at the beginning of 2.4.x they
+used to work; hopefully nothing has got broken since then (I try to
+monitor changes, but without real hardware to do testing something might
+have slipped in unnoticed).  I don't know if these people have kept
+upgrading their kernels nor whether they still use the systems.  There
+were no bug reports, either, which basically may mean anything. 
 
-Gr{oetje,eeting}s,
+ Why do you consider the systems broken?
 
-						Geert
+> Regardless i'll update the patch.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ Great!
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

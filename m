@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271349AbRHTQ0d>; Mon, 20 Aug 2001 12:26:33 -0400
+	id <S271371AbRHTQ2n>; Mon, 20 Aug 2001 12:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271342AbRHTQ0X>; Mon, 20 Aug 2001 12:26:23 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:681 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S271360AbRHTQ0M>; Mon, 20 Aug 2001 12:26:12 -0400
-Date: Mon, 20 Aug 2001 11:26:13 -0500
-From: Dave McCracken <dmc@austin.ibm.com>
+	id <S271356AbRHTQ2d>; Mon, 20 Aug 2001 12:28:33 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:6667 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S271357AbRHTQ2V>; Mon, 20 Aug 2001 12:28:21 -0400
+Date: Mon, 20 Aug 2001 12:28:27 -0400 (EDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.9 Make thread group id visible in
- /proc/<pid>/status
-Message-ID: <26210000.998324773@baldur>
-In-Reply-To: <E15Yrlh-0006JF-00@the-village.bc.nu>
-In-Reply-To: <E15Yrlh-0006JF-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] allow hdX=scsi when ide-scsi is a module
+Message-ID: <Pine.LNX.4.33.0108201225020.12354-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---On Monday, August 20, 2001 17:19:13 +0100 Alan Cox 
-<alan@lxorguk.ukuu.org.uk> wrote:
+The current IDE code doesn't allow the user to reserve a drive to be used 
+only with ide-scsi emulation, if the ide-scsi layer is compiled as a 
+module. The following trivial patch fixes the problem, I've been using it 
+for the last 6 months or so.
 
-> I didnt think anyone was using the broken tgid stuff ?
+The patch removes the explicit dependency on CONFIG_SCSI because ide-scsi 
+itself requires the SCSI subsystem.
 
-I was under the impression that the current LinuxThread library does use 
-CLONE_THREAD, and I know of at least one project under way that's also 
-using it (the NGPT pthread library).  The getpid() system call already 
-returns tgid instead of pid.  I'm also looking into what's involved in 
-making tgid more robust.
+Please apply...
 
-Dave McCracken
+Thanks,
+Ion
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmc@austin.ibm.com                                      T/L   678-3059
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+-----------------------
+diff -urX unpack/diff_kernel_excludes tmp/linux/drivers/ide/ide.c linux-2.4/drivers/ide/ide.c
+--- tmp/linux/drivers/ide/ide.c	Mon Sep 11 08:42:57 2000
++++ linux-2.4/drivers/ide/ide.c	Wed Oct 11 14:25:14 2000
+@@ -2973,7 +2973,7 @@
+ 				drive->remap_0_to_1 = 2;
+ 				goto done;
+ 			case -14: /* "scsi" */
+-#if defined(CONFIG_BLK_DEV_IDESCSI) && defined(CONFIG_SCSI)
++#if defined(CONFIG_BLK_DEV_IDESCSI) || defined(CONFIG_BLK_DEV_IDESCSI_MODULE)
+ 				drive->scsi = 1;
+ 				goto done;
+ #else
 

@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290713AbSCGC1D>; Wed, 6 Mar 2002 21:27:03 -0500
+	id <S290587AbSCGCZn>; Wed, 6 Mar 2002 21:25:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290796AbSCGC05>; Wed, 6 Mar 2002 21:26:57 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:9164 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S290713AbSCGC0T>;
-	Wed, 6 Mar 2002 21:26:19 -0500
-Message-ID: <3C86CFC4.6050800@us.ibm.com>
-Date: Wed, 06 Mar 2002 18:26:12 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S290767AbSCGCZY>; Wed, 6 Mar 2002 21:25:24 -0500
+Received: from 1Cust22.tnt15.sfo3.da.uu.net ([67.218.75.22]:18694 "EHLO
+	morrowfield.home") by vger.kernel.org with ESMTP id <S290713AbSCGCZS>;
+	Wed, 6 Mar 2002 21:25:18 -0500
+Date: Thu, 7 Mar 2002 06:25:12 -0800 (PST)
+Message-Id: <200203071425.GAA06679@morrowfield.home>
+From: Tom Lord <lord@regexps.com>
 To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>
-Subject: Oops on 2.5.6-pre2 in ext2 code
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: davej@suse.de
+Subject: Why not an arch mirror for the kernel?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton was getting errors like this when running dbench:
-__block_prepare_write: zeroing uptodate buffer!
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0202.2/1585.html
 
-His problems were on a uniproc machine, running a "dbench 64" on a 
-~120meg ext2 filesystem with 1k blocks.  When running the same test on 
-my dual-proc machine, I always oops after a short period of time.  The 
-presence of ext2_get_block in the trace seems to indicate that it could 
-be related to the recent ext2 locking changes in 2.5.
 
-I haven't been able to reproduce the same errors in 2.4, even with the 
-ext2_get_block() BKL removal patch applied.  It is probably influenced 
-by, but not caused exclusively by that patch from 2.5.
+While I won't take a position on the petition, the post quoted below
+has some practical implications, and some others have been raised that
+I'll answer:
 
-CPU:    0
-EIP:    0010:[<c013b6c0>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: d695c080   ebx: c13e1bec   ecx: d695c080   edx: 01010101
-esi: c13e1bec   edi: 00000400   ebp: 01000000   esp: d96d1eac
-ds: 0018   es: 0018   ss: 0018
-Stack: 0000000a c013b999 c13e1bec 00000400 00000000 d695c000 d96d1ed4 
-00000400
-        d6781b60 c013b056 d6781b60 c013bcb3 00000282 00001000 0001595c 
-00000282
-        c13e1bec 00001000 d56ed3c0 c13e1bec c013c251 d1cc3cd0 c13e1bec 
-00000000
-Call Trace: [<c013b999>] [<c013b056>] [<c013bcb3>] [<c013c251>] 
-[<c015fc10>]
-    [<c012c6cb>] [<c015fc10>] [<c0138fa6>] [<c0114ac9>] [<c0108ce7>]
-Code: c7 42 38 00 00 00 00 89 d1 8b 52 28 85 d2 75 f0 89 41 28 89
+	Dave Jones observes:
 
- >>EIP; c013b6c0 <create_empty_buffers+30/50>   <=====
-Trace; c013b999 <__block_prepare_write+79/2e0>
-Trace; c013b056 <balance_dirty+6/50>
-Trace; c013bcb3 <__block_commit_write+b3/e0>
-Trace; c013c251 <block_prepare_write+21/40>
-Trace; c015fc10 <ext2_get_block+0/470>
-Trace; c012c6cb <generic_file_write+4ab/710>
-Trace; c015fc10 <ext2_get_block+0/470>
-Trace; c0138fa6 <sys_write+96/110>
-Trace; c0114ac9 <schedule+329/380>
-Trace; c0108ce7 <syscall_call+7/b>
+	Something I've not yet worked out is why none of the
+	proponents of arch, subversion etc are offering to run a
+	mirror of Linus' bitkeeper tree for those who don't want to
+	use bk, but "must have 0-day kernels".
 
-Code;  c013b6c0 <create_empty_buffers+30/50>
-00000000 <_EIP>:
-Code;  c013b6c0 <create_empty_buffers+30/50>   <=====
-    0:   c7 42 38 00 00 00 00      movl   $0x0,0x38(%edx)   <=====
-Code;  c013b6c7 <create_empty_buffers+37/50>
-    7:   89 d1                     mov    %edx,%ecx
-Code;  c013b6c9 <create_empty_buffers+39/50>
-    9:   8b 52 28                  mov    0x28(%edx),%edx
-Code;  c013b6cc <create_empty_buffers+3c/50>
-    c:   85 d2                     test   %edx,%edx
-Code;  c013b6ce <create_empty_buffers+3e/50>
-    e:   75 f0                     jne    0 <_EIP>
-Code;  c013b6d0 <create_empty_buffers+40/50>
-   10:   89 41 28                  mov    %eax,0x28(%ecx)
-Code;  c013b6d3 <create_empty_buffers+43/50>
+In my case (I'm the author arch) it's entirely a resource problem.
+I simply can't afford it at the moment.  Otherwise, it would likely be
+a high priority.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Let me share some news for people who might be interested in
+alternatives to BK:
 
+At least one kernel contributor has a private arch repository for
+kernel work, so it seems to be at least marginally doable.  I am
+certain that further testing, performance improvements, better
+documentation, and some touch-ups to existing functionality are
+necessary before I would say "arch is so good that you have no excuse
+for not using it for kernel work."  Nevertheless, it's interesting
+that someone is already experimenting with it and the kernel.
+
+I am working on some tools that will help to implement automatic,
+incremental, bidirectional gateways between arch, Subversion, and Bk.
+
+I've written a document that describes the state of arch and the
+options that I think exist for getting from its current state to a
+state where it is unambiguously the best choice.  See:
+
+	http://www.regexps.com/survey.html
+
+I would like to hear (off-list) from people who are interested in
+eventually using arch for kernel work, but who aren't yet "early
+adopters".  What milestones or features are needed, in your opinion?
+Please be sure to mention in your email if I may quote you or not (the
+default presumption will be that I may not, though I may anonymously
+paraphrase interesting messages and report aggregate results.)
+
+Thanks,
+-t

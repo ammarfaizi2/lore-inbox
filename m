@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbTJVOvk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 10:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTJVOvk
+	id S263497AbTJVPbn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 11:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTJVPbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 10:51:40 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:31761 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263215AbTJVOvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 10:51:39 -0400
-Date: Wed, 22 Oct 2003 15:51:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pat Gefre <pfg@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Altix console driver
-Message-ID: <20031022155137.A23053@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pat Gefre <pfg@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20031022150759.A21653@infradead.org> <Pine.SGI.3.96.1031022093244.262870B-100000@fsgi900.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.SGI.3.96.1031022093244.262870B-100000@fsgi900.americas.sgi.com>; from pfg@sgi.com on Wed, Oct 22, 2003 at 09:39:12AM -0500
+	Wed, 22 Oct 2003 11:31:43 -0400
+Received: from math.ut.ee ([193.40.5.125]:10137 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S263497AbTJVPbm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 11:31:42 -0400
+Date: Wed, 22 Oct 2003 18:31:35 +0300 (EEST)
+From: Meelis Roos <mroos@math.ut.ee>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
+In-Reply-To: <20031020203338.GJ6062@ip68-0-152-218.tc.ph.cox.net>
+Message-ID: <Pine.GSO.4.44.0310221830260.21711-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 22, 2003 at 09:39:12AM -0500, Pat Gefre wrote:
-> + > Were all the points which Christoph raised considered?
-> + 
-> + No.
-> + 
-> 
-> Which item(s), specifically, do you have an issue with ?
+> Okay.  Can you give the linuxppc-2.5 repo a shot on this machine?  It's
+> at bk://ppc.bkbits.net/linuxppc-2.5 and
+> rsync://source.mvista.com/linuxppc-2.5, for reference.  Let me know if
+> it still boots at least and if it finds 64MB of memory again, it
+> should..
 
-You're still registering with the normal serial major/minor without
-using serial core.  That means the normal serial driver can't be used
-when sn_serial is loaded, e.g. for using a pci serial card in an
-altix.  The irq mess still isn't fixed - this isn't exactly an issue
-with this driver but I exposing the bloody mess outside arch/ia64/sn
-is a very bad idea.  I'd suggest kicking ajm to fix that up.
+It boots, tells the avail ram is 00400000 00800000 (should be 64M?)
+and then the kernel hangs after starting Linux.
 
-pciio.h has no business beeing included in this driver that doesn't
-use anything PCIish, again a core SN issue that needs fixing.
-
-Also after reading through the new comment ontop of the file it might
-be a good idea to rename it to sn_console.c, especially now that there
-is a real ioc4 serial driver.
+-- 
+Meelis Roos (mroos@ut.ee)      http://www.cs.ut.ee/~mroos/
 

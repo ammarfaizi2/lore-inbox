@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280845AbRKTD5q>; Mon, 19 Nov 2001 22:57:46 -0500
+	id <S280889AbRKTD6q>; Mon, 19 Nov 2001 22:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280878AbRKTD5f>; Mon, 19 Nov 2001 22:57:35 -0500
-Received: from web14307.mail.yahoo.com ([216.136.173.83]:15877 "HELO
-	web14307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280845AbRKTD50>; Mon, 19 Nov 2001 22:57:26 -0500
-Message-ID: <20011120035725.26302.qmail@web14307.mail.yahoo.com>
-Date: Mon, 19 Nov 2001 19:57:25 -0800 (PST)
-From: Lee Chin <leechinus@yahoo.com>
-Subject: shared memory
-To: linux-kernel@vger.kernel.org
+	id <S280883AbRKTD6h>; Mon, 19 Nov 2001 22:58:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2664 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S280878AbRKTD63>; Mon, 19 Nov 2001 22:58:29 -0500
+To: Rock Gordon <rockgordon@yahoo.com>
+Cc: Terje Eggestad <terje.eggestad@scali.no>, linux-kernel@vger.kernel.org
+Subject: Re: Executing binaries on new filesystem
+In-Reply-To: <20011119163455.11507.qmail@web14804.mail.yahoo.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Nov 2001 20:39:33 -0700
+In-Reply-To: <20011119163455.11507.qmail@web14804.mail.yahoo.com>
+Message-ID: <m18zd26rgq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-How do you allocate shared memory in the 2.4 kernel
-now?  I added the line to fstab.. but how do I create
-the /dev directory?
+Rock Gordon <rockgordon@yahoo.com> writes:
 
-Thanks
-Lee
+> All said and done, the file is with correct
+> permissions (for that matter any binary that I execute
+> on my filesystem has correct permissions). The only
+> thing strace tells me is "bad file format". The same
+> binary works perfectly elsewhere.
+> 
+> I don't think mmap is the problem; you don't need it
+> in order to run binaries ...
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1
+Yes you do.   Look at all of the calls to do_mmap in binfmt_elf,
+binfmt_aout and others.  The only case that doesn't use mmap
+is old a.out binaries that are not properly aligned so cannot be
+mmaped.
+
+Linux implements demand paging in the loading of binaries and
+for that you need mmap.
+
+Eric
+
+

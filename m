@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUF3F0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266450AbUF3Fef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUF3F0F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 01:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUF3F0F
+	id S266450AbUF3Fef (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 01:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUF3Fef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 01:26:05 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:28023 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266188AbUF3F0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 01:26:01 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7 oops in psmouse/serio while booting
-Date: Wed, 30 Jun 2004 00:25:53 -0500
-User-Agent: KMail/1.6.2
-Cc: twl@mail.com
-References: <20040630042228.7FC414BDAE@ws1-1.us4.outblaze.com>
-In-Reply-To: <20040630042228.7FC414BDAE@ws1-1.us4.outblaze.com>
-MIME-Version: 1.0
+	Wed, 30 Jun 2004 01:34:35 -0400
+Received: from acrogw.sw.ru ([195.133.213.225]:20460 "EHLO dhcp6-7.acronis.ru")
+	by vger.kernel.org with ESMTP id S266450AbUF3Fed (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 01:34:33 -0400
+Date: Wed, 30 Jun 2004 09:39:56 +0400
+From: Andrey Ulanov <Andrey.Ulanov@acronis.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCMCIA bug fix
+Message-ID: <20040630053956.GA1942@dhcp6-7.acronis.ru>
+References: <20040629153809.GA6531@dhcp6-7.acronis.ru> <20040629164832.C24951@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406300025.57639.dtor_core@ameritech.net>
+In-Reply-To: <20040629164832.C24951@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 June 2004 11:22 pm, twl@mail.com wrote:
-> The panic happens in psmouse_interrupt.  It doesn't happen every time I boot, 
-> but it happens about half of the time.  It doesn't happen with 2.6.6. 
->  
-> I have a USB mouse, but the input driver initially seems to think it has found 
-> a serial PS/2 mouse. 
->  
-> When it boots ok, I see this: 
->  
-> mice: PS/2 mouse device common for all mice 
-> serio: i8042 AUX port at 0x60,0x64 irq 12 
-> input: PS/2 Generic Mouse on isa0060/serio1 
-> <snip> 
-> input: USB HID v1.10 Mouse [Logitech Optical USB Mouse] on usb-0000:00:1d.0-1 
->  
-> When it panics, I see this: 
->  
-> mice: PS/2 mouse device common for all mice 
-> serio: i8042 AUX port at 0x60,0x64 irq 12 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000 
->  printing eip:
+Hi, Russell!
 
-Hi,
+On Tue, Jun 29, 2004 at 04:48:32PM +0100, Russell King wrote:
+> On Tue, Jun 29, 2004 at 07:38:09PM +0400, Andrey Ulanov wrote:
+>> I tested with one of ieee1394+usb2.0 PCMCIA adapters. Worked fine.
+>> Without this patch only first device (ieee1394 controller) was
+>> detected.
+> Can you provide the lspci output, and a better description of the
+> problem you're trying to solve please?
 
-Could you please try the patch below? 
+OK. Sorry.
+
+This PCMCIA has four devices:
+
+  Bus  6, device   0, function  0:
+    Class 0c00: PCI device 104c:8024 (rev 0).
+      IRQ 10.
+      Master Capable.  Latency=16.  
+      Non-prefetchable 32 bit memory at 0x11000000 [0x110007ff].
+      Non-prefetchable 32 bit memory at 0x11004000 [0x11007fff].
+  Bus  6, device   0, function  4:
+    Class 0c03: PCI device 104c:0035 (rev 67).
+      IRQ 10.
+      Master Capable.  Latency=64.  
+      Non-prefetchable 32 bit memory at 0x11001000 [0x11001fff].
+  Bus  6, device   0, function  5:
+    Class 0c03: PCI device 104c:0035 (rev 67).
+      IRQ 10.
+      Master Capable.  Latency=64.  
+      Non-prefetchable 32 bit memory at 0x11002000 [0x11002fff].
+  Bus  6, device   0, function  6:
+    Class 0c03: PCI device 104c:00e0 (rev 4).
+      IRQ 10.
+      Master Capable.  Latency=68.  
+      Non-prefetchable 32 bit memory at 0x11000800 [0x110008ff].
+
+As you can see functions numbers do not form continual sequence
+beginning with zero. That's why current implementation do not work for
+me. Here is the part of old code:
+
+fn = 1;
+if (hdr & 0x80) {
+  do {
+    tmp.devfn = fn;
+    if (pci_readw(&tmp, PCI_VENDOR_ID, &v) || !v || v == 0xffff)
+      break;
+    fn++;
+  } while (fn < 8);
+}
+s->functions = fn;
+
+I hope now it is obvious that it detects only first one in my case.
 
 -- 
-Dmitry
-
-===== drivers/input/mouse/psmouse-base.c 1.65 vs edited =====
---- 1.65/drivers/input/mouse/psmouse-base.c	2004-06-28 23:00:50 -05:00
-+++ edited/drivers/input/mouse/psmouse-base.c	2004-06-30 00:13:58 -05:00
-@@ -717,13 +717,14 @@
- 		goto out;
- 	}
- 
-+	/* Install default protocol handler (may be overriden later) */
-+	psmouse->protocol_handler = psmouse_process_byte;
-+
- 	psmouse->type = psmouse_extensions(psmouse, psmouse_max_proto, 1);
- 	if (!psmouse->vendor)
- 		psmouse->vendor = "Generic";
- 	if (!psmouse->name)
- 		psmouse->name = "Mouse";
--	if (!psmouse->protocol_handler)
--		psmouse->protocol_handler = psmouse_process_byte;
- 
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocols[psmouse->type], psmouse->vendor, psmouse->name);
+with best regards, Andrey Ulanov.

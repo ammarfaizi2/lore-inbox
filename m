@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUD3LJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265147AbUD3LeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265148AbUD3LJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 07:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUD3LJF
+	id S265147AbUD3LeN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 07:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUD3LeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 07:09:05 -0400
-Received: from smtp.polymtl.ca ([132.207.4.11]:45729 "EHLO smtp.polymtl.ca")
-	by vger.kernel.org with ESMTP id S265148AbUD3LIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 07:08:47 -0400
-Message-ID: <1083323300.409233a4459e3@www.imp.polymtl.ca>
-Date: Fri, 30 Apr 2004 13:08:20 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@polymtl.ca>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Rik van Riel <riel@redhat.com>,
-       Erik Jacobson <erikj@subway.americas.sgi.com>,
-       Paul Jackson <pj@sgi.com>, chrisw@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
-References: <Pine.SGI.4.53.0404291447220.732952@subway.americas.sgi.com> <Pine.LNX.4.44.0404291719400.9152-100000@chimarrao.boston.redhat.com> <20040430071750.A8515@infradead.org>
-In-Reply-To: <20040430071750.A8515@infradead.org>
+	Fri, 30 Apr 2004 07:34:13 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:45580 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265147AbUD3LeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 07:34:09 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: arjanv@redhat.com
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Date: Fri, 30 Apr 2004 14:33:30 +0300
+User-Agent: KMail/1.5.4
+Cc: Tim Connors <tconnors+linuxkernel1083305837@astro.swin.edu.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       brettspamacct@fastclick.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <40904A84.2030307@yahoo.com.au> <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua> <1083317615.4633.7.camel@laptop.fenrus.com>
+In-Reply-To: <1083317615.4633.7.camel@laptop.fenrus.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 192.90.72.1
-X-Poly-FromMTA: (c4.si.polymtl.ca [132.207.4.29]) at Fri, 30 Apr 2004 11:08:20 +0000
-X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.25.0.2; VDF 6.25.0.39
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404301433.31187.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Selon Christoph Hellwig <hch@infradead.org>:
+On Friday 30 April 2004 12:33, Arjan van de Ven wrote:
+> > Multimedia content (jpegs etc) is typically cached in
+> > filesystem, so Mozilla polluted pagecache with it when
+> > it saved JPEGs to the cache *and* then it keeps 'em in RAM
+> > too, which doubles RAM usage.
+>
+> well if mozilla just mmap's the jpegs there is no double caching .....
 
-> > I suspect there's a rather good chance of merging a common
-> > PAGG/CKRM infrastructure, since they pretty much do the same
-> > thing at the core and they both have different functionality
-> > implemented on top of the core process grouping.
-> 
-> Still doesn't make a lot of sense.  CKRM is a huge cludgy beast poking
-> everywhere while PAGG is a really small layer to allow kernel modules
-> keeping per-process state.  If CKRM gets merged at all (and the current
-> looks far to horrible and the gains are rather unclear) it should layer
-> ontop of something like PAGG for the functionality covered by it.
+I may be wrong but Mozilla keeps unpacked bitmap in malloc() space.
+The point is, $BloatyApp will keep bloating up while you
+are working upon improving kernel. I guess it's very clear which
+process is easier. You cannot win that race.
 
-And what about put the management of containers outside the kernel. We could for
-exemple use a program that will listen file /proc/acct_event and execute a
-programs to handle the event like ACPID does. Of course it will need some kernel
-modifications but those modifications will be small as process aggregation will
-be done outside the kernel. We could also use relayfs to exchange datas between
-user program and the kernel.
+This is OpenOffice on idle 128Mb RAM, 1000MHz Duron machine with KDE,
+Mozilla and KMail running:
 
-Guillaume
+# time swriter;time swriter
+
+real    0m33.906s
+user    0m10.163s
+sys     0m0.705s
+
+real    0m24.025s
+user    0m10.069s
+sys     0m0.546s
+
+I closed windows as soon as it appeared.
+
+Freshly started swriter in top:
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
+ 2081 root      15   0 93980  41M 80300 S     1,3 34,0   0:09   0 soffice.bin
+
+93 megs. 10 seconds of 1GHz CPU time taken...
+--
+vda
+

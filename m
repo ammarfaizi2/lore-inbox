@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUCJUw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbUCJUw4
+	id S262826AbUCJUyR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbUCJUxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:52:56 -0500
-Received: from main.gmane.org ([80.91.224.249]:33514 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262827AbUCJUvr (ORCPT
+	Wed, 10 Mar 2004 15:53:06 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:24813 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262829AbUCJUw3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:51:47 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: how to detect udp packets drops ?
-Date: Wed, 10 Mar 2004 21:51:44 +0100
-Message-ID: <yw1xy8q8xw67.fsf@kth.se>
-References: <404E36F1.8000908@newsguy.com> <404F6F52.2000202@cs.princeton.edu>
+	Wed, 10 Mar 2004 15:52:29 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: /dev/root: which approach ? [PATCH]
+Date: Wed, 10 Mar 2004 20:52:28 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c2nv6c$j5$2@news.cistron.nl>
+References: <20040310162003.GA25688@cistron.nl> <404F77F3.9070106@kolumbus.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:zRW8RG6Sz/q2BMG3nurVpeV07+U=
+X-Trace: ncc1701.cistron.net 1078951948 613 62.216.29.200 (10 Mar 2004 20:52:28 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KyoungSoo Park <kyoungso@cs.princeton.edu> writes:
-
-> Hi,
+In article <404F77F3.9070106@kolumbus.fi>,
+Mika Penttilä  <mika.penttila@kolumbus.fi> wrote:
 >
-> I'm not sure if my question is appropriate, but is there any way to
-> directly detect UDP packet drops in linux 2.4.x ?  I'd like to know
-> how many UDP packets get actually dropped by the kernel for the
-> overloaded time period.  Any suggestions?
+>>My question to the FS hackers: which one is the preferred approach?
+>>
+>>dev_root_alias.patch
+>>
+>>+	/* See if device is the /dev/root alias. */
+>>+	if (dev == MKDEV(4, 1)) {
+>
+>what is this 4,1, a tty???
 
-The thing about UDP is that you can't tell if the packet got through,
-that's what unreliable means.  However, if you just want to test a
-link you could send a stream of packets with known data in them, such
-as an increasing number sequence.  The receiving end will then be able
-to tell if there were any drops.  Remember that out of order delivery
-is allowed for UDP, so you might want to check for that too.
+If it was a character device, yes. But it's a block device, and
+major 4 isn't used yet. I just made it up, a major would need to
+be allocated by LANANA ofcourse.
 
--- 
-Måns Rullgård
-mru@kth.se
+Mike.
 

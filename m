@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264255AbUESPhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264242AbUESPhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbUESPhO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbUESPfW
+	id S264242AbUESPhP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264228AbUESPfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:35:22 -0400
-Received: from mail.tmr.com ([216.238.38.203]:49416 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S264251AbUESPeL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:34:11 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: bk-3.2.0 released
-Date: Wed, 19 May 2004 11:41:59 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c8fuj1$vdi$1@gatekeeper.tmr.com>
-References: <20040518233238.GC28206@work.bitmover.com> <20040519075128.A19221@infradead.org>
+	Wed, 19 May 2004 11:35:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3746 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264242AbUESPeE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:34:04 -0400
+Date: Wed, 19 May 2004 08:59:50 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Carson Gaspar <carson@taltos.org>
+Cc: Marco Fais <marco.fais@abbeynet.it>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
+Message-ID: <20040519115950.GE12419@logos.cnet>
+References: <406D3E8F.20902@abbeynet.it> <20040504010714.GA8028@logos.cnet> <765880000.1083774300@taltos.ny.ficc.gs.com> <20040505183558.GB1350@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1084980641 32178 192.168.12.10 (19 May 2004 15:30:41 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040519075128.A19221@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040505183558.GB1350@logos.cnet>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, May 18, 2004 at 04:32:38PM -0700, Larry McVoy wrote:
-> 
->>BitKeeper Users,
->>
->>BK/Pro 3.2.0 has been released and is in the BK download area,
->>
->>    http://bitmover.com/download
-> 
-> 
-> And what makes this relevant for lkml?  I'm happy BK user, but this just
-> seems to be compltely offtopic here..
+On Wed, May 05, 2004 at 03:35:58PM -0300, Marcelo Tosatti wrote:
+> On Wed, May 05, 2004 at 12:25:00PM -0400, Carson Gaspar wrote:
+> > --On Monday, May 03, 2004 22:07:14 -0300 Marcelo Tosatti 
+> > <marcelo.tosatti@cyclades.com> wrote:
+> > 
+> > >On Fri, Apr 02, 2004 at 12:21:03PM +0200, Marco Fais wrote:
+> > >>Hi!
+> > >>
+> > >>
+> > >>[1.] Kernel panic while using distcc
+> > >>
+> > >>[2.] I have 5-6 development linux systems that we use without problem
+> > >>under a normal development workload. Trying distcc for speeding up
+> > >>compilation, we have a fully reproducible kernel panic in a very short
+> > >>time (seconds after compilation start). The kernel panic happens *only*
+> > >>when the systems are "remotely controlled" (the distcc daemon is
+> > >>receiving source files from remote systems, compile and send back
+> > >>compiled objects). When compiling with distcc the local system doesn't
+> > >>show any kernel panic, while the same system used as a "remote compiler
+> > >>system" dies very quickly.
+> > >>
+> > >>[3.] Keywords: distcc BUG page_alloc.c
+> > >Marco, Carson,
 
-Announcements regarding kernel tools seem relevant, as is any other tool 
-change which might affect the kernel creation, maintenence, compilation 
-or install. Considering the amount of stuff virtually everyone reads 
-past in this list, reports on features not of interest or 2.4 kernels no 
-longer used, why did you single out this short and informational message 
-as worthy of comment?
+Hi Carson, 
 
-I personally have a folder of release announcements, even for things I 
-don't use, just so I can find them quickly if my interest or business 
-needs change. I wish there was a single release announcements list, but 
-there isn't, let's keep useful information HERE!
-
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+So did Andrea's fix work for you? :) 

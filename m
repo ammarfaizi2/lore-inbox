@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265192AbTFRMgE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 08:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbTFRMgD
+	id S265206AbTFRMls (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 08:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbTFRMls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 08:36:03 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:49927 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S265192AbTFRMgC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 08:36:02 -0400
-Date: Wed, 18 Jun 2003 14:49:38 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030618144938.3ded97a3.skraw@ithnet.com>
-In-Reply-To: <E19ScKA-0000Pt-00@neptune.local>
-References: <20030507203025$6f60@gated-at.bofh.it>
-	<20030509005011$6cee@gated-at.bofh.it>
-	<20030509101012$732a@gated-at.bofh.it>
-	<20030509122007$758f@gated-at.bofh.it>
-	<20030509131009$00f3@gated-at.bofh.it>
-	<20030611045008$03cf@gated-at.bofh.it>
-	<E19ScKA-0000Pt-00@neptune.local>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Jun 2003 08:41:48 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:55819 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265206AbTFRMlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 08:41:47 -0400
+Message-ID: <3EF06154.6030401@myrealbox.com>
+Date: Wed, 18 Jun 2003 05:55:48 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.4b) Gecko/20030517
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Sourabh Ladha (EED)" <Sourabh.Ladha@eed.ericsson.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Panic while upgrading from 2.4.20 to 2.5.70
+References: <fa.o798dld.25grp5@ifi.uio.no>
+In-Reply-To: <fa.o798dld.25grp5@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jun 2003 14:46:02 +0200
-Pascal Schmidt <der.eremit@email.de> wrote:
-
-> Stephan von Krawczynski wrote in linux-kernel:
+Sourabh Ladha (EED) wrote:
+> Hi,
 > 
-> > around 70-100 GB of data is transferred to a nfs-server with rc8 onto a RAID5
-> > on 3ware-controller.
-> > The data is then copied via tar onto a SDLT drive connected to an aic
-> > controller.
-> > Afterwards the data is verified by tar.
+> [I know this has been discussed before but I tried the previous fixes proposed without luck..so]
 > 
-> Have you tried with a different SCSI controller to rule out bugs in st.c?
+> I was trying to upgrade my kernel from 2.4.20 to 2.5.70. (I am running RedHat 9). After getting the sources I did:
+> 
+> make clean; make mrproper; make distclean; make menuconfig; make bzImage; make modules; make modules_install; make install   (got past all of these)
+> 
+> The make install updated my grub.conf as well...
 
-Replacement part is not yet shipped.
+Just a wild guess:  did you upgrade modutils to module-init-tools?  2.5.x won't be happy
+until you do.
 
-Regards,
-Stephan
+

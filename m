@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318065AbSIAA0x>; Sat, 31 Aug 2002 20:26:53 -0400
+	id <S318060AbSIAA0Y>; Sat, 31 Aug 2002 20:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSIAA0x>; Sat, 31 Aug 2002 20:26:53 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:25078 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S318065AbSIAA0w>; Sat, 31 Aug 2002 20:26:52 -0400
-Date: Sat, 31 Aug 2002 17:26:56 -0700
-From: Chris Wright <chris@wirex.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Greg KH <greg@kroah.com>, Gabor Kerenyi <wom@tateyama.hu>,
-       linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>
-Subject: Re: extended file permissions based on LSM
-Message-ID: <20020831172656.E11165@figure1.int.wirex.com>
-Mail-Followup-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	Greg KH <greg@kroah.com>, Gabor Kerenyi <wom@tateyama.hu>,
-	linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>
-References: <200208310616.04709.wom@tateyama.hu> <20020831052114.GA12082@kroah.com> <20020831095747.A781@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020831095747.A781@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Sat, Aug 31, 2002 at 09:57:47AM +0200
+	id <S318061AbSIAA0Y>; Sat, 31 Aug 2002 20:26:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5627 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318060AbSIAA0Y>; Sat, 31 Aug 2002 20:26:24 -0400
+Date: Sun, 1 Sep 2002 02:30:50 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: R.E.Wolff@BitWizard.nl
+cc: linux-kernel@vger.kernel.org
+Subject: drivers/atm/firestream.c doesn't compile in 2.5.33
+Message-ID: <Pine.NEB.4.44.0209010227250.147-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Oeser (ingo.oeser@informatik.tu-chemnitz.de) wrote:
-> 
-> So this is a correctly pointed out design weakness: The way the
-> user took to reach the inode cannot be taken into account.
 
-Yes, this is known, and there are anticipated VFS changes to remedy
-this.
+<--  snip  -->
 
-thanks,
--chris
+...
+  gcc -Wp,-MD,./.firestream.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.33-full/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -nostdinc -iwithprefix include  -g  -DKBUILD_BASENAME=firestream
+-c -o firestream.o firestream.c
+firestream.c: In function `fs_open':
+firestream.c:870: called object is not a function
+firestream.c:870: parse error before string constant
+firestream.c:1097: called object is not a function
+firestream.c:1097: parse error before string constant
+firestream.c: In function `fs_close':
+firestream.c:1109: called object is not a function
+firestream.c:1109: parse error before string constant
+firestream.c:1159: called object is not a function
+firestream.c:1159: parse error before string constant
+...
+make[2]: *** [firestream.o] Error 1
+make[2]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.33-full/drivers/atm'
+
+<--  snip  -->
+
+
+cu
+Adrian
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

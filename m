@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279166AbRKDWPe>; Sun, 4 Nov 2001 17:15:34 -0500
+	id <S279274AbRKDWXi>; Sun, 4 Nov 2001 17:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279228AbRKDWPY>; Sun, 4 Nov 2001 17:15:24 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:16912 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S279166AbRKDWPL>;
-	Sun, 4 Nov 2001 17:15:11 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111042213.fA4MDoI229389@saturn.cs.uml.edu>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-To: jakob@unthought.net (=?iso-8859-1?Q?Jakob_=D8stergaard?=)
-Date: Sun, 4 Nov 2001 17:13:50 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        linux-kernel@alex.org.uk (Alex Bligh - linux-kernel),
-        viro@math.psu.edu (Alexander Viro), moz@compsoc.man.ac.uk (John Levon),
-        linux-kernel@vger.kernel.org,
-        phillips@bonn-fries.net (Daniel Phillips), tim@tjansen.de (Tim Jansen)
-In-Reply-To: <20011104222009.Y14001@unthought.net> from "=?iso-8859-1?Q?Jakob_=D8stergaard?=" at Nov 04, 2001 10:20:09 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S279519AbRKDWX1>; Sun, 4 Nov 2001 17:23:27 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:33241 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S279274AbRKDWXK>; Sun, 4 Nov 2001 17:23:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Christian Laursen <xi@borderworlds.dk>
+Subject: Re: Ext2 directory index, updated
+Date: Sun, 4 Nov 2001 23:24:09 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Andreas Dilger <adilger@turbolabs.com>
+In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <m3hesatcgq.fsf@borg.borderworlds.dk>
+In-Reply-To: <m3hesatcgq.fsf@borg.borderworlds.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011104222259Z17054-18972+2@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-1?Q?Jak writes:
-> On Sun, Nov 04, 2001 at 04:12:23PM -0500, Albert D. Cahalan wrote:
+On November 4, 2001 11:09 pm, Christian Laursen wrote:
+> Daniel Phillips <phillips@bonn-fries.net> writes:
+> 
+> > ***N.B.: still for use on test partitions only.***
+> 
+> It's the first time, I've tried this patch and I must say, that
+> the first impression is very good indeed.
+> 
+> I took a real world directory (my linux-kernel MH folder containing
+> roughly 115000 files) and did a 'du -s' on it.
+> 
+> Without the patch it took a little more than 20 minutes to complete.
+> 
+> With the patch, it took less than 20 seconds. (And that was inside uml)
+> 
+> 
+> However, when I accidentally killed the uml, it left me with an unclean
+> filesystem which fsck refuses to touch because it has unsupported features.
+> 
+> Even the latest version does this.
+> 
+> Is there a patch for fsck, that fixes this somewhere?
 
->> You are looking for something called the registry. It's something
->> that was introduced with Windows 95. It's basically a filesystem
->> with typed files: char, int, string, string array, etc.
->
-> Nope   :)
->
-> It does not have "char, int, string, string array, etc." it
-> has "String, binary and DWORD".
+Ted Ts'o volunteered to do that but I failed to support him with proper 
+documentation so it hasn't been done yet.
 
-I'm pretty sure that newer implementations have additional types.
-BTW, we could call the persistent part of our registry "reiserfs4".
+However, it's very easy to get around this, just comment out the part of the 
+patch that sets the incompat flag.  Then the indexed directories will 
+magically turn back into normal directories the next time you write to them 
+(it would be very good to give this feature a real-life test :-)
 
-> Imagine every field in a file by itself, with well-defined type
-> information and unit informaiton.
+There is an easy way to turn that FEATURE_COMPAT flag back off so you can 
+fsck, but I don't know it and I should.
 
-I suppose I could print a warning if the type or unit info
-isn't what was expected. That's insignificantly useful.
+Andreas?
 
-Individual files are nice, until you realize: open, read, close
-
-> Performance is one thing.  Not being able to know whether
-> numbers are i32, u32, u64, or measured in Kilobytes or
-> carrots is another ting.
-
-I don't see what the code is supposed to do if it was expecting
-kilobytes and you serve it carrots. Certainly nothing useful can
-be done when this happens.
+--
+Daniel

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVCAUr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVCAUv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVCAUr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 15:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCAUrW
+	id S262071AbVCAUv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 15:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVCAUvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 15:47:22 -0500
-Received: from mail.tmr.com ([216.238.38.203]:62468 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262061AbVCAUoD (ORCPT
+	Tue, 1 Mar 2005 15:51:21 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15819 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262071AbVCAUun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 15:44:03 -0500
-Date: Tue, 1 Mar 2005 15:32:15 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: James Bruce <bruce@andrew.cmu.edu>
-cc: Paulo Marques <pmarques@grupopie.com>, Gerd Knorr <kraxel@bytesex.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Potentially dead bttv cards from 2.6.10
-In-Reply-To: <42248DE0.9090003@andrew.cmu.edu>
-Message-ID: <Pine.LNX.3.96.1050301152915.13613A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Mar 2005 15:50:43 -0500
+Date: Tue, 1 Mar 2005 12:40:41 -0800
+From: Paul Jackson <pj@sgi.com>
+To: hadi@cyberus.ca
+Cc: akpm@osdl.org, guillaume.thouvenin@bull.net, kaigai@ak.jp.nec.com,
+       marcelo.tosatti@cyclades.com, davem@redhat.com, jlan@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, elsa-devel@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-Id: <20050301124041.2403d641.pj@sgi.com>
+In-Reply-To: <1109592658.2188.924.camel@jzny.localdomain>
+References: <42168D9E.1010900@sgi.com>
+	<20050218171610.757ba9c9.akpm@osdl.org>
+	<421993A2.4020308@ak.jp.nec.com>
+	<421B955A.9060000@sgi.com>
+	<421C2B99.2040600@ak.jp.nec.com>
+	<421CEC38.7010008@sgi.com>
+	<421EB299.4010906@ak.jp.nec.com>
+	<20050224212839.7953167c.akpm@osdl.org>
+	<20050227094949.GA22439@logos.cnet>
+	<4221E548.4000008@ak.jp.nec.com>
+	<20050227140355.GA23055@logos.cnet>
+	<42227AEA.6050002@ak.jp.nec.com>
+	<1109575236.8549.14.camel@frecb000711.frec.bull.fr>
+	<20050227233943.6cb89226.akpm@osdl.org>
+	<1109592658.2188.924.camel@jzny.localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Mar 2005, James Bruce wrote:
+Jamal wrote:
+> What was wrong with just going ahead and just always
+> invoking your netlink_send()? 
 
-> Sorry, I wasn't clear in the previous email; I did try the card= option 
-> anyway.  I wrote a looping script and tested first 70 card= options, and 
-> none worked properly for streaming capture.  Some did show different 
-> behavior though.  I might try the remaining 50 later today.
-> 
-> I did notice one strange thing though; the card= option is only applied 
-> to the first bttv card.  All remaining cards in the system are still 
-> autodetected (which ends up assuming card=0 in my case).  Not sure if 
-> this is the intended behavior or not, since someone really could run two 
-> different bttv cards in the same system.
+I think the hope was to reduce the cost of the accounting hook in fork
+to "next-to-zero" if accounting is not being used on that system.
 
-Just for grins, did you try pulling one of the cards? I have to guess that
-having multiple cards is a low occurence configuration, and that you *may*
-be following some less traveled path here.
+See Andrew's query earlier:
+> b) they are next-to-zero cost if something is listening on the netlink
+>    socket but no accounting daemon is running.
 
-At least now that you know how to set the type for the cards separately
-you can test two configurations at a time.
+Presumably sending an ignored packet costs something, quite possibly
+more than "next-to-zero".
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

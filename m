@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132249AbRARJmZ>; Thu, 18 Jan 2001 04:42:25 -0500
+	id <S132642AbRARJtf>; Thu, 18 Jan 2001 04:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132642AbRARJmQ>; Thu, 18 Jan 2001 04:42:16 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:45320 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S132249AbRARJmL>; Thu, 18 Jan 2001 04:42:11 -0500
-Message-ID: <3A66BA42.6D4C8476@idb.hist.no>
-Date: Thu, 18 Jan 2001 10:41:22 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: no, da, en
+	id <S132877AbRARJtZ>; Thu, 18 Jan 2001 04:49:25 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:10947 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S132642AbRARJtQ>; Thu, 18 Jan 2001 04:49:16 -0500
+Date: Thu, 18 Jan 2001 10:49:06 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: <linux-kernel@vger.kernel.org>, <kernel@hollins.edu>
+Subject: Re: oops in 2.4.1-pre8
+In-Reply-To: <12E9172B5107@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.30.0101181013260.21353-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <200101180039.f0I0du929822@webber.adilger.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Thu, 18 Jan 2001, Petr Vandrovec wrote:
 
-> Ahh.  What I was missing was that by specifying /dev/md0 as the root device,
-> not only do you get an identical map for the kernels, but the root device
-> remains /dev/md0 no matter which drive fails and LILO/kernel don't need to
-> do anything special to find it.  This assumes the BIOS can boot from /dev/hdc
-> to start with (i.e. /dev/hda is totally gone).
-> 
-> How does MD/RAID0 know which array should be /dev/md0?  What if you had a
-> second array on /dev/hdb and /dev/hdd, would that become /dev/md0 (assuming
-> it had a kernel/boot sector)?
+> > Rainer Mager reported the same thing yesterday ("Oops with 4GB memory
+> > setting in 2.4.0 stable" if you want to read the thread).
+>
+> I think that I found source of problem. I have no simple solution :-(
+>
 
-No problem.  The /dev/md/0 device is made from partitions on various
-disks.  With the 0.90-style raid all these partitions have a "raid
-superblock"
-at the end.  The raid superblock isn't part of the filesystem itself. 
-It
-stores ID information about which array it belongs to. (And where in the
-array
-if we are talking raid-0 or raid-5)   Having a /dev/md/1 too is fine. 
-It
-will record its different number in the raid superblock.
-This lets the kernel autodetect all the raid arrays during boot.  This
-happens
-in a step after detecting the partitions themselves, before mounting
-root.
+I think the source of the problem is that this code was changed without
+anyone being capable of actively maintaining it (time, knowledge,
+motivation, ...). And later maintainers (me) haven't known or seen
+anything wrong with it.
 
-This means you don't need any files to find the raid setup, and the
-root filesystem can be mounted on raid without any initrd crap.
-Raid devices are just "disks", just like the "real" disks.
 
-The raid superblock also means I could move one of my disks to
-another controller and change its scsi ID at the same time - RAID 
-and RAID-mounted fses would still come up ok.  Or I could 
-move the entire raid set to another machine - if
-it doesn't have a /dev/md/0 set already.
+> But I'm not 100% sure, as this would mean that you do not
+> kunmap/UnlockPage/page_cache_release any >1GB page at all in
+> smb_free_cache_blocks(), as page pointer obtained by page_cache_entry()
+> points to some random page (to couple just below 1GB boundary) instead
+> of to correct one, so smbfs should die as soon as it finds first highmem
+> page... Is it possible?
 
-Helge Hafting
+It sounds possible from the reports, where it has died as soon as it is
+touched on a highmem mmachine.
+
+
+> So your system has couple of chances to deadlock - either on out of
+> kmaps, or on locked directory cache root (cachep), or on some of locked
+> directory cache pages (blocks)...
+
+Thanks for looking. I haven't begun to verify any of your previous
+suggestions.
+
+Copying the ncpfs cache code seems so much better. It's possibly a bigger
+change (currently 20k diff -u) than to fix the cache.c code to do whatever
+is right but the end result should be a lot better (I hope). Fixed size
+cache entries makes lookups simpler, creating dentry/inode from the info
+returned by the findfirst/findnext smb calls avoids extra calls on some
+common(?) usage patterns.
+
+Assuming your code is correct, and I'm sure it is, this should be a faster
+way to do it than for me to figure out how the existing smbfs cahce can be
+made to work. The differences are not that great between ncpfs and smbfs,
+both are networked dos-ish filesystems. :)
+
+My new code oopsed on me last night (and then I realized what time it
+was). But so far the ncpfs code is fitting quite nicely.
+
+/Urban
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

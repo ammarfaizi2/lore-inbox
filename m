@@ -1,81 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143406AbREKVnk>; Fri, 11 May 2001 17:43:40 -0400
+	id <S143409AbREKVqa>; Fri, 11 May 2001 17:46:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143407AbREKVnV>; Fri, 11 May 2001 17:43:21 -0400
-Received: from hacksaw.org ([216.41.5.170]:21641 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S143406AbREKVnQ>; Fri, 11 May 2001 17:43:16 -0400
-Message-Id: <200105112143.f4BLhDu08419@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
-To: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
-Subject: Re: Not a typewriter 
-In-Reply-To: Your message of "Fri, 11 May 2001 11:07:45 CDT."
-             <86256A49.00589003.00@smtpnotes.altec.com> 
+	id <S143408AbREKVqV>; Fri, 11 May 2001 17:46:21 -0400
+Received: from ndslppp45.ptld.uswest.net ([63.224.227.45]:13131 "HELO
+	galen.magenet.net") by vger.kernel.org with SMTP id <S143407AbREKVqF>;
+	Fri, 11 May 2001 17:46:05 -0400
+Date: Fri, 11 May 2001 14:46:20 -0700
+From: Joseph Carter <knghtbrd@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.4ac7 oops, locks in init on boot
+Message-ID: <20010511144620.A10308@debian.org>
+In-Reply-To: <20010511130202.A8660@debian.org> <E14yJ8M-0001c2-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 11 May 2001 17:43:13 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <E14yJ8M-0001c2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 11, 2001 at 09:03:30PM +0100
+X-Operating-System: Linux galen 2.4.3-ac12
+X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If clarity is the most important consideration, then other things should be
->changed as well.  For instance, the command we use to search for text strings 
-in
->files should be called "textsearch."  That's a lot more clear than "grep."
 
-Well, I can't disagree. Unix's biggest turn off was the stupid command names. 
-It's a big reason why Unixoid systems aren't more commonplace. I only learned 
-it because I was stuck at a desk with a Wyse terminal. Otherwise I probably 
-would have played with the Autocad machines more. Once I understood the 
-basics, I understood the power of the system.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However, I was a CS major, smart, and a voracious reader. 
+On Fri, May 11, 2001 at 09:03:30PM +0100, Alan Cox wrote:
+> > I'm considering it, but for AGP weirdness reasons.  Have the USB bugs b=
+een
+> > worked out?  I am highly dependant on USB.
+>=20
+> Only one stepping of the AMD chip had the USB funnies. AMD released the i=
+nfo
+> needed to work around it and its now in the tree.
 
------
+Ah, thanks Alan.  I may need to consider the AMD boards seriously if I
+can't get the Radeon 64 working on the KT7A in the next few weeks.  I'm
+hoping -ac7 will fix that.
 
-I have often thought of an alternate naming scheme that would apply to the 
-most basic utilities. With command completion longer names become less 
-annoying.
+--=20
+Joseph Carter <knghtbrd@debian.org>                Free software developer
 
-But first we need a better help system. The absolute most stupid convention of 
-Unix is the man command. The fact that SCCS before, and now Bash usurp the 
-keyword "help" is beyond the pale.
-
->If the wording is going to be changed, then it's better to abandon the 
-tradition
-
-I say abandon tradition when tradition doesn't serve. Arcane messages prevent 
-understanding, arbitrary command names sometimes can't be avoided. The process 
-is annoying at best, and painful on Linux systems where the documentation 
-isn't unified, and is often incomplete.
-
-A beautiful example that came up on my RedHat 6.2 system:
-[From ppd_file_new_from_filep(3)]
-
-       ENOTTY no idea what these errors are. Probably PPD parse errors.
-
-I run into things like this all the time.
-
-"Textsearch" is better than grep, except sometimes you aren't searching 
-through text. "Search" is more general. "Find" would be even better.
-
-I wish that find had the functions of grep as well, ala the MacOS "find", 
-which can (these days) search for files names and attributes, and also search 
-for things inside files.
-
->My point is that someone who sees the "typewriter" message and doesn't
->understand it will have to dig a bit to find out what it means.
-
-All well and good if you have the time. If you are in a business or academic 
-settings, the learning curve is an important part of the total cost of 
-ownership.
-
---------
-
-Ob. LKML: Error messages from the kernel should be examined with this in mind. 
-The more clear that error message is, the less likely we'll see a question 
-about it here.
+<taniwha> Knghtbrd: we should do a quake episode :knee deep in the code":
+          you run around shooting at bugs:)
+<Knghtbrd> taniwha: I'll pass the idea on to OpenQuartz  ;>
 
 
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
+
+iEYEARECAAYFAjr8XawACgkQj/fXo9z52rPXmgCfU2ghgUPM6W/FLfSPuvZoxur3
+fyUAn0zvGfPUw0ts89T0b5uN5aZu86Ak
+=axFt
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

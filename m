@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVBIFD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVBIFE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVBIFD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 00:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVBIFD4
+	id S261785AbVBIFE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 00:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVBIFE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 00:03:56 -0500
-Received: from main.gmane.org ([80.91.229.2]:3714 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261782AbVBIFDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 00:03:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kevin Puetz <puetzk@puetzk.org>
-Subject: Re: VM disk cache behavior.
-Date: Tue, 08 Feb 2005 23:03:13 -0600
-Message-ID: <cuc5fo$7r5$1@sea.gmane.org>
-References: <e130a7170502080906596561d7@mail.gmail.com> <20050209003754.GA7298@hexapodia.org>
+	Wed, 9 Feb 2005 00:04:28 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:36983 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261785AbVBIFEY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 00:04:24 -0500
+Date: Wed, 9 Feb 2005 06:04:32 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai.germaschewski@unh.edu>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Matthew Wilcox <matthew@wil.cx>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Kai Germaschewski <kai@germaschewski.name>,
+       linux-kernel@vger.kernel.org, dholland@eecs.harvard.edu
+Subject: Re: [PATCH] Makefiles are not built using a Fortran compiler
+Message-ID: <20050209050432.GA8171@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai.germaschewski@unh.edu>,
+	Sam Ravnborg <sam@ravnborg.org>, Matthew Wilcox <matthew@wil.cx>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Kai Germaschewski <kai@germaschewski.name>,
+	linux-kernel@vger.kernel.org, dholland@eecs.harvard.edu
+References: <20050208192027.GA8360@mars.ravnborg.org> <Pine.LNX.4.44.0502081423470.30718-100000@chaos.sr.unh.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 12-219-2-179.client.mchsi.com
-User-Agent: KNode/0.8.2
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner-SpamScore: s
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0502081423470.30718-100000@chaos.sr.unh.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson wrote:
+Hi Kai - long time..
 
-> Most likely is that your app isn't behaving in a cache-friendly way.  If
-> your file will fit in memory, just fault it in sequentially (wc -l file)
-> and then your app should cook.  If you're not going to fit in memory,
-> the vm caching will probably only help if you have some reuse; you could
-> develop a pre-faulter to get your IO started ahead of time, but that's
-> generally nontrivial.
+> > The SCCS rules is the sole reason why -rR has not been enabled.
+> 
+> An easy way to make sure that the SCCS business is not a factor would be 
+> to explicitly put the SCCS rules into the Makefile -- it's just two lines.
 
-Of course, what's non-trivial is predicting your upcoming I/O pattern
-(unless it's not actually random at all, just messy). Calling madvise to
-prefault it is pretty easy if you actually do know what you'll want in the
-near future.
+Yup, I will do that when 2.6.11 opens up.
+If other rules are needed I will add them.
 
+	Sam

@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267497AbRG2CPh>; Sat, 28 Jul 2001 22:15:37 -0400
+	id <S267501AbRG2CSR>; Sat, 28 Jul 2001 22:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267501AbRG2CPS>; Sat, 28 Jul 2001 22:15:18 -0400
-Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:51401 "EHLO
-	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S267497AbRG2CPR>; Sat, 28 Jul 2001 22:15:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steve Snyder <swsnyder@home.com>
-Reply-To: swsnyder@home.com
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: What does "Neighbour table overflow" message indicate?
-Date: Sat, 28 Jul 2001 21:15:11 -0500
-X-Mailer: KMail [version 1.2]
+	id <S267505AbRG2CSH>; Sat, 28 Jul 2001 22:18:07 -0400
+Received: from juicer39.bigpond.com ([139.134.6.96]:47835 "EHLO
+	mailin8.bigpond.com") by vger.kernel.org with ESMTP
+	id <S267501AbRG2CRw>; Sat, 28 Jul 2001 22:17:52 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jan Kasprzak <kas@informatics.muni.cz>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01072820231401.01125@mercury.snydernet.lan> <01072820534802.01125@mercury.snydernet.lan> <20010729135728.B3282@weta.f00f.org>
-In-Reply-To: <20010729135728.B3282@weta.f00f.org>
-MIME-Version: 1.0
-Message-Id: <01072821151103.01125@mercury.snydernet.lan>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: Linux 2.4 networking/routing slowdown 
+In-Reply-To: Your message of "Thu, 26 Jul 2001 14:25:31 +0200."
+             <20010726142531.G1024@informatics.muni.cz> 
+Date: Sat, 28 Jul 2001 17:10:48 +1000
+Message-Id: <E15QOFN-0007NI-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Saturday 28 July 2001 08:57 pm, Chris Wedgwood wrote:
-> On Sat, Jul 28, 2001 at 08:53:48PM -0500, Steve Snyder wrote:
->
->     No, and no errors are shown for it either:
->
->     # ifconfig lo
->     lo        Link encap:Local Loopback
->               inet addr:127.0.0.1  Mask:255.0.0.0
->               UP LOOPBACK RUNNING  MTU:16436  Metric:1
->               RX packets:196907 errors:0 dropped:0 overruns:0 frame:0
->               TX packets:196907 errors:0 dropped:0 overruns:0 carrier:0
->               collisions:0 txqueuelen:0
->
->     All *seems* well.  Just that 30-second period of messages and then
->     silence.
->
->
-> What is the machine doing?  What kind of network is it attached to and
-> with how many hosts on it?
+In message <20010726142531.G1024@informatics.muni.cz> you write:
+> seconds to echo a single keystroke). I've figured out that ipchains.o in 2.4
+> is linked with connection tracking, which probably causes the main slowdown.
 
-It is a server for a small LAN.  Interfaces: eth0=LAN, eth1=cable modem.  I 
-believe that I was playing Quake3 (multi-player across internet) on one of 
-the LAN's client machines when the message were logged.  No corresponding 
-messages are seen in the client's (another RHL v7.1 box) system log, but 
-then, it's not running iptables.
+Yes, you're paying for full connection tracking with the compatibility
+stuff.  If you just want filtering, switch to iptables (should be
+pretty easy for you).
 
-Further snooping shows the error msg text in file inux/net/ipv4/route.c:
+> After rmmod ipchains the server seems to have its interactive performace
+> back on normal speed, but routing performance still sucks: FTP between
+> two hosts on different interfaces gets about 1600 KBytes/s (in 2.2 kernel
+> it runs at 9900 KBytes/s). When I disable CONFIG_NET_HW_FLOWCONTROL,
+> the throughput increases (ugh!) to 2300 KBytes/s.
 
-    if (net_ratelimit())
-        printk("Neighbour table overflow.\n");
+Hmmm... this I don't know.
 
-The reference to "net_ratelimit" make me wonder if it is related to 
-iptables.  I am using iptable, and have since kernel 2.4.1, but I've seen 
-these messages before.  Hmmm.
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

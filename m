@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317619AbSHaQRs>; Sat, 31 Aug 2002 12:17:48 -0400
+	id <S317623AbSHaQQ5>; Sat, 31 Aug 2002 12:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317622AbSHaQRr>; Sat, 31 Aug 2002 12:17:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35852 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317619AbSHaQRp>; Sat, 31 Aug 2002 12:17:45 -0400
-Date: Sat, 31 Aug 2002 09:29:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
-In-Reply-To: <20020831022341.C926@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.44.0208310925390.2129-100000@home.transmeta.com>
+	id <S317619AbSHaQQ4>; Sat, 31 Aug 2002 12:16:56 -0400
+Received: from dsl-213-023-039-014.arcor-ip.net ([213.23.39.14]:56295 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317616AbSHaQQz>;
+	Sat, 31 Aug 2002 12:16:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Introduce BSD-style user credential [3/3]
+Date: Sat, 31 Aug 2002 18:13:04 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Dave McCracken <dmccr@us.ibm.com>
+References: <Pine.LNX.4.44.0208301741430.5561-100000@home.transmeta.com> <1030755064.1225.18.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1030755064.1225.18.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17lArx-0004PK-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 31 Aug 2002, Ivan Kokshaysky wrote:
+On Saturday 31 August 2002 02:51, Alan Cox wrote:
+> On Sat, 2002-08-31 at 01:49, Linus Torvalds wrote:
+> > > struct pcred {
+> > >        atomic_t	count;
+> > >        uid_t	uid, euid, suid;
+> > >        gid_t	gid, egid, sgid;
+> > >        struct ucred  *cred;
+> > >        kernel_cap_t ... capabilities ...
+> > >        struct user_struct *user;
+> > > };
+> > 
 > 
-> Well, I'm just too lazy and don't want to rewrite that setup-bus stuff
-> once again. :-)
+> Needs fsuid too, and space for the security LSM modules to attach
+> private information. SELinux needs a few more credentials than base
+> kernels!
 
-I'm not so much worried about setup_bus(), I worry more about special 
-cases. It's easier to handle some "extended bridge" (like CardBus) if you 
-already have a notion of a "generic set of resources" and don't get too 
-hung up about how a standard PCI bridge looks.
+Why worry about what SELinux needs, since it is proprietary, and may
+not even be legal to distribute?  Perhaps there is some other set of
+security plugins that actually matter.
 
-		Linus
-
+-- 
+Daniel

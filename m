@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUHTBKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUHTChv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267549AbUHTBKN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 21:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267548AbUHTBKM
+	id S266069AbUHTChv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 22:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbUHTChv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 21:10:12 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:39669 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267549AbUHTBJx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 21:09:53 -0400
-Subject: Re: 2.6.8.1-mm2
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <20040819014204.2d412e9b.akpm@osdl.org>
-References: <20040819014204.2d412e9b.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1092964083.4946.7.camel@biclops.private.network>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 19 Aug 2004 20:08:03 -0500
+	Thu, 19 Aug 2004 22:37:51 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:6515 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266069AbUHTCht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 22:37:49 -0400
+Message-ID: <412563F6.1080202@yahoo.com.au>
+Date: Fri, 20 Aug 2004 12:37:42 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+CC: Hugh Dickins <hugh@veritas.com>, Pete Zaitcev <zaitcev@redhat.com>,
+       arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
+Subject: Re: PF_MEMALLOC in 2.6
+References: <Pine.LNX.4.44.0408191320320.17508-100000@localhost.localdomain> <200408192025.53536.oliver@neukum.org>
+In-Reply-To: <200408192025.53536.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +dont-sleep-after-were-out-of-task-list.patch
+Oliver Neukum wrote:
+> Am Donnerstag, 19. August 2004 14:41 schrieb Hugh Dickins:
 > 
->  CPU hotplug race fix
+>>Fine for it to dip into those reserves when acting on behalf of something
+>>already PF_MEMALLOC (i.e. try_to_free_pages itself), but not fine for it
+>>to do so as a matter of course e.g. worst case, doing readahead could
+>>easily exhaust reserves.  Or, is this thread only used for writing?
+>>that wouldn't be so bad if so.
+> 
+> 
+> All IO going to the actual disk uses the thread. However we usually
+> don't want to fail IO request due to low memory.
+> 
 
-I don't mean to be a pain, but this patch does not fix the bug I
-reported.  It is still occurring on i386 and ppc64 (and proc_pid_flush
-now generates lots of might_sleep warnings).
+I'm with Hugh on this one. You only want to be PF_MEMALLOC when
+you are in the process of cleaning some memory so it can be freed.
+(Perhaps it would be more logical if it were called PF_MEMFREE, and
+set in mm/vmscan.c, however the end result is the same)
 
-kernel BUG in migration_call at kernel/sched.c:4044!
-cpu 0x1: Vector: 700 (Program Check) at [c00000027c7cb640]
-    pc: c00000000004e730: .migration_call+0x150/0x350
-    lr: c00000000004e6f4: .migration_call+0x114/0x350
-    sp: c00000027c7cb8c0
-   msr: 8000000000029032
-  current = 0xc00000027c3d0a40
-  paca    = 0xc000000000434880
-    pid   = 4657, comm = cpuonoff.pl
-1:mon> t
-[c00000027c7cb8c0] c00000000004e6d8 .migration_call+0xf8/0x350 (unreliable)
-[c00000027c7cb970] c000000000067330 .notifier_call_chain+0x58/0x98
-[c00000027c7cba00] c0000000000743ec .cpu_down+0x1e0/0x364
-[c00000027c7cbae0] c0000000001fcd3c .store_online+0x68/0x70
-[c00000027c7cbb60] c0000000001f86bc .sysdev_store+0x54/0x60
-[c00000027c7cbbe0] c0000000000fef70 .flush_write_buffer+0x48/0x60
-[c00000027c7cbc60] c0000000000fefe8 .sysfs_write_file+0x60/0x78
-[c00000027c7cbcf0] c0000000000ac720 .vfs_write+0x10c/0x164
-[c00000027c7cbd90] c0000000000ac874 .sys_write+0x58/0xa4
-[c00000027c7cbe30] c000000000011e00 syscall_exit+0x0/0x18
---- Exception: c01 (System Call) at 000000000fe562f8
-SP (ffffe390) is in userspace
+So if this thing allocates memory on behalf of a read request, then
+it is basically a bug. In practice you could probably get away with
+servicing all writes with PF_MEMALLOC, however that could still lead
+to situations where it consumes all your low memory on behalf of
+highmem IO (though perhaps this won't deadlock if that memory is
+going to be released as a matter of course?)
 
+Another thing, having it always use PF_MEMALLOC means it can easily
+wipe out the GFP_ATOMIC reserve.
 
-Hopefully, I should have time to perform a bisection search this
-weekend.
-
-Nathan
-
+So I'd say try to find a way to only use PF_MEMALLOC on behalf of
+a PF_MEMALLOC thread or use a mempool or something.

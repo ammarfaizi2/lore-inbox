@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318661AbSIKKmy>; Wed, 11 Sep 2002 06:42:54 -0400
+	id <S318691AbSIKKpX>; Wed, 11 Sep 2002 06:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318691AbSIKKmy>; Wed, 11 Sep 2002 06:42:54 -0400
-Received: from angband.namesys.com ([212.16.7.85]:2432 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S318661AbSIKKmx>; Wed, 11 Sep 2002 06:42:53 -0400
-Date: Wed, 11 Sep 2002 14:47:40 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-       Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org,
-       andre@linux-ide.org
-Subject: Re: 2.5 Problem Status Report
-Message-ID: <20020911144740.A911@namesys.com>
-References: <20020911112808.A6341@namesys.com> <Pine.LNX.4.44.0209110937190.5764-100000@localhost.localdomain> <20020911120551.A937@namesys.com> <20020911102507.GA1364@suse.de> <20020911102926.GB1364@suse.de>
+	id <S318693AbSIKKpX>; Wed, 11 Sep 2002 06:45:23 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:45222 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S318691AbSIKKpW>; Wed, 11 Sep 2002 06:45:22 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 11 Sep 2002 12:51:31 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ignore pci devices?
+Message-ID: <20020911105131.GB5955@bytesex.org>
+References: <20020910134708.GA7836@bytesex.org> <1031668032.31549.60.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020911102926.GB1364@suse.de>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <1031668032.31549.60.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> > can't identify and blacklist it easily.  Thus I need some way to allow
+> > the users to tell bttv (or the kernel) to ignore that particular PCI
+> > card.
+> 
+> Doh.. If the vendor isnt setting subsystem ids then its not valid
+> hardware for windows nowdays. Obvious question - what else is on that
+> board that might let you do the idents.
 
-On Wed, Sep 11, 2002 at 12:29:26PM +0200, Jens Axboe wrote:
+Well, at least nothing in PCI space.  It looks just like a random,
+cheap bt878 card.
 
-> > ok I see the bug. it's due to the imbalanced nature of ide_map_buffer()
-> > vs ide_unmap_buffer(). i'll cook up a fix right away.
-> Does this make it work?
+> We already find the USB on the NSC SuperIO by peeking at the next
+> device along and checking if its the SuperIO functions 8)
 
-No. It fails exactly like without the patch.
+It is a PCI card you can plug into some slot, not a motherboard ...
 
-> --- include/linux/ide.h~	2002-09-11 12:27:14.000000000 +0200
-> +++ include/linux/ide.h	2002-09-11 12:27:29.000000000 +0200
-> @@ -597,9 +597,10 @@
->  	return rq->buffer + task_rq_offset(rq);
->  }
->  
-> -extern inline void ide_unmap_buffer(char *buffer, unsigned long *flags)
-> +extern inline void ide_unmap_buffer(struct request *rq, char *buffer, unsigned long *flags)
->  {
-> -	bio_kunmap_irq(buffer, flags);
-> +	if (rq->bio)
-> +		bio_kunmap_irq(buffer, flags);
->  }
->  
->  /*
+  Gerd
 
-Perhaps you forgot to make sure rq->bio is zeroed on unmapping/freeing?
-
-Bye,
-    Oleg
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

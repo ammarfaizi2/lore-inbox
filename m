@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129572AbQK1Som>; Tue, 28 Nov 2000 13:44:42 -0500
+        id <S129625AbQK1S4r>; Tue, 28 Nov 2000 13:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129625AbQK1Soc>; Tue, 28 Nov 2000 13:44:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38157 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129572AbQK1So2>; Tue, 28 Nov 2000 13:44:28 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: KERNEL BUG: console not working in linux
-Date: 28 Nov 2000 10:14:11 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <900slj$9td$1@cesium.transmeta.com>
-In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <20001128011613.A317@fourier.home.intranet> <3A22EF3D.B97A0965@transmeta.com> <20001128103352.A377@fourier.home.intranet>
+        id <S129710AbQK1S4h>; Tue, 28 Nov 2000 13:56:37 -0500
+Received: from [212.32.186.211] ([212.32.186.211]:32155 "EHLO
+        fungus.svenskatest.se") by vger.kernel.org with ESMTP
+        id <S129625AbQK1S4X>; Tue, 28 Nov 2000 13:56:23 -0500
+Date: Tue, 28 Nov 2000 19:26:12 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
+cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz
+Subject: Re: Bug in date converting functions DOS<=>UNIX in FAT, NCPFS and
+ SMBFS drivers
+In-Reply-To: <Pine.GSO.3.96.SK.1001124162224.25896A-200000@univ.uniyar.ac.ru>
+Message-ID: <Pine.LNX.4.21.0011251250460.16600-100000@cola.svenskatest.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001128103352.A377@fourier.home.intranet>
-By author:    Gianluca Anzolin <g.anzolin@inwind.it>
-In newsgroup: linux.dev.kernel
->
-> |No, the problem is the utterly braindamaged way the motherboard chose to
-> |enable/disable it (*especially* if it's PCI... sheech, port 92h isn't
-> |exactly something new in that timeframe.)
-> |
-> |What PC/motherboard is this, anyway?
-> 
-> It's an olivetti, but maybe they bought the mainboard elsewhere I don't
-> know. Anyway you can find the lspci -xvv in
-> http://www.gest.unipd.it/~iig0573/lspci.txt
-> 
+On Fri, 24 Nov 2000, Igor Yu. Zhbanov wrote:
 
-It's not "an Olivetti", it has a model number and God Knows What.
->From the looks of it they are using a 440FX chipset, which definitely
-does not have this problem inherently (and almost certainly handles
-port 92h correctly), so whomever wired up this motherboard was even
-more of an idiot that I first thought.
+> Hello!
 
-If I were you I would take it back and demand a refund.  It isn't a PC
-you have there.
+Hello, sorry for the slow response.
 
-	-hpa
+> I have found a bug in drivers of file systems which use a DOS-like format
+> of date (16 bit: years since 1980 - 7 bits, month - 4 bits, day - 5 bits).
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+[snip]
+
+> 2) VFAT for example have three kinds of dates: creation date, modification date
+>    and access date. Sometimes one of these dates is set to zero (which indicates
+>    that this date is not set). Zero is not a valid date (e.g. months are
+>    numbered from one, not from zero) and can't be properly converted to
+>    UNIX-like format of date (it was converted to date before 1980).
+
+Days are also numbered from one (at least smbfs) and this change doesn't
+do anything about that. An all zero date gives 315446400 (or else my
+testprogram is broken) and you wanted it to give 315532800 (?). So that
+should be fixed too, I think.
+
+It would be nice if someone would rewrite these shift-and-mask orgies into
+something with a bit more structure (bitfields? hmm, endianess problems?
+undefined compiler behaviour? I don't know ... macros?).
+
+I'm having trouble following these, but maybe that's just me.
+
+/Urban
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUIPNsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUIPN67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268060AbUIPNsq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 09:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUIPNsq
+	id S268076AbUIPN67 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 09:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUIPN67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 09:48:46 -0400
-Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:3200 "EHLO
-	orac.walrond.org") by vger.kernel.org with ESMTP id S268060AbUIPNsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 09:48:40 -0400
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: lost memory on a 4GB amd64
-Date: Thu, 16 Sep 2004 14:48:38 +0100
-User-Agent: KMail/1.7
-Cc: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
-In-Reply-To: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 16 Sep 2004 09:58:59 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41606 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268076AbUIPN6T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 09:58:19 -0400
+Date: Thu, 16 Sep 2004 06:57:50 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Stelian Pop <stelian@popies.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-Id: <20040916065750.106fc170.pj@sgi.com>
+In-Reply-To: <20040916104535.GA3146@crusoe.alcove-fr>
+References: <20040913135253.GA3118@crusoe.alcove-fr>
+	<20040915153013.32e797c8.akpm@osdl.org>
+	<20040916064320.GA9886@deep-space-9.dsnet>
+	<20040916000438.46d91e94.akpm@osdl.org>
+	<20040916104535.GA3146@crusoe.alcove-fr>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409161448.39033.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 Sep 2004 05:48, Sergei Haller wrote:
-> Hello,
->
-> A friend of mine has a new Opteron based machine (Tyan Tiger K8W with two
-> Opteron 24?) and 4GB main memory.
+This still has a 'size' attribute.  As Andrew noted,
+this might not be needed.
 
-Typo? Tyan Thunder?
+See for example:
 
->
-> the problem is that about 512 MB of that memory is lost (AGP aperture and
-> stuff). Although everything is perfect otherwise.
-> As far as I understand, all the PCI/AGP hardware uses the top end of the
-> 4GB address range to access their memory and there is just an
-> "overlapping" of the addresses. thus only the remaining 3.5 GB are
-> available.
->
->
-> Now there is an option in the BIOS called "Adjust Memory" which puts a
-> certain amount of memory (several choices between 64MB and 2GB) above the
-> 4GB address range. I tried the 2GB setting which results in 2GB main
-> memory at addresses 0-2GB and 2GB memory at addresses 4GB-6GB.
->
+  http://cse.stanford.edu/class/cs110/handouts/27Queues.pdf
 
-Ok;
+for coding a fifo queue with just a put and get pointer.
 
-Assuming bios version 2.02. (upgrade if you haven't already);
+The queue is empty if put == get, and it is full if adding one more
+would make it empty.  The number of elements in the queue can be done
+using modulo arithmetic on the difference between put and get (or what
+the above *.pdf file and your code calls head and tail), with no
+distinct 'size' element.   The head and tail wrap.
 
-The option you mention should be set to 'Auto'
-
-Chipset->Northbridge->Memory Configuration->Adjust Memory = Auto
-
-but set
-
-Advanced->Cpu Configuration->MTRR Mapping = Continuous
-
-That fixed it for me if I remember correctly :)
-
-Andrew Walrond
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,209 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUGZNBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUGZNEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUGZNBX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 09:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUGZNBX
+	id S265287AbUGZNEl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 09:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUGZNEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 09:01:23 -0400
-Received: from web13605.mail.yahoo.com ([216.136.175.116]:7948 "HELO
-	web13605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265264AbUGZNBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 09:01:08 -0400
-Message-ID: <20040726130106.63000.qmail@web13605.mail.yahoo.com>
-Date: Mon, 26 Jul 2004 06:01:06 -0700 (PDT)
-From: Kaloian Manassiev <kmanassieff@yahoo.com>
-Subject: Re: mmap + mprotect + malloc strange behaviour
-To: linux-kernel@vger.kernel.org
+	Mon, 26 Jul 2004 09:04:41 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:44231 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265287AbUGZNCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 09:02:54 -0400
+Message-ID: <410500FD.8070206@comcast.net>
+Date: Mon, 26 Jul 2004 09:02:53 -0400
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jan-Frode Myklebust <janfrode@parallab.uib.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOM-killer going crazy.
+References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no>
+In-Reply-To: <20040726091004.GA32403@ii.uib.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nevermind, I found it :)
+This is not the same problem as I and other are describing.  There is no 
+free memory when the OOM killer activates in our situation.  The kernel 
+has allocated all available ram and as such, the OOM killer can't kill 
+the memory hog because it's the kernel, itself.  So the OOM killer kills 
+all the big apps running ...but it's to no use because the kernel just 
+keeps trying to use more until the cd is completed.   After which the 
+memory is still never released. 
 
-I just found out (by reading
-/usr/src/linux-2.4.20-8/Documentation/sysctl/vm.txt)
-that there is a limit on the number of mappings that a
-process may have and that for some reason malloc
-consumes mappings.
-
-I just increased the limit by editing the file
-/proc/sys/vm/max_map_count. This works okay for my
-application...
-
-Does someone know what repercussions this could have
-on the "normal" operation of the system?
-
-Cheers,
-Kaloian.
+Your thread has nothing to do with mine.
 
 
 
---- Kaloian Manassiev <kmanassieff@yahoo.com> wrote:
-> Hi all,
-> 
-> I am writing a tool which keeps track of the
-> accessed
-> memory pages and needs to persist the modified pages
-> back to disk on exit. For the purpose, it mmaps a
-> large file (512MB or 131072 pages), then protects
-> all
-> its pages for both reading and writing using
-> mprotect(
-> ptr, PAGE_SIZE, 0). I do this in order to be able to
-> keep track of the accessed pages.
-> 
-> Throughout the code I also use malloc in order to
-> allocate heap memory for some of the internal
-> structures. The problem I have is that all mallocs
-> that follow the mmapping and mprotect described
-> above
-> return NULL, no matter what the passed size is.
-> 
-> I noticed that this behaviour is caused by the
-> mprotection of the pages one-by-one rather than as a
-> whole chunk. E.g., if I mprotect my whole mmapped
-> space with a single call everything works fine at
-> the
-> beginning. However, this is not very helpful,
-> because
-> in the process of execution, I eventually mprotect
-> many separate pages, and malloc starts to fail
-> again.
-> 
-> I checked my limits using the "ulimit" BASH command
-> and it shows that I have no limits concerning
-> memory-related issues.
-> 
-> ------------------
-> core file size        (blocks, -c) 0
-> data seg size         (kbytes, -d) unlimited
-> file size             (blocks, -f) unlimited
-> max locked memory     (kbytes, -l) unlimited
-> max memory size       (kbytes, -m) unlimited
-> open files                    (-n) 1024
-> pipe size          (512 bytes, -p) 8
-> stack size            (kbytes, -s) 10240
-> cpu time             (seconds, -t) unlimited
-> max user processes            (-u) 4092
-> virtual memory        (kbytes, -v) unlimited
-> -------------------
-> 
-> With my lack of knowledge about Linux VM management
-> I
-> can only suspect that is some way I am exceeding the
-> process' virtual address space slots and it cannot
-> bookkeep the additional malloc entries.
-> 
-> I am using Fedora Linux on a dual AMD Athlon MP
-> 2600+
-> processor machine with 512MB of physical memory and
-> 1GB swap disk space. However, I observe the same
-> effects on many other machines and distributions
-> (for
-> example, 4 Intel Xeon processor machine with 4GB RAM
-> +
-> 6GB swap running Red Hat Linux 9).
-> 
-> Has anyone had a similar problem, and does anyone
-> know
-> a remedy for it? At the bottom of this post I have
-> pasted a sample program that exhibits this
-> behaviour.
-> 
-> Any help will be much appreciated. Please, if
-> possible, reply to (or CC) my personal email address
-> in answers to this post.
-> 
-> Many thanks in advance.
-> 
-> Cheers,
-> Kaloian.
-> 
-> 
-> ----- Sample code (buildable)
-> --------------------------
-> 
-> #include <stdio.h>
-> #include <errno.h>
-> #include <sys/mman.h>
-> #include <sys/types.h>
-> #include <sys/stat.h>
-> #include <fcntl.h>
-> #include <unistd.h>
-> #include <assert.h>
-> 
-> #define	PAGE_SIZE	4096
-> #define NUM_PAGES	131072
-> #define SIZE		PAGE_SIZE * NUM_PAGES
-> #define MMAP_ADDR	((void *)0x10000000L)
-> 
-> int   array[ NUM_PAGES * 64];
-> int * mem_load;
-> 
-> int main( int argc, char ** argv) {
->     char c;
->     int i;
->     int fd_mmap = open( "/tmp/swap.tmp", O_CREAT |
-> O_RDWR, S_IRWXU);
-> 
->     if ( fd_mmap) {
-> 	lseek( fd_mmap, SIZE - 1, SEEK_SET);
-> 	write( fd_mmap, &c, 1);
->     }
-> 
->     printf( "Allocating %d bytes of memory...\n",
-> SIZE);
->     mem_load = malloc( SIZE);
->     printf( "mem_load = %p\n", mem_load);
->     array[ NUM_PAGES * 64 - 1] = 10000;
->     
->     if ( NULL == mem_load)
-> 	printf( "Failed...\n");
-> 
->     void * p = mmap( MMAP_ADDR, SIZE, PROT_READ |
-> PROT_WRITE,
-> MAP_FIXED | MAP_SHARED, fd_mmap, PAGE_SIZE);
->     printf( "File %d mapped at %p.\n", fd_mmap, p);
->     if ( !p) {
-> 	exit( 1);	
->     }
->     void * alias = mmap( MMAP_ADDR + 2 * SIZE, SIZE,
-> PROT_READ |
-> PROT_WRITE, MAP_SHARED, fd_mmap, PAGE_SIZE);
->     if ( !alias) {
-> 	exit( 2);
->     }
->     void * pg = p;
->     for ( i = 0; i < NUM_PAGES; i++) {
-> 	if ( 0 > mprotect( pg, PAGE_SIZE, 0)) {
-> 	    printf( "Failed to mprotect.\n");
-> 	    exit( 4);
-> 	}
-> 	pg += PAGE_SIZE;
->     }
-> 
->     /* If you substitute the above with the call
-> below,
->        malloc suddenly starts to work. */
->     // mprotect( pg, SIZE, 0);
-> 
->     printf( "Alias mapped at %p.\n", alias);
-> 
->     assert( mem_load > p + SIZE || ( (mem_load < p +
-> SIZE) && ((
-> mem_load + SIZE) < alias)));
-> 
->     free( mem_load);
->     mem_load = malloc( SIZE);
->     printf( "mem_load = %p\n", mem_load);
-> 
->     return 0;
-> }
+Jan-Frode Myklebust wrote:
+
+>On Sun, Jul 25, 2004 at 09:30:38PM -0400, Ed Sweetman wrote:
+>  
+>
+>>Indeed, i burned a smaller cd and got very similar results.  
+>>    
+>>
+>
+>Same here.. After upgrading to 2.6.8-rc2 the OOM-killer is going crazy.
+>It's particularly angry at the backup client 'dsmc' (from Tivoli Storage
+>Manager).  I'm monitoring its usage with 'top', and 'dsmc' is not using
+>more than ~150MB in either size or RSS when the OOM-killer takes it down.
+>
+>The 'dsmc'-process is reporting that it's processed 2,719,000 files, and
+>transfered 164.34 MB when it gets killed. i.e. it's traversed a lot of
+>files, but only read about 164 MB data, so it shouldn't have filled up any
+>buffer cache... 
+>
+>The system still has lots of free memory (~900 MB), and also 2 GB of
+>unused swap. Actually there's 0K used swap..??  
+>
+>I've tried turning on vm.overcommit_memory, but it had no effect. Also
+>tried changing the swappiness both up to 90% and down to 10%, but it
+>never uses any swap.. ???
+>
+>BTW: I had no OOM-killer problems on 2.6.7.
+>
+>  
+>
 
 
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - Send 10MB messages!
-http://promotions.yahoo.com/new_mail 
+

@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263046AbTH0DYo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 23:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTH0DYo
+	id S263081AbTH0D2K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 23:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTH0D2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 23:24:44 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:11995
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S263046AbTH0DYn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 23:24:43 -0400
-Date: Wed, 27 Aug 2003 05:25:17 +0200
-From: Voluspa <lista1@comhem.se>
+	Tue, 26 Aug 2003 23:28:10 -0400
+Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:61893
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S263081AbTH0D2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 23:28:07 -0400
+Date: Tue, 26 Aug 2003 23:28:06 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
 To: linux-kernel@vger.kernel.org
-Subject: NFS regression since 2.6.0-test3 (in -test4 and 4-mm1)
-Message-Id: <20030827052517.79d65038.lista1@comhem.se>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: linux-2.4.22 released
+Message-ID: <20030827032806.GA17938@kurtwerks.com>
+References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030825132358.GC14108@merlin.emma.line.org> <1061818535.1175.27.camel@debian> <20030825211307.GA3346@werewolf.able.es> <20030825222215.GX7038@fs.tum.de> <1061857293.15168.3.camel@debian> <20030826234901.1726adec.aradorlinux@yahoo.es> <20030826215544.GI7038@fs.tum.de> <3F4C0FA0.1080201@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4C0FA0.1080201@comcast.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoth David van Hoose:
 
-Transfer time doubled and kernel log is swelling...
+[ALSA versus OSS in 2.4]
 
-Remote is exported rw,no_root_squash and runs a Slackware 7.1.0
-(Universal NFS Server 2.2beta47) kernel 2.2.16. Mounted here with a
-simple "-t nfs". Both remote and local is ext2.
+> Last time I checked i810 audio did NOT work under 2.4. That is why I 
+> switched to ALSA. (The intel8x0 driver is perfectly stable for me)
+> IMO, OSS should be phased out quickly as it is wasting energy to 
+> maintain it. Those maintainers could be fixing the broken ALSA drivers 
+> instead of wasting their time trying to fix the broken OSS drivers.
+> ALSA should be included in 2.4 to help make the 2.4 to 2.6 hop easier.
+> Thoughts about this?
 
-_2.6.0-test3_
+ALSA is coming in 2.6 and installs easily enough on 2.4. In view of this,
+MHO is that the upheaval for 2.4 users is not worth the tradeoff for what
+looks like minimal gain. 2.4 is stable, modulo bug fixes and major brain
+farts. If anything, I'd rather see XFS integrated into 2.4 than ALSA.
 
-"cp -a" the remote /etc directory takes 2 minutes. /var/log/kernel says:
+My 2*10^^-2 dollars.
 
-Aug 27 03:59:59 loke kernel: eth0: media is TP.
-Aug 27 04:02:34 loke kernel: nfs warning: mount version older than
-kernel
-
-Duh! I'm using your util-linux-2.12pre.tar.gz so stop complaining.
-
-_2.6.0-test4 and -mm1_
-
-The transfer takes 4 minutes and log is filled with:
-
-Aug 27 04:20:47 loke kernel: eth0: media is TP.
-Aug 27 04:22:34 loke kernel: nfs warning: mount version older than
-kernel
-Aug 27 04:23:21 loke kernel: nfs: server oden.fish.net not
-responding, still trying
-Aug 27 04:23:41 loke kernel: nfs: server oden.fish.net OK
-Aug 27 04:24:00 loke kernel: nfs: server oden.fish.net not responding,
-still trying
-
-[Lots of lines deleted]
-
-Aug 27 04:27:00 loke kernel: nfs: server oden.fish.net OK
-Aug 27 04:27:01 loke kernel: nfs: server oden.fish.net not responding,
-still trying
-Aug 27 04:27:01 loke kernel: nfs: server oden.fish.net OK
-
-Last night the complete backup took 9 hours (transfer of 1.2 gig).
-That's why I noticed the issue.
-
-Mvh
-Mats Johannesson
+Kurt
+-- 
+Anything is good if it's made of chocolate.

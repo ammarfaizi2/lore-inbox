@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263461AbTIWXp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 19:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTIWXp5
+	id S263462AbTIWXsq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 19:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTIWXsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 19:45:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3551 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263397AbTIWXpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 19:45:54 -0400
-Date: Tue, 23 Sep 2003 16:32:52 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: alan@lxorguk.ukuu.org.uk, davidm@hpl.hp.com, davidm@napali.hpl.hp.com,
-       peter@chubb.wattle.id.au, bcrl@kvack.org, ak@suse.de, iod00d@hp.com,
-       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-Id: <20030923163252.2a93e406.davem@redhat.com>
-In-Reply-To: <DD755978BA8283409FB0087C39132BD101B01197@fmsmsx404.fm.intel.com>
-References: <DD755978BA8283409FB0087C39132BD101B01197@fmsmsx404.fm.intel.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 23 Sep 2003 19:48:46 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:12178
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263462AbTIWXsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 19:48:42 -0400
+Date: Wed, 24 Sep 2003 01:48:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030923234849.GH16314@velociraptor.random>
+References: <20030923042855.GF589@alpha.home.local> <20030923124951.GB23111@velociraptor.random> <20030923140647.GB3113@alpha.home.local> <20030923144435.GC23111@velociraptor.random> <3F706046.1000306@euronext.nl> <20030923160600.GA4161@alpha.home.local> <20030923162319.GA1269@velociraptor.random> <20030923190219.GA5997@alpha.home.local> <20030923223457.GA16314@velociraptor.random> <20030923232959.GA9734@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030923232959.GA9734@alpha.home.local>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Sep 2003 15:58:29 -0700
-"Luck, Tony" <tony.luck@intel.com> wrote:
+On Wed, Sep 24, 2003 at 01:29:59AM +0200, Willy Tarreau wrote:
+> because you obviously never felt your heart accelerate and beat very loud
+> during these operations and cannot understand why some people prefer to keep
 
-> Which is great until the "cleverly written" program is fed a data set
-> that pushes into the unaligned case far more frequently than the
-> programmer anticipated.
+well, I kind of remeber that ;)
 
-Which is why the people who work on the networking are well
-aware of the issues and will make sure the common case never
-triggers these unaligned accesses.
+So ok, that sounds a good enough argument to keep the old patch too,
+despite you may be very few people using this.
 
-People writing protocol stacks _don't_ feed these data unaligned
-cases out onto the wire, because like us they want the networking
-to go fast.  Why in the world do you think they specify in the
-very RFCs that define the protocols that one should use NOP options
-in the TCP option area in order to align TCP timestamps on a 32-bit
-boundry?
+But let's do it only in 2.4, 2.6 should have it only dynamic.
 
-Do you think they say this so people can go ahead and use memmove()'s
-and byte loads all over the place anyways?
+clearly if you can try to go 2.6 (possibly using a wrong .config) then
+you can risk editing the lilo/grub file as well. And with 2.6, with the
+printk rewrite that shrinks and grows the buffer, you should have no
+need of the parameter any more.
 
-No, rather, they specify things so that unless you do something
-absolutely stupid all the shit is aligned properly.
-
-It is absurdly stupid to do byte loads of TCP and IP header
-bits just because one tenth of one hundredths of one percent
-of systems have some configuration where word and half-word
-loads of these things will be unaligned _AND_ be slow on that
-cpu.
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

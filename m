@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284762AbRLEWWi>; Wed, 5 Dec 2001 17:22:38 -0500
+	id <S284766AbRLEWZS>; Wed, 5 Dec 2001 17:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284765AbRLEWW3>; Wed, 5 Dec 2001 17:22:29 -0500
-Received: from zero.tech9.net ([209.61.188.187]:37892 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284762AbRLEWWZ>;
-	Wed, 5 Dec 2001 17:22:25 -0500
-Subject: Re: [PATCH] Preemptible kernel for SH
-From: Robert Love <rml@tech9.net>
-To: jsiegel@mvista.com
-Cc: linux-kernel@vger.kernel.org, linuxsh-dev@lists.sourceforge.net
-In-Reply-To: <1007261428.820.4.camel@phantasy>
-In-Reply-To: <1007261428.820.4.camel@phantasy>
-Content-Type: multipart/mixed; boundary="=-9mgGWYhL0dBfAVJTjeJ9"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 05 Dec 2001 17:22:27 -0500
-Message-Id: <1007590948.28563.8.camel@phantasy>
+	id <S284754AbRLEWZI>; Wed, 5 Dec 2001 17:25:08 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:57106 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S284760AbRLEWYz>; Wed, 5 Dec 2001 17:24:55 -0500
+Date: Wed, 5 Dec 2001 15:03:15 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Romain Giry <romain_giry@yahoo.fr>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: transparent firewall??
+Message-ID: <20011205150315.B2593@emma1.emma.line.org>
+Mail-Followup-To: Romain Giry <romain_giry@yahoo.fr>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.0.2.1.0.20011205114948.01a65410@pop.mail.yahoo.fr>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <5.0.2.1.0.20011205114948.01a65410@pop.mail.yahoo.fr>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 05 Dec 2001, Romain Giry wrote:
 
---=-9mgGWYhL0dBfAVJTjeJ9
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> I'd like to know if anyone has a transparent firewall that is one that 
+> doesn't make any rules on the traffic but only always pass it without this 
+> beeing notified by the rest of the network system... this should help me to 
+> do my thesis. I would be like adding one transparent layer between the 
+> network layer (ip) and the link layer (physical).
 
-Users of gcc-3.x will need the attached patch _for gcc_ to compile an SH
-kernel patched with preempt-kernel.  This is _not_ our fault, it is a
-gcc bug and is now merged into CVS and should be part of gcc-3.1.
+Semi-transparent: Proxy ARP, works at a site that I administer.
 
-gcc-2.9x compiles without problem.  It is only 3.x versions that suffer
-the bug.
+Really transparent: Check out bridge.sourceforge.net, that project -
+among other goals - aims at making Linux 2.4's bridge code aware of
+netfilter.
 
-	Robert Love
+I'm not quite sure if some BSD variants can already do that (FreeBSD
+maybe), check their sites as well.
 
-P.S. Also of note: yes this works on Sega Dreamcast.  You can have a
-fully preemptible Dreamcast.  Impress your friends.  Or something.
+Hope that helps.
+Matthias
 
---=-9mgGWYhL0dBfAVJTjeJ9
-Content-Disposition: attachment; filename=gcc-ice-rml-3.0.2-1.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=ISO-8859-1
 
---- gcc/gcc/alias.c	2001/09/11 21:39:24	1.115.4.7
-+++ gcc/gcc/alias.c	2001/11/18 08:16:38	1.115.4.8
-@@ -1041,6 +1041,9 @@
-   /* Some RTL can be compared without a recursive examination.  */
-   switch (code)
-     {
-+    case VALUE:
-+     return CSELIB_VAL_PTR (x) =3D=3D CSELIB_VAL_PTR (y);
-+
-     case REG:
-       return REGNO (x) =3D=3D REGNO (y);
-=20
-@@ -1109,6 +1112,12 @@
- 	  if (rtx_equal_for_memref_p (XEXP (x, i), XEXP (y, i)) =3D=3D 0)
- 	    return 0;
- 	  break;
-+
-+	  /* This can happen for asm operands.  */
-+	case 's':
-+	  if (strcmp (XSTR (x, i), XSTR (y, i)))
-+	    return 0;
-+	break;
-=20
- 	/* This can happen for an asm which clobbers memory.  */
- 	case '0':
-
---=-9mgGWYhL0dBfAVJTjeJ9--
-
+P. S.: the "To" address of your news-to-list gateway is
+"mlist-linux-kernel", which breaks list detection and automatic list
+replies in some mailers, notably mutt. Please include Mail-Followup-To:
+headers or have the administrator of the news-to-mail gate fix their
+configuration. Thanks a lot.

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbTKHAdi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbTKGWE7
+	id S261509AbTKHAa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTKGWG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:04:59 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:55463 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264421AbTKGPlU (ORCPT
+	Fri, 7 Nov 2003 17:06:26 -0500
+Received: from dslb138.fsr.net ([12.7.7.138]:50064 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S264611AbTKGTlM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:41:20 -0500
-Date: Fri, 7 Nov 2003 16:31:50 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mark Gross <mgross@linux.co.intel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP signal latency fix up.
-In-Reply-To: <Pine.LNX.4.56.0311071610320.29925@earth>
-Message-ID: <Pine.LNX.4.56.0311071629580.30463@earth>
-References: <Pine.LNX.4.44.0311070701370.1842-100000@home.osdl.org>
- <Pine.LNX.4.56.0311071610320.29925@earth>
+	Fri, 7 Nov 2003 14:41:12 -0500
+Message-ID: <1068234006.3fabf5162fd7b@horde.sandall.us>
+Date: Fri,  7 Nov 2003 11:40:06 -0800
+From: Eric Sandall <eric@sandall.us>
+To: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: nforce2 random lockups - still no solution ?
+References: <3F95748E.8020202@tuwien.ac.at> <200311060111.06729.vda@port.imtp.ilyichevsk.odessa.ua> <3FAA2653.9020002@tuwien.ac.at>
+In-Reply-To: <3FAA2653.9020002@tuwien.ac.at>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 134.121.40.89
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>:
+> It was local APIC ! After recompiling 2.4.22 without local apic 
+> everything works smoothly since several  weeks. I wonder when there'll 
+> be a kernel
+> patch that really solves these nforce2/amd issues.
+> Sam
 
-> the 'is it running' check is 'task_curr(p)', which in this circumstance is
-> equivalent to the following test:
-> 
-> 	per_cpu(runqueues, (cpu)).curr == p
+Disabling local APIC on 2.6.0-test9-mm2 also fixes this (I haven't tried on
+earlier kernels).
 
-btw., the 'is it running right now' test is a necessary thing as well - we
-really dont want to flood CPUs with IPIs which just happen to have the
-target task in their runqueue (but the task is not executing).
+-sandalle
 
-	Ingo
+-- 
+PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
+http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
+K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
+tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
+------END GEEK CODE BLOCK------
+
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

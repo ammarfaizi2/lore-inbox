@@ -1,87 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317344AbSGDG4Z>; Thu, 4 Jul 2002 02:56:25 -0400
+	id <S317347AbSGDHGx>; Thu, 4 Jul 2002 03:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317347AbSGDG4Y>; Thu, 4 Jul 2002 02:56:24 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:25021 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317344AbSGDG4X>;
-	Thu, 4 Jul 2002 02:56:23 -0400
-Date: Thu, 4 Jul 2002 08:56:01 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Rob Landley <landley@trommello.org>, Tom Rini <trini@kernel.crashing.org>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] O(1) scheduler in 2.4
-In-Reply-To: <Pine.LNX.3.96.1020703232322.2248C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0207040846340.3309-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317348AbSGDHGw>; Thu, 4 Jul 2002 03:06:52 -0400
+Received: from h-64-105-34-244.SNVACAID.covad.net ([64.105.34.244]:56706 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317347AbSGDHGv>; Thu, 4 Jul 2002 03:06:51 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 4 Jul 2002 00:09:17 -0700
+Message-Id: <200207040709.AAA05891@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: __ex_table vs. init sections bug in most architectures
+Cc: kaos@ocs.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	It looks like all architectures except {sparc,ppc}{,64} rely on
+the __ex_table section already being sorted by the address of the
+instruction that caused the memory access violation that is to be fixed
+up.  However, __ex_table will not be constructed in sorted order if it
+includes any references made from an __init or __exit routine, because
+these routines are loaded into the kernel image after all of the other
+routines, rather than being loaded in the order in which they appear in
+each source file.
 
-On Wed, 3 Jul 2002, Bill Davidsen wrote:
+	This problem could cause the binary search of __ex_table in
+search_one_table in arch/*/mm/extable.c to fail, even when search
+for entries that are not in an __init or __exit routine.
 
-> > it might be a candidate for inclusion once it has _proven_ stability and
-> > robustness (in terms of tester and developer exposion), on the same order
-> > of magnitude as the 2.4 kernel - but that needs time and exposure in trees
-> > like the -ac tree and vendor trees. It might not happen at all, during the
-> > lifetime of 2.4.
-> 
-> It has already proven to be stable and robust in the sense that it isn't
-> worse than the stock scheduler on typical loads and is vastly better on
-> some.
+	I wrote a small kernel module to test for this problem on
+x86, and verified that it did not occur on the linux-2.5.24 kernel
+that I tested, but that kernel was compiled only with romfs, ramfs
+and binfmt_elf compiled in.  Everything else was a module, and modules
+currently ignore __init and __exit, so will not manifest the problem.
 
-this is your experience, and i'm happy about that. Whether it's the same
-experience for 90% of Linux users, time will tell.
+	However, I was able to verify that putting a __copy_from_user in
+an __init routine in file compiled into the core kernel did indeed
+produce a misordered __ex_table.  In practice, __ex_table on x86
+might not be used for anything that __init or __exit routines do, but
+__ex_table seems to be used for a lot more on mips, s390 and x86-64.
 
-> > Note that the O(1) scheduler isnt a security or stability fix, neither is
-> > it a driver backport. It isnt a feature backport that enables hardware
-> > that couldnt be used in 2.4 before. The VM was a special case because most
-> > people agreed that it truly sucked, and even though people keep
-> > disagreeing about that decision, the VM is in a pretty good shape now -
-> > and we still have good correlation between the VM in 2.5, and the VM in
-> > 2.4. The 2.4 scheduler on the other hand doesnt suck for 99% of the
-> > people, so our hands are not forced in any way - we have the choice of a
-> > 'proven-rock-solid good scheduler' vs. an 'even better, but still young
-> > scheduler'.
-> 
-> Here I disagree. Sure behaves like a stability fix to me. On a system
-> with a mix of interractive and cpu-bound processes, including processes
-> with hundreds of threads, you just can't get reasonable performance
-> balancing with nice() because it is totally impractical to keep tuning a
-> thread which changes from hog to disk io to socket waits with a human in
-> the loop. The new scheduler notices this stuff and makes it work, I
-> don't even know for sure (as in tried it) if you can have different nice
-> on threads of the same process.
+	We probably should not rely on the compiler emitting
+the subroutines and lines within subroutines in the order in
+which they are written, as there are plenty of optimiation reasons
+a compiler might have for reordering them.  So, I think that
+a correct solution would be to sort the kernel's __ex_table at
+boot time, as is one on ppc{,64}, and also at module load time,
+which is not currently done by any architecture.  One refinement of this
+approach would be have some bfd tool sort __ex_table in vmlinux
+when the kernel is linked, and to do something similar for
+modules, to keep the sort out of the kernel and save a few
+microseconds of run time.
 
-(yes, it's possible to nice() individual threads.)
+	sparc{,64} is immune to this problem only because it does
+a linear search of each __ex_table rather than a binary search.
 
-> This is not some neat feature to buy a few percent better this or that,
-> this is roughly 50% more users on the server before it falls over, and
-> no total bogs when many threads change to hog mode at once.
+	I have attached my test module below, in caes anyone wants
+to check their kerenls for this problem.  It should compile for
+all architectuers other than alpha (replace start->insn with
+start->addr for alpha).
 
-are these hard numbers? I havent seen much hard data yet from real-life
-servers using the O(1) scheduler. There was lots of feedback from
-desktop-class systems that behave better, but servers used to be pretty
-good with the previous scheduler as well.
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-> You will not hear me saying this about preempt, or low-latency, and I
-> bet that after I try lock-break this weekend I won't fell that I have to
-> have that either. The O(1) scheduler is self defense against badly
-> behaved processes, and the reason it should go in mainline is so it
-> won't depend on someone finding the time to backport the fun stuff from
-> 2.5 as a patch every time.
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/errno.h>
+#include <asm/uaccess.h>
+#include <asm/spinlock.h>
 
-well, the O(1) scheduler indeed tries to put up as much defense against
-'badly behaved' processes as possible. In fact you should try to start up
-your admin shells via nice -20, that gives much more priority than it used
-to under the previous scheduler - it's very close to the RT priorities,
-but without the risks. This works in the other direction as well: nice +19
-has a much stronger meaning (in terms of preemption and timeslice
-distribution) than it used to.
 
-	Ingo
+static void
+check_one_table(const char *name,
+		const struct exception_table_entry *start,
+		const struct exception_table_entry *end) {
+	printk ("AJR check_one_table(%s, %p, %p) called.\n", name, start, end);
+	if (start == end)
+		return;
+	start++;
+	while (start != end) {
+		if ((start-1)->insn > start->insn) {
+		  printk ("%s: 0x%x > 0x%x.\n", name,
+			  (start-1)->insn, (start->insn));
+		}
+		start++;
+	}
+	
+}
 
+
+/* Copied from linux-2.5.24/arch/i386/mm/extable.c, which has no
+   authorship or copyright statement on it. */
+int check_tables(void)
+{
+	unsigned long flags;
+	struct exception_table_entry *ent;
+	struct module *mp;
+
+	for (mp = THIS_MODULE; mp != NULL; mp = mp->next) {
+		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
+			continue;
+		check_one_table(mp->name, mp->ex_table_start,mp->ex_table_end);
+	}
+	return -ENOMEM;
+}
+
+module_init(check_tables);

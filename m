@@ -1,59 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263397AbUJ2PiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263373AbUJ2PiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263397AbUJ2PiF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbUJ2PgY
+	id S263373AbUJ2PiK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263391AbUJ2Pgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:36:24 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:57096 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263415AbUJ2PKi
+	Fri, 29 Oct 2004 11:36:41 -0400
+Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:24304
+	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263418AbUJ2PIX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:10:38 -0400
-Date: Fri, 29 Oct 2004 16:10:31 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Kahro Raie <kahroo@hot.ee>, linux-kernel@vger.kernel.org
-Subject: Re: ERROR: Disabling IRQ #11
-In-Reply-To: <1099033246.5403.246.camel@d845pe>
-Message-ID: <Pine.LNX.4.58L.0410291550090.2581@blysk.ds.pg.gda.pl>
-References: <20041029062746.B69E312CE@portal.hot.ee> <1099033246.5403.246.camel@d845pe>
+	Fri, 29 Oct 2004 11:08:23 -0400
+From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RESEND: Consistent lock up 2.6.8-1.521 (and 2.6.8.1 w/ high-res-timers/skas/sysemu)
+Date: Fri, 29 Oct 2004 11:08:09 -0400
+Message-ID: <NFBBICMEBHKIKEFBPLMCCEECJGAA.aathan-linux-kernel-1542@cloakmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200410051317.48071.jstubbs@work-at.co.jp>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004, Len Brown wrote:
+This message is being resent because it was never forwarded by majordomo, it is superceded by "RE: Consistent lock up 2.6.10-rc1-bk7
+(mutex/SCHED_RR bug)" sent minutes ago, which *was* forwarded by majordomo.  I have shortened the message considerably by including
+links for, rather than quoting the sysrq-t output (didn't realize the original was 552k!)
 
-> APIC error on CPU0: 00(01)
-> 
-> Hmmm, how did we take this interrupt with no bits set?
-> why do we have bit 0 (send checksum error) set after
-> we try to clear "errors"?
+-----
+Caveat:  This may be an infinite loop in a SCHED_RR process.  See very bottom of email for sysrq-t sysrq-p output.
 
- Please have a look at the relevant local APIC specification.  For the
-P6-class local APIC a write of zero (or likely any value -- I don't
-remember) to the ESR makes the internal error status be copied to the
-externally visible ESR.  A read of the ESR returns its contents and clears
-it.  Thus the report is perfectly valid -- it means no uncleared error was
-left over before.
 
- For the record: for the P5-class local APIC the ESR is the only error
-status and it is also cleared on a read.  Thus for that implementation the
-error codes reported would be reversed.  Writes to the ESR have no effect
-by definition.  Unfortunately, a range of chips have suffered from an
-erratum which makes data on writes to the ESR being actually recorded in
-the register.  As a result, we cannot just do a sequence consisting of a
-write and a read -- we need to do that leading read to handle buggy chips
-correctly.  And we do need to write zero specifically as otherwise a bogus
-error would be reported for them.
 
- I don't remember what the specification for the P4-class local APIC is in
-this area, or what other vendors' implementations do.  The i82489DX APIC
-does not implement error reporting.
+I have in the past posted emails with the subject "Consistent kernel hang during heavy TCP connection handling load"  I then
+recently saw a linux-kernel thread "PROBLEM: Consistent lock up on >=2.6.8" that seemed to be related to the problem I am
+experiencing, but I am not sure of it (thus the cc:).
 
- Frankly, I think this P5-to-P6 APIC specification change is an
-unnecessary annoyance for an OS developer.  And there are more caveats
-like this across local APIC implementations, this perhaps being the least
-harmful one.
+I have, however, now managed to formulate a series of steps which reproduce my particular lock up consistently.  When I trigger the
+hang, all virtual consoles become unresponsive, and the application cannot be signaled from the keyboard.  Sysrq seems to work.
 
-  Maciej
+The application in question is called "tt1".  It runs several threads in SCHED_RR and uses select(), sleep() and/or nanosleep()
+extensively.  I suspect there's a good chance the application calls select() with nfds=0 at some point.
+
+Due to the SCHED_RR usage in tt1, before executing the tt1 hang, I have tried to log into a virtual console on the host and run
+"nice -20 bash" as root.  THe nice'd shell is hung just like everything else.
+
+Did I do it right?  I was trying to make sure this hang is not simply an infinite loop in a SCHED_RR high priority process (tt1).
+
+I initially had a lot of trouble trying to capture sysrq output, but then I checked my netlog host and found (lo and behold) that it
+had captured it!  Of course, that was before I went through the trouble of taking pictures of my monitor! I've included the netlog
+sysrq output from two runs below.  They are at the very bottom of this email, separated by lines of '*'s  These runs are probably
+DIFFERENT than the runs from which I produced the below screenshots.
+
+So, here are those screenshots, I still welcome any comments you might have about easier ways to capture sysrq output than using
+netdump!
+
+I modified /etc/syslog.conf to say kern.* /var/log/kernel, however, output of sysrq-t and sysrq-p while in the locked up state never
+ends up in the file (though, it does, when not locked up).
+
+
+sysrq-t --> http://www.memeplex.com/lock1.gif, http://www.memeplex.com/lock2.gif
+
+sysrq-p --> http://www.memeplex.com/lock3.gif
+
+Kernel symbols for above are at  http://www.memeplex.com/System.map-2.6.8-1.521.gz
+
+sysrq-t --> http://www.memeplex.com/lock4.gif
+
+sysrq-p --> http://www.memeplex.com/lock5.gif
+
+Kernel symbols for above are at http://www.memeplex.com/System.map-2.6.8-1.521.gz and
+
+A.
+
+***********************************************************
+
+http://www.memeplex.com/sysrq1.txt.gz
+
+
+***************************************************************************************
+
+http://www.memeplex.com/sysrq2.txt.gz
+
+

@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271721AbTG2OHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271807AbTG2OHD
+	id S271807AbTG2OH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271816AbTG2OH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:07:03 -0400
-Received: from pat.uio.no ([129.240.130.16]:59275 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S271721AbTG2OG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:06:58 -0400
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Balram Adlakha <b_adlakha@softhome.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 NFS file transfer
-References: <20030728225947.GA1694@localhost.localdomain>
-	<20030729072440.A12426@animx.eu.org>
-	<20030729130400.GA4052@localhost.localdomain>
-	<20030729094428.B12763@animx.eu.org>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 29 Jul 2003 16:06:46 +0200
-In-Reply-To: <20030729094428.B12763@animx.eu.org>
-Message-ID: <shsfzkpxw95.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 29 Jul 2003 10:07:26 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:53934 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S271807AbTG2OHR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:07:17 -0400
+Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case 
+To: Erich Focht <efocht@hpce.nec.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF607D10C6.EC89E09C-ON87256D72.004CBCAE@us.ibm.com>
+From: Mala Anand <manand@us.ibm.com>
+Date: Tue, 29 Jul 2003 09:06:14 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 6.0.1 [IBM]|June 10, 2003) at
+ 07/29/2003 08:06:15
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Wakko Warner <wakko@animx.eu.org> writes:
 
-     > On a side note, I wish I could export / to whoever and
-     > everything seen on the localsystem under / is exported just
-     > like the userspace daemon.
 
-Your homework assignment for tomorrow:
 
-    'man 5 exports'
 
-In particular read up on 'nohide'
 
-Cheers,
-  Trond
+>> If you want data supporting my assumptions: Ted Ts'o's talk at OLS
+>> shows the necessity to rebalance ASAP (even in try_to_wake_up).
+
+>If this is the patch I am thinking of, it was the (attached) one I sent
+them,
+>which did a light "push" rebalance at try_to_wake_up.  Calling
+load_balance
+>at try_to_wake_up seems very heavy-weight.  This patch only looks for an
+idle
+>cpu (within the same node) to wake up on before task activation, only if
+the
+>task_rq(p)->nr_running is too long.  So, yes, I do believe this can be
+>important, but I think it's only called for when we have an idle cpu.
+
+The patch that you sent to Rajan didn't yield any improvement on
+specjappserver so we did not include that  in the ols paper. What
+is described in the ols paper is "calling load-balance" from
+try-to-wake-up. Both calling load-balance from try-to-wakeup and
+the "light push" rebalance at try_to_wake_up are already done in
+Andrea's 0(1) scheduler patch.
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+

@@ -1,39 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbTHVJva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 05:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbTHVJva
+	id S263088AbTHVKGN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 06:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTHVKGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 05:51:30 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:12043 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263140AbTHVJvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 05:51:22 -0400
-Date: Fri, 22 Aug 2003 10:51:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "P. Christeas" <p_christ@hol.gr>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: SCO's "proof"
-Message-ID: <20030822105119.A12479@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"P. Christeas" <p_christ@hol.gr>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <200308221236.46023.p_christ@hol.gr>
+	Fri, 22 Aug 2003 06:06:13 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:940 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263088AbTHVKGL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 06:06:11 -0400
+Message-Id: <200308221006.h7MA69619589@zeus.kernel.org>
+From: "Electrician" <rzsiek@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Resume
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200308221236.46023.p_christ@hol.gr>; from p_christ@hol.gr on Fri, Aug 22, 2003 at 12:36:45PM +0300
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 22 Aug 2003 03:06:01
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 12:36:45PM +0300, P. Christeas wrote:
-> It seems that the misplaced font is the result of much tampering ;) . 
-> Moreover, this could mostly happen in a M$ machine. Some comment on SCO about 
-> this ?
+Resume from: 	Rich		
 
-Well, a few years ago at old Caldera and SCO every non-techie used Windows.
-At old SCO even lots of techies used Windows for email..
 
+for   Job    or    Service   " no job too small "
+
+
+
+
+    E L E C T R I C I A N
+
+
+
+Tel. (408) 482-2102           rysio3@yahoo.com    
+
+
+
+WIRING & INSTALLATION
+
+Hands on electrical installations perform fitting, mounting,
+ laying cables on Commercial,
+Industrial, residential new & existing buildings.
+
+Electrical Power Supply for Lights, Plugs, Receptacles, Panels, 
+& Fuse boxes, Emergency Generators wiring and testing, Transformers, 
+Power Lines & conduit layout, bending and mounting, parking lighting, 
+lamps, switches, SOLAR PROJECTS, posts and underground installations. 
+
+Shopping Centers; grocery stories, hardware stories, restaurants & 
+residential - housing areas, computer business & fast food units 
+installation & buildings; Solar Panels, Sun Tracking, 
+Flywheel Storage & electric cars systems modify, 
+Natural Energy in Remote areas install. 
+
+LOW VOLTAGE   for Home   & OFFICE
+
+12 / 24 Volt audio & video equipment, Computer & data network wiring, 
+data backup and UPS; Monitoring Video Control 
+& backup tapes set up and mounting, 
+electro-optical assemblies & subsystems. DC Power Supply, 
+Switch & Motion sensors Alarm. Fire & safety systems install.
+
+Fiber Optics systems, PLC setup, Master Control Center, cable modems
+ & cable TV install. Network, UPS Battery Backup mounting and charging systems; 
+Power supply testing, troubleshooting, and analyzing to a components level. 
+Electric Vehicles Design, Assembly & Installations.
+
+CC TV & Cameras, Security Systems & Sensors for Safety, 
+Fire sprinklers and traffic Monitoring & Door Control. 
+Telephones / Net move & install.
+
+TECHNICIAN
+
+Use lab & shop equipment, mechanical, electrical & electronic tools,
+ measurement & testing equipment,  video cameras & microscopes. 
+Support scientists & electronic engineers. Mechanical & Electro-Mech. Design.
+
+OFFICE, ELECTRICAL AND MECHANICAL PROJECTS
+
+Electrical & Network Sketches, one line diagrams, and "as is" drawings update.
+ Customizing Electronic and Electrical Components & Parts, 
+Layouts electronic and electrical schematic, connectors and mechanical detailing. 
+Quotes, supply, bids and job estimating. 
+
+Customers contact, inspection, project mgmt & supervision of electricians
+ & material handling; Use CAD, Windows and applications;
+
+ELECTRICAL & MAINTENANCE SERVICE   US Citizen; open for travel
+
+
+
+.

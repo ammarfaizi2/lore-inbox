@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272484AbRJBMDr>; Tue, 2 Oct 2001 08:03:47 -0400
+	id <S272280AbRJBMC1>; Tue, 2 Oct 2001 08:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272540AbRJBMDh>; Tue, 2 Oct 2001 08:03:37 -0400
-Received: from mons.uio.no ([129.240.130.14]:40911 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S272484AbRJBMDW>;
-	Tue, 2 Oct 2001 08:03:22 -0400
-MIME-Version: 1.0
-Message-ID: <15289.44299.915454.3729@charged.uio.no>
-Date: Tue, 2 Oct 2001 14:03:23 +0200
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, <alan@kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: NFSv3 and linux-2.4.10-ac3 => oops
-In-Reply-To: <Pine.LNX.4.33.0110021227340.31037-100000@nick.dcs.qmul.ac.uk>
-In-Reply-To: <shszo7a4bxp.fsf@charged.uio.no>
-	<Pine.LNX.4.33.0110021227340.31037-100000@nick.dcs.qmul.ac.uk>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S272484AbRJBMCS>; Tue, 2 Oct 2001 08:02:18 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:44815 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S272280AbRJBMCF>; Tue, 2 Oct 2001 08:02:05 -0400
+Date: Tue, 2 Oct 2001 15:01:20 +0200
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <9121494397.20011002150120@port.imtp.ilyichevsk.odessa.ua>
+To: Robert Love <rml@ufl.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re[2]: Latency measurements
+In-Reply-To: <1001972854.2277.49.camel@phantasy>
+In-Reply-To: <15919370673.20011001160824@port.imtp.ilyichevsk.odessa.ua>
+ <1001972854.2277.49.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Matt Bernstein <matt@theBachChoir.org.uk> writes:
+Hi Robert,
+Monday, October 01, 2001, 11:47:31 PM, you wrote:
 
-     > I wonder if this is related to oopses I sent in in the last two
-     > days?  We're running 4GB setups with NFSv3 client and server on
-     > our fileservers, and the oopses might (don't really have strong
-     > correlation evidence yet) be related to when our fileservers
-     > push online backups to cheaper NFS servers (running the same
-     > kernel based on 2.4.9-ac10). Is there a last known good kernel
-     > I can try on my production systems while I try to reproduce the
-     > problem on smaller boxes? Or would you like me to try your
-     > patch?
+>> These are the longest held locks on my system
+>> (PII 233 UP, 32MB RAM, SVGA 16bit color fb console, X)
+>> Kernel: 2.4.10 + ext3 + preemption
+>> I am very willing to test any patches to reduce latency.
+>> 
+>> 418253       BKL        1   712/tty_io.c        c01b41c5   714/tty_io.c
+>> 222609       BKL        1   712/tty_io.c        c01b41c5   697/sched.c   
+>> 152903 spin_lock        5   547/sched.c         c0114fd5   714/tty_io.c  
+>> 132422       BKL        5   712/tty_io.c        c01b41c5   714/tty_io.c  
+>> 104548       BKL        1   712/tty_io.c        c01b41c5  1380/sched.c
 
-Linus changed nfs_prepare_write() in his tree around 2.4.10-pre5. From
-what I can see, Alan merged that particular patch into 2.4.9-ac11 (but
-without merging in the related changes to linux/mm/filemap.c).
+RL> Unfortunately there isn't much we can do about any of those locks.
 
-Argh. I see that in the patch I put out earlier today, I forgot to
-also revert the removal of the kunmap() in nfs_commit_write() (sorry -
-my coffee was particularly weak this morning).
+RL> The locks in tty_io.c are have to be held, the fact you are using a
+RL> framebuffer makes it a lot worse, though.  If there is an accelerated fb
+RL> for your video card, I would suggest that.
 
-Please apply the following patch to the 'ac' tree instead.
+That is a BKL which we are trying to get rid of.
+What deadlock is prevented by lock_kernel()
+in tty_io.c:712?
 
-People who use Linus' tree should *not* apply this patch!!!!!
+write() call there is actually a tty->ldisc.write().
+Is it possible to move lock into tty->ldisc.write()
+and make it a spinlock? I'd like to try, but I admit
+I failed to track what fn ptr is placed in ldisc.write
+in my case (fb console)  :-(
 
-Cheers,
-  Trond
+>> 222609       BKL 1 712/tty_io.c  697/sched.c
+I don't quite understand how locked region can start in
+712/tty_io.c and end in 697/sched.c?
 
-diff -u --recursive --new-file linux-2.4.10-reclaim/fs/nfs/file.c linux-2.4.10-ac4/fs/nfs/file.c
---- linux-2.4.10-reclaim/fs/nfs/file.c	Sun Sep 23 18:48:01 2001
-+++ linux-2.4.10-ac4/fs/nfs/file.c	Tue Oct  2 13:40:58 2001
-@@ -155,7 +155,12 @@
-  */
- static int nfs_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
- {
--	return nfs_flush_incompatible(file, page);
-+	int status;
-+	kmap(page);
-+	status = nfs_flush_incompatible(file, page);
-+	if (status)
-+		kunmap(page);
-+	return status;
- }
- 
- static int nfs_commit_write(struct file *file, struct page *page, unsigned offset, unsigned to)
-@@ -164,6 +169,7 @@
- 	loff_t pos = ((loff_t)page->index<<PAGE_CACHE_SHIFT) + to;
- 	struct inode *inode = page->mapping->host;
- 
-+	kunmap(page);
- 	lock_kernel();
- 	status = nfs_updatepage(file, page, offset, to-offset);
- 	unlock_kernel();
+This is strange too:
+>> 152903 spin_lock 5 547/sched.c   714/tty_io.c
+spinlock? Unlocked by unlock_kernel()???
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+
+

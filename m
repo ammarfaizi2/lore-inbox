@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282912AbRK0KaU>; Tue, 27 Nov 2001 05:30:20 -0500
+	id <S282914AbRK0Ki1>; Tue, 27 Nov 2001 05:38:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282899AbRK0KaI>; Tue, 27 Nov 2001 05:30:08 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:39186 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282906AbRK0K3s>;
-	Tue, 27 Nov 2001 05:29:48 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Harald Arnesen <gurre@start.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy 
-In-Reply-To: Your message of "Tue, 27 Nov 2001 11:08:04 BST."
-             <873d30r0fv.fsf@basilikum.skogtun.com> 
+	id <S282913AbRK0KiU>; Tue, 27 Nov 2001 05:38:20 -0500
+Received: from [212.169.100.200] ([212.169.100.200]:61172 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S282834AbRK0KiJ>; Tue, 27 Nov 2001 05:38:09 -0500
+Date: Tue, 27 Nov 2001 11:44:25 +0100
+From: Morten Helgesen <admin@nextframe.net>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: #include <linux/malloc.h> to #include <linux/slab.h> in the 2.2 tree.
+Message-ID: <20011127114425.A119@sexything>
+Reply-To: admin@nextframe.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Nov 2001 21:29:36 +1100
-Message-ID: <2515.1006856976@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001 11:08:04 +0100, 
-Harald Arnesen <gurre@start.no> wrote:
->Anuradha Ratnaweera <anuradha@gnu.org> writes:
->
->> How does Marcelo (or Linus or Alan, say) know that the patch
->> _really_ came from the subsystem aintainer himself?
->
->They could reject patches that came without the maintainers GPG or PGP
->signature.
+Hey there, Alan and the rest of you.
 
-Unfortunately the normal GPG/PGP signing changes '-' at start of line
-to '- -', even with clear text signing, and destroys the patch.  You
-have to use --not-dash-escaped in GPG, where the man page says:
+I was just wondering whether or not it would be a waste of time creating a patch with one goal in mind: substituting 
+references to linux/malloc.h with references to linux/slab.h throughout the 2.2 tree. 
 
---not-dash-escaped
-  This  option changes the behavior of cleartext signatures so that
-  they can be used for patch files. You should not send such an armored
-  file via email because all spaces and line endings are hashed too.
-  You can not use this option for data which has 5 dashes at the
-  beginning of a line, patch files don't have this. A special armor
-  header line tells GnuPG about this cleartext signature option.
+Inconsistency is a Bad Thing[tm], and since malloc.h now only includes slab.h, I feel that it is time for a major clean-up.
+Any thoughts ?
 
-I don't know if PGP accepts text signed by GPG with --not-dash-escaped
-nor do I know if there really is a problem with mailing such patches.
-But the warning above is nasty enough to rule it out.  The only other
-option for signed patches is uuencode or MIME (with or without
-compression) and Linus does not like that format.
 
+== Morten
+
+-- 
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS, Horten, Norway
+admin@nextframe.net / 93445641
+http://www.nextframe.net

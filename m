@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbUB0OvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 09:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbUB0OvY
+	id S262907AbUB0OxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 09:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUB0OxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 09:51:24 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:5831 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S262898AbUB0OvQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 09:51:16 -0500
-Date: Fri, 27 Feb 2004 22:51:05 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Subject: Re: Why no interrupt priorities?
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Mark Gross" <mgross@linux.co.intel.com>, arjanv@redhat.com,
-       "Tim Bird" <tim.bird@am.sony.com>, root@chaos.analogic.com,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston> <opr30muhyf4evsfm@smtp.pacific.net.th> <20040227090548.A15644@flint.arm.linux.org.uk> <opr306i5cm4evsfm@smtp.pacific.net.th> <20040227135019.A24457@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr3097ft54evsfm@smtp.pacific.net.th>
-In-Reply-To: <20040227135019.A24457@flint.arm.linux.org.uk>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Fri, 27 Feb 2004 09:53:24 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:35715 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262907AbUB0Owc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 09:52:32 -0500
+Subject: Re: Mobile Intel Pentium(R) 4 - M CPU 2.60GHz - kernel 2.6.3
+From: Len Brown <len.brown@intel.com>
+To: Bob Dobbs <bob_dobbs@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org,
+       "cpufreq@www.linux.org.uk" <cpufreq@www.linux.org.uk>
+In-Reply-To: <1077893211.22404.184.camel@dhcppc4>
+References: <A6974D8E5F98D511BB910002A50A6647615F3C81@hdsmsx402.hd.intel.com>
+	 <1077893211.22404.184.camel@dhcppc4>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1077893513.22392.188.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 27 Feb 2004 09:51:54 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 13:50:19 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+caffine needed...
 
-> On Fri, Feb 27, 2004 at 09:31:43PM +0800, Michael Frank wrote:
->> On Fri, 27 Feb 2004 09:05:48 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->> > On Fri, Feb 27, 2004 at 02:26:31PM +0800, Michael Frank wrote:
->> >> Is this to imply that edge triggered shared interrupts are used anywhere?
->> >
->> > It is (or used to be) rather common with serial ports.  Remember that
->> > COM1 and COM3 were both defined to use IRQ4 and COM2 and COM4 to use
->> > IRQ3.
->> >
->> >> Never occured to me to use shared IRQ's edge triggered as this mode
->> >> _cannot_ work reliably for HW limitations.
->> >
->> > The serial driver takes great care with this - when we service such an
->> > interrupt, we keep going until we have scanned all the devices until
->> > such time that we can say "all devices are no longer signalling an
->> > interrupt".
->> >
->> > This is something it has always done - it's nothing new.
->> >
->>
->> Sorry, i think the serial driver IRQ is level triggered :)
->
-> That's actually incorrect.  Serial devices are (were) connected to the
-> old ISA PICs which are definitely edge triggered.
->
+the fact that MHz goes down under heavy load means the BIOS must be
+throttling your CPU to keep it cool.  If you can't disable this BIOS
+policy in SETUP, then running Linux with ACPI enabled and the processor
+driver loaded should do it.
 
-I was under the impression that the PIC's are historically set to
-level triggered, certainly was the case with (IBM) PC's/AT's and
-with embedded system I am working with.
+cheers,
+-Len
 
-At least it explains why I was never able to share IRQ's on hardware
-with PIC's under linux.
-
-Regards
-Michael
-
-
-
+On Fri, 2004-02-27 at 09:46, Len Brown wrote:
+> Perhaps with ACPI disabled you've left CPU frequency control in the
+> hands of SMM (the BIOS)?  That would be consistent with Linux having no
+> visibility or conrol over what is going on.  There may be some BIOS
+> SETUP options to turn it off.
+> 
+> cheers,
+> -Len
+> 
+> Thu, 2004-02-26 at 19:46, Bob Dobbs wrote:
+> > Hello,
+> > 
+> > I am currently running kernel 2.6.3 on my Dell Inspiron 8500 laptop.
+> > I disabled all the ACPI and APM options in the kernel.
+> >
+> > I have upgraded my bios
+> > I have tried from kernel 2.4.23 up to mm and love-sources and my
+> > current kernel 2.6.3.
+> > 
+> > What happens is during heavy loads my cpu drops from 2.60GHz down to
+> > 1.20GHz, this happens for a few minutes, say 5 - 10 at the most. But
+> > performance while running a game, puts the game into slow motion.
+> > (Which  is weird because 1.20GHz should be more than enough to run all
+> > of the  games I currently have). I have read up on the documentation
+> > in /usr/src/linux/Documentation, under the "power" and "cpu-freq" but
+> > after disabling ACPI and such, those options do not seem to work
+> > anymore.
+> > 
+> > I have also tried running a program called "cpufreqd" which launches
+> > at boot time, but once again without ACPI enabled in the kernel this
+> > seems  not to work either. Also /sys/devices/system/cpu/cpu0/cpufreq/
+> > has the following files.
+> > 
+> > cpuinfo_min_freq
+> > cpuinfo_max_freq
+> > scaling_min_freq
+> > scaling_max_freq
+> > 
+> > I even tried to echo the options at bootup:
+> > 
+> > echo 2600000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq &
+> > echo 2000000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq &
+> > 
+> > I tried to make those files set at: 2.00GHz min and 2.60GHz max, but
+> > something changes them right back to 1.20GHZ no matter what I do.
+> > 
+> > I am sure I am missing something, but atm I am totally lost.. and I
+> > could surely be doing everything wrong to begin with... that is why I
+> > am asking for help.
+> > 
+> > Is there a patch or anything to force the cpu to run at 2.60GHz all
+> > the time?
+> > 
+> > Thank you
+> 
 

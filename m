@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287048AbRL2B3D>; Fri, 28 Dec 2001 20:29:03 -0500
+	id <S287038AbRL2Bjy>; Fri, 28 Dec 2001 20:39:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287047AbRL2B2z>; Fri, 28 Dec 2001 20:28:55 -0500
-Received: from dsl-213-023-043-233.arcor-ip.net ([213.23.43.233]:43534 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287038AbRL2B2q>;
-	Fri, 28 Dec 2001 20:28:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Hetz Ben Hamo <hetz@kde.org>
-Subject: Re: Serious VM problems (cont..)
-Date: Sat, 29 Dec 2001 02:31:36 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E16JzWl-0006iD-00@witch.dyndns.org> <E16K7em-0000Ba-00@starship.berlin> <E16K7dG-00070M-00@witch.dyndns.org>
-In-Reply-To: <E16K7dG-00070M-00@witch.dyndns.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16K8LY-0000Bn-00@starship.berlin>
+	id <S287043AbRL2Bjo>; Fri, 28 Dec 2001 20:39:44 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:31748 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287038AbRL2Bjh>;
+	Fri, 28 Dec 2001 20:39:37 -0500
+Date: Fri, 28 Dec 2001 23:40:14 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Glover George" <dime@gulfsales.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel/Hardware hacking start?
+Message-ID: <20011228234014.B1296@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Glover George" <dime@gulfsales.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <007501c18fe6$d3a39e10$0300a8c0@yellow>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <007501c18fe6$d3a39e10$0300a8c0@yellow>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 29, 2001 01:46 am, Hetz Ben Hamo wrote:
-> Umm, did you read the text of this email? I specifically said I tried 
-> 2.4.17.
+Em Fri, Dec 28, 2001 at 03:30:09PM -0600, Glover George escreveu:
+> As Eliezer dos Santos Magalhaes was wondering, I too am wanting to learn
+> about hacking the linux kernel as well as device drivers.  I actually own
+> Linux Device Drivers (1st edition), but was wondering if someone could
+> direct me towards a source that explained how operating systems deal with
+> boot up, initialization of hardware, and the like.  In other words, I want
+> to learn the kernel from boot up to shutdown.  Is there a comprehensive
+> guide out there for this?
 
-Hit the wrong button, that mail was posted by accident ;)
+Have you looked at Documentation at all? :) Ok, I'll do that for you, this
+time:
 
-Yes, there's a problem.  A bad object pointer was passed to 
-kmem_cache_free_one, it looks like a bug.
+Documentation/kernel-docs.txt
 
-> On Saturday 29 December 2001 02:47, Daniel Phillips wrote:
-> > On December 28, 2001 05:06 pm, Hetz Ben Hamo wrote:
-> > > Sorry,
-> > >
-> > > I forgot to mention my Linux: Redhat 7.2 + the official kernel 2.4.17 (I
-> > > also tested 2.4.9-13 - same errors) + all the latest updates (including
-> > > FAM 2.6.6), XFree 4.1.0-3, KDE 2.2.1...
+http://www.moses.uklinux.net/patches/lki.html
 
---
-Daniel
+- Arnaldo

@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbTJGOCF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 10:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTJGOCF
+	id S262404AbTJGOHd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 10:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbTJGOHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 10:02:05 -0400
-Received: from adsl-68-248-192-57.dsl.klmzmi.ameritech.net ([68.248.192.57]:43015
-	"EHLO mail.domedata.com") by vger.kernel.org with ESMTP
-	id S262304AbTJGOCB convert rfc822-to-8bit (ORCPT
+	Tue, 7 Oct 2003 10:07:33 -0400
+Received: from main.gmane.org ([80.91.224.249]:60130 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262404AbTJGOHb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 10:02:01 -0400
-From: tabris <tabris@tabris.net>
-To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
-	=?iso-8859-1?q?=20Rullg=E5rd?=)
+	Tue, 7 Oct 2003 10:07:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
 Subject: Re: devfs vs. udev
-Date: Tue, 7 Oct 2003 10:01:56 -0400
-User-Agent: KMail/1.5.3
-References: <yw1xad8dfcjg.fsf@users.sourceforge.net>
-In-Reply-To: <yw1xad8dfcjg.fsf@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200310071001.56459.tabris@tabris.net>
+Date: Tue, 07 Oct 2003 16:07:25 +0200
+Message-ID: <yw1xekxpdtuq.fsf@users.sourceforge.net>
+References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:tAHuGh47hgNT6dTgk9MMmAtB3S8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 October 2003 08:38 am, Måns Rullgård wrote:
-> I noticed this in the help text for devfs in 2.6.0-test6:
->
-> 	  Note that devfs has been obsoleted by udev,
-> 	  <http://www.kernel.org/pub/linux/utils/kernel/hotplug/>.
-> 	  It has been stripped down to a bare minimum and is only provided for
-> 	  legacy installations that use its naming scheme which is
-> 	  unfortunately different from the names normal Linux installations
-> 	  use.
->
-> Now, this puzzles me, for a few of reasons.  Firstly, not long ago,
-> devfs was spoken of as the way to go, and all drivers were rewritten
-> to support it.  Why this sudden change?  Secondly, that link only
-> leads me to a package describing itself as an experimental
-> proof-of-concept thing, not to be used for anything serious.  How can
-> something that incomplete obsolete a working system like devfs?
-> Thirdly, udev appears to respond to hotplug events only.  How is it
-> supposed to handle device files not corresponding to any physical
-> device?  Finally, I quite liked the idea of a virtual filesystem for
-> /dev.  It reduced the clutter quite a bit.  As for the naming scheme,
-> it could easily be changed.
-My word is hardly authoritative, but istr hearing that the original 
-devfs-maintainer has abandoned this code (probably after multiple 
-complaints about it being badly implemented, full of bugs, locking 
-issues/races, etc).
+Andreas Jellinghaus <aj@dungeon.inka.de> writes:
 
-Not having used it with 2.6 yet, I don't know much about it's status in 
-that tree.
+>> I noticed this in the help text for devfs in 2.6.0-test6:
+>> 
+>> 	  Note that devfs has been obsoleted by udev,
+>
+> devfs works fine, lists all devices, and obsoletes makedev.
 
-So, although devfs may still work, and even be in a better condition than 
-udev (at present); no longer maintained (and little intention of 
-changing) may be considered equivalent to obsolete.
---
-tabris
--
-	Max told his friend that he'd just as soon not go hiking in the hills.
-Said he, "I'm an anti-climb Max."
-	[So is that punchline.]
+That's my experience.
+
+> udev needs patching for several issues, current sysfs only exports
+> many but by far not all devices, and because of that makedev
+> is still needed to create an initial /dev.
+>
+> in short: devfs works fine. udev has quite a way to go.
+> so marking devfs obsolete was done too soon by far. but
+
+Exactly my point.
+
+I'd also like an explanation of the rationale behind the switch.
+devfs works and is stable.  Why replace it with an incomplete fragile
+userspace solution?  I recall reading something about the original
+author not updating devfs recently, but I can't see why that requires
+rewriting it from scratch.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261727AbSJDNRA>; Fri, 4 Oct 2002 09:17:00 -0400
+	id <S261738AbSJDNSs>; Fri, 4 Oct 2002 09:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261729AbSJDNQ6>; Fri, 4 Oct 2002 09:16:58 -0400
-Received: from gw.openss7.com ([142.179.199.224]:36366 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S261727AbSJDNQ5>;
-	Fri, 4 Oct 2002 09:16:57 -0400
-Date: Fri, 4 Oct 2002 07:22:29 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: export of sys_call_table
-Message-ID: <20021004072229.B18191@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <20021003153943.E22418@openss7.org.suse.lists.linux.kernel> <1033682560.28850.32.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <20021003170608.A30759@openss7.org.suse.lists.linux.kernel> <1033722612.1853.1.camel@localhost.localdomain.suse.lists.linux.kernel> <20021004051932.A13743@openss7.org.suse.lists.linux.kernel> <p73k7kyqrx6.fsf@oldwotan.suse.de> <20021004071106.A18191@openss7.org> <20021004151512.B10387@wotan.suse.de>
+	id <S261737AbSJDNSs>; Fri, 4 Oct 2002 09:18:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5640 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261736AbSJDNSq>;
+	Fri, 4 Oct 2002 09:18:46 -0400
+Date: Fri, 4 Oct 2002 14:24:19 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: RAID backup
+Message-ID: <20021004132419.GF710@gallifrey>
+References: <Pine.LNX.3.96.1021004041421.5688A-100000@Maggie.Linux-Consulting.com> <1033735943.31839.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021004151512.B10387@wotan.suse.de>; from ak@suse.de on Fri, Oct 04, 2002 at 03:15:12PM +0200
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+In-Reply-To: <1033735943.31839.12.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 14:18:42 up 2 days, 15:45,  1 user,  load average: 0.00, 0.00, 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
-
-On Fri, 04 Oct 2002, Andi Kleen wrote:
-
-> On Fri, Oct 04, 2002 at 07:11:06AM -0600, Brian F. G. Bidulock wrote:
-> > read_lock and write_lock are a rw semaphores, aren't they?
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
 > 
-> No, they are read/write spinlocks and you are not allowed to sleep
-> in their critical section In general you should limit them
-> because they can get very costly, e.g. when you're taking interrupts
-> with one taken or doing something else which takes a long time
-> and another CPU has to spin for them. 
+> The problem with disks is you still have to archive them somewhere, and
+> they are bulky. I also dont know what studies are available on the
+> degradation of stored disk media over time. 
 
-Well, for LiS, a process does not sleep on read_lock whenever write_lock
-might be called.  This is because only invalid getpmsg/putpmsg calls
-(wrong file descriptor) can be made during module loading and unloading.
-No valid file descriptors exist for getpmsg/putpmsg when the module is
-unloading (proper use of MOD_INC/DEC_USE_COUNT).  I don't see that it
-matters that a process sleeps holding a read_lock() when it is a given
-that the write_lock() will never be attempted while the holder of the
-read_lock() is sleeping.
+Not sure about that; DLT tapes are pretty bulky themselves; I think the
+difference between say a set of 4 DLT tapes and a single Maxtor 320 in
+caddy would be minimal. As for stored media, I think Maxtor are quoting
+1M hours MTTF - (I hate to think how you measure such a figure) - for
+the 320G, and that is probably longer than I'd trust either the tape or
+the drive to survive.
 
---brian
+> Capacity is not a problem, 3ware do a 12 channel sata card, with maxtor
+> drives that comes in at 320x12 = 3.5Tb
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+Well to me there are two questions:
+  1) Price with caddy/drive - especially when you need to have
+	multiple backup sets.
+
+	2) Linux serial/ata working reliably with hot swapping.
+
+If both those came out on the right side then I'd happily swap to discs.
+
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

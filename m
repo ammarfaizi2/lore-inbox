@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264679AbSKUTx1>; Thu, 21 Nov 2002 14:53:27 -0500
+	id <S264818AbSKUTvj>; Thu, 21 Nov 2002 14:51:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSKUTxA>; Thu, 21 Nov 2002 14:53:00 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:4003 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S264724AbSKUTwL> convert rfc822-to-8bit; Thu, 21 Nov 2002 14:52:11 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Matt Young <wz6b@arrl.net>
-Reply-To: wz6b@arrl.net
-To: linux-kernel@vger.kernel.org
-Subject: Operations inside a module
-Date: Thu, 21 Nov 2002 11:59:03 -0800
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211211159.03552.wz6b@arrl.net>
+	id <S266953AbSKUTvj>; Thu, 21 Nov 2002 14:51:39 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:8328 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264818AbSKUTvi>; Thu, 21 Nov 2002 14:51:38 -0500
+Subject: Re: [RFC] [PATCH] subarch cleanup
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: john stultz <johnstul@us.ibm.com>,
+       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20021121191506.GA2007@mars.ravnborg.org>
+References: <1037750429.4463.71.camel@w-jstultz2.beaverton.ibm.com>
+	<20021121183304.GA1144@mars.ravnborg.org>
+	<1037904954.7576.62.camel@w-jstultz2.beaverton.ibm.com> 
+	<20021121191506.GA2007@mars.ravnborg.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Nov 2002 20:27:15 +0000
+Message-Id: <1037910436.7687.78.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Within the open routine of  my module I need to open another device; and the 
-write routine needs to write to the other device.
+On Thu, 2002-11-21 at 19:15, Sam Ravnborg wrote:
+> mflags-$(CONFIG_MACH_VISWS)      := asm/mach-visws
+> mflags-$(CONFIG_MACH_SUMMIT)     := asm/mach-summit
+> mflags-y                         += asm/mach-generic
+> AFLAGS += $(mflags-y)
+> CFLAGS += $(mflags-y)
+> 
+> There is something similar done for arm in newest kernel.
 
-User space system calls seem to be unavailable to module code.
-I know about swapping the DS and ES to fake out other modules; then using 
-sys_write etc. 
+-ac already does this for include's so that mach-default is used if the
+system doesnt override it
 
-Can my code just include the standard  syscall lib and use them from kernel 
-space?
-
-My module code would also like to use user space malloc, is this a problem?
-
-Matt
-
-  

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbTIDRiu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 13:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbTIDRit
+	id S265359AbTIDR61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 13:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbTIDR61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 13:38:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35262 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265318AbTIDRin (ORCPT
+	Thu, 4 Sep 2003 13:58:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37834 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265359AbTIDR6Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 13:38:43 -0400
-Date: Thu, 4 Sep 2003 10:38:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-In-Reply-To: <20030904171609.GA30394@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0309041025470.6676-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 13:58:25 -0400
+Date: Thu, 4 Sep 2003 10:59:02 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: disk I/O hang in 2.6.0-test4-mm5
+Message-ID: <20030904175902.GA26351@osdl.org>
+References: <20030904171626.GA26054@osdl.org> <20030904101339.1d67f616.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030904101339.1d67f616.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 4 Sep 2003, Jamie Lokier wrote:
+Yes, reverting this patch fixes the I/O hang I was observing.
+
+On Thu, Sep 04, 2003 at 10:13:39AM -0700, Andrew Morton wrote:
+> Dave Olien <dmo@osdl.org> wrote:
+> >
+> > I'm seeing a mkfs.ext2 that never completes under 2.6.0-test4-mm5.
+> > I ran 4 mkfs.ext2's concurrntly, each on a seperate partition on the
+> > same disk.  Three of the completed.  Here's the sysrq stack trace from
+> > the one that didn't.
+> > 
+> > This doesn't occur on mm4.
 > 
-> Yes it can.  See sys_mprotect().  If that's not intended, it's a bug
-> in mprotect().
-
-Oh. I see. Yes - it's accessing "vm_flags" with "MAP_SEM". That's really 
-wrong, since it's not even the same _domain_. 
-
-"vm_flags" should use the "VM_xxxx" bits. Trying to use "PROT_xxx" bits is 
-totally improper, but it so happens that the low three bits 
-(READ|WRITE|EXEC) are supposed to be the same.
-
-Good catch.
-
-It really should do what mmap() does, and translate from the "PROT_xxx" 
-domain to the "VM_xxx" domain:
-
-	flag = _trans(prot, PROT_READ, VM_READ) |
-		_trans(prot, PROT_WRITE, VM_WRITE) |
-		_trans(prot, PROT_EXEC, VM_EXEC);
-
-and the only reason sys_mprotect _looks_ like it is working is that those 
-three bits (but _not_ MAP_SEM) happen to be the same anyway.
-
-I'm inclined to be lazy, and say "we know the low three bits of "prot" and 
-"flags" are the same, and leave it as-is, but remove the MAP_SEM, which 
-clearly is a bug.
-
-But the proper thing is to move that part of calc_vm_flags() to a header 
-file. Does anybody want to take that on?
-
-		Linus
-
+> Could you please revert
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm5/broken-out/elv-insertion-fix.patch
+> 
+> and retest?

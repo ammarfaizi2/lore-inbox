@@ -1,106 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135528AbRDXKpt>; Tue, 24 Apr 2001 06:45:49 -0400
+	id <S135538AbRDXKyj>; Tue, 24 Apr 2001 06:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135531AbRDXKpj>; Tue, 24 Apr 2001 06:45:39 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:28756 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135528AbRDXKpc>; Tue, 24 Apr 2001 06:45:32 -0400
-Date: Tue, 24 Apr 2001 12:44:50 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-Cc: David Howells <dhowells@cambridge.redhat.com>, torvalds@transmeta.com,
+	id <S135537AbRDXKy3>; Tue, 24 Apr 2001 06:54:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30879 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135535AbRDXKyS>;
+	Tue, 24 Apr 2001 06:54:18 -0400
+Date: Tue, 24 Apr 2001 06:54:16 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Christoph Rohland <cr@sap.com>
+cc: David Woodhouse <dwmw2@infradead.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations try #3]
-Message-ID: <20010424124450.C1682@athlon.random>
-In-Reply-To: <20010424114953.E7913@athlon.random> <6215.988107923@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6215.988107923@warthog.cambridge.redhat.com>; from dhowells@warthog.cambridge.redhat.com on Tue, Apr 24, 2001 at 11:25:23AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <m31yqiwpow.fsf@linux.local>
+Message-ID: <Pine.GSO.4.21.0104240639580.6992-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 11:25:23AM +0100, David Howells wrote:
-> > I'd love to hear this sequence. Certainly regression testing never generated
-> > this sequence yet but yes that doesn't mean anything. Note that your slow
-> > path is very different than mine.
+
+
+On 24 Apr 2001, Christoph Rohland wrote:
+
+> Hi Al,
 > 
-> One of my testcases fell over on it...
-
-so you reproduced a deadlock with my patch applied, or you are saying
-you discovered that case with one of you testcases?
-
-I'm asking because I'm running regression testing on my patch for several hours
-now and it didn't showed up anything wrong yet (however I'm mainly using my
-rwsem program to better stress the rwsem in an interesting environment with
-different timings as well, but your stress tests by default looks less
-aggressive than my rwsem, infact the bug I found in your code was never
-triggered by your testcases until I changed them).
-
-> > I don't feel the need of any xchg to enforce additional serialization.
+> On Tue, 24 Apr 2001, Alexander Viro wrote:
+> >> Half an hour? If it takes more than about 5 minutes for JFFS2 I'd
+> >> be very surprised.
+> > 
+> > <tone polite> What's stopping you? </tone>
+> > You _are_ JFFS maintainer, aren't you?
 > 
-> I don't use XCHG anywhere... do you mean CMPXCHG?
+> So is this the start to change all filesystems in 2.4? I am not sure
+> we should do that. 
 
-yes of course, you use rwsem_cmpxchgw that is unnecessary.
+Encapsulation part is definitely worth doing - it cleans the code up
+and doesn't change the result of compile. Adding allocation/freeing/
+cache initialization/cache removal and chaninging FOOFS_I() definition -
+well, it's probably worth to keep such patches around, but whether
+to switch any individual filesystem during 2.4 is a policy decision.
+Up to maintainer, indeed. Notice that these patches (separate allocation
+per se) are going to be within 3-4Kb per filesystem _and_ completely
+straightforward.
 
-> 
-> > yours plays with cmpxchg in a way that I still cannot understand
-> 
-> It tries not to let the "active count" transition 1->0 happen if it can avoid
+What I would like to avoid is scenario like
 
-I don't try to avoid it anytime. I let it to happen all the time it wants.
-Immediatly as soon as it can happen.
+Maintainers of filesystems with large private inodes: Why would we separate
+them? We would only waste memory, since the other filesystems stay in ->u
+and keep it large.
 
-> it (ie: it would rather wake someone up and not decrement the count). It also
+Maintainers of the rest of filesystems: Since there's no patches that would
+take large stuff out of ->u, why would we bother?
 
-I always retire first.
+So yes, IMO having such patches available _is_ a good thing. And in 2.5
+we definitely want them in the tree. If encapsulation part gets there
+during 2.4 and separate allocation is available for all of them it will
+be easier to do without PITA in process.
+								Al
 
-> only calls __rwsem_do_wake() if the caller manages to transition the active
-> count 0->1.
 
-I call rwsem_wake if while retiring the counter gone down to 0 so it's
-time to wakeup somebody according to my rule, then I handle the additional
-synchroniziation between 0->1 inside the rwsem_wake if it fails I break
-the rwsem_wake in the middle while doing the usual retire check from 1 to 0.
-That's why up_write is a no brainer for me as far I can see and that's probably
-why I can provide a much faster up_write fast path as benchmark shows.
-
-> > Infact eax will be changed because it will be clobbered by the slow path, so
-> > I have to. Infact you are not using the +a like I do there and you don't
-> > save EAX explicitly on the stack I think that's "your" bug.
-> 
-> Not so... my down-failed slowpath functions return sem in EAX.
-
-Ah ok, I didn't had such idea, I will optimize that bit in my code now.
-
-> > Again it's not a performance issue, the "+a" (sem) is a correctness issue
-> > because the slow path will clobber it.
-> 
-> There must be a performance issue too, otherwise our read up/down fastpaths
-> are the same. Which clearly they're not.
-
-I guess I'm faster because I avoid the pipeline stall using "+m" (sem->count)
-that is written as a constant, that was definitely intentional idea. For
-me right now the "+a" (sem) is a correctness issue that is hurting me (probably
-not in the benchmark), and I can optimize it the same way you did.
-
-> > I said on 64bit archs. Of course on x86-64 there is xaddq and the rex
-> > registers.
-> 
-> But the instructions you've specified aren't 64-bit.
-
-And infact on 32bit arch I use 32bit regs xaddl and 2^16 max sleepers.
-
-> > It isn't mandatory, if you don't want the xchgadd infrastructure then you
-> > don't set even CONFIG_RWSEM_XCHGADD, no?
-> 
-> My point is that mine isn't mandatory either... You just don't set the XADD
-> config option.
-
-My point is that when you set XADD you still force duplication of the header
-stuff into the the asm/*
-
-Andrea

@@ -1,104 +1,203 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266250AbTAPFOy>; Thu, 16 Jan 2003 00:14:54 -0500
+	id <S267026AbTAPFYR>; Thu, 16 Jan 2003 00:24:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267026AbTAPFOy>; Thu, 16 Jan 2003 00:14:54 -0500
-Received: from [64.246.18.23] ([64.246.18.23]:5809 "EHLO ensim.2hosting.net")
-	by vger.kernel.org with ESMTP id <S266250AbTAPFOx>;
-	Thu, 16 Jan 2003 00:14:53 -0500
-From: "Steve Lee" <steve@tuxsoft.com>
-To: <rms@gnu.org>, "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: [OFFTOPIC] RMS and reactions to him
-Date: Wed, 15 Jan 2003 23:23:36 -0600
-Message-ID: <009601c2bd1f$6f966bc0$e501a8c0@saturn>
+	id <S267030AbTAPFYQ>; Thu, 16 Jan 2003 00:24:16 -0500
+Received: from ldap.somanetworks.com ([216.126.67.42]:49031 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S267026AbTAPFYO>; Thu, 16 Jan 2003 00:24:14 -0500
+Date: Thu, 16 Jan 2003 00:33:05 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Rusty Lynch <rusty@penguin.co.intel.com>
+cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [BUG][2.5]deadlock on cpci hot insert
+In-Reply-To: <200301160111.h0G1B6ZE020954@penguin.co.intel.com>
+Message-ID: <Pine.LNX.4.44.0301160014250.20085-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <E18Ywxg-0001ME-00@fencepost.gnu.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard,
-	I do have respect for you; however, I have one simple question.
-Should I call my system GNU/Linux/XFree86/KDE in order to give most
-everyone proper credit?  I say most; because I'm sure I'm missing lots
-of people that deserve credit.  When people ask me which OS I have
-running on a particular system, I generally say Linux, not RedHat Linux,
-just Linux.  It's simple.  Should one inspect my system, they'll find
-that it's a RedHat distribution with XFree86, KDE, and lots of GNU free
-software.  Favorable or not, "Linux" has become the symbol for a whole
-system of free software.
+On Wed, 15 Jan 2003, Rusty Lynch wrote:
 
-Steve
+> When I hot insert a cpci peripheral board into a ZT5084 chassis
+> with a ZT5550 system master board, my ZT5550 locks up.  I managed
+> to isolate the problem to a deadlock with list_lock
+
+[snip deadlock scenario]
+
+Good catch.  Up until now, I've not been building with either pre-empt
+or SMP support here, which is why I've never been bitten by this.
+
+> I'm not sure which is the correct way to fix this.  Maybe a
+> cpci_unlocked_find_slot()?
+
+I'm attaching my preferred fix, which I've only just compile tested
+at the moment.  It removes cpci_find_slot completely through usage (the 
+first I believe :) of the data member of pci_visit_dev's wrapped_dev
+structure.  I'd thought about doing something along these lines in the 
+past, so it isn't totally out of left field.  Removing cpci_find_slot
+does change the exported board specific driver API, but it was a bit of
+an afterthought on my part to EXPORT it anyways, since none of the board 
+drivers I've built so far use it.
+
+> hmm... pci_visit_dev is exported, so anybody could call it.
+
+That's actually not a problem, since the used pci_visit structures and
+the function pointers they contain are static to cpci_hotplug_pci.c.
+The functions in cpci_hotplug_pci.c (cpci_*configure_slot) that do call 
+pci_visit_dev, while not static, are not EXPORTed.
+
+Scott
+
+PS: Any word on whether my ZT5550 driver patch from last Friday fixes
+    your ZT5084 chassis issues?
 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Richard
-Stallman
-Sent: Wednesday, January 15, 2003 5:29 PM
-To: mark@mark.mielke.cc
-Cc: galibert@pobox.com; linux-kernel@vger.kernel.org; dax@gurulabs.com;
-lm@bitmover.com; root@chaos.analogic.com; pollard@admin.navo.hpc.mil;
-R.E.Wolff@BitWizard.nl; jalvo@mbay.net
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-
-I have a mission, and the mission is free software.  But I don't want
-disciples (the Church of Emacs is a comedy routine).  What I seek is
-like-minded volunteers, people to join me in the fight against
-non-free software.  It's not necessary for them to make me their
-leader; anyone who understands what we are fighting for can be a
-leader.  The point is for them to go and fight the enemy.
-
-    But, he shouldn't have to be. In the linux-devel newsgroups, the
-    opinion that Linus was a pawn in RMS's master plan needs to be
-    squashed.
-
-I agree with you.  Linus was not our pawn, or anyone's, as far as I
-know.  His decision to write a kernel was his own.  GNU did have an
-influence on it; I read that he had been to a speech of mine in
-Finland.  But we did not direct his activities.
-
-Be that as it may, his kernel, once written, filled the gap in the
-incomplete GNU system.  Together they made a complete system which
-people could actually use.
-
-    (For example, the average person
-    who contributes to open source, has a non open source job that
-allows
-    them and their family to eat, while contributing on the side)
-
-Most contributors to free software are part time volunteers, and most
-of those probably have jobs.  There's nothing wrong with that.
-
-But this job need not be developing non-free software.  It can be
-developing custom software, or it can be something other that
-programming.  There are many ways to make a living.
-
-    He removes this pride by making such claims as "the system that
-    is now often called Linux is the system that I came up with in
-1984."
-
-The people who worked on Linux, the kernel, have plenty to be proud
-of.  They don't need to get credit for the GNU system too.  Hundreds
-of people worked to build the GNU system before 1991.  For their sake,
-I focus on what we did together, not on what I myself did.
-
-Calling the system "Linux" denies these people the basis for their
-pride.  Calling the system "GNU/Linux" gives recognition to all of
-them, as well as to the people who have worked on Linux.
-
+diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5.58/drivers/hotplug/cpci_hotplug.h linux-2.5.58-dev/drivers/hotplug/cpci_hotplug.h
+--- linux-2.5.58/drivers/hotplug/cpci_hotplug.h	Thu Jan 16 00:06:58 2003
++++ linux-2.5.58-dev/drivers/hotplug/cpci_hotplug.h	Wed Jan 15 23:43:28 2003
+@@ -75,7 +75,6 @@
+ extern int cpci_hp_unregister_controller(struct cpci_hp_controller *controller);
+ extern int cpci_hp_register_bus(struct pci_bus *bus, u8 first, u8 last);
+ extern int cpci_hp_unregister_bus(struct pci_bus *bus);
+-extern struct slot *cpci_find_slot(struct pci_bus *bus, unsigned int devfn);
+ extern int cpci_hp_start(void);
+ extern int cpci_hp_stop(void);
+ 
+diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5.58/drivers/hotplug/cpci_hotplug_core.c linux-2.5.58-dev/drivers/hotplug/cpci_hotplug_core.c
+--- linux-2.5.58/drivers/hotplug/cpci_hotplug_core.c	Thu Jan 16 00:06:58 2003
++++ linux-2.5.58-dev/drivers/hotplug/cpci_hotplug_core.c	Thu Jan 16 00:00:17 2003
+@@ -417,34 +417,6 @@
+ 	return 0;
+ }
+ 
+-struct slot *
+-cpci_find_slot(struct pci_bus *bus, unsigned int devfn)
+-{
+-	struct slot *slot;
+-	struct slot *found;
+-	struct list_head *tmp;
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-	if(!bus) {
+-		return NULL;
+-	}
+-
+-	spin_lock(&list_lock);
+-	if(!slots) {
+-		spin_unlock(&list_lock);
+-		return NULL;
+-	}
+-	found = NULL;
+-	list_for_each(tmp, &slot_list) {
+-		slot = list_entry(tmp, struct slot, slot_list);
+-		if(slot->bus == bus && slot->devfn == devfn) {
+-			found = slot;
+-			break;
+-		}
+-	}
+-	spin_unlock(&list_lock);
+-	return found;
+-}
+-
+ /* This is the interrupt mode interrupt handler */
+ void
+ cpci_hp_intr(int irq, void *data, struct pt_regs *regs)
+@@ -915,6 +887,5 @@
+ EXPORT_SYMBOL_GPL(cpci_hp_unregister_controller);
+ EXPORT_SYMBOL_GPL(cpci_hp_register_bus);
+ EXPORT_SYMBOL_GPL(cpci_hp_unregister_bus);
+-EXPORT_SYMBOL_GPL(cpci_find_slot);
+ EXPORT_SYMBOL_GPL(cpci_hp_start);
+ EXPORT_SYMBOL_GPL(cpci_hp_stop);
+diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5.58/drivers/hotplug/cpci_hotplug_pci.c linux-2.5.58-dev/drivers/hotplug/cpci_hotplug_pci.c
+--- linux-2.5.58/drivers/hotplug/cpci_hotplug_pci.c	Thu Jan 16 00:06:58 2003
++++ linux-2.5.58-dev/drivers/hotplug/cpci_hotplug_pci.c	Wed Jan 15 23:42:34 2003
+@@ -446,7 +446,7 @@
+ }
+ 
+ static int configure_visit_pci_dev(struct pci_dev_wrapped *wrapped_dev,
+-			struct pci_bus_wrapped *wrapped_bus)
++				   struct pci_bus_wrapped *wrapped_bus)
+ {
+ 	int rc;
+ 	struct pci_dev *dev = wrapped_dev->dev;
+@@ -459,8 +459,8 @@
+ 	 * We need to fix up the hotplug representation with the Linux
+ 	 * representation.
+ 	 */
+-	slot = cpci_find_slot(dev->bus, dev->devfn);
+-	if(slot) {
++	if(wrapped_dev->data) {
++		slot = (struct slot*) wrapped_dev->data;
+ 		slot->dev = dev;
+ 	}
+ 
+@@ -482,7 +482,7 @@
+ }
+ 
+ static int unconfigure_visit_pci_dev_phase1(struct pci_dev_wrapped *wrapped_dev,
+-				 struct pci_bus_wrapped *wrapped_bus)
++					    struct pci_bus_wrapped *wrapped_bus)
+ {
+ 	struct pci_dev *dev = wrapped_dev->dev;
+ 
+@@ -525,8 +525,8 @@
+ 	/*
+ 	 * Now remove the hotplug representation.
+ 	 */
+-	slot = cpci_find_slot(dev->bus, dev->devfn);
+-	if(slot) {
++	if(wrapped_dev->data) {
++		slot = (struct slot*) wrapped_dev->data;
+ 		slot->dev = NULL;
+ 	} else {
+ 		dbg("No hotplug representation for %02x:%02x.%x",
+@@ -634,6 +634,10 @@
+ 				continue;
+ 			wrapped_dev.dev = dev;
+ 			wrapped_bus.bus = slot->dev->bus;
++			if(i)
++				wrapped_dev.data = NULL;
++			else
++				wrapped_dev.data = (void*) slot;
+ 			rc = pci_visit_dev(&configure_functions, &wrapped_dev, &wrapped_bus);
+ 		}
+ 	}
+@@ -666,16 +670,21 @@
+ 		if(dev) {
+ 			wrapped_dev.dev = dev;
+ 			wrapped_bus.bus = dev->bus;
++			if(i)
++				wrapped_dev.data = NULL;
++			else
++				wrapped_dev.data = (void*) slot;
+ 			dbg("%s - unconfigure phase 1", __FUNCTION__);
+ 			rc = pci_visit_dev(&unconfigure_functions_phase1,
+-					   &wrapped_dev, &wrapped_bus);
+-			if(rc) {
++					   &wrapped_dev,
++					   &wrapped_bus);
++			if(rc)
+ 				break;
+-			}
+ 
+ 			dbg("%s - unconfigure phase 2", __FUNCTION__);
+ 			rc = pci_visit_dev(&unconfigure_functions_phase2,
+-					   &wrapped_dev, &wrapped_bus);
++					   &wrapped_dev,
++					   &wrapped_bus);
+ 			if(rc)
+ 				break;
+ 		}
 
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSEPWwi>; Thu, 16 May 2002 18:52:38 -0400
+	id <S315182AbSEPWzB>; Thu, 16 May 2002 18:55:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315182AbSEPWwh>; Thu, 16 May 2002 18:52:37 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:18186 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315179AbSEPWwh>;
-	Thu, 16 May 2002 18:52:37 -0400
-Date: Thu, 16 May 2002 15:52:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Christer Nilsson <christer.nilsson@kretskompaniet.se>
-Cc: lepied@xfree86.org, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.19-pre8  Fix for Intuos tablet in wacom.c
-Message-ID: <20020516225235.GE1952@kroah.com>
-In-Reply-To: <20020515024646.GA21582@kroah.com> <IBEJLIFNGHPKEKCKODPDIEFFDPAA.christer.nilsson@kretskompaniet.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 18 Apr 2002 21:33:17 -0700
+	id <S315191AbSEPWzA>; Thu, 16 May 2002 18:55:00 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:29203 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S315182AbSEPWzA>;
+	Thu, 16 May 2002 18:55:00 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200205162254.g4GMsiP07608@oboe.it.uc3m.es>
+Subject: Re: Kernel deadlock using nbd over acenic driver
+In-Reply-To: From "(env:" "ptb)" at "May 16, 2002 10:49:15 am"
+To: linux kernel <linux-kernel@vger.kernel.org>
+Date: Fri, 17 May 2002 00:54:44 +0200 (MET DST)
+Cc: Steve Whitehouse <Steve@ChyGwyn.com>, alan@lxorguk.ukuu.org.uk,
+        chen_xiangping@emc.com
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 10:54:18AM +0200, Christer Nilsson wrote:
-> Yes, when you removed the smoothing algorithm you forgot to make
-> the change my previous patch fixed. Anyway, I took a look at the code
-> and found that it could be cleaned up a little.
-> This patch works for me, but I can only test it with an Intuos tablet
-> although it should not break anything.
+Sorry I didn't pick this up earlier ..
 
-Thanks, I've added this to my tree, and I'll send it out in the next
-round of patches.
+"Steven Whitehouse wrote:"
+> we don't want to alter that. The "priority inversion" that I mentioned occurs
+> when you get processes without PF_MEMALLOC set calling nbd_send_req() as when
 
-greg k-h
+There aren't any processes that call nbd_send_req except the unique
+nbd client process stuck in the protocol loop in the kernel ioctl
+that it entered at startup.
+
+> they call through to page_alloc.c:__alloc_pages() they won't use any memory
+> once the free pages hits the min mark even though there is memory available
+> (see the code just before and after the rebalance label).
+
+So I think the exact inversion you envisage cannot happen, but ...
+
+I think that the problem is that the nbd-client process doesn't have
+high memory priority, and high priority processes can scream and holler
+all they like and will claim more memory, but won't make anythung better
+because the nbd process can't run (can't get tcp buffers), and so
+can't release the memory pressure.
+
+So I think that your PF_MEMALLOC idea does revert the inversion.
+
+Would it also be good to prevent other processes running? or is it too
+late. Yes, I think it is too late to do any good, by the time we feel
+this pressure.
+
+Peter

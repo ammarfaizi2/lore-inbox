@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbUKXTtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262821AbUKXTvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbUKXTtu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 14:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUKXTtu
+	id S262821AbUKXTvf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 14:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbUKXTvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 14:49:50 -0500
-Received: from mail3.spymac.net ([195.225.149.3]:2520 "EHLO spy23.spymac.net")
-	by vger.kernel.org with ESMTP id S262715AbUKXTts (ORCPT
+	Wed, 24 Nov 2004 14:51:35 -0500
+Received: from lucidpixels.com ([66.45.37.187]:26773 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S262821AbUKXTvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 14:49:48 -0500
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-Mime-Version: 1.0
-From: surya <surya_prabhakar@spymac.com>
-To: linux-kernel@vger.kernel.org,
-       "Olavo B D'Antonio" <olavobdantonio@ig.com.br>
-Subject: Re: Audio problems on AMD64 with Via K8T800 chipset
-Reply-To: surya_prabhakar@spymac.com
-X-Mailer: AtMail 4.02
-X-Origin: 82.3.32.74
-X-Uidl: 1101321006.H585462P6233.mail-in3.spymac.net
-Date: Wed, 24 Nov 2004 11:51:53 -0700
-Message-Id: <20041124185154.A953038048@spy23.spymac.net>
+	Wed, 24 Nov 2004 14:51:20 -0500
+Date: Wed, 24 Nov 2004 14:51:16 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: tulip question: tulip.o vs de4x5.o
+In-Reply-To: <41A4DF61.8050008@pobox.com>
+Message-ID: <Pine.LNX.4.61.0411241451070.19627@p500>
+References: <Pine.LNX.4.61.0411231216470.3740@p500> <20041124073628.GJ2067@lug-owl.de>
+ <41A4DF61.8050008@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using AMD 3400+ with fedora core -3 (alsa 1.0.6) .
-It seems to be fine for me.
+Thanks for all the feedback, I am using the tulip driver, it seems to be 
+working well.
 
--surya
+On Wed, 24 Nov 2004, Jeff Garzik wrote:
 
-On Wed Nov 24 11:18 , Olavo B D'Antonio <olavobdantonio@ig.com.br> sent:
-
->Lee Revell wrote:
->> On Wed, 2004-11-24 at 14:32 -0200, Olavo B D'Antonio wrote:
+> Jan-Benedict Glaw wrote:
+>> On Tue, 2004-11-23 12:28:54 -0500, Justin Piszcz <jpiszcz@lucidpixels.com>
+>> wrote in message <Pine.LNX.4.61.0411231216470.3740@p500>:
 >> 
->>>I have the same problem...
->>>
->>>My system is a AMD64 3200+, motherboard MSI K8T-Neo with on-board sound 
->>>VIA VT8237.
->>>
->>>I'm running kernel 2.6.9.
+>>> Each driver works, I have not benchmarked performance with one over the 
+>>> other with ttcp yet; however, does anyone have any experience with using 
+>>> one over the other? I see the tulip has several options and the de4x5 
+>>> seems to be a rather generic driver.
 >> 
 >> 
->> This may have already been covered on the alsa list, but...
->> 
->> Have any of you tried the OSS drivers?
->> 
->> Lee
->> 
->> 
->> 
+>> The de4x5 driver supports some older revisions of the tulip chipset
+>> which aren't supported by the tulip driver. I guess it could be made to
+>> support those, too, but nobody did that up to now.
 >
->I know that topic fits Alsa list, but I just posted here because they 
->(alsa list) suggested to post here...
+> Incorrect, the older chips are supported by the de2104x driver.
 >
->No.. I didn't try OSS drivers.
+> de4x5 will be going away.
 >
->Another thing: here the Alsa driver uses OSS compatibility modules.
 >
->Olavo D'Antonio
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
+>> You can actually see the difference on older Alphas: de4x5 works while
+>> tulip doesn't transmit or receive a single packet (getting netdev
+>> watchdogs later on...).
+>
+> That's a bug in tulip.
+>
+> 	Jeff
+>
+>
+>

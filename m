@@ -1,87 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUIXRQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUIXRXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268968AbUIXRQH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 13:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268933AbUIXQfh
+	id S268902AbUIXRXk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 13:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268881AbUIXRXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:35:37 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:34179 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S268911AbUIXQRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:17:11 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Rui Nuno Capela" <rncbc@rncbc.org>
-Subject: Re: OHCI_QUIRK_INITRESET (was: 2.6.9-rc2-mm2 ohci_hcd doesn't work)
-Date: Fri, 24 Sep 2004 10:16:46 -0600
-User-Agent: KMail/1.7
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "David Brownell" <david-b@pacbell.net>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "David Brownell" <dbrownell@users.sourceforge.net>,
-       "Roman Weissgaerber" <weissg@vienna.at>,
-       linux-usb-devel@lists.sourceforge.net, "K.R. Foley" <kr@cybsft.com>
-References: <414F8CFB.3030901@cybsft.com> <20040924125500.GB9369@elte.hu> <25766.195.245.190.94.1096034422.squirrel@195.245.190.94>
-In-Reply-To: <25766.195.245.190.94.1096034422.squirrel@195.245.190.94>
+	Fri, 24 Sep 2004 13:23:39 -0400
+Received: from spirit.analogic.com ([208.224.221.4]:53521 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S268902AbUIXRWp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 13:22:45 -0400
+From: "Johnson, Richard" <rjohnson@analogic.com>
+Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
+To: Rahul Karnik <deathdruid@gmail.com>
+Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
+Date: Fri, 24 Sep 2004 13:25:52 -0400 (EDT)
+Subject: Re: Migration to linux-2.6.8 from linux-2.4.26
+In-Reply-To: <5b64f7f040924093035495d74@mail.gmail.com>
+Message-ID: <Pine.LNX.4.53.0409241258180.24517@quark.analogic.com>
+References: <Pine.LNX.4.53.0409241038250.24372@quark.analogic.com>
+ <5b64f7f040924093035495d74@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_uhEVBMvDJ6U8xrf"
-Message-Id: <200409241016.46201.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_uhEVBMvDJ6U8xrf
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, 24 Sep 2004, Rahul Karnik wrote:
 
-My box has:
+> On Fri, 24 Sep 2004 11:10:23 -0400 (EDT), Johnson, Richard
+> <rjohnson@analogic.com> wrote:
+> >
+> > (1) I compiled the new module-init-tools-3.1-pre5.tar.gz. It
+> > claimed to be backward-compatible. After installing it, it
+> > complained about something then seg-faulted. Nevertheless
+> > `insmod` seemed to work so I proceeded.
+>
+> Error message would be nice to have.
+>
 
-0000:00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 05) (prog-if 10 [OHCI])
-        Subsystem: ServerWorks OSB4/CSB5 OHCI USB Controller
-        Flags: bus master, medium devsel, latency 64, IRQ 10
-        Memory at f5e70000 (32-bit, non-prefetchable)
+>From memory:
 
-0000:00:0f.2 Class 0c03: 1166:0220 (rev 05)
+Kernel requires old lsmod but couldn't run ./lsmod.old No such
+file or directory.
 
-The attached patch (which applies on top of Rui's patch for
-ALI M5237) fixes the problem for my DL360.  Here's the relevant
-output:
+I don't know how it 'knew' that I had proviously copied
+all the modutil utilities to *.old before installing the
+new ones. In any event, it would certainly never find
+them at "./filename.old". They would have to be un
+/sbin or /usr/sbin or /usr/local/something, never in
+the current directory.
 
-ohci_hcd 0000:00:0f.2: ServerWorks OSB4/CSB5 OHCI USB Controller
-ohci_hcd 0000:00:0f.2: irq 10, pci mem 0xf5e70000
-ohci_hcd 0000:00:0f.2: new USB bus registered, assigned bus number 1
-ohci_hcd 0000:00:0f.2: Serverworks OSB4/CSB5 init quirk
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 4 ports detected
-USB Universal Host Controller Interface driver v2.2
 
-Thanks for chasing this down!
+> > (2) `make oldconfig` didn't work after copying over the
+> > linux-2.4.26 .config file. This meant that I had to answer
+> > hundreds of questions.
+>
+> This is unavoidable; 2.6 has lots and lots of new features.
+>
 
---Boundary-00=_uhEVBMvDJ6U8xrf
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="ohci_pci-serverworks-quirk-initreset.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ohci_pci-serverworks-quirk-initreset.patch"
+Actually not. It spends its time doing CRCs and linking in
+anti-compatibility stuff (I'm actually being kind, stuff is
+really not the best word).
 
-diff -u -ur 2.6.9-rc2-mm2-orig/drivers/usb/host/ohci-pci.c 2.6.9-rc2-mm2/drivers/usb/host/ohci-pci.c
---- 2.6.9-rc2-mm2-orig/drivers/usb/host/ohci-pci.c	2004-09-24 09:52:43.000000000 -0600
-+++ 2.6.9-rc2-mm2/drivers/usb/host/ohci-pci.c	2004-09-24 09:50:44.000000000 -0600
-@@ -102,6 +102,13 @@
- 			ohci_info (ohci, "ALI M5237 init quirk\n");
- 		}
- 
-+		/* Serverworks OSB4/CSB5 also acts wierd during init */
-+		else if (pdev->vendor == PCI_VENDOR_ID_SERVERWORKS
-+				&& pdev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4USB) {
-+			ohci->flags = OHCI_QUIRK_INITRESET;
-+			ohci_info (ohci, "Serverworks OSB4/CSB5 init quirk\n");
-+		}
-+
- 	}
- 
- 	/* NOTE: there may have already been a first reset, to
+> > (3) `make bzImage` required that I install a new 'C' compiler.
+> > This took several hours.
+>
+> gcc 2.95 should work for 2.6, although I have heard some mention on
+> the list of that not being true anymore.
+>
 
---Boundary-00=_uhEVBMvDJ6U8xrf--
+Well I had to use gcc 3.2 which generates a lot of bloat.
+egcs-2.91.66 worked best for about two years. The code was
+much more compact. Unfortunately, people started using:
+
+#define whatever(a,b,...)
+
+... which the compiler didn't like, probably because a definition
+isn't a function that can take a variable parameter list.
+
+> > (4) Eventually "bzImage" got made. I tried `make modules`.
+> > This took over 2 hours, went through everything several times.
+> > This is a 2.8 GHz system. It usually takes about 6 minutes
+> > to compile the kernel and all the modules. There is something
+> > very wrong with the new compile method when it takes 120
+> > times longer to compile than previously.
+>
+> Something is seriously wrong here, and it has nothing to do with the
+> "new compile method". Please post your 2.4 and 2.6 config files,
+> compiler version and platform info.
+>
+
+I can't get to them yet.
+
+> > (6)  The system would boot, but not find a file-system to mount.
+>
+> Details?
+>
+
+Like I said. `insmod` failed. It failed because somebody
+removed kernel function call query_module, number 167.
+It returns ENOSYS and that's the end of trying to install
+modules. Therefore my root file-system (on a SCSI disk)
+isn't available.
+
+That `insmod` was the un-touched insmod.static that was
+in the untouched initrd boot image.
+
+Nobody should have been allowed to remove that functionality.
+You are supposed to add new functionality to existing software,
+not destroy backward compatibility. Last time I checked
+there were 252 function call numbers. Since it's a 32-bit
+int, there are quite a few more available before one needs to
+delete previous ones to make room.
+
+> > (7)  Tried to reboot using previous kernel. It failed to
+> > load the required drivers for my SCSI disks so I have no
+> > root file-system there.
+> >
+> > (8)  I am currently unable to use my main system. I will have
+> > mount my main SCSI drive on this system, and replace the
+> > module-init-tools with the previous modutils. This should
+> > allow me to get "back" to my previous mounted root.
+>
+> Related to (1), I assume.
+>
+> Have you tried using a rescue disk to fix the problem? Knoppix (or a
+> distro rescue disk) should work fine.
+>
+
+It's a SCSI disk. All I have to do is mount it on this system
+can copy all the saved modutils stuff back.
+
+> Thanks,
+> Rahul
+>
+
+Also, further experiments shows that even my last-resort IDE
+drive can't be used with the new kernel as a root file-system
+because, even though IDE stuff is compiled in, the actual
+drive number, i.e., /dev/hda, etc., is different and can't
+be found, or it uses devfs or something else equally annoying.
+
+Yep.
+Doesn't have to be better, only different.
+
+
+Richard B. Johnson
+Project Engineer
+Analogic Corporation
+Penguin : Linux version 2.2.15 on an i586 machine (330.14 BogoMips).

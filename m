@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130653AbQLKUze>; Mon, 11 Dec 2000 15:55:34 -0500
+	id <S130671AbQLKU6O>; Mon, 11 Dec 2000 15:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130671AbQLKUzY>; Mon, 11 Dec 2000 15:55:24 -0500
-Received: from law-f58.hotmail.com ([209.185.131.121]:7685 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S130653AbQLKUzO>;
-	Mon, 11 Dec 2000 15:55:14 -0500
-X-Originating-IP: [66.8.160.33]
-From: "Ray Strode" <halfline@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: hard lockups
-Date: Mon, 11 Dec 2000 10:24:40 -1000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW-F58budzxxfYXFrw000072af@hotmail.com>
-X-OriginalArrivalTime: 11 Dec 2000 20:24:41.0271 (UTC) FILETIME=[64312470:01C063B0]
+	id <S130632AbQLKU6E>; Mon, 11 Dec 2000 15:58:04 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:24307 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130671AbQLKU5w>; Mon, 11 Dec 2000 15:57:52 -0500
+Date: Mon, 11 Dec 2000 18:23:36 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: John Fremlin <vii@penguinpowered.com>, scole@lanl.gov,
+        linux-kernel@vger.kernel.org
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+In-Reply-To: <E145Xy6-0008HA-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0012111823150.4808-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a PC164 Alpha (500Mhz) and I get hard lock ups randomly when 
-accessing the internet.  It happens very frequently (like within a few 
-minutes) with 2.4 kernels, but happens much more infrequently with 2.2 
-kernels.  Also, I have to compile the kernel for generic alpha (NOT PC164) 
-otherwise I get ide-probe errors on bootup.  My network card
-is a 3com boomerang (I think? it uses 3c59x.o and it's PCI). Any ideas?
+On Mon, 11 Dec 2000, Alan Cox wrote:
 
---Ray Strode
-_____________________________________________________________________________________
-Get more from the Web.  FREE MSN Explorer download : http://explorer.msn.com
+> > Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
+> > for the VM doesn't make any sense since it doesn't really excercise
+> > the VM in any way...
+> 
+> Its an interesting demo that 2.4 has some performance problems
+> since 2.2 is slower than 2.0 although nowdays not much.
+
+Indeed, but blaming the VM subsystem for something which hardly
+touches the VM is a tad strange ...
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbUCONNh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 08:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbUCONNg
+	id S262564AbUCONXq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 08:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUCONXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 08:13:36 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:6153 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261959AbUCONNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 08:13:35 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] WOLK v2.0 for Kernel v2.6.4
-Date: Mon, 15 Mar 2004 14:13:13 +0100
-User-Agent: KMail/1.6.1
-Cc: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net
-References: <200403142314.37398@WOLK>
-In-Reply-To: <200403142314.37398@WOLK>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+	Mon, 15 Mar 2004 08:23:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47815 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262564AbUCONXp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 08:23:45 -0500
+Date: Mon, 15 Mar 2004 08:23:24 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       <marcelo.tosatti@cyclades.com>, <j-nomura@ce.jp.nec.com>,
+       <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
+Subject: Re: [2.4] heavy-load under swap space shortage
+In-Reply-To: <20040315114914.GA30940@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403150822040.12895-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200403151413.13643@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 14 March 2004 23:14, Marc-Christian Petersen wrote:
+On Mon, 15 Mar 2004, Andrea Arcangeli wrote:
 
-Hi again,
+> it is the absolutely worst case since both lru could be of around the same
+> size (800M zone-normal-lru and 1.2G zone-highmem-lru), maximizing the
+> loss of "age" information needed for optimal reclaim decisions.
 
-> o   added:    Allow reading last block (write not)		(Andrea Arcangeli)
+You only lose age information if you don't put equal aging
+pressure on both zones.  If you make sure the allocation and
+pageout pressure are more or less in line with the zone sizes,
+why would you lose any aging information ?
 
-my bad, this should be:
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-
- o    fixed:    reading the last block on a bdev		(Chris Mason)
-
-
-it is this fix: 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1608.83.55?nav=index.html|
-ChangeSet@-7d
-
-
-Thanks to Jens for noticing this.
-
-ciao, Marc

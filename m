@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVBSXua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVBTAMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVBSXua (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 18:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVBSXua
+	id S262284AbVBTAMG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 19:12:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVBTAMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 18:50:30 -0500
-Received: from mail.gmx.de ([213.165.64.20]:20702 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262283AbVBSXuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 18:50:25 -0500
-X-Authenticated: #4399952
-Date: Sun, 20 Feb 2005 00:50:22 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: sylvanino b <sylvanino@gmail.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: I wrote a kernel tool for monitoring / web page
-Message-ID: <20050220005022.64a6c9ea@mango.fruits.de>
-In-Reply-To: <d14685de05021817333c563cc9@mail.gmail.com>
-References: <d14685de050218164127828b06@mail.gmail.com>
-	<1108774916.6040.4.camel@krustophenia.net>
-	<d14685de05021817333c563cc9@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sat, 19 Feb 2005 19:12:06 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:1837 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S262284AbVBTAMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 19:12:03 -0500
+Date: Sat, 19 Feb 2005 16:10:36 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: updated list of unused kernel exports posted
+Message-ID: <20050220001036.GB27331@ca-server1.us.oracle.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <1108847674.6304.158.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108847674.6304.158.camel@laptopd505.fenrus.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.6+20040907i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Feb 2005 02:33:00 +0100
-sylvanino b <sylvanino@gmail.com> wrote:
+On Sat, Feb 19, 2005 at 10:14:33PM +0100, Arjan van de Ven wrote:
+> +get_sb_pseudo
 
-> Hi,
-> 
-> Sorry, it's meant to run on linux.
-> Actually, patch provided is for linux 2.6.9 + kdb 4.4
-> 
-> 
-> I have uploaded a new tarball and updated the webpage.
-> should be ok,
-> 
-> Sylvain
+	Used by Oracle's GPL ASMLib driver, and I think by some OCFS2
+stuff as well.
 
-For some reason all i ever get to see is the front page.. Any link just
-leads to an empty page like this [screenshot]:
-
-http://affenbande.org/~tapas/kernelanalyzer_web.png
-
-I second lee's idea to move the project to sf.net or berlios.
-
-flo
+Joel
 
 -- 
-Palimm Palimm!
-http://affenbande.org/~tapas/
+
+"If you are ever in doubt as to whether or not to kiss a pretty girl, 
+ give her the benefit of the doubt"
+                                        -Thomas Carlyle
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261634AbTCGQJ2>; Fri, 7 Mar 2003 11:09:28 -0500
+	id <S261638AbTCGQNi>; Fri, 7 Mar 2003 11:13:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261643AbTCGQJ2>; Fri, 7 Mar 2003 11:09:28 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:65410 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261634AbTCGQJ1>;
-	Fri, 7 Mar 2003 11:09:27 -0500
-Date: Fri, 7 Mar 2003 08:18:16 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: mzyngier@freesurf.fr
-Cc: akpm@digeo.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix fs/binfmt_elf.c build
-Message-Id: <20030307081816.40088fbc.rddunlap@osdl.org>
-In-Reply-To: <wrpy93r61q1.fsf@hina.wild-wind.fr.eu.org>
-References: <wrpy93r61q1.fsf@hina.wild-wind.fr.eu.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261646AbTCGQNi>; Fri, 7 Mar 2003 11:13:38 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:60305 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261638AbTCGQNg>; Fri, 7 Mar 2003 11:13:36 -0500
+Date: Fri, 07 Mar 2003 08:24:02 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>, Rick Lindsley <ricklind@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA scheduler broken 
+Message-ID: <330040000.1047054242@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0303071339090.10744-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303071339090.10744-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Mar 2003 09:05:26 +0100 Marc Zyngier <mzyngier@freesurf.fr> wrote:
+>> Looks like __activate_task() should call nr_running_inc(rq) rather than
+>> rq->nr_running++, and the same in wake_up_forked_process().  My guess is
+>> that the bogus node_nr_running value is causing some really poor
+>> scheduling decisions to be made on NUMA.  See if that changes your
+>> result.
 
-| Andi,
-| 
-| The stack reducing patch that recently went in prevent alpha from
-| building (missing some ELF_CORE_COPY_XFPREGS ifdefs). The excluded
-| patch fixes it.
-| 
-| Thanks,
+Yay! that fixes it. Nice catch Rick.
 
-Ugh, sorry about that.
+> indeed. The attached patch (against BK-curr) fixes this.
 
---
-~Randy
+Thanks Ingo ... Linus, could you add that one?
+
+Thanks,
+
+M.
+ 
+> 	Ingo
+> 
+> --- kernel/sched.c.orig	2003-03-07 13:40:53.000000000 +0100
+> +++ kernel/sched.c	2003-03-07 13:41:19.000000000 +0100
+> @@ -325,7 +325,7 @@
+>  static inline void __activate_task(task_t *p, runqueue_t *rq)
+>  {
+>  	enqueue_task(p, rq->active);
+> -	rq->nr_running++;
+> +	nr_running_inc(rq);
+>  }
+>  
+>  static inline void activate_task(task_t *p, runqueue_t *rq)
+> @@ -545,7 +545,7 @@
+>  		list_add_tail(&p->run_list, &current->run_list);
+>  		p->array = current->array;
+>  		p->array->nr_active++;
+> -		rq->nr_running++;
+> +		nr_running_inc(rq);
+>  	}
+>  	task_rq_unlock(rq, &flags);
+>  }
+> 
+> 
+
+

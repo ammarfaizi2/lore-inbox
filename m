@@ -1,137 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265922AbVBDRci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263861AbVBDRfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265922AbVBDRci (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264739AbVBDRch
+	id S263861AbVBDRfH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:35:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264570AbVBDRe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:32:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36807 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265801AbVBDRbP (ORCPT
+	Fri, 4 Feb 2005 12:34:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52167 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265832AbVBDRbp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:31:15 -0500
+	Fri, 4 Feb 2005 12:31:45 -0500
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] FRV: cli/sti cleanup
+Subject: [PATCH] FRV: Add TIF_MEMDIE
 X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Fri, 04 Feb 2005 17:31:01 +0000
-Message-ID: <28715.1107538261@redhat.com>
+Date: Fri, 04 Feb 2005 17:31:39 +0000
+Message-ID: <28747.1107538299@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The attached patch cleans up the remaining references to the cli() and sti()
-functions from the FRV arch now they're deprecated.
+The attached patch adds TIF_MEMDIE for FRV.
+
+Could whoever added it to include/asm-i386/thread_info.h comment this flag
+there please? I've given it a comment here, but I'm not sure it's correct.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
-warthog>diffstat -p1 frv-clisti-cleanup-2611rc3.diff 
- arch/frv/kernel/irq-routing.c |    4 ++--
- arch/frv/kernel/irq.c         |   12 ++++++------
- arch/frv/kernel/pm.c          |   12 ++++++------
- 3 files changed, 14 insertions(+), 14 deletions(-)
+warthog>diffstat -p1 frv-tif-memdie-2611rc3.diff 
+ include/asm-frv/thread_info.h |    1 +
+ 1 files changed, 1 insertion(+)
 
-diff -uNrp /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/irq.c linux-2.6.11-rc3-frv/arch/frv/kernel/irq.c
---- /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/irq.c	2005-02-04 11:49:30.000000000 +0000
-+++ linux-2.6.11-rc3-frv/arch/frv/kernel/irq.c	2005-02-04 12:36:25.000000000 +0000
-@@ -316,16 +316,16 @@ asmlinkage void do_IRQ(void)
- 			do_softirq();
+diff -uNrp /warthog/kernels/linux-2.6.11-rc3/include/asm-frv/thread_info.h linux-2.6.11-rc3-frv/include/asm-frv/thread_info.h
+--- /warthog/kernels/linux-2.6.11-rc3/include/asm-frv/thread_info.h	2005-02-04 11:50:21.000000000 +0000
++++ linux-2.6.11-rc3-frv/include/asm-frv/thread_info.h	2005-02-04 12:29:39.000000000 +0000
+@@ -132,6 +132,7 @@ register struct thread_info *__current_t
+ #define TIF_SINGLESTEP		4	/* restore singlestep on return to user mode */
+ #define TIF_IRET		5	/* return with iret */
+ #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
++#define TIF_MEMDIE		17	/* OOM killer killed process */
  
- #ifdef CONFIG_PREEMPT
--	cli();
-+	local_irq_disable();
- 	while (--current->preempt_count == 0) {
--		if (!(__frame->psr & PSR_S)
--		    || (current->need_resched == 0)
--		    || in_interrupt())
-+		if (!(__frame->psr & PSR_S) ||
-+		    current->need_resched == 0 ||
-+		    in_interrupt())
- 			break;
- 		current->preempt_count++;
--		sti();
-+		local_irq_enable();
- 		preempt_schedule();
--		cli();
-+		local_irq_disable();
- 	}
- #endif
- 
-diff -uNrp /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/irq-routing.c linux-2.6.11-rc3-frv/arch/frv/kernel/irq-routing.c
---- /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/irq-routing.c	2005-02-04 11:49:30.000000000 +0000
-+++ linux-2.6.11-rc3-frv/arch/frv/kernel/irq-routing.c	2005-02-04 12:36:46.000000000 +0000
-@@ -82,7 +82,7 @@ void distribute_irqs(struct irq_group *g
- 			int status = 0;
- 
- //			if (!(action->flags & SA_INTERRUPT))
--//				sti();
-+//				local_irq_enable();
- 
- 			do {
- 				status |= action->flags;
-@@ -92,7 +92,7 @@ void distribute_irqs(struct irq_group *g
- 
- 			if (status & SA_SAMPLE_RANDOM)
- 				add_interrupt_randomness(irq);
--			cli();
-+			local_irq_disable();
- 		}
- 	}
- }
-diff -uNrp /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/pm.c linux-2.6.11-rc3-frv/arch/frv/kernel/pm.c
---- /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/pm.c	2005-02-04 11:49:30.000000000 +0000
-+++ linux-2.6.11-rc3-frv/arch/frv/kernel/pm.c	2005-02-04 12:38:21.000000000 +0000
-@@ -36,7 +36,7 @@ extern void frv_change_cmode(int);
- 
- int pm_do_suspend(void)
- {
--	cli();
-+	local_irq_disable();
- 
- 	__set_LEDS(0xb1);
- 
-@@ -45,7 +45,7 @@ int pm_do_suspend(void)
- 
- 	__set_LEDS(0xb2);
- 
--	sti();
-+	local_irq_enable();
- 
- 	return 0;
- }
-@@ -84,7 +84,7 @@ void (*__power_switch_wake_cleanup)(void
- 
- int pm_do_bus_sleep(void)
- {
--	cli();
-+	local_irq_disable();
- 
- 	/*
-          * Here is where we need some platform-dependent setup
-@@ -113,7 +113,7 @@ int pm_do_bus_sleep(void)
- 	 */
- 	__power_switch_wake_cleanup();
- 
--	sti();
-+	local_irq_enable();
- 
- 	return 0;
- }
-@@ -191,7 +191,7 @@ static int try_set_cmode(int new_cmode)
- 	pm_send_all(PM_SUSPEND, (void *)3);
- 
- 	/* now change cmode */
--	cli();
-+	local_irq_disable();
- 	frv_dma_pause_all();
- 
- 	frv_change_cmode(new_cmode);
-@@ -203,7 +203,7 @@ static int try_set_cmode(int new_cmode)
- 	determine_clocks(1);
- #endif
- 	frv_dma_resume_all();
--	sti();
-+	local_irq_enable();
- 
- 	/* tell all the drivers we're resuming */
- 	pm_send_all(PM_RESUME, (void *)0);
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)

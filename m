@@ -1,90 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265924AbUBKRIr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 12:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbUBKRIq
+	id S266020AbUBKRXk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 12:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266031AbUBKRXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 12:08:46 -0500
-Received: from ns.suse.de ([195.135.220.2]:61631 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265924AbUBKRIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 12:08:42 -0500
-Date: Sat, 14 Feb 2004 19:59:49 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alex Pankratov <ap@swapped.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.6] [2/2] hlist: remove IFs from hlist functions
-Message-Id: <20040214195949.2ad9aa4f.ak@suse.de>
-In-Reply-To: <402A5CEC.2030603@swapped.cc>
-References: <4029CB7E.4030003@swapped.cc.suse.lists.linux.kernel>
-	<4029CF24.1070307@osdl.org.suse.lists.linux.kernel>
-	<4029D2D5.7070504@swapped.cc.suse.lists.linux.kernel>
-	<p73y8ra5721.fsf@nielsen.suse.de>
-	<402A5CEC.2030603@swapped.cc>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 11 Feb 2004 12:23:40 -0500
+Received: from poros.telenet-ops.be ([195.130.132.44]:60327 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S266020AbUBKRXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 12:23:03 -0500
+Date: Wed, 11 Feb 2004 18:12:48 +0100
+From: Tim Vandermeersch <Tim.Vandermeersch@pandora.be>
+To: linux-kernel@vger.kernel.org
+Cc: davem@redhat.com
+Subject: [PATCH] Make Krups javastation work with 2.6.2 [forgot patch :(]
+Message-ID: <20040211171248.GA24148@pandora.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-system: Debian GNU/Linux
+X-Message-Flag: Get yourself a real email client. http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Feb 2004 08:48:44 -0800
-Alex Pankratov <ap@swapped.cc> wrote:
 
-> 
-> Andi Kleen wrote:
-> 
-> > Alex Pankratov <ap@swapped.cc> writes:
-> > 
-> >>
-> >>No, because its 'pprev' field *is* getting modified.
-> > 
-> > I didn't notice this before, sorry. But this could end up 
-> > being a scalability problem on big SMP systems. Even though
-> > the cache line of this is never read it will bounce all the
-> > time between all CPUs using hlists and add considerably 
-> > latency and cross node traffic. Remember Linux is supposed
-> > to run well on 128 CPU machines now.
-> 
-> That's a bit above my head. How does this potential latency
-> compare to the speed up due to not having CMPs ? My cycle
-> counting skills are a bit dusty :)
+--+g7M9IMkV8truYOl
+Content-Type: multipart/mixed; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
 
-A full cache miss is extremly costly on a modern Gigahertz+ CPU because
-memory and busses are far slower than the CPU core. As a rule of 
-thumb 1000+ cycles. An CMP is extremly cheap (a few cycles at worst), 
-the only thing that could be more expensive is an mispredicted conditional
-jump triggered  by the CMP. But even that would be at best a few tens of cycles.
-If everything is mispredicted which should be common it's extremly fast
-(a few cycles only) 
 
-In addition on a big multiprocessor machine bouncing cache lines between
-CPUs is costly because it adds load to the interconnect.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-One way to avoid the possible mispredicted jump would be to reorganize the
-code that the compiler can use CMOV. The issue is that on x86 CMOV 
-cannot do a conditional store to memory, so it has to use something like
+Patch to make kerbel 2.6.2 work with krups javastation.
 
-	unsigned long *target = realtarget;
-	unsigned long dummy;
-	if (condfalse) 
-		target = &dummy;     /* <---- can be converted to CMOV */
-	*target = dummy;
-			
-(gcc should do that on its own, but it doesn't). I'm not really sure
-it's practical to do that for the CMP here and if it's even worth it.
+--=20
+Regards,
+Tim Vandermeersch
 
-Most likely the hlist loops are dominated by cache misses in walking the 
-nodes anyways.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="javastation.krups-2.6.2.patch"
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > 
-> > Maybe you can make it UP only, but I'm still not sure it's 
-> > worth it.
-> > 
-> 
-> Sorry, I didn't the 'UP' part.
+--- linux-2.6.2_orig/arch/sparc/kernel/pcic.c	2004-02-04 04:43:55.000000000=
+ +0100
++++ linux-2.6.2_hack/arch/sparc/kernel/pcic.c	2004-02-11 17:35:37.000000000=
+ +0100
+@@ -35,9 +35,24 @@
+ #include <asm/timer.h>
+ #include <asm/uaccess.h>
+=20
+-
++/*
++ * When using ioremap in igafb.c the address 0x30000000 got mapped
++ * twice wich caused a panic
++ */
++static void __devinit pci_fixup_igafb(struct pci_dev *dev)
++{
++	prom_printf("pci_fixup_igafb();\n");
++	dev->resource[1].start =3D 1;
++	dev->resource[1].end   =3D 0;
++	dev->resource[1].flags =3D IORESOURCE_IO;
++}
++=20
+ struct pci_fixup pcibios_fixups[] =3D {
+-	{ 0 }
++	{
++		PCI_FIXUP_HEADER,
++		PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
++		pci_fixup_igafb
++	}, { 0 }
+ };
+=20
+ unsigned int pcic_pin_to_irq(unsigned int pin, char *name);
+--- linux-2.6.2_orig/drivers/video/igafb.c	2004-02-04 04:43:56.000000000 +0=
+100
++++ linux-2.6.2_hack/drivers/video/igafb.c	2004-02-11 17:39:58.000000000 +0=
+100
+@@ -327,6 +327,7 @@
+ 	.fb_fillrect	=3D cfb_fillrect,
+ 	.fb_copyarea	=3D cfb_copyarea,
+ 	.fb_imageblit	=3D cfb_imageblit,
++	.fb_cursor	=3D soft_cursor,
+ #ifdef __sparc__
+ 	.fb_mmap 	=3D igafb_mmap,
+ #endif
+@@ -409,7 +410,8 @@
+         memset(info, 0, size);
+=20
+ 	par =3D (struct iga_par *) (info + 1);
+-=09
++
++	info->par =3D par;=09
+=20
+ 	if ((addr =3D pdev->resource[0].start) =3D=3D 0) {
+                 printk("igafb_init: no memory start\n");
+@@ -447,16 +449,21 @@
+ 	 */
+ 	if (iga2000) {
+ 		igafb_fix.mmio_start =3D par->frame_buffer_phys | 0x00800000;
+-	} else {
+-		igafb_fix.mmio_start =3D 0x30000000;	/* XXX */
+-	}
+-	if ((par->io_base =3D (int) ioremap(igafb_fix.mmio_start, igafb_fix.smem_=
+len)) =3D=3D 0) {
+-                printk("igafb_init: can't remap %lx[4K]\n", igafb_fix.mmio=
+_start);
+-		iounmap((void *)info->screen_base);
+-		kfree(info);
+-		return -ENXIO;
+-	}
+=20
++		if ((par->io_base =3D (int) ioremap(igafb_fix.mmio_start,=20
++						igafb_fix.smem_len)) =3D=3D 0) {
++        	        printk("igafb_init: can't remap %lx[4K]\n",=20
++					igafb_fix.mmio_start);
++			iounmap((void *)info->screen_base);
++			kfree(info);
++			return -ENXIO;
++		}
++	 } else {
++	 	/* fixup in arch/sparc/kernelpcic.c */
++		par->io_base =3D pdev->resource[1].start - 1;
++	 }
++
++=09
+ 	/*
+ 	 * Figure mmap addresses from PCI config space.
+ 	 * We need two regions: for video memory and for I/O ports.
+--- linux-2.6.2_orig/drivers/input/serio/i8042-sparcio.h	2004-02-04 04:45:0=
+2.000000000 +0100
++++ linux-2.6.2_hack/drivers/input/serio/i8042-sparcio.h	2004-02-11 17:43:1=
+7.000000000 +0100
+@@ -85,8 +85,10 @@
+ 			if (!strcmp(child->prom_name, OBP_PS2KBD_NAME1) ||
+ 			    !strcmp(child->prom_name, OBP_PS2KBD_NAME2)) {
+ 				i8042_kbd_irq =3D child->irqs[0];
++				/* tested on krups javastation */
+ 				kbd_iobase =3D (unsigned long)
+-					ioremap(child->resource[0].start, 8);
++					(child->resource[0].start - 0x60);
++				 /* ioremap(child->resource[0].start, 8); */
+ 			}
+ 			if (!strcmp(child->prom_name, OBP_PS2MS_NAME1) ||
+ 			    !strcmp(child->prom_name, OBP_PS2MS_NAME2))
 
-Uniprocessor = !CONFIG_SMP with an #ifdef.
+--pf9I7BMVVzbSWLtt--
 
--Andi
+--+g7M9IMkV8truYOl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAKmKQxIv5fcynryoRAqwYAJ9e9RqXAUQ9XTlwIvjxs/KG04VlhwCfZCFC
+WSTYu06fcjmDmJYZx7/XMU4=
+=9e62
+-----END PGP SIGNATURE-----
+
+--+g7M9IMkV8truYOl--

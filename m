@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270172AbTGPGSD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 02:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270173AbTGPGSD
+	id S262601AbTGPGTX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 02:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTGPGTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 02:18:03 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:31908 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S270172AbTGPGR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 02:17:59 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16148.61840.663255.863176@napali.hpl.hp.com>
-Date: Tue, 15 Jul 2003 23:32:48 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [patch] e1000 TSO parameter
-In-Reply-To: <20030715183911.1c18cc15.davem@redhat.com>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229169@orsmsx402.jf.intel.com>
-	<20030714214510.17e02a9f.davem@redhat.com>
-	<16147.37268.946613.965075@napali.hpl.hp.com>
-	<20030714223822.23b78f9b.davem@redhat.com>
-	<16148.34787.633496.949441@napali.hpl.hp.com>
-	<20030715183911.1c18cc15.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Wed, 16 Jul 2003 02:19:23 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:56572 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S262601AbTGPGTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 02:19:12 -0400
+Subject: Re: modules problems with 2.6.0 (module-init-tools-0.9.12)
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
+Cc: Piet Delaney <piet@www.piet.net>, rddunlap@osdl.org,
+       fsanchez@mail.usfq.edu.ec, KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030716021210.56ea8360.diegocg@teleline.es>
+References: <3F147B8F.5000103@mail.usfq.edu.ec>
+	 <20030715152257.614d628b.rddunlap@osdl.org>
+	 <1058313192.21300.988.camel@www.piet.net>
+	 <20030716021210.56ea8360.diegocg@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1058337248.13515.1381.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 16 Jul 2003 08:34:09 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 15 Jul 2003 18:39:11 -0700, "David S. Miller" <davem@redhat.com> said:
+On Wed, 2003-07-16 at 02:12, Diego Calleja García wrote:
+> El 15 Jul 2003 16:53:12 -0700 Piet Delaney <piet@www.piet.net> escribió:
+> 
+> > On Tue, 2003-07-15 at 15:22, Randy.Dunlap wrote:
+> > 
+> > I heard that if you install the new module-init-tools package in
+> > /sbin that you would be able to boot old kernels. Is that true?
+> 
+> It works here.
+> i've a debian distro, i apt-get'ed module-init-tools. Man modprobe says:
+> 
+> BACKWARDS COMPATIBILITY
+>        This version of insmod is  for  kernels  2.5.48  and  above.   If  it
+>        detects  a kernel with support for old-style modules (for which much of
+>        the work was done in userspace), it will attempt to run  insmod.modu-
+>        tils in its place, so it is completely transparent to the user.
+> 
+> diego@estel:~$ ls -l /sbin/insmod*
+> -rwxr-xr-x    1 root     root         5072 2003-06-15 12:27 /sbin/insmod
+> -rwxr-xr-x    1 root     root          359 2003-03-06 15:50 /sbin/insmod_ksymoops_clean
+> -rwxr-xr-x    1 root     root        95372 2003-03-06 15:50 /sbin/insmod.modutils
+> 
+> 
+> Looking at the size, insmod.modutils seems the 2.4 insmod loader. 
 
-  >>  We could, but would it always be a win?  Especially for
-  >> copy_from_user().  Most of the time, that data remains cached, so
-  >> I don't think we'd want to use non-temporal stores on those (in
-  >> general).  csum_and_copy_from_user() isn't well optimized yet.
-  >> Let's see if I can find a volunteer... ;-)
+That is Debian doing things differently again.  The vanilla
+modules-init-tools will run insmod.old:
 
-  DaveM> No, I mean "bypass L2 cache on miss" for stores.  Don't tell
-  DaveM> me IA64 doesn't have that? 8) I certainly didn't mean "always
-  DaveM> bypass L2 cache" for stores :-)
+  $ ls /sbin/insmod*
+  /sbin/insmod  /sbin/insmod.old  /sbin/insmod.static 
+/sbin/insmod_ksymoops_clean
+  $ 
 
-What I'm saying is that I almost always want copy_user() to put the
-destination data in the cache, even if it isn't cached yet.  Many
-copy_user() calls are for for data structures that easily fit in the
-cache and the data is usually used quickly afterwards.
+Anyhow, usually reading the documentation (*hint* README *hint*)
+should help.
 
-As for cache-hints supported by IA64: the architecture supports
-various non-temporal hints (non-temporal in 1st, 2nd, or all
-cache-levels).  How these hints are implemented depends on the chip.
-On McKinley, non-temporal hints are generally implemented by storing
-the data in the cache without updating the LRU info.  So if the data
-is already there, it will stay cached (until a victim is needed).
 
-	--david
+-- 
+Martin Schlemmer
+
+

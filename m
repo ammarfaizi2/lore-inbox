@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264146AbTEORMG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 13:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTEORMG
+	id S264127AbTEORWb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 13:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbTEORWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 13:12:06 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:26031 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264146AbTEORMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 13:12:03 -0400
-Date: Thu, 15 May 2003 10:24:46 -0700
-To: Greg KH <greg@kroah.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: airo and firmware upload (was Re: 2.6 must-fix list, v3)
-Message-ID: <20030515172446.GD17496@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030514211222.GA10453@bougret.hpl.hp.com> <3EC2BDEC.6020401@pobox.com> <20030514233235.GA11581@bougret.hpl.hp.com> <20030515071317.GB6497@kroah.com>
+	Thu, 15 May 2003 13:22:31 -0400
+Received: from fed1mtao08.cox.net ([68.6.19.123]:28293 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S264127AbTEORW3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 13:22:29 -0400
+Date: Thu, 15 May 2003 10:35:13 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: rmk@arm.linux.org.uk, Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: [PATCH] IRQ and resource for platform_device
+Message-ID: <20030515103513.B7685@home.com>
+References: <20030515145920.B31491@flint.arm.linux.org.uk> <20030515090350.A7685@home.com> <20030515173052.C31491@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030515071317.GB6497@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030515173052.C31491@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, May 15, 2003 at 05:30:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 12:13:18AM -0700, Greg KH wrote:
-> On Wed, May 14, 2003 at 04:32:35PM -0700, Jean Tourrilhes wrote:
-> > 	Ok, so I ask it this way : currently the kernel include some
-> > drivers containing some binary firmwares blobs which are linked
-> > directly into the kernel/module (including networking). Does this mean
-> > that you are going to remove those driver from the kernel ASAP ? Or
-> > does this mean that the rule above only apply to wireless drivers ?
-> > 	Let's be logical and coherent here...
+On Thu, May 15, 2003 at 05:30:52PM +0100, Russell King wrote:
+> On Thu, May 15, 2003 at 09:03:50AM -0700, Matt Porter wrote:
+> > On Thu, May 15, 2003 at 02:59:20PM +0100, Russell King wrote:
+> > > The location and interrupt of some platform devices are only known by
+> > > platform specific code.  In order to avoid putting platform specific
+> > > parameters into drivers, place resource and irq members into struct
+> > > platform_device.
+> > > 
+> > > Discussion point: is one resource and one irq enough?
+> > 
+> > No.
+> > 
+> > We have the same need for PPC SoC and system controller on-chip
+> > devices.  Some devices have multiple interrupts and/or resources.
 > 
-> I've stated this for _years_ now, I'm very glad to take patches to move
-> the firmware blobs out of the usb drivers that currently have them, and
-> move it to userspace, if people send me those patches.  For all the
-> whining on debian-legal about them over the _years_, no one has sent me
-> such a patch.
-> 
-> Ok, yes, I did get the start of some patches in the early 2.4 series, I
-> said I would accept them in 2.5 as it was too radical of a change to
-> take during a stable kernel series (the developer agreed with me.)  They
-> were never resubmitted to me during the entire 2.5 development time.
-> 
-> thanks,
-> 
-> greg k-h
+> Is there a sane limit on the number of interrupts and resources for one
+> device?
 
-	At this point, we must get something ASAP in the kernel,
-otherwise the various drivers waiting for it will just implement their
-own proprietary solutions and be done with it. And it doesn't need to
-be perfect at this stage, as long as it can evolve in the right
-direction.
-	Manuel Estrada sent me a proposal for that. As it seems it's
-the only one we have on the table right now, I will spend some time
-looking at it and convincing other wireless driver authors to adopt
-it. I hope you will help us getting that integrated and adopted.
-	Thanks...
+As of today, I know of a device that has 5 interrupts and another
+with 2 interrupts.  I believe two resources is the most I've seen
+so far on a "dumb" on-chip device.
 
-	Jean
+I think having an array of irqs and resources of max count 8 should
+do it for now.
+
+No matter what we choose, the hardware designers will screw it up
+eventually.
+
+Regards,
+-- 
+Matt Porter
+mporter@kernel.crashing.org

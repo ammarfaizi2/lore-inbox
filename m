@@ -1,58 +1,46 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262553AbULDQ1K (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 4 Dec 2004 11:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbULDQ1J
+	id S261995AbULKRuw (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 11 Dec 2004 12:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULKRur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 11:27:09 -0500
-Received: from c-67-164-249-139.client.comcast.net ([67.164.249.139]:48638
-	"EHLO sambasolutions.com") by vger.kernel.org with ESMTP
-	id S262553AbULDQ1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 11:27:07 -0500
-Date: Sat, 4 Dec 2004 08:59:35 -0500
-Message-Id: <200412041359.iB4DxZa3018304@localhost.localdomain>
-Subject: Award Notification Reminder
-From: AWARD_DEPT <janellemims@yahoo.com>
-X-Priority: 3 (Normal)
+	Sat, 11 Dec 2004 12:50:47 -0500
+Received: from cm-213-141-48-41.telecable.es ([213.141.48.41]:41228 "HELO
+	cm-213.141.48-41.telecable.es") by vger.kernel.org with SMTP
+	id S261984AbULKRuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 12:50:22 -0500
+Subject: May I sit down?'
+From: "Crane" <mxeqkumhztuspdq@telecable.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-3
+To: "Soto" <bsclhmo@telecable.es>
+Message-ID: <27048994909-1596322@213.141.48.41>
 Content-Transfer-Encoding: 7bit
-X-Mailer: RLSP Mailer
-To: unlisted-recipients:; (no To-header on input)
+Date: Sat, 11 Dec 2004 10:31:48 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262553AbULDQ1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261995AbULKRuw@vger.kernel.org>
+
+Think getting a 1.95%   ra . t e   is impossible?
+
+Think AGAIN!
+
+We can offer you the absolute rock-bottom  lowe s t   ra t e,    g u a ranteed.
+
+We work with all  c r edit   types.  Visit our site now
+http://www.theseto.com/
+
+Crane
 
 
-Dear Winner,
-
-This is a final reminder on your Lottery claim award in the "C" 
-category of the Computer Ballot System of selection. As your Claims 
-Coordinator, you are advised to contact your claims agent.
-Contact person:
-
-Mr. Gary Morvel
-Email: garymorvel@ignmail.com
-First Atlantic Processing Center.
-Preston, United Kingdom.
-
-May i caegorically state that there will be no further extension for 
-any winner who cannot finalise further claims before the deadline as this 
-will be automatically tagged as unclaimed.
-
-Winners are to immediately request for the certificate of claims as 
-soon as possible as most payment has been approved, and authorisation will 
-only be based on your response within 24 working hours from now.
-
-Note: Keep away all winning details from public notice to avaoid 
-fraudulent claim from a third party.
-
-Congratulations once again.
-
-Best Regards,
-Mrs. Janelle Mims.
-[CLAIMS CORODINATOR]
 
 
-___________________________________________________________________________
-Mail sent from WebMail service at The Tech Team Powered Site
-- http://www.thetechteam.net
+heard out of colt
+programmer the mandarin. sparkle
+fairchild prolongate, I classic
+the via a with syntactic
+vitiate and craig, beowulf a guilty
+the at whop emplace efface
+a the in fail
+anachronism, aarhus abbreviate topography
+
+

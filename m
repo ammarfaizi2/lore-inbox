@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280702AbRKBOQM>; Fri, 2 Nov 2001 09:16:12 -0500
+	id <S280699AbRKBOQD>; Fri, 2 Nov 2001 09:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280700AbRKBOPx>; Fri, 2 Nov 2001 09:15:53 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:57093 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S280699AbRKBOPi>; Fri, 2 Nov 2001 09:15:38 -0500
-Date: Sat, 3 Nov 2001 01:14:58 +1100
-From: john slee <indigoid@higherplane.net>
-To: Kilobug <kilobug@freesurf.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2 and 2.4 VM systems analysed
-Message-ID: <20011103011458.C2430@higherplane.net>
-In-Reply-To: <3BE1A790.25B7E6F5@illusionary.com> <3BE1DDC8.6070103@freesurf.fr>
-Mime-Version: 1.0
+	id <S280702AbRKBOPw>; Fri, 2 Nov 2001 09:15:52 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:58382 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S280700AbRKBOPm>; Fri, 2 Nov 2001 09:15:42 -0500
+Message-ID: <3BE2B704.247E4050@evision-ventures.com>
+Date: Fri, 02 Nov 2001 16:08:52 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+In-Reply-To: <2211.1004709304@ocs3.intra.ocs.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE1DDC8.6070103@freesurf.fr>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02, 2001 at 12:42:00AM +0100, Kilobug wrote:
-> standardized. (and don't use commercial softwares, I don't own Oracle so 
-> I can't run a test needinf Oracle).
+Keith Owens wrote:
+> 
+> On Fri, 02 Nov 2001 13:39:29 +0100,
+> Martin Dalecki <dalecki@evision-ventures.com> wrote:
+> >Bull shit. Standard policy is currently to keep crude old
+> >interfaces until no end of time. Here are some examples:
+> >...
+> >/proc/ksyms - this is duplicating a system call (and making stuff easier
+> >for intrusors)
+> 
+> Anybody can issue syscall query_module.  Removing /proc/ksyms just
+> forces users to run an executable or Perl syscall().  You have not
+> improved security and you have made it harder to report and diagnose
+> problems.
 
-oracle can be downloaded and legally used for personal non-commercial
-purposes i believe
+Talking about reality:
 
-it doesn't make it "free" in the way this community generally uses the
-term but it does let you test linux with a very popular application.
+Having perl on the box, or having to upload some special purpose
+application on the box are both measures not that easy if you are
+going to do a real breakin. (Read: write some buffer overflow stub)
+But just echo sum stuff or therelike is
+*much* easier. And then there is the capability stuff you could use
+to prevent everybody from accessing the syscall interface.
 
-i hope you're not using a modem, it's a 3-cd download :-(
-
-j.
-
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+You don't have much expierence with real break-ins. Don't you?

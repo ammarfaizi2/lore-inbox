@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291791AbSBHU1a>; Fri, 8 Feb 2002 15:27:30 -0500
+	id <S291794AbSBHUdM>; Fri, 8 Feb 2002 15:33:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291788AbSBHU1X>; Fri, 8 Feb 2002 15:27:23 -0500
-Received: from gateway2.ensim.com ([65.164.64.250]:57351 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S291791AbSBHU0w>; Fri, 8 Feb 2002 15:26:52 -0500
-X-mailer: xrn 8.03-beta-26
-From: pmenage@ensim.com
+	id <S291796AbSBHUca>; Fri, 8 Feb 2002 15:32:30 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:25059 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S291794AbSBHUad>; Fri, 8 Feb 2002 15:30:33 -0500
+Date: Fri, 8 Feb 2002 21:27:21 +0100
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linus' email account is full. - Fwd: Mail System Error - Returned Mail
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-X-Newsgroups: 
-In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D216E91@nasdaq.ms.ensim.com>
-Message-Id: <E16ZHbZ-0001L9-00@pmenage-dt.ensim.com>
-Date: Fri, 08 Feb 2002 12:26:45 -0800
+Message-ID: <20020208202721.GE32421@links2linux.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.17 i586
+X-Editor: VIM 6.0
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D216E91@nasdaq.ms.ensim.com>,
-you write:
->Linus' email account appears to be full if we can believe this returned
->email:
->
->>  torvalds <torvalds@transmet.com>,rml <rml@tech9.net>
-                             ^^^^^
-I think you're missing an "a" 
+* Anton Altaparmakov schrieb am 08.02.02 um 21:19 Uhr:
+> Linus' email account appears to be full if we can believe this returned 
+> email:
+> 
+> >Envelope-to: aia21@cus.cam.ac.uk
+> >To: aia21@cam.ac.uk
+> >From: Mail Administrator <Postmaster@transmet.com>
 
-Paul
+transmet.com? I think you chose the wrong company ;)
 
+-Marc
+
+-- 
++-O . . . o . . . O . . . o . . . O . . .  ___  . . . O . . . o .-+
+| Ein neuer Service von Links2Linux.de:   /  o\   RPMs for SuSE   |
+| --> PackMan! <-- naeheres unter        |   __|   and  others    |
+| http://packman.links2linux.de/ . . . O  \__\  . . . O . . . O . |

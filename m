@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVBFPu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVBFPyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVBFPu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 10:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVBFPu2
+	id S261167AbVBFPyc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 10:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBFPyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 10:50:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60076 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261159AbVBFPuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 10:50:24 -0500
-Date: Sun, 6 Feb 2005 15:50:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
-Message-ID: <20050206155017.GA1215@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-References: <87651hdoiv.fsf@yahoo.com> <420582C6.7060407@pobox.com> <1107682076.22680.58.camel@laptopd505.fenrus.org> <58cb370e050206044513eb7f89@mail.gmail.com> <42062BFE.7070907@pobox.com> <1107701373.22680.115.camel@laptopd505.fenrus.org> <420631BF.7060407@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420631BF.7060407@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 6 Feb 2005 10:54:31 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:21206 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261167AbVBFPy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 10:54:29 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org, torvalds@osdl.org,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, drepper@redhat.com
+Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
+References: <20050206113635.GA30109@wotan.suse.de>
+	<20050206114758.GA8437@infradead.org>
+	<20050206123355.GB30109@wotan.suse.de>
+	<1107693622.22680.86.camel@laptopd505.fenrus.org>
+	<20050206124832.GE30109@wotan.suse.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: BARRY..  That was the most HEART-WARMING rendition of
+ ``I DID IT MY WAY'' I've ever heard!!
+Date: Sun, 06 Feb 2005 16:54:19 +0100
+In-Reply-To: <20050206124832.GE30109@wotan.suse.de> (Andi Kleen's message of
+ "Sun, 6 Feb 2005 13:48:32 +0100")
+Message-ID: <jer7jty990.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 06, 2005 at 10:03:27AM -0500, Jeff Garzik wrote:
-> Red herring.
-> 
-> 2.4.x has ICH5/6 support -- but is missing the RAID support component.
-> 
-> We are talking about hardware that is ALREADY supported by 2.4.x kernel, 
-> not new hardware.
+Andi Kleen <ak@suse.de> writes:
 
-You're talking about software not support (the intel bios fakeraid format).
+> They worked fine forever - and suddenly you define them as buggy.
 
+Working fine does not imply non-buggy, never has, never will.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

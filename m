@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVCNWE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVCNWKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVCNWE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVCNWD3
+	id S261967AbVCNWKy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCNWKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:03:29 -0500
-Received: from gate.crashing.org ([63.228.1.57]:20634 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261984AbVCNWAc (ORCPT
+	Mon, 14 Mar 2005 17:10:42 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:23199 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261988AbVCNWGR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:00:32 -0500
-Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Pavel Machek <pavel@ucw.cz>, David Lang <david.lang@digitalinsight.com>,
-       Dave Jones <davej@redhat.com>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200503140855.18446.jbarnes@engr.sgi.com>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
-	 <20050314083717.GA19337@elf.ucw.cz>
-	 <200503140855.18446.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 08:55:41 +1100
-Message-Id: <1110837341.5863.21.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 17:06:17 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: bad pgd/pmd in latest BK on ia64
+Date: Mon, 14 Mar 2005 14:06:09 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F031272AF@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: bad pgd/pmd in latest BK on ia64
+Thread-Index: AcUo3mQDYGegSbCyQ+upsIZEJCxIQwAAttew
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Cc: <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 14 Mar 2005 22:06:11.0013 (UTC) FILETIME=[07E58750:01C528E2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trying to boot a build of the latest BK on ia64 I see
+a series of messages like this:
 
-> We already have the 'quiet' option, but even so, I think the kernel is *way* 
-> too verbose.  Someone needs to make a personal crusade out of removing 
-> unneeded and unjustified printks from the kernel before it really gets better 
-> though...
+mm/memory.c:99: bad pgd e0000001feba4000.
+mm/memory.c:99: bad pgd e0000001febac000.
+mm/memory.c:99: bad pgd e0000001febc0d10.
+mm/memory.c:105: bad pmd f000eef3f0000200.
+mm/memory.c:105: bad pmd f000eef3f000e2c3.
+mm/memory.c:105: bad pmd f000ff54f000eef3.
+mm/memory.c:105: bad pmd f000292cf0002984.
 
-Oh well, I admit going backward here with my new radeonfb which will be
-very verbose in a first release, but that will be necessary to track
-down all the various issues with monitor detection, BIOSes telling crap
-about connectors etc...
+before the kernel gets an OOPS on a deref NULL
+at resched_task+0x41/0x1a0.
 
-Ben.
+2.6.11-bk9 boots ok, so this was added recently.
 
-
+-Tony

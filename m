@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262468AbUBXVrV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUBXVrU
+	id S262488AbUBXVvP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUBXVvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:47:20 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:64222 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262487AbUBXVqn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:46:43 -0500
-Date: Tue, 24 Feb 2004 14:46:42 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: todc_time warings on PPC
-Message-ID: <20040224214642.GE1052@smtp.west.cox.net>
-References: <Pine.GSO.4.44.0402201409380.23390-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0402201409380.23390-100000@math.ut.ee>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 24 Feb 2004 16:51:14 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:31956 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S262487AbUBXVsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:48:35 -0500
+Date: Tue, 24 Feb 2004 23:48:32 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: Greg KH <greg@kroah.com>, James Bottomley <James.Bottomley@steeleye.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI update for 2.6.3
+In-Reply-To: <20040224101512.A19617@beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0402242028370.3713@kai.makisara.local>
+References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi>
+ <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave>
+ <20040224171629.GA31369@kroah.com> <20040224101512.A19617@beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20, 2004 at 02:12:48PM +0200, Meelis Roos wrote:
+On Tue, 24 Feb 2004, Patrick Mansfield wrote:
 
-> FYI, there are new warning on PPC while compiling 2.6.3+current BK.
+...
+> Current 2.6 kernel default names are of the form: st[0-9]m[0-3][n]
 > 
-> arch/ppc/syslib/todc_time.c: In function `todc_m48txx_read_val':
-> arch/ppc/syslib/todc_time.c:99: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c:100: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c:101: warning: passing arg 1 of `inb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c: In function `todc_m48txx_write_val':
-> arch/ppc/syslib/todc_time.c:107: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c:108: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c:109: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c: In function `todc_mc146818_read_val':
-> arch/ppc/syslib/todc_time.c:117: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c:118: warning: passing arg 1 of `inb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c: In function `todc_mc146818_write_val':
-> arch/ppc/syslib/todc_time.c:124: warning: passing arg 2 of `outb' makes integer from pointer without a cast
-> arch/ppc/syslib/todc_time.c:125: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+Actually more like  st[0-9]*m[0-9]*[n]
 
-Yes.  This, and some slightly more root-cause issues have been fixed in
-the tree Linus pulls from occasionally, and once I grab some more of the
-(unrelated to this) ppc64 fixes that ppc32 needs, I'll ask Linus to
-pull.  Or ask Paul to ask Linus to pull..
+> Current /dev naming is of the form: [n]st[0-9][alm]
+> 
+Depends on who's /dev you are looking at.
+
+> Should the st kernel names be changed to map to current /dev names?
+> 
+I don't think we should go back to the old names. The intention with the 
+"new" names was to make them easier to parse and handle than the old ones. 
+The number of modes is not always four. Anyone can compile st with more or 
+less modes. Using a number for the mode is naturally extensible. The 
+characters at the end of the old names had interpretations that may not be 
+correct in all cases (a=alternate, l=low density, m=medium density).
+
+n has been put at the end of the name because now the tape names are 
+grouped together in a listing. I know this is a weak justification ;-)
+
+> For udev, even with that we need differing pre and postfix values wrapped
+> around a peristent name.
+> 
+If I read udev correctly, it can now parse one number at the end of the 
+name. Something like st%md%n and nst%md%n could be used with eight rules 
+(where %m is the mode number and %n is the device number). Not very 
+convenient. Parsing the st names should really be able to extract at 
+least two fields. With an external program, anything can be done. Maybe 
+udev can some day do this internally.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Kai

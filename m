@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262785AbSJCHhI>; Thu, 3 Oct 2002 03:37:08 -0400
+	id <S263118AbSJCHmY>; Thu, 3 Oct 2002 03:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263118AbSJCHhI>; Thu, 3 Oct 2002 03:37:08 -0400
-Received: from mailsrv1.sweco.se ([194.16.71.76]:58007 "EHLO
-	es-sth-002.sweco.se") by vger.kernel.org with ESMTP
-	id <S262785AbSJCHhH>; Thu, 3 Oct 2002 03:37:07 -0400
-Message-ID: <E50A0EFD91DBD211B9E40008C75B6CCA01497EDE@ES-STH-012>
-From: Eriksson Stig <stig.eriksson@sweco.se>
-To: "'Justin T. Gibbs'" <gibbs@scsiguy.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: aic7xxx problems?
-Date: Thu, 3 Oct 2002 09:42:31 +0200 
+	id <S263173AbSJCHmY>; Thu, 3 Oct 2002 03:42:24 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1810 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S263118AbSJCHmX>; Thu, 3 Oct 2002 03:42:23 -0400
+Message-Id: <200210030743.g937hBp01523@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cli()/sti() fix for drivers/net/depca.c
+Date: Thu, 3 Oct 2002 10:37:03 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <200210022005.g92K5Fp31816@Port.imtp.ilyichevsk.odessa.ua> <200210022133.g92LX0p32156@Port.imtp.ilyichevsk.odessa.ua> <20021003001228.A18629@fafner.intra.cogenit.fr>
+In-Reply-To: <20021003001228.A18629@fafner.intra.cogenit.fr>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2 October 2002 20:12, Francois Romieu wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> :
+> [...]
+>
+> > Ho to do it properly? Make a copy on stack under lock, release
+> > lock, proceed with copy_to_user? That's 88 bytes at least...
+>
+> Please see ETHTOOL_GSTATS usage in drivers/net/8139cp.c.
 
- 
-> >> Hi
-> >> 
-> >> Maybe You can help me out with this one...
-> >> I have hp DLT connected to an adaptec SCSI board.
-> > 
-> > From the perspective of the controller, the target has taken the
-> > full command but has yet to REQ for either a cdb transfer retry
-> > or a new phase.  This looks like a target problem or a cabling
-> > problem that prevents the initiator from seeing a REQ or two.
-> 
-> Actually, in reviewing your message more fully, the problem is that
-> the timeout for the rewind operation is too short for your 
-> configuration.
-> The timeout should go away if you bump up the timeout in the st driver
-> so that your tape drive can rewind in peace.
+This:
+                tmp_stats = kmalloc(sz, GFP_KERNEL);
+                if (!tmp_stats) return -ENOMEM;
+                memset(tmp_stats, 0, sz);
 
-The rewind is not *that* long, about 60 seconds...
+                i = 0;
+                tmp_stats[i++] = le64_to_cpu(cp->nic_stats->tx_ok);
+                tmp_stats[i++] = le64_to_cpu(cp->nic_stats->rx_ok);
+		...
+                tmp_stats[i++] = le16_to_cpu(cp->nic_stats->tx_underrun);
+                tmp_stats[i++] = cp->cp_stats.rx_frags;
+                if (i != CP_NUM_STATS) BUG();
 
+                i = copy_to_user(useraddr + sizeof(estats), tmp_stats, sz);
+                kfree(tmp_stats);
+
+kmalloc() isn't very fast, but I suppose ioctl is not that critical.
+
+> > > - on SMP, pktStat can be updated while the copy progresses, see
+> > > depca_rx().
+> >
+> > Should I place these pktStat updates under lp->lock?
+>
+> You may.
+>
+> depca_rx() looks strange:
+> buf = skb_put(skb, len);
+> [...]
+> netif_rx(skb);
+> [...]
+> if (buf[0] & ...)
+
+I'd say this network stuff is a bit cryptic for untrained eye :-)
+What's strange with that code?
+
+BTW, is there some (downloadable) book on Linux networking
+internals?
 --
-Stig Eriksson
+vda

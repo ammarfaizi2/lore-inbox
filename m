@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129160AbRAZR14>; Fri, 26 Jan 2001 12:27:56 -0500
+	id <S129999AbRAZRh1>; Fri, 26 Jan 2001 12:37:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129306AbRAZR1h>; Fri, 26 Jan 2001 12:27:37 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:24330 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S129160AbRAZR1d>; Fri, 26 Jan 2001 12:27:33 -0500
-From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: hotmail not dealing with ECN
-Date: Fri, 26 Jan 2001 17:28:25 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <94sc3o$31e$1@ncc1701.cistron.net>
-In-Reply-To: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>
-X-Trace: ncc1701.cistron.net 980530105 3118 195.64.65.67 (26 Jan 2001 17:28:25 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S131655AbRAZRhR>; Fri, 26 Jan 2001 12:37:17 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:36048 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129999AbRAZRhE>;
+	Fri, 26 Jan 2001 12:37:04 -0500
+Date: Fri, 26 Jan 2001 17:34:17 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, V Ganesh <ganesh@veritas.com>,
+        lkml <linux-kernel@vger.kernel.org>, Steve Lord <lord@sgi.com>
+Subject: Re: inode->i_dirty_buffers redundant ?
+Message-ID: <20010126173417.A14943@redhat.com>
+In-Reply-To: <20010125164432.A12984@redhat.com> <Pine.LNX.4.21.0101251907110.11559-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0101251907110.11559-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jan 25, 2001 at 07:11:01PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>,
-Randal, Phil <prandal@herefordshire.gov.uk> wrote:
->Because if we do try to force it, the response which will come
->back won't be "Linux is wonderful, it conforms to the standards".
->It will be "Linux sucks, we can't connect to xyz.com with it (or
->we can't connect because to xyz.com they run it)".
+Hi,
 
-Who cares? Linux sucks, I can't connect to xyz.com with it because
-it requires MSIE ....
+On Thu, Jan 25, 2001 at 07:11:01PM -0200, Marcelo Tosatti wrote:
+> 
+> We probably want another kind of "IO buffer" abstraction for 2.5 which can
+> support buffer's bigger than PAGE_SIZE. 
+> 
+> Do you have any thoughts on that, Stephen? 
 
-Mike.
+XFS is already doing this, with pagebufs being used in their cache,
+and kiobufs used for the IO submission.
 
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

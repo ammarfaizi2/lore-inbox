@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316609AbSFDMpk>; Tue, 4 Jun 2002 08:45:40 -0400
+	id <S316610AbSFDMqu>; Tue, 4 Jun 2002 08:46:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSFDMpj>; Tue, 4 Jun 2002 08:45:39 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:52396 "EHLO vivi.uptime.at")
-	by vger.kernel.org with ESMTP id <S316609AbSFDMph>;
-	Tue, 4 Jun 2002 08:45:37 -0400
-Reply-To: <o.pitzeier@uptime.at>
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>
-Cc: <linux-kernel@vger.kernel.org>, <axp-kernel-list@redhat.com>
-Subject: RE: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-Date: Tue, 4 Jun 2002 14:45:16 +0200
-Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
-Message-ID: <000a01c20bc5$b0681830$010b10ac@sbp.uptime.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <000101c20bb0$27e93620$010b10ac@sbp.uptime.at>
+	id <S317488AbSFDMqr>; Tue, 4 Jun 2002 08:46:47 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:58061 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316610AbSFDMp7>; Tue, 4 Jun 2002 08:45:59 -0400
+Date: Tue, 4 Jun 2002 08:44:01 -0400
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre9aa2
+Message-ID: <20020604124401.GA13540@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>> More benchmarks on quad Xeon at:
+>> http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
-I already found a few more errors while trying to compile
-2.5.20. I send you the patch as soon as I have successfully
-compiled the kernel _without_ problems (hopefully today).
+> Just a note, watch the "File & VM system latencies in microseconds"
+> lmbench results, the creat become significantly slower, I'm wondering if
+> that's due the removal of the negative dcache after unlink. I think it's
+> still a global optimization (infact I think some of the dbench records
+> are also thanks to maximzing the useful cache information by dropping
+> immediatly negative dentries after unlink), but I wonder if the
+> benchmark is done in a way that generate false positives. To avoid false
+> positives and to really benchmark the whole "creat" path (that includes
+> in its non-cached form also a lookup in the lowlevel fs) lmbench should
+> rmdir; mkdir the directory where it wants to make the later creats
+> (rmdir/mkdir cycle will drop negative dentries in all 2.[245] kernels
+> too).  Otherwise at the moment I'm unsure what made creat slower between
+> pre8aa3 and pre9aa2, could it be a fake result of the benchmark? 
 
-FYI. I do not compile very much options; The main options
-I compile ('coz I need 'em and nothing more...):
-SCSI:           QLogic ISP
-Network:        DECchip Tulip (dc2114x) and Early DECchip
-                Tulip (dc2104x)
-Character Dev.: Support for console on serial port
-Filesystems:    EXT3 support, no ReiserFS
-Network FS:     NFS (as module)
+I'll send you the 25 samples each of pre9aa2 and pre8aa3 off list.
+All of the non-averaged lmbench results are currently at:
+http://home.earthlink.net/~rwhron/kernel/lmball.txt
 
-Greetz,
-   Oliver
+Some lmbench tests vary a lot.  The 0k and 10k creat tests were
+pretty consistent for these two kernels.
 
-> Oliver Pitzeier wrote:
-> [ ... ]
-> 
-> > If you want to know the error:
-> 
-> [ ... ]
-> 
-> > `copy_user_page' undeclared (first use in this function)
-> > make[1]: *** [main.o] Error 1
-> > make[1]: Leaving directory `/usr/src/linux-2.5.20/init'
-> > make: *** [init] Error 2
-> 
-> I guess I found where the error comes from:
-> 
-> (from the 2.5.20 Changelog):
-> > <davidm@napali.hpl.hp.com>
-> > [PATCH] pass "page" pointer to clear_user_page()/copy_user_page()
-> > 
-> > Hi Linus,
-> > 
-> > Are you willing to change the interfaces of clear_user_page() and
-> > copy_user_page() so that they can receive the relevant page 
-> pointer as 
-> > a separate argument?  I need this on ia64 to implement the 
-> lazy-cache 
-> > flushing scheme.
-> >
-> > I believe PPC would also benefit from this.
-> >
-> > --david
-> 
-> Now I believe, that Alpha also benefits from this. :o) The 
-> only thing I have to do - I guess - is to change the defines 
-> for copy_user_page() and clear_user_page. Adding the not used 
-> parameter >pg< should not make any problems.
-> 
-> Greetz,
->   Oliver 
+Other consistent tests that showed notable improvement were context
+switching at 8p/16K, 8p/64K, and 16p/16K.  The 16p/64K context switch
+latency became inconsistent and higher on pre9aa2.
 
+fork latency was consistent and improved by 10%.
+
+> The pipe bandwith reported
+> by lmbench in pre9aa2 is also very impressive, that's Mike's patch and I
+> think it's also a very worthwhile optimizations since many tasks really
+> uses pipes to passthrough big loads of data.
+
+Yeah, that is impressive.
+
+Glancing through the original lmbench logfiles, there are some results
+that aren't in any report.  creat 1k and 4k, and select on various 
+numbers of regular and tcp file descripters.  
+
+
+-- 
+Randy Hron
 

@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287381AbSALT7d>; Sat, 12 Jan 2002 14:59:33 -0500
+	id <S287342AbSALT4N>; Sat, 12 Jan 2002 14:56:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287386AbSALT7X>; Sat, 12 Jan 2002 14:59:23 -0500
-Received: from zero.tech9.net ([209.61.188.187]:44048 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S287381AbSALT7Q>;
-	Sat, 12 Jan 2002 14:59:16 -0500
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-From: Robert Love <rml@tech9.net>
-To: timothy.covell@ashavan.org
-Cc: =?ISO-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>, mingo@elte.hu,
-        Mike Kravetz <kravetz@us.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <200201121630.g0CGU5Sr006966@svr3.applink.net>
-In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>
-	<200201112150.g0BLoESr004177@svr3.applink.net>
-	<1010814327.2018.5.camel@phantasy> 
-	<200201121630.g0CGU5Sr006966@svr3.applink.net>
-Content-Type: text/plain
+	id <S287386AbSALT4E>; Sat, 12 Jan 2002 14:56:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19217 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287342AbSALTz7>; Sat, 12 Jan 2002 14:55:59 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: rml@tech9.net (Robert Love)
+Date: Sat, 12 Jan 2002 20:07:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
+        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
+In-Reply-To: <1010863588.2007.34.camel@phantasy> from "Robert Love" at Jan 12, 2002 02:26:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 12 Jan 2002 15:00:44 -0500
-Message-Id: <1010865650.2152.38.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16PURC-000321-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-01-12 at 11:26, Timothy Covell wrote:
+> > PRE-EMPT:
+> > 	We get back and we've missed 300 packets, the serial port sharing
+> > 	the IRQ has dropped our internet connection completely.
+> 
+> We don't preempt while IRQ are disabled.
 
-> That's the million dollar question.   I was just concerned that if that
-> were to be implemented in a production kernel, then lots of admins
-> would be confused.
+I must have missed that in the code. I can see you check __cli() status but
+I didn't see anywhere you check disable_irq(). Even if you did it doesnt
+help when I mask the irq on the chip rather than using disable_irq() calls.
 
-It is in 2.5.  Let's agree if it is or is not a problem, and then find a
-solution.
-
-	Robert Love
-
+Alan

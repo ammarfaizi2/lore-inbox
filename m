@@ -1,86 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313660AbSD0M1R>; Sat, 27 Apr 2002 08:27:17 -0400
+	id <S313505AbSD0M1S>; Sat, 27 Apr 2002 08:27:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313690AbSD0M1Q>; Sat, 27 Apr 2002 08:27:16 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:26521 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S313660AbSD0M1P>;
+	id <S313698AbSD0M1R>; Sat, 27 Apr 2002 08:27:17 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:26009 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S313505AbSD0M1P>;
 	Sat, 27 Apr 2002 08:27:15 -0400
 From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15562.39130.683869.175699@argo.ozlabs.ibm.com>
-Date: Sat, 27 Apr 2002 22:26:02 +1000 (EST)
-To: dbrownell@users.sourceforge.net, greg@kroah.com
+Message-ID: <15562.38536.785666.690953@argo.ozlabs.ibm.com>
+Date: Sat, 27 Apr 2002 22:16:08 +1000 (EST)
+To: jt@hpl.hp.com
 Cc: linux-kernel@vger.kernel.org
-Subject: unnecessary use of set_bit
+Subject: set_bit takes a long in irda
 X-Mailer: VM 6.75 under Emacs 20.7.2
 Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ohci_hub_status_data() procedure in drivers/usb/host/ohci-hub.c in
-2.5.11 is broken in a couple of ways: it uses set_bit on a char *
-address and it assumes little-endian byte order in the bitmap.
+There were a couple of places in the irda code where set_bit and
+friends were being used on int variables.  This is bad because some
+architectures require long alignment for atomic operations, and also
+because it now gives a compile error in 2.5.x.
 
-Here is a patch to fix both problems.  As a bonus, the file ends up
-one line shorter. :)
+Here is a patch to fix the problems for 2.5.11.
 
-Please, people, don't use set_bit when you don't need an atomic
-operation.  set_bit(&x, n) is slower than x |= 1 << n on a lot of
-platforms, including SMP x86 I believe.  (If the bitmap is more than
-one word you can use __set_bit if you don't require atomicity.)
-
+Thanks,
 Paul.
 
-diff -urN linux-2.5/drivers/usb/host/ohci-hub.c pmac-2.5/drivers/usb/host/ohci-hub.c
---- linux-2.5/drivers/usb/host/ohci-hub.c	Sat Apr 27 20:51:31 2002
-+++ pmac-2.5/drivers/usb/host/ohci-hub.c	Sat Apr 27 15:03:06 2002
-@@ -67,7 +67,7 @@
- ohci_hub_status_data (struct usb_hcd *hcd, char *buf)
- {
- 	struct ohci_hcd	*ohci = hcd_to_ohci (hcd);
--	int		ports, i, changed = 0, length = 1;
-+	int		ports, i, mask = 0, length = 1;
+diff -urN linux-2.5/include/net/irda/irlmp.h pmac-2.5/include/net/irda/irlmp.h
+--- linux-2.5/include/net/irda/irlmp.h	Sat Apr 27 20:51:23 2002
++++ pmac-2.5/include/net/irda/irlmp.h	Sat Apr 27 15:18:05 2002
+@@ -100,7 +100,7 @@
+ 	irda_queue_t queue;      /* Must be first */
+ 	magic_t magic;
  
- 	ports = roothub_a (ohci) & RH_A_NDP; 
- 	if (ports > MAX_ROOT_PORTS) {
-@@ -80,13 +80,7 @@
+-	int  connected;
++	unsigned long connected;	/* set_bit used on this */
+ 	int  persistent;
  
- 	/* init status */
- 	if (roothub_status (ohci) & (RH_HS_LPSC | RH_HS_OCIC))
--		buf [0] = changed = 1;
--	else
--		buf [0] = 0;
--	if (ports > 7) {
--		buf [1] = 0;
--		length++;
--	}
-+		mask = 1;
+ 	__u8 slsap_sel;   /* Source (this) LSAP address */
+diff -urN linux-2.5/include/net/irda/irttp.h pmac-2.5/include/net/irda/irttp.h
+--- linux-2.5/include/net/irda/irttp.h	Sat Apr 27 20:51:34 2002
++++ pmac-2.5/include/net/irda/irttp.h	Sat Apr 27 15:21:33 2002
+@@ -102,7 +102,7 @@
+ 	__u32 tx_max_sdu_size; /* Max transmit user data size */
  
- 	/* look at each port */
- 	for (i = 0; i < ports; i++) {
-@@ -94,12 +88,17 @@
+ 	int close_pend;        /* Close, but disconnect_pend */
+-	int disconnect_pend;   /* Disconnect, but still data to send */
++	unsigned long disconnect_pend; /* Disconnect, but still data to send */
+ 	struct sk_buff *disconnect_skb;
+ };
  
- 		status &= RH_PS_CSC | RH_PS_PESC | RH_PS_PSSC
- 				| RH_PS_OCIC | RH_PS_PRSC;
--		if (status) {
--			changed = 1;
--			set_bit (i + 1, buf);
--		}
-+		if (status)
-+			mask |= 1 << (i + 1);
-+	}
-+	if (!mask)
-+		return 0;
-+	buf[0] = mask;
-+	if (ports > 7) {
-+		length++;
-+		buf[1] = mask >> 8;
- 	}
--	return changed ? length : 0;
-+	return length;
- }
+diff -urN linux-2.5/net/irda/irnet/irnet.h pmac-2.5/net/irda/irnet/irnet.h
+--- linux-2.5/net/irda/irnet/irnet.h	Sat Apr 27 20:52:03 2002
++++ pmac-2.5/net/irda/irnet/irnet.h	Sat Apr 27 15:23:57 2002
+@@ -404,8 +404,8 @@
  
- /*-------------------------------------------------------------------------*/
+   /* ------------------------ IrTTP part ------------------------ */
+   /* We create a pseudo "socket" over the IrDA tranport */
+-  int			ttp_open;	/* Set when IrTTP is ready */
+-  int			ttp_connect;	/* Set when IrTTP is connecting */
++  unsigned long		ttp_open;	/* Set when IrTTP is ready */
++  unsigned long		ttp_connect;	/* Set when IrTTP is connecting */
+   struct tsap_cb *	tsap;		/* IrTTP instance (the connection) */
+ 
+   char			rname[NICKNAME_MAX_LEN + 1];
+diff -urN linux-2.5/net/irda/irnet/irnet_ppp.c pmac-2.5/net/irda/irnet/irnet_ppp.c
+--- linux-2.5/net/irda/irnet/irnet_ppp.c	Sat Apr 27 20:52:04 2002
++++ pmac-2.5/net/irda/irnet/irnet_ppp.c	Sat Apr 27 15:25:07 2002
+@@ -860,7 +860,7 @@
+       irda_irnet_connect(self);
+ #endif /* CONNECT_IN_SEND */
+ 
+-      DEBUG(PPP_INFO, "IrTTP not ready ! (%d-%d)\n",
++      DEBUG(PPP_INFO, "IrTTP not ready ! (%ld-%ld)\n",
+ 	    self->ttp_open, self->ttp_connect);
+ 
+       /* Note : we can either drop the packet or block the packet.

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315857AbSEGPIA>; Tue, 7 May 2002 11:08:00 -0400
+	id <S315856AbSEGPIY>; Tue, 7 May 2002 11:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315856AbSEGPH7>; Tue, 7 May 2002 11:07:59 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:41779 "EHLO
+	id <S315858AbSEGPIX>; Tue, 7 May 2002 11:08:23 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:44083 "EHLO
 	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S315857AbSEGPH5>; Tue, 7 May 2002 11:07:57 -0400
-Message-Id: <5.1.0.14.2.20020507153451.02381ec0@pop.cus.cam.ac.uk>
+	id <S315856AbSEGPIU>; Tue, 7 May 2002 11:08:20 -0400
+Message-Id: <5.1.0.14.2.20020507160303.022a90a0@pop.cus.cam.ac.uk>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 07 May 2002 16:08:20 +0100
+Date: Tue, 07 May 2002 16:08:45 +0100
 To: Martin Dalecki <dalecki@evision-ventures.com>
 From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Cc: Padraig Brady <padraig@antefacto.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CD7D36A.6050209@evision-ventures.com>
+Subject: Re: [PATCH] 2.5.14 IDE 57
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD7D842.8040003@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:15 07/05/02, Martin Dalecki wrote:
->Uz.ytkownik Padraig Brady napisa?:
->>Am I going to have to parse hdparm output?
->>....
->>  geometry     = 2434/255/63, sectors = 39102336, start = 0
->>Am I going to need hdparm on my embedded system?
+At 14:36 07/05/02, Martin Dalecki wrote:
+>Uz.ytkownik Anton Altaparmakov napisa?:
+>>[aia21@drop hda]$ ideinfo
+>>bash: ideinfo: command not found
+>>Obviously distros haven't caught up with this development. )-:
+>>Care to give me a URL? A quick google for "ideinfo Linux download" didn't 
+>>bring up anything looking relevant.
 >
->Yes. Or just fsck hardcode the defaults.
+>http://www.j2.ru/frozenfido/ru.unix.bsd/1329707b3e3f8.html
+>
+>Porting it should be fairly tirvial. Basically lspci +
+>the parsing crap.
 
-This is stupid! And if that isn't obvious to you, you should think a bit 
-more carefully...
+I don't want to port anything. I don't know ide and I don't want to know 
+ide. I want to be able to use it. I am an ide USER. You are the ide 
+DEVELOPER. If you take away functionality YOU have to provide a 
+replacement. NOT tell me, the USER to write it.
 
-Linux's power is exactly that it can be used on anything from a wristwatch 
-to a huge server and that it is flexible about everything. You are breaking 
-this flexibility for no apparent reason. (I don't accept "I can't cope with 
-this so I remove it." as a reason, sorry).
+>>I like text parsing... It is not performance critical and makes info 
+>>human readable... Whether existing text parsers are any good or not, I 
+>>don't care, write a better one if you don't like the existing one or go 
+>>beat up the people who wrote the bad ones... That seems to be Martin's 
+>>standard reply, so I thought I would use it, too. (-;
+>
+>Feel free to do it yourself - in user space where it belongs.
 
-As the new IDE maintainer so far we have only seen you removing one feature 
-after the other in the name of cleanup, without adequate or even any at 
-all(!) replacements, renaming all functions to hell and back, and breaking 
-the ide core here there and everywhere. All critical bug fixes seem to have 
-been contributed by other people looking at your code which doesn't inspire 
-a lot of confidence in you... Even Alan Cox said a while ago that you have 
-his vote of no confidence (probably slightly rephrased here) because of 
-changes you were introducing and I tend to trust bearded kernel hackers 
-from Whales. (-;
+I don't want to do it myself. I want YOU to do it because YOU are taking 
+away the functionality that already exists.
 
-Aren't you noticing that something is wrong here???
-
-Best regards,
-
-         Anton
+Anton
 
 
 -- 

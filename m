@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131551AbRBUFxp>; Wed, 21 Feb 2001 00:53:45 -0500
+	id <S131189AbRBUGjg>; Wed, 21 Feb 2001 01:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131560AbRBUFxg>; Wed, 21 Feb 2001 00:53:36 -0500
-Received: from [63.68.113.130] ([63.68.113.130]:41663 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S131551AbRBUFx1>;
-	Wed, 21 Feb 2001 00:53:27 -0500
-Date: Tue, 20 Feb 2001 21:52:21 -0800
-To: pf-kernel@mirkwood.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loopback mount broken in 2.4.2-pre4
-Message-ID: <20010220215221.A27945@osdlab.org>
-In-Reply-To: <Pine.LNX.4.20.0102210033040.401-100000@eriador.mirkwood.net>
-Mime-Version: 1.0
+	id <S131369AbRBUGj0>; Wed, 21 Feb 2001 01:39:26 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:18075 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131189AbRBUGjQ>; Wed, 21 Feb 2001 01:39:16 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+To: linux-kernel@vger.kernel.org
+Date: Tue, 20 Feb 2001 21:35:15 -0500
+In-Reply-To: <E14VNAU-00014j-00@the-village.bc.nu>
+Organization: me
+User-Agent: KNode/0.4beta4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.20.0102210033040.401-100000@eriador.mirkwood.net>; from pf-kernel@mirkwood.net on Wed, Feb 21, 2001 at 12:36:34AM -0500
-From: Nathan Dabney <smurf@osdlab.org>
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20010221023515.6DF8E18C99@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21, 2001 at 12:36:34AM -0500, pf-kernel@mirkwood.net wrote:
-> The subject gives just about all the information I have.  :)  If I try to
-> mount an iso image via loopback while running 2.4.2-pre4, mount will hang
-> forever.  Downgrading to 2.4.1 seems to resolve the issue (haven't tried
-> any previous -pre patches).
+Alan Cox wrote:
 
-http://www.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.2-pre4/
+>> probably a bad idea to use it, because in theory at least the VFS layer
+>> might decide to switch the hash function around. I'm more interested in
+>> hearing whether it's a good hash, and maybe we could improve the VFS hash
+>> enough that there's no reason to use anything else..
+> 
+> Reiserfs seems to have done a lot of work on this and be using tea, which is
+> also nice as tea is non trivial to abuse as a user to create pessimal file
+> searches intentionally
 
--Nathan
+The default in reiserfs is now the R5 hash, but you are right that lots of efforts went 
+into finding this hash.  This includes testing various hashes on real directory 
+structures to see which one worked best.  R5 won.
+
+Ed Tomlinson

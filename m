@@ -1,71 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbTJAP0i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 11:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTJAP0h
+	id S262276AbTJAPUm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 11:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTJAPUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 11:26:37 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:46821 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262369AbTJAPZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 11:25:40 -0400
-Date: Wed, 01 Oct 2003 08:24:39 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: bardok@telefonica.net
-Subject: [Bug 1304] New: Computer blocks when initializing ALI	Chipset on startup
-Message-ID: <5990000.1065021879@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Oct 2003 11:20:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:735 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262276AbTJAPUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 11:20:22 -0400
+Date: Wed, 1 Oct 2003 08:12:08 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Lisa R. Nelson" <lisanels@cableone.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File Permissions are incorrect. Security flaw in Linux
+Message-Id: <20031001081208.521bc307.rddunlap@osdl.org>
+In-Reply-To: <1065019077.2995.22.camel@localhost.localdomain>
+References: <1065012013.4078.2.camel@lisaserver>
+	<1065044031.2158.23.camel@wynken.reefedge.com>
+	<1065019077.2995.22.camel@localhost.localdomain>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1304
 
-           Summary: Computer blocks when initializing ALI Chipset on startup
-    Kernel Version: 2.6.0-test5
-            Status: NEW
-          Severity: high
-             Owner: greg@kroah.com
-         Submitter: bardok@telefonica.net
+(um, top-posting continued)  :(
 
+Some of the values that have been written about Linux developers
+are technical merit/correctness and honesty.  Kindness isn't one that
+I recall reading about, although Linus did ask people to be a bit kinder.
 
-Distribution: Debian Woody 3.0
-Hardware Environment: ALI M1563 based P4 Laptop PC
-Software Environment: Startup
-Problem Description:
+I guess that "hostile" is relative.  I read the replies and didn't
+rate anything as hostile.  Depends on thick skin, maybe.
 
-When the system tries to initialize the ALI chipset, either as a module or
-compiled into the kernel, it completely hangs.
+MS doesn't score points for customer support afaik.
+They may be friendly, but often not helpful.
+Maybe it's a case of one or the other but not both, but it
+doesn't have to be that way.
 
-When it is compiled as a module, it just blocks the computer, but when compiled
-into the kernel, it prints following error:
-
-Unable to handle kernel NULL pointer derreference at virtual address 00000020
-printing EIP:
-c03f6b90
-*pde = 00000000
-Ooops: 0000 [#1]
-...
-EIP is at init_chipset_ali15x3+0x120/0x190
-...
-Call trace:
-[...] do_ide_setup_pci_device+0x93/0x13c
-[...] ide_setup_pci_device+0x1a/0x68
-...
-
-The same driver can perfectly be loaded with the 2.4.22 kernel, I even get DMA
-activated...
-
-If the maintainer needs any other help, I have no problem to hack the driver and
-make any tests or researches needed, in the case he/she has no access to the
-hardware this bug refers to...
-
-Steps to reproduce:
-
-Compile ALI15X3 into the kernel, or as a module, and reboot...
+~Randy
 
 
+On Wed, 01 Oct 2003 08:37:58 -0600 "Lisa R. Nelson" <lisanels@cableone.net> wrote:
+
+| Ok, ok, I get it... It was an oversight on my part.  But I'm sure
+| surprised about some of the hostile replies I received.  So much for a
+| friendly group.  People should remember that there's ALWAYS someone that
+| knows more that YOU.  In my case it was about permissions, what is it in
+| your case?  Microsoft scores points on being friendly... Yuck...
+| Microsoft....
+| 
+| On Wed, 2003-10-01 at 15:33, Sam Baskinger wrote: 
+| > The behavior you observed is in conformance with the POSIX specification
+| > for the unlink() system call.  POSIX is one of the standard which Linux
+| > seeks to comply with.
+| > 
+| > Do note that many unix implementations do not follow all standards
+| > believing that they are making things "safer" or "better."  If you see a
+| > different behavior on Solaris then perhaps this is one of those design
+| > choices SUN made.
+| > 
+| > I'm sorry you had to type that long email. :-)
+| > 
+| > Sam
+| > 
+| > On Wed, 2003-10-01 at 08:40, Lisa R. Nelson wrote:
+| > > [1.] One line summary of the problem:    
+| > > A low level user can delete a file owned by root and belonging to group
+| > > root even if the files permissions are 744.  This is not in agreement
+| > > with Unix, and is a major security issue.
+| > > 
+| > > [2.] Full description of the problem/report: 
+| > >     Permissions on a file basis take precedence over directory
+| > > permissions (for most cases), but in Linux they do not.  In order to
+| > > secure a file, you have to secure the directory which effects all files
+| > > within it.  
+| > >     As user 'lisa', I do all my work on my server.  One task is to move
+| > > pictures from my digital camera to my server picture directory that is
+| > > wide open to everyone.  All users can create sub-folders and put
+| > > pictures in there.  But every hour I have a cron job run that changes
+| > > the ownership to root, and sets the permissions to 644 on all files in
+| > > that directory structure.  Thinking the files could no longer be altered
+| > > by anyone but root (as would be the case in unix), and found anyone
+| > > could delete them.  That's when I discovered this major bug.
+| > >     I verified this on a sun station today, by simply creating a file in
+| > > a wide open directory with 444 permissions and was then able to delete
+| > > it after the "Ok to delete write-protected file(y/n), but could NOT
+| > > delete a similar file with the same permissions owned by root...  As it
+| > > should be...
+| > > Try this:
+| > > 
+| > > [lisa@localhost lisa]$ su - root
+| > > Password:
+| > > [root@localhost root]# cd /
+| > > [root@localhost /]# mkdir junk
+| > > [root@localhost /]# chmod 777 junk
+| > > [root@localhost /]# ls -l
+| > > total 225
+| > > ...
+| > > drwxrwxrwx    2 root     root         4096 Sep 29 07:30 junk
+| > > ...
+| > > [root@localhost /]#
+| > > [root@localhost /]# cd junk
+| > > [root@localhost junk]# ls .. > rootfile
+| > > [root@localhost junk]# ls -l
+| > > total 4
+| > > -rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
+| > > [root@localhost junk]# cp rootfile rootfile2
+| > > [root@localhost junk]# cp rootfile rootfile3
+| > > [root@localhost junk]# ls -l
+| > > total 12
+| > > -rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
+| > > -rw-r--r--    1 root     root           95 Sep 29 07:32 rootfile2
+| > > -rw-r--r--    1 root     root           95 Sep 29 07:32 rootfile3
+| > > [root@localhost junk]# chmod 444 rootfile2
+| > > [root@localhost junk]# chmod 000 rootfile3
+| > > [root@localhost junk]# ls -l
+| > > total 12
+| > > -rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
+| > > -r--r--r--    1 root     root           95 Sep 29 07:32 rootfile2
+| > > --    1 root     root           95 Sep 29 07:32 rootfile3
+| > > [root@localhost junk]#exit
+| > > [lisa@localhost lisa]$ cd /junk
+| > > [lisa@localhost junk]$ ls -l
+| > > total 12
+| > > -rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
+| > > -r--r--r--    1 root     root           95 Sep 29 07:32 rootfile2
+| > > --    1 root     root           95 Sep 29 07:32 rootfile3
+| > > [lisa@localhost junk]$
+| > > [lisa@localhost junk]$ rm root*
+| > > rm: remove write-protected regular file `rootfile'? y
+| > > rm: remove write-protected regular file `rootfile2'? y
+| > > rm: remove write-protected regular file `rootfile3'? y
+| > > [lisa@localhost junk]$ ls -l
+| > > total 0
+| > > [lisa@localhost junk]$
+| > > Notice that all three files that 'lisa' does not have write permissions
+| > > to are gone!  
+| > > 
+| > > 
+| > > [3.] Keywords (i.e., modules, networking, kernel):
+| > > kernel file permissions security
+| > > 
+| > > [4.] Kernel version (from /proc/version): 
+| > > [root@localhost proc]# cat version
+| > > Linux version 2.4.20-20.9 (root@rwbp4) (gcc version 3.2.2 20030222 (Red
+| > > Hat Linux 3.2.2-5)) #1 Wed Aug 20 17:41:55 EDT 2003
+| > > [root@localhost proc]#
+| > > 
+| > > [5.] Output of Oops.. message
+| > > None 
+| > > [6.] A small shell script or example
+| > > See Above
+| > > 
+| > > http://www.auburn.edu/oit/software/os/unix_files.html
+| > > http://www.dartmouth.edu/~rc/help/faq/permissions.html
+| > > http://www.december.com/unix/tutor/permissions.html
+| > > http://www.itc.virginia.edu/desktop/web/permissions/

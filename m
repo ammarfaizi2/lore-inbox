@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSKBRlo>; Sat, 2 Nov 2002 12:41:44 -0500
+	id <S261330AbSKBRso>; Sat, 2 Nov 2002 12:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbSKBRlo>; Sat, 2 Nov 2002 12:41:44 -0500
-Received: from [212.104.37.2] ([212.104.37.2]:11278 "EHLO
-	actnetweb.activenetwork.it") by vger.kernel.org with ESMTP
-	id <S261317AbSKBRll>; Sat, 2 Nov 2002 12:41:41 -0500
-Date: Sat, 2 Nov 2002 18:47:27 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.45] CDRW not working
-Message-ID: <20021102174727.GA294@dreamland.darkstar.net>
-Reply-To: kronos@kronoz.cjb.net
-References: <20021102152143.GA515@dreamland.darkstar.net> <20021102152725.GD1922@suse.de>
+	id <S261327AbSKBRrW>; Sat, 2 Nov 2002 12:47:22 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:15876 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261325AbSKBRrT>;
+	Sat, 2 Nov 2002 12:47:19 -0500
+Date: Sat, 2 Nov 2002 17:55:03 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Dave Jones <davej@codemonkey.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [announce] swap mini-howto
+Message-ID: <20021102165503.GC1983@elf.ucw.cz>
+References: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net> <20021102000907.GA9229@suse.de> <3DC3207A.450402B3@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021102152725.GD1922@suse.de>
+In-Reply-To: <3DC3207A.450402B3@zip.com.au>
 User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sat, Nov 02, 2002 at 04:27:25PM +0100, Jens Axboe ha scritto: 
-> > I can't even mount a cd using my CDRW drive (CD-ROM drive is ok).
+Hi!
+
+> That has changed in 2.5.  Swapping onto a regular file has no
+> disadvantage wrt swapping onto a block device.  The kernel does
+> not need to allocate any memory at all to get a swapcache page
+> onto disk.
 > 
-> Does 2.5.42 work?
+> Which is interesting.  Because swapfiles are much easier to administer,
+> and much easier to stripe.  Adding, removing and resizing is simplified.
+> Distributors of 2.6-based kernels could consider doing away with
+> swapdevs altogether.
 
-I can reproduce it using hdparm -i /dev/hdd:
-
-hdd: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-hdd: drive_cmd: error=0x04Aborted Command
-hdd: irq timeout: status=0xd0 { Busy }
-hdd: irq timeout: error=0xd0LastFailedSense 0x0d
-hdd: status timeout: status=0xd0 { Busy }
-hdd: status timeout: error=0xd0LastFailedSense 0x0d
-hdd: DMA disabled
-hdd: drive not ready for command
-hdd: ATAPI reset complete
-hdd: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdd: packet command error: error=0x50
-end_request: I/O error, dev 16:40, sector 0
-end_request: I/O error, dev 16:40, sector 0
-hdd: request sense failure: status=0x51 { DriveReady SeekComplete Error }
-hdd: request sense failure: error=0x50LastFailedSense 0x05
-
->From now on I can't use the drive. The same happens on 2.5.45. 
-
-Luca
+Well, you can swsusp to partition. You can't swsusp to a file, as that
+is very hard to do.
+								Pavel
 -- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-La differenza fra l'intelligenza e la stupidita`?
-All'intelligenza c'e` un limite.
+When do you have heart between your knees?

@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKRXlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUKRXov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUKRXlc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUKRXkP
+	id S262906AbUKRXov (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:44:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbUKRXlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:40:15 -0500
-Received: from [194.90.79.130] ([194.90.79.130]:50437 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S261200AbUKRXi3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:38:29 -0500
-Message-ID: <419D3271.7050804@argo.co.il>
-Date: Fri, 19 Nov 2004 01:38:25 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041027
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Keith Owens <kaos@ocs.com.au>, Hugh Dickins <hugh@veritas.com>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] WTF is VLI?
-References: <200411181808.iAII8ECH009759@laptop11.inf.utfsm.cl>
-In-Reply-To: <200411181808.iAII8ECH009759@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Nov 2004 23:38:26.0629 (UTC) FILETIME=[B3767F50:01C4CDC7]
+	Thu, 18 Nov 2004 18:41:55 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.21]:28238 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262906AbUKRUti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:49:38 -0500
+Date: Thu, 18 Nov 2004 21:49:35 +0100
+Message-Id: <200411182049.iAIKnZEZ007078@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 526] fm2fb: Update Steffen A. Mork's email address
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+fm2fb: Update Steffen A. Mork's email address
 
->>ksymoops can disasemble the entire code line, but starting at different 
->>offsets (up to the maximum instruction length) from the start. the first 
->>disassembly to include the program counter in the output would be deemed 
->>correct.
->>    
->>
->
->There might be several... I see no reason to consider the first one
->correct.
->  
->
-Of course, there is no way to guarantee correctness. the point is with 
-the current system the chances of being correct are around 1:(average 
-instruction length) (a bit better because there is a chance to resync), 
-while with my proposal to be _incorrect_ you need to start wrong _and_ 
-hit a bad resync.
+Signed-off-by: Steffen A. Mork <linux-dev@morknet.de>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-I don't get to see many oopsen, but it seems to me most would have 
-garbage before eip, no?
+--- linux-2.6.10-rc2/drivers/video/fm2fb.c 2004-08-14 12:55:19.000000000 +0200
++++ linux-m68k-2.6.10-rc2/drivers/video/fm2fb.c 2004-11-18 09:18:49.486166768 +0100
+@@ -2,7 +2,7 @@
+  *  linux/drivers/video/fm2fb.c -- BSC FrameMaster II/Rainbow II frame buffer
+  *				   device
+  *
+- *	Copyright (C) 1998 Steffen A. Mork (mork@ls7.cs.uni-dortmund.de)
++ *	Copyright (C) 1998 Steffen A. Mork (linux-dev@morknet.de)
+  *	Copyright (C) 1999 Geert Uytterhoeven
+  *
+  *  Written for 2.0.x by Steffen A. Mork
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

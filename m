@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265361AbTF1Tsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 15:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265374AbTF1Tsu
+	id S265394AbTF1Tx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 15:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTF1Tx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 15:48:50 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:48324 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265361AbTF1Tst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 15:48:49 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Asus CD-S520/A kernel I/O error
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-References: <20030628195408.GA10099@deneb>
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Sat, 28 Jun 2003 22:03:42 +0200
-In-Reply-To: <20030628195408.GA10099@deneb> (Marco Ferra's message of "Sat,
- 28 Jun 2003 20:54:08 +0100")
-Message-ID: <87brwix941.fsf@gitteundmarkus.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 28 Jun 2003 15:53:29 -0400
+Received: from mail.gmx.de ([213.165.64.20]:5531 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265394AbTF1Tx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 15:53:28 -0400
+Date: Sat, 28 Jun 2003 23:07:43 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
+Subject: Re: [TRIVIAL] avoid Oops in net/core/dev.c
+Message-ID: <20030628200743.GA19658@callisto.yi.org>
+References: <20030628083810.GA2793@callisto.yi.org> <20030628194102.GA2384@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030628194102.GA2384@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Jun 2003, Marco Ferra wrote:
+On Sat, Jun 28, 2003 at 12:41:02PM -0700, Greg KH wrote:
+> On Sat, Jun 28, 2003 at 11:38:10AM +0300, Dan Aloni wrote:
+> > 
+> > BTW2, the attempt to rename the device here doesn't affect
+> > sysfs. Patrick, we need a class_device_* interface that does 
+> > this.
+> 
+> That's a good idea (I'm the person to blame for the class_device code,
+> not Pat.)  Care to send a patch?
 
-> It is _always_ at the end.  -raw96r doesn't seem to exist
+I have no patch, but I thought of either using lookup_one_len() 
+and then d_move() to create a new dentry or to rip out some 
+code out of vfs_rename_dir(). Anyway, I'm no VFS expert, so 
+no patch any time soon.
 
-Then you must have an old, or as Joerg would put it, ancient version.
-
-> but reading the README.verify file the -pad argument option was
-> mentioned.  Learning from the manpage it seems that this option can be
-> used to correct this situation.
-
-I don't think so. -pad is normally only for audio cds, IIRC. You could
-also try -dao, which will work as long as your burners firmware isn't
-b0rked, as it was with my acer 2010.
-
-> I will get a blank cd tomorrow to try it.  Thanks a lot.  Tell me just
-> more one thing using the data contained in the cd's recorded this way
-> is bad?  Or can it be used normally? (I always used them and seemed
-> OK).
-
-The data is all good. And as lond as you don't use readcd or dd or
-something similiar you won't realize the bug.
-
-regards
-Markus
-
+-- 
+Dan Aloni
+da-x@gmx.net

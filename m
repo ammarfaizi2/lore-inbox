@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRBWJK2>; Fri, 23 Feb 2001 04:10:28 -0500
+	id <S129442AbRBWJbX>; Fri, 23 Feb 2001 04:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129608AbRBWJKS>; Fri, 23 Feb 2001 04:10:18 -0500
-Received: from jalon.able.es ([212.97.163.2]:64242 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129562AbRBWJJ7>;
-	Fri, 23 Feb 2001 04:09:59 -0500
-Date: Fri, 23 Feb 2001 10:09:47 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: k.hindenburg@gte.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: __buggy_fxsr_alignment error 2.4.1 and 2.4.2
-Message-ID: <20010223100947.A4593@werewolf.able.es>
-In-Reply-To: <20010222224322.A15511@amdk7.gte.net>
-Mime-Version: 1.0
+	id <S129608AbRBWJbO>; Fri, 23 Feb 2001 04:31:14 -0500
+Received: from mons.uio.no ([129.240.130.14]:28089 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S129442AbRBWJbC>;
+	Fri, 23 Feb 2001 04:31:02 -0500
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: samcconn@cotw.com (Scott A McConnell), linux-kernel@vger.kernel.org
+Subject: Re: nfs_refresh_inode: inode number mismatch
+In-Reply-To: <200102222159.f1MLxb031306@flint.arm.linux.org.uk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010222224322.A15511@amdk7.gte.net>; from k.hindenburg@gte.net on Fri, Feb 23, 2001 at 04:43:22 +0100
-X-Mailer: Balsa 1.1.1
+Date: 23 Feb 2001 10:30:34 +0100
+In-Reply-To: Russell King's message of "Thu, 22 Feb 2001 21:59:37 +0000 (GMT)"
+Message-ID: <shsae7dn3ut.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Russell King <rmk@arm.linux.org.uk> writes:
 
-On 02.23 Kurt V. Hindenburg wrote:
-> asm-i386:
-> init/main.o(.text.init+0x63): undefined reference to `__buggy_fxsr_alignment'
-> 
-> I don't recall this error in 2.4.0, but it is present in 2.4.1 and was not
-> fixed in 2.4.2.
-> 
->  >sh scripts/ver_linux 
-> -- Versions installed: (if some fields are empty or look
-> -- unusual then possibly you have very old versions)
-> Linux amdk7 2.4.1 #3 Sat Feb 3 18:50:44 EST 2001 i686 unknown
-> Kernel modules         2.4.1
-> Gnu C                  pgcc-2.95.2.1
+     > Scott A McConnell writes:
+    >> I am running RedHat Linux version 2.2.16-3 on my PC and Hardhat
+    >> Linux version 2.4.0-test5 on my MIPS board. Any thoughts or
+    >> suggestions?
+    >>
+    >> I saw a discussion start on the ARM list along these lines but
+    >> I never saw a solution.
 
-That is not a bug. That is there intentionally to catch broken compilers
-like yours.
+     > The problem is partly caused by the NFS server indefinitely
+     > caching NFS request XIDs to responses, and the NFS client not
+     > having a way to generate a random initial XID.  (thus, for each
+     > reboot, it starts at the same XID number).
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+That shouldn't be true in the latest kernels. knfsd should normally
+cache requests for no longer than 2 minutes with the changes made by
+Neil following your bugreport.
 
-Linux werewolf 2.4.2-ac1 #2 SMP Fri Feb 23 02:34:42 CET 2001 i686
-
+Cheers,
+   Trond

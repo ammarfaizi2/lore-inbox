@@ -1,96 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319160AbSHTPmu>; Tue, 20 Aug 2002 11:42:50 -0400
+	id <S319166AbSHTPrs>; Tue, 20 Aug 2002 11:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319166AbSHTPmu>; Tue, 20 Aug 2002 11:42:50 -0400
-Received: from pD9E23620.dip.t-dialin.net ([217.226.54.32]:13959 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S319160AbSHTPmt>; Tue, 20 Aug 2002 11:42:49 -0400
-Date: Tue, 20 Aug 2002 09:45:48 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Daniel Phillips <phillips@arcor.de>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Generic list push/pop
-In-Reply-To: <E17hAxg-00011z-00@starship>
-Message-ID: <Pine.LNX.4.44.0208200937460.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319167AbSHTPrr>; Tue, 20 Aug 2002 11:47:47 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:52485 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S319166AbSHTPrr>;
+	Tue, 20 Aug 2002 11:47:47 -0400
+Date: Tue, 20 Aug 2002 11:51:51 -0400
+From: Rob Radez <rob@osinvestor.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: florin@iucha.net, rob@osinvestor.com
+Subject: Re: Linux 2.4.20-pre4
+Message-ID: <20020820115151.I1625@osinvestor.com>
+References: <Pine.LNX.4.44.0208191944210.10105-100000@freak.distro.conectiva> <20020820144028.GB10541@iucha.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020820144028.GB10541@iucha.net>; from florin@iucha.net on Tue, Aug 20, 2002 at 09:40:28AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 20, 2002 at 09:40:28AM -0500, Florin Iucha wrote:
+> It fails to compile on sparc32 with:
 
-On Tue, 20 Aug 2002, Daniel Phillips wrote:
-> > +#define slist_add_front(_new, _head)   \
-> > +do {                                   \
-> > +       _new->next = _head;             \
-> > +       _head = _new->next;             \
-> > +} while (0)
-> 
-> The second line is equivalent to _head = _head.
+These errors (and more) are addressed in a patch which should be making its
+way upstream.  Please feel free to grab it out of the
+sparclinux@vger.kernel.org mailing list archives if you really want to use
+pre4.  Also, sparclinux@vger.kernel.org is the sparc32 mailing list, so
+please post any problems/patches there.
 
-I see. Is there something we'll need to do? Or is it just for the day?
-
-> > +#define slist_add(_new, _head)         \
-> > +do {                                   \
-> > +       _new->next = _head->next;       \
-> > +       _head->next = _new;             \
-> > +} while (0)
-> 
-> I don't see the point of this.  Why doesn't the caller just push_list onto
-> head->next?
-
-Because we still want to keep up the old list? If _head->next was NULL, no 
-matter, we've added. If not, we've just inserted.
-
-> #define push_list(list, node) do { \
-> 	typeof(list) *_LIST_ = &(list), _NODE_ = (node); \
-> 	_NODE_->next = *_LIST_; \
-> 	*_LIST_ = _NODE_; } while (0)
-> 
-> #define pop_list(list) ({ \
-> 	typeof(list) *_LIST_ = &(list), _NODE_ = *_LIST_; \
-> 	*_LIST_ = (*_LIST_)->next; \
-> 	_NODE_; })
-
-I'd rather call them push_slist, pop_slist (or as above). Think of the 
-millions of innocent people mixing lists and lists...
-
-> On the third hand, if somebody does that they probably need bad things
-> to happen to them.
-
-This is perfect evolution. You end up having better code-checking, and a 
-third hand.
-
->   - How do we know gcc will successfully optimize these things to the
->     same code you'd get if you simply wrote the two required assignments
->     out in full?  The local variables should disappear early in constant 
->     expression evaluation, but do they always?
-
-We shall have a look at the assembler output.
-
->   - We assume the link field is named 'next'.
-
-Must be forced then. Is it really that bad?
-
->   - They are ugly (but I don't care.  If you need to feast your eyes on
->     ugly, look at any pgtable.h)
-
-We shall comment on them to reduce uglyness.
-
-Summary:
- - We shall do it
- - We shall force it
- - We shall consider using slist names.
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+Regards,
+Rob Radez

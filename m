@@ -1,129 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbUCVU6s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 15:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUCVU6s
+	id S263021AbUCVVBD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 16:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUCVVBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 15:58:48 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:21894 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262953AbUCVU6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 15:58:43 -0500
-Date: Mon, 22 Mar 2004 21:58:01 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [WATCHDOG] v2.6.5-rc2 Kconfig-patch
-Message-ID: <20040322215801.X30061@infomag.infomag.iguana.be>
+	Mon, 22 Mar 2004 16:01:03 -0500
+Received: from bay15-f28.bay15.hotmail.com ([65.54.185.28]:17 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263021AbUCVVA4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 16:00:56 -0500
+X-Originating-IP: [132.177.117.88]
+X-Originating-Email: [mk_26@hotmail.com]
+From: "m k" <mk_26@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux TCP implementation
+Date: Mon, 22 Mar 2004 20:58:46 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY15-F28psNhnM7kl300089ffe@hotmail.com>
+X-OriginalArrivalTime: 22 Mar 2004 20:58:46.0367 (UTC) FILETIME=[77A0C6F0:01C41050]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Andrew,
+Hello:
 
-please do a
+      I am working with 2.4.21 kernel for iSCSI performance study. I have a 
+question
+regarding the congestion avoidance algorithm used in the linux TCP 
+implementation.
+After dumping the value of the snd_cwnd, snd_ssthresh and snd_cwnd_clamp 
+when
+the tcp_cong_avoid function is called, I observed that the value of 
+snd_ssthresh
+was always set to a value of 2147483647 and the value of snd_cwnd_clamp was 
+set to 65535.
+If the snd_cwnd is not be more than the snd_cwnd_clamp, the else part of the
+function is never executed, as snd_cwnd is never going to be more than 
+snd_ssthresh.
+	Also, if the snd_cwnd is maintained in terms of packets and snd_ssthresh 
+and
+snd_cwnd_clamp is maintained in terms of bytes, how come the comparison 
+between them.
 
-	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-This will update the following files:
+static __inline__ void tcp_cong_avoid(struct tcp_opt *tp)
+{
+         if (tp->snd_cwnd <= tp->snd_ssthresh) {
+                 /* In "safe" area, increase. */
+                 if (tp->snd_cwnd < tp->snd_cwnd_clamp)
+                         tp->snd_cwnd++;
+         } else {
+                 /* In dangerous area, increase slowly.
+                  * In theory this is tp->snd_cwnd += 1 / tp->snd_cwnd
+                  */
+                 if (tp->snd_cwnd_cnt >= tp->snd_cwnd) {
+                         if (tp->snd_cwnd < tp->snd_cwnd_clamp)
+                                 tp->snd_cwnd++;
+                         tp->snd_cwnd_cnt=0;
+                 } else
+                         tp->snd_cwnd_cnt++;
+         }
+         tp->snd_cwnd_stamp = tcp_time_stamp;
+}
 
- drivers/char/watchdog/Kconfig |   32 +++++++++++++-------------------
- 1 files changed, 13 insertions(+), 19 deletions(-)
+var/log/messages:
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 2, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 3, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 4, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 5, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 6, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 7, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 8, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 9, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 10, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 11, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 12, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 13, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 14, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 15, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 16, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 17, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 18, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 19, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 20, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 21, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
+Mar 22 15:08:20 jupiter kernel: snd_cwnd: 22, snd_ssthresh: 2147483647, 
+snd_cwnd_clamp: 65535
 
-through these ChangeSets:
 
-<wim@iguana.be> (04/03/22 1.1833)
-   [WATCHDOG] v2.6.5-rc2 Kconfig-patch
-   
-   Update Kconfig info to reflect the changes in wdt.c and wdt_pci.c
+Any insight on this topic would be appreciated.
 
+Thanks,
+k
 
-The ChangeSets can also be looked at on:
-	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+_________________________________________________________________
+Get rid of annoying pop-up ads with the new MSN Toolbar – FREE! 
+http://clk.atdmt.com/AVE/go/onm00200414ave/direct/01/
 
-For completeness, I added the patches below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff -Nru a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
---- a/drivers/char/watchdog/Kconfig	Mon Mar 22 21:55:55 2004
-+++ b/drivers/char/watchdog/Kconfig	Mon Mar 22 21:55:55 2004
-@@ -374,7 +374,7 @@
- 	tristate "Berkshire Products ISA-PC Watchdog"
- 	depends on WATCHDOG && ISA
- 	---help---
--	  This is the driver for the Berkshire Products PC Watchdog card.
-+	  This is the driver for the Berkshire Products ISA-PC Watchdog card.
- 	  This card simply watches your kernel to make sure it doesn't freeze,
- 	  and if it does, it reboots your computer after a certain amount of
- 	  time. This driver is like the WDT501 driver but for different
-@@ -406,10 +406,8 @@
- 	---help---
- 	  If you have a WDT500P or WDT501P watchdog board, say Y here,
- 	  otherwise N. It is not possible to probe for this board, which means
--	  that you have to inform the kernel about the IO port and IRQ using
--	  the "wdt=" kernel option (try "man bootparam" or see the
--	  documentation of your boot loader (lilo or loadlin) about how to
--	  pass options to the kernel at boot time).
-+	  that you have to inform the kernel about the IO port and IRQ that
-+	  is needed (you can do this via the io and irq parameters)
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called wdt.
-@@ -425,11 +423,8 @@
- 	  Fahrenheit. This works only if you have a WDT501P watchdog board
- 	  installed.
- 
--config WDT_501_FAN
--	bool "Fan Tachometer"
--	depends on WDT_501
--	help
--	  Enable the Fan Tachometer on the WDT501. Only do this if you have a
-+	  If you want to enable the Fan Tachometer on the WDT501P, then you
-+	  can do this via the tachometer parameter. Only do this if you have a
- 	  fan tachometer actually set up.
- 
- #
-@@ -455,29 +450,28 @@
- 	  Most people will say N.
- 
- config WDTPCI
--	tristate "WDT PCI Watchdog timer"
-+	tristate "PCI-WDT500/501 Watchdog timer"
- 	depends on WATCHDOG && PCI
- 	---help---
--	  If you have a PCI WDT500/501 watchdog board, say Y here, otherwise
--	  N.  It is not possible to probe for this board, which means that you
--	  have to inform the kernel about the IO port and IRQ using the "wdt="
--	  kernel option (try "man bootparam" or see the documentation of your
--	  boot loader (lilo or loadlin) about how to pass options to the
--	  kernel at boot time).
-+	  If you have a PCI-WDT500/501 watchdog board, say Y here, otherwise N.
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called wdt_pci.
- 
- config WDT_501_PCI
--	bool "WDT501-PCI features"
-+	bool "PCI-WDT501 features"
- 	depends on WDTPCI
- 	help
- 	  Saying Y here and creating a character special file /dev/temperature
- 	  with major number 10 and minor number 131 ("man mknod") will give
- 	  you a thermometer inside your computer: reading from
- 	  /dev/temperature yields one byte, the temperature in degrees
--	  Fahrenheit. This works only if you have a WDT501P watchdog board
-+	  Fahrenheit. This works only if you have a PCI-WDT501 watchdog board
- 	  installed.
-+
-+	  If you want to enable the Fan Tachometer on the PCI-WDT501, then you
-+	  can do this via the tachometer parameter. Only do this if you have a
-+	  fan tachometer actually set up.
- 
- #
- # USB-based Watchdog Cards

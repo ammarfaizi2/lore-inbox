@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUFOPE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265689AbUFOPHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUFOPE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 11:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUFOPE7
+	id S265689AbUFOPHj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 11:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUFOPHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 11:04:59 -0400
-Received: from styx.suse.cz ([82.119.242.94]:16265 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S265681AbUFOPEK (ORCPT
+	Tue, 15 Jun 2004 11:07:38 -0400
+Received: from verein.lst.de ([212.34.189.10]:47549 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S265689AbUFOPG5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 11:04:10 -0400
-Date: Tue, 15 Jun 2004 17:05:22 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+	Tue, 15 Jun 2004 11:06:57 -0400
+Date: Tue, 15 Jun 2004 17:06:52 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Switching off PS/2 keyboard
-Message-ID: <20040615150522.GA5602@ucw.cz>
-References: <E1BaDva-0001Y8-LK@beton.cybernet.src> <20040615132849.A5968@beton.cybernet.src>
+Subject: [PATCH] fix standalone inclusion of asm-i386/dma-mapping.h
+Message-ID: <20040615150652.GA18894@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040615132849.A5968@beton.cybernet.src>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 01:28:49PM +0000, Karel Kulhavý wrote:
+Without this a usb-storage patch I sent fails on x86 because
+dma-mapping.h uses struct device and various VM stuff without proper
+includes.  It's fine on ppc at least.
 
-> Is it possible to switch off PS/2 keyboard support in 2.4.25 make menuconfig?
-> I have searched through the make menuconfig and didn't find anything looking
-> like that.
 
-It is only possible in 2.6.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--- 1.7/include/asm-i386/dma-mapping.h	2004-05-25 11:53:06 +02:00
++++ edited/include/asm-i386/dma-mapping.h	2004-06-15 17:02:43 +02:00
+@@ -1,6 +1,9 @@
+ #ifndef _ASM_I386_DMA_MAPPING_H
+ #define _ASM_I386_DMA_MAPPING_H
+ 
++#include <linux/device.h>
++#include <linux/mm.h>
++
+ #include <asm/cache.h>
+ #include <asm/io.h>
+ #include <asm/scatterlist.h>

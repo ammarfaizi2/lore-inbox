@@ -1,108 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286704AbSABEYv>; Tue, 1 Jan 2002 23:24:51 -0500
+	id <S286712AbSABEvD>; Tue, 1 Jan 2002 23:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286693AbSABEYn>; Tue, 1 Jan 2002 23:24:43 -0500
-Received: from unicef.org.yu ([194.247.200.148]:64764 "EHLO koala.vm")
-	by vger.kernel.org with ESMTP id <S286724AbSABEYa>;
-	Tue, 1 Jan 2002 23:24:30 -0500
-Message-ID: <3C328B5D.2D2205CD@unicef.org.yu>
-Date: Wed, 02 Jan 2002 05:23:57 +0100
-From: Zoran Davidovac <zdavid@unicef.org.yu>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: [BAD!!PATCH] Re: Promise Ultra ATA 133 TX2 support for the 2.2  
- kernelseries
-X-Priority: 1 (Highest)
-In-Reply-To: <20011231.VlG.50930700@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286732AbSABEux>; Tue, 1 Jan 2002 23:50:53 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:21200 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286712AbSABEuc>; Tue, 1 Jan 2002 23:50:32 -0500
+Date: Tue, 1 Jan 2002 21:50:29 -0700
+Message-Id: <200201020450.g024oT021225@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.2-pre6: MKDEV replacements fs dir
+In-Reply-To: <Pine.LNX.4.33.0201012219050.1251-800000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0201012219050.1251-800000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found ERROR :)
+Frank Davis writes:
+>   This message is in MIME format.  The first part should be readable text,
+>   while the remaining parts are likely unreadable without MIME-aware tools.
+>   Send mail to mime@docserver.cac.washington.edu for more info.
 
-IF You look at your patches YOU WILL SEE:
+Please don't send MIME encoded messages.
 
-Only in linux-2.2.20/drivers/block: README.buddha
-Only in linux-2.2.20/drivers/block: aec62xx.c
-diff -ur linux-2.2.20-vanilla/drivers/block/ali14xx.c
-linux-2.2.20/drivers/bloc
+>   I've attached the neccessary MKDEV replacements for the fs dir. 
 
-so ERROR is in your patch or exactly at diff line,
-the Only files are *not* in patch !!!
+Great.
 
-use diff -u -r -N or diff -u -r -P to
-make diff
+> Content-Type: TEXT/PLAIN; charset=US-ASCII; name=nfsroot_mkdev
+> Content-Transfer-Encoding: BASE64
+> Content-ID: <Pine.LNX.4.33.0201012223170.1251@localhost.localdomain>
+> Content-Description: 
+> Content-Disposition: attachment; filename=nfsroot_mkdev
 
-I send you my patches for 2.2.20 again.
+Please send patches in plaintext format. It makes them easier to scan.
 
-Regards,
+				Regards,
 
- Zoran D.
-
-
-
-Roy Sigurd Karlsbakk wrote:
-> 
-> I can't get any errors... Have you tried again?
-> 
-> Zoran Davidovac (zdavid@unicef.org.yu) wrote*:
-> >
-> >Roy Sigurd Karlsbakk wrote:
-> >>
-> >> > You can find ATA patches in
-> >> >
-> >> > ftp.kernel.org/pub/linux/kernel/people/hedrick/ide-2.2.19
-> >> >
-> >> >  ide.2.2.19.05042001...> 15-May-2001 14:32   185k  Source code patch
-> >> >
-> >> > I am using it long time and it is stable,
-> >> > note you will have to patch k2.2.20 manual
-> >>
-> >> Hi!
-> >>
-> >> In case anyone's interested, I've attached the 2.2.20 patch.
-> >>
-> >> roy
-> >>
-> >> --
-> >> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-> >>
-> >> Computers are like air conditioners.
-> >> They stop working when you open Windows.
-> >>
-> >>   ------------------------------------------------------------------------
-> >>                           Name: ide-2.2.20.patch.gz
-> >>    ide-2.2.20.patch.gz    Type: APPLICATION/x-gzip
-> >>                       Encoding: BASE64
-> >make[3]: Entering directory
-> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.netdrivers/block'
-> >make[3]: *** No rule to make target `ide-features.c', needed by
-> >`ll_rw_blk.o'.
-> >Stop.
-> >make[3]: Leaving directory
-> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.net/rivers/block'
-> >make[2]: *** [first_rule] Error 2
-> >make[2]: Leaving directory
-> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.net/rivers/block'
-> >make[1]: *** [_subdir_block] Error 2
-> >make[1]: Leaving directory
-> >`/usr/src/ide-patch/linux-2.2.20-royATkarlsbakk.net/rivers'
-> >make: *** [_dir_drivers] Error 2
-> >bash-2.05#
-> >
-> >try to compile it with test config !
-> >
-> >I am attaching you my patches
-> >
-> >ide.2.2.20.12312001.patch.bz2 which are ide.2.2.19.05042001 ported to
-> >2.2.20
-> >ide-udf.2.2.20.12312001.patch.bz2 which are ide.2.2.19.05042001 with udf
-> >patch ported to 2.2.20.
-> >
-> >try to merge your patches into it.
-> >
-> >Zoran
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263579AbUJ2U6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263570AbUJ2VEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263579AbUJ2U6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263514AbUJ2Uwp
+	id S263570AbUJ2VEN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbUJ2VDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:52:45 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:62353 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263524AbUJ2UmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:42:00 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
-From: Lee Revell <rlrevell@joe-job.com>
-To: John Gilbert <jgilbert@biomail.ucsd.edu>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <41828348.4000700@biomail.ucsd.edu>
-References: <OFDD5E88CA.56DEE781-ON86256F3C.0059C080-86256F3C.0059C0A2@raytheon.com>
-	 <20041029162622.GA8016@elte.hu>  <41828348.4000700@biomail.ucsd.edu>
-Content-Type: text/plain
-Date: Fri, 29 Oct 2004 16:41:58 -0400
-Message-Id: <1099082519.14209.20.camel@krustophenia.net>
+	Fri, 29 Oct 2004 17:03:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38849 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263573AbUJ2Uzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:55:52 -0400
+Date: Fri, 29 Oct 2004 15:43:25 -0500
+From: Greg KH <greg@kroah.com>
+To: Mehulkumar J Patel <mehul.patel@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Exclusive access to hardware for test purpose
+Message-ID: <20041029204325.GA30638@kroah.com>
+References: <OF2D431ED5.0E0040F4-ON65256F3B.0074805E-65256F3B.007703B3@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF2D431ED5.0E0040F4-ON65256F3B.0074805E-65256F3B.007703B3@in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 10:52 -0700, John Gilbert wrote:
-> Hello all, Ingo,
-> Here's a few bugs on boot with V0.5.2, and a question: what's needed to 
-> get back to the verbose latency messages of previous preempt patches 
-> (see the terse second log)?
+On Fri, Oct 29, 2004 at 03:05:59AM +0530, Mehulkumar J Patel wrote:
+> Hi,
+> 
+> Is anyone aware of kernel call which allows a test tool developer to have 
+> exclusive access to PCI adapter hardware. By exclusive access I mean both
+> driver as well as kernel should not touch hardware. 
 
-There is a setting in /proc/sys/kernel for this, don't remember what
-it's called but should be pretty clear.
+You need to disconnect the device from any current driver that might be
+bound to it.  Then you need to bind to the device to make sure that no
+one else binds to it.
 
-Lee
+> I have been using driver's remove call to simulate the situation as if 
+> adapter has been hot plugged out. And once my testing is done I call 
+> driver's probe
+> call to put adapter back. But this seems to create a problem when somehow 
+> kernel calls driver's remove call.
 
+What kind of problem happens?  Any code you can point us at?
+
+thanks,
+
+greg k-h

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUJaL65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbUJaMCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUJaL65 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 06:58:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUJaL4X
+	id S261561AbUJaMCF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 07:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUJaL7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 06:56:23 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:20404 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261608AbUJaLzi (ORCPT
+	Sun, 31 Oct 2004 06:59:11 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35003 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261596AbUJaL6m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 06:55:38 -0500
-Date: Sun, 31 Oct 2004 12:44:25 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH 475] HP300 LANCE
-In-Reply-To: <20041031030931.3d592bf2.akpm@osdl.org>
-Message-ID: <Pine.GSO.4.61.0410311243040.21194@waterleaf.sonytel.be>
-References: <200410311003.i9VA3UMN009557@anakin.of.borg> <4184BB09.8000107@pobox.com>
- <20041031021933.1eba86a6.akpm@osdl.org> <4184C16E.80705@pobox.com>
- <20041031024840.6eeee92d.akpm@osdl.org> <20041031105724.GA28012@havoc.gtf.org>
- <20041031030931.3d592bf2.akpm@osdl.org>
+	Sun, 31 Oct 2004 06:58:42 -0500
+Date: Sun, 31 Oct 2004 12:58:38 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 breaks NVidia module, cannot start X.
+Message-ID: <Pine.LNX.4.53.0410311254360.2766@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Oct 2004, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> >
-> > On Sun, Oct 31, 2004 at 02:48:40AM -0800, Andrew Morton wrote:
-> >  > > -        void *va = dio_scodetoviraddr(scode);
-> >  > > +	unsigned long pa = dio_scodetophysaddr(scode);
-> >  > > +        unsigned long va = (pa + DIO_VIRADDRBASE);
-> > 
-> > 
-> >  > That's because the stoopid driver is using spaces instead of tabs all over
-> >  > the place.  It comes out visually OK once the patch is applied.  But it's a
-> >  > useful reminder of how much dreck we have in the tree.
 
-I did a big whitespace cleanup in arch/m68k a while ago, but I didn't dare to
-touch drivers/...
+On Tue, 19 Oct 2004, Jesse Stockall wrote:
+> On Tue, 2004-10-19 at 10:42, Justin Piszcz wrote:
+>> nvidia: Unknown symbol __VMALLOC_RESERVE
+>> nvidia: Unknown symbol __VMALLOC_RESERVE
+>
+> Try
+> http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck1/patches/nvidia_compat.diff
+> Jesse
 
-> >  Did you see the above quoted patch chunk?  The patch is inconsistent
-> >  with _itself_, adding 'pa' and 'va' with different idents (but when they
-> >  should be at the same identation level).
-> 
-> Trust me ;)
-> 
-> http://www.zip.com.au/~akpm/linux/patches/stuff/x.jpg
+Wow, I'm wondering. The kernel-of-the-day from SUSE (20040929, 20041023
+and 20041028) (2.6.8 + 2.6.9-rc2 IIRC) do not even have unsigned int
+__VMALLOC_RESERVE in arch/i386/mm/init.c.
 
-Yep, tabstops should be 1+n*8 (sometimes 2+n*8) instead of n*8 when looking at
-patches :-)
+More surprisingly, there is not any VMALLOC thing in the NV sources:
 
-Gr{oetje,eeting}s,
+12:56 io:../src/nv # pwd
+/usr/src/NV/NVIDIA-Linux-x86-1.0-4496-pkg0/usr/src/nv
+12:56 io:../src/nv # grep VMALLOC_RES *
+12:56 io:../src/nv # cd /usr/src/NV6/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/
+12:56 io:../src/nv # grep VMALLOC_RES *
+12:56 io:../src/nv #
 
-						Geert
+So it's not in the 4496 (which I use, due to speed problems with 5xxx and
+6xxx in the past) and neither in the 6111.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I'm puzzled, comments welcome.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

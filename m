@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271824AbTHMLeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271827AbTHMLeQ
+	id S271117AbTHMLZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271813AbTHMLZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:34:16 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:16070 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S271824AbTHMLeL (ORCPT
+	Wed, 13 Aug 2003 07:25:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25762 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271117AbTHMLZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:34:11 -0400
-Date: Wed, 13 Aug 2003 13:34:20 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Vid Strpic <vms@bofhlet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: (no subject)
-Message-ID: <20030813113420.GA2846@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Vid Strpic <vms@bofhlet.net>,
-	linux-kernel@vger.kernel.org
-References: <20030813091453.GJ30507@home.bofhlet.net>
+	Wed, 13 Aug 2003 07:25:15 -0400
+Date: Wed, 13 Aug 2003 04:25:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+Message-Id: <20030813042544.5064b3f4.akpm@osdl.org>
+In-Reply-To: <1060772769.8009.4.camel@localhost.localdomain>
+References: <20030813045638.GA9713@middle.of.nowhere>
+	<20030813014746.412660ae.akpm@osdl.org>
+	<20030813091958.GA30746@gates.of.nowhere>
+	<20030813025542.32429718.akpm@osdl.org>
+	<1060772769.8009.4.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030813091453.GJ30507@home.bofhlet.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 11:14:53AM +0200, Vid Strpic wrote:
-> On Tue, Aug 12, 2003 at 04:55:19PM +0300, Catalin BOIE wrote:
-> > "cat drivers/built-in.o > /dev/null" gives me i/o error.
-> > Can I suspect a bad sector?
-> 
-> Where, in memory? :)  /dev/null is in memory :)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> Put the likely(pos) in the asm/prefetch for Athlon until someone can
+>  figure out what is going on with some specific Athlons, 2.6 and certain
+>  kernels (notably 4G/4G).
 
-depends, if /dev/null does not exist before the cat,
-it will be created as regular file, residing on the
-device /dev is (which could be a disk ...)
+<riffles through random config options>
 
-ls -la /dev/null will show ...
+Like this?
 
-> > I use reiserfs.
-> 
-> Any other file gives that?
+What happens if someone runs a K6 kernel on a K7?
 
-best,
-Herbert
+Or various other CPU types?  What is the matrix here?
 
-> 
-> -- 
->            vms@bofhlet.net, IRC:*@Martin, /bin/zsh. C|N>K
-> Linux lorien 2.4.21 #1 Sat Jun 14 01:23:07 CEST 2003 i586
->  11:13:51 up 38 days, 21:33, 10 users,  load average: 0.03, 0.26, 0.18
+I don't like the way this is headed...
 
+--- 25/include/asm-i386/processor.h~athlon-prefetch-fix	2003-08-13 04:21:01.000000000 -0700
++++ 25-akpm/include/asm-i386/processor.h	2003-08-13 04:22:10.000000000 -0700
+@@ -568,6 +568,10 @@ static inline void rep_nop(void)
+ #define ARCH_HAS_PREFETCH
+ extern inline void prefetch(const void *x)
+ {
++#ifdef CONFIG_MK7
++	if (unlikely(x == NULL))
++		return;		/* athlons like to oops in prefetch(0) */
++#endif
+ 	alternative_input(ASM_NOP4,
+ 			  "prefetchnta (%1)",
+ 			  X86_FEATURE_XMM,
+
+_
 

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288752AbSBDIAj>; Mon, 4 Feb 2002 03:00:39 -0500
+	id <S288761AbSBDIPo>; Mon, 4 Feb 2002 03:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288747AbSBDIAa>; Mon, 4 Feb 2002 03:00:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33796 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288742AbSBDIAS>;
-	Mon, 4 Feb 2002 03:00:18 -0500
-Date: Mon, 4 Feb 2002 08:59:29 +0100
+	id <S288765AbSBDIPf>; Mon, 4 Feb 2002 03:15:35 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:773 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288761AbSBDIPX>;
+	Mon, 4 Feb 2002 03:15:23 -0500
+Date: Mon, 4 Feb 2002 09:15:09 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Manuel McLure <manuel@mclure.org>
-Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linuxdiskcert.org>
-Subject: Re: 2.4.17 Oops when trying to mount ATAPI CDROM
-Message-ID: <20020204085929.P29553@suse.de>
-In-Reply-To: <20020202170244.A12338@ulthar.internal> <Pine.LNX.4.10.10202021715180.26613-100000@master.linux-ide.org> <20020203102109.C12338@ulthar.internal> <20020203103216.E12338@ulthar.internal>
+To: Paul Bristow <paul@paulbristow.net>
+Cc: linux-kernel@vger.kernel.org, Taco IJsselmuiden <taco@wep.tudelft.nl>
+Subject: Re: [OOPS] Oops with ide-floppy in 2.5.2 / 2.5.3
+Message-ID: <20020204091509.Q29553@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0202040023410.15910-100000@banaan.taco.dhs.org> <3C5E2C08.1080105@paulbristow.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020203103216.E12338@ulthar.internal>
+In-Reply-To: <3C5E2C08.1080105@paulbristow.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 03 2002, Manuel McLure wrote:
-> 
-> On 2002.02.03 10:21 Manuel McLure wrote:
-> > 
-> > On 2002.02.02 22:04 Andre Hedrick wrote:
-> > >
-> > > Manuel,
-> > >
-> > > Would you be kind enough to be a little more specific on the hardware?
-> > > The attached devices bu make model and real vender if known.
-> > kml/
-> > 
-> > The CD-ROM is detected as a Pioneer CD-ROM ATAPI Model DR-A24X 0104 - I
-> > haven't opened the case to look at it but I do recall that it is
-> > definitely a 24X Pioneer ATAPI CDROM.
-> > 
-> 
-> Some more information - if I boot without "hdc=noprobe hdc=cdrom", I don't 
-> get the oops whel loading the "ide-cd" module - instead I get
-> 
-> hdc: set_drive_speed_status: status=0x00 { }
-> hdc: lost interrupt
-> hdc: ATAPI 20X CD-ROM drive, 128kB Cache, DMA
-> Uniform CD-ROM driver Revision: 3.12
-> hdc: lost interrupt
-> hdc: lost interrupt
-> hdc: lost interrupt
-> 
-> The module eventually finishes initializing but is not usable due to the 
-> "lost interrupt"s.
+On Mon, Feb 04 2002, Paul Bristow wrote:
+> I'll take a look at it.
 
-That particular Pioneer model has never worked well in Linux. I have on
-here that at least sort-of works when noprobe is used (the Linux
-detection probe really screws it up).
+One hint is that this bug is triggered when you attempt to add a request
+in from of one that has already been started. In case of ide,
+ide_do_drive_cmd with ide_preempt would trigger this. That may or may
+not be a bug, depends on if the driver knows what it is doing or not.
 
-My recommandation -- get another drive. The oops would be nice to have
-fixed, but don't expect this drive to ever work well.
+If the driver knows what it is doing, then this patch should cure your
+problem.
+
+--- drivers/ide/ide.c~	Mon Feb  4 09:12:10 2002
++++ drivers/ide/ide.c	Mon Feb  4 09:14:39 2002
+@@ -1784,6 +1784,8 @@
+ 	if (blk_queue_empty(&drive->queue) || action == ide_preempt) {
+ 		if (action == ide_preempt)
+ 			hwgroup->rq = NULL;
++		if (!blk_queue_empty(&drive->queue))
++			list_entry_rq(queue_head)->flags &= ~REQ_STARTED;
+ 	} else {
+ 		if (action == ide_wait || action == ide_end) {
+ 			queue_head = queue_head->prev;
 
 -- 
 Jens Axboe

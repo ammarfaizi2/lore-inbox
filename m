@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbUK0BQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263060AbUK0BZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbUK0BQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbUK0BNd
+	id S263060AbUK0BZN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263052AbUK0BZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:13:33 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:60944 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262700AbUK0BMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 20:12:14 -0500
-Message-ID: <41A7C6A3.4040602@conectiva.com.br>
-Date: Fri, 26 Nov 2004 22:13:23 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Organization: Conectiva S.A.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tobias DiPasquale <codeslinger@gmail.com>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH][REVISED] add list_del_head[_init] functions
-References: <876ef97a0411261638988b9aa@mail.gmail.com>
-In-Reply-To: <876ef97a0411261638988b9aa@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 Nov 2004 20:25:08 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263060AbUKZTkh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:40:37 -0500
+Subject: Re: PATCH (for comment): ide-cd possible race in PIO mode
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041122075802.GL26240@suse.de>
+References: <1100697589.32677.3.camel@localhost.localdomain>
+	 <20041117153706.GH26240@suse.de>  <20041122075802.GL26240@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1101137446.2756.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 24 Nov 2004 11:35:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias DiPasquale wrote:
-> Hi all,
+On Llu, 2004-11-22 at 07:58, Jens Axboe wrote:
+> > > +		spin_unlock_irqsave(&ide_lock, flags);
+> > >  		return (*handler) (drive);
+> > >  	}
 > 
-> I revised my earlier list_del_head patch and took Jens' suggestions.
-> There were two function additions:
-> 
-> list_del_head() - removes the head of a list and returns it
-> list_del_head_init() - removes the head of a list, reinitializes it
-> and returns it
-> 
-> I have also converted several obvious pieces of code in kernel/, net/
-> and mm/ to use these new functions. The patch for all of this is
-> attached. Thanks :)
-> 
-> Name: Add list_del_head[_init] functions for full queue API
-> Status: Tested (smoke tests, mostly)
-> Signed-off-by: Toby DiPasquale <codeslinger@gmail.com>
-> 
-> P.S. Again, please CC me on any replies as I'm not subscribed to LKML.
-> Thanks again :)
-> 
+> btw alan, have you attempted to compile this? It averages 2 errors out
+> of 4 lines :)
 
-The net_rx_action one doesn't look right.
+Guess why it said "for comment". The one that does compile is in current
+-ac
+but the fixes are kind of obvious 8)
 
-- Arnaldo

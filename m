@@ -1,58 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbTH2QNn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbTH2QNn
+	id S261449AbTH2QUw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbTH2QUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:13:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56197 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261363AbTH2QNk (ORCPT
+	Fri, 29 Aug 2003 12:20:52 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:18856 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S261449AbTH2QUo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:13:40 -0400
-Date: Fri, 29 Aug 2003 08:57:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test4-mm3
-Message-Id: <20030829085726.452d7a3f.akpm@osdl.org>
-In-Reply-To: <3F4F747E.7020601@wmich.edu>
-References: <20030828235649.61074690.akpm@osdl.org>
-	<3F4F747E.7020601@wmich.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Aug 2003 12:20:44 -0400
+Message-ID: <3F4F7D56.9040107@wmich.edu>
+Date: Fri, 29 Aug 2003 12:20:38 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Tomas <bzzz@tmi.comex.ru>
+CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC] extents support for EXT3
+References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu> <m3r834phqi.fsf@bzzz.home.net>
+In-Reply-To: <m3r834phqi.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman <ed.sweetman@wmich.edu> wrote:
->
-> Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm3/
-> > 
-> > 
-> > . Lots of small fixes.
+Alex Tomas wrote:
+>>>>>>Ed Sweetman (ES) writes:
 > 
 > 
-> It seems that since test3-mm2 ...possibly mm3, my kernels just hang 
-> after loading the input driver for the pc speaker.  Now directly after 
-> this on test3-mm1 serio loads.
->   serio: i8042 AUX port at 0x60,0x64 irq 12
-> input: AT Set 2 keyboard on isa0060/serio0
-> serio: i8042 KBD port at 0x60,0x64 irq 1
+>  ES> in the kernels that would boot (for some reason test4's videodev
+>  ES> driver is borked so i used the mm patchset) passed the serio drivers,
+>  ES> init was unable to be found, no matter what even though it mounted the
+>  ES> root fs and the root fs is not as far as i can tell when booting on
+>  ES> older kernels, corrupted.   I'm writing now in mozilla from the very
+>  ES> system but with extents turned off.  I'm somewhat afraid though that
+>  ES> even though i didn't mount the partitions with the extents option,
+>  ES> that the patch may still be having an adverse effect.  Right now
+>  ES> things seem pretty stable but last night apt was hanging while
+>  ES> generating locales reproducably causing the entire kernel to lose the
+>  ES> ability to do anything to the fs. This was all being tested on
+>  ES> test3-mm1.  I am aware that mm does have some patches to ext3 that
+>  ES> aren't in the main kernel i believe. perhaps the xattr stuff is
+>  ES> conflicting in some way?  I really have no way of testing the linus
+>  ES> tree directly because the drivers i use wont compile.
 > 
-> I'm guessing this is where the later kernels are hanging.
-> I checked and i dont see any serio/input patches since mm1 in test3 but 
-> every mm kernel i've tried since mm3 hangs at the same point where as 
-> mm1 does not.  All have the same config.  I'm using acpi as well.  This 
-> is a via amd board.  I dont wanna send a general email with all kinds of 
-> extra info (.config and such) unless someone is interested in the 
-> problem and needs it.
+> first of all, once fs gets mounted with extents support any newly created
+> files/dirs will be stored in extents-format. thus, if you remount that fs
+> w/o extents support you won't be able to access those files/dirs
 
-The only patch I can see in there is syn-multi-btn-fix.patch in test3-mm3,
-which seems unlikely.
+> I really propose you don't use extents on a partitions you care about for a while.
 
-Have you tested 2.6.0-test4?  If that also fails then I'd be suspecting the
-ACPI changes; there seem to be a few new problems in that area lately.
+I was testing this with only a single partition mounted with extents 
+enabled when benchmarking.  Ext3 gave no messages of being mounted 
+afterbootup with or without extents so to make sure i had extents 
+enabled i booted with all my partitions with the extents option.  I 
+suspect then my problems began.  I'm completely unaware of the extent of 
+the damage enabling extents has done since most of the important things 
+were opened, not created during my extents use.  In any case it may be 
+that the reason why init is not able to be found is because i used apt 
+and upgraded my system ...and I dont remember if i had extents enabled 
+at the time or not.  If my init is in extents format though, then why is 
+a patched kernel able to read it with extents not being enabled via the 
+omunt option where as kernels without the patch cannot.  Is extents able 
+to be read from a fs even when it's not mounted with the option but not 
+written?   I'm kinda confused, this aspect of extents wasn't in the 
+original email.
+
+>  ES> All in all though, when it was enabled, i saw really no difference
+>  ES> from when it was not enabled. dbench 16 gave me ~140MB/sec either
+>  ES> way. md5summing large files resulted in equal performance as well.  I
+>  ES> got nothing even close to the kind of performance increases you showed
+>  ES> in the first mail.
+> 
+> quite interesting result. could you help me to investigate that?
+> it would be great to go through following steps:
+> 1) create fresh ext3 fs
+> 2) mount it w/o extents option
+> 3) run dbench 16 for few times (say, 4)
+>    make sure it performs on that filesystem (cd <mntpoint>; dbench -c ... 16)
+> 4) unmount fs
+> 5) recreate that fs
+> 6) mount it with extents option
+>    'EXT3-fs: file extents enabled' should be printed in logs
+> 7) run dbench 16 for few times
+> 8) unmount that fs and take a look in logs, you should see stats info about
+>    extents usage
+> 
+> thank you!
+
+i'm going to try and boot a kernel without the extents patch (so far 
+hasn't been possible) and run dbench again and see if i get different 
+numbers.  I'm almost suspecting extents being enabled no matter what i 
+mount the fs's as.
+
+
 

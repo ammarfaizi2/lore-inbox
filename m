@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287208AbSA2Xi4>; Tue, 29 Jan 2002 18:38:56 -0500
+	id <S286821AbSA2XtH>; Tue, 29 Jan 2002 18:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286968AbSA2Xh3>; Tue, 29 Jan 2002 18:37:29 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35345 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S286871AbSA2Xgu>; Tue, 29 Jan 2002 18:36:50 -0500
-Date: Tue, 29 Jan 2002 18:36:08 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: yodaiken@fsmlabs.com
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020121165659.A20501@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.3.96.1020129181439.31511I-100000@gatekeeper.tmr.com>
+	id <S286968AbSA2XsD>; Tue, 29 Jan 2002 18:48:03 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:19849 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287109AbSA2Xq4>;
+	Tue, 29 Jan 2002 18:46:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: ebiederm@xmission.com (Eric W. Biederman),
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 00:51:10 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>, Rob Landley <landley@trommello.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201282217220.10929-100000@penguin.transmeta.com> <m1wuy1cn0w.fsf@frodo.biederman.org>
+In-Reply-To: <m1wuy1cn0w.fsf@frodo.biederman.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vi1x-0000Aw-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002 yodaiken@fsmlabs.com wrote:
+On January 29, 2002 02:19 pm, Eric W. Biederman wrote:
+> So the kernel maintainership becomes a network of maintainers.  Then
+> we only have to understand the routing protocols.  Currently the
+> routing tables appear to have Linus as the default route.  As there
+> are currently kernel subsystems that do not have a real maintainer, it
+> may reasonable to have a misc maintainer.  Who looks after the
+> orphaned code, rejects/ignores patches for code that does have
+> active maintainers, and looks for people to be maintainers of the
+> orphaned code.  
+> 
+> The key is having enough human to human protocol that there is someone
+> besides Linus you can send your code to.  Or at least when there isn't
+> people are looking for someone.
+> 
+> Free Software obtains a lot of it's value by many people scratching an
+> itch and fixing a little bug, or adding a little feature, sending the
+> code off and then they go off to something else.  We need to have the
+> maintainer routing protocol clear enough, and the maintainer coverage
+> good enough so we can accumulate most of the bug fixes from the fly by
+> night hackers.  
+> 
+> So does anyone have any good ideas about how to build up routing
+> tables?  And almost more importantly how to make certain we have good
+> maintainer coverage over the entire kernel?
 
-> I have not seen that argued - certainly I have not argued it myself.
-> My argument is:
-> 	It makes the kernel _much_ more complex
-  It modifies a tiny fraction of a percent of the kernel, which is
-currently simplistic rather than simple. Nearly everyone who looks at it
-makes some improvement, be it preempt, low latency, etc.
+Yes, we should cc our patches to a patchbot:
 
-> 	It has known costs e.g. by making the lockless 
-> 		per-processor caching  more difficult if not impossible
-  How much slowdown did you measure when you tested the effect of that?
+  patches-2.5@kernel.org -> goes to linus
+  patches-2.4@kernel.org -> goes to marcello
+  patches-usb@kernel.org -> goes to gregkh, regardless of 2.4/2.5
+  etc.
 
-> 	It seems to lead to a requirement for inheritance
-  To the limited extent that I agree, so what?
-
-> 	It has no demonstrated benefits.
-  You have that backward. There are  many people who say they can see a
-benefit, and no one has shown either a quantified bad impact or a single
-user account which said it was worse. And I bet you looked, didn't you?
-
-  I believe that a system will run better for a single user, and better
-for a server with high interrupt rates, like DNS or web servers, where
-many threads may be blocked on i/o, but there is significant CPU load as
-well.
+The vast sea of eyeballs will do the rest.  A web interface would be a nice 
+bonus, but 'patch sent and seen to be sent, to whom, when, what, why' is the 
+essential ingredient.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Daniel

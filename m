@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317185AbSFWWzo>; Sun, 23 Jun 2002 18:55:44 -0400
+	id <S317187AbSFWW7L>; Sun, 23 Jun 2002 18:59:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317187AbSFWWzo>; Sun, 23 Jun 2002 18:55:44 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:61725 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S317185AbSFWWzn>;
-	Sun, 23 Jun 2002 18:55:43 -0400
-Date: Sun, 23 Jun 2002 23:56:07 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch-2.5.24] microcode tidy-up + observation
-In-Reply-To: <Pine.LNX.4.33.0206232120390.2650-100000@einstein.homenet>
-Message-ID: <Pine.LNX.4.33.0206232354550.1089-100000@einstein.homenet>
+	id <S317188AbSFWW7K>; Sun, 23 Jun 2002 18:59:10 -0400
+Received: from pallas.or.intel.com ([134.134.214.21]:8959 "EHLO
+	pallas.or.intel.com") by vger.kernel.org with ESMTP
+	id <S317187AbSFWW7K>; Sun, 23 Jun 2002 18:59:10 -0400
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7F52@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Nick Bellinger'" <nickb@attheoffice.org>,
+       David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+Subject: driverfs is not for everything! (was:  [PATCH] /proc/scsi/map)
+Date: Sun, 23 Jun 2002 15:59:04 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jun 2002, Tigran Aivazian wrote:
-> Observation: I noticed that all smp_num_cpus in the driver have been
-> replaced by NR_CPUS. I assume this was done for the CPU hotplug support,
-> although if smp_num_cpus reflects the "current" number of online cpus, I
-> think, the driver would have worked as is and avoided wasting 64k-epsilon
-> of memory.
+> From: Nick Bellinger [mailto:nickb@attheoffice.org] 
+> Giving the IP stack its own directory (leaf?) under driverfs 
+> root sounds
+> interesting enough and could have some potential uses, but in the case
+> of iSCSI there are a few problems:
 
-Ok, I can see now that smp_num_cpus doesn't exist anymore on i386 but is
-still there on other architectures.
+I know this is one of those things that has more and more cool possibilities
+the more you think about it but...
 
+Is the device PHYSICALLY hooked up to the computer? If not, it shouldn't be
+in devicefs.
 
+The device tree (for which devicefs is the fs representation) was originally
+meant to enable good device power management and configuration. driverfs
+wasn't meant to handle iscsi or tcpip (that is, network) connections, nor
+should it have to.
+
+Regards -- Andy

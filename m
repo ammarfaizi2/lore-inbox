@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132654AbRC2DV2>; Wed, 28 Mar 2001 22:21:28 -0500
+	id <S132664AbRC2EWZ>; Wed, 28 Mar 2001 23:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132655AbRC2DVR>; Wed, 28 Mar 2001 22:21:17 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:32787 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132654AbRC2DVN>; Wed, 28 Mar 2001 22:21:13 -0500
-Message-Id: <200103290320.f2T3KNs02696@aslan.scsiguy.com>
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-   Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux-2.4.2-ac27 - read on /proc/bus/pci/devices never finishes after rmmod aic7xxx 
-In-Reply-To: Your message of "Wed, 28 Mar 2001 20:16:38 CST."
-             <3AC29B06.16A7C987@mnsu.edu> 
-Date: Wed, 28 Mar 2001 20:20:23 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S132671AbRC2EWP>; Wed, 28 Mar 2001 23:22:15 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33805 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132664AbRC2EWB>; Wed, 28 Mar 2001 23:22:01 -0500
+Subject: Re: Linux-2.4.2-ac27 - read on /proc/bus/pci/devices never finishes after rmmod aic7xxx
+To: gibbs@scsiguy.com (Justin T. Gibbs)
+Date: Thu, 29 Mar 2001 05:21:37 +0100 (BST)
+Cc: jeffrey.hundstad@mnsu.edu (Jeffrey Hundstad),
+   linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+   alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <200103290320.f2T3KNs02696@aslan.scsiguy.com> from "Justin T. Gibbs" at Mar 28, 2001 08:20:23 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14iTwJ-00075c-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello,
->
->I'm using Linux-2.4.2-ac27 SMP compiled with gcc version 2.95.2 20000220
->(Debian GNU/Linux).
+> What version of the aic7xxx driver is embedded in 2.4.2-ac27?  This
+> particular issue was fixed just after 6.1.5 was released.
 
-What version of the aic7xxx driver is embedded in 2.4.2-ac27?  This
-particular issue was fixed just after 6.1.5 was released.
+The last patch you sent to me + small other fixups for aicdb.h. I dont have
+time to chase after peoples drivers. If you want a newer aic7xxx in -ac just
+mail me a diff to update to it
 
---
-Justin

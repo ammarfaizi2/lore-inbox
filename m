@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVCVWgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVCVVzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVCVWgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 17:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVCVWfe
+	id S262064AbVCVVzV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCVVzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 17:35:34 -0500
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:31148 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S262129AbVCVWeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 17:34:15 -0500
-Date: Tue, 22 Mar 2005 17:34:03 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] drivers/net/wireless/airo.c: correct a wrong
-Message-ID: <20050322223403.GA19026@havoc.gtf.org>
-References: <20050322220540.GS1948@stusta.de> <42409971.5010704@pobox.com> <20050322223056.GV1948@stusta.de>
-Mime-Version: 1.0
+	Tue, 22 Mar 2005 16:55:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55243 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262057AbVCVVwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:52:06 -0500
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050322223056.GV1948@stusta.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16960.37814.651437.634849@segfault.boston.redhat.com>
+Date: Tue, 22 Mar 2005 16:52:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: unused 'size' assignment in filemap_nopage
+X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 11:30:56PM +0100, Adrian Bunk wrote:
-> On Tue, Mar 22, 2005 at 05:17:21PM -0500, Jeff Garzik wrote:
-> > Adrian Bunk wrote:
-> > >if
-> > >Reply-To: 
-> > >
-> > >The Coverity checker correctly noted that this condition can't ever be 
-> > >fulfilled.
-> > >
-> > >Can someone understanding this code check whether my guess what this 
-> > >should have been was right?
-> > >
-> > >Or should the if get completely dropped?
-> > >
-> > >Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > >
-> > >--- linux-2.6.12-rc1-mm1-full/drivers/net/wireless/airo.c.old	2005-03-22 
-> > >21:41:37.000000000 +0100
-> > >+++ linux-2.6.12-rc1-mm1-full/drivers/net/wireless/airo.c	2005-03-22 
-> > >21:42:01.000000000 +0100
-> > >@@ -3440,9 +3440,6 @@
-> > > 	/* Make sure we got something */
-> > > 	if (rxd.rdy && rxd.valid == 0) {
-> > > 		len = rxd.len + 12;
-> > >-		if (len < 12 && len > 2048)
-> > >-			goto badrx;
-> > 
-> > Coverity is silly.
-> > 
-> > len is signed, and so can obviously be less than zero in edge cases.  I 
-> > don't see where the "> 2048" test is invalid, either.
-> 
-> But if it's less than zero it can't be > 2048 at the same time?
-> 
-> The point is: len can't be both < 12 and > 2048 at the same time.
-> 
-> 
-> Is this "if" simply superfluous?
-> Or should the && be an || ?
+filemap_nopage has the following code:
 
-Yes, it looks like it should be "||".
+retry_all:
+	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+	if (pgoff >= size)
+		goto outside_data_content;
 
-	Jeff
+	/* If we don't want any read-ahead, don't bother */
+	if (VM_RandomReadHint(area))
+		goto no_cached_page;
+
+	/*
+	 * The "size" of the file, as far as mmap is concerned, isn't bigger
+	 * than the mapping
+	 */
+	if (size > endoff)
+		size = endoff;
 
 
+After this, size is not referenced.  So, either this potential reassignment
+of size is superfluous, or we are missing some other code later on in the
+function.  If it is the former, I've attached a patch which will remove the
+code.
 
+Thanks,
+
+Jeff
+
+--- linux-2.6.12-rc1/mm/filemap.c.orig	2005-03-22 16:28:01.429426880 -0500
++++ linux-2.6.12-rc1/mm/filemap.c	2005-03-22 16:29:22.564092536 -0500
+@@ -1191,13 +1191,6 @@ retry_all:
+ 		goto no_cached_page;
+ 
+ 	/*
+-	 * The "size" of the file, as far as mmap is concerned, isn't bigger
+-	 * than the mapping
+-	 */
+-	if (size > endoff)
+-		size = endoff;
+-
+-	/*
+ 	 * The readahead code wants to be told about each and every page
+ 	 * so it can build and shrink its windows appropriately
+ 	 *

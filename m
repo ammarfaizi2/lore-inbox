@@ -1,82 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbQKTRBA>; Mon, 20 Nov 2000 12:01:00 -0500
+	id <S129187AbQKTRDa>; Mon, 20 Nov 2000 12:03:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129165AbQKTRAv>; Mon, 20 Nov 2000 12:00:51 -0500
-Received: from ds5500.cemr.wvu.edu ([157.182.83.20]:31502 "EHLO
-	ds5500.cemr.wvu.edu") by vger.kernel.org with ESMTP
-	id <S129136AbQKTRAm>; Mon, 20 Nov 2000 12:00:42 -0500
-Date: Mon, 20 Nov 2000 11:30:21 -0500 (EST)
-From: Andrei Smirnov <andrei@ds5500.cemr.wvu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.16 does not compile
-Message-ID: <Pine.ULT.3.96.1001120110905.28412A-100000@ds5500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129345AbQKTRDU>; Mon, 20 Nov 2000 12:03:20 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:7172 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129187AbQKTRDK>; Mon, 20 Nov 2000 12:03:10 -0500
+Date: Mon, 20 Nov 2000 10:29:24 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jmerkey@timpanogas.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre22
+Message-ID: <20001120102924.B30798@vger.timpanogas.org>
+In-Reply-To: <20001119225041.C29253@vger.timpanogas.org> <Pine.LNX.4.10.10011201103390.31651-100000@chaos.thphy.uni-duesseldorf.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10011201103390.31651-100000@chaos.thphy.uni-duesseldorf.de>; from kai@thphy.uni-duesseldorf.de on Mon, Nov 20, 2000 at 11:10:21AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 20, 2000 at 11:10:21AM +0100, Kai Germaschewski wrote:
+> 
+> On Sun, 19 Nov 2000, Jeff V. Merkey wrote:
+> 
+> > ISDN_MODEM_ANZREG undefined on 2.4.0-10(11) and 2.2.18-22, rpm.spec is 
+> > attached.
+> 
+> This has been fixed 2000/03/03, see below. Just use the latest version,
+> ftp.isdn4linux.de/pub/isdn4linux/utils/isdn4k-utils.v3.1pre1.tar.gz
+> 
+> --Kai
 
-I have a newly installed RH-7.0 distribution on a Celeron Pentium 400.
-When I tried to compile the kernel I got the following:
+This patch was not included in the pre1.tar.gz I downloaded last week.
+You may want to check the binary and make certain it's got the later file.
+I will check our archives as well.  You will note the rpm.spec file I sent
+you was pulling the pre1.tar.gz off your site directly during the build,
+(RPM is a studly tool).
 
-1. I ran make xconfig (or make menuconfig) and saved without changing any
-   options - completed OK
-
-2. make dep: OK.
-
-3. make zImage: produced the following output:
-
-
-kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686 -DUTS_MACHINE='"i386"' -c -o init/version.o i
-nit/version.c
-make -C  kernel
-make[1]: Entering directory `/usr/src/linux-2.2.16/kernel'
-make all_targets
-make[2]: Entering directory `/usr/src/linux-2.2.16/kernel'
-kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -DEXPORT_SYMTAB -c ksyms.c
-In file included from /usr/src/linux/include/linux/modversions.h:50,
-                 from /usr/src/linux/include/linux/module.h:19,
-                 from ksyms.c:14:
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:6: warning: `cpu_data' redefined
-/usr/src/linux/include/asm/processor.h:96: warning: this is the location of the previous definition
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:28: warning: `smp_num_cpus' redefined
-/usr/src/linux/include/linux/smp.h:77: warning: this is the location of the previous definition
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:118: warning: `smp_call_function' redefined
-/usr/src/linux/include/linux/smp.h:83: warning: this is the location of the previous definition
-In file included from /usr/src/linux/include/linux/interrupt.h:51,
-                 from ksyms.c:21:
-/usr/src/linux/include/asm/hardirq.h:23: warning: `synchronize_irq' redefined
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:138: warning: this is the location of the previous definition
-In file included from /usr/src/linux/include/linux/interrupt.h:52,
-                 from ksyms.c:21:
-/usr/src/linux/include/asm/softirq.h:75: warning: `synchronize_bh' redefined
-/usr/src/linux/include/linux/modules/i386_ksyms.ver:142: warning: this is the location of the previous definition
-/usr/src/linux/include/linux/kernel_stat.h: In function `kstat_irqs':
-In file included from ksyms.c:17:
-/usr/src/linux/include/linux/kernel_stat.h:47: `smp_num_cpus' undeclared (first use in this function)
-/usr/src/linux/include/linux/kernel_stat.h:47: (Each undeclared identifier is reported only once
-/usr/src/linux/include/linux/kernel_stat.h:47: for each function it appears in.)
-make[2]: *** [ksyms.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.2.16/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.2.16/kernel'
-make: *** [_dir_kernel] Error 2
-
------------------------------------------------------------------------
-Kernel compilation worked before on RH-6.1 and RH-6.2 and I never changed
-any other soft/hardware features on my computer. I would appreciate any
-comments or a hint where I can find an answer to this problem. 
-
-Best regards,
-
------------------------------------------------------------------------
-Dr. Andrei Smirnov        Tel:+1(304)293 3111 x2466. Fax:+1(304)2936689
-West Virginia University. Dept. of Mechanical and Aerospace Engineering
-Morgantown WV, 26506-6106             Email: AsmirNo2@wvu.edu
------------------------------------------------------------------------
+Jeff
 
 
+> 
+> 
+> Index: iprofd.c
+> ===================================================================
+> RCS file: /i4ldev/isdn4k-utils/iprofd/iprofd.c,v
+> retrieving revision 1.7
+> retrieving revision 1.8
+> diff -u -r1.7 -r1.8
+> --- iprofd.c	1999/09/06 08:03:25	1.7
+> +++ iprofd.c	2000/03/03 12:45:53	1.8
+> @@ -1,4 +1,4 @@
+> -/* $Id: iprofd.c,v 1.7 1999/09/06 08:03:25 fritz Exp $
+> +/* $Id: iprofd.c,v 1.8 2000/03/03 12:45:53 calle Exp $
+>  
+>   * Daemon for saving ttyIx-profiles to a file.
+>   *
+> @@ -22,6 +22,9 @@
+>   * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+>   *
+>   * $Log: iprofd.c,v $
+> + * Revision 1.8  2000/03/03 12:45:53  calle
+> + * Make compile with newer versions of kernel drivers.
+> + *
+>   * Revision 1.7  1999/09/06 08:03:25  fritz
+>   * Changed my mail-address.
+>   *
+> @@ -67,8 +70,12 @@
+>  #ifndef ISDN_LMSNLEN
+>  #define ISDN_LMSNLEN 0
+>  #endif
+> +
+> +#ifndef ISDN_MODEM_NUMREG
+> +#define ISDN_MODEM_NUMREG ISDN_MODEM_ANZREG
+> +#endif
+>  
+> -#define BUFSZ ((ISDN_MODEM_ANZREG+ISDN_MSNLEN+ISDN_LMSNLEN)*ISDN_MAX_CHANNELS)
+> +#define BUFSZ ((ISDN_MODEM_NUMREG+ISDN_MSNLEN+ISDN_LMSNLEN)*ISDN_MAX_CHANNELS)
+>  
+>  void
+>  dumpModem(int dummy)
+> 
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

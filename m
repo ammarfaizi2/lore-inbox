@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285616AbRLGW0x>; Fri, 7 Dec 2001 17:26:53 -0500
+	id <S285618AbRLGW2x>; Fri, 7 Dec 2001 17:28:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285617AbRLGW0o>; Fri, 7 Dec 2001 17:26:44 -0500
-Received: from cj46222-a.reston1.va.home.com ([65.1.136.109]:9625 "HELO
-	sanosuke.troilus.org") by vger.kernel.org with SMTP
-	id <S285616AbRLGW0f>; Fri, 7 Dec 2001 17:26:35 -0500
-To: Padraig Brady <padraig@antefacto.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
-	<Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
-	<20011207185847.A20876@wotan.suse.de>
-	<87wuzyq4ms.fsf@sanosuke.troilus.org> <3C110C0B.4030102@antefacto.com>
-	<87snampvww.fsf@sanosuke.troilus.org> <3C11368F.4020408@antefacto.com>
-From: Michael Poole <poole@troilus.org>
-Date: 07 Dec 2001 17:26:34 -0500
-In-Reply-To: <3C11368F.4020408@antefacto.com>
-Message-ID: <87oflapsyt.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S285619AbRLGW2r>; Fri, 7 Dec 2001 17:28:47 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:45070 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S285618AbRLGW2B>;
+	Fri, 7 Dec 2001 17:28:01 -0500
+Message-ID: <002501c17f6e$734a3de0$0300a8c0@methusela>
+From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0112071352040.8124-300000@rtlab.med.cornell.edu>
+Subject: Re: [PATCH] Athlon bug stomper UPDATE (as per VIA's Windows patch)
+Date: Fri, 7 Dec 2001 17:28:09 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady <padraig@antefacto.com> writes:
+> The difference between this patch and the original athlon bug stomper is
+> that it is expanded to recognize more chipsets and also does a special
+> case for the KT266x chipset.
 
-> Well you have to deal with the general case. A single threaded
-> app linking against a multithreaded lib. It mightn't be just
-> shared FILE*'s that could cause problems.
+It really really shouldn't be called Athon bug stomper anymore.. if anything
+it should be called Via bug stomper.. it's not the fault of teh Athlon that
+Via can't make a stable chipset. :) [very tongue in cheek]
 
-The question was about putc(), and presumably other stdio functions.
-They deal with FILE*'s.  They are also commonly used and small
-operations, so forcing locking on an app that doesn't ask for it can
-(and has in the past) cause a major performance degredation.  I bet
-you could find very similar results for memory allocation in other
-applications.
 
-> > Linus's suggestion to add hooks to pthread_create() gets around that
-> > problem, anyway.
-> 
-> I don't think this will work as I said before current apps that
-> use _unlocked() functions directly manipulate the stdio structures,
-> hence a "new smarter locking stdio" would never get used by existing
-> compiled apps.
 
-As Linus pointed out, you just need another test in those macros, so
-they can be forced to call functions rather than using inline code.
-When you call a function, it can use whatever new smarter locking
-library you want.
-
-> > Alternatively, the multi-threaded library could
-> > require any application linking to it to define _REENTRANT.
-> 
-> It could, but what if an existing interface (lib) is changed
-> from signle to multithreaded. You can't preclude this.
-
-I certainly can preclude that.  I'd consider adding threads and their
-locking considerations to the library a change in the API and ABI --
-and quite a big one at that.  If you change the ABI (rather than just
-extending it), you must increase the major version number, which
-prevents linking with those applications that expect the semantics of
-earlier versions.
-
-(BSD variants have in the past had both libc and libc_r, where only
-libc_r makes you pay locking overhead.  This is yet another way to
-enforce the ABI separation between single- and multi-threaded
-applications, with different tradeoffs than the others mentioned.)
-
--- Michael

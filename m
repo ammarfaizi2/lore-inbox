@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbTIFVhW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 17:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbTIFVhW
+	id S262041AbTIFVoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 17:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTIFVoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 17:37:22 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:65409 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261692AbTIFVhV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 17:37:21 -0400
-Date: Fri, 5 Sep 2003 23:24:20 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: nagendra_tomar@adaptec.com, Jamie Lokier <jamie@shareable.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030905212420.GD220@elf.ucw.cz>
-References: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain> <1062674382.21667.32.camel@dhcp23.swansea.linux.org.uk>
+	Sat, 6 Sep 2003 17:44:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14087 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262041AbTIFVoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 17:44:12 -0400
+Date: Sat, 6 Sep 2003 22:44:07 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Paul Dickson <dickson@permanentmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Missing cardbus label in /proc/interrupts
+Message-ID: <20030906224407.E29417@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Dickson <dickson@permanentmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20030815161819.4ff4ad0a.dickson@permanentmail.com> <20030827030623.7c0a4d65.dickson@permanentmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1062674382.21667.32.camel@dhcp23.swansea.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030827030623.7c0a4d65.dickson@permanentmail.com>; from dickson@permanentmail.com on Wed, Aug 27, 2003 at 03:06:23AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > In x86 store buffer is not snooped which leads to all these serialization 
-> > issues (other CPUs looking at stale value of data which is in the store 
-> > buffer of some other CPU).
+On Wed, Aug 27, 2003 at 03:06:23AM -0700, Paul Dickson wrote:
+> In 2.6.0-test4, /proc/interrupts:
 > 
-> x86 gives you coherency and store ordering (barring errata and special
-> CPU modes)
+>  11:     195758          XT-PIC  uhci-hcd, 0000:00:04.0, 0000:00:04.1, eth0
+> 
+> The labels are no longer missing, but is this the ultimate designation for
+> a cardbus bridge?
 
-Special CPU modes? You mean some special SSE stores?
-								Pavel
+This should be fixed in 2.6.0-test4-bkcurr as of tonight (they're now
+called "yenta".)
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

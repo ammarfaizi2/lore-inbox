@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbUKRTft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUKRTg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262929AbUKRTft (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 14:35:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUKRTeF
+	id S262932AbUKRTg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUKRTgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 14:34:05 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:62728 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S262920AbUKRTbb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:31:31 -0500
-Date: Thu, 18 Nov 2004 14:27:49 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Cc: greearb@candelatech.com, jgarzik@pobox.com
-Subject: [patch netdev-2.4] vlan_dev: return 0 on vlan_dev_change_mtu success
-Message-ID: <20041118142749.C16007@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-	netdev@oss.sgi.com, greearb@candelatech.com, jgarzik@pobox.com
+	Thu, 18 Nov 2004 14:36:12 -0500
+Received: from mail.timesys.com ([65.117.135.102]:18408 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262924AbUKRTey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 14:34:54 -0500
+Subject: Re: [PATCH] MII bus API for PHY devices
+From: Jason McMullan <jason.mcmullan@timesys.com>
+To: Andy Fleming <afleming@freescale.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com>
+References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com>
+	 <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 18 Nov 2004 14:34:49 -0500
+Message-Id: <1100806489.14467.47.camel@jmcmullan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Evolution 2.0.1-1mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The VLAN net driver needs to return 0 from vlan_dev_change_mtu()
-on success.
+On Thu, 2004-11-18 at 11:52 -0600, Andy Fleming wrote:
+> 1) How should we pass initialization information from the system to the 
+> bus.  Information like which irq to use for each PHY, and what the 
+> address space for the bus's controls is.  I would like to enforce 
+> encapsulation so that the ethernet drivers don't need to know this 
+> information, or pass it to the bus.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-The proper sucessful return code for the change_mtu() method is zero.
-For some reason, vlan_dev_change_mtu() is returning the new mtu value
-instead.
+(Just an off-the-cuff answer here)
 
- net/8021q/vlan_dev.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+In line with the OCP->platform work I've been doing, I would think
+that creating 'phy' devices on the platform bus would be appropriate,
+with 'platform_data' that describes (a) the platform device ethernet
+it's bus is on and (b) it's PHY ID on that bus. The PHY's IRQ would
+be in it's platform resources.
 
---- 1.14/net/8021q/vlan_dev.c	2004-07-05 19:34:03 -04:00
-+++ edited/net/8021q/vlan_dev.c	2004-11-18 14:26:29 -05:00
-@@ -528,7 +528,7 @@
- 
- 	dev->mtu = new_mtu;
- 
--	return new_mtu;
-+	return 0;
- }
- 
- int vlan_dev_set_ingress_priority(char *dev_name, __u32 skb_prio, short vlan_prio)
+> 2) How should we reflect the dependency of the ethernet driver on the 
+> mii bus driver?
+
+Hmm. Don't really know from a sysfs perspective...
+
+
+> 3) How should we bind ethernet drivers to PHY drivers?
+
+A PHY 'platform_data' struct like:
+
+struct phy_device_data {
+	struct {
+		const char *name;
+		int id;
+	} ethernet_platform_device_parent;
+	int	phy_id;
+}
+	
+> Oh, and a 4th side-issue:
+> Should each PHY have its own file? 
+
+Actually, each PHY should have it's own device directory, like every
+other device. Eventually, PHYs should have /dev/phy* entries, where
+user-space can read/write PHY registers.
+
+-- 
+Jason McMullan <jason.mcmullan@timesys.com>

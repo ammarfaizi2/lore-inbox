@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315988AbSHIVWq>; Fri, 9 Aug 2002 17:22:46 -0400
+	id <S316070AbSHIViy>; Fri, 9 Aug 2002 17:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316043AbSHIVWq>; Fri, 9 Aug 2002 17:22:46 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:16134 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315988AbSHIVWp>; Fri, 9 Aug 2002 17:22:45 -0400
-Message-ID: <3D5431ED.4020209@evision.ag>
-Date: Fri, 09 Aug 2002 23:19:41 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.1) Gecko/20020724
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: yodaiken@fsmlabs.com
-CC: Rik van Riel <riel@conectiva.com.br>, Daniel Phillips <phillips@arcor.de>,
-       frankeh@watson.ibm.com, davidm@hpl.hp.com,
-       David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
-       Martin.Bligh@us.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: large page patch (fwd) (fwd)
-References: <Pine.LNX.4.44L.0208091317220.23404-100000@imladris.surriel.com> <Pine.LNX.4.44.0208090951570.1436-100000@home.transmeta.com> <20020809114050.A23656@hq.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316088AbSHIViy>; Fri, 9 Aug 2002 17:38:54 -0400
+Received: from hercules.egenera.com ([208.254.46.135]:10 "HELO
+	coyote.egenera.com") by vger.kernel.org with SMTP
+	id <S316070AbSHIVix>; Fri, 9 Aug 2002 17:38:53 -0400
+Date: Fri, 9 Aug 2002 17:42:32 -0400
+From: Phil Auld <pauld@egenera.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: why is lseek broken (>= 2.4.11) ?
+Message-ID: <20020809174232.Z3542@vienna.EGENERA.COM>
+References: <20020809084915.P3542@vienna.EGENERA.COM> <3D542AAE.64B70B55@zip.com.au> <20020809211306.GA1252@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020809211306.GA1252@win.tue.nl>; from aebr@win.tue.nl on Fri, Aug 09, 2002 at 11:13:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com wrote:
->>On Fri, 9 Aug 2002, Rik van Riel wrote:
->>One problem we're running into here is that there are absolutely
->>no tools to measure some of the things rmap is supposed to fix,
->>like page replacement.
+Rumor has it that on Fri, Aug 09, 2002 at 11:13:06PM +0200 Andries Brouwer said:
+> On Fri, Aug 09, 2002 at 01:48:47PM -0700, Andrew Morton wrote:
 > 
+> > What should the behaviour be?   The lseek should succeed,
 > 
-> But page replacement is a means to an end. One thing tht would be
-> very interesting to know is how well the basic VM assumptions about
-> locality work in a Linux server, desktop, and embedded environment.
+> Yes
 > 
-> You have a LRU approximation that is supposed to approximate working
-> sets that were originally understood and measured on < 1Meg machines
-> with static libraries, tiny cache,  no GUI and no mmap.
+> > but subsequent reads and writes return zero?
 > 
-> L.T. writes:
+> Yes. The first read must return 0. Subsequent reads may return 0
+> or return the ENXIO error.
 > 
+> For read: "No data transfer shall occur past the current end-of-file.
+> If the starting position is at or after the end-of-file, 0 shall be
+> returned. If the file refers to a device special file, the result of
+> subsequent read() requests is implementation-defined."
 > 
->>Read up on positivism.
+> ENXIO: "the request was outside the capabilities of the device".
 > 
+> For write: "If a write() requests that more bytes be written than
+> there is room for (for example, ... the physical end of a medium),
+> only as many bytes as there is room for shall be written.
 > 
-> It's been discredited as recursively unsound reasoning.
 
-Well not taking the "axiom of choice" for granted is really
-really narrowing what can be reasoned about in a really really not
-funny way. It makes it for example very "difficult" to invent real 
-numbers. Well apparently recently some guy published a book which is
-basically proposing that the world is just a FSA, so we can see again
-that this inconvenience appears to be still very compelling to people
-who never had to deal with complicated stuff like for example fluid
-dynamics and the associated differential equations :-).
+Agreed. That is what the standards say... And what userspace has come to expect.
 
-But if talking about actual computers, and since those are in esp.
-finite, it may very well be possible to get around without it. ;-)
 
+Phil
+
+
+> 
+> Andries
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Philip R. Auld, Ph.D.                  Technical Staff 
+Egenera Corp.                        pauld@egenera.com
+165 Forest St., Marlboro, MA 01752       (508)858-2600

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272018AbRHVOic>; Wed, 22 Aug 2001 10:38:32 -0400
+	id <S272017AbRHVOiL>; Wed, 22 Aug 2001 10:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272016AbRHVOiW>; Wed, 22 Aug 2001 10:38:22 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:43937
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S272015AbRHVOiH>; Wed, 22 Aug 2001 10:38:07 -0400
-Message-ID: <3B83C430.7E5F59C3@nortelnetworks.com>
-Date: Wed, 22 Aug 2001 10:39:44 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S272016AbRHVOiB>; Wed, 22 Aug 2001 10:38:01 -0400
+Received: from [212.169.100.200] ([212.169.100.200]:62965 "EHLO nextframe.net")
+	by vger.kernel.org with ESMTP id <S272015AbRHVOhp>;
+	Wed, 22 Aug 2001 10:37:45 -0400
+Date: Wed, 22 Aug 2001 16:35:40 +0200
+From: Morten Helgesen <admin@nextframe.net>
 To: linux-kernel@vger.kernel.org
-Subject: why no call to add_interrupt_randomness() on PPC?
+Subject: Configure.help clean-ups - who maintains 'shapecfg' ?
+Message-ID: <20010822163540.F622@bigboss>
+Reply-To: admin@nextframe.net
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Editor: VIM - Vi IMproved 5.7
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey folks.
 
-With all the talk about randomness, I went to see where my current system
-(2.2.19 on PPC) was getting random numbers from.  I was kind of surprised to see
-that there is no call to add_interrupt_randomness() in arch/ppc/kernel/irq.c.
+I'm removing/renewing dead http/ftp references in Configure.help, and I am now trying to 
+figure out who maintains the 'shapecfg' program, and where the latest can be obtained - easier said than done. 
+ftp://shadow.cabi.net/pub/Linux is obviously not the right place to look.
 
-Does anyone know why this call is not present in ppc_irq_dispatch_handler()? 
-Would it be appropriate for me to make a patch for this?  Who would be the
-appropriate person to send this to?
+Alan, I see that you have written the Documentation/networking/shaper.txt file - maybe you can give me a push 
+in the right direction ? :)
 
-Thanks,
-
-Chris
+== Morten
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

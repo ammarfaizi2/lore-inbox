@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265018AbSJVU0e>; Tue, 22 Oct 2002 16:26:34 -0400
+	id <S264956AbSJVUPx>; Tue, 22 Oct 2002 16:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265003AbSJVUZY>; Tue, 22 Oct 2002 16:25:24 -0400
-Received: from dyn-212-232-43-250.ppp.tiscali.fr ([212.232.43.250]:65292 "EHLO
-	calvin.paulbristow.lan") by vger.kernel.org with ESMTP
-	id <S264999AbSJVUYR>; Tue, 22 Oct 2002 16:24:17 -0400
-Message-ID: <3DB5B585.2060105@paulbristow.net>
-Date: Tue, 22 Oct 2002 22:31:01 +0200
-From: Paul Bristow <paul@paulbristow.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Mark ide-floppy drives as removeable in ide-probe.c
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264938AbSJVUOy>; Tue, 22 Oct 2002 16:14:54 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:21010 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S264931AbSJVUN6>;
+	Tue, 22 Oct 2002 16:13:58 -0400
+Date: Tue, 22 Oct 2002 22:19:23 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Grothe <dave@gcom.com>, Ingo Molnar <mingo@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I386 cli
+Message-ID: <20021022221923.A2859@mars.ravnborg.org>
+Mail-Followup-To: David Grothe <dave@gcom.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <5.1.0.14.2.20021022145759.02861ec8@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20021022145759.02861ec8@localhost>; from dave@gcom.com on Tue, Oct 22, 2002 at 03:01:47PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch marks ide-floppy drives as removeable.  devfs and 
-partition handling code needs this to work properly.  Please apply.
+On Tue, Oct 22, 2002 at 03:01:47PM -0500, David Grothe wrote:
+> In 2.5.41every architecture except Intel 386 has a "#define cli 
+> <something>" in its asm-arch/system.h file.  Is there supposed to be such a 
+> define in asm-i386/system.h?  If not, where does the "official" definition 
+> of cli() live for Intel?  Or what is the include file that one needs to 
+> pick it up?  I can't find it.
 
--- 
+I would advise you to read: Documentation/cli-sti-removal.txt
+[I recall someone mentioned this documents were slightly out-dated - Ingo?]
 
-Paul
+The short version is that cli() is no loger valid, drivers using it does not compile.
 
-Email:	paul@paulbristow.net
-Web:	http://paulbristow.net
-ICQ:	11965223
-
-
-
---- linux-2.5.44/drivers/ide/ide-probe.c.orig    Tue Oct 22 23:26:31 2002
-+++ linux-2.5.44/drivers/ide/ide-probe.c    Tue Oct 22 23:22:27 2002
-@@ -166,6 +166,7 @@
-                         printk("cdrom or floppy?, assuming ");
-                     if (drive->media != ide_cdrom) {
-                         printk ("FLOPPY");
-+                        drive->removable = 1;
-                         break;
-                     }
-                 }
-
-
+	Sam

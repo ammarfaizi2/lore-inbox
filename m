@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263378AbRFKDhH>; Sun, 10 Jun 2001 23:37:07 -0400
+	id <S263379AbRFKDmS>; Sun, 10 Jun 2001 23:42:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263379AbRFKDgr>; Sun, 10 Jun 2001 23:36:47 -0400
-Received: from HSE-MTL-ppp72834.qc.sympatico.ca ([64.229.202.135]:19338 "HELO
-	oscar.casa.dyndns.org") by vger.kernel.org with SMTP
-	id <S263378AbRFKDgq>; Sun, 10 Jun 2001 23:36:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: what is using memory?
-Date: Sun, 10 Jun 2001 23:36:42 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-mm@kvack.org
+	id <S263381AbRFKDmI>; Sun, 10 Jun 2001 23:42:08 -0400
+Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:22552 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S263379AbRFKDmC>; Sun, 10 Jun 2001 23:42:02 -0400
+Date: Sun, 10 Jun 2001 23:41:54 -0400 (EDT)
+From: Scott Murray <scottm@somanetworks.com>
+To: John Fremlin <vii@users.sourceforge.net>
+cc: <perex@suse.cz>, Robin Cull <kernel-list@phaderunner.demon.co.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.4 isapnp - wrong set of resources chosen
+In-Reply-To: <m23d97aod9.fsf@boreas.yi.org.>
+Message-ID: <Pine.LNX.4.30.0106102332170.18866-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Message-Id: <01061023364200.03146@oscar>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to figure out what is using my memory
+On 11 Jun 2001, John Fremlin wrote:
 
-My box has 
+> Hi!
+>
+> Robin Cull and I have OPL3-SA2 isapnp cards. Sometimes we get assigned
+> the wrong resource set. These cards do not take kindly to Alternate
+> resources 0:1 Priority acceptable, in fact they are completely broke,
+> so it is important to us that they get their first choice ;-)
+>
+> The trouble is that isapnp auto conf does not always take the first
+> choice, even when it is available! This happens to me everytime I
+> unload and reload the opl3sa2 module, but can also be seen after
+> unloading the module by doing
+[snip]
 
-320280K
+Hmmm, interesting.  I'd noticed this when testing the ISA PnP changes
+to the driver, but since the config the in-kernel PnP code was picking
+worked on the two machines I tried, I thought it was a relatively
+harmless glitch.  I had little success parsing the PnP driver myself
+when I tried, and unfortunately I've little time for working in depth
+on sound stuff at the moment.  I'm willing to test out any suggestions,
+though.
 
->From boot I see
+Scott
 
-   924	kernel
-  8224	reserved (initrd ramdisk?)
-  1488	hash tables (dentry, inode, mount, buffer, page, tcp)
 
-from lsmod I caculate
-  
-   876	for loaded modules
-  
-from proc/slabinfo
-
- 11992	for all slabs
-
-from proc/meminfo
-
- 17140	buffer
-123696	cache
- 32303	free
-
-leaving unaccounted
-
-123627K 	
-
-This is about 38% of my memory, and only about 46% is pageable
-Is it possible to figure out what is using this?
-
-This is with 2.4.6-pre2 with Rik's page_launder_improvements patch, 
-lvm beta7 and some reieserfs patches applied, after about 12 hours
-of uptime.
-
-TIA,
-
-Ed Tomlinson
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+Work e-mail: scottm@somanetworks.com
+Home e-mail: scott@spiteful.org
 

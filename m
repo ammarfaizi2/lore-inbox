@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265656AbSLFUBh>; Fri, 6 Dec 2002 15:01:37 -0500
+	id <S265705AbSLFUCR>; Fri, 6 Dec 2002 15:02:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265705AbSLFUBh>; Fri, 6 Dec 2002 15:01:37 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:52493
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S265656AbSLFUBg>; Fri, 6 Dec 2002 15:01:36 -0500
-Subject: Re: Detecting threads vs processes with ps or /proc
-From: Robert Love <rml@tech9.net>
-To: Nick LeRoy <nleroy@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200212061356.16022.nleroy@cs.wisc.edu>
-References: <200212060924.02162.nleroy@cs.wisc.edu>
-	 <1039204112.1943.2142.camel@phantasy>
-	 <200212061356.16022.nleroy@cs.wisc.edu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039205353.1943.2191.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 06 Dec 2002 15:09:13 -0500
+	id <S267586AbSLFUCR>; Fri, 6 Dec 2002 15:02:17 -0500
+Received: from mail.ccur.com ([208.248.32.212]:7696 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id <S265705AbSLFUCP>;
+	Fri, 6 Dec 2002 15:02:15 -0500
+Message-ID: <3DF10408.83ECE6C8@ccur.com>
+Date: Fri, 06 Dec 2002 15:09:44 -0500
+From: Jim Houston <jim.houston@ccur.com>
+Reply-To: jim.houston@ccur.com
+Organization: Concurrent Computer Corp.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       george@mvista.com
+Subject: Re: [PATCH] compatibility syscall layer (let's try again)
+References: <Pine.LNX.4.44.0212061111090.1489-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 14:56, Nick LeRoy wrote:
+Linus Torvalds wrote:
 
-> I was considerring doing something like this as well.  From your
-> experience,  does it work reliably?
+Hi Linus,
 
-It never fails to detect threads (no false negatives).
+Sorry about my last message (which quoted everything but didn't add 
+anything).  I shouldn't try to answer email and talk on the phone at
+the same time.
 
-It does sometimes detect child processes that forked but did not exec as
-threads (false positives).  The failure case is when a program forks,
-does not call exec, and the children go on to execute the exact same
-code (so they look and act just like threads, but they have unique
-addresses spaces).
-
-One thing to note: if you can modify the kernel and procps, you can just
-export the value of task->mm out of /proc.  It is a gross hack, and
-perhaps a security issue, but that will work 100%.  Same ->mm implies
-thread.
-
-> Do you need to apply a small 'fudge factor' (aka 
-> VMsize.1 ~= VMsize.2)?
-
-No, they need to be exact.  The stats are pulled from the same structure
-in the kernel so they need to be perfect.
-
-> > It is the default behavior.  Flag `-m' turns it off.
-> >
-> > See thread_group() and flag_threads().
+> It's been tested, and the only problem I found (which is kind of
+> fundamental) is that if the system call gets interrupted by a signal and
+> restarted, and then later returns successfully, the partial restart will
+> have updated the "remaining time" field to whatever was remaining when the
+> restart was started.
 > 
-> I assume these are functions in the tools themselves?
 
-Yep.  Both ps and top have support.  There is a patch on the website
-that added the feature, so you can take a look at that.
+George's Posix timers patch sets the time remaining to zero in the 
+success case.  I think this is the right thing to do.  
 
-Red Hat 8.0 has support in their version of procps 2.0.7, too. 
-Otherwise it was added in 2.0.8.  The current version is 2.0.10.
+I don't have a copy of the spec in front of me.  IIRC, it says that you have
+to set the time remaining in the interrupted case.  It says nothing 
+about setting it on the success case.  I would leave the lawyers out
+of writing software. 
 
-We have a mailing list at procps-list@redhat.com where this sort of
-discussion is welcome.
+I wish the IEEE would make the Posix specs available online for free.
+I gave the IEEE money for years...
 
-	Robert Love
-
+Jim Houston - Concurrent Computer Corp.

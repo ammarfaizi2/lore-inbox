@@ -1,80 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTI1Tmc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 15:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTI1Tmb
+	id S262703AbTI1UAp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 16:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbTI1UAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 15:42:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26640 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262687AbTI1Tma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 15:42:30 -0400
-Date: Sun, 28 Sep 2003 20:42:24 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Sun, 28 Sep 2003 16:00:45 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:45242 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262703AbTI1UAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 16:00:43 -0400
+Date: Sun, 28 Sep 2003 22:00:01 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>,
        Bernardo Innocenti <bernie@develer.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
+       Sam Ravnborg <sam@ravnborg.org>, Russell King <rmk@arm.linux.org.uk>
 Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030928204224.G1428@flint.arm.linux.org.uk>
-Mail-Followup-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Bernardo Innocenti <bernie@develer.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de>
+Message-ID: <20030928200001.GC16921@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928204224.G1428@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030928191622.GA16921@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Sun, Sep 28, 2003 at 09:16:22PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030928204224.G1428@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28, 2003 at 09:16:22PM +0200, Jörn Engel wrote:
-> How about a check_headers target that roughly works like this:
+On Sun, 28 September 2003 20:42:24 +0100, Russell King wrote:
 > 
-> for (all header files in include/linux and include/asm) {
-> 	echo "#include <$HEADER>" > header.c
-> 	make header.o
-> 	rm header.c header.o
-> }
+> I have a bad feeling about this, so I'll make the following comments
+> up front before all the reports start rolling in.  It may be a good
+> idea to document this somewhere.  (Coding style?)
 > 
-> Did a quick test for linux/fs.h in -test5 and it compiled fine, but
-> broke after removing some random #include.
+> If a header has something like these:
 > 
-> Another thing, Sam, "make header.o" causes make to call itself
-> indefinitely.  Had to "make somedir/header.o".  Not sure if you
-> consider this to be a bug, your decision.
+> struct my_headers_struct {
+> 	struct task_struct *tsk;
+> };
+> 
+> void my_function(struct task_struct *tsk);
+> 
+> and gcc warns that "struct task_struct" has not been declared, please
+> don't think about adding another header.  Just declare the structure
+> in the header file which needs it like this:
+> 
+> struct task_struct;
+> 
+> and that will prevent the #include maze of 2.4, which resulted in
+> everything being rebuilt just because one header file was touched.
 
-I have a bad feeling about this, so I'll make the following comments
-up front before all the reports start rolling in.  It may be a good
-idea to document this somewhere.  (Coding style?)
+Ok, how about this:
 
-If a header has something like these:
+for each header file {
+	make header.o
+1)	if it doesn't build {
+		print out a warning
+		continue
+	}
+	for each #include line {
+		remove the #include line
+		make header.o
+2)		if it build {
+			print out a warning
+		}
+3)		if there are less than x gcc warnings {
+			print out a warning
+		}
+	}
+}
 
-struct my_headers_struct {
-	struct task_struct *tsk;
-};
+1) is my old proposal.  2) is the natural counterpart.  3) could be
+what you want.  If some header is only needed for something like your
+example, we may be able to catch it this way.
 
-void my_function(struct task_struct *tsk);
+Would this work?  Would something else work even better?
 
-and gcc warns that "struct task_struct" has not been declared, please
-don't think about adding another header.  Just declare the structure
-in the header file which needs it like this:
-
-struct task_struct;
-
-and that will prevent the #include maze of 2.4, which resulted in
-everything being rebuilt just because one header file was touched.
+Jörn
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+Rules of Optimization:
+Rule 1: Don't do it.
+Rule 2 (for experts only): Don't do it yet.
+-- M.A. Jackson 

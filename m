@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVDETYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVDET2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVDETYu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDETVY
+	id S261902AbVDET2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVDETZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 15:21:24 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18366 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261898AbVDETSA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 15:18:00 -0400
-Date: Tue, 5 Apr 2005 12:19:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-In-Reply-To: <4252E2C9.9040809@aknet.ru>
-Message-ID: <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Apr 2005 15:25:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54185 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261738AbVDETOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 15:14:23 -0400
+Date: Tue, 5 Apr 2005 10:55:52 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "Gabor Z. Papp" <gzp@papp.hu>, Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.30: pwc pwc_isoc_handler() called with status -84
+Message-ID: <20050405135552.GB7409@logos.cnet>
+References: <x6ekdqgyfm@gzp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <x6ekdqgyfm@gzp>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi Gabor, 
 
-On Tue, 5 Apr 2005, Stas Sergeev wrote:
+This seems to be a USB specific problem and my USB knowledge is null.
+
+CCing Pete.
+
+On Mon, Apr 04, 2005 at 08:59:57PM +0200, Gabor Z. Papp wrote:
+> I have a Philips 750 webcam camera, equipped with a
+> Sony CCD sensor + TDA878.
 > 
-> Attached is a quick fix, which I'll be
-> testing to death tomorrow at work.
-
-This one can pass through vm86 mode stuff without the high-16-bit fixup, 
-as far as I can tell.
-
-Also, I think your optimization to optimistically load SS is valid per se,
-but we need to find out how some kernel thread gets zero stack associated
-with it. They should all have the full "struct pt_reg" as far as I could
-see, which means that we should never be _so_ high up the stack that 
-SS/ESP would be on the next page.
-
-So I'd actually prefer to get that mystery explained..
-
-		Linus
+> It was working fine with 2.4.29 and earlier kernels, often with
+> 100-150 days uptime.
+> 
+> As I upgraded to 2.4.30-rc kernels, started getting such error in my
+> kernel log:
+> 
+> pwc Too many ISOC errors, bailing out.
+> pwc pwc_isoc_handler() called with status -84 [CRC/Timeout (could be anything)].
+> 
+> [khubd] got 100% cputime, and kernel just printed and printed this
+> message to the log, generating huge files. :-)
+> 
+> rc4 is still doing this. 1-2 hour online, the something get mad and
+> the pwc driver eat the cputime. 2.4.28 was 100% okay from this point
+> of view.
+> 
+> http://gzp.odpn.net/tmp/pwc/

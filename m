@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131367AbQLLAhM>; Mon, 11 Dec 2000 19:37:12 -0500
+	id <S131368AbQLLAjC>; Mon, 11 Dec 2000 19:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131385AbQLLAhD>; Mon, 11 Dec 2000 19:37:03 -0500
-Received: from mx1.hcvlny.cv.net ([167.206.112.76]:63742 "EHLO
-	mx1.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S131367AbQLLAgq>; Mon, 11 Dec 2000 19:36:46 -0500
-To: James Simmons <jsimmons@suse.com>
-Cc: Pavel Machek <pavel@suse.cz>,
-        "Frédéric L . W . Meunier" <0@pervalidus.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SysRq behavior
-In-Reply-To: <Pine.LNX.4.21.0012111440460.296-100000@euclid.oak.suse.com>
-From: Alan Shutko <ats@acm.org>
-Date: 11 Dec 2000 19:05:48 -0500
-In-Reply-To: <Pine.LNX.4.21.0012111440460.296-100000@euclid.oak.suse.com>
-Message-ID: <871yve4i77.fsf@wesley.springies.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.92
+	id <S131369AbQLLAiw>; Mon, 11 Dec 2000 19:38:52 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34065 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131368AbQLLAin>; Mon, 11 Dec 2000 19:38:43 -0500
+Subject: Re: [PATCH] ide-pci.c: typo
+To: 0@pervalidus.net (Frédéric L . W . Meunier)
+Date: Tue, 12 Dec 2000 00:10:37 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001211212027.A1245@pervalidus> from "Frédéric L . W . Meunier" at Dec 11, 2000 09:20:27 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E145d1i-0000NT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons <jsimmons@suse.com> writes:
+>  	if ((dev->class & ~(0xfa)) != ((PCI_CLASS_STORAGE_IDE << 8) | 5)) {
+> -		printk("%s: not 100%% native mode: will probe irqs later\n", d->name);
+> +		printk("%s: not 100% native mode: will probe irqs later\n", d->name);
+>  		pciirq = ide_special_settings(dev, d->name);
 
-> Just played with this bug. It doesn't kill a login shell but does any
-> app running on it. I just went looking for where "Quit" is printed
-> out. When I press SysRq Quit is printed on the command line. Any ideas?
+I disagree with the patch. The bug is in printk
 
-Not a bug.  Normally,. PrtSc will generate a ^\, which is the default
-value of stty quit.  Try
 
-stty quit ^A
-cat
-
-and hit PrtSc
-
--- 
-Alan Shutko <ats@acm.org> - In a variety of flavors!
-If you have to think twice about it, you're wrong.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315628AbSGNGRx>; Sun, 14 Jul 2002 02:17:53 -0400
+	id <S315629AbSGNHYN>; Sun, 14 Jul 2002 03:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315629AbSGNGRx>; Sun, 14 Jul 2002 02:17:53 -0400
-Received: from h-64-105-137-27.SNVACAID.covad.net ([64.105.137.27]:32656 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315628AbSGNGRw>; Sun, 14 Jul 2002 02:17:52 -0400
-Date: Sat, 13 Jul 2002 23:20:28 -0700
-From: "Adam J. Richter" <adam@freya.yggdrasil.com>
-Message-Id: <200207140620.XAA23582@freya.yggdrasil.com>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: IDE/ATAPI in 2.5
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S315630AbSGNHYM>; Sun, 14 Jul 2002 03:24:12 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.43]:34474 "EHLO
+	phoebe.oisec.net") by vger.kernel.org with ESMTP id <S315629AbSGNHYL>;
+	Sun, 14 Jul 2002 03:24:11 -0400
+Date: Sun, 14 Jul 2002 09:27:06 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: Arjan Opmeer <a.d.opmeer@student.utwente.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with kernel BUG at dcache.c:345
+Message-ID: <20020714072706.GA27582@oisec.net>
+Mail-Followup-To: Arjan Opmeer <a.d.opmeer@student.utwente.nl>,
+	linux-kernel@vger.kernel.org
+References: <20020710054916.GA1800@Ado.student.utwente.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020710054916.GA1800@Ado.student.utwente.nl>
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using M$ Outlook ? You should try mutt!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
->On Sat, 13 Jul 2002, Adam J. Richter wrote:
->> On Sat, 13 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
->> >Wrong impression. ;)
->> >Hint: look for STANDARD_ATAPI macro usage.
->>
->>       It looks like that macro should be renamed to something like
->> STANDARD_MMC.  Everything that that macro controls still appears to
->> go through ATA Packet Interface encapsulation.  Those quirks look like
->
->Please verify against sff8020.
+On Wed, Jul 10, 2002 at 07:49:16AM +0200, Arjan Opmeer wrote:
 
-	I don't know what you mean by this.  It's not a question of
-whether the behavior being accomodated is conformant or nonconformant
-to a standard.  The question is whether the accomodations controlled
-by the "STANDARD_ATAPI" macro can easily be implemented in sr_mod.
-Since the accomodations are translating a couple of numbers that
-are repeseneted as binary coded decimal instead of integers (0-255)
-on some drives, and sending a slightly different SCSI command to
-change discs on a Sanyo three CD changer, it seems that they can easily
-be implemented in sr_mod.
+> My Linux machine just crashed during the morning cronjob with an Oops. Yes,
+> I know my kernel is tainted because I have the NVidia driver loaded, but
+> consider that maybe this driver is not the direct cause of the Oops but only
+> exposing an obscure bug in the kernel?
+> 
+> It also seems that enabling AGP using the kernel agpgart module makes this
+> Oops more likely to happen. Also forcing the AGP rate to 1x instead of 2x
+> does not seem to make any difference. With AGP disabled this machine reaches
+> quite respectable uptimes despite using the NVidia driver...
+> 
+> Because the machine was hung with the screen blanked I could not use
+> ksymoops, but this is the output of my syslog:
+> 
 
->> they would likely be duplicated in a SCSI version of the same drives
->> anyhow.  It should be easy to have sr_mod accomodate those drives.
->
->I can't find them, there are some in sr_vendor.c but they are diffirent
+<SNIP>
 
-	From you email address, I would guess that English is not your
-first language.  While you do write English very well, I think you made
-a mistake in understanding what I siad.  "It should be easy to
-have sr_mod accomodate those drives" means that it would be easy for
-someone to write code in the near future to do this (that is, to change
-sr_mod.c).  It does not mean that it has already been done.
+I had almost the same problem on a 2.4.19-rc1 kernel WITHOUT nvidia crap.
+However after replacing my CPU (Celeron 600A) with a Pentium III 733
+problems disappeared (at least until now)
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+-- 
+Cliff Albert		| RIPE:	     CA3348-RIPE | http://oisec.net/
+cliff@oisec.net		| 6BONE:     CA2-6BONE	 |

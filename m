@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269310AbUIHTGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269241AbUIHTTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269310AbUIHTGe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 15:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269312AbUIHTGd
+	id S269241AbUIHTTL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 15:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269277AbUIHTTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 15:06:33 -0400
-Received: from mail.tmr.com ([216.238.38.203]:16653 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S269310AbUIHTGP (ORCPT
+	Wed, 8 Sep 2004 15:19:11 -0400
+Received: from mailbox.surfeu.se ([213.173.154.11]:55946 "EHLO surfeu.fi")
+	by vger.kernel.org with ESMTP id S269241AbUIHTTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 15:06:15 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Major XFS problems...
-Date: Wed, 08 Sep 2004 15:06:32 -0400
-Organization: TMR Associates, Inc
-Message-ID: <chnkqd$u7n$1@gatekeeper.tmr.com>
-References: <20040908154434.GE390@unthought.net><20040908123524.GZ390@unthought.net> <1094661418.19981.36.camel@hole.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 8 Sep 2004 15:19:06 -0400
+Message-ID: <413F5B89.4AF97168@users.sourceforge.net>
+Date: Wed, 08 Sep 2004 22:20:41 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-crypto@nl.linux.org
+CC: linux-kernel@vger.kernel.org
+Subject: Announce loop-AES-v2.2a file/swap crypto package
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1094669966 30967 192.168.12.100 (8 Sep 2004 18:59:26 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <1094661418.19981.36.camel@hole.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Banks wrote:
-> On Thu, 2004-09-09 at 01:44, Jakob Oestergaard wrote:
-> 
->>SMP systems on 2.6 have a problem with XFS+NFS.
-> 
-> 
-> Knfsd threads in 2.6 are no longer serialised by the BKL, and the
-> change has exposed a number of SMP issues in the dcache.  Try the
-> two patches at
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108330112505555&w=2
-> 
-> and
-> 
-> http://linus.bkbits.net:8080/linux-2.5/cset@1.1722.48.23
-> 
-> (the latter is in recent Linus kernels).  If you're still having
-> problems after applying those patches, Nathan and I need to know.
+loop-AES changes since previous release:
+- Fixed multi-key ioctl incompatibility with sparc64 boxes running 64 bit
+  kernel and 32 bit userland. Fix enabled for 2.4.26 and later 2.4 kernels.
+  2.6 kernels were not affected.
+- Added key scrubbing support for AES loop cipher. This feature is not
+  enabled by default because it doubles storage space requirement for loop
+  encryption keys. To enable, add KEYSCRUB=y parameter to loop module make
+  command. (2.4 and 2.6 kernels only).
+- Added multi-key compatibility to losetup and mount -p option handling.
+- Fixed incompatibility with 2.6.8.1 kernel struct bio handling.
+- Small optimization to bio I/O barrier support. Also added support for
+  queue->issue_flush_fn() I/O barrier calls. (2.6 kernels only).
+- Added workaround for kernel bug that causes I/O errors on -EWOULDBLOCK I/O
+  elevator failures (2.6 kernels only).
 
-Do I read you right that this is an SMP issue and that the NFS, quota, 
-backup and all that are not relevant? I will pass on the patches you 
-supplied to someone who is having similar problems with no NFS and no 
-quota, a TB of storage which gets beaten without mercy 24x4.5 and which 
-has been having issues as load has gone up.
+bzip2 compressed tarball is here:
+
+    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2a.tar.bz2
+    md5sum ab10564704317b38b5c7f24e382acae3
+
+    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2a.tar.bz2.sign
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

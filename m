@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVC3KQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVC3KTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVC3KQB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 05:16:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVC3KQB
+	id S261838AbVC3KTR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 05:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVC3KTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 05:16:01 -0500
-Received: from postino3.roma1.infn.it ([141.108.26.5]:46273 "EHLO
-	postino3.roma1.infn.it") by vger.kernel.org with ESMTP
-	id S261835AbVC3KP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 05:15:56 -0500
-Message-ID: <424A7C58.7040105@roma1.infn.it>
-Date: Wed, 30 Mar 2005 12:15:52 +0200
-From: Davide Rossetti <davide.rossetti@roma1.infn.it>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.1 (X11/20050323)
-X-Accept-Language: en-us, en
+	Wed, 30 Mar 2005 05:19:17 -0500
+Received: from viking.sophos.com ([194.203.134.132]:63761 "EHLO
+	viking.sophos.com") by vger.kernel.org with ESMTP id S261838AbVC3KTM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 05:19:12 -0500
 MIME-Version: 1.0
-To: "Bouchard, Sebastien" <Sebastien.Bouchard@ca.kontron.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Delay in a tasklet.
-References: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
-In-Reply-To: <5009AD9521A8D41198EE00805F85F18F054EA085@sembo111.teknor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.30.0.2; VDF 6.30.0.55
+X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 30/03/2005 11:19:04,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 30/03/2005 11:19:04,
+	Serialize complete at 30/03/2005 11:19:04,
+	S/MIME Sign failed at 30/03/2005 11:19:04: The cryptographic key was not
+ found,
+	S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
+  |February 13, 2003) at 30/03/2005 11:19:08,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
+ 13, 2003) at 30/03/2005 11:19:08,
+	Serialize complete at 30/03/2005 11:19:08,
+	S/MIME Sign failed at 30/03/2005 11:19:08: The cryptographic key was not
+ found,
+	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
+ 30/03/2005 11:19:11,
+	Serialize complete at 30/03/2005 11:19:11
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFB111F52D.BD661971-ON80256FD4.00377E92-80256FD4.0038AF50@sophos.com>
+From: tvrtko.ursulin@sophos.com
+Date: Wed, 30 Mar 2005 11:19:08 +0100
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bouchard, Sebastien wrote:
+On 30/03/2005 10:45:55 linux-kernel-owner wrote:
 
->Hi,
+>> The solution is fairly well known.  Rather than treating the zillions 
+of
+>> disk seeks during the boot process as random unconnected events, you
 >
->I'm in the process of writing a linux driver and I have a question in
->regards to tasklet :
+>Heh, we actually tried that at SuSE and yes, eliminating seeks helps a
+>bit, but no, it is not magicall cure you'd want it to be.
 >
->Is it ok to have large delay "udelay(1000);" in the tasklet?
->
->If not, what should I do? 
->
->Please send the answer to me personally (I'm not subscribe to the mailling
->list) :
->  
->
-I'd be interested in the answer as well. I have a driver which does 
-udelay(100), so no 1000 but anyway, and of course I end up having the 
-X86_64 kernel happily crying. I'm moving to a little state-machine to 
-allow for a multi-pass approach instead of busy-polling..
-regards
+>Only solution seems to be "do less during boot".
+
+What about the init scripts? They are all spawned from the master one, 
+they all spawn zillions of simple utilities. And udev startup time under 
+SuSE 9.2 is just awful. It might be the Unix way but it is killing the 
+boot process.
+
+What I tried to do once, and I even contacted somebody from SuSE with a 
+working proof of concept code is the following:
+
+Master init script written in Perl. All the service init scripts rewritten 
+in Perl which can be invoked independently, but they all follow the 
+convention and implement functions such as start() stop() reload() etc.. 
+Then the master init script includes one at a time and "evals" them (well 
+just the function which it is interested in). Since everything is written 
+in Perl there is no need to invoke external greps, seds, cuts etc.. And 
+rc.status was also only processed once (by the master init script).
+
+It was fast but I don't have any exact numbers because I only implemented 
+rc, rc.boot, rc.status and sshd (AFAIR) before giving up. I think I should 
+be able to dig that code from somewhere if someone is interested...
 

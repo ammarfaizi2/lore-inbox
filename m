@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317488AbSINTdf>; Sat, 14 Sep 2002 15:33:35 -0400
+	id <S317508AbSINTre>; Sat, 14 Sep 2002 15:47:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSINTdf>; Sat, 14 Sep 2002 15:33:35 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:48372
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317488AbSINTdf>; Sat, 14 Sep 2002 15:33:35 -0400
-Subject: Re: 34-bk current ide problems - unexpected interrupt
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ed Tomlinson <tomlins@cam.org>, Andre Hedrick <andre@linux-ide.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20020914133619.GI935@suse.de>
-References: <200209120838.44092.tomlins@cam.org>
-	<20020913060647.GH1847@suse.de> <200209132142.23964.tomlins@cam.org>
-	<200209132258.21297.tomlins@cam.org>  <20020914133619.GI935@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 14 Sep 2002 20:39:22 +0100
-Message-Id: <1032032362.13743.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317512AbSINTre>; Sat, 14 Sep 2002 15:47:34 -0400
+Received: from web40510.mail.yahoo.com ([66.218.78.127]:47773 "HELO
+	web40510.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317508AbSINTre>; Sat, 14 Sep 2002 15:47:34 -0400
+Message-ID: <20020914195223.48337.qmail@web40510.mail.yahoo.com>
+Date: Sat, 14 Sep 2002 12:52:23 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: miquels@cistron.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <1032031927.13636.1.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-09-14 at 14:36, Jens Axboe wrote:
-> > Notice that 2.4 orders the boot differently.  Wonder if this is significant?
-> 
-> That's expected.
+> Hint 1. Other people make disks too.
+I'm glad you and I realize that. It seems that others might not. So
+far, in this thread, only one person using one brand of disk (IBM)
+has found something in writing about the cache issue. Let's see, 
+that leaves Maxtor/Quantum, Seagate, Fujitsu, .....
 
-Not by me. What ordering is changing here ?
+> Hint 2. The guys who did the code include a member of the standards
+> committee.
+And your point is...?? Does this somehow preclude them being wrong??
 
+>Unless Andre agrees the change is required in the new IDE they won't be
+>going in. 
+Fair enough.
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

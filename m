@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130850AbRBAQQ2>; Thu, 1 Feb 2001 11:16:28 -0500
+	id <S130457AbRBAQS6>; Thu, 1 Feb 2001 11:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130872AbRBAQQS>; Thu, 1 Feb 2001 11:16:18 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:24077 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S130850AbRBAQQL>; Thu, 1 Feb 2001 11:16:11 -0500
-Date: Thu, 01 Feb 2001 11:16:04 -0500
-From: Chris Mason <mason@suse.com>
-To: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>,
-        reiserfs-list@namesys.com
-Subject: Re: VM brokenness, possibly related to reiserfs
-Message-ID: <371620000.981044164@tiny>
-In-Reply-To: <3A790A16.C964877@linux.com>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
+	id <S130851AbRBAQSs>; Thu, 1 Feb 2001 11:18:48 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:23529 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130457AbRBAQSc>;
+	Thu, 1 Feb 2001 11:18:32 -0500
+Date: Thu, 1 Feb 2001 16:16:15 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: bsuparna@in.ibm.com, "Stephen C. Tweedie" <sct@redhat.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201161615.T11607@redhat.com>
+In-Reply-To: <CA2569E6.0051970D.00@d73mta03.au.ibm.com> <20010201160953.A17058@caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010201160953.A17058@caldera.de>; from hch@caldera.de on Thu, Feb 01, 2001 at 04:09:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-
-On Wednesday, January 31, 2001 11:02:46 PM -0800 David Ford <david@linux.com> wrote:
-
-> (Chris, changing JOURNAL_MAX_BATCH from 900 to 100 didn't affect
-> anything).
+On Thu, Feb 01, 2001 at 04:09:53PM +0100, Christoph Hellwig wrote:
+> On Thu, Feb 01, 2001 at 08:14:58PM +0530, bsuparna@in.ibm.com wrote:
+> > 
+> > That would require the vfs interfaces themselves (address space
+> > readpage/writepage ops) to take kiobufs as arguments, instead of struct
+> > page *  . That's not the case right now, is it ?
 > 
-> Ok, having approached this slightly more intelligently here are [better]
-> results.
-> 
-> The dumps are large so they are located at http://stuph.org/VM/.  Here's
-> the story.  
+> No, and with the current kiobufs it would not make sense, because they
+> are to heavy-weight.
 
-Sorry, can't seem to resolve stuph.org.  What is kreiserfsd doing during when the system is waiting for more ram?  With JOURNAL_MAX_BATCH set to 100, kreiserfsd will end up responsible for sending log blocks/metadata to disk and freeing the pinned buffers.
+Really?  In what way?  
 
--chris
+> With page,length,offsett iobufs this makes sense
+> and is IMHO the way to go.
 
+What, you mean adding *extra* stuff to the heavyweight kiobuf makes it
+lean enough to do the job??
+
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUAXXVp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 18:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUAXXVo
+	id S261731AbUAXX1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 18:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUAXX1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 18:21:44 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:4802 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263173AbUAXXVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 18:21:41 -0500
-Subject: Re: Problem with module-init-tools
-From: Christophe Saout <christophe@saout.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040124222907.GA4072@werewolf.able.es>
-References: <20040124222907.GA4072@werewolf.able.es>
-Content-Type: text/plain
-Message-Id: <1074986496.10332.1.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 25 Jan 2004 00:21:36 +0100
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 18:27:24 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:26542 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261731AbUAXX1U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 18:27:20 -0500
+Date: Sat, 24 Jan 2004 21:14:56 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+Cc: linux-kernel@vger.kernel.org,
+       "XFS: linux-xfs@oss.sgi.com" <linux-xfs@oss.sgi.com>,
+       marcelo.tosatti@cyclades.com
+Subject: Re: 2.4.24 with the 2.4.23-xfs patches from sgi
+In-Reply-To: <4012D258.6010201@mnsu.edu>
+Message-ID: <Pine.LNX.4.58L.0401242112340.1274@logos.cnet>
+References: <4012D258.6010201@mnsu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sa, den 24.01.2004 schrieb J.A. Magallon um 23:29:
-
-> I have a problem with modprobe, 2.6.2-rc1-mm2, and agpgart.
-> 
-> With 2.4, I had this setup to have agpgart loaded:
-> 
-> alias char-major-226 agpgart
-> 
-> With 2.6 and the same setup, that module is loaded. But as agpgart backend is
-> now split, I need to load also intel-agp.ko. I read manuals, and corrected my
-> modprobe.conf this way:
-> 
-> install agpgart /sbin/modprobe intel-agp; /sbin/modprobe --ignore-install agpgart;
-> 
-> But it goes on an infinite loop :(.
-
-Well, I suppose it's because modprobe intel-agp tries to load agpgart
-and that's where it loops. I think you should try to modprobe
---ignore-install agpgart first so that it's already loaded when you
-insert intel-agp. And probably use a && between the two commands.
 
 
+On Sat, 24 Jan 2004, Jeffrey E. Hundstad wrote:
+
+> Hello,
+>
+> In the last 48-hours we've had two machines hang with no messages on the
+> console and none in the logs, pings return, drive lights are all off and
+> don't ever flash.   Both machines we running linux-2.4.24 with the
+> xfs-2.4.23-all-i386 patch as recommended by the XFS group.  These
+> machines had been running fine on this kernel image since Jan  13,
+> 2004.  One machine was running XFS as a filesystem and the other was
+> running EXT2.  These machines have both been in constant production for
+> over 4 years and there has not been any hardware changes, including
+> those to it's environment with is power and temperature controlled.
+>
+> Both machines are Pentium-3 class, 256M of memory, both using SCSI disk
+> with different SCSI controllers.  This is the the version string:
+> Linux version 2.4.24-xfs (j3gum@krypton) (gcc version 2.95.4 20011002
+> (Debian prerelease)) #1 SMP Tue Jan 13 22:05:12 CST 2004
+>
+> If you need more specific info. I'll prob. keep these and the other
+> dozen on the same kernel image up for a few more days.
+
+Hi Jeffrey,
+
+There is a known VFS _SMP_ deadlock in 2.4.24. I'm not sure if that is
+what you are hitting, but it is likely.
+
+So try 2.4.25-pre7 (which contains an uptodated XFS tree) and check if the
+problem goes away.
+
+Please keep me informed.

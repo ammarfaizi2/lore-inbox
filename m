@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135454AbRDMJp1>; Fri, 13 Apr 2001 05:45:27 -0400
+	id <S135455AbRDMJq2>; Fri, 13 Apr 2001 05:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135455AbRDMJpS>; Fri, 13 Apr 2001 05:45:18 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:27552 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135454AbRDMJpA>; Fri, 13 Apr 2001 05:45:00 -0400
-Date: Fri, 13 Apr 2001 11:44:56 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Dennis Bjorklund <db@zigo.dhs.org>
-Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>,
-        Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Data-corruption bug in VIA chipsets
-Message-ID: <20010413114456.C682@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.30.0104130953160.20273-100000@merlin.zigo.dhs.org>
+	id <S135456AbRDMJqS>; Fri, 13 Apr 2001 05:46:18 -0400
+Received: from ems.flashnet.it ([194.247.160.44]:18450 "EHLO relay.flashnet.it")
+	by vger.kernel.org with ESMTP id <S135455AbRDMJqN>;
+	Fri, 13 Apr 2001 05:46:13 -0400
+Date: Fri, 13 Apr 2001 11:45:59 +0200
+From: David Santinoli <u235@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: aic7xxx: first mount always fails
+Message-ID: <20010413114559.A1133@aidi.santinoli.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.30.0104130953160.20273-100000@merlin.zigo.dhs.org>; from db@zigo.dhs.org on Fri, Apr 13, 2001 at 10:00:32AM +0200
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 13, 2001 at 10:00:32AM +0200, Dennis Bjorklund wrote:
-> Here might be one of the resons for the trouble with VIA chipsets:
-> 
-> http://www.theregister.co.uk/content/3/18267.html
-> 
-> Some DMA error corrupting data, sounds like a really nasty bug. The
-> information is minimal on that page.
 
-These are the things, that one of the German links[1] suggest
-(translated only, because I'm not the IDE guy ;-)):
-   
-   - PCI Delay Transaction = 0 (off) (Register 0x70, Bit 1)
-   - PCI Master Read Caching = 0 (off) (Register 0x70, Bit 2)
-   - PCI Latency = 0 (values between 0 and 32 *seem* to be safe,
-        everything above seems to be *not* !)
+The first attempt at mounting a disc in my Traxdata CDR drive after boot always
+fails. From the second on, everything works flawlessly.
+Current setup is 2.2.18 kernel + 6.1.11-2.2.18 patch, but I've been experiencing
+this behaviour since I bought the adapter (around 2.2.12 or so).
+aic7xxx gets loaded as a module.
+Here's some diagnostic info from the failed mount. If more is needed, please let
+me know.
+(of course, a disc _is_ present in the drive).
 
-Note: This also fixes some related USB issues according to [1].
+# modprobe aic7xxx
 
-Some hassles of setting the "PCI Latency" are described and one
-of their reader found out, that it is "PCI Bus Master Time-Out"
-on his board.
+Apr 13 11:20:04 aidi kernel: ahc_pci:0:12:0: Host Adapter Bios disabled.  Using default SCSI device parameters 
+Apr 13 11:20:04 aidi kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.11 
+Apr 13 11:20:04 aidi kernel:         <Adaptec 2902/04/10/15/20/30C SCSI adapter> 
+Apr 13 11:20:04 aidi kernel:         aic7850: Single Channel A, SCSI Id=7, 3/255 SCBs 
+Apr 13 11:20:04 aidi kernel:  
+Apr 13 11:20:04 aidi kernel: scsi : 1 host. 
+Apr 13 11:20:10 aidi kernel:   Vendor: Traxdata  Model: CDR4120           Rev: 5.0L 
+Apr 13 11:20:10 aidi kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02 
+Apr 13 11:20:10 aidi kernel: (scsi0:A:6): 10.000MB/s transfers (10.000MHz, offset 15) 
 
-Register 0x75, Bits 0-3 are at 0001, which means 32 as latency
-value. He set it to 0000 and it helps. This setting also does no
-harm according to the magazine.
 
-The observations are valid for the VT82C686B. One of their
-readers also observed it at VT82C686A too and reported, that the
-workaround helps.
+# mount /dev/sr0 /mnt/cd2
 
-So we might want to enable these workarounds for this
-southbridge, too.
+Apr 13 11:21:39 aidi kernel: Detected scsi CD-ROM sr0 at scsi0, channel 0, id 6, lun 0 
+Apr 13 11:22:09 aidi kernel: scsi0:0:6:0: Attempting to queue an ABORT message 
+Apr 13 11:22:09 aidi kernel: (scsi0:A:6:0): Queuing a recovery SCB 
+Apr 13 11:22:09 aidi kernel: scsi0:0:6:0: Device is disconnected, re-queuing SCB 
+Apr 13 11:22:09 aidi kernel: Recovery code sleeping 
+Apr 13 11:22:09 aidi kernel: (scsi0:A:6:0): Abort Message Sent 
+Apr 13 11:22:09 aidi kernel: (scsi0:A:6:0): SCB 3 - Abort Completed. 
+Apr 13 11:22:09 aidi kernel: Recovery SCB completes 
+Apr 13 11:22:09 aidi kernel: Recovery code awake 
+Apr 13 11:22:09 aidi kernel: aic7xxx_abort returns 8194 
+Apr 13 11:22:09 aidi kernel: scsi0:0:6:0: Attempting to queue a TARGET RESET message 
+Apr 13 11:22:09 aidi kernel: scsi0:0:6:0: Command not found 
+Apr 13 11:22:09 aidi kernel: aic7xxx_dev_reset returns 8194 
+Apr 13 11:22:14 aidi kernel: sr0: CD-ROM not ready.  Make sure you have a disc in the drive. 
+Apr 13 11:22:14 aidi kernel: CD-ROM I/O error: dev 0b:00, sector 64 
+Apr 13 11:22:14 aidi kernel: isofs_read_super: bread failed, dev=0b:00, iso_blknum=16, block=32 
 
-Hope this translation helps our maintainers a little ;-)
 
-Regards
+# lspci -v
 
-Ingo Oeser
+[snip]
+00:0c.0 SCSI storage controller: Adaptec AHA-7850 (rev 03)
+        Subsystem: Adaptec AHA-2904/Integrated AIC-7850
+        Flags: bus master, medium devsel, latency 32, IRQ 11
+        I/O ports at 9800 [disabled]
+        Memory at de800000 (32-bit, non-prefetchable)
+        Capabilities: [dc] Power Management version 1
+[snip]
 
-[1] http://home.tiscalinet.de/au-ja/review-kt133a-4.html
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+Cheers,
+ David

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291863AbSBARLZ>; Fri, 1 Feb 2002 12:11:25 -0500
+	id <S291857AbSBARMp>; Fri, 1 Feb 2002 12:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291857AbSBARLP>; Fri, 1 Feb 2002 12:11:15 -0500
-Received: from rakis.net ([207.8.143.12]:6558 "EHLO egg.rakis.net")
-	by vger.kernel.org with ESMTP id <S291863AbSBARLH>;
-	Fri, 1 Feb 2002 12:11:07 -0500
-Date: Fri, 1 Feb 2002 12:11:07 -0500 (EST)
-From: Greg Boyce <gboyce@rakis.net>
-X-X-Sender: gboyce@egg
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Machines misreporting Bogomips 
-In-Reply-To: <200202010959.g119xXH3008047@tigger.cs.uni-dortmund.de>
-Message-ID: <Pine.LNX.4.42.0202011208180.3467-100000@egg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291864AbSBARMg>; Fri, 1 Feb 2002 12:12:36 -0500
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:10133 "EHLO
+	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S291857AbSBARMY>; Fri, 1 Feb 2002 12:12:24 -0500
+Date: Fri, 01 Feb 2002 12:12:11 -0500 (EST)
+Message-Id: <20020201.121211.55941171.wscott@bitmover.com>
+To: lm@bitmover.com
+Cc: brand@jupiter.cs.uni-dortmund.de, kaos@ocs.com.au,
+        linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+From: Wayne Scott <wscott@bitmover.com>
+In-Reply-To: <20020201083855.C8664@work.bitmover.com>
+In-Reply-To: <lm@bitmover.com>
+	<200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de>
+	<20020201083855.C8664@work.bitmover.com>
+X-Mailer: Mew version 2.1.52 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, Horst von Brand wrote:
+From: Larry McVoy <lm@bitmover.com>
+> If so, what you are describing is called "hacking" in the negative
+> sense of the word, and what my customers do is called "programming".
+> It's quite rare to see the sort of mess that you described, it happens,
+> but it is rare.  I don'tknow how else to explain it, but it is not the
+> norm in the professional world to try a zillion different approaches
+> and revision control each and every one.
+> 
+> The norm is:
+> 	clone a repository
+> 	edit the files
+> 	modify/compile/debug until it works
+> 	check in
+> 	push the patch up the shared repository
 
-> Greg Boyce <gboyce@rakis.net> said:
->
-> [...]
->
-> > Every once in a while we come across single machines which are running a
-> > lot slower than they should be, and are misreporting their speed in
-> > bogomips under /proc/cpuinfo.  Reinstalling the OS and changing versions
-> > of the kernel don't appear to affect the machines themselves at all.
->
-> Just misrepresented bogomips or is the machine really slower? Perhaps the
-> CPU is being underclocked?
-> --
-> Horst von Brand			     http://counter.li.org # 22616
->
+Or they create do a line of development in a repository with commits
+and then determine that it wasn't working.  No problem throw it away
+and start over from a clean copy.  Since the repositories are
+distributed, private branches just disappear if you don't like them.
 
-The machine is actually slower.  That's how I noticed the problem.
-
-Underclocking dosen't seem likely due to the difference in speed.  It's 4
-bogomips instead of 500.  The machine is running at about the speed of a
-386 (I believe that's about right).  It almost seems as if someone turned
-off the turbo button.  But of course I haven't seen one of those since my
-old 486 :)
-
---
-Greg Boyce
-
-
+-Wayne

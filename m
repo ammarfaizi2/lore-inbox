@@ -1,72 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265384AbUAHPji (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 10:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265385AbUAHPjh
+	id S265126AbUAHPaN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 10:30:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUAHPaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 10:39:37 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:17579 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265384AbUAHPjc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 10:39:32 -0500
-Date: Thu, 8 Jan 2004 23:40:16 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-cc: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <E1Aeab1-0009FQ-00.arvidjaar-mail-ru@f20.mail.ru>
-Message-ID: <Pine.LNX.4.44.0401082333280.449-100000@donald.themaw.net>
+	Thu, 8 Jan 2004 10:30:13 -0500
+Received: from vsmtp2.tin.it ([212.216.176.222]:54716 "EHLO vsmtp2.tin.it")
+	by vger.kernel.org with ESMTP id S265126AbUAHP3z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 10:29:55 -0500
+From: andreamrl <andreamrl@tiscali.it>
+Reply-To: andreamrl@tiscali.it
+To: linux-kernel@vger.kernel.org
+Subject: Oops in 2.6.1-rc1-mm2
+Date: Thu, 8 Jan 2004 16:29:20 +0100
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_QdX//cRYHN33FBt"
+Message-Id: <200401081629.20497.andreamrl@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Jan 2004, [koi8-r] "Andrey Borzenkov[koi8-r] "  wrote:
 
->
-> >     4) devfs does provide a deamon that userspace programs can hook > into
-> >        to listen to see what devices are being created or removed.
-> >   Constraints:
-> >     1) devfs forces the devfs naming policy into the kernel.  If you
-> >        don't like this naming scheme, tough.
->
-> kernel imposes naming scheme for exporting devices in sysfs. It is
-> possible to get rid of devfs_name in kernel and use those names
-> that must exist anyway to support udev as well. devfs has
-> devfsd that can call whatever naming agent you like.
+--Boundary-00=_QdX//cRYHN33FBt
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yes. I'm having trouble finding justification for that statement as
-well.
+When i stop to messing around with a sane backend and i disconnect the power 
+cord of my USB scanner, system generates a kernel oops (kernel 
+2.6.1-rc1-mm2). 
+I attach the oops log hoping be useful.
 
-devfs appears to have almost no device name info within it.
+Merello Andrea
+andreamrl@tiscali.it
+--Boundary-00=_QdX//cRYHN33FBt
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="oops"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="oops"
 
->
-> >     2) devfs does not follow the LSB device naming standard.
->
-> it is user-space (devfsd) issue, not kernel space (devfs)
+usb 3-2: USB disconnect, address 3
+Unable to handle kernel NULL pointer dereference at virtual address 0000001e
+ printing eip:
+f18a624c
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+CPU:    0
+EIP:    0060:[<f18a624c>]    Tainted: PF  VLI
+EFLAGS: 00010292
+EIP is at disconnect_scanner+0x2c/0x6d [scanner]
+eax: e8367780   ebx: e8367794   ecx: f18a6220   edx: 00000005
+esi: 00000000   edi: ee7f9440   ebp: f18a9dbc   esp: efd41e44
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 5, threadinfo=efd40000 task=eff8e040)
+Stack: e8367780 f18a9e38 e8367780 f18a9ea0 c02b8a0b e8367780 e8367780 e8367794
+       e8367794 f18a9ec0 c0240e94 e8367794 e83677c0 ee7f947c ee7f9468 f18a5ba7
+       e8367794 e8367780 ee7f947c f18a9dcc 00000000 00000000 c020afe8 ee7f947c
+Call Trace:
+ [<c02b8a0b>] usb_unbind_interface+0x7b/0x80
+ [<c0240e94>] device_release_driver+0x64/0x70
+ [<f18a5ba7>] destroy_scanner+0x77/0xd0 [scanner]
+ [<c020afe8>] kobject_cleanup+0x98/0xa0
+ [<c02b8a0b>] usb_unbind_interface+0x7b/0x80
+ [<c0240e94>] device_release_driver+0x64/0x70
+ [<c0241008>] bus_remove_device+0x78/0xc0
+ [<c023fe9c>] device_del+0x6c/0xa0
+ [<c02bef3f>] usb_disable_device+0x6f/0xb0
+ [<c02b92ab>] usb_disconnect+0xbb/0x110
+ [<c02bba6f>] hub_port_connect_change+0x32f/0x340
+ [<c02bb353>] hub_port_status+0x43/0xb0
+ [<c02bbdb8>] hub_events+0x338/0x3a0
+ [<c02bbe4d>] hub_thread+0x2d/0xf0
+ [<c0357a86>] ret_from_fork+0x6/0x14
+ [<c011dba0>] default_wake_function+0x0/0x20
+ [<c02bbe20>] hub_thread+0x0/0xf0
+ [<c0109009>] kernel_thread_helper+0x5/0xc
 
-And there is heaps of device naming going on in devfsd. As is what people
-seem to be recommending.
+Code: ec 10 8b 44 24 14 89 5c 24 08 89 74 24 0c 8d 58 14 8b 73 78 c7 44 24 04 38 9e 8a f1 89 04 24 e8 ab a4 a1 ce c7 43 78 00 00 00 00 <80> 7e 1e 00 75 2e 85 f6 74 17 8d 46 3c 8b 5c 24 08 8b 74 24 0c
 
-> > Oh yeah, and there are the insolvable race conditions with the devfs
-> > implementation in the kernel, but I'm not going to talk about them > right
->
-> I do not argue that current devfs implementation is ugly and racy. I
-> just beg you to point at what makes those races "unsolvable".
->
-> > now, sorry.  See the linux-kernel archives if you care about them (and
-> > if you use devfs, you should care...)
->
-> I do care. Searching archives for devfs mostly brings "everyone knows
-> this is crap". That is why I kindly ask you to show real evidence that
-> the problems it has are unsolvable.
-
-Again I'm also unable to find descriptions of the 'unsolvable' races.
-
-I wouldn't mind knowing what they are either. Anyone?
-
-Ian
-
+--Boundary-00=_QdX//cRYHN33FBt--
 

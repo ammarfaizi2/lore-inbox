@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262513AbRENVwm>; Mon, 14 May 2001 17:52:42 -0400
+	id <S262516AbRENVzc>; Mon, 14 May 2001 17:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262516AbRENVwc>; Mon, 14 May 2001 17:52:32 -0400
-Received: from baltazar.tecnoera.com ([200.29.128.1]:46862 "EHLO
-	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
-	id <S262513AbRENVwT>; Mon, 14 May 2001 17:52:19 -0400
-Date: Mon, 14 May 2001 17:51:54 -0400 (CLT)
-From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Adaptec RAID SCSI 2100S
-In-Reply-To: <E14zPxu-0001Tr-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105141745020.4694-100000@baltazar.tecnoera.com>
+	id <S262524AbRENVzW>; Mon, 14 May 2001 17:55:22 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:51215 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262516AbRENVzN>; Mon, 14 May 2001 17:55:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+Date: Mon, 14 May 2001 23:50:59 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105141833.f4EIXrQs001765@webber.adilger.int>
+In-Reply-To: <200105141833.f4EIXrQs001765@webber.adilger.int>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051423505900.24410@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Then When I tried to fdisk /dev/sda (/dev/sda is a RAID1 of two
-> > Quantum disks) syslog shows this:
+On Monday 14 May 2001 20:33, Andreas Dilger wrote:
+> Daniel, you write:
+> > Now, if the check routine tells us how much good data it found we
+> > could use that to set a limit for the dirent scan, thus keeping the
+> > same robustness as the old code but without having all the checks
+> > in the inner loop.  Or.  We could have separate loops for good
+> > blocks and bad blocks, it's just a very small amount of code.
 >
-> is /dev/sda the raid or the disks raw ?
+> Yes, I was thinking about both of those as well.  I think the latter
+> would be easiest, because we only need to keep a single error bit per
+> buffer.
 
-/dev/sda is the RAID1
+Today's patch has the first part of that fix:
 
-> > So, I don't know if I'm doing something wrong or what, but I haven't been
-> > able to get it working on 2.4.4 yet... please help.
->
-> Ok I need to put mroe disks and newer firmware on my card when I have some
-> time
+    http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-6
 
-my /dev/dsa is a RAID1 made of two quantum atlas 10K II 18.xGb.
-Unfortunately I have to get this RAID running this week (maybe on
-wednesday) and after that I won't be able to do tests... so.. maybe
-I would have to use 2.2.19 instead of 2.4.4  :-(...
+I broke up Al's check_page routine into the page-specific part and the 
+dirent-specific part, which I call every time a buffer is brought 
+uptodate in ext2_bread.  This is roughly as efficient as Al's 
+page-oriented check.  I could get rid of the code in Al's check_page 
+that initializes sets the rec_lens of a new dir page to blocksize 
+because I do that explicitly in ext2_add_entry now.  This will make it 
+a little cleaner.
 
-Juan Pablo Abuyeres
+The next step is to try and incorporate the intelligence about the good 
+parts of a bad dirent block into the entry lookup code cleanly.
 
+I moved ext2_bread and ext2_append into dir.c because of their 
+dir-specific nature.  (I have some plans for ext2_getblk that have 
+nothing to do with directories, which is why I'm trying to keep it 
+generic.)
+
+--
+Daniel

@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265727AbSJYBQB>; Thu, 24 Oct 2002 21:16:01 -0400
+	id <S265736AbSJYBV3>; Thu, 24 Oct 2002 21:21:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265732AbSJYBQB>; Thu, 24 Oct 2002 21:16:01 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:12054 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S265727AbSJYBQA>;
-	Thu, 24 Oct 2002 21:16:00 -0400
-Message-ID: <3DB89CD9.5090409@mvista.com>
-Date: Thu, 24 Oct 2002 20:22:33 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
+	id <S265738AbSJYBV3>; Thu, 24 Oct 2002 21:21:29 -0400
+Received: from adsl-64-160-137-6.dsl.lsan03.pacbell.net ([64.160.137.6]:25102
+	"EHLO gate.debonne.net") by vger.kernel.org with ESMTP
+	id <S265736AbSJYBV1>; Thu, 24 Oct 2002 21:21:27 -0400
+Date: Thu, 24 Oct 2002 18:29:26 -0700 (PDT)
+From: <kernelnewbie@gate.debonne.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Passing info from the top-half ISR to the bottom-half
+Message-ID: <Pine.LNX.4.33.0210241827460.24173-100000@gate.debonne.net>
 MIME-Version: 1.0
-To: John Levon <levon@movementarian.org>
-CC: dipankar@gamebox.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] NMI request/release, version 6 - "Well I thought the last
- one was ready"
-References: <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB85213.4020509@mvista.com> <20021024202910.GA16192@compsoc.man.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I have reworked all the NMI code, moved it to it's own file, and 
-converted all the NMI users to use the NMI request/release code.  The 
-current code will call call the NMI handlers on an NMI, interested 
-parties may detect that their NMI occurred and handle it.  Since the NMI 
-into the CPU is edge-triggered, I think that's the correct way to handle 
-it (although it is slower).  If someone figures out another way, that 
-would be very helpful.  The include/linux/nmi.h and 
-arch/i386/kernel/nmi.c files were renamed to nmi_watchdog.h and 
-nmi_watchdog.c.
+My ISR is split into top-half and bottom-half processing. The bottom-half
+is implemented as a tasklet (I'm using Kernel 2.4). The top-half knows
+which physical device (minor number) caused the interrupt and that info
+has to be passed to the tasklet somehow.
 
-The biggest hole (that I know of) in these changes is that there is no 
-way that I can tell to detect if an nmi_watchdog has occurred if the NMI 
-source is the I/O APIC.  That code will assume that if no one else has 
-handled the NMI, it was the source, which is a bad assumption (but the 
-same assumption that was being made before my changes, so it's no 
-worse).  Most things should be using the local APIC, anyway.
+The DECLARE_TASKLET macro provides an unsigned long data argument, but it
+appears that that argument must be constant. Rubini's book says it's fine
+to pass a pointer via this data argument, and I'd like to pass the pointer
+to my device control block, but since the argument must be a constant, the
+best I can do is pass a pointer to a global which points to my DCB. But
+this won't work because another device's interrupt will overwrite it.
 
-It's now too big to include in an email, so it's at 
-http://home.attbi.com/~minyard/linux-nmi-v6.diff.
+Do I have to make a separate DECLARE_TASKLET for each physical device like
+the following:
 
--Corey
+Declarations:
+
+dev_t g_dev[4];
+
+DECLARE_TASKLET (tasklet0, do_tasklet, (unsigned long) &g_dev[0]);
+DECLARE_TASKLET (tasklet1, do_tasklet, (unsigned long) &g_dev[1]);
+DECLARE_TASKLET (tasklet2, do_tasklet, (unsigned long) &g_dev[2]);
+DECLARE_TASKLET (tasklet3, do_tasklet, (unsigned long) &g_dev[3]);
+
+Top Half:
+	...
+        switch (minor) {
+        case 0:
+                tasklet_schedule(&tasklet0);
+                break;
+        case 1:
+                tasklet_schedule(&tasklet1);
+                break;
+        case 2:
+                tasklet_schedule(&tasklet2);
+                break;
+        case 3:
+                tasklet_schedule(&tasklet3);
+                break;
+        }
+	...
+
+Tasklet:
+        dev_t *dev = (dev_t*) arg;
+	...
+
+That seems kinda kludgy, but it's the only solution I can think of.
+
 

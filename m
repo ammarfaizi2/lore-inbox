@@ -1,59 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130048AbRCDGHi>; Sun, 4 Mar 2001 01:07:38 -0500
+	id <S130096AbRCDHcK>; Sun, 4 Mar 2001 02:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130050AbRCDGH2>; Sun, 4 Mar 2001 01:07:28 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:28169
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130048AbRCDGHS>; Sun, 4 Mar 2001 01:07:18 -0500
-Date: Sat, 3 Mar 2001 22:07:10 -0800 (PST)
-From: Andre Hedrick <t13@linux-ide.org>
-To: "'t13@tgi.com'" <t13@tgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [temp t13] Re: FW: Open Letter to NCITS T13 on Access Control 
- s
-In-Reply-To: <D973CF70008ED411B273009027893BA4D1C55D@irv-exch.phoenix.com>
-Message-ID: <Pine.LNX.4.10.10103032159370.4530-100000@master.linux-ide.org>
+	id <S130461AbRCDHcA>; Sun, 4 Mar 2001 02:32:00 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:49356 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130096AbRCDHbr>; Sun, 4 Mar 2001 02:31:47 -0500
+Message-ID: <3AA1EF6C.A9C7613E@uow.edu.au>
+Date: Sun, 04 Mar 2001 18:31:56 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-fbdev-devel@sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+        lad <linux-audio-dev@ginette.musique.umontreal.ca>,
+        James Simmons <jsimmons@linux-fbdev.org>,
+        Brad Douglas <brad@neruo.com>
+Subject: [prepatches] removal of console_lock
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Mar 2001, Curtis Stevens wrote:
 
->   ** This is the quasi-official and semi-temporary T13 email list server. **
-> 
-> Andre
-> 
-> 	I think We've gone out-of-bounds on this one.  None of us are
-> lawyers, and nobody can predict what is happening.  Personally, I do not see
-> the difference between placing a GUID in the vendor specific are or placing
-> a GUID in the E0112r1 area.  Both places are set aside for people to do
-> things without bringing them to standards.  The only significant piece that
-> E0112r1 brings to the table is that a specific set of command codes can be
-> re-used without having a secret society setup the rules.
+All console-related activity curently happens under spin_lock_irqsave(&console_lock). 
+This causes interrutps to be blocked for 1-2 milliseconds with vgacon, and for
+hundreds of milliseconds with fbdevs.  This results in network overruns, audio
+dropouts, dropped characters on serial ports and other such nice things.
 
-This is the one and only reason why I have to strongly consider voting YES
-for you proposal.  Had it been only on the merit of the GUID and CPRM had
-never entered the picture it would have been a hands down YES.
+This patch fixes it.  Interrupts are enabled across all console operations.
 
-> 	My opinion is that lawyers can make a case for virtually anything.
-> Nothing is fool-proof and there are no guarantees.  Ultimately it ends up in
-> the hands of judges or in the hands of the consumers.  I am more than
-> willing to work up a better understanding of the legal issues off-line.
+It's still somewhat a work-in-progress.
 
-And the purpose of "lawyers" is to turn a lie into truth, because it will
-not stand on its own merit.  We all know this fact.  At this point in time
-when people ask me for drives to buy, I can only suggest the one company
-that voted NO and I hope that their sales blow through the roof as a form
-of financial protest to the rest.
+- There are (pre-existing) races around the timer functions in
+  console.c. The dirty fix is to push all this stuff into keventd
+  context and to use acquire_cosole_sem().  The clean fix is to
+  rewrite the timer state machine.
 
-We can go offline with the legal issues, and the nice thing about that is
-as a person you are trustworth and honest.
+  Or do nothing.  This thing only fires four times a day, the race
+  doesn't look like it'll crash the machine and there have been no
+  bug reports...
 
-Respectfully,
-
-Andre Hedrick
-Linux ATA Development
+- console_print().   blah.  What's this for?  I just mapped it
+  onto printk().  My preferred option is to kill it off altogether.
 
 
+I'm putting this out now for comments, and for interested parties to
+test.  Please.  I'm serious.
+
+
+Patches against 2.4.3-pre1 and 2.4.2-ac9 are at
+
+	http://www.uow.edu.au/~andrewm/linux/console.html
+
+These patches are ~1600 lines and touch 35 files.
+
+
+
+Some notes:
+
+- show_console() had been removed.  It's unused.
+
+- console_tasklet has been replaced with a keventd callback,
+  `console_callback'.
+
+- unblank_console() has gone.  It was only used by panic(),
+  and...
+
+- ... the call to poke_blanked_console() in vt_console_print() has
+  been restored.  It doesn't deadlock during oopses now.
+
+- arch/s390x/kernel/cpprintk.c has been removed.
+
+- bust_spinlocks() has been enhanced (x86 and mips64).
+
+- Major revamp of printk().  The approach taken in printk() is to try
+  to acquire the (new) console_sem.  If we succeed, the output is
+  placed into the log buffer and is printed to the consoles.  If we fail
+  to acquire the semaphore we just buffer the output in the log buffer
+  and the current holder of the console_sem will do the printing for us
+  prior to releasing console_sem.
+
+  If an oops is in progress we simply reset the locking and print
+  things immediately.
+
+- Added a new syslog() mode: syslog(9, ...).  It returns the number
+  of characters which are currently queued in the log buffer.  Needed
+  to do this for kmsg_poll().
+
+- Being heartily sick of reverse-engineering interface information
+  from implementations, I have gratuitously added comments in several
+  random parts of the kernel.  Shoot me.
+
+- Several video drivers are using spin_lock() in a timer
+  handler.  There's a remote possibility that these can
+  deadlock (say, the timer fires again while the lock is held).
+  These have been changed to use _irqsave.
+
+- The various low-level drivers have been reviewed to ensure that
+  they are safe when interrupts are enabled.  Looks OK.
+
+-

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275848AbRJBHVQ>; Tue, 2 Oct 2001 03:21:16 -0400
+	id <S275853AbRJBHxH>; Tue, 2 Oct 2001 03:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275845AbRJBHVG>; Tue, 2 Oct 2001 03:21:06 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:9678 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S275848AbRJBHUy>; Tue, 2 Oct 2001 03:20:54 -0400
-Date: Tue, 2 Oct 2001 08:21:17 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rob Landley <landley@trommello.org>
-Cc: Mike Fedyk <mfedyk@matchmail.com>,
-        Chris Howells <chris@chrishowells.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: linux-kernel-announce?
-Message-ID: <20011002082116.B13650@flint.arm.linux.org.uk>
-In-Reply-To: <20011001164720Z275269-761+14414@vger.kernel.org> <20011001124811.D25387@mikef-linux.matchmail.com> <01100121011009.09156@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01100121011009.09156@localhost.localdomain>; from landley@trommello.org on Mon, Oct 01, 2001 at 09:01:10PM -0400
+	id <S275856AbRJBHw5>; Tue, 2 Oct 2001 03:52:57 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:35042 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S275853AbRJBHwx>;
+	Tue, 2 Oct 2001 03:52:53 -0400
+From: "LA Walsh" <law@sgi.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 'dd' local works, but not over net, help as to why?
+Date: Tue, 2 Oct 2001 00:52:48 -0700
+Message-ID: <NDBBJDKDKDGCIJFBPLFHMEJPCGAA.law@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 01, 2001 at 09:01:10PM -0400, Rob Landley wrote:
-> Now Alan Cox not only does a pretty good job of ac-release logs, but he has a 
-> diary as well (http://www.linux.org.uk/diary).  I'm unaware of being able to 
-> get Alan's release announcements as read-only a mailing list, but I suppose 
-> if somebody suggested the idea to him he might not be too opposed to it.  
 
-I did setup a list for this purpose on zenII, aka www.linux.org.uk.
-See:
+I'm sure there's an obvious answer to this, but it is eluding me.
 
-	http://www.linux.org.uk/mailman/listinfo/patching-time
+If I am on my local laptop, I can 'dd' an 8G partition to a
+removable HD of the same or slightly larger size (slightly large
+because of geometry differences).
 
-(the name was suggested by Alan).
+If I am on my desktop, "I can 'dd' the same size partition to
+a slightly larger one -- again, no problem.
 
-All it needs are some subscribers and Alan to post release announcements
-there.  It is setup as a read-only list in as far as Alan is the only
-person who is allowed to post to the list.
+But if I use:
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+dd if=/dev/hda2 bs=1M|rsh other-system of=/dev/sda2 bs=1M, I
+get failures of running out of room on target.  I've tried
+a variety of block size ranging from 1K->64G, but no luck.
+
+Is there something in the networking code that's preventing me
+from transferring more than a 2 or 4 G limit?
+
+I just wanted an exact image off onto another system.  Would
+seem to have been straight forwared. but I guess not?  
+
+Thanks in advance for any work-arounds and explanations...
+
+-linda
 

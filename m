@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSHGPNK>; Wed, 7 Aug 2002 11:13:10 -0400
+	id <S318541AbSHGPdR>; Wed, 7 Aug 2002 11:33:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317209AbSHGPNJ>; Wed, 7 Aug 2002 11:13:09 -0400
-Received: from 194-106-48-114.dsl.freedom2surf.net ([194.106.48.114]:39822
-	"EHLO tim.rpsys.net") by vger.kernel.org with ESMTP
-	id <S316853AbSHGPNI>; Wed, 7 Aug 2002 11:13:08 -0400
-Message-ID: <03a501c23e25$707dcd40$0301a8c0@rpnet.com>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel from 2.5.5 onwards won't boot on a P200 MMX
-Date: Wed, 7 Aug 2002 16:16:34 +0100
+	id <S318572AbSHGPdR>; Wed, 7 Aug 2002 11:33:17 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:33541 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S318541AbSHGPdQ>; Wed, 7 Aug 2002 11:33:16 -0400
+Date: Wed, 7 Aug 2002 17:36:25 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at tg3.c:1557
+In-Reply-To: <20020807.074838.106638568.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0208071729370.3705-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm having trouble getting the 2.5 kernels from 2.5.5 onwards to run on my
-> Pentium 200 MMX system. The same kernels all work fine on my K6-2-400. I
-> am compiling for the right processor (I've tried a few different ones with
-no
-> effect).
+On Wed, 7 Aug 2002, David S. Miller wrote:
 
-> It's getting to the "Uncompressing Linux..." stage but I never get the Ok
-> message.
+>    From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+>    Date: Wed, 7 Aug 2002 16:49:24 +0200 (CEST)
+> 
+>    Sorry, same problem as before. It looks like the spinlocked write method 
+>    does not work on the BCM5701 chip :-(
+> 
+> I'm still not entirely convinced of this :-)
+> Backout all of your changes and try this patch instead:
+> 
+[snip]
 
-I've finally tracked this down (at least partially). It's something to do
-with the sound drivers... If I disable the sound system it all works fine.
-The sound options I was using were probably a bit weird as I wasn't sure
-what I needed.
+Now, the change leads to two more timeouts, from tg3_reset_hw and 
+tg3_halt_hw. I should however point out that these do not happen during 
+module loading, but only when doing 'network start'.
 
-I've tried removing individual options from the sound section to try and
-narrow this down but they all the options seem to be interdependent.
+How can I help to track this down?
 
-For reference the sound system was moved from /drivers/sound to /sound in
-2.5.5 which is where the kernels stopped working from.
+Ciao,
+					Roland
 
---
-RP
-Please CC: me in any reply.
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 

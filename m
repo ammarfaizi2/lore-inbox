@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUK0HaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbUK0H0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbUK0HaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbUK0H1E
+	id S261167AbUK0H0v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUK0G7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 02:27:04 -0500
-Received: from rosesmtp03.adp.com ([170.146.91.11]:6162 "EHLO
-	rosesmtp03.adp.com") by vger.kernel.org with ESMTP id S261236AbUK0HY0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 02:24:26 -0500
-X-Server-Uuid: 44418BB9-D913-4AA8-A168-EE33603A6708
-Message-ID: <2D1DF9BA9166D61188F30002B3A6E15318E4D826@ROSEEXCHMA>
-From: Daniel_Weigert@adp.com
-To: bunk@stusta.de, jpiszcz@lucidpixels.com
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Kernel 2.6.9 SCSI driver compile error w/gcc-3.4.2.
-Date: Wed, 24 Nov 2004 13:35:37 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-X-WSS-ID: 6DBA0BFC1J0721567-01-01
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Nov 2004 18:35:43.0716 (UTC) FILETIME=[68006A40:01C4D254]
+	Sat, 27 Nov 2004 01:59:54 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261304AbUKZTHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:07:17 -0500
+Date: Thu, 25 Nov 2004 12:44:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
+Message-ID: <20041125114458.GA20831@elte.hu>
+References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041124112745.GA3294@elte.hu> <21889.195.245.190.93.1101377024.squirrel@195.245.190.93> <20041125111344.GA17786@elte.hu> <4798.195.245.190.93.1101379116.squirrel@195.245.190.93>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4798.195.245.190.93.1101379116.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> SNIP <<
 
->> root@p500b:/usr/src/linux# make modules
->>   CHK     include/linux/version.h
->> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->>   CC [M]  drivers/scsi/cpqfcTScontrol.o
->> drivers/scsi/cpqfcTScontrol.c:609:2: #error This is too much stack
->> drivers/scsi/cpqfcTScontrol.c:721:2: #error This is too much stack
->> make[2]: *** [drivers/scsi/cpqfcTScontrol.o] Error 1
->>...
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
->> SNIP << 
-> It's known that some drivers do not compile and marked in the Kconfig 
-> files. But if you choose to try to compile them anyway, they don't 
-> compile.
-> cu
->Adrian
+> > how hard of a freeze is it? I.e. if you log in over the text console,
+> > and do:
+> >
+> > 	chrt -f 99 -p `pidof 'IRQ 1'`
+> > 	chrt -f 99 -p $$
+> >
+> > can you access the sysrq keys after the freeze happens?
+> 
+> The lockup is pretty hard indeed. Complete lockup. No sysrq, not even
+> any output thru serial console. The only action that has some visible
+> effect is turning the power/reset switch off :)
 
-The problem that I have with this, isn't that the driver is broken (it works
-under 2.4), It isn't labeled as broken in the menuconfig, if you choose the
-option to include the dubious drivers. Unfortunately, I do need this
-particular driver and hope someone steps up to the plate to take care of it.
+note that unless you try the above, or the debug_direct_keyboard switch,
+'soft' lockups will have the same symptoms: no sysrq, no serial console,
+an apparently hung system. So unless you've done the equivalent already,
+please try my suggestions.
 
-Dan
-
-
+	Ingo

@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284780AbRLEWhI>; Wed, 5 Dec 2001 17:37:08 -0500
+	id <S284778AbRLEWjI>; Wed, 5 Dec 2001 17:39:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284778AbRLEWg7>; Wed, 5 Dec 2001 17:36:59 -0500
-Received: from gap.cco.caltech.edu ([131.215.139.43]:25082 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S284773AbRLEWgu>; Wed, 5 Dec 2001 17:36:50 -0500
-Message-ID: <3C0E90C0.A1738C8C@monmouth.com>
-Date: Wed, 05 Dec 2001 16:25:20 -0500
-From: Dipak <dipak@monmouth.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-6.1smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Romain Giry <romain_giry@yahoo.fr>
-CC: mlist-linux-kernel@NNTP-SERVER.CALTECH.EDU
-Subject: Re: 
-In-Reply-To: <5.0.2.1.0.20011205170157.01a7ae98@pop.mail.yahoo.fr>
+	id <S284773AbRLEWi6>; Wed, 5 Dec 2001 17:38:58 -0500
+Received: from ns.caldera.de ([212.34.180.1]:40922 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S284778AbRLEWir>;
+	Wed, 5 Dec 2001 17:38:47 -0500
+Date: Wed, 5 Dec 2001 23:38:29 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: evms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: gendisk list access (was: [Evms-devel] Unresolved symbols)
+Message-ID: <20011205233829.A11547@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Kevin Corry <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <OFCE7B6713.9A6E1AF1-ON85256B02.004FB1C4@raleigh.ibm.com> <01120514525902.13647@boiler> <20011205225346.A7313@caldera.de> <01120516183303.13647@boiler>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01120516183303.13647@boiler>; from corryk@us.ibm.com on Wed, Dec 05, 2001 at 04:18:33PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 05, 2001 at 04:18:33PM -0600, Kevin Corry wrote:
+> >    a block device and a partition.
+> >
+> > Hope this helps..
+> 
+> Sounds good. Any chance you could just leave out the partitioning stuff and 
+> let EVMS handle it?
 
-Romain Giry wrote:
+You know my opinion to EVMS - so I'd rather avoid makeing it mandatory.
+But if the 2.5 actually looks then like I expect it now partitioning code
+will be much simpler than - all code dealing with ondisk formats will
+be in early, pre-mount-root userspace, based on Andries Brouwer's partx
+(part of util-linux).
 
-Hi,
+> I must have missed your walk_gendisk() patch the last time (do you remember 
+> how long ago you posted that?).
 
+It was on Nov, 12 - but it was in a private thread that only started on
+evms-devel.  So Mark was the only EVMS person that got it.  Sorry for
+the confusion.
 
-> Hi
->
-> i would like to know how the network layer does to know what is the upper
-> layer protocol in order to fill in correctly the protocol field in the
-> header it adds to the packet before sending it.
+	Christoph
 
-see, their might be either API provided by DLL (ethernet, ATM, FR etc) to
-network layer (IP, IPX etc) to sent packets over a physical device. Now, the
-Network protocol field can be passed through the API to be filled in by
-DLL header by DLL. Another case may be, DLL can easily know what's the ifIndex
-the packet is coming from. Network layer might have registration policy by
-ifIndex to DLL, which can be used now to infer Network layer protocol id.
-
-> I'm doing a ethernet device
-> that doesn't add any header to the packet but change the output device,
-> then i should say the network device that the packet is like if it has been
-> sent by the ip protocol.
-
-I didn't understand what did you mean by "ethernet device doesn't add any
-header but change the output device"? May be after you explain a bit more I
-can suggest something more.
-
-Thanks,
-Dipak
-
->
->
-> Thanks,
->
-> Romain Giry
->
-> _________________________________________________________
-> Do You Yahoo!?
-> Get your free @yahoo.com address at http://mail.yahoo.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

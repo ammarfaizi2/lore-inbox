@@ -1,47 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318222AbSIBESn>; Mon, 2 Sep 2002 00:18:43 -0400
+	id <S318224AbSIBEZx>; Mon, 2 Sep 2002 00:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318224AbSIBESn>; Mon, 2 Sep 2002 00:18:43 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:45831 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S318222AbSIBESm> convert rfc822-to-8bit;
-	Mon, 2 Sep 2002 00:18:42 -0400
-Date: Sun, 1 Sep 2002 21:21:54 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Con Kolivas <conman@kolivas.net>
-cc: =?ISO-8859-1?B?RGlldGVyIE78dHplbA==?= <Dieter.Nuetzel@hamburg.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
-In-Reply-To: <1030938156.3d72de2c231ac@kolivas.net>
-Message-ID: <Pine.LNX.4.33L2.0209012116120.22470-100000@dragon.pdx.osdl.net>
+	id <S318225AbSIBEZw>; Mon, 2 Sep 2002 00:25:52 -0400
+Received: from [61.171.132.94] ([61.171.132.94]:30492 "HELO proxy.dbtel.com.cn")
+	by vger.kernel.org with SMTP id <S318224AbSIBEZw>;
+	Mon, 2 Sep 2002 00:25:52 -0400
+Subject: ask useer space & kernel space?
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
+Message-ID: <OFBD4E93B9.FFAA208F-ON48256C28.0018D993@ares-comm.com.tw>
+From: ROBUST_WANG@ares-comm.com.tw
+Date: Mon, 2 Sep 2002 12:32:20 +0800
+X-MIMETrack: Serialize by Router on SHASVR/ARES(Release 5.0.6a |January 17, 2001) at
+ 2002/09/02 12:32:30 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Sep 2002, Con Kolivas wrote:
-
-| Quoting Dieter Nützel <Dieter.Nuetzel@hamburg.de>:
-
-snippage...
-
-| > Then I try dbench (Yes, I know Rik ;-) to see the GREAT speed of Andrea
-| > Arcangeli's -AA VM which improve noticeably with the Preemption patch.
-| > O(1) gave some additional speed, too.
-|
-| Yes, dbench is included in the many tests available at the the Open Source
-| Development Lab (osdl.org) along with many others.
-
-That makes it good, right?  8;)
-
-Actually we are going thru our workloads and trying to
-identify what they measure, what they are good for, etc.,
-so if you have feedback in this area, please give it to us,
-for the workloads that we run on each new kernel (2.5.x
-or 2.4.x-marcelo).
-
--- 
-~Randy
+Why kernel & user name space should be different from each other?
+For example:_u8,u8
+Thanks a lot!
 

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313392AbSDPP0u>; Tue, 16 Apr 2002 11:26:50 -0400
+	id <S313477AbSDPPd3>; Tue, 16 Apr 2002 11:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313401AbSDPP0t>; Tue, 16 Apr 2002 11:26:49 -0400
-Received: from waste.org ([209.173.204.2]:39860 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S313392AbSDPP0s>;
-	Tue, 16 Apr 2002 11:26:48 -0400
-Date: Tue, 16 Apr 2002 10:26:24 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        <wli@holomorphy.com>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <Pine.LNX.4.44L.0204161156330.1960-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0204161015380.3933-100000@waste.org>
+	id <S313533AbSDPPd1>; Tue, 16 Apr 2002 11:33:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20495 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313477AbSDPPdX>; Tue, 16 Apr 2002 11:33:23 -0400
+Date: Tue, 16 Apr 2002 08:30:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 36
+In-Reply-To: <Pine.LNX.4.44.0204160215570.389-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.33.0204160825160.1167-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, Rik van Riel wrote:
 
-> On Tue, 16 Apr 2002, Oliver Xymoron wrote:
-> > On Mon, 15 Apr 2002, Linus Torvalds wrote:
-> > > On Mon, 15 Apr 2002, Linus Torvalds wrote:
-> > > >
-> > > > Which requires the user to use something like
-> > > >
-> > > > 	for_each_zone(zone) {
-> > > > 		...
-> > > > 	} end_zone;
->
-> > Ugh. If we're going to use such ugly things, it would be nice if they were
-> > do_zone/while_zone instead of being suggestive of a for loop.
->
-> Ummm, it _is_ a for loop.
+On Tue, 16 Apr 2002, David Lang wrote:
+> 
+> It sounds as if you are removing this capability, am I misunderstaning you
+> or is there some other way to do this? (and duplicating the drive to use
+> dd to byteswap is not practical for 100G+)
 
-Conceptually, sure, but the underlying macros Linus suggested made it
-do/while. As the do/while form is the only control structure in C where we
-have something that looks like an expression after a block, naming it for_
-seems terribly incongruous. Naming it do_/while_ would make it slightly
-less ugly, at least to my eyes, and serve to remind that both parts are
-essential.
+Doing it with a loopback like interface at a higher level is the much 
+saner operation - I understand why Martin removed the byteswap support, 
+and agree with it 100%. It just didn't make any sense from a driver 
+standpoint.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+In fact, the byteswapping was actively incorrect, in that it swapped data 
+in-place - which means that it corrupts the data area while IO is in 
+progress. It also only works for PIO.
+
+The only reason byteswapping exists is a rather historical one: Linux did 
+the wrong thing for "insw/outsw" on big-endian architectures at one point 
+(it byteswapped the data).
+
+(Oh, and coupled with the fact that the IDE ID string is in a "big-endian"  
+word order, which may have been one more reason to add a "do byteswapped 
+IO" thing).
+
+		Linus
 

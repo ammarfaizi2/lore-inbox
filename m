@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSFEJez>; Wed, 5 Jun 2002 05:34:55 -0400
+	id <S314243AbSFEJgx>; Wed, 5 Jun 2002 05:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314082AbSFEJey>; Wed, 5 Jun 2002 05:34:54 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:35602 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314080AbSFEJey>; Wed, 5 Jun 2002 05:34:54 -0400
-Message-ID: <3CFDCD85.3010705@evision-ventures.com>
-Date: Wed, 05 Jun 2002 10:36:21 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
+	id <S314138AbSFEJgw>; Wed, 5 Jun 2002 05:36:52 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:11600 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S314082AbSFEJgv> convert rfc822-to-8bit;
+	Wed, 5 Jun 2002 05:36:51 -0400
+Message-Id: <200206050936.g559abS14499@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Kasper Dupont <kasperd@daimi.au.dk>, Pavel Machek <pavel@suse.cz>
+Subject: Re: RAID-6 support in kernel?
+Date: Wed, 5 Jun 2002 11:36:37 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Derek Vadala <derek@cynicism.com>,
+        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+        Tedd Hansen <tedd@konge.net>, Christian Vik <christian@konge.net>,
+        Lars Christian Nygaard <lars@snart.com>
+In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv> <20020604154904.J36@toy.ucw.cz> <3CFD3EE5.DAE3E2C9@daimi.au.dk>
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: device model documentation 1/3
-In-Reply-To: <Pine.LNX.4.33.0206041040090.654-100000@geena.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
->>>	int	(*bind)		(struct device * dev, struct device_driver * drv);
->>>};
->>>
->>
->>Please - Why do you call it bind? Does it have something with
->>netowrking to do? Please just name it attach. This way the old UNIX
->>guys among us won't have to drag a too big
->>"UNIX to Linux translation dictionary" around with them.
->>As an "added bonus" you will stay consistent with -
->>
->>PCMCIA code base in kernel
->>USB code base in kernel
->>IDE code base (well recently)
-> 
-> 
-> Ok, I can live with that.
+> RAID-4 on top of RAID-4 is actually just a two-dimentional
+> parity. RAID-5 on top of RAID-5 is very similar.
 
-Thanks. I know it's a bit of nit picking. But coding
-is about expressing tough and many people underestimate the
-importance of proper nomenclature for making code understandible.
-Anywy I just wonted to make sure that you know that
-I apreciate the docs and code you wrote :-).
+er. RAID-4 is as RAID-5, but with dedicated parity disk.
+RAID-6 is with two-dimentional parity
 
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.

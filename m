@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313727AbSDPP6d>; Tue, 16 Apr 2002 11:58:33 -0400
+	id <S313736AbSDPQBR>; Tue, 16 Apr 2002 12:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313731AbSDPP6d>; Tue, 16 Apr 2002 11:58:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41221 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313727AbSDPP6c>; Tue, 16 Apr 2002 11:58:32 -0400
-Subject: Re: [PATCH] 2.5.8 IDE 36
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 16 Apr 2002 17:15:49 +0100 (BST)
-Cc: vojtech@suse.cz (Vojtech Pavlik),
-        dalecki@evision-ventures.com (Martin Dalecki),
-        rgooch@ras.ucalgary.ca (Richard Gooch),
-        david.lang@digitalinsight.com (David Lang),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.33.0204160844090.1167-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 16, 2002 08:46:31 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313732AbSDPQAp>; Tue, 16 Apr 2002 12:00:45 -0400
+Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:18090 "EHLO
+	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
+	id <S313734AbSDPQAT>; Tue, 16 Apr 2002 12:00:19 -0400
+To: linux-kernel@vger.kernel.org
+Subject: periodic scsi hard disk noise due to regular flushes?
+From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
+Date: 16 Apr 2002 18:00:17 +0200
+Message-ID: <7wbscjvdke.fsf@avalon.france.sdesigns.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16xVcT-0000H9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please use a the network block device, and teach the ndb deamon to just 
-> byteswap each word.
+Hi,
 
-You need to use loop not nbd - loopback nbd can deadlock. Byteswap as a 
-new revolutionary crypto system for the loopback driver isnt hard
+my recent IBM SCSI drive (18GB IC35L018UWD210-0) connected
+to an old Adaptec AHA-2940 UW adapter make as very 
+irritating high pitched noise (as if it were parking/unparking
+his heads?) periodically with the following intervals:
 
-Alan
+1min35
+2min12
+5min03
+2min14
+1min02
+4min09
+4min14
+3min18
+1min06
+1min04
+
+It runs in ext3, journalling has commit interval set to 5sec.
+
+Does something happen in the kernel with a about 1min05 interval?
+
+Is there some way to keep it busy?
+
+My kernel is 2.4.7-10
+
+Thanks for any reply to this strange request ;-)
+
+-- 
+Emmanuel Michon
+Chef de projet
+REALmagic France SAS
+Mobile: 0614372733 GPGkeyID: D2997E42  

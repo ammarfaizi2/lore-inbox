@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292122AbSCSThi>; Tue, 19 Mar 2002 14:37:38 -0500
+	id <S292178AbSCSTjs>; Tue, 19 Mar 2002 14:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291948AbSCSTha>; Tue, 19 Mar 2002 14:37:30 -0500
-Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:35523 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S292122AbSCSThT>; Tue, 19 Mar 2002 14:37:19 -0500
-Message-ID: <070a01c1cf7d$83a67370$6caaa8c0@KPFW2K>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre3-ac2 compile error
-Date: Tue, 19 Mar 2002 12:37:32 -0700
-Organization: LSG, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S292231AbSCSTjm>; Tue, 19 Mar 2002 14:39:42 -0500
+Received: from [12.150.248.132] ([12.150.248.132]:63581 "EHLO
+	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
+	id <S292178AbSCSTjT>; Tue, 19 Mar 2002 14:39:19 -0500
+Date: Tue, 19 Mar 2002 13:38:06 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: "chiranjeevi vaka" <cvaka_kernel@yahoo.com>
+Cc: washer@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: using kmalloc
+Message-Id: <20020319133806.13a40872.reynolds@redhat.com>
+In-Reply-To: <20020319192644.9097.qmail@web21304.mail.yahoo.com>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.7.4cvs6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss of all files and data!
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="0L9oqQy=.JzMs?+l"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make
-CFLAGS="-D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno
--trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -
-mpreferred-stack-boundary=2 -march=athlon  " -C  ipc
-make[1]: Entering directory `/usr/src/linux/ipc'
-make all_targets
-make[2]: Entering directory `/usr/src/linux/ipc'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-tri
-graphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpre
-ferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=shm  -c -o shm.o
-shm.c
-shm.c: In function `sys_shmdt':
-shm.c:682: too few arguments to function `do_munmap'
-make[2]: *** [shm.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/ipc'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/ipc'
-make: *** [_dir_ipc] Error 2
+--0L9oqQy=.JzMs?+l
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Sources were 2.4.19-pre3-ac2 plus lm-sensors patches and local ide-floppy
-patches.
+Uttered "chiranjeevi vaka" <cvaka_kernel@yahoo.com>, spoke thus:
+
+>  I am trying to get something around 600 to 1000 bytes
+>  using kmalloc. This one is for some changes in TCP/IP
+>  stack. I am trying to implement a new kernel data
+>  structure in tcp layer. So can you suggest me what
+>  functionality to use to come out of that hanging.
+
+Be sure to use "kmalloc( 1000, GFP_ATOMIC )" if you don't want to block waiting
+for the memory.  Check for a NULL result, because you might not be able to get
+the memory.
+--0L9oqQy=.JzMs?+l
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAjyXk6MACgkQWEn3bOOMcuq0ngCghCnT4MYOfg76KfITH40TACBU
+19AAn3yb9/3JY9Hm06EU+h6ZUsq8uk3j
+=ysPu
+-----END PGP SIGNATURE-----
+
+--0L9oqQy=.JzMs?+l--
 

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTIPJHX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 05:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIPJHX
+	id S261817AbTIPJUk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 05:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbTIPJUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 05:07:23 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:47736 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261801AbTIPJHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 05:07:22 -0400
-Date: Tue, 16 Sep 2003 05:07:16 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, jgarzik@pobox.com
-Subject: Re: Add function attribute to copy_from_user to warn for unchecked results
-Message-ID: <20030916050716.W11756@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20030916100729.B19768@devserv.devel.redhat.com> <20030916012632.2fb67701.akpm@osdl.org>
+	Tue, 16 Sep 2003 05:20:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51355 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261817AbTIPJUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 05:20:39 -0400
+Date: Tue, 16 Sep 2003 11:20:40 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ian Hastie <ianh@iahastie.clara.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
+Message-ID: <20030916092040.GB930@suse.de>
+References: <20030910114346.025fdb59.akpm@osdl.org> <63090000.1063303982@flay> <20030911215238.GN12021@suse.de> <200309160134.28169.ianh@iahastie.local.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030916012632.2fb67701.akpm@osdl.org>; from akpm@osdl.org on Tue, Sep 16, 2003 at 01:26:32AM -0700
+In-Reply-To: <200309160134.28169.ianh@iahastie.local.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16, 2003 at 01:26:32AM -0700, Andrew Morton wrote:
-> Arjan van de Ven <arjanv@redhat.com> wrote:
+On Tue, Sep 16 2003, Ian Hastie wrote:
+> On Thursday 11 Sep 2003 22:52, Jens Axboe wrote:
+> > On Thu, Sep 11 2003, Martin J. Bligh wrote:
+> > >
+> > > Symptoms are that it required cdrecord-pro, which was a closed source
+> > > piece of turd I can't do much with ;-)
 > >
-> > Hi,
-> > 
-> > gcc 3.4 (CVS) has a new function attribute (warn_unused_result) that
-> > will make gcc spit out a warning in the event that a "marked" function's
-> > result is ignored by the caller.
+> > Surely the pro version supports open-by-device as well? And then it
+> > should work fine.
 > 
-> Nice.
+> It does.  However it also produces the same error message as cdrecord when 
+> doing so, ie
+> 
+> Warning: Open by 'devname' is unintentional and not supported.
+> 
+> The implication being that it could go away or become broken at any time.
 
-Note that for macros like get_user something like this should be used
-(as the attribute is only for functions):
+I wouldn't read anything in to that if I were you. Joerg has some mis
+guided ideas about ATAPI addressing, but he would be a fool to remove
+open by devname at this point.
 
-extern inline __must_check int check_int_result (int arg) { return arg; }
+-- 
+Jens Axboe
 
-#define get_user(x,ptr)                                                 \
-check_int_result ( ({							\
-	int __ret_gu,__val_gu;                                          \
-        switch(sizeof (*(ptr))) {                                       \
-        case 1:  __get_user_x(1,__ret_gu,__val_gu,ptr); break;          \
-        case 2:  __get_user_x(2,__ret_gu,__val_gu,ptr); break;          \
-        case 4:  __get_user_x(4,__ret_gu,__val_gu,ptr); break;          \
-        default: __get_user_x(X,__ret_gu,__val_gu,ptr); break;          \
-        }                                                               \
-        (x) = (__typeof__(*(ptr)))__val_gu;                             \
-        __ret_gu;                                                       \
-}) )
-
-	Jakub

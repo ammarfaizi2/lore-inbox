@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266855AbUFYVYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266738AbUFYV2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266855AbUFYVYa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 17:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266856AbUFYVYa
+	id S266738AbUFYV2A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 17:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266863AbUFYV2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 17:24:30 -0400
-Received: from ms1.usu.edu ([129.123.104.11]:25017 "EHLO ms1.usu.edu")
-	by vger.kernel.org with ESMTP id S266855AbUFYVY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 17:24:28 -0400
-X-WebMail-UserID: saiprathap
-Date: Fri, 25 Jun 2004 15:20:50 -0600
-From: saiprathap <saiprathap@cc.usu.edu>
-To: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00002751
-Subject: TCP-RST Vulnerability - Doubt
-Message-ID: <40DC9B00@webster.usu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+	Fri, 25 Jun 2004 17:28:00 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:59801 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266738AbUFYV16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 17:27:58 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
+Subject: Re: Collapse ext2 and 3 please
+Date: Fri, 25 Jun 2004 23:36:50 +0200
+User-Agent: KMail/1.5
+References: <40DB605D.6000409@comcast.net> <200406252252.47266.rjwysocki@sisk.pl> <6u8yeb1hwc.fsf@zork.zork.net>
+In-Reply-To: <6u8yeb1hwc.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.62
-X-USU-MailScanner-Information: Please contact the ISP for more information
-X-USU-MailScanner: Found to be clean
-X-MailScanner-From: saiprathap@cc.usu.edu
+Content-Disposition: inline
+Message-Id: <200406252336.50522.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 25 of June 2004 22:50, Sean Neakums wrote:
+> "R. J. Wysocki" <rjwysocki@sisk.pl> writes:
+> > I think that the good reason for keeping both ext* code bases in the
+> > kernel tree is that _there_ _are_ _some_ people who will need ext2 for
+> > some purposes, so why should we pull the carpet from under them?
+>
+> An ext3 that supports no-journal operation can surely register itself
+> as both ext2 and ext3 and leave userspace none the wiser.
+>
+> I don't think anybody wants to pull any carpets out from under anyone.
 
-I am a graduate research student majoring in the field of
-Computer Networking.As part of my research I have sorted out what FreeBSD has 
-done to overcome the TCP-RST vulnerability (by modifying the stack to accept 
-the RST packets only with the current + 1 sequence number and ignoring the 
-rest, even if their sequence numbers fall within the receiving window).
+Sorry, I've been too offensive.
 
-Could you kindly share your views regarding what Linux has done to its stack 
-to overcome this vulnerability as it will be of great help to my research.
+IMO, if ext2 is kept separate, the development of it may be focused on 
+different user needs than the development of ext3 is focused on.  It's worth 
+doing as long as there's someone who will prefer ext2 to ext3 and someone 
+who's interested in working on ext2 itself.  That's my point.
 
-Thanks,
-Sai Prathap
+Yours,
+rjw
 
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

@@ -1,364 +1,229 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265621AbTFXBuz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 21:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265623AbTFXBuy
+	id S265624AbTFXCBO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 22:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbTFXCBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 21:50:54 -0400
-Received: from dm1-36.slc.aros.net ([66.219.220.36]:46733 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S265621AbTFXBur (ORCPT
+	Mon, 23 Jun 2003 22:01:14 -0400
+Received: from dp.samba.org ([66.70.73.150]:7405 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265624AbTFXCBF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 21:50:47 -0400
-Message-ID: <3EF7B1C1.5040502@aros.net>
-Date: Mon, 23 Jun 2003 20:04:49 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: [PATCH] nbd driver for 2.5+: enhanced diagnostics support
-Content-Type: multipart/mixed;
- boundary="------------030606070001080608050208"
+	Mon, 23 Jun 2003 22:01:05 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, corbet@lwn.net
+Subject: [PATCH] Delete redundant init_module and cleanup_module prototypes.
+Date: Tue, 24 Jun 2003 12:13:27 +1000
+Message-Id: <20030624021513.77AF32C0B4@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030606070001080608050208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Linus, please apply.
 
-This third patch (for enhancing diagnostics support) applies 
-incrementally after my last LKML'd patch (for cosmetic changes). These 
-changes introduce configurable KERN_DEBUG level printk output for a 
-variety of different things that the driver does and provides the 
-framework for enhanced future debugging support as well.
+A few places pre-declare "int module_init(void);" and "void
+module_cleanup(void);".  Other than being obsolete, this is
+unneccessary (it's in init.h anyway).
 
-As always, comments welcome!
+There are still about 100 places which still use the
+obsolete-since-2.2 "a function named module_init() magically gets
+called": this change frees us up implement that via a macro.
 
---------------030606070001080608050208
-Content-Type: text/plain;
- name="nbd-patch3"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nbd-patch3"
+Name: Delete redundant init_module and cleanup_module prototypes.
+Author: Rusty Russell
+Status: Trivial
 
-diff -urN linux-2.5.72-p2.5/drivers/block/nbd.c linux-2.5.73-p3/drivers/block/nbd.c
---- linux-2.5.72-p2.5/drivers/block/nbd.c	2003-06-22 23:25:14.000000000 -0600
-+++ linux-2.5.73-p3/drivers/block/nbd.c	2003-06-23 19:25:18.013178790 -0600
-@@ -32,6 +32,7 @@
-  *   memory corruption from module removal and possible memory corruption
-  *   from sending/receiving disk data. <ldl@aros.net>
-  * 03-06-23 Cosmetic changes. <ldl@aros.net>
-+ * 03-06-23 Enhance diagnostics support. <ldl@aros.net>
-  *
-  * possible FIXME: make set_sock / set_blksize / set_size / do_it one syscall
-  * why not: would need verify_area and friends, would share yet another 
-@@ -65,6 +66,23 @@
+D: A few places pre-declare "int module_init(void);" and "void
+D: module_cleanup(void);".  Other than being obsolete, this is
+D: unneccessary (it's in init.h anyway).
+D: 
+D: There are still about 100 places which still use the
+D: obsolete-since-2.2 "a function named module_init() magically gets
+D: called": this change frees us up implement that via a macro.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c
+--- .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c	2003-05-05 12:36:58.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c	2003-06-24 11:43:58.000000000 +1000
+@@ -222,9 +222,6 @@ MODULE_PARM(drive3, "1-7i");
+ #define ATAPI_READ_10		0x28
+ #define ATAPI_WRITE_10		0x2a
  
- #define LO_MAGIC 0x68797548
- 
-+#ifdef NDEBUG
-+#define dprintk(flags, fmt...)
-+#else /* NDEBUG */
-+#define dprintk(flags, fmt...) do { \
-+	if (debugflags & (flags)) printk(KERN_DEBUG fmt); \
-+} while (0)
-+#define DBG_OPEN        0x0001
-+#define DBG_RELEASE     0x0002
-+#define DBG_IOCTL       0x0004
-+#define DBG_INIT        0x0010
-+#define DBG_EXIT        0x0020
-+#define DBG_BLKDEV      0x0100
-+#define DBG_RX          0x0200
-+#define DBG_TX          0x0400
-+static unsigned int debugflags;
-+#endif /* NDEBUG */
-+
- static struct nbd_device nbd_dev[MAX_NBD];
- 
- /*
-@@ -79,19 +97,49 @@
+-#ifdef MODULE
+-void cleanup_module(void);
+-#endif
+ static int pf_open(struct inode *inode, struct file *file);
+ static void do_pf_request(request_queue_t * q);
+ static int pf_ioctl(struct inode *inode, struct file *file,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/istallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c
+--- .11903-linux-2.5.73-bk1/drivers/char/istallion.c	2003-06-15 11:29:51.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c	2003-06-24 11:43:58.000000000 +1000
+@@ -650,8 +650,6 @@ static unsigned int	stli_baudrates[] = {
   */
- static spinlock_t nbd_lock = SPIN_LOCK_UNLOCKED;
  
--#define DEBUG( s )
--/* #define DEBUG( s ) printk( s ) 
+ #ifdef MODULE
+-int		init_module(void);
+-void		cleanup_module(void);
+ static void	stli_argbrds(void);
+ static int	stli_parsebrd(stlconf_t *confp, char **argp);
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/moxa.c .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c
+--- .11903-linux-2.5.73-bk1/drivers/char/moxa.c	2003-06-23 10:52:46.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c	2003-06-24 11:43:58.000000000 +1000
+@@ -216,10 +216,7 @@ static struct timer_list moxaEmptyTimer[
+ static struct semaphore moxaBuffSem;
+ 
+ int moxa_init(void);
+-#ifdef MODULE
+-int init_module(void);
+-void cleanup_module(void);
+-#endif
++
+ /*
+  * static functions:
+  */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h
+--- .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h	2003-05-27 15:02:08.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h	2003-06-24 11:43:58.000000000 +1000
+@@ -32,10 +32,6 @@ int button_init (void);
+ int button_add_callback (void (*callback) (void), int count);
+ int button_del_callback (void (*callback) (void));
+ static void button_consume_callbacks (int bpcount);
+-#ifdef MODULE
+-int init_module (void);
+-void cleanup_module (void);
+-#endif /* MODULE */
+ 
+ #else /* Not compiling the driver itself */
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/pcxx.c .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c
+--- .11903-linux-2.5.73-bk1/drivers/char/pcxx.c	2003-06-15 11:29:51.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c	2003-06-24 11:50:28.000000000 +1000
+@@ -209,17 +209,9 @@ static void cleanup_board_resources(void
+ 
+ #ifdef MODULE
+ 
+-/*
+- * pcxe_init() is our init_module():
 - */
+-#define pcxe_init init_module
 -
- static int requests_in;
- static int requests_out;
+-void	cleanup_module(void);
+-
+-
+ /*****************************************************************************/
  
-+#ifndef NDEBUG
-+static const char *ioctl_cmd_to_ascii(int cmd)
-+{
-+	switch (cmd) {
-+	case NBD_SET_SOCK: return "set-sock";
-+	case NBD_SET_BLKSIZE: return "set-blksize";
-+	case NBD_SET_SIZE: return "set-size";
-+	case NBD_DO_IT: return "do-it";
-+	case NBD_CLEAR_SOCK: return "clear-sock";
-+	case NBD_CLEAR_QUE: return "clear-que";
-+	case NBD_PRINT_DEBUG: return "print-debug";
-+	case NBD_SET_SIZE_BLOCKS: return "set-size-blocks";
-+	case NBD_DISCONNECT: return "disconnect";
-+	case BLKROSET: return "set-read-only";
-+	case BLKROGET: return "get-read-only";
-+	case BLKGETSIZE: return "block-get-size";
-+	case BLKFLSBUF: return "flush-buffer-cache";
-+	}
-+	return "unknown";
-+}
-+
-+static const char *nbdcmd_to_ascii(int cmd)
-+{
-+	switch (cmd) {
-+	case  NBD_CMD_READ: return "read";
-+	case NBD_CMD_WRITE: return "write";
-+	case  NBD_CMD_DISC: return "disconnect";
-+	}
-+	return "invalid";
-+}
-+#endif /* NDEBUG */
-+
- static void nbd_end_request(struct request *req)
+-void cleanup_module()
++static void pcxe_cleanup()
  {
- 	int uptodate = (req->errors == 0) ? 1 : 0;
- 	request_queue_t *q = req->q;
- 	unsigned long flags;
  
-+	dprintk(DBG_BLKDEV, "%s: request %p: %s\n", req->rq_disk->disk_name,
-+			req, uptodate? "done": "failed");
- #ifdef PARANOIA
- 	requests_out++;
+ 	unsigned long	flags;
+@@ -240,6 +232,12 @@ void cleanup_module()
+ 	kfree(digi_channels);
+ 	restore_flags(flags);
+ }
++
++/*
++ * pcxe_init() is our init_module():
++ */
++module_init(pcxe_init);
++module_cleanup(pcxe_cleanup);
  #endif
-@@ -193,8 +241,6 @@
- 	unsigned long size = req->nr_sectors << 9;
- 	struct socket *sock = lo->sock;
  
--	DEBUG("nbd: sending control, ");
--	
- 	request.magic = htonl(NBD_REQUEST_MAGIC);
- 	request.type = htonl(nbd_cmd(req));
- 	request.from = cpu_to_be64((u64) req->sector << 9);
-@@ -204,15 +250,19 @@
- 	down(&lo->tx_lock);
+ static inline struct channel *chan(register struct tty_struct *tty)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/stallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c
+--- .11903-linux-2.5.73-bk1/drivers/char/stallion.c	2003-06-15 11:29:52.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c	2003-06-24 11:43:58.000000000 +1000
+@@ -472,8 +472,6 @@ static unsigned int	stl_baudrates[] = {
+  */
  
- 	if (!sock || !lo->sock) {
--		printk(KERN_ERR "%s: Attempted sendmsg to closed socket\n",
-+		printk(KERN_ERR "%s: Attempted send on closed socket\n",
- 				lo->disk->disk_name);
- 		goto error_out;
- 	}
+ #ifdef MODULE
+-int		init_module(void);
+-void		cleanup_module(void);
+ static void	stl_argbrds(void);
+ static int	stl_parsebrd(stlconf_t *confp, char **argp);
  
-+	dprintk(DBG_TX, "%s: request %p: sending control (%s@%llu,%luB)\n",
-+			lo->disk->disk_name, req,
-+			nbdcmd_to_ascii(nbd_cmd(req)),
-+			req->sector << 9, req->nr_sectors << 9);
- 	result = sock_xmit(sock, 1, &request, sizeof(request),
- 			(nbd_cmd(req) == NBD_CMD_WRITE)? MSG_MORE: 0);
- 	if (result <= 0) {
--		printk(KERN_ERR "%s: Sendmsg failed for control (result %d)\n",
-+		printk(KERN_ERR "%s: Send control failed (result %d)\n",
- 				lo->disk->disk_name, result);
- 		goto error_out;
- 	}
-@@ -229,7 +279,9 @@
- 				flags = 0;
- 				if ((i < (bio->bi_vcnt - 1)) || bio->bi_next)
- 					flags = MSG_MORE;
--				DEBUG("data, ");
-+				dprintk(DBG_TX, "%s: request %p: sending %d bytes data\n",
-+						lo->disk->disk_name, req,
-+						bvec->bv_len);
- 				result = sock_send_bvec(sock, bvec, flags);
- 				if (result <= 0) {
- 					printk(KERN_ERR "%s: Send data failed (result %d)\n",
-@@ -287,56 +339,59 @@
- 	struct request *req;
- 	struct socket *sock = lo->sock;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c
+--- .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c	2003-06-15 11:29:56.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c	2003-06-24 11:43:58.000000000 +1000
+@@ -160,10 +160,6 @@
  
--	DEBUG("reading control, ");
- 	reply.magic = 0;
- 	result = sock_xmit(sock, 0, &reply, sizeof(reply), MSG_WAITALL);
- 	if (result <= 0) {
--		printk(KERN_ERR "%s: Recv control failed (result %d)\n",
-+		printk(KERN_ERR "%s: Receive control failed (result %d)\n",
- 				lo->disk->disk_name, result);
- 		lo->harderror = result;
- 		return NULL;
- 	}
- 	req = nbd_find_request(lo, reply.handle);
- 	if (req == NULL) {
--		printk(KERN_ERR "%s: Unexpected reply (result %d)\n",
--				lo->disk->disk_name, result);
-+		printk(KERN_ERR "%s: Unexpected reply (%p)\n",
-+				lo->disk->disk_name, reply.handle);
- 		lo->harderror = result;
- 		return NULL;
- 	}
+ /****** Function Prototypes *************************************************/
  
--	DEBUG("ok, ");
--	if (ntohl(reply.magic) != NBD_REPLY_MAGIC) {
--		printk(KERN_ERR "%s: Not enough magic (result %d)\n",
--				lo->disk->disk_name, result);
-+	reply.magic = ntohl(reply.magic);
-+	if (reply.magic != NBD_REPLY_MAGIC) {
-+		printk(KERN_ERR "%s: Wrong magic (0x%lx)\n",
-+				lo->disk->disk_name,
-+				(unsigned long)reply.magic);
- 		lo->harderror = result;
- 		return NULL;
- 	}
--	if (ntohl(reply.error)) {
--		printk(KERN_ERR "%s: Other side returned error (result %d)\n",
--				lo->disk->disk_name, result);
-+	reply.error = ntohl(reply.error);
-+	if (reply.error) {
-+		printk(KERN_ERR "%s: Other side returned error (%d)\n",
-+				lo->disk->disk_name, reply.error);
- 		req->errors++;
- 		return req;
- 	}
+-/* Module entry points. These are called by the OS and must be public. */
+-int init_module (void);
+-void cleanup_module (void);
+-
+ /* Hardware-specific functions */
+ static int sdla_detect	(sdlahw_t* hw);
+ static int sdla_autodpm	(sdlahw_t* hw);
+@@ -325,11 +321,7 @@ static int pci_slot_ar[MAX_S514_CARDS];
+  * Context:	process
+  */
  
-+	dprintk(DBG_RX, "%s: request %p: got reply\n",
-+			lo->disk->disk_name, req);
- 	if (nbd_cmd(req) == NBD_CMD_READ) {
- 		int i;
- 		struct bio *bio;
--		DEBUG("data, ");
- 		rq_for_each_bio(bio, req) {
- 			struct bio_vec *bvec;
- 			bio_for_each_segment(bvec, bio, i) {
- 				result = sock_recv_bvec(sock, bvec);
- 				if (result <= 0) {
--					printk(KERN_ERR "%s: Recv data failed (result %d)\n",
-+					printk(KERN_ERR "%s: Receive data failed (result %d)\n",
- 							lo->disk->disk_name,
- 							result);
- 					lo->harderror = result;
- 					return NULL;
- 				}
-+				dprintk(DBG_RX, "%s: request %p: got %d bytes data\n",
-+					lo->disk->disk_name, req, bvec->bv_len);
- 			}
- 		}
- 	}
--	DEBUG("done.\n");
- 	return req;
- }
- 
-@@ -347,7 +402,7 @@
- 	BUG_ON(lo->magic != LO_MAGIC);
- 	while ((req = nbd_read_stat(lo)) != NULL)
- 		nbd_end_request(req);
--	printk(KERN_ALERT "%s: req should never be null\n",
-+	printk(KERN_NOTICE "%s: req should never be null\n",
- 			lo->disk->disk_name);
- 	return;
- }
-@@ -388,6 +443,8 @@
- 		struct nbd_device *lo;
- 
- 		blkdev_dequeue_request(req);
-+		dprintk(DBG_BLKDEV, "%s: request %p: dequeued (flags=%lx)\n",
-+				req->rq_disk->disk_name, req, req->flags);
- 
- 		if (!(req->flags & REQ_CMD))
- 			goto error_out;
-@@ -431,7 +488,7 @@
- 		nbd_send_req(lo, req);
- 
- 		if (req->errors) {
--			printk(KERN_ERR "%s: nbd_send_req failed\n",
-+			printk(KERN_ERR "%s: Request send failed\n",
- 					lo->disk->disk_name);
- 			spin_lock(&lo->queue_lock);
- 			list_del_init(&req->queuelist);
-@@ -456,6 +513,9 @@
- static int nbd_open(struct inode *inode, struct file *file)
+-#ifdef MODULE
+-int init_module (void)
+-#else
+ int sdladrv_init(void)
+-#endif
  {
- 	struct nbd_device *lo = inode->i_bdev->bd_disk->private_data;
-+
-+	dprintk(DBG_OPEN, "%s: %s refcnt=%d\n", lo->disk->disk_name,
-+			__FUNCTION__, lo->refcnt);
- 	lo->refcnt++;
- 	return 0;
- }
-@@ -463,10 +523,13 @@
- static int nbd_release(struct inode *inode, struct file *file)
+ 	int i=0;
+ 
+@@ -354,9 +346,12 @@ int sdladrv_init(void)
+  * Module 'remove' entry point.
+  * o release all remaining system resources
+  */
+-void cleanup_module (void)
++static void sdladrv_cleanup(void)
  {
- 	struct nbd_device *lo = inode->i_bdev->bd_disk->private_data;
-+
- 	if (lo->refcnt <= 0)
- 		printk(KERN_ALERT "%s: %s: refcount(%d) <= 0\n",
- 				lo->disk->disk_name, __FUNCTION__, lo->refcnt);
- 	lo->refcnt--;
-+	dprintk(DBG_RELEASE, "%s: %s refcnt=%d\n", lo->disk->disk_name,
-+			__FUNCTION__, lo->refcnt);
- 	/* N.B. Doesn't lo->file need an fput?? */
- 	return 0;
  }
-@@ -479,6 +542,8 @@
- 	struct request sreq ;
++
++module_init(sdladrv_init);
++module_cleanup(sdladrv_cleanup);
+ #endif
  
- 	/* Anyone capable of this syscall can do *real bad* things */
-+	dprintk(DBG_IOCTL, "%s: %s cmd=%s(0x%x) arg=%lu\n", lo->disk->disk_name,
-+			__FUNCTION__, ioctl_cmd_to_ascii(cmd), cmd, arg);
+ /******* Kernel APIs ********************************************************/
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c
+--- .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c	2003-05-27 15:02:12.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c	2003-06-24 11:43:58.000000000 +1000
+@@ -177,10 +177,6 @@ static void dbg_kfree(void * v, int line
+ extern void disable_irq(unsigned int);
+ extern void enable_irq(unsigned int);
+  
+-/* Module entry points */
+-int init_module (void);
+-void cleanup_module (void);
+-
+ /* WAN link driver entry points */
+ static int setup(struct wan_device* wandev, wandev_conf_t* conf);
+ static int shutdown(struct wan_device* wandev);
+@@ -246,11 +242,7 @@ static int wanpipe_bh_critical=0;
+  * Context:	process
+  */
+  
+-#ifdef MODULE
+-int init_module (void)
+-#else
+ int wanpipe_init(void)
+-#endif
+ {
+ 	int cnt, err = 0;
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
-@@ -487,6 +552,8 @@
- 	        printk(KERN_INFO "%s: NBD_DISCONNECT\n", lo->disk->disk_name);
- 		sreq.flags = REQ_SPECIAL;
- 		nbd_cmd(&sreq) = NBD_CMD_DISC;
-+		sreq.sector = 0;
-+		sreq.nr_sectors = 0;
-                 if (!lo->sock)
- 			return -EINVAL;
-                 nbd_send_req(lo, &sreq);
-@@ -607,7 +674,7 @@
+@@ -313,7 +305,7 @@ int wanpipe_init(void)
+  * o unregister all adapters from the WAN router
+  * o release all remaining system resources
+  */
+-void cleanup_module (void)
++static void wanpipe_cleanup(void)
+ {
  	int i;
  
- 	if (sizeof(struct nbd_request) != 28) {
--		printk(KERN_CRIT "Sizeof nbd_request needs to be 28 in order to work!\n" );
-+		printk(KERN_CRIT "nbd: Sizeof nbd_request needs to be 28 in order to work!\n" );
- 		return -EIO;
- 	}
- 
-@@ -633,9 +700,10 @@
- 		err = -EIO;
- 		goto out;
- 	}
--#ifdef MODULE
--	printk("nbd: registered device at major %d\n", NBD_MAJOR);
--#endif
-+
-+	printk(KERN_INFO "nbd: registered device at major %d\n", NBD_MAJOR);
-+	dprintk(DBG_INIT, "nbd: debugflags=0x%x\n", debugflags);
-+
- 	devfs_mk_dir("nbd");
- 	for (i = 0; i < MAX_NBD; i++) {
- 		struct gendisk *disk = nbd_dev[i].disk;
-@@ -685,9 +753,7 @@
- 	}
- 	devfs_remove("nbd");
- 	unregister_blkdev(NBD_MAJOR, "nbd");
--#ifdef MODULE
--	printk("nbd: unregistered device at major %d\n", NBD_MAJOR);
--#endif
-+	printk(KERN_INFO "nbd: unregistered device at major %d\n", NBD_MAJOR);
+@@ -329,6 +321,8 @@ void cleanup_module (void)
+ 	printk(KERN_INFO "\nwanpipe: WANPIPE Modules Unloaded.\n");
  }
  
- module_init(nbd_init);
-@@ -696,4 +762,7 @@
- MODULE_DESCRIPTION("Network Block Device");
- MODULE_LICENSE("GPL");
++module_init(wanpipe_init);
++module_exit(wanpipe_cleanup);
+ #endif
  
--
-+#ifndef NDEBUG
-+MODULE_PARM(debugflags, "i");
-+MODULE_PARM_DESC(debugflags, "flags for controlling debug output");
-+#endif
-
---------------030606070001080608050208--
-
+ /******* WAN Device Driver Entry Points *************************************/
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

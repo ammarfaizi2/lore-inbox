@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265834AbTF3J7d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 05:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265838AbTF3J7d
+	id S265824AbTF3J5a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 05:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbTF3J5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 05:59:33 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:26343 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265834AbTF3J6r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 05:58:47 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
+	Mon, 30 Jun 2003 05:57:30 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:19219 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265824AbTF3J5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 05:57:20 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrew Morton <akpm@digeo.com>
 Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-Date: Mon, 30 Jun 2003 20:16:21 +1000
+Date: Mon, 30 Jun 2003 12:10:06 +0200
 User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-References: <200306291457.40524.kernel@kolivas.org> <5.2.0.9.2.20030630094946.00cfb000@pop.gmx.net>
-In-Reply-To: <5.2.0.9.2.20030630094946.00cfb000@pop.gmx.net>
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org,
+       felipe_alfaro@linuxmail.org, zwane@linuxpower.ca, efault@gmx.de
+References: <200306281516.12975.kernel@kolivas.org> <200306301135.37960.m.c.p@wolk-project.de> <20030630024749.77be1d6d.akpm@digeo.com>
+In-Reply-To: <20030630024749.77be1d6d.akpm@digeo.com>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200306301207.27585.m.c.p@wolk-project.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306302016.21123.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jun 2003 17:57, Mike Galbraith wrote:
-> Greetings,
->
-> At 03:35 PM 6/30/2003 +1000, Con Kolivas wrote:
-> >Summary:
-> >A patch to reduce audio skipping and X jerking under load.
->
-> I took it out for a quick spin.  It kills thud graveyard dead.  That's the
-> good news, now for the bad ;-)  With a make -j5 running, kasteroids
-> stutters enough to be pretty annoying.  The patched kernel is making
-> booboos wrt cc1's priority often enough to nail kasteroids pretty
-> hard.  The mouse pointer also jerks around quite a bit,...
+On Monday 30 June 2003 11:47, Andrew Morton wrote:
 
-Consider it not optimised yet. The workings are still evolving but are now 
-close. It errs on the too-easy to get a bonus in the early ms after an app 
-has started at the moment.
+Hi Andrew,
 
->
-> >It's looking seriously like I'm talking to myelf here, but just in case
-> > there are lurkers testing this patch, there's a big bug that made it
-> > think jiffy wraparound was occurring so interactive tasks weren't
-> > receiving the boost they deserved. Here is a patch with the fix in.
-> >
-> >How to use if you're still thinking of testing:
-> >Use with Hz 1000, and use the granularity patch I posted as well for
-> >smoothing
-> >X off.
->
-> ...but I'm not using that, because I wanted to see the pure effects of this
-> patch.
+> >  "make -j16 bzImage modules" of a 2.5.73-mm2 tree makes XMMS skip easily
+> Well it would.   Try not to do that.  We shouldn't optimise
+> for things which basically nobody would do.
+> `make -j2' would be more interesting.
+Well, it shouldn't *imho*. And it is possible. Currently I am running 
+2.4.20-wolk4.3 and I do "make -j32 bzImage modules" and I cannot make XMMS 
+skip doesn't matter what I do, it is not possible. Even X is smooth, kmail 
+does not freeze, an Xterm needs ~4 seconds to open.
 
-Good point. If it's going to be developed properly it should only include what 
-is likely to be used with it.
+My tree uses the O(1) from Andrea including the fixes.
 
-Con
+Now I've tried your suggestion, "make -j2" with .73-mm2 + the mentioned 
+patches. Three skips during the whole compilation (bzImage modules).
+
+ciao, Marc
 

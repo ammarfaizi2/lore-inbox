@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315466AbSEHAS1>; Tue, 7 May 2002 20:18:27 -0400
+	id <S315463AbSEHATe>; Tue, 7 May 2002 20:19:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315467AbSEHAS0>; Tue, 7 May 2002 20:18:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61602 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315466AbSEHAS0>;
-	Tue, 7 May 2002 20:18:26 -0400
-Date: Tue, 07 May 2002 17:06:21 -0700 (PDT)
-Message-Id: <20020507.170621.93600738.davem@redhat.com>
-To: colin@gibbs.dhs.org
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: bug in fork failure path?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1019178622.25887.630.camel@monolith>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S315467AbSEHATc>; Tue, 7 May 2002 20:19:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26889 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315463AbSEHATb>; Tue, 7 May 2002 20:19:31 -0400
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 8 May 2002 01:37:38 +0100 (BST)
+Cc: ionut@cs.columbia.edu (Ion Badulescu), linux-kernel@vger.kernel.org
+In-Reply-To: <2658.1020816607@ocs3.intra.ocs.com.au> from "Keith Owens" at May 08, 2002 10:10:07 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E175FSc-0000WQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Colin Gibbs <colin@gibbs.dhs.org>
-   Date: 18 Apr 2002 20:10:22 -0500
-   
-   Can we move the init_new_context to just after the mm_init call? Works
-   nicely on sparc. Most archs have a fairly trivial init_new_context
-   anyway. 
+> >- I think looking for kgcc before gcc is a bad idea. If you really
+> >want something like that, make it look for kgcc-2.5 instead.
+> 
+> That came from one of the -ac trees.  No matter which order I use,
+> somebody will want a different order and complain.  At least kbuild 2.5
+> tells you what it is using, instead of silently defaulting to an
+> unexpected value.
 
-I've put this fix into my trees to make sure it doesn't get
-lost.  Thanks for spotting it.
+For 2.2 - for 2.4 using kgcc generally gets you egcs-1.1.2 which tends
+to be a bad idea, and for 2.5 its a no go. I'd drop the kgcc search.
+
+Alan

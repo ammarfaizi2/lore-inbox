@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129410AbQKVI4F>; Wed, 22 Nov 2000 03:56:05 -0500
+	id <S129538AbQKVI4Q>; Wed, 22 Nov 2000 03:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbQKVIzz>; Wed, 22 Nov 2000 03:55:55 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:36763 "EHLO
+	id <S129868AbQKVI4F>; Wed, 22 Nov 2000 03:56:05 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:38299 "EHLO
 	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S129410AbQKVIzn>; Wed, 22 Nov 2000 03:55:43 -0500
+	id <S129538AbQKVIzs>; Wed, 22 Nov 2000 03:55:48 -0500
 To: linux-kernel@vger.kernel.org
 Subject: Kernel bits
-Message-ID: <974881541.3a1b830585e86@rumms.uni-mannheim.de>
-Date: Wed, 22 Nov 2000 09:25:41 +0100 (MET)
+Message-ID: <974881546.3a1b830ae5202@rumms.uni-mannheim.de>
+Date: Wed, 22 Nov 2000 09:25:46 +0100 (MET)
 From: 64738 <schwung@rumms.uni-mannheim.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII

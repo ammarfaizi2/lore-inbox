@@ -1,211 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbVAUVxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbVAUVxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262523AbVAUVxK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVAUVvE
+	id S262526AbVAUVxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVAUVvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:51:04 -0500
-Received: from waste.org ([216.27.176.166]:27097 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262528AbVAUVlT (ORCPT
+	Fri, 21 Jan 2005 16:51:53 -0500
+Received: from waste.org ([216.27.176.166]:27609 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262529AbVAUVlT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 21 Jan 2005 16:41:19 -0500
-Date: Fri, 21 Jan 2005 15:41:06 -0600
+Date: Fri, 21 Jan 2005 15:41:07 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3.314297600@selenic.com>
-Message-Id: <4.314297600@selenic.com>
-Subject: [PATCH 3/12] random pt4: Kill the SHA variants
+In-Reply-To: <7.314297600@selenic.com>
+Message-Id: <8.314297600@selenic.com>
+Subject: [PATCH 7/12] random pt4: Update cryptolib to use SHA fro lib
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kill the unrolled SHA variants, they're unused and duplicate code in
-cryptoapi.
+Drop the cryptolib SHA implementation and use the faster and much
+smaller SHA implementation from lib/. Saves about 5K. This also saves
+time by doing one memset per update call rather than one per SHA
+block.
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: rnd2/drivers/char/random.c
+Index: rnd2/crypto/sha1.c
 ===================================================================
---- rnd2.orig/drivers/char/random.c	2005-01-20 12:22:16.709058715 -0800
-+++ rnd2/drivers/char/random.c	2005-01-20 12:28:27.979725732 -0800
-@@ -698,9 +698,6 @@
- #define EXTRACT_SIZE 10
- #define HASH_EXTRA_SIZE 80
- 
--/* Various size/speed tradeoffs are available.  Choose 0..3. */
--#define SHA_CODE_SIZE 0
--
- /*
-  * SHA transform algorithm, taken from code written by Peter Gutmann,
-  * and placed in the public domain.
-@@ -720,9 +717,6 @@
- #define K3  0x8F1BBCDCL			/* Rounds 40-59: sqrt(5) * 2^30 */
- #define K4  0xCA62C1D6L			/* Rounds 60-79: sqrt(10) * 2^30 */
- 
--#define subRound(a, b, c, d, e, f, k, data) \
--    (e += rol32(a, 5) + f(b, c, d) + k + data, b = rol32(b, 30))
--
- static void sha_transform(__u32 digest[85], __u32 const data[16])
- {
- 	__u32 A, B, C, D, E;     /* Local vars */
-@@ -750,11 +744,6 @@
- 	E = digest[ 4 ];
- 
- 	/* Heavy mangling, in 4 sub-rounds of 20 iterations each. */
--#if SHA_CODE_SIZE == 0
--	/*
--	 * Approximately 50% of the speed of the largest version, but
--	 * takes up 1/16 the space.  Saves about 6k on an i386 kernel.
--	 */
- 	for (i = 0; i < 80; i++) {
- 		if (i < 40) {
- 			if (i < 20)
-@@ -770,139 +759,6 @@
- 		TEMP += rol32(A, 5) + E + W[i];
- 		E = D; D = C; C = rol32(B, 30); B = A; A = TEMP;
- 	}
--#elif SHA_CODE_SIZE == 1
--	for (i = 0; i < 20; i++) {
--		TEMP = f1(B, C, D) + K1 + rol32(A, 5) + E + W[i];
--		E = D; D = C; C = rol32(B, 30); B = A; A = TEMP;
--	}
--	for (; i < 40; i++) {
--		TEMP = f2(B, C, D) + K2 + rol32(A, 5) + E + W[i];
--		E = D; D = C; C = rol32(B, 30); B = A; A = TEMP;
--	}
--	for (; i < 60; i++) {
--		TEMP = f3(B, C, D) + K3 + rol32(A, 5) + E + W[i];
--		E = D; D = C; C = rol22(B, 30); B = A; A = TEMP;
--	}
--	for (; i < 80; i++) {
--		TEMP = f4(B, C, D) + K4 + rol32(A, 5) + E + W[i];
--		E = D; D = C; C = rol32(B, 30); B = A; A = TEMP;
--	}
--#elif SHA_CODE_SIZE == 2
--	for (i = 0; i < 20; i += 5) {
--		subRound(A, B, C, D, E, f1, K1, W[i  ]);
--		subRound(E, A, B, C, D, f1, K1, W[i+1]);
--		subRound(D, E, A, B, C, f1, K1, W[i+2]);
--		subRound(C, D, E, A, B, f1, K1, W[i+3]);
--		subRound(B, C, D, E, A, f1, K1, W[i+4]);
--	}
--	for (; i < 40; i += 5) {
--		subRound(A, B, C, D, E, f2, K2, W[i  ]);
--		subRound(E, A, B, C, D, f2, K2, W[i+1]);
--		subRound(D, E, A, B, C, f2, K2, W[i+2]);
--		subRound(C, D, E, A, B, f2, K2, W[i+3]);
--		subRound(B, C, D, E, A, f2, K2, W[i+4]);
--	}
--	for (; i < 60; i += 5) {
--		subRound(A, B, C, D, E, f3, K3, W[i  ]);
--		subRound(E, A, B, C, D, f3, K3, W[i+1]);
--		subRound(D, E, A, B, C, f3, K3, W[i+2]);
--		subRound(C, D, E, A, B, f3, K3, W[i+3]);
--		subRound(B, C, D, E, A, f3, K3, W[i+4]);
--	}
--	for (; i < 80; i += 5) {
--		subRound(A, B, C, D, E, f4, K4, W[i  ]);
--		subRound(E, A, B, C, D, f4, K4, W[i+1]);
--		subRound(D, E, A, B, C, f4, K4, W[i+2]);
--		subRound(C, D, E, A, B, f4, K4, W[i+3]);
--		subRound(B, C, D, E, A, f4, K4, W[i+4]);
--	}
--#elif SHA_CODE_SIZE == 3 /* Really large version */
--	subRound(A, B, C, D, E, f1, K1, W[ 0]);
--	subRound(E, A, B, C, D, f1, K1, W[ 1]);
--	subRound(D, E, A, B, C, f1, K1, W[ 2]);
--	subRound(C, D, E, A, B, f1, K1, W[ 3]);
--	subRound(B, C, D, E, A, f1, K1, W[ 4]);
--	subRound(A, B, C, D, E, f1, K1, W[ 5]);
--	subRound(E, A, B, C, D, f1, K1, W[ 6]);
--	subRound(D, E, A, B, C, f1, K1, W[ 7]);
--	subRound(C, D, E, A, B, f1, K1, W[ 8]);
--	subRound(B, C, D, E, A, f1, K1, W[ 9]);
--	subRound(A, B, C, D, E, f1, K1, W[10]);
--	subRound(E, A, B, C, D, f1, K1, W[11]);
--	subRound(D, E, A, B, C, f1, K1, W[12]);
--	subRound(C, D, E, A, B, f1, K1, W[13]);
--	subRound(B, C, D, E, A, f1, K1, W[14]);
--	subRound(A, B, C, D, E, f1, K1, W[15]);
--	subRound(E, A, B, C, D, f1, K1, W[16]);
--	subRound(D, E, A, B, C, f1, K1, W[17]);
--	subRound(C, D, E, A, B, f1, K1, W[18]);
--	subRound(B, C, D, E, A, f1, K1, W[19]);
--
--	subRound(A, B, C, D, E, f2, K2, W[20]);
--	subRound(E, A, B, C, D, f2, K2, W[21]);
--	subRound(D, E, A, B, C, f2, K2, W[22]);
--	subRound(C, D, E, A, B, f2, K2, W[23]);
--	subRound(B, C, D, E, A, f2, K2, W[24]);
--	subRound(A, B, C, D, E, f2, K2, W[25]);
--	subRound(E, A, B, C, D, f2, K2, W[26]);
--	subRound(D, E, A, B, C, f2, K2, W[27]);
--	subRound(C, D, E, A, B, f2, K2, W[28]);
--	subRound(B, C, D, E, A, f2, K2, W[29]);
--	subRound(A, B, C, D, E, f2, K2, W[30]);
--	subRound(E, A, B, C, D, f2, K2, W[31]);
--	subRound(D, E, A, B, C, f2, K2, W[32]);
--	subRound(C, D, E, A, B, f2, K2, W[33]);
--	subRound(B, C, D, E, A, f2, K2, W[34]);
--	subRound(A, B, C, D, E, f2, K2, W[35]);
--	subRound(E, A, B, C, D, f2, K2, W[36]);
--	subRound(D, E, A, B, C, f2, K2, W[37]);
--	subRound(C, D, E, A, B, f2, K2, W[38]);
--	subRound(B, C, D, E, A, f2, K2, W[39]);
--
--	subRound(A, B, C, D, E, f3, K3, W[40]);
--	subRound(E, A, B, C, D, f3, K3, W[41]);
--	subRound(D, E, A, B, C, f3, K3, W[42]);
--	subRound(C, D, E, A, B, f3, K3, W[43]);
--	subRound(B, C, D, E, A, f3, K3, W[44]);
--	subRound(A, B, C, D, E, f3, K3, W[45]);
--	subRound(E, A, B, C, D, f3, K3, W[46]);
--	subRound(D, E, A, B, C, f3, K3, W[47]);
--	subRound(C, D, E, A, B, f3, K3, W[48]);
--	subRound(B, C, D, E, A, f3, K3, W[49]);
--	subRound(A, B, C, D, E, f3, K3, W[50]);
--	subRound(E, A, B, C, D, f3, K3, W[51]);
--	subRound(D, E, A, B, C, f3, K3, W[52]);
--	subRound(C, D, E, A, B, f3, K3, W[53]);
--	subRound(B, C, D, E, A, f3, K3, W[54]);
--	subRound(A, B, C, D, E, f3, K3, W[55]);
--	subRound(E, A, B, C, D, f3, K3, W[56]);
--	subRound(D, E, A, B, C, f3, K3, W[57]);
--	subRound(C, D, E, A, B, f3, K3, W[58]);
--	subRound(B, C, D, E, A, f3, K3, W[59]);
--
--	subRound(A, B, C, D, E, f4, K4, W[60]);
--	subRound(E, A, B, C, D, f4, K4, W[61]);
--	subRound(D, E, A, B, C, f4, K4, W[62]);
--	subRound(C, D, E, A, B, f4, K4, W[63]);
--	subRound(B, C, D, E, A, f4, K4, W[64]);
--	subRound(A, B, C, D, E, f4, K4, W[65]);
--	subRound(E, A, B, C, D, f4, K4, W[66]);
--	subRound(D, E, A, B, C, f4, K4, W[67]);
--	subRound(C, D, E, A, B, f4, K4, W[68]);
--	subRound(B, C, D, E, A, f4, K4, W[69]);
--	subRound(A, B, C, D, E, f4, K4, W[70]);
--	subRound(E, A, B, C, D, f4, K4, W[71]);
--	subRound(D, E, A, B, C, f4, K4, W[72]);
--	subRound(C, D, E, A, B, f4, K4, W[73]);
--	subRound(B, C, D, E, A, f4, K4, W[74]);
--	subRound(A, B, C, D, E, f4, K4, W[75]);
--	subRound(E, A, B, C, D, f4, K4, W[76]);
--	subRound(D, E, A, B, C, f4, K4, W[77]);
--	subRound(C, D, E, A, B, f4, K4, W[78]);
--	subRound(B, C, D, E, A, f4, K4, W[79]);
--#else
--#error Illegal SHA_CODE_SIZE
--#endif
- 
- 	/* Build message digest */
- 	digest[0] += A;
-@@ -923,7 +779,6 @@
- #undef K2
- #undef K3
- #undef K4
--#undef subRound
- 
- /*********************************************************************
+--- rnd2.orig/crypto/sha1.c	2005-01-20 12:24:48.135753454 -0800
++++ rnd2/crypto/sha1.c	2005-01-20 12:30:22.143171131 -0800
+@@ -4,8 +4,7 @@
+  * SHA1 Secure Hash Algorithm.
   *
+  * Derived from cryptoapi implementation, adapted for in-place
+- * scatterlist interface.  Originally based on the public domain
+- * implementation written by Steve Reid.
++ * scatterlist interface.
+  *
+  * Copyright (c) Alan Smithee.
+  * Copyright (c) Andrew McDonald <andrew@mcdonald.org.uk>
+@@ -13,7 +12,7 @@
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License as published by the Free
+- * Software Foundation; either version 2 of the License, or (at your option) 
++ * Software Foundation; either version 2 of the License, or (at your option)
+  * any later version.
+  *
+  */
+@@ -21,84 +20,19 @@
+ #include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/crypto.h>
++#include <linux/cryptohash.h>
+ #include <asm/scatterlist.h>
+ #include <asm/byteorder.h>
+ 
+ #define SHA1_DIGEST_SIZE	20
+ #define SHA1_HMAC_BLOCK_SIZE	64
+ 
+-/* blk0() and blk() perform the initial expand. */
+-/* I got the idea of expanding during the round function from SSLeay */
+-# define blk0(i) block32[i]
+-
+-#define blk(i) (block32[i&15] = rol32(block32[(i+13)&15]^block32[(i+8)&15] \
+-    ^block32[(i+2)&15]^block32[i&15],1))
+-
+-/* (R0+R1), R2, R3, R4 are the different operations used in SHA1 */
+-#define R0(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk0(i)+0x5A827999+rol32(v,5); \
+-                        w=rol32(w,30);
+-#define R1(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk(i)+0x5A827999+rol32(v,5); \
+-                        w=rol32(w,30);
+-#define R2(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol32(v,5);w=rol32(w,30);
+-#define R3(v,w,x,y,z,i) z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol32(v,5); \
+-                        w=rol32(w,30);
+-#define R4(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0xCA62C1D6+rol32(v,5);w=rol32(w,30);
+-
+ struct sha1_ctx {
+         u64 count;
+         u32 state[5];
+         u8 buffer[64];
+ };
+ 
+-/* Hash a single 512-bit block. This is the core of the algorithm. */
+-static void sha1_transform(u32 *state, const u8 *in)
+-{
+-	u32 a, b, c, d, e;
+-	u32 block32[16];
+-
+-	/* convert/copy data to workspace */
+-	for (a = 0; a < sizeof(block32)/sizeof(u32); a++)
+-	  block32[a] = be32_to_cpu (((const u32 *)in)[a]);
+-
+-	/* Copy context->state[] to working vars */
+-	a = state[0];
+-	b = state[1];
+-	c = state[2];
+-	d = state[3];
+-	e = state[4];
+-
+-	/* 4 rounds of 20 operations each. Loop unrolled. */
+-	R0(a,b,c,d,e, 0); R0(e,a,b,c,d, 1); R0(d,e,a,b,c, 2); R0(c,d,e,a,b, 3);
+-	R0(b,c,d,e,a, 4); R0(a,b,c,d,e, 5); R0(e,a,b,c,d, 6); R0(d,e,a,b,c, 7);
+-	R0(c,d,e,a,b, 8); R0(b,c,d,e,a, 9); R0(a,b,c,d,e,10); R0(e,a,b,c,d,11);
+-	R0(d,e,a,b,c,12); R0(c,d,e,a,b,13); R0(b,c,d,e,a,14); R0(a,b,c,d,e,15);
+-	R1(e,a,b,c,d,16); R1(d,e,a,b,c,17); R1(c,d,e,a,b,18); R1(b,c,d,e,a,19);
+-	R2(a,b,c,d,e,20); R2(e,a,b,c,d,21); R2(d,e,a,b,c,22); R2(c,d,e,a,b,23);
+-	R2(b,c,d,e,a,24); R2(a,b,c,d,e,25); R2(e,a,b,c,d,26); R2(d,e,a,b,c,27);
+-	R2(c,d,e,a,b,28); R2(b,c,d,e,a,29); R2(a,b,c,d,e,30); R2(e,a,b,c,d,31);
+-	R2(d,e,a,b,c,32); R2(c,d,e,a,b,33); R2(b,c,d,e,a,34); R2(a,b,c,d,e,35);
+-	R2(e,a,b,c,d,36); R2(d,e,a,b,c,37); R2(c,d,e,a,b,38); R2(b,c,d,e,a,39);
+-	R3(a,b,c,d,e,40); R3(e,a,b,c,d,41); R3(d,e,a,b,c,42); R3(c,d,e,a,b,43);
+-	R3(b,c,d,e,a,44); R3(a,b,c,d,e,45); R3(e,a,b,c,d,46); R3(d,e,a,b,c,47);
+-	R3(c,d,e,a,b,48); R3(b,c,d,e,a,49); R3(a,b,c,d,e,50); R3(e,a,b,c,d,51);
+-	R3(d,e,a,b,c,52); R3(c,d,e,a,b,53); R3(b,c,d,e,a,54); R3(a,b,c,d,e,55);
+-	R3(e,a,b,c,d,56); R3(d,e,a,b,c,57); R3(c,d,e,a,b,58); R3(b,c,d,e,a,59);
+-	R4(a,b,c,d,e,60); R4(e,a,b,c,d,61); R4(d,e,a,b,c,62); R4(c,d,e,a,b,63);
+-	R4(b,c,d,e,a,64); R4(a,b,c,d,e,65); R4(e,a,b,c,d,66); R4(d,e,a,b,c,67);
+-	R4(c,d,e,a,b,68); R4(b,c,d,e,a,69); R4(a,b,c,d,e,70); R4(e,a,b,c,d,71);
+-	R4(d,e,a,b,c,72); R4(c,d,e,a,b,73); R4(b,c,d,e,a,74); R4(a,b,c,d,e,75);
+-	R4(e,a,b,c,d,76); R4(d,e,a,b,c,77); R4(c,d,e,a,b,78); R4(b,c,d,e,a,79);
+-	/* Add the working vars back into context.state[] */
+-	state[0] += a;
+-	state[1] += b;
+-	state[2] += c;
+-	state[3] += d;
+-	state[4] += e;
+-	/* Wipe variables */
+-	a = b = c = d = e = 0;
+-	memset (block32, 0x00, sizeof block32);
+-}
+-
+ static void sha1_init(void *ctx)
+ {
+ 	struct sha1_ctx *sctx = ctx;
+@@ -115,19 +49,21 @@
+ {
+ 	struct sha1_ctx *sctx = ctx;
+ 	unsigned int i, j;
++	u32 temp[SHA_WORKSPACE_WORDS];
+ 
+ 	j = (sctx->count >> 3) & 0x3f;
+ 	sctx->count += len << 3;
+ 
+ 	if ((j + len) > 63) {
+ 		memcpy(&sctx->buffer[j], data, (i = 64-j));
+-		sha1_transform(sctx->state, sctx->buffer);
++		sha_transform(sctx->state, sctx->buffer, temp);
+ 		for ( ; i + 63 < len; i += 64) {
+-			sha1_transform(sctx->state, &data[i]);
++			sha_transform(sctx->state, &data[i], temp);
+ 		}
+ 		j = 0;
+ 	}
+ 	else i = 0;
++	memset(temp, 0, sizeof(temp));
+ 	memcpy(&sctx->buffer[j], &data[i], len - i);
+ }
+ 

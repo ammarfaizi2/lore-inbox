@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQKAUKK>; Wed, 1 Nov 2000 15:10:10 -0500
+	id <S129055AbQKAUQm>; Wed, 1 Nov 2000 15:16:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbQKAUKB>; Wed, 1 Nov 2000 15:10:01 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:10756 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129026AbQKAUJr>; Wed, 1 Nov 2000 15:09:47 -0500
-Date: Wed, 1 Nov 2000 15:09:09 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dennis Bjorklund <dennisb@cs.chalmers.se>
+	id <S129713AbQKAUQd>; Wed, 1 Nov 2000 15:16:33 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:50757 "EHLO saturn.homenet")
+	by vger.kernel.org with ESMTP id <S129055AbQKAUQ0>;
+	Wed, 1 Nov 2000 15:16:26 -0500
+Date: Wed, 1 Nov 2000 20:16:35 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Jean-Francois Patenaude <jf.patenaude@bell.ca>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Broadcast
-In-Reply-To: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
-Message-ID: <Pine.LNX.3.95.1001101150538.4511A-100000@chaos.analogic.com>
+Subject: Re: PROBLEM: kernel panic while copying files
+In-Reply-To: <3A00400D.4981E278@bell.ca>
+Message-ID: <Pine.LNX.4.21.0011012012580.5182-100000@saturn.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
+Jean-Francois,
 
-> I'm trying to turn of the broadcast flag for a network card. But I
-> can't, why??
+You are reporting a panic but missing the most important ingredient:
+
+On Wed, 1 Nov 2000, Jean-Francois Patenaude wrote:
+> [5.] Output of Oops.. message (if applicable) with symbolic information 
+>      resolved (see Documentation/oops-tracing.txt)
+> 
+> xx
 > 
 
-Your version of `ifconfig` is probably broken (just like mine).
-`strace` it and see:
-ioctl(5, SIOCGIFFLAGS, 0xbffff620)      = 0
-ioctl(5, SIOCSIFFLAGS, 0xbffff620)      = 0
-_exit(0)                                = ?
+If "xx" means "kiss-kiss" then you can "kiss good bye" to any hope of
+resolving this panic until you send the oops message passed through
+ksymoops. If this is really a panic and not an oops then you need to
+capture it through a serial console and then pass through ksymoops on the
+next boot.
 
-In this case the flags were gotten with SIOCGIFFLAGS, then the
-exact same stuff was written back with SIOCSIFFLAGS.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+Regards,
+Tigran
 
 
 -

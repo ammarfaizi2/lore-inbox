@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbUCDLZn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 06:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbUCDLZn
+	id S261843AbUCDLbC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 06:31:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbUCDLbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 06:25:43 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:64919 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261827AbUCDLZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 06:25:42 -0500
-Subject: Re: [linux-usb-devel] Re: [BUG] usblp_write spins forever after an
-	error
-From: David Woodhouse <dwmw2@infradead.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Greg KH <greg@kroah.com>, Andy Lutomirski <luto@myrealbox.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <4030DEC5.2060609@grupopie.com>
-References: <402FEAD4.8020602@myrealbox.com>
-	 <20040216035834.GA4089@kroah.com>  <4030DEC5.2060609@grupopie.com>
-Content-Type: text/plain
-Message-Id: <1078399532.4619.129.camel@hades.cambridge.redhat.com>
+	Thu, 4 Mar 2004 06:31:02 -0500
+Received: from upco.es ([130.206.70.227]:17603 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261843AbUCDLbA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 06:31:00 -0500
+Date: Thu, 4 Mar 2004 12:30:57 +0100
+From: Romano Giannetti <romano@dea.icai.upco.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+Message-ID: <20040304113057.GA13365@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
+	linux-kernel@vger.kernel.org
+References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net> <200403030722.17632.edt@aei.ca> <20040303151433.GC25687@kroah.com> <20040303225305.GB30608@weiser.dinsnail.net> <20040304012531.GC2207@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Thu, 04 Mar 2004 11:25:33 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20040304012531.GC2207@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-16 at 15:16 +0000, Paulo Marques wrote:
-> This patch corrected a problem for me, that happened when a printer presents an 
-> out-of-paper status while printing a document. The driver would send endless 
-> garbage to the printer.
+On Wed, Mar 03, 2004 at 05:25:31PM -0800, Greg KH wrote:
+> 
+> The fact that module unload even works today is a blessing due to all of
+> the well-documented issues involved.  I doubt any distro will enable
+> module unloading because of it.
+> 
 
-This patch went in to 2.6.4-rc1, didn't it? It seems to have exacerbated
-a problem which used to be occasional, but now seems to happen after
-every print job.
+while wholeheartly agreeing with you in this statement, I had to compile
+modules with remove enabled for a show-stopping reason: suspend. After
+resume, sound, usb mouse, pcmcia devices would not come back to life if I do
+not rmmod before and reload after going to S4. I quite understand that this
+is a driver problem (bug?), but for my notebook module remove is a necessary
+workaround. 
 
-I see the following, and the error repeats until I power cycle the
-printer (HPLJ 1200 on AMD768 OHCI):
+            	Romano 
 
-usb 1-1.3.2: control timeout on ep0in
-drivers/usb/class/usblp.c: usblp0: error -110 reading printer status
-
-
+(tried PMSIK, SWSUSP, SWSUPS2 in 2.6.1, PMDISK works --- Vaio FX701). 
 
 -- 
-dwmw2
-
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

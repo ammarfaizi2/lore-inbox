@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129466AbRCPJfJ>; Fri, 16 Mar 2001 04:35:09 -0500
+	id <S129446AbRCPJx3>; Fri, 16 Mar 2001 04:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129854AbRCPJet>; Fri, 16 Mar 2001 04:34:49 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:17671 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129466AbRCPJej>; Fri, 16 Mar 2001 04:34:39 -0500
-Message-ID: <3AB1DDF3.990655FA@idb.hist.no>
-Date: Fri, 16 Mar 2001 10:33:39 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: Sampsa Ranta <sampsa@netsonic.fi>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.2 network performances
-In-Reply-To: <Pine.LNX.4.33.0103151540240.856-100000@nalle.netsonic.fi>
+	id <S129764AbRCPJxU>; Fri, 16 Mar 2001 04:53:20 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:47336 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129446AbRCPJxH>;
+	Fri, 16 Mar 2001 04:53:07 -0500
+Date: Fri, 16 Mar 2001 09:49:18 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: george anzinger <george@mvista.com>, Alexander Viro <viro@math.psu.edu>,
+        linux-mm@kvack.org, bcrl@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process information?)
+Message-ID: <20010316094918.F30889@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0103141618320.21132-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0103150919260.4165-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0103150919260.4165-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Thu, Mar 15, 2001 at 09:24:59AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sampsa Ranta wrote:
+Hi,
 
-> Yesterday I discovered that the load I can throw out to network seems to
-> depend on other activities running on machine. I was able to get
-> throughput of 33M/s with ATM when machine was idle, while I compiled
-> kernel at same time, the throughput was 135M/s.
-> 
-> So, I suggest you try to compile kernel while running your UDP stream!
+On Thu, Mar 15, 2001 at 09:24:59AM -0300, Rik van Riel wrote:
+> On Wed, 14 Mar 2001, Rik van Riel wrote:
 
-Ouch.  My guess is the kernel looks for stuff to do when scheduling, and
-compiling will definitely cause more of that.  Maybe it waits for
-the next timer interrupt when idle, instead of checking if there's
-more to do?  
+> The mmap_sem is used in procfs to prevent the list of VMAs
+> from changing. In the page fault code it seems to be used
+> to prevent other page faults to happen at the same time with
+> the current page fault (and to prevent VMAs from changing
+> while a page fault is underway).
 
-Helge Hafting
+The page table spinlock should be quite sufficient to let us avoid
+races in the page fault code.  We've had to deal with this before
+there was ever a mmap_sem anyway: in ancient times, every page fault
+had to do things like check to see if the pte had changed after IO was
+complete and once the BKL had been retaken.  We can do the same with
+the page fault spinlock without much pain.
+
+> Maybe we should change the mmap_sem into a R/W semaphore ?
+
+Definitely.
+
+> Write locks would be used in the code where we actually want
+> to change the VMA list and page faults would use an extra lock
+> to protect against each other (possibly a per-pagetable lock
+
+Why do we need another lock?  The critical section where we do the
+final update on the pte _already_ takes the page table spinlock to
+avoid races against the swapper.
+
+Cheers,
+ Stephen

@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbTELOgV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTELOgV
+	id S262195AbTELOvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 10:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTELOvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:36:21 -0400
-Received: from poup.poupinou.org ([195.101.94.96]:11033 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S262143AbTELOgT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:36:19 -0400
-Date: Mon, 12 May 2003 16:48:56 +0200
-To: acpi-devel@lists.sourceforge.net
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] TRIVIAL allow ME OS in os_acpi_name override.
-Message-ID: <20030512144856.GF19475@poup.poupinou.org>
+	Mon, 12 May 2003 10:51:38 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11137 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262195AbTELOvg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 10:51:36 -0400
+Message-Id: <200305121504.h4CF4EJ5007017@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MPPE in kernel? 
+In-Reply-To: Your message of "Mon, 12 May 2003 04:59:29 PDT."
+             <20030512045929.C29781@google.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030512045929.C29781@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
+Content-Type: multipart/signed; boundary="==_Exmh_-2024354380P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 12 May 2003 11:04:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-2024354380P
+Content-Type: text/plain; charset=us-ascii
 
-OS Windows ME override for os_acpi_name need character ':' to be
-included.
+On Mon, 12 May 2003 04:59:29 PDT, Frank Cusack <fcusack@fcusack.com>  said:
+> I've written a public domain implementation, which I'd be willing to
+> relicense under GPL (although I don't see the point), but in any case
 
-Please apply.
+Well.. there's a very good reason to relicense under GPL, or BSD, or X11-style.
 
---- linux/drivers/acpi/osl.c	2003/05/09 13:57:41	1.1
-+++ linux/drivers/acpi/osl.c	2003/05/12 14:41:42
-@@ -999,7 +999,7 @@
- 		return 0;
- 
- 	for (; count-- && str && *str; str++) {
--		if (isalnum(*str) || *str == ' ')
-+		if (isalnum(*str) || *str == ' ' || *str == ':')
- 			*p++ = *str;
- 		else if (*str == '\'' || *str == '"')
- 			continue;
+And that's to cover your ass from being sued.
 
--- 
-Ducrot Bruno
+If you release it as "public domain", you waive *all* rights to it, including:
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+1) The right to prohibit or control what people do with it, including taking
+it private and closed and making lots of money off it and basically ripping
+you off.
+
+2) You can't attach a "hold harmless" clause to it.  So if you put it in
+the public domain, since you don't have copyright on it anymore, you can't
+say "as a condition of copying, you promise not to sue me if this software
+turns your hair green".
+
+The second is pretty important - although we all complain about large vendors
+disclaiming all responsibility and liability for their bugs, that's something
+you *REALLY* want to try to do if you're a open-source programmer....
+
+Of course, IANAL, so consult one if you're worried. ;)
+
+--==_Exmh_-2024354380P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+v7ftcC3lWbTT17ARAnE0AJ9w85RDzFDxq7gGglNdcZcifJvWKACggCaw
+JhuSnJ4F0wamEBYC8VkcaVs=
+=6g3r
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2024354380P--

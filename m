@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVA0O0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbVA0OfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbVA0O0n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 09:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVA0O0j
+	id S262625AbVA0OfX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 09:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVA0OfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 09:26:39 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:54196 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262597AbVA0O0a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 09:26:30 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16888.64002.887213.975496@alkaid.it.uu.se>
-Date: Thu, 27 Jan 2005 15:26:10 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, Rik van Riel <riel@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-In-Reply-To: <20050127125254.GZ10843@holomorphy.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
-	<20050126172538.GN10843@holomorphy.com>
-	<20050127050927.GR10843@holomorphy.com>
-	<16888.46184.52179.812873@alkaid.it.uu.se>
-	<20050127125254.GZ10843@holomorphy.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Thu, 27 Jan 2005 09:35:23 -0500
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:48077 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S262625AbVA0OfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 09:35:13 -0500
+Subject: Re: swap on dmcrypt crashes machine
+From: Christophe Saout <christophe@saout.de>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+In-Reply-To: <200501251828.17569.mbuesch@freenet.de>
+References: <200501251828.17569.mbuesch@freenet.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SLDThBeWXDz/psYJ2Tbs"
+Date: Thu, 27 Jan 2005 15:34:50 +0100
+Message-Id: <1106836490.27812.6.camel@server.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
- > William Lee Irwin III writes:
- > >> There's a long discussion here, in which no one appears to have noticed
- > >> that SHLIB_BASE does not exist in mainline. Is anyone else awake here?
- > 
- > On Thu, Jan 27, 2005 at 10:29:12AM +0100, Mikael Pettersson wrote:
- > > About the only kernel-level enforcement I would feel comfortable with is
- > > to have non-fixed mmap()s refuse to grab the _page_ at address 0. Any range
- > > larger than this is policy, and hence needs a user-space override mechanism.
- > > Also, if user-space wants to catch accesses in a larger region above 0 then
- > > it can do that itself, by checking the result of mmap(), or by doing a fixed
- > > mmap() at address 0 with suitable size and rwx protection disabled.
- > 
- > FIRST_USER_PGD_NR is a matter of killing the entire box dead where it
- > exists, not any kind of process' preference. Userspace should be
- > prevented from setting up vmas below FIRST_USER_PGD_NR. It has zero to
- > do with what userspace's own concerns, but rather the kernel trying to
- > avoid system-critical data from being stomped on by userspace. It would
- > be like accidentally allowing userspace to use the IDT for malloc() on
- > x86, destroying one's ability to handle interrupts, page faults, etc.,
- > to allow userspace to go below FIRST_USER_PGD_NR on ARM.
 
-My argument only applied to the "protect the user" discussion.
+--=-SLDThBeWXDz/psYJ2Tbs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-_If_ the kernel needs to reserve parts of the user's address
-space for IDTs etc, then certainly mmap() mustn't map those.
-But that's orthogonal (in spirit, if not in implementation)
-from the "protect the user" discussion.
+Am Dienstag, den 25.01.2005, 18:28 +0100 schrieb Michael Buesch:
 
-/Mkael
+> I set up swap on an encrypted dmcrypt device.
+> While stressing swap usage with make -j200 in the
+> kernel tree, the machine crashes:
+>=20
+> Adding 1461872k swap on /dev/mapper/swap.  Priority:-2 extents:1
+> ------------[ cut here ]------------
+> kernel BUG at drivers/block/ll_rw_blk.c:2193!
+> invalid operand: 0000 [#1]
+> SMP=20
+> Modules linked in: ipv6 ohci_hcd tuner tvaudio msp3400 bttv video_buf fir=
+mware_class btcx_risc nvidia ehci_hcd uhci_hcd usbcore intel_agp agpgart ev=
+dev
+> CPU:    0
+> EIP:    0060:[<c0218b8a>]    Tainted: P      VLI
+> EFLAGS: 00210002   (2.6.10-ck4-defaultidle)=20
+> EIP is at __blk_put_request+0x87/0x91
+
+This seems to be this BUG:
+
+BUG_ON(!list_empty(&req->queuelist));
+
+in drivers/block/ll_rw_blk.c. I don't know how this could be non-empty
+since scsi_end_request calls
+
+if (blk_rq_tagged(req))
+         blk_queue_end_tag(q, req);
+
+just before calling end_that_request_last inside the same spinlock.
+
+I don't know anything about tagged request handling but I don't think
+this is the fault of the dm-crypt driver, perhaps it's stressing the
+queue in some unexpected way? I have no idea what's going on here.
+
+
+--=-SLDThBeWXDz/psYJ2Tbs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBB+PwKZCYBcts5dM0RAsYnAJ9FkVAVeeRjhD9ub2buLpcum+C0dACdEzli
+0AZOe1jPRnA7ByrIBrHcYm4=
+=UXo8
+-----END PGP SIGNATURE-----
+
+--=-SLDThBeWXDz/psYJ2Tbs--

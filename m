@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314951AbSDVXhA>; Mon, 22 Apr 2002 19:37:00 -0400
+	id <S314959AbSDVXjo>; Mon, 22 Apr 2002 19:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314956AbSDVXg7>; Mon, 22 Apr 2002 19:36:59 -0400
-Received: from dyn-213-36-84-123.ppp.tiscali.fr ([213.36.84.123]:32262 "HELO
-	fjord.alezan.org") by vger.kernel.org with SMTP id <S314951AbSDVXg5>;
-	Mon, 22 Apr 2002 19:36:57 -0400
-Date: Tue, 23 Apr 2002 01:36:15 +0200
-From: Profeta Mickael <mike@alezan.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre7, can not umount a partition
-Message-Id: <20020423013615.4afd8062.mike@alezan.org>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S314960AbSDVXjn>; Mon, 22 Apr 2002 19:39:43 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:20754 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314959AbSDVXjm>;
+	Mon, 22 Apr 2002 19:39:42 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] patch to /proc/meminfo to display NUMA stats 
+In-Reply-To: Your message of "Mon, 22 Apr 2002 10:05:19 MST."
+             <25270000.1019495119@flay> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 Apr 2002 09:39:31 +1000
+Message-ID: <6087.1019518771@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Mon, 22 Apr 2002 10:05:19 -0700, 
+"Martin J. Bligh" <Martin.Bligh@us.ibm.com> wrote:
+>Below is a patch to /proc/meminfo to display free, used and total
+>memory per node on a NUMA machine. It works fine on an ia32
+>machine, but is not yet ready for submission until I make it generic.
+>Before I go to the effort of doing that, I thought I'd seek some feedback.
+>
+>diff -urN virgin-2.4.18/fs/proc/proc_misc.c linux-2.4.18-meminfo/fs/proc/proc_misc.c
+>--- virgin-2.4.18/fs/proc/proc_misc.c	Tue Nov 20 21:29:09 2001
+>+++ linux-2.4.18-meminfo/fs/proc/proc_misc.c	Mon Apr 15 09:31:32 2002
+>+#ifdef CONFIG_NUMA
+>+	for (nid = 0; nid < numnodes; ++nid) {
+>+		si_meminfo_node(&i, nid);
+>+		len += sprintf(page+len, "\n"
+>+			"Node %d MemTotal:     %8lu kB\n"
+>+			"Node %d MemFree:     %8lu kB\n"
+>+			"Node %d MemUsed:     %8lu kB\n"
+>+			"Node %d HighTotal:    %8lu kB\n"
+>+			"Node %d HighFree:     %8lu kB\n"
+>+			"Node %d LowTotal:     %8lu kB\n"
+>+			"Node %d LowFree:      %8lu kB\n",
+>+			nid, K(i.totalram),
+>+			nid, K(i.freeram),
+>+			nid, K(i.totalram-i.freeram),
+>+			nid, K(i.totalhigh),
+>+			nid, K(i.freehigh),
+>+			nid, K(i.totalram-i.totalhigh),
+>+			nid, K(i.freeram-i.freehigh));
+>+	}
+>+#endif
 
-	I am running linux on Athlon CPU with VIA  VT82C686 ide controller.
+meminfo_read_proc() assumes that all its output will fit in one page.
+Currently it does, ~520 bytes.  You are adding ~120 bytes per node so
+it will break at ~29 nodes using 4K pages.  To make that scalable,
+meminfo_read_proc() must be converted to seq_file format.
 
-	I try to upgrade to kernel-2.4.19-pre7 and I notice a trouble when I try
-to unmount a partition: I wrote a cron job to make a backup of my honme
-directory to a second harddrive using rsync. The data are on /dev/hda5and
-are backuped on /dev/hdc2	The /dev/hdc2 partition is mounted in the
-beginning of the script, and unmounted at the end of the rsync backup.	All my
-partition are in reiserfs, except / in ext2.
-
-	With kernel 2.4.19-pre7 or -pre6 the system can not umount the /dev/hdc2
-partiton at the end of the script. The umount process hangs and the load
-of the computer reach 2.0 whereas nothing else running. I can not reboot
-properly (the system can not kill task and so does not reboot) If Itry
-Sysrq, it manages to remount ro all partition except /dev/hdc2
-
-	This does not happens in kernel 2.4.17-pre7.
-
-	I have no Oops or message in the logs... But if I can do something to
-test further the problem do not hesitate to ask me more information.
-
-	I am running Debian sid with rsync version 2.5.6cvs  protocol version 26
-	reiserfssprogs  3.x.1b-1 (I checked /dev/hdc2 has no reiserfs
-inconsistency)	mount 2.11n-2
-
-Please CC: as I am not subscribed to the list
-
-	Mickael
-	
--- 
--- 
-Unix IS user-friendly. It just chooses its friends carefully

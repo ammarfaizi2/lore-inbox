@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280705AbRKGALm>; Tue, 6 Nov 2001 19:11:42 -0500
+	id <S280708AbRKGAVN>; Tue, 6 Nov 2001 19:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280695AbRKGALc>; Tue, 6 Nov 2001 19:11:32 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:42234 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280705AbRKGALU>;
-	Tue, 6 Nov 2001 19:11:20 -0500
-Date: Tue, 6 Nov 2001 17:10:23 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Philip Blundell <philb@gnu.org>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lp.c, eexpress.c jiffies cleanup
-Message-ID: <20011106171023.A5922@lynx.no>
-Mail-Followup-To: Philip Blundell <philb@gnu.org>,
-	Tim Schmielau <tim@physik3.uni-rostock.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0111062039440.23693-100000@gans.physik3.uni-rostock.de> <20011106141521.R3957@lynx.no> <adilger@turbolabs.com> <E161Duo-0000jO-00@kc.cam.armlinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E161Duo-0000jO-00@kc.cam.armlinux.org>; from philb@gnu.org on Tue, Nov 06, 2001 at 09:37:50PM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S280713AbRKGAVE>; Tue, 6 Nov 2001 19:21:04 -0500
+Received: from [209.195.52.30] ([209.195.52.30]:18199 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S280708AbRKGAU4>;
+	Tue, 6 Nov 2001 19:20:56 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: imran.badr@cavium.com, linux-kernel@vger.kernel.org
+Date: Tue, 6 Nov 2001 15:56:55 -0800 (PST)
+Subject: Re: Linux kernel 2.4 and TCP terminations per second.
+In-Reply-To: <E161FY0-0002AE-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0111061555210.24952-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 06, 2001  21:37 +0000, Philip Blundell wrote:
-> In message <20011106141521.R3957@lynx.no>, Andreas Dilger writes:
-> >I agree.  It seems very ugly.  I looked at a few drivers which loop 1 or 2
-> >jiffies, but to busy-loop for 1/10th of a second, or even 20 seconds
-> >is terribly bad. 
-> 
-> Those timeouts are only a last resort.  If the card is working properly
-> the loop will terminate much sooner.
+from a recent test I just was running with apache on a 1.2GHZ athlon 512MB
+ram it looks like it will do ~1800 connections/sec.
 
-Well, if the card is working properly, then you don't need the timeouts
-at all.  Clearly, if they are needed, then either they should be more
-realistic in length (1/10th isn't bad, but 20 seconds?), or after a
-"reasonable" short timeout, it should sleep for an interval and check
-afterwards.  Sucking all CPU for 20 seconds and locking everything else
-out isn't an acceptable method IMHO.
+just to put the numbers below in perspective :-)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+David Lang
 
+On Tue, 6 Nov 2001, Alan Cox wrote:
+
+> > Does anybody know , what is the maximum number of TCP (http)
+> > terminations/per second a server (single/dual/.. processor)  in todays
+> > market can do, without much CPU load. The server would be running linux
+> > kernel 2.4 and apache web server.
+>
+> If you are running any kind of high performance connections/second load then
+> you dont run apache. That isnt what apache is good at
+>
+> thttpd will do 2000/sec on a decent box. zeus (non free) more, and tux
+> (kernel http accelerator) holds some records
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283807AbRLEIqr>; Wed, 5 Dec 2001 03:46:47 -0500
+	id <S283828AbRLEIsh>; Wed, 5 Dec 2001 03:48:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283827AbRLEIqh>; Wed, 5 Dec 2001 03:46:37 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:18496 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S283807AbRLEIqW>; Wed, 5 Dec 2001 03:46:22 -0500
-Date: Wed, 5 Dec 2001 09:46:32 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Cyrille Chepelov <cyrille@chepelov.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Gradual VM-related freeze in 2.4.16,17-pre2 !
-Message-ID: <20011205094632.Q3447@athlon.random>
-In-Reply-To: <20011205055509.GB11283@calixo.net>
-Mime-Version: 1.0
+	id <S283827AbRLEIs1>; Wed, 5 Dec 2001 03:48:27 -0500
+Received: from denise.shiny.it ([194.20.232.1]:184 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S283828AbRLEIsP>;
+	Wed, 5 Dec 2001 03:48:15 -0500
+Message-ID: <XFMail.20011205094744.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011205055509.GB11283@calixo.net>; from cyrille@chepelov.org on Wed, Dec 05, 2001 at 06:55:09AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com>
+Date: Wed, 05 Dec 2001 09:47:44 +0100 (CET)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Manfred Spraul <manfred@colorfullife.com>
+Subject: RE: [PATCH] improve spinlock debugging
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 06:55:09AM +0100, Cyrille Chepelov wrote:
-> Hi folks,
-> 
-> I've converted yesterday my router, which until now had been happily running
-> ext2+2.4.13-pre2 on 8 MB of RAM + 200 MB of swap, to the ext3 + 2.4.16 (and
-> 2.4.17-pre2) combinations (still eight megs of RAM, unfortunately 8-bit
-> SIMMs ain't cheap nowadays).
-> 
-> Now, as soon as the system gets some use (inetd kicks exim in, one ssh
-> attempt, etc.), most processes go freeze themselves into 
->   <shrink_caches +57/80>
 
-I never reproduced anything wrong here, testing on highmem and non
-highmem. Just in case can you also reproduce with 2.4.17pre1aa1?
+> Tested on i386/UP, but it should work on all platforms. It contains
+> runtime checks for:
+>
+> - missing initialization
+> - recursive lock
+> - double unlock
+> - incorrect use of spin_is_locked() or spin_trylock() [both function
+> do not work as expected on uniprocessor builds]
+> The next step are checks for spinlock ordering mismatches.
+>
+> Which other runtime checks are possible?
 
-Andrea
+It's very useful to log when a lock(irq) is held more than xx ms
+and who is the caller. Is it possible ?
+
+
+Bye.
+

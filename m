@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266435AbUGBDbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266431AbUGBDiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266435AbUGBDbr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 23:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266431AbUGBDbr
+	id S266431AbUGBDiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 23:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266436AbUGBDiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 23:31:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63198 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266435AbUGBDbo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 23:31:44 -0400
-Date: Thu, 1 Jul 2004 20:30:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-Message-Id: <20040701203043.08226a0c.akpm@osdl.org>
-In-Reply-To: <200407012154.16312.kevcorry@us.ibm.com>
-References: <200407011035.13283.kevcorry@us.ibm.com>
-	<20040701143857.256959e5.akpm@osdl.org>
-	<200407012154.16312.kevcorry@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 1 Jul 2004 23:38:24 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:20755 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266431AbUGBDiW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 23:38:22 -0400
+Date: Fri, 2 Jul 2004 14:35:24 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Yichen Xie <yxie@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary database
+Message-ID: <20040702043524.GA1203@frodo>
+References: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Corry <kevcorry@us.ibm.com> wrote:
->
-> > Did you consider going to a different data structure altogether? 
->  > lib/radix-tree.c and lib/idr.c provide appropriate ones.
+On Thu, Jul 01, 2004 at 06:01:00PM -0700, Yichen Xie wrote:
+> Hi all, 
+
+Hi there,
+
+> We are a group of researchers at Stanford working on program analysis
+> algorithms.  We have been building a precision enhanced program analysis
+> engine at Stanford, and our first application was to derive mutex/lock
+> behavior in the linux kernel. In the process, we found 99 likely
+> synchronization errors in linux kernel version 2.6.5:
 > 
->  The idr stuff looks promising at first glance. I'll take a better look at it 
->  tomorrow and see if we can switch from a bit-set to one of these data 
->  structures.
+>     http://glide.stanford.edu/linux-lock/err1.html (69 errors)
+>     http://glide.stanford.edu/linux-lock/err2.html (30 errors)
+> 
+>  ...
+> 
+> As always, feedbacks and confirmations will be greatly appreciated!
 
-Yes, idr is the one to use.  That linear search you have in there becomes
-logarithmic.  Will speed up the registration of 100,000 minors no end ;)
+>From looking through the XFS reports, I suspect your tools aren't
+following the sv_wait semantics correctly (or else I'm misreading
+the code).  Many of the reported XFS items stem from this - e.g.
+this one...
+[NOTE] BUG forgot to unlock before "goto try_again" (line 2293)
+ERROR: fs/xfs/xfs_log.c:2948: lock check failed!
+ERROR: fs/xfs/xfs_log.c:xlog_state_sync
 
+the code in question does this:
+
+  try_again:
+	s = LOG_LOCK(log); /* spin_lock(&log->l_icloglock); */
+	    ...
+		sv_wait(&iclog->ic_prev->ic_writesema, PSWP,
+			&log->l_icloglock, s);
+		already_slept = 1;
+		goto try_again;
+
+and the tools seem to be missing that the log->l_icloglock is
+unlocked by the sv_wait routine.  Well, that or I've overlooked
+something that the tools have not. :)
+
+A couple of the others were definately missed unlocks on error
+paths though (fixed now) - thanks!
+
+cheers.
+
+-- 
+Nathan

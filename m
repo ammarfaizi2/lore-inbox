@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbTKYRE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 12:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTKYRE5
+	id S261875AbTKYRGc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 12:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTKYRGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 12:04:57 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:58896 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S261719AbTKYRE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 12:04:56 -0500
-Date: Tue, 25 Nov 2003 17:05:03 +0000
-From: Joe Thornber <thornber@sistina.com>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: Joe Thornber <thornber@sistina.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-Message-ID: <20031125170503.GG524@reti>
-References: <20031125162451.GA524@reti> <20031125163313.GD524@reti> <3FC387A0.8010600@backtobasicsmgmt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FC387A0.8010600@backtobasicsmgmt.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 25 Nov 2003 12:06:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33799 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261875AbTKYRGb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 12:06:31 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: USB printer and scanner modules don't load automatically in linux-2.6.0-test10
+Date: 25 Nov 2003 16:55:33 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bq01i5$4g0$1@gatekeeper.tmr.com>
+References: <20031124210755.FNIR9968.fed1mtao05.cox.net@bill.ps.uci.edu>
+X-Trace: gatekeeper.tmr.com 1069779333 4608 192.168.12.62 (25 Nov 2003 16:55:33 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 09:47:28AM -0700, Kevin P. Fleming wrote:
-> Joe Thornber wrote:
-> 
-> >Make the version-4 ioctl interface the default kernel configuration option.
-> >If you have out of date tools you will need to use the v1 interface.
-> 
-> Actually, isn't the proper way to say this "if your tools are older than 
-> X and/or were _not_ built against recent 2.6 headers you need to use the 
-> v1 interface"?
-> 
-> Also, if you're going to change the default you should change the help 
-> text correspondingly.
+In article <20031124210755.FNIR9968.fed1mtao05.cox.net@bill.ps.uci.edu>,
+Meinhard E. Mayer <mmayer@uci.edu> wrote:
+| I don't know whether I am supposed to ssend this to any of you or the
+| general list.
+| I have been using -test9 and -test10 for a while and noticed that the
+| modules for my connected USB printer and scanner did not load
+| automatically during boot (as they do in kernel-2.4.22-1.2115.nptl
+| (Fedorea-SC1) or other versions of 2.4.22). 
+| The alternatives were to enter 
+| sudo modprobe usbpr
+| sudo modprobe scanner
+| or to compile the drivers into the kernel (which I ultimately did). 
+| I could not figure out the correct format for the new /etc/modprobe.conf
+| to remedy this; I also compiled the soundcard-driver into the kernel
+| since the test9 kernel. 
 
-I would like to remove v1 support very shortly, making v4 the default
-for a bit is just the next phase of this process.
-
-For the last few months the tools have supported both v1 and v4
-interfaces, allowing people to roll back to older kernels.  I will
-update the Kconfig help as you suggest to be more specific about the
-tool versions.
-
-- Joe
+Before demand loading can work you need to put the path to the module
+loader program in /proc/sys/kernel/modprobe (from memory). Yes, that
+makes booting a portable kernel using initrd more complex...
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

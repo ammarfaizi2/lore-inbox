@@ -1,58 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288928AbSAETVq>; Sat, 5 Jan 2002 14:21:46 -0500
+	id <S288930AbSAET1H>; Sat, 5 Jan 2002 14:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288929AbSAETVg>; Sat, 5 Jan 2002 14:21:36 -0500
-Received: from 240.209-115-183-0.interbaun.com ([209.115.183.240]:60589 "EHLO
-	polarbear.homenet") by vger.kernel.org with ESMTP
-	id <S288928AbSAETVT>; Sat, 5 Jan 2002 14:21:19 -0500
-Message-ID: <3C375208.99FF7DBC@phys.ualberta.ca>
-Date: Sat, 05 Jan 2002 12:20:40 -0700
-From: Dmitri Pogosyan <pogosyan@phys.ualberta.ca>
-Organization: Dept of Physics, University of Alberta
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.9-12 i686)
-X-Accept-Language: en
+	id <S288929AbSAET05>; Sat, 5 Jan 2002 14:26:57 -0500
+Received: from glisan.hevanet.com ([198.5.254.5]:2825 "EHLO glisan.hevanet.com")
+	by vger.kernel.org with ESMTP id <S288934AbSAET0o>;
+	Sat, 5 Jan 2002 14:26:44 -0500
+Date: Sat, 5 Jan 2002 11:25:26 -0800 (PST)
+From: jkl@miacid.net
+To: "Joseph S. Myers" <jsm28@cam.ac.uk>
+cc: Florian Weimer <fw@deneb.enyo.de>, dewar@gnat.com,
+        Dautrevaux@microprocess.com, paulus@samba.org,
+        Franz.Sirl-kernel@lauterbach.com, benh@kernel.crashing.org,
+        gcc@gcc.gnu.org, jtv@xs4all.nl, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org, minyard@acm.org, rth@redhat.com,
+        trini@kernel.crashing.org, velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <Pine.LNX.4.33.0201041132140.19767-100000@kern.srcf.societies.cam.ac.uk>
+Message-ID: <Pine.BSI.4.10.10201051111100.8542-100000@hevanet.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: ASUS KT266A/VT8233 board and UDMA setting
-In-Reply-To: <E16MRhE-0003Rx-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> > Some RH kernels (may include yours) deliberately disable UDMA3, 4 and 5
-> > on any VIA IDE controller. I don't know why. Unpatch your kernel and
-> > it'll likely work.
+
+On Fri, 4 Jan 2002, Joseph S. Myers wrote:
+
+> 
+> On Fri, 4 Jan 2002, Florian Weimer wrote:
+> 
+> > C99 includes a list of additional guarantees made by many C
+> > implementations (in an informative index).  I think we really should
+> > check this list (and the list of implementation-defined behavior) and
+> > document the choices made by GCC.  In fact, this documentation is
+> > required by the standard.
+> 
+> The list of implementation-defined behavior is already in the manual (in
+> extend.texi).  However, the actual documentation isn't yet there, only the
+> headings - except for the preprocessor, where it is covered in cpp.texi,
+> and the conversion between pointers and integers:
+> 
+> @item
+> @cite{The result of converting a pointer to an integer or
+> vice versa (6.3.2.3).}
+> 
+> A cast from pointer to integer discards most-significant bits if the
+> pointer representation is larger than the integer type,
+> sign-extends@footnote{Future versions of GCC may zero-extend, or use
+> a target-defined @code{ptr_extend} pattern.  Do not rely on sign extension.}
+> if the pointer representation is smaller than the integer type, otherwise
+> the bits are unchanged.
+> @c ??? We've always claimed that pointers were unsigned entities.
+> @c Shouldn't we therefore be doing zero-extension?  If so, the bug
+> @c is in convert_to_integer, where we call type_for_size and request
+> @c a signed integral type.  On the other hand, it might be most useful
+> @c for the target if we extend according to POINTERS_EXTEND_UNSIGNED.
+> 
+> A cast from integer to pointer discards most-significant bits if the
+> pointer representation is smaller than the integer type, extends according
+> to the signedness of the integer type if the pointer representation
+> is larger than the integer type, otherwise the bits are unchanged.
+> 
+> When casting from pointer to integer and back again, the resulting
+> pointer must reference the same object as the original pointer, otherwise
+> the behavior is undefined.  That is, one may not use integer arithmetic to
+> avoid the undefined behavior of pointer arithmetic as proscribed in 6.5.6/8.
 >
-> RH 2.4.2-x. That was before we had the official VIA solution to the chipset
-> bug. It was better to be safe than sorry for an end user distro.
->
 
-Yes, indeed.  Seems RH-2.4.16-0.13 kernel still enforces disabling UDMA>2 for
-VIA,
-by means of setting cable type to 40w, even if 80w is present
+Wat this last bit added to the standard after ANSI/ISO 9899-1990?  I'm
+looking through my copy and I can't find it.  All I can find is that 
 
-#cat /proc/ide/via
+in 6.3.6 Additive Operators
 
-------------   ---Primary IDE-----Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:                    yes                  no
-Post Write Buffer:               yes                  no
-Enabled:                               yes                 yes
-Simplex only:                         no                  no
-Cable Type:                        40w                 40w
+When an expression that has integral type is added to or subtracted from a
+pointer [...] Unless both the pointer operand and the result point to
+elements of the same array object [...] the behavior is undefined...
 
+but
 
-If I force higher UDMA by ide0=ata66 kernel option, as  discussed in RH bug
-35274,
-ide0 zero is set to UDMA5    (not the cable though) and everything is working.
+in 6.3.4 Cast operators
 
-I'll file a bug against RH kernel.
+A pointer may be converted to an integral type.  The size of the integer
+required and the result are implementation-defined. [...]
 
-                Thanks everybody, Dmitri
+An arbitrary integer may be converted to a pointer.  
+   ^^^^^^^^^
+The result is implementation defined.
+
+	I interpret this to mean that one MAY use integer arithmatic to
+do move a pointer outside the bounds of an array.  Specifically, as soon
+as I've cast the pointer to an integer, the compiler has an obligation to
+forget any assumptions it makes about that pointer.  This is what casts
+from pointer to integer are for!  when i say (int)p I'm saying that I
+understand the address structure of the machine and I want to manipulate
+the address directly.
+
+	If the satandard has changed so this is no longer possible, there
+NEEDS to be some other way in the new standard to express the same
+concept, or large application domains where C is currently in use will
+stop working.  
+
+-JKL
+
 

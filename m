@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269852AbTGKJfh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 05:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269855AbTGKJfh
+	id S269861AbTGKJna (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 05:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269862AbTGKJna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 05:35:37 -0400
-Received: from users.linvision.com ([62.58.92.114]:45776 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S269852AbTGKJfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 05:35:33 -0400
-Date: Fri, 11 Jul 2003 11:50:01 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ben Collins <bcollins@debian.org>, Patrick Mochel <mochel@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-Message-ID: <20030711115001.B17007@bitwizard.nl>
-References: <20030525000701.GG504@phunnypharm.org> <Pine.LNX.4.44.0305242045050.1666-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305242045050.1666-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	Fri, 11 Jul 2003 05:43:30 -0400
+Received: from dyn-ctb-203-221-72-236.webone.com.au ([203.221.72.236]:15372
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S269861AbTGKJn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 05:43:28 -0400
+Message-ID: <3F0E8A22.6020700@cyberone.com.au>
+Date: Fri, 11 Jul 2003 19:57:54 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 898] New: Very HIGH File & VM system latencies and system
+ stop responding while extracting big tar  archive file.
+References: <111930000.1057904059@[10.10.2.4]> <200307111346.39731.rathamahata@php4.ru>
+In-Reply-To: <200307111346.39731.rathamahata@php4.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 24, 2003 at 08:52:53PM -0700, Linus Torvalds wrote:
-> How about just adding a sane
-> 
-> 	int copy_string(char *dest, const char *src, int len)
-> 	{
-> 		int size;
-> 
-> 		if (!len)
-> 			return 0;
-> 		size = strlen(src);
-> 		if (size >= len)
-> 			size = len-1;
-> 		memcpy(dest, src, size);
-> 		dest[size] = '\0';
-> 		return size;
-> 	}
 
-Just catching up... 
 
-Most people will think: "But that's not efficient!" he first
-determines the size using strlen, and only then does he start a
-memcpy.
+Sergey S. Kostyliov wrote:
 
-In fact most modern processors priming the cache and then doing the
-copy is noticably faster or just a teeny little bit slower.
+>Hello all,
+>
+>On Friday 11 July 2003 10:14, Martin J. Bligh wrote:
+>
+>>http://bugme.osdl.org/show_bug.cgi?id=898
+>>
+>>           Summary: Very HIGH File & VM system latencies and system stop
+>>                    responding while extracting big tar  archive file.
+>>    Kernel Version: 2.5.75
+>>            Status: NEW
+>>          Severity: high
+>>             Owner: bugme-janitors@lists.osdl.org
+>>         Submitter: bakhtiar@softhome.net
+>>
+>>
+>>Distribution:Slackware v7.1 : glibc v2.1.3
+>>Hardware Environment: P!!! 550 MHz, 256 MB RAM. HP Brio BA600
+>>
+>
+>The same issues here with 2.5.7{4,5}. IO-intencive task got stuck in 'D'
+>state (bk,rsync,tar - it really doesn't matter). I think a have to get decoded
+>Alt-SysRq-T for this tasks next time. 
+>
 
-			Roger. 
+You're sure 2.5.74 got processes stuck in D? That means its possibly
+a driver bug. If you can get 2.5.75 to hang, please also try with
+elevator=deadline. Thank you.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* I didn't say it was your fault. I said I was going to blame it on you. *
+Nick
+
+

@@ -1,61 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVA1TQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVA1TYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbVA1TQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 14:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVA1TKH
+	id S262683AbVA1TYj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbVA1TRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 14:10:07 -0500
-Received: from fsmlabs.com ([168.103.115.128]:37831 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262683AbVA1TFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 14:05:31 -0500
-Date: Fri, 28 Jan 2005 12:05:48 -0700 (MST)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: John Levon <levon@movementarian.org>, Andrew Morton <akpm@osdl.org>,
-       paul.mundt@nokia.com
-Subject: [PATCH] OProfile: Use profile_pc in oprofile_add_sample
-Message-ID: <Pine.LNX.4.61.0501281143000.22859@montezuma.fsmlabs.com>
+	Fri, 28 Jan 2005 14:17:22 -0500
+Received: from alog0284.analogic.com ([208.224.222.60]:59008 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262775AbVA1TO7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 14:14:59 -0500
+Date: Fri, 28 Jan 2005 14:14:25 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Jeff.Fellin@rflelect.com
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Verify system io addresses
+In-Reply-To: <OF9D8C9A4F.B7F39615-ON85256F97.005DDD20@teal.com>
+Message-ID: <Pine.LNX.4.61.0501281359270.28268@chaos.analogic.com>
+References: <OF9D8C9A4F.B7F39615-ON85256F97.005DDD20@teal.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We should be using profile_pc in oprofile_add_sample so that lock 
-contention is attibuted to the correct function in profile output. Also 
-fix SH7750 support.
+On Fri, 28 Jan 2005 Jeff.Fellin@rflelect.com wrote:
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+> I want to develop a device driver that would allow access to board
+> registers and memory that is addressable
+> on the system bus.  The reason for this is to allow hardware developers to
+> access board registers while the system
+> is running to determine what is wrong with a board. The problem I'm having
+> is attempting to determine if an address
+> is addressable and would not cause a system panic when accessing. I'm
+> looking for functions similar to the
 
-===== drivers/oprofile/cpu_buffer.c 1.17 vs edited =====
---- 1.17/drivers/oprofile/cpu_buffer.c	2005-01-04 19:48:24 -07:00
-+++ edited/drivers/oprofile/cpu_buffer.c	2005-01-28 11:08:37 -07:00
-@@ -233,7 +233,7 @@ static void oprofile_end_trace(struct op
- void oprofile_add_sample(struct pt_regs * const regs, unsigned long event)
- {
- 	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
--	unsigned long pc = instruction_pointer(regs);
-+	unsigned long pc = profile_pc(regs);
- 	int is_kernel = !user_mode(regs);
- 
- 	if (!backtrace_depth) {
-===== arch/sh/oprofile/op_model_sh7750.c 1.1 vs edited =====
---- 1.1/arch/sh/oprofile/op_model_sh7750.c	2004-10-18 23:26:43 -06:00
-+++ edited/arch/sh/oprofile/op_model_sh7750.c	2005-01-28 11:16:54 -07:00
-@@ -112,14 +112,9 @@ static struct op_counter_config ctr[NR_C
-  */
- 
- static int sh7750_timer_notify(struct notifier_block *self,
--			       unsigned long val, void *data)
-+			       unsigned long val, void *regs)
- {
--	struct pt_regs *regs = data;
--	unsigned long pc;
--
--	pc = instruction_pointer(regs);
--	oprofile_add_sample(pc, !user_mode(regs), 0, smp_processor_id());
--
-+	oprofile_add_sample((struct pt_regs *)regs, 0);
- 	return 0;
- }
- 
+>From within the kernel, on Intel machines, all addresses that are
+mapped (using ioremap_nocache()) are addressable even if there is
+no hardware at that address. It cannot cause a system panic. A
+read from non-existent hardware will simply return a value with
+all bits set (0xffffffff for a size_t). A write will go to
+hyper-space, doing nothing.
+
+> verify_access for user addresses, or if that is not available a method to
+> determine that an address fault in the
+> kernel is actually due to a bad board address being used.
+>
+
+There will be no such faults. You to use ioremap_nocache() first.
+Remember to iounmap() when you are through.
+
+> The driver has a user program that allows the hardware developers to peek
+> and poke at address locations.
+> So it is possible for them to mistype the address.
+>
+> Thank you in advance for your help.
+>
+
+If the access is through a port (in and out instructions), you
+don't have to do anything, ports are always available in kernel
+space.
+
+
+BBBBUUUTTT!  If you write to somebody else's address-space like
+a hard-disk controller, you can destroy all your data requiring
+a complete re-installation of everything. That's why what you
+want to do is NOT what you should do.
+
+You need to have a competent programmer make a driver and
+its attendant test-program to thoroughly test your board(s)
+with no possibility of somebody entering wrong information.
+
+> Jeff Fellin
+> RFL Electronics
+> Jeff.Fellin@rflelect.com
+> 973 334-3100, x 327
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132681AbRDKUGv>; Wed, 11 Apr 2001 16:06:51 -0400
+	id <S132980AbRDKUIE>; Wed, 11 Apr 2001 16:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132697AbRDKUGl>; Wed, 11 Apr 2001 16:06:41 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6928 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132681AbRDKUGb>;
-	Wed, 11 Apr 2001 16:06:31 -0400
-Date: Wed, 11 Apr 2001 17:06:24 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 module development mailing list needed?  [Fwd: Linux Security
- Module Interface]
-In-Reply-To: <3AD48F4F.1000800@megapathdsl.net>
-Message-ID: <Pine.LNX.4.21.0104111702450.25737-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132973AbRDKUHw>; Wed, 11 Apr 2001 16:07:52 -0400
+Received: from ns.caldera.de ([212.34.180.1]:4873 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S132697AbRDKUHj>;
+	Wed, 11 Apr 2001 16:07:39 -0400
+Date: Wed, 11 Apr 2001 22:04:48 +0200
+Message-Id: <200104112004.WAA30164@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: <davej@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>
+Subject: Re: CML2 1.0.0 release announcement
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.31.0104112013010.25121-100000@athlon>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Apr 2001, Miles Lane wrote:
-> Matti Aarnio wrote:
+In article <Pine.LNX.4.31.0104112013010.25121-100000@athlon> you wrote:
+> One of the first things I noticed was it seems noticably slower
+> than CML1. A make menuconfig in CML1 takes me into the menu
+> in under a second. (On an already compiled tree).
+> CML2 takes around 15 seconds before I get that far.
+> This is on an Athlon 800 w/512MB. I dread to think how this
+> responds on a 486.
 
-> > 	Proper place to do this discussion is linux-kernel@vger.kernel.org
-> 
-> It sounds good in theory.  In practice, though, almost all of the
-> design discussions have been occuring in private e-mail.
+If you look for something _even_ faster try mconfig.  For everyone who is
+interested, I've put my latests half-way stable version is on ftp.  It's at
 
-Actually, I tried to setup a mailing list (linux-future@nl.linux.org)
-for discussions about future ideas for Linux, etc...
+  ftp.openlinux.org:/pub/people/hch/mconfig/mconfig-0.19-pre1.tar.gz
 
-In practice most discussions just came back to linux-kernel or to
-subsystem lists every once in a while. If you feel you want to
-ramble about long-term ideas or random OS ideas you think might be
-cool to have in Linux sometime in the future, feel free to use that
-list I made (it's still around), but most serious discussion will
-end up here sooner or later ...
+Props for all the hard work go to Michael Elizabeth Chastain!
 
-regards,
+	Christoph
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

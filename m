@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTIONpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 09:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbTIONpb
+	id S261355AbTIONtS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 09:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbTIONtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 09:45:31 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:58786 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261336AbTIONpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 09:45:30 -0400
-Subject: Re: [PATCH] Fix IDE compile on PPC in 2.4.23-pre4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16229.45091.906515.365451@nanango.paulus.ozlabs.org>
-References: <16229.45091.906515.365451@nanango.paulus.ozlabs.org>
+	Mon, 15 Sep 2003 09:49:18 -0400
+Received: from lightning.hereintown.net ([141.157.132.3]:29326 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id S261355AbTIONsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 09:48:18 -0400
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+From: Chris Meadors <twrchris@hereintown.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3F65B2BD.9000206@cyberone.com.au>
+References: <200309151146.h8FBkXcw001170@81-2-122-30.bradfords.org.uk>
+	 <3F65B2BD.9000206@cyberone.com.au>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063633399.3734.15.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1063633563.215.16.camel@clubneon.priv.hereintown.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Mon, 15 Sep 2003 14:43:20 +0100
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 15 Sep 2003 09:46:04 -0400
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19ytiD-0003Re-Ty*onm0/2n.i6Q*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-15 at 13:27, Paul Mackerras wrote:
-> Marcelo & Bart,
-> 
-> Currently, the IDE code in 2.4.23-pre4 does not compile on PPC because
-> of a missed symbol name change in drivers/ide/ide-probe.c.  This
-> instance got missed because it is in a #ifdef CONFIG_PPC section.
-> 
-> The patch below fixes it.  Please apply.
+On Mon, 2003-09-15 at 08:38, Nick Piggin wrote:
 
-Definitely right..
+> OK, the reason why I don't like the sound of this is because the size
+> of your option set has now been squared, and its no longer "make these
+> CPUs work".
 
+The way I see the config option working is, having a sub-menu that says
+something like, "Select the CPU the kernel will be run on."  From there
+you can pick one CPU.  This sets the in kernel optimizations for that
+CPU, along with the work arounds (obviously).  It also sets the compiler
+flags for the padding, and "-march=[CPU]".  Then in a sub-menu of this
+menu, there is an "Advanced processor selection".  The help text would
+be something like, "In addition to the primary processor selected above,
+also allow this kernel to be booted on the processors selected below. 
+Selecting this option disables some of the optimizations for the primary
+processor."  Just turning on that option would change the "-march=" to
+"-mcpu=".  Then in the menu one could select from any of the CPUs
+listed.  Each one would enable the work around code to allow the built
+kernel to run correctly on a machine with a different CPU.
+
+I see this as sort of like the advanced partition selection, or the
+compiled in fonts.
+
+> I can see an argument for cache line size but thats about it. I can't
+> think of my optimisations that should be done on one architecture but
+> not another.
+
+Don't forget the compiler optimization flags.  A kernel built with
+"-march" may not run on any other CPUs.
+
+-- 
+Chris
 

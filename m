@@ -1,77 +1,253 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267521AbSLSCfw>; Wed, 18 Dec 2002 21:35:52 -0500
+	id <S267515AbSLSCcy>; Wed, 18 Dec 2002 21:32:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267525AbSLSCfw>; Wed, 18 Dec 2002 21:35:52 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:41432 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267521AbSLSCfs>; Wed, 18 Dec 2002 21:35:48 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] [v850]  Pass extra signal handler args correctly on the v850
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20021219024327.E62533702@mcspd15.ucom.lsi.nec.co.jp>
-Date: Thu, 19 Dec 2002 11:43:27 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	id <S267518AbSLSCcx>; Wed, 18 Dec 2002 21:32:53 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:8424 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S267515AbSLSCcp>;
+	Wed, 18 Dec 2002 21:32:45 -0500
+Date: Wed, 18 Dec 2002 18:40:45 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] : IrLMP basic socket scheduler (to make 2.4.21-pre2 compile)
+Message-ID: <20021219024045.GA1746@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The old code seems completely wrong; I guess it was just left over from
-whichever architecture this code was copied from.
+	Hi Marcelo,
 
-diff -ruN -X../cludes ../orig/linux-2.5.52-uc0/arch/v850/kernel/signal.c arch/v850/kernel/signal.c
---- ../orig/linux-2.5.52-uc0/arch/v850/kernel/signal.c	2002-11-28 10:24:54.000000000 +0900
-+++ arch/v850/kernel/signal.c	2002-12-19 11:37:31.000000000 +0900
-@@ -147,8 +146,6 @@
+	One of the IrDA patch I sent you didn't made it into the
+kernel. That's unfortunate because it was one half of a complete
+patch, and as the other part is in the kernel, the IrDA stack is not
+functional (see previous e-mail).
+	I've rediffed the patch against 2.4.21-pre2 to avoid the fuzz,
+and it is included below. Would you mind including that in the kernel ?
+
+	Regards,
+
+	Jean
+
+
+ir241_flow_sched_lap_lmp-7.diff :
+-------------------------------
+        o [FEATURE] Reduce LAP Tx queue to 2 packets (from 10)
+                Improve latency, reduce buffer usage
+        o [FEATURE] LAP Tx queue not full notification (flow start)
+                Poll higher layer to fill synchronously LAP window (7 packets)
+        o [FEATURE] LMP LSAP scheduler
+                Ensure Tx fairness between LSAPs (sockets, IrCOMM, IrNET...)
+
+		<And I might add...>
+        o [CRITICA] Required by the IrTTP patch already in 2.4.21-pre2
+
+
+diff -u -p -r linux/include/net/irda/irlap.d6.h linux/include/net/irda/irlap.h
+--- linux/include/net/irda/irlap.d6.h	Wed Dec 18 17:54:47 2002
++++ linux/include/net/irda/irlap.h	Wed Dec 18 17:56:13 2002
+@@ -50,8 +50,32 @@
+ #define CBROADCAST 0xfe       /* Connection broadcast address */
+ #define XID_FORMAT 0x01       /* Discovery XID format */
  
- struct rt_sigframe
++/* Nobody seems to use this constant. */
+ #define LAP_WINDOW_SIZE 8
+-#define LAP_MAX_QUEUE  10
++/* We keep the LAP queue very small to minimise the amount of buffering.
++ * this improve latency and reduce resource consumption.
++ * This work only because we have synchronous refilling of IrLAP through
++ * the flow control mechanism (via scheduler and IrTTP).
++ * 2 buffers is the minimum we can work with, one that we send while polling
++ * IrTTP, and another to know that we should not send the pf bit.
++ * Jean II */
++#define LAP_HIGH_THRESHOLD     2
++/* Some rare non TTP clients don't implement flow control, and
++ * so don't comply with the above limit (and neither with this one).
++ * For IAP and management, it doesn't matter, because they never transmit much.
++ *.For IrLPT, this should be fixed.
++ * - Jean II */
++#define LAP_MAX_QUEUE 10
++/* Please note that all IrDA management frames (LMP/TTP conn req/disc and
++ * IAS queries) fall in the second category and are sent to LAP even if TTP
++ * is stopped. This means that those frames will wait only a maximum of
++ * two (2) data frames before beeing sent on the "wire", which speed up
++ * new socket setup when the link is saturated.
++ * Same story for two sockets competing for the medium : if one saturates
++ * the LAP, when the other want to transmit it only has to wait for
++ * maximum three (3) packets (2 + one scheduling), which improve performance
++ * of delay sensitive applications.
++ * Jean II */
+ 
+ #define NR_EXPECTED     1
+ #define NR_UNEXPECTED   0
+diff -u -p -r linux/include/net/irda/irlmp.d6.h linux/include/net/irda/irlmp.h
+--- linux/include/net/irda/irlmp.d6.h	Wed Dec 18 17:54:56 2002
++++ linux/include/net/irda/irlmp.h	Wed Dec 18 17:56:13 2002
+@@ -132,6 +132,7 @@ struct lap_cb {
+ 
+ 	struct irlap_cb *irlap;   /* Instance of IrLAP layer */
+ 	hashbin_t *lsaps;         /* LSAP associated with this link */
++	struct lsap_cb *flow_next;	/* Next lsap to be polled for Tx */
+ 
+ 	__u8  caddr;  /* Connection address */
+  	__u32 saddr;  /* Source device address */
+@@ -235,6 +236,7 @@ void irlmp_connless_data_indication(stru
+ 
+ void irlmp_status_request(void);
+ void irlmp_status_indication(struct lap_cb *, LINK_STATUS link, LOCK_STATUS lock);
++void irlmp_flow_indication(struct lap_cb *self, LOCAL_FLOW flow);
+ 
+ int  irlmp_slsap_inuse(__u8 slsap);
+ __u8 irlmp_find_free_slsap(void);
+@@ -252,7 +254,9 @@ extern struct irlmp_cb *irlmp;
+ 
+ static inline hashbin_t *irlmp_get_cachelog(void) { return irlmp->cachelog; }
+ 
+-static inline int irlmp_get_lap_tx_queue_len(struct lsap_cb *self)
++/* Check if LAP queue is full.
++ * Used by IrTTP for low control, see comments in irlap.h - Jean II */
++static inline int irlmp_lap_tx_queue_full(struct lsap_cb *self)
  {
--	struct siginfo *pinfo;
--	void *puc;
- 	struct siginfo info;
- 	struct ucontext uc;
- 	unsigned long tramp[2];	/* signal trampoline */
-@@ -330,10 +327,12 @@
- 	if (err)
- 		goto give_sigsegv;
+ 	if (self == NULL)
+ 		return 0;
+@@ -261,7 +265,7 @@ static inline int irlmp_get_lap_tx_queue
+ 	if (self->lap->irlap == NULL)
+ 		return 0;
  
--	/* Set up registers for signal handler */
--	regs->gpr[GPR_SP] = (unsigned long) frame;
--	regs->gpr[GPR_ARG0] = signal; /* Arg for signal handler */
--	regs->pc = (unsigned long) ka->sa.sa_handler;
-+	/* Set up registers for signal handler.  */
-+	regs->pc = (v850_reg_t) ka->sa.sa_handler;
-+	regs->gpr[GPR_SP] = (v850_reg_t)frame;
-+	/* Signal handler args:  */
-+	regs->gpr[GPR_ARG0] = signal; /* arg 0: signum */
-+	regs->gpr[GPR_ARG1] = (v850_reg_t)&frame->sc;/* arg 1: sigcontext */
+-	return IRLAP_GET_TX_QUEUE_LEN(self->lap->irlap);
++	return(IRLAP_GET_TX_QUEUE_LEN(self->lap->irlap) >= LAP_HIGH_THRESHOLD);
+ }
  
- 	set_fs(USER_DS);
+ /* After doing a irlmp_dup(), this get one of the two socket back into
+diff -u -p -r linux/net/irda/irlap_event.d6.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d6.c	Wed Dec 18 17:55:32 2002
++++ linux/net/irda/irlap_event.c	Wed Dec 18 17:56:13 2002
+@@ -253,19 +253,45 @@ void irlap_do_event(struct irlap_cb *sel
+ 	case LAP_XMIT_P: /* FALLTHROUGH */
+ 	case LAP_XMIT_S:
+ 		/* 
++		 * We just received the pf bit and are at the beginning
++		 * of a new LAP transmit window.
+ 		 * Check if there are any queued data frames, and do not
+ 		 * try to disconnect link if we send any data frames, since
+ 		 * that will change the state away form XMIT
+ 		 */
++		IRDA_DEBUG(2, __FUNCTION__ "() : queue len = %d\n",
++			   skb_queue_len(&self->txq));
++
+ 		if (skb_queue_len(&self->txq)) {
+ 			/* Prevent race conditions with irlap_data_request() */
+ 			self->local_busy = TRUE;
  
-@@ -368,8 +367,6 @@
- 		? current_thread_info()->exec_domain->signal_invmap[sig]
- 		: sig;
++			/* Theory of operation.
++			 * We send frames up to when we fill the window or
++			 * reach line capacity. Those frames will queue up
++			 * in the device queue, and the driver will slowly
++			 * send them.
++			 * After each frame that we send, we poll the higher
++			 * layer for more data. It's the right time to do
++			 * that because the link layer need to perform the mtt
++			 * and then send the first frame, so we can afford
++			 * to send a bit of time in kernel space.
++			 * The explicit flow indication allow to minimise
++			 * buffers (== lower latency), to avoid higher layer
++			 * polling via timers (== less context switches) and
++			 * to implement a crude scheduler - Jean II */
++
+ 			/* Try to send away all queued data frames */
+ 			while ((skb = skb_dequeue(&self->txq)) != NULL) {
++				/* Send one frame */
+ 				ret = (*state[self->state])(self, SEND_I_CMD,
+ 							    skb, NULL);
+ 				kfree_skb(skb);
++
++				/* Poll the higher layers for one more frame */
++				irlmp_flow_indication(self->notify.instance,
++						      FLOW_START);
++
+ 				if (ret == -EPROTO)
+ 					break; /* Try again later! */
+ 			}
+diff -u -p -r linux/net/irda/irlmp.d6.c linux/net/irda/irlmp.c
+--- linux/net/irda/irlmp.d6.c	Wed Dec 18 17:55:46 2002
++++ linux/net/irda/irlmp.c	Wed Dec 18 17:56:13 2002
+@@ -1220,6 +1220,72 @@ void irlmp_status_indication(struct lap_
+ }
  
--	err |= __put_user(&frame->info, &frame->pinfo);
--	err |= __put_user(&frame->uc, &frame->puc);
- 	err |= copy_siginfo_to_user(&frame->info, info);
- 
- 	/* Create the ucontext.  */
-@@ -406,10 +403,13 @@
- 	if (err)
- 		goto give_sigsegv;
- 
--	/* Set up registers for signal handler */
--	regs->gpr[GPR_SP] = (unsigned long) frame;
--	regs->gpr[GPR_ARG0] = signal; /* Arg for signal handler */
--	regs->pc = (unsigned long) ka->sa.sa_handler;
-+	/* Set up registers for signal handler.  */
-+	regs->pc = (v850_reg_t) ka->sa.sa_handler;
-+	regs->gpr[GPR_SP] = (v850_reg_t)frame;
-+	/* Signal handler args:  */
-+	regs->gpr[GPR_ARG0] = signal; /* arg 0: signum */
-+	regs->gpr[GPR_ARG1] = (v850_reg_t)&frame->info; /* arg 1: siginfo */
-+	regs->gpr[GPR_ARG2] = (v850_reg_t)&frame->uc; /* arg 2: ucontext */
- 
- 	set_fs(USER_DS);
- 
+ /*
++ * Receive flow control indication from LAP.
++ * LAP want us to send it one more frame. We implement a simple round
++ * robin scheduler between the active sockets so that we get a bit of
++ * fairness. Note that the round robin is far from perfect, but it's
++ * better than nothing.
++ * We then poll the selected socket so that we can do synchronous
++ * refilling of IrLAP (which allow to minimise the number of buffers).
++ * Jean II
++ */
++void irlmp_flow_indication(struct lap_cb *self, LOCAL_FLOW flow)
++{
++	struct lsap_cb *next;
++	struct lsap_cb *curr;
++	int	lsap_todo;
++
++	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
++	ASSERT(flow == FLOW_START, return;);
++
++	/* Get the number of lsap. That's the only safe way to know
++	 * that we have looped around... - Jean II */
++	lsap_todo = HASHBIN_GET_SIZE(self->lsaps);
++	IRDA_DEBUG(4, __FUNCTION__ "() : %d lsaps to scan\n", lsap_todo);
++
++	/* Poll lsap in order until the queue is full or until we
++	 * tried them all.
++	 * Most often, the current LSAP will have something to send,
++	 * so we will go through this loop only once. - Jean II */
++	while((lsap_todo--) &&
++	      (IRLAP_GET_TX_QUEUE_LEN(self->irlap) < LAP_HIGH_THRESHOLD)) {
++		/* Try to find the next lsap we should poll. */
++		next = self->flow_next;
++		if(next != NULL) {
++			/* Note that if there is only one LSAP on the LAP
++			 * (most common case), self->flow_next is always NULL,
++			 * so we always avoid this loop. - Jean II */
++			IRDA_DEBUG(4, __FUNCTION__ "() : searching my LSAP\n");
++
++			/* We look again in hashbins, because the lsap
++			 * might have gone away... - Jean II */
++			curr = (struct lsap_cb *) hashbin_get_first(self->lsaps);
++			while((curr != NULL ) && (curr != next))
++				curr = (struct lsap_cb *) hashbin_get_next(self->lsaps);
++		} else
++			curr = NULL;
++
++		/* If we have no lsap, restart from first one */
++		if(curr == NULL)
++			curr = (struct lsap_cb *) hashbin_get_first(self->lsaps);
++		/* Uh-oh... Paranoia */
++		if(curr == NULL)
++			break;
++
++		/* Next time, we will get the next one (or the first one) */
++		self->flow_next = (struct lsap_cb *) hashbin_get_next(self->lsaps);
++		IRDA_DEBUG(4, __FUNCTION__ "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
++
++		/* Inform lsap user that it can send one more packet. */
++		if (curr->notify.flow_indication != NULL)
++			curr->notify.flow_indication(curr->notify.instance, 
++						     curr, flow);
++		else
++			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
++	}
++}
++
++/*
+  * Function irlmp_hint_to_service (hint)
+  *
+  *    Returns a list of all servics contained in the given hint bits. This

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292336AbSCONmO>; Fri, 15 Mar 2002 08:42:14 -0500
+	id <S292339AbSCONwZ>; Fri, 15 Mar 2002 08:52:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292339AbSCONmF>; Fri, 15 Mar 2002 08:42:05 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:3082 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S292336AbSCONlv>; Fri, 15 Mar 2002 08:41:51 -0500
-Date: Fri, 15 Mar 2002 08:41:49 -0500
-From: Josh Fryman <fryman@cc.gatech.edu>
-To: Miao Qingjun <qjmiao@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel IXP1200 and Linux
-Message-Id: <20020315084149.0fcdbf68.fryman@cc.gatech.edu>
-In-Reply-To: <20020315053916.531.qmail@web12303.mail.yahoo.com>
-In-Reply-To: <20020315053916.531.qmail@web12303.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; sparc-sun-solaris2.7)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S292373AbSCONwP>; Fri, 15 Mar 2002 08:52:15 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33929 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S292339AbSCONwN>;
+	Fri, 15 Mar 2002 08:52:13 -0500
+Date: Fri, 15 Mar 2002 08:52:11 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] proc_pid_make_inode() fix
+Message-ID: <Pine.GSO.4.21.0203150843400.2253-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have problems to run linux from IXA SDK 2.01 onto
-> an old IXP1200 evaluation board (not IXM1200 board).
+	In case if proc_pid_make_inode() steps on exiting task we do
+iput() and return NULL.  Unfortunately, in that case inode->i_ino
+doesn't look like inumber of a per-process inode and we take the
+wrong path in proc_delete_inode().  I.e. do dput(PDE(inode)).  Which
+is left uninitialized...
 
-this is your problem.  SDK 2.01 contains the kernel reworked for the
-RadiSys board ("bridalveil/SI").  the original EVB with dual gigF 
-and 8x 10/100TX doesn't work with this source.
+	We used to get out with that almost by accident - that code
+worked only because we had zeroed out one field of union and that
+guaranteed that another field would be NULL.  It worked, but broke
+at the first occasion.
 
-use the source instead from the netwinder.org site with the original
-intel IXP1200 how-to information.  (also, getting support on LKML for
-the unofficial patches to make IXP1200 work isn't too likely :) 
-you'll note that the kernel is pre-2.4.0.  ancient history. these
-patches have not been incorporated in the main kernel...)
+	Fix:
 
-the SDK 2.x series is commented for the changes made from the 
-original how-to release, and massaging #ifdef's in the code _should_
-fix it, but seems not to.  i haven't done an exhaustive diff to see
-where else changes have been made.
+--- linux/fs/proc/base.c	Tue Feb 19 22:33:04 2002
++++ linux/fs/proc/base.c.fix	Fri Mar 15 08:42:19 2002
+@@ -730,6 +730,7 @@
+ 	return inode;
+ 
+ out_unlock:
++	ei->pde = NULL;
+ 	iput(inode);
+ 	return NULL;
+ }
 
--josh

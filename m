@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283496AbRLCXqV>; Mon, 3 Dec 2001 18:46:21 -0500
+	id <S283434AbRLCXqU>; Mon, 3 Dec 2001 18:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281856AbRLCXgy>; Mon, 3 Dec 2001 18:36:54 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:38790 "EHLO
-	lazy.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S285303AbRLCWoA>; Mon, 3 Dec 2001 17:44:00 -0500
-Date: Mon, 3 Dec 2001 16:29:35 -0600 (CST)
-From: Manoj Iyer <manjo@austin.ibm.com>
-X-X-Sender: <manjo@lazy>
-To: kernelmailinglist <linux-kernel@vger.kernel.org>
-Subject: PPC 2.4.17.pre2 kernel build breaks!!
-Message-ID: <Pine.LNX.4.33.0112031626450.2127-100000@lazy>
+	id <S282236AbRLCXkk>; Mon, 3 Dec 2001 18:40:40 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36105 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S284774AbRLCQhR>; Mon, 3 Dec 2001 11:37:17 -0500
+Date: Mon, 3 Dec 2001 11:30:44 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Enhancement of /proc/partitions output (2.5.1-pre5)
+In-Reply-To: <UTC200112011147.LAA114060.aeb@cwi.nl>
+Message-ID: <Pine.LNX.3.96.1011203111501.21357B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 Dec 2001 Andries.Brouwer@cwi.nl wrote:
 
-I get the following build break compiling kernel 2.4.17.pre2 on PPC-32.
-Any suggestions??
+> The present /proc/partitions has minimal content.
+> Its only function is to report to user space which block devices
+> are known to the kernel. User space is unable to figure that out
+> on its own without an unreasonable amount of probing.
+> 
+> But once you know what devices exist, it is very easy for user space
+> to report all desired properties of these devices.
+> Do you want starting sector and size of /dev/hde4?
+> 
+> # hdparm -g /dev/hde4
+> 
+> /dev/hde4:
+>  geometry     = 70780/16/63, sectors = 1670760, start = 69673905
 
-Thank
-Manoj Iyer
+Really? Do you run hdparm setuid root or allow read access of hde? In any
+case, allowing easy access from user space via hdparm trickes me as a
+major security issue. The geometry is in /proc/ide/hd?/geometry, but the
+other info is not readily available to other than root user in most
+systems. I think his intention was to make it more generally available. I
+don't see any reason to require root to see this information, and I think
+reducing the need for root is a good thing for security.
 
-ld  -r -o x.o start.o xmon.o ppc-dis.o ppc-opc.o subr_prf.o setjmp.o
-make[2]: Leaving directory `/usr/src/linux/arch/ppc/xmon'
-make[1]: Leaving directory `/usr/src/linux/arch/ppc/xmon'
-ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic arch/ppc/kernel/head.o init/main.o init/version.o \
-        --start-group \
-        arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/ppc/xmon/x.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/net/wireless/wireless_net.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-        net/network.o \
-        /usr/src/linux/lib/lib.a \
-        --end-group \
-        -o vmlinux
-arch/ppc/kernel/kernel.o: In function `getpacket':
-arch/ppc/kernel/kernel.o(.text+0x9f48): undefined reference to `getDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9f48): relocation truncated to fit: R_PPC_REL24 getDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9f7c): undefined reference to `getDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9f7c): relocation truncated to fit: R_PPC_REL24 getDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9f98): undefined reference to `getDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9f98): relocation truncated to fit: R_PPC_REL24 getDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9fa8): undefined reference to `getDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9fa8): relocation truncated to fit: R_PPC_REL24 getDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9fc8): undefined reference to `putDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9fc8): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9fd4): undefined reference to `putDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9fd4): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9fec): undefined reference to `putDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9fec): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0x9ff8): undefined reference to `putDebugChar'
-arch/ppc/kernel/kernel.o(.text+0x9ff8): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o: In function `putpacket':
-arch/ppc/kernel/kernel.o(.text+0xa068): undefined reference to `putDebugChar'
-arch/ppc/kernel/kernel.o(.text+0xa068): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0xa084): more undefined references to `putDebugChar' follow
-arch/ppc/kernel/kernel.o: In function `putpacket':
-arch/ppc/kernel/kernel.o(.text+0xa084): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0xa0a4): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0xa0b4): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0xa0c4): relocation truncated to fit: R_PPC_REL24 putDebugChar
-arch/ppc/kernel/kernel.o(.text+0xa0c8): undefined reference to `getDebugChar'
-arch/ppc/kernel/kernel.o(.text+0xa0c8): relocation truncated to fit: R_PPC_REL24 getDebugChar
-arch/ppc/kernel/kernel.o: In function `handle_exception':
-arch/ppc/kernel/kernel.o(.text+0xa344): undefined reference to `kgdb_interruptible'
-arch/ppc/kernel/kernel.o(.text+0xa344): relocation truncated to fit: R_PPC_REL24 kgdb_interruptible
-arch/ppc/kernel/kernel.o(.text+0xa8f4): undefined reference to `kgdb_interruptible'
-arch/ppc/kernel/kernel.o(.text+0xa8f4): relocation truncated to fit: R_PPC_REL24 kgdb_interruptible
-arch/ppc/kernel/kernel.o: In function `pmac_setup_arch':
-arch/ppc/kernel/kernel.o(.text.init+0x28c0): undefined reference to `zs_kgdb_hook'
-arch/ppc/kernel/kernel.o(.text.init+0x28c0): relocation truncated to fit: R_PPC_REL24 zs_kgdb_hook
-make: *** [vmlinux] Error 1
+It would be highly desirable to define new proc data as subject to
+addition of more information per line at any time, and as long as the
+fields are added at the end of the line a parser can easily be written not
+to break. As you note, changing existing information presents other
+problems and will break things, since /proc/partitions was not defines as
+extensible.
 
+I personally would have no problem adding this to 2.5, lots of things will
+change, but I agree that a change to 2.4 is not practical as a retrofit.
 
-
-
-*******************************************************************************
-		The greatest risk is not taking one.
-*******************************************************************************
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

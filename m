@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310942AbSCHQio>; Fri, 8 Mar 2002 11:38:44 -0500
+	id <S287488AbSCHQmz>; Fri, 8 Mar 2002 11:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310944AbSCHQie>; Fri, 8 Mar 2002 11:38:34 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31750 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310942AbSCHQiO>;
-	Fri, 8 Mar 2002 11:38:14 -0500
-Date: Fri, 8 Mar 2002 13:37:41 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Pau Aliagas <linuxnow@wanadoo.es>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        "Jonathan A. George" <JGeorge@greshamstorage.com>
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-In-Reply-To: <Pine.LNX.4.44.0203081004190.2580-100000@pau.intranet.ct>
-Message-ID: <Pine.LNX.4.44L.0203081334250.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310946AbSCHQmp>; Fri, 8 Mar 2002 11:42:45 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:45994 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S287488AbSCHQmh>; Fri, 8 Mar 2002 11:42:37 -0500
+Date: Fri, 8 Mar 2002 09:42:01 -0700
+Message-Id: <200203081642.g28Gg1518485@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 18
+In-Reply-To: <3C88DCEF.5000708@evision-ventures.com>
+In-Reply-To: <Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com>
+	<3C88DCEF.5000708@evision-ventures.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Pau Aliagas wrote:
+Martin Dalecki writes:
+> - Add EXPORT_SYMBOL(ide_fops) again, since it's used in ide-cd.c add
+>    a note there that this is actually possibly adding the same
+>    device twice to the devfs stuff.
 
-> I'd recommend everybody to give arch a try.
+If it is adding the same device twice, that's definately a
+bug. Duplicate devfs entries are not allowed.
 
-If you could setup a public arch repository of the 2.4 / 2.5
-kernel of which everybody can copy/clone their arch kernel
-repository, that would be a good start.
+				Regards,
 
-Even better would be an arch kernel repository that is kept
-up-to-date (automatically?) or gated from the bitkeeper tree.
-
-That would give us some real way to compare the two tools.
-
-regards,
-
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbSLFCQb>; Thu, 5 Dec 2002 21:16:31 -0500
+	id <S267512AbSLFCVL>; Thu, 5 Dec 2002 21:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267529AbSLFCQb>; Thu, 5 Dec 2002 21:16:31 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:35486 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S261409AbSLFCQa>; Thu, 5 Dec 2002 21:16:30 -0500
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-References: <20021205004744.GB2741@zax.zax>
-	<200212050144.gB51iH105366@localhost.localdomain>
-	<20021205023847.GA1500@zax.zax>
-	<buohedtrw64.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20021205060606.GG1500@zax.zax>
-	<buovg29klsh.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20021205234401.GO1500@zax.zax>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 06 Dec 2002 11:23:01 +0900
-In-Reply-To: <20021205234401.GO1500@zax.zax>
-Message-ID: <buoel8vlwca.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S267514AbSLFCVL>; Thu, 5 Dec 2002 21:21:11 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:60289 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267512AbSLFCVK>;
+	Thu, 5 Dec 2002 21:21:10 -0500
+Date: Fri, 6 Dec 2002 03:28:53 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
+Message-ID: <20021206022853.GJ1567@dualathlon.random>
+References: <20021206111326.B7232@turing.une.edu.au> <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random> <3DEFFEAA.6B386051@digeo.com> <20021206014429.GI1567@dualathlon.random> <20021206021559.GK9882@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021206021559.GK9882@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson <david@gibson.dropbear.id.au> writes:
-> >   * pci_map_single allocates a `shadow area' of consistent memory and
-> >     pci_unmap_single deallocates it
+On Thu, Dec 05, 2002 at 06:15:59PM -0800, William Lee Irwin III wrote:
+> On Fri, Dec 06, 2002 at 02:44:29AM +0100, Andrea Arcangeli wrote:
+> > Or it hurts when you can't allocate an inode because such 100M are in
+> > pagetables on a 64G box and you still have 60G free of highmem.
 > 
-> That's a little misleading: all your memory is consistent, the point
-> is that it is a shadow area of PCI-mappable memory.
-
-Well I suppose that's true if you're using the term in a cache-related
-sense (which I gather is the convention).
-
-OTOH, if you think about it from the view point of the PCI framework,
-the terminology actually does make sense even in this odd case --
-`consistent' memory is indeed consistent (both CPU and device see a
-single image), but other memory used to communicate with the driver is
-`inconsistent' (CPU and device see different things until a sync
-operation is done).
-
-> The issue is that there are other constraints for DMAable memory and
-> you want drivers to be able to easily mallocate with those
-> constraints.
+> This is the zone vs. zone watermark stuff that penalizes/fails
+> allocations made with a given GFP mask from being satisfied by
+> fallback. This is largely old news wrt. various kinds of inability
+> to pressure those ZONE_NORMAL (maybe also ZONE_DMA) consumers.
 > 
-> Actually, it occurs to me that PC ISA DMA is in a similar situation -
-> there is a constraint on DMAable memory (sufficiently low physical
-> address) which has nothing to do with consistency.
+> Admission control for fallback is valuable, sure. I suspect the
+> question akpm raised is about memory utilization. My own issues are
+> centered around allocations targeted directly at ZONE_NORMAL,
+> which fallback prevention does not address, so the watermark patch
+> is not something I'm personally very concerned about.
 
-Indeed.  What I'm doing is basically bounce-buffers.
+you must be very concerned about it too.
 
--Miles
--- 
-`The suburb is an obsolete and contradictory form of human settlement'
+If you don't have the fallback prevention all your efforts around the
+allocations targeted directoy zone normal will be completely worthless.
+
+Either that or you want to drop ZONE_NORMAL enterely because it means
+nothing uses zone-normal dynamically anymore (ZONE_NORMAL seen as a
+place that is directly mapped, not necessairly always 32bit dma
+capable).
+
+> 64GB isn't getting any testing that I know of; I'd hold off until
+> someone's actually stood up and confessed to attempting to boot
+> Linux on such a beast. Or until I get some more RAM. =)
+
+64GB is an example, a good example for this thing, but a 16G machine or
+a 4G machine can run in the very same issues. As said just swapoff -a
+and malloc(1G) and such 1G is all ZONE_NORMAL before you could allocate
+enough inodes for your workload. Or alloc 1G of pagetables by setting
+everything protnone, and sugh 1G of pagetables goes in zone-normal
+because the highmem is filled by cache. Choose whatever is your
+preferred example of real life bug fixed by the lowmem-reservation patch
+that is absolutely necessary to run stable on a big box with normal zone
+and highmem (not only a 64G box).
+
+The only place where you must not be concerned about these fixes are the
+64bit archs.
+
+Andrea

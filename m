@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271982AbRIDQQn>; Tue, 4 Sep 2001 12:16:43 -0400
+	id <S271986AbRIDQYD>; Tue, 4 Sep 2001 12:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271985AbRIDQQd>; Tue, 4 Sep 2001 12:16:33 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11282 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271982AbRIDQQP>;
-	Tue, 4 Sep 2001 12:16:15 -0400
-Date: Tue, 4 Sep 2001 13:16:14 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: <linux-kernel@vger.kernel.org>, <marcelo@brutus.conectiva.com.br>
-Subject: Re: pmap revisited
-In-Reply-To: <200109040313.f843DYc00623@vegae.deep.net>
-Message-ID: <Pine.LNX.4.33L.0109041312270.7626-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S271989AbRIDQXx>; Tue, 4 Sep 2001 12:23:53 -0400
+Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:59556
+	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S271986AbRIDQXq>; Tue, 4 Sep 2001 12:23:46 -0400
+Message-ID: <3B950034.17909E5D@nortelnetworks.com>
+Date: Tue, 04 Sep 2001 12:24:20 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Fred <fred@arkansaswebs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Should I use Linux to develop driver for specialized ISA card?
+In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu> <01090410264000.14864@bits.linuxball>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Sep 2001, Samium Gromoff wrote:
+Fred wrote:
+> 
+> I'm  curious, Alan, Why? I'm a hardware developer, and I would have assumed
+> that linux would have been ideal for real time / embedded projects? (routers
+> / controllers / etc.) Is there, for instance, a reason to suspect that linux
+> would not be able to respond to interrupts at say 8Khz?
+> of course I know nothing of rtlinux so I'll read.
 
->     Gotta wrong results in my previous perftest... (slightly different
->   environments), so these are to be sure that on low VM load there isnt
->   any significant difference...
+I'm involved in a project where we are using linux in an embedded application. 
+We've got a gig of ram, no hard drives, no video, and the only I/O is serial,
+ethernet and fiberchannel.
 
-As expected, the current patch only modifies mechanisms and
-leaves most policy the same. Under some loads there is a
-difference, but under light VM loads the same-policy-more-info
-replacement should indeed be pretty similar.
+We have a realtime process that tries to run every 50ms.  We're seeing actual
+worst-case scheduling latencies upwards of 300-400ms.
 
->   Bonus: two bugs! :)
->    1. Quintela`s (shmtest of memtest) and pmap{2,3} == 100% instant deadlock
->       plain ac12 demonstrates ignorance.
+So while interrupts can be handled pretty quickly, you'll want to make sure that
+your buffers are big enough that your userspace app only needs to run every half
+second or so.
 
-I'll try to reproduce that one when I get back home thursday.
+You may be better off with rtlinux if you need better response. (Or if you're on
+x86 hardware you could look at the low-latency patches.)
 
->    2. Swapoff oops 100% - only in pmap3! (okay, swapoff of reiserfs
->       to be strict, but i think that doesnt actually matters)
->       swapoff oops will be in next mail.
 
-This one is fixed. I'll be sitting inside a big tin can with
-wings all day tomorrow, but thursday I'll try to post a new
-version, hopefully with both these bugs fixed.
-
-Thanks for testing the patch and pointing out the bugs!
-
-regards,
-
-Rik
 -- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

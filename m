@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRKCWV5>; Sat, 3 Nov 2001 17:21:57 -0500
+	id <S274757AbRKCWbs>; Sat, 3 Nov 2001 17:31:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274757AbRKCWVr>; Sat, 3 Nov 2001 17:21:47 -0500
-Received: from mail211.mail.bellsouth.net ([205.152.58.151]:53874 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S272818AbRKCWVb>; Sat, 3 Nov 2001 17:21:31 -0500
-Message-ID: <3BE46DE3.4BE63250@mandrakesoft.com>
-Date: Sat, 03 Nov 2001 17:21:23 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens =?iso-8859-1?Q?M=FCller?= <jens@unfaehig.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CVS / Bug Tracking System
-In-Reply-To: <flk.1004824861.fsf@jens.unfaehig.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S274809AbRKCWbi>; Sat, 3 Nov 2001 17:31:38 -0500
+Received: from nposte03.axime.com ([160.92.113.38]:53953 "EHLO
+	mail.laposte.net") by vger.kernel.org with ESMTP id <S274757AbRKCWbc>;
+	Sat, 3 Nov 2001 17:31:32 -0500
+Subject: Problem with ECS k7s5a and ATI Radeon
+From: Laurent Mouillart <laurent.mouillart@laposte.net>
+To: Linux Kernel Mailling List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100 (Preview Release)
+Date: 03 Nov 2001 23:31:25 +0100
+Message-Id: <1004826686.1810.13.camel@athena>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Müller wrote:
-> 
-> What are the reasons that Linux isn't kept in an CVS repository?
+When exiting an X window session normally all looks good.
+When I switching to a virtual console <ctl><alt><Fn> all looks good too.
+But when killing it with <ctl><alt><bkspc> (every time berfore the
+window are completly loaded, somtimes when window manager are completly
+loaded)system reboot.
 
-Linus -is- CVS, cvs with a brain.  :)
 
-A first step is setting up CVS and BK repositories on kernel.org which
-contain the patches Linus publishes, something which I'm working on. 
-After that, we'll see how annoying/useful Linux in a sccs is, and if
-Linus is interested in committing directly to them.
+I used an ECS k7s5a with radeon 64vivo under recently updated debian sid
++ Linux-2.4.13-ac7.
+When i enable in BIOS:
+ACPI
+PowerManagement
+PNP OS
 
-Historically Linus and Alan (IMHO rightly so) have ignored CVS because
-of its many shortcomings.  subversion and BK are promising, though.
+System print "hda irq lose" and hang.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+
 

@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTLTTos (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 14:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTLTTos
+	id S261464AbTLTUlF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 15:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTLTUlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 14:44:48 -0500
-Received: from 12-211-67-128.client.attbi.com ([12.211.67.128]:62606 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S261606AbTLTTor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 14:44:47 -0500
-Message-ID: <3FE4A6AC.802@comcast.net>
-Date: Sat, 20 Dec 2003 11:44:44 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: nikomail@hotmail.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
- (PDC20271)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Dec 2003 15:41:04 -0500
+Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:36031
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S261464AbTLTUlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 15:41:00 -0500
+Date: Sat, 20 Dec 2003 12:40:57 -0800
+To: linux kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 ps2 mouse
+Message-ID: <20031220204057.GE7522@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	linux kernel ML <linux-kernel@vger.kernel.org>
+References: <1071923389.3476.6.camel@cripat.acasa-tr.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="at6+YcpfzWZg/htY"
+Content-Disposition: inline
+In-Reply-To: <1071923389.3476.6.camel@cripat.acasa-tr.it>
+User-Agent: Mutt/1.5.4i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Is the Promise raid configured as a raid0 stripe? If so, can you see in the boot
-messages if, when the ataraid driver detects the drives it is only detecting one
-of the drives? Have you recently added or replaced one of the drives?
+--at6+YcpfzWZg/htY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If the ataraid driver only detects one of the drives in a raid0 array, you might
-try this patch:
+On Sat, Dec 20, 2003 at 01:29:50PM +0100, Cristiano De Michele wrote:
+> I gave new 2.6.0 kernel a try and one thing I noticed is that mouse
+> pointer (imps2 logitech optical mouse on /dev/psaux) has become too
+> sensitive, that is in other words it's almost unusable.
+> With 2.4.x I haven't any problem
 
---- /usr/src/temp/linux-2.4.21/drivers/ide/raid/pdcraid.c       2003-06-13
-07:51:34.000000000 -0700
-+++ pdcraid.c   2003-07-18 06:54:25.000000000 -0700
-@@ -361,7 +361,8 @@
-        if (ideinfo->sect==0)
-                return 0;
--       lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
-+/*     lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
-        lba = lba * (ideinfo->head*ideinfo->sect);
--       lba = lba - ideinfo->sect;
-+       lba = lba - ideinfo->sect; */
-+       lba = ideinfo->capacity - ideinfo->sect;
+This is typically a problem with your XF86Config because many read from
+both /dev/psaux AND /dev/input/mice concurrently. However, in 2.6,
+the data from /dev/psaux is included in /dev/input/mice, so all mouse
+events appear to be recorded twice.
 
-        return lba;
+Just remove the entry from the ServerLayout section, and restart the X
+server.
 
-I diffed it against 2.4.21 but it should still apply. HTH,
+--=20
+Joshua Kwan
 
--Walt
+--at6+YcpfzWZg/htY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iQIVAwUBP+Sz2KOILr94RG8mAQKBYQ//UPZeNC3Xf7Gy/L0Wk6yNoSWE7bY/Pisk
+wiuYWVWPPlptpb68apgz+nIYPFpfF6+O7BpD5HqynoAt0ee0Y/4xO+8/5z7qAQ7l
+gKwLHPmtH4ui/rRYDzCJY2yLKv5gSb/hbCtFCBwFNKwlsyjdeSCgiezIvdrHkpDZ
+0FkT+tKWh1LYsFnw/6pYtQMxYQ9OVHaNKB7BN2w20eq9OYjld36a8daZ4LtQ/2wp
+G2GWd8acbFdbpMVgecsgR4SpJKNj+TKmXXhi0vLoKTtSBP8zUFxuZfc4ABHWwD5g
+WH82LoEoeWuyLI2tbOc54WXvtief23HoU5XbudBaRh9uXWryBUsrYbbkbWGT+Cw5
+x72aINHDhWE0PymTGeIKWVCjXAJIvdgTKsb1/SmpR9pWChEG/s39CdM7ta93rp3t
++q8La/sE3bH4MB0GEAPRsIpgJDkqSbabxAC+2eUdgGW0R2Zev+BfTJ5ifvZgklnZ
+1M7FIfyLRXPwbOoOWLa7vtK52KYiu82ls/RvcV/dH7Xq/MP+MN9PwSKjrQnX8jAq
+xQ45vIIN76pOMzeyBph9hw4M5zkX7Y35i496LyudiNdfOYKuwunf6BcWCh5C8z1m
+sHnkIdFUc1ba3fiRul6GG8rHPNvZO7WRn8H03y4giwD2Hk/MfOD8s5ipcWoy+9EC
+f++A+TXwqL8=
+=ihyT
+-----END PGP SIGNATURE-----
+
+--at6+YcpfzWZg/htY--

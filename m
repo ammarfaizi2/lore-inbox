@@ -1,37 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131531AbQLMQye>; Wed, 13 Dec 2000 11:54:34 -0500
+	id <S131628AbQLMQ5o>; Wed, 13 Dec 2000 11:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131628AbQLMQyZ>; Wed, 13 Dec 2000 11:54:25 -0500
-Received: from nella-gw.infonet.cz ([212.71.152.17]:5138 "EHLO mite.infonet.cz")
-	by vger.kernel.org with ESMTP id <S131531AbQLMQyN>;
-	Wed, 13 Dec 2000 11:54:13 -0500
-Message-ID: <3A37A28B.7AC31112@infonet.cz>
-Date: Wed, 13 Dec 2000 17:23:39 +0100
-From: Marian Jancar <marian.jancar@infonet.cz>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i586)
+	id <S131785AbQLMQ5e>; Wed, 13 Dec 2000 11:57:34 -0500
+Received: from acct2.voicenet.com ([207.103.26.205]:52710 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S131628AbQLMQ5U>;
+	Wed, 13 Dec 2000 11:57:20 -0500
+Message-ID: <3A37A34D.9010000@voicefx.com>
+Date: Wed, 13 Dec 2000 11:26:53 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; m18) Gecko/20001130
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problems with NAT
-Content-Type: text/plain; charset=iso-8859-2
+To: Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
+Subject: Re: via82cxxx_audio - bad latency
+In-Reply-To: <Pine.LNX.4.30.0012130244140.1326-100000@fogarty.jakma.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a problem with nat in at least 2.2.16 and 2.2.18. If you
-specify routing first and nat second,
+Paul Jakma wrote:
 
-ip route add nat x.x.x.x via y.y.y.y
-ip rule add from y.y.y.y nat x.x.x.x
+> hi,
+> 
+> i think somethings gone wrong with via82cxxx_audio. Playing anything
+> through it seems to cause massive latency in apps like xmms, esd,
+> asmixer, etc.. anything to do with playing or mixer levels suddenly
+> takes a minute or more to respond.
+> 
+> It didn't always do this, and when it started happening i assumed it
+> was either something bad in esd or xmms (which i tend to upgrade a
+> lot). However it still happens when esd is disabled. eg, i use mpg123
+> to play an mp3 file, and asmixer doesn't change the volume till a
+> minute or two after i moused it.
+> 
+> if i SIGSTOP mpg123, asmixer immediately becomes responsive again and
+> implements the pending volume change, as soon i SIGCONT mpg123,
+> asmixer becomes very unresponsive again.
+> 
+> same thing with esd, if i STOP mpg123, other apps like esd and
+> non-esd mixers become responsive, soon as i start playing again they
+> go unresponsive.
+> 
+> same thing with playing from esd applications, everything inlcuding
+> the playing app itself (eg xmms) is unresponsive, if i STOP it, the
+> mixers instantly become responsive, soon as i CONT the playing app
+> everything is "dead" again.
+> 
+> kernel is test12-final. AMD K7, Asus K7M board
+> 
+> [root@fogarty /root]# lspci -vv -s 00:04.5
+> 00:04.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
+> [Apollo Super AC97/Audio] (rev 21)
+> 	Subsystem: Asustek Computer, Inc.: Unknown device 800d
+> 	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+> ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
+> 
+>> TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 
+> 	Interrupt: pin C routed to IRQ 10
+> 	Region 0: I/O ports at d400 [size=256]
+> 	Region 1: I/O ports at d000 [size=4]
+> 	Region 2: I/O ports at cc00 [size=4]
+> 	Capabilities: [c0] Power Management version 2
+> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> [root@fogarty /root]# cat /proc/interrupts
+>            CPU0
+>   0:    1064556          XT-PIC  timer
+>   1:      18405          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   3:     904332          XT-PIC  eth0
+>   8:          1          XT-PIC  rtc
+>  10:      75896          XT-PIC  BusLogic BT-958, via82cxxx
+>  12:     278174          XT-PIC  PS/2 Mouse
+>  14:       3258          XT-PIC  ide0
+>  15:     387918          XT-PIC  ide1
+> NMI:          0
+> ERR:          0
+> 
+> the via is sharing an interrupt, though normally the buslogic is not
+> being used. (the interrupt sharing has been there a lot longer than
+> this problem)
+> 
+> i don't have the /proc/driver/via.... files that the docs mention.
+> 
+> regards,
 
-the rule doesnt have an effect, ping to x.x.x.x says it got response
-from y.y.y.y. With turned order of commands,
+Oh my, I am SO glad someone else noticed this!  I was not going to say 
+anything because I thought _I_ was crazy.  I burnt out my CPU yesterday 
+in a nasty experiment (don't ask!) and had to go out and buy a new 
+MB/CPU.  I bought the ASUS CUV4X with sound.  Lo and behold it has the 
+VIA VT82C686A audio.  I get my new system running just great, load this 
+driver, then go do my favorite pastime:  Frag in Unreal Tournament for 
+Linux!  Man was the sound delayed!  I tried 4 Front's driver too with 
+the same results which made me think that this setup really sucked!
 
-ip rule ...
-ip route ...
+I am all set to put a Creative 128 in the system and I stumbled onto
+this message.  :-)
+Johnny O
 
-it works.
+-- 
+<SomeLamer> what's the difference between chattr and chmod?
+<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
+	-- Seen on #linux on irc
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

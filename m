@@ -1,124 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286146AbRLJCS6>; Sun, 9 Dec 2001 21:18:58 -0500
+	id <S286143AbRLJCfA>; Sun, 9 Dec 2001 21:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286144AbRLJCSj>; Sun, 9 Dec 2001 21:18:39 -0500
-Received: from mercury.ccmr.cornell.edu ([128.84.231.97]:56591 "EHLO
-	mercury.ccmr.cornell.edu") by vger.kernel.org with ESMTP
-	id <S286143AbRLJCSf>; Sun, 9 Dec 2001 21:18:35 -0500
-From: Daniel Freedman <freedman@ccmr.cornell.edu>
-Date: Sun, 9 Dec 2001 21:18:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS stale mount after chroot...
-Message-ID: <20011209211834.A13340@ccmr.cornell.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011209205707.A13073@ccmr.cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011209205707.A13073@ccmr.cornell.edu>; from freedman@ccmr.cornell.edu on Sun, Dec 09, 2001 at 08:57:08PM -0500
+	id <S286144AbRLJCev>; Sun, 9 Dec 2001 21:34:51 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:50446 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S286143AbRLJCef>; Sun, 9 Dec 2001 21:34:35 -0500
+Date: Sun, 9 Dec 2001 18:36:28 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] Scheduler queue implementation ...
+In-Reply-To: <E16DF39-00008w-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0112091738540.996-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 09, 2001, Daniel Freedman wrote:
-> 
-> Hi,
-> 
-> It seems like I can generate reproducible stale NFS mounts by mounting
-> a partition, chroot'ing into that mount, immediately exiting the
-> chroot, and then finding myself unable to unmount the NFS partition.
-> I'm pretty sure I've confirmed that nothing is using the partition
-> (both with fuser and lsof) and even tried to force umount the
-> partition (which seems like it should definitely umount it, rather
-> than returning with the same "device is busy" errors), to no avail.
-> The only method which I've used that seems to be able to get rid of
-> this NFS mount, is to reboot the NFS client, and clearly that's not a
-> good one at all.  If I'm missing something obvious here, my apologies
-> in advance.  Also, if there's any further information I can provide,
-> I'd be happy to help.  The dump of my procedure follows this message.
-> 
-> Thanks again and take care,
-> Daniel
+On Mon, 10 Dec 2001, Alan Cox wrote:
 
-Arggg... (Continuing above, appending to previous email's client
-output, and sorry for leaving off some info...)
+> > Alan, you're mixing switch mm costs with cache image reload ones.
+> > Note that equal mm does not mean matching cache image, at all.
+>
+> They are often close to the same thing. Take a look at the constraints
+> on virtually cached processors like the ARM where they _are_ the same thing.
+>
+> Equal mm for cpu sucking tasks often means equal cache image. On the other
+> hand unmatched mm pretty much definitively says "doesnt matter". The cost
+> of getting the equal mm/shared cache case wrong is too horrific to handwave
+> it out of existance using academic papers.
 
-Here's my general system info, as well as a counterpoint successful
-attempt (to hopefully narrow the search area) at unmounting the same
-NFS fs, the only difference is that I didn't do a chroot into that
-mount in the interim.  Hope this helps as well.
-
-Take care,
-Daniel
+This is very difficult to prove and heavily depend on the application
+architecture.
+Anyway i was just thinking that, if we scan the cpu bound queue like
+usual, by correctly sorting out mm related tasks, we're going to blend
+this time ( about 2.9us with rqlen=32 on a dual PIII 733, std scheduler )
+inside the cpu bound average run time ( 30-60ms ).
+This means ~ 0.005%
 
 
---------
-NFS Client:
-________
+> > By having only two queues maintain the implementation simple and solves
+> > 99% of common/extraordinary cases.
+> > The cost of a tlb flush become "meaningful" for I/O bound tasks where
+> > their short average run time is not sufficent to compensate the tlb flush
+> > cost, and this is handled correctly/like-usual inside the I/O bound queue.
+>
+> You don't seem to solve either problem directly.
+>
+> Without per cpu queues you spend all your time bouncing stuff between
+> processors which hurts. Without multiple queues for interactive tasks you
+> walk the interactive task list so you don't scale. Without some sensible
+> handling of mm/cpu binding you spend all day wasting ram bandwidth with
+> cache writeback.
+
+It has two queues ( cpubound + iobound-rttasks ) per CPU, as i wrote in my
+previous message.
+By having split in a multi-queue model plus having a separate queue for
+iobound tasks, i think it'll scale pretty well indeed.
+Two queues against N means even a lower scheduler memory footprint.
+The whole point is to understand where greater optimizations will not pay
+for the greater complexity ( plus D/I cache footprint ).
 
 
-feynman:/var/space/freedman# uname -a 
-Linux feynman 2.4.16 #1 SMP Wed Nov 28 12:48:20 EST 2001 i686 unknown
-feynman:/var/space/freedman# cat /boot/config-2.4.16 |grep NFS
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-# CONFIG_ROOT_NFS is not set
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NCPFS_NFS_NS=y
-feynman:/var/space/freedman# cat /proc/sys/kernel/tainted 
-0
-feynman:/var/space/freedman# lsmod
-Module                  Size  Used by    Not tainted
-r128                   91608   1 
-emu10k1                58880   0  (unused)
-sound                  56940   0  [emu10k1]
-soundcore               4036   7  [emu10k1 sound]
-ac97_codec              9760   0  [emu10k1]
-nfs                    73692   1 
-lockd                  48704   1  [nfs]
-sunrpc                 65108   1  [nfs lockd]
-eepro100               17584   1 
-rtc                     6296   0  (autoclean)
-unix                   16004  19  (autoclean)
-ide-disk                6880   8  (autoclean)
-ide-probe-mod           8096   0  (autoclean)
-ide-mod               132876   8  (autoclean) [ide-disk ide-probe-mod]
-ext2                   32960   5  (autoclean)
-feynman:/var/space/freedman# mount -t nfs newton:/var/tftpboot-NFS/ ./node1/
-feynman:/var/space/freedman# cat /proc/mounts 
-/dev/root.old /initrd cramfs rw 0 0
-/dev/root / ext2 rw 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw 0 0
-/dev/hda5 /boot ext2 rw 0 0
-/dev/hda7 /usr ext2 rw 0 0
-/dev/hda8 /var ext2 rw 0 0
-/dev/hda12 /var/space ext2 rw 0 0
-newton:/home /home nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=newton 0 0
-newton:/var/tftpboot-NFS/ /var/space/freedman/node1 nfs rw,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=newton 0 0
-feynman:/var/space/freedman# cd node1/
-feynman:/var/space/freedman/node1# ls  
-bin  boot  cdrom  dev  etc  floppy  home  initrd  lib  mnt  opt  proc  root  sbin  tmp  usr  var  vmlinuz
-feynman:/var/space/freedman/node1# id
-uid=0(root) gid=0(root) groups=0(root)
-feynman:/var/space/freedman/node1# cd ..
-feynman:/var/space/freedman# umount /var/space/freedman/node1/
-feynman:/var/space/freedman# cat /proc/mounts 
-/dev/root.old /initrd cramfs rw 0 0
-/dev/root / ext2 rw 0 0
-proc /proc proc rw 0 0
-devpts /dev/pts devpts rw 0 0
-/dev/hda5 /boot ext2 rw 0 0
-/dev/hda7 /usr ext2 rw 0 0
-/dev/hda8 /var ext2 rw 0 0
-/dev/hda12 /var/space ext2 rw 0 0
-newton:/home /home nfs rw,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=newton 0 0
-feynman:/var/space/freedman# 
+
+> The single cpu sucker queue is easy, the cost of merging mm equivalent tasks
+> in that queue is almost nil. Priority ordering interactive stuff using
+> several queues is easy and very cheap if you need it (I think you do hence
+> I have 7 priority bands and you have 1). In all these cases the hard bits
+> end up being
+>
+> On a wake up which cpu do you give a task ?
+
+The multi queue scheduler is not like the old one where the bunch of
+running tasks virtually own to all cpu.
+In a multi queue scheduler tasks are _local_by_default_.
 
 
--- 
-Daniel A. Freedman
-Laboratory for Atomic and Solid State Physics
-Department of Physics
-Cornell University
+> When does an idle cpu steal a task, who from and which task ?
+> How do I define "imbalance" for cpu load balancing ?
+
+As i wrote in previous messages the idle(s) is woken up at every timer
+tick and check the balance status.
+After N ( tunable ) consecutive ticks that the idle has found an
+unbalanced status, it'll try to steal a tasks.
+>From where, you could ask ?
+This is a good question and the best answer to good questions is:
+
+I don't know :)
+
+Just kidding ( only in part ).
+There're several concepts:
+
+1) cpu load expressed in run queue length
+2) cpu load expressed as the sum ( in jiffies ) of the average run time of
+	the currently running task set
+3) distance/metric of the move ( think about NUMA )
+4) last mm used by the idle
+5) last time in jiffies the task is ran
+
+The trick is to find a function :
+
+F = F( RQL, JLD, DIS, LMM, JLT )
+
+so we can sort out and select the best task to run on the idle cpu.
+And more, the cpu selection must be done without locking remote runqueue.
+So it should be a two-phase task:
+
+1) cpu selection ( no locks held )
+2) task selection inside the selected cpu ( remote queue lock held )
+
+The first phase will use 1, 2 and 3 from the above variable set, while the
+second will use 4 and 5 for tasks selection inside the queue.
+
+
+
+
+- Davide
+
+
+

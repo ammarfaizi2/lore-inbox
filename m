@@ -1,61 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273309AbRIZK3a>; Wed, 26 Sep 2001 06:29:30 -0400
+	id <S273565AbRIZKXa>; Wed, 26 Sep 2001 06:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273968AbRIZK3V>; Wed, 26 Sep 2001 06:29:21 -0400
-Received: from zape.um.es ([155.54.0.102]:26261 "EHLO zape.um.es")
-	by vger.kernel.org with ESMTP id <S273309AbRIZK3I>;
-	Wed, 26 Sep 2001 06:29:08 -0400
-Message-ID: <3BB1AF9B.745F90FE@ditec.um.es>
-Date: Wed, 26 Sep 2001 12:36:11 +0200
-From: Juan <piernas@ditec.um.es>
-X-Mailer: Mozilla 4.77 [es] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: es-ES, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bad, bad, bad VM behaviour in 2.4.10
-In-Reply-To: <Pine.LNX.4.21.0109251823020.2193-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S273309AbRIZKXL>; Wed, 26 Sep 2001 06:23:11 -0400
+Received: from hacksaw.org ([216.41.5.170]:35989 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S271911AbRIZKXA>; Wed, 26 Sep 2001 06:23:00 -0400
+Message-Id: <200109261023.f8QANQ901237@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.3
+To: linux-kernel@vger.kernel.org
+Subject: stuck on TLB IPI wait (CPU#0)  ??? [2.2.19]
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 Sep 2001 06:23:26 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti escribió:
-> 
-> On Wed, 26 Sep 2001, Juan wrote:
-> 
-> > Marcelo Tosatti escribió:
-> > >
-> > > Juan,
-> > >
-> > > It is a known problem which we are looking into.
-> > >
-> > > I need some information which may help confirm a guess of mine:
-> > >
-> > > Do you have swap available ?
-> > Yes, the /dev/hda6 partition, that is 257000 KB in size.
-> >
-> > >
-> > > If so, there was available anonymous memory to be swapped out ?
-> >
-> > Anonymous memory? Sorry, but I do not understand this question. Could
-> > you redo it?
-> 
-> By anynomymous memory I mean memory which is not disk cache (ie is not
-> data which is going to be written to the filesystem): Program data.
+I ran scsi_info, which appeared to run just fine. Then the machine moved into 
+molasses mode.
 
-Well, every program has data that can be swapped out. Perhaps, you want
-to know if I run programs which allocate big chunks of memory. No. I run
-X-Windows+KDE2+XMMS+something else (sendmail, named, gpm). You can see
-which programs were killed by the VM system in my first e-mail.
+The last log entries I before the reboot was this:
+
+Sep 26 04:59:23 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
+193.158.133.165!
+Sep 26 05:00:00 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
+195.252.130.145!
+Sep 26 05:28:55 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
+193.158.133.165!
+Sep 26 05:29:13 habitrail kernel: IP_MASQ:reverse ICMP: failed checksum from 
+193.158.133.165!
+Sep 26 05:43:51 habitrail sudo:  hacksaw : TTY=pts/0 ; PWD=/lib/modules/2.2.19 
+; USER=root ; COMMAND
+=/sbin/scsi_info /dev/sda 
+Sep 26 05:44:01 habitrail kernel: stuck on TLB IPI wait (CPU#0) 
+Sep 26 05:45:00 habitrail last message repeated 4 times
+
+
+A bit of info about the machine:
+Sep 26 06:01:57 habitrail kernel: Linux version 2.2.19 
+(hacksaw@habitrail.home.fools-errant.com) (gc
+c version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #3 SMP Sat Jun 2 
+22:24:40 EDT 2001
+Sep 26 06:01:57 habitrail kernel: BIOS-provided physical RAM map: 
+Sep 26 06:01:57 habitrail kernel:  BIOS-e820: 0009f000 @ 00000000 (usable) 
+Sep 26 06:01:57 habitrail kernel:  BIOS-e820: 1ff00000 @ 00100000 (usable) 
+Sep 26 06:01:57 habitrail kernel: Intel MultiProcessor Specification v1.1 
+Sep 26 06:01:57 habitrail kernel:     Virtual Wire compatibility mode. 
+Sep 26 06:01:57 habitrail kernel: OEM ID: OEM00000 Product ID: PROD00000000 
+APIC at: 0xFEE00000
+Sep 26 06:01:57 habitrail kernel: Processor #0 Pentium(tm) Pro APIC version 17 
+Sep 26 06:01:57 habitrail kernel: Processor #1 Pentium(tm) Pro APIC version 17 
+Sep 26 06:01:57 habitrail kernel: I/O APIC #2 Version 17 at 0xFEC00000. 
+Sep 26 06:01:57 habitrail kernel: Processors: 2 
+Sep 26 06:01:57 habitrail kernel: mapped APIC to ffffe000 (fee00000) 
+Sep 26 06:01:57 habitrail kernel: mapped IOAPIC to ffffd000 (fec00000) 
+Sep 26 06:01:57 habitrail kernel: Detected 451029 kHz processor. 
+Sep 26 06:01:57 habitrail kernel: Console: colour VGA+ 132x60 
+Sep 26 06:01:57 habitrail kernel: Calibrating delay loop... 897.84 BogoMIPS 
+Sep 26 06:01:57 habitrail kernel: Memory: 516528k/524288k available (1640k 
+kernel code, 420k reserve
+d, 5616k data, 84k init) 
+
+It's a Soyo motherboard. It has a SCSI drive from which it boots, CD-ROM and 
+tape drive. It also has an IDE drive, which is used for backup, and extra 
+storage.
+
+At the time of the crash, I was reading mail.
+
+I've never had this happen before. My uptimes with this kernel have typically 
+run into weeks or months, and have always been broken because I was 
+reconfiguring the kernel.
+
+The IP_MASQ icmp checksum things are often in the logs; I could never find 
+anyone to explain what they were. As far as I know, they are not causing me 
+problems.
+
+Should I care about the TLB IPI thing? Should I not run scsi_info? (I'd run a 
+test, but it's a production machine, and I didn't want it down at all. I might 
+be able to test later if this is an unknown problem.
+
 
 -- 
-D. Juan Piernas Cánovas
-Departamento de Ingeniería y Tecnología de Computadores
-Facultad de Informática. Universidad de Murcia
-Campus de Espinardo - 30080 Murcia (SPAIN)
-Tel.: +34968367657    Fax: +34968364151
-email: piernas@ditec.um.es
-PGP public key:
-http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
+Digression is nine tenths of the lore
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

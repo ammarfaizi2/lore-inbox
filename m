@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbTA1OKV>; Tue, 28 Jan 2003 09:10:21 -0500
+	id <S265469AbTA1OLK>; Tue, 28 Jan 2003 09:11:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265480AbTA1OKV>; Tue, 28 Jan 2003 09:10:21 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57099
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265477AbTA1OKU>; Tue, 28 Jan 2003 09:10:20 -0500
-Date: Tue, 28 Jan 2003 06:14:20 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 3ware error?  WTF is this?
-In-Reply-To: <20030128140103.GE13105@rdlg.net>
-Message-ID: <Pine.LNX.4.10.10301280602050.9272-100000@master.linux-ide.org>
+	id <S265480AbTA1OLK>; Tue, 28 Jan 2003 09:11:10 -0500
+Received: from mail2.webart.de ([195.30.14.11]:63756 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S265469AbTA1OLH>;
+	Tue, 28 Jan 2003 09:11:07 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F29289469380@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'Robert Morris'" <rob@r-morris.co.uk>, John Bradford <john@grabjohn.com>
+Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>, linux-kernel@vger.kernel.org
+Subject: AW: Bootscreen
+Date: Tue, 28 Jan 2003 15:11:10 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I agree that it may be less inappropriate for certain specialised 
+> applications, such as the one you suggested, but Raphael made specific 
+> reference to Windows and Mac OS, which implies desktop use.
+Indeed, I'm looking at desktop usage.
 
-Robert,
+> I am totally fed up with the quest to make Linux into as close to a copy 
+> of Windows as possible.
+See, if there was no Windows, and no MacOS, and I'd see Linux boot...
+...don't you think I'd still say -at some point- "Gee, these text messages
+are so geeky. I'd like to have a cute picture shown while booting"? I mean,
+really. Can we get rid of the "stupid guy who's trying to clone Windows"
+dogma, please?
 
-Could you give us a little more meat to chew on?
-"Kernel 2.4.19 with 3ware driver 7.5.2 from their web page", firmware ??
-The driver has a version string like "1.02.00.025".
-"PCI Parity Error" is more or less a mainboard error, or a barrier commit
-error.  I see you are doing that favorite "jbod" thing with "md" has your
-raid wrapper.  Best guess, who knows but more data is useful and required.
+> OK, but in this case you would have problems with BIOS output etc. If you 
+> left Linux alone, but fixed the BIOS to output at the required 
+> frequencies, it would work - and using the quiet option, together with 
+> appropriate output from the init scripts (which would presuambly be 
+> heavily customised, in such an application) would yield a similar result.
+I don't know about any TV applications. In my very case, the BIOS doesn't
+do anything wrong. (Besides: there's also LinuxBIOS, which can also display
+a cute picture, iirc). I have a bootloader, which puts a nice picture on
+the screen. And I want that picture to remain there until X is running.
+That's all. In actual fact, I'm really frugal.
 
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Tue, 28 Jan 2003, Robert L. Harris wrote:
-
-> 
-> 
-> Guys, I've got a machine generating all kinds of wierd errors.  It
-> failed 4 out of 8 drives on a 3ware card.  A reboot cleared all but 1
-> up, I've had alot of lag while the card is spitting errors etc.  I'm
-> about to launch this thing into the nearest highway I can find.
-> 
-> This morning I got this:
-> 
-> 3w-xxxx: scsi1: PCI Parity Error: clearing.
-> EXT3-fs error (device md(9,2)): ext3_add_entry: bad entry in directory
-> #65: rec_len % 4 != 0 - offset=552, inode=93, rec_len=21, name_len=11
-> 3w-xxxx: scsi2: PCI Parity Error: clearing.
-> 
-> 
-> Can I get an educated "oh, your card is bad" or "hmm, bad driver maybe?"
-> or something I can poke with a stick?  It's a brand new box with brand
-> new drives and controllers.  It was running great until last week.
-> Kernel 2.4.19 with 3ware driver 7.5.2 from their web page.
-> 
-> Robert
-> 
-> 
-> :wq!
-> ---------------------------------------------------------------------------
-> Robert L. Harris                     | PGP Key ID: FC96D405
->                                
-> DISCLAIMER:
->       These are MY OPINIONS ALONE.  I speak for no-one else.
-> FYI:
->  perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
-> 
-> 
-
+> Wait screen, then just hangs", which would then require an engineer visit,
+> as opposed to, for example, "it says Obtaining IP Address... then hangs"  
+I do have a solution for that. Just make the image 640x440 instead 640x480,
+and have the initscripts output on one of the lower lines only, always over-
+writing the previous message. That way, the support engineer would know
+what's
+going wrong and you'd still have a cute picture.

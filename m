@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbULBLV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbULBLX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbULBLV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 06:21:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbULBLV3
+	id S261588AbULBLX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 06:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbULBLX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 06:21:29 -0500
-Received: from esacom57-ext.estec.esa.int ([131.176.107.4]:25559 "EHLO
-	esacom57-int.estec.esa.int") by vger.kernel.org with ESMTP
-	id S261586AbULBLVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 06:21:23 -0500
-Message-ID: <41AEFA7F.6020106@lunar-linux.org>
-Date: Thu, 02 Dec 2004 12:20:31 +0100
-From: Auke Kok <sofar@lunar-linux.org>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040617)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       vortex@scyld.com
-Subject: Re: [PATCH][2.4.28-pre3] 3c59x builtin NIC on Asus Pundit-R
-References: <41AE2661.2040408@lunar-linux.org> <20041201131127.208e15b6.akpm@osdl.org> <20041201172318.GK2250@dmt.cyclades>
-In-Reply-To: <20041201172318.GK2250@dmt.cyclades>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 06:23:56 -0500
+Received: from [61.48.53.101] ([61.48.53.101]:57842 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261588AbULBLXx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 06:23:53 -0500
+Date: Thu, 2 Dec 2004 03:14:08 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412021114.iB2BE8928358@adam.yggdrasil.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [Patch?] Teach sysfs_get_name not to use a dentry
+Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org, maneesh@in.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+On Thu, 2 Dec 2004 07:00:22 +0000 Al Viro wrote:
+>On Wed, Dec 01, 2004 at 10:41:08PM -0800, Adam J. Richter wrote:
+>> Hi Maneesh,
+>> 
+>> 	The following patch changes syfs_getname to avoid using
+>> sysfs_dirent->s_dentry for getting the names of directories (as
+>> this pointer may be NULL in a future version where sysfs would
+>> be able to release the inode and dentry for each sysfs directory).
+>> It does so by defining different sysfs_dirent.s_type values depending
+>> on whether the diretory represents a kobject or an attribute_group.
+>> 
+>> 	This patch is ground work for unpinning the struct inode
+>> and struct dentry used by each sysfs directory.  The patch also may
+>> facilitate eliminating the sysfs_dentry for each member of an
+>> attribute group.  The patch has no benefits by itself, but I'm posting
+>> it now separately in the hopes of making it easier for people
+>> to spot problems, and, also, because if it is integrated, I think
+>> it will make the rest of the change to unpin directories (which
+>> I have not yet written) easier to understand.
 
->On Wed, Dec 01, 2004 at 01:11:27PM -0800, Andrew Morton wrote:
->  
->
->>Auke Kok <sofar@lunar-linux.org> wrote:
->>    
->>
->>>This message is a confirmation on the thread by:
->>>
->>>From: Andreas Haumer
->>>Date: Tue Sep 21 2004 - 04:16:52 EST
->>>Subject: [PATCH][2.4.28-pre3] 3c59x builtin NIC on Asus Pundit-R
->>>
->>>I have 24 boxes with the same hardware and all require the patch 
->>>attached to Andreas' e-mail to function. After abusing one of them for 2 
->>>days continuously the nic hasn't shown a single flaw so far ;^)
->>>
->>>I thus would like to conclude that this patch is a valid and worthfull 
->>>addition to the 2.4.28+ kernels, as it applies cleanly to 2.4.28-final.
->>>
->>>Auke kok
->>>
->>>
->>>PS URL to the patch: 
->>>http://www.ussg.iu.edu/hypermail/linux/kernel/0409.2/1215/013-3com_ati_radeon.patch
->>>      
->>>
->>That patch should of course be merged.  Please email a copy to Marcelo.
->>    
->>
->
->This has been merged together with 3c59x's v2.6 sync in 2.4.29-pre1.
->Can you give that a shot Auke?
->
+>Vetoed until you show an acceptable locking scheme for the latter.
+>I do not believe that it's feasible; feel free to prove me wrong,
+>but until then you'll have to carry the patchset on your own.
 
-2.4.29-pre1 Works perfectly. Thanks and good luck =^)
+	I will try to code it up, but first I expect to post a couple
+more incremental changes along the way that,  unlike this change,
+are useful in their own right even if the unpinning the sysfs
+directories are not implemented.  In particular, I expect to post
+a patch to move the sysfs_dirent and the sysfs_dirent.s_type values
+from the public include/linux/sysfs.h to fs/sysfs/sysfs.h, and
+a patch to eliminate sysfs_dirent.s_children for non-directories.
 
-Auke Kok
+	When I do get around to posting a patch to unpin the sysfs
+directories, I think it would be incumbent upon anyone claiming
+that they are "vetoed" to describing the problem including at least
+a hypothetical example, as you haven't really defined "acceptable"
+if you haven't shown there to be problem.  By the same token, it's
+reasonable if you want to wait and see an implementation before
+complaining, although if there is some problem scenario you can
+already think of, I'd be interested in hearing about it.
 
---
-sofar@lunar-linux.org
-Lunar Linux Project leader
-http://lunar-linux.org/ - It's out of this world !
+	Here are a few basic points to check if you already see
+a locking problem that you think would really be hard to address.
+
+	1. The only renames in sysfs (as far as I know) are within
+	   the same directory for an unusual use by the network
+	   code, which I suspect could probably be eliminated anyhow.
+
+	2. sysfs_dirent does not maintain a parallel "parent" pointer.
+
+	3. I intended to replace kobject->dentry with kobject->sysfs_dir.
+
+	4. Is the race you see unique to directories?
+
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

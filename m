@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262687AbRE0B2p>; Sat, 26 May 2001 21:28:45 -0400
+	id <S262691AbRE0BcP>; Sat, 26 May 2001 21:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262689AbRE0B2f>; Sat, 26 May 2001 21:28:35 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:44839 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S262687AbRE0B2b>; Sat, 26 May 2001 21:28:31 -0400
-Message-ID: <01c701c0e64c$4ff78b60$52a6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: "Greg Banks" <gnb@alphalink.com.au>
-Cc: <esr@thyrsus.com>, "CML2" <linux-kernel@vger.kernel.org>,
-        <kbuild-devel@lists.sourceforge.net>
-In-Reply-To: <20010525012200.A5259@thyrsus.com> <3B0F3268.A671BC7A@pocketpenguins.com> <002401c0e5aa$0049a000$47a6b3d0@Toshiba> <3B0F8042.90DD5C5D@pocketpenguins.com> <005801c0e614$b49a0120$44a6b3d0@Toshiba> <3B105492.5300778F@pocketpenguins.com> <018001c0e649$8111c380$52a6b3d0@Toshiba> <3B105882.4551E232@alphalink.com.au>
-Subject: Re: [kbuild-devel] Configure.help entries wanted
-Date: Sat, 26 May 2001 18:28:17 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S262692AbRE0BcG>; Sat, 26 May 2001 21:32:06 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:41488 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S262691AbRE0Bbw>; Sat, 26 May 2001 21:31:52 -0400
+Date: Sun, 27 May 2001 03:30:09 +0200
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE Performance lack !
+Message-ID: <20010527033009.B9762@lisa.links2linux.home>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <01052622193100.01317@linux.zuhause.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01052622193100.01317@linux.zuhause.de>; from stepken@little-idiot.de on Sat, May 26, 2001 at 10:19:31PM +0200
+X-Operating-System: Linux 2.2.18-lisa01 i586
+X-Editor: VIM 5.7.8
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Greg,
+* Guido Stepken schrieb am 26.05.01 um 22:19 Uhr:
+> Hi !
+> 
+> RedHat 7.1 - IDE IBM 41.1 GIG
+> Update to 2.4.5 -> noticed, that hdparm -t /dev/hda went down from 10 
+> MByte/sec to 1.9 MByte/sec
+> Any special Options, beside ide-scsi driver activated ..
+> 
+> Anybody noticed the same problem ? Any clues ?
+> 
+> tnx in advance ...
 
->
->   Modems are tricky, because they're frequently WinModems which
-> have a whole lot of well-known issues.  Other features depend on
-> the speed at which they can be reverse engineered, as most
-> WinCE manufacturers don't co-operate.  I'd be surprised if any
-> WindowsCE machine's hardware was fully supported by LinuxSH yet,
-> but I don't have a full list anywhere (sorry).  I'd guess the HP
-> Jornada 600 series are probably best supported.
->
+Hi Guido,
 
-yes , this is what i am looking for :)
-
-Can we use "HP Jornada 600 series" inspite of "WindowsCE machine" ?
-
-BTW, in Jornada 600 series only Keyboard and LCD is working and some CPU
-related stuff  which we can found in Hitachi Manuals , thats it .
-
-But linux-arm is supporting full iPAQ hardware .
-
-Thank you,
-
-Best Regards,
-
-Jaswinder.
---
-These are my opinions not 3Di.
+This is a 20.1 GB Seagate Barracuda (with hdparm -d1)
 
 
+homer:~ # hdparm -t /dev/hda
+ 
+/dev/hda:
+ Timing buffered disk reads:  64 MB in  2.74 seconds = 23.36 MB/sec
+homer:~ #
+
+
+Did you turn on dma-mode?
+
+-Marc
+
+-- 
++-O . . . o . . . O . . . o . . . O . . .  ___  . . . O . . . o .-+
+| Ein neuer Service von Links2Linux.de:   /  o\   RPMs for SuSE   |
+| --> PackMan! <-- naeheres unter        |   __|   and  others    |
+| http://packman.links2linux.de/ . . . O  \__\  . . . O . . . O . |

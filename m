@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264398AbUFNVMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUFNVNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbUFNVMW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUFNVMW
+	id S264444AbUFNVNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbUFNVNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:12:22 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:4215 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264398AbUFNVMI (ORCPT
+	Mon, 14 Jun 2004 17:13:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18637 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264444AbUFNVNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:12:08 -0400
-Date: Mon, 14 Jun 2004 14:21:28 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@muc.de>
-Cc: anton@samba.org, ak@muc.de, linux-kernel@vger.kernel.org,
-       lse-tech@projects.sourceforge.net
-Subject: Re: NUMA API observations
-Message-Id: <20040614142128.4da12a8d.pj@sgi.com>
-In-Reply-To: <20040614161749.GA62265@colin2.muc.de>
-References: <20040614153638.GB25389@krispykreme>
-	<20040614161749.GA62265@colin2.muc.de>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Jun 2004 17:13:20 -0400
+To: Cesar Eduardo Barros <cesarb@nitnet.com.br>
+Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] O_NOATIME support
+References: <20040612011129.GD1967@flower.home.cesarb.net>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 14 Jun 2004 18:12:59 -0300
+In-Reply-To: <20040612011129.GD1967@flower.home.cesarb.net>
+Message-ID: <orpt81sv1g.fsf@free.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> How should a user space application sanely discover the cpumask_t
-> size needed by the kernel?  Whoever designed that was on crack.
-> 
-> I will probably make it loop and double the buffer until EINVAL
-> ends or it passes a page and add a nasty comment.
+On Jun 11, 2004, Cesar Eduardo Barros <cesarb@nitnet.com.br> wrote:
 
-I agree that a loop is needed.  And yes someone didn't do a very
-good job of designing this interface.
+> int O_NOATIME  	Macro
+>   If this bit is set, read will not update the access time of the file.
+>   See File Times. This is used by programs that do backups, so that
+>   backing a file up does not count as reading it. Only the owner of the
+>   file or the superuser may use this bit.
 
-I posted a piece of code that gets a usable upper bound on cpumask_t
-size, suitable for application code to size mask buffers to be used
-in these system calls.
-
-See the lkml article:
-
-  http://groups.google.com/groups?selm=fa.hp225re.1v68ei0%40ifi.uio.no
-
-Or search in google groups for "cpumasksz".
-
-This article was posted:
-
-    Date: 2004-06-04 09:20:13 PST 
-
-in a long thread under the Subject of:
-
-    [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-
-Feel free to steal it, or to ignore it, if you find it easier to
-write your version than to read mine.
+IMHO it's a bad idea to enable the owner of the file to avoid changing
+the atime of their files.  I've heard more than once about the atime
+bit being used to as proof that a user had actually seen the contents
+of a file although s/he claimed s/he hadn't.  If it was root-only,
+atime could still be used for the same purpose, and would enable
+backups with tools that accessed the filesystem through the FS layer,
+as opposed to though the block layer, to keep such proof unchanged.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

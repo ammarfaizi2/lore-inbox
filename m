@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268836AbTBZREz>; Wed, 26 Feb 2003 12:04:55 -0500
+	id <S268820AbTBZQ7x>; Wed, 26 Feb 2003 11:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268832AbTBZRD7>; Wed, 26 Feb 2003 12:03:59 -0500
-Received: from cmailm5.svr.pol.co.uk ([195.92.193.21]:37134 "EHLO
-	cmailm5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S268831AbTBZRDP>; Wed, 26 Feb 2003 12:03:15 -0500
-Date: Wed, 26 Feb 2003 17:12:49 +0000
+	id <S268821AbTBZQ7x>; Wed, 26 Feb 2003 11:59:53 -0500
+Received: from cmailm1.svr.pol.co.uk ([195.92.193.18]:62982 "EHLO
+	cmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S268820AbTBZQ7v>; Wed, 26 Feb 2003 11:59:51 -0500
+Date: Wed, 26 Feb 2003 17:09:27 +0000
 To: Linus Torvalds <torvalds@transmeta.com>,
        Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 7/8] dm: __LOW macro fix no. 2
-Message-ID: <20030226171249.GG8369@fib011235813.fsnet.co.uk>
+Subject: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
+Message-ID: <20030226170927.GC8369@fib011235813.fsnet.co.uk>
 References: <20030226170537.GA8289@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -21,24 +21,23 @@ From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another fix for the __LOW macro.
+Use the correct size for "name" in register_with_devfs().
 
-When dm_table and dm_target structures are initialized, the "limits" fields 
-(struct io_restrictions) are initialized to zero (e.g. in dm_table_add_target()
-in dm-table.c). However, zero is not a useable value in these fields. The
-request queue will never let an I/O through, regardless of how small it might
-be, if max_sectors is set to zero (see generic_make_request in ll_rw_blk.c).
-This change to the __LOW() macro sets these fields correctly when they are
-first initialized.  [Kevin Corry]
+During Al Viro's devfs cleanup a few versions ago, this function was
+rewritten, and the "name" string added. The 32-byte size is not large
+enough to prevent a possible buffer overflow in the sprintf() call,
+since the hash cell can have a name up to 128 characters.
 
---- diff/drivers/md/dm-table.c	2003-02-26 16:10:02.000000000 +0000
-+++ source/drivers/md/dm-table.c	2003-02-26 16:10:19.000000000 +0000
-@@ -79,7 +79,7 @@
- }
+[Kevin Corry]
+
+--- diff/drivers/md/dm-ioctl.c	2003-02-26 16:09:42.000000000 +0000
++++ source/drivers/md/dm-ioctl.c	2003-02-26 16:09:52.000000000 +0000
+@@ -173,7 +173,7 @@
+  */
+ static int register_with_devfs(struct hash_cell *hc)
+ {
+-	char name[32];
++	char name[DM_NAME_LEN + strlen(DM_DIR) + 1];
+ 	struct gendisk *disk = dm_disk(hc->md);
  
- #define __HIGH(l, r) if (*(l) < (r)) *(l) = (r)
--#define __LOW(l, r) if (*(l) > (r)) *(l) = (r)
-+#define __LOW(l, r) if (*(l) == 0 || *(l) > (r)) *(l) = (r)
- 
- /*
-  * Combine two io_restrictions, always taking the lower value.
+ 	sprintf(name, DM_DIR "/%s", hc->name);

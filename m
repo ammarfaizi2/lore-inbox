@@ -1,82 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266262AbSKGBDs>; Wed, 6 Nov 2002 20:03:48 -0500
+	id <S266263AbSKGBGq>; Wed, 6 Nov 2002 20:06:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266263AbSKGBDs>; Wed, 6 Nov 2002 20:03:48 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:52948 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266262AbSKGBDq>;
-	Wed, 6 Nov 2002 20:03:46 -0500
-Subject: Re: kexec for 2.5.46
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       fastboot@osdl.org
-In-Reply-To: <m14ravfbjj.fsf@frodo.biederman.org>
-References: <m14ravfbjj.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 06 Nov 2002 17:11:11 -0800
-Message-Id: <1036631471.10457.233.camel@andyp>
-Mime-Version: 1.0
+	id <S266264AbSKGBGq>; Wed, 6 Nov 2002 20:06:46 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:36502 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S266263AbSKGBGp> convert rfc822-to-8bit; Wed, 6 Nov 2002 20:06:45 -0500
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.46: SCSI and/or ReiserFS v3.6 broken? Kernel panic (fwd)
+Date: Thu, 7 Nov 2002 02:13:20 +0100
+User-Agent: KMail/1.4.7
+References: <Pine.LNX.4.02.10211060930300.27381-100000@palpatine.science-computing.de>
+In-Reply-To: <Pine.LNX.4.02.10211060930300.27381-100000@palpatine.science-computing.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200211070112.53314.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 22:38, Eric W. Biederman wrote:
-> Linus please apply,
+Am Mittwoch, 6. November 2002 09:47 schrieb Karsten Weiss:
+> Hi Andrew!
+>
+> > Dieter Nützel wrote:
+> > > VFS: Cannot open root device "803" or 08:03
+> > > Please append a correct "root=" boot option
+> > > Kernel panic: VFS: unable to mount root fs on 08:03
+> >
+> > That was happening to me yesterday as well.  After a bit
+> > of poking around and recompiling, it mysteriously went away.
+> >
+> > The same has happened about ten times over the past few months,
+> > and rebuilding the world makes it go away.  On ext3.
+> >
+> > Something is definitely fishy.  It's unhelpful that it cures
+> > itself just as you get geared up to fix it.
+> >
+> > Does a full rebuild fix it for you?
+>
+> For what it's worth (maybe it does ring a bell):
+>
+> We have the same problem with kernels >=2.4.19 on ext3 partitions. It
+> happens in the last line of the SuSE-7.3 initial ramdisk linuxrc script.
 
+OK, it is a SuSE 7.3 based system.
+ 
+> However, if we comment out the last line of linuxrc it works:
 
-FYI: patch applied cleanly for me.
+I have no "linuxrc" file.
 
-After fudging kexec-tools-1.4 to correct for the new syscall number:
+Even without initrd (didn't use it anyway) it do _NOT_ work.
 
-    # ./kexec-1.4+ -debug ./kexec_test-1.4
-    Synchronizing SCSI caches: 
-    Shutting down devices
-    Starting new kernel
-    kexec_test 1.4 starting...
-    eax: 0E1FB007 ebx: 00001078 ecx: 00000000 edx: 00000000
-    esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
-    idt: 00000000 C0000000
-    gdt: 00000000 C0000000
-    Switching descriptors.
-    Descriptors changed.
-    In real mode.
-    <hang>
+> [...module loading skipped...]
+> mount -n -t proc proc /proc
+> mount -n -t ext3 /dev/sda4 /mnt
+> rm -f /mnt/.initrd 2>/dev/null
+> mkdir -p /mnt/.initrd
+> cd /mnt
+> pivot_root . .initrd
+> umount -n /.initrd/proc
+> !!!
+> exec sh -c 'umount -n /.initrd; rmdir /.initrd ; mount -n -oremount,ro /'
+> </dev/console >/dev/console 2>&1 !!!
+>
+> The affected machines are HP X4000s (dual Xeon, 4 GB RAMBUS, SCSI
+> harddisks)
 
-It does not make it to the "Interrupts enabled." print, so it is
-probably going wacko at the "sti."
+With "pci=noacpi" at the boot prompt I get the aic7xxx "debug mode".
+How can I dump such stuff to a screen, file, line printer?
+=> SCSI and not ReiserFS
 
-As before, the system:
-% lspci -tv
--+-[01]---03.0  Adaptec AIC-7892P U160/m
- \-[00]-+-00.0  ServerWorks CNB20LE Host Bridge
-        +-00.1  ServerWorks CNB20LE Host Bridge
-        +-01.0  S3 Inc. Savage 4
-        +-09.0  Intel Corp. 82557/8/9 [Ethernet Pro 100]
-        +-0f.0  ServerWorks OSB4 South Bridge
-        +-0f.1  ServerWorks OSB4 IDE Controller
-        \-0f.2  ServerWorks OSB4/CSB5 OHCI USB Controller
-% cat /proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 10
-cpu MHz		: 799.717
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 mmx fxsr sse
-bogomips	: 1576.96
+Without 2.5.46 ;-(
 
-
-
+-Dieter

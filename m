@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130140AbQLJUSU>; Sun, 10 Dec 2000 15:18:20 -0500
+	id <S130155AbQLJUUk>; Sun, 10 Dec 2000 15:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130155AbQLJUSK>; Sun, 10 Dec 2000 15:18:10 -0500
-Received: from sith.mimuw.edu.pl ([193.0.97.1]:12807 "HELO sith.mimuw.edu.pl")
-	by vger.kernel.org with SMTP id <S130140AbQLJUR4>;
-	Sun, 10 Dec 2000 15:17:56 -0500
-Date: Sun, 10 Dec 2000 20:49:15 +0100
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test9 problem
-Message-ID: <20001210204915.A13448@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3A33D5F9.D7CB8A41@3dart.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A33D5F9.D7CB8A41@3dart.com>; from bogucki@3dart.com on Sun, Dec 10, 2000 at 08:14:01PM +0100
-X-Operating-System: Linux 2.4.0-test6 i686
+	id <S132673AbQLJUUa>; Sun, 10 Dec 2000 15:20:30 -0500
+Received: from zero.tech9.net ([209.61.188.187]:20484 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S130155AbQLJUUS>;
+	Sun, 10 Dec 2000 15:20:18 -0500
+Date: Sun, 10 Dec 2000 14:49:48 -0500 (EST)
+From: "Robert M. Love" <rml@tech9.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Compile Failure: mga_dma.o on 2.4.0-test12-pre8
+Message-ID: <Pine.LNX.4.30.0012101445010.15992-100000@phantasy.awol.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Dec 2000, Maciej Bogucki wrote:
+Cleanly patched 2.4.0-test12-pre8 (with the correct pre8, linus!) ...
+fails compile with the following. I have CONFIG_DRM_MGA enabled. pre7
+compiled fine.
 
-> HI!
->  I have 2.4.0-test9 and 2.2.16 kernel compiled on my computer .I have
-> httpd server on this computer . With 2.2.16 apache work good ( via DSL
-> and modem ), but with 2.4 ( the same computer ) , when I wont to connect
-> to my page via modem first few kilobytes are downloaded "fast" and then
-> connection slow down and transfer rate is 1byte per second . When I
-> download this page from linux ( via modem ) everything is ok ! I have
-> this problem , when I want to see this this page from MS Windows
-> computers only via ppp connection . I have tested it on two different
-> computer and result is the same . 
-> 
-> I have seek this proble on mailing lists , but I haven't found . Have
-> anybody had the same problem like me ? 
+kgcc -D__KERNEL__ -I/home/rml/src/linux/linux/include -Wall
+ -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+ -march=i686    -c -o mga_dma.o mga_dma.c
+mga_dma.c: In function `mga_irq_install':
+mga_dma.c:821: structure has no member named `next'
+make[4]: *** [mga_dma.o] Error 1
+make[4]: Leaving directory `/home/rml/src/linux/linux/drivers/char/drm'
+make[3]: *** [first_rule] Error 2
 
-Same here, tested on 2.4.0-test6 up to test11 :(
-
-Jan
 -- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

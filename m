@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267937AbUHEXaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUHEXbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267937AbUHEXaj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 19:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267940AbUHEXaj
+	id S267940AbUHEXbc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 19:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267942AbUHEXbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 19:30:39 -0400
-Received: from mms2.broadcom.com ([63.70.210.59]:57872 "EHLO mms2.broadcom.com")
-	by vger.kernel.org with ESMTP id S267937AbUHEXag convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 19:30:36 -0400
-X-Server-Uuid: 011F2A72-58F1-4BCE-832F-B0D661E896E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 5 Aug 2004 19:31:32 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:61427 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S267940AbUHEXbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 19:31:11 -0400
+Message-ID: <4112C33A.40904@am.sony.com>
+Date: Thu, 05 Aug 2004 16:31:06 -0700
+From: Geoff Levand <geoffrey.levand@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: RE: MMCONFIG violates pci power mgmt spec
-Date: Thu, 5 Aug 2004 16:30:30 -0700
-Message-ID: <B1508D50A0692F42B217C22C02D84972020F3BBC@NT-IRVA-0741.brcm.ad.broadcom.com>
-Thread-Topic: MMCONFIG violates pci power mgmt spec
-thread-index: AcR7PgxljgrWLOiIRJ2dQCjBuk0JIwABXxDg
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Roland Dreier" <roland@topspin.com>
-cc: linux-kernel@vger.kernel.org
-X-WSS-ID: 6D0C1C9E15C5121525-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+To: mporter@mvista.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Fix ebony uart clock
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ebony-uart-clock-04.08.05.patch:
 
-> 
-> I believe the PCI Express spec says that config writes are 
-> never posted. (I'll check later to be sure)
-> 
->  - Roland
-> 
+This patch corrects the Ebony board's uart clock value to the rate
+of the external Epson SG-615P clock source.  Now good to 115Kbps.
 
-Yes, the config write on the PCI Express link is never posted. But the
-mmconfig write that gets translated by the chipset to config write on
-the PCI Express link may or may not be posted. It is implementation
-specific.
+Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com> for CELF
+---
 
-Michael
+  ebony.h |    3 ++-
+  1 files changed, 2 insertions(+), 1 deletion(-)
+
+  diff -X dontdiff -ruN 
+linux-2.6.8-rc3.orig/arch/ppc/platforms/4xx/ebony.h 
+branch_KGDB/arch/ppc/platforms/4xx/ebony.h
+--- linux-2.6.8-rc3.orig/arch/ppc/platforms/4xx/ebony.h	2004-07-17 
+21:59:03.000000000 -0700
++++ branch_KGDB/arch/ppc/platforms/4xx/ebony.h	2004-08-05 
+15:58:40.000000000 -0700
+@@ -64,7 +64,8 @@
+  #define UART0_IO_BASE	(u8 *) 0xE0000200
+  #define UART1_IO_BASE	(u8 *) 0xE0000300
+
+-#define BASE_BAUD	33000000/3/16
++/* external Epson SG-615P */
++#define BASE_BAUD	691200
+
+  #define STD_UART_OP(num)					\
+  	{ 0, BASE_BAUD, 0, UART##num##_INT,			\
+
 

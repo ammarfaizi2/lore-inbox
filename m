@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264295AbUEDU5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264321AbUEDVDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264295AbUEDU5H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 16:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264349AbUEDU5H
+	id S264321AbUEDVDU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264349AbUEDVDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 16:57:07 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:14538 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264295AbUEDU5B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 16:57:01 -0400
-Date: Tue, 4 May 2004 16:56:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, davem@redhat.com
-Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
-Message-ID: <20040504205659.GA17583@havoc.gtf.org>
-References: <20040503230911.GE7068@logos.cnet> <20040504204633.GB8643@fs.tum.de> <200405042253.11133@WOLK>
+	Tue, 4 May 2004 17:03:19 -0400
+Received: from pD95F30BB.dip.t-dialin.net ([217.95.48.187]:48907 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id S264321AbUEDVDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:03:18 -0400
+Date: Tue, 4 May 2004 21:03:05 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org, akpm@osdl.org, ralf@linux-mips.org
+Subject: [PATCH] sort out CLOCK_TICK_RATE usage take 3 [0/3]
+Message-ID: <20040504210305.A6663@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+	akpm@osdl.org, ralf@linux-mips.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405042253.11133@WOLK>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 10:53:11PM +0200, Marc-Christian Petersen wrote:
-> On Tuesday 04 May 2004 22:46, Adrian Bunk wrote:
-> 
-> Hi Adrian,
-> 
-> > drivers/net/net.o(.text+0x60293): In function `tg3_get_strings':
-> > : undefined reference to `WARN_ON'
-> > make: *** [vmlinux] Error 1
-> > There's no WARN_ON in 2.4.
-> 
-> yep. Either we backport WARN_ON ;) or simply do the attached.
 
-I would rather add the simple patch to 2.4.x core, since tg3 isn't the
-only driver that continues to be heavily used in 2.4, and thus will
-continue to be actively maintained for a while...
+Hello!
 
-	Jeff
+The calculation of the counter values in drivers/input/misc/pcspkr.c is
+incorrectly based on CLOCK_TICK_RATE. This goes unnoticed in i386
+because there the system clock is driven by the same Programmable
+Interval Timer chip as the speaker. But this doesn't hold true on
+other archs, e.g. Alpha.
 
+To solve this problem I made these patches:
 
+1/3:    introduce asm-*/8253pit.h, #define PIT_TICK_RATE constant.
+        It seems this is not always the same value.
+2/3:    use PIT_TICK_RATE in *spkr.c 
+3/3:    use CLOCK_TICK_RATE where 1193180 was used in general timing
+        calculations. (optional)
 
+There are still some places where the magic number is used instead of
+the #define (vt_ioctl.c, gameport.c) but I left them as-is. I got some
+responses from arch maintainers to specifically not touch their 
+respective architectures so changing these places would mean breakage 
+for them.
+
+Tested on Alpha and i386, ack'ed by Ralf Baechle for MIPS.
+Please apply.
+
+Bye,
+Thorsten
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

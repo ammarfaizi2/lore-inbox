@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267723AbUBTHwl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 02:52:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267715AbUBTHwl
+	id S267719AbUBTHv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 02:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267715AbUBTHv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 02:52:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:61865 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267723AbUBTHwg (ORCPT
+	Fri, 20 Feb 2004 02:51:29 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:23268 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S267719AbUBTHv2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 02:52:36 -0500
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB update for 2.6.3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: dsaxena@plexity.net
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040220074041.GA6680@plexity.net>
-References: <20040220012802.GA16523@kroah.com>
-	 <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
-	 <1077256996.20789.1091.camel@gaston>  <20040220074041.GA6680@plexity.net>
-Content-Type: text/plain
-Message-Id: <1077263253.20789.1221.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 20 Feb 2004 18:47:34 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Feb 2004 02:51:28 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       David Mosberger-Tang <David.Mosberger@acm.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Intel x86-64 support merge
+References: <1qK5k-7g2-67@gated-at.bofh.it> <1qK5k-7g2-69@gated-at.bofh.it>
+	<1qK5k-7g2-71@gated-at.bofh.it> <1qK5k-7g2-73@gated-at.bofh.it>
+	<1qK5k-7g2-65@gated-at.bofh.it> <40353382.8010505@tmr.com>
+	<40358AC5.90103@pobox.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 20 Feb 2004 02:48:06 -0500
+In-Reply-To: <40358AC5.90103@pobox.com>
+Message-ID: <yq0vfm2ry2x.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-> If you mean the USB target device itself, can't you walk the
-> tree until you find a device that is no longer on bus_type
-> usb to determine your root?
+Jeff> Bill Davidsen wrote:
+>> Doesn't need it? Does that mean the Win64 uses bounce buffers for
+>> everything? Or am I totally misreading this?
 
-I don't feel like walking the tree on each pci_dma access
+Jeff> Well, for 32-bit PCI hardware on a 64-bit OS, you pretty much
+Jeff> have to bounce, without an IOMMU.
 
-> You could stuff that into platform_data on PCI devices on your platforms.
+Jeff> I doubt Win64 bounces for 64-bit PCI hardware, but who knows...
 
-I want automatic inheritance to child devices, shouldb't be _that_
-difficult to do ;)
+Just a shame they don't seem to care about performance and allowing
+one to issue SAC cycles when possible. Oh well, guess one just has to
+buy a real computer.
 
-> I think we're not quite there yet, but once you have the device
-> struct, in theory, you can walk up the tree to grab the platform_data
-> for say the device's parent and do any tweaks based on platform-specific
-> bus parameters.  With PCI, you could even stuff this into pci_bus->sysdata.
-> 
-> I think having a function pointer table for things like dma mapping
-> and ioremap on all devices would be a very good thing, but not sure
-> if the powers that be would allow that in 2.6.
-> 
-> ~Deepak
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+Cheers,
+Jes

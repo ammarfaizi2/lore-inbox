@@ -1,197 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261740AbSJ2AYn>; Mon, 28 Oct 2002 19:24:43 -0500
+	id <S261689AbSJ2AeS>; Mon, 28 Oct 2002 19:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261984AbSJ2AYn>; Mon, 28 Oct 2002 19:24:43 -0500
-Received: from dp.samba.org ([66.70.73.150]:16550 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261740AbSJ2AYb>;
-	Mon, 28 Oct 2002 19:24:31 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: UPDATED: Rusty's Remarkably Unreliable 2.6 List
-Date: Tue, 29 Oct 2002 11:30:12 +1100
-Message-Id: <20021029003052.A439F2C099@lists.samba.org>
+	id <S261668AbSJ2AeS>; Mon, 28 Oct 2002 19:34:18 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:39080 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261689AbSJ2AeO>;
+	Mon, 28 Oct 2002 19:34:14 -0500
+Date: Tue, 29 Oct 2002 01:40:34 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021029004034.GA32118@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	lse-tech@lists.sourceforge.net
+References: <20021029001843.GB31212@outpost.ds9a.nl> <Pine.LNX.4.44.0210281631040.966-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210281631040.966-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patches which have been submitted to lkml in the last month or so,
-are not suitable for post-freeze, and have not been rejected yet:
+On Mon, Oct 28, 2002 at 04:32:50PM -0800, Davide Libenzi wrote:
 
-  http://www.kernel.org/pub/linux/kernel/people/rusty/2.6-not-in-yet/
+> The code above it's just fine. The "fd" is not lost because the falling
+> through :
+> 
+> do_use_fd(fd);
+> 
+> will make good use of it.
 
-Ordered from most invasive to least.  (Yay!  I win!).
+If that code dares to read immediatly from the fd without having an explicit
+POLLIN event, which also means that epoll can only be used in this fashion
+with nonblocking sockets. 
 
-In the vain hope that Linus will announce a shortlist for consideration,
-Rusty.
-PS.  Reproduced below.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The listening socket needs to do that anyhow as the connection may have
+vanished anyhow - select has that problem too.
 
-================
-Rusty's Remarkably Unreliable List of Pending 2.6 Features
-[aka. Rusty's Snowball List]
+To trigger the problem, see the following very nasty 'exploit'. Telnet to
+port 10000 and immediately enter a line of text and press enter. This line
+might very well be 'GET / HTTP/1.0'. 
 
-Hi. I'm bitter because my module rewrite didn't get in earlier, so now
-I'm spending some effort to ensure that there's a one-stop list of
-patches which might go into 2.6, making it easier to review, argue,
-and ideally allow Linus to decide what is to be considered for the
-freeze.
+Because of the inserted sleep(2); below, this line will never be reported
+by sys_epoll_wait() in its current form. To see it appear, enter an
+additional line after a while.
 
-Entrance criteria:
+So either fix up sys_epoll_ctl() to insert an edge if there is data at
+insertion time (which needs some locking probably to get it right), OR
+document the interface that it should only be used with non-blocking sockets
+and that the caller should immediately try to read after the initial
+sys_epoll_ctl insert call. This last solution sounds very bad and confusing.
 
-    * Must have been submitted to lkml in the last month,
-    * Hasn't been rejected by the maintainer/Linus,
-    * Not appropriate for insertion during stable series (ie. too
-      invasive, new feature, breaks userspace)
+Code:
 
-Key:
-A: Author
-M: lkml posting describing patch
-D: Download URL
-S: Size of patch, number of files altered (source/config), number of new files.
-X: Impact summary (only parts of patch which alter existing source files, not config/make files)
-T: Diffstat of whole patch
-N: Random notes
+#include <stdio.h>
+#include <errno.h>
+#include <asm/page.h> 
+#include <asm/poll.h> 
+#include <linux/linkage.h>
+#include <linux/eventpoll.h>
+#include <linux/unistd.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-In rough order of invasiveness (number of altered source files):
+#define __sys_epoll_create(maxfds) _syscall1(int, sys_epoll_create, int, maxfds)
+#define __sys_epoll_ctl(epfd, op, fd, events) _syscall4(int, sys_epoll_ctl, \
+int, epfd, int, op, int, fd, unsigned int, events)
 
-In-kernel Module Loader and Unified parameter support
-A: Rusty Russell
-D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Module/
-S: 749 kbytes, 246/26 files altered, 22 new
-T: Diffstat
-X: Summary patch (531k)
-N: Requires new modutils
+#define __sys_epoll_wait(epfd, events, timeout) _syscall3(int, sys_epoll_wait, \
+int, epfd, struct pollfd const **, events, int, timeout)
 
-Fbdev Rewrite
-A: James Simmons
-M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.3/1267.html
-D: http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-S: 4852 kbytes, 168/29 files altered, 124 new
-T: Diffstat
-X: Summary patch (182k)
+__sys_epoll_create(maxfds)
+__sys_epoll_ctl(epfd, op, fd, events)
+__sys_epoll_wait(epfd, events, timeout)
 
-Linux Trace Toolkit (LTT)
-A: Karim Yaghmour
-M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.1/0832.html
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103491640202541&w=2
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103423004321305&w=2
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103247532007850&w=2
-D: http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.44-vanilla-021026-2.2.bz2
-S: 257 kbytes, 67/4 files altered, 9 new
-T: Diffstat
-X: Summary patch (90k)
+// asmlinkage int sys_epoll_wait(int epfd, struct pollfd const **events, int timeout);
 
-statfs64
-A: Peter Chubb
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103490436228016&w=2
-D: http://marc.theaimsgroup.com/?l=linux-kernel&m=103490436228016&w=2
-S: 42 kbytes, 53/0 files altered, 1 new
-T: Diffstat
-X: Summary patch (32k)
+int main()
+{
+	int kdpfd;
+	struct pollfd const *pfds;
+	int nfds;
+	int timeout=2;
+	struct sockaddr_in local;
+	socklen_t addrlen;
+	int s, client;
+	int n;
+	char line[80];
+	int ret;
 
-ext2/ext3 ACLs and Extended Attributes
-A: Ted Ts'o
-M: http://lists.insecure.org/lists/linux-kernel/2002/Oct/6787.html
-B: bk://extfs.bkbits.net/extfs-2.5-update
-D: http://thunk.org/tytso/linux/extfs-2.5/
-S: 247 kbytes, 48/17 files altered, 17 new
-T: Diffstat
-X: Summary patch (82k)
+	if ((kdpfd = sys_epoll_create(10)) < 0) {
+        	perror("sys_epoll_create");
+                return -1;
+        }
 
-Kernel Config
-A: Roman Zippel
-M: http://lists.insecure.org/lists/linux-kernel/2002/Oct/6898.html
-D: http://www.xs4all.nl/%7Ezippel/lc/lkc-1.2-2.5.44.diff.bz2
-S: 2164 kbytes, 0/3 files altered, 178 new
-T: Diffstat
-X: Summary patch (7k)
+	s=socket(AF_INET,SOCK_STREAM,0); 
 
-ucLinux Patch (MMU-less support)
-A: Greg Ungerer
-M: http://lwn.net/Articles/11016/
-D: http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc3.patch.gz
-S: 2218 kbytes, 25/34 files altered, 429 new
-T: Diffstat
-X: Summary patch (40k)
+	memset(&local,0,sizeof(local));
+        local.sin_family=AF_INET;
+	local.sin_addr.s_addr = INADDR_ANY;
+	
+	int tmp=1;
+	if(setsockopt(s,SOL_SOCKET,SO_REUSEADDR,(char*)&tmp,sizeof tmp)<0) {
+	  perror("setsockopt");
+	  return 0;
+	}
+	
+	local.sin_port=htons(10000);
+	
+	if(bind(s, (struct sockaddr*)&local,sizeof(local))<0) {
+	  perror("bind");
+	  return 0;
+	}
+	
+	if(listen(s,128)<0) {
+	  perror("listen");
+	  return 0;
+	}
 
-Crypto API
-A: James Morris
-S: 141 kbytes, 21/6 files altered, 14 new
-N: In Dave Miller's tree for IPSec support.
+        if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, s, POLLIN ) < 0) {
+		fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", s);
 
-Crash Dumping (LKCD)
-A: Matt Robinson, LKCD team
-M: http://lists.insecure.org/lists/linux-kernel/2002/Oct/8552.html
-D: http://lkcd.sourceforge.net/download/latest/
-S: 18479 kbytes, 18/10 files altered, 10 new
-T: Diffstat
-X: Summary patch (18k)
+		return -1;
+	}                           
+	addrlen=sizeof(local);
 
-POSIX Timer API
-A: George Anzinger
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103553654329827&w=2
-D: http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-posix-2.5.44-1.0.patch
-S: 66 kbytes, 18/2 files altered, 4 new
-T: Diffstat
-X: Summary patch (21k)
 
-Hotplug CPU Removal Support
-A: Rusty Russell
-D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Hotcpu/hotcpu-cpudown.patch.gz
-S: 32 kbytes, 16/0 files altered, 0 new
-T: Diffstat
-X: Summary patch (29k)
+	for(;;) {
+	  nfds = sys_epoll_wait(kdpfd, &pfds, -1);	
+	  fprintf(stderr,"sys_epoll_wait returned: %d\n",nfds);
+	  
+	  for(n=0;n<nfds;++n) {
+	    if(pfds[n].fd==s) {
+	      client=accept(s, (struct sockaddr*)&local, &addrlen);
+	      sleep(2);      
+	      if(client<0){
+		perror("accept");
+		continue;
+	      }
+	      if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, client, POLLIN ) < 0) {
+		fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", client);
+		return -1;
+	      }                                        
+	    }
+	    else {
+	      if((ret=read(pfds[n].fd,line,79))>0)
+		printf("read from fd %d: '%.*s'\n", pfds[n].fd, ret>2 ? ret-2 : 0,line);
+	    }
+	  }
 
-Hires Timers
-A: George Anzinger
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103557676007653&w=2
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103557677207693&w=2
-M: http://marc.theaimsgroup.com/?l=linux-kernel&m=103558349714128&w=2
-D: http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-core-2.5.44-1.0.patch http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-i386-2.5.44-1.0.patch http://unc.dl.sourceforge.net/sourceforge/high-res-timers/hrtimers-hrposix-2.5.44-1.1.patch
-S: 132 kbytes, 15/4 files altered, 10 new
-T: Diffstat
-X: Summary patch (44k)
-N: Requires POSIX Timer API patch
+	  
 
-epoll System Call
-A: Davide Libenze
-M: http://lists.insecure.org/lists/linux-kernel/2002/Oct/6419.html
-D: http://www.xmailserver.org/linux-patches/sys_epoll-2.5.44-0.11.diff
-S: 47 kbytes, 11/2 files altered, 4 new
-T: Diffstat
-X: Summary patch (9k)
+	}
+	return 0;
+}
 
-Device Mapper (LVM2)
-A: LVM2 Team
-M: http://www.sistina.com/products_lvm.htm
-D: http://people.sistina.com/~thornber/patches/2.5-stable/
-S: 88 kbytes, 10/5 files altered, 9 new
-T: Diffstat
-X: Summary patch (6k)
-N: In -ac kernels
 
-EVMS
-A: EVMS Team
-M: http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.0/0109.html
-D: http://evms.sourceforge.net/patches/2.5.44/
-S: 1101 kbytes, 7/10 files altered, 44 new
-T: Diffstat
-X: Summary patch (4k)
 
-initramfs
-A: Al Viro
-M: http://www.cs.helsinki.fi/linux/linux-kernel/2001-30/0110.html
-D: ftp://ftp.math.psu.edu/pub/viro/N0-initramfs-C21
-S: 16 kbytes, 5/1 files altered, 2 new
-T: Diffstat
-X: Summary patch (5k)
+> 
+> 
+> 
+> - Davide
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Kernel Probes
-A: Vamsi Krishna S
-M: lists.insecure.org/linux-kernel/2002/Aug/1299.html
-D: http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Misc/kprobes.patch.gz
-S: 17 kbytes, 3/4 files altered, 4 new
-T: Diffstat
-X: Summary patch (4k)
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,158 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUFHVOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265359AbUFHVRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265331AbUFHVOb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 17:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUFHVOa
+	id S265359AbUFHVRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 17:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265353AbUFHVRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 17:14:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:937 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265316AbUFHVOS (ORCPT
+	Tue, 8 Jun 2004 17:17:46 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:11689 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265325AbUFHVRc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 17:14:18 -0400
-Date: Tue, 08 Jun 2004 14:10:18 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: Greg KH <greg@kroah.com>, "H. Peter Anvin" <hpa@zytor.com>
-cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       haveblue@us.ibm.com
-Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
-Message-ID: <7430000.1086729016@dyn318071bld.beaverton.ibm.com>
-In-Reply-To: <20040603193256.GD23564@kroah.com>
-References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com> <40BE6CA9.9030403@zytor.com> <20040603193256.GD23564@kroah.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 8 Jun 2004 17:17:32 -0400
+Date: Tue, 8 Jun 2004 23:08:09 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: "David S. Miller" <davem@redhat.com>
+Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ethtool semantics
+Message-ID: <20040608210809.GA10542@k3.hellgate.ch>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20040607212804.GA17012@k3.hellgate.ch> <20040607145723.41da5783.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040607145723.41da5783.davem@redhat.com>
+X-Operating-System: Linux 2.6.7-rc1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Thursday, June 03, 2004 12:32:56 PM -0700 Greg KH <greg@kroah.com> wrote:
-> On Wed, Jun 02, 2004 at 05:11:21PM -0700, H. Peter Anvin wrote:
->> As it is, it also mishandles the hotswap CPU scenario.
+On Mon, 07 Jun 2004 14:57:23 -0700, David S. Miller wrote:
+> On Mon, 7 Jun 2004 23:28:04 +0200
+> Roger Luethi <rl@hellgate.ch> wrote:
 > 
-> I agree, but that can be easily added with a second patch on top of this
-> one, right Hanna?  :)
+> > What is the correct response if a user passes ethtool speed or duplex
+> > arguments while autoneg is on? Some possible answers are:
+> > 
+[...]
+> speed and duplex fields should be silently ignored in this case
 
-Here is the patch that uses a cpu hotplug callback, to allow dynamic support 
-of cpu id for classes in sysfs.
+It may not matter much because few people care about forced media these
+days. And it is debatable whether trying to guess the users intention
+is a good idea (we lack means for users to manipulate autoneg results
+via advertisted values but that's no big deal).
 
-This patch applies on top of the one I sent out earlier that Greg included.
-I do not have access to hardware that supports cpu hotswapping (virtually or not) 
-so have not been able to test that aspect of the patch. However, the original
-functionality of listing static cpu's still works.
+However, "silently ignoring" strikes me as a very poor choice, in
+stark contrast to Unix/Linux tradition. A user issues a command which
+cannot be executed and gets the same response that is used to indicate
+success!? What school of user interface design is that? How is that
+not confusing users? </rant>
 
-Please consider for testing or inclusion. 
-
-Signed-off-by Hanna Linder <hannal@us.ibm.com>
-
-Thanks.
-
-Hanna Linder
-IBM Linux Technology Center
--------
-
-diff -Nrup -Xdontdiff linux-2.6.7-rc2/arch/i386/kernel/cpuid.c linux-2.6.7-rc2p/arch/i386/kernel/cpuid.c
---- linux-2.6.7-rc2/arch/i386/kernel/cpuid.c	2004-06-03 15:51:37.000000000 -0700
-+++ linux-2.6.7-rc2p/arch/i386/kernel/cpuid.c	2004-06-07 15:52:50.000000000 -0700
-@@ -37,6 +37,8 @@
- #include <linux/smp_lock.h>
- #include <linux/fs.h>
- #include <linux/device.h>
-+#include <linux/cpu.h>
-+#include <linux/notifier.h>
- 
- #include <asm/processor.h>
- #include <asm/msr.h>
-@@ -156,10 +158,48 @@ static struct file_operations cpuid_fops
- 	.open = cpuid_open,
- };
- 
-+static void cpuid_class_simple_device_remove(void)
-+{
-+	int i = 0;
-+	for_each_online_cpu(i)
-+		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
-+	return;
-+}
-+
-+static int cpuid_class_simple_device_add(int i) 
-+{
-+	int err = 0;
-+	struct class_device *class_err;
-+
-+	class_err = class_simple_device_add(cpuid_class, MKDEV(CPUID_MAJOR, i), NULL, "cpu%d",i);
-+	if (IS_ERR(class_err)) {
-+		err = PTR_ERR(class_err);
-+	}
-+	return err;
-+}
-+static int __devinit cpuid_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
-+{
-+	unsigned int cpu = (unsigned long)hcpu;
-+
-+	switch(action) {
-+	case CPU_ONLINE:
-+		cpuid_class_simple_device_add(cpu);
-+		break;
-+	case CPU_DEAD:
-+		cpuid_class_simple_device_remove();
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block cpuid_class_cpu_notifier =
-+{
-+	.notifier_call = cpuid_class_cpu_callback,
-+};
-+
- int __init cpuid_init(void)
- {
- 	int i, err = 0;
--	struct class_device *class_err;
- 	i = 0;
- 
- 	if (register_chrdev(CPUID_MAJOR, "cpu/cpuid", &cpuid_fops)) {
-@@ -174,33 +214,31 @@ int __init cpuid_init(void)
- 		goto out_chrdev;
- 	}
- 	for_each_online_cpu(i) {
--		class_err = class_simple_device_add(cpuid_class, MKDEV(CPUID_MAJOR, i), NULL, "cpu%d",i);
--		if (IS_ERR(class_err)) {
--			err = PTR_ERR(class_err);
-+		err = cpuid_class_simple_device_add(i);
-+		if (err != 0) 
- 			goto out_class;
--		}
- 	}
-+	register_cpu_notifier(&cpuid_class_cpu_notifier);
-+
- 	err = 0;
- 	goto out;
- 
- out_class:
--	i = 0;
--	for_each_online_cpu(i)
--		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
-+	cpuid_class_simple_device_remove();
- 	class_simple_destroy(cpuid_class);
- out_chrdev:
- 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");	
-+	unregister_cpu_notifier(&cpuid_class_cpu_notifier);
- out:
- 	return err;
- }
- 
- void __exit cpuid_exit(void)
- {
--	int i = 0;
--	for_each_online_cpu(i)
--		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
-+	cpuid_class_simple_device_remove();
- 	class_simple_destroy(cpuid_class);
- 	unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
-+	unregister_cpu_notifier(&cpuid_class_cpu_notifier);
- }
- 
- module_init(cpuid_init);
-
+Roger

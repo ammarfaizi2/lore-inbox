@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272688AbTHPXUO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 19:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272917AbTHPXUO
+	id S274977AbTHPXRg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 19:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274980AbTHPXRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 19:20:14 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:42947 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S272688AbTHPXUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 19:20:09 -0400
-Subject: [2.6.0-test3-current] drivers/pnp/core.c:72: error: structure has
-	no member named `name'
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <ramon.rey@hispalinux.es>
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BMG5eQC1gh/b/z7YzXU0"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1061076005.1304.34.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 17 Aug 2003 01:20:07 +0200
+	Sat, 16 Aug 2003 19:17:35 -0400
+Received: from www.wireboard.com ([216.151.155.101]:58017 "EHLO
+	varsoon.wireboard.com") by vger.kernel.org with ESMTP
+	id S274977AbTHPXRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 19:17:35 -0400
+To: "David D. Hagood" <wowbagger@sktc.net>
+Cc: Valdis.Kletnieks@vt.edu, Michael Frank <mhf@linuxmail.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
+References: <200308170410.30844.mhf@linuxmail.org>
+	<200308162049.h7GKnwnP024716@turing-police.cc.vt.edu>
+	<3F3EB8FA.1080605@sktc.net>
+From: Doug McNaught <doug@mcnaught.org>
+Date: 16 Aug 2003 19:17:29 -0400
+In-Reply-To: "David D. Hagood"'s message of "Sat, 16 Aug 2003 18:06:34 -0500"
+Message-ID: <m3oeypb3au.fsf@varsoon.wireboard.com>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David D. Hagood" <wowbagger@sktc.net> writes:
 
---=-BMG5eQC1gh/b/z7YzXU0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+> Valdis.Kletnieks@vt.edu wrote:
+> 
+> > Consider this code:
+> > 	char *foo = 0;
+> > 	sigset(SIGSEGV,SIG_IGNORE);
+> > 	for(;;) { *foo = '\5'; }
+> > Your logfiles just got DoS'ed....
+> 
+> 
+> Why not then just log uncaught exceptions?
 
-Hi.
+You can still DoS by forking repeatedly and having the child die with
+SEGV...
 
-It seems the struct dev.name was removed from include/linux/device.h and
-should be implemented for every susbsystem.=20
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
-
---=-BMG5eQC1gh/b/z7YzXU0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/PrwkRGk68b69cdURAnojAJwOOOGIkFLxgVv2zPgM+F6SzRInAQCeO9qY
-z/XsS2UfmdGN9AwUCrfq4Pk=
-=3NAH
------END PGP SIGNATURE-----
-
---=-BMG5eQC1gh/b/z7YzXU0--
-
+-Doug

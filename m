@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266886AbSLKA27>; Tue, 10 Dec 2002 19:28:59 -0500
+	id <S265705AbSLKA1P>; Tue, 10 Dec 2002 19:27:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266903AbSLKA26>; Tue, 10 Dec 2002 19:28:58 -0500
-Received: from dp.samba.org ([66.70.73.150]:5071 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266886AbSLKA26>;
-	Tue, 10 Dec 2002 19:28:58 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module-init-tools 0.9.3 -- "missing" issue 
-In-reply-to: Your message of "Wed, 11 Dec 2002 00:27:52 BST."
-             <3DF67878.6090703@oracle.com> 
-Date: Wed, 11 Dec 2002 11:35:24 +1100
-Message-Id: <20021211003644.217932C06D@lists.samba.org>
+	id <S266310AbSLKA1P>; Tue, 10 Dec 2002 19:27:15 -0500
+Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:33973 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S265705AbSLKA1O>; Tue, 10 Dec 2002 19:27:14 -0500
+Message-ID: <00d501c2a0ac$fe66bc40$0201a8c0@melanson>
+From: "Michael Melanson" <ve3mtm@rac.ca>
+To: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu> <050c01c2a091$77564600$9c094d8e@wcom.ca> <3DF66754.3020901@WirelessNetworksInc.com> <058f01c2a09a$7b9dc4a0$9c094d8e@wcom.ca>
+Subject: Re: Is this going to be true ?
+Date: Tue, 10 Dec 2002 19:33:58 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DF67878.6090703@oracle.com> you write:
-> Rusty Russell wrote:
-> > 5) If you want to hack on the source:
-> > 	aclocal && automake --add-missing --copy && autoconf
+Didn't they support an "Unix subsystem" on older versions of NT, to emulate
+console Unix apps? I seem to remember something about a that a while ago.
 
->   to modprobe vfat - but not the full irda stack, I'll report this
->   separately to Jean) _and_ on 2.4.20 (modular IrDA and PPP are
+-----------------------------------------
+Michael Melanson
+ve3mtm@rac.ca
 
-I'd appreciate receiving a copy of that irda report.  It's probably
-not Jean's fault.
+73 33
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+----- Original Message -----
+From: "Serge Kuznetsov" <serge@wcom.ca>
+To: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, December 10, 2002 5:21 PM
+Subject: Re: Is this going to be true ?
+
+
+>
+>
+> > Probably not true, since MS doesn't like the GPL.  However, MS may
+> > release *nix applications any time they want to.  Way back in
+> > prehistory, they did supply unix applications and currently
+>
+> Are you saying about Xenix? I remember M$ supports it in late '80s.
+>
+> All the Best!
+> Serge.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

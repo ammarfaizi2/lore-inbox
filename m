@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291321AbSBMDbJ>; Tue, 12 Feb 2002 22:31:09 -0500
+	id <S291320AbSBMDYi>; Tue, 12 Feb 2002 22:24:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291323AbSBMDa7>; Tue, 12 Feb 2002 22:30:59 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27655 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S291321AbSBMDaw>; Tue, 12 Feb 2002 22:30:52 -0500
-Date: Tue, 12 Feb 2002 22:28:44 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <E16anHf-0003bt-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020212220340.8017A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291321AbSBMDY1>; Tue, 12 Feb 2002 22:24:27 -0500
+Received: from holomorphy.com ([216.36.33.161]:18853 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291320AbSBMDYQ>;
+	Tue, 12 Feb 2002 22:24:16 -0500
+Date: Tue, 12 Feb 2002 19:24:02 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Jameson <rj@open-net.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbols ipt_owner.o with 2.4.18-pre9 with mjc patch
+Message-ID: <20020213032402.GC3588@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Jameson <rj@open-net.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020212214016.7fa188c3.rj@open-net.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020212214016.7fa188c3.rj@open-net.org>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Alan Cox wrote:
+On Tue, Feb 12, 2002 at 09:40:16PM -0500, Robert Jameson wrote:
+> Is there a fix for the unresolved symbols with ipt_owner.o with
+> 2.4.18-pre9 + mjc's patch, i don't know if this is 2.4.18-pre9 specific or
+> if its a mjc error, either way, heres the error,
 
-> > > Whats wrong with sync not terminating when there is permenantly I/O left ?
-> > > Its seems preferably to suprise data loss
-> > 
-> > Hard call.  What do we *want* sync to do?
-> 
-> I'd rather not change the 2.4 behaviour - just in case. For 2.5 I really
-> have no opinion either way if SuS doesn't mind
+Does this help?
 
-Alan, I think you have this one wrong, although SuS seems to have it wrong
-as well, and if Linux did what SuS said there would be no problem.
-
-- What SuS seems to say is that all dirty buffers will queued for physical
-  write. I think if we did that the livelock would disappear, but data
-  integrity might suffer.
-- sync() could be followed by write() at the very next dispatch, and it
-  was never intended to be the last call after which no writes would be
-  done. It is a point in time.
-- the most common use of sync() is to flush data write to all files of the
-  current process. If there was a better way to do it which was portable,
-  sync() would be called less. I doubt there are processes which alluse
-  that no write will be done after sync() returns.
-- since sync() can't promise "no new writes" why try to make it do so? It
-  should mean "write current sirty buffers" and that's far more than SuS
-  requires.
-
-I don't think benchmarks are generally important, but in this case the
-benchmark reveals that we have been implementing a system call in a way
-which not only does more than SuS requires, but more than the user
-expects. To leave it trying to do even more than that seems to have no
-benefit and a high (possible) cost.
-
-I have seen shutdown hang many times, and I have to wonder if the shutdown
-script is waiting for a process which is in some kind of write loop, while
-the process ignores KILL signals. Don't know, don't claim I do, but I
-see no reason for a sync() to handle more than current dirty blocks.
-
-My opinion, but I hope yours. Fewer hangs and better performance is a
-compromise I can accept.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+--- linux-virgin/kernel/fork.c  Tue Jan 29 18:28:26 2002
++++ linux-wli/kernel/fork.c Tue Jan 29 22:42:27 2002
+@@ -36,6 +36,9 @@
+ unsigned long pidhash_size;
+ unsigned long pidhash_bits;
+ list_t *pidhash;
++EXPORT_SYMBOL(pidhash);
++EXPORT_SYMBOL(pidhash_bits);
++EXPORT_SYMBOL(pidhash_size);
+ 
+ rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
+ 

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUCaSUm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 13:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCaSUm
+	id S262266AbUCaSYC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 13:24:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUCaSYC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 13:20:42 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:1411 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S262019AbUCaSUl (ORCPT
+	Wed, 31 Mar 2004 13:24:02 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:64745 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S262266AbUCaSX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 13:20:41 -0500
-Date: Wed, 31 Mar 2004 20:20:39 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who is merlin.fit.vutbr.cz?
-Message-ID: <20040331182039.GA29397@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <200403290108.i2T18T8d024595@work.bitmover.com>
+	Wed, 31 Mar 2004 13:23:59 -0500
+Subject: Re: 2.4.21 on Itanium2: floating-point assist fault at ip
+	400000000062ada1, isr 0000020000000008
+From: Alex Williamson <alex.williamson@hp.com>
+To: davidm@hpl.hp.com
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       ulrich.windl@rz.uni-regensburg.de,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <16491.2184.253165.545651@napali.hpl.hp.com>
+References: <406AE0D5.10359.1930261@localhost>
+	 <200403311900.17293.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <16491.2184.253165.545651@napali.hpl.hp.com>
+Content-Type: text/plain
+Message-Id: <1080757433.2326.32.camel@patsy.fc.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403290108.i2T18T8d024595@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 31 Mar 2004 11:23:53 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 28, 2004 at 05:08:29PM -0800, Larry McVoy wrote:
+On Wed, 2004-03-31 at 11:06, David Mosberger wrote:
 
-> connection.  Whoever this is has been cloning the linux 2.6 (aka 2.5)
-> tree on bkbits so slowly that the tree is locked for days and can't
-> be updated.  About once a day I go kill the clone because stracing it
+> If the messages appear with a frequency of less than 5 messages/5
+> seconds, then there is certainly no performance issue and you may want
+> to just turn off the messages.
 
-RCU for BitKeeper trees? :-)
+   But if you do get them at the maximum rate for a computational
+application, performance could be _severely_ impacted (ie. orders of
+magnitude).
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+	Alex
+
+

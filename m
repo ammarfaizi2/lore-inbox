@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265361AbTA1NNK>; Tue, 28 Jan 2003 08:13:10 -0500
+	id <S265351AbTA1NNE>; Tue, 28 Jan 2003 08:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265368AbTA1NNK>; Tue, 28 Jan 2003 08:13:10 -0500
-Received: from skynet.stack.nl ([131.155.140.225]:45584 "EHLO skynet.stack.nl")
-	by vger.kernel.org with ESMTP id <S265361AbTA1NNH>;
-	Tue, 28 Jan 2003 08:13:07 -0500
-Date: Tue, 28 Jan 2003 14:22:25 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Wichert Akkerman <wichert@wiggy.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S265361AbTA1NNE>; Tue, 28 Jan 2003 08:13:04 -0500
+Received: from mail2.webart.de ([195.30.14.11]:58122 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S265351AbTA1NND>;
+	Tue, 28 Jan 2003 08:13:03 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F2928946937F@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'John Bradford'" <john@grabjohn.com>, rob@r-morris.co.uk
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Bootscreen
-In-Reply-To: <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <20030128140304.L28692-100000@snail.stack.nl>
-References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> 
- <200301281144.h0SBi0ld000233@darkstar.example.net>  <20030128114840.GV4868@wiggy.net>
- <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk>
+Date: Tue, 28 Jan 2003 14:13:05 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jan 2003, Alan Cox wrote:
+> > Most of the machines I maintain are very seldom rebooted, but if someone
 
-> On Tue, 2003-01-28 at 11:48, Wichert Akkerman wrote:
-> > Kiosks and things like ATMs are another place where you do not want
-> > a bootscreen. You do not want to possibly confuse customers with
-> > stuff that they can't understand but show a nice friendly message saying
-> > 'the system is currently unavailable'.
->
-> The real question is whether you want to do this in the kernel or simply at
-> the moment the kernel flips to user space. An init can easily open vt2,
-> draw a pretty boot screen with something like nanogui or bogl and then
-> continue to spew the text to vt1 so anyone can see the text messages if
-> need be.
->
+> > was to do a reboot, I would want them to be able to observe any errors
+or 
+> > other abnormal output from the boot-up process.
+> 
+> Agreed, for standard desktops and servers.
+Well, I really don't know about you, but I for one reboot my desktop every
+morning. Maybe this is a German attitude, but I generally consider it a
+waste
+of resources to have my workstation run during the night. For downloads and
+the like, I got a headless server which does good power management in the
+closet room. Besides, again: everyone [who is not a hacker] likes eyecandy.
+I wouldn't normally say that if it wasn't about this discussion.
 
-I agree with you that it's not the kernels main task to draw logos, though
-it might be a little late to handle it in init. 2.4 kernels take quite
-some time before entering init. True, 2.5 kernels are a lot faster
-already, but, take an embedded device: all drivers might be built into the
-kernel, and when the kernel is entering init, most stuff is done already.
+> There is no reason why the boot data can't go to a secondary display,
+> a serial terminal, or a printer, or a speaker as a bleep code, etc.
+Absolutely!
 
-Besides: There is no need for a user to see that the kernel detected the
-CPU again. Maybe the kernel messages should automagically show up in case
-of errors, and flip away the logo. Of course this implies the logo is
-handled completely by the kernel.
-
-I think you are mostly done by tweaking some fbcon code, it has
-implemented some logo code already.
-
-Jos
-
+> In this case, boot data could be sent to a serial port, and the
+> graphics card initialised by the boot loader to display a "Please
+> wait, set top box booting up" screen, using a scan rate, which would
+> be acceptable to the television.  In this case, we do not want the
+> kernel to change the video card setup at all.
+Yes! This is exactly what I want!

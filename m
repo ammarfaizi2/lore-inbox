@@ -1,72 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVBRHuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVBRHyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVBRHuh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 02:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVBRHuh
+	id S261308AbVBRHyq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 02:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVBRHyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 02:50:37 -0500
-Received: from main.gmane.org ([80.91.229.2]:35015 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261305AbVBRHuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 02:50:25 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Kernel hangs on PCI config register access ???
-Date: Fri, 18 Feb 2005 08:49:58 +0100
-Organization: {M:U} IT-Consulting
-Message-ID: <pan.2005.02.18.07.49.57.620452@smurf.noris.de>
-Mime-Version: 1.0
+	Fri, 18 Feb 2005 02:54:46 -0500
+Received: from simmts6.bellnexxia.net ([206.47.199.164]:32649 "EHLO
+	simmts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261301AbVBRHyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 02:54:43 -0500
+Message-ID: <1451.10.10.10.24.1108713140.squirrel@linux1>
+In-Reply-To: <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
+References: Message from "Sean" <seanlkml@sympatico.ca> of "Thu, 17 Feb 2005
+    16:24:01 CDT." <4912.10.10.10.24.1108675441.squirrel@linux1>
+    <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
+Date: Fri, 18 Feb 2005 02:52:20 -0500 (EST)
+Subject: Re: [BK] upgrade will be needed
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Cc: "Chris Friesen" <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
+       tytso@mit.edu, cs@tequila.co.jp, galibert@pobox.com,
+       kernel@crazytrain.com, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-7
+X-Mailer: SquirrelMail/1.4.3a-7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4E   G?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, February 17, 2005 8:42 pm, Horst von Brand said:
 
-we have a bunch of systems which semi-reproducibly (chance of 1:1000) hang
-when a PCMCIA card is removed from its PCI->PCMCIA interface via "cardctl
-eject". Right *here*, in fact:
+> Linus clearly considered not just his /own/ workflow, but the workflow
+> for the /whole/ kernel development community. In fact, BK was designed
 
-static int pci_conf1_read (int seg, int bus, int devfn, int reg, int
-len, + u32 *value) {
-    [...]
-    case 2:
-        debug("you see me \n");
-        *value = inw(0xCFC + (reg & 2));
-        debug("but you don't get here \n");
-        break;
-    [...]
+Well, the /whole/ community isn't yet included, that's what we're talking
+about.
 
-Does anybody have *any* idea what could possibly be the cause of this?
-Using pci=bios still hangs; pci=conf2 doesn't work.
+> around the requirements Linus and other head hackers laid down for a
+> SCM for use in Linux. And I'm quite sure that if Linus et al had
+> serious misgivings about the license somehow hindering Linux
+> development, they would have got it fixed or dumped BK. Linus has
+> said time and again that he  just cares for the very best kernel
+> possible, nothing else.
 
-FWIW, the call sequence is:
+Do you think that the developers who must or want to use other SCM tools
+desire less?
 
-shutdown_socket
-yenta_sock_init
-yenta_clear_maps
-yenta_set_socket
-pci_bus_read_config_word
-pci_conf1_read
+> Sure, from the periphery of kernel development using something else looks
+> simple. But you have to consider there are literaly dozens of trees (of
+> the head maintainers) exchanging changesets. The flow of going into
+> 2.6 is astonishing right now, I'd say some 3 or 5 times more than
+> what got into the most furious 2.3 patch frenzies. Existing open
+> source tools just aren't up to the task, as Linus has repeatedly said.
 
-The systems in question are wildly different (VIA vs. Intel CPUs, standard
-mainboard vs. PCI backplane, Ricoh vs. ENE cardbus bridges), so I'm
-inclined to rule out hardware problems. The NMI monitor doesn't trigger
-(yes I tested it), kgdb is unresponsive -- the system hangs hard at that
-point, as far as I can determine.
+There are ways that the tools could coexist and work together better than
+they do today. If people would stop acting like BK was in jeopardy of
+being taken away from them and realize that others just want the ability
+to use their tools of choice too.
 
-Kernel: tested with various 2.6.1? plus -rc* and/or -mm*, no change.
+> Just now there are starting to be halfways useful SCM systems (almost
+> all based on the "one central repository" idea, which doesn't cut it
+> for Linux), but they aren't proven enough.
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Yeah, there are some glimmers of hope for sure, but you're right they're a
+ways off.
+
+Sean
+
 
 

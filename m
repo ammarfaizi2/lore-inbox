@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbUDJVCz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 17:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDJVCy
+	id S262113AbUDJVEw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 17:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUDJVEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 17:02:54 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:23557 "EHLO zeus.lan.domdv.de")
-	by vger.kernel.org with ESMTP id S262112AbUDJVCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 17:02:52 -0400
-Message-ID: <407860F9.2070103@domdv.de>
-Date: Sat, 10 Apr 2004 23:02:49 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040311
-X-Accept-Language: en-us, en, de
+	Sat, 10 Apr 2004 17:04:52 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:62481 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S262113AbUDJVEu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 17:04:50 -0400
+Date: Sat, 10 Apr 2004 23:04:45 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andries Brouwer <aebr@win.tue.nl>, fledely <fledely@bgumail.bgu.ac.il>,
+       linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Accessing odd last partition sector (was: [Linux-NTFS-Dev] mkntfs
+ dirty volume marking)
+In-Reply-To: <20040410205445.GV31500@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.21.0404102301400.840-100000@mlf.linux.rulez.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: kkeil@suse.de, paulus@samba.org
-Subject: 2.4.25: kfree_skb on hard IRQ during ISDN dialin
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Im getting this kernel warning during ISDN dialins:
 
-Apr 10 22:24:28 titanic pppd[895]: local  IP address 10.1.1.7
-Apr 10 22:24:28 titanic pppd[895]: remote IP address 10.1.1.8
-Apr 10 22:25:31 titanic kernel: Warning: kfree_skb on hard IRQ c022d0a0
-Apr 10 22:25:34 titanic last message repeated 2 times
-Apr 10 22:26:20 titanic pppd[895]: Modem hangup
-Apr 10 22:26:20 titanic pppd[895]: Connection terminated.
+On Sat, 10 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Sat, Apr 10, 2004 at 10:29:37PM +0200, Andries Brouwer wrote:
+> > On Fri, Apr 09, 2004 at 01:38:51PM +0200, Szakacsits Szabolcs wrote:
+> > 
+> > > > TODO.ntfsprogs conatins the following TODO item under mkntfs:
+> > > >  - We don't know what the real last sector is, thus we mark the volume
+> > > > dirty and the subsequent chkdsk (which will happen on reboot into
+> > > > Windows automatically) recreates the backup boot sector if the Linux
+> > > > kernel lied to us about the number of sectors.
+> > 
+> > The ioctl BLKGETSIZE64 will tell you the size (in bytes) of a block device.
+> 
+> So will lseek() to SEEK_END, actually (both 2.4 and 2.6).
+> And yes, last sector _is_ accessible for dd(1) et.al.
 
-The client of the dialin is a Nokia 6820. It doesn't seem that this 
-warning causes any real trouble as the system otherwise continues to 
-work normally. I don't know if this warning is ISDN or PPP related.
+In 2.6? Not for 2.4 when I tried (it wasn't the latest 2.4 kernel).
 
-System:
+	Szaka
 
-Tyan Tomcat K8S (S2850) with Opteron 144 runing in 32 bit mode
-
-Linux titanic 2.4.25 #2 Sun Mar 21 15:31:33 CET 2004 i686 unknown
-
-00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev 07)
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev 05)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE (rev 03)
-00:07.2 SMBus: Advanced Micro Devices [AMD] AMD-8111 SMBus 2.0 (rev 02)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-01:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-01:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-01:03.0 SCSI storage controller: LSI Logic / Symbios Logic 53c895 (rev 01)
-01:06.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet 
-Controller (rev 02)
-01:07.0 Network controller: AVM Audiovisuelles MKTG & Computer System 
-GmbH Fritz!PCI v2.0 ISDN (rev 02)
-01:08.0 PCI bridge: Hint Corp HB1-SE33 PCI-PCI Bridge (rev 11)
-01:0b.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-01:0d.0 Ethernet controller: Broadcom Corporation: Unknown device 1653 
-(rev 03)
-01:0e.0 Ethernet controller: Broadcom Corporation: Unknown device 1653 
-(rev 03)
-02:08.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host 
-Controller (rev 46)
-02:09.0 USB Controller: NEC Corporation USB (rev 41)
-02:09.1 USB Controller: NEC Corporation USB (rev 41)
-02:09.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
-
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

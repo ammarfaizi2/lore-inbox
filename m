@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbTA1OLK>; Tue, 28 Jan 2003 09:11:10 -0500
+	id <S265587AbTA1OXR>; Tue, 28 Jan 2003 09:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265480AbTA1OLK>; Tue, 28 Jan 2003 09:11:10 -0500
-Received: from mail2.webart.de ([195.30.14.11]:63756 "EHLO mail2.webart.de")
-	by vger.kernel.org with ESMTP id <S265469AbTA1OLH>;
-	Tue, 28 Jan 2003 09:11:07 -0500
-Message-ID: <398E93A81CC5D311901600A0C9F29289469380@cubuss2>
-From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-To: "'Robert Morris'" <rob@r-morris.co.uk>, John Bradford <john@grabjohn.com>
-Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>, linux-kernel@vger.kernel.org
-Subject: AW: Bootscreen
-Date: Tue, 28 Jan 2003 15:11:10 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265637AbTA1OXR>; Tue, 28 Jan 2003 09:23:17 -0500
+Received: from home.wiggy.net ([213.84.101.140]:54719 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S265587AbTA1OXQ>;
+	Tue, 28 Jan 2003 09:23:16 -0500
+Date: Tue, 28 Jan 2003 15:32:35 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bootscreen
+Message-ID: <20030128143235.GY4868@wiggy.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> <200301281144.h0SBi0ld000233@darkstar.example.net> <20030128114840.GV4868@wiggy.net> <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk> <20030128130953.GW4868@wiggy.net> <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I agree that it may be less inappropriate for certain specialised 
-> applications, such as the one you suggested, but Raphael made specific 
-> reference to Windows and Mac OS, which implies desktop use.
-Indeed, I'm looking at desktop usage.
+Previously Alan Cox wrote:
+> I'd not really pondered people who compile many drivers into their kernel
+> instead of into the initrd. I guess a few people still do that.
 
-> I am totally fed up with the quest to make Linux into as close to a copy 
-> of Windows as possible.
-See, if there was no Windows, and no MacOS, and I'd see Linux boot...
-...don't you think I'd still say -at some point- "Gee, these text messages
-are so geeky. I'd like to have a cute picture shown while booting"? I mean,
-really. Can we get rid of the "stupid guy who's trying to clone Windows"
-dogma, please?
+Agreed - what you probably want to do is have a minimal kernel that
+boots an initrd which loads modules for the rest. If the kernel is
+small enough you don't care for its boot messages: if it fails the
+hardware is screwed and your box has to be repaired (esp. if you are
+dealing with embedded/special purpose systems where the people using
+the box can't even see the hardware). 
 
-> OK, but in this case you would have problems with BIOS output etc. If you 
-> left Linux alone, but fixed the BIOS to output at the required 
-> frequencies, it would work - and using the quiet option, together with 
-> appropriate output from the init scripts (which would presuambly be 
-> heavily customised, in such an application) would yield a similar result.
-I don't know about any TV applications. In my very case, the BIOS doesn't
-do anything wrong. (Besides: there's also LinuxBIOS, which can also display
-a cute picture, iirc). I have a bootloader, which puts a nice picture on
-the screen. And I want that picture to remain there until X is running.
-That's all. In actual fact, I'm really frugal.
+Then have the bios/bootloader setup your pretty bootscreen and reset
+it in the initrd when you load a fb driver.
 
-> Wait screen, then just hangs", which would then require an engineer visit,
-> as opposed to, for example, "it says Obtaining IP Address... then hangs"  
-I do have a solution for that. Just make the image 640x440 instead 640x480,
-and have the initscripts output on one of the lower lines only, always over-
-writing the previous message. That way, the support engineer would know
-what's
-going wrong and you'd still have a cute picture.
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

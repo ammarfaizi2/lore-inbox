@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbUBHXDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 18:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUBHXDV
+	id S264374AbUBHXGt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 18:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbUBHXGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 18:03:21 -0500
-Received: from dp.samba.org ([66.70.73.150]:23972 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264278AbUBHXDS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 18:03:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: David Woodhouse <dwmw2@infradead.org>
+	Sun, 8 Feb 2004 18:06:49 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:7296 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S264374AbUBHXGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 18:06:48 -0500
+Subject: Re: When should we use likely() / unlikely() / get_unaligned() ?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org, matthew@wil.cx, davem@redhat.com
-Subject: Re: When should we use likely() / unlikely() / get_unaligned() ? 
-In-reply-to: Your message of "Sun, 08 Feb 2004 11:13:53 -0000."
-             <1076238833.12587.229.camel@imladris.demon.co.uk> 
-Date: Mon, 09 Feb 2004 10:00:47 +1100
-Message-Id: <20040208230331.79FEB2C003@lists.samba.org>
+In-Reply-To: <20040208230331.79FEB2C003@lists.samba.org>
+References: <20040208230331.79FEB2C003@lists.samba.org>
+Content-Type: text/plain
+Message-Id: <1076281602.8563.1.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
+Date: Sun, 08 Feb 2004 23:06:43 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1076238833.12587.229.camel@imladris.demon.co.uk> you write:
-> To be honest, I'm more interested in the case of get_unaligned(). The
-> principle is fairly similar -- the ratio between the performance of the
-> inline and the exception cases varies wildly from architecture to
-> architecture. But the range is far wider -- we now support architectures
-> in 2.6 where alignment fixups _cannot_ happen, and the cost of the
-> 'exception' case should be considered infinite.
+On Mon, 2004-02-09 at 10:00 +1100, Rusty Russell wrote:
+> > we now support architectures in 2.6 where alignment fixups _cannot_ happen,
+> > and the cost of the 'exception' case should be considered infinite.
+> 
+> Um, we do?  I thought it was compulsory in the kernel, otherwise
+> networking breaks on packets w/ wierd hardware headers.
 
-Um, we do?  I thought it was compulsory in the kernel, otherwise
-networking breaks on packets w/ wierd hardware headers.
+We do. It breaks. I'm trying to come up with a solution for it which
+actually lets us optimise elsewhere too, and hence has at least a
+whelk's chance in a supernova of being accepted... :)
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+dwmw2
+
+

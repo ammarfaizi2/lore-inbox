@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317487AbSFDMrI>; Tue, 4 Jun 2002 08:47:08 -0400
+	id <S317491AbSFDMuR>; Tue, 4 Jun 2002 08:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSFDMqw>; Tue, 4 Jun 2002 08:46:52 -0400
-Received: from pop.gmx.de ([213.165.64.20]:6489 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317487AbSFDMqe>;
-	Tue, 4 Jun 2002 08:46:34 -0400
-Date: Tue, 4 Jun 2002 14:46:19 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: torvalds@transmeta.com, kees.bakker@xs4all.nl, mochel@osdl.org,
-        aia21@cantab.net, anton@samba.org, linux-kernel@vger.kernel.org,
-        slomosnail666@gmx.net
-Subject: Re: [patch] PCI device matching fix
-Message-Id: <20020604144619.1353b46c.sebastian.droege@gmx.de>
-In-Reply-To: <3CFC0CC2.D69F2C57@zip.com.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.:y?kYG+B8CyJSt"
+	id <S317494AbSFDMuQ>; Tue, 4 Jun 2002 08:50:16 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:6122 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317491AbSFDMuN> convert rfc822-to-8bit;
+	Tue, 4 Jun 2002 08:50:13 -0400
+Message-Id: <200206041249.g54CntV07616@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Kasper Dupont <kasperd@daimi.au.dk>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: RAID-6 support in kernel?
+Date: Tue, 4 Jun 2002 14:49:54 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Derek Vadala <derek@cynicism.com>, linux-kernel@vger.kernel.org,
+        linux-raid@vger.kernel.org, Tedd Hansen <tedd@konge.net>,
+        Christian Vik <christian@konge.net>,
+        Lars Christian Nygaard <lars@snart.com>
+In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv> <20020603113128.C13204@ucw.cz> <3CFB82A0.EB2062AE@daimi.au.dk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.:y?kYG+B8CyJSt
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Monday 03 June 2002 16:52, Kasper Dupont wrote:
+> Vojtech Pavlik wrote:
+> > He was thinking "mirror", not "stripe". Mirror of 2 RAID-5 arrays (would
+> > be probably called RAID-15 (when there is a RAID-10 for mirrored stripe
+> > arrays)), can withstand any two disks failing anytime.
+>
+> It can actually withstand any *three* disks failing anytime.
 
-On Mon, 03 Jun 2002 17:41:40 -0700
-Andrew Morton <akpm@zip.com.au> wrote:
+still - I don't want to waste that money
 
-> The new pci_device_probe() is always passing the zeroeth
-> entry in the id_table to the device's probe method.  It
-> needs to scan that table for the correct ID first.
-> 
-> This fixes the recent 3c59x strangenesses.
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-This fixes the yamaha ymfpci misdetection, too... Thanks :)
-
-Bye
---=.:y?kYG+B8CyJSt
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE8/Laee9FFpVVDScsRAkkqAKC9PcF35U2r4Smbf2B91R/j50Jx1ACfYYkS
-fHeoDczuhhybx/ETO6df3cA=
-=jfmU
------END PGP SIGNATURE-----
-
---=.:y?kYG+B8CyJSt--
-
+Computers are like air conditioners.
+They stop working when you open Windows.

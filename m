@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264702AbSKVMzi>; Fri, 22 Nov 2002 07:55:38 -0500
+	id <S263977AbSKVNCU>; Fri, 22 Nov 2002 08:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264706AbSKVMzi>; Fri, 22 Nov 2002 07:55:38 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:2311 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id <S264702AbSKVMzh>;
-	Fri, 22 Nov 2002 07:55:37 -0500
-Message-ID: <3DDC6AD0.40906@iinet.net.au>
-Date: Thu, 21 Nov 2002 16:10:40 +1100
-From: Nero <neroz@iinet.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Qt 3.1 and xconfig
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264714AbSKVNCU>; Fri, 22 Nov 2002 08:02:20 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:24204 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263977AbSKVNCS>; Fri, 22 Nov 2002 08:02:18 -0500
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kentborg@borg.org
+In-Reply-To: <3DDD88BB.209@pobox.com>
+References: <200211220122.gAM1MQY305783@saturn.cs.uml.edu> 
+	<3DDD88BB.209@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Nov 2002 13:38:28 +0000
+Message-Id: <1037972308.11846.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you link against qt 3.1 (and this will be common soon, KDE 3.1 
-requires it), you can't change any of the options. There is a warning 
-when it is running:
+On Fri, 2002-11-22 at 01:30, Jeff Garzik wrote:
+> Albert D. Cahalan wrote:
+> 
+> > Forget the shred program. It's less useful than having the
+> > filesystem simply zero the blocks, because it's slow and you
+> > can't be sure to hit the OS-visible blocks.
+> 
+> 
+> Why not?
+> 
+> Please name a filesystem that moves allocated blocks around on you.  And 
+> point to code, too.
 
-QObject::connect: No such signal ConfigList::menuSelected(struct menu*)
-QObject::connect:  (sender name:   'unnamed')
-QObject::connect:  (receiver name: 'unnamed')
-QObject::connect: No such signal ConfigList::menuSelected(struct menu*)
-QObject::connect:  (sender name:   'unnamed')
-QObject::connect:  (receiver name: 'unnamed')
-
+Anything on IDE or SCSI or Flash. Just its done below you
 

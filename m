@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUIBGxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUIBGzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUIBGxH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 02:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267512AbUIBGxG
+	id S266845AbUIBGzN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 02:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267512AbUIBGzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 02:53:06 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:609
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S267313AbUIBGxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 02:53:04 -0400
-Message-Id: <s136d15f.099@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Thu, 02 Sep 2004 08:53:19 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <hpa@zytor.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: question on i386 very early memory detection cleanup patch
+	Thu, 2 Sep 2004 02:55:13 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:20682 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266845AbUIBGzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 02:55:01 -0400
+Date: Thu, 2 Sep 2004 08:55:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       alsa-devel@lists.sourceforge.net
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
+Message-ID: <20040902065549.GA18860@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040902063335.GA17657@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you refer to the 4G/4G split patch - this isn't part of mainline, and
-if it needs it would seem it should do this adjustment, not an unrelated
-patch. Jan
 
->>> "H. Peter Anvin" <hpa@zytor.com> 01.09.04 18:20:01 >>>
-Jan Beulich wrote:
-> Is there a particular reason why this patch changes the alignment of
-> cpu_gdt_table to be page rather than cache line aligned? This is
-> particulary strange to me because the alignment is guaranteed only
-for
-> the boot processor, but not for any of the APs; for the latter ones
-> there isn't even a string guarantee that the table would be cache
-line
-> aligned (which it really should be); the weak guarantee only is
-through
-> an appearant assumption of GDT_ENTRIES being a sufficiently large
-power
-> of two.
-> 
-> Thanks, Jan
+i've released the -Q8 patch:
 
-The 4+4 GB patch apparently needs it.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q8
 
+ontop of:
+
+  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+
+this release fixes an artificial 0-1msec delay between hardirq arrival
+and softirq invocation. This should solve some of the ALSA artifacts
+reported by Mark H Johnson. It should also solve the rtl8139 problems -
+i've put such a card into a testbox and with -Q7 i had similar packet
+latency problems while with -Q8 it works just fine.
+
+So netdev_backlog_granularity is still a value of 1 in -Q8, please check
+whether the networking problems (bootup and service startup and latency)
+problems are resolved. (and increase this value in case there are still
+problems.)
+
+	Ingo

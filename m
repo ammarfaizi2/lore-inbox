@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270616AbUJUFOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUJUF3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270616AbUJUFOz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 01:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270630AbUJUFFO
+	id S269040AbUJUF3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 01:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUJUF1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 01:05:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29570 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270513AbUJUE6g (ORCPT
+	Thu, 21 Oct 2004 01:27:43 -0400
+Received: from ozlabs.org ([203.10.76.45]:48852 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269040AbUJUFZN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 00:58:36 -0400
-Message-ID: <417740FE.7030805@osdl.org>
-Date: Wed, 20 Oct 2004 21:54:22 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: bevand_m@epita.fr, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: NMI watchdog detected lockup
-References: <4172F91D.8090109@osdl.org>	<ckv123$pcs$1@sea.gmane.org>	<4173F9A7.2090504@osdl.org>	<20041018200017.0098710d.ak@suse.de>	<41740430.30604@osdl.org> <20041018201654.58905384.ak@suse.de>
-In-Reply-To: <20041018201654.58905384.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 21 Oct 2004 01:25:13 -0400
+Subject: Fix for MODULE_PARM obsolete
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1098336290.10571.341.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 15:25:08 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Mon, 18 Oct 2004 10:58:08 -0700
-> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> 
-> 
->>>Something on your system creates bogus NMI interrupts. What chipset
->>>are you using exactly?
->>>
->>>Sometimes chipsets can be programmed to raise NMIs when an PCI bus
->>>error occurs. 
->>>
->>>21 is the normal state (PIT timer running, but no errors logged) 
->>>
->>>If you have an AMD 8131 it could be in theory erratum 54, but then
->>>normally one of the error bits in reason should be set.
->>
->>Yes, it's an AMD-8111 / 8131 / 8151 / K8-northbridge machine.
-> 
-> 
-> It's probably one of your IO cards. I would remove them one by one
-> or possibly switch them to different slots (PCI vs PCI-X) 
-> 
-> -Andi
+Name: Fix MODULE_PARM warning
+Status: Trivial
+Depends: Module/MODULE_PARM-warning.patch.gz
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Thanks, Andi.
+There is no __attribute_unused__: use __attribute__((__unused__)).
 
-I removed the Adapter SCSI PCI card and switched to using
-the onboard Adaptec controller, and now I'm seeing no problems,
-so the AIC7xyz (or 79yz) card or driver doesn't seem to like
-PCI-X or something here.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .16175-linux-2.6-bk/include/linux/module.h .16175-linux-2.6-bk.updated/include/linux/module.h
+--- .16175-linux-2.6-bk/include/linux/module.h	2004-10-21 14:29:08.000000000 +1000
++++ .16175-linux-2.6-bk.updated/include/linux/module.h	2004-10-21 14:31:38.000000000 +1000
+@@ -570,7 +570,7 @@ extern void __deprecated MODULE_PARM_(vo
+ struct obsolete_modparm __parm_##var __attribute__((section("__obsparm"))) = \
+ { __stringify(var), type, &MODULE_PARM_ };
+ #else
+-#define MODULE_PARM(var,type) static void __attribute_unused__ *__parm_##var = &MODULE_PARM_;
++#define MODULE_PARM(var,type) static void __attribute__((__unused__)) *__parm_##var = &MODULE_PARM_;
+ #endif
+ 
+ #define __MODULE_STRING(x) __stringify(x)
 
 -- 
-~Randy
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

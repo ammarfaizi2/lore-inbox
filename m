@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbTIHJeu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 05:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTIHJe3
+	id S262198AbTIHJmb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 05:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTIHJmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:34:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21391 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262177AbTIHJdr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:33:47 -0400
-Date: Mon, 8 Sep 2003 10:33:22 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 2] Little fixes to previous futex patch
-Message-ID: <20030908093322.GA25176@mail.jlokier.co.uk>
-References: <20030907130017.GA19977@mail.jlokier.co.uk> <Pine.LNX.4.44.0309072331220.10791-100000@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Sep 2003 05:42:31 -0400
+Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:33929 "EHLO
+	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S262234AbTIHJlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 05:41:22 -0400
+Message-ID: <20030908094220.31791.qmail@bilbo.math.uni-mannheim.de>
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Forcing CONFIG_X86_IO_APIC=n
+Date: Mon, 8 Sep 2003 11:39:23 +0200
+User-Agent: KMail/1.5.3
+References: <20030907090610.4a47ec2a.scott@thomasons.org>
+In-Reply-To: <20030907090610.4a47ec2a.scott@thomasons.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309072331220.10791-100000@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> > Hugh's patch is clever and subtle.  It doesn't exit the loop; the loop
-> > continues from "next".
-> 
-> ugh. It would be much cleaner to simply do a list_add() instead of a
-> list_add_tail(). (the ordering of the queue doesnt matter anyway)
+Von Scott Thomason:
 
-Why do you say the order doesn't matter?  If you change the order in
-FUTEX_WAIT & FUTEX_WAKE, then "fair" operations aren't fair any more.
+> I'd like to try forcing CONFIG_X86_IO_APIC=n while I test 2.6.0-test4,
+> but apparently some part of the kernel build re-runs my .config thru
+> something and keeps changing it back to 'y'. Is there any way to
+> accomplish this?
 
-Is there a reason why FUTEX_REQUEUE is exempt from this?
+eike@bilbo:/mnt/kernel/linux-2.6.0-test4> find . -name Kconfig | xargs grep -B 2 "depends .*X86_IO_APIC"
+./drivers/pci/hotplug/Kconfig-config HOTPLUG_PCI_IBM
+./drivers/pci/hotplug/Kconfig-  tristate "IBM PCI Hotplug driver"
+./drivers/pci/hotplug/Kconfig:  depends on HOTPLUG_PCI && X86_IO_APIC && X86
 
--- Jamie
+Maybe you set HOTPLUG_PCI_IBM to yes?
 
+Eike

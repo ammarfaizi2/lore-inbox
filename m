@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281179AbRKTRiH>; Tue, 20 Nov 2001 12:38:07 -0500
+	id <S281174AbRKTRlr>; Tue, 20 Nov 2001 12:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281181AbRKTRh5>; Tue, 20 Nov 2001 12:37:57 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57814 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281179AbRKTRht>;
-	Tue, 20 Nov 2001 12:37:49 -0500
-Date: Tue, 20 Nov 2001 12:37:45 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mike Castle <dalgoda@ix.netcom.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x bit for dirs: misfeature?
-In-Reply-To: <20011120091838.B16407@thune.mrc-home.com>
-Message-ID: <Pine.GSO.4.21.0111201226320.21912-100000@weyl.math.psu.edu>
+	id <S281185AbRKTRlh>; Tue, 20 Nov 2001 12:41:37 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:44551 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S281174AbRKTRlb>;
+	Tue, 20 Nov 2001 12:41:31 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111201741.UAA02990@ms2.inr.ac.ru>
+Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
+To: trond.myklebust@fys.uio.no
+Date: Tue, 20 Nov 2001 20:41:21 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15353.28112.350734.11894@charged.uio.no> from "Trond Myklebust" at Nov 19, 1 09:38:40 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
+
+> You are saying that the it is impossible for sock_alloc_send_skb() to
+> fail when using non-blocking writes?
+
+It is possible and normal provided frame is not fragmented.
+And this is bug in nfsd if this happens with its frames.
 
 
-On Tue, 20 Nov 2001, Mike Castle wrote:
+> writes. (Note: by 'simultaneous' I mean that we don't wait for the
+> server to reply before firing off the next request)
 
-> find /path/to/dir -type d -print0 | xargs -0 chmod a+rx
-> find /path/to/dir -type f -print0 | xargs -0 chmod a+r
-> 
-> That way, xargs bunches up the arguments into as many arguments as chmod
-> can handle, and calls it fewer times.
-> 
-> The -print0 and -0 are GNU extensions to handle spaces in names.
+I do not understand, you have said you wait for write space yet. :-)
 
-That's even worse than original.  You've got a very wide race here -
-think what happens if luser does
 
-cd /path/to/dir/something/writable/to/luser
-mkdir bar
-mkdir baz
-for i in `seq 1 500`; do
-	mkdir bar/$i
-	touch bar/$i/shadow
-	ln -sf /etc baz/$i
-done
+> I haven't done anything about this because IMHO it makes more sense to
+> have the QDIO driver drop their special spinlock when calling external
+> functions such as dev_kfree_skb_any() 
 
-before you start, then waits for first chmod a+r and does
+It is pretty normal, if I understand your words correctly.
+kfree_skb() is called under various kinds of locks in lots of places.
 
-mv bar quux; mv baz bar
+> rather than to force the RPC layer to use the spin_lock_irqsave().
 
-leaving you with very interesting results.  It's much wider window than
-in the original.
+I see no relation at all. Do it irqsave and nothing will change,
+write_space is called only from softirqs.
 
+It is bug in xprt level to grab spinlock which can cause deadlocks
+inside write_space. Probably, I misunderstood you.
+
+Alexey

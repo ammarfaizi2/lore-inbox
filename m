@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267662AbTACU6h>; Fri, 3 Jan 2003 15:58:37 -0500
+	id <S267663AbTACVDN>; Fri, 3 Jan 2003 16:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267716AbTACU6g>; Fri, 3 Jan 2003 15:58:36 -0500
-Received: from web41012.mail.yahoo.com ([66.218.93.11]:52758 "HELO
-	web41012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267662AbTACU6a>; Fri, 3 Jan 2003 15:58:30 -0500
-Message-ID: <20030103210656.18194.qmail@web41012.mail.yahoo.com>
-Date: Fri, 3 Jan 2003 13:06:56 -0800 (PST)
-From: me athome <any_junk@yahoo.com>
-Subject: Dual P4 xeon and linux ethernet bridging 
-To: linux-kernel@vger.kernel.org, buytenh@gnu.org
-Cc: any_junk@yahoo.com, bridge@math.leidenuniv.nl
+	id <S267666AbTACVDN>; Fri, 3 Jan 2003 16:03:13 -0500
+Received: from robur.slu.se ([130.238.98.12]:65042 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S267663AbTACVDM>;
+	Fri, 3 Jan 2003 16:03:12 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15893.65155.49072.307843@robur.slu.se>
+Date: Fri, 3 Jan 2003 22:20:03 +0100
+To: "Avery Fay" <avery_fay@symantec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Gigabit/SMP performance problem
+In-Reply-To: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com>
+References: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am testing linux bridging with kernel 2.4.20 on a
-dual P4 2.4 GHz Xeon and found problematic results.
-With a packet size of 128Bytes the maximum throughput
-is about 160Mbps (Full duplex). I than tried the same
-test with only one P4 and the throughput was the same.
-That leads me to believe that the second CPU was not
-doing anything during the first test (and indeed the
-system and use utilization was always 0%).
+Avery Fay writes:
+ > 
+ > I'm working with a dual xeon platform with 4 dual e1000 cards on different 
+ > pci-x buses. I'm having trouble getting better performance with the second 
+ > cpu enabled (ht disabled). With a UP kernel (redhat's 2.4.18), I can route 
+ > about 2.9 gigabits/s at around 90% cpu utilization. With a SMP kernel 
+ > (redhat's 2.4.18), I can route about 2.8 gigabits/s with both cpus at 
+ > around 90% utilization. This suggests to me that the network code is 
+ > serialized. I would expect one of two things from my understanding of the 
+ > 2.4.x networking improvements (softirqs allowing execution on more than 
+ > one cpu):
 
-At this point I was convinced that the bridge code
-cannot use the second cpu so I tried the whole setup
-on my dual P3 and on that machine there is a big
-difference between one and two cpus enabled. 
+ Well you have a gigabit router :-)
 
-I went back to the dual P4 and tried the clean 2.4.20
-kernel with Ingo’s irq balance patch
-(irqbalance-2.4.20-MRC.patch.txt). The result was the
-same although the interrupts were indeed balanced. The
-behavior of ‘top’ was much different though, before
-after 160Mbps cpu0 would be in 100% system and cpu1
-was always 0% while now both cpu0 and cpu1 were at 50%
-(and no more).
+ How is your routing setup? Packet size?
 
-I tried every combination of hyper treading on/off
-with or without the irqbalance patch as well as
-acpismp=force.
+ Also you'll never get increased performance of a single flow with SMP. 
+ Aggregated performance possible at best. I've been fighting with for some 
+ time too.
 
-Am I crazy for expecting the second P4 to do
-something?
+ You have some important data in /proc/net/softnet_stat which are per cpu
+ packets received and "cpu collisions" should interest you.
 
-Ron.
+ As far as I understand there no serialization in forwarding path except where
+ it has to be -- when we add softirq's from different cpu into a single device.
+ This seen in "cpu collisions"
+
+ Also here we get into inherent SMP cache bouncing problem with TX interrupts
+ When TX has skb's which are processed/created in different CPU's. Which CPU
+ gonna take the interrupt? No matter how we do we run kfree we gona see a lot 
+ of cache bouncing. For systems that have same in/out interface smp_affinity
+ can be used. In practice this impossible for forwarding.
+
+ And this bouncing hurts especially for small pakets....
+
+ A litte TX test illustrates. Sender on cpu0.
+
+ UP                      186 kpps
+ SMP Aff to cpu0         160 kpps
+ SMP Aff to cpu0, cpu1   124 kpps
+ SMP Aff to cpu1         106 kpps
+
+ We are playing some code that might decrease this problem.
 
 
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+ Cheers.
+						--ro

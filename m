@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265648AbRGGCJz>; Fri, 6 Jul 2001 22:09:55 -0400
+	id <S265705AbRGGCSE>; Fri, 6 Jul 2001 22:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265670AbRGGCJp>; Fri, 6 Jul 2001 22:09:45 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:52486 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S265648AbRGGCJb>;
-	Fri, 6 Jul 2001 22:09:31 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S265741AbRGGCRz>; Fri, 6 Jul 2001 22:17:55 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:22795 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S265705AbRGGCRh>;
+	Fri, 6 Jul 2001 22:17:37 -0400
+Date: Fri, 6 Jul 2001 23:17:44 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC] __initstr & __exitstr
+Message-ID: <20010706231744.A6356@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15174.28411.880918.56634@tango.paulus.ozlabs.org>
-Date: Sat, 7 Jul 2001 12:07:55 +1000 (EST)
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] fix compile error in imsttfb.c
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As it currently stands, drivers/video/imsttfb.c will give a compile
-error if FBCON_HAS_CFB32 is defined.  This patch fixes that.
+Hi,
 
-There used to be a declaration of `i' which was only used if
-FBCON_HAS_CFB32 was defined.  I suspect that somebody was compiling
-without FBCON_HAS_CFB32 and saw an unused variable warning from gcc
-and decided to take out the declaration.  This patch will avoid that
-warning.
+	Please comment on this approach to move strings in __init functions
+from .rodata to .data.init so that it get discarded after initialization,
+like the variables marked as __initdata and the functions marked as __init,
+as well as move strings in __exit marked functions to .data.exit, that will
+be discarded and not even get into the generated kernel image.
 
-Linus, please apply.
+	Please note that if possible the best approach was for gcc to move
+those strings automatically if the function was marked with modified 
+__init/__exit macros, but we have to keep in mind that some of the strings
+in those functions can not be discarded because they keep being referenced
+by say register_chrdev and others, unlike, for example, proc functions and
+others that copy the string passed to some malloc'ed data structure, so we
+have to be selective marking exactly the ones that can indeed be discarded.
 
-Paul.
+	I've also implemented helper functions for printk thats the most
+common case, and leaved the other common case, panic, using
+__initstr/__exitstr explicitely, so that people can comment on what is
+better.
 
-diff -urN linux/drivers/video/imsttfb.c linuxppc_2_4/drivers/video/imsttfb.c
---- linux/drivers/video/imsttfb.c	Thu Jul  5 14:46:16 2001
-+++ linuxppc_2_4/drivers/video/imsttfb.c	Thu Jul  5 10:58:09 2001
-@@ -1278,10 +1278,11 @@
- 				break;
- #endif
- #ifdef FBCON_HAS_CFB32
--			case 32:
--				i = (regno << 8) | regno;
-+			case 32: {
-+				int i = (regno << 8) | regno;
- 				p->fbcon_cmap.cfb32[regno] = (i << 16) | i;
- 				break;
-+			}
- #endif
- 		}
- 
+	Here is the basic implementation in include/linux/init.h:
+
+#define __initstr(s)    ({ static char __tmp_init_str[] __initdata=s;
+__tmp_init_str;})
+#define __exitstr(s)    ({ static char __tmp_exit_str[] __exitdata=s;
+__tmp_exit_str;})
+#define init_printk(fmt,arg...) printk(__initstr(fmt) , ##arg)
+#define exit_printk(fmt,arg...) printk(__exitstr(fmt) , ##arg)
+
+	For modules its a no op, as modules doesn't get rid of code/data
+marked as __init{data}, please correct me if I'm wrong as I didn't checked
+that in detail, but from first quick analysis it doesn't move it to some
+different .data/.text section, so I assume it doesn't discards it after
+initialization.
+	
+	For my config, compiling everything statically, with a pristine
+2.4.6-ac1 kernel I get 172 KB freed after init, with this patch we save 16
+KB more.
+
+	I've put the patch at:
+http://bazar.conectiva.com.br/~acme/patches/wip/__initstr.patch.4
+
+	And yes, its intrusive, but it serves, IMHO, as an experiment to
+see how much can be saved with this.
+
+	Please advise/comment.
+
+- Arnaldo

@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUEFQSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbUEFQZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUEFQSh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 12:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUEFQSh
+	id S261221AbUEFQZv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 12:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUEFQZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 12:18:37 -0400
-Received: from c-24-98-166-115.atl.client2.attbi.com ([24.98.166.115]:14867
-	"HELO c-24-98-166-115.atl.client2.attbi.com") by vger.kernel.org
-	with SMTP id S261232AbUEFQSf (ORCPT
+	Thu, 6 May 2004 12:25:51 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:24808 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S261184AbUEFQZr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 12:18:35 -0400
-Message-ID: <MZDMXFD-0001122430850@deborah>
-From: "Milford Foley" <mhjufmene@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Would you extend your auto warranty to ...  
-Date: Thu, 06 May 2004 18:15:13 +0100
+	Thu, 6 May 2004 12:25:47 -0400
+From: "Sourav Sen" <souravs@india.hp.com>
+To: "HELGAAS,BJORN (HP-Ft. Collins)" <bjorn_helgaas@am.exch.hp.com>,
+       "'Sourav Sen'" <souravs@india.hp.com>
+Cc: "'Matt Domsch'" <Matt_Domsch@dell.com>, <matthew.e.tolentino@intel.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <tony.luck@intel.com>
+Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
+Date: Thu, 6 May 2004 21:55:35 +0530
+Message-ID: <004f01c43386$c3301900$39624c0f@india.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: stator richardson ames
-X-Declude-Sender: mhjufmene@yahoo.com [176.126.218.142]
-X-Note: This E-mail was scanned by Declude JunkMail (www.declude.com) for spam.
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <200405060908.39311.bjorn.helgaas@hp.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you Know? 
- 
-Most dealerships purchase their extended warranties from 
-third party sources.
- 
-By going directly to one of those sources, you can save 
-yourself hundreds of dollars for the same of even better 
-extended warranty coverage. 
- 
-Car troubles never happen when it's convenient for you!  
- 
-Protect your vehicle and yourself from large, budget 
-busting repair bills with a quality Extended Warranty 
-for your Car, Truck, Van or S.U.V. 
++ -----Original Message-----
++ From: Bjorn Helgaas [mailto:bjorn.helgaas@hp.com]
++ Sent: Thursday, May 06, 2004 8:39 PM
++ To: Sourav Sen
++ Cc: 'Matt Domsch'; matthew.e.tolentino@intel.com;
++ linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org;
++ tony.luck@intel.com
++ Subject: Re: [2.6.6 PATCH] Exposing EFI memory map
++ 
++ 
++ On Thursday 06 May 2004 7:20 am, Sourav Sen wrote:
++ > + 1) Why does userspace / humans need to know this?  For 
++ > + debugging firmware?
++ > 	
++ > 	Maybe. But the point I had in mind is, say for example
++ > memory diagnostics applications/exercisers which reads (Blind
++ > reads, without caring about contents) memory
++ > to uncover errors (single bit errors)  can use
++ > this to know the usable ranges and map them thru /dev/mem and
++ > read those ranges.
++ 
++ For this application, the EFI memory map isn't what you want.
++ It's a pretty good approximation today, but the day when we'll
++ be able to hot-add memory is fast approaching, and the EFI map
++ won't mention anything added after boot.  We'll discover all
++ that via ACPI (on ia64).
++ 
 
-http://bigautowarranty.com/?partid=saving
+	Why not also update the efi memory table on a hotplug :-)
+(Now also it gets modified a little on a call to efi_memmap_walk()).
+Otherwise clients of efi_memmap_walk() will also get stale 
+information after a hotplug, isn't it (assuming they want to
+know about available physical ranges)?
 
+	Also, kernel may not exactly use all the memory added via
+hotplug and there may be some truncation (just as efi_memmap_walk()
+does today). And it isn't help us if we get to know about those
+extents. Additionally we get to know about various mmio ranges and
+other ranges thru that table -- may be useful opportunistically.
 
-
-
-
-
-
-
-
-
-
-
-Future reference options:
-http://bigautowarranty.com/st.html
-
-blimp postgraduate dietary reformatory slap dominican dry awkward cyclone reticent abash morocco consume incident geochemical inversion fuchs intercalate playground perjure urgent monoid quasiorder synchronous ethos crisp monaco  pernicious bounty coprinus debarring cleavage maltreat dadaism tva dispersal egocentric during destiny giggle parolee chair brice sediment 
+--Sourav

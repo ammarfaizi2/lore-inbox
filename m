@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272441AbTHEVhS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 17:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272518AbTHEVhS
+	id S272361AbTHEVfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 17:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272441AbTHEVfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 17:37:18 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:27813 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S272441AbTHEVhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 17:37:13 -0400
-Date: Tue, 5 Aug 2003 23:37:08 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6] clarify why DMA gets disabled on broken drives
-Message-ID: <20030805213708.GC22909@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Aug 2003 17:35:30 -0400
+Received: from www.erfrakon.de ([193.197.159.57]:2318 "EHLO www.erfrakon.de")
+	by vger.kernel.org with ESMTP id S272361AbTHEVfT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 17:35:19 -0400
+From: Martin Konold <martin.konold@erfrakon.de>
+Organization: erfrakon
+To: Rahul Karnik <rahul@genebrew.com>
+Subject: Re: Interactive Usage of 2.6.0.test1 worse than 2.4.21
+Date: Tue, 5 Aug 2003 23:29:40 +0200
+User-Agent: KMail/kroupware-1.0.0
+References: <200308050704.22684.martin.konold@erfrakon.de> <200308051452.02417.bernd-schubert@web.de> <3F2FB307.2000901@genebrew.com>
+In-Reply-To: <3F2FB307.2000901@genebrew.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200308052329.40256.martin.konold@erfrakon.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartolomiej,
+Am Dienstag, 5. August 2003 15:37 schrieb Rahul Karnik:
 
-I just ran into this and had to look at the sources to find out why
-the IDE driver was turning off DMA for a particular drive.
+Hi,
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+> If disk is involved, your problem might simply be the incorrect
+> readahead value. Try "hdparm -a 512".
 
-Patch against 2.6.0-test2-bk5.
+This improved the situation noticeably while still beeing slower than 2.4.21.
 
-diff -urN a/drivers/ide/ide-dma.c b/drivers/ide/ide-dma.c
---- a/drivers/ide/ide-dma.c	2003-07-27 19:50:57.000000000 +0200
-+++ b/drivers/ide/ide-dma.c	2003-08-05 23:33:13.000000000 +0200
-@@ -767,7 +767,8 @@
- 
- 	int blacklist = in_drive_list(id, drive_blacklist);
- 	if (blacklist) {
--		printk(KERN_WARNING "%s: Disabling (U)DMA for %s\n", drive->name, id->model);
-+		printk(KERN_WARNING "%s: Disabling (U)DMA for %s (on blacklist)\n",
-+			drive->name, id->model);
- 		return(blacklist);
- 	}
- 	return 0;
+I will test more recent kernels later tonight.
+
+Regards,
+-- martin
+
+Dipl.-Phys. Martin Konold
+e r f r a k o n
+Erlewein, Frank, Konold & Partner - Beratende Ingenieure und Physiker
+Nobelstrasse 15, 70569 Stuttgart, Germany
+fon: 0711 67400963, fax: 0711 67400959
+email: martin.konold@erfrakon.de
+
+

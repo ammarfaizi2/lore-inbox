@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbSJZEiv>; Sat, 26 Oct 2002 00:38:51 -0400
+	id <S261854AbSJZEwC>; Sat, 26 Oct 2002 00:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261859AbSJZEiv>; Sat, 26 Oct 2002 00:38:51 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:44787 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S261857AbSJZEiu>;
-	Sat, 26 Oct 2002 00:38:50 -0400
-Date: Sat, 26 Oct 2002 00:45:00 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Adrian Pop <adrpo@ida.liu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The pain with the Net Drivers (ne*, xirc2ps_c, etc)
-Message-ID: <20021026044500.GA11483@www.kroptech.com>
-References: <Pine.GSO.4.44.0210260441200.11632-100000@mir20.ida.liu.se>
-Mime-Version: 1.0
+	id <S261856AbSJZEwC>; Sat, 26 Oct 2002 00:52:02 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9523 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261854AbSJZEwB>; Sat, 26 Oct 2002 00:52:01 -0400
+To: robert w hall <bobh@n-cantrell.demon.co.uk>
+Cc: Mike Galbraith <EFAULT@gmx.de>, Thomas Molina <tmolina@cox.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: loadlin with 2.5.?? kernels
+References: <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
+	<5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net>
+	<m18z0os1iz.fsf@frodo.biederman.org>
+	<007501c27b37$144cf240$6400a8c0@mikeg>
+	<m1bs5in1zh.fsf@frodo.biederman.org>
+	<ApOnXDAL8bu9EwOR@n-cantrell.demon.co.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Oct 2002 22:56:20 -0600
+In-Reply-To: <ApOnXDAL8bu9EwOR@n-cantrell.demon.co.uk>
+Message-ID: <m17kg5n6h7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0210260441200.11632-100000@mir20.ida.liu.se>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 26, 2002 at 05:07:01AM +0200, Adrian Pop wrote:
-> 
-> Hi,
-> 
-> Sorry for bothering you people but i can't stand this anymore!
+robert w hall <bobh@n-cantrell.demon.co.uk> writes:
 
-<...much pointless wanking snipped...>
+> which version of loadlin does this patch?
 
-If you want the problem solved, try supplying us with some useful
-information rather than just p*ssing and moaning about it. What kernel
-are you running? What's your architecture? Motherboard chipset? What
-specific NIC(s) are you using? How do we reproduce the problem? What,
-for $DEITY's sake, is the exact error message you're getting? 
+It doesn't it patches the kernel so that it follows the documented
+kernel boot protocol.
 
-Show a little effort.
+> Hans Lermen changed the gdt structure in version 1.6b to enable it to
+> boot a win4lin-enabled kernel - he also changed things recently (1.6c)
+> to boot kernels of between 0.5 &1.5Mb compressed.
 
---Adam, who has no patience left by the end of the week
+With the small kernel restructuring a patch is unlikely to be needed
+to boot a win4lin-enabled kernel either.
+ 
+> (IF I sat down for half an hour I could comment better.. but you
+> probably know the answer straight-off anyway :-))
 
+Eric

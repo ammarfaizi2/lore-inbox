@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270090AbRHMLJO>; Mon, 13 Aug 2001 07:09:14 -0400
+	id <S270087AbRHMLJO>; Mon, 13 Aug 2001 07:09:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270089AbRHMLJD>; Mon, 13 Aug 2001 07:09:03 -0400
-Received: from arminho.ip.pt ([195.23.132.10]:14096 "HELO arminho.ip.pt")
-	by vger.kernel.org with SMTP id <S270087AbRHMLIr>;
-	Mon, 13 Aug 2001 07:08:47 -0400
-Message-ID: <20010813110855.9358.qmail@webmail.clix.pt>
-X-Originating-IP: [198.62.9.29]
-X-Mailer: Clix Webmail 2.0
-In-Reply-To: <E15W1eR-000691-00@the-village.bc.nu>
-In-Reply-To: <E15W1eR-000691-00@the-village.bc.nu> 
-From: "rui.p.m.sousa@clix.pt" <rui.p.m.sousa@clix.pt>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: manuel@mclure.org (Manuel McLure), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Date: Mon, 13 Aug 2001 11:08:54 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+	id <S270090AbRHMLJD>; Mon, 13 Aug 2001 07:09:03 -0400
+Received: from web13106.mail.yahoo.com ([216.136.174.151]:25096 "HELO
+	web13106.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S270089AbRHMLIt>; Mon, 13 Aug 2001 07:08:49 -0400
+Message-ID: <20010813110901.30428.qmail@web13106.mail.yahoo.com>
+Date: Mon, 13 Aug 2001 04:09:01 -0700 (PDT)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: Re: Are we going too fast?
+To: Chris Wilson <jakdaw@lists.jakdaw.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010813110907.5555dde4.jakdaw@lists.jakdaw.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Alan Cox writes:
+--- Chris Wilson <jakdaw@lists.jakdaw.org> wrote:
 
-Did you have any lockups with non Athlon
-motherboards?
-
->> On 2001.08.12 05:04 Alan Cox wrote:
->> > The in kernel one seemed fine. The 2.4.8 update one is definitely broken
->> > on
->> > SMP boxes
->> 
->> I'm getting 2.4.8 Oopsen that seem to be in emu10k1 code on UP - see my
->> message "2.4.8 oops in ksoftirqd_CPU0"...
+> Certainly seems to be moving backwards in that
+> respect - from 2.4.6
+> onwards the bog standard PS/2 keyboard does not work
+> (at all from bootup -
+> "keyboard: Timeout - AT keyboard not present?(ed)")
+> on my SMP VIA w. G400
+> (although I've not got as far as loading X on it
+> without the keyboard!) :(
 > 
-> Yep. So far the new driver that Linus took from a non maintaier breaks
+> I can't even see what's changed in 2.4.6 that might
+> cause this - soft_irq?
+> or is that completely unrelated to the keyboard???
 > 
-> 	SMP
-> 	Some mixers
-> 	Uniprocessor with some cards
-> 	Surround sound (spews noise on cards)
 > 
-> so I think Linus should do the only sane thing - back it out. I'm backing
-> it out of -ac. Of my three boxes, one spews noise, one locks up smp and
-> one works.
-> 
-> Alan
+> Chris
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+I have too a PS/2 keyboard and no problem at all with
+2.4.x kernels. 2.4.0-2.4.8
+Cx486 UP 
 
 
-
-
-
-
---
-Crie o seu Email Grátis no Clix em
-http://registo.clix.pt/
+__________________________________________________
+Do You Yahoo!?
+Send instant messages & get email alerts with Yahoo! Messenger.
+http://im.yahoo.com/

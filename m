@@ -1,112 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129310AbRCEOnp>; Mon, 5 Mar 2001 09:43:45 -0500
+	id <S129309AbRCEOhe>; Mon, 5 Mar 2001 09:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129311AbRCEOnZ>; Mon, 5 Mar 2001 09:43:25 -0500
-Received: from [195.161.132.133] ([195.161.132.133]:56337 "HELO euro.ru")
-	by vger.kernel.org with SMTP id <S129310AbRCEOnW>;
-	Mon, 5 Mar 2001 09:43:22 -0500
-Message-Id: <20010305144325Z129310-407+1386@vger.kernel.org>
-From: <crdsk@euro.ru>
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
-Date: Mon, 5 Mar 2001 09:43:22 -0500
+	id <S129310AbRCEOhZ>; Mon, 5 Mar 2001 09:37:25 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:50653 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S129309AbRCEOhN>; Mon, 5 Mar 2001 09:37:13 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: <linux-fbdev-devel@sourceforge.net>, Cort Dougan <cort@fsmlabs.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [prepatches] removal of console_lock
+Date: Mon, 5 Mar 2001 15:36:54 +0100
+Message-Id: <19350128080838.10672@mailhost.mipsys.com>
+In-Reply-To: <3AA38E05.549BCF95@uow.edu.au>
+In-Reply-To: <3AA38E05.549BCF95@uow.edu.au>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-003901c0a582$9b0e21a0$0100007f@7>
-From: "DOD" <crdsk@euro.ru>
-To: lota_mv@mail.ru
-Subject: Кредиты. Инвестиции. Иные формы финансирования. Срочное финансирование. Ждем Ваших запросов.
-Date: Mon, 5 Mar 2001 17:42:56 +0300
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-
-Уважаемые господа.
-
-Предлагаем помощь в получении различных форм и видов финансирования. В том
-числе беззалоговые и срочные варианты.
-
-Сумма финансирования может быть любой кратной 50 000 у.е.
-
-Процентные ставки:
-- обычные варианты - от 2%;
-- беззалоговые(безгарантийные) варианты - от 5%;
-- срочные варианты - от 7,5%;
-
-Сроки подготовки и оформления:
-- обычные варианты - от 180 дней;
-- беззалоговые варианты - от 180 дней;
-- срочные варианты - от 7 рабочих дней.
-
-Прочие условия - договорные.
-
-Убедительная просьба присылать только конкретные запросы.
-Только при получении требуемой информации мы сможем предложить конкретные
-варианты.
-
-АО "DOD"
-Александр Михайлов,
-113054, Москва, Стремянный пер., 36,
-е-м: crdsk@euro.ru
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+>Cort Dougan wrote:
+>> 
+>> I still get huge over-runs with fbdev (much improved, though).
+>
+>If you're referring to scheduling overruns then yes, you will
+>still see monstrous ones.  We're still spending great lengths of
+>time in the kernel, only now we're doing it with interrupts
+>enabled.  We can still block all tasks for half a second at a time.
+
+Well, at least having interrupts enabled is really nice for us on PPC
+since we have this nasty chip (the PMU) that don't like at all beeing
+interrupted for a long time in the middle of a message exchange.
+It has caused endless trouble in the past and still, occasionally, when
+you set your powerbook display bit depth to 32 and don't enable HW 
+acceleration in the fbdev driver.
+
+I hope your patch will be merged in as soon as possible :) I'll do some
+tests here.
+
+Ben.
 

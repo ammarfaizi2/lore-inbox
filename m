@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIUPnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUIUPoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267767AbUIUPnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267769AbUIUPnI
+	id S267769AbUIUPoa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267770AbUIUPoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 11:43:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:45704 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267767AbUIUPnF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:43:05 -0400
-Date: Tue, 21 Sep 2004 08:41:11 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Hunold <hunold@linuxtv.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       sensors@stimpy.netroedge.com
-Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
-Message-ID: <20040921154111.GA13028@kroah.com>
-References: <414F111C.9030809@linuxtv.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414F111C.9030809@linuxtv.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 21 Sep 2004 11:44:30 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:37297 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267769AbUIUPoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 11:44:14 -0400
+Message-ID: <41504C21.3090506@nortelnetworks.com>
+Date: Tue, 21 Sep 2004 09:43:29 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Edgar Toernig <froese@gmx.de>
+CC: Robert Love <rml@novell.com>, John McCutchan <ttb@tentacle.dhs.org>,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC][PATCH] inotify 0.9.2
+References: <1095652572.23128.2.camel@vertex>	<1095744091.2454.56.camel@localhost> <20040921173404.0b8795c9.froese@gmx.de>
+In-Reply-To: <20040921173404.0b8795c9.froese@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 20, 2004 at 07:19:24PM +0200, Michael Hunold wrote:
->  
-> +	/* a ioctl like command that can be used to perform specific functions
-> +	 * with the adapter.
-> +	 */
-> +	int (*command)(struct i2c_adapter *adapter, unsigned int cmd, void *arg);
+Edgar Toernig wrote:
+> Robert Love wrote:
+> 
+>> struct inotify_event {
+>> 	int wd;
+>> 	int mask;
+>>-	char filename[256];
+>>+	char filename[PATH_MAX];
+>> };
+> 
+> 
+> You really want to shove >4kB per event to userspace???
 
-Ick ick ick.  We don't like ioctls for the very reason they aren't type
-safe, and you can pretty much stick anything in there you want.  So
-let's not try to add the same type of interface to another subsystem.
+Ouch.
 
-How about we add the exact explicit functionality that you want, one
-function per "type" of operation, like all other subsystems have.
+Maybe make it variable-size?  On average it would likely be shorter.
 
-thanks,
+struct inotify_event {
+	int wd;
+	int mask;
+	short namelen;
+	char filename[0];
+};
 
-greg k-h
+Chris

@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318121AbSGMIQ5>; Sat, 13 Jul 2002 04:16:57 -0400
+	id <S318122AbSGMI00>; Sat, 13 Jul 2002 04:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318122AbSGMIQ4>; Sat, 13 Jul 2002 04:16:56 -0400
-Received: from mail.gmx.de ([213.165.64.20]:16758 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S318121AbSGMIQz>;
-	Sat, 13 Jul 2002 04:16:55 -0400
-Message-Id: <5.1.0.14.2.20020713093432.00b30a20@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 13 Jul 2002 10:17:20 +0200
-To: Muli Ben-Yehuda <mulix@actcom.co.il>,
-       Linus Torvalds <torvalds@transmeta.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: PATCH: compile the kernel with -Werror
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020713102615.H739@alhambra.actcom.co.il>
+	id <S318125AbSGMI0Z>; Sat, 13 Jul 2002 04:26:25 -0400
+Received: from holomorphy.com ([66.224.33.161]:3489 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318122AbSGMI0Z>;
+	Sat, 13 Jul 2002 04:26:25 -0400
+Date: Sat, 13 Jul 2002 01:28:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org, rml@tech9.net
+Subject: Re: NUMA-Q breakage 5/7 in_interrupt() race
+Message-ID: <20020713082814.GE21551@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, rml@tech9.net
+References: <20020712224003.GC25360@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020712224003.GC25360@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:26 AM 7/13/2002 +0300, Muli Ben-Yehuda wrote:
->A full kernel compilation, especially when using the -j switch to
->make, can cause warnings to "fly off the screen" without the user
->noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
->had a missing return statement in a function returning non void, which
->the compiler probably complained about but the warning got lost in the
->noise (a little birdie told me wli used -j64).
->
->The easiest safeguard agsinst this kind of problems is to compile with
->-Werror, so that wherever there's a warning, compilation
->stops. Compiling 2.5.25 with -Werror with my .config found only three
->warnings (quite impressive, IMHO), and patches for those were sent to
->trivial@rusty.
+> ===== include/asm-i386/hardirq.h 1.7 vs edited =====
+> +	preempt_disable();
+> +
+> +	return retval;
+> +}
 
-If you put -Werror in the stock flags, things like gcc warning that feature-foo
-will go away someday becomes deadly.. bad idea IMO.
+Not sure how it survived running. That should be a preempt_enable() on
+the way out. Maybe I should have used the get_cpu()/put_cpu() stuff.
 
-If people are building kernels (or anything else) and not making/checking
-logs, they're wrong.
+Amended patch follows.
 
-         -Mike 
 
+Cheers,
+Bill
+
+
+===== include/asm-i386/hardirq.h 1.7 vs edited =====
+--- 1.7/include/asm-i386/hardirq.h	Mon May 20 10:51:17 2002
++++ edited/include/asm-i386/hardirq.h	Thu Jul 11 19:51:02 2002
+@@ -22,8 +22,24 @@
+  * Are we in an interrupt context? Either doing bottom half
+  * or hardware interrupt processing?
+  */
+-#define in_interrupt() ({ int __cpu = smp_processor_id(); \
+-	(local_irq_count(__cpu) + local_bh_count(__cpu) != 0); })
++static inline int in_interrupt(void)
++{
++	int total_count, retval, cpu;
++
++	preempt_disable();
++	cpu = smp_processor_id();
++
++	total_count = local_irq_count(cpu) + local_bh_count(cpu);
++
++	if (total_count)
++		retval = 1;
++	else
++		retval = 0;
++
++	preempt_enable();
++
++	return retval;
++}
+ 
+ #define in_irq() (local_irq_count(smp_processor_id()) != 0)
+ 

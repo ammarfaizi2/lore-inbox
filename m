@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263559AbTDIQln (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 12:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTDIQln (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 12:41:43 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:24963 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S263559AbTDIQlm (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 12:41:42 -0400
-Message-Id: <200304091653.h39GrHR05341@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: linux-kernel
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT alignment requirements ? 
-In-Reply-To: Message from Joel Becker <Joel.Becker@oracle.com> 
-   of "Wed, 09 Apr 2003 08:48:36 PDT." <20030409154836.GA31739@ca-server1.us.oracle.com> 
-Mime-Version: 1.0
-Content-Type: text/plain
-Date: Wed, 09 Apr 2003 18:53:17 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+	id S263566AbTDIQqk (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 12:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTDIQqk (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 12:46:40 -0400
+Received: from toq3-srv.bellnexxia.net ([209.226.175.16]:39406 "EHLO
+	toq3-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263566AbTDIQqj (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 12:46:39 -0400
+Date: Wed, 9 Apr 2003 12:43:12 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: what means duplicate "config" entries in Kconfig file?
+In-Reply-To: <Pine.LNX.4.44.0304091818470.12110-100000@serv>
+Message-ID: <Pine.LNX.4.44.0304091237490.28112-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 Apr 2003, Roman Zippel wrote:
 
-Joel Becker wrote:
-> On Wed, Apr 09, 2003 at 02:16:08PM +0200, Rob van Nieuwkerk wrote:
-> > I plan to use O_DIRECT in my application (on a partition, no fs).
-> > It is hard to find info on the exact requirements on the mandatory
-> > alignments of buffer, offset, transfer size: it's easy to find many
-> > contradicting documents.  And checking the kernel source itself isn't
-> > trivial.
+> On Wed, 9 Apr 2003, Robert P. J. Day wrote:
+ 
+> >   i'm not sure what it means to have two config entries with 
+> > identical symbols.  can someone clarify this?  i'm just confused
+> > (which should not come as a surprise at this point).
 > 
-> 	In 2.4, your buffer, offset, and transfer size must be soft
-> blocksize aligned.  That's the output of BLKBSZGET against the block
-> device.  For unmounted partitions that is 512b, for most people's ext3
-> filesystems that is 4K.  It is, FYI, the number set by set_blocksize().
+> You can have as much entries as you want, the only limit is that you can
+> only have one user prompt per config entry and the type must not conflict.
+> This example could have been done with a single entry and this is usually
+> prefered to keep it more compact, but you don't have to.
 
-Hi Joel,
+not to belabor this, but what does it mean when the two dependencies
+are mutually exclusive, as in the example i provided:
 
-Thank you for your reaction.
+-----------------------
 
-I get 4096 with BLKBSZGET on several unmounted partitions on my system
-(RH 2.4.18-27.7.x kernel).  Some give 1024 ..  Maybe it is because I
-had them mounted first and unmounted them for the test ?
+config MCA
+        bool "MCA support"
+        depends on !(X86_VISWS || X86_VOYAGER)
+        help
+          MicroChannel Architecture is found in some IBM PS/2 machines and
+          laptops.  It is a bus system similar to PCI or ISA. See
+          <file:Documentation/mca.txt> (and especially the web page given
+          there) before attempting to build an MCA bus kernel.
 
-	greetings,
-	Rob van Nieuwkerk
+config MCA
+        depends on X86_VOYAGER
+        default y if X86_VOYAGER
+
+---------------------
+
+  the two options X86_VISWS and X86_VOYAGER are simple "bool"s
+representing the (radio-box) subarchitecture type.
+
+  the first seems to represent a dependency of *neither* of those
+two listed options, while the second config *depends* on one of 
+them.  
+
+  how exactly do you reconcile what looks like contradictory
+dependencies for the same config entry?
+
+rday,
+wondering just how badly he's embarrassing himself by now ...
+

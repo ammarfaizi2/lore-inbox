@@ -1,74 +1,366 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266539AbRGLUdu>; Thu, 12 Jul 2001 16:33:50 -0400
+	id <S266565AbRGLUoW>; Thu, 12 Jul 2001 16:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266565AbRGLUdl>; Thu, 12 Jul 2001 16:33:41 -0400
-Received: from mithra.wirex.com ([208.161.110.91]:42768 "HELO mail.wirex.com")
-	by vger.kernel.org with SMTP id <S266539AbRGLUd0>;
-	Thu, 12 Jul 2001 16:33:26 -0400
-Message-ID: <3B4E0975.FEB8CEA1@wirex.com>
-Date: Thu, 12 Jul 2001 13:32:53 -0700
-From: Crispin Cowan <crispin@wirex.com>
-Organization: WireX Communications, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-immunix i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: LA Walsh <law@sgi.com>, linux-security-module@wirex.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Security hooks, "standard linux security" & embedded use
-In-Reply-To: <20010712112102.D32683@kroah.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266567AbRGLUoN>; Thu, 12 Jul 2001 16:44:13 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25607 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266565AbRGLUoJ>; Thu, 12 Jul 2001 16:44:09 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6
+Date: Thu, 12 Jul 2001 20:42:53 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9il24d$4s2$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0107112003170.17294-100000@cobalt.deepthought.org>
+X-Trace: palladium.transmeta.com 994970645 14640 127.0.0.1 (12 Jul 2001 20:44:05 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 12 Jul 2001 20:44:05 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+In article <Pine.LNX.4.21.0107112003170.17294-100000@cobalt.deepthought.org>,
+>
+>	To do as much as I could, before I troubled all of you, I booted
+>in single user mode, and loaded the yenta_socket with the debug output.
 
-> LA Walsh wrote:
-> > Dear Linus et al.,
-> >         Sorry for the 'form' letter instead of individual names, but I
-> > didn't want to have to send this out separately to every kernel developer
-> > I know on LKML.
-> >
-> >         I am asking for your input on the concept of moving the standard
-> > Linux security checks into a "Linux Security Module".
+Hey, thanks. That's very helpful.
 
-For those who haven't heard, this topic is part of ongoing development of the
-LSM (Linux Security Module) project.  The intent is to enhance the existing
-LKM such that effective security modules can be written.  This was inspired by
-comments from Linus during the SELinux presentation at the Linux 2.5 summit.
+>exca_readb c6807e8 3 40
+>exca_writeb c6807e8 3 50
+>
+>The repeating block (read byte, write byte, 3xwrite word) seems to be the
+>end of yenta_clear_maps() which is the last thing done by yenta_init() -
+>so I suspect that the yenta_socket() stuff is loading correctly. The last
+>two operations seem to be enabling interrupts, and then a short moment
+>later, the machine hangs. I suspect that the last call is
+>yenta_set_socket() because that is the only explicit exca_writeb() to
+>I365_INTCTL.
 
-As Greg K-H said, the home page for LSM is here  http://lsm.immunix.org/   The
-intent is to get a minimal set of common "hooks" into the mainline Linux 2.5
-kernel such that many of the would-be security-enhancing packages for Linux
-are happy.  Much of the effort involved in LSM involves working towards a
-consensus of what we all (security) people can live with, such that the Linux
-kernel community will accept it.
+No, it's "int ti_intctl()", and it's the part that enables PCI
+interrupts for the TI yenta controllers.  You missed it because it's
+hidden in the TI-specific stuff in ti113x.h. 
 
-There was a "Kernel Security Extensions" BOF at USENIX last month, which
-largely became a LSM BOF.  For a great summary of the current state of LSM,
-check out this very nice write-up at LWN
-http://lwn.net/2001/0704/security.php3  It pretty accurately captures the
-state of consensus now, and the issues we're working to resolve before
-LSM comes and bothers Linus with a patch.
+Can you do two things for me?
 
-In warming up for coming to bother y'all with a patch, we had a meeting with
-Ted Ts'o at USENIX.  Ted indicated to us that, by and large, most of the
-consensus represented in the LWN write-up is going in the right direction for
-acceptance into the main Linux kernel.  If that is NOT true, we certainly want
-to hear about it.
+ 1) your debug output seems to imply that the thing still has
+    I365_PC_RESET set. In ti_initctl(), how about making the
 
-Please cc: linux-security-module@wirex.com on this topic.  The LSM list is
-closed to non-subscribers, but I run the mailman moderation of the list, and I
-will silently approve any post that is topical.
+	new = reg & ~I365_INTR_ENA;
 
-Thanks,
-    Crispin
+    be a
 
---
-Crispin Cowan, Ph.D.
-Chief Scientist, WireX Communications, Inc. http://wirex.com
-Security Hardened Linux Distribution:       http://immunix.org
-Available for purchase: http://wirex.com/Products/Immunix/purchase.html
+	new = reg & ~(I365_INTR_ENA | I365_PC_RESET);
+
+ 2) do a "lspci -vvvxx" as root, and also do a "dump_pirq" and send it
+    all by email to me..
+
+Also, does it matter if you have anything plugged in or not?
+
+		Linus
+
+-----
+#!/usr/bin/perl
+#
+# dump_pirq 1.20 2000/12/19 19:19:52
+#
+# A utility to parse the BIOS PCI IRQ Routing Table
+#
+# Copyright (C) 2000 David A. Hinds -- dahinds@users.sourceforge.net
+#
+
+#-----------------------------------------------------------------------
+
+sub dev {
+    my($devfn) = @_;
+    sprintf "%02x.%d", ($devfn>>3), ($devfn&7);
+}
+
+sub print_mask
+{
+    my($mask) = @_;
+    printf "0x%04x [", $mask;
+    for (my $i = 0; $i < 16; $i++) {
+	next if (!($mask & (1<<$i)));
+	$mask &= ~(1<<$i);
+	print (($mask) ? "$i," : "$i");
+    }
+    print "]\n";
+}
+
+sub row {
+    my($tag, $link, $mask) = @_;
+    if ($link != 0) {
+	printf "  INT$tag: link 0x%02x, irq mask ", $link;
+	print_mask($mask);
+    }
+}
+
+sub class_of
+{
+    my($slot) = @_;
+    open(IN, "/sbin/lspci -s $slot |");
+    $_ = <IN>;
+    close(IN);
+    return (/^....... ([^:]+):/) ? $1 : "";
+}
+
+sub parse_pirq
+{
+    my($buf) = @_;
+
+    my($p) = index($buf, "\$PIR");
+    my($minor,$major,$size,$rbus,$rdev,$mask,$cvd,$mini) =
+	unpack "CCSCCSLL", substr($buf, $p+4, 16);
+
+    printf "Interrupt routing table found at address 0xf%04x:\n", $p;
+    printf "  Version $major.$minor, size 0x%04x\n", $size;
+    printf "  Interrupt router is device %02x:%s\n", $rbus, dev($rdev);
+    print "  PCI exclusive interrupt mask: ";
+    print_mask($mask);
+    if ($cvd) {
+	printf("  Compatible router: vendor 0x%04x device 0x%04x\n",
+	       ($cvd & 0xffff), ($cvd >> 16));
+    }
+
+    $ofs = 32;
+    while ($ofs < $size) {
+	# Parse a table entry describing a single PCI device
+	($bus, $devfn, $la, $ma, $lb, $mb, $lc, $mc, $ld, $md, $slot) =
+	    unpack "CCCSCSCSCSC", substr($buf, $p+$ofs, 15);
+	$s = sprintf "%02x:%s", $bus, dev($devfn);
+	printf "\nDevice $s (slot $slot): %s\n", class_of($s);
+	row("A", $la, $ma); row("B", $lb, $mb);
+	row("C", $lc, $mc); row("D", $ld, $md);
+	push(@{$dev{$la}}, $s . "1");
+	push(@{$dev{$lb}}, $s . "2");
+	push(@{$dev{$lc}}, $s . "3");
+	push(@{$dev{$ld}}, $s . "4");
+	$ofs += 16;
+    }
+    return ($rbus, $rdev, $cvd);
+}
+
+#-----------------------------------------------------------------------
+
+# The link values in the interrupt routing table are implementation
+# dependent.  Here, we'll try to interpret the link values for some
+# known PCI bridge types.
+
+%pIIx = (0x122e8086, "82371FB PIIX",
+	 0x70008086, "82371SB PIIX3",
+	 0x71108086, "82371AB PIIX4/PIIX4E",
+	 0x71988086, "82443MX",
+	 0x24108086, "82801AA ICH",
+	 0x24208086, "82801AB ICH0",
+	 0x24408086, "82801BA ICH2",
+	 0x244c8086, "82801BAM ICH2-M");
+
+%via = (0x05861106, "82C586",
+	0x05961106, "82C596",
+	0x06861106, "82C686");
+
+%opti = (0xc7001045, "82C700");
+
+%pico = (0x00021066, "PT86C523");
+
+%ali = (0x153310b9, "Aladdin M1533");
+
+%sis = (0x04961039, "85C496/497",
+	0x00081039, "85C503");
+
+%cyrix = (0x01001078, "5530");
+
+%all_routers = (%pIIx, %via, %opti, %pico, %ali, %sis, %cyrix);
+
+sub outb
+{
+    my($data,$port) = @_;
+    open(IO, ">/dev/port") || die;
+    sysseek(IO, $port, 0) || die;
+    my $x = pack "C", $data;
+    syswrite(IO, $x, 1);
+    close(IO);
+}
+
+sub inb
+{
+    my($port) = @_;
+    my($data);
+    open(IO, "/dev/port") || die;
+    sysseek(IO, $port, 0) || die;
+    sysread(IO, $data, 1);
+    close(IO);
+    return unpack "C", $data;
+}
+
+sub dump_router
+{
+    my($rbus, $rdev, $cvd) = @_;
+    my($buf, @p, $i, $irq);
+
+    printf "\nInterrupt router at %02x:%s: ", $rbus, dev($rdev);
+    $rf = sprintf "/proc/bus/pci/%02x/%s", $rbus, dev($rdev);
+    open(IN, $rf);
+    if (sysread(IN, $buf, 0x100) != 0x100) {
+	print "\nCould not read router info from $rf.\n";
+	exit;
+    }
+    close(IN);
+    my $vd = unpack "L", substr($buf, 0, 4);
+
+    if ((defined $pIIx{$vd}) || (defined $pIIx{$cvd})) {
+
+	$name = (defined $pIIx{$vd}) ? $pIIx{$vd} : $pIIx{$cvd};
+	printf "Intel $name PCI-to-ISA bridge\n";
+	@p = unpack "CCCCC", substr($buf, 0x60, 5);
+	for ($i = 0; $i < 4; $i++) {
+	    printf "  PIRQ%d (link 0x%02x): ", $i+1, 0x60+$i;
+	    print (($p[$i] < 16) ? "irq $p[$i]\n" : "unrouted\n");
+	}
+	print "  Serial IRQ:";
+	print (($p[4] & 0x80) ? " [enabled]" : " [disabled]");
+	print (($p[4] & 0x40) ? " [continuous]" : " [quiet]");
+	print " [frame=", (($p[4] >> 2) & 15) + 17, "]";
+	print " [pulse=", (($p[4] & 3) * 4 + 4), "]\n";
+	print "  Level mask: "; print_mask((inb(0x4d1)<<8) + inb(0x4d0));
+
+    } elsif ((defined $via{$vd}) || (defined $via{$cvd})) {
+
+	$name = (defined $via{$vd}) ? $via{$vd} : $via{$cvd};
+	printf "VIA $name PCI-to-ISA bridge\n";
+	$p = unpack "L", substr($buf, 0x55, 4);
+	%tag = (1, "A", 2, "B", 3, "C", 5, "D");
+	foreach $link (1,2,3,5) {
+	    $irq = ($p >> ($link * 4)) & 15;
+	    print "  PIRQ$tag{$link} (link 0x0$link): ";
+	    print ($irq ? "irq $irq\n" : "unrouted\n");
+	}
+
+    } elsif ((defined $opti{$vd}) || (defined $opti{$cvd})) {
+
+	$name = (defined $opti{$vd}) ? $opti{$vd} : $opti{$cvd};
+	printf "OPTi $name PCI-to-ISA bridge\n";
+	$p = unpack "S", substr($buf, 0xb8, 2);
+	for ($i = 0; $i < 4; $i++) {
+	    $irq = ($p >> ($i * 4)) & 15;
+	    printf "  PCIRQ$i (link 0x%02x): ", ($i<<4)+0x02;
+	    print ($irq ? "irq $irq\n" : "unrouted\n");
+	}
+
+    } elsif ((defined $pico{$vd} || defined $pico{$cvd})) {
+
+	$name = (defined $pico{$vd}) ? $pico{$vd} : $pico{$cvd};
+	printf "PicoPower $name PCI-to-ISA bridge\n";
+	outb(0x10, 0x24); $p = inb(0x26);
+	outb(0x11, 0x24); $p += inb(0x26)<<8;
+	@tag = ("A", "B", "C", "D");
+	for ($i = 0; $i < 4; $i++) {
+	    $irq = ($p >> ($i * 4)) & 15;
+	    print "  INT$tag[$i] (link 0x0", $i+1, "): ";
+	    print ($irq ? "irq $irq\n" : "unrouted\n");
+	}
+
+    } elsif ((defined $ali{$vd} || defined $ali{$cvd})) {
+
+	$name = (defined $ali{$vd}) ? $ali{$vd} : $ali{$cvd};
+	printf "AcerLabs $name PCI-to-ISA bridge\n";
+	$p = unpack "L", substr($buf, 0x48, 4);
+	# This mapping is insane!
+	@map = (0, 9, 3, 10, 4, 5, 7, 6, 1, 11, 0, 12, 0, 14, 0, 15);
+	for ($i = 0; $i < 8; $i++) {
+	    $irq = ($p >> ($i*4)) & 15;
+	    print "  INT", $i+1, " (link ", $i+1, "): ";
+	    print ($map[$irq] ? "irq $map[$irq]\n" : "unrouted\n");
+	}
+	$s = unpack "C", substr($buf, 0x70, 1);
+	print "  Serial IRQ:";
+	print (($s & 0x80) ? " [enabled]" : " [disabled]");
+	print (($s & 0x40) ? " [continuous]" : " [quiet]");
+	print " [frame=", (($s >> 2) & 15) + 17, "]";
+	print " [pulse=", (($s & 3) * 4 + 4), "]\n";
+
+    } elsif ((defined $sis{$vd}) || (defined $sis{$cvd})) {
+
+	$name = (defined $sis{$vd}) ? $sis{$vd} : $sis{$cvd};
+	printf "SiS $name PCI-to-ISA bridge\n";
+	$base = ($name eq "85C496/497") ? 0xc0 : 0x41;
+	@p = unpack "CCCC", substr($buf, $base, 4);
+	@tag = ("A", "B", "C", "D");
+	for ($i = 0; $i < 4; $i++) {
+	    $irq = ($p[$i] & 0x80) ? 0 : ($p[$i] & 0x0f);
+	    printf "  INT$tag[$i] (link 0x%02x): ", $i+$base;
+	    print ($irq ? "irq $irq\n" : "unrouted\n");
+	}
+
+    } elsif ((defined $cyrix{$vd}) || (defined $cyrix{$cvd})) {
+
+	$name = (defined $cyrix{$vd}) ? $cyrix{$vd} : $cyrix{$cvd};
+	printf "CYRIX $name PCI-to-ISA bridge\n";
+	$p = unpack "S", substr($buf, 0x5c, 2);
+	%tag = ("A", "B", "C", "D");
+	for ($i = 0; $i < 4; $i++) {
+	    $irq = ($p >> ($i * 4)) & 15;
+	    printf "  PIRQ$tag{$i} (link 0x%02x): ", $i+1;
+	    print ($irq ? "irq $irq\n" : "unrouted\n");
+	}
+
+    } else {
+
+	printf("unknown vendor 0x%04x device 0x%04x\n",
+	       ($vd & 0xffff), ($vd >> 16));
+	foreach $k (sort keys %dev) {
+	    next if ($k == 0);
+	    printf "  PIRQ? (link 0x%02x): ", $k;
+	    $irq = 0;
+	    foreach $d (@{$dev{$k}}) {
+		$d =~ /(..):(..)\..(.)/;
+		($bus,$dev,$pin) = ($1,$2,$3);
+		for ($fn = 0; $fn < 8; $fn++) {
+		    open(IN, "/proc/bus/pci/$bus/$dev.$fn") || last;
+		    sysread(IN, $buf, 0x100);
+		    close(IN);
+		    ($i,$p) = unpack "CC", substr($buf, 0x3c, 2);
+		    $irq = $i if (($p == $pin) && $i && ($i != 255));
+		}
+	    }
+	    print ($irq ? "irq $irq\n" : "unrouted?\n");
+	}
+    }
+
+}
+
+#-----------------------------------------------------------------------
+
+# Grab the BIOS from 0xf0000-0xfffff
+open(IN, "/dev/mem") || die "cannot open /dev/mem\n";
+sysseek(IN, 0xf0000, 0) || die;
+die if (sysread(IN, $buf, 0x10000) != 0x10000);
+close(IN);
+
+if (index($buf, "\$PIR") >= 0) {
+
+    # Dump the PIRQ table, and the router information
+    ($rbus, $rdev, $cvd) = parse_pirq($buf);
+    dump_router($rbus, $rdev, $cvd);
+
+} else {
+
+    # Scan for any interrupt router device we recognize
+    print "No PCI interrupt routing table was found.\n";
+    open(DEV, "/proc/bus/pci/devices");
+    while (<DEV>) {
+	($rbus,$rdev,$vd) = /^(..)(..)\s+(........)/;
+	$rbus = hex($rbus); $rdev = hex($rdev); $vd = hex($vd);
+	$vd = (($vd & 0xffff0000) >> 16) | (($vd & 0xffff) << 16);
+	if (defined $all_routers{$vd}) {
+	    dump_router($rbus, $rdev, $vd);
+	    $nr++;
+	}
+    }
+    print "\nNo known PCI interrupt routers were found.\n" if (!$nr);
+
+}
 

@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268414AbUHLF7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267900AbUHLG2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268414AbUHLF7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 01:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268418AbUHLF7V
+	id S267900AbUHLG2S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 02:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268423AbUHLG2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 01:59:21 -0400
-Received: from gizmo08bw.bigpond.com ([144.140.70.18]:9945 "HELO
-	gizmo08bw.bigpond.com") by vger.kernel.org with SMTP
-	id S268414AbUHLF7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 01:59:18 -0400
-Message-ID: <411B0733.5080505@bigpond.net.au>
-Date: Thu, 12 Aug 2004 15:59:15 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+	Thu, 12 Aug 2004 02:28:18 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:5273 "EHLO
+	acheron.informatik.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S267900AbUHLG2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 02:28:17 -0400
+Message-ID: <411B0DFF.1090701@bio.ifi.lmu.de>
+Date: Thu, 12 Aug 2004 08:28:15 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Michal Kaczmarski <fallow@op.pl>, spaminos-ker <spaminos-ker@yahoo.com>
-Subject: [PATCH] V-4.1 Single Priority Array O(1) CPU Scheduler Evaluation
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <Pine.LNX.4.44.0408120413040.3142-100000@hubble.stokkie.net>
+In-Reply-To: <Pine.LNX.4.44.0408120413040.3142-100000@hubble.stokkie.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 4.1 of the various single priority array scheduler patches for 
-2.6.7 and 2.6.8-rc4 kernels are now available for evaluation.
+Robert M. Stockmann wrote:
 
-This version contains a fix for a bug causing excessive promotion and an 
-update of the staircase scheduler code to match Con's 7.I version.
+> i must agree here that getting cdrecord/cdrtools-2.0x going on the latest
+> SuSE 9.x editions has been extremely tiresome. 
 
-1. [ZAPHOD] My proposed replacement scheduler which offers runtime 
-selectable choice between a priority based or entitlement based O(1) 
-scheduler with active/expired arrays replaced by  a single array and an 
-O(1) promotion mechanism plus scheduling statistics with new simplified 
-interactive bonus mechanism and throughput bonus mechanism:
+Because of what? We are running the cdrecord versions that SuSE
+shipped with 9.0 and 9.1, and there hasn't been a single problem
+for over 8 months now with three different cd and dvd burners.
+So where's the problem?
 
-2.6.7 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_zaphod_FULL-v4.1?download> 
-and/or 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_zaphod-v4.0-to-v4.1?download>
-2.6.8-rc4 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8-rc4-spa_zaphod_FULL-v4.1?download>
-
-2. [SC] Slightly modified version of Con Kolivas's staircase O(1) 
-(version 7.I) scheduler with active/expired arrays replaced by a single 
-array and an O(1)promotion mechanism:
-
-2.6.7<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_sc_FULL-v4.1?download> 
-and/or 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_sc-v4.0-to-v4.1?download>
-2.6.8-rc4 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8-rc4-spa_sc_FULL-v4.1?download>
-
-3. [HYDRA] Runtime selection between staircase, priority based and
-entitlement based O(1) schedulers:
-
-2.6.7 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_hydra_FULL-v4.1?download> 
-and/or 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_hydra-v4.0-to-v4.1?download>
-2.6.8-rc3 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8-rc4-spa_hydra_FULL-v4.1?download>
-
-Other schedulers are also available from
-<https://sourceforge.net/projects/cpuse/>
+Frank
 
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
 

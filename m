@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289662AbSAOUpu>; Tue, 15 Jan 2002 15:45:50 -0500
+	id <S289655AbSAOVAa>; Tue, 15 Jan 2002 16:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290280AbSAOUpl>; Tue, 15 Jan 2002 15:45:41 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:25573 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S289662AbSAOUpi>;
-	Tue, 15 Jan 2002 15:45:38 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 15 Jan 2002 20:44:55 GMT
-Message-Id: <UTC200201152044.UAA324996.aeb@cwi.nl>
-To: hch@caldera.de, torvalds@transmeta.com
-Subject: Re: [linux-lvm] Re: [RFLART] kdev_t in ioctls
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        linux-lvm@sistina.com, viro@math.psu.edu
+	id <S290282AbSAOVAU>; Tue, 15 Jan 2002 16:00:20 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:21231 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S289655AbSAOVAN>; Tue, 15 Jan 2002 16:00:13 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E16QZg2-000616-00@the-village.bc.nu> 
+In-Reply-To: <E16QZg2-000616-00@the-village.bc.nu> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: root@chaos.analogic.com, marco@esi.it (Marco Colombo),
+        Thomas.Duffy.99@alumni.brown.edu (Thomas Duffy),
+        linux-kernel@vger.kernel.org (Linux Mailing List)
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution) 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Jan 2002 20:59:45 +0000
+Message-ID: <24095.1011128385@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-    On Mon, 14 Jan 2002, Christoph Hellwig wrote:
-    >
-    > I know - still it makes Linus' suggestion not work on ~90% of the
-    > systems.
+alan@lxorguk.ukuu.org.uk said:
+> > Really???  Have you ever tried this? RedHat provides a directory
+> > of random patches that won't patch regardless of the order in
+> > which you attempt patches (based upon date-stamps on patches or
+> > date-stamps on files). It's like somebody just copied in some
+> > junk, thinking nobody would ever bother.
 
-    It doesn't matter if user-land compilation breaks. As long as old binaries
-    work (and they will), we're fine.
+> They apply nicely and the spec file defines which to apply and when.
+> The srpm and rpm are generated together. 
 
-    User-land was _already_ broken. By virtue of using a type that it should
-    NOT have used.
+And just in case you're too incompetent or lazy to manage this, there's also
+a kernel-source package which contains the resulting source tree, with all
+the patches already applied to it.
 
-    If you want to use __kernel_dev_t, go ahead.
+--
+dwmw2
 
-            Linus
 
-Yes. As everyone knows, one should not use kernel includes.
-On the other hand, having local copies of everything is also
-a bad habit, to be avoided when possible.
-With Linux it is generally impossible to avoid going to local
-copies, but so far losetup survived with the construction
-
-% cat loop.h
-#include <linux/posix_types.h>
-#undef dev_t
-#define dev_t __kernel_dev_t
-#include <linux/loop.h>
-#undef dev_t
-%
-
-Yecch.
-
-(This is terribly ugly, but the alternative may be even worse:
-lots of #ifdef's testing architecture etc.)
-
-It is a pity that dev_t, a type that is not used anywhere in the
-kernel except at the interface with user space, is a different
-type from what user space uses.
-
-Andries

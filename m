@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289321AbSAVOi4>; Tue, 22 Jan 2002 09:38:56 -0500
+	id <S289323AbSAVOvG>; Tue, 22 Jan 2002 09:51:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289319AbSAVOiq>; Tue, 22 Jan 2002 09:38:46 -0500
-Received: from mustard.heime.net ([194.234.65.222]:47488 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S289323AbSAVOii>; Tue, 22 Jan 2002 09:38:38 -0500
-Date: Tue, 22 Jan 2002 15:38:36 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: compiling a custom module into kernel
-Message-ID: <Pine.LNX.4.30.0201221536420.1813-100000@mustard.heime.net>
+	id <S289324AbSAVOu5>; Tue, 22 Jan 2002 09:50:57 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:25248 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S289323AbSAVOul>;
+	Tue, 22 Jan 2002 09:50:41 -0500
+Date: Tue, 22 Jan 2002 15:47:32 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] AMD Elan patch
+In-Reply-To: <Pine.LNX.4.33.0112311900380.3056-100000@callisto.local>
+Message-ID: <Pine.LNX.4.33.0201221545350.21377-100000@callisto.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Hi,
 
-I have this driver (intel e1000) that I need into kernel. I cannot use
-initrd here, as the computer is supposed to boot up on the network,
-something that doesn't work very well without having one.
+[please send answers also per mail]
 
-Is there a nice way of putting this driver into kernel? Intel only ships
-it as a module.
+I've uploaded a new version of the patch (2.4.18-pre4.2) which basically
+includes a change to the serial port code by Juergen Beisert. This patch
+should fix problems with systems that use interrupt sharing UARTs.
 
-Thanks for any help.
+Latest stuff is as usual on
 
-roy
+  http://www.pengutronix.de/software/elan_en.html
 
+Please test this extensively and report about your success.
+
+I have another patch from Sven Geggus in the pipeline which makes it
+possible to change the CPU's clock frequency on the fly. I would like to
+integrate it but do not have a more-than-33-MHz Elan system available for
+testing. If someone has a contact to a hardware supplyer who wants to send
+me a board please tell me - SSV seems not to be cooperative here.
+
+Other stuff waiting for integration:
+
+- watchdog driver
+- support for systems with external timer 0 clock source
+- CS8900 bug ("transmission underflow")
+
+Robert
 --
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
 

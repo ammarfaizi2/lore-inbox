@@ -1,88 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267995AbRGZOm7>; Thu, 26 Jul 2001 10:42:59 -0400
+	id <S267999AbRGZOpt>; Thu, 26 Jul 2001 10:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267999AbRGZOmk>; Thu, 26 Jul 2001 10:42:40 -0400
-Received: from sesys.exodata.se ([193.44.92.66]:961 "EHLO sesys.se.transtec.de")
-	by vger.kernel.org with ESMTP id <S267995AbRGZOm3>;
-	Thu, 26 Jul 2001 10:42:29 -0400
-From: Roland Fehrenbacher <rfehrenb@transtec.de>
-To: linux-kernel@vger.kernel.org
+	id <S268003AbRGZOpj>; Thu, 26 Jul 2001 10:45:39 -0400
+Received: from [216.21.153.1] ([216.21.153.1]:45834 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S267999AbRGZOp2>;
+	Thu, 26 Jul 2001 10:45:28 -0400
+Date: Thu, 26 Jul 2001 07:47:47 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: kuznet@ms2.inr.ac.ru
+cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+        net-tools@lina.inka.de, philb@gnu.org
+Subject: Re: ifconfig and SIOCSIFADDR
+In-Reply-To: <200107251940.XAA12699@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.10.10107260723130.12930-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15200.7444.971399.948422@gargle.gargle.HOWL>
-Date: Thu, 26 Jul 2001 15:37:24 +0200
-Subject: Re: qlogicfc driver
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-    Roland> While the controller itself sees all the 3 drives when booting up,
-    Roland> under Linux I am only able to see the LUN 0 drives.
+I used to be all for the OS guessing the correct mask.  Then I started
+work for my latest employer and tried to trace down strange errors that
+were reported to me as an attack on our system.  What I discovered was
+that the last few people to attempt my job had set the IP and let the OS
+guess at the mask. The result? Everything had 66.0.0.0 as the mask (and
+66.255.255.255 for the broadcast). And not just linux either.. freebsd,
+nt 4/windows 2000 and even the cisco catalysts all had the same
+default mask set.
 
-    Roland> The command echo "scsi add-single-device 0 0 0 1" > /proc/scsi/scsi
-    Roland> makes the LUN 1 device appear, so it seems the problem is with the
-    Roland> SCSI scanning code.
+Please *don't* guess.  If the admin fails to enter it just spit back an
+error or something.  You have no way to know the layout and that gets even
+more annoying in these days of isps handing out blocks of 16 and 32. 
 
-In the meantime I found out that I need to identify the RAID controller as a
-sparse LUN device. This works fine as long as there is a host drive mapped to
-LUN 0. If there is no host drive mapped to LUN 0, we run into a bug of the SCSI
-scanning code: The variable *sparse_lun=1 never gets set and any other host
-drives at LUNs > 0 are not detected. This problem has already been discussed
-in a different context previously
-(http://groups.google.com/groups?q=scsi_scan.c&hl=en&safe=off&rnum=2&selm=F888C30C3021D411B9DA00B0D0209BE8FAB0EB%40cvo-exchange.roguewave.com).
+	Gerhard
 
-The following patch fixes the problem, and I can't see any side effects. Please
-review the patch, and if approved, include it in the kernel.
 
-Cheers,
+On Wed, 25 Jul 2001 kuznet@ms2.inr.ac.ru wrote:
 
-Roland
+> Hello!
+> 
+> > Yes. It didn't in 2.0.
+> 
+> Soooory, it did. This behavior is copied from there. :-)
+> 
+> 
+> 
+> > Yes. I liked such logic thirty years ago. That is Unix.
+> 
+> :-) Seems, thirty years ago there were not only Internet but Unix too.
+> 
+> BTW I did not hear about any kind of Unix, which forgets
+> to set a valid mask on newly selected address.
+> 
+> ifconfig eth0 193.233.7.65 works nicely everywhere.
+> Only on 4.2BSD it creates bad "zero" broadcast.
+> 
+> Alexey
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---- scsi_scan.c.orig    Mon Jul 23 09:24:53 2001
-+++ scsi_scan.c Thu Jul 26 16:29:14 2001
-@@ -153,6 +153,8 @@
-        {"DELL", "PSEUDO DEVICE .",   "*", BLIST_SPARSELUN}, // Dell PV 530F
-        {"DELL", "PV530F",    "*", BLIST_SPARSELUN}, // Dell PV 530F
-        {"EMC", "SYMMETRIX", "*", BLIST_SPARSELUN},
-+       {"CMD", "CRA-7280", "*", BLIST_SPARSELUN},   // CMD RAID Controller
-+       {"Zzyzx", "RocketStor 500S", "*", BLIST_SPARSELUN}, // Zzyzx RocketStor Raid
-        {"SONY", "TSL",       "*", BLIST_FORCELUN},  // DDS3 & DDS4 autoloaders
-        {"DELL", "PERCRAID", "*", BLIST_FORCELUN},
-        {"HP", "NetRAID-4M", "*", BLIST_FORCELUN},
-@@ -565,20 +567,26 @@
-        }
- 
-        /*
--        * Check the peripheral qualifier field - this tells us whether LUNS
--        * are supported here or not.
-+        * Check for SPARSELUN before checking the peripheral qualifier,
-+        * so sparse lun devices are completely scanned.
-         */
--       if ((scsi_result[0] >> 5) == 3) {
--               scsi_release_request(SRpnt);
--               return 0;       /* assume no peripheral if any sort of error */
--       }
- 
-        /*
-         * Get any flags for this device.  
-         */
-        bflags = get_device_flags (scsi_result);
- 
--
-+       if (bflags & BLIST_SPARSELUN) {
-+         *sparse_lun = 1;
-+       }
-+       /*
-+        * Check the peripheral qualifier field - this tells us whether LUNS
-+        * are supported here or not.
-+        */
-+       if ((scsi_result[0] >> 5) == 3) {
-+               scsi_release_request(SRpnt);
-+               return 0;       /* assume no peripheral if any sort of error */
-+       }
-         /*   The Toshiba ROM was "gender-changed" here as an inline hack.
-              This is now much more generic.
-              This is a mess: What we really want is to leave the scsi_result
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

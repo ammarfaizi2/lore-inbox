@@ -1,40 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbTH3XeE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 19:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbTH3XeE
+	id S262261AbTH3X5H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 19:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTH3X5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 19:34:04 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:25528 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262258AbTH3Xd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 19:33:57 -0400
-Subject: Re: [parisc-linux] Security Hole in binfmt_som.c ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Ruediger Scholz <rscholz@hrzpub.tu-darmstadt.de>,
-       parisc-linux@lists.parisc-linux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030830135933.GJ13467@parcelfarce.linux.theplanet.co.uk>
-References: <3F509BBD.2040007@hrzpub.tu-darmstadt.de>
-	 <20030830131541.GI13467@parcelfarce.linux.theplanet.co.uk>
-	 <1062251389.31150.4.camel@dhcp23.swansea.linux.org.uk>
-	 <20030830135933.GJ13467@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062286379.31332.6.camel@dhcp23.swansea.linux.org.uk>
+	Sat, 30 Aug 2003 19:57:07 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21163
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262261AbTH3X5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 19:57:01 -0400
+Date: Sun, 31 Aug 2003 01:57:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: Andrea VM changes
+Message-ID: <20030830235714.GM24409@dualathlon.random>
+References: <20030830231904.GL24409@dualathlon.random> <Pine.LNX.4.44.0308302026570.20323-100000@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Sun, 31 Aug 2003 00:33:00 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308302026570.20323-100000@logos.cnet>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-08-30 at 14:59, Matthew Wilcox wrote:
-> Um, I can't find it, and neither can Google:
-> http://www.google.com/search?q=binfmt_som+security&as_q=%5Bparisc-linux&btnG=Google+Search&as_sitesearch=lists.parisc-linux.org
+On Sat, Aug 30, 2003 at 08:30:36PM -0300, Marcelo Tosatti wrote:
+> 
+> 
+> On Sun, 31 Aug 2003, Andrea Arcangeli wrote:
+> 
+> > On Sat, Aug 30, 2003 at 04:21:02PM -0300, Marcelo Tosatti wrote:
+> > > y
+> > > 
+> > > On Sat, 30 Aug 2003, Marcelo Tosatti wrote:
+> > > 
+> > > > >
+> > > > > Indeed, you are right.
+> > > > >
+> > > > > I'll start looking at them Monday. I'll keep you in touch. Thanks.
+> > > >
+> > > > Andrea,
+> > > >
+> > > > Would you mind to explain me 05_vm_06_swap_out-3 ?
+> > > >
+> > > > I see you change shrink_cache, try_to_free_pages_zone, etc.
+> > > >
+> > > > Can you please give me a detailed explanation of the changes there?
+> > > >
+> > > > I appreciate very much.
+> > > >
+> > > > I'll keep looking at other patches for now.
+> > > 
+> > > 05_vm_09_misc_junk-3 removes the PF_MEMDIE and you also seem to remove the
+> > > OOM killer. Is that right? Why?
+> > 
+> > because the oom killer is a DoS on servers, on a database setup, with 2G
+> > free, with say all tasks 2.7G large, it'll start killing all the
+> > thousand database tasks instead of the 2g netscape task that hit an
+> > userspace bug and it started allocating ram in a loop, and that will
+> > make no progress since no physical ram will be released. There's no need
+> > of oom killer to keep the system stable, with my vm, and the current
+> > probabilistic oom killer in the page fault hander 
+> 
+> So tasks get killed in case of page allocation failure? 
 
-Humm I thought it was on this list. Maybe lkml then
+yes.
 
-Whatever the basic problem is we have kernel loaders and
-user threads sharing a file table unsafely
+When alloc_pages returns NULL during the page fault handling we just
+call do_exit. With 2.2-aa we were even smarter, we also checked if the
+task had iopl privilegies (something that at the moment we can do only
+in the page fault handler btw), so we could trust the task and just send
+a SIGTERM a few times, instead of doing immediatly a do_exit(SIGKILL).
+So we wouldn't screwup the graphics card for example (killing an iopl
+task isn't always safe). But I never forward ported this very nice
+feature to 2.4.
 
+If alloc_pages returns null in all other cases, it's up to the caller to
+return -ENOMEM to userspace as a retval of the syscall.
+
+> > kills the right task most of the time (unlike the stock oom killers that
+> > works well only for the desktops or developer machines). So it does a
+> > much better job and it doesn't risk to DoS the box due oom.
+> 
+> Mind to explain me in more detail the OOM killing mechanism? 
+
+the current logic depends on alloc_pages to return NULL.
+
+And alloc_pages will return null depending on the
+swapping/cache-shrinking.
+
+The current code in mainline instead is even OOM deadlock prone in the
+VM, for example not only the oom killer can do a DoSable wrong selection
+of the task on servers, but it can even fail to detect an oom condition.
+Another other thing that can easily fool the current oom killer, is the
+mlocked ram: the current oom killer will be fooled by the fact there's
+still some swap free and it'll never kick in and the box will deadlock.
+This can't happen with my tree since I don't trust the unreliable
+statistical information we have from the kernel: we simply have no way
+to (efficiently) calculate the number of freeable pages at any given
+time, and as such the only reasonable thing we can do is to try to
+swap/shrink a number of times and to giveup eventually (that is like
+counting inefficiently the number of freeable pages a few times).
+
+> > Another DoS generated by the oom killer is that it'll try forever to
+> > kill a UNINTERRUPTIBLE task hanging in a nfs server that is down, so it
+> > hangs the whole box for an unlimited time.
+> > 
+> > I've an algorithm that will work, and that will provide very good
+> > guarantees to kill the "best" task to make the machine usable again,
+> > with the needed protection against the security DoSes, but it's in
+> > no-way similar to the current oom killer.
+> 
+> My concern is about how this oom killer works. 
+
+This oom killer on desktops may do a worse selections of the task to
+kill (the usual ssh now has a chance to be killed), but it fixes the oom
+deadlocks and it won't do stupid things on servers shall a netscape or
+whatever else app hit an userspace bug. So I've to prefer it, until I
+will write a reliable algorithm for the oom killing that won't fall into
+dosable corner cases so easily (mlock/nfs/database as the three most
+common examples of where current mainline can fail, btw the lowmem
+shortage is another very common DoS that the oom killer will never
+notice, my tree doesn't deadlock [or at least not technically, in
+practice it may look like a kernel deadlock despite syscalls returns
+-ENOMEM ;) ] during lowmem shortage on the 64G boxes).
+
+Andrea

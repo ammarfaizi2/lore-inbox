@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290786AbSARTgz>; Fri, 18 Jan 2002 14:36:55 -0500
+	id <S290790AbSARTkz>; Fri, 18 Jan 2002 14:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290789AbSARTgq>; Fri, 18 Jan 2002 14:36:46 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:3275 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S290786AbSARTga>; Fri, 18 Jan 2002 14:36:30 -0500
-Date: Fri, 18 Jan 2002 11:36:42 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.org problem...
-In-Reply-To: <3C487754.4030909@zytor.com>
-Message-ID: <Pine.LNX.4.33.0201181135030.15646-100000@twin.uoregon.edu>
+	id <S290791AbSARTkp>; Fri, 18 Jan 2002 14:40:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37133 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290790AbSARTka>; Fri, 18 Jan 2002 14:40:30 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Date: 18 Jan 2002 11:40:12 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a29tms$s9v$1@cesium.transmeta.com>
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201171855.g0HIt1314492@devserv.devel.redhat.com> <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oops...
-
-Last time I had this sort of problem I discovered my terminal server had 
-crashed as well...
-
-;)
-joelja
-
-On Fri, 18 Jan 2002, H. Peter Anvin wrote:
-
-> kernel.org stopped responding to most services some time this morning.
-> Unfortunately, the system management port on the new server was never
-> connected at the time the new server was installed, so we can't debug the
-> problem remotely.
+Followup to:  <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>
+By author:    Rainer Krienke <krienke@uni-koblenz.de>
+In newsgroup: linux.dev.kernel
 > 
-> I am trying to reach people at ISC to get the management port connected
-> and the system back to normal.
-> 
-> 	-hpa
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Now think of a setup where no user directory mounts are configured but the 
+> whole directory of a NFS server with many users is exported. Of course this 
+> makes things easyer for the NFS-system since only one mount is needed but on 
+> the client you need to create link trees or something similar so the user 
+> still can access his home under /home/<user> and not something like 
+> /home/server1/<user>. Moreover even if you create link trees when you issue 
+> commands like pwd you see the real path (eg /server1/<user>) instead of the 
+> logical (/home/<user>). Such paths are soon written into scripts etc, so that 
+> if the user is moved sometime later  things will be broken. 
+> You simply loose a layer of abstraction if you do not mount the users dir 
+> directly. The only other solution I know of would be amd. Amd automatically 
+> places a link. But since we come from the sun world, we simply uses suns 
+> automounter and there were no problems up to now. 
 > 
 
+This can easily be resolved with vfsbinds.  Even Sun has a specific
+syntax in their automounter to deal with this
+(server:common_root:tail).  If I ever do another autofs v3 release I
+will probably try to incorporate that via vfsbinds.
+
+	-hpa
 -- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-The accumulation of all powers, legislative, executive, and judiciary, in 
-the same hands, whether of one, a few, or many, and whether hereditary, 
-selfappointed, or elective, may justly be pronounced the very definition of
-tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
-
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

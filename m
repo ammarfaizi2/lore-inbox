@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314571AbSEVO3j>; Wed, 22 May 2002 10:29:39 -0400
+	id <S315255AbSEVOcH>; Wed, 22 May 2002 10:32:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314596AbSEVO3i>; Wed, 22 May 2002 10:29:38 -0400
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:52623 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314571AbSEVO3h>; Wed, 22 May 2002 10:29:37 -0400
-Date: Wed, 22 May 2002 15:29:37 +0100 (BST)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: alastair@gerber
-To: linux-kernel@vger.kernel.org
+	id <S315178AbSEVOcG>; Wed, 22 May 2002 10:32:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39953 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314596AbSEVOcF>; Wed, 22 May 2002 10:32:05 -0400
 Subject: Re: Have the 2.4 kernel memory management problems on large machines
- been fixed?
-Message-ID: <Pine.GSO.4.44.0205221524130.1550-100000@gerber>
+To: alastair.stevens@mrc-bsu.cam.ac.uk (Alastair Stevens)
+Date: Wed, 22 May 2002 15:52:20 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.44.0205221524130.1550-100000@gerber> from "Alastair Stevens" at May 22, 2002 03:29:37 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AXTQ-0001uU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ... Linus is not applying them
+> 2.4.19-pre kernel. Otherwise, the Red Hat patched kernel (which I
+> believe still doesn't use Andrea's VM at all) ought to work well, with
+> all their spiffy regression testing etc....
 
-Shouldn't that be "Marcelo is not applying them"?  Linus has devolved
-all responsibility for 2.4 now, and is concentrating on the 2.5 series
-and all its radical changes.
+The Red Hat 7.3 kernel uses Rik van Riel's rmap and Andre Hedricks IDE
+updates. It did indeed pass our stress testing and seems to perform very
+well under memory contention and high shared page counts - the classic
+desktop/developer set up.
 
-Marcelo objected to Andrea's mega-patch, but if I recall, he hinted that
-me might start merging the split-up patches for 2.4.20 - in the
-meantime, you can always apply the latest -aa patch yourself to a
-2.4.19-pre kernel. Otherwise, the Red Hat patched kernel (which I
-believe still doesn't use Andrea's VM at all) ought to work well, with
-all their spiffy regression testing etc....
-
-Cheers
-Alastair
-
-o o o o o o o o o o o o o o o o o o o o o o o o o o o o
-Alastair Stevens           \ \
-MRC Biostatistics Unit      \ \___________ 01223 330383
-Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+Alan
 

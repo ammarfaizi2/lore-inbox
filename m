@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129339AbRBRX2y>; Sun, 18 Feb 2001 18:28:54 -0500
+	id <S129921AbRBRX6M>; Sun, 18 Feb 2001 18:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129738AbRBRX2o>; Sun, 18 Feb 2001 18:28:44 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:1684 "EHLO zooty.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S129339AbRBRX2f>;
-	Sun, 18 Feb 2001 18:28:35 -0500
-Message-Id: <l03130350b6b606d0c764@[192.168.239.101]>
-In-Reply-To: <20010218114230.B11903@alcove.wittsend.com>
-In-Reply-To: <3A8F5A5C.9060105@kalifornia.com>; from ben@kalifornia.com on
- Sat, Feb 17, 2001 at 09:15:08PM -0800
- <4461B4112BDB2A4FB5635DE199587432022423@mail0.myrio.com>
- <3A8F5A5C.9060105@kalifornia.com>
+	id <S129562AbRBRX6B>; Sun, 18 Feb 2001 18:58:01 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:37124 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S129313AbRBRX5t>; Sun, 18 Feb 2001 18:57:49 -0500
+Date: Sun, 18 Feb 2001 18:57:48 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: lafanga lafanga <lafanga1@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Proliant hangs with 2.4 but works with 2.2.
+Message-ID: <20010218185748.A28687@sventech.com>
+In-Reply-To: <F91i3lDraH8kvLMxLQn00012fe9@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 18 Feb 2001 23:14:22 +0000
-To: "Michael H. Warfield" <mhw@wittsend.com>, Ben Ford <ben@kalifornia.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Linux stifles innovation...
-Cc: linux kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <F91i3lDraH8kvLMxLQn00012fe9@hotmail.com>; from lafanga lafanga on Sun, Feb 18, 2001 at 11:08:11PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > On the other hand, they make excellent mice.  The mouse wheel and
->> > the new optical mice are truly innovative and Microsoft should be
->> > commended for them.
->> >
->> The wheel was a nifty idea, but I've seen workstations 15 years old with
->> optical mice.  It wasn't MS's idea.
->
->	I think their "innovation" was not requiring the optical cross
->grid mouse pad common on Sun workstations over the years.  The Microsoft
->optical mouse uses variations in the surface characteristics of whatever
->it's on to perform it's function.  The old optical mice just used two
->different colors of LED's (red and IR) and a special pad.  This would
->actually have to scan and track the surface below it.  Don't know that
->I've seen anyone do that before.
+On Sun, Feb 18, 2001, lafanga lafanga <lafanga1@hotmail.com> wrote:
+> The programs 'gpm', 'kudzu' and 'startx' all hang the server immediately 
+> after they exit (with exit status 0). I cannot pinpoint why the kernel hangs 
+> and would appreciate any help. The only thing I suspect it may be is that it 
+> is a dual processor mobo with only one processor but I don't know how this 
+> detection has changed in the 2.4 kernels.
 
-I doubt Micro$oft actually did the innovation there.  After all, Apple now
-sell an optical mouse with similar capabilities, but with an innovative
-overall design (almost the entire upper surface forms the button!).
-Optical mouse technology has been developed continuously (with a fairly low
-profile) since the early models found on those Sun workstations, and both
-Micro$oft and Apple simply put said technology into their latest products.
-Maybe I'm biased, but I think Apple did a better job of it.
+I bet you it has to do with the PS/2 port. Do you have a mouse plugged
+in?
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+Does the 1600 use a Serverworks chipset?
 
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
-
+JE
 

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUDISzq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 14:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUDISzp
+	id S261631AbUDITBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 15:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUDITBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 14:55:45 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:28812 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261606AbUDISzo (ORCPT
+	Fri, 9 Apr 2004 15:01:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261631AbUDITBY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 14:55:44 -0400
-Date: Fri, 9 Apr 2004 11:54:27 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, colpatch@us.ibm.com,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 17/23] mask v2 = [6/7] nodemask_t_ia64_changes
-Message-Id: <20040409115427.334e1ae7.pj@sgi.com>
-In-Reply-To: <20040407042754.6b487ace.pj@sgi.com>
-References: <20040401122802.23521599.pj@sgi.com>
-	<20040401131240.00f7d74d.pj@sgi.com>
-	<20040406043732.6fb2df9f.pj@sgi.com>
-	<200404070855.03742.vda@port.imtp.ilyichevsk.odessa.ua>
-	<20040406235000.6c06af9a.pj@sgi.com>
-	<20040407042754.6b487ace.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 9 Apr 2004 15:01:24 -0400
+Date: Fri, 9 Apr 2004 12:01:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [patch] Trying to get DRM up to date in 2.6
+Message-Id: <20040409120106.69e78838.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0404090838000.30863@skynet>
+References: <Pine.LNX.4.58.0404090838000.30863@skynet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've reduced this to a pair of bitmap.h operators:
-> 
-> > #define find_next_bit_in_bitmap(src, nbits, n)			\
-> > 	({ int i = (n); while(i < (nbits) && !test_bit(i, (src))) i++; i; })
-> > 
-> > #define find_first_bit_in_bitmap(src, nbits)			\
-> > 	find_next_bit_in_bitmap((src), (nbits), 0)
-> 
-> ...
-> 
-> My next mask patchset will have these.
+Dave Airlie <airlied@linux.ie> wrote:
+>
+> In a first attempt to bring the DRM in 2.6 in line with the latest
+>  developments in DRM CVS, I'm going to try and split the latest DRM stuff
+>  up into patches and submit them,
 
-Wrong.  My next patch set, released 8 April, did not have these.
+Thanks.
 
-A subsequent discussion with Nick Piggin convinced me that the
-better path was to take find_next_bit() out of line, which I did
-for ia64 (other arch's might also want to do this).
+>  I've setup a temporary BK repo at http://freedesktop.org:1234/drm-2.6/
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Yes, that works.  Anything which you put into that bk tree will
+automagically appear in my test kernels.  When we're happy with it you can
+ask Linus to merge it into the top-level tree.

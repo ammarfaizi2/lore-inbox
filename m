@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261719AbREULze>; Mon, 21 May 2001 07:55:34 -0400
+	id <S261158AbREUMDy>; Mon, 21 May 2001 08:03:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbREULzZ>; Mon, 21 May 2001 07:55:25 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:49157 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S261719AbREULzM>; Mon, 21 May 2001 07:55:12 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Mon, 21 May 2001 13:51:38 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: (Fwd) about timer in linux kernel.
-Message-ID: <3B091D6A.238.1417682@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.1/SWEEP Version 3.43, March 2001 
-X-Content-Conformance: LittleSister-2.1/0.0.100644.20010521.094425Z
+	id <S261159AbREUMDo>; Mon, 21 May 2001 08:03:44 -0400
+Received: from lenka.ph.ipex.cz ([212.71.128.11]:30280 "EHLO lenka.ph.ipex.cz")
+	by vger.kernel.org with ESMTP id <S261158AbREUMDe>;
+	Mon, 21 May 2001 08:03:34 -0400
+Date: Mon, 21 May 2001 14:04:43 +0200
+From: Robert Vojta <vojta@ipex.cz>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
+Message-ID: <20010521140443.C8397@ipex.cz>
+In-Reply-To: <20010521090946.D769@ipex.cz> <3B08C15E.264AE074@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8X7/QrJGcKSMr1RN"
+Content-Disposition: inline
+In-Reply-To: <3B08C15E.264AE074@uow.edu.au>
+User-Agent: Mutt/1.3.18i
+X-Telephone: +420 603 167 911
+X-Company: IPEX, s.r.o.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe one of the people having written the code want to explain...
 
-Thanks, Ulrich
-------- Forwarded message follows -------
-From:           	"meng-ju" <mengju@research.att.com>
-To:             	<Ulrich.Windl@rz.uni-regensburg.de>
-Subject:        	about timer in linux kernel.
-Date sent:      	Fri, 18 May 2001 16:58:55 -0700
+--8X7/QrJGcKSMr1RN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi! Mr. Ulrich Windl,
- 
-I want to know how timer works in kernel.
-When we call add_timer(), it will call add_timer_internal to add it to its list.
-Now I am confused how the system checks if it is expired or not?
-In run_timer_list(), 
-Why it uses tv1.vec + tv1.index to find out the expiration point while in add_timer_internal(), the expiration timer minus timer_jiffies?
-I don't understand what roles jiffies, timer_jiffies and tv1.index play.
-Thanks for your patient and answering.
- 
-static inline void run_timer_list(void)
-{
-         spin_lock_irq(&timerlist_lock);
-         while ((long)(jiffies - timer_jiffies) >= 0) {
-                 struct list_head *head, *curr;
-                 if (!tv1.index) {
-                         int n= 1;
-                         do {
-                                cascade_timers(tvecs[n]);
-                         } while (tvecs[n]->index == 1 && ++n < NOOF_TVECS);
-                 }
-repeat:
-                head = tv1.vec + tv1.index;
-                curr = head->next;
-                if (curr != head) {
-                        struct timer_list *timer;
-                        void (*fn)(unsigned long);
-                        unsigned long data;
+> This is a `transamit reclaim' error.  It is almost always
+> caused by this host being in half-duplex mode, and another
+> host on the network being in full-duplex mode.
 
-                        timer = list_entry(curr, struct timer_list, list);
-                        fn = timer->function;
-                        data= timer->data;
+Hi,
+  I tried to force this to be in fullduplex mode by options=3D0x204 (0x200 =
++ 0x4)
+and it works fine now. Please, can you send me some points to the documenta=
+tion
+where I can read more info about 'transamit reclaim' error and why this
+happens, etc ...
 
-                        detach_timer(timer);
-                        timer->list.next = timer->list.prev = NULL;
-                        timer_enter(timer);
-                        spin_unlock_irq(&timerlist_lock);
-                        fn(data);
-                        spin_lock_irq(&timerlist_lock);
-                        timer_exit();
-                        goto repeat;
-                }
-                ++timer_jiffies;
-           tv1.index = (tv1.index + 1) & TVR_MASK;
-        }
-........
+Best regards,
+  .R.V.
 
-Meng-Ju
+--=20
+   _
+  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
+  |=3D| [Ll]     IPEX, s.r.o.
+  "^" =3D=3D=3D=3D`o
 
-------- End of forwarded message -------
+--8X7/QrJGcKSMr1RN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjsJBFoACgkQInNB3KDLeVOFDgCdHijQCOfcyL6h2kf/uAgC+SVi
+bmAAnj4AG1mcWttfs/WrCgQ8i1c8E39c
+=p5mz
+-----END PGP SIGNATURE-----
+
+--8X7/QrJGcKSMr1RN--

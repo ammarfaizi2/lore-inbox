@@ -1,74 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262084AbRFNLbu>; Thu, 14 Jun 2001 07:31:50 -0400
+	id <S262094AbRFNLwZ>; Thu, 14 Jun 2001 07:52:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262094AbRFNLbk>; Thu, 14 Jun 2001 07:31:40 -0400
-Received: from the.earth.li ([195.149.39.90]:23045 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id <S262084AbRFNLbe>;
-	Thu, 14 Jun 2001 07:31:34 -0400
-Date: Thu, 14 Jun 2001 13:31:25 +0200
-From: Simon Huggins <huggie@earth.li>
-To: Seigneur Angmar <seigneurangmar@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Lecteur CD-ROM
-Message-ID: <20010614133125.G29611@the.earth.li>
-Mail-Followup-To: Simon Huggins <huggie@earth.li>,
-	Seigneur Angmar <seigneurangmar@hotmail.com>,
-	linux-kernel@vger.kernel.org, axboe@suse.de
-In-Reply-To: <F89qlOQq2vXqZAmN0oG000027c6@hotmail.com>
+	id <S262116AbRFNLwO>; Thu, 14 Jun 2001 07:52:14 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:24842 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S262094AbRFNLv4>;
+	Thu, 14 Jun 2001 07:51:56 -0400
+Date: Thu, 14 Jun 2001 15:51:53 +0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Support for "Yet Another Sound Blaster 16"
+Message-ID: <20010614155153.A2855@orbita1.ru>
+Reply-To: pazke@orbita1.ru
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F89qlOQq2vXqZAmN0oG000027c6@hotmail.com>; from seigneurangmar@hotmail.com on Wed, Jun 13, 2001 at 10:19:03PM -0400
-Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
-X-Attribution: huggie
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+User-Agent: Mutt/1.0.1i
+X-Uptime: 3:31pm  up 14 days, 23:13,  1 user,  load average: 0.00, 0.03, 0.00
+From: <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One (approximate) translation coming up...
 
-Tu devrais poster en anglais sur une liste anglaise...
-J'ai traduit ton message ci-dessous:
+--yEPQxsgoJgBvi8ip
+Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
 
-On Wed, Jun 13, 2001 at 10:19:03PM -0400, Seigneur Angmar wrote:
->     Je vous décrirai le problème du mieux que je peux.  Avant tout, je tiens 
-> à souligner que, sous les mêmes configurations, le problème ne s'est produit 
-> et reproduit que sur les kernels 2.4.X (kernels testés : 2.2.18, 2.2.19, 
-> 2.4.0, 2.4.3, 2.4.5).
 
-He's having this problem only on 2.4.x kernels having tested 2.2.18,
-2.2.19, 2.4.0, 2.4.3, 2.4.5
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
->     J'ai en ma possession un CD-R (fait sous Windows 98) qui fonctionne sans 
-> reproches.  Absolument rien d'anormal ne se produit quand j'écris la ligne 
-> suivante : "mount /dev/cdrom".  Le problème survient quand j'essaye de 
-> copier un fichier sur le disc dur.  Le message suivant s'affiche :
+Hi all,
 
-He's having problems with a CD-R that was burnt under Windows 98 which
-he says is known to be good.  Nothing strange happens when he mounts it
-with mount /dev/cdrom but when he tries to copy data off it he gets:
+attached patch to add yet another Sound Blaster 16 variant reported by
+<klink@clouddancer.com>
 
-> hdb: command error: status=0x51 { DriveReady SeekComplete Error }
-> hdb: command error: error=0x54
-> end_request: I/O error, dev 03:40 (hdb), sector 14776
-> hdb: command error: status=0x51 { DriveReady SeekComplete Error }
-> hdb: command error: error=0x54
-> end_request: I/O error, dev 03:40 (hdb), sector 14780
-> cp: wumpscut - mortal highway.mp3: Input/output error
-> ...
+Best regards.
 
-> Je rappelle que ce problème n'est jamais arrivé sur aucuns des kernels 2.2.X 
-> que j'ai compilé.
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
 
-And he reiterates that 2.2.x didn't do this.
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-yasb
+Content-Transfer-Encoding: quoted-printable
 
-> N.B. : je possède un ATAPI CDROM: LTN242F
+diff -ur linux.vanilla/drivers/sound/sb_card.c linux/drivers/sound/sb_card.c
+--- linux.vanilla/drivers/sound/sb_card.c	Thu Jun 14 10:12:35 2001
++++ linux/drivers/sound/sb_card.c	Thu Jun 14 10:16:38 2001
+@@ -298,6 +298,11 @@
+ 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0031),
+ 		0,0,0,0,
+ 		0,1,1,-1},
++	{"Sound Blaster 16",=20
++		ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x00ed),=20
++		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0041),
++		0,0,0,0,
++		0,1,1,-1},
+ 	{"Sound Blaster Vibra16S",=20
+ 		ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x0051),=20
+ 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0001),
+@@ -518,6 +523,9 @@
+=20
+ 	{	ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x002b),=20
+ 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0031), 0 },
++
++	{	ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x00ed),=20
++		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0041), 0 },
+=20
+ 	{	ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x0051),=20
+ 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0001), 0 },
 
-And gives his CDROM model number.
+--dDRMvlgZJXvWKvBx--
 
--- 
-Simon Huggins  \ "No problem is too big it can't be run away from" --
-                \ Linus
-http://www.earth.li/~huggie/                                htag.pl 0.0.18
+--yEPQxsgoJgBvi8ip
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7KKVZBm4rlNOo3YgRAiN1AJ9aiBtHq3E5v7eP1LjjiKCFc1efKwCdH1J8
+1Z5ETg/SfoR+s5XrdUuc058=
+=CXAA
+-----END PGP SIGNATURE-----
+
+--yEPQxsgoJgBvi8ip--

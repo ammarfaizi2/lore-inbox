@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317342AbSHAVnz>; Thu, 1 Aug 2002 17:43:55 -0400
+	id <S317551AbSHAVxE>; Thu, 1 Aug 2002 17:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317351AbSHAVnz>; Thu, 1 Aug 2002 17:43:55 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22798 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317342AbSHAVny>; Thu, 1 Aug 2002 17:43:54 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] solved APM bug with -rc5
-Date: Thu, 1 Aug 2002 21:47:18 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <aica96$1lt$1@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> <20020801203520.GA244@pcw.home.local> <1028240183.15022.99.camel@irongate.swansea.linux.org.uk> <20020801210745.GA20387@alpha.home.local>
-X-Trace: palladium.transmeta.com 1028238425 4612 127.0.0.1 (1 Aug 2002 21:47:05 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 1 Aug 2002 21:47:05 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S317522AbSHAVxE>; Thu, 1 Aug 2002 17:53:04 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:32385 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S317543AbSHAVxD> convert rfc822-to-8bit; Thu, 1 Aug 2002 17:53:03 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <alan@lxorguk.ukuu.org.uk>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1055) - Licensed Version
+Date: Thu, 1 Aug 2002 14:56:29 -0700
+In-Reply-To: <1028209681.15022.9.camel@irongate.swansea.linux.org.uk>
+Subject: Re: Funding GPL projects or funding the GPL?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ks_c_5601-1987"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020801215631.AAA23820@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020801210745.GA20387@alpha.home.local>,
-Willy Tarreau  <willy@w.ods.org> wrote:
->On Thu, Aug 01, 2002 at 11:16:23PM +0100, Alan Cox wrote:
->> On Thu, 2002-08-01 at 21:35, Willy TARREAU wrote:
->> > +	while (cpu_number_map(smp_processor_id()) != 0) {
->> > +		schedule();
->> > +	}
-> 
->> What guarantees that loop will ever exit ?
->
->none, as in the already existing other implementation. But at least, I'd
->prefer an infinite loop instead of some random code being executed without
->noticing it.
->
->Do you know a better way of doing that ?
 
-It should set its CPU affinity to be cpu0. I don't know how well that
-works in 2.4.x, though. Ask Ingo..
+>I don't however see the relationship between the two, other than both
+>being demonstrations that you must do the actual science and statistics
+>before you rely on intuition.
 
-		Linus
+	They're both example of how the properties of individuals differ from the 
+properties of groups of those same individuals, and I believe the same error 
+is being made in both cases.
+
+	In the programming case, a programmer working on a project will not be 
+likely to produce better code simply because his salary goes up. Generally, 
+people will produce the best code they are capable of producing. Similarly, 
+longer lengths of incarceration won't decrease the probability that a 
+particular person will re-offend. In both cases, there just isn't a cause and 
+effect relationship with the individual.
+
+	However, this does not mean that a group will behave the same way. For 
+example, if we lock everybody who commits a violent crime up for twice as 
+long, crime in the group as a whole will go down simply because repeat 
+offenders will spend less time out of prison.
+
+	Similarly for programmers. With more money, you can employ more and/or 
+better programmers. You can still employ cheaper programmers, it doesn't stop 
+you.
+
+	How many people currently working on the Linux kernel would devote more time 
+to it if they received regular anonymous donations? How many new talented 
+programmers who can't find employment (or don't want/need to) would take more 
+interest in working on Linux?
+
+	I'm not saying this guarantees better code. For example, it's possible that 
+the greater volume of code produced might overload choke points in the 
+development that can't be expanded due to key individuals already working at 
+their limits. However, money brings new options.
+
+	As you (I think?) pointed out, most free software is crap and most 
+commercial software is crap. The hard part is to find the good software and 
+the good people and then give them an incentive to produce the code that you 
+really want. Money is a tool for doing that.
+
+	DS
+
+

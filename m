@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261304AbSI3Tmj>; Mon, 30 Sep 2002 15:42:39 -0400
+	id <S261305AbSI3TnF>; Mon, 30 Sep 2002 15:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbSI3Tmj>; Mon, 30 Sep 2002 15:42:39 -0400
-Received: from dsl-213-023-038-108.arcor-ip.net ([213.23.38.108]:44948 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261304AbSI3Tmi>;
-	Mon, 30 Sep 2002 15:42:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Peter Chubb <peter@chubb.wattle.id.au>,
-       Thunder from the hill <thunder@lightweight.ods.org>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated v2
-Date: Mon, 30 Sep 2002 21:48:10 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <15763.55020.35426.721691@wombat.chubb.wattle.id.au>
-In-Reply-To: <15763.55020.35426.721691@wombat.chubb.wattle.id.au>
+	id <S261307AbSI3TnF>; Mon, 30 Sep 2002 15:43:05 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:12002 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261305AbSI3TnE>; Mon, 30 Sep 2002 15:43:04 -0400
+Date: Mon, 30 Sep 2002 16:48:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       jw schultz <jw@pegasys.ws>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice
+ driver
+In-Reply-To: <20020930102228.GB28157@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44L.0209301647360.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17w6WZ-0005pB-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What is the problem these lists are intended to solve?
+On Mon, 30 Sep 2002, Tomas Szepe wrote:
 
-That's what I kept asking myself when I wrote the orginal push/pop
-macros.  My conclusion was that there is no worthwhile expression of
-these things in C.  Writing those macros was just something I had
-to do so I could wallow in the ugliness and stop thinking "maybe
-these things should be generic".
+> > for lk. :-) We can be actually _proud_ to have 2.$BIGNUM instead of
+> > 3.0
+>
+> ... and go Solaris, as in 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 7, 8, 9.  :D
 
+I wonder what SunOS 6.0 is going to be called ;)
+
+Rik
 -- 
-Daniel
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

@@ -1,45 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264283AbTLERD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 12:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLERD1
+	id S264258AbTLERFT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 12:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTLERFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 12:03:27 -0500
-Received: from willden.org ([63.226.98.113]:32134 "EHLO zedd.willden.org")
-	by vger.kernel.org with ESMTP id S264283AbTLERD0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 12:03:26 -0500
-From: Shawn Willden <shawn-lkml@willden.org>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Subject: Re: Linux GPL and binary module exception clause?
-Date: Fri, 5 Dec 2003 10:03:14 -0700
-User-Agent: KMail/1.5.93
-Cc: linux-kernel@vger.kernel.org, Ryan Anderson <ryan@michonline.com>
-References: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org> <200312050938.10607.shawn-lkml@willden.org> <1070643290.14996.5.camel@laptop.fenrus.com>
-In-Reply-To: <1070643290.14996.5.camel@laptop.fenrus.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200312051003.18238.shawn-lkml@willden.org>
+	Fri, 5 Dec 2003 12:05:19 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:14769 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264258AbTLERFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 12:05:05 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+From: Craig Bradney <cbradney@zip.com.au>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Josh McKinney <forming@charter.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1070633973.4100.23.camel@athlonxp.bradney.info>
+References: <20031205045404.GA307@tesore.local>
+	 <16336.13962.285442.228795@alkaid.it.uu.se>
+	 <20031205083349.GA15152@forming>
+	 <16336.30392.344028.347132@alkaid.it.uu.se>
+	 <1070633973.4100.23.camel@athlonxp.bradney.info>
+Content-Type: text/plain
+Message-Id: <1070643901.3962.10.camel@athlonxp.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Dec 2003 18:05:01 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Having just had another hang.. I tried booting with nmi-watchdog=1 and
+then with 2.
 
-On Friday 05 December 2003 09:54 am, Arjan van de Ven wrote:
-> probably true for the US, most definitely not true in europe... it's
-> explicit in law here that copying from disk-to-ram and ram-to-cpu is
-> distributing in the "need a license" sense...
+I am currently running from the boot with 2 selected.
 
-That's very interesting.  Thanks.
+In my current dmesg I have these which dont normally appear and didnt
+appear in the boot with 1 set.
 
-	Shawn. 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Any ideas?
 
-iD8DBQE/0LpTp1Ep1JptinARAnaWAJ4493In8CAp0p+yMlCAb2pmyXYbbQCeN0Cy
-KUV+3WM27hGEHFPTTYHN/uI=
-=x1pq
------END PGP SIGNATURE-----
+hda: IRQ probe failed (0xfffffcfa)
+hdb: IRQ probe failed (0xfffffcfa)
+hdb: IRQ probe failed (0xfffffcfa)
+
+Craig
+
+
+
+On Fri, 2003-12-05 at 15:19, Craig Bradney wrote:
+> I'm getting those in dmesg too...
+> 
+> ..MP-BIOS bug: 8254 timer not connected to IO-APIC
+> ...trying to set up timer (IRQ0) through the 8259A ...  failed.
+> ...trying to set up timer as Virtual Wire IRQ... failed.
+> ...trying to set up timer as ExtINT IRQ... works.
+> 
+> 
+> Do you really think this could be the problem?
+> 
+> If so, any ideas why I am relatively lucky to not have the crashes
+> people are having? 5.5 days, then 5 hours, and now Im up to 17 hours...
+> with a decent amount of use combined with idle time.
+> 
+> Craig
+> 
+> 
+> On Fri, 2003-12-05 at 13:14, Mikael Pettersson wrote:
+> > Josh McKinney writes:
+> >  > On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
+> >  > > Jesse Allen writes:
+> >  > >  > Hi,
+> >  > >  > 
+> >  > >  > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
+> >  > >  > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
+> >  > >  > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
+> >  > >  > NMI watchdog doesn't seem to work.
+> >  > >  > 
+> >  > >  > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
+> >  > >  > /var/log/syslog:
+> >  > >  > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
+> >  > >  > IO-APIC
+> >  > >  > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
+> >  > >  > disabling NMI Watchdog!
+> >  > >  > 
+> >  > >  > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
+> >  > >  > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
+> >  > >  > but it still locks up.
+> >  > > 
+> >  > > The NMI watchdog can only handle software lockups, since it relies on
+> >  > > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
+> >  > > Hardware lockups result in, well, hardware lockups :-(
+> >  > 
+> >  > So does this confirm that the lockups with nforce2 chipsets and apic
+> >  > is actually a hardware problem after all? 
+> > 
+> > Confirm with very high probability. There may be quirks in nVidia's
+> > chipset that we (unlike their Windoze drivers) don't know about.
+> > 
+> > Ask nVidia for detailed chipset documentation. Then maybe we can fix this.
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

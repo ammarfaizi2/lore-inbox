@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278163AbRJLWAk>; Fri, 12 Oct 2001 18:00:40 -0400
+	id <S278168AbRJLWEu>; Fri, 12 Oct 2001 18:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278166AbRJLWAa>; Fri, 12 Oct 2001 18:00:30 -0400
-Received: from wcgate.twi.com ([64.236.243.243]:8554 "EHLO
-	wbsmtphost.wb-mail.com") by vger.kernel.org with ESMTP
-	id <S278163AbRJLWA0>; Fri, 12 Oct 2001 18:00:26 -0400
-Message-ID: <3BC76818.BA84A90E@wbfa.com>
-Date: Fri, 12 Oct 2001 15:00:56 -0700
-From: Alan Hagge <ahagge@wbfa.com>
-Organization: Warner Brothers Animation
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2.9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NFS issue: Irix server, Linux client - inode number mismatch
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278169AbRJLWEk>; Fri, 12 Oct 2001 18:04:40 -0400
+Received: from jalon.able.es ([212.97.163.2]:59777 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S278168AbRJLWE3>;
+	Fri, 12 Oct 2001 18:04:29 -0400
+Date: Sat, 13 Oct 2001 00:04:54 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.12-ac1
+Message-ID: <20011013000454.E1693@werewolf.able.es>
+In-Reply-To: <20011012232626.A1693@werewolf.able.es> <Pine.LNX.4.33L.0110121851360.2847-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33L.0110121851360.2847-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Fri, Oct 12, 2001 at 23:52:16 +0200
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have an SGI Irix 6.5-based server running NFS3 with Linux 2.4.7
-clients attaching.  Whenever the server crashes, the Linux clients have
-problems with their NFS mounts. Typically, they're unusable until after
-reboot.
 
-The /var/log/messages file on the Linux client side has the following
-messages: 
+On 20011012 Rik van Riel wrote:
+>On Fri, 12 Oct 2001, J . A . Magallon wrote:
+>> On 20011012 Alan Cox wrote:
+>
+>> >2.4.12-ac1
+>> >o	Merge the majority of 2.4.11/12
+>>
+>> This does not include Rik's hog-stop patch ?
+>> It still applies cleanly...
+>
+>It's not in yet, and this is a good thing since you really
+>want to be able to test changes one-by one ...
+>
 
-        Oct  8 16:01:27 lrender2 automount[22485]: expired
-/usr/local/sgi/wbfa 
-        Oct  8 16:01:27 lrender2 kernel: nfs_refresh_inode: inode number
-mismatch 
-        Oct  8 16:01:27 lrender2 kernel: expected (0x3000007/0x6467c36),
-got (0x3000005/0x6467c36) 
-        Oct  8 16:06:27 lrender2 automount[22486]: expired
-/usr/local/sgi/wbfa 
-        Oct  8 16:06:27 lrender2 kernel: nfs_refresh_inode: inode number
-mismatch 
-        Oct  8 16:06:27 lrender2 kernel: expected (0x3000007/0x6467c36),
-got (0x3000005/0x6467c36) 
-        Oct  8 16:11:27 lrender2 automount[22487]: expired
-/usr/local/sgi/wbfa 
-        Oct  8 16:11:27 lrender2 kernel: nfs_refresh_inode: inode number
-mismatch 
-        Oct  8 16:11:27 lrender2 kernel: expected (0x3000007/0x6467c36),
-got (0x3000005/0x6467c36) 
+Oh, sorry, I thought there was not anything to test, it was clear...
 
-Can anyone tell me if this is expected behavior, and if not, if the
-problem is in the Irix NFS server implementation or the 
-Linux client implementation?  I don't have the NFS expertise to be able
-to discern...
+BTW, I am re-offsetting things like aic-6.2.4, ext3-0.9.12, bproc...
 
-BTW, other clients (SGI Irix and Mac OS X workstations) connected to the
-same mount points do NOT exhibit this 
-behaviour after a server crash.
-
-I checked the changelog at
-http://www.fys.uio.no/~trondmy/src/ChangeLog.NFSv3 but didn't see
-anything relevant.
-
-Thanks,
-
-Alan Hagge
-
-Replies via cc:, please...
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.13-pre1-beo #1 SMP Fri Oct 12 11:32:03 CEST 2001 i686

@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283717AbRLISNm>; Sun, 9 Dec 2001 13:13:42 -0500
+	id <S283720AbRLISPc>; Sun, 9 Dec 2001 13:15:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283720AbRLISNc>; Sun, 9 Dec 2001 13:13:32 -0500
-Received: from f138.law4.hotmail.com ([216.33.149.138]:59654 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S283717AbRLISNX>;
-	Sun, 9 Dec 2001 13:13:23 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Oops on 2.4.17-pre6 at boot time
-Date: Sun, 09 Dec 2001 18:13:17 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F1388zNcyEmmKETmXwE000140d7@hotmail.com>
-X-OriginalArrivalTime: 09 Dec 2001 18:13:17.0753 (UTC) FILETIME=[2D330290:01C180DD]
+	id <S283723AbRLISPW>; Sun, 9 Dec 2001 13:15:22 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:57873 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S283720AbRLISPK>;
+	Sun, 9 Dec 2001 13:15:10 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112091814.VAA00499@ms2.inr.ac.ru>
+Subject: Re: CBQ and all other qdiscs now REALLY completely documented
+To: hadi@cyberus.ca (jamal)
+Date: Sun, 9 Dec 2001 21:14:46 +0300 (MSK)
+Cc: ahu@ds9a.nl, lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <Pine.GSO.4.30.0112081841050.4764-100000@shell.cyberus.ca> from "jamal" at Dec 8, 1 08:14:10 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compìled the kernel and the modules but on my computer it would just hang 
-and not get past the >Uncompressing Linux. Ok kernel booting<
-And after that it just lock´s my computer.
+Hello!
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+> > But to do this, you would need to be able to set skb->priority to a 32bit
+> > number:
+> >
+> 
+> Cant think of a straight way to do this .... Alexey would know,
 
+SO_PRIORITY. Or I did not follow you?
+
+Alexey

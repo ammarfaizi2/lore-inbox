@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130434AbRCGIX0>; Wed, 7 Mar 2001 03:23:26 -0500
+	id <S130441AbRCGIaG>; Wed, 7 Mar 2001 03:30:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130435AbRCGIXG>; Wed, 7 Mar 2001 03:23:06 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:47856 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S130434AbRCGIW4>; Wed, 7 Mar 2001 03:22:56 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103070820.f278KpD04486@webber.adilger.net>
-Subject: Re: RAID, 2.4.2 and Buslogic
-In-Reply-To: <Pine.LNX.4.33.0103061015130.1695-100000@twinlark.arctic.org> from
- Jauder Ho at "Mar 6, 2001 11:53:07 pm"
-To: Jauder Ho <jauderho@carumba.com>
-Date: Wed, 7 Mar 2001 01:20:51 -0700 (MST)
-CC: lnz@dandelion.com, alan@www.linux.org.uk, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S130442AbRCGI34>; Wed, 7 Mar 2001 03:29:56 -0500
+Received: from [213.82.20.2] ([213.82.20.2]:58374 "EHLO romeo.apsystems.it")
+	by vger.kernel.org with ESMTP id <S130441AbRCGI3o>;
+	Wed, 7 Mar 2001 03:29:44 -0500
+Message-ID: <000501c0a6df$7e5e4900$396dc6d4@alex.cybercable.fr>
+From: "Alex Baretta" <alex@baretta.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Major system crash 2.2.14 HELP!!!
+Date: Wed, 7 Mar 2001 09:20:34 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.5
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jauder Ho writes:
-> My story is somewhat similar to what Dick Johnson has encountered except
-> this is with 2.4.2 running on a pentium 200.
-> 
-> EXT2-fs error (device md(9,0)): ext2_add_entry: bad entry in directory
-> #343396:
-> inode out of bounds - offset=0, inode=343396, rec_len=12, name_len=1
-> EXT2-fs error (device md(9,0)): ext2_write_inode: bad inode number: 12
-> 
-> EXT2-fs error (device md(9,0)): free_inode: reserved inode or nonexistent
-> inode
-> kernel BUG at inode.c:885!
+I desperately need your help. I booted my machine 15 minutes ago,
+pressed return at the LILO prompt to load the default kernel, waited
+for the visual login screen to appear, I logged on to my account (not
+root), started a terminal and ... and that's as much as I can tell
+you. I left the computer for a few minutes to prepare my breakfast,
+and when I sat down to my machine with my bowl of cereals in front of
+me, I saw a most horrific vision: the LILO prompt once again. The
+machine crashed so severely it rebooted directly without showing any
+previous signs of agony. And what is worse, the machine now refuses to
+start up. It tells me the superblock of some device does not pass file
+system check (superblock is damaged). If offers me the possibility of
+pressing Ctrl-D to resume the boot process or the possibility to type
+my root password and start a shell. Ctrl-D results in the machine
+observing that it can do nothing but force a reboot. The root password
+takes me into a shell where I see the usual directories, but most of
+them are empty. And what's even worse is that my data (home directory)
+has been blown to interstellar dust.
 
-Inode 12 is a perfectly valid inode number for any filesystem, so your
-ext2 superblock must have been corrupt (or zeroed out) at this point.
-The value for sb->u.ext2_sb.s_es->s_inodes_count must have been < 12
-(likely zero), which would explain all of these errors.  Strange.
+I have frequently experienced system crashes on my machine. What would
+happen exactly is that the machine would become totally unresponsive.
+The mouse pointer would usually disappear, and no key combination
+(Ctrl-Alt-Del, Ctrl-Alt-BS, Shit-Alt-Fn) would obtain any result, and
+would very simply have to reboot the hard way. The frequence actually
+appeared to be very random. Some days I would spend in the excess of
+12 hours working at my computer and never rebooting. Other days I
+remeber having had to reboot every few minutes. Originally I
+attributed this phenomenon to an overheating of the drives [ I have 3
+IDE drives which _used_to_ run merrily in my case... 8-(     ] Then  I
+moved them to a one bay distance from one another, thereby greatly
+reducing the temperature they reached, but this did not solve the
+random system crashes.
 
-I have posted (twice) a patch which would prevent the BUG from happening.
-Granted, it won't help your RAID/SCSI corruption problem (*).  Please see
+Now my machine was completely cold after one night's rest. I boot up
+correctly once, committed suicide, and all I have got is it's corpse.
+What can I do? I could reinstall Linux, but first I have to try to get
+my /home directory copied somewhere (to my other HD, for example, the
+where I keep the Dark Side of the Force handy, for emergencies ... ).
+How can I do this? What information can I _attempt_ to recover by
+inspecting the cadaver (logs and the like that help a guru or two
+figure out what happened?
 
-  [PATCH] sanity checks for ext2 root inode
+Please, help me urgently. I am in such distress!
 
-in l-k archives.  I don't think this is in either Linus' or Alan's tree.
+Alex
 
-Cheers, Andreas
-
-(*) in normal cases this prevents a small filesystem corruption from
-    halting the system, but in your case, the BUG may have prevented
-    larger corruption by halting the system before more damage was done?
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261813AbSI2VtS>; Sun, 29 Sep 2002 17:49:18 -0400
+	id <S261809AbSI2Vik>; Sun, 29 Sep 2002 17:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261816AbSI2VtS>; Sun, 29 Sep 2002 17:49:18 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:5765 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S261813AbSI2VtR>;
-	Sun, 29 Sep 2002 17:49:17 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: Marc-Christian Petersen <m.c.p@gmx.net>, "Theodore Ts'o" <tytso@mit.edu>,
-       "Christopher Li" <chrisl@gnuchina.org>
-Subject: Re: ARGS [PATCH] fix htree dir corrupt after fsck -fD
-Date: Sun, 29 Sep 2002 14:54:29 -0700
-User-Agent: KMail/1.4.7-cool
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-References: <200209291918.55303.m.c.p@gmx.net>
-In-Reply-To: <200209291918.55303.m.c.p@gmx.net>
+	id <S261808AbSI2Vij>; Sun, 29 Sep 2002 17:38:39 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:40618 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261803AbSI2Vii>; Sun, 29 Sep 2002 17:38:38 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200209292143.g8TLhQx11223@devserv.devel.redhat.com>
+Subject: Re: ac-patches kill maestro3 sound driver on 2.4.20-pre7 and pre8
+To: preining@logic.at (Norbert Preining)
+Date: Sun, 29 Sep 2002 17:43:26 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com (Alan Cox)
+In-Reply-To: <20020929213524.GA4407@gamma.logic.tuwien.ac.at> from "Norbert Preining" at Sep 29, 2002 11:35:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209291454.33846.ryan@completely.kicks-ass.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> I tried the 2.4.20-pre7-ac3 patch and the 2.4.20-pre8-ac1 patch and in
+> both cases the sound output is not working with a maestro3 sound chip
+> (dell notebook inspiron i8000k). It is working with vanilla 2.4.20-pre7.
 
-On September 29, 2002 10:19, Marc-Christian Petersen wrote:
-> Hi Ryan,
->
-> > I am running your program now over an hour without any corruption on the
-> > loopback mounted ext3 filesystem.
->
-> shit, I thought testing over an hour (10mins your program, umount, fsck -fD
-> test.img in a loop) is enough but it isn't. Damn f*ck :(
+Humm try:
 
-Heh, I wonder why it happens faster here. I usually don't umount, and my 
-loopback filesystem is small enough that everything fits in RAM. Maybe my 
-Athlon XP 1800+ contributes to my computer's raw filesystem corruption power? 
-;)
+--- linux.20pre8-ac2/drivers/sound/maestro3.c~  2002-09-29 22:47:50.000000000 +0100
++++ linux.20pre8-ac2/drivers/sound/maestro3.c   2002-09-29 22:47:50.000000000 +0100
+@@ -2473,7 +2473,7 @@
+     if(!external_amp)
+         return;
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9l3aZLGMzRzbJfbQRAvGaAJsGG5prZSBAfY8iHjO5iLdb0GJZjACfYQ4k
-7t0b05e7JdCglHyL6rd3F2k=
-=8q3D
------END PGP SIGNATURE-----
+-    if (0 <= gpio_pin <= 15) {
++    if (gpio_pin >= 0  && gpio_pin <= 15) {
+         polarity_port = 0x1000 + (0x100 * gpio_pin);
+     } else {
+         switch (card->card_type) {

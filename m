@@ -1,896 +1,1024 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265101AbTL3VPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 16:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264602AbTL3VPs
+	id S263930AbTL3VKf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 16:10:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbTL3VKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 16:15:48 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:2688 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265335AbTL3VO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 16:14:57 -0500
-Date: Tue, 30 Dec 2003 16:14:13 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-In-Reply-To: <20031230143929.GN27687@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
- <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
- <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
- <Pine.LNX.4.58.0312291502210.1586@home.osdl.org>
- <Pine.LNX.4.58.0312300903170.2825@localhost.localdomain>
- <20031230143929.GN27687@holomorphy.com>
+	Tue, 30 Dec 2003 16:10:35 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:22946 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S263930AbTL3VJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 16:09:42 -0500
+Message-ID: <33109.209.251.159.140.1072818582.squirrel@mail.mainstreetsoftworks.com>
+Date: Tue, 30 Dec 2003 16:09:42 -0500 (EST)
+Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
+From: "Brad House" <brad_mssw@gentoo.org>
+To: <sflory@rackable.com>
+In-Reply-To: <3FF1D7EE.5050603@rackable.com>
+References: <65095.68.105.173.45.1072761027.squirrel@mail.mainstreetsoftworks.com>
+        <20031230052041.GA7007@gtf.org>
+        <65025.68.105.173.45.1072765590.squirrel@mail.mainstreetsoftworks.com>
+        <3FF11CC2.7040209@pobox.com>
+        <3FF1D567.4040205@rackable.com>
+        <33036.209.251.159.140.1072813780.squirrel@mail.mainstreetsoftworks.com>
+        <3FF1D7EE.5050603@rackable.com>
+X-Priority: 3
+Importance: Normal
+Cc: <brad_mssw@gentoo.org>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>, <Atul.Mukker@lsil.com>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-971606898-1072816226=:3152"
-Content-ID: <Pine.LNX.4.58.0312301545510.3152@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Ok, I just ported the 2.00.9 driver to 2.6.0.
+It still has these warnings during compilation as I did not
+attempt to apply my 64bit fixes from before as I've been told
+they are just plain wrong :/
 
---8323328-971606898-1072816226=:3152
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.58.0312301545511.3152@localhost.localdomain>
+But, I suppose this should work fine in 32bit mode, I would
+greatly appreciate any help in porting it for 64bit platforms.
+
+The patch can be downloaded here :
+http://dev.gentoo.org/~brad_mssw/kernel_patches/megaraid/megaraid-v2.00.9-linux2.6.patch
+And only applies to the source from ftp.lsil.com, it's not a kernel-patch
+per-se, but copying the result over to the drivers/scsi  will compile inplace
+of the current versions.
+
+Please CC me on any replies!
+-Brad House <brad_mssw@gentoo.org>
+
+I've also inlined it here:
+# To use this patch, you must extract the megaraid 2.00.9 tarball
+# from
+ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.9/megaraid.tgz
+# and   mv megaraid2.c megaraid.c
+#       mv megaraid2.h megaraid.h
+# Then
+#       patch -p1 < megaraid-v2.00.9-linux2.6.patch
+# This patch is based off the v2.00.5 linux2.5.6x patch from
+#
+ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.5/megaraid2005-2.5.6x.patch.gz
+# TODO: - Figure out if megaraid_isr_iomapped and megaraid_isr_memmapped
+are implemented
+#         correctly
+#       - Make it 64bit clean, as it gets 'cast to pointer from integer of
+different size'
+#         warnings
+# Brad House <brad_mssw@gentoo.org> 12/30/03
+diff -ruN megaraid-v2.00.9/megaraid.c megaraid-v2.00.9-linux2.6/megaraid.c
+--- megaraid-v2.00.9/megaraid.c	2003-09-09 15:24:36.000000000 -0400
++++ megaraid-v2.00.9-linux2.6/megaraid.c	2003-12-30 16:18:06.298221000 -0500
+@@ -32,18 +32,20 @@
+
+ #include <linux/mm.h>
+ #include <linux/fs.h>
+-#include <linux/blk.h>
++#include <linux/blkdev.h>
+ #include <asm/uaccess.h>
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
+ #include <linux/module.h>
+ #include <linux/list.h>
++#include <linux/interrupt.h>
++#include <linux/proc_fs.h>
++#include <scsi/scsicam.h>
+
+-#include "sd.h"
+ #include "scsi.h"
+ #include "hosts.h"
+
+-#include "megaraid2.h"
++#include "megaraid.h"
+
+ MODULE_AUTHOR ("LSI Logic Corporation");
+ MODULE_DESCRIPTION ("LSI Logic MegaRAID driver");
+@@ -88,10 +90,10 @@
+  * The File Operations structure for the serial/ioctl interface of the
+driver
+  */
+ static struct file_operations megadev_fops = {
++	.owner		= THIS_MODULE,
+ 	.ioctl		= megadev_ioctl,
+ 	.open		= megadev_open,
+ 	.release	= megadev_close,
+-	.owner		= THIS_MODULE,
+ };
+
+ /*
+@@ -174,11 +176,6 @@
+ 	}
+
+ 	if(hba_count) {
+-		/*
+-		 * re-order hosts so that one with bootable logical drive
+-		 * comes first
+-		 */
+-		mega_reorder_hosts();
+
+ #ifdef CONFIG_PROC_FS
+ 		mega_proc_dir_entry = proc_mkdir("megaraid", &proc_root);
+@@ -320,13 +317,12 @@
+
+ 		if( pci_resource_flags(pdev, 0) & IORESOURCE_MEM ) {
+
+-			if( check_mem_region(mega_baseport, 128) ) {
++			if (!request_mem_region(mega_baseport, 128,
++					"MegaRAID: LSI Logic Corporation.")) {
+ 				printk(KERN_WARNING
+ 					"megaraid: mem region busy!\n");
+ 				continue;
+ 			}
+-			request_mem_region(mega_baseport, 128,
+-					"MegaRAID: LSI Logic Corporation.");
+
+ 			mega_baseport =
+ 				(unsigned long)ioremap(mega_baseport, 128);
+@@ -362,7 +358,7 @@
+
+ 		did_scsi_reg_f = 1;
+
+-		scsi_set_pci_device(host, pdev);
++		scsi_set_device(host, &pdev->dev);
+
+ 		adapter = (adapter_t *)host->hostdata;
+ 		memset(adapter, 0, sizeof(adapter_t));
+@@ -400,7 +396,7 @@
+ 		// the lock in host structure.
+ 		adapter->host_lock = &adapter->lock;
+
+-		host->lock = adapter->host_lock;
++		scsi_assign_lock(host, adapter->host_lock);
+
+ 		host->cmd_per_lun = max_cmd_per_lun;
+ 		host->max_sectors = max_sectors_per_io;
+@@ -926,7 +922,7 @@
+ 	scb_t	*scb;
+ 	int	busy=0;
+
+-	adapter = (adapter_t *)scmd->host->hostdata;
++	adapter = (adapter_t *)scmd->device->host->hostdata;
+
+ 	scmd->scsi_done = done;
+
+@@ -1000,7 +996,7 @@
+ 	/*
+ 	 * We know what channels our logical drives are on - mega_find_card()
+ 	 */
+-	islogical = adapter->logdrv_chan[cmd->channel];
++	islogical = adapter->logdrv_chan[cmd->device->channel];
+
+ 	/*
+ 	 * The theory: If physical drive is chosen for boot, all the physical
+@@ -1012,12 +1008,13 @@
+ 	if( adapter->boot_pdrv_enabled ) {
+ 		if( islogical ) {
+ 			/* logical channel */
+-			channel = cmd->channel -
++			channel = cmd->device->channel -
+ 				adapter->product_info.nchannels;
+ 		}
+ 		else {
+-			channel = cmd->channel; /* this is physical channel */
+-			target = cmd->target;
++			/* this is physical channel */
++			channel = cmd->device->channel;
++			target = cmd->device->id;
+
+ 			/*
+ 			 * boot from a physical disk, that disk needs to be
+@@ -1034,13 +1031,13 @@
+ 	}
+ 	else {
+ 		if( islogical ) {
+-			channel = cmd->channel;	/* this is the logical channel
+-						 */
++			/* this is the logical channel */
++			channel = cmd->device->channel;
+ 		}
+ 		else {
+-			channel = cmd->channel - NVIRT_CHAN;	/* physical
+-								   channel */
+-			target = cmd->target;
++			/* physical channel */
++			channel = cmd->device->channel - NVIRT_CHAN;
++			target = cmd->device->id;
+ 		}
+ 	}
+
+@@ -1048,7 +1045,7 @@
+ 	if(islogical) {
+
+ 		/* have just LUN 0 for each target on virtual channels */
+-		if (cmd->lun) {
++		if (cmd->device->lun) {
+ 			cmd->result = (DID_BAD_TARGET << 16);
+ 			cmd->scsi_done(cmd);
+ 			return NULL;
+@@ -1075,7 +1072,7 @@
+
+ 	}
+ 	else {
+-		if( cmd->lun > 7) {
++		if( cmd->device->lun > 7) {
+ 			/*
+ 			 * Do not support lun >7 for physically accessed
+ 			 * devices
+@@ -1138,15 +1135,15 @@
+ 		case READ_CAPACITY:
+ 		case INQUIRY:
+
+-			if(!(adapter->flag & (1L << cmd->channel))) {
++			if(!(adapter->flag & (1L << cmd->device->channel))) {
+
+ 				printk(KERN_NOTICE
+ 					"scsi%d: scanning scsi channel %d ",
+ 						adapter->host->host_no,
+-						cmd->channel);
++						cmd->device->channel);
+ 				printk("for logical drives.\n");
+
+-				adapter->flag |= (1L << cmd->channel);
++				adapter->flag |= (1L << cmd->device->channel);
+ 			}
+
+ 			/* Allocate a SCB and initialize passthru */
+@@ -1448,7 +1445,7 @@
+ 		(channel << 4) | target : target;
+
+ 	pthru->cdblen = cmd->cmd_len;
+-	pthru->logdrv = cmd->lun;
++	pthru->logdrv = cmd->device->lun;
+
+ 	memcpy(pthru->cdb, cmd->cmnd, cmd->cmd_len);
+
+@@ -1459,15 +1456,15 @@
+ 	switch (cmd->cmnd[0]) {
+ 	case INQUIRY:
+ 	case READ_CAPACITY:
+-		if(!(adapter->flag & (1L << cmd->channel))) {
++		if(!(adapter->flag & (1L << cmd->device->channel))) {
+
+ 			printk(KERN_NOTICE
+ 				"scsi%d: scanning scsi channel %d [P%d] ",
+ 					adapter->host->host_no,
+-					cmd->channel, channel);
++					cmd->device->channel, channel);
+ 			printk("for physical devices.\n");
+
+-			adapter->flag |= (1L << cmd->channel);
++			adapter->flag |= (1L << cmd->device->channel);
+ 		}
+ 		/* Fall through */
+ 	default:
+@@ -1511,7 +1508,7 @@
+ 		(channel << 4) | target : target;
+
+ 	epthru->cdblen = cmd->cmd_len;
+-	epthru->logdrv = cmd->lun;
++	epthru->logdrv = cmd->device->lun;
+
+ 	memcpy(epthru->cdb, cmd->cmnd, cmd->cmd_len);
+
+@@ -1521,15 +1518,15 @@
+ 	switch(cmd->cmnd[0]) {
+ 	case INQUIRY:
+ 	case READ_CAPACITY:
+-		if(!(adapter->flag & (1L << cmd->channel))) {
++		if(!(adapter->flag & (1L << cmd->device->channel))) {
+
+ 			printk(KERN_NOTICE
+ 				"scsi%d: scanning scsi channel %d [P%d] ",
+ 					adapter->host->host_no,
+-					cmd->channel, channel);
++					cmd->device->channel, channel);
+ 			printk("for physical devices.\n");
+
+-			adapter->flag |= (1L << cmd->channel);
++			adapter->flag |= (1L << cmd->device->channel);
+ 		}
+ 		/* Fall through */
+ 	default:
+@@ -1791,7 +1788,7 @@
+  * Find out if our device is interrupting. If yes, acknowledge the interrupt
+  * and service the completed commands.
+  */
+-static void
++static irqreturn_t
+ megaraid_isr_iomapped(int irq, void *devp, struct pt_regs *regs)
+ {
+ 	adapter_t	*adapter = devp;
+@@ -1809,7 +1806,7 @@
+
+ 	spin_unlock_irqrestore(adapter->host_lock, flags);
+
+-	return;
++	return IRQ_RETVAL(1);
+ }
 
 
+@@ -1885,7 +1882,7 @@
+  * Find out if our device is interrupting. If yes, acknowledge the interrupt
+  * and service the completed commands.
+  */
+-static void
++static irqreturn_t
+ megaraid_isr_memmapped(int irq, void *devp, struct pt_regs *regs)
+ {
+ 	adapter_t	*adapter = devp;
+@@ -1903,7 +1900,7 @@
 
-On Tue, 30 Dec 2003, William Lee Irwin III wrote:
+ 	spin_unlock_irqrestore(adapter->host_lock, flags);
 
-> Okay, thus far we have some seriously performance-affecting debug
-> options. Could you turn those off and build non-modular?
-
-Done.
-
-report1.txt is the result of:
-opreport `bk export linux-2.5 linux-2.6-testb`
-
-report2.txt is the result of:
-opreport -l vmlinux
-
-
-The times for this operation is:
-real	15m20s
-user	0m35s
-sys	0m20s
+-	return;
++	return IRQ_RETVAL(1);
+ }
 
 
-On my main system (1.3GHz Athlon, 512MB memory, fast hard drive; in other 
-words has plenty of resources) I get similar results, scaled down of 
-course.
+@@ -1993,6 +1990,7 @@
+ 	mbox_t	*mbox = NULL;
+ 	u8	c;
+ 	scb_t	*scb;
++	int	islogical;
+ 	int	cmdid;
+ 	int	i;
 
-On 2.4 the times are
-real	3m47s
-user	14s
-sys	7s
+@@ -2074,9 +2072,9 @@
+ #if MEGA_HAVE_STATS
+ 			{
 
-On 2.6 the times are
-real	3m27s
-user	14s
-sys	7s
+-			int	islogical = adapter->logdrv_chan[cmd->channel];
+ 			int	logdrv = mbox->logdrv;
+
++			islogical = adapter->logdrv_chan[cmd->device->channel];
+ 			/*
+ 			 * Maintain an error counter for the logical drive.
+ 			 * Some application like SNMP agent need such
+@@ -2112,23 +2110,31 @@
+ 		 * hard disk and not logical, request should return failure! -
+ 		 * PJ
+ 		 */
+-		if(cmd->cmnd[0] == INQUIRY) {
+-			int islogical = adapter->logdrv_chan[cmd->channel];
++		islogical = adapter->logdrv_chan[cmd->device->channel];
++		if( cmd->cmnd[0] == INQUIRY && !islogical ) {
+
+-			if(!islogical) {
+-				if( cmd->use_sg ) {
+-					sgl = (struct scatterlist *)
+-						cmd->request_buffer;
+-					c = *(u8 *)sgl[0].address;
++			if( cmd->use_sg ) {
++				sgl = (struct scatterlist *)
++					cmd->request_buffer;
++
++				if( sgl->page ) {
++					c = *(unsigned char *)
++					page_address((&sgl[0])->page) +
++					(&sgl[0])->offset;
+ 				}
+ 				else {
+-					c = *(u8 *)cmd->request_buffer;
++					printk(KERN_WARNING
++						"megaraid: invalid sg.\n");
++					c = 0;
+ 				}
++			}
++			else {
++				c = *(u8 *)cmd->request_buffer;
++			}
+
+-				if(IS_RAID_CH(adapter, cmd->channel) &&
+-						((c & 0x1F ) == TYPE_DISK)) {
+-					status = 0xF0;
+-				}
++			if(IS_RAID_CH(adapter, cmd->device->channel) &&
++					((c & 0x1F ) == TYPE_DISK)) {
++				status = 0xF0;
+ 			}
+ 		}
+
+@@ -2245,12 +2251,11 @@
+ 		break;
+
+ 	case MEGA_BULK_DATA:
+-		pci_unmap_page(adapter->host->pci_dev, scb->dma_h_bulkdata,
++		pci_unmap_page(adapter->dev, scb->dma_h_bulkdata,
+ 			scb->cmd->request_bufflen, scb->dma_direction);
+
+ 		if( scb->dma_direction == PCI_DMA_FROMDEVICE ) {
+-			pci_dma_sync_single(adapter->host->pci_dev,
+-					scb->dma_h_bulkdata,
++			pci_dma_sync_single(adapter->dev, scb->dma_h_bulkdata,
+ 					scb->cmd->request_bufflen,
+ 					PCI_DMA_FROMDEVICE);
+ 		}
+@@ -2258,12 +2263,11 @@
+ 		break;
+
+ 	case MEGA_SGLIST:
+-		pci_unmap_sg(adapter->host->pci_dev, scb->cmd->request_buffer,
++		pci_unmap_sg(adapter->dev, scb->cmd->request_buffer,
+ 			scb->cmd->use_sg, scb->dma_direction);
+
+ 		if( scb->dma_direction == PCI_DMA_FROMDEVICE ) {
+-			pci_dma_sync_sg(adapter->host->pci_dev,
+-					scb->cmd->request_buffer,
++			pci_dma_sync_sg(adapter->dev, scb->cmd->request_buffer,
+ 					scb->cmd->use_sg, PCI_DMA_FROMDEVICE);
+ 		}
+
+@@ -2334,8 +2338,7 @@
+
+ 		offset = ((unsigned long)cmd->request_buffer & ~PAGE_MASK);
+
+-		scb->dma_h_bulkdata = pci_map_page(adapter->host->pci_dev,
+-						  page, offset,
++		scb->dma_h_bulkdata = pci_map_page(adapter->dev, page, offset,
+ 						  cmd->request_bufflen,
+ 						  scb->dma_direction);
+ 		scb->dma_type = MEGA_BULK_DATA;
+@@ -2357,8 +2360,7 @@
+ 		}
+
+ 		if( scb->dma_direction == PCI_DMA_TODEVICE ) {
+-			pci_dma_sync_single(adapter->host->pci_dev,
+-					scb->dma_h_bulkdata,
++			pci_dma_sync_single(adapter->dev, scb->dma_h_bulkdata,
+ 					cmd->request_bufflen,
+ 					PCI_DMA_TODEVICE);
+ 		}
+@@ -2373,7 +2375,7 @@
+ 	 *
+ 	 * The number of sg elements returned must not exceed our limit
+ 	 */
+-	sgcnt = pci_map_sg(adapter->host->pci_dev, sgl, cmd->use_sg,
++	sgcnt = pci_map_sg(adapter->dev, sgl, cmd->use_sg,
+ 			scb->dma_direction);
+
+ 	scb->dma_type = MEGA_SGLIST;
+@@ -2402,7 +2404,7 @@
+ 	*len = (u32)cmd->request_bufflen;
+
+ 	if( scb->dma_direction == PCI_DMA_TODEVICE ) {
+-		pci_dma_sync_sg(adapter->host->pci_dev, sgl, cmd->use_sg,
++		pci_dma_sync_sg(adapter->dev, sgl, cmd->use_sg,
+ 				PCI_DMA_TODEVICE);
+ 	}
+
+@@ -2633,19 +2635,6 @@
+ 	return buffer;
+ }
+
+-/* shouldn't be used, but included for completeness */
+-static int
+-megaraid_command (Scsi_Cmnd *cmd)
+-{
+-	printk(KERN_WARNING
+-	"megaraid critcal error: synchronous interface is not implemented.\n");
+-
+-	cmd->result = (DID_ERROR << 16);
+-	cmd->scsi_done(cmd);
+-
+-	return 1;
+-}
+-
+
+ /**
+  * megaraid_abort - abort the scsi command
+@@ -2663,13 +2652,13 @@
+ 	long			iter;
+ 	int			rval = SUCCESS;
+
+-	adapter = (adapter_t *)scp->host->hostdata;
++	adapter = (adapter_t *)scp->device->host->hostdata;
+
+ 	ASSERT( spin_is_locked(adapter->host_lock) );
+
+ 	printk("megaraid: aborting-%ld cmd=%x <c=%d t=%d l=%d>\n",
+-		scp->serial_number, scp->cmnd[0], scp->channel, scp->target,
+-		scp->lun);
++		scp->serial_number, scp->cmnd[0], scp->device->channel, scp->device->id,
++		scp->device->lun);
 
 
-I also get 90+ percent iowait under 2.6 and 0 iowait in 2.4.  I'm not sure 
-how the alleged suckiness of 2.6 paging fits into this.  On this system 
-the execution times are almost the same.  On this machine, in addition to 
-the iowait differences, there are cpu use statistics as reported by top.  
-On 2.4 idle time is 70 percent while on 2.6 the idle time is near zero 
-percent.  I'm not sure what the significance of this is.
---8323328-971606898-1072816226=:3152
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="report1.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0312301530260.3152@localhost.localdomain>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="report1.txt"
+ 	list_for_each_safe( pos, next, &adapter->pending_list ) {
+@@ -2752,20 +2741,20 @@
 
-Q1BVOiBQSUlJLCBzcGVlZCA2NDguMDcyIE1IeiAoZXN0aW1hdGVkKQ0KQ291
-bnRlZCBDUFVfQ0xLX1VOSEFMVEVEIGV2ZW50cyAoY2xvY2tzIHByb2Nlc3Nv
-ciBpcyBub3QgaGFsdGVkKSB3aXRoIGEgdW5pdCBtYXNrIG9mIDB4MDAgKE5v
-IHVuaXQgbWFzaykgY291bnQgMzI0MDM2DQogICAgOTE3ODAgNTUuODQ0MiB2
-bWxpbnV4DQogICAgNTEyMTkgMzEuMTY0NiBiaw0KICAgIDE1Mjk0ICA5LjMw
-NTcgbGliYy0yLjMuMi5zbw0KICAgICA0Njc0ICAyLjg0MzkgbGlicGVybC5z
-bw0KICAgICAgNjE4ICAwLjM3NjAgcGVybA0KICAgICAgMjY2ICAwLjE2MTgg
-b3Byb2ZpbGVkDQogICAgICAyNDkgIDAuMTUxNSBiYXNoDQogICAgICAxMTkg
-IDAuMDcyNCBsaWJwdGhyZWFkLTAuNjAuc28NCiAgICAgICA1NyAgMC4wMzQ3
-IHNlbmRtYWlsLnNlbmRtYWlsDQogICAgICAgMzggIDAuMDIzMSBsZC0yLjMu
-Mi5zbw0KICAgICAgIDIyICAwLjAxMzQgY3Vwc2QNCiAgICAgICAgOCAgMC4w
-MDQ5IGluaXQNCiAgICAgICAgNCAgMC4wMDI0IHN5c2xvZ2QNCiAgICAgICAg
-MSA2LjFlLTA0IGxpYmRsLTIuMy4yLnNvDQogICAgICAgIDEgNi4xZS0wNCBn
-cG0NCg==
 
---8323328-971606898-1072816226=:3152
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="report2.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0312301530261.3152@localhost.localdomain>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="report2.txt"
+ static int
+-megaraid_reset(Scsi_Cmnd *cmd)
++megaraid_reset(Scsi_Cmnd *scp)
+ {
+ 	adapter_t	*adapter;
+ 	megacmd_t	mc;
+ 	long		iter;
+ 	int		rval = SUCCESS;
 
-Q1BVOiBQSUlJLCBzcGVlZCA2NDguMDcyIE1IeiAoZXN0aW1hdGVkKQ0KQ291
-bnRlZCBDUFVfQ0xLX1VOSEFMVEVEIGV2ZW50cyAoY2xvY2tzIHByb2Nlc3Nv
-ciBpcyBub3QgaGFsdGVkKSB3aXRoIGEgdW5pdCBtYXNrIG9mIDB4MDAgKE5v
-IHVuaXQgbWFzaykgY291bnQgMzI0MDM2DQp2bWEgICAgICBzYW1wbGVzICAl
-ICAgICAgICAgICBzeW1ib2wgbmFtZQ0KYzAxMTVlMjAgMjI0OTggICAgMjIu
-Njc3NiAgICAgbWFya19vZmZzZXRfdHNjDQpjMDExMDA4MCAxMjcwNyAgICAx
-Mi44MDg0ICAgICBtYXNrX2FuZF9hY2tfODI1OUENCmMwMThlZWMwIDcxMTUg
-ICAgICA3LjE3MTggICAgIGV4dDNfZmluZF9lbnRyeQ0KYzAxMGZmNjAgNDAx
-MyAgICAgIDQuMDQ1MCAgICAgZW5hYmxlXzgyNTlBX2lycQ0KYzAxNjhkNTAg
-MjY1MCAgICAgIDIuNjcxMiAgICAgX19kX2xvb2t1cA0KYzAxNWViMTAgMTcy
-NyAgICAgIDEuNzQwOCAgICAgbGlua19wYXRoX3dhbGsNCmMwMTBhZmQwIDE0
-ODIgICAgICAxLjQ5MzggICAgIGlycV9lbnRyaWVzX3N0YXJ0DQpjMDI3Zjcz
-MCAxMzE2ICAgICAgMS4zMjY1ICAgICBpZGVfb3V0Yg0KYzAxMTY5MjAgMTA0
-MyAgICAgIDEuMDUxMyAgICAgYXBtX2Jpb3NfY2FsbF9zaW1wbGUNCmMwMTg3
-MTEwIDEwMDYgICAgICAxLjAxNDAgICAgIGZpbmRfbmV4dF91c2FibGVfYmxv
-Y2sNCmMwMjI1NzQwIDcxOCAgICAgICAwLjcyMzcgICAgIF9fY29weV9mcm9t
-X3VzZXJfbGwNCmMwMjI1MjAwIDY5MyAgICAgICAwLjY5ODUgICAgIGF0b21p
-Y19kZWNfYW5kX2xvY2sNCmMwMTBiODcwIDY2MiAgICAgICAwLjY2NzMgICAg
-IGFwaWNfdGltZXJfaW50ZXJydXB0DQpjMDEzZDNhMCA2NjEgICAgICAgMC42
-NjYzICAgICBrbWVtX2NhY2hlX2FsbG9jDQpjMDI3ZjZjMCA2NDAgICAgICAg
-MC42NDUxICAgICBpZGVfaW5iDQpjMDE5N2E0MCA1MzIgICAgICAgMC41MzYy
-ICAgICBleHQzX3Blcm1pc3Npb24NCmMwMTZhMmUwIDQ5OCAgICAgICAwLjUw
-MjAgICAgIGZpbmRfaW5vZGVfZmFzdA0KYzAyMjMzOTAgNDY2ICAgICAgIDAu
-NDY5NyAgICAgcmFkaXhfdHJlZV9sb29rdXANCmMwMTk4Y2YwIDQ2MCAgICAg
-ICAwLjQ2MzcgICAgIGRvX2dldF93cml0ZV9hY2Nlc3MNCmMwMTg5NGQwIDQz
-OSAgICAgICAwLjQ0MjUgICAgIGV4dDNfbmV3X2lub2RlDQpjMDE0MzU2MCA0
-MzIgICAgICAgMC40MzU0ICAgICBkb19hbm9ueW1vdXNfcGFnZQ0KYzAxMjdi
-ZjAgNDMwICAgICAgIDAuNDMzNCAgICAgcnVuX3RpbWVyX3NvZnRpcnENCmMw
-MTU1ZGYwIDQyOCAgICAgICAwLjQzMTQgICAgIGJsb2NrX3dyaXRlX2Z1bGxf
-cGFnZQ0KYzAxMTg0YjAgMzk4ICAgICAgIDAuNDAxMiAgICAgc21wX2FwaWNf
-dGltZXJfaW50ZXJydXB0DQpjMDIyNTQzMCAzOTYgICAgICAgMC4zOTkyICAg
-ICBzdHJuY3B5X2Zyb21fdXNlcg0KYzAxMjM3YzAgMzkxICAgICAgIDAuMzk0
-MSAgICAgZG9fc29mdGlycQ0KYzAxNTQwMDAgMzg5ICAgICAgIDAuMzkyMSAg
-ICAgX19maW5kX2dldF9ibG9jaw0KYzAxNTQ5MTAgMzgwICAgICAgIDAuMzgz
-MCAgICAgX19ibG9ja19wcmVwYXJlX3dyaXRlDQpjMDExYmU1MCAzNzkgICAg
-ICAgMC4zODIwICAgICBzY2hlZHVsZQ0KYzAxNjdjOTAgMzczICAgICAgIDAu
-Mzc2MCAgICAgZHB1dA0KYzAxYTAxODAgMzY2ICAgICAgIDAuMzY4OSAgICAg
-am91cm5hbF9hZGRfam91cm5hbF9oZWFkDQpjMDE1ZWE2MCAzNjEgICAgICAg
-MC4zNjM5ICAgICBkb19sb29rdXANCmMwMTNkNDYwIDM1NyAgICAgICAwLjM1
-OTkgICAgIGttZW1fY2FjaGVfZnJlZQ0KYzAxNTJmYTAgMzQ5ICAgICAgIDAu
-MzUxOCAgICAgX19maW5kX2dldF9ibG9ja19zbG93DQpjMDE5YWQ1MCAzNDQg
-ICAgICAgMC4zNDY3ICAgICBqb3VybmFsX2NvbW1pdF90cmFuc2FjdGlvbg0K
-YzAxMGQ0ODAgMzM5ICAgICAgIDAuMzQxNyAgICAgZG9fSVJRDQpjMDExYjlh
-MCAzMjcgICAgICAgMC4zMjk2ICAgICBzY2hlZHVsZXJfdGljaw0KYzAxNDRm
-MDAgMzAyICAgICAgIDAuMzA0NCAgICAgZG9fbW1hcF9wZ29mZg0KYzAxOGQ0
-MzAgMzAyICAgICAgIDAuMzA0NCAgICAgZXh0M19yZWFkX2lub2RlDQpjMDEw
-YWU1NyAyOTcgICAgICAgMC4yOTk0ICAgICBzeXNlbnRlcl9wYXN0X2VzcA0K
-YzAxNjg3YjAgMjg4ICAgICAgIDAuMjkwMyAgICAgZF9hbGxvYw0KYzAyNjAy
-OTAgMjY3ICAgICAgIDAuMjY5MSAgICAgX19tYWtlX3JlcXVlc3QNCmMwMjI1
-NmMwIDI2NCAgICAgICAwLjI2NjEgICAgIF9fY29weV90b191c2VyX2xsDQpj
-MDEzNzVmMCAyNjQgICAgICAgMC4yNjYxICAgICBnZW5lcmljX2ZpbGVfYWlv
-X3dyaXRlX25vbG9jaw0KYzAyNWVjMDAgMjQ4ICAgICAgIDAuMjUwMCAgICAg
-YmxrX3JxX21hcF9zZw0KYzAxM2QxZTAgMjQ2ICAgICAgIDAuMjQ4MCAgICAg
-ZnJlZV9ibG9jaw0KYzAxMjdhNjAgMjQ2ICAgICAgIDAuMjQ4MCAgICAgdXBk
-YXRlX29uZV9wcm9jZXNzDQpjMDEzNWM2MCAyNDMgICAgICAgMC4yNDQ5ICAg
-ICBmaW5kX2dldF9wYWdlDQpjMDE2ODE3MCAyMzUgICAgICAgMC4yMzY5ICAg
-ICBwcnVuZV9kY2FjaGUNCmMwMTcxNzkwIDIzNCAgICAgICAwLjIzNTkgICAg
-IGRvX21wYWdlX3JlYWRwYWdlDQpjMDE5YTgwMCAyMzEgICAgICAgMC4yMzI4
-ICAgICBfX2pvdXJuYWxfZmlsZV9idWZmZXINCmMwMTIzOGYwIDIyOSAgICAg
-ICAwLjIzMDggICAgIHJhaXNlX3NvZnRpcnENCmMwMTM5NmEwIDIyMCAgICAg
-ICAwLjIyMTggICAgIF9fcm1xdWV1ZQ0KYzAxOGFhYTAgMjE1ICAgICAgIDAu
-MjE2NyAgICAgZXh0M19nZXRfYmxvY2tfaGFuZGxlDQpjMDEzOWFmMCAyMTIg
-ICAgICAgMC4yMTM3ICAgICBidWZmZXJlZF9ybXF1ZXVlDQpjMDE4ZDcxMCAy
-MTAgICAgICAgMC4yMTE3ICAgICBleHQzX2RvX3VwZGF0ZV9pbm9kZQ0KYzAx
-MmRmMDAgMjEwICAgICAgIDAuMjExNyAgICAgc3VwcGxlbWVudGFsX2dyb3Vw
-X21lbWJlcg0KYzAyN2NlOTAgMjA4ICAgICAgIDAuMjA5NyAgICAgaWRlX2Rv
-X3JlcXVlc3QNCmMwMTBkMTIwIDIwNiAgICAgICAwLjIwNzYgICAgIGhhbmRs
-ZV9JUlFfZXZlbnQNCmMwMTBhZjBhIDIwNiAgICAgICAwLjIwNzYgICAgIHJl
-c3RvcmVfYWxsDQpjMDExMTIxMCAyMDEgICAgICAgMC4yMDI2ICAgICB0aW1l
-cl9pbnRlcnJ1cHQNCmMwMmEzNzgwIDE5MSAgICAgICAwLjE5MjUgICAgIGNm
-Yl9pbWFnZWJsaXQNCmMwMTUyODgwIDE5MCAgICAgICAwLjE5MTUgICAgIHdh
-a2VfdXBfYnVmZmVyDQpjMDEwZDI1MCAxODYgICAgICAgMC4xODc1ICAgICBu
-b3RlX2ludGVycnVwdA0KYzAxMzg5NzAgMTg1ICAgICAgIDAuMTg2NSAgICAg
-bWVtcG9vbF9hbGxvYw0KYzAxNTNmMDAgMTgzICAgICAgIDAuMTg0NSAgICAg
-YmhfbHJ1X2luc3RhbGwNCmMwMTJiZWQwIDE4MSAgICAgICAwLjE4MjQgICAg
-IGRvX3NpZ2FjdGlvbg0KYzAxNjk5NDAgMTgwICAgICAgIDAuMTgxNCAgICAg
-YWxsb2NfaW5vZGUNCmMwMTNjZmQwIDE4MCAgICAgICAwLjE4MTQgICAgIGNh
-Y2hlX2FsbG9jX3JlZmlsbA0KYzAxMGZmMDAgMTc4ICAgICAgIDAuMTc5NCAg
-ICAgZGlzYWJsZV84MjU5QV9pcnENCmMwMTk5ZDIwIDE3NSAgICAgICAwLjE3
-NjQgICAgIGpvdXJuYWxfc3RvcA0KYzAxMDk0OTAgMTc0ICAgICAgIDAuMTc1
-NCAgICAgX19zd2l0Y2hfdG8NCmMwMTBiODUwIDE3MiAgICAgICAwLjE3MzQg
-ICAgIGNvbW1vbl9pbnRlcnJ1cHQNCmMwMTVlNWMwIDE2NiAgICAgICAwLjE2
-NzMgICAgIHBlcm1pc3Npb24NCmMwMmQ3NWUwIDE2MiAgICAgICAwLjE2MzMg
-ICAgIGk4MDQyX2ludGVycnVwdA0KYzAxOGQwNTAgMTYxICAgICAgIDAuMTYy
-MyAgICAgZXh0M19nZXRfaW5vZGVfYmxvY2sNCmMwMTk4NDAwIDE2MSAgICAg
-ICAwLjE2MjMgICAgIHN0YXJ0X3RoaXNfaGFuZGxlDQpjMDE4YWY1MCAxNTgg
-ICAgICAgMC4xNTkzICAgICBleHQzX2dldGJsaw0KYzAxOTlmZjAgMTU2ICAg
-ICAgIDAuMTU3MiAgICAgX19qb3VybmFsX3VuZmlsZV9idWZmZXINCmMwMTg3
-NzkwIDE1NiAgICAgICAwLjE1NzIgICAgIGV4dDNfbmV3X2Jsb2NrDQpjMDEy
-Yzc3MCAxNTYgICAgICAgMC4xNTcyICAgICBub3RpZmllcl9jYWxsX2NoYWlu
-DQpjMDE1ZTkzMCAxNTQgICAgICAgMC4xNTUyICAgICBmb2xsb3dfbW91bnQN
-CmMwMjkwMGQwIDE1MyAgICAgICAwLjE1NDIgICAgIGlkZV9idWlsZF9kbWF0
-YWJsZQ0KYzAxMjc5NzAgMTUwICAgICAgIDAuMTUxMiAgICAgdXBkYXRlX3dh
-bGxfdGltZV9vbmVfdGljaw0KYzAxNTY3MTAgMTQ5ICAgICAgIDAuMTUwMiAg
-ICAgYmlvX2FsbG9jDQpjMDJhMzEyMCAxNDkgICAgICAgMC4xNTAyICAgICBi
-aXRjcHlfcmV2DQpjMDE4N2VjMCAxNDkgICAgICAgMC4xNTAyICAgICBleHQz
-X2NoZWNrX2Rpcl9lbnRyeQ0KYzAxNDU2ZjAgMTQ5ICAgICAgIDAuMTUwMiAg
-ICAgZmluZF92bWENCmMwMThhM2UwIDE0NyAgICAgICAwLjE0ODIgICAgIGV4
-dDNfZ2V0X2JyYW5jaA0KYzAxMTZiZDAgMTQ2ICAgICAgIDAuMTQ3MiAgICAg
-YXBtX2NwdV9pZGxlDQpjMDEyN2RjMCAxNDYgICAgICAgMC4xNDcyICAgICBk
-b190aW1lcg0KYzAxOGZhZTAgMTQ0ICAgICAgIDAuMTQ1MSAgICAgYWRkX2Rp
-cmVudF90b19idWYNCmMwMTI3YTIwIDE0MiAgICAgICAwLjE0MzEgICAgIHVw
-ZGF0ZV93YWxsX3RpbWUNCmMwMTE2YjIwIDE0MSAgICAgICAwLjE0MjEgICAg
-IGFwbV9kb19pZGxlDQpjMDI1Zjk3MCAxNDEgICAgICAgMC4xNDIxICAgICBn
-ZXRfcmVxdWVzdA0KYzAxNWY1ZjAgMTQxICAgICAgIDAuMTQyMSAgICAgcGF0
-aF9sb29rdXANCmMwMTNmYmMwIDEzOSAgICAgICAwLjE0MDEgICAgIHNocmlu
-a19jYWNoZQ0KYzAxOTk4NzAgMTM4ICAgICAgIDAuMTM5MSAgICAgam91cm5h
-bF9kaXJ0eV9tZXRhZGF0YQ0KYzAyYTJkZDAgMTM3ICAgICAgIDAuMTM4MSAg
-ICAgYml0Y3B5DQpjMDExYTNhMCAxMzcgICAgICAgMC4xMzgxICAgICBkb19w
-YWdlX2ZhdWx0DQpjMDE1YjFiMCAxMzYgICAgICAgMC4xMzcxICAgICBjcF9u
-ZXdfc3RhdDY0DQpjMDE5Yzg4MCAxMzUgICAgICAgMC4xMzYxICAgICBfX3Ry
-eV90b19mcmVlX2NwX2J1Zg0KYzAxMjdiODAgMTM1ICAgICAgIDAuMTM2MSAg
-ICAgdXBkYXRlX3Byb2Nlc3NfdGltZXMNCmMwMjYwODMwIDEyOSAgICAgICAw
-LjEzMDAgICAgIGdlbmVyaWNfbWFrZV9yZXF1ZXN0DQpjMDE2YWQ2MCAxMjYg
-ICAgICAgMC4xMjcwICAgICBpcHV0DQpjMDEzOTI1MCAxMjQgICAgICAgMC4x
-MjUwICAgICBiYWRfcmFuZ2UNCmMwMTQxZjgwIDEyNCAgICAgICAwLjEyNTAg
-ICAgIHphcF9wdGVfcmFuZ2UNCmMwMjY1NTgwIDEyMiAgICAgICAwLjEyMzAg
-ICAgIGFzX2Rpc3BhdGNoX3JlcXVlc3QNCmMwMTU2YTAwIDEyMiAgICAgICAw
-LjEyMzAgICAgIGJpb19hZGRfcGFnZQ0KYzAxNzBkZDAgMTIyICAgICAgIDAu
-MTIzMCAgICAgc3luY19zYl9pbm9kZXMNCmMwMTI3MzcwIDEyMSAgICAgICAw
-LjEyMjAgICAgIF9fbW9kX3RpbWVyDQpjMDEzNmJjMCAxMjEgICAgICAgMC4x
-MjIwICAgICBmaWxlbWFwX25vcGFnZQ0KYzAxMWIzNzAgMTIxICAgICAgIDAu
-MTIyMCAgICAgcmVjYWxjX3Rhc2tfcHJpbw0KYzAxNDM3NjAgMTIwICAgICAg
-IDAuMTIxMCAgICAgZG9fbm9fcGFnZQ0KYzAxOGEyOTAgMTIwICAgICAgIDAu
-MTIxMCAgICAgZXh0M19ibG9ja190b19wYXRoDQpjMDE4NzRmMCAxMjAgICAg
-ICAgMC4xMjEwICAgICBleHQzX3RyeV90b19hbGxvY2F0ZQ0KYzAxMzljNjAg
-MTE2ICAgICAgIDAuMTE2OSAgICAgX19hbGxvY19wYWdlcw0KYzAyN2Y3NDAg
-MTE1ICAgICAgIDAuMTE1OSAgICAgaWRlX291dGJzeW5jDQpjMDE1YWExMCAx
-MTIgICAgICAgMC4xMTI5ICAgICBnZW5lcmljX2ZpbGxhdHRyDQpjMDEyMDdm
-MCAxMTIgICAgICAgMC4xMTI5ICAgICBwcm9maWxlX2hvb2sNCmMwMTBiYWE4
-IDExMSAgICAgICAwLjExMTkgICAgIHBhZ2VfZmF1bHQNCmMwMTNiM2UwIDEx
-MCAgICAgICAwLjExMDkgICAgIF9fc2V0X3BhZ2VfZGlydHlfbm9idWZmZXJz
-DQpjMDExYjU0MCAxMDkgICAgICAgMC4xMDk5ICAgICB0cnlfdG9fd2FrZV91
-cA0KYzAxNTNkYjAgMTA4ICAgICAgIDAuMTA4OSAgICAgX19icmVsc2UNCmMw
-MTM5NjQwIDEwOCAgICAgICAwLjEwODkgICAgIHByZXBfbmV3X3BhZ2UNCmMw
-MzM5NzAwIDEwNyAgICAgICAwLjEwNzkgICAgIGluY3JlbWVudF90YWlsDQpj
-MDEyNzJiMCAxMDcgICAgICAgMC4xMDc5ICAgICBpbnRlcm5hbF9hZGRfdGlt
-ZXINCmMwMTJkZjQwIDEwNiAgICAgICAwLjEwNjggICAgIGluX2dyb3VwX3AN
-CmMwMjgxMjUwIDEwNCAgICAgICAwLjEwNDggICAgIGRvX3J3X3Rhc2tmaWxl
-DQpjMDE0N2QwMCAxMDQgICAgICAgMC4xMDQ4ICAgICBwYWdlX2FkZF9ybWFw
-DQpjMDEzNWFiMCAxMDQgICAgICAgMC4xMDQ4ICAgICB1bmxvY2tfcGFnZQ0K
-YzAxMzk5YzAgMTAzICAgICAgIDAuMTAzOCAgICAgZnJlZV9ob3RfY29sZF9w
-YWdlDQpjMDI3Zjc4MCAxMDIgICAgICAgMC4xMDI4ICAgICBpZGVfb3V0bA0K
-YzAxMmM0MDAgMTAxICAgICAgIDAuMTAxOCAgICAgc3lzX3J0X3NpZ2FjdGlv
-bg0KYzAyNjU4ZTAgOTkgICAgICAgIDAuMDk5OCAgICAgYXNfYWRkX3JlcXVl
-c3QNCmMwMjVlOWUwIDk3ICAgICAgICAwLjA5NzggICAgIGJsa19yZWNvdW50
-X3NlZ21lbnRzDQpjMDEwZmViMCA5NyAgICAgICAgMC4wOTc4ICAgICBlbmRf
-ODI1OUFfaXJxDQpjMDE4ZDE2MCA5NiAgICAgICAgMC4wOTY4ICAgICBleHQz
-X2dldF9pbm9kZV9sb2MNCmMwMTNmZWUwIDk2ICAgICAgICAwLjA5NjggICAg
-IHJlZmlsbF9pbmFjdGl2ZV96b25lDQpjMDE1MDgyMCA5NSAgICAgICAgMC4w
-OTU4ICAgICBnZXRfdW51c2VkX2ZkDQpjMDEzZWE2MCA5MyAgICAgICAgMC4w
-OTM3ICAgICBfX3BhZ2V2ZWNfbHJ1X2FkZA0KYzAyMjU1NjAgOTIgICAgICAg
-IDAuMDkyNyAgICAgX19jb3B5X3VzZXJfaW50ZWwNCmMwMWEwMmQwIDkxICAg
-ICAgICAwLjA5MTcgICAgIF9fam91cm5hbF9yZW1vdmVfam91cm5hbF9oZWFk
-DQpjMDE3MWI0MCA5MSAgICAgICAgMC4wOTE3ICAgICBtcGFnZV9yZWFkcGFn
-ZXMNCmMwMTE1ZGEwIDkxICAgICAgICAwLjA5MTcgICAgIHNjaGVkX2Nsb2Nr
-DQpjMDI2NGIyMCA4OCAgICAgICAgMC4wODg3ICAgICBhc191cGRhdGVfaW9o
-aXN0DQpjMDE2YTA0MCA4OCAgICAgICAgMC4wODg3ICAgICBwcnVuZV9pY2Fj
-aGUNCmMwMTQ1ZDUwIDg3ICAgICAgICAwLjA4NzcgICAgIGRvX211bm1hcA0K
-YzAxMWQ5ZDAgODcgICAgICAgIDAuMDg3NyAgICAgcHJlcGFyZV90b193YWl0
-DQpjMDI2NTM5MCA4NiAgICAgICAgMC4wODY3ICAgICBhc19tb3ZlX3RvX2Rp
-c3BhdGNoDQpjMDI3ZDYzMCA4NiAgICAgICAgMC4wODY3ICAgICBpZGVfaW50
-cg0KYzAxOGIyODAgODUgICAgICAgIDAuMDg1NyAgICAgd2Fsa19wYWdlX2J1
-ZmZlcnMNCmMwMTVlM2QwIDg0ICAgICAgICAwLjA4NDcgICAgIGdldG5hbWUN
-CmMwMTFjNGMwIDgyICAgICAgICAwLjA4MjcgICAgIF9fd2FrZV91cA0KYzAx
-NjlhZTAgODIgICAgICAgIDAuMDgyNyAgICAgaW5vZGVfaW5pdF9vbmNlDQpj
-MDE1ZmIxMCA4MSAgICAgICAgMC4wODE2ICAgICBtYXlfb3Blbg0KYzAyOGZl
-YjAgODAgICAgICAgIDAuMDgwNiAgICAgaWRlX2J1aWxkX3NnbGlzdA0KYzAx
-MWMzZTAgODAgICAgICAgIDAuMDgwNiAgICAgcHJlZW1wdF9zY2hlZHVsZQ0K
-YzAxNzA5YTAgNzkgICAgICAgIDAuMDc5NiAgICAgX19tYXJrX2lub2RlX2Rp
-cnR5DQpjMDFhMDRiMCA3OCAgICAgICAgMC4wNzg2ICAgICBqb3VybmFsX3B1
-dF9qb3VybmFsX2hlYWQNCmMwMTM1ODYwIDc3ICAgICAgICAwLjA3NzYgICAg
-IGFkZF90b19wYWdlX2NhY2hlDQpjMDEwYWRlMSA3NyAgICAgICAgMC4wNzc2
-ICAgICByZXRfZnJvbV9pbnRyDQpjMDE1NDBmMCA3NiAgICAgICAgMC4wNzY2
-ICAgICBfX2dldGJsaw0KYzAxODZhYTAgNzYgICAgICAgIDAuMDc2NiAgICAg
-ZXh0M19nZXRfZ3JvdXBfZGVzYw0KYzAxOTg3ZjAgNzYgICAgICAgIDAuMDc2
-NiAgICAgam91cm5hbF9zdGFydA0KYzAyMjM1NzAgNzYgICAgICAgIDAuMDc2
-NiAgICAgcmFkaXhfdHJlZV9kZWxldGUNCmMwMjIzOWIwIDc2ICAgICAgICAw
-LjA3NjYgICAgIHJiX2VyYXNlDQpjMDExYzQ1MCA3NSAgICAgICAgMC4wNzU2
-ICAgICBfX3dha2VfdXBfY29tbW9uDQpjMDI2NWM4MCA3NSAgICAgICAgMC4w
-NzU2ICAgICBhc19xdWV1ZV9lbXB0eQ0KYzAyN2NiZDAgNzQgICAgICAgIDAu
-MDc0NiAgICAgc3RhcnRfcmVxdWVzdA0KYzAyNjQ1NDAgNzMgICAgICAgIDAu
-MDczNiAgICAgYXNfY2hvb3NlX3JlcQ0KYzAyNjBjNzAgNzIgICAgICAgIDAu
-MDcyNiAgICAgX19lbmRfdGhhdF9yZXF1ZXN0X2ZpcnN0DQpjMDE5ZGQ1MCA3
-MiAgICAgICAgMC4wNzI2ICAgICBqb3VybmFsX2NhbmNlbF9yZXZva2UNCmMw
-MTNlNjIwIDcyICAgICAgICAwLjA3MjYgICAgIG1hcmtfcGFnZV9hY2Nlc3Nl
-ZA0KYzAyYTI2MzAgNzEgICAgICAgIDAuMDcxNiAgICAgYml0ZmlsbDMyDQpj
-MDE1NjBlMCA3MSAgICAgICAgMC4wNzE2ICAgICBsbF9yd19ibG9jaw0KYzAy
-ODdjMDAgNzAgICAgICAgIDAuMDcwNiAgICAgbGJhXzI4X3J3X2Rpc2sNCmMw
-MTNkOTYwIDcwICAgICAgICAwLjA3MDYgICAgIHJlYXBfdGltZXJfZm5jDQpj
-MDE0M2MwMCA2OSAgICAgICAgMC4wNjk2ICAgICBoYW5kbGVfbW1fZmF1bHQN
-CmMwMTM1OWIwIDY5ICAgICAgICAwLjA2OTYgICAgIHBhZ2Vfd2FpdHF1ZXVl
-DQpjMDE1NDUyMCA2OCAgICAgICAgMC4wNjg1ICAgICBfX2Jsb2NrX3dyaXRl
-X2Z1bGxfcGFnZQ0KYzAxOWU2MzAgNjggICAgICAgIDAuMDY4NSAgICAgam91
-cm5hbF93cml0ZV9tZXRhZGF0YV9idWZmZXINCmMwMjVmNGUwIDY3ICAgICAg
-ICAwLjA2NzUgICAgIGJsa19ydW5fcXVldWVzDQpjMDEzOGFkMCA2NyAgICAg
-ICAgMC4wNjc1ICAgICBtZW1wb29sX2ZyZWUNCmMwMTUyOGIwIDY3ICAgICAg
-ICAwLjA2NzUgICAgIHVubG9ja19idWZmZXINCmMwMThkZTkwIDY2ICAgICAg
-ICAwLjA2NjUgICAgIGV4dDNfZGlydHlfaW5vZGUNCmMwMjIzMmQwIDY2ICAg
-ICAgICAwLjA2NjUgICAgIHJhZGl4X3RyZWVfaW5zZXJ0DQpjMDMzOTcyMCA2
-NiAgICAgICAgMC4wNjY1ICAgICBzeW5jX2J1ZmZlcg0KYzAxNzBhZTAgNjUg
-ICAgICAgIDAuMDY1NSAgICAgX19zeW5jX3NpbmdsZV9pbm9kZQ0KYzAxMGQz
-ODAgNjUgICAgICAgIDAuMDY1NSAgICAgZW5hYmxlX2lycQ0KYzAyN2JlZTAg
-NjUgICAgICAgIDAuMDY1NSAgICAgaWRlX2VuZF9yZXF1ZXN0DQpjMDI4MDdk
-MCA2NSAgICAgICAgMC4wNjU1ICAgICBpZGVfZXhlY3V0ZV9jb21tYW5kDQpj
-MDEwZGRlMCA2NCAgICAgICAgMC4wNjQ1ICAgICBkaXNhYmxlX2lycV9ub3N5
-bmMNCmMwMTZhNTIwIDY0ICAgICAgICAwLjA2NDUgICAgIGdldF9uZXdfaW5v
-ZGVfZmFzdA0KYzAxOTk2ODAgNjQgICAgICAgIDAuMDY0NSAgICAgam91cm5h
-bF9kaXJ0eV9kYXRhDQpjMDEzZjY2MCA2NCAgICAgICAgMC4wNjQ1ICAgICBz
-aHJpbmtfbGlzdA0KYzAxNWFhYjAgNjQgICAgICAgIDAuMDY0NSAgICAgdmZz
-X2dldGF0dHINCmMwMTUxNTUwIDY0ICAgICAgICAwLjA2NDUgICAgIHZmc193
-cml0ZQ0KYzAxMTYxMDAgNjMgICAgICAgIDAuMDYzNSAgICAgZGVsYXlfdHNj
-DQpjMDE1NWY3MCA2MyAgICAgICAgMC4wNjM1ICAgICBzdWJtaXRfYmgNCmMw
-MjYwOWMwIDYzICAgICAgICAwLjA2MzUgICAgIHN1Ym1pdF9iaW8NCmMwMjY0
-ZTEwIDYyICAgICAgICAwLjA2MjUgICAgIGFzX2NvbXBsZXRlZF9yZXF1ZXN0
-DQpjMDE4ZGUzMCA2MiAgICAgICAgMC4wNjI1ICAgICBleHQzX21hcmtfaW5v
-ZGVfZGlydHkNCmMwMjYxMjMwIDYyICAgICAgICAwLjA2MjUgICAgIGdldF9p
-b19jb250ZXh0DQpjMDIyMzNmMCA2MSAgICAgICAgMC4wNjE1ICAgICBfX2xv
-b2t1cA0KYzAxM2JkMjAgNjEgICAgICAgIDAuMDYxNSAgICAgZG9fcGFnZV9j
-YWNoZV9yZWFkYWhlYWQNCmMwMjY0NDgwIDYwICAgICAgICAwLjA2MDUgICAg
-IGFzX2FkZF9hcnFfcmINCmMwMjY1ODkwIDYwICAgICAgICAwLjA2MDUgICAg
-IGFzX25leHRfcmVxdWVzdA0KYzAyNjY0YTAgNjAgICAgICAgIDAuMDYwNSAg
-ICAgYXNfc2V0X3JlcXVlc3QNCmMwMTM5MzYwIDYwICAgICAgICAwLjA2MDUg
-ICAgIGZyZWVfcGFnZXNfYnVsaw0KYzAyNjQ5YTAgNTkgICAgICAgIDAuMDU5
-NSAgICAgYXNfY2FuX2JyZWFrX2FudGljaXBhdGlvbg0KYzAxMjc1ZjAgNTkg
-ICAgICAgIDAuMDU5NSAgICAgZGVsX3RpbWVyDQpjMDI4MjNmMCA1OSAgICAg
-ICAgMC4wNTk1ICAgICBpZGVfaGFuZGxlcl9wYXJzZXINCmMwMTNlODIwIDU5
-ICAgICAgICAwLjA1OTUgICAgIHJlbGVhc2VfcGFnZXMNCmMwMTVmYTMwIDU5
-ICAgICAgICAwLjA1OTUgICAgIHZmc19jcmVhdGUNCmMwMTQ0YzEwIDU5ICAg
-ICAgICAwLjA1OTUgICAgIHZtYV9tZXJnZQ0KYzAyMjM3ZjAgNTggICAgICAg
-IDAuMDU4NSAgICAgX19yYl9lcmFzZV9jb2xvcg0KYzAxOGIzODAgNTggICAg
-ICAgIDAuMDU4NSAgICAgZXh0M19wcmVwYXJlX3dyaXRlDQpjMDE3MjJlMCA1
-OCAgICAgICAgMC4wNTg1ICAgICBtcGFnZV93cml0ZXBhZ2VzDQpjMDI1ZmVl
-MCA1NyAgICAgICAgMC4wNTc1ICAgICBkaXNrX3JvdW5kX3N0YXRzDQpjMDE1
-ZjhjMCA1NiAgICAgICAgMC4wNTY0ICAgICBfX3VzZXJfd2Fsaw0KYzAyMzQ0
-MTAgNTYgICAgICAgIDAuMDU2NCAgICAgYWRkX3RpbWVyX3JhbmRvbW5lc3MN
-CmMwMjY1MzAwIDU2ICAgICAgICAwLjA1NjQgICAgIGFzX2ZpZm9fZXhwaXJl
-ZA0KYzAxOGY0ZjAgNTYgICAgICAgIDAuMDU2NCAgICAgZXh0M19sb29rdXAN
-CmMwMThhOGEwIDU2ICAgICAgICAwLjA1NjQgICAgIGV4dDNfc3BsaWNlX2Jy
-YW5jaA0KYzAyMjUzNDAgNTYgICAgICAgIDAuMDU2NCAgICAgbWVtY3B5DQpj
-MDE0MmM1MCA1NSAgICAgICAgMC4wNTU0ICAgICBkb193cF9wYWdlDQpjMDI1
-ZmU1MCA1NSAgICAgICAgMC4wNTU0ICAgICBkcml2ZV9zdGF0X2FjY3QNCmMw
-MjdmZTkwIDU1ICAgICAgICAwLjA1NTQgICAgIGlkZV93YWl0X3N0YXQNCmMw
-MTQ3ZGQwIDU1ICAgICAgICAwLjA1NTQgICAgIHBhZ2VfcmVtb3ZlX3JtYXAN
-CmMwMTUyNDUwIDU0ICAgICAgICAwLjA1NDQgICAgIF9fZnB1dA0KYzAyNjRm
-ZjAgNTQgICAgICAgIDAuMDU0NCAgICAgYXNfcmVtb3ZlX3F1ZXVlZF9yZXF1
-ZXN0DQpjMDE4ZGQ2MCA1NCAgICAgICAgMC4wNTQ0ICAgICBleHQzX3Jlc2Vy
-dmVfaW5vZGVfd3JpdGUNCmMwMjVmOGIwIDU0ICAgICAgICAwLjA1NDQgICAg
-IGZyZWVkX3JlcXVlc3QNCmMwMjkwNTkwIDU0ICAgICAgICAwLjA1NDQgICAg
-IGlkZV9zdGFydF9kbWENCmMwMTk5NTUwIDU0ICAgICAgICAwLjA1NDQgICAg
-IGpvdXJuYWxfZ2V0X3VuZG9fYWNjZXNzDQpjMDE5OTMwMCA1MyAgICAgICAg
-MC4wNTM0ICAgICBqb3VybmFsX2dldF93cml0ZV9hY2Nlc3MNCmMwMTVlNzgw
-IDUzICAgICAgICAwLjA1MzQgICAgIHJlYWxfbG9va3VwDQpjMDEzZTU3MCA1
-MiAgICAgICAgMC4wNTI0ICAgICBhY3RpdmF0ZV9wYWdlDQpjMDI2NDM3MCA1
-MiAgICAgICAgMC4wNTI0ICAgICBhc19hZGRfYXJxX2hhc2gNCmMwMjVkOWQw
-IDUyICAgICAgICAwLjA1MjQgICAgIGVsdl9xdWV1ZV9lbXB0eQ0KYzAxNWZj
-ZDAgNTIgICAgICAgIDAuMDUyNCAgICAgb3Blbl9uYW1laQ0KYzAyMjM3MDAg
-NTIgICAgICAgIDAuMDUyNCAgICAgcmJfaW5zZXJ0X2NvbG9yDQpjMDEzYjlk
-MCA1MiAgICAgICAgMC4wNTI0ICAgICByZWFkX3BhZ2VzDQpjMDE1MmFlMCA1
-MSAgICAgICAgMC4wNTE0ICAgICBlbmRfYnVmZmVyX3dyaXRlX3N5bmMNCmMw
-MThkY2EwIDUxICAgICAgICAwLjA1MTQgICAgIGV4dDNfd3JpdGVwYWdlX3Ry
-YW5zX2Jsb2Nrcw0KYzAxNDVhNzAgNTEgICAgICAgIDAuMDUxNCAgICAgdW5t
-YXBfcmVnaW9uDQpjMDE0MjIwMCA1MSAgICAgICAgMC4wNTE0ICAgICB1bm1h
-cF92bWFzDQpjMDEyZWRlMCA1MSAgICAgICAgMC4wNTE0ICAgICB3b3JrZXJf
-dGhyZWFkDQpjMDE1NDQwMCA1MCAgICAgICAgMC4wNTA0ICAgICBjcmVhdGVf
-ZW1wdHlfYnVmZmVycw0KYzAxNjg5ODAgNTAgICAgICAgIDAuMDUwNCAgICAg
-ZF9pbnN0YW50aWF0ZQ0KYzAxNDU1YjAgNTAgICAgICAgIDAuMDUwNCAgICAg
-Z2V0X3VubWFwcGVkX2FyZWENCmMwMTNhZTMwIDQ5ICAgICAgICAwLjA0OTQg
-ICAgIGJhbGFuY2VfZGlydHlfcGFnZXNfcmF0ZWxpbWl0ZWQNCmMwMTM1Yjkw
-IDQ4ICAgICAgICAwLjA0ODQgICAgIF9fbG9ja19wYWdlDQpjMDI2NTIyMCA0
-OCAgICAgICAgMC4wNDg0ICAgICBhc19yZW1vdmVfcmVxdWVzdA0KYzAxNmIy
-ZTAgNDggICAgICAgIDAuMDQ4NCAgICAgaW5vZGVfY2hhbmdlX29rDQpjMDE0
-MWE3MCA0OCAgICAgICAgMC4wNDg0ICAgICBwdGVfYWxsb2NfbWFwDQpjMDIy
-MzFjMCA0OCAgICAgICAgMC4wNDg0ICAgICByYWRpeF90cmVlX3ByZWxvYWQN
-CmMwMTZiMjAwIDQ4ICAgICAgICAwLjA0ODQgICAgIHdha2VfdXBfaW5vZGUN
-CmMwMjM0NWMwIDQ3ICAgICAgICAwLjA0NzQgICAgIGFkZF9kaXNrX3JhbmRv
-bW5lc3MNCmMwMTUyODYwIDQ3ICAgICAgICAwLjA0NzQgICAgIGJoX3dhaXRx
-X2hlYWQNCmMwMTY3YzEwIDQ3ICAgICAgICAwLjA0NzQgICAgIGRfY2FsbGJh
-Y2sNCmMwMThiNTgwIDQ3ICAgICAgICAwLjA0NzQgICAgIGV4dDNfb3JkZXJl
-ZF9jb21taXRfd3JpdGUNCmMwMTQ1OTEwIDQ3ICAgICAgICAwLjA0NzQgICAg
-IGZyZWVfcGd0YWJsZXMNCmMwMTZhOTYwIDQ3ICAgICAgICAwLjA0NzQgICAg
-IGlnZXRfbG9ja2VkDQpjMDI2NWNmMCA0NiAgICAgICAgMC4wNDY0ICAgICBh
-c19tZXJnZQ0KYzAxOTAwZTAgNDYgICAgICAgIDAuMDQ2NCAgICAgZXh0M19h
-ZGRfZW50cnkNCmMwMThkYjAwIDQ2ICAgICAgICAwLjA0NjQgICAgIGV4dDNf
-c2V0YXR0cg0KYzAxOTI5MTAgNDUgICAgICAgIDAuMDQ1NCAgICAgZXh0M19h
-bGxvY19pbm9kZQ0KYzAxMTE1YzAgNDQgICAgICAgIDAuMDQ0NCAgICAgc3lz
-X21tYXAyDQpjMDE2N2M1MCA0MyAgICAgICAgMC4wNDMzICAgICBkX2ZyZWUN
-CmMwMTVhYmIwIDQzICAgICAgICAwLjA0MzMgICAgIHZmc19sc3RhdA0KYzAy
-MWZlMzAgNDIgICAgICAgIDAuMDQyMyAgICAgY2FwX3ZtX2Vub3VnaF9tZW1v
-cnkNCmMwMjgyMzUwIDQyICAgICAgICAwLjA0MjMgICAgIGlkZV9wcmVfaGFu
-ZGxlcl9wYXJzZXINCmMwMTQ0NzcwIDQyICAgICAgICAwLjA0MjMgICAgIHJl
-bW92ZV9zaGFyZWRfdm1fc3RydWN0DQpjMDEzOTdjMCA0MiAgICAgICAgMC4w
-NDIzICAgICBybXF1ZXVlX2J1bGsNCmMwMTQyMTgwIDQyICAgICAgICAwLjA0
-MjMgICAgIHVubWFwX3BhZ2VfcmFuZ2UNCmMwMjY1YjkwIDQxICAgICAgICAw
-LjA0MTMgICAgIGFzX2luc2VydF9yZXF1ZXN0DQpjMDE0MTYyMCA0MSAgICAg
-ICAgMC4wNDEzICAgICBibGtfcXVldWVfYm91bmNlDQpjMDEzNWQzMCA0MSAg
-ICAgICAgMC4wNDEzICAgICBmaW5kX2xvY2tfcGFnZQ0KYzAxNDU3NjAgNDEg
-ICAgICAgIDAuMDQxMyAgICAgZmluZF92bWFfcHJldg0KYzAxNTIyODAgNDEg
-ICAgICAgIDAuMDQxMyAgICAgZ2V0X2VtcHR5X2ZpbHANCmMwMTZiNjUwIDQx
-ICAgICAgICAwLjA0MTMgICAgIG5vdGlmeV9jaGFuZ2UNCmMwMjY0NTAwIDQw
-ICAgICAgICAwLjA0MDMgICAgIGFzX2ZpbmRfYXJxX3JiDQpjMDE5MjA5MCA0
-MCAgICAgICAgMC4wNDAzICAgICBleHQzX2pvdXJuYWxfc3RhcnQNCmMwMjgy
-NDkwIDQwICAgICAgICAwLjA0MDMgICAgIGlkZV9jbWRfdHlwZV9wYXJzZXIN
-CmMwMTk4N2EwIDQwICAgICAgICAwLjA0MDMgICAgIG5ld19oYW5kbGUNCmMw
-MTZhMzUwIDQwICAgICAgICAwLjA0MDMgICAgIG5ld19pbm9kZQ0KYzAxNDgy
-MzAgMzkgICAgICAgIDAuMDM5MyAgICAgX19wdGVfY2hhaW5fZnJlZQ0KYzAx
-NTcwYzAgMzkgICAgICAgIDAuMDM5MyAgICAgYmlvX2VuZGlvDQpjMDI3ZmRi
-MCAzOSAgICAgICAgMC4wMzkzICAgICBkcml2ZV9pc19yZWFkeQ0KYzAxOGQz
-ZDAgMzkgICAgICAgIDAuMDM5MyAgICAgZXh0M19zZXRfaW5vZGVfZmxhZ3MN
-CmMwMjg3ZGUwIDM5ICAgICAgICAwLjAzOTMgICAgIGlkZV9kb19yd19kaXNr
-DQpjMDE0NTliMCAzOSAgICAgICAgMC4wMzkzICAgICB1bm1hcF92bWENCmMw
-MTUyNzcwIDM4ICAgICAgICAwLjAzODMgICAgIF9fY29uc3RhbnRfY19hbmRf
-Y291bnRfbWVtc2V0DQpjMDI4NzkxMCAzOCAgICAgICAgMC4wMzgzICAgICBf
-X2lkZV9kb19yd19kaXNrDQpjMDE1NjZiMCAzOCAgICAgICAgMC4wMzgzICAg
-ICBiaW9fZGVzdHJ1Y3Rvcg0KYzAyNWYxZjAgMzggICAgICAgIDAuMDM4MyAg
-ICAgYmxrX3BsdWdfZGV2aWNlDQpjMDE1NjI4MCAzOCAgICAgICAgMC4wMzgz
-ICAgICBkcm9wX2J1ZmZlcnMNCmMwMTFkYWQwIDM4ICAgICAgICAwLjAzODMg
-ICAgIGZpbmlzaF93YWl0DQpjMDE2YjQ2MCAzOCAgICAgICAgMC4wMzgzICAg
-ICBpbm9kZV9zZXRhdHRyDQpjMDE0NWYwMCAzOCAgICAgICAgMC4wMzgzICAg
-ICBzeXNfbXVubWFwDQpjMDI5MDdlMCAzNyAgICAgICAgMC4wMzczICAgICBf
-X2lkZV9kbWFfYmVnaW4NCmMwMTNlYjYwIDM3ICAgICAgICAwLjAzNzMgICAg
-IF9fcGFnZXZlY19scnVfYWRkX2FjdGl2ZQ0KYzAxNTNhMDAgMzcgICAgICAg
-IDAuMDM3MyAgICAgY3JlYXRlX2J1ZmZlcnMNCmMwMTIzNzQwIDM3ICAgICAg
-ICAwLjAzNzMgICAgIGN1cnJlbnRfa2VybmVsX3RpbWUNCmMwMjVkODgwIDM3
-ICAgICAgICAwLjAzNzMgICAgIGVsdl9uZXh0X3JlcXVlc3QNCmMwMTQ0OGYw
-IDM3ICAgICAgICAwLjAzNzMgICAgIGZpbmRfdm1hX3ByZXBhcmUNCmMwMjg3
-YTMwIDM3ICAgICAgICAwLjAzNzMgICAgIGdldF9jb21tYW5kDQpjMDI4ZmUw
-MCAzNyAgICAgICAgMC4wMzczICAgICBpZGVfZG1hX2ludHINCmMwMjIzYWYw
-IDM3ICAgICAgICAwLjAzNzMgICAgIHJiX25leHQNCmMwMTUwMzQwIDM3ICAg
-ICAgICAwLjAzNzMgICAgIHN5c19jaG1vZA0KYzAyMjUyZDAgMzYgICAgICAg
-IDAuMDM2MyAgICAgX19jb25zdF91ZGVsYXkNCmMwMzM5OGIwIDM2ICAgICAg
-ICAwLjAzNjMgICAgIGFkZF9ldmVudF9lbnRyeQ0KYzAyNjQzYzAgMzYgICAg
-ICAgIDAuMDM2MyAgICAgYXNfZmluZF9hcnFfaGFzaA0KYzAxMWIzMjAgMzYg
-ICAgICAgIDAuMDM2MyAgICAgZWZmZWN0aXZlX3ByaW8NCmMwMTNhMTIwIDM2
-ICAgICAgICAwLjAzNjMgICAgIG5yX2ZyZWVfcGFnZXMNCmMwMTUzNDIwIDM1
-ICAgICAgICAwLjAzNTMgICAgIGlub2RlX2hhc19idWZmZXJzDQpjMDE5YWNh
-MCAzNSAgICAgICAgMC4wMzUzICAgICBqb3VybmFsX2VuZF9idWZmZXJfaW9f
-c3luYw0KYzAxOGE1ZjAgMzQgICAgICAgIDAuMDM0MyAgICAgZXh0M19hbGxv
-Y19icmFuY2gNCmMwMTViM2EwIDM0ICAgICAgICAwLjAzNDMgICAgIGlub2Rl
-X2FkZF9ieXRlcw0KYzAxNjcyMjAgMzQgICAgICAgIDAuMDM0MyAgICAgbG9j
-a3NfcmVtb3ZlX3Bvc2l4DQpjMDI1ZDdkMCAzMyAgICAgICAgMC4wMzMzICAg
-ICBfX2Vsdl9hZGRfcmVxdWVzdA0KYzAyOTA4ZDAgMzMgICAgICAgIDAuMDMz
-MyAgICAgX19pZGVfZG1hX3Rlc3RfaXJxDQpjMDI2NGNmMCAzMyAgICAgICAg
-MC4wMzMzICAgICBhc191cGRhdGVfYXJxDQpjMDEzY2Q0MCAzMyAgICAgICAg
-MC4wMzMzICAgICBjYWNoZV9ncm93DQpjMDEzYjg2MCAzMyAgICAgICAgMC4w
-MzMzICAgICBmaWxlX3JhX3N0YXRlX2luaXQNCmMwMmNiMmUwIDMzICAgICAg
-ICAwLjAzMzMgICAgIHN0YWxsX2NhbGxiYWNrDQpjMDE2YWU4MCAzMyAgICAg
-ICAgMC4wMzMzICAgICB1cGRhdGVfYXRpbWUNCmMwMjkwNjQwIDMyICAgICAg
-ICAwLjAzMjMgICAgIF9faWRlX2RtYV9yZWFkDQpjMDE2OTBhMCAzMiAgICAg
-ICAgMC4wMzIzICAgICBkX3JlaGFzaA0KYzAxODhhZDAgMzIgICAgICAgIDAu
-MDMyMyAgICAgZXh0M19maWxlX3dyaXRlDQpjMDE1MGIxMCAzMiAgICAgICAg
-MC4wMzIzICAgICBmaWxwX2Nsb3NlDQpjMDE2YWUzMCAzMiAgICAgICAgMC4w
-MzIzICAgICBpbm9kZV90aW1lc19kaWZmZXINCmMwMTZhZjYwIDMyICAgICAg
-ICAwLjAzMjMgICAgIGlub2RlX3VwZGF0ZV90aW1lDQpjMDFhMDBkMCAzMiAg
-ICAgICAgMC4wMzIzICAgICBqb3VybmFsX2FsbG9jX2pvdXJuYWxfaGVhZA0K
-YzAxNDgyYjAgMzIgICAgICAgIDAuMDMyMyAgICAgcHRlX2NoYWluX2FsbG9j
-DQpjMDE5MjEwMCAzMSAgICAgICAgMC4wMzEyICAgICBfX2V4dDNfam91cm5h
-bF9zdG9wDQpjMDI5MDgzMCAzMSAgICAgICAgMC4wMzEyICAgICBfX2lkZV9k
-bWFfZW5kDQpjMDE1MTQ5MCAzMSAgICAgICAgMC4wMzEyICAgICBkb19zeW5j
-X3dyaXRlDQpjMDE1MzI2MCAzMSAgICAgICAgMC4wMzEyICAgICBlbmRfYnVm
-ZmVyX2FzeW5jX3dyaXRlDQpjMDEzODI0MCAzMSAgICAgICAgMC4wMzEyICAg
-ICBnZW5lcmljX2ZpbGVfYWlvX3dyaXRlDQpjMDE0ZmY0MCAzMSAgICAgICAg
-MC4wMzEyICAgICBzeXNfYWNjZXNzDQpjMDI1ZmYzMCAzMCAgICAgICAgMC4w
-MzAyICAgICBfX2Jsa19wdXRfcmVxdWVzdA0KYzAxNTRkMzAgMzAgICAgICAg
-IDAuMDMwMiAgICAgX19ibG9ja19jb21taXRfd3JpdGUNCmMwMjkwOWIwIDMw
-ICAgICAgICAwLjAzMDIgICAgIF9faWRlX2RtYV9jb3VudA0KYzAxNDViNTAg
-MzAgICAgICAgIDAuMDMwMiAgICAgZGV0YWNoX3ZtYXNfdG9fYmVfdW5tYXBw
-ZWQNCmMwMTNkN2UwIDMwICAgICAgICAwLjAzMDIgICAgIGRyYWluX2FycmF5
-DQpjMDJhMjFlMCAzMCAgICAgICAgMC4wMzAyICAgICBzb2Z0X2N1cnNvcg0K
-YzAxNTBiYTAgMzAgICAgICAgIDAuMDMwMiAgICAgc3lzX2Nsb3NlDQpjMDE1
-NjUwMCAyOSAgICAgICAgMC4wMjkyICAgICBhbGxvY19idWZmZXJfaGVhZA0K
-YzAyNWRjZDAgMjkgICAgICAgIDAuMDI5MiAgICAgZWx2X3RyeV9sYXN0X21l
-cmdlDQpjMDE1MGExMCAyOSAgICAgICAgMC4wMjkyICAgICBmZF9pbnN0YWxs
-DQpjMDI2NTExMCAyOCAgICAgICAgMC4wMjgyICAgICBhc19yZW1vdmVfZGlz
-cGF0Y2hlZF9yZXF1ZXN0DQpjMDE2YzBlMCAyOCAgICAgICAgMC4wMjgyICAg
-ICBkbm90aWZ5X3BhcmVudA0KYzAyN2QyMzAgMjggICAgICAgIDAuMDI4MiAg
-ICAgZG9faWRlX3JlcXVlc3QNCmMwMTU1ZjMwIDI4ICAgICAgICAwLjAyODIg
-ICAgIGVuZF9iaW9fYmhfaW9fc3luYw0KYzAxOGE0ZDAgMjggICAgICAgIDAu
-MDI4MiAgICAgZXh0M19maW5kX25lYXINCmMwMTk3YzAwIDI4ICAgICAgICAw
-LjAyODIgICAgIGV4dDNfaW5pdF9hY2wNCmMwMTg4YTIwIDI4ICAgICAgICAw
-LjAyODIgICAgIGV4dDNfcmVsZWFzZV9maWxlDQpjMDE1MDY1MCAyOCAgICAg
-ICAgMC4wMjgyICAgICBmaWxwX29wZW4NCmMwMzM5MzIwIDI4ICAgICAgICAw
-LjAyODIgICAgIGdldF9leGVjX2Rjb29raWUNCmMwMTM4YjkwIDI4ICAgICAg
-ICAwLjAyODIgICAgIG1lbXBvb2xfYWxsb2Nfc2xhYg0KYzAxOGIxZDAgMjcg
-ICAgICAgIDAuMDI3MiAgICAgZXh0M19icmVhZA0KYzAxMzVlZDAgMjcgICAg
-ICAgIDAuMDI3MiAgICAgZmluZF9nZXRfcGFnZXMNCmMwMjYxMTQwIDI3ICAg
-ICAgICAwLjAyNzIgICAgIHB1dF9pb19jb250ZXh0DQpjMDE2YjVmMCAyNyAg
-ICAgICAgMC4wMjcyICAgICBzZXRhdHRyX21hc2sNCmMwMjlkODYwIDI3ICAg
-ICAgICAwLjAyNzIgICAgIHN5c19vdXRidWYNCmMwMTZhYTIwIDI2ICAgICAg
-ICAwLjAyNjIgICAgIF9faW5zZXJ0X2lub2RlX2hhc2gNCmMwMTUzNjIwIDI2
-ICAgICAgICAwLjAyNjIgICAgIF9fc2V0X3BhZ2VfZGlydHlfYnVmZmVycw0K
-YzAyNjQ2NzAgMjYgICAgICAgIDAuMDI2MiAgICAgYXNfZmluZF9uZXh0X2Fy
-cQ0KYzAyNjBlYzAgMjYgICAgICAgIDAuMDI2MiAgICAgZW5kX3RoYXRfcmVx
-dWVzdF9sYXN0DQpjMDEwYjhkOCAyNiAgICAgICAgMC4wMjYyICAgICBlcnJv
-cl9jb2RlDQpjMDFhMDI5MCAyNiAgICAgICAgMC4wMjYyICAgICBqb3VybmFs
-X2dyYWJfam91cm5hbF9oZWFkDQpjMDI1ZWQ2MCAyNiAgICAgICAgMC4wMjYy
-ICAgICBsbF9iYWNrX21lcmdlX2ZuDQpjMDE3MTU0MCAyNiAgICAgICAgMC4w
-MjYyICAgICBtcGFnZV9lbmRfaW9fcmVhZA0KYzAxMmZiNTAgMjYgICAgICAg
-IDAuMDI2MiAgICAgcmN1X2RvX2JhdGNoDQpjMDEyN2RiMCAyNiAgICAgICAg
-MC4wMjYyICAgICBydW5fbG9jYWxfdGltZXJzDQpjMDE1M2M2MCAyNSAgICAg
-ICAgMC4wMjUyICAgICBfX2dldGJsa19zbG93DQpjMDE1NjhlMCAyNSAgICAg
-ICAgMC4wMjUyICAgICBiaW9fcHV0DQpjMDE2OWM4MCAyNSAgICAgICAgMC4w
-MjUyICAgICBjbGVhcl9pbm9kZQ0KYzAxOGE1NjAgMjUgICAgICAgIDAuMDI1
-MiAgICAgZXh0M19maW5kX2dvYWwNCmMwMThiOTIwIDI1ICAgICAgICAwLjAy
-NTIgICAgIGV4dDNfb3JkZXJlZF93cml0ZXBhZ2UNCmMwMTI4ZWEwIDI1ICAg
-ICAgICAwLjAyNTIgICAgIHJtX2Zyb21fcXVldWUNCmMwMTQ0YTQwIDI1ICAg
-ICAgICAwLjAyNTIgICAgIHZtYV9saW5rDQpjMDI2NDhlMCAyNCAgICAgICAg
-MC4wMjQyICAgICBhc19jbG9zZV9yZXENCmMwMjVmMzcwIDI0ICAgICAgICAw
-LjAyNDIgICAgIGdlbmVyaWNfdW5wbHVnX2RldmljZQ0KYzAxNWU2YjAgMjQg
-ICAgICAgIDAuMDI0MiAgICAgcGF0aF9yZWxlYXNlDQpjMDExZDk2MCAyNCAg
-ICAgICAgMC4wMjQyICAgICByZW1vdmVfd2FpdF9xdWV1ZQ0KYzAyODBmYTAg
-MjMgICAgICAgIDAuMDIzMiAgICAgU0VMRUNUX0RSSVZFDQpjMDEzZDNlMCAy
-MyAgICAgICAgMC4wMjMyICAgICBfX2ttYWxsb2MNCmMwMTFkOGEwIDIzICAg
-ICAgICAwLjAyMzIgICAgIGFkZF93YWl0X3F1ZXVlDQpjMDI2NDdkMCAyMyAg
-ICAgICAgMC4wMjMyICAgICBhc19hbnRpY19zdG9wDQpjMDEzNWIxMCAyMyAg
-ICAgICAgMC4wMjMyICAgICBlbmRfcGFnZV93cml0ZWJhY2sNCmMwMTkyYTgw
-IDIzICAgICAgICAwLjAyMzIgICAgIGV4dDNfY2xlYXJfaW5vZGUNCmMwMThh
-ZTAwIDIzICAgICAgICAwLjAyMzIgICAgIGV4dDNfZ2V0X2Jsb2NrDQpjMDE4
-ZGQyMCAyMyAgICAgICAgMC4wMjMyICAgICBleHQzX21hcmtfaWxvY19kaXJ0
-eQ0KYzAxMzcyMTAgMjMgICAgICAgIDAuMDIzMiAgICAgZ2VuZXJpY19maWxl
-X21tYXANCmMwMTNlNzIwIDIzICAgICAgICAwLjAyMzIgICAgIGxydV9hZGRf
-ZHJhaW4NCmMwMTUzZDYwIDIzICAgICAgICAwLjAyMzIgICAgIG1hcmtfYnVm
-ZmVyX2RpcnR5DQpjMDE0N2M1MCAyMyAgICAgICAgMC4wMjMyICAgICBwYWdl
-X3JlZmVyZW5jZWQNCmMwMTJlYzAwIDIzICAgICAgICAwLjAyMzIgICAgIHF1
-ZXVlX3dvcmsNCmMwMTQ1YTQwIDIzICAgICAgICAwLjAyMzIgICAgIHVubWFw
-X3ZtYV9saXN0DQpjMDE5ZTkzMCAyMiAgICAgICAgMC4wMjIyICAgICBfX2xv
-Z19zcGFjZV9sZWZ0DQpjMDEzY2M5MCAyMiAgICAgICAgMC4wMjIyICAgICBj
-YWNoZV9pbml0X29ianMNCmMwMTJmYjIwIDIyICAgICAgICAwLjAyMjIgICAg
-IGNhbGxfcmN1DQpjMDE0Y2IxMCAyMiAgICAgICAgMC4wMjIyICAgICBmcmVl
-X3BhZ2VfYW5kX3N3YXBfY2FjaGUNCmMwMjIzNGQwIDIyICAgICAgICAwLjAy
-MjIgICAgIHJhZGl4X3RyZWVfZ2FuZ19sb29rdXANCmMwMTUxNmYwIDIyICAg
-ICAgICAwLjAyMjIgICAgIHN5c193cml0ZQ0KYzAyYzc2MTAgMjIgICAgICAg
-IDAuMDIyMiAgICAgdWhjaV9odWJfc3RhdHVzX2RhdGENCmMwMTQyMTEwIDIy
-ICAgICAgICAwLjAyMjIgICAgIHphcF9wbWRfcmFuZ2UNCmMwMjY0YWUwIDIx
-ICAgICAgICAwLjAyMTIgICAgIGFzX2Nhbl9hbnRpY2lwYXRlDQpjMDI2MTJi
-MCAyMSAgICAgICAgMC4wMjEyICAgICBjb3B5X2lvX2NvbnRleHQNCmMwMTUw
-NmMwIDIxICAgICAgICAwLjAyMTIgICAgIGRlbnRyeV9vcGVuDQpjMDE2NzM0
-MCAyMSAgICAgICAgMC4wMjEyICAgICBsb2Nrc19yZW1vdmVfZmxvY2sNCmMw
-MjlkOGEwIDIxICAgICAgICAwLjAyMTIgICAgIG1vdmVfYnVmX2FsaWduZWQN
-CmMwMTg2YjYwIDIxICAgICAgICAwLjAyMTIgICAgIHJlYWRfYmxvY2tfYml0
-bWFwDQpjMDEwYWUxNCAyMSAgICAgICAgMC4wMjEyICAgICByZXN1bWVfa2Vy
-bmVsDQpjMDJiNmZhMCAyMSAgICAgICAgMC4wMjEyICAgICByaF9yZXBvcnRf
-c3RhdHVzDQpjMDE1YjMyMCAyMSAgICAgICAgMC4wMjEyICAgICBzeXNfbHN0
-YXQ2NA0KYzAxNjNkMDAgMjEgICAgICAgIDAuMDIxMiAgICAgc3lzX3NlbGVj
-dA0KYzAyNjY0MzAgMjAgICAgICAgIDAuMDIwMiAgICAgYXNfcHV0X3JlcXVl
-c3QNCmMwMjVmMmMwIDIwICAgICAgICAwLjAyMDIgICAgIGJsa19yZW1vdmVf
-cGx1Zw0KYzAxODkzZDAgMjAgICAgICAgIDAuMDIwMiAgICAgZmluZF9ncm91
-cF9vdGhlcg0KYzAxMWQyZjAgMjAgICAgICAgIDAuMDIwMiAgICAgaW9fc2No
-ZWR1bGUNCmMwMTM4YmIwIDIwICAgICAgICAwLjAyMDIgICAgIG1lbXBvb2xf
-ZnJlZV9zbGFiDQpjMDE1NDI2MCAyMCAgICAgICAgMC4wMjAyICAgICBzZXRf
-YmhfcGFnZQ0KYzAyMjUyNjAgMTkgICAgICAgIDAuMDE5MiAgICAgX19kZWxh
-eQ0KYzAxMWRiNTAgMTkgICAgICAgIDAuMDE5MiAgICAgYXV0b3JlbW92ZV93
-YWtlX2Z1bmN0aW9uDQpjMDE2OGNmMCAxOSAgICAgICAgMC4wMTkyICAgICBk
-X2xvb2t1cA0KYzAxOTdkYTAgMTkgICAgICAgIDAuMDE5MiAgICAgZXh0M19h
-Y2xfY2htb2QNCmMwMTkwYTYwIDE5ICAgICAgICAwLjAxOTIgICAgIGV4dDNf
-Y3JlYXRlDQpjMDMzOTM5MCAxOSAgICAgICAgMC4wMTkyICAgICBsb29rdXBf
-ZGNvb2tpZQ0KYzAxMzc0YzAgMTkgICAgICAgIDAuMDE5MiAgICAgcmVtb3Zl
-X3N1aWQNCmMwMjY0MzIwIDE4ICAgICAgICAwLjAxODEgICAgIGFzX3JlbW92
-ZV9tZXJnZV9oaW50cw0KYzAxM2QyYzAgMTggICAgICAgIDAuMDE4MSAgICAg
-Y2FjaGVfZmx1c2hhcnJheQ0KYzAyNWRkNjAgMTggICAgICAgIDAuMDE4MSAg
-ICAgY2xlYXJfcXVldWVfY29uZ2VzdGVkDQpjMDE1MjU1MCAxOCAgICAgICAg
-MC4wMTgxICAgICBmZ2V0X2xpZ2h0DQpjMDE1MjYyMCAxOCAgICAgICAgMC4w
-MTgxICAgICBmaWxlX21vdmUNCmMwMTUyNDMwIDE4ICAgICAgICAwLjAxODEg
-ICAgIGZwdXQNCmMwMTUzYjIwIDE4ICAgICAgICAwLjAxODEgICAgIGdyb3df
-ZGV2X3BhZ2UNCmMwMTUwYTUwIDE4ICAgICAgICAwLjAxODEgICAgIHN5c19v
-cGVuDQpjMDEzYjUyMCAxOCAgICAgICAgMC4wMTgxICAgICB0ZXN0X2NsZWFy
-X3BhZ2VfZGlydHkNCmMwMTU0MWIwIDE3ICAgICAgICAwLjAxNzEgICAgIF9f
-YnJlYWQNCmMwMTM1NGYwIDE3ICAgICAgICAwLjAxNzEgICAgIF9fcmVtb3Zl
-X2Zyb21fcGFnZV9jYWNoZQ0KYzAyNWRhNTAgMTcgICAgICAgIDAuMDE3MSAg
-ICAgZWx2X3NldF9yZXF1ZXN0DQpjMDE4YTI1MCAxNyAgICAgICAgMC4wMTcx
-ICAgICBleHQzX2FsbG9jX2Jsb2NrDQpjMDE1MjUxMCAxNyAgICAgICAgMC4w
-MTcxICAgICBmZ2V0DQpjMDE5ZmY3MCAxNyAgICAgICAgMC4wMTcxICAgICBq
-b3VybmFsX2Jsb2Nrc19wZXJfcGFnZQ0KYzAxNWY4MTAgMTcgICAgICAgIDAu
-MDE3MSAgICAgbG9va3VwX2hhc2gNCmMwMTcxNjYwIDE3ICAgICAgICAwLjAx
-NzEgICAgIG1wYWdlX2FsbG9jDQpjMDE2MGFlMCAxNyAgICAgICAgMC4wMTcx
-ICAgICBzeXNfdW5saW5rDQpjMDE1MjllMCAxNiAgICAgICAgMC4wMTYxICAg
-ICBfX3NldF9wYWdlX2J1ZmZlcnMNCmMwMTUyOTAwIDE2ICAgICAgICAwLjAx
-NjEgICAgIF9fd2FpdF9vbl9idWZmZXINCmMwMzM5NGIwIDE2ICAgICAgICAw
-LjAxNjEgICAgIGFkZF91c2VyX2N0eF9zd2l0Y2gNCmMwMTU3NDQwIDE2ICAg
-ICAgICAwLjAxNjEgICAgIGJpb19waHlzX3NlZ21lbnRzDQpjMDE2YmRkMCAx
-NiAgICAgICAgMC4wMTYxICAgICBkbm90aWZ5X2ZsdXNoDQpjMDEzZDhiMCAx
-NiAgICAgICAgMC4wMTYxICAgICBkcmFpbl9hcnJheV9sb2NrZWQNCmMwMjVk
-NmUwIDE2ICAgICAgICAwLjAxNjEgICAgIGVsdl9tZXJnZQ0KYzAxNTU1OTAg
-MTYgICAgICAgIDAuMDE2MSAgICAgZ2VuZXJpY19jb21taXRfd3JpdGUNCmMw
-MmNiNDgwIDE2ICAgICAgICAwLjAxNjEgICAgIGluaXRfc3RhbGxfdGltZXIN
-CmMwMTNmMTIwIDE2ICAgICAgICAwLjAxNjEgICAgIGludmFsaWRhdGVfbWFw
-cGluZ19wYWdlcw0KYzAyNjExMjAgMTYgICAgICAgIDAuMDE2MSAgICAga2Js
-b2NrZF9zY2hlZHVsZV93b3JrDQpjMDEyNzU4MCAxNiAgICAgICAgMC4wMTYx
-ICAgICBtb2RfdGltZXINCmMwMTY4YmYwIDE1ICAgICAgICAwLjAxNTEgICAg
-IGRfc3BsaWNlX2FsaWFzDQpjMDI1ZGFmMCAxNSAgICAgICAgMC4wMTUxICAg
-ICBlbHZfY29tcGxldGVkX3JlcXVlc3QNCmMwMTkwOWUwIDE1ICAgICAgICAw
-LjAxNTEgICAgIGV4dDNfYWRkX25vbmRpcg0KYzAxOGJkOTAgMTUgICAgICAg
-IDAuMDE1MSAgICAgZXh0M19yZWxlYXNlcGFnZQ0KYzAxOGMwNjAgMTUgICAg
-ICAgIDAuMDE1MSAgICAgZXh0M19zZXRfYW9wcw0KYzAyY2JiNzAgMTUgICAg
-ICAgIDAuMDE1MSAgICAgaGNfc3RhdGVfdHJhbnNpdGlvbnMNCmMwMTZiMDkw
-IDE1ICAgICAgICAwLjAxNTEgICAgIGlfd2FpdHFfaGVhZA0KYzAyMjMyNjAg
-MTUgICAgICAgIDAuMDE1MSAgICAgcmFkaXhfdHJlZV9leHRlbmQNCmMwMjIz
-NmMwIDE0ICAgICAgICAwLjAxNDEgICAgIF9fcmJfcm90YXRlX3JpZ2h0DQpj
-MDE1NTUxMCAxNCAgICAgICAgMC4wMTQxICAgICBibG9ja19wcmVwYXJlX3dy
-aXRlDQpjMDE2MzlmMCAxNCAgICAgICAgMC4wMTQxICAgICBkb19zZWxlY3QN
-CmMwMTc1N2UwIDE0ICAgICAgICAwLjAxNDEgICAgIGV2ZW50cG9sbF9pbml0
-X2ZpbGUNCmMwMTUyNjgwIDE0ICAgICAgICAwLjAxNDEgICAgIGZpbGVfa2ls
-bA0KYzAxM2U2YzAgMTQgICAgICAgIDAuMDE0MSAgICAgbHJ1X2NhY2hlX2Fk
-ZF9hY3RpdmUNCmMwMjkwNzEwIDEzICAgICAgICAwLjAxMzEgICAgIF9faWRl
-X2RtYV93cml0ZQ0KYzAyNjQ0NTAgMTMgICAgICAgIDAuMDEzMSAgICAgYXNf
-ZmluZF9maXJzdF9hcnENCmMwMjY2M2MwIDEzICAgICAgICAwLjAxMzEgICAg
-IGFzX3dvcmtfaGFuZGxlcg0KYzAxNDRiNjAgMTMgICAgICAgIDAuMDEzMSAg
-ICAgY2FuX3ZtYV9tZXJnZV9iZWZvcmUNCmMwMTFjNDMwIDEzICAgICAgICAw
-LjAxMzEgICAgIGRlZmF1bHRfd2FrZV9mdW5jdGlvbg0KYzAxOTEzNDAgMTMg
-ICAgICAgIDAuMDEzMSAgICAgZXh0M19vcnBoYW5fZGVsDQpjMDEzNWUwMCAx
-MyAgICAgICAgMC4wMTMxICAgICBmaW5kX29yX2NyZWF0ZV9wYWdlDQpjMDE1
-NjU2MCAxMyAgICAgICAgMC4wMTMxICAgICBmcmVlX2J1ZmZlcl9oZWFkDQpj
-MDEzOWFkMCAxMyAgICAgICAgMC4wMTMxICAgICBmcmVlX2hvdF9wYWdlDQpj
-MDEyMjA4MCAxMyAgICAgICAgMC4wMTMxICAgICBuZXh0X3RocmVhZA0KYzAx
-MGFkZmMgMTMgICAgICAgIDAuMDEzMSAgICAgcmVzdW1lX3VzZXJzcGFjZQ0K
-YzAxNjA5NTAgMTMgICAgICAgIDAuMDEzMSAgICAgdmZzX3VubGluaw0KYzAx
-OWQwNTAgMTIgICAgICAgIDAuMDEyMSAgICAgX19qb3VybmFsX2NsZWFuX2No
-ZWNrcG9pbnRfbGlzdA0KYzAxODhhOTAgMTIgICAgICAgIDAuMDEyMSAgICAg
-ZXh0M19vcGVuX2ZpbGUNCmMwMThiZDIwIDEyICAgICAgICAwLjAxMjEgICAg
-IGV4dDNfcmVhZHBhZ2VzDQpjMDE5YWFiMCAxMiAgICAgICAgMC4wMTIxICAg
-ICBqb3VybmFsX2ZpbGVfYnVmZmVyDQpjMDE4MDZhMCAxMiAgICAgICAgMC4w
-MTIxICAgICBwcm9jX2xvb2t1cA0KYzAxNTY0YzAgMTIgICAgICAgIDAuMDEy
-MSAgICAgcmVjYWxjX2JoX3N0YXRlDQpjMDE2OWMyMCAxMSAgICAgICAgMC4w
-MTExICAgICBfX2lnZXQNCmMwMzM5NWEwIDExICAgICAgICAwLjAxMTEgICAg
-IGFkZF91c19zYW1wbGUNCmMwMjY1ZTkwIDExICAgICAgICAwLjAxMTEgICAg
-IGFzX21lcmdlZF9yZXF1ZXN0DQpjMDE1ZTZmMCAxMSAgICAgICAgMC4wMTEx
-ICAgICBjYWNoZWRfbG9va3VwDQpjMDE4YjQ5MCAxMSAgICAgICAgMC4wMTEx
-ICAgICBleHQzX2pvdXJuYWxfZGlydHlfZGF0YQ0KYzAyOWRhMzAgMTEgICAg
-ICAgIDAuMDExMSAgICAgZmJfZ2V0X2J1ZmZlcl9vZmZzZXQNCmMwMTZhYmUw
-IDExICAgICAgICAwLjAxMTEgICAgIGdlbmVyaWNfZm9yZ2V0X2lub2RlDQpj
-MDEzZDRiMCAxMSAgICAgICAgMC4wMTExICAgICBrZnJlZQ0KYzAxNjM3ZDAg
-MTEgICAgICAgIDAuMDExMSAgICAgcG9sbF9mcmVld2FpdA0KYzAxODhjMTAg
-MTEgICAgICAgIDAuMDExMSAgICAgcmVhZF9pbm9kZV9iaXRtYXANCmMwMTU2
-MzYwIDExICAgICAgICAwLjAxMTEgICAgIHRyeV90b19mcmVlX2J1ZmZlcnMN
-CmMwMjgxMDMwIDEwICAgICAgICAwLjAxMDEgICAgIFNFTEVDVF9NQVNLDQpj
-MDIyMzY4MCAxMCAgICAgICAgMC4wMTAxICAgICBfX3JiX3JvdGF0ZV9sZWZ0
-DQpjMDMzOTYxMCAxMCAgICAgICAgMC4wMTAxICAgICBhZGRfc2FtcGxlDQpj
-MDEyNzY4MCAxMCAgICAgICAgMC4wMTAxICAgICBjYXNjYWRlDQpjMDE1NjIy
-MCAxMCAgICAgICAgMC4wMTAxICAgICBjaGVja190dGZiX2J1ZmZlcg0KYzAy
-NWQ5OTAgMTAgICAgICAgIDAuMDEwMSAgICAgZWx2X3JlbW92ZV9yZXF1ZXN0
-DQpjMDE1MmFiMCAxMCAgICAgICAgMC4wMTAxICAgICBlbmRfYnVmZmVyX3Jl
-YWRfc3luYw0KYzAyOTkyMDAgMTAgICAgICAgIDAuMDEwMSAgICAgZmJfZmxh
-c2hjdXJzb3INCmMwMmQ3OGEwIDEwICAgICAgICAwLjAxMDEgICAgIGk4MDQy
-X3RpbWVyX2Z1bmMNCmMwMjIzYjUwIDEwICAgICAgICAwLjAxMDEgICAgIHJi
-X3ByZXYNCmMwMTNjM2IwIDEwICAgICAgICAwLjAxMDEgICAgIHNsYWJfZGVz
-dHJveQ0KYzAxNTQ0YjAgMTAgICAgICAgIDAuMDEwMSAgICAgdW5tYXBfdW5k
-ZXJseWluZ19tZXRhZGF0YQ0KYzAxNDFjMTAgOSAgICAgICAgIDAuMDA5MSAg
-ICAgY29weV9wYWdlX3JhbmdlDQpjMDE4OTBmMCA5ICAgICAgICAgMC4wMDkx
-ICAgICBmaW5kX2dyb3VwX29ybG92DQpjMDE5ZGVjMCA5ICAgICAgICAgMC4w
-MDkxICAgICBqb3VybmFsX3dyaXRlX3Jldm9rZV9yZWNvcmRzDQpjMDIyMzE2
-MCA5ICAgICAgICAgMC4wMDkxICAgICByYWRpeF90cmVlX25vZGVfYWxsb2MN
-CmMwMjIzNjcwIDkgICAgICAgICAwLjAwOTEgICAgIHJhZGl4X3RyZWVfbm9k
-ZV9jdG9yDQpjMDMzYzdiMCA5ICAgICAgICAgMC4wMDkxICAgICBzb2NrX3Bv
-bGwNCmMwMzM5NjcwIDkgICAgICAgICAwLjAwOTEgICAgIHRha2VfdGFza3Nf
-bW0NCmMwMTQ0OWEwIDggICAgICAgICAwLjAwODEgICAgIF9fdm1hX2xpbmsN
-CmMwMjY0MmQwIDggICAgICAgICAwLjAwODEgICAgIGFzX2dldF9pb19jb250
-ZXh0DQpjMDI2MGVhMCA4ICAgICAgICAgMC4wMDgxICAgICBlbmRfdGhhdF9y
-ZXF1ZXN0X2ZpcnN0DQpjMDE4YTBmMCA4ICAgICAgICAgMC4wMDgxICAgICBl
-eHQzX3B1dF9pbm9kZQ0KYzAxOGVlOTAgOCAgICAgICAgIDAuMDA4MSAgICAg
-ZXh0M191cGRhdGVfZHhfZmxhZw0KYzAxOWQxNzAgNyAgICAgICAgIDAuMDA3
-MSAgICAgX19qb3VybmFsX2luc2VydF9jaGVja3BvaW50DQpjMDEzNTk2MCA3
-ICAgICAgICAgMC4wMDcxICAgICBhZGRfdG9fcGFnZV9jYWNoZV9scnUNCmMw
-MTY5ZDQwIDcgICAgICAgICAwLjAwNzEgICAgIGRpc3Bvc2VfbGlzdA0KYzAy
-NWQ3MTAgNyAgICAgICAgIDAuMDA3MSAgICAgZWx2X21lcmdlZF9yZXF1ZXN0
-DQpjMDI1ZGE5MCA3ICAgICAgICAgMC4wMDcxICAgICBlbHZfcHV0X3JlcXVl
-c3QNCmMwMWEwMTYwIDcgICAgICAgICAwLjAwNzEgICAgIGpvdXJuYWxfZnJl
-ZV9qb3VybmFsX2hlYWQNCmMwMTllYmIwIDcgICAgICAgICAwLjAwNzEgICAg
-IGpvdXJuYWxfbmV4dF9sb2dfYmxvY2sNCmMwMTU0MmEwIDcgICAgICAgICAw
-LjAwNzEgICAgIHRyeV90b19yZWxlYXNlX3BhZ2UNCmMwMTcxMDMwIDcgICAg
-ICAgICAwLjAwNzEgICAgIHdyaXRlYmFja19pbm9kZXMNCmMwMTNlOWQwIDYg
-ICAgICAgICAwLjAwNjAgICAgIF9fcGFnZXZlY19yZWxlYXNlX25vbmxydQ0K
-YzAxNTc0NzAgNiAgICAgICAgIDAuMDA2MCAgICAgYmlvX2h3X3NlZ21lbnRz
-DQpjMDI4NmE5MCA2ICAgICAgICAgMC4wMDYwICAgICBkZWZhdWx0X2VuZF9y
-ZXF1ZXN0DQpjMDEzNjA0MCA2ICAgICAgICAgMC4wMDYwICAgICBkb19nZW5l
-cmljX21hcHBpbmdfcmVhZA0KYzAxM2IyMDAgNiAgICAgICAgIDAuMDA2MCAg
-ICAgZG9fd3JpdGVwYWdlcw0KYzAxOGI4NTAgNiAgICAgICAgIDAuMDA2MCAg
-ICAgZXh0M19ibWFwDQpjMDE2MzhmMCA2ICAgICAgICAgMC4wMDYwICAgICBt
-YXhfc2VsZWN0X2ZkDQpjMDExOWY2MCA2ICAgICAgICAgMC4wMDYwICAgICBw
-dGVfYWxsb2Nfb25lDQpjMDEyN2Y4MCA2ICAgICAgICAgMC4wMDYwICAgICBz
-Y2hlZHVsZV90aW1lb3V0DQpjMDEyZjNkMCA2ICAgICAgICAgMC4wMDYwICAg
-ICBzY2hlZHVsZV93b3JrDQpjMDE1YjM2MCA2ICAgICAgICAgMC4wMDYwICAg
-ICBzeXNfZnN0YXQ2NA0KYzAxMjJlMTAgNiAgICAgICAgIDAuMDA2MCAgICAg
-c3lzX3RpbWUNCmMwMzVmZWMwIDYgICAgICAgICAwLjAwNjAgICAgIHRjcF9w
-b2xsDQpjMDE1ZjczMCA1ICAgICAgICAgMC4wMDUwICAgICBfX2xvb2t1cF9o
-YXNoDQpjMDEzZTc4MCA1ICAgICAgICAgMC4wMDUwICAgICBfX3BhZ2VfY2Fj
-aGVfcmVsZWFzZQ0KYzAxMjM5NjAgNSAgICAgICAgIDAuMDA1MCAgICAgX190
-YXNrbGV0X3NjaGVkdWxlDQpjMDMzOTU3MCA1ICAgICAgICAgMC4wMDUwICAg
-ICBhZGRfc2FtcGxlX2VudHJ5DQpjMDI2NDcwMCA1ICAgICAgICAgMC4wMDUw
-ICAgICBhc19hbnRpY19leHBpcmVkDQpjMDE1OGQxMCA1ICAgICAgICAgMC4w
-MDUwICAgICBibGtkZXZfd3JpdGVwYWdlDQpjMDM1MDQ2MCA1ICAgICAgICAg
-MC4wMDUwICAgICBkZXZfd2F0Y2hkb2cNCmMwMTlkNmUwIDUgICAgICAgICAw
-LjAwNTAgICAgIGZpbmRfcmV2b2tlX3JlY29yZA0KYzAzMzk2YjAgNSAgICAg
-ICAgIDAuMDA1MCAgICAgZ2V0X3Nsb3RzDQpjMDI5MDI3MCA1ICAgICAgICAg
-MC4wMDUwICAgICBpZGVfZGVzdHJveV9kbWF0YWJsZQ0KYzAxNTNhYjAgNSAg
-ICAgICAgIDAuMDA1MCAgICAgaW5pdF9wYWdlX2J1ZmZlcnMNCmMwMTNlNjYw
-IDUgICAgICAgICAwLjAwNTAgICAgIGxydV9jYWNoZV9hZGQNCmMwMjNiZWUw
-IDUgICAgICAgICAwLjAwNTAgICAgIHJlYWRfY2hhbg0KYzAxNTM5NzAgNSAg
-ICAgICAgIDAuMDA1MCAgICAgcmVtb3ZlX2lub2RlX2J1ZmZlcnMNCmMwMTEx
-ZjAwIDUgICAgICAgICAwLjAwNTAgICAgIHJlc3RvcmVfZnB1DQpjMDMzOTgw
-MCA1ICAgICAgICAgMC4wMDUwICAgICBzeW5jX2NwdV9idWZmZXJzDQpjMDE2
-MDQzMCA1ICAgICAgICAgMC4wMDUwICAgICB2ZnNfbWtkaXINCmMwMTUxMzYw
-IDUgICAgICAgICAwLjAwNTAgICAgIHZmc19yZWFkDQpjMDEzYTA2MCA0ICAg
-ICAgICAgMC4wMDQwICAgICBfX3BhZ2V2ZWNfZnJlZQ0KYzAxNDQ5NjAgNCAg
-ICAgICAgIDAuMDA0MCAgICAgX192bWFfbGlua19yYg0KYzAzMzk0NzAgNCAg
-ICAgICAgIDAuMDA0MCAgICAgYWRkX2tlcm5lbF9jdHhfc3dpdGNoDQpjMDE0
-MDcyMCA0ICAgICAgICAgMC4wMDQwICAgICBiYWxhbmNlX3BnZGF0DQpjMDE2
-YWRmMCA0ICAgICAgICAgMC4wMDQwICAgICBibWFwDQpjMDExNzNjMCA0ICAg
-ICAgICAgMC4wMDQwICAgICBjaGVja19ldmVudHMNCmMwMjk5MjUwIDQgICAg
-ICAgICAwLjAwNDAgICAgIGN1cnNvcl90aW1lcl9oYW5kbGVyDQpjMDE1MTJh
-MCA0ICAgICAgICAgMC4wMDQwICAgICBkb19zeW5jX3JlYWQNCmMwMTU1ZWYw
-IDQgICAgICAgICAwLjAwNDAgICAgIGdlbmVyaWNfYmxvY2tfYm1hcA0KYzAx
-NWU2MTAgNCAgICAgICAgIDAuMDA0MCAgICAgZ2V0X3dyaXRlX2FjY2Vzcw0K
-YzAxNTY2NDAgNCAgICAgICAgIDAuMDA0MCAgICAgaW5pdF9idWZmZXINCmMw
-MTU2NWQwIDQgICAgICAgICAwLjAwNDAgICAgIGluaXRfYnVmZmVyX2hlYWQN
-CmMwMTNlZGQwIDQgICAgICAgICAwLjAwNDAgICAgIGludmFsaWRhdGVfY29t
-cGxldGVfcGFnZQ0KYzAxYTA0NzAgNCAgICAgICAgIDAuMDA0MCAgICAgam91
-cm5hbF9yZW1vdmVfam91cm5hbF9oZWFkDQpjMDE5YTJlMCA0ICAgICAgICAg
-MC4wMDQwICAgICBqb3VybmFsX3RyeV90b19mcmVlX2J1ZmZlcnMNCmMwMTNi
-ZWEwIDQgICAgICAgICAwLjAwNDAgICAgIHBhZ2VfY2FjaGVfcmVhZGFoZWFk
-DQpjMDE3MGE5MCA0ICAgICAgICAgMC4wMDQwICAgICB3cml0ZV9pbm9kZQ0K
-YzAxNzE0ZjAgNCAgICAgICAgIDAuMDA0MCAgICAgd3JpdGViYWNrX2luX3By
-b2dyZXNzDQpjMDE1MmEyMCAzICAgICAgICAgMC4wMDMwICAgICBfX2NsZWFy
-X3BhZ2VfYnVmZmVycw0KYzAxMzY1MzAgMyAgICAgICAgIDAuMDAzMCAgICAg
-X19nZW5lcmljX2ZpbGVfYWlvX3JlYWQNCmMwMTM5ZmEwIDMgICAgICAgICAw
-LjAwMzAgICAgIF9fZ2V0X2ZyZWVfcGFnZXMNCmMwMzM5NDMwIDMgICAgICAg
-ICAwLjAwMzAgICAgIGFkZF9jcHVfc3dpdGNoDQpjMDI2NDg1MCAzICAgICAg
-ICAgMC4wMDMwICAgICBhc19hbnRpY190aW1lb3V0DQpjMDI2NWNkMCAzICAg
-ICAgICAgMC4wMDMwICAgICBhc19sYXR0ZXJfcmVxdWVzdA0KYzAxNDE5YzAg
-MyAgICAgICAgIDAuMDAzMCAgICAgY2xlYXJfcGFnZV90YWJsZXMNCmMwMTY5
-YTgwIDMgICAgICAgICAwLjAwMzAgICAgIGRlc3Ryb3lfaW5vZGUNCmMwMTkw
-YmQwIDMgICAgICAgICAwLjAwMzAgICAgIGV4dDNfbWtkaXINCmMwMThkYWMw
-IDMgICAgICAgICAwLjAwMzAgICAgIGV4dDNfd3JpdGVfaW5vZGUNCmMwMjc5
-NDgwIDMgICAgICAgICAwLjAwMzAgICAgIGhlcm1lc19iYXBfcHJlYWQNCmMw
-MTkyOTkwIDMgICAgICAgICAwLjAwMzAgICAgIGluaXRfb25jZQ0KYzAyZDA2
-OTAgMyAgICAgICAgIDAuMDAzMCAgICAgaW5wdXRfZXZlbnQNCmMwMTUzOGYw
-IDMgICAgICAgICAwLjAwMzAgICAgIGludmFsaWRhdGVfaW5vZGVfYnVmZmVy
-cw0KYzAxOWRlNTAgMyAgICAgICAgIDAuMDAzMCAgICAgam91cm5hbF9zd2l0
-Y2hfcmV2b2tlX3RhYmxlDQpjMDE3MTYyMCAzICAgICAgICAgMC4wMDMwICAg
-ICBtcGFnZV9iaW9fc3VibWl0DQpjMDEzYjc2MCAzICAgICAgICAgMC4wMDMw
-ICAgICBwZGZsdXNoX29wZXJhdGlvbg0KYzAxMjdmNzAgMyAgICAgICAgIDAu
-MDAzMCAgICAgcHJvY2Vzc190aW1lb3V0DQpjMDEzZjQ0MCAzICAgICAgICAg
-MC4wMDMwICAgICBzaHJpbmtfc2xhYg0KYzAzMzk4NzAgMyAgICAgICAgIDAu
-MDAzMCAgICAgdGltZXJfcGluZw0KYzAxNmEzZDAgMyAgICAgICAgIDAuMDAz
-MCAgICAgdW5sb2NrX25ld19pbm9kZQ0KYzAxMWI2ZjAgMyAgICAgICAgIDAu
-MDAzMCAgICAgd2FrZV91cF9mb3JrZWRfcHJvY2Vzcw0KYzAxM2EwOTAgMiAg
-ICAgICAgIDAuMDAyMCAgICAgX19mcmVlX3BhZ2VzDQpjMDE5ZmY5MCAyICAg
-ICAgICAgMC4wMDIwICAgICBfX2piZF9rbWFsbG9jDQpjMDE5YWIxMCAyICAg
-ICAgICAgMC4wMDIwICAgICBfX2pvdXJuYWxfcmVmaWxlX2J1ZmZlcg0KYzAx
-OWQwZTAgMiAgICAgICAgIDAuMDAyMCAgICAgX19qb3VybmFsX3JlbW92ZV9j
-aGVja3BvaW50DQpjMDE5YTIxMCAyICAgICAgICAgMC4wMDIwICAgICBfX2pv
-dXJuYWxfdHJ5X3RvX2ZyZWVfYnVmZmVyDQpjMDI3M2JjMCAyICAgICAgICAg
-MC4wMDIwICAgICBfX29yaW5vY29fZXZfaW5mbw0KYzAxNjM4MjAgMiAgICAg
-ICAgIDAuMDAyMCAgICAgX19wb2xsd2FpdA0KYzAzMzk1MzAgMiAgICAgICAg
-IDAuMDAyMCAgICAgYWRkX2Nvb2tpZV9zd2l0Y2gNCmMwMTE2ODMwIDIgICAg
-ICAgICAwLjAwMjAgICAgIGFwbV9iaW9zX2NhbGwNCmMwMTE3NWQwIDIgICAg
-ICAgICAwLjAwMjAgICAgIGFwbV9ldmVudF9oYW5kbGVyDQpjMDExNmE0MCAy
-ICAgICAgICAgMC4wMDIwICAgICBhcG1fZ2V0X2V2ZW50DQpjMDI2NDczMCAy
-ICAgICAgICAgMC4wMDIwICAgICBhc19hbnRpY193YWl0bmV4dA0KYzAyNjAw
-NTAgMiAgICAgICAgIDAuMDAyMCAgICAgYmxrX2Nvbmdlc3Rpb25fd2FpdA0K
-YzAxOGI4ZjAgMiAgICAgICAgIDAuMDAyMCAgICAgYnB1dF9vbmUNCmMwMTc5
-NGIwIDIgICAgICAgICAwLjAwMjAgICAgIGNyZWF0ZV9lbGZfdGFibGVzDQpj
-MDM0MjFjMCAyICAgICAgICAgMC4wMDIwICAgICBkYXRhZ3JhbV9wb2xsDQpj
-MDI0NjkzMCAyICAgICAgICAgMC4wMDIwICAgICBkb19jb25fdHJvbA0KYzAx
-OTI5NjAgMiAgICAgICAgIDAuMDAyMCAgICAgZXh0M19kZXN0cm95X2lub2Rl
-DQpjMDEzNjQzMCAyICAgICAgICAgMC4wMDIwICAgICBmaWxlX3JlYWRfYWN0
-b3INCmMwMTNhMGUwIDIgICAgICAgICAwLjAwMjAgICAgIGZyZWVfcGFnZXMN
-CmMwMTZhYWQwIDIgICAgICAgICAwLjAwMjAgICAgIGdlbmVyaWNfZGVsZXRl
-X2lub2RlDQpjMDE2YWQ0MCAyICAgICAgICAgMC4wMDIwICAgICBnZW5lcmlj
-X2Ryb3BfaW5vZGUNCmMwMTUwZTEwIDIgICAgICAgICAwLjAwMjAgICAgIGdl
-bmVyaWNfZmlsZV9sbHNlZWsNCmMwMTNhMmYwIDIgICAgICAgICAwLjAwMjAg
-ICAgIGdldF9wYWdlX3N0YXRlDQpjMDI3OTIzMCAyICAgICAgICAgMC4wMDIw
-ICAgICBoZXJtZXNfYmFwX3NlZWsNCmMwMTFjYmMwIDIgICAgICAgICAwLjAw
-MjAgICAgIGlkbGVfY3B1DQpjMDE2Yjg3MCAyICAgICAgICAgMC4wMDIwICAg
-ICBpc19iYWRfaW5vZGUNCmMwMTllYzcwIDIgICAgICAgICAwLjAwMjAgICAg
-IGpvdXJuYWxfYm1hcA0KYzAxOGI5MDAgMiAgICAgICAgIDAuMDAyMCAgICAg
-am91cm5hbF9kaXJ0eV9kYXRhX2ZuDQpjMDE5YTFjMCAyICAgICAgICAgMC4w
-MDIwICAgICBqb3VybmFsX3VuZmlsZV9idWZmZXINCmMwMjQzOTAwIDIgICAg
-ICAgICAwLjAwMjAgICAgIGtiZF9rZXljb2RlDQpjMDEzY2QwMCAyICAgICAg
-ICAgMC4wMDIwICAgICBrbWVtX2ZsYWdjaGVjaw0KYzAxNDA5NDAgMiAgICAg
-ICAgIDAuMDAyMCAgICAga3N3YXBkDQpjMDE2MDBkMCAyICAgICAgICAgMC4w
-MDIwICAgICBsb29rdXBfY3JlYXRlDQpjMDEzZWNlMCAyICAgICAgICAgMC4w
-MDIwICAgICBwYWdldmVjX2xvb2t1cA0KYzAxNTA5ZDAgMiAgICAgICAgIDAu
-MDAyMCAgICAgcHV0X3VudXNlZF9mZA0KYzAyOTk1MjAgMiAgICAgICAgIDAu
-MDAyMCAgICAgcHV0Y3NfYWxpZ25lZA0KYzAxMmZkNjAgMiAgICAgICAgIDAu
-MDAyMCAgICAgcmN1X2NoZWNrX2NhbGxiYWNrcw0KYzAxMmZjNjAgMiAgICAg
-ICAgIDAuMDAyMCAgICAgcmN1X3Byb2Nlc3NfY2FsbGJhY2tzDQpjMDEzZTQ4
-MCAyICAgICAgICAgMC4wMDIwICAgICByb3RhdGVfcmVjbGFpbWFibGVfcGFn
-ZQ0KYzAxMjc2ZjAgMiAgICAgICAgIDAuMDAyMCAgICAgc2Vjb25kX292ZXJm
-bG93DQpjMDEyYjQzMCAyICAgICAgICAgMC4wMDIwICAgICBzeXNfcnRfc2ln
-cHJvY21hc2sNCmMwMTIzYTAwIDIgICAgICAgICAwLjAwMjAgICAgIHRhc2ts
-ZXRfYWN0aW9uDQpjMDE1YWMxMCAyICAgICAgICAgMC4wMDIwICAgICB2ZnNf
-ZnN0YXQNCmMwMjI0ODMwIDIgICAgICAgICAwLjAwMjAgICAgIHZzbnByaW50
-Zg0KYzAxM2FmZTAgMiAgICAgICAgIDAuMDAyMCAgICAgd2Jfa3VwZGF0ZQ0K
-YzAxNzE0ZDAgMiAgICAgICAgIDAuMDAyMCAgICAgd3JpdGViYWNrX2FjcXVp
-cmUNCmMwMjM0NjAwIDEgICAgICAgICAwLjAwMTAgICAgIFNIQVRyYW5zZm9y
-bQ0KYzAxNTNlNTAgMSAgICAgICAgIDAuMDAxMCAgICAgX19icmVhZF9zbG93
-DQpjMDE2OTM4MCAxICAgICAgICAgMC4wMDEwICAgICBfX2RfcGF0aA0KYzAx
-Mzc1MzAgMSAgICAgICAgIDAuMDAxMCAgICAgX19maWxlbWFwX2NvcHlfZnJv
-bV91c2VyX2lvdmVjDQpjMDI3M2U0MCAxICAgICAgICAgMC4wMDEwICAgICBf
-X29yaW5vY29fZXZfcngNCmMwMTNlOTkwIDEgICAgICAgICAwLjAwMTAgICAg
-IF9fcGFnZXZlY19yZWxlYXNlDQpjMDEzYjU2MCAxICAgICAgICAgMC4wMDEw
-ICAgICBfX3BkZmx1c2gNCmMwMTcwZDIwIDEgICAgICAgICAwLjAwMTAgICAg
-IF9fd3JpdGViYWNrX3NpbmdsZV9pbm9kZQ0KYzAyOTk4MjAgMSAgICAgICAg
-IDAuMDAxMCAgICAgYWNjZWxfcHV0Yw0KYzAxMjAwOTAgMSAgICAgICAgIDAu
-MDAxMCAgICAgYWNxdWlyZV9jb25zb2xlX3NlbQ0KYzAxMmY0NjAgMSAgICAg
-ICAgIDAuMDAxMCAgICAgYWxsb2NfcGlkbWFwDQpjMDExNzY2MCAxICAgICAg
-ICAgMC4wMDEwICAgICBhcG1fbWFpbmxvb3ANCmMwMjY0NzgwIDEgICAgICAg
-ICAwLjAwMTAgICAgIGFzX2FudGljX3dhaXRyZXENCmMwMjYwMGUwIDEgICAg
-ICAgICAwLjAwMTAgICAgIGF0dGVtcHRfbWVyZ2UNCmMwMTNhY2YwIDEgICAg
-ICAgICAwLjAwMTAgICAgIGJhbGFuY2VfZGlydHlfcGFnZXMNCmMwMThiOGUw
-IDEgICAgICAgICAwLjAwMTAgICAgIGJnZXRfb25lDQpjMDE1NGRjMCAxICAg
-ICAgICAgMC4wMDEwICAgICBibG9ja19yZWFkX2Z1bGxfcGFnZQ0KYzAxNTY0
-MzAgMSAgICAgICAgIDAuMDAxMCAgICAgYmxvY2tfc3luY19wYWdlDQpjMDNi
-OTY2MCAxICAgICAgICAgMC4wMDEwICAgICBjYWNoZV9jbGVhbg0KYzAxNjlm
-ZjAgMSAgICAgICAgIDAuMDAxMCAgICAgY2FuX3VudXNlDQpjMDI0ODU0MCAx
-ICAgICAgICAgMC4wMDEwICAgICBjb25fY2hhcnNfaW5fYnVmZmVyDQpjMDI0
-N2VkMCAxICAgICAgICAgMC4wMDEwICAgICBjb25zb2xlX2NhbGxiYWNrDQpj
-MDI0MWIxMCAxICAgICAgICAgMC4wMDEwICAgICBjb252X3VuaV90b19wYw0K
-YzAxMWU3ODAgMSAgICAgICAgIDAuMDAxMCAgICAgY29weV9wcm9jZXNzDQpj
-MDE1YjdkMCAxICAgICAgICAgMC4wMDEwICAgICBjb3B5X3N0cmluZ3MNCmMw
-MTY5NGMwIDEgICAgICAgICAwLjAwMTAgICAgIGRfcGF0aA0KYzAxMmY4MjAg
-MSAgICAgICAgIDAuMDAxMCAgICAgZGV0YWNoX3BpZA0KYzAxMGI5MjggMSAg
-ICAgICAgIDAuMDAxMCAgICAgZGV2aWNlX25vdF9hdmFpbGFibGUNCmMwMjQ3
-NzcwIDEgICAgICAgICAwLjAwMTAgICAgIGRvX2Nvbl93cml0ZQ0KYzAxMWYx
-NzAgMSAgICAgICAgIDAuMDAxMCAgICAgZG9fZm9yaw0KYzAxMjI4ZjAgMSAg
-ICAgICAgIDAuMDAxMCAgICAgZG9fZ2V0aXRpbWVyDQpjMDEwYWQzMCAxICAg
-ICAgICAgMC4wMDEwICAgICBkb19ub3RpZnlfcmVzdW1lDQpjMDI0M2Y5MCAx
-ICAgICAgICAgMC4wMDEwICAgICBkb191cGRhdGVfcmVnaW9uDQpjMDI1ZDlm
-MCAxICAgICAgICAgMC4wMDEwICAgICBlbHZfbGF0dGVyX3JlcXVlc3QNCmMw
-MjVkYmUwIDEgICAgICAgICAwLjAwMTAgICAgIGVsdl9ycV9tZXJnZV9vaw0K
-YzAxNmI5MTAgMSAgICAgICAgIDAuMDAxMCAgICAgZXhwYW5kX2ZkX2FycmF5
-DQpjMDE4N2QzMCAxICAgICAgICAgMC4wMDEwICAgICBleHQzX2dyb3VwX3Nw
-YXJzZQ0KYzAxOGNhNDAgMSAgICAgICAgIDAuMDAxMCAgICAgZXh0M190cnVu
-Y2F0ZQ0KYzAxNjM1ZDAgMSAgICAgICAgIDAuMDAxMCAgICAgZmlsbGRpcjY0
-DQpjMDIzOTQ0MCAxICAgICAgICAgMC4wMDEwICAgICBmbHVzaF90b19sZGlz
-Yw0KYzAxMTczNjAgMSAgICAgICAgIDAuMDAxMCAgICAgZ2V0X2V2ZW50DQpj
-MDEwYWFkMCAxICAgICAgICAgMC4wMDEwICAgICBoYW5kbGVfc2lnbmFsDQpj
-MDExZDMxMCAxICAgICAgICAgMC4wMDEwICAgICBpb19zY2hlZHVsZV90aW1l
-b3V0DQpjMDM4Y2E3MCAxICAgICAgICAgMC4wMDEwICAgICBpcF9jdF9maW5k
-X2hlbHBlcg0KYzAzNTVjNDAgMSAgICAgICAgIDAuMDAxMCAgICAgaXBfcm91
-dGVfaW5wdXQNCmMwMTk5MzUwIDEgICAgICAgICAwLjAwMTAgICAgIGpvdXJu
-YWxfZ2V0X2NyZWF0ZV9hY2Nlc3MNCmMwMjQyZTEwIDEgICAgICAgICAwLjAw
-MTAgICAgIGtfc3BlYw0KYzAyNDNiZTAgMSAgICAgICAgIDAuMDAxMCAgICAg
-a2JkX2V2ZW50DQpjMDE5ZTI0MCAxICAgICAgICAgMC4wMDEwICAgICBram91
-cm5hbGQNCmMwMjVlZmMwIDEgICAgICAgICAwLjAwMTAgICAgIGxsX21lcmdl
-X3JlcXVlc3RzX2ZuDQpjMDE3OWNjMCAxICAgICAgICAgMC4wMDEwICAgICBs
-b2FkX2VsZl9iaW5hcnkNCmMwMTBjZGQwIDEgICAgICAgICAwLjAwMTAgICAg
-IG1hdGhfc3RhdGVfcmVzdG9yZQ0KYzAxN2JkNDAgMSAgICAgICAgIDAuMDAx
-MCAgICAgbWJfY2FjaGVfc2hyaW5rX2ZuDQpjMDJkMjAzMCAxICAgICAgICAg
-MC4wMDEwICAgICBtb3VzZWRldl9ldmVudA0KYzAxMGFlMWUgMSAgICAgICAg
-IDAuMDAxMCAgICAgbmVlZF9yZXNjaGVkDQpjMDExYjk2MCAxICAgICAgICAg
-MC4wMDEwICAgICBucl9ydW5uaW5nDQpjMDEzYTE3MCAxICAgICAgICAgMC4w
-MDEwICAgICBucl91c2VkX3pvbmVfcGFnZXMNCmMwMTExNjcwIDEgICAgICAg
-ICAwLjAwMTAgICAgIG9sZF9tbWFwDQpjMDIzYTQzMCAxICAgICAgICAgMC4w
-MDEwICAgICBvcG9zdF9ibG9jaw0KYzAxNWRiMDAgMSAgICAgICAgIDAuMDAx
-MCAgICAgcGlwZV9wb2xsDQpjMDEwOGY0MCAxICAgICAgICAgMC4wMDEwICAg
-ICBwcmVwYXJlX3RvX2NvcHkNCmMwMTdkODAwIDEgICAgICAgICAwLjAwMTAg
-ICAgIHByb2NfYWxsb2NfaW5vZGUNCmMwMTgyMWYwIDEgICAgICAgICAwLjAw
-MTAgICAgIHByb2NfY2FsY19tZXRyaWNzDQpjMDE4MDEwMCAxICAgICAgICAg
-MC4wMDEwICAgICBwcm9jX2ZpbGVfcmVhZA0KYzAxN2Q5OTAgMSAgICAgICAg
-IDAuMDAxMCAgICAgcHJvY19nZXRfaW5vZGUNCmMwMTI4NzkwIDEgICAgICAg
-ICAwLjAwMTAgICAgIHJlY2FsY19zaWdwZW5kaW5nDQpjMDEyMDBkMCAxICAg
-ICAgICAgMC4wMDEwICAgICByZWxlYXNlX2NvbnNvbGVfc2VtDQpjMDMzOTY1
-MCAxICAgICAgICAgMC4wMDEwICAgICByZWxlYXNlX21tDQpjMDM1MzE2MCAx
-ICAgICAgICAgMC4wMDEwICAgICBydF9oYXNoX2NvZGUNCmMwMjIzYzgwIDEg
-ICAgICAgICAwLjAwMTAgICAgIHJ3c2VtX3dha2UNCmMwMTViYmMwIDEgICAg
-ICAgICAwLjAwMTAgICAgIHNldHVwX2FyZ19wYWdlcw0KYzAxMGE2MTAgMSAg
-ICAgICAgIDAuMDAxMCAgICAgc2V0dXBfZnJhbWUNCmMwMTZhMjQwIDEgICAg
-ICAgICAwLjAwMTAgICAgIHNocmlua19pY2FjaGVfbWVtb3J5DQpjMDEyYjM3
-MCAxICAgICAgICAgMC4wMDEwICAgICBzaWdwcm9jbWFzaw0KYzAyMjQ0ZTAg
-MSAgICAgICAgIDAuMDAxMCAgICAgc2tpcF9hdG9pDQpjMDIyNTUxMCAxICAg
-ICAgICAgMC4wMDEwICAgICBzdHJubGVuX3VzZXINCmMwMmQ2ODAwIDEgICAg
-ICAgICAwLjAwMTAgICAgIHN5bmFwdGljc19wcm9jZXNzX2J5dGUNCmMwMTU3
-YmMwIDEgICAgICAgICAwLjAwMTAgICAgIHN5bmNfc3VwZXJzDQpjMDE2OTU5
-MCAxICAgICAgICAgMC4wMDEwICAgICBzeXNfZ2V0Y3dkDQpjMDE2MDRmMCAx
-ICAgICAgICAgMC4wMDEwICAgICBzeXNfbWtkaXINCmMwMTUxNjgwIDEgICAg
-ICAgICAwLjAwMTAgICAgIHN5c19yZWFkDQpjMDE1MWNjMCAxICAgICAgICAg
-MC4wMDEwICAgICBzeXNfd3JpdGV2DQpjMDE1YWI1MCAxICAgICAgICAgMC4w
-MDEwICAgICB2ZnNfc3RhdA0KYzAyM2UxZTAgMSAgICAgICAgIDAuMDAxMCAg
-ICAgdnRfaW9jdGwNCmMwMTBhZjFkIDEgICAgICAgICAwLjAwMTAgICAgIHdv
-cmtfcmVzY2hlZA0KYzAyM2M3NjAgMSAgICAgICAgIDAuMDAxMCAgICAgd3Jp
-dGVfY2hhbg0K
+-	adapter = (adapter_t *)cmd->host->hostdata;
++	adapter = (adapter_t *)scp->device->host->hostdata;
 
---8323328-971606898-1072816226=:3152--
+ 	ASSERT( spin_is_locked(adapter->host_lock) );
+
+ 	printk("megaraid: reset-%ld cmd=%x <c=%d t=%d l=%d>\n",
+-		cmd->serial_number, cmd->cmnd[0], cmd->channel, cmd->target,
+-		cmd->lun);
++		scp->serial_number, scp->cmnd[0], scp->device->channel, scp->device->id,
++		scp->device->lun);
+
+
+ #if MEGA_HAVE_CLUSTERING
+@@ -3866,44 +3855,40 @@
+ #endif
+
+
++
+ /**
+  * megaraid_biosparam()
+- * @disk
+- * @dev
+- * @geom
+  *
+  * Return the disk geometry for a particular disk
+- * Input:
+- *	Disk *disk - Disk geometry
+- *	kdev_t dev - Device node
+- *	int *geom  - Returns geometry fields
+- *		geom[0] = heads
+- *		geom[1] = sectors
+- *		geom[2] = cylinders
+  */
+ static int
+-megaraid_biosparam(Disk *disk, kdev_t dev, int *geom)
++megaraid_biosparam(struct scsi_device *sdev, struct block_device *bdev,
++		    sector_t capacity, int geom[])
+ {
+-	int heads, sectors, cylinders;
+-	adapter_t *adapter;
++	adapter_t	*adapter;
++	unsigned char	*bh;
++	int	heads;
++	int	sectors;
++	int	cylinders;
++	int	rval;
+
+ 	/* Get pointer to host config structure */
+-	adapter = (adapter_t *)disk->device->host->hostdata;
++	adapter = (adapter_t *)sdev->host->hostdata;
+
+-	if (IS_RAID_CH(adapter, disk->device->channel)) {
++	if (IS_RAID_CH(adapter, sdev->channel)) {
+ 			/* Default heads (64) & sectors (32) */
+ 			heads = 64;
+ 			sectors = 32;
+-			cylinders = disk->capacity / (heads * sectors);
++			cylinders = (ulong)capacity / (heads * sectors);
+
+ 			/*
+ 			 * Handle extended translation size for logical drives
+ 			 * > 1Gb
+ 			 */
+-			if (disk->capacity >= 0x200000) {
++			if ((ulong)capacity >= 0x200000) {
+ 				heads = 255;
+ 				sectors = 63;
+-				cylinders = disk->capacity / (heads * sectors);
++				cylinders = (ulong)capacity / (heads * sectors);
+ 			}
+
+ 			/* return result */
+@@ -3912,23 +3897,30 @@
+ 			geom[2] = cylinders;
+ 	}
+ 	else {
+-		if( !mega_partsize(disk, dev, geom) )
+-			return 0;
++		bh = scsi_bios_ptable(bdev);
+
+-		printk(KERN_WARNING
++		if( bh ) {
++			rval = scsi_partsize(bh, capacity,
++					    &geom[2], &geom[0], &geom[1]);
++			kfree(bh);
++			if( rval != -1 )
++				return rval;
++		}
++
++		printk(KERN_INFO
+ 		"megaraid: invalid partition on this disk on channel %d\n",
+-				disk->device->channel);
++				sdev->channel);
+
+ 		/* Default heads (64) & sectors (32) */
+ 		heads = 64;
+ 		sectors = 32;
+-		cylinders = disk->capacity / (heads * sectors);
++		cylinders = (ulong)capacity / (heads * sectors);
+
+ 		/* Handle extended translation size for logical drives > 1Gb */
+-		if (disk->capacity >= 0x200000) {
++		if ((ulong)capacity >= 0x200000) {
+ 			heads = 255;
+ 			sectors = 63;
+-			cylinders = disk->capacity / (heads * sectors);
++			cylinders = (ulong)capacity / (heads * sectors);
+ 		}
+
+ 		/* return result */
+@@ -3940,78 +3932,6 @@
+ 	return 0;
+ }
+
+-/*
+- * mega_partsize()
+- * @disk
+- * @geom
+- *
+- * Purpose : to determine the BIOS mapping used to create the partition
+- *	table, storing the results (cyls, hds, and secs) in geom
+- *
+- * Note:	Code is picked from scsicam.h
+- *
+- * Returns : -1 on failure, 0 on success.
+- */
+-static int
+-mega_partsize(Disk *disk, kdev_t dev, int *geom)
+-{
+-	struct buffer_head *bh;
+-	struct partition *p, *largest = NULL;
+-	int i, largest_cyl;
+-	int heads, cyls, sectors;
+-	int capacity = disk->capacity;
+-
+-	int ma = MAJOR(dev);
+-	int mi = (MINOR(dev) & ~0xf);
+-
+-	int block = 1024;
+-
+-	if (blksize_size[ma])
+-		block = blksize_size[ma][mi];
+-
+-	if (!(bh = bread(MKDEV(ma,mi), 0, block)))
+-		return -1;
+-
+-	if (*(unsigned short *)(bh->b_data + 510) == 0xAA55 ) {
+-
+-		for (largest_cyl = -1,
+-			p = (struct partition *)(0x1BE + bh->b_data), i = 0;
+-			i < 4; ++i, ++p) {
+-
+-			if (!p->sys_ind) continue;
+-
+-			cyls = p->end_cyl + ((p->end_sector & 0xc0) << 2);
+-
+-			if (cyls >= largest_cyl) {
+-				largest_cyl = cyls;
+-				largest = p;
+-			}
+-		}
+-	}
+-
+-	if (largest) {
+-		heads = largest->end_head + 1;
+-		sectors = largest->end_sector & 0x3f;
+-
+-		if (!heads || !sectors) {
+-			brelse(bh);
+-			return -1;
+-		}
+-
+-		cyls = capacity/(heads * sectors);
+-
+-		geom[0] = heads;
+-		geom[1] = sectors;
+-		geom[2] = cyls;
+-
+-		brelse(bh);
+-		return 0;
+-	}
+-
+-	brelse(bh);
+-	return -1;
+-}
+-
+
+ /**
+  * megaraid_reboot_notify()
+@@ -4181,7 +4101,6 @@
+ 	 */
+ 	if( !capable(CAP_SYS_ADMIN) ) return -EACCES;
+
+-	MOD_INC_USE_COUNT;
+ 	return 0;
+ }
+
+@@ -4770,7 +4689,6 @@
+ static int
+ megadev_close (struct inode *inode, struct file *filep)
+ {
+-	MOD_DEC_USE_COUNT;
+ 	return 0;
+ }
+
+@@ -5184,7 +5102,7 @@
+ 	int		tgt;
+ 	int		ldrv_num;
+
+-	tgt = cmd->target;
++	tgt = cmd->device->id;
+
+ 	if ( tgt > adapter->this_id )
+ 		tgt--;	/* we do not get inquires for initiator id */
+@@ -5228,185 +5146,6 @@
+ 	return ldrv_num;
+ }
+
+-
+-/**
+- * mega_reorder_hosts()
+- *
+- * Hack: reorder the scsi hosts in mid-layer so that the controller with the
+- * boot device on it appears first in the list.
+- */
+-static void
+-mega_reorder_hosts(void)
+-{
+-	struct Scsi_Host *shpnt;
+-	struct Scsi_Host *shone;
+-	struct Scsi_Host *shtwo;
+-	adapter_t *boot_host;
+-	int i;
+-
+-	/*
+-	 * Find the (first) host which has it's BIOS enabled
+-	 */
+-	boot_host = NULL;
+-	for (i = 0; i < MAX_CONTROLLERS; i++) {
+-		if (mega_hbas[i].is_bios_enabled) {
+-			boot_host = mega_hbas[i].hostdata_addr;
+-			break;
+-		}
+-	}
+-
+-	if (!boot_host) {
+-		printk(KERN_NOTICE "megaraid: no BIOS enabled.\n");
+-		return;
+-	}
+-
+-	/*
+-	 * Traverse through the list of SCSI hosts for our HBA locations
+-	 */
+-	shone = shtwo = NULL;
+-	for (shpnt = scsi_hostlist; shpnt; shpnt = shpnt->next) {
+-		/* Is it one of ours? */
+-		for (i = 0; i < MAX_CONTROLLERS; i++) {
+-			if ((adapter_t *) shpnt->hostdata ==
+-				mega_hbas[i].hostdata_addr) {
+-				/* Does this one has BIOS enabled */
+-				if (mega_hbas[i].hostdata_addr == boot_host) {
+-
+-					/* Are we first */
+-					if (!shtwo)	/* Yes! */
+-						return;
+-					else	/* :-( */
+-						shone = shpnt;
+-				} else {
+-					if (!shtwo) {
+-						/* were we here before? xchng
+-						 * first */
+-						shtwo = shpnt;
+-					}
+-				}
+-				break;
+-			}
+-		}
+-		/*
+-		 * Have we got the boot host and one which does not have the
+-		 * bios enabled.
+-		 */
+-		if (shone && shtwo)
+-			break;
+-	}
+-	if (shone && shtwo) {
+-		mega_swap_hosts (shone, shtwo);
+-	}
+-
+-	return;
+-}
+-
+-
+-static void
+-mega_swap_hosts (struct Scsi_Host *shone, struct Scsi_Host *shtwo)
+-{
+-	struct Scsi_Host *prevtoshtwo;
+-	struct Scsi_Host *prevtoshone;
+-	struct Scsi_Host *save = NULL;
+-
+-	/* Are these two nodes adjacent */
+-	if (shtwo->next == shone) {
+-
+-		if (shtwo == scsi_hostlist && !shone->next) {
+-
+-			/* just two nodes */
+-			scsi_hostlist = shone;
+-			shone->next = shtwo;
+-			shtwo->next = NULL;
+-		} else if (shtwo == scsi_hostlist) {
+-			/* first two nodes of the list */
+-
+-			scsi_hostlist = shone;
+-			shtwo->next = shone->next;
+-			scsi_hostlist->next = shtwo;
+-		} else if (!shone->next) {
+-			/* last two nodes of the list */
+-
+-			prevtoshtwo = scsi_hostlist;
+-
+-			while (prevtoshtwo->next != shtwo)
+-				prevtoshtwo = prevtoshtwo->next;
+-
+-			prevtoshtwo->next = shone;
+-			shone->next = shtwo;
+-			shtwo->next = NULL;
+-		} else {
+-			prevtoshtwo = scsi_hostlist;
+-
+-			while (prevtoshtwo->next != shtwo)
+-				prevtoshtwo = prevtoshtwo->next;
+-
+-			prevtoshtwo->next = shone;
+-			shtwo->next = shone->next;
+-			shone->next = shtwo;
+-		}
+-
+-	} else if (shtwo == scsi_hostlist && !shone->next) {
+-		/* shtwo at head, shone at tail, not adjacent */
+-
+-		prevtoshone = scsi_hostlist;
+-
+-		while (prevtoshone->next != shone)
+-			prevtoshone = prevtoshone->next;
+-
+-		scsi_hostlist = shone;
+-		shone->next = shtwo->next;
+-		prevtoshone->next = shtwo;
+-		shtwo->next = NULL;
+-	} else if (shtwo == scsi_hostlist && shone->next) {
+-		/* shtwo at head, shone is not at tail */
+-
+-		prevtoshone = scsi_hostlist;
+-		while (prevtoshone->next != shone)
+-			prevtoshone = prevtoshone->next;
+-
+-		scsi_hostlist = shone;
+-		prevtoshone->next = shtwo;
+-		save = shtwo->next;
+-		shtwo->next = shone->next;
+-		shone->next = save;
+-	} else if (!shone->next) {
+-		/* shtwo not at head, shone at tail */
+-
+-		prevtoshtwo = scsi_hostlist;
+-		prevtoshone = scsi_hostlist;
+-
+-		while (prevtoshtwo->next != shtwo)
+-			prevtoshtwo = prevtoshtwo->next;
+-		while (prevtoshone->next != shone)
+-			prevtoshone = prevtoshone->next;
+-
+-		prevtoshtwo->next = shone;
+-		shone->next = shtwo->next;
+-		prevtoshone->next = shtwo;
+-		shtwo->next = NULL;
+-
+-	} else {
+-		prevtoshtwo = scsi_hostlist;
+-		prevtoshone = scsi_hostlist;
+-		save = NULL;
+-
+-		while (prevtoshtwo->next != shtwo)
+-			prevtoshtwo = prevtoshtwo->next;
+-		while (prevtoshone->next != shone)
+-			prevtoshone = prevtoshone->next;
+-
+-		prevtoshtwo->next = shone;
+-		save = shone->next;
+-		shone->next = shtwo->next;
+-		prevtoshone->next = shtwo;
+-		shtwo->next = save;
+-	}
+-	return;
+-}
+-
+-
+-
+ #ifdef CONFIG_PROC_FS
+ /**
+  * mega_adapinq()
+@@ -5554,6 +5293,7 @@
+ 		mega_passthru *pthru )
+ {
+ 	Scsi_Cmnd	*scmd;
++	struct	scsi_device *sdev;
+ 	unsigned long	flags = 0;
+ 	scb_t	*scb;
+ 	int	rval;
+@@ -5571,7 +5311,11 @@
+ 	scmd = &adapter->int_scmd;
+ 	memset(scmd, 0, sizeof(Scsi_Cmnd));
+
+-	scmd->host = adapter->host;
++	sdev = kmalloc(sizeof(struct scsi_device), GFP_KERNEL);
++	memset(sdev, 0, sizeof(struct scsi_device));
++	scmd->device = sdev;
++
++	scmd->device->host = adapter->host;
+ 	scmd->buffer = (void *)scb;
+ 	scmd->cmnd[0] = MEGA_INTERNAL_CMD;
+
+@@ -5615,6 +5359,7 @@
+
+ 	rval = scmd->result;
+ 	mc->status = scmd->result;
++	kfree(sdev);
+
+ 	/*
+ 	 * Print a debug message for all failed commands. Applications can use
+@@ -5642,7 +5387,7 @@
+ {
+ 	adapter_t	*adapter;
+
+-	adapter = (adapter_t *)scmd->host->hostdata;
++	adapter = (adapter_t *)scmd->device->host->hostdata;
+
+ 	scmd->state = 1; /* thread waiting for its command to complete */
+
+diff -ruN megaraid-v2.00.9/megaraid.h megaraid-v2.00.9-linux2.6/megaraid.h
+--- megaraid-v2.00.9/megaraid.h	2003-09-05 12:45:15.000000000 -0400
++++ megaraid-v2.00.9-linux2.6/megaraid.h	2003-12-30 16:16:07.743244000 -0500
+@@ -129,7 +129,6 @@
+ 	.detect =			megaraid_detect,	\
+ 	.release =			megaraid_release,	\
+ 	.info =				megaraid_info,		\
+-	.command =			megaraid_command,	\
+ 	.queuecommand =			megaraid_queue,		\
+ 	.bios_param =			megaraid_biosparam,	\
+ 	.max_sectors =			MAX_SECTORS_PER_IO,	\
+@@ -140,12 +139,10 @@
+ 	.present =  			0,			\
+ 	.unchecked_isa_dma =		0,			\
+ 	.use_clustering =		ENABLE_CLUSTERING,	\
+-	.use_new_eh_code =		1,			\
+ 	.eh_abort_handler =		megaraid_abort,		\
+ 	.eh_device_reset_handler =	megaraid_reset,		\
+ 	.eh_bus_reset_handler =		megaraid_reset,		\
+ 	.eh_host_reset_handler =	megaraid_reset,		\
+-	.highmem_io =			1			\
+ }
+
+
+@@ -1103,19 +1100,18 @@
+ static inline void mega_runpendq(adapter_t *);
+ static int issue_scb_block(adapter_t *, u_char *);
+
+-static void megaraid_isr_memmapped(int, void *, struct pt_regs *);
++static irqreturn_t megaraid_isr_memmapped(int, void *, struct pt_regs *);
+ static inline void megaraid_memmbox_ack_sequence(adapter_t *);
+-static void megaraid_isr_iomapped(int, void *, struct pt_regs *);
++static irqreturn_t megaraid_isr_iomapped(int, void *, struct pt_regs *);
+ static inline void megaraid_iombox_ack_sequence(adapter_t *);
+
+ static void mega_free_scb(adapter_t *, scb_t *);
+
+ static int megaraid_release (struct Scsi_Host *);
+-static int megaraid_command (Scsi_Cmnd *);
+ static int megaraid_abort(Scsi_Cmnd *);
+ static int megaraid_reset(Scsi_Cmnd *);
+-static int megaraid_biosparam (Disk *, kdev_t, int *);
+-
++static int megaraid_biosparam(struct scsi_device *, struct block_device *,
++              sector_t, int []);
+ static int mega_build_sglist (adapter_t *adapter, scb_t *scb,
+ 			      u32 *buffer, u32 *length);
+ static inline int mega_busywait_mbox (adapter_t *);
+@@ -1137,8 +1133,6 @@
+ static int mega_init_scb (adapter_t *);
+
+ static int mega_is_bios_enabled (adapter_t *);
+-static void mega_reorder_hosts (void);
+-static void mega_swap_hosts (struct Scsi_Host *, struct Scsi_Host *);
+
+ #ifdef CONFIG_PROC_FS
+ static void mega_create_proc_entry(int, struct proc_dir_entry *);
+@@ -1171,7 +1165,6 @@
+ static mega_ext_passthru* mega_prepare_extpassthru(adapter_t *,
+ 		scb_t *, Scsi_Cmnd *, int, int);
+ static void mega_enum_raid_scsi(adapter_t *);
+-static int mega_partsize(Disk *, kdev_t, int *);
+ static void mega_get_boot_drv(adapter_t *);
+ static inline int mega_get_ldrv_num(adapter_t *, Scsi_Cmnd *, int);
+ static int mega_support_random_del(adapter_t *);
+
+

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbUK0EAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbUK0EAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbUK0EAn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 23:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUK0EAS
+	id S262188AbUK0EAm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 23:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbUK0EAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 23:00:18 -0500
-Received: from beseeingyou.bytemark.co.uk ([212.13.210.26]:41965 "HELO
-	beseeingyou.bytemark.co.uk") by vger.kernel.org with SMTP
-	id S262299AbUKZTaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:30:09 -0500
-From: Fred Emmott <mail@fredemmott.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] root_plug improvement
-Date: Thu, 25 Nov 2004 18:19:04 +0000
-User-Agent: KMail/1.7.50
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 23:00:38 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:41923 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262368AbUKZTaE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:30:04 -0500
+Date: Thu, 25 Nov 2004 10:54:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Hudec <bulb@ucw.cz>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, avi@argo.co.il,
+       alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, hbryan@us.ibm.com,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041125095407.GA1014@elf.ucw.cz>
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il> <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu> <20041125062649.GB29278@vagabond> <E1CXE4k-0000Ow-00@dorka.pomaz.szeredi.hu> <20041125074741.GC29278@vagabond>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411251819.04700.mail@fredemmott.co.uk>
+In-Reply-To: <20041125074741.GC29278@vagabond>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the root_plug LSM module also check the serial number of the 
-USB device. Without this, it's possible to use another USB device of the same 
-brand + model as a root_plug device.
+Hi!
 
-I am not familiar with the module interface, and have not added a paramater 
-for specifying the serial_number, so it must be specified at compile time.
+> > Of course I believe, that it's probably easier to tweak the page cache
+> > to teach it that fuse pages _can_ be written back, but not reliably
+> > like a disk filesystem.  And there's the small problem of limiting the
+> > number of writable pages allocated to FUSE.
+> 
+> It's not that easy. How do you tell when the page is no longer likely to
+> get cleaned?
+> 
+> The file backing would be easier, but to be really easy, the interface
+> would be a bit different (and actualy simpler, since it would need no
+> data channel, just a control one).
+> 
+> The trick is, that the coda file-granularity interface is not that hard
+> to extend to page-granularity. Several filesystems allow "files with
+> holes". So the fuse process could just touch a file and truncate it to
+> desired length on open. Then kernel would tell it which pages it wants
+> and the process would acknowledge when they are actualy filled. For
+> write, kernel would just notify the process of dirty ranges and what --
+> and when -- the process does with that is not kernel's business.
 
-Sorry if this is the wrong place to send this.
+Well, it would work fine and nice... until you want to export file
+with holes with fuse. That probably could be made to work, but...
 
---- root_plug.c.orig 2004-11-25 18:05:30.000000000 +0000
-+++ root_plug.c 2004-11-25 18:06:45.000000000 +0000
-@@ -35,6 +36,7 @@
- /* default is a generic type of usb to serial converter */
- static int vendor_id = 0x0557;
- static int product_id = 0x2008;
-+char *serial_number = "ENTER_ID_HERE";
- 
- module_param(vendor_id, uint, 0400);
- MODULE_PARM_DESC(vendor_id, "USB Vendor ID of device to look for");
-@@ -65,7 +67,9 @@
- static int rootplug_bprm_check_security (struct linux_binprm *bprm)
- {
-  struct usb_device *dev;
--
-+ char* buf;
-+ buf = kmalloc(128, GFP_KERNEL);
-+ 
-  root_dbg("file %s, e_uid = %d, e_gid = %d\n",
-    bprm->filename, bprm->e_uid, bprm->e_gid);
- 
-@@ -76,6 +80,15 @@
-      "task not allowed to run...\n");
-    return -EPERM;
-   }
-+  else {
-+   usb_string(dev, dev->descriptor.iSerialNumber, buf, 128);
-+   if (strcmp(buf, serial_number) != 0)
-+   {
-+    root_dbg("e_gid = 0, and device found, "
-+     "but bad serial number...\n");
-+    return -EPERM;
-+   }
-+  }
-   usb_put_dev(dev);
-  }
-
+								Pavel
 -- 
-Fred Emmott
-(http://www.fredemmott.co.uk)
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272337AbSISSsq>; Thu, 19 Sep 2002 14:48:46 -0400
+	id <S272329AbSISSxE>; Thu, 19 Sep 2002 14:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272370AbSISSsp>; Thu, 19 Sep 2002 14:48:45 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:34296
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S272337AbSISSsp>; Thu, 19 Sep 2002 14:48:45 -0400
-Subject: Re: [PATCH] In-kernel module loader 1/7
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020919183843.GA16568@kroah.com>
-References: <20020919125906.21DEA2C22A@lists.samba.org>
-	<Pine.LNX.4.44.0209191532110.8911-100000@serv> 
-	<20020919183843.GA16568@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Sep 2002 19:58:15 +0100
-Message-Id: <1032461895.27865.54.camel@irongate.swansea.linux.org.uk>
+	id <S272334AbSISSxE>; Thu, 19 Sep 2002 14:53:04 -0400
+Received: from are.twiddle.net ([64.81.246.98]:9623 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S272329AbSISSxD>;
+	Thu, 19 Sep 2002 14:53:03 -0400
+Date: Thu, 19 Sep 2002 11:57:47 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall changes registers beyond %eax, on linux-i386
+Message-ID: <20020919115747.A22594@twiddle.net>
+Mail-Followup-To: Brian Gerst <bgerst@didntduck.org>,
+	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
+References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919113048.A22520@twiddle.net> <3D8A1CC0.8070407@didntduck.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D8A1CC0.8070407@didntduck.org>; from bgerst@didntduck.org on Thu, Sep 19, 2002 at 02:51:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-19 at 19:38, Greg KH wrote:
-> And with a LSM module, how can it answer that?  There's no way, unless
-> we count every time someone calls into our module.  And if you do that,
-> no one will even want to use your module, given the number of hooks, and
-> the paths those hooks are on (the speed hit would be horrible.)
+On Thu, Sep 19, 2002 at 02:51:44PM -0400, Brian Gerst wrote:
+> > The parameter area belongs to the callee, and it may *always* be modified.
+> 
+> The parameters can not be modified if they are declared const though, 
+> that's my point.
 
-So the LSM module always says no. Don't make other modules suffer
+Yes they can.
 
+	extern void bar(int x, int y, int z);
+	void foo(const int a, const int b, const int c)
+	{
+	  bar(a+1, b+1, c+1);
+	}
+
+        subl    $12, %esp
+        movl    20(%esp), %eax
+        incl    %eax
+        movl    %eax, 20(%esp)
+        movl    16(%esp), %eax
+        incl    %eax
+        incl    24(%esp)
+        movl    %eax, 16(%esp)
+        addl    $12, %esp
+        jmp     bar
+
+(Not sure why gcc doesn't use incl on all three memories, nor
+should it allocate that stack frame...)
+
+
+r~

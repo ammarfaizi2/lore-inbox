@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263182AbSJGUoK>; Mon, 7 Oct 2002 16:44:10 -0400
+	id <S262742AbSJGUYp>; Mon, 7 Oct 2002 16:24:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263183AbSJGUoK>; Mon, 7 Oct 2002 16:44:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18188 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263182AbSJGUoJ>; Mon, 7 Oct 2002 16:44:09 -0400
-Date: Mon, 7 Oct 2002 13:49:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-cc: <linux-kernel@vger.kernel.org>, <maxk@qualcomm.com>
-Subject: Re: [PATCH] Make it possible to compile in the Bluetooth subsystem
-In-Reply-To: <E17yelj-0005CD-00@pegasus>
-Message-ID: <Pine.LNX.4.33.0210071347470.10749-100000@penguin.transmeta.com>
+	id <S262763AbSJGUYp>; Mon, 7 Oct 2002 16:24:45 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:65222 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262742AbSJGUYn>; Mon, 7 Oct 2002 16:24:43 -0400
+Date: Mon, 7 Oct 2002 17:30:03 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
+In-Reply-To: <20021007001137.A6352@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L.0210071729400.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Oct 2002, Pavel Machek wrote:
 
-On Mon, 7 Oct 2002, Marcel Holtmann wrote:
-> 
-> ChangeSet@1.709, 2002-10-07 22:08:56+02:00, marcel@holtmann.org
->   Make it possible to compile in the Bluetooth subsystem
+> Stop lying.
 
-Looks good, but you should _not_ remove the "static". Please keep the init
-functions static, they will be explicitly exported to the stuff that cares
-(and nobody else) by the "module_init()" thing anyway.
+Look who's talking.  *plonk*
 
-		Linus
+> (as it stands you want $5000 for any bk-using
+> developer inside RedHat and SuSE).
+
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

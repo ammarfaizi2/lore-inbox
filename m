@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbUJ3ULu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbUJ3UMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbUJ3ULu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 16:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbUJ3ULu
+	id S261303AbUJ3UMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 16:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbUJ3UMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 16:11:50 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:60131 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261301AbUJ3ULt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 16:11:49 -0400
-Message-ID: <4183F6C5.4030809@comcast.net>
-Date: Sat, 30 Oct 2004 13:17:09 -0700
-From: Z Smith <plinius@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: new kernel feature
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Oct 2004 16:12:19 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:10112 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261303AbUJ3UMR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 16:12:17 -0400
+Date: Sun, 31 Oct 2004 00:12:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Doug Maxey <dwm@austin.ibm.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH 1/1] ppc64 install outside of source tree
+Message-ID: <20041030221259.GA9592@mars.ravnborg.org>
+Mail-Followup-To: Doug Maxey <dwm@austin.ibm.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linuxppc64-dev@ozlabs.org
+References: <200410292209.i9TM937o014943@falcon10.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410292209.i9TM937o014943@falcon10.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, Oct 29, 2004 at 05:09:03PM -0500, Doug Maxey wrote:
+> 
+> Sam, 
+> please apply.  Having been using this for a while.
 
-I've been developing an in-kernel 2D GUI for kernel 2.6.
-It's based on the framebuffer with the event subsystem
-providing mouse and keyboard. I'd like to welcome you all
-to take a look at the current work at
-   home.comcast.net/~plinius/fbui.html.
+Applied.
 
-Thanks,
-Zack Smith
-
+	Sam

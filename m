@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291732AbSBNQBX>; Thu, 14 Feb 2002 11:01:23 -0500
+	id <S291738AbSBNQEX>; Thu, 14 Feb 2002 11:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291736AbSBNQBN>; Thu, 14 Feb 2002 11:01:13 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:45533 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291732AbSBNQAz>; Thu, 14 Feb 2002 11:00:55 -0500
-Date: Thu, 14 Feb 2002 10:00:47 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-cc: drepper@redhat.com, torvalds@transmeta.com
-Subject: Re: setuid/pthread interaction broken? 'clone_with_uid()?'
-Message-ID: <38300000.1013702447@baldur>
-In-Reply-To: <20020214165143.A16601@outpost.ds9a.nl>
-In-Reply-To: <20020214165143.A16601@outpost.ds9a.nl>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S291741AbSBNQEO>; Thu, 14 Feb 2002 11:04:14 -0500
+Received: from fsgi03.fnal.gov ([131.225.68.48]:317 "EHLO fsgi03.fnal.gov")
+	by vger.kernel.org with ESMTP id <S291738AbSBNQEA>;
+	Thu, 14 Feb 2002 11:04:00 -0500
+Date: Thu, 14 Feb 2002 10:03:57 -0600
+From: Alexander Moibenko <moibenko@fnal.gov>
+To: <linux-kernel@vger.kernel.org>
+Subject: fsync delays for a long time.
+Message-ID: <Pine.SGI.4.31.0202140951330.3076325-100000@fsgi03.fnal.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+we are using gdbm in our application. It has been noticed that whenever
+a disk intesive job is running our application hangs for a very long time.
+This is the scenario I'm getting in trouble with:
+run my gdbm application and bonnie test on the same device.
+When gdbm comes to the point when it calls fsync it delays for a long
+time.
+The time depends on the CPU and disk speed, but always is intolerably big:
+few tens of sec - to minutes.
+It does not seem to depend on the size of the DB.
+Application runs on the machines with 2.2.x kernel.
+Had anyone seen the same problem?
+I've seen a discussion about a bad performance of SCSI versus IDE drives
+with mySQL on this list. But we tried it on both with the same (bad)
+result. IDE is even worse in our case. In the discussion it was also said
+that fsync for 2.4.x is modified. But does it fix a problem?
+Thanks in advance for comments and suggestions.
 
---On Thursday, February 14, 2002 16:51:43 +0100 bert hubert <ahu@ds9a.nl>
-wrote:
-
-> When a process first issues setuid() and then goes on to create threads,
-> those threads run under the setuid() uid - all is well. 
-> 
-> However,  once the first thread is created, only the thread calling
-> setuid() gets setuid in fact. All new threads continue to be created as
-> root.
-> 
-> This behaviour exists under 2.2.18 with glibc 2.1.3 and under 2.4.17 with
-> glibc 2.2.5, and is shown using the brief program attached.
-> 
-> Is this by design? It appears that all threads created get the uid of the
-> thread manager process.
-
-It's the expected behavior for a task-based model like Linux.  Each task is
-independent and inherits the uid/gid from whoever called clone().  It's
-just one of several resources that are specified as process-wide in POSIX,
-but are per-task in Linux.
-
-I've been working on a patch to allow clone() to specify shared
-credentials, but it's been on the back burner.
-
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+--------------------------------------------------------------------------
+Alexander N. Moibenko, Integrated Systems Development, CD, Fermilab
+email: moibenko@fnal.fnal.gov
+--------------------------------------------------------------------------
 

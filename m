@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbULBUsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbULBUul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbULBUsR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbULBUsQ
+	id S261765AbULBUul (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbULBUuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:48:16 -0500
-Received: from mail.joq.us ([67.65.12.105]:46772 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261766AbULBUsN (ORCPT
+	Thu, 2 Dec 2004 15:50:40 -0500
+Received: from smtp3.akamai.com ([63.116.109.25]:53401 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S261765AbULBUue (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:48:13 -0500
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Andrew Burgess <aab@cichlid.com>,
-       linux-kernel@vger.kernel.org, jackit-devel@lists.sourceforge.net
-Subject: Re: [Jackit-devel] Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
-References: <200412021546.iB2FkK5a005502@cichlid.com>
-	<20041202170315.067d7853@mango.fruits.de>
-	<87y8ggekds.fsf@sulphur.joq.us>
-	<20041202175756.0e50f101@mango.fruits.de>
-	<87hdn4eihw.fsf@sulphur.joq.us>
-	<1102018036.31206.8.camel@krustophenia.net>
-From: "Jack O'Quin" <joq@io.com>
-Date: 02 Dec 2004 14:48:23 -0600
-In-Reply-To: <1102018036.31206.8.camel@krustophenia.net>
-Message-ID: <87zn0wctpk.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Thu, 2 Dec 2004 15:50:34 -0500
+Message-ID: <41AF8EC9.2EEA409A@akamai.com>
+Date: Thu, 02 Dec 2004 13:53:13 -0800
+From: Prasanna Meda <pmeda@akamai.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sys_set/getpriority PRIO_USER semantics fix and optimisation
+References: <200412012321.PAA30853@allur.sanmateo.akamai.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> writes:
+pmeda@akamai.com wrote:
 
-> On Thu, 2004-12-02 at 11:07 -0600, Jack O'Quin wrote:
-> > Is printk() guaranteed not to wait inside the kernel?  I am not
-> > familiar with its internal implementation.
-> 
-> Yes.  It just writes to a ring buffer and klogd dumps this to syslog.
-> So if you really start to spew printk's they don't all make it to the
-> log but you never get blocked.
-> 
-> The implementation probably looks a lot like a correct solution to fix
-> the printf-from-RT-context issue in JACK would.
+> sys_set/getpriority is rewritten in 2.5/2.6, perhaps while transitioning
+> to the pid maps.  It has now semantical bug, when uid is zero.  Note
 
-Right.  That's exactly what I have in mind, whenever I find time to
-work on it.  :-)
+A test case:
 
-There's some similar code I wrote for JAMin, which we could adapt.
--- 
-  joq
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+int main()
+{
+        int prio1, prio2, ret, errno;
+
+        /* If root, loose priv. for testing */
+        setresuid(237, 237, 237);
+
+        prio1 = getpriority(2, getuid());
+        if (setpriority(PRIO_USER, 0, prio1+1) < 0) {
+                perror("setprio");
+                printf("FAILED!\n");
+        }
+        else {
+                prio2 = getpriority(2, getuid());
+                printf("Old prio:%d to new prio:%d\n", prio1, prio2);
+                printf((prio1 +1 != prio2)? "FAILED\n":"PASSED\n");
+        }
+        exit(0);
+}
+

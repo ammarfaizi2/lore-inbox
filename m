@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261937AbTCaXrh>; Mon, 31 Mar 2003 18:47:37 -0500
+	id <S261942AbTDAACu>; Mon, 31 Mar 2003 19:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261941AbTCaXrh>; Mon, 31 Mar 2003 18:47:37 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:12938 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S261937AbTCaXrf>; Mon, 31 Mar 2003 18:47:35 -0500
-Date: Mon, 31 Mar 2003 15:55:44 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit kdev_t - just for playing
-Message-ID: <20030331235544.GS32000@ca-server1.us.oracle.com>
-References: <200303311541.50200.pbadari@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303311541.50200.pbadari@us.ibm.com>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+	id <S261943AbTDAACu>; Mon, 31 Mar 2003 19:02:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50706 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261942AbTDAACu>; Mon, 31 Mar 2003 19:02:50 -0500
+Date: Mon, 31 Mar 2003 16:13:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Wayne Whitney <whitney@math.berkeley.edu>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
+In-Reply-To: <Pine.LNX.4.44.0303311551040.2220-100000@mf1.private>
+Message-ID: <Pine.LNX.4.44.0303311612060.6908-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 03:41:50PM -0800, Badari Pulavarty wrote:
-> I have been playing with supporting 4000 disks on IA32 machines.
-> There are bunch of issues we need to resolve before we could
-> do that.
 
-	That's the conversation I'm trying to kickstart.
+On Mon, 31 Mar 2003, Wayne Whitney wrote:
+> 
+> UP with preempt.  2.5.66 with the patch you sent still locks up.  I should
+> mention that I am running two copies of a hacked XFree86 on two different
+> sets of KVM hardware, but that doesn't require any kernel patches (well, a
+> small one to the input layer).
 
-> I am using scsi_debug to simulate 4000 disks. (Ofcourse, I had
-> to hack "sd" to support more than 256 disks). Anyway, I noticed
-> that I lost almost 350MB of my lowmem, when I simulated 4000 disks.
-> We are working on most of these. But there are userlevel issues
-> to be resolved. Here is the list ...
+Can you check dosemu in text mode to see if the kernel prints out
+anything. I realize that not many things are relevant in text mode, but I
+have this memory of dosemu at least historically supporting it. Maybe not
+any more.
 
-	Wow, this is cool.  Thanks for telling me about this.
+		Linus
 
-> I have not done any IO on these yet. When I mount all of these and do
-> IO on them, we might see new issues. So with all these, I will be doubtful
-> if we can ever reach 16k disks on IA32.
-
-	We're going to have to find a way.  IA32 is going to be around
-for long enough, I think.  Easily 8k disks, as soon as the folks who are
-doing 4k disks today want to multipath.
-
-Joel
-
--- 
-
-Life's Little Instruction Book #226
-
-	"When someone hugs you, let them be the first to let go."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

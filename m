@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUGIKax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUGIKc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265097AbUGIKax (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 06:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbUGIKax
+	id S264929AbUGIKc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 06:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUGIKc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 06:30:53 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:21472 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S265097AbUGIKal (ORCPT
+	Fri, 9 Jul 2004 06:32:28 -0400
+Received: from [217.222.53.238] ([217.222.53.238]:38405 "EHLO mail.gts.it")
+	by vger.kernel.org with ESMTP id S264929AbUGIKcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 06:30:41 -0400
+	Fri, 9 Jul 2004 06:32:22 -0400
+Message-ID: <40EE742A.50407@gts.it>
+Date: Fri, 09 Jul 2004 12:32:10 +0200
+From: Stefano Rivoir <s.rivoir@gts.it>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.7-mm7
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040708235025.5f8436b7.akpm@osdl.org>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089369159.3198.4.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 09 Jul 2004 12:32:39 +0200
+References: <20040708235025.5f8436b7.akpm@osdl.org>	<40EE5418.2040000@gts.it> <20040709024112.7ef44d1d.akpm@osdl.org> <40EE732C.5020404@gts.it>
+In-Reply-To: <40EE732C.5020404@gts.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-09 at 08:50, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/
+Stefano Rivoir wrote:
+
+> It seems that hotplug "subsystem" is having problems (I use debian/sid), 
+> because it stucks during
 > 
-My EHCI controller still won't come back to life. I have tried 
-various boot options to no avail. I still gives:
+> /sbin/modprobe -s -q ehci_hcd
 
-ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
-ehci_hcd 0000:00:1d.7: EHCI Host Controller
-ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-ehci_hcd 0000:00:1d.7: can't reset
-ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-ehci_hcd: probe of 0000:00:1d.7 failed with error -95
-USB Universal Host Controller Interface driver v2.2
+Ahem, but "stucks" i mean that ps reports it as "D+"
 
-Booting with 'nosmp' make it stop booting at:
-
-<snip>
-ICH5: chipset revision 2
-ICH5: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-hda: WDC WD1200JB-00EVA0, ATA DISK drive
-Using anticipatory io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-
-Jurgen
-
+-- 
+Stefano RIVOIR
 

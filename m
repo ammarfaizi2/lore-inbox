@@ -1,72 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVANALl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVANAQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbVANALl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVANAJG
+	id S261735AbVANAQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVAMVto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:09:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27308 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261746AbVAMWCG (ORCPT
+	Thu, 13 Jan 2005 16:49:44 -0500
+Received: from gw.goop.org ([64.81.55.164]:18324 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S261737AbVAMVrG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 17:02:06 -0500
-Date: Thu, 13 Jan 2005 14:02:05 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
-       marcelo.tosatti@cyclades.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: security contact draft
-Message-ID: <20050113140205.C24171@build.pdx.osdl.net>
-References: <20050113125503.C469@build.pdx.osdl.net> <1105647058.4624.134.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 16:47:06 -0500
+Subject: /proc/self/maps still not right in 2.6.10-mm3
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: pmeda@akamai.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-T6jFW5GpQbR0zLxYn9i6"
+Date: Thu, 13 Jan 2005 13:43:12 -0800
+Message-Id: <1105652592.1208.14.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1105647058.4624.134.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 13, 2005 at 08:10:58PM +0000
+X-Mailer: Evolution 2.0.3 (2.0.3-0.mozer.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> On Iau, 2005-01-13 at 20:55, Chris Wright wrote:
-> > To keep the conversation concrete, here's a pretty rough stab at
-> > documenting the policy.
-> 
-> It's not documenting the stuff Linus seems to be talking about which is
-> a public list ? Or does Linus want both ?
 
-I got the impression that Linus was in favor of the private one,
-despite his own leanings to absolute openness.  I think a public one
-(lkml notwithstanding) would be great for advisory announcements.
+--=-T6jFW5GpQbR0zLxYn9i6
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> >  It is preferred that mail sent to the security contact is encrypted
-> >  with $PUBKEY.
-> 
-> https:// and bugs.kernel.org ? You can make bugzilla autoprivate
-> security bugs and alert people.
+Looks like there's another problem.  If you read /proc/self/maps with
+>4k chunks, the reads are always truncated to < 4k.  However, at those
+points, it misses an entry.  If you read in smaller chunks, the results
+look good.
 
-Yeah, I had thought about that too.  Not a real bugzilla fan, but I'm
-not tied to any particular method here.
+For example (tm.c is attached):
+$ ./tm &
+$ dd bs=80 < /proc/$!/maps > 1
+$ dd bs=100k < /proc/$!/maps > 2
+$ diff -u 1 2
+@@ -96,7 +96,6 @@
+ b7b43000-b7b44000 ---p b7b43000 00:00 0
+ b7b44000-b7b45000 r-xp b7b44000 00:00 0
+ b7b45000-b7b46000 ---p b7b45000 00:00 0
+-b7b46000-b7b47000 r-xp b7b46000 00:00 0
+ b7b47000-b7b48000 ---p b7b47000 00:00 0
+ b7b48000-b7b49000 r-xp b7b48000 00:00 0
+ b7b49000-b7b4a000 ---p b7b49000 00:00 0
+@@ -196,7 +195,6 @@
+ b7ba7000-b7ba8000 ---p b7ba7000 00:00 0
+ b7ba8000-b7ba9000 r-xp b7ba8000 00:00 0
+ b7ba9000-b7baa000 ---p b7ba9000 00:00 0
+-b7baa000-b7bab000 r-xp b7baa000 00:00 0
+ b7bab000-b7bac000 ---p b7bab000 00:00 0
+ b7bac000-b7bad000 r-xp b7bac000 00:00 0
+ b7bad000-b7bae000 ---p b7bad000 00:00 0
+[...]
 
-> >  well-tested or for vendor coordination.  However, we expect these delays
-> >  to be short, measurable in days, not weeks or months.  As a basic default
-> >  policy, we expect report to disclosure to be on the order of $NUMDAYS.
-> 
-> Sounds good. $NUMDAYS is going to require some debate. My gut feeling is
-> 14 days is probably the right kind of target for hard stuff remembering
-> how long it takes to run QA on an enterprise grade kernel. If it gets
-> too short then vendors are going to disclose elsewhere for their own
-> findings and only to this list when they are all ready anyway which
-> takes us back to square one.
-> 
-> And many are probably a lot less - those nobody is going to rush out and
-> build new vendor kernels for, or those that prove to be non serious can
-> probably get bumped to the public list by the security officer within a
-> day or two.
+Strace shows that the mapping at 0xb7b46000 is skipped because it
+straddles the read boundary:
+[...]
+b7b3f000-b7b40000 ---p b7b3f000 00:00 0 \n
+b7b40000-b7b41000 r-xp b7b40000 00:00 0 \n
+b7b41000-b7b42000 ---p b7b41000 00:00 0 \n
+b7b42000-b7b43000 r-xp b7b42000 00:00 0 \n
+b7b43000-b7b44000 ---p b7b43000 00:00 0 \n
+b7b44000-b7b45000 r-xp b7b44000 00:00 0 \n
+b7b45000-b7b46000 ---p b7b45000 00:00 0 \n", 102400) = 4092
+         ^^^^^^^^
+read(0, "b7b47000-b7b48000 ---p b7b47000 00:00 0 \n
+         ^^^^^^^^
+b7b48000-b7b49000 r-xp b7b48000 00:00 0 \n
+b7b49000-b7b4a000 ---p b7b49000 00:00 0 \n
+b7b4a000-b7b4b000 r-xp b7b4a000 00:00 0 \n
+[...]
 
-Yup, I think the severity and ease of exploit are part of the discussion
-around disclosure timeframe.
+	J
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--=-T6jFW5GpQbR0zLxYn9i6
+Content-Disposition: attachment; filename=tm.c
+Content-Type: text/x-csrc; name=tm.c; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+#include <sys/mman.h>
+#include <unistd.h>
+int main()
+{
+	int i;
+	char *m = mmap(0, 1000*4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	char *p = m;
+
+	for(i = 0; i < 1000; i+=2) {
+		mprotect(p, 4096, PROT_READ);
+		p += 8192;
+	}
+
+	pause();
+
+	return 0;
+}
+
+--=-T6jFW5GpQbR0zLxYn9i6--
+

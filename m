@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUFSSYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUFSScE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbUFSSYI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 14:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUFSSYI
+	id S264522AbUFSScE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 14:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUFSScE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 14:24:08 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:6314 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S264461AbUFSSYF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 14:24:05 -0400
-Message-ID: <40D4849B.3070001@pacbell.net>
-Date: Sat, 19 Jun 2004 11:23:23 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-Subject: Re: DMA API issues
-References: <1087582845.1752.107.camel@mulgrave>	<20040618193544.48b88771.spyro@f2s.com>			<1087584769.2134.119.camel@mulgrave>	<20040618195721.0cf43ec2.spyro@f2s.co	m	> <40D34078.5060909@pacbell.net>		<20040618204438.35278560.spyro@f2s.com>	<1087588627.2134.155.camel@mulgrave	>  <40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave> 	<40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave>
-In-Reply-To: <1087600052.2135.197.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 19 Jun 2004 14:32:04 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:49872 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264609AbUFSSbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 14:31:43 -0400
+Subject: Re: more files with licenses that aren't GPL-compatible
+From: David Woodhouse <dwmw2@infradead.org>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Oliver Neukum <oliver@neukum.org>,
+       davids@webmaster.com, erikharrison@gmail.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0406171201100.7337-100000@notebook.home.mdiehl.de>
+References: <Pine.LNX.4.44.0406171201100.7337-100000@notebook.home.mdiehl.de>
+Content-Type: text/plain
+Date: Sat, 19 Jun 2004 19:29:09 +0100
+Message-Id: <1087669749.4230.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.8 (1.5.8-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Fri, 2004-06-18 at 17:38, David Brownell wrote:
+On Thu, 2004-06-17 at 12:09 +0200, Martin Diehl wrote:
+> From a technical point of view I'm just wondering how it comes this 
+> firmware is derived from the Linux kernel? I mean this is running on an 
+> 8-bit microcontroller with some 4KiB of memory so it sounds pretty much 
+> impossible to me.
 
->>You mentioned ioremap(), which doesn't help here since
->>the need is for a block of memory, not just address space,
->>and also memcpy_toio(), which just another tool to implement
->>the dma bouncing (which is on the "strongly avoid!" list).
->>
->>As I said, those still don't make dma_alloc_coherent() work.
-> 
-> 
-> Right, that's rather the point.  The memory you get by doing an ioremap
-> on this chip area may have to be treated differently from real memory on
-> some platforms.
+I'm not sure that the point of your question is. It's _obviously_ not
+derived from the Linux kernel; it can be reasonably considered an
+independent and separate work in itself. This is part of what the GPL
+has to say about such things:
 
-And that point/difference would be ... what?  It IS real memory.
-Not "main memory", so the device's DMA access never consumes
-bandwidth on the "main" memory bus, but real nonetheless.
+	"These requirements apply to the modified work as a whole.  If
+	identifiable sections of that work are not derived from the
+	Program, and can be reasonably considered independent and
+	separate works in themselves, then this License, and its terms,
+	do not apply to those sections when you distribute them as
+	separate works.
 
-I'm having to guess at your point here, even from other emails.
-You've asserted a difference, but not what it is.  Maybe it's
-something to do with the problem's NUMA nature?  Are you for
-some reason applying DMA _mapping_ requirements (main-memory
-only) to the DMA memory _allocation_ problem?
+Unfortunately, you seem to have stopped reading there. You should have
+read the rest of the paragraph, and also the following paragraph:
 
+	"            ... But when you distribute the same sections as
+	part of a whole	which is a work based on the Program, the
+	distribution of the whole must be on the terms of this License,
+	whose permissions for other licensees extend to the entire
+	whole, and thus to each	and every part regardless of who wrote
+	it.
 
-> That's the fundamental problem of trying to treat it as memory obtained
-> from dma_alloc_coherent().
+	"Thus, it is not the intent of this section to claim rights or
+	contest your rights to work written entirely by you; rather, the
+	intent is to exercise the right to control the distribution of
+	derivative or collective works based on the Program."
 
-Well, no other memory in the entire system meets the requirements
-for the dma_alloc_coherent() API, since _only that_ chunk of memory
-is works with that device's DMA hardware.  Which is the fundamental
-problem that needs to be solved.  It can clearly done at the platform
-level, using device- or bus-specific implementations.
+Note the use of the phrase 'derivative OR COLLECTIVE works'. Please
+don't confuse the issue by talking only about derivation, when that's
+not all that's relevant in the context of the GPL.
 
-- Dave
+To pick another example -- the binary-only module distributed by
+Linksys/Cisco in their wireless router products is of dubious legality
+by itself since it may or may not be a derived work -- but that's not
+really relevant when it's distributed in their product's firmware as
+part of a collective work which is based on the Linux kernel. In that
+situation it's clearly a copyright violation.
+
+-- 
+dwmw2
 

@@ -1,71 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTEMNnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 09:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTEMNnU
+	id S261222AbTEMNpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 09:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTEMNpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 09:43:20 -0400
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:12039 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261227AbTEMNnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 09:43:17 -0400
-Date: Tue, 13 May 2003 15:51:50 +0200
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+	Tue, 13 May 2003 09:45:31 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:16605 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP id S261222AbTEMNpZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 09:45:25 -0400
+Date: Tue, 13 May 2003 15:57:59 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: David Hinds <dahinds@users.sourceforge.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: inode values in file system driver
-Message-ID: <20030513135150.GA1049@arthur.home>
-References: <200305102118.20318.adrian@mcmen.demon.co.uk>
+Subject: 2.5.69+bk: "sleeping function called from illegal context" on card release while shutting down
+Message-ID: <20030513135759.GG32559@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305102118.20318.adrian@mcmen.demon.co.uk>
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just tried to eject the card while the system was shutting down.
 
-On Sat, May 10, 2003 at 09:18:20PM +0100, Adrian McMenamin wrote:
-> Am I allowed to assign the value 0 to an inode in a file system driver? I=
- seem=20
-> to be having problems with a file that is being assigned this inode value=
-=20
-> (its a FAT based filesystem so the inode values are totally artificial).
+-alex
 
-Yes, you are. However, glibc thinks that inode 0 is special and won't
-show it.
+$ lsmod
+Module                  Size  Used by
+pcnet_cs               16100  1
+8390                    8384  1 pcnet_cs
+crc32                   3744  1 8390
+ds                     11616  3 pcnet_cs
+yenta_socket           14240  2
+pcmcia_core            53888  3 pcnet_cs,ds,yenta_socket
+soundcore               6560  0
 
-Example: mount an NTFS filesystem with -o show_sys_files and do ls on
-the mountpoint. You won't see the file $MFT, but it is there when you
-copy it: cp /mountpoint/\$MFT /tmp .
+$ lspci |grep CardBus
+00:11.0 CardBus bridge: Texas Instruments PCI1131 (rev 01)
+00:11.1 CardBus bridge: Texas Instruments PCI1131 (rev 01)
 
-Yes, this is a bug in glibc.
+$ grep PCMCIA .config
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+# PCMCIA/CardBus support
+CONFIG_PCMCIA=m
+CONFIG_PCMCIA_PROBE=y
+# CONFIG_PARPORT_PC_PCMCIA is not set
+# PCMCIA SCSI adapter support
+# CONFIG_PCMCIA_AHA152X is not set
+# CONFIG_PCMCIA_FDOMAIN is not set
+# CONFIG_PCMCIA_NINJA_SCSI is not set
+# CONFIG_PCMCIA_QLOGIC is not set
+# PCMCIA network device support
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+# CONFIG_PCMCIA_AXNET is not set
+# PCMCIA character devices
 
 
-Erik
+Hw. address read/write mismap 0
+Hw. address read/write mismap 1
+Hw. address read/write mismap 2
+Hw. address read/write mismap 3
+Hw. address read/write mismap 4
+Hw. address read/write mismap 5
+Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
+Call Trace:
+ [<c0118bc8>] __might_sleep+0x58/0x70
+ [<c6a31eb6>] +0x82/0x58c [pcmcia_core]
+ [<c6a2d193>] undo_irq+0x23/0x90 [pcmcia_core]
+ [<c6a31eb6>] +0x82/0x58c [pcmcia_core]
+ [<c6a302f8>] pcmcia_release_irq+0xb8/0xe0 [pcmcia_core]
+ [<c6a25e00>] pcnet_release+0x0/0x80 [pcnet_cs]
+ [<c6a312d5>] CardServices+0x155/0x260 [pcmcia_core]
+ [<c6a312c9>] CardServices+0x149/0x260 [pcmcia_core]
+ [<c6a25e56>] pcnet_release+0x56/0x80 [pcnet_cs]
+ [<c01224a4>] run_timer_softirq+0xc4/0x1a0
+ [<c010a8b3>] handle_IRQ_event+0x33/0xf0
+ [<c011e889>] do_softirq+0xa9/0xb0
+ [<c010abb5>] do_IRQ+0x125/0x150
+ [<c01093a8>] common_interrupt+0x18/0x20
+ [<c01a3dba>] strnlen_user+0x1a/0x40
+ [<c016fd42>] create_elf_tables+0x2d2/0x360
+ [<c01706cd>] load_elf_binary+0x4cd/0xba0
+ [<c0134379>] buffered_rmqueue+0xc9/0x160
+ [<c0170200>] load_elf_binary+0x0/0xba0
+ [<c015639b>] search_binary_handler+0xcb/0x2d0
+ [<c01566f9>] do_execve+0x159/0x1a0
+ [<c0157d28>] getname+0x78/0xc0
+ [<c0107a46>] sys_execve+0x36/0x70
+ [<c0109187>] syscall_call+0x7/0xb
 
---=20
-Erik Mouw
-J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+wPh2/PlVHJtIto0RAvGvAJ90nQlorRfZcXTO2Ln0YWuAbwvnzACfdEG1
-2qsGueiHmtzMaUkwqb54LK8=
-=Ajht
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--

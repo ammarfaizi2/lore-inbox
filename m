@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbULBItR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbULBItJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbULBItR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 03:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULBItR
+	id S261516AbULBItJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 03:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULBItJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 03:49:17 -0500
-Received: from mail1.upco.es ([130.206.70.227]:14746 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261566AbULBItE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 03:49:04 -0500
-Date: Thu, 2 Dec 2004 09:49:00 +0100
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Input/ACPI layer glitches switching from 2.6.7 to 2.6.9?
-Message-ID: <20041202084900.GA16740@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.5.1i
+	Thu, 2 Dec 2004 03:49:09 -0500
+Received: from mini002.webpack.hosteurope.de ([80.237.130.131]:11484 "EHLO
+	mini002.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S261516AbULBItB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 03:49:01 -0500
+From: "cr7" <cr7@darav.de>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: Re: 2.6.10-rc2-mm4 - non-ACPI compile broken
+Date: Thu, 02 Dec 2004 10:42:40 +0100
+Message-ID: <elmo110198056013041086480495@debian>
+User-Agent: elmo/1.3.0
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="--java_obsysa424990052"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, 
 
-   I have a couple of little problems switching from 2.6.7 to 2.6.9 with
-   respect to the input layer. I have a Sony Vaio FX701 which worked like a
-   charm on 2.6.7. Having an ALPS touchpad, both kernel where patched with
-   the corresponding patch from Peter Österlund (available at
-   http://web.telia.com/~u89404340/touchpad/index.html ). 
+----java_obsysa424990052
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-   The first "problem" is maybe related to this. Switching from 2.6.7 to
-   2.6.9, enumeration of devices by EVDEV input module changed (touchpad was
-   event0 in 2.6.7, changed to event1 in 2.6.9) which make necessary a
-   switch of X config... 
-
-   The second is more important. Someway, the detection by the acpid daemon
-   of "Fn+F12" (suspend to disk key) has turned flaky. I mean, I need to try
-   several times before the system recognize the key: I have to press it
-   in a specific sequence (first Fn down, than F12 down, than Fn up, then
-   F12 up) and yet only sometimes it is recognized. 
-
-   I understand there is not much data here; but before spamming the list
-   with hundreds of unuseful logs, I would like to have some hint about
-   which kind of data is needed. 
-
-   Thank you very much, have a nice day,
-
-                                        Romano    
-
-      
+Hello,
 
 
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+I've tried to compile 2.6.10-rc2-mm4 without ACPI on an i386-arch.
+It shows:
+arch/i386/kernel/built-in.o(.init.text+0x167e): In function `setup_arch':
+: undefined reference to `acpi_boot_table_init'
+make: *** [.tmp_vmlinux1] Fehler 1
+
+The patch which seems to be responsible is:
+x86_64-split-acpi-boot-table-parsing.patch
+Around line 83 and the following.
+
+acpi_boot_table_init is located in arch/i386/kernel/acpi/boot.c
+But it's only compiled with CONFIG_ACPI_BOOT set.
+
+The attached patch fixes the problem by adding a dummy function to include/linux/acpi.h - like it's done for acpi_init() too.
+
+Regards,
+Carsten
+
+Please cc, I'm not subscribed.
+
+
+
+
+----java_obsysa424990052
+Content-Type: text/plain
+Content-Disposition: attachment; filename="fix_no_acpi_compile.patch"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXByIGxpbnV4L2luY2x1ZGUvbGludXgvYWNwaS5oIGxpbnV4LW5ldy9pbmNsdWRlL2xpbnV4
+L2FjcGkuaAotLS0gbGludXgvaW5jbHVkZS9saW51eC9hY3BpLmgJMjAwNC0xMi0wMSAxNDoyODozMi4w
+MDAwMDAwMDAgKzAxMDAKKysrIGxpbnV4LW5ldy9pbmNsdWRlL2xpbnV4L2FjcGkuaAkyMDA0LTEyLTAy
+IDEwOjMwOjUzLjAwMDAwMDAwMCArMDEwMApAQCAtNDI0LDYgKzQyNCwxMyBAQCBzdGF0aWMgaW5saW5l
+IGludCBhY3BpX3RhYmxlX2luaXQodm9pZCkKIAlyZXR1cm4gMDsKIH0KIAorc3RhdGljIGlubGluZSBp
+bnQgYWNwaV9ib290X3RhYmxlX2luaXQodm9pZCkKK3sKKwlyZXR1cm4gMDsKK30KKworCisKICNlbmRp
+ZiAJLyohQ09ORklHX0FDUElfQk9PVCovCiAKIHVuc2lnbmVkIGludCBhY3BpX3JlZ2lzdGVyX2dzaSAo
+dTMyIGdzaSwgaW50IGVkZ2VfbGV2ZWwsIGludCBhY3RpdmVfaGlnaF9sb3cpOwo=
+----java_obsysa424990052--
+

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266460AbSLOMit>; Sun, 15 Dec 2002 07:38:49 -0500
+	id <S266480AbSLOMl5>; Sun, 15 Dec 2002 07:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266473AbSLOMis>; Sun, 15 Dec 2002 07:38:48 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:27397 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266460AbSLOMir>;
-	Sun, 15 Dec 2002 07:38:47 -0500
-From: John Bradford <john@bradfords.org.uk>
-Message-Id: <200212151258.gBFCwEDZ000672@darkstar.example.net>
-Subject: Re: Symlink indirection
-To: andrew@walrond.org (Andrew Walrond)
-Date: Sun, 15 Dec 2002 12:58:14 +0000 (GMT)
-Cc: junkio@cox.net, linux-kernel@vger.kernel.org
-In-Reply-To: <3DFC72E4.30400@walrond.org> from "Andrew Walrond" at Dec 15, 2002 12:17:40 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S266489AbSLOMl5>; Sun, 15 Dec 2002 07:41:57 -0500
+Received: from mrmorr.lnk.telstra.net ([139.130.12.153]:42501 "EHLO
+	cheesypoof.guarana.org") by vger.kernel.org with ESMTP
+	id <S266480AbSLOMlz>; Sun, 15 Dec 2002 07:41:55 -0500
+Date: Sun, 15 Dec 2002 23:49:55 +1100
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Kevin Easton <kevin@sylandro.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 st + aic7xxx (Adaptec 19160B) + VIA KT333 repeatable freeze
+Message-ID: <20021215124955.GA26751@guarana.org>
+References: <20021213115127.A12153@beernut.flames.org.au> <1047.1039952560@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1047.1039952560@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.28i
+From: caf@guarana.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > "AW" == Andrew Walrond <andrew@walrond.org> gives an example of
-> > a/{x,y,z}, b/{y,z}, c/z mounted on d/. in that order, later
-> > mounts covering the earlier ones.
-> > 
-> > AW> echo "d/w" > d/w would create a new file in directory a.
-
-I disagree.  It should create it in directory d, even though that is
-the mount point.
-
-A union mount should include files from another directory, but writes
-should go to the actual named directory.
-
-> > Back to your example; what do you wish to happen when we do
-> > this?
-> > 
-> >     $ mv d/z d/zz && test -f d/z && cat d/z
-> > 
-> > Here we rename d/z (which is really c/z) to zz.  Does this
-> > reveal z that used to be hidden by that, namely b/z, and "cat
-> > d/z" now shows "b/z"?
+On Sun, Dec 15, 2002 at 10:42:40PM +1100, Keith Owens wrote:
+> On Fri, 13 Dec 2002 11:51:27 +1100, 
+> Kevin Easton <kevin@sylandro.com> wrote:
+> >I'm not sure exactly where this problem fits in, but I'm getting a 
+> >completely repeatable freeze (100% lockup, no response to keyboard)
+> >triggered by writing to /dev/st0 (dd if=/dev/urandom of=/dev/st0 bs=512
+> >count=163840 will reproduce it).
+> >So... does anyone have any ideas how I should start trying to track this
+> >down?
 > 
-> Yes - exactly
+> Boot with nmi_watchdog=1 (smp) or nmi_watchdog=2 (smp or up), cat
+> /proc/interrupts to verify that NMI is being used.  If the problem is a
+> disabled spinloop then the watchdog will trip after 5 seconds and give
+> you a trace which can be run through ksymoops.  If that trace does not
+> give enough data to debug the problem, apply the kdb patch[*], read
+> Documentation/kdb and start digging, bt first and debug from there.
 
-Union mounts should be read only.
+Thanks, will try that in the morning.
 
-If read-write union mounts are needed, I don't think that we should
-implement them significantly differently to the way they work in BSD.
+	- Kevin.
 
-John.

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135233AbRDLRRG>; Thu, 12 Apr 2001 13:17:06 -0400
+	id <S135237AbRDLRUg>; Thu, 12 Apr 2001 13:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135234AbRDLRQ4>; Thu, 12 Apr 2001 13:16:56 -0400
-Received: from [209.125.39.114] ([209.125.39.114]:7130 "EHLO
-	mail.etcsupport.com") by vger.kernel.org with ESMTP
-	id <S135233AbRDLRQt>; Thu, 12 Apr 2001 13:16:49 -0400
-From: <strout@etcsupport.com>
-To: linux-kernel@vger.kernel.org
-Message-ID: <e1dccac6.cac6e1dc@etcsupport.com>
-Date: Thu, 12 Apr 2001 13:17:42 -0400
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: en
-Subject: PCMCIA: APA1480 driver kernel 2.4.3
+	id <S135235AbRDLRU0>; Thu, 12 Apr 2001 13:20:26 -0400
+Received: from penguin.roanoke.edu ([199.111.154.8]:39687 "EHLO
+	penguin.roanoke.edu") by vger.kernel.org with ESMTP
+	id <S135236AbRDLRUL>; Thu, 12 Apr 2001 13:20:11 -0400
+Message-ID: <3AD5E682.97A6A7C4@linuxjedi.org>
+Date: Thu, 12 Apr 2001 13:31:46 -0400
+From: "David L. Parsley" <parsley@linuxjedi.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
 X-Accept-Language: en
+MIME-Version: 1.0
+To: viro@math.psu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: union mounting?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note:  I am not a list memeber, please CC me in replies.
+Hi Alex,
 
-I recently tried upgrading to kernel 2.4.3 on my laptop.  After checking
-through documentation and all that happy stuff it would seem that the
-CONFIG_PCMCIA_APA1480 option should exist (as in
-Documentation/Configure.help) however it doesn't.  I also can't seem to
-find it anywhere in the drivers tree.
+	I'm working on an embedded distro, and it would be nice if I could just
+mount 'packages' over the top of one another; each 'package' is a cramfs
+filesystem.  I'm currently using a bunch of symlink stuff, but it's not
+real pretty.  If you've got union mounting patches for testing, I'd be
+interested. ;-)
 
-So to get to the point, is APA1480 (Adaptec PCMCIA SCSI) going to get
-put into the kernel with the rest of the PCMCIA stuff?  What kernel rev
-should I watch for?
-
-Thanks loads,
-Leeman Strout
-strout@etcsupport.com
-
+regards,
+	David
+-- 
+David L. Parsley
+Network Administrator
+Roanoke College

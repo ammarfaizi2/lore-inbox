@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131324AbRCNIF2>; Wed, 14 Mar 2001 03:05:28 -0500
+	id <S131327AbRCNI1A>; Wed, 14 Mar 2001 03:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131328AbRCNIFT>; Wed, 14 Mar 2001 03:05:19 -0500
-Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:41988 "EHLO
-	mail.neruo.com") by vger.kernel.org with ESMTP id <S131324AbRCNIFC>;
-	Wed, 14 Mar 2001 03:05:02 -0500
-Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
-From: Brad Douglas <brad@neruo.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010313212529.16206@smtp.wanadoo.fr>
-Content-Type: text/plain
-X-Mailer: Evolution 0.8 (Developer Preview)
-Date: 14 Mar 2001 00:02:11 -0800
-Mime-Version: 1.0
-Message-Id: <20010314080510Z131324-406+251@vger.kernel.org>
+	id <S131331AbRCNI0u>; Wed, 14 Mar 2001 03:26:50 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:52983 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131327AbRCNI0h>; Wed, 14 Mar 2001 03:26:37 -0500
+Message-ID: <3AAF2AB6.6E9E53F4@mvista.com>
+Date: Wed, 14 Mar 2001 00:24:22 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, npsimons@fsmlabs.com,
+        Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: system call for process information?
+In-Reply-To: <Pine.LNX.4.21.0103132325140.2056-100000@imladris.rielhome.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Mar 2001 22:25:29 +0100, Benjamin Herrenschmidt wrote:
-> I'm working on improving some aspects of Power Management on the
-> PowerBooks, and among other things, I have a problem with fbdevs.
+Rik van Riel wrote:
 > 
-> Currently, each fbdev registers a power management callback to sleep/
-> wakeup the device. We handle HW related things (shutting the backlight
-> off, putting the chip to sleep when possible, backing up the frame buffer
-> content, etc...) from there.
+> On Wed, 14 Mar 2001, Martin Dalecki wrote:
 > 
-> We do call the video sleep last during the sleep process, and wake it up
-> first, to avoid any problem if something is beeing printed to the console
-> while the chip is suspended.
+> > Not the embedded folks!!! The server folks laugh histerically all
+> > times they go via ssh to a trashing busy box to see what's wrong and
+> > then they see top or ps auxe under linux never finishing they job:
 > 
-> However, this is not very safe. First, there's the cursor timer, which
-> can screw us up. I have a hack in my tree where the fbdev driver calls a
-> new routine in fbcon.c that stops/starts the cursor timer.
+> That's a separate issue.
 > 
-> But I'm looking toward a more generic solution. By having a way to
-> "suspend" the entire fbcon, maybe we can have all console output blocked
-> & buffered until the fbcon is woken up. Also, a question is should we
-> call that fbcon_suspend()/fbcon_resume() (currently only the cursor timer
-> stuff) from the fbdev's or should the fbcon itself register as a power
-> management client, and then call fbdev's suspend/resume routines ? I
-> prefer the second solution as the fbdev's are often PCI devices (and so
-> already have the ability of having PCI suspend/resume hooks).
+> I guess the pagefault path should have _2_ locks.
+> 
+> One mmap_sem protecting read-only access to the address space
+> and another one for write access to the adress space (to stop
+> races with swapout, other page faults, ...).
+> 
+> At the point where the pagefault sleeps on IO, it could release
+> the read-only lock, so vmstat, top, etc can get the statistics
+> they need. Only during the time the pagefaulting code is actually
+> messing with the address space could it block read access (to
+> prevent others from seeing an inconsistent state).
+> 
+Is it REALLY necessary to prevent them from seeing an inconsistent
+state?  Seems to me that in the total picture (i.e. system wide) they
+will never see a consistent state, so why be concerned with a small
+corner of the system.  Let them figure it out, possibly by consistency
+checks, if they care.  It just seems unhealthy to demand consistency at
+the cost of delays that will only make other data even more
+inconsistent. And if the delay is _forever_ from a tool that may be used
+to diagnose system problems...  I would rather a tool that repeatedly
+showed the same inconsistent state than one that hangs because it can
+not get a consistent one.
 
-I believe the second solution would be best.  We want to only have
-hardware specific code in the fbdev drivers (well, as much as allows).
-
-> Another solution would be to have all fbdev's have it's own suspend/
-> resume hook (and maintain a "suspend" state that would tell fbdev to stop
-> calling them or start working on a memory based backup image), and
-> separately, fbdev's own suspend/resume (for the cursor, as it's not head-
-> dependant but rather global to all fbdev's).
-
-I think registering fbcon as a PM client and doing the above when the
-fbdev suspend/resume hooks are called should work.  A memory backup is
-worked on until the resume is run and the backup is restored to the
-display.
-
-So the fbdev drivers would register PM with fbcon, not PCI, correct?
-
-Brad Douglas
-brad@neruo.com
-http://www.linux-fbdev.org
-
-
+George

@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267290AbTABWcU>; Thu, 2 Jan 2003 17:32:20 -0500
+	id <S267339AbTABWiZ>; Thu, 2 Jan 2003 17:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267291AbTABWcU>; Thu, 2 Jan 2003 17:32:20 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:16649 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267290AbTABWcT>;
-	Thu, 2 Jan 2003 17:32:19 -0500
-Message-ID: <3E14BFBA.4070908@walrond.org>
-Date: Thu, 02 Jan 2003 22:39:54 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+	id <S267340AbTABWiZ>; Thu, 2 Jan 2003 17:38:25 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:61284 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S267339AbTABWiY>; Thu, 2 Jan 2003 17:38:24 -0500
+Message-ID: <3E14C10E.3060702@google.com>
+Date: Thu, 02 Jan 2003 14:45:34 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jon Portnoy <portnoy@tellink.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: GPL and Nvidia
-References: <Pine.LNX.4.44.0301020032220.8691-100000@fogarty.jakma.org> <3E14202D.4050909@walrond.org> <Pine.LNX.4.50.0301021645430.4998-100000@cerberus.localhost>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Lionel Bouton <Lionel.Bouton@inet6.fr>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA 133 on a 40 pin cable
+References: <20030102182932.GA27340@linux.kappa.ro>	<1041536269.24901.47.camel@irongate.swansea.linux.org.uk> 	<3E14B698.8030107@inet6.fr> <1041549847.24901.71.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A "freedom" banner in one hand and a thick license document in the other 
-  beginning "GPL: Thou shall not...", and a fat, smiling lawyer behind you.
+>
+>
+>>#3 Is the above cable electrically able to sustain 66+ UDMA transfers 
+>>(could I hack a driver in order to bypass the 80pin cable detection and 
+>>make it work properly) ?
+>>    
+>>
+>
+>It is possible to do this yes. Other vendors do it as well. Careful
+>cable choice lets you meet the electrical requirements other ways in
+>certain situations.
+>
+>
+>  
+>
+on the kernel command line ide0=ATA66 bypasses the check for ide channel 0.
 
-Makes me glad to be alive ;)
+    Ross
 
-The BSD license sounds great, but I bet mine's shorter :)
+
 

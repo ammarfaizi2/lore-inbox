@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275098AbRIYQtO>; Tue, 25 Sep 2001 12:49:14 -0400
+	id <S275096AbRIYQvE>; Tue, 25 Sep 2001 12:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275104AbRIYQtF>; Tue, 25 Sep 2001 12:49:05 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:37380 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S275098AbRIYQsv>; Tue, 25 Sep 2001 12:48:51 -0400
-Date: Tue, 25 Sep 2001 18:49:14 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <laughing@shared-source.org>
-Subject: Re: Linux 2.4.9-ac15
-Message-ID: <20010925184914.B27294@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alan Cox <laughing@shared-source.org>
-In-Reply-To: <20010924164143.A11157@lightning.swansea.linux.org.uk>
+	id <S275093AbRIYQuy>; Tue, 25 Sep 2001 12:50:54 -0400
+Received: from borg.org ([208.218.135.231]:14343 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S275106AbRIYQun>;
+	Tue, 25 Sep 2001 12:50:43 -0400
+Date: Tue, 25 Sep 2001 12:51:09 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Something Broken in 2.4.9-ac15
+Message-ID: <20010925125109.A27695@borg.org>
+In-Reply-To: <1001377785.1430.7.camel@gromit.house> <20010925112012.C27059@borg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010924164143.A11157@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010925112012.C27059@borg.org>; from kentborg@borg.org on Tue, Sep 25, 2001 at 11:20:12AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Alan Cox wrote:
+On Tue, Sep 25, 2001 at 11:20:12AM -0400, I, Kent Borg wrote:
+> xosview thinks the CPU is pinned at 100% SYS when
+> nothing is going on.  I drag a window around and I get plenty of USR
+> and even some FREE, but let go and it goes back to 100%.
 
-> 2.4.9-ac15
+OK, so the above is nonsense.  I reverted through each of the kernels
+I have built of late--and kapm.idled is what is taking up all the
+time.  Which I guess is the right thing to do, I had heard about this
+once, but then I got confused by it when I suddenly started paying
+lots of attention.  It is unfortunate that an idle daemon doesn't get
+counted as free, but I think I understand why.  Sorry for the
+confusion.
 
-Among others, I get these when building modules:
+Still, I am convinced the constant report of zero swap usage is wrong
+in 2.4.9-ac15.
 
-/kernel/l249-ac15/include/linux/smp.h:80: warning: `smp_num_cpus' redefined
-/kernel/l249-ac15/include/linux/modules/i386_ksyms.ver:84: warning: this is the location of the previous definition
-/kernel/l249-ac15/include/linux/smp.h:87: warning: `smp_call_function' redefined
-/kernel/l249-ac15/include/linux/modules/i386_ksyms.ver:100: warning: this is the location of the previous definition
-/kernel/l249-ac15/include/linux/smp.h:88: warning: `cpu_online_map' redefined
-/kernel/l249-ac15/include/linux/modules/i386_ksyms.ver:86: warning: this is the location of the previous definition
-msr.c: In function `msr_open':
-msr.c:230: `cpu_data' undeclared (first use in this function)
-msr.c:230: (Each undeclared identifier is reported only once
-msr.c:230: for each function it appears in.)
-make[1]: *** [msr.o] Error 1
-make[1]: Leaving directory `/kernel/l249-ac15/arch/i386/kernel'
+
+-kb

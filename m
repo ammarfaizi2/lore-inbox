@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbUALXNs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 18:13:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbUALXNr
+	id S262767AbUALXMp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 18:12:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUALXMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 18:13:47 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:22175 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262782AbUALXNc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 18:13:32 -0500
-Message-ID: <400329AE.8050304@cyberone.com.au>
-Date: Tue, 13 Jan 2004 10:11:42 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Benecke <jens-usenet@spamfreemail.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1mm2: very bad interactive behaviour under XFree86
-References: <2867040.OKCKYgd4AF@spamfreemail.de>
-In-Reply-To: <2867040.OKCKYgd4AF@spamfreemail.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 12 Jan 2004 18:12:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44758 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262767AbUALXMi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 18:12:38 -0500
+Date: Mon, 12 Jan 2004 15:12:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: suspend/resume support for PIT (time.c)
+Message-Id: <20040112151254.5a30baaa.akpm@osdl.org>
+In-Reply-To: <20040112223915.GA204@elf.ucw.cz>
+References: <20040110200332.GA1327@elf.ucw.cz>
+	<1073932405.28098.43.camel@cog.beaverton.ibm.com>
+	<20040112223915.GA204@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> > As none of this really has anything to do w/ the PIT, and to avoid
+> > confusion w/ the PIT timesource code, could we rename this to
+> > "time_suspend" and "time_resume"?
+> 
+> Applied, altrough I'll not try to push it for a while. (I'm not sure
+> if Andrew applied previous patches and do not want to clash).
+
+I already converted the patch.    Here's what I currently have:
 
 
-Jens Benecke wrote:
 
->Hi,
->
->running an up-to-date XFree86 4.3 from Debian unstable, I have a stuck mouse
->pointer in X11 every time some application uses 100% CPU. I have
->folding@home running in the background at nice 19, which doesn't disturb
->anything, but when my machine starts up the following happens:
->
->- KDE 3.2 boots up,
->- openoffice quickstart,
->- KGpg reads a couple thousand keys,
->- xmms, xosview, background picture, etc load up
->- about 10 cm worth of applets in the KDE panel start
->
->During this time (20-30sec) the mouse pointer jerks from position to
->position about once to twice a second. My X server runs at priority 0, not
->-10, as recommended. This has been the case since 2.6.0-test11, but I have
->the (subjective) impression that under 2.6.1rc1-mm1 and 2.6.1-mm2 it got
->worse.
->
 
-mm kernels have a small interactivity change, so it would be good to
-compare with plain 2.6.1.
+From: Pavel Machek <pavel@ucw.cz>
 
-It is recommended that your X server run at priority 0. The -10
-priority is recommended when using my interactivity patches. Its all
-quite confusing.
+This adds proper suspend/resume support for PIT.  That means that clock are
+actually correct after suspend/resume.
 
->
->I am using an Athlon XP 2600+ with 1024MB RAM, Nforce2 chipset, NVIDIA
->XFree86 drivers.
->
->
->Shall I try vanilla 2.6.1 and compare? Or is this an obvious problem?
->
 
-Please try 2.6.1
+---
 
+ 25-akpm/arch/i386/kernel/time.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+)
+
+diff -puN arch/i386/kernel/time.c~suspend-resume-for-PIT arch/i386/kernel/time.c
+--- 25/arch/i386/kernel/time.c~suspend-resume-for-PIT	Mon Jan 12 13:49:55 2004
++++ 25-akpm/arch/i386/kernel/time.c	Mon Jan 12 13:49:55 2004
+@@ -307,7 +307,31 @@ unsigned long get_cmos_time(void)
+ 	return retval;
+ }
+ 
++static long clock_cmos_diff;
++
++static int time_suspend(struct sys_device *dev, u32 state)
++{
++	/*
++	 * Estimate time zone so that set_time can update the clock
++	 */
++	clock_cmos_diff = -get_cmos_time();
++	clock_cmos_diff += get_seconds();
++	return 0;
++}
++
++static int time_resume(struct sys_device *dev)
++{
++	unsigned long sec = get_cmos_time() + clock_cmos_diff;
++	write_seqlock_irq(&xtime_lock);
++	xtime.tv_sec = sec;
++	xtime.tv_nsec = 0;
++	write_sequnlock_irq(&xtime_lock);
++	return 0;
++}
++
+ static struct sysdev_class pit_sysclass = {
++	.resume = time_resume,
++	.suspend = time_suspend,
+ 	set_kset_name("pit"),
+ };
+ 
+
+_
 

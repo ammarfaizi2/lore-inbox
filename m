@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268893AbRHFQ6i>; Mon, 6 Aug 2001 12:58:38 -0400
+	id <S268897AbRHFRDi>; Mon, 6 Aug 2001 13:03:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268897AbRHFQ62>; Mon, 6 Aug 2001 12:58:28 -0400
-Received: from ns3.keyaccesstech.com ([209.47.245.85]:37133 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S268893AbRHFQ6O>; Mon, 6 Aug 2001 12:58:14 -0400
-Date: Mon, 6 Aug 2001 12:58:24 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Problems in using loadLin
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC549@elway.lss.emc.com>
-Message-ID: <Pine.LNX.4.33.0108061256530.1637-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S268899AbRHFRD2>; Mon, 6 Aug 2001 13:03:28 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17024
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S268897AbRHFRDS>; Mon, 6 Aug 2001 13:03:18 -0400
+Date: Mon, 6 Aug 2001 10:03:19 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tulip driver problem
+Message-ID: <20010806100319.C833@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <200108061619.f76GJAA99461@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108061619.f76GJAA99461@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, chen, xiangping wrote:
+On Mon, Aug 06, 2001 at 12:19:10PM -0400, Albert D. Cahalan wrote:
 
-> Hi,
->
-> I am trying to use loadlin to boot up a machine. But after I
-> replaced the bzImage, the kernel fails to boot up. It prints
-> out error messages like:
-> 	...
-> 	VFS: Mounted root (ext2 filesystem) readonly
-> 	Freeing unused kernel memory : 96K freed
-> 	Warning: unable to open an initial console
-> 	Kernel panic: No init found. Try passing init= option to kernel.
->
-> The boot.bat file is:
-> 	loadlin.exe bzImage ro root=0x0821
->
-> Thanks,
->
-> Xiangping
+> This is the Force PowerCore 6750 single-board computer with
+> a PowerPC processor and the DEC 21143 Ethernet chip.
 
-0x0821 represents /dev/sdc1. Did you build the SCSI driver into the kernel, or
-do use an initrd?
+Just wondering, but when booting 2.4.x, do you see something like:
+"Unknown bridge resource %d: assuming transparent"
+for the tulip?
 
 -- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,78 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288149AbSAMVBJ>; Sun, 13 Jan 2002 16:01:09 -0500
+	id <S288154AbSAMVA5>; Sun, 13 Jan 2002 16:00:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288153AbSAMVA6>; Sun, 13 Jan 2002 16:00:58 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62785 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S288149AbSAMVAx>; Sun, 13 Jan 2002 16:00:53 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initramfs buffer spec -- second draft
-In-Reply-To: <a1oqmm$is3$1@cesium.transmeta.com>
-	<m1ofjyqb7t.fsf@frodo.biederman.org> <3C41EA0D.2050205@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Jan 2002 13:58:12 -0700
-In-Reply-To: <3C41EA0D.2050205@zytor.com>
-Message-ID: <m1elkuq87v.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S288153AbSAMVAr>; Sun, 13 Jan 2002 16:00:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54538 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288149AbSAMVAe>; Sun, 13 Jan 2002 16:00:34 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: zippel@linux-m68k.org (Roman Zippel)
+Date: Sun, 13 Jan 2002 21:11:59 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rml@tech9.net (Robert Love),
+        ken@canit.se (Kenneth Johansson), arjan@fenrus.demon.nl,
+        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
+In-Reply-To: <3C41ED4E.4D3F2D2C@linux-m68k.org> from "Roman Zippel" at Jan 13, 2002 09:25:50 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Prv5-00080m-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+> I don't doubt that, but would you seriously consider the ll patch for
+> inclusion into the main kernel?
 
-> Eric W. Biederman wrote:
-> 
-> > Comments.  Endian issues are not specified, is the data little, big
-> > or vax endian?
-> >
-> 
-> 
-> Not applicable.  There are no endian-specific binary structure in the format AT
-> ALL.  ASCII-coded fields are always bigendian.
+The mini ll patch definitely. The full ll one needs some head scratching to
+be sure its correct. pre-empt is a 2.5 thing which in some ways is easier
+because it doesnt matter if it breaks something.
 
-O.k.  Thanks, I missed that part.  I just looked back and it is clear
-that there are 32 bit values encoded in hexadecimal.  And I admit the
-bigendian (human readable) is strongly implied from the context.
+> Please let me rephrase, I just don't expect terrible good latency
+> numbers with non dma hardware.
 
-> > What is the point of alignment?  If the data starts as 4 byte aligned,
-> > the 6 byte magic string guarantees the data will be only 2 byte
-> > aligned.  This isn't good for 32 or 64 bit architectures.
-> 
-> 
-> They're ASCII-coded, so it supposedly doesn't matter (yet, it's a bit daft, but
-> blame the SysV people.)  The alignment makes sure the *data* field is 4-byte
-> aligned.
-
-O.k.  So the we have a bit of implied padding after the filename.  And
-it is necessary to preserve this padding or we break with the
-prexisting format definition.  You don't gain much with that as being
-4 byte aligned on 64bit architectures, is not fully aligned.
-
-> > I do like having a c_magic that at least allows us to change things
-> > in the future if necessary.
-> 
-> 
-> It's pretty clear from a lot of the comments that a number of people haven't
-> understood that the cpio encapsulation *THIS IS A CODIFICATION OF AN EXISTING
-> FORMAT.*
-
-Which we are reusing for a different purpose.  And because of that we
-become trustees of our version of the format.  To make it clear that
-someone else defines how this format works a reference to the
-appropriate specification is called for.  
-
-I admit I did a quick search earlier and I did not find this format
-specified, elsewhere.
-
-The cases where initramfs will be used are some of the most operating
-specific cases I can imagine.  To handle those cases it is necessary
-to support the full breadth of the capability of the operating system.
-So if initramfs is going to survive todays implementation of the linux
-kernel, or possibly be portable to other operating systems we must
-have an extensible format.  It appears c_magic gives us that
-extensibility.
-
-Eric
+Expect the same with DMA hardware too at times.

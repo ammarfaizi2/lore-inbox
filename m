@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317580AbSH3VyW>; Fri, 30 Aug 2002 17:54:22 -0400
+	id <S317590AbSH3WAr>; Fri, 30 Aug 2002 18:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317582AbSH3VyW>; Fri, 30 Aug 2002 17:54:22 -0400
-Received: from web14004.mail.yahoo.com ([216.136.175.120]:21252 "HELO
-	web14004.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317580AbSH3VyV>; Fri, 30 Aug 2002 17:54:21 -0400
-Message-ID: <20020830215842.82762.qmail@web14004.mail.yahoo.com>
-Date: Fri, 30 Aug 2002 14:58:42 -0700 (PDT)
-From: Tony Spinillo <tspinillo@yahoo.com>
-Subject: Re: Linux 2.4.20-pre5-ac1
+	id <S317592AbSH3WAr>; Fri, 30 Aug 2002 18:00:47 -0400
+Received: from adsl-66-125-254-44.dsl.sntc01.pacbell.net ([66.125.254.44]:10141
+	"EHLO fiorano.interclypse.net") by vger.kernel.org with ESMTP
+	id <S317590AbSH3WAq>; Fri, 30 Aug 2002 18:00:46 -0400
+Subject: 2.4.18: APM & ASUS A7M266-D
+From: Christopher Keller <cnkeller@interclypse.net>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-HtXaO4tvAi7Kwc0q8Bmg"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 30 Aug 2002 14:57:15 -0700
+Message-Id: <1030744641.2588.64.camel@c_keller.beamreachnetworks.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
 
-I just tried 2.4.20-pre5-ac1 on my Gigabyte 8IGX 845G chipset board.
-I have the same problem as reported previously. No IDE drives when
-booting 2.4.20pre5-ac1, but drives do appear when booting
-2.4.20-pre1-ac1. I don't know if
-you or Andre have begun to sort it out yet, but maybe someone else
-can 
-report in who is using another 845G board to see if my problem is 
-unique or not.
-Dmesg snippets below, full http links to dmesg,lspci, kernel 
-config at the end of the message. I will also  try on my 
-Gigabyte 8IEX 845E chipset board later.  If it works I will report
-in.
+--=-HtXaO4tvAi7Kwc0q8Bmg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-2.4.20pre1ac1 works great. (ide-scsi, DVD viewing etc)
+Kernel 2.4.18-X (RedHat version)
+AMD MP 1900 CPU's
 
-I'm running stock RedHat 7.3 all updates. No binary proprietary
-drivers
-were built, intalled etc for 2.4.20pre5ac1.
+APM is enabled in the BIOS, yet the kernel presumably disables it with a
+message along the lines of unsafe for dual CPU's (apologies, don't have
+the box in front of me).
 
-Thanks for all the work you and the rest of the IDE team are doing.
+The result, as far as I can tell, is that the machine doesn't power off
+when executing a shutdown/init 0. It simply displays the "Power Down"
+message and sits there.=20
 
-Tony
-(If I'm doing something stupid let me know)
+Booting with the "apm=3Dpower-off" flag doesn't seem to have any effect.=20
 
-***** DMESG on 2.4.20-pre5-ac1 - BIOS flagged correctly, but no
-devices in 
-/proc/ide.
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ICH4: IDE controller at PCI slot 00:1f.1
-ICH4: chipset revision 1
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdc:DMA, hdd:pio
-Floppy drive(s): fd0 is 1.44M
-***** DMESG on 2.4.20-pre1-ac1
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev f9
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdc:DMA, hdd:pio
-hda: LITE-ON LTR-48125W, ATAPI CD/DVD-ROM drive
-hdc: LITEON DVD-ROM LTD16, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: ATAPI 48X CD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-Floppy drive(s): fd0 is 1.44M
+Could someone enlighten me as to what's up?
 
-Full links below
-http://ac.marywood.edu/tspin/www/dmesg2420pre1ac1.txt
-http://ac.marywood.edu/tspin/www/dmesg2420pre5ac1.txt
-Lspci -vvv when running 2.4.20-pre1-ac1
-http://ac.marywood.edu/tspin/www/lspci.txt
-http://ac.marywood.edu/tspin/www/dotconfig.txt
+--=20
+Homepage: http://interclypse.net
+Registered Linux user #215241 (http://counter.li.org/)
 
+--=-HtXaO4tvAi7Kwc0q8Bmg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9b+o7R6ATq7AtBW4RAtDfAKCFLib0RDq+JKk77nNoFJCoalS+8ACfZTpM
+uet6jwAp36/Lao89gIIaidQ=
+=ggoX
+-----END PGP SIGNATURE-----
+
+--=-HtXaO4tvAi7Kwc0q8Bmg--
+

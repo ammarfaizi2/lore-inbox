@@ -1,138 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135628AbRD1Unz>; Sat, 28 Apr 2001 16:43:55 -0400
+	id <S135626AbRD1Ukp>; Sat, 28 Apr 2001 16:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135629AbRD1Unp>; Sat, 28 Apr 2001 16:43:45 -0400
-Received: from [161.69.248.229] ([161.69.248.229]:47096 "HELO
-	mcafee-labs.nai.com") by vger.kernel.org with SMTP
-	id <S135628AbRD1Une>; Sat, 28 Apr 2001 16:43:34 -0400
-Message-ID: <XFMail.20010428134448.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	id <S135628AbRD1Ukf>; Sat, 28 Apr 2001 16:40:35 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:12430 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S135626AbRD1UkZ>; Sat, 28 Apr 2001 16:40:25 -0400
+Message-ID: <3AEB2B18.F1EC31DE@kegel.com>
+Date: Sat, 28 Apr 2001 13:42:00 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="_=XFMail.1.4.7.Linux:20010428134448:1130=_"
-In-Reply-To: <20010428201708.E629E13F6A@mail.cvsnt.org>
-Date: Sat, 28 Apr 2001 13:44:48 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Tony Hoyle <tmh@nothing-on.tv>
-Subject: RE: just-in-time debugging?
-Cc: linux-kernel@vger.kernel.org
+To: tmh@nothing-on.tv,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: just-in-time debugging?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format
---_=XFMail.1.4.7.Linux:20010428134448:1130=_
-Content-Type: text/plain; charset=us-ascii
+ Tony Hoyle (tmh@nothing-on.tv) wrote:
+> Is there a way that gdb/ddd could be invoked when a program is about 
+> to dump core...?
 
+Yes, I use that to get a symbolic stack dump after a crash,
+although I find that the gdb so invoked doesn't accept interactive
+commands, and I have to use 'kill -9' afterwards.
+Here's the code I use:
 
-On 28-Apr-2001 Tony Hoyle wrote:
-> Is there a way (kernel or userspace... doesn't matter) that gdb/ddd
-> could be invoked when a program is about
-> to dump core, or perhaps on a certain signal (that the app could deliver
-> to itself when required).  The latter case
-> is what I need right now, as I have to debug an app that breaks
-> seemingly randomly & I need to halt when
-> certain assertions fail.  Core dumps aren't much use as you can't resume
-> them, otherwise I'd just force a segfault
-> or something.
-> 
-> I had a look at the do_coredump stuff and it looks like it could be
-> altered to call gdb in the same way that
-> modprobe gets called by kmod... however I don't sufficiently know the
-> code to work out whether it'd work properly
-> or not.  
+void dump_stack(int signum)
+{
+    (void) signum;
+    char s[160];
+    // The right command to execute depends on the program.  Adjust to taste.
+    system("echo 'info threads\nbt\nthread 3\nbt\nthread 4\nbt\nthread 5\nbt\n' > gdbcmd");
+ 
+    sprintf(s, "gdb -batch -x gdbcmd %s %d", argv0, (int) getpid());
+    printf("Crashed!  Starting debugger to get stack dump.  You may need to kill -9 this process afterwards.\n");
+    system(s);
+    exit(1);
+ 
+} 
 
-Sorry but why don't You run Your application with gdb ?
-Once Your program crashes You'll get the prompt and You'll be able to
-stack-trace and watching whatever You need.
-The solution I use to be able to get inside the program even when the gdb is
-not running is the one that You can find in the attached file.
-Basically it install the handler that will create a script file that You can
-use to automatically enter with gdb inside Your program while it's running.
-
-
-
-
-
-- Davide
-
-
---_=XFMail.1.4.7.Linux:20010428134448:1130=_
-Content-Disposition: attachment; filename="GdbHook.cpp"
-Content-Transfer-Encoding: base64
-Content-Description: GdbHook.cpp
-Content-Type: application/octet-stream; name=GdbHook.cpp; SizeOnDisk=3918
-
-CgoKCgoKI2RlZmluZSBHREJIT09LX0RFQlVHR0VSCQkJImdkYiIKI2RlZmluZSBHREJIT09LX01P
-REUJCQkJIkdEQkhPT0tfTU9ERSIKI2RlZmluZSBHREJIT09LX0JFTExfQ09VTlQJCQkiR0RCSE9P
-S19CRUxMX0NPVU5UIgojZGVmaW5lIEdEQkhPT0tfU1REX0JFTExfQ09VTlQJCTQKI2RlZmluZSBH
-REJIT09LX1NURFBSRUZJWAkJCSJzaWctaG9vayIKI2RlZmluZSBHREJIT09LX1dBSVQJCQkJIkdE
-QkhPT0tfV0FJVCIKI2RlZmluZSBHREJIT09LX1NURF9XQUlUCQkJNAoKCgoKCgoKCgpzdGF0aWMg
-aW50CkRiZ2hXYWl0UHJvYyhjaGFyIGNvbnN0ICogcHN6RmlsZU5hbWUpOwoKc3RhdGljIHZvaWQK
-RGJnaFNpZ0hhbmRsZXIoaW50IGlTaWduYWwpOwoKc3RhdGljIGludApEYmdoQ2xlYW51cEZpbGVz
-KGNoYXIgY29uc3QgKiBwc3pQYXRoKTsKCgoKCgoKc3RhdGljIGNoYXIJc3pQcm9ncmFtWzI1Nl0g
-PSAiIiwKCQkJc3pQYXRoWzI1Nl0gPSAiIjsKCgoKCgoKCgpzdGF0aWMgaW50CkRiZ2hXYWl0UHJv
-YyhjaGFyIGNvbnN0ICogcHN6RmlsZU5hbWUpCnsKCgljaGFyIGNvbnN0ICoJcHN6QmVsbENudCA9
-IGdldGVudihHREJIT09LX0JFTExfQ09VTlQpOwoJaW50CWlCZWxsQ250ID0gKHBzekJlbGxDbnQg
-IT0gTlVMTCkgPyBhdG9pKHBzekJlbGxDbnQpOiBHREJIT09LX1NURF9CRUxMX0NPVU5UOwogICAJ
-Y2hhciBjb25zdCAqCXBzeldhaXQgPSBnZXRlbnYoR0RCSE9PS19XQUlUKTsKICAgCWludAlpV2Fp
-dCA9IChwc3pXYWl0ICE9IE5VTEwpID8gYXRvaShwc3pXYWl0KTogR0RCSE9PS19TVERfV0FJVDsK
-ICAgCXZvbGF0aWxlIGludAlpTG9vcCA9IDA7CgogICAJd2hpbGUgKCFpTG9vcCAmJiAoYWNjZXNz
-KHBzekZpbGVOYW1lLCBGX09LKSA9PSAwKSkKICAgCXsKICAgCQlpZiAoaUJlbGxDbnQgPiAwKQog
-ICAJCQlmcHJpbnRmKHN0ZGVyciwgIiVjIiwgNyksIC0taUJlbGxDbnQ7CgoJCXNsZWVwKGlXYWl0
-KTsKCX0KCglyZXR1cm4gKDApOwoKfQoKCgpzdGF0aWMgdm9pZApEYmdoU2lnSGFuZGxlcihpbnQg
-aVNpZ25hbCkKewoKCWNoYXIgY29uc3QgKglwc3pFbnZWYXIgPSBnZXRlbnYoR0RCSE9PS19NT0RF
-KTsKCglpZiAoKHBzekVudlZhciAhPSBOVUxMKSAmJiBhdG9pKHBzekVudlZhcikpCgl7CgkJY2hh
-cglzekRiZ0ZpbGVbMjU2XSA9ICIiOwoKCQlzcHJpbnRmKHN6RGJnRmlsZSwgIiVzJXMuJWQuJXUu
-aG9vayIsIHN6UGF0aCwgR0RCSE9PS19TVERQUkVGSVgsIGlTaWduYWwsIGdldHBpZCgpKTsKCgkJ
-RklMRSAqCXBGaWxlID0gZm9wZW4oc3pEYmdGaWxlLCAidyIpOwoKCQlpZiAocEZpbGUgIT0gTlVM
-TCkKCQl7CgkJCXRpbWVfdAl0RmF1bHQgPSB0aW1lKE5VTEwpOwoKI2lmZGVmIFNPTEFSSVMKCgkJ
-CWZwcmludGYocEZpbGUsCiAgIAkJCQkJIiMhL2Jpbi9zaFxuIgogICAJCQkJCSIjXG4iCiAgIAkJ
-CQkJIiMgU2lnbmFsID0gJXMgKCVkKVxuIgogICAJCQkJCSIjIFRpbWUgICA9ICVzIgogICAJCQkJ
-CSIjIFBpZCAgICA9ICV1XG4iCiAgIAkJCQkJIiNcbiIKICAgCQkJCQkiJXMgJXMgJXVcblxuIiwK
-ICAgCQkJCQkoaVNpZ25hbCA8IF9zeXNfbnNpZykgPyBfc3lzX3NpZ2xpc3RbaVNpZ25hbF06ICI/
-Pz8/IiwgaVNpZ25hbCwgY3RpbWUoJnRGYXVsdCksCiAgIAkJCQkJZ2V0cGlkKCksIEdEQkhPT0tf
-REVCVUdHRVIsIHN6UHJvZ3JhbSwgZ2V0cGlkKCkpOwoKI2Vsc2UgLy8gI2lmZGVmIFNPTEFSSVMK
-CgkJCWZwcmludGYocEZpbGUsCiAgIAkJCQkJIiMhL2Jpbi9zaFxuIgogICAJCQkJCSIjXG4iCiAg
-IAkJCQkJIiMgU2lnbmFsID0gJXMgKCVkKVxuIgogICAJCQkJCSIjIFRpbWUgICA9ICVzIgogICAJ
-CQkJCSIjIFBpZCAgICA9ICV1XG4iCiAgIAkJCQkJIiNcbiIKICAgCQkJCQkiJXMgJXMgJXVcblxu
-IiwKICAgCQkJCQkoaVNpZ25hbCA8IF9OU0lHKSA/IF9zeXNfc2lnbGlzdFtpU2lnbmFsXTogIj8/
-Pz8iLCBpU2lnbmFsLCBjdGltZSgmdEZhdWx0KSwKICAgCQkJCQlnZXRwaWQoKSwgR0RCSE9PS19E
-RUJVR0dFUiwgc3pQcm9ncmFtLCBnZXRwaWQoKSk7CgojZW5kaWYgLy8gI2lmZGVmIFNPTEFSSVMK
-CiAgIAkJCWZjbG9zZShwRmlsZSk7CgoKICAgCQkJY2htb2Qoc3pEYmdGaWxlLCAwNzU1KTsKCgog
-ICAJCQlEYmdoV2FpdFByb2Moc3pEYmdGaWxlKTsKCgogICAJCQlzaWduYWwoaVNpZ25hbCwgU0lH
-X0RGTCk7CgkgICAJfQoJfQoJZWxzZQoJCXNpZ25hbChpU2lnbmFsLCBTSUdfREZMKTsKCn0KCgoK
-c3RhdGljIGludApEYmdoQ2xlYW51cEZpbGVzKGNoYXIgY29uc3QgKiBwc3pQYXRoKQp7CgoJZ2xv
-Yl90IAlnbG9iYnVmOwoJY2hhcglzelBhdHRlcm5bMjU2XSA9ICIiOwoKCXNwcmludGYoc3pQYXR0
-ZXJuLCAiJXMqLmhvb2siLCBwc3pQYXRoKTsKCglpZiAoZ2xvYihzelBhdHRlcm4sIDAsIE5VTEws
-ICZnbG9iYnVmKSA9PSAwKQoJewoKCQlmb3IgKGludCBpaSA9IDA7IGlpIDwgZ2xvYmJ1Zi5nbF9w
-YXRoYzsgaWkrKykKCQkJdW5saW5rKGdsb2JidWYuZ2xfcGF0aHZbaWldKTsKCgl9CgoJZ2xvYmZy
-ZWUoJmdsb2JidWYpOwoKCXJldHVybiAoMCk7Cgp9CgoKCmludApEYmdoSW5pdChjaGFyIGNvbnN0
-ICogcHN6UHJvZ3JhbSkKewoKCXN0cmNweShzelByb2dyYW0sIHBzelByb2dyYW0pOwoKCWNoYXIg
-Y29uc3QgKglwc3pTbGFzaCA9IHN0cnJjaHIocHN6UHJvZ3JhbSwgJy8nKTsKCglpZiAocHN6U2xh
-c2ggIT0gTlVMTCkKCXsKCQlpbnQJaVBhdGhMZW5ndGggPSAoaW50KSAocHN6U2xhc2ggLSBwc3pQ
-cm9ncmFtKSArIDE7CgoJCXN0cm5jcHkoc3pQYXRoLCBwc3pQcm9ncmFtLCBpUGF0aExlbmd0aCk7
-CgkgICAgc3pQYXRoW2lQYXRoTGVuZ3RoXSA9ICdcMCc7Cgl9CgllbHNlCgkJc3RyY3B5KHN6UGF0
-aCwgIi4vIik7CgoKCWlmIChEYmdoQ2xlYW51cEZpbGVzKHN6UGF0aCkgPCAwKQoJCXJldHVybiAo
-LTEpOwoKCglyZXR1cm4gKDApOwoKfQoKCgppbnQKRGJnaEluc3RhbGwodm9pZCkKewoKCXNpZ25h
-bChTSUdTRUdWLCBEYmdoU2lnSGFuZGxlcik7CglzaWduYWwoU0lHQlVTLCBEYmdoU2lnSGFuZGxl
-cik7CglzaWduYWwoU0lHRlBFLCBEYmdoU2lnSGFuZGxlcik7CgojaWZkZWYgTElOVVgKCXNpZ25h
-bChTSUdTVEtGTFQsIERiZ2hTaWdIYW5kbGVyKTsKI2VuZGlmIC8vICNpZmRlZiBMSU5VWAoKCXNp
-Z25hbChTSUdBQlJULCBEYmdoU2lnSGFuZGxlcik7CgoJcmV0dXJuICgwKTsKCn0KCgoKaW50CkRi
-Z2hXYWl0UG9pbnQoY2hhciBjb25zdCAqIHBzek5hbWUpCnsKCgljaGFyIGNvbnN0ICoJcHN6RW52
-VmFyID0gZ2V0ZW52KEdEQkhPT0tfTU9ERSk7CgoJaWYgKChwc3pFbnZWYXIgIT0gTlVMTCkgJiYg
-YXRvaShwc3pFbnZWYXIpKQoJewoJCWNoYXIJc3pEYmdGaWxlWzI1Nl0gPSAiIjsKCgkJc3ByaW50
-ZihzekRiZ0ZpbGUsICIlcyVzLiV1Lmhvb2siLCBzelBhdGgsIHBzek5hbWUsIGdldHBpZCgpKTsK
-CgkJRklMRSAqCXBGaWxlID0gZm9wZW4oc3pEYmdGaWxlLCAidyIpOwoKCQlpZiAocEZpbGUgIT0g
-TlVMTCkKCQl7CgkJCXRpbWVfdAl0RmF1bHQgPSB0aW1lKE5VTEwpOwoKCQkJZnByaW50ZihwRmls
-ZSwKICAgCQkJCQkiIyEvYmluL3NoXG4iCiAgIAkJCQkJIiNcbiIKICAgCQkJCQkiIyBUaW1lICAg
-PSAlcyIKICAgCQkJCQkiIyBQaWQgICAgPSAldVxuIgogICAJCQkJCSIjXG4iCiAgIAkJCQkJIiVz
-ICVzICV1XG5cbiIsCiAgIAkJCQkJY3RpbWUoJnRGYXVsdCksIGdldHBpZCgpLCBHREJIT09LX0RF
-QlVHR0VSLCBzelByb2dyYW0sIGdldHBpZCgpKTsKICAgCQogICAJCQlmY2xvc2UocEZpbGUpOwoK
-ICAgCQkJCiAgIAkJCWNobW9kKHN6RGJnRmlsZSwgMDc1NSk7CgogICAJCQkKICAgCQkJRGJnaFdh
-aXRQcm9jKHN6RGJnRmlsZSk7CiAgIAkJCQoJICAgCX0KCX0KCglyZXR1cm4gKDApOwoKfQoKCgpp
-bnQKRGJnaENsZWFudXAodm9pZCkKewoKCglyZXR1cm4gKDApOwoKfQoK
-
---_=XFMail.1.4.7.Linux:20010428134448:1130=_--
-End of MIME message
+main() {
+   signal(SIGSEGV, dump_stack);
+   signal(SIGBUS, dump_stack);   
+...

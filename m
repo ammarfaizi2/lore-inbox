@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbUAHCfF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 21:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbUAHCfF
+	id S263491AbUAHCc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 21:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUAHCcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 21:35:05 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:41668 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263526AbUAHCd6 (ORCPT
+	Wed, 7 Jan 2004 21:32:46 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:14772 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S263491AbUAHCcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 21:33:58 -0500
-Date: Wed, 7 Jan 2004 18:33:57 -0800
+	Wed, 7 Jan 2004 21:32:35 -0500
+Date: Wed, 7 Jan 2004 18:32:34 -0800
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] sir-dev raw mode fix
-Message-ID: <20040108023357.GD13620@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] F-timer fix
+Message-ID: <20040108023234.GB13620@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,102 +26,169 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irXXX_sirdev_rawmode.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Apply *after* irXXX_sirdev_txlock.diff patch>
-		<Patch from Martin Diehl>
-	o [CORRECT] Fix sir-dev 'raw' mode for sir dongles that need it
+ir2609_irlap_final_timer-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	o [CORRECT] Proper calculation for F-timer. Improve interoperability.
 
 
-diff -urp linux-2.6.0-test9-bk22/drivers/net/irda/sir-dev.h v2.6.0-md/drivers/net/irda/sir-dev.h
---- linux-2.6.0-test9-bk22/drivers/net/irda/sir-dev.h	Wed Oct  8 21:24:07 2003
-+++ v2.6.0-md/drivers/net/irda/sir-dev.h	Mon Nov 17 18:51:41 2003
-@@ -179,6 +179,7 @@ struct sir_dev {
+diff -u -p linux/include/net/irda/timer.d4.h linux/include/net/irda/timer.h
+--- linux/include/net/irda/timer.d4.h	Mon Nov 17 15:39:13 2003
++++ linux/include/net/irda/timer.h	Mon Nov 17 16:34:59 2003
+@@ -40,14 +40,14 @@ struct lsap_cb;
+ struct lap_cb;
  
- 	struct sir_fsm fsm;
- 	atomic_t enable_rx;
-+	int raw_tx;
- 	spinlock_t tx_lock;
+ /* 
+- *  Timeout definitions, some defined in IrLAP p. 92
++ *  Timeout definitions, some defined in IrLAP 6.13.5 - p. 92
+  */
+ #define POLL_TIMEOUT        (450*HZ/1000)    /* Must never exceed 500 ms */
+ #define FINAL_TIMEOUT       (500*HZ/1000)    /* Must never exceed 500 ms */
  
- 	u32 new_speed;
-diff -urp linux-2.6.0-test9-bk22/drivers/net/irda/sir_dev.c v2.6.0-md/drivers/net/irda/sir_dev.c
---- linux-2.6.0-test9-bk22/drivers/net/irda/sir_dev.c	Mon Nov 17 17:39:54 2003
-+++ v2.6.0-md/drivers/net/irda/sir_dev.c	Mon Nov 17 18:51:41 2003
-@@ -31,7 +31,9 @@ void sirdev_enable_rx(struct sir_dev *de
+ /* 
+- *  Normally twice of p-timer. Note 3, IrLAP p. 60 suggests at least twice 
+- *  duration of the P-timer.
++ *  Normally twice of p-timer. Note 3, IrLAP 6.3.11.2 - p. 60 suggests
++ *  at least twice duration of the P-timer.
+  */
+ #define WD_TIMEOUT          (POLL_TIMEOUT*2)
  
- 	/* flush rx-buffer - should also help in case of problems with echo cancelation */
- 	dev->rx_buff.data = dev->rx_buff.head;
--	dev->tx_buff.len = 0;
-+	dev->rx_buff.len = 0;
-+	dev->rx_buff.in_frame = FALSE;
-+	dev->rx_buff.state = OUTSIDE_FRAME;
- 	atomic_set(&dev->enable_rx, 1);
- }
+ diff -u -p linux/net/irda/irlap_event.d4.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d4.c	Mon Nov 17 15:37:57 2003
++++ linux/net/irda/irlap_event.c	Mon Nov 17 17:03:12 2003
+@@ -932,6 +932,12 @@ static int irlap_state_setup(struct irla
+ 		/* This frame will actually be sent at the new speed */
+ 		irlap_send_rr_frame(self, CMD_FRAME);
  
-@@ -78,8 +80,17 @@ int sirdev_raw_write(struct sir_dev *dev
++		/* The timer is set to half the normal timer to quickly
++		 * detect a failure to negociate the new connection
++		 * parameters. IrLAP 6.11.3.2, note 3.
++		 * Note that currently we don't process this failure
++		 * properly, as we should do a quick disconnect.
++		 * Jean II */
+ 		irlap_start_final_timer(self, self->final_timeout/2);
+ 		irlap_next_state(self, LAP_NRM_P);
  
- 	dev->tx_buff.data = dev->tx_buff.head;
- 	memcpy(dev->tx_buff.data, buf, len);	
-+	dev->tx_buff.len = len;
+@@ -1312,7 +1318,12 @@ static int irlap_state_nrm_p(struct irla
+ 				irlap_resend_rejected_frames(self, CMD_FRAME);
  
- 	ret = dev->drv->do_write(dev, dev->tx_buff.data, dev->tx_buff.len);
-+	if (ret > 0) {
-+		IRDA_DEBUG(3, "%s(), raw-tx started\n", __FUNCTION__);
+ 				self->ack_required = FALSE;
+-				irlap_start_final_timer(self, self->final_timeout);
 +
-+		dev->tx_buff.data += ret;
-+		dev->tx_buff.len -= ret;
-+		dev->raw_tx = 1;
-+		ret = len;		/* all data is going to be sent */
-+	}
- 	spin_unlock_irqrestore(&dev->tx_lock, flags);
- 	return ret;
- }
-@@ -95,13 +106,13 @@ int sirdev_raw_read(struct sir_dev *dev,
++				/* Make sure we account for the time
++				 * to transmit our frames. See comemnts
++				 * in irlap_send_data_primary_poll().
++				 * Jean II */
++				irlap_start_final_timer(self, 2 * self->final_timeout);
  
- 	count = (len < dev->rx_buff.len) ? len : dev->rx_buff.len;
+ 				/* Keep state, do not move this line */
+ 				irlap_next_state(self, LAP_NRM_P);
+@@ -1352,8 +1363,9 @@ static int irlap_state_nrm_p(struct irla
+ 				/* Resend rejected frames */
+ 				irlap_resend_rejected_frames(self, CMD_FRAME);
  
--	if (count > 0)
--		memcpy(buf, dev->rx_buff.head, count);
-+	if (count > 0) {
-+		memcpy(buf, dev->rx_buff.data, count);
-+		dev->rx_buff.data += count;
-+		dev->rx_buff.len -= count;
-+	}
+-				/* Give peer some time to retransmit! */
+-				irlap_start_final_timer(self, self->final_timeout);
++				/* Give peer some time to retransmit! 
++				 * But account for our own Tx. */
++				irlap_start_final_timer(self, 2 * self->final_timeout);
  
--	/* forget trailing stuff */
--	dev->rx_buff.data = dev->rx_buff.head;
--	dev->rx_buff.len = 0;
--	dev->rx_buff.state = OUTSIDE_FRAME;
-+	/* remaining stuff gets flushed when re-enabling normal rx */
+ 				/* Keep state, do not move this line */
+ 				irlap_next_state(self, LAP_NRM_P);
+@@ -1450,6 +1462,8 @@ static int irlap_state_nrm_p(struct irla
+ 			/* Resend rejected frames */
+ 			irlap_resend_rejected_frames(self, CMD_FRAME);
  
- 	return count;
- }
-@@ -150,6 +161,19 @@ void sirdev_write_complete(struct sir_de
++			/* Final timer ??? Jean II */
++
+ 			irlap_next_state(self, LAP_NRM_P);
+ 		} else if (ret == NR_INVALID) {
+ 			IRDA_DEBUG(1, "%s(), Received RR with "
+@@ -1541,7 +1555,7 @@ static int irlap_state_nrm_p(struct irla
+ 			irlap_send_rr_frame(self, CMD_FRAME);
+ 		} else
+ 			irlap_resend_rejected_frames(self, CMD_FRAME);
+-		irlap_start_final_timer(self, self->final_timeout);
++		irlap_start_final_timer(self, 2 * self->final_timeout);
+ 		break;
+ 	case RECV_SREJ_RSP:
+ 		irlap_update_nr_received(self, info->nr);
+@@ -1550,7 +1564,7 @@ static int irlap_state_nrm_p(struct irla
+ 			irlap_send_rr_frame(self, CMD_FRAME);
+ 		} else
+ 			irlap_resend_rejected_frame(self, CMD_FRAME);
+-		irlap_start_final_timer(self, self->final_timeout);
++		irlap_start_final_timer(self, 2 * self->final_timeout);
+ 		break;
+ 	case RECV_RD_RSP:
+ 		IRDA_DEBUG(1, "%s(), RECV_RD_RSP\n", __FUNCTION__);
+diff -u -p linux/net/irda/irlap_frame.d4.c linux/net/irda/irlap_frame.c
+--- linux/net/irda/irlap_frame.d4.c	Mon Nov 17 16:09:09 2003
++++ linux/net/irda/irlap_frame.c	Mon Nov 17 17:09:07 2003
+@@ -779,6 +779,7 @@ void irlap_send_data_primary(struct irla
+ void irlap_send_data_primary_poll(struct irlap_cb *self, struct sk_buff *skb)
+ {
+ 	struct sk_buff *tx_skb;
++	int transmission_time;
+ 
+ 	/* Stop P timer */
+ 	del_timer(&self->poll_timer);
+@@ -829,13 +830,49 @@ void irlap_send_data_primary_poll(struct
  		}
  	}
  
-+	if (unlikely(dev->raw_tx != 0)) {
-+		/* in raw mode we are just done now after the buffer was sent
-+		 * completely. Since this was requested by some dongle driver
-+		 * running under the control of the irda-thread we must take
-+		 * care here not to re-enable the queue. The queue will be
-+		 * restarted when the irda-thread has completed the request.
-+		 */
++	/* How much time we took for transmission of all frames.
++	 * We don't know, so let assume we used the full window. Jean II */
++	transmission_time = self->final_timeout;
 +
-+		IRDA_DEBUG(3, "%s(), raw-tx done\n", __FUNCTION__);
-+		dev->raw_tx = 0;
-+		return;
-+	}
++	/* Reset parameter so that we can fill next window */
+ 	self->window = self->window_size;
 +
- 	/* we have finished now sending this skb.
- 	 * update statistics and free the skb.
- 	 * finally we check and trigger a pending speed change, if any.
-@@ -482,6 +506,7 @@ static int sirdev_open(struct net_device
- 		goto errout_free;
+ #ifdef CONFIG_IRDA_DYNAMIC_WINDOW
++	/* Remove what we have not used. Just do a prorata of the
++	 * bytes left in window to window capacity.
++	 * See max_line_capacities[][] in qos.c for details. Jean II */
++	transmission_time -= (self->final_timeout * self->bytes_left
++			      / self->line_capacity);
++	IRDA_DEBUG(4, "%s() adjusting transmission_time : ft=%d, bl=%d, lc=%d -> tt=%d\n", __FUNCTION__, self->final_timeout, self->bytes_left, self->line_capacity, transmission_time);
++
+ 	/* We are allowed to transmit a maximum number of bytes again. */
+ 	self->bytes_left = self->line_capacity;
+ #endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
  
- 	sirdev_enable_rx(dev);
-+	dev->raw_tx = 0;
+-	irlap_start_final_timer(self, self->final_timeout);
++	/*
++	 * The network layer has a intermediate buffer between IrLAP
++	 * and the IrDA driver which can contain 8 frames. So, even
++	 * though IrLAP is currently sending the *last* frame of the
++	 * tx-window, the driver most likely has only just started
++	 * sending the *first* frame of the same tx-window.
++	 * I.e. we are always at the very begining of or Tx window.
++	 * Now, we are supposed to set the final timer from the end
++	 * of our tx-window to let the other peer reply. So, we need
++	 * to add extra time to compensate for the fact that we
++	 * are really at the start of tx-window, otherwise the final timer
++	 * might expire before he can answer...
++	 * Jean II
++	 */
++	irlap_start_final_timer(self, self->final_timeout + transmission_time);
++
++	/*
++	 * The clever amongst you might ask why we do this adjustement
++	 * only here, and not in all the other cases in irlap_event.c.
++	 * In all those other case, we only send a very short management
++	 * frame (few bytes), so the adjustement would be lost in the
++	 * noise...
++	 * The exception of course is irlap_resend_rejected_frame().
++	 * Jean II */
+ }
  
- 	netif_start_queue(ndev);
- 	dev->irlap = irlap_open(ndev, &dev->qos, dev->hwname);
-
+ /*
+@@ -1003,7 +1040,7 @@ void irlap_resend_rejected_frames(struct
+ 	}
+ #if 0 /* Not yet */
+ 	/*
+-	 *  We can now fill the window with additinal data frames
++	 *  We can now fill the window with additional data frames
+ 	 */
+ 	while (skb_queue_len( &self->txq) > 0) {
+ 

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311938AbSCOFbS>; Fri, 15 Mar 2002 00:31:18 -0500
+	id <S311799AbSCOFaI>; Fri, 15 Mar 2002 00:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311937AbSCOFbL>; Fri, 15 Mar 2002 00:31:11 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:17169 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S311934AbSCOFaz>;
-	Fri, 15 Mar 2002 00:30:55 -0500
-Date: Fri, 15 Mar 2002 13:35:09 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Bjorn Wesen <bjorn.wesen@axis.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.19-pre3] New wireless driver API part 1
-Message-ID: <20020315023509.GB1289@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Bjorn Wesen <bjorn.wesen@axis.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203141139400.26308-100000@godzilla.axis.se> <3C90802B.509@mandrakesoft.com>
+	id <S311934AbSCOF36>; Fri, 15 Mar 2002 00:29:58 -0500
+Received: from adsl-65-64-152-152.dsl.stlsmo.swbell.net ([65.64.152.152]:56705
+	"EHLO base.torri.linux") by vger.kernel.org with ESMTP
+	id <S311799AbSCOF3n>; Fri, 15 Mar 2002 00:29:43 -0500
+Subject: Re: Linux 2.4 and BitKeeper
+From: Stephen Torri <storri@ameritech.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 14 Mar 2002 23:35:15 -0500
+Message-Id: <1016166916.3208.1.camel@base.torri.linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C90802B.509@mandrakesoft.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 05:49:15AM -0500, Jeff Garzik wrote:
-> Bjorn Wesen wrote:
-> 
-> >Just a datapoint:
-> >
-> >The orinico driver (already in the kernel) works fine with the DWL-650 
-> >card. Tried it some days ago.. not a very big field trial but I inserted 
-> >the card and I got an eth0 from it and it worked, so thats the way I like 
-> >it :)
-> 
-> 
-> Not "just" a datapoint, a useful one.  Thanks.
+If it was not enough that "bleeding-edge" required a pint of blood but
+now we get BitKeeper access to the latest and greatest. Cool! Maybe I
+should be on the regular shipment list from the local blood bank.
+Keep up the good work. I certainly appreciate it.
 
-Sadly not everybody is having as much luck.  A lot of people are
-reporting terribly throughput on Intersil cards like the DWL-650 and I
-haven't managed to track the problem down yet.
+Stephen
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.  -- H.L. Mencken
-http://www.ozlabs.org/people/dgibson
+
+On Wed, 2002-03-13 at 23:42, Marcelo Tosatti wrote:
+> 
+> Hi,
+> 
+> I've started using BitKeeper to control Linux 2.4 source code.
+> 
+> My latest tree can be found at linux24.bkbits.net.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 

@@ -1,32 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293317AbSCGJQX>; Thu, 7 Mar 2002 04:16:23 -0500
+	id <S287386AbSCGJVY>; Thu, 7 Mar 2002 04:21:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287386AbSCGJQN>; Thu, 7 Mar 2002 04:16:13 -0500
-Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:43781 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id <S293555AbSCGJQD>;
-	Thu, 7 Mar 2002 04:16:03 -0500
-Date: Thu, 7 Mar 2002 10:15:56 +0100 (CET)
-From: Pau Aliagas <linuxnow@wanadoo.es>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux
- Maintainers
-In-Reply-To: <Pine.LNX.4.44L.0203061253040.2181-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0203071014200.2580-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293555AbSCGJVP>; Thu, 7 Mar 2002 04:21:15 -0500
+Received: from h139n1fls24o900.telia.com ([213.66.143.139]:58078 "EHLO
+	oden.fish.net") by vger.kernel.org with ESMTP id <S287386AbSCGJVI>;
+	Thu, 7 Mar 2002 04:21:08 -0500
+Date: Thu, 7 Mar 2002 10:21:50 +0100
+From: Voluspa <voluspa@bigfoot.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6-pre3 Kernel panic: VFS: Unable to mount root fs on 03:02
+Message-Id: <20020307102150.6ea28753.voluspa@bigfoot.com>
+In-Reply-To: <Pine.GSO.4.21.0203070329090.24127-100000@weyl.math.psu.edu>
+In-Reply-To: <20020307085636.4feb2372.voluspa@bigfoot.com>
+	<Pine.GSO.4.21.0203070329090.24127-100000@weyl.math.psu.edu>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Rik van Riel wrote:
+On Thu, 7 Mar 2002 03:42:32 -0500 (EST)
+Alexander Viro <viro@math.psu.edu> wrote:
 
-> Until then, the choice between a not-quite-free tool and no
-> useful tool at all is easy.
 
-Give arch a try. It's in www.regexps.com.
-It does a pretty decent job.
-If you need an rpm spec just tell me.
+> > mount() -> -14
+> > VFS: Cannot open root device "302" or 03:02
+> 
+> Bloody hell...  14 is EFAULT.  And that - from sys_mount() called by
 
-Pau
+Hey, you're talking to pure user land here (but I guess it's meant for the other kernel hackers :-)
 
+> task that has KERNEL_DS as addr_limit.  What options do you pass to kernel
+> and what filesystems are compiled in?
+
+No options at all, except what lilo provides:
+
+loke:loke:/proc$ cat cmdline
+BOOT_IMAGE=2.4-Linux-test ro root=302 ramdisk=0
+
+(Exchange 2.4-Linux-test with 2.5-Linux-test)
+
+File systems compiled in:
+
+loke:loke:/proc$ cat filesystems 
+nodev   rootfs
+nodev   bdev
+nodev   proc
+nodev   sockfs
+nodev   tmpfs
+nodev   pipefs
+nodev   binfmt_misc
+        ext2
+        minix
+        msdos
+        vfat
+        iso9660
+nodev   nfs
+
+Not changed in 2.5 (preempt enabled there shouldn't make a difference)
+
+>  Actually, adding printk("%s\n", p);
+> in the same place might give some hints...
+
+I interpret that as printk("mount() -> %d\n", err); can be swapped with printk("%s\n", p); and I'll do that right away. Last compile, then I must rush to work.
+
+Regards,
+Mats Johannesson
+Sweden

@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVC0WCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVC0WNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVC0WCr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 17:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVC0WCr
+	id S261595AbVC0WNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 17:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVC0WNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 17:02:47 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:53255 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261600AbVC0WCb
+	Sun, 27 Mar 2005 17:13:08 -0500
+Received: from alog0136.analogic.com ([208.224.220.151]:36065 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261595AbVC0WNE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 17:02:31 -0500
-Date: Mon, 28 Mar 2005 00:02:29 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/usb/media/usbvideo.c: fix a check after use
-Message-Id: <20050328000229.15860997.khali@linux-fr.org>
-In-Reply-To: <20050327204852.GC4285@stusta.de>
-References: <20050327204852.GC4285@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Mar 2005 17:13:04 -0500
+Date: Sun, 27 Mar 2005 17:12:07 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Marcin Dalecki <martin@dalecki.de>
+cc: ext2-devel@lists.sourceforge.net,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
+In-Reply-To: <7d96f2772f942f802890c50801c4f5f8@dalecki.de>
+Message-ID: <Pine.LNX.4.61.0503271708500.17365@chaos.analogic.com>
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
+ <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
+ <1111825958.6293.28.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+ <7d96f2772f942f802890c50801c4f5f8@dalecki.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On Sat, 26 Mar 2005, Marcin Dalecki wrote:
 
-> This patch fixes a check after use found by the Coverity checker.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.12-rc1-mm1-full/drivers/usb/media/usbvideo.c.old	2005-03-23 04:59:11.000000000 +0100
-> +++ linux-2.6.12-rc1-mm1-full/drivers/usb/media/usbvideo.c	2005-03-23 04:59:46.000000000 +0100
-> @@ -1814,12 +1814,12 @@
->  {
->  	int i, j;
->  
-> -	if (uvd->debug > 1)
-> -		info("%s($%p)", __FUNCTION__, uvd);
-> -
->  	if ((uvd == NULL) || (!uvd->streaming) || (uvd->dev == NULL))
->  		return;
->  
-> +	if (uvd->debug > 1)
-> +		info("%s($%p)", __FUNCTION__, uvd);
-> +
+>
+> On 2005-03-27, at 00:21, linux-os wrote:
+>>
+>> Always, always, a call will be more expensive than a branch
+>> on condition. It's impossible to be otherwise. A call requires
+>> that the return address be written to memory (the stack),
+>> using register indirection (the stack-pointer).
+>>
+> Needless to say that there are enough architectures out there, which
+> don't even
+> have something like an explicit call as separate assembler
+> instruction...
+>
 
-Note that you slightly change the debug trace when doing this. For
-example, the case where udv != NULL and !udv->streaming would display
-the debug line before your patch, and no more after.
+Yes, they break the 'call' into seperate expensive operations like
+loading the IP address that will exist after the call into a register
+storing that in a dedicated register, used as a "stack", then
+branching to the called procedure with another indirection, etc.
 
-Now I don't know whether that change is a problem or not in this
-particular case, as I am not the one who would debug this driver if
-there were a problem with it, but this is something to pay attention to
-in such cases.
+>
 
-Thanks,
--- 
-Jean Delvare
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

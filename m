@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288833AbSAQOZB>; Thu, 17 Jan 2002 09:25:01 -0500
+	id <S288810AbSAQO2y>; Thu, 17 Jan 2002 09:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288810AbSAQOYx>; Thu, 17 Jan 2002 09:24:53 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:40731 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288804AbSAQOYl>; Thu, 17 Jan 2002 09:24:41 -0500
-Date: Thu, 17 Jan 2002 15:25:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Diego Calleja <grundig@teleline.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: oom failures with mem=4m
-Message-ID: <20020117152523.I4847@athlon.random>
-In-Reply-To: <20020116200459.E835@athlon.random> <20020116215449Z289156-13996+7212@vger.kernel.org>
+	id <S288827AbSAQO2m>; Thu, 17 Jan 2002 09:28:42 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25618 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288810AbSAQO2c>;
+	Thu, 17 Jan 2002 09:28:32 -0500
+Date: Thu, 17 Jan 2002 15:28:24 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "Andre M. Hedrick" <andre@linux-ide.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] 2.5.3-pre1 ide updates
+Message-ID: <20020117152824.M20994@suse.de>
+In-Reply-To: <20020117144648.L20994@suse.de> <5.1.0.14.2.20020117141843.02615430@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020116215449Z289156-13996+7212@vger.kernel.org>; from grundig@teleline.es on Wed, Jan 16, 2002 at 10:58:45PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <5.1.0.14.2.20020117141843.02615430@pop.cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 10:58:45PM +0100, Diego Calleja wrote:
-> On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
-> > attached) and most important I don't have a single bugreport about the
-> > current 2.4.18pre2aa2 VM (except perhaps the bdflush wakeup that seems
-> > to be a little too late and that deals to lower numbers with slow write
-> > load etc.., fixable with bdflush tuning). Mainline VM kills too easily,
+On Thu, Jan 17 2002, Anton Altaparmakov wrote:
+> Hi Jens,
 > 
-> Well, I haven't reported it yet, but booting my box with mem=4M
-> gave as result: (running 2.4.18-pre2aa2):
-> diego# cat /var/log/messages | grep gfp
-> Jan 13 15:37:10 localhost kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 15 16:06:28 localhost kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 15 18:37:21 localhost kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 15 21:58:32 localhost kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 15 21:58:33 localhost kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> diego# 
-
-0xf0 shouldn't lead to an oom killing, there should be some other failure
-before the killing. The above are normal warnings, they're KERN_NOTICE,
-not KERN_WARNING nor KERN_ERROR.
-
+> I think there is a bug here...
 > 
-> Each script of /etc/rc.d was killed by VM when it was started, there wasn't
-> any "OOM", just
-> "VM killed..." or something similar.
-
-That means there wasn't enough memory, sounds like your bootup
-sequence is broken and startup something big before activating swap,
-either that or you start something that takes more than 16+4m, note that
-with any recent distribution it is very easy that you need 16+4 after a
-little time after boot.
-
-If you could provide a vmstat trace during the VM killing, that could
-show better if the VM is the culprit or if it did the right thing.
-
-I know for experience at the first VM killing people tends to point
-the finger at the VM (me too sometime at first, see the pte-highmem
-thread) but at least in my tree that never turned out to be the case
-yet.
-
-> As /etc/rc.d scripts were killed, I couldn't start swap.
-
-Can you try to boot with emergency, then activate swap, and then check
-if it runs oom again despite lots of free swap available etc...? thanks,
-
+> At 13:46 17/01/02, Jens Axboe wrote:
+> >diff -urN -X exclude /ata/linux-2.5.3-pre1/drivers/ide/ide-taskfile.c 
+> >linux/drivers/ide/ide-taskfile.c
+> >--- /ata/linux-2.5.3-pre1/drivers/ide/ide-taskfile.c    Thu Jan 17 
+> >06:32:54 2002
+> >+++ linux/drivers/ide/ide-taskfile.c    Thu Jan 17 06:29:13 2002
+> >@@ -994,10 +1032,11 @@
+> >        if (!msect) {
+> >                nsect = 1;
+> >                while (rq->current_nr_sectors) {
+> >-                       pBuf = rq->buffer + ((rq->nr_sectors - 
+> >rq->current_nr_sectors) * SECTOR_SIZE);
+> >+                       pBuf = ide_unmap_buffer(rq, &flags);
 > 
-> The gfp=0x... numbers were not always the same, but I can't remember them
-> because syslogd wasn't running.
-> I can repeat this if you want and I'll copy all messages.
+> That should be: pBuf = ide_map_buffer(rq, &flags);
 > 
-> ..I remember running 2.2.14 in a 386 box with 4MB of RAM and 8 or 16 of
-> swap. It was veeery slow, but even I could run apache :-)...
+> But I think it actually ought to be:
+> 
+>                         pBuf = ide_map_rq(rq, &flags)
+> 
+> and the below unmap should consequently be:
+> 
+>                         ide_unmap_rq(rq, pBuf, &flags)
+> 
+> In either case it's wrong at the moment AFAICS...
 
-:)
+Yeah you are right, typo... There's another mixup in there too, but only
+a very minor race. I'll update the patch asap.
 
-Andrea
+-- 
+Jens Axboe
+

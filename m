@@ -1,93 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbTBXLCK>; Mon, 24 Feb 2003 06:02:10 -0500
+	id <S266622AbTBXLMt>; Mon, 24 Feb 2003 06:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266886AbTBXLCK>; Mon, 24 Feb 2003 06:02:10 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:57874 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S266868AbTBXLCH>;
-	Mon, 24 Feb 2003 06:02:07 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200302241112.h1OBCBX273068@saturn.cs.uml.edu>
-Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-To: procps-list@redhat.com
-Date: Mon, 24 Feb 2003 06:12:11 -0500 (EST)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
-       alexl@redhat.com, viro@math.psu.edu, mingo@elte.hu
-In-Reply-To: <Pine.LNX.4.44.0302241020010.20069-100000@localhost.localdomain> from "Ingo Molnar" at Feb 24, 2003 10:28:06 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266640AbTBXLMt>; Mon, 24 Feb 2003 06:12:49 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:34572 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S266622AbTBXLMs>;
+	Mon, 24 Feb 2003 06:12:48 -0500
+Date: Mon, 24 Feb 2003 12:22:59 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Problem with IDE-SCSI in 2.4.21-pre4/2.4.20
+Message-Id: <20030224122259.7a468c82.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
-> On Sun, 23 Feb 2003, Albert D. Cahalan wrote:
+Hello all,
 
->> Surely you realize that I have seen this code?
->
-> have you actually tried it?
->
->> Proper "ps m" behavior groups threads in the output. The hacked-up
->> procps being used by Red Hat fails to do this. You chould change that...
->> at the cost of reading all processes and sorting them. There goes all of
->> your performance improvement.
->
-> Albert, the new code properly reads all threads and sorts them, in the
-> "ps m" case. Had you truly read my emails you'd notice where the overhead
-> lies, and what steps were taken to get rid of it.
+I am experiencing a weird problem with ide-scsi. I try to do a simple CD mount
+with above kernel versions. This results in spinning up cdrom drive, then
+increasing cpu load and about 1 minute after that a complete freeze of the
+system. To be honest I am not really sure if I am doing something wrong, but
+cannot image what that could be.
+I tried simple "mount /dev/sr0 /mnt" -> spinup, then freeze, "mount /dev/scd0
+/mnt" -> spinup, then freeze. I even tried attaching a real SCSI cdrom, which
+works as expected. I tried booting a live filesystem directly from the
+questionable drive, it works (obviously does not use ide-scsi, but atapi). I
+tried another ATAPI cdrom (first acer, then LiteOn), freeze. So it is no
+hardware problem.
+After beating this unbelievable problem for 5 hours I am now out-of-ideas. 
+Any hints welcome.
 
-I see that for default output, unpatched procps-2.x.xx is
-forced to read and sort all tasks. Ignoring fault counts
-and wchan for the moment, you made this work unnecessary by
-adding some whole-process values. You also sped up /proc
-directory operations in general, so not "all" I guess.
+-- 
+Regards,
+Stephan
 
-In the "ps m" and "ps -m" cases, you revert to the
-"loose tasks" behavior. Neither "ps -L" nor "ps -T"
-have been implemented. In some of these cases, the
-threads should be grouped. Without subdirectories,
-user code must do something bloated and slow to get
-the grouping. (unless you care to guarantee the order
-of tasks in a /proc directory listing, and relying on
-such an ordering would prevent some other optimizations)
+PS: Resent, first try seems lost...
 
-By grouping I mean something roughly like this:
+PPS: System is SMP with
 
-PID TID
-123 123
-123 222
-444 444
-444 456
+00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (rev 23)
+00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+00:00.2 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
+00:00.3 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
+00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
+00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0d)
+00:04.0 Network controller: Elsa AG QuickStep 1000 (rev 01)
+00:05.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+00:05.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+00:07.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 93)
+00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
+00:0f.2 USB Controller: ServerWorks OSB4/CSB5 USB Controller (rev 05)
+00:0f.3 Host bridge: ServerWorks: Unknown device 0225
+01:02.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 01)
+01:03.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
+01:04.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5701 Gigabit Ethernet (rev 15)
+02:02.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5701 Gigabit Ethernet (rev 15)
+02:03.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+02:03.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
 
-Not this:
-
-PID TID
-123 123
-444 444
-123 222
-444 456
-
-Header names and meanings may vary, etc. I'm not about to
-dig out my notes regarding correct behavior for this email.
-
-Anyway, to quote Linus:
-
------ begin -----
-Well, part of the problem (I think) is that you added all the threads to 
-the same main directory.
-
-Putting a "." in front of the name doesn't fix the /proc level directory
-scalability issues, it only means that you can avoid some of the user- 
-level scalability ones.
-
-So to offset that bad design, you then add other cruft, like the lookup
-cursor and the "." marker. Which is not a bad idea in itself, but I claim
-that if you'd made the directory structure saner you wouldn't have needed
-it in the first place.
-
-It would just be _so_ much nicer if the threads would show up as 
-subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable, 
-and just generally more sane.
------ end -----
-
+ide-scsi is on internal ServerWorks IDE.

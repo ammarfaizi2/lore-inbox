@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264987AbUD2WHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264992AbUD2WIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264987AbUD2WHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbUD2WHi
+	id S264992AbUD2WIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264990AbUD2WIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:07:38 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:41990 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264987AbUD2WHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:07:36 -0400
-Message-ID: <40917DBA.1080308@techsource.com>
-Date: Thu, 29 Apr 2004 18:12:10 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Marc Boucher <marc@linuxant.com>
-CC: Rik van Riel <riel@redhat.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40911C01.80609@techsource.com> <20040429213246.GA15988@valve.mbsi.ca>
-In-Reply-To: <20040429213246.GA15988@valve.mbsi.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 29 Apr 2004 18:08:41 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:662 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S264989AbUD2WIg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:08:36 -0400
+Subject: Re: [patch 1/3] efivars driver update and move
+From: Alex Williamson <alex.williamson@hp.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>, akpm@osdl.org,
+       linux-ia64 <linux-ia64@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040429211930.GC15106@lists.us.dell.com>
+References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFEAB3@fmsmsx406.fm.intel.com>
+	 <1083268253.8416.100.camel@localhost>
+	 <20040429211930.GC15106@lists.us.dell.com>
+Content-Type: text/plain
+Message-Id: <1083276494.8416.114.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 29 Apr 2004 16:08:15 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-04-29 at 15:19, Matt Domsch wrote:
+> On Thu, Apr 29, 2004 at 01:50:54PM -0600, Alex Williamson wrote:
+> > # stat BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c\ /
+> >   File: `BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c /'
+> 
+> FWIW, my Intel Tiger2-based system doesn't have the space at the end...
+> 
+> >         *(short_name + strlen(short_name)) = '-';
+> >         efi_guid_unparse(vendor_guid, short_name + strlen(short_name));
+> >         *(short_name + strlen(short_name)) = ' ';
+> 
+> even though looking at this I would have expected it to...
 
+   Yeah, I'm not sure how you couldn't have a space at the end...
 
-Marc Boucher wrote:
-> Giuliano Colla wrote:
 > 
->>Can you honestly tell apart the two cases, if you don't make a it a case of
->>"religion war"?
-> 
-> 
-> On Thu, Apr 29, 2004 at 11:15:13AM -0400, Timothy Miller answered:
-> 
->>Firmware downloaded into a piece of hardware can't corrupt the kernel in the
->>host.
->>
->>(Unless it's a bus master which writes to random memory, which might be
->>possible, but there is hardware you can buy to watch PCI transactions.)
-> 
-> 
-> and unless it's a card with binary-only, proprietary BIOS code called at
-> runtime by the kernel, for example by the vesafb.c video driver,
-> which despite this has a MODULE_LICENSE("GPL").
-> 
-> Could someone explain why such execution of evil proprietary binary-only
-> code on the host CPU should not also "taint" the kernel? ;-)
+> Can you remove that last line and see what it does?  Best as I can
+> tell, it isn't necessary or desired.
 
-That's a good question, but the BIOS code you're talking about is not 
-part of the kernel.  Sure, it's possible that it might still corrupt the 
-kernel, but it's not being loaded into it as a module.  The developer of 
-the BIOS code never intended for their code to be run by the Linux kernel.
+   Yes, removing that last line above gets rid of the space, everything
+looks right, and efibootmgr doesn't complain.  I'd attach a patch but
+I'm curious if Matt T. had some reason for adding it.
 
-Is it still dangerous?  Yes.  Is it a violation of the GPL?  No.
+	Alex
 
-Also, developers of modules which thunk to BIOS code are aware of the 
-potential problems and are typically willing to take responsibility for 
-investigating bugs in their own code.  (Bugs in the BIOS means you're 
-screwed and need to get new hardware.)  Developers of proprietary 
-drivers are notoriously unhelpful when it comes to fixing bugs in their 
-code.
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 

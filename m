@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVALTM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVALTRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVALTM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVALTKW
+	id S261340AbVALTRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 14:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVALTNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:10:22 -0500
-Received: from poros.telenet-ops.be ([195.130.132.44]:48568 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S261305AbVALTGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:06:14 -0500
-From: Jan De Luyck <lkml@kcore.org>
+	Wed, 12 Jan 2005 14:13:17 -0500
+Received: from lucidpixels.com ([66.45.37.187]:1154 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261325AbVALTMR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:12:17 -0500
+Date: Wed, 12 Jan 2005 14:12:14 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11-rc1 -- usb_storage and Genesys
-Date: Wed, 12 Jan 2005 20:06:33 +0100
-User-Agent: KMail/1.7.2
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org>
-Cc: Matthew Dharm <mdharm-usb@one-eyed-alien.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       USB Storage list <usb-storage@lists.one-eyed-alien.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Question regarding ERR in /proc/interrupts.
+Message-ID: <Pine.LNX.4.61.0501121410360.11524@p500>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501122006.34720.lkml@kcore.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 January 2005 06:09, Linus Torvalds wrote:
+Is there anyway to log each ERR to a file or way to find out what caused 
+each ERR?
 
-> Matthew Dharm:
->   o USB Storage: support 'bulk32' devices
->   o USB Storage: Increase Genesys delay
+For example, I know this is the cause of a few of them:
+spurious 8259A interrupt: IRQ7.
 
-The Genesys increased delay in this patch causes strange issues, the USB 
-disconnects after a while...
+But not all 20, is there any available option to do this?
 
-I rewrote the identifier like it was previous this patch
+$ cat /proc/interrupts
+            CPU0
+   0:  887759057          XT-PIC  timer
+   1:       3138          XT-PIC  i8042
+   2:          0          XT-PIC  cascade
+   5:       5811          XT-PIC  Crystal audio controller
+   9:  265081861          XT-PIC  ide4, eth1, eth2
+  10:    9087912          XT-PIC  ide6, ide7
+  11:     837707          XT-PIC  ide2, ide3
+  12:      13854          XT-PIC  i8042
+  14:   63373075          XT-PIC  eth0
+NMI:          0
+ERR:         20
 
---
-if (us->pusb_dev->descriptor.idVendor == USB_VENDOR_ID_GENESYS &&
---
-
-and it works like I expected it to...
-
-Just a note.
-
-Jan
-
--- 
-Support your right to bare arms!
-  -- A message from the National Short-Sleeved Shirt Association

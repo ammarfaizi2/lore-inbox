@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132008AbQLLPxn>; Tue, 12 Dec 2000 10:53:43 -0500
+	id <S129959AbQLLQAg>; Tue, 12 Dec 2000 11:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131922AbQLLPxd>; Tue, 12 Dec 2000 10:53:33 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37644 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132008AbQLLPxP>;
-	Tue, 12 Dec 2000 10:53:15 -0500
-Message-ID: <3A3642C6.7D50A6AE@mandrakesoft.com>
-Date: Tue, 12 Dec 2000 10:22:46 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S130070AbQLLQA0>; Tue, 12 Dec 2000 11:00:26 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:57614 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129959AbQLLQAV>;
+	Tue, 12 Dec 2000 11:00:21 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Tigran Aivazian <tigran@veritas.com>
+Date: Tue, 12 Dec 2000 16:28:36 MET-1
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Swapping-over-nbd deadlock fixed?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: how to capture long oops w/o having second machine
+CC: "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <F7716111F69@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see in the 2.2.18 release notes that a deadlock, related to swapping
-over a network via nbd, was fixed.  Is this bug present in 2.4.x-test?
--- 
-Jeff Garzik         |
-Building 1024       | These are not the J's you're lookin' for.
-MandrakeSoft        | It's an old Jedi mind trick.
+On 12 Dec 00 at 13:31, Tigran Aivazian wrote:
+> > > I'm gonna try to compile in a framebuffer and use a high resolution and
+> > > see if that'll hold it all when I get back later today.
+> > 
+> > shift+pageup ?
+> 
+> the problem with Shift-PgUP is that all the framebuffer drivers I tried
+> (matrox, ati, vesa) corrupt the screen when it is used. The only way to
+> use Shift-PgUp reliably I have ever seen was on vgacon. These bugs seemed
+> to be there for years so I didn't even bother reporting them - I just got
+> used to the idea "using fb? forget the Shift-PgUP then".
+
+Do not hit 'shift-pgup' while penguin logo is on the screen. Something
+somewhere is wrong... (and never hit shift-pgdn; shift-pgup corrupts
+screen while shift-pgdn corrupts kernel memory)
+
+Or better, boot with 'video=scrollback:0' (*). I think that we should 
+make this default for 2.4, as (except this problem) scrollback code is 
+broken for multihead and fix is not trivial.
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+
+(*) With matrox in 8bpp you'll get almost always bigger and faster scrollback
+with 'video=scrollback:0' than with default 'scrollback:32768' ...
+                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

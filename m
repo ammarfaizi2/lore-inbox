@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264080AbRF1TnU>; Thu, 28 Jun 2001 15:43:20 -0400
+	id <S264193AbRF1UGz>; Thu, 28 Jun 2001 16:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264092AbRF1TnK>; Thu, 28 Jun 2001 15:43:10 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16912 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264080AbRF1TnA>; Thu, 28 Jun 2001 15:43:00 -0400
-Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using
-To: bernds@redhat.com (Bernd Schmidt)
-Date: Thu, 28 Jun 2001 20:42:09 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mikpe@csd.uu.se (Mikael Pettersson),
-        FrankZhu@viatech.com.cn, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106281937330.32164-100000@host140.cambridge.redhat.com> from "Bernd Schmidt" at Jun 28, 2001 07:39:23 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S264244AbRF1UGp>; Thu, 28 Jun 2001 16:06:45 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:17676 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S264209AbRF1UGi>;
+	Thu, 28 Jun 2001 16:06:38 -0400
+Date: Thu, 28 Jun 2001 23:06:10 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Michael J Clark <clarkmic@pobox.upenn.edu>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: TCP/IP stack
+Message-ID: <20010628230610.K8897@mea-ext.zmailer.org>
+In-Reply-To: <200106281433.f5SEXk800876@pobox.upenn.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Fhg1-0007WG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200106281433.f5SEXk800876@pobox.upenn.edu>; from clarkmic@pobox.upenn.edu on Thu, Jun 28, 2001 at 10:33:46AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Intel specifically state that you cannot use CMOV without checking
-> > for it. Its actually a gcc/binutils tool bug. The CPU is right.
+  Richard, should there be (is there?)  linux-networking-faq, or can this
+  be put into the  linux-kernel  faq ?
+
+On Thu, Jun 28, 2001 at 10:33:46AM -0400, Michael J Clark wrote:
+> hey guys,
 > 
-> How is that a gcc bug?  You tell the compiler to generate cmov, you run
-> it on a CPU that doesn't have it, you get what you deserve.  There's
-> really nothing the tools can do about that.
+> I have been reading through TCP/IP Illustrated Vol 2 and the linux 
+> source.
 
-I tell gcc to buld for the 'i686' architecture definition. It in fact builds
-for the i686 architecture assuming an optional feature. Intel's own PPro doc
-is quite explicit that cmov could go away again in future chips.
+   That book describes  BSD  implementation.
 
-So cmov should not have been in the 686 machine definition.
+   Linux code has been written completely independently, and using
+   fundamentally different base structure -- instead of PCBs containing
+   chains of segments, Linux has  SKBs  with entire segment contiguous
+   in it.
 
-Alan
+   Function, and structure names are different, naturally.
 
+> Mike
+
+/Matti Aarnio

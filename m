@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272747AbTHPG23 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 02:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272780AbTHPG23
+	id S272796AbTHPGhp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 02:37:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272791AbTHPGhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 02:28:29 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:64782 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S272747AbTHPG22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 02:28:28 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Date: Sat, 16 Aug 2003 06:27:44 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <bhkit0$nu1$1@abraham.cs.berkeley.edu>
-References: <20030809173329.GU31810@waste.org> <20030815004004.52f94f9a.davem@redhat.com> <20030815095503.C2784@pclin040.win.tue.nl> <20030815202235.GB13384@speare5-1-14>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1061015264 24513 128.32.153.211 (16 Aug 2003 06:27:44 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Sat, 16 Aug 2003 06:27:44 +0000 (UTC)
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	Sat, 16 Aug 2003 02:37:45 -0400
+Received: from ns1.triode.net.au ([202.147.124.1]:23775 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP id S272781AbTHPGhn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 02:37:43 -0400
+Message-ID: <3F3DD0FD.9060705@torque.net>
+Date: Sat, 16 Aug 2003 16:36:45 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, es-es, es
+MIME-Version: 1.0
+To: John Cherry <cherry@osdl.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] fix parallel builds for aic7xxx
+References: <1060906080.4753.92.camel@cherrytest.pdx.osdl.net>
+In-Reply-To: <1060906080.4753.92.camel@cherrytest.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Val Henson  wrote:
->If entropy(x) == entropy(y), then:
->
->entropy(x) >= entropy(x xor y)
->entropy(y) >= entropy(x xor y)
+While on the subject of aic7xxx Makefiles, they add the
+"-Werror" flag to CFLAGS in both lk 2.4.22-rc2 and
+lk 2.6.0-test3 .
 
-No, that's still wrong.  Please see my earlier email with a counterexample.
-That counterexample disproves not only the earlier claim, but also this more
-recent revised claim.
+This flag can be annoying if there is some messiness in
+include files somewhere. In my case some mis-applied patches
+in the ide headers cause otherwise harmless compiler warning.
+That is until my kernel build tries to build the aic7xxx driver.
 
-Let x and y be two 80-bit strings.  Assume that x is either 0 or 1
-(equal probability for both possibilities).  Assume y is either 0 or 2
-(equal probability for both possibilities), and is independent of x.  Then
-  entropy(x) = 1 bit
-  entropy(y) = 1 bit
-  entropy(x xor y) = 2 bits
+As a side note drivers/scsi/aic7xxx/Makefile seems to be the only
+Makefile in lk 2.4.22-rc2 adding the "-Werror" flag. About a
+dozen Makefiles add it in lk 2.6.0-test3 (mainly in the alpha
+and sparc64 architecture trees).
 
-Again, I believe there is little basis to distinguish between taking the
-first half of SHA vs. xor-ing both the halves of SHA.  One can come up with
-scenarios where one or the other is better, but there is little basis for
-believing that one of those scenarios is especially more likely than the
-other.
+Doug Gilbert
 
-In short, we're arguing about how many angels can fit on a pinhead.
-There are far better things to be worrying about.

@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267962AbUHEU6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267963AbUHEU6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267962AbUHEU6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUHEU5n
+	id S267963AbUHEU6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267970AbUHEU5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:57:43 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:29022 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267973AbUHEUwa
+	Thu, 5 Aug 2004 16:57:11 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:43469 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S267963AbUHEUzJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:52:30 -0400
-Date: Thu, 5 Aug 2004 22:54:01 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Tom Duffy <tduffy@sun.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix x86_64 build of mmconfig.c
-Message-ID: <20040805205401.GB22342@mars.ravnborg.org>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Tom Duffy <tduffy@sun.com>, linux-kernel@vger.kernel.org
-References: <1091728096.10131.16.camel@duffman> <20040805223205.3dd2ee1a.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805223205.3dd2ee1a.ak@suse.de>
-User-Agent: Mutt/1.5.6i
+	Thu, 5 Aug 2004 16:55:09 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Alessandro Amici <alexamici@fastwebnet.it>
+Subject: Re: [PATCH] cputime (1/6): move call to update_process_times.
+Date: Thu, 5 Aug 2004 22:54:20 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, linux-390@vm.marist.edu, arjanv@redhat.com,
+       tim.bird@am.sony.com, mulix@mulix.org, alan@redhat.com,
+       jan.glauber@de.ibm.com
+References: <20040805180335.GB9240@mschwid3.boeblingen.de.ibm.com> <200408052157.47603.alexamici@fastwebnet.it>
+In-Reply-To: <200408052157.47603.alexamici@fastwebnet.it>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_85pEBTlgYJjCZ1s";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408052254.20715.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 10:32:05PM +0200, Andi Kleen wrote:
-> On Thu, 05 Aug 2004 10:48:16 -0700
-> Tom Duffy <tduffy@sun.com> wrote:
-> 
-> > Signed-by: Tom Duffy <tduffy@sun.com>
-> > 
-> >   gcc -Wp,-MD,arch/x86_64/pci/.mmconfig.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude -Iinclude2 -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/include -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci -Iarch/x86_64/pci -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks -Wno-sign-compare -fno-asynchronous-unwind-tables -O2 -fomit-frame-pointer -Wdeclaration-after-statement -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/ -I arch/i386/pci  -DKBUILD_BASENAME=mmconfig -DKBUILD_MODNAME=mmconfig -c -o arch/x86_64/pci/mmconfig.o /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c
-> > /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c:10:17: pci.h: No such file or directory
-> > 
-> > --- arch/x86_64/pci/Makefile.orig	2004-08-05 09:54:24.932007000 -0700
-> > +++ arch/x86_64/pci/Makefile	2004-08-05 09:53:53.171006000 -0700
-> > @@ -3,7 +3,7 @@
-> >  #
-> >  # Reuse the i386 PCI subsystem
-> >  #
-> > -CFLAGS += -I arch/i386/pci
-> > +CFLAGS += -Iarch/i386/pci
-> 
-> It never failed this way for me in hundreds of builds. Why is it failing for you? 
-> What gcc version do you use? 
-> 
-> Normally -Ifoo and -I foo should be really equivalent.
 
-Notice the originally poster uses the make O=dir syntax - visible from the include2
-directory being present on the commandline.
+--Boundary-02=_85pEBTlgYJjCZ1s
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This issue is kbuild related. When using 'make O=dir' syntax kbuild process
-options passed to gcc, and all -Isomething are processed.
-Whitin the limits of the make syntax it it not easy to handle -I something.
-When I originally implemented this I grepped the kernel and did not
-find any uses of -I something, but only -Isomething.
-I may easy have overlooked one.
+On Donnerstag, 5. August 2004 21:57, Alessandro Amici wrote:
+> I don't have enough knowledge to comment on the merit of the move to=20
+> architecture files, but the proliferation of #ifndef CONFIG_SMP looks rea=
+lly=20
+> ugly.
 
-And to the easy answer: fix kbuild.
-If anyone can see a way to fix this using make syntax please let me know. I did not
-find the answer.
-The lines to pay attention to are in Makefile.lib where cflags are processed.
+Yes, it does.
 
-Escaping to a shell is no option since this would be needed for all .o files
-even in an otherwise noop build.
-That's because all flags has to be evaluated each time to check if the flags changed.
+> Wouldn't it be possible to move the #ifndef into sched.h?
 
-	Sam
+You can't simply define it to a nop in case of SMP, because
+there it is called from a different place, but we could
+have a separate version for UP and SMP in sched.h:
+
+void update_process_times(int user_tick);
+static inline void update_process_times_nonsmp(int user_tick)
+{
+#ifndef CONFIG_SMP
+	update_process_times(user_tick);
+#endif
+}
+
+	Arnd <><
+
+--Boundary-02=_85pEBTlgYJjCZ1s
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBEp585t5GS2LDRf4RApy3AJ4wzVIcxYD3SjXpWc+vAQp7jJnJvwCfeu4o
+UAXDp2g9mWOWJwNnyj6oFVY=
+=I+IM
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_85pEBTlgYJjCZ1s--

@@ -1,85 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263568AbTCUJVV>; Fri, 21 Mar 2003 04:21:21 -0500
+	id <S263567AbTCUJa7>; Fri, 21 Mar 2003 04:30:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263567AbTCUJVV>; Fri, 21 Mar 2003 04:21:21 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:41476 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S263568AbTCUJVS>; Fri, 21 Mar 2003 04:21:18 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303210933.h2L9XmiZ000401@81-2-122-30.bradfords.org.uk>
-Subject: Re: Release of 2.4.21
-To: sflory@rackable.com (Samuel Flory)
-Date: Fri, 21 Mar 2003 09:33:48 +0000 (GMT)
-Cc: akpm@digeo.com, hch@infradead.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-In-Reply-To: <3E7A6B4F.1000205@rackable.com> from "Samuel Flory" at Mar 20, 2003 05:30:55 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S263569AbTCUJa7>; Fri, 21 Mar 2003 04:30:59 -0500
+Received: from h-64-105-35-91.SNVACAID.covad.net ([64.105.35.91]:54437 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S263567AbTCUJa6>; Fri, 21 Mar 2003 04:30:58 -0500
+Date: Fri, 21 Mar 2003 01:40:48 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-hotplug-devel@lists.sourceforge.net
+Subject: small devfs patch for 2.5.65, plan to replace /sbin/hotplug
+Message-ID: <20030321014048.A19537@baldur.yggdrasil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>>>For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
-> >>>>the 2.4.21-pre cycle, that would be less productive than just patching
-> >>>>2.4.20 and rolling a separate release off of that.
-> >>>>        
-> >>>>
-> >>>I think the naming is illogical.  If there's a bugfix-only release
-> >>>it whould have normal incremental numbers.  So if marcelo want's
-> >>>it he should clone a tree of at 2.4.20, apply the essential patches
-> >>>and bump the version number in the normal 2.4 tree to 2.4.22-pre1
-> >>>      
-> >>>
-> >>No point in making things too complex.  2.4.20-post1 is something people can
-> >>easily understand.
-> >>
-> >>I needed that for the ext3 problems which popped up shortly after 2.4.20 was
-> >>released - I was reduced to asking people to download fixes from my web page.
-> >>
-> >>And having a -post stream may allow us to be a bit more adventurous in the
-> >>-pre stream.
-> >>    
-> >>
-> >
-> >Why can't we just make all releases smaller and more frequent?
-> >
-> >Why do we need 2.4.x-pre at all, anyway - why can't we just test
-> >things in the -[a-z][a-z] trees, and _start_ with -rc1?
-> >
-> >Why can't we just do bugfixes for 2.4, and speed up 2.5 development?
-> >
-> >  
-> >
-> 
->   That would imply some changes could take place in a short cycle.  This 
-> is not true for things like major ide subsystem updates.
+	There have been some devfs clean ups in the stock kernels
+since 2.5.63, so here is a patch so that people have a version
+that applies cleanly:
 
-We should not have major updates like that as a regular occurance in
-the stable kernel series.  If they are necessary, we could break with
-the small, frequent updates, and go back to what we have now.
+ftp://ftp.yggdrasil.com/pub/dist/device_control/devfs/smalldevfs-2.5.65-v12.patch
 
-Why can't we basically have two modes of working:
+	There is no change to the optional devfs_helper user level
+agent, a reduced-functionality replacement for devfsd (devfsd is not
+used under under this version of devfs), available here:
 
-* When nothing major is being re-written:
+ftp://ftp.yggdrasil.com/pub/dist/device_control/devfs/devfs_helper-0.2.tar.gz
 
-Small, frequent updates.  -pre and -rc version numbering used to
-indicate kernels which haven't had much testing.  Larger updates
-existing in -[a-z][a-z] trees.
+	I believe that the only change in this version of devfs is
+moving the code to invoke the user level devfs_helper program to a
+separate file, fs/devfs/notify.c.  This change will simplify a future
+code shrink inspired by David Brownell's suggesting that I think about
+unifying hotplug with devfs.  In the future I would like to lift
+fs/devfs/notify.c out of devfs so that the code that currently invokes
+user level helpers for hot plug events can be replaced with two calls
+to a renamed devfs_event() on
+/sys/bus/<bustype>/devices/<bus#>/<whatever>, one for insertion and
+one for removal.
 
+	This future change would not just be for aesthetics (although
+I've worried about potential bugs arising from /sbin/hotplug's
+pollution of environment variable name space).  This change would
+result in a smaller kernel when both hotplug and devfs are configured,
+and, hopefully, a kernel that is no larger when only one or neither
+are configured (if neither are configured, the code would not be
+compiled in).  It should also shrink the amount of user code need to
+support the combination of hotplug and devfs and slightly reduce the
+Linux-specific abstractions that system administrators have to track.
 
-* When an update to a core subsystem is in progress
-
-Larger, less frequent updates.  -pre and -rc versions getting more
-testing, and -[a-z][a-z] trees for very experimental code.
-
-
-I know there are frequently suggestions about how to organise kernel
-development, and they are usually ignored, because we generally don't
-like to work however we want to, but this suggestion is just common
-sense.  When nothing much is going on, release smaller changes to get
-a lot of testing of the same codebase.  When major work is going on,
-separate out the minor updates to give people flexibility in testing.
-
-John.
+-- 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

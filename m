@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVAYAiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVAYAkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVAYAiu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 19:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVAYAig
+	id S261760AbVAYAkO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVAYAcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:38:36 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:60603 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261725AbVAYAgG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 19:36:06 -0500
-Date: Tue, 25 Jan 2005 01:35:55 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050125003555.GA17973@pingi3.kke.suse.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@infradead.org>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124121226.GA29098@infradead.org> <20050124203624.GB14335@pingi3.kke.suse.de> <20050124232603.GA8332@infradead.org>
+	Mon, 24 Jan 2005 19:32:50 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:46571 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261729AbVAYAaP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 19:30:15 -0500
+Cc: linux-kernel@vger.kernel.org, js@linuxtv.org
+In-Reply-To: 
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Tue, 25 Jan 2005 01:31:38 +0100
+Message-Id: <11066130981300@linuxtv.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124232603.GA8332@infradead.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+To: Linus Torvalds <torvalds@osdl.org>
+From: Johannes Stezenbach <js@linuxtv.org>
+X-SA-Exim-Connect-IP: 217.86.181.249
+Subject: [PATCH 0/4] 2.6.11-rc2-bk2 DVB fixes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 11:26:03PM +0000, Christoph Hellwig wrote:
-> On Mon, Jan 24, 2005 at 09:36:24PM +0100, Karsten Keil wrote:
-> > >  - conversion to proper pci API
-> > 
-> > ??? the driver is not PCI related at all
-> 
-> Sorry, this was actually a comment for i4l-hfc-4s-and-hfc-8s-driver.patch.
-> 
+Hi Linus,
 
-OK, in the meantime I assumed this too and informed the author about the
-problems, I think most things will be solved soon.
+the following patches correct a few bugs which were found
+shortly after submission of the previous patchset :-(
+(except 03-core-more-cards which I just submit while I'm at it)
 
-I can correct CodingStyle for hfc_usb.c too, this give ~30K bigger patch.
+01-dibusb-le16		follow USB __le16 changes
+02-core-fe-release	fix access to freed memory on module unload
+03-core-more-cards	support up to six DVB cards (instead of just four)
+04-frontends		cleanup some confusing firmware loading printks
 
-Thanks for the formal code checks, I forget them sometimes, if I get code
-from 3 party.
+I also saw that there is a large amount of whitespace/indentation
+corruption throughout the DVB subsystem (some of it shows through
+in the 04-frontends patch), which was not introduced
+by the latest patchset but already exists in linux-2.6.10-rc2 at least.
+I will try to sort this out over the next few days.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Johannes
+

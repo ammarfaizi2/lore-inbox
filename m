@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265687AbUABVsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 16:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUABVrx
+	id S265680AbUABVnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 16:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265683AbUABVnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 16:47:53 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:57755 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265687AbUABVrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 16:47:49 -0500
-Date: Fri, 2 Jan 2004 22:47:45 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Stan Bubrouski <stan@ccs.neu.edu>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 355] Mac ADB IOP fix
-In-Reply-To: <1073025537.1597.0.camel@duergar>
-Message-ID: <Pine.GSO.4.58.0401022246050.3062@waterleaf.sonytel.be>
-References: <200401012001.i01K1uWh031775@callisto.of.borg>
- <1073025537.1597.0.camel@duergar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jan 2004 16:43:22 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41232 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265680AbUABVnV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 16:43:21 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: md: RAID-6 patch available for testing
+Date: Fri, 02 Jan 2004 16:26:42 -0500
+Organization: TMR Associates, Inc
+Message-ID: <bt4nvc$6vk$1@gatekeeper.tmr.com>
+References: <bse2c7$viq$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1073079084 7156 192.168.12.10 (2 Jan 2004 21:31:24 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <bse2c7$viq$1@cesium.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jan 2004, Stan Bubrouski wrote:
-> On Thu, 2004-01-01 at 15:01, Geert Uytterhoeven wrote:
-> > Mac ADB IOP: Fix improperly initialized request struct in the reset code,
-> > causing a bogus pointer (from Matthias Urlichs)
-> >
-> > --- linux-2.6.0/drivers/macintosh/adb-iop.c	Thu Jan  2 12:54:27 2003
-> > +++ linux-m68k-2.6.0/drivers/macintosh/adb-iop.c	Mon Oct 20 21:45:56 2003
-> > @@ -105,18 +105,19 @@
-> >  	struct adb_iopmsg *amsg = (struct adb_iopmsg *) msg->message;
-> >  	struct adb_request *req;
-> >  	uint flags;
-> > +#ifdef DEBUG_ADB_IOP
-> > +	int i;
-> > +#endif
-> >
->
-> Why not move this down into the ifdef below?  2 extra lines aren't
-> needed.
+H. Peter Anvin wrote:
+> [Already announced to linux-raid, but I thought it might get wider
+> distribution in this list.]
+> 
+> For those that don't know, I've been working on adding RAID-6 (dual
+> failure recovery) to the md system for a while.  It started out as a
+> project because the math was interesting, and Penguin Computing for
+> donated a very much needed test system (thanks!)
+> 
+> Well, at least I have a piece of code that passes my relatively simple
+> functionality tests.  Still, that's news, and this is the first RAID-6
+> snapshot that isn't *known* to be broken :)
+> 
+> I can at least mount filesystems, read and write data, reboot the
+> system and have the data still there, with 1 or 2 disks lost, and do a
+> reconstruction once the drives are added back in.
+> 
+> New development snapshot at:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/raid6-20031224c-experimental.tar.gz
+> 
+> Please test it out and let me know how badly it sucks :)
+> 
+> At some point I'll try to run some benchmarks.  There is also a lot of
+> optimization still to be done.
 
-Because you can't mix variable declarations with statements in `old' C.
-The alternative is to add curly braces below, but that's more lines too.
+If this works as well as you intend, unless the performance is really 
+broken it will still be useful in situations where data loss would be 
+very painful. It wouldn't be bad in ad-hoc arrays I build from drives 
+which have been pulled because they have too many POH or power cycles;-)
 
-> -sb
->
-> >  	local_irq_save(flags);
-> >
-> >  	req = current_req;
-> >
-> >  #ifdef DEBUG_ADB_IOP
-> > -	printk("adb_iop_listen: rcvd packet, %d bytes: %02X %02X",
-> > +	printk("adb_iop_listen %p: rcvd packet, %d bytes: %02X %02X", req,
-> >  		(uint) amsg->count + 2, (uint) amsg->flags, (uint) amsg->cmd);
-> > -	i = 0;
-> > -	while (i < amsg->count) {
-> > -		printk(" %02X", (uint) amsg->data[i++]);
-> > -	}
-> > +	for (i = 0; i < amsg->count; i++)
-> > +		printk(" %02X", (uint) amsg->data[i]);
-> >  	printk("\n");
-> >  #endif
-> >
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264176AbUEDBQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264186AbUEDBTC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbUEDBQe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 21:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUEDBQe
+	id S264186AbUEDBTC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 21:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUEDBTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 21:16:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37289 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264176AbUEDBQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 21:16:32 -0400
-Date: Mon, 3 May 2004 18:15:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: peter@mysql.com, linuxram@us.ibm.com, alexeyk@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6
-Message-Id: <20040503181533.59af9762.akpm@osdl.org>
-In-Reply-To: <4096E1A6.2010506@yahoo.com.au>
-References: <200405022357.59415.alexeyk@mysql.com>
-	<409629A5.8070201@yahoo.com.au>
-	<20040503110854.5abcdc7e.akpm@osdl.org>
-	<1083615727.7949.40.camel@localhost.localdomain>
-	<20040503135719.423ded06.akpm@osdl.org>
-	<1083620245.23042.107.camel@abyss.local>
-	<20040503145922.5a7dee73.akpm@osdl.org>
-	<4096DC89.5020300@yahoo.com.au>
-	<20040503171005.1e63a745.akpm@osdl.org>
-	<4096E1A6.2010506@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 3 May 2004 21:19:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18870 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264186AbUEDBS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 21:18:59 -0400
+Date: Mon, 3 May 2004 22:19:47 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Julian Bradfield <jcb@inf.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hang with 2.4.26 copying to loopback device
+Message-ID: <20040504011947.GC8028@logos.cnet>
+References: <16534.48421.296794.467014@toolo.inf.ed.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16534.48421.296794.467014@toolo.inf.ed.ac.uk>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Andrew Morton wrote:
-> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> > 
-> >>>That's one of its usage patterns.  It's also supposed to detect the
-> >>>fixed-sized-reads-seeking-all-over-the-place situation.  In which case it's
-> >>>supposed to submit correctly-sized multi-page BIOs.  But it's not working
-> >>>right for this workload.
-> >>>
-> >>>A naive solution would be to add special-case code which always does the
-> >>>fixed-size readahead after a seek.  Basically that's
-> >>>
-> >>>	if (ra->next_size == -1UL)
-> >>>		force_page_cache_readahead(...)
-> >>>
-> >>
-> >>I think a better solution to this case would be to ensure the
-> >>readahead window is always min(size of read, some large number);
-> >>
-> > 
-> > 
-> > That would cause the kernel to perform lots of pointless pagecache lookups
-> > when the file is already 100% cached.
-> > 
+On Mon, May 03, 2004 at 10:44:05PM +0100, Julian Bradfield wrote:
+> I'm running a vanilla 2.4.26 kernel (on a rather old distro, Mandrake
+> 9.0).
+> I have large (6GB) file on a remote NFS server (running 2.4.18), on
+> which
+> there is a file system that I'm mounting via loopback.
+> When I copy to this looped back filesystem, I get a hang after a few
+> megabytes. After the copy hangs, I move the cursor around and soon X
+> freezes as well. I can, however, reboot via sysrq.
 > 
-> 
-> That's pretty sad. You need a "preread" or something which
-> sends the pages back... or uses the actor itself. readahead
-> would then have to be reworked to only run off the end of
-> the read window, but that is what it should be doing anyway.
+> I've seen several reports a couple of years ago of deadlocks in
+> loopback, but nothing recently that I can find via searching.
+> Is there anything currently known to be an issue, or should I start
+> preparing a proper report?
 
-Sorry, I do not understand that paragraph at all.
-
-All forms or pagecache population need to examine the pagecache to find out
-if the page is already there.  This involves pagecache lookups.  We want
-the read code to "learn" that the requested pages are all coming from cache
-and to stop doing those lookups altogether.
-
-
+Please prepare a more complete report with alt+sysrq+p and alt+sysrq+t 
+output if possible. Attaching a serial console to the box is 
+very helpful if you dont want to copy the output by hand.

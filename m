@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbTARANU>; Fri, 17 Jan 2003 19:13:20 -0500
+	id <S261624AbTARA0l>; Fri, 17 Jan 2003 19:26:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbTARANU>; Fri, 17 Jan 2003 19:13:20 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:57074 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S261581AbTARANU>; Fri, 17 Jan 2003 19:13:20 -0500
-Date: Fri, 17 Jan 2003 19:22:14 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.59 - usb-storage and sd-mod won't load
-Message-ID: <20030118002214.GA1124@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261701AbTARA0l>; Fri, 17 Jan 2003 19:26:41 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:42716 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S261624AbTARA0j>; Fri, 17 Jan 2003 19:26:39 -0500
+Message-ID: <18c201c2be89$92019750$53572382@mzhangpc1>
+From: "Mingye Zhang" <Mingye.Zhang@oracle.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic: not continuing do_aic7xxx_isr
+Date: Fri, 17 Jan 2003 16:35:58 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry for resending it, but I'm not on the list and would like being copied
+for the replies. Thanks very much. -Mingye
+----- Original Message -----
+From: "Mingye Zhang" <Mingye.Zhang@oracle.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, January 17, 2003 3:06 PM
+Subject: Kernel panic: not continuing do_aic7xxx_isr
 
-with usb-storage and sd-mod as modules, this appears in dmesg
-amd the modules are not loaded:
 
-usb_storage: Unknown symbol scsi_unregister_host
-usb_storage: Unknown symbol scsi_register
-usb_storage: Unknown symbol scsi_register_host
-usb_storage: Unknown symbol scsi_sense_key_string
-usb_storage: Unknown symbol scsi_extd_sense_format
-sd_mod: Unknown symbol scsi_device_get
-sd_mod: Unknown symbol scsi_wait_req
-sd_mod: Unknown symbol scsi_register_device
-sd_mod: Unknown symbol scsicam_bios_param
-sd_mod: Unknown symbol scsi_block_when_processing_errors
-sd_mod: Unknown symbol scsi_ioctl
-sd_mod: Unknown symbol scsi_device_put
-sd_mod: Unknown symbol scsi_unregister_device
-sd_mod: Unknown symbol scsi_slave_detach
-sd_mod: Unknown symbol scsi_release_request
-sd_mod: Unknown symbol scsi_allocate_request
-sd_mod: Unknown symbol scsi_slave_attach
-sd_mod: Unknown symbol scsi_io_completion
-sd_mod: Unknown symbol print_sense
-sd_mod: Unknown symbol print_req_sense
-sd_mod: Unknown symbol scsi_set_medium_removal
-
-They load fine in 2.5.55/56/57/58
-
---  
-Murray J. Root
+> Hi, this is the first time I send email to this list in the hope that I
+may
+> get some help here...
+>
+> I have a machine goes panic whenever I tranfer big files across network.
+It
+> is a Dell 1650 machine with 4GB memory, 2 CPUs. The kernel is
+2.4.9-e.3smp.
+> It is a Red Hat Linux Advanced Server release 2.1AS/i686 (Pensacola). Here
+> is the screen dump:
+> Stack d1b5be2c 00000001 ce969180 c5339e5c c0118fa2 d1b5a000 00000282
+> 00000202
+>       f3d461ac f3d46040 f2320720 f3d46178 c0203acc f3d4623c 006e6706
+> c0113b37
+>       000003ff 00000002 0000030d 00000000 f5aeb842 00000020 00000001
+> 011d63dc
+> Call Trace:[<.....>]__wake_up[kernel]0x42
+>           [<.....>]tcp_v4_rcv[kernel]0x3cc
+>           [<.....>]smp_apic_time_interrupt[kernel]0x12b
+>           [<.....>]aic7xxx_isr[kernel]0x296
+>           [<.....>]net_rx_action[kernel]0x1eb
+>           [<.....>]do_aic7xxx_isr[aic7xxx]0x68
+>           [<.....>]handle_IRQ_event[kernel]0x5e
+>           [<.....>]do_IRQ[kernel]0xc1
+>           [<.....>]default_idle[kernel]0x0
+>           [<.....>]call_do_IRQ[kernel]0x5
+>           [<.....>]default_idle[kernel]0x0
+>           [<.....>]default_idle[kernel]0x2e
+>           [<.....>]cpu_idle[kernel]0x32
+>           [<.....>]__call_console_drivers[kernel]0x46
+>           [<.....>]call_console_drivers[kernel]0xeb
+>
+> Code: 8b 07 0f b6 40  19 eb 05 b8 ff 00 00 00 50 31 ff 6a ff 55 0f
+> <0>Kernel panic: not continuing
+> In interrupt handler - not syncing
+>
+> Thanks
+> Mingye
+>
 

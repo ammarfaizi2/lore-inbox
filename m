@@ -1,109 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbUKFSnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbUKFSqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbUKFSnd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 13:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUKFSnc
+	id S261439AbUKFSqL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 13:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbUKFSqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 13:43:32 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:60350 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261437AbUKFSmQ
+	Sat, 6 Nov 2004 13:46:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16304 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261437AbUKFSp6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 13:42:16 -0500
-Message-ID: <418D1B06.9040201@verizon.net>
-Date: Sat, 06 Nov 2004 13:42:14 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: jgarzik@pobox.com
-Subject: [PATCH][resend] hw_random: Update printk()'s in hw_random.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [68.238.31.6] at Sat, 6 Nov 2004 12:42:15 -0600
+	Sat, 6 Nov 2004 13:45:58 -0500
+Date: Sat, 6 Nov 2004 18:45:55 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Christoph Hellwig <hch@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       Richard Waltham <richard@fars-robotics.net>,
+       SUPPORT <support@4bridgeworks.com>, Thomas Babut <thomas@babut.net>,
+       linux-kernel@vger.kernel.org, Linux SCSI <linux-scsi@vger.kernel.org>,
+       groudier@free.fr
+Subject: Re: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
+Message-ID: <20041106184555.GD24690@parcelfarce.linux.theplanet.co.uk>
+References: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local> <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk> <20041106120358.GC23305@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041106120358.GC23305@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whoops - forgot the header for this patch.
+On Sat, Nov 06, 2004 at 12:03:58PM +0000, Christoph Hellwig wrote:
+> On Sat, Nov 06, 2004 at 03:59:51AM +0000, Matthew Wilcox wrote:
+> > On Sat, Nov 06, 2004 at 12:02:32AM -0000, Richard Waltham wrote:
+> > > Good as a backup but the original PPR capability is defined in
+> > > scan_scsi.c. Shouldn't scan_scsi.c take note of the bus mode and enable
+> > > PPR capabilities accordingly? This would then cover this issue for all
+> > > relevant LLDDs wouldn't it?
+> > 
+> > scan_scsi.c doesn't know what mode the bus is in.  scan_scsi.c doesn't
+> > even know whether the bus is SPI, FC, iSCSI, SAS or SATA.
+> 
+> And PPR only makes sense for SPI anyway.  An good argument why this
+> should move to the SPI transport class, which does know about SE vs HVD
+> vs LVD.
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+That would make sense if more of this were done at a higher level.
+As it is right now, the decision whether to use PPR, SDTR or WDTR is
+entirely up to the driver.  I think there's a lot more consolidation
+that could be done into the midlayer, but we should probably see what
+other drivers requirements are before making it perfect for sym2.
 
-diff -urN --exclude='*~' linux-2.6.9-original/drivers/char/hw_random.c 
-linux-2.6.9/drivers/char/hw_random.c
---- linux-2.6.9-original/drivers/char/hw_random.c	2004-10-18 17:53:50.000000000 -0400
-+++ linux-2.6.9/drivers/char/hw_random.c	2004-11-06 13:30:17.682633097 -0500
-@@ -21,6 +21,7 @@
-
-   */
-
-+#undef DEBUG /* define to enable copious debugging info */
-
-  #include <linux/module.h>
-  #include <linux/kernel.h>
-@@ -56,31 +57,27 @@
-  /*
-   * debugging macros
-   */
--#undef RNG_DEBUG /* define to enable copious debugging info */
-
--#ifdef RNG_DEBUG
--/* note: prints function name for you */
--#define DPRINTK(fmt, args...) printk(KERN_DEBUG "%s: " fmt, __FUNCTION__ , ## args)
--#else
--#define DPRINTK(fmt, args...)
--#endif
-+/* pr_debug() collapses to a no-op if DEBUG is not defined */
-+#define DPRINTK(fmt, args...) pr_debug(PFX "%s: " fmt, __FUNCTION__ , ## args)
-+
-
--#define RNG_NDEBUG        /* define to disable lightweight runtime checks */
-+#undef RNG_NDEBUG        /* define to enable lightweight runtime checks */
-  #ifdef RNG_NDEBUG
--#define assert(expr)
-+#define assert(expr)							\
-+		if(!(expr)) {						\
-+		pr_debug(PFX "Assertion failed! %s,%s,%s,line=%d\n",	\
-+		#expr,__FILE__,__FUNCTION__,__LINE__);			\
-+		}
-  #else
--#define assert(expr) \
--        if(!(expr)) {                                   \
--        printk( "Assertion failed! %s,%s,%s,line=%d\n", \
--        #expr,__FILE__,__FUNCTION__,__LINE__);          \
--        }
-+#define assert(expr)
-  #endif
-
-  #define RNG_MISCDEV_MINOR		183 /* official */
-
-  static int rng_dev_open (struct inode *inode, struct file *filp);
-  static ssize_t rng_dev_read (struct file *filp, char __user *buf, size_t size,
--			     loff_t * offp);
-+                 loff_t * offp);
-
-  static int __init intel_init (struct pci_dev *dev);
-  static void intel_cleanup(void);
-@@ -322,7 +319,7 @@
-  	rnen |= (1 << 7);	/* PMIO enable */
-  	pci_write_config_byte(dev, 0x41, rnen);
-
--	printk(KERN_INFO PFX "AMD768 system management I/O registers at 0x%X.\n", pmbase);
-+	pr_info(PFX "AMD768 system management I/O registers at 0x%X.\n",pmbase);
-
-  	amd_dev = dev;
-
-@@ -606,7 +603,7 @@
-  	if (rc)
-  		return rc;
-
--	printk (KERN_INFO RNG_DRIVER_NAME " loaded\n");
-+	pr_info (RNG_DRIVER_NAME " loaded\n");
-
-  	DPRINTK ("EXIT, returning 0\n");
-  	return 0;
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

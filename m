@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131801AbRCOTgn>; Thu, 15 Mar 2001 14:36:43 -0500
+	id <S131796AbRCOTcD>; Thu, 15 Mar 2001 14:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131805AbRCOTgf>; Thu, 15 Mar 2001 14:36:35 -0500
-Received: from [142.176.139.106] ([142.176.139.106]:32772 "EHLO ve1drg.com")
-	by vger.kernel.org with ESMTP id <S131801AbRCOTgT>;
-	Thu, 15 Mar 2001 14:36:19 -0500
-Date: Thu, 15 Mar 2001 15:35:01 -0400 (AST)
-From: Ted Gervais <ve1drg@ve1drg.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.2
-Message-ID: <Pine.LNX.4.21.0103151527420.2382-100000@ve1drg.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131798AbRCOTby>; Thu, 15 Mar 2001 14:31:54 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:21987 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S131796AbRCOTbo>; Thu, 15 Mar 2001 14:31:44 -0500
+Message-Id: <l0313030eb6d6c75fcbf8@[192.168.239.101]>
+In-Reply-To: <15025.3553.176799.382488@robur.slu.se>
+In-Reply-To: <Pine.LNX.4.33.0103152137240.1320-100000@duckman.distro.conectiva>
+ <15024.53099.41814.716733@robur.slu.se>
+ <Pine.LNX.4.33.0103152137240.1320-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 15 Mar 2001 19:30:56 +0000
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: How to optimize routing performance
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A simple question for you guru's..
+> And we have done experiments with controlling interrupts and running
+> the RX at "lower" priority. The idea is take RX-interrupt and immediately
+> postponing the RX process to tasklet. The tasklet opens for new RX-ints.
+> when its done.  This way dropping now occurs outside the box since and
+> dropping becomes very undramatically.
 
-I just installed kernel 2.4.2 on a slackware system and have a problem 
-with loading a module. It is the 8139too.o module previously the
-rtl8139.o.   It seems that this new driver is not being loaded with
-this new kernel. Obviously something has changed but I can't seem to see 
-where that is.  I noticed though that the directories in /lib/modules for
-this kernel is different than 2.2.18.  
+<snip>
 
-Anyways - to get things to work, I have put added this statement to the
-top of my /etc/rc.d/rc.inet1 file:
+> A bit of explanation. Above is output from tulip driver. We are forwarding
+> 44079 and we are dropping  49913 packets per second!  This box has
+> full BGP. The DoS attack was going on for about 30 minutes BGP survived
+> and the box was manageable. Under a heavy attack it still performs well.
 
-insmod /usr/src/linux/drivers/net/8139too.o.
+Nice.  Any chance of similar functionality finding its' way outside the
+Tulip driver, eg. to 3c509 or via-rhine?  I'd find those useful, since one
+or two of my Macs appear to be capable of generating pseudo-DoS levels of
+traffic under certain circumstances which totally lock a 486 (for the
+duration) and heavily load a P166 - even though said Macs "only" have
+10baseT Ethernet.
 
-That seems to get things working but why should I do that.
+OTOH, proper management of the circumstances under which this flooding
+occurs (it's an interaction bug which occurs when the Linux machine ends up
+with a zero-sized TCP receive window) would also be rather helpful.
 
-By the way - I do have  'alias eth0 8139too.o'  in my /etc/modules.conf
-file.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Any thoughts on where I might be going wrong. And I do have
-'CONFIG_KMOD=y' in my kernel configuration..
+The key to knowledge is not to rely on people to teach you it.
 
----
-Earth is a beta site. 
-                
-Ted Gervais <ve1drg@ve1drg.com>
-44.135.34.201 linux.ve1drg.ampr.org
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
 

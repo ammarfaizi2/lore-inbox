@@ -1,45 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbREVBAG>; Mon, 21 May 2001 21:00:06 -0400
+	id <S261213AbREVBEQ>; Mon, 21 May 2001 21:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbREVA74>; Mon, 21 May 2001 20:59:56 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:64783 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S262215AbREVA7s>; Mon, 21 May 2001 20:59:48 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: John Stoffel <stoffel@casc.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy 
-In-Reply-To: Your message of "Mon, 21 May 2001 16:38:34 -0400."
-             <15113.31946.548249.53012@gargle.gargle.HOWL> 
-Mime-Version: 1.0
+	id <S261262AbREVBEG>; Mon, 21 May 2001 21:04:06 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:16519 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261213AbREVBEE>;
+	Mon, 21 May 2001 21:04:04 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 22 May 2001 10:59:04 +1000
-Message-ID: <2436.990493144@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15113.47873.884663.46100@pizda.ninka.net>
+Date: Mon, 21 May 2001 18:04:01 -0700 (PDT)
+To: linux-kernel@vger.kernel.org
+Subject: Just FYI...
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001 16:38:34 -0400, 
-John Stoffel <stoffel@casc.com> wrote:
->All that CML2 does is enforce dependencies in the configuration
->language.  You can't make a .config which conflicts.  Admittedly
->there's nothing stopping you from hacking it with vi after the fact,
->but why?
 
-CML2 will not stop you hacking .config by hand.  But the 2.5 makefile
-rewrite will, because we have had too many bug reports caused by people
-who hand edited .config, did not revalidate it and generated invalid
-kernels.  Yes, you can hand edit .config.  No, you cannot compile until
-.config has been (re-)validated.
+vger.kernel.org is now ECN enabled.
 
-# Not a real dependency, this checks for hand editing of .config.
-$(KBUILD_OBJTREE)include/linux/autoconf.h: $(KBUILD_OBJTREE).config
-        @echo Your .config is newer than include/linux/autoconf.h, this should not happen.
-        @echo Always run make one of "{menu,old,x}config" after manually updating .config.
-        @/bin/false
-
-And before people complain: Don't create a config that violates the CML
-rules, correct the CML rules, the Makefiles and the source so .config
-is valid.  The kernel build requires a valid .config.
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277630AbRJRIa6>; Thu, 18 Oct 2001 04:30:58 -0400
+	id <S277609AbRJRImb>; Thu, 18 Oct 2001 04:42:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277629AbRJRIaj>; Thu, 18 Oct 2001 04:30:39 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:2184 "EHLO
+	id <S277618AbRJRImW>; Thu, 18 Oct 2001 04:42:22 -0400
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:55690 "EHLO
 	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S277626AbRJRIa0>; Thu, 18 Oct 2001 04:30:26 -0400
-Date: Thu, 18 Oct 2001 09:30:52 +0100 (BST)
+	id <S277609AbRJRImI>; Thu, 18 Oct 2001 04:42:08 -0400
+Date: Thu, 18 Oct 2001 09:38:47 +0100 (BST)
 From: James Sutherland <jas88@cam.ac.uk>
 X-X-Sender: <jas88@yellow.csi.cam.ac.uk>
-To: Leo Mauro <lmauro@usb.ve>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Bench] New benchmark showing fileserver problem in 2.4.12
-In-Reply-To: <01101722010908.02313@lmauro.home.usb.ve>
-Message-ID: <Pine.SOL.4.33.0110180929310.13081-100000@yellow.csi.cam.ac.uk>
+To: Ben Greear <greearb@candelatech.com>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+In-Reply-To: <3BCE6E6E.3DD3C2D6@candelatech.com>
+Message-ID: <Pine.SOL.4.33.0110180937420.13081-100000@yellow.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Oct 2001, Leo Mauro wrote:
+On Wed, 17 Oct 2001, Ben Greear wrote:
 
-> Small fix to Linus's sample code
+> Neil Brown wrote:
+> >
+> > Hi,
+> >  In my ongoing effort to provide centralised file storage that I can
+> >  be proud of, I have put together some code to implement tree quotas.
+> >
+> >  The idea of a tree quota is that the block and inode usage of a file
+> >  is charged to the (owner of the root of the) tree rather than the
+> >  owner (or group owner) of the file.
+> >  This will (I hope) make life easier for me.  There are several
+> >  reasons that I have documented (see URL below) but a good one is that
+> >  they are transparent and predictable.  du -s $HOME should *always*
+> >  match your usage according to "quota".
 >
->  	unsigned int so_far = 0;
->  	for (;;) {
->  		int bytes = read(in, buf+so_far, BUFSIZE-so_far);
->  		if (bytes <= 0)
->  			break;
->  		so_far += bytes;
->  		if (so_far < BUFSIZE)
->  			continue;
->  		write(out, buf, BUFSIZE);
-> - 		so_far = 0;
-> +		so_far -= BUFSIZE;
->  	}
->  	if (so_far)
->  		write(out, buf, so_far);
->
-> to avoid losing data.
+> Err, except maybe when you also own a file in /home/idiot/idiots_unprotected_storage_dir
+> (This relates not at all to your patch/comments.)
 
-Checking the return from write() for errors might be a nice idea too,
-otherwise you carry on reading, and trying to append, even if the target
-device is full (or whatever).
+No - "the ... usage of a file is charged to the tree, RATHER THAN THE
+OWNER OF THE FILE". So, in this case, if you own a file in ~idiot/foo,
+idiot's quota is charged for the file, not you.
 
 
 James.

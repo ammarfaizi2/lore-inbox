@@ -1,115 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbTEEQnt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTEEQnc
+	id S263668AbTEEQuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263759AbTEEQsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:43:32 -0400
-Received: from krynn.se.axis.com ([193.13.178.10]:42458 "EHLO
-	krynn.se.axis.com") by vger.kernel.org with ESMTP id S263737AbTEEQmL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:42:11 -0400
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DEB2E@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: =?iso-8859-1?Q?Sebastian_Sj=F6berg?= <sebastian.sjoberg@axis.com>
-Subject: [PATCH 2.4.20] alloc_kiovec performance improvement
-Date: Mon, 5 May 2003 18:54:39 +0200 
+	Mon, 5 May 2003 12:48:31 -0400
+Received: from mail.gmx.net ([213.165.65.60]:51453 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263754AbTEEQr1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 12:47:27 -0400
+Message-ID: <3EB69883.8090609@gmx.net>
+Date: Mon, 05 May 2003 18:59:47 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Ezra Nugroho <ezran@goshen.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: partitions in meta devices
+References: <1052153060.29588.196.camel@ezran.goshen.edu> 	<3EB693B1.9020505@gmx.net> <1052153834.29676.219.camel@ezran.goshen.edu>
+In-Reply-To: <1052153834.29676.219.camel@ezran.goshen.edu>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alloc_kiovec always allocates 1024 buffer heads which is a waste 
-with performance in the cases when the buffers aren't used.
+Ezra Nugroho wrote:
+> On Mon, 2003-05-05 at 11:39, Carl-Daniel Hailfinger wrote:
+> 
+>>Ezra Nugroho wrote:
+>>
+>>>however, I couldn't create any file system for them, or mount them.
+>>>/dev/md0px just don't exist.
+>>>
+>>
+>>Please reboot after partitioning.
+> 
+> I did. Nothing changed. fdisk reported the changes still.
 
-The patch below adds variants that doesn't allocate the buffer heads.
+OK. Maybe I wasn't clear enough.
+1. Partition a drive
+2. Reboot
+3. Now the kernel should see the partitions and let you create file
+systems on them.
 
-A similar approach would be to introduce a common function with
-a flag that indicates if buffer heads should be allocated.
+You rebooted and fdisk sees the partitions now. Fine. Please try to
+mke2fs /dev/md0p1
+That should work. If it doesn't, devfs could be the problem.
 
-/Mikael
+Could you please tell us which kernel version you're using?
 
-diff -Nurp linux-2.4.20/fs/iobuf.c linux-2.4.20-local/fs/iobuf.c
---- linux-2.4.20/fs/iobuf.c	Fri Nov 29 00:53:15 2002
-+++ linux-2.4.20-local/fs/iobuf.c	Mon May  5 18:35:12 2003
-@@ -114,6 +114,29 @@ nomem:
- 	return -ENOMEM;
- }
- 
-+int alloc_kiovec_nobhs(int nr, struct kiobuf **bufp)
-+{
-+	int i;
-+	struct kiobuf *iobuf;
-+	
-+	for (i = 0; i < nr; i++) {
-+		iobuf = kmem_cache_alloc(kiobuf_cachep, GFP_KERNEL);
-+		if (unlikely(!iobuf))
-+			goto nomem;
-+		if (unlikely(kiobuf_init(iobuf)))
-+			goto nomem2;
-+		bufp[i] = iobuf;
-+	}
-+	
-+	return 0;
-+
-+nomem2:
-+	kmem_cache_free(kiobuf_cachep, iobuf);
-+nomem:
-+	free_kiovec_nobhs(i, bufp);
-+	return -ENOMEM;
-+}
-+
- void free_kiovec(int nr, struct kiobuf **bufp) 
- {
- 	int i;
-@@ -128,6 +151,20 @@ void free_kiovec(int nr, struct kiobuf *
- 		kmem_cache_free(kiobuf_cachep, bufp[i]);
- 	}
- }
-+
-+void free_kiovec_nobhs(int nr, struct kiobuf **bufp) 
-+{
-+	int i;
-+	struct kiobuf *iobuf;
-+	
-+	for (i = 0; i < nr; i++) {
-+		iobuf = bufp[i];
-+		if (iobuf->locked)
-+			unlock_kiovec(1, &iobuf);
-+		kfree(iobuf->maplist);
-+		kmem_cache_free(kiobuf_cachep, bufp[i]);
-+	}
-+}
- 
- int expand_kiobuf(struct kiobuf *iobuf, int wanted)
- {
-diff -Nurp linux-2.4.20/include/linux/iobuf.h linux-2.4.20-local/include/linux/iobuf.h
---- linux-2.4.20/include/linux/iobuf.h	Fri Nov 29 00:53:15 2002
-+++ linux-2.4.20-local/include/linux/iobuf.h	Mon May  5 18:35:51 2003
-@@ -64,7 +64,9 @@ void	mark_dirty_kiobuf(struct kiobuf *io
- void	end_kio_request(struct kiobuf *, int);
- void	simple_wakeup_kiobuf(struct kiobuf *);
- int	alloc_kiovec(int nr, struct kiobuf **);
-+int	alloc_kiovec_nobhs(int nr, struct kiobuf **);
- void	free_kiovec(int nr, struct kiobuf **);
-+void	free_kiovec_nobhs(int nr, struct kiobuf **);
- int	expand_kiobuf(struct kiobuf *, int);
- void	kiobuf_wait_for_io(struct kiobuf *);
- extern int alloc_kiobuf_bhs(struct kiobuf *);
-diff -Nurp linux-2.4.20/kernel/ksyms.c linux-2.4.20-local/kernel/ksyms.c
---- linux-2.4.20/kernel/ksyms.c	Fri Nov 29 00:53:15 2002
-+++ linux-2.4.20-local/kernel/ksyms.c	Mon May  5 18:36:25 2003
-@@ -410,7 +410,9 @@ EXPORT_SYMBOL(__br_write_unlock);
- 
- /* Kiobufs */
- EXPORT_SYMBOL(alloc_kiovec);
-+EXPORT_SYMBOL(alloc_kiovec_nobhs);
- EXPORT_SYMBOL(free_kiovec);
-+EXPORT_SYMBOL(free_kiovec_nobhs);
- EXPORT_SYMBOL(expand_kiobuf);
- 
- EXPORT_SYMBOL(map_user_kiobuf);
+Carl-Daniel
 

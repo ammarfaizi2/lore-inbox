@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283645AbRK3MuL>; Fri, 30 Nov 2001 07:50:11 -0500
+	id <S283650AbRK3M7e>; Fri, 30 Nov 2001 07:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283647AbRK3MuB>; Fri, 30 Nov 2001 07:50:01 -0500
-Received: from mail.univie.ac.at ([131.130.1.27]:32928 "EHLO
-	mailbox.univie.ac.at") by vger.kernel.org with ESMTP
-	id <S283645AbRK3Mtx>; Fri, 30 Nov 2001 07:49:53 -0500
-Message-Id: <200111301249.fAUCnnP145134@mailbox.univie.ac.at>
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Hofer <th@monochrom.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Too buggy even for Linux [Was Re: some questions about wedding]
-Date: Fri, 30 Nov 2001 13:49:33 +0100
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <B03298DF-E58A-11D5-A386-00039355CFA6@suespammers.org>
-In-Reply-To: <B03298DF-E58A-11D5-A386-00039355CFA6@suespammers.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S283649AbRK3M7Y>; Fri, 30 Nov 2001 07:59:24 -0500
+Received: from 10fwd.cistron-office.nl ([195.64.65.197]:32780 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id <S283651AbRK3M7J>; Fri, 30 Nov 2001 07:59:09 -0500
+Date: Fri, 30 Nov 2001 13:59:06 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: XT-PIC vs IO-APIC and PCI devices
+Message-ID: <20011130135906.A4850@cistron.nl>
+Reply-To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0111301241410.4564-100000@netfinity.realnet.co.sz> <Pine.LNX.4.33.0111301443190.23494-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111301443190.23494-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Fri, Nov 30, 2001 at 02:49:41PM +0200
+X-NCC-RegID: nl.cistron
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anthony DeRobertis wrote (Freitag, 30. November 2001 13:06):
-> > We'll leave alone for the moment that husband and wife often seem
-> > to be speaking completely different and unrelated protocols.
->
-> Nah, same protocol, in theory. Just one was implemented by Micro$oft.
+According to Zwane Mwaikambo:
+> It shows up as level-triggered.
+> 
+> 22:          0          0   IO-APIC-level  pentanet0 <==
 
-Cool. Is it the female-part? Has anyone an exploit?  
+OK. If it showed up as edge I would know what was wrong, but
+level is correct.
 
-Thomas. (Hoping for a DDoS next weekend)
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.

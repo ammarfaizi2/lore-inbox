@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286893AbSAPSb4>; Wed, 16 Jan 2002 13:31:56 -0500
+	id <S286723AbSAPSdI>; Wed, 16 Jan 2002 13:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286221AbSAPSbs>; Wed, 16 Jan 2002 13:31:48 -0500
-Received: from mail.fido.net ([194.70.36.10]:14732 "EHLO
-	monty.test.eng.fido.net") by vger.kernel.org with ESMTP
-	id <S286262AbSAPSb1>; Wed, 16 Jan 2002 13:31:27 -0500
-X-Header: FidoNet Virus Scanned
-Message-ID: <014501c19ebb$fe9adf00$308d14ac@tosh>
-Reply-To: "Shaf Ali" <shaf@shaf.net>
-From: "Shaf Ali" <shaf@shaf.net>
-To: <linux-admin@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>, <jdomingo@internautas.org>
-In-Reply-To: <1010951831.3241.0.camel@penarol01> <15425.60130.574569.697952@cerise.nosuchdomain.co.uk> <002a01c19dab$4de66dc0$a52efea9@tosh>
-Subject: Re: 2.4.17 instability with i2c ?
-Date: Wed, 16 Jan 2002 18:31:20 -0000
-Organization: ContentFusion.com
+	id <S286221AbSAPSc5>; Wed, 16 Jan 2002 13:32:57 -0500
+Received: from mailc.telia.com ([194.22.190.4]:15350 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S286215AbSAPScr>;
+	Wed, 16 Jan 2002 13:32:47 -0500
+To: Dave Jones <davej@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, David Weinehall <tao@acc.umu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, John Weber <weber@nyc.rr.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
+In-Reply-To: <20020116013811.E5235@khan.acc.umu.se>
+	<Pine.LNX.4.33.0201151639320.1213-100000@penguin.transmeta.com>
+	<20020116015513.L32088@suse.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 16 Jan 2002 19:32:38 +0100
+In-Reply-To: <20020116015513.L32088@suse.de>
+Message-ID: <m2sn96no3d.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Jose for your input...
+Dave Jones <davej@suse.de> writes:
 
-Apparently the culprit was not the the i2c modules afterall....
-It was ntop in conjunction with iptables/ians (Intel load balancing
-module)...
-The macnine is still up after the removal of ntop.
+> On Tue, Jan 15, 2002 at 04:41:08PM -0800, Linus Torvalds wrote:
+>  > > #ifndef _LINUX_POSIX_TYPES_H   /* __FD_CLR */
+>  > > #include <linux/posix_types.h>
+>  > > #endif
+>  > If this actally makes any noticeable difference to compilation speed I
+>  > could live with it. Does it?
+> 
+>  I'm sure I read somewhere that gcc is clever enough to know
+>  when it hits a #include, it checks for a symbol equal to a
+>  mangled version of the filename before including it.
+>  (Ie, doing this transparently).
+> 
+>  Then again, I may have imagined it all.
 
-Shaf
+Not exactly, but there is an optimization in cpp that makes it
+possible to do the cleanup Linus wants without sacrificing
+performance. From the cpp info pages:
 
+        The GNU C preprocessor is programmed to notice when a header
+        file uses this particular construct and handle it efficiently.
+        If a header file is contained entirely in a `#ifndef'
+        conditional, modulo whitespace and comments, then it remembers
+        that fact.  If a subsequent `#include' specifies the same
+        file, and the macro in the `#ifndef' is already defined, then
+        the directive is skipped without processing the specified file
+        at all.
 
+I did an strace on cpp to verify that this optimization actually
+works.
 
------ Original Message -----
-From: "Shaf Ali" <shaf@shaf.net>
-To: <linux-admin@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, January 15, 2002 9:59 AM
-Subject: 2.4.17 instability with i2c ?
-
-
-> Hi again,
->
-> I am having problems with a machine and cannot pin down why it's abruptly
-> rebooting...
-> I can find no messages in any of the logs !
->
-> My theories are pointing the blame towards the following configuration :
-> Redhat 7.2
-> kernel 2.4.17 patched with i2c-2.6.2.tar.gz.
->
-> I am about to attempt building a a fresh kernel... can anyone recommmend a
-> stable kernel or has anyone experienced problems with 2.4.17 patched with
-> i2c ?
->
-> Many thanks in advance,
-> Shaf
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-admin" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

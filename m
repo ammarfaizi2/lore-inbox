@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSLZEkf>; Wed, 25 Dec 2002 23:40:35 -0500
+	id <S261907AbSLZFlJ>; Thu, 26 Dec 2002 00:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSLZEkf>; Wed, 25 Dec 2002 23:40:35 -0500
-Received: from mail.econolodgetulsa.com ([198.78.66.163]:27653 "EHLO
-	mail.econolodgetulsa.com") by vger.kernel.org with ESMTP
-	id <S261398AbSLZEke>; Wed, 25 Dec 2002 23:40:34 -0500
-Date: Wed, 25 Dec 2002 20:48:43 -0800 (PST)
-From: Josh Brooks <user@mail.econolodgetulsa.com>
-To: Billy Rose <billyrose@billyrose.net>
-cc: bp@dynastytech.com, <linux-kernel@vger.kernel.org>,
-       <felipewd@terra.com.br>
-Subject: Re: CPU failures ... or something else ?
-In-Reply-To: <E18RPWN-0001xf-00@host.ehost4u.biz>
-Message-ID: <20021225204808.O28396-100000@mail.econolodgetulsa.com>
+	id <S262414AbSLZFlI>; Thu, 26 Dec 2002 00:41:08 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:28038 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S261907AbSLZFlH>; Thu, 26 Dec 2002 00:41:07 -0500
+Message-ID: <3E0A9AEE.90009@kegel.com>
+Date: Wed, 25 Dec 2002 22:00:14 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: re: problem with rt-sigio: lost events
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felix von Leitner wrote:
+> I am having trouble with sigio.  I tried to integrate it in a event
+> notification framework of mine that already speaks poll and epoll.
+> I want sigio for backwards compatibility with 2.4 kernels.
+> 
+> So I used the description from Dan's C10k web site and got it working.
+> My test application is a trivial web server for static web pages only.
+> 
+> My first problem is that sigio will not signal POLLOUT on freshly
+> connected connections. 
 
-Are you saying that you think bank 4 is bad because you saw this in my
-error:
+That's as designed (and epoll behaves that way, too, doesn't it?);
+when applications start using sigio or epoll on a socket, they
+have to assume it's readable/writable initially.  There was a huge
+argu^H^H^H^H thread about that recently with subject
+"epoll (was Re: [PATCH] async poll for 2.5)"
 
-localhost kernel: Bank 4: b200000000040151
-                  ^^^^^^
+ > It doesn't change when I read the HTTP header.
+> So I added a kludge that calls poll() when the application wants to
+> switch from reading to writing or vice versa.  That is quite ugly but it
+> works.
 
-(just asking to increase my own understanding)
+Sounds fishy... but I'd need to see your code to know more.
 
-thanks!
+> The second problem is that once I start hammering the server with
+> request (as opposed to running wget manually from the command line), the
+> server just stops serving requests.  strace shows this pattern:
+> 
+>   sigtimedwait signals an event on fd #3 (the listening socket)
+>   accept is called, returns #4
+>   fd 4 is set non-blocking
+>   F_SETOWN, F_SETSIG, SETFL O_ASYNC
+>   sigtimedwait times out.
+>   sigtimedwait is called again, times out again.
+> 
+> Why is that?  Googling seemed to indicate that there could be a race
+> condition here after the accept.  Should I be running poll on the socket
+> right away?  Or just blindly call the read handler?
 
+Yes. Blindly call the handler, and do I/O until you get an
+EWOULDBLOCK.  That's precisely what you're supposed to do when
+you start using sigio on an fd.
 
+> Is anyone actually successfully using sigio for anything?  So far it
+> does not look very reliable to me.
 
-On Wed, 25 Dec 2002, Billy Rose wrote:
+It works ok, once you get used to its oddities.
+sys_epoll works better, but sigio isn't terrible as a fallback.
+- Dan
 
-> > Understood.  Thank you for that diagnosis.
-> >
-> >
-> > usually it says proc #1 in the error, but the first time it said proc
-> > #0 - is that interesting ?
->
-> youre welcome :)
->
-> if youre hanging on to that box, remove the memory from banks 3 and 4
-> and it should be ok. if my memory serves me right, you cant have only 3
-> banks of memory (hence removing bank 3 also), the motherboard is
-> configured to handle 1, 2, or 4 populated banks. it you leave bank 3
-> in while removing bank 4, it will beep at you when you power it on and
-> do nothing. with a gig of ram, it should still be plenty useful.
->
-> billy
-> =====
-> "there's some milk in the fridge that's about to go bad...
-> and there it goes..." -bobby
->
+-- 
+Dan Kegel
+Linux User #78045
+http://www.kegel.com
 

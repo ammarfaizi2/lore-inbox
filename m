@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSF0UE6>; Thu, 27 Jun 2002 16:04:58 -0400
+	id <S315300AbSF0UDr>; Thu, 27 Jun 2002 16:03:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315883AbSF0UE5>; Thu, 27 Jun 2002 16:04:57 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:10633 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S315806AbSF0UEz>;
-	Thu, 27 Jun 2002 16:04:55 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200206272005.AAA16804@sex.inr.ac.ru>
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-To: trond.myklebust@fys.uio.no (Trond Myklebust)
-Date: Fri, 28 Jun 2002 00:05:08 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200206271900.22602.trond.myklebust@fys.uio.no> from "Trond Myklebust" at Jun 27, 2 07:00:22 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S315806AbSF0UDq>; Thu, 27 Jun 2002 16:03:46 -0400
+Received: from flrtn-5-m1-95.vnnyca.adelphia.net ([24.55.70.95]:63656 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S315300AbSF0UDp>;
+	Thu, 27 Jun 2002 16:03:45 -0400
+Message-ID: <3D1B7005.2090200@tmsusa.com>
+Date: Thu, 27 Jun 2002 13:05:25 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
+References: <Pine.LNX.4.44.0206222202400.7601-100000@PolesApart.dhs.org>	<20020626204721.GK22961@holomorphy.com>	<1025125214.1911.40.camel@localhost.localdomain>	<1025128477.1144.3.camel@icbm> <20020627005431.GM22961@holomorphy.com>	<1025192465.1084.3.camel@icbm> <20020627154712.GO22961@holomorphy.com> 	<3D1B5982.60008@PolesApart.dhs.org> <1025202738.1084.12.camel@icbm> <3D1B5F1D.2000706@PolesApart.wox.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Alexandre P. Nunes wrote:
 
-> > Did you not solve this problem using right write_space?
-> 
-> Sure, I can add specific checks for (atomic_read(&sk->wmem_alloc) < 
-> sk->sndbuf) in the RPC layer,
+>
+>
+> P.S..: Someone knows if 2.4.19-rc1 has O(1) applied?
+>
+That would be nice... but no -
 
-But it is there now.
+both -aa and -ac have it though, and it seems
+solid, so maybe there's hope for 2.4 mainline
+getting it eventually.
 
-static void
-udp_write_space(struct sock *sk)
-{
-	struct rpc_xprt *xprt;
-
-	if (!(xprt = xprt_from_sock(sk)))
-		return;
-	if (xprt->shutdown)
-		return;
-
-	/* Wait until we have enough socket memory. */
-	if (sock_writeable(sk))
-		return;
-
-So, I do not understand what you speak about.
+Joe
 
 
-
->		    	 Sending partial messages isn't a feature 
-> that sounds like it would be particularly useful for any other applications 
-> either.
-
-The thing, which is really useless, is that your patch preparing skbs
-and dropping them in the next line. With the same success you could
-trigger BUG() there. :-) Right application just should not reach
-this condition.
-
-Anyway, I have to repeat:
-
->>Better way exists. Just use forced sock_wmalloc instead of
->>sock_alloc_send_skb on non-blocking send of all the fragments
->>but the first.
-
-
-> However what if the actual call to alloc_skb() fails?
-
-The same as if it would be lost by network.
-
-Alexey

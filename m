@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310176AbSCPIwQ>; Sat, 16 Mar 2002 03:52:16 -0500
+	id <S293644AbSCPIyP>; Sat, 16 Mar 2002 03:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310178AbSCPIwG>; Sat, 16 Mar 2002 03:52:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22546 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310176AbSCPIvy>;
-	Sat, 16 Mar 2002 03:51:54 -0500
-Message-ID: <3C930785.2070902@mandrakesoft.com>
-Date: Sat, 16 Mar 2002 03:51:17 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S310182AbSCPIyF>; Sat, 16 Mar 2002 03:54:05 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:53667 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S293644AbSCPIxs>;
+	Sat, 16 Mar 2002 03:53:48 -0500
+Date: Sat, 16 Mar 2002 03:53:47 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Miles Lane <miles@megapathdsl.net>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.7-pre2 -- kernel.o(.data+0x300): undefined reference to
+ `sys_nfsservctl'
+In-Reply-To: <1016265776.6500.348.camel@turbulence.megapathdsl.net>
+Message-ID: <Pine.GSO.4.21.0203160317490.4093-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c
-In-Reply-To: <Pine.LNX.4.33.0203152339200.31551-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-
->On Fri, 15 Mar 2002, Jeff Garzik wrote:
->
->>I wonder if mochel already code for this, or has thought about this... 
->> Just like suspend, IMO we ideally should use the device tree to 
->>shutdown the system, agreed?
->>
->
->Ideally we should, yes. Although if we really turn off power, it doesn't 
->much matter.
->
-It matters to a software engineering wonk like me :)   I know it 
--really- doesn't matter, but from a theoretical perspective, if we are 
-trying to achieve the "everything is hotpluggable" model, poweroff via 
-device tree will naturally fall out from that.
-
-If it makes it easier for some, I consider poweroff not as an act unto 
-itself, but as a transition to state D3cold. :)  And since we will 
-eventually be able to handle transition to similar low-power states, we 
-might as well follow similar/the same code paths.
-
->>Further, I wonder if the reboot/shutdown notifiers can be replaced with 
->>device tree control over those events...
->>
->
->This is what I want. Those reboot/shutdown notifiers are completely and 
->utterly buggy, and cannot sanely handle any kind of device hierarchy.
->
-yep
-
-    Jeff
 
 
+On 16 Mar 2002, Miles Lane wrote:
 
+> arch/i386/kernel/kernel.o: In function `sys_call_table':
+> arch/i386/kernel/kernel.o(.data+0x300): undefined reference to
+> `sys_nfsservctl'
 
+Fix: add a weak alias sys_nfsservctl -> sys_ni_syscall in kernel/sys.c.
+While we are at it, the same can be done with sys_quotactl() - I suspect
+that fs/noqout.c can be killed.
+
+diff -urN C7-pre2/fs/noquot.c C7-pre2-current/fs/noquot.c
+--- C7-pre2/fs/noquot.c	Fri May 12 14:21:20 2000
++++ C7-pre2-current/fs/noquot.c	Sat Mar 16 03:45:27 2002
+@@ -2,14 +2,5 @@
+  *           compiled into the kernel.
+  */
+ 
+-#include <linux/kernel.h>
+-#include <linux/types.h>
+-#include <linux/errno.h>
+-
+ int nr_dquots, nr_free_dquots;
+ int max_dquots;
+-
+-asmlinkage long sys_quotactl(int cmd, const char *special, int id, caddr_t addr)
+-{
+-	return(-ENOSYS);
+-}
+diff -urN C7-pre2/kernel/sys.c C7-pre2-current/kernel/sys.c
+--- C7-pre2/kernel/sys.c	Fri Mar 15 22:22:40 2002
++++ C7-pre2-current/kernel/sys.c	Sat Mar 16 03:43:14 2002
+@@ -173,6 +173,11 @@
+ 	return -ENOSYS;
+ }
+ 
++/* "Conditional" syscalls */
++
++asmlinkage long sys_nfsservctl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
++asmlinkage long sys_quotactl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
++
+ static int proc_sel(struct task_struct *p, int which, int who)
+ {
+ 	if(p->pid)
 

@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272145AbTGYPVf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 11:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272147AbTGYPVf
+	id S272147AbTGYPVn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 11:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272148AbTGYPVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 11:21:35 -0400
-Received: from h80ad26ab.async.vt.edu ([128.173.38.171]:16770 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S272145AbTGYPVd (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 11:21:33 -0400
-Message-Id: <200307251536.h6PFaV9g004805@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Switching to the OSL License, in a dual way. 
-In-Reply-To: Your message of "Fri, 25 Jul 2003 16:33:24 BST."
-             <200307251533.h6PFXOQk001185@81-2-122-30.bradfords.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <200307251533.h6PFXOQk001185@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1754734704P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 25 Jul 2003 11:21:43 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:31682 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S272147AbTGYPVk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 11:21:40 -0400
+Message-ID: <3F214EC3.9010804@softhome.net>
+Date: Fri, 25 Jul 2003 17:37:39 +0200
+From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
+References: <d2nx.4QV.15@gated-at.bofh.it> <dbTZ.5Z5.19@gated-at.bofh.it>
+In-Reply-To: <dbTZ.5Z5.19@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 25 Jul 2003 11:36:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1754734704P
-Content-Type: text/plain; charset=us-ascii
+Hollis Blanchard wrote:
 
-On Fri, 25 Jul 2003 16:33:24 BST, John Bradford said:
+> I believe the point Alan was trying to make is not that we should have 
+> more or less inlines, but we should have smarter inlines. I.E. don't 
+> just inline a function to "make it fast"; think about the implications 
+> (and ideally measure it, though I think that becomes problematic when so 
+> many other factors can affect the benefit of a single inlined function). 
+> The specific example he gave was inlining code on the fast path, while 
+> accepting branch/cache penalties for non-inlined code on the slow path.
+> 
 
-> What if a patent is discovered which is owned by somebody other than
-> Larry, which covers something in BK?  If nobody is allowed to use BK,
-> how would we get the data out?
+   But you cannot make this kind of decisions universal.
+   Some kind of compromise should be found between arch-mantainers and 
+subsystem-mantainers.
 
-And more importantly, what would you put the data back *INTO*?
+   Or beat GCC developer hard so they finally will produce good
+optimizing compiler ;-)
 
-There's no guarantee that said patent doesn't also screw over all CVS users,
-or SCCS, or what have you.
+   Or ask all kernel developpers to work one hour per week on GCC 
+optimization - I bet GCC will outperform everything else in industry in 
+  less that one year ;-)))
 
-Also, there's a *very* good chance that any patent that hits BK would *also*
-afflict a BK clone, unless they were lucky enough to use a totally different
-algorithm to achieve the same on-the-wire result.  And if the patent is against
-the *idea* of doing XYZ with a computer, then the algorithm won't matter anyhow.
+   To remind: source of the problem is not inlines, problem is the 
+compiler, which cannot read our minds yet and generate code we were 
+expected it to generate.
 
+P.S. Offtopic. As I see it Linux & Linus have made the decision of 
+optimization. Linux after all is capitalismus creation: who has more 
+money do control everything. Server market has more money - they do more 
+work on kernel and they systems are not that far from developers' 
+workstations - so Linux gets more and more server/workstation oriented. 
+This will fit desktop market too - if your computer was made to run 
+WinXP AKA exp(bloat) - it will be capable to run any OS. Linus repeating 
+'small is beatiful' sounds more and more like crude joke...
+As for embedded market - it is already in deep fork and far far away 
+from vanilla kernels... Vanilla really not that relevant to real world...
 
-
-
---==_Exmh_1754734704P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/IU5+cC3lWbTT17ARAtzhAJ9RlBHHpOZQbnIiwsmmXm9aHM7TUQCgkArV
-V3mRMJtmKs+L5009WnWLcFM=
-=yKj8
------END PGP SIGNATURE-----
-
---==_Exmh_1754734704P--

@@ -1,77 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbTJYRx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 13:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbTJYRx0
+	id S262768AbTJYShe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 14:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTJYShd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 13:53:26 -0400
-Received: from smtp.compuserve.de ([62.52.27.101]:41675 "HELO
-	desws061.mediaways.net") by vger.kernel.org with SMTP
-	id S262753AbTJYRxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 13:53:25 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16282.45806.428547.279213@zeus.local>
-Date: Sat, 25 Oct 2003 19:29:18 +0200
-From: Egbert Eich <eich@xfree86.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Eric Anholt <eta@lclark.edu>,
+	Sat, 25 Oct 2003 14:37:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61131 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262768AbTJYShb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 14:37:31 -0400
+Date: Sat, 25 Oct 2003 11:37:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Egbert Eich <eich@xfree86.org>
+cc: Jon Smirl <jonsmirl@yahoo.com>, Eric Anholt <eta@lclark.edu>,
        <kronos@kronoz.cjb.net>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        <linux-fbdev-devel@lists.sourceforge.net>,
        dri-devel <dri-devel@lists.sourceforge.net>,
        Jeff Garzik <jgarzik@pobox.com>
 Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-In-Reply-To: torvalds@osdl.org wrote on Thursday, 23 October 2003 at 16:23:44 -0700 
-References: <20031023213144.66685.qmail@web14916.mail.yahoo.com>
-	<Pine.LNX.4.44.0310231541000.3421-100000@home.osdl.org>
-X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
+In-Reply-To: <16282.45806.428547.279213@zeus.local>
+Message-ID: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
- > > could lead to problems with hotplug.  XFree is also mapping PCI ROMs in without
- > > informing the kernel and that can definitely cause problems.
- > 
- > Absolutely. Changing PCI configurations without telling the kernel _will_ 
- > cause problems. Especially for hotplug systems, but it's also very iffy to 
- > do if the card is behind a PCI bridge, since you have to take bridge 
- > resources into account (and know which bridges are transparent, which are 
- > not, etc etc). 
 
-Speaking of XFree86: when I developed the PCI resource stuff in 
-XFree86 I was trying to get support from kernel folks to get the 
-appropriate user space interfaces into the kernel. When I got 
-nowhere I decided to do everything myself. 
-XFree86 does PCI bridge tracking and one reason it does this is PCI
-ROM mapping. 
- > 
- > The kernel spends a lot of effort on getting this right, and even so it 
- > fails every once in a while (devices that use IO or memory regions without 
- > announcing them in the standard BAR's are quite common, and the kernel has 
- > to have special quirk entries for things like that).
+On Sat, 25 Oct 2003, Egbert Eich wrote:
+> 
+> Speaking of XFree86: when I developed the PCI resource stuff in 
+> XFree86 I was trying to get support from kernel folks to get the 
+> appropriate user space interfaces into the kernel. When I got 
+> nowhere I decided to do everything myself. 
 
-Right. One reason why the PCI code in XFree86 looks so difficult is
-that old ATi Mach?? cards had their 8514 registers (and their mirror
-images) scattered all over the PIO space.
+There won't be any "user space interfaces". There are perfectly good 
+in-kernel interfaces, and anybody who needs them needs to be in kernel 
+space. Ie the kernel interfaces are for kernel modules, not for user space 
+accesses.
 
- > 
- > Few enough drivers actually want to enable the roms, but the code should 
- > look something like
- > 
- > 	/* Assign space for ROM resource if not already assigned. Ugly. */
- > 	if (!pci_resource_start(dev, PCI_ROM_RESOURCE))
- > 		if (pci_assign_resource(dev, PCI_ROM_RESOURCE) < 0)
- > 			return -ENOMEM;
+The kernel module can be a simple interface layer like DRI, but the thing 
+is, it needs to be specific to some kind of hardware. I refuse to have 
+some kind of crap "user space driver" interface - drivers in user space 
+are a mistake. 
 
-[Stuff deleted] .....
+> Is there any API that allows one to do this from user space?
 
-Is there any API that allows one to do this from user space?
-There are plenty of XFree86 drivers around that don't have a
-DRM kernel module and it should  be possible to run those which
-do without DRI support, therefore it would be a good if the
-XFree86 driver could do this registration itself.
+No. And I don't really see any huge reason for it.
 
-Cheers,
-	Egbert.
+> There are plenty of XFree86 drivers around that don't have a
+> DRM kernel module and it should  be possible to run those which
+> do without DRI support, therefore it would be a good if the
+> XFree86 driver could do this registration itself.
+
+If you do this, do it _right_. Look at what X really needs, and make a
+driver for it. A _real_ driver. Not just a half-hearted "we want to do
+things in user space, but we can't".
+
+Face it, a good graphics driver needs more than just "set up the ROM". It
+needs DMA access, and the ability to use interrupts. It needs a real 
+driver.
+
+It basically needs something like what the DRI modules tend to do.
+
+I'd be really happy to have real graphics drivers in the kernel, but quite
+frankly, so far the abstractions I've seen have sucked dead donkeys
+through a straw. "fbcon" does way too much (it's not a driver, it's more a
+text delivery system and a mode switcher). And DRI is too complex and
+fluid to be a good low-level driver.
+
+Quite frankly, I'd much rather see a low-level graphics driver that does
+_two_ things, and those things only:
+
+ - basic hardware enumeration and setup (and no, "basic setup" does not
+   mean "mode switching": it literally means things like doing the 
+   pci_enable_device() stuff.
+
+ - serialization and arbitrary command queuing from a _trusted_ party (ie
+   it could take command lists from the X server, but not from untrusted
+   clients). This part basically boils down to "DMA and interrupts". This 
+   is the part that allows others to wait for command completion, "enough 
+   space in the ring buffers" etc. But it does _not_ know or care what the 
+   commands are.
+
+Then, fbcon and DRI and X could all three use these basics - and they'd be
+_so_ basic that the hardware layer could be really stable (unlike the DRI
+code that tends to have to upgrade for each new type of command that DRI
+adds - since it has to take care of untrusted clients. So DRI would
+basically use the low-level driver as a separate module, the way it
+already uses AGP).
+
+But I'm _not_ interested in some interfaces to let user mode just bypass 
+the kernel. Because they will not solve any of the other problems that 
+clearly _do_ need solving, and if the X server continues to believe that 
+it can just access the hardware directly, it will never play well together 
+with projects like fbcon/dri.
+
+			Linus
+

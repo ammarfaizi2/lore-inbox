@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263488AbTLAHU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 02:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTLAHSp
+	id S263463AbTLAHQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 02:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTLAHQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 02:18:45 -0500
-Received: from smtp802.mail.ukl.yahoo.com ([217.12.12.139]:45177 "HELO
-	smtp802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263488AbTLAHSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 02:18:23 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC/PATCH 3/3] Input: resume support for i8042 (atkbd & psmouse)
-Date: Mon, 1 Dec 2003 02:17:52 -0500
-User-Agent: KMail/1.5.4
-Cc: Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.cz>
-References: <200312010215.58533.dtor_core@ameritech.net> <200312010217.16553.dtor_core@ameritech.net>
-In-Reply-To: <200312010217.16553.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Dec 2003 02:16:58 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:1286 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263463AbTLAHQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 02:16:57 -0500
+Date: Mon, 1 Dec 2003 18:16:44 +1100
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [USB] Fix connect/disconnect race
+Message-ID: <20031201071644.GA15389@gondor.apana.org.au>
+References: <mailman.1070178780.32610.linux-kernel2news@redhat.com> <200312010203.hB123YQr002367@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312010217.54552.dtor_core@ameritech.net>
+In-Reply-To: <200312010203.hB123YQr002367@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-===================================================================
+On Sun, Nov 30, 2003 at 09:03:34PM -0500, Pete Zaitcev wrote:
+> > This patch was integrated by you in 2.4 six months ago.  Unfortunately
+> > it never got into 2.5.  Without it you can end up with crashes such
+> > as http://bugs.debian.org/218670
+> 
+> > --- kernel-source-2.5/drivers/usb/core/hub.c	28 Sep 2003 04:44:16 -0000	1.1.1.15
+> > +++ kernel-source-2.5/drivers/usb/core/hub.c	30 Nov 2003 07:44:40 -0000
+> >  			break;
+> >  		}
+> >  
+> > -		hub->children[port] = dev;
+> >  		dev->state = USB_STATE_POWERED;
+> >[...]
+> >  		/* Run it through the hoops (find a driver, etc) */
+> > -		if (!usb_new_device(dev, &hub->dev))
+> > +		if (!usb_new_device(dev, &hub->dev)) {
+> > +			hub->children[port] = dev;
+> >  			goto done;
+> > +		}
+> 
+> I'm surprised you need it. The updated usbfs is supposed
+> to be immune. This is probably the reason it wasn't ported.
 
-
-ChangeSet@1.1516, 2003-12-01 01:44:41-05:00, dtor_core@ameritech.net
-  Input: psmouse_reconnect() - do not close/open serop port
-         as i8042 should restore it for us already.
-
-
- psmouse-base.c |   10 ----------
- 1 files changed, 10 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c	Mon Dec  1 01:46:27 2003
-+++ b/drivers/input/mouse/psmouse-base.c	Mon Dec  1 01:46:27 2003
-@@ -638,16 +638,6 @@
- 		return -1;
- 	}
- 	
--	/* We need to reopen the serio port to reinitialize the i8042 controller */
--	serio_close(serio);
--	if (serio_open(serio, dev)) {
--		/* do a disconnect here as serio_open leaves dev as NULL so disconnect 
--		 * will not be called automatically later
--		 */
--		psmouse_disconnect(serio);
--		return -1;
--	}
--	
- 	psmouse->state = PSMOUSE_NEW_DEVICE;
- 	psmouse->type = psmouse->acking = psmouse->cmdcnt = psmouse->pktcnt = 0;
- 	if (psmouse->reconnect) {
+Well the race occurs between usb_disconnect() initiated by rmmod
+uhci-hcd and this function.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264407AbTCXUb7>; Mon, 24 Mar 2003 15:31:59 -0500
+	id <S264392AbTCXU2J>; Mon, 24 Mar 2003 15:28:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264409AbTCXUb7>; Mon, 24 Mar 2003 15:31:59 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:12425 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S264407AbTCXUb6>; Mon, 24 Mar 2003 15:31:58 -0500
-Date: Mon, 24 Mar 2003 20:42:52 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andrew Morton <akpm@digeo.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: cyclades region handling updates from 2.4
-Message-ID: <20030324204252.GA21521@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andrew Morton <akpm@digeo.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <200303241641.h2OGft35008188@deviant.impure.org.uk> <20030324143758.66ed03fe.akpm@digeo.com>
-Mime-Version: 1.0
+	id <S264393AbTCXU2I>; Mon, 24 Mar 2003 15:28:08 -0500
+Received: from pat.uio.no ([129.240.130.16]:498 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S264392AbTCXU2I>;
+	Mon, 24 Mar 2003 15:28:08 -0500
+To: Brian Dixon <dixonbp@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NFS locking routines do not invoke the filesystem lock operation
+References: <OF6BB6BC0F.0A73968D-ON87256CF3.005E25D5-86256CF3.005E4972@us.ibm.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 24 Mar 2003 21:39:06 +0100
+In-Reply-To: <OF6BB6BC0F.0A73968D-ON87256CF3.005E25D5-86256CF3.005E4972@us.ibm.com>
+Message-ID: <shsfzpcqz2t.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030324143758.66ed03fe.akpm@digeo.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 02:37:58PM -0800, Andrew Morton wrote:
- > davej@codemonkey.org.uk wrote:
- > >
- > > -static struct timer_list cyz_timerlist = TIMER_INITIALIZER(cyz_poll, 0, 0);
- > > +static struct timer_list cyz_timerlist = {
- > > +	.function = cyz_poll
- > > +};
- > 
- > errr, bit of regression there.  The spinlock in the timer is no longer
- > initialised.
+>>>>> " " == Brian Dixon <dixonbp@us.ibm.com> writes:
 
-erk, bad merge on my part after your initial fix there.
-I'll send a backout patch along with the bit putting the maintainers
-name right.
+     > There is a problem with the getlk part of the original patch
+     > for this.  Here is a more recent patch that includes the fix.
 
-		Dave
+You've been told several times before why this approach is
+unacceptable. Please stop resubmitting the same crap over and over
+again.
 
+Cheers,
+  Trond

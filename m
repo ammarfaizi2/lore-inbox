@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbTIHAyv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 20:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTIHAyv
+	id S261823AbTIHA6C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 20:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIHA6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 20:54:51 -0400
-Received: from hp-open.open.org ([199.2.104.1]:61626 "EHLO open.org")
-	by vger.kernel.org with ESMTP id S261821AbTIHAyu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 20:54:50 -0400
-Message-ID: <3F5B7125.7050009@open.org>
-Date: Sun, 07 Sep 2003 17:55:49 +0000
-From: Hal <pshbro@open.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030816
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG: compiler errors in 2.6.0-test4-bk8 and bk9
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Sep 2003 20:58:02 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:59316 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261823AbTIHA6A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 20:58:00 -0400
+Date: Sun, 7 Sep 2003 17:57:49 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+Message-ID: <20030908005749.GA24714@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Larry McVoy <lm@bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Brown, Len" <len.brown@intel.com>,
+	Giuliano Pochini <pochini@shiny.it>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com> <m11xusnvqc.fsf@ebiederm.dsl.xmission.com> <20030907230729.GA19380@work.bitmover.com> <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encountered several errors in 2.6.0-test4-bk8 and bk9 relating to the 
-PPC architecture.
+On Sun, Sep 07, 2003 at 05:47:04PM -0600, Eric W. Biederman wrote:
+> I have already built a 2304 cpu machine and am working on a 2900+ cpu
+> machine.  
 
-Please do not CC back any of the comments.
+That's not "a machine" that's ~1150 machines on a network.  This business
+of describing a bunch of boxes on a network as "a machine" is nonsense.
 
-I run gentoo linux (all programes are upto date) on my ibook.
+Don't get me wrong, I love clusters, in fact, I think what you are doing
+is great.  It doesn't screw up the OS, it forces the OS to stay lean and
+mean.  Goodness.
 
-1. Doing the correct kernel config needed for my ibook i ran make and 
-found this.
-
-arch/ppc/platforms/pmac_cpufreq.c: In function `pmac_cpufreq_cpu_init':
-arch/ppc/platforms/pmac_cpufreq.c:260: `CPUFREQ_DEFAULT_GOVERNOR' 
-undeclared (first use in this function)
-arch/ppc/platforms/pmac_cpufreq.c:260: (Each undeclared identifier is 
-reported only once
-arch/ppc/platforms/pmac_cpufreq.c:260: for each function it appears in.)
-
-2. After i preformed a make allyesconfig and a make i found this.
-
-  CC      arch/ppc/kernel/asm-offsets.s
-In file included from include/asm/mpc8260.h:12,
-                   from include/asm/io.h:32,
-                   from arch/ppc/kernel/asm-offsets.c:21:
-arch/ppc/platforms/mpc82xx.h:33:30: platforms/willow.h: No such file or 
-directory
-
+All the CC cluster stuff is about making sure that the SMP fanatics don't
+screw up the OS for you.  We're on the same side.  Try not to be so rude
+and have a bit more vision.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

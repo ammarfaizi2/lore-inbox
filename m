@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264874AbSJOVSk>; Tue, 15 Oct 2002 17:18:40 -0400
+	id <S264907AbSJOV3d>; Tue, 15 Oct 2002 17:29:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264865AbSJOVRg>; Tue, 15 Oct 2002 17:17:36 -0400
-Received: from florence.buici.com ([206.124.142.26]:30665 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP
-	id <S264853AbSJOVRU>; Tue, 15 Oct 2002 17:17:20 -0400
-Date: Tue, 15 Oct 2002 14:23:10 -0700
-From: Marc Singer <elf@buici.com>
-To: linux-kernel@vger.kernel.org
-Subject: AMD Elan SC520 CPU speed problem w/patches
-Message-ID: <20021015212310.GA30117@buici.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264908AbSJOV3d>; Tue, 15 Oct 2002 17:29:33 -0400
+Received: from mta05ps.bigpond.com ([144.135.25.137]:49884 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S264907AbSJOV3a>; Tue, 15 Oct 2002 17:29:30 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "David S. Miller" <davem@redhat.com>, maxk@qualcomm.com
+Subject: Re: [RFC] Rename _bh to _softirq
+Date: Wed, 16 Oct 2002 07:27:17 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+References: <5.1.0.14.2.20021015131839.01c1a008@mail1.qualcomm.com> <5.1.0.14.2.20021015135529.051b49b0@mail1.qualcomm.com> <20021015.135812.111263418.davem@redhat.com>
+In-Reply-To: <20021015.135812.111263418.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200210160727.17190.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There appears to be cleverly hidden problem with the Elan SC520 CPU
-speed when running the Linux kernel.  The speed is controlled by a
-memory-mapped registers that the CPU always offers at the physical
-address 0xfffef000.  Some BIOSs--at least General Systems--enable an
-alias of these registers at 0x000df000 for the sake of real-mode
-programs.  It appears that something in the kernel writes to
-0x000df002 because the CPU speed at the start of kernel initialization
-is correct at 133MHz, but when user-mode applications start running
-the CPU speed has been reduced to 100MHz.  Disabling the unnecessary
-aliasing solves the problem.  Note that the BOGOMIPS calculation is
-early enough to preceed the speed change.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  <http://www.buici.com/elan>
+On Wed, 16 Oct 2002 06:58, David S. Miller wrote:
+>    From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+>    Date: Tue, 15 Oct 2002 14:02:22 -0700
+>
+>    I guess we should then have some kinda readme that explains what
+>    all those things are. And the BH context covers softirqs and tasklets.
+>
+> That sounds fine.
+Documentation/DocBook/kernel-hacking.tmpl
 
-Here, you'll find source to a program that verifies the problem.
-You'll also find a patch for linux-2.2.22 that fixes this bug as well
-as programming the PIT timer for Elan CPUs.  Last, there is a watchdog
-driver that works when the above mentioned aliasing is disabled.
+It is such a fine idea, Rusty already did it...
 
-Kindly copy replies to my email address.
+Brad
 
-Cheers,
-  Marc Singer
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-
-============================================================================
-
-For the speed problem, the important part of the patch reads as below.
-The code is executed at the top of init_amd().
-
---- linux-2.2.22-original/arch/i386/kernel/setup.c      Mon Sep 16 09:26:11 2002
-+++ linux-2.2.22/arch/i386/kernel/setup.c       Tue Oct 15 11:35:17 2002
-@@ -662,6 +662,29 @@
-        
-        int r=get_model_name(c);
-        
-+#ifdef CONFIG_ELAN_COMPATIBILITY 
-+       if (c->x86 == 4 && (c->x86_model == 9 || c->x86_model == 10)) {
-+         /* There appears to be a driver that clobbers one of the
-+            system control registers because these registers are
-+            mapped to 0xdf000.  So, this code disables that mapping.
-+            It isn't necessary anyway and is a legacy of the BIOS. */
-+#define CBAR           (0xfffc) /* Configuration Base Address  (32-bit) */
-+#define CBAR_ENB       (0x80000000)
-+#define CBAR_KEY       (0X000000CB)
-+               if (inl (CBAR) & CBAR_ENB)
-+                       outl (0 | CBAR_KEY, CBAR);
+iD8DBQE9rIg1W6pHgIdAuOMRAv7zAJ95Eo1zgh2LWYxesk+LlWQ+U8O2OACfb8Qa
+Kfx4vfcbofHxfr6muMvi1WE=
+=1Ukc
+-----END PGP SIGNATURE-----
 

@@ -1,85 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbSJYTAn>; Fri, 25 Oct 2002 15:00:43 -0400
+	id <S261572AbSJYTGG>; Fri, 25 Oct 2002 15:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSJYTAm>; Fri, 25 Oct 2002 15:00:42 -0400
-Received: from momus.sc.intel.com ([143.183.152.8]:46309 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S261530AbSJYTAf>; Fri, 25 Oct 2002 15:00:35 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000EA17100@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>, chrisl@vmware.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: How to get number of physical CPU in linux from user space?
-Date: Fri, 25 Oct 2002 12:05:52 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261571AbSJYTGG>; Fri, 25 Oct 2002 15:06:06 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:664 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261569AbSJYTGC>;
+	Fri, 25 Oct 2002 15:06:02 -0400
+Date: Fri, 25 Oct 2002 20:13:56 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       chrisl@vmware.com, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] How to get number of physical CPU in linux from user space?
+Message-ID: <20021025191356.GA11189@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+	"Nakajima, Jun" <jun.nakajima@intel.com>, chrisl@vmware.com,
+	"Martin J. Bligh" <mbligh@aracnet.com>
+References: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com> <1035572950.1501.3429.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1035572950.1501.3429.camel@phantasy>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I meant /proc/cpuinfo
+On Fri, Oct 25, 2002 at 03:09:09PM -0400, Robert Love wrote:
+ > +#ifdef CONFIG_SMP
+ > +	seq_printf(m, "physical processor ID\t: %d\n", phys_proc_id[n]);
+ > +	seq_printf(m, "number of siblings\t: %d\n", smp_num_siblings);
+ > +#endif
 
-Thanks,
-Jun
+Should this be wrapped in a if (cpu_has_ht(c)) { }  ?
+Seems silly to be displaying HT information on non-HT CPUs.
 
------Original Message-----
-From: Nakajima, Jun 
-Sent: Friday, October 25, 2002 11:53 AM
-To: 'chrisl@vmware.com'; Martin J. Bligh
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: How to get number of physical CPU in linux from user space?
+		Dave
 
-
-Recent distributions or the AC tree has additional fields in /proc/cpu,
-which tell
-- physical package id
-- number of threads 
-for each CPU.
-
-Using this info, you should be able to detect it. The problem is that they
-are not using the same keywords. I'm asking them to make those fields
-consistent.
-
-Thanks,
-Jun
-
------Original Message-----
-From: chrisl@vmware.com [mailto:chrisl@vmware.com]
-Sent: Friday, October 25, 2002 11:20 AM
-To: Martin J. Bligh
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to get number of physical CPU in linux from user space?
-
-
-
-On Fri, Oct 25, 2002 at 01:27:00AM -0700, Martin J. Bligh wrote:
-> Define "physical CPU number" ;-) If you want to deteact which
-
-I mean the number of cpu chip you can count on the mother board.
-
-> ones are paired up, I believe that if all but the last bit
-> of the apicid is the same, they're siblings. You might have to
-> dig the apicid out of the bootlog if the cpuinfo stuff doesn't
-> tell you.
-
-And you are right. Those apicid, after mask out the siblings,
-are put in phys_cpu_id[] array in kernel.
-
-I think about look at bootlog too, but that is not a reliable
-way because bootlog might already been flush out after some
-time.
-
-Cheers
-
-Chris
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264304AbTFIHiY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 03:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTFIHiY
+	id S264308AbTFIHub (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 03:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTFIHub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 03:38:24 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:36272 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S264304AbTFIHiX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 03:38:23 -0400
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: [2.4.17rc7] broken IO-APIC support with MPS 1.4
-Date: Mon, 09 Jun 2003 09:58:00 +0200
-Organization: privat
-Message-ID: <bc1em8$348$1@ID-44327.news.dfncis.de>
-References: <bc1bfu$28r$1@ID-44327.news.dfncis.de>
+	Mon, 9 Jun 2003 03:50:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62213 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264308AbTFIHua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 03:50:30 -0400
+Date: Mon, 9 Jun 2003 09:04:06 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Russ Dill <Russ.Dill@asu.edu>
+Cc: linux-kernel@vger.kernel.org, andersen@codepoet.org
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030609090406.A18610@flint.arm.linux.org.uk>
+Mail-Followup-To: Russ Dill <Russ.Dill@asu.edu>,
+	linux-kernel@vger.kernel.org, andersen@codepoet.org
+References: <1055130436.1042.7.camel@russ.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: susi.maya.org 1055145480 3208 192.168.1.3 (9 Jun 2003 07:58:00 GMT)
-X-Complaints-To: abuse@fu-berlin.de
-User-Agent: KNode/0.7.2
-To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1055130436.1042.7.camel@russ.local>; from Russ.Dill@asu.edu on Sun, Jun 08, 2003 at 08:47:16PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, Jun 08, 2003 at 08:47:16PM -0700, Russ Dill wrote:
+> While a company including udhcp is a really exciting thing for me, its
+> mostly exciting because I get the additional resources of anyone at
+> linksys working on the code, and they get a low cost of ownership dhcp
+> server. Of course, if they don't send me the code, it doesn't help me at
+> all, and I get pissed off.
 
-Some additional infos:
+Exactly the same is true of my EBSA285 BIOS.  The "fix" for the situation
+that the infringers came up with was to take down the binary download from
+their website which allowed me to obtain a binary copy of my code.  They
+refused to supply source, and to date, I haven't heard anything from the
+company concerned.
 
-- It seems to be only randomly working when using MPS 1.1. I never saw it
-working with MPS 1.4.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-- The same problem occures with rc6 (I didn't test the prior versions).
-
-
-
-Kind regards,
-Andreas Hartmann

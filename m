@@ -1,76 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbULARhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbULARkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbULARhu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 12:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbULARhq
+	id S261389AbULARkc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 12:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbULARkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 12:37:46 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:24513 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261396AbULARhh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 12:37:37 -0500
+	Wed, 1 Dec 2004 12:40:32 -0500
+Received: from web60505.mail.yahoo.com ([216.109.116.126]:64956 "HELO
+	web60505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261389AbULARkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 12:40:16 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ODtq4quvvIDwxLheTEpAOnyPQ86sQkfaOLGt4adwsHeMQDPdlNTilawaZoiExg3CPNz05U5jhTTU2dxhilTuI3BG4R1s8CAgG7DUISVZnHcDYNcMd4Z/h3tm5cyJvu4vasz3YZCHSftS3DF31H5xiTy+sao+rHMMmjxaPeYEe8s=
-Message-ID: <abc3398204120109371fa91f95@mail.gmail.com>
-Date: Wed, 1 Dec 2004 11:37:36 -0600
-From: John Newman <cachehit@gmail.com>
-Reply-To: John Newman <cachehit@gmail.com>
+  s=s1024; d=yahoo.com;
+  b=Vl0QmDNMc5eTSBlPDHIRTHPtKZ2jhuegA291VeMyf+tk9L3pm4XWFcfTq7Z2WRUywTGOiRgRQtXo/oLNPMo9cfjRAO6z8OMEyJHq5VlDDRv0/KFBRZHoeeiVJLuC5CLPIokIIYqD0n/CPf3kuHubjHujPkv6wjWjLNTh71JIkRA=  ;
+Message-ID: <20041201174010.95519.qmail@web60505.mail.yahoo.com>
+Date: Wed, 1 Dec 2004 09:40:10 -0800 (PST)
+From: K G <gege86hu@yahoo.com>
+Subject: "irq 16: nobody cared!" -errors after motherboard-switch (ABIT IS7-E2 motherboard)
 To: linux-kernel@vger.kernel.org
-Subject: Re: kernel crashes with 2.5/2.8
-In-Reply-To: <abc33982041201093665e56767@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <abc339820412010909325c08b6@mail.gmail.com>
-	 <Pine.LNX.4.53.0412011815090.1909@yvahk01.tjqt.qr>
-	 <abc33982041201093665e56767@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whoops!  I look quite dumb with this one.  Obviously I meant 2.6.5 and
-2.6.8.  Sorry.
+Hello!
 
---
-john
+This is a part from /var/log/dmesg (link to full file
+included later):
 
+irq 16: nobody cared!
+ [<c0108366>] __report_bad_irq+0x2a/0x8b
+ [<c0108450>] note_interrupt+0x6f/0x9f
+ [<c010876e>] do_IRQ+0x161/0x192
+ [<c0106a40>] common_interrupt+0x18/0x20
+ [<c042ffd3>] cfb_imageblit+0x3b7/0x60c
+ [<c0106a40>] common_interrupt+0x18/0x20
+ [<c0426a37>] accel_putcs+0x29a/0x320
+ [<c0108752>] do_IRQ+0x145/0x192
+ [<c042007b>] cdrom_mrw_probe_pc+0xa5/0xa8
+ [<c04280a2>] fbcon_redraw+0x1e8/0x208
+ [<c042880a>] fbcon_scroll+0x748/0xc40
+ [<c037cbb1>] scrup+0x13b/0x14f
+ [<c037e5d7>] lf+0x73/0x75
+ [<c0380e6c>] vt_console_print+0x127/0x2ed
+ [<c0123a82>] __call_console_drivers+0x55/0x57
+ [<c0123b90>] call_console_drivers+0x85/0x11f
+ [<c0123f67>] release_console_sem+0x63/0xf3
+ [<c0123e6b>] printk+0x169/0x1bd
+ [<c075f834>] usb_pwc_init+0x43/0x3a7
+ [<c07428e5>] do_initcalls+0x28/0xb4
+ [<c0133ea4>] init_workqueues+0x17/0x2e
+ [<c0100520>] init+0xf3/0x263
+ [<c010042d>] init+0x0/0x263
+ [<c0104271>] kernel_thread_helper+0x5/0xb
 
----------- Forwarded message ----------
-From: John Newman <cachehit@gmail.com>
-Date: Wed, 1 Dec 2004 11:36:39 -0600
-Subject: Re: kernel crashes with 2.5/2.8
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+handlers:
+[<c0435483>] (usb_hcd_irq+0x0/0x67)
+[<c0435483>] (usb_hcd_irq+0x0/0x67)
+Disabling IRQ #16
 
+I've recently switched from an "ASUS P4T533-C"
+motherboard to an "ABIT IS7-E2", and got the errors
+mentioned above after boot. Only the motherboard and
+the ram was changed (rambus -> INFINEON 400Mhz DDR).
 
-Sorry I'm stupid :)  2.6.5 and 2.6.8.  I don't know why I said that.
+I've tried everything that I could do, bot non of them
+helped:
 
+I've set the Sata to "enhanced mode" in BIOS Settings,
+which solved the problem for a guy with a similar ABIT
+motherboard, it didn't worked for me; Actually I've
+tried all Sata settings...
 
+I've tried it with 2.6.7, 2.6.9, even 2.6.10-rc2
+kernels, same error everywhere.
 
+Slax LiveCD got the same error, my installed system
+got the same error(SourceMage linux). Interestingly
+UHU-Linux hasn't got any errors(maybe because the 2.4
+kernel it uses).
 
-On Wed, 1 Dec 2004 18:15:32 +0100 (MET), Jan Engelhardt
-<jengelh@linux01.gwdg.de> wrote:
-> >Hello everyone,
-> >
-> >I've been experiencing (seemingly) random kernel Oops with various
-> >versions of 2.5 and 2.8 on a Dell Poweredge 2650.  The machine is
->
-> 2.8's out?
->
-> >my own kernels, various versions from 2.5 - 2.9, but NFS never works
->
-> 2.9's out?
->
->
-> Jan Engelhardt
-> --
-> ENOSPC
->
+So I've figured that the IRQ is shared between the two
+onboard 1.1 USB hubs and the vga card. My vga is an
+NVIDIA  GeForce4 Ti4200 btw.
 
+If I disable the onboard usb in the BIOS, I get no
+errors. I also don't get any errors when I pass the
+"noirqdebug" parameter to the kernel. (Maybe the
+system is a bit slower I think.)
 
---
-John
+If I get the errors I can't start X with the nvidia
+driver, and my usb mouse stops working. However if I
+use vesa for video I can start X, and it runs just
+fine. USB mouse works too, if I plug it elsewhere(not
+in the motherboard's onboard usb hubs)
 
+I have support of ACPI support in kernel, tried to
+boot with "noacpi" parameter, but nothing changed.
+Disabling ACPI support in kernel give the same
+results.
 
--- 
-John
+Oh, and when I tried to install windows XP for my sis
+on the same computer it hangs after it copied the
+files to hdd, and rebooted the system. It stays there
+with the blue background of the installer and a
+cursor. Mouse moves, but nothing happens. I've just
+wrote this here to give all info I can. :)
+
+So I only want to know that why can it work flawlessly
+with noirqdebug on, and why it can't without.
+
+I've put the board in the computer according to its'
+manual, and it is ok I think. Though if I messed up
+something, then I REALLY don't want to waste your
+time, but if someone would be so kind to explain me in
+cc than I would be really thankful :) I don't want to
+waste your time or the list's bandwith.
+
+Here are the complete logs/files:
+
+http://izone.sytes.net/logs/dmesg
+http://izone.sytes.net/logs/.config
+http://izone.sytes.net/logs/xorg.log
+
+Or the compressed version with all of them:
+http://izone.sytes.net/logs/logs.tar.bz2
+
+Kálmán Gergely
+
+PS: This is a first post, so please be gentle :)
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAIHUW>; Tue, 9 Jan 2001 02:20:22 -0500
+	id <S129267AbRAIH2N>; Tue, 9 Jan 2001 02:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRAIHUD>; Tue, 9 Jan 2001 02:20:03 -0500
-Received: from slc110.modem.xmission.com ([166.70.9.110]:39690 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129267AbRAIHTb>; Tue, 9 Jan 2001 02:19:31 -0500
-To: zlatko@iskon.hr
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+	id <S129383AbRAIH2E>; Tue, 9 Jan 2001 02:28:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14094 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129267AbRAIH1p>; Tue, 9 Jan 2001 02:27:45 -0500
+Date: Mon, 8 Jan 2001 23:27:15 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: zlatko@iskon.hr, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.10.10101080951140.3750-100000@penguin.transmeta.com> <87n1d1mx2d.fsf@atlas.iskon.hr>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Jan 2001 23:20:58 -0700
-In-Reply-To: Zlatko Calusic's message of "09 Jan 2001 00:41:14 +0100"
-Message-ID: <m1wvc5gsad.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+In-Reply-To: <m1wvc5gsad.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.10.10101082322030.1222-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zlatko Calusic <zlatko@iskon.hr> writes:
 
+
+On 8 Jan 2001, Eric W. Biederman wrote:
+
+> Zlatko Calusic <zlatko@iskon.hr> writes:> 
+> > 
+> > Yes, but a lot more data on the swap also means degraded performance,
+> > because the disk head has to seek around in the much bigger area. Are
+> > you sure this is all OK?
 > 
-> Yes, but a lot more data on the swap also means degraded performance,
-> because the disk head has to seek around in the much bigger area. Are
-> you sure this is all OK?
+> I don't think we have more data on the swap, just more data has an
+> allocated home on the swap.
 
-I don't think we have more data on the swap, just more data has an
-allocated home on the swap.  With the earlier allocation we should
-(I haven't verified) allocate contiguous chunks of memory contiguously
-on the swap.   And reusing the same swap pages helps out with this.
+I think Zlatko's point is that because of the extra allocations, we will
+have worse locality (more seeks etc). 
 
-Eric
+Clearly we should not actually do any more actual IO. But the sticky
+allocation _might_ make the IO we do be more spread out.
+
+To offset that, I think the sticky allocation makes us much better able to
+handle things like clustering etc more intelligently, which is why I think
+it's very much worth it.  But let's not close our eyes to potential
+downsides.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

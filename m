@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTFDF7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 01:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTFDF7U
+	id S262918AbTFDF4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 01:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTFDF4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 01:59:20 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:24272 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262930AbTFDF7T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 01:59:19 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jun 2003 01:56:16 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:57331 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S262918AbTFDF4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 01:56:15 -0400
+Subject: Re: [RFC PATCH] Re: [OOPS] w83781d during rmmod (2.5.69-bk17)
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Philip Pokorny <ppokorny@penguincomputing.com>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@Stimpy.netroedge.com>
+In-Reply-To: <3EDCFA7B.4030906@penguincomputing.com>
+References: <20030524183748.GA3097@earth.solarsys.private>
+	 <3ED8067E.1050503@paradyne.com>
+	 <20030601143808.GA30177@earth.solarsys.private>
+	 <20030602172040.GC4992@kroah.com>
+	 <1054617753.5269.44.camel@workshop.saharacpt.lan>
+	 <3EDCFA7B.4030906@penguincomputing.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054706250.5268.79.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 04 Jun 2003 07:57:31 +0200
 Content-Transfer-Encoding: 7bit
-Message-ID: <16093.36319.412668.87363@napali.hpl.hp.com>
-Date: Tue, 3 Jun 2003 23:12:47 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, niv@us.ibm.com,
-       kuznet@ms2.inr.ac.ru, jmorris@intercode.com.au, gandalf@wlug.westbo.se,
-       linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
-       netdev@oss.sgi.com, akpm@digeo.com
-Subject: Re: fix TCP roundtrip time update code
-In-Reply-To: <20030603.225245.55753285.davem@redhat.com>
-References: <16093.30507.661714.676184@napali.hpl.hp.com>
-	<3EDD7832.7010804@us.ibm.com>
-	<16093.34022.445246.52398@napali.hpl.hp.com>
-	<20030603.225245.55753285.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 03 Jun 2003 22:52:45 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+On Tue, 2003-06-03 at 21:43, Philip Pokorny wrote:
+> Martin Schlemmer wrote:
+> > On Mon, 2003-06-02 at 19:20, Greg KH wrote:
+> > 
+> > Hiya Greg
+> > 
+> > While sorda on the topic ... since I did the w83781d driver some time
+> > ago, I changed boards for a P4C800 (Intel 875 chipset), that have a
+> > ICH5 southbridge, and not a ICH4 one ....  I tried to add the ID's
+> > to the i810 driver, and although it does load (even without the
+> > ID's added), the I2C bus/sensor does not show in /sys.  The w83781d
+> > driver also load fine btw.
+> 
+> My system (SuperMicro) with an '875 and ICH5 reports the ICH5 as an 
+> '801EB' which means you should be using the i2c-i801 driver not i2c-i810...
+> 
 
-  David>    From: David Mosberger <davidm@napali.hpl.hp.com> Date:
-  David> Tue, 3 Jun 2003 22:34:30 -0700
+Right ... at work, so could not verify.
 
-  David>    You can't go higher than 1000 conn/sec per client (IP
-  David> address) because otherwise you run out of port space (due to
-  David> TIME_WAIT).
+> I'm also betting that you need to set 'isich4' to true in the case of 
+> the ich5 as well...
+> 
+> Try the attached patch...  NOTE: I have *not* consulted the Intel DOC's 
+> on the ICH4 and ICH5 to see if the register interface has changed in 
+> other interesting ways...
+> 
 
-  DaveM> echo "1" >/proc/sys/net/ipv4/tcp_tw_recycle
+Will let you know, thanks.
 
-  DaveM> It should eliminate this limit.  Unfortunately we can't
-  DaveM> enable this by default because of NAT :(
 
-Ah, yes, provided PAWS is enabled, this would give you a time_wait
-timeout of 3.5*RTO.  Nice.
+Regards,
 
-	--david
+-- 
+Martin Schlemmer
+
+

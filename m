@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbUCEJGa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUCEJGa
+	id S262271AbUCEJHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUCEJHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:06:30 -0500
-Received: from gate.crashing.org ([63.228.1.57]:62153 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262263AbUCEJG2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:06:28 -0500
-Subject: Re: [PATCH] For test only: pmac_zilog fixes (cups lockup at boot):
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Matthias Urlichs <smurf@smurf.noris.de>,
-       =?ISO-8859-1?Q?Martin-=C9ric?= Racine <q-funk@pp.fishpool.fi>
-In-Reply-To: <20040305085838.B22156@flint.arm.linux.org.uk>
-References: <1078473270.5703.57.camel@gaston>
-	 <20040305085838.B22156@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1078477504.5700.69.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 20:05:05 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Mar 2004 04:07:52 -0500
+Received: from mailint.compaq.com ([161.114.1.206]:2575 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262271AbUCEJHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 04:07:07 -0500
+Message-ID: <404843B5.1010409@toughguy.net>
+Date: Fri, 05 Mar 2004 14:39:09 +0530
+From: Raj <obelix123@toughguy.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: okir@monad.swb.de
+Subject: [TRIVIAL][PATCH]:/proc/fs/nfsd/
+Content-Type: multipart/mixed;
+ boundary="------------090509050709070802080901"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-05 at 19:58, Russell King wrote:
-> On Fri, Mar 05, 2004 at 06:54:31PM +1100, Benjamin Herrenschmidt wrote:
-> > Ok, so I finally got a hand on the problems. A mix of bugs in
-> > the driver, bugs in the HW, and bugs in the TTY layer ! pfiew.
-> 
-> I'm not even going to bother reviewing these changes - the gratuitous
-> change of "up" to "uap" makes this task virtually impossible.
+This is a multi-part message in MIME format.
+--------------090509050709070802080901
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Oh... and the change wasn't gratuitous... "up" do actually conflict
-with up() as soon as you try to use a semaphore :)
+Hi,
 
-Ben.
+Kernel Version: 2.6.3
+Even if NFSD is not selected, the proc entry /proc/fs/nfsd is getting 
+created.
 
+The following patch fixes it.
+
+Pls apply.
+
+/Raj
+
+--------------090509050709070802080901
+Content-Type: text/plain;
+ name="nfsd-proc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nfsd-proc.patch"
+
+--- linux-2.6.3/fs/proc/root.c	2004-02-19 09:52:32.000000000 +0530
++++ linux-2.6.3-fixed/fs/proc/root.c	2004-03-05 13:48:28.448516568 +0530
+@@ -65,7 +65,11 @@ void __init proc_root_init(void)
+ #endif
+ 	proc_root_fs = proc_mkdir("fs", 0);
+ 	proc_root_driver = proc_mkdir("driver", 0);
++
++#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
+ 	proc_mkdir("fs/nfsd", 0); /* somewhere for the nfsd filesystem to be mounted */
++#endif
++
+ #if defined(CONFIG_SUN_OPENPROMFS) || defined(CONFIG_SUN_OPENPROMFS_MODULE)
+ 	/* just give it a mountpoint */
+ 	proc_mkdir("openprom", 0);
+
+--------------090509050709070802080901--
 

@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275384AbRIZR7v>; Wed, 26 Sep 2001 13:59:51 -0400
+	id <S275389AbRIZR7V>; Wed, 26 Sep 2001 13:59:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275391AbRIZR7l>; Wed, 26 Sep 2001 13:59:41 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:64529
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S275384AbRIZR7U>; Wed, 26 Sep 2001 13:59:20 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200109261740.f8QHe3C26922@www.hockin.org>
-Subject: Re: [PATCH] mc146818rtc.h for user land programs (2.4.10)
-To: greearb@candelatech.com (Ben Greear)
-Date: Wed, 26 Sep 2001 10:40:03 -0700 (PDT)
-Cc: srostedt@stny.rr.com (Steven Rostedt), duwe@informatik.uni-erlangen.de,
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3BB2036D.A72C1C25@candelatech.com> from "Ben Greear" at Sep 26, 2001 09:33:49 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S275391AbRIZR7L>; Wed, 26 Sep 2001 13:59:11 -0400
+Received: from ns.suse.de ([213.95.15.193]:20238 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S275389AbRIZR7H>;
+	Wed, 26 Sep 2001 13:59:07 -0400
+Date: Wed, 26 Sep 2001 19:59:34 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, <bcrl@redhat.com>,
+        <marcelo@conectiva.com.br>, <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Locking comment on shrink_caches()
+In-Reply-To: <E15mIoy-0001Hd-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0109261958290.8655-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> in some cases, but I don't see anything in this file that looks like a
-> user-space program could use.  Which part of this file do the user
-> space programs need?
+On Wed, 26 Sep 2001, Alan Cox wrote:
 
-agreed - if you need to access CMOS use rtc and nvram drivers.
+> VIA Cyrix CIII (original generation 0.18u)
+>
+> nothing: 28 cycles
+> locked add: 29 cycles
+> cpuid: 72 cycles
+
+Interesting. From a newer C3..
+
+nothing: 30 cycles
+locked add: 31 cycles
+cpuid: 79 cycles
+
+Only slightly worse, but I'd not expected this.
+This was from a 866MHz part too, whereas you have a 533 iirc ?
+
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

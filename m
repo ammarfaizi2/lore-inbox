@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263210AbTJURxR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 13:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJURxR
+	id S263211AbTJUSBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 14:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJUSBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 13:53:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:8404 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263210AbTJURxP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 13:53:15 -0400
-Date: Tue, 21 Oct 2003 10:44:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
-       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
-Subject: Re: [ANNOUNCE] udev 003 release
-Message-ID: <20031021174426.GA1497@kroah.com>
-References: <20031017055652.GA7712@kroah.com> <200310171757.h9HHvGiY006997@orion.dwf.com> <20031017181923.GA10649@kroah.com> <20031017182754.GA10714@kroah.com> <1066696767.10221.164.camel@nosferatu.lan> <20031021005025.GA28269@kroah.com> <1066698679.10221.178.camel@nosferatu.lan> <20031021024322.GA29643@kroah.com> <1066707482.10221.243.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1066707482.10221.243.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Oct 2003 14:01:44 -0400
+Received: from data.iemw.tuwien.ac.at ([128.131.70.3]:31360 "EHLO
+	data.iemw.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S263211AbTJUSBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 14:01:42 -0400
+Message-ID: <3F95748E.8020202@tuwien.ac.at>
+Date: Tue, 21 Oct 2003 20:01:50 +0200
+From: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
+Organization: IEMW TU-Wien
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, de-at, cs
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: nforce2 random lockups - still no solution ?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 05:38:02AM +0200, Martin Schlemmer wrote:
-> 
-> Been in the tree for about a week - removed it though (0.2), so only
-> have 003 presently.  I also missed the /etc/hotplug.d/default/ symlink,
-> so initial integration needs tweaking.
+Hello,
 
-Do you also have the latest hotplug scripts in gentoo?
+Last few weeks I spent quite much time trying to get working two nforce2 
+chipset based motherboards with latest linux 2.4.22 - ASUS A7N8 Deluxe 
+2.0 and
+MSI K7N2 Delta. Althought the latest kernel version already detects 
+correctly all the nforce2 stuff and APIC seems to run work as well,
+some random lockups still remain. At the very beginning I believed I 
+could get rid of lockups by setting lower udma mode on IDE (hdparm -X 
+udma3).
+In the fact this only reduced very much the probability of lockups - 
+with udma5 I could freeze the system within few minutes e.g. during 
+kernel compilation.
+with udma3 system is usually stable for several days, but sometimes it 
+locks. When it happens, it happens mostly during first 30 mins after boot.
+I'm booting with noapic, nolapic and acpi=off, but it doesn't seem to 
+have really any effect on lockups.
+Unfortunatelly, I can't get any debug info. I've redirected syslog to 
+flash-card but didn't get even a bit more of info, it seems to blow-up
+the chipset completelly and immediatelly.
 
-> So far have not had any complaints, except for minimal support at this
-> stage, but hey, its still early in the game =)
+Now, in the system with MSI K7N2 motherboard I have a framegrabber 
+(Hauppauge PVR-250) installed, using ivtv driver.
+I'm able to lock-up the system when streaming uncompressed video (e.g. 
+cat /dev/yuv0 >/dev/null) and the lockups are also hard, w/o debug info.
+The ivtv driver is using DMA very heavily  but seems to work on other 
+chipsets. So these lock-up problems might be rather DMA then APIC related.
+Interesting is that I've never had such a lock-up when running WinXP on 
+same computer ( :-) seems impossible), even under load and with the 
+framegrabber.
+I've run memtest on both machines for 24 hours, it shouldn't  be bad 
+memory. On both machines I'm using just onboard hardware, except for the 
+AGP graphic card
+(matrox and nvidia) and the framegrabber. Hard disk is on parallel IDE, 
+SATA controller is disabled.
 
-Nice.  Be sure to let me know if you do hear any.
+So my conclusion is that the nforce2 lock-ups are still unsolved at the 
+moment. Any nforce experts around ?
 
-Remember, gentoo needs to wean itself off of devfs for 2.6...
-
-> Also, I am using ramfs for now to do the device nodes, and have not
-> looked at minimal /dev layout, although I guess it is not that minimal,
-> as even the input drivers lack udev (sysfs) support currently it seems.
-> Wat was the last eta for initramfs again ?
-
-initramfs is in the kernel, you use it to boot already :)
+Please, reply directly using cc:, I'm not on the list.
 
 thanks,
 
-greg k-h
+Sam
+
+
+

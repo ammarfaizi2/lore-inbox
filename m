@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUFJQJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbUFJQKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUFJQJw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 12:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUFJQJw
+	id S261947AbUFJQKl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 12:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUFJQKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 12:09:52 -0400
-Received: from gate.crashing.org ([63.228.1.57]:47271 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261897AbUFJQJt (ORCPT
+	Thu, 10 Jun 2004 12:10:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:38359 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261932AbUFJQKc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 12:09:49 -0400
-Subject: Re: hdc (cdrom) irq timeout after awaking from sleep on powerbook
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1086847896.24317.41.camel@localhost>
-References: <1086847896.24317.41.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1086883699.2975.141.camel@gaston>
+	Thu, 10 Jun 2004 12:10:32 -0400
+Date: Thu, 10 Jun 2004 09:02:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/3] Allow registering device without taking bus lock
+Message-ID: <20040610160250.GA31787@kroah.com>
+References: <200406090221.24739.dtor_core@ameritech.net> <200406100143.53381.dtor_core@ameritech.net> <200406100145.01599.dtor_core@ameritech.net> <200406100146.25471.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 10 Jun 2004 11:08:20 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406100146.25471.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-10 at 01:11, Soeren Sonnenburg wrote:
-> Hi...
-> 
-> When I insert + mount a cdrom and then put this powerbook to sleep mode,
-> I keep getting these messages in the kernel log when the machine wakes
-> up. However I can still access the cdrom on its mount point as if
-> everything was ok... but is it ?
+On Thu, Jun 10, 2004 at 01:46:23AM -0500, Dmitry Torokhov wrote:
+> ChangeSet@1.1769, 2004-06-10 00:10:02-05:00, dtor_core@ameritech.net
+>   sysfs: provide means for adding and removing devices to a bus without
+>          taking bus' semaphore so devices can be added/removed from
+>          driver's probe() and remove() methods.
 
-Well... at least it lost the DMA which isn't good. But our driver tends
-to be a bit nasty for that. We may probably want a smarter wakeup
-sequence for ide-cd that the current one that does nothing (just use the
-default IDE one which is to wait for BUSY to be gone). I suspect some
-ATAPIs would love getting a new WIN_PIDENTIFY at least, and I've seen
-some take time before actually _raising_ BUSY ... I'll look into it.
+Ick, no, sorry, I will not take this.
 
-> This is kernel 2.6.7-rc2 on powerbook g4 1Ghz.
-> 
-> Please comment,
-> Regards,
-> Soeren.
-> 
-> VFS: busy inodes on changed media.
-> hdc: irq timeout: status=0xc0 { Busy }
-> hdc: irq timeout: error=0xc0LastFailedSense 0x0c 
-> hdc: DMA disabled
-> hdc: ATAPI reset complete
-> VFS: busy inodes on changed media.
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+For now (2.6), do what others do and add the devices from another
+thread, or somthing else.
 
+We will revisit this in 2.7 to make it a sane solution.
+
+Sorry,
+
+greg k-h

@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263805AbTCUSvn>; Fri, 21 Mar 2003 13:51:43 -0500
+	id <S263768AbTCUV3V>; Fri, 21 Mar 2003 16:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263808AbTCUSul>; Fri, 21 Mar 2003 13:50:41 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25732
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263799AbTCUStq>; Fri, 21 Mar 2003 13:49:46 -0500
-Date: Fri, 21 Mar 2003 20:05:02 GMT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303212005.h2LK52vr026230@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fix typo in oom_kill
+	id <S263762AbTCUV21>; Fri, 21 Mar 2003 16:28:27 -0500
+Received: from main.gmane.org ([80.91.224.249]:22500 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262900AbTCUV1y>;
+	Fri, 21 Mar 2003 16:27:54 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: [BK PATCH] net driver merges
+Date: Fri, 21 Mar 2003 21:38:45 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <slrnb7n1jd.inc.lunz@stoli.localnet>
+References: <3E7AA337.5000402@pobox.com>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/mm/oom_kill.c linux-2.5.65-ac2/mm/oom_kill.c
---- linux-2.5.65/mm/oom_kill.c	2003-03-06 17:04:37.000000000 +0000
-+++ linux-2.5.65-ac2/mm/oom_kill.c	2003-03-20 18:43:25.000000000 +0000
-@@ -51,7 +51,7 @@
-  * 3) we don't kill anything innocent of eating tons of memory
-  * 4) we want to kill the minimum amount of processes (one)
-  * 5) we try to kill the process the user expects us to kill, this
-- *    algorithm has been meticulously tuned to meet the priniciple
-+ *    algorithm has been meticulously tuned to meet the principle
-  *    of least surprise ... (be careful when you change it)
-  */
- 
+jgarzik@pobox.com said:
+> Linus, please do a
+> 	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+> This will update the following files:
+
+2.5 still has an uninitialized spinlock in the eepro100 driver. Marcelo
+already merged the fix in 2.4 bk:
+
+http://www.kernel.org/pub/linux/kernel/v2.4/testing/cset/cset-1.1073.txt
+
+Jason
+

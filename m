@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266162AbUBGUxv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 15:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267055AbUBGUxv
+	id S265777AbUBGUpj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 15:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUBGUpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 15:53:51 -0500
-Received: from ppp-210-139.idknet.com ([217.19.210.139]:54284 "HELO
-	ppp-210-139.idknet.com") by vger.kernel.org with SMTP
-	id S266162AbUBGUxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 15:53:00 -0500
-Reply-To: didinh <didinh@softhome.net>
-From: didinh <didinh@softhome.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: .Maxa - Man. --> 85% D1SC00UNT price ! 
-Date: Sun, 08 Feb 2004 02:50:21 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;  charset=us-ascii
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-Id: <S266162AbUBGUxA/20040207205300Z+886@vger.kernel.org>
+	Sat, 7 Feb 2004 15:45:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49077 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265777AbUBGUpd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 15:45:33 -0500
+Date: Sat, 7 Feb 2004 20:45:32 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: matthew@wil.cx, linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] sym53c8xx_2 uses SYM_MEM_CLUSTER_SHIFT before its #define'd
+Message-ID: <20040207204532.GA24334@parcelfarce.linux.theplanet.co.uk>
+References: <20040207203058.GA7388@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040207203058.GA7388@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hell0 !
+On Sat, Feb 07, 2004 at 09:30:58PM +0100, Adrian Bunk wrote:
+> This seems to be a bug:
+> SYM_MEM_CLUSTER_SIZE is used before it's #define'd.
+> 
+> The patch below fixes this issue.
 
+Thanks, I've taken this patch too.
 
-
-http://24products.com/mx/index.php?pid=evaph5446
-
-The first worth substitute of all existing men`s remedies!  
- 
-Be aware that now the peak of your selxual activity is realy accessible!  
- 
-All you need is to visit-website DISC0UNT 0RDER zixbzngc uatcjisxv wdlxx ilecyr ckncijbu 
-Thanks to the proprietary blend of unique herkbs the four wonderful efkfects are achieved: vsnrcrf ftpkrk vlzaejjaq nldhbjd jslzxqu 
- 
-*blood stream to the penlis is restored 
-*stored tesltosterone is unleashed  
-*activation of the body's naltural holrmone production heightens your sensation  
-*the peknis does enklarge, the changes are being permanent!  
- 
- 
-At last you can enljoy your secxual life in full measure without any risk for your healkth! gjwweks pzzcknmix uxslq gmrifs dhdpgbcft 
-Don`t wakste your time! Get more inkfo straightforwardly at e n t e r righ here  
-
-http://24products.com/mx/index.php?pid=evaph5446
-
-
-
-Yours trully
-
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

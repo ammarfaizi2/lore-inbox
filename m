@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272001AbTHMWZR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 18:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272000AbTHMWZR
+	id S271940AbTHMWUV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 18:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTHMWUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 18:25:17 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:24850 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S272001AbTHMWZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 18:25:12 -0400
-Date: Thu, 14 Aug 2003 00:24:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <willy@debian.org>,
-       Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       "David S. Miller" <davem@redhat.com>, <rddunlap@osdl.org>,
-       <davej@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <kernel-janitor-discuss@lists.sourceforge.net>
-Subject: Re: C99 Initialisers
-In-Reply-To: <20030813210531.GA15148@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0308140018170.24676-100000@serv>
-References: <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com>
- <20030813173150.GA3317@kroah.com> <3F3A79CA.6010102@pobox.com>
- <20030813180245.GC3317@kroah.com> <3F3A82C3.5060006@pobox.com>
- <20030813193855.E20676@flint.arm.linux.org.uk> <3F3A952C.4050708@pobox.com>
- <20030813195412.GE10015@parcelfarce.linux.theplanet.co.uk> <3F3A9FA1.8000708@pobox.com>
- <20030813210531.GA15148@mars.ravnborg.org>
+	Wed, 13 Aug 2003 18:20:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36281 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271940AbTHMWUQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 18:20:16 -0400
+Message-ID: <3F3AB992.4000506@pobox.com>
+Date: Wed, 13 Aug 2003 18:20:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Grover, Andrew" <andrew.grover@intel.com>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       hps@intermeta.de
+Subject: Re: [BK PATCH] ACPI Updates for 2.4
+References: <F760B14C9561B941B89469F59BA3A8470255EECD@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255EECD@orsmsx401.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This ACPI update also fixes the irq routing issues I was seeing in 
+2.4.22-rc2.  Previously, on Intel ICH5, I had to either disable 
+CONFIG_ACPI (which makes my 2nd HT CPU disappear) and boot with 
+'noapic', or disable CONFIG_SMP and boot with pci=noacpi.  If I did not 
+do this, interrupts to the PCI slots would never be delivered.
 
-On Wed, 13 Aug 2003, Sam Ravnborg wrote:
+With this update, 2.4 now matches 2.6 behavior:
+full hyperthread, and interrupts routed correctly.
 
-> driver MAXTOR_SATA "SATA for Maxtor IDE"
-> 	depends on LIB_SATA
-> 	kbuild
-> 	  obj-$(MAXTOR_SATA)  := maxtorsata.o
-> 	  maxtorsata-y := libsata.o smaxtor.o
-> 	  maxtorsata-$(VERBOSE_LOGGING) += maxtorlog.o
-> 	data
-> 	  PCIDEVICE(X,Y)
+	Jeff
 
-Something I really want to avoid is Makefile specific syntax in Kconfig.
-IMO it should somehow like this:
 
-module maxtorsata MAXTOR_SATA
-	{tristate|prompt} "SATA for Maxtor IDE"
-	depends on LIB_SATA
-	source smaxtor.c
-	source maxtorlog.c if MAXTOR_VERBOSE
-	...
-
-bye, Roman
 

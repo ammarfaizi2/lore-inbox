@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270752AbTHAMw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 08:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTHAMw6
+	id S270755AbTHANB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 09:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270756AbTHANB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 08:52:58 -0400
-Received: from mta04.btfusion.com ([62.172.195.246]:53215 "EHLO
-	mta04.btfusion.com") by vger.kernel.org with ESMTP id S270752AbTHAMw4
+	Fri, 1 Aug 2003 09:01:56 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:8848 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270755AbTHANBz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 08:52:56 -0400
-Date: Fri, 01 Aug 2003 13:52:50 +0100
-To: marcelo@conectiva.com.br
-Cc: calum.mackay@sun.com, mitch.dsouza@sun.com, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH]  2.4: export the symbol "mmu_cr4_features" for XFree86 
- DRM kernel drivers
-Message-ID: <3F2A62A2.mailx3G211O2B4@cdmnet.org>
-User-Agent: nail 10.5 4/27/03
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Aug 2003 09:01:55 -0400
+Subject: Re: [PATCH 2.4.22-pre10] SAK: If a process is killed by SAK, give
+	us an info about which one was killed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, vda@port.imtp.ilyichevsk.odessa.ua
+In-Reply-To: <200308011425.29058.m.c.p@wolk-project.de>
+References: <200307312254.16964.m.c.p@wolk-project.de>
+	 <1059739764.18399.0.camel@dhcp22.swansea.linux.org.uk>
+	 <200308011425.29058.m.c.p@wolk-project.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-From: Calum Mackay <calum.mackay@cdmnet.org>
+Organization: 
+Message-Id: <1059742660.18399.13.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Aug 2003 13:57:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to request comments on the appended; proposed patch for 2.4 to
-export the symbol "mmu_cr4_features".
+On Gwe, 2003-08-01 at 13:26, Marc-Christian Petersen wrote:
+> On Friday 01 August 2003 14:09, Alan Cox wrote:
+> 
+> Hi Alan,
+> 
+> > This is potentially private information. It shouldnt be reported
+> > I disagree with the patch
+> well, it get logged to syslog(3) and dmesg(8). No normal user has access to 
+> it, no?
 
-This is needed by the XFree86 DRM kernel drivers, since Christoph's
-backport of vmap() in 2.4.22-pre7. [some] DRM kernel drivers (e.g. radeon]
-refuse to load without this fix, from 2.4.22-pre7 onwards.
+It may also end up on the console
 
-cheers,
-Calum.
-
-
-[diffs -u against 2.4.22-pre9]
-
---- arch/i386/kernel/setup.c.20030731   2003-07-31 11:28:52.000000000 +0100
-+++ arch/i386/kernel/setup.c    2003-08-01 12:42:21.000000000 +0100
-@@ -128,6 +128,7 @@
- struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
- 
- unsigned long mmu_cr4_features;
-+EXPORT_SYMBOL(mmu_cr4_features);
- 
- /*
-  * Bus types ..
-
-
-
---- arch/x86_64/kernel/setup.c.20030731 2003-07-31 11:28:53.000000000 +0100
-+++ arch/x86_64/kernel/setup.c  2003-08-01 12:43:27.000000000 +0100
-@@ -30,6 +30,7 @@
- #include <linux/blk.h>
- #include <linux/highmem.h>
- #include <linux/bootmem.h>
-+#include <linux/module.h>
- #include <asm/processor.h>
- #include <linux/console.h>
- #include <linux/seq_file.h>
-@@ -58,6 +59,7 @@
- };
- 
- unsigned long mmu_cr4_features;
-+EXPORT_SYMBOL(mmu_cr4_features);
- 
- /* For PCI or other memory-mapped resources */
- unsigned long pci_mem_start = 0x10000000;

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130260AbQJ2SdF>; Sun, 29 Oct 2000 13:33:05 -0500
+	id <S131315AbQJ2SfR>; Sun, 29 Oct 2000 13:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131315AbQJ2Scp>; Sun, 29 Oct 2000 13:32:45 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24048 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130260AbQJ2Scc>;
-	Sun, 29 Oct 2000 13:32:32 -0500
-Date: Sun, 29 Oct 2000 13:32:24 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Paul Mackerras <paulus@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: page->mapping == 0
-In-Reply-To: <Pine.LNX.4.10.10010290957570.18939-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0010291308260.27484-100000@weyl.math.psu.edu>
+	id <S131535AbQJ2SfH>; Sun, 29 Oct 2000 13:35:07 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:26875 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131315AbQJ2Sex>; Sun, 29 Oct 2000 13:34:53 -0500
+Date: Sun, 29 Oct 2000 18:34:46 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Raul Miller <moth@magenta.com>, linux-kernel@vger.kernel.org
+Subject: Re: guarantee_memory() syscall?
+In-Reply-To: <m1n1fn7ozi.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.10.10010291832510.20547-100000@dax.joh.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 29 Oct 2000, Eric W. Biederman wrote:
+
+> Raul Miller <moth@magenta.com> writes:
+> 
+> > Can anyone tell me about the viability of a guarantee_memory() syscall?
+> > 
+> > [I'm thinking: it would either kill the process, or allocate all virtual
+> > memory needed for its shared libraries, buffers, allocated memory, etc.
+> > Furthermore, it would render this process immune to the OOM killer,
+> > unless it allocated further memory.]
+> 
+> Except for the OOM killer semantics mlockall already exists.
+
+More to the point, "immortality" is NOT a desirable "feature": the OOM
+killer just kills things which must be killed to protect the overall
+system. We'll have a finely adjustable memory killer daemon soon, which
+will be a better solution.
 
 
-On Sun, 29 Oct 2000, Linus Torvalds wrote:
-
-> approach for 2.4.x where we just re-test against the file size in multiple
-> places where this can happen - but it would be nicer to handle this more
-> cleanly.
-
-One possible way is to access page->mapping _only_ under the page lock
-and in cases when we call ->i_mapping->a_ops->foo check the ->mapping
-before the method call.
-
-> There are a few details that still elude me, the main one being the big
-> question about why this started happening to so many people just recently.
-> The bug is not new, and yet it's become obvious only in the last few
-> weeks.
-
-And original truncate() problems went undetected since...? Pattern looks
-very similar. Petr posted bug reports long time ago - back then they
-were ignored since they involved vmware. In both cases we had persistent
-problems caught by few people who were using not-too-common combinations
-(innd on 2.4 boxen, for example) and at some point the shit had hit the
-fan big way. No amount of testing can prove that there is no bugs and all
-such...
-
-I would expect problems with truncate, mmap, rename, POSIX locks, fasync,
-ptrace and mount go unnoticed for _long_. Ditto for parts of procfs
-proper that are not exercised by ps and friends. Sigh...
-
-Maybe something along the lines of BTS might be useful, hell knows.
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

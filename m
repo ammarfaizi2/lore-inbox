@@ -1,78 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268534AbUHRAw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266887AbUHRA75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268534AbUHRAw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 20:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUHRAw5
+	id S266887AbUHRA75 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 20:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUHRA75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 20:52:57 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:26327 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268534AbUHRAwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 20:52:54 -0400
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-From: Albert Cahalan <albert@users.sf.net>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       george anzinger <george@mvista.com>, Andrew Morton OSDL <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       david+powerix@blue-labs.org
-In-Reply-To: <1092787863.2429.311.camel@cog.beaverton.ibm.com>
-References: <1087948634.9831.1154.camel@cube>
-	 <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>
-	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
-	 <412285A5.9080003@mvista.com>
-	 <1092782243.2429.254.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
-	 <1092787863.2429.311.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092781172.2301.1654.camel@cube>
+	Tue, 17 Aug 2004 20:59:57 -0400
+Received: from smtp.terra.es ([213.4.129.129]:8387 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S266887AbUHRA7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 20:59:52 -0400
+Date: Wed, 18 Aug 2004 02:59:51 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] ext3 documentation (lack of)
+Message-Id: <20040818025951.63c4134e.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Aug 2004 18:19:32 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 20:11, john stultz wrote:
+Lots of people think that ext3 is very slow. While I'm not claiming that ext3
+is the fatest fs in the world, I told some people to look at 
+Documentation/filesystem/ext3.txt and try to tweak it before doing some
+benchmarks. To my surprise, several ext3 mount options were not documented
+(not even in the source) except in some sites spread across the internet, so
+it's not a surprise that lots of people ignores some mount options when doing
+benchmarks, like the commit interval.
 
-> --- 1.62/fs/proc/array.c	2004-08-05 13:36:53 -07:00
-> +++ edited/fs/proc/array.c	2004-08-17 17:08:07 -07:00
-> @@ -356,7 +356,14 @@
->  	read_unlock(&tasklist_lock);
->  
->  	/* Temporary variable needed for gcc-2.96 */
-> -	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
-> +	/* convert timespec -> nsec*/
-> +	start_time = (unsigned long long)task->start_time.tv_sec * NSEC_PER_SEC 
-> +				+ task->start_time.tv_nsec;
-> +	/* convert nsec -> ticks */
-> +	start_time *= HZ;
-> +	do_div(start_time, NSEC_PER_SEC);
-> +	/* convert ticks -> USER_HZ ticks */
-> +	start_time = jiffies_64_to_clock_t(start_time);
+This documents commit (or it tries, sorry for my english), groups the
+journal-related options in the same place of the document and adds other
+mount options without documenting them (like the ones related to acl, xattr,
+resizing, reservations, barriers). Hopefully people will explain those better
+than me.
 
-This would overflow in about 6 months at 1024 USER_HZ.
-Various possible alternatives:
-
-// 6 months to overflow at 1024 USER_HZ
-value = ns64 * USER_HZ / BILLION;
-
-// 2 years to overflow at 1024 USER_HZ
-// (assuming USER_HZ is always divisible by 4)
-value = ns64 * (USER_HZ/4) / (BILLION/4);
-
-// faster, and never overflows (for 100, 128, 1000)
-#if ! (BILLION % USER_HZ)
-value = ns64 / (BILLION/USER_HZ);
-#endif
-
-// 256 years to overflow (for 1024)
-#if ! (USER_HZ % 512)
-value = ns64 * (USER_HZ/512) / (BILLION/512);
-#endif
-
-
+--- stable/Documentation/filesystems/ext3.txt-documentsync	2004-08-18 01:55:48.000000000 +0200
++++ stable/Documentation/filesystems/ext3.txt	2004-08-18 02:54:00.000000000 +0200
+@@ -22,6 +22,52 @@
+ 			the inode which will represent the ext3 file
+ 			system's journal file.
+ 
++noload			Don't load the journal on mounting.
++
++data=journal		All data are committed into the journal prior 
++			to being written into the main file system.
++
++data=ordered	(*)	All data are forced directly out to the main file
++			system prior to its metadata being committed to
++			the journal.
++
++data=writeback		Data ordering is not preserved, data may be 
++			written into the main file system after its
++			metadata has been committed to the journal.
++
++commit=nrsec	(*)	Ext3 can be told to write all its data and metadata
++			every 'nrsec' seconds. The default value is 5 seconds.
++			This means that if you lose your power, you will lose,
++			as much, the latest 5 seconds of work. This default
++			value (or any low value) will hurt performance, but
++			it's good for data-safety. Setting it to 0 disables it.
++			Disabling it or setting it to very large values will
++			improve performance, 
++
++barrier=??	(*)??	This enables/disables the "journal barrier"
++
++orlov		(*)	This enables the new Orlov block allocator. It's enabled
++			by default. 
++
++oldalloc		This disables the Orlov block allocator and enables the
++			old block allocator. Orlov should have better performance,
++			we'd like to get some feedback if it's the contrary for
++			you.
++
++user_xattr=
++
++nouser_xattr=
++
++acl=
++
++noacl=
++
++reservation=
++
++noreservation=
++
++resize=
++
+ bsddf 		(*)	Make 'df' act like BSD.
+ minixdf			Make 'df' act like Minix.
+ 
+@@ -30,8 +76,6 @@
+ 
+ debug			Extra debugging information is sent to syslog.
+ 
+-noload			Don't load the journal on mounting.
+-
+ errors=remount-ro(*)	Remount the filesystem read-only on an error.
+ errors=continue		Keep going on a filesystem error.
+ errors=panic		Panic and halt the machine if an error occurs.
+@@ -48,17 +92,6 @@
+ 
+ sb=n			Use alternate superblock at this location.
+ 
+-data=journal		All data are committed into the journal prior 
+-			to being written into the main file system.
+-		
+-data=ordered	(*)	All data are forced directly out to the main file 
+-			system prior to its metadata being committed to 
+-			the journal.
+-		
+-data=writeback  	Data ordering is not preserved, data may be 
+-			written into the main file system after its
+-			metadata has been committed to the journal.
+-
+ quota			Quota options are currently silently ignored.
+ noquota			(see fs/ext3/super.c, line 594)
+ grpquota

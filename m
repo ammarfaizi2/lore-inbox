@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUHTNuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUHTN4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268043AbUHTNuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267943AbUHTNuF
+	id S267350AbUHTN4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHTN4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:50:05 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:27454 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267974AbUHTNtP (ORCPT
+	Fri, 20 Aug 2004 09:56:25 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:20817 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267350AbUHTNzy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:49:15 -0400
-Message-ID: <d577e56904082006495a66179c@mail.gmail.com>
-Date: Fri, 20 Aug 2004 09:49:11 -0400
+	Fri, 20 Aug 2004 09:55:54 -0400
+Message-ID: <d577e56904082006553eefad5@mail.gmail.com>
+Date: Fri, 20 Aug 2004 09:55:54 -0400
 From: Patrick McFarland <diablod3@gmail.com>
 Reply-To: Patrick McFarland <diablod3@gmail.com>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org,
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
        kernel@wildsau.enemy.org, fsteiner-mail@bio.ifi.lmu.de,
-       b.zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <4125FE92.nail8LD4QVROS@burner>
+       b.zolnierkiewicz@elka.pw.edu.pl
+In-Reply-To: <4125FFA2.nail8LD61HFT4@burner>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200408191732.i7JHWSkL005470@laptop14.inf.utfsm.cl> <4125FE92.nail8LD4QVROS@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+ <4124BA10.6060602@bio.ifi.lmu.de>
+ <1092925942.28353.5.camel@localhost.localdomain>
+ <200408191800.56581.bzolnier@elka.pw.edu.pl>
+ <4124D042.nail85A1E3BQ6@burner>
+ <1092938348.28370.19.camel@localhost.localdomain> <4125FFA2.nail8LD61HFT4@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004 15:37:22 +0200, Joerg Schilling
+On Fri, 20 Aug 2004 15:41:54 +0200, Joerg Schilling
 <schilling@fokus.fraunhofer.de> wrote:
-> The Linux kernel is broken because it it did break existing interfaces - period.
+> Unless you tell us what kind of "security holes" you found _and_ when this has
+> been, it looks like a meaningless remark.
 
-What you really meant to say is that they fixed a previously broken
-interface so that it worked correctly; which just happened to break
-your poorly written app. If you had any shread of self respect, you'd
-silently fix cdrecord without a further mention of it here.
+Face it, you think anything anyone says (including Alan, Linus, me,
+and anyone else who happens by) anything about your precious cdrtools
+is making meaningless remarks. Allowing users to fuck hardware using a
+badly written permissions system _is_ a security hole, no matter how
+much you dance around the issue.
+
+This is why Linus added what he did, so users couldn't; which means
+_fix your damn program and quit your bitching_.
 
 -- 
 Patrick "Diablo-D3" McFarland || diablod3@gmail.com

@@ -1,32 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVAMPJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVAMPLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVAMPJf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 10:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVAMPJf
+	id S261645AbVAMPLF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 10:11:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVAMPLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:09:35 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:14726 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261643AbVAMPJe (ORCPT
+	Thu, 13 Jan 2005 10:11:05 -0500
+Received: from host-19-242.guc.usg.edu ([168.28.19.242]:35340 "HELO
+	gtlaser.com") by vger.kernel.org with SMTP id S261645AbVAMPKo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:09:34 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16870.36645.790526.305715@alkaid.it.uu.se>
-Date: Thu, 13 Jan 2005 16:09:25 +0100
-To: benh@kernel.crashing.org, paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc1 linkage error on ppc32
+	Thu, 13 Jan 2005 10:10:44 -0500
+From: <john@gtlaser.com>
+To: linux-kernel@vger.kernel.org
+Subject: Business Inquiry.
+Date: Thu, 13 Jan 2005 10:10:53
+Message-Id: <145.59909.562166@gtlaser.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everything goes well until the end, when the linker complains:
 
-  ld -m elf32ppc  -Ttext 0xc0000000 -Bstatic -o .tmp_vmlinux1 -T arch/ppc/kernel/vmlinux.lds arch/ppc/kernel/head.o arch/ppc/kernel/idle_6xx.o  init/built-in.o --start-group  usr/built-in.o  arch/ppc/kernel/built-in.o  arch/ppc/platforms/built-in.o  arch/ppc/mm/built-in.o  arch/ppc/lib/built-in.o  arch/ppc/syslib/built-in.o  arch/ppc/xmon/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  lib/built-in.o  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group 
-mm/built-in.o(.rodata.cst4+0x4): relocation truncated to fit: R_PPC_ADDR32 empty_zero_page+40000000
-make: *** [.tmp_vmlinux1] Error 1
+Hello,
 
-gcc-3.4.3, binutils-2.15.90.0.0-0.ydl.2 (YDL4.0 user-space).
+I was wondering if you were interested in our products. We supply new OEM printer cartridges at wholesale prices. I am sure we can save you money on your printer supplies.
 
-/Mikael
+Should you have any questions please feel free to contact me. I have included a brief product price list.
+ 
+Sincerely,
+John Smirley
+Sales Manager
+770-416-6214
+888-662-2256
+john@gtlaser.com
+www.gtlaser.com
+
+
+ 
+HP Laser Toner Description & Price per unit 
+1 HP C3906A US$51.50 
+2 HP C4092A US$51.75 
+3 HP C3903A US$62.75 
+4 HP 92274A US$70.75 
+5 HP 92298A US$73.95 
+6 HP C4096A US$76.25 
+7 HP 4127X US$96.50 
+8 HP 4129X US$126.75 
+9 HP C3900A US$109.00 
+10 HP 3909A  US$135.50 
+11 HP 7115A US$54.50 
+12 HP 8061X US$96.75 
+13 HP Q series 2612 US$54.75 
+14 HP Q series 2613 US$59.95 
+15 HP Q series 2610 US$93.75 
+
+HP Inkjet Cartridge Description & Price per unit 
+1 HP C6625A (Color) US$23.79 
+2 HP 51645A (Black) US$22.70 
+3 HP 51649A (Color) US$23.50 
+4 HP C1823D (Color) US$25.45 
+5 HP C6614D (Black) US$21.65 
+6 HP C6615D (Black) US$21.60 
+7 HP C6578D (Color) US$46.95 
+8 HP 51626A (Black) US$22.90 
+9 HP 51629A (Black) US$22.90 
+14 HP 6657A (Color) US$25.65 

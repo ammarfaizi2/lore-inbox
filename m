@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVCJPSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVCJPU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbVCJPSh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 10:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVCJPSh
+	id S262649AbVCJPU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 10:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbVCJPU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 10:18:37 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:12256 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262636AbVCJPSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 10:18:17 -0500
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Omkhar Arasaratnam <iamroot@ca.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com
-In-Reply-To: <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>
-References: <422FA817.4060400@ca.ibm.com>
-	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>
-	 <422FC042.40303@ca.ibm.com>
-	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>
-	 <1110434383.32525.184.camel@gaston>
-	 <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 17:17:48 +0200
-Message-Id: <1110467868.5379.15.camel@mulgrave>
+	Thu, 10 Mar 2005 10:20:56 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:27152 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262649AbVCJPUu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 10:20:50 -0500
+Date: Thu, 10 Mar 2005 09:22:23 -0600 (CST)
+Message-Id: <20050310.092223.73714211.yoshfuji@linux-ipv6.org>
+To: lorenzo@gnu.org
+Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [patch 1/1] /proc/$$/ipaddr and per-task networking bits
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1110464202.9190.7.camel@localhost.localdomain>
+References: <1110464202.9190.7.camel@localhost.localdomain>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 12:17 +0000, Matthew Wilcox wrote:
-> Heh, the devel version of sym2 (that isn't submitted yet because
-> it depends on a few changes to the SPI transport that James hasn't
-> integrated yet) would probably fix this as it doesn't call iounmap()
-> until the driver exits.
+In article <1110464202.9190.7.camel@localhost.localdomain> (at Thu, 10 Mar 2005 15:16:42 +0100), Lorenzo Hernández García-Hierro <lorenzo@gnu.org> says:
 
-They're integrated into the scsi-misc-2.6 tree, so if you send in the
-sym2 patch to linux-scsi, everything should still work...
+> Ported feature from grSecurity that makes possible to add an ipaddr
+> entry in each /proc/<pid> (/proc/<pid>/ipaddr), where the task originating
+> IP address is stored, and subsequently made available (readable) by the process
+> itself and also the root user with CAP_DAC_OVERRIDE capability (that can be managed
+> by specific security models implementations like SELinux).
+> Available also at http://pearls.tuxedo-es.org/patches/task-curr_ip.patch
 
-James
+Please don't.
 
+You already can get this information via procfs; e.g. lsof does,
+It does support IPv6 as well.
 
+--yoshfuji

@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUGDQs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUGDQwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265203AbUGDQs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 12:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUGDQs5
+	id S265207AbUGDQwY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 12:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUGDQwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 12:48:57 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:38585 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S265203AbUGDQsy (ORCPT
+	Sun, 4 Jul 2004 12:52:24 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:44473 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S265205AbUGDQwW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 12:48:54 -0400
-Date: Sun, 4 Jul 2004 18:48:53 +0200
+	Sun, 4 Jul 2004 12:52:22 -0400
+Date: Sun, 4 Jul 2004 18:52:21 +0200
 From: bert hubert <ahu@ds9a.nl>
-To: backblue <backblue@netcabo.pt>
+To: Lasse Bang Mikkelsen <lbm-list@fatalerror.dk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc 3.4 problem
-Message-ID: <20040704164853.GB18688@outpost.ds9a.nl>
+Subject: Re: Strange DMA timeouts
+Message-ID: <20040704165221.GC18688@outpost.ds9a.nl>
 Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	backblue <backblue@netcabo.pt>, linux-kernel@vger.kernel.org
-References: <20040703023138.00dc1c81@fork.ketic.com>
+	Lasse Bang Mikkelsen <lbm-list@fatalerror.dk>,
+	linux-kernel@vger.kernel.org
+References: <1088958931.3205.8.camel@slaptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040703023138.00dc1c81@fork.ketic.com>
+In-Reply-To: <1088958931.3205.8.camel@slaptop>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 02:31:38AM +0100, backblue wrote:
+On Sun, Jul 04, 2004 at 06:35:31PM +0200, Lasse Bang Mikkelsen wrote:
 
-> I have a problem with gcc 3.4, and kernel 2.6.6, i have every thing
-> compiled and installed, no problems compiling, but when i'm going to load
-> a kernel module, it gives me problems, with all the modules, the problem
-> it's the same, and with gcc 3.3.3 i dont have problems, so it's gcc fault,
-> my question it's, does kernel 2.6.7, have this solved?
+> I keep getting these DMA timeouts under heavy harddrive load, ex. when
+> unpacking big tarballs, transfering from USB harddrive etc.
+> 
+> hda: dma_timer_expiry: dma status == 0x21
+> hda: DMA timeout error
+> hda: dma timeout error: status=0xd0 { Busy }
+> 
+> hda: DMA disabled
+> ide0: reset: success
+> 
+> Is this a sign of harddisk failure or could this be a kernel problem?
 
-Please specify the error. Make doubly sure you are compiling both kernel and
-modules with the same compiler!
-
+If you send your complete dmesg, perhaps people will be able to tell.
+Include the boot messages. 
 
 
 -- 

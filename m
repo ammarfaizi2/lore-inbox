@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262450AbSJKN7c>; Fri, 11 Oct 2002 09:59:32 -0400
+	id <S262458AbSJKOFK>; Fri, 11 Oct 2002 10:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262455AbSJKN7c>; Fri, 11 Oct 2002 09:59:32 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:33962 "EHLO
-	shaggy.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S262450AbSJKN7c>; Fri, 11 Oct 2002 09:59:32 -0400
-Date: Fri, 11 Oct 2002 09:05:06 -0500
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-Message-Id: <200210111405.g9BE56r07835@shaggy.austin.ibm.com>
-To: torvalds@transmeta.com
-Subject: [PATCH] Syntax error in fs/nls/Config.in (2.5.41-bk)
-Cc: linux-kernel@vger.kernel.org
+	id <S262461AbSJKOFK>; Fri, 11 Oct 2002 10:05:10 -0400
+Received: from barkley.vpha.health.ufl.edu ([159.178.78.160]:34500 "EHLO
+	barkley.vpha.health.ufl.edu") by vger.kernel.org with ESMTP
+	id <S262458AbSJKOFK>; Fri, 11 Oct 2002 10:05:10 -0400
+Message-ID: <1034345470.3da6dbfe5451d@webmail.health.ufl.edu>
+Date: Fri, 11 Oct 2002 10:11:10 -0400
+From: sridhar vaidyanathan <sridharv@ufl.edu>
+To: linux-kernel@vger.kernel.org
+Subject: kgdb stty problem
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 163.181.250.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a missing space before the closing bracket which
-causes CONFIG_NLS to not be defined.  This patch fixes this and
-keeps the line under 80 characters.
+sorry for the posting it the second time. i had missed the subject the first 
+time.
 
-diff -Nur linux-2.5.41-bk/fs/nls/Config.in linux/fs/nls/Config.in
---- linux-2.5.41-bk/fs/nls/Config.in	Fri Oct 11 08:50:36 2002
-+++ linux/fs/nls/Config.in	Fri Oct 11 08:51:12 2002
-@@ -12,7 +12,8 @@
- # msdos and Joliet want NLS
- if [ "$CONFIG_JOLIET" = "y" -o "$CONFIG_FAT_FS" != "n" \
- 	-o "$CONFIG_NTFS_FS" != "n" -o "$CONFIG_NCPFS_NLS" = "y" \
--	-o "$CONFIG_SMB_NLS" = "y" -o "$CONFIG_JFS_FS" != "n" -o "$CONFIG_CIFS" != "n"]; then
-+	-o "$CONFIG_SMB_NLS" = "y" -o "$CONFIG_JFS_FS" != "n" \
-+	-o "$CONFIG_CIFS" != "n" ]; then
-   define_bool CONFIG_NLS y
- else
-   define_bool CONFIG_NLS n
+I am trying to debug a kernel over a remote serial console. I get 
+Ignoring packet error .. 
+kgdb page suggests that it might be due to the speed mismatch. i tried 
+stty ispeed 9600 ospeed 9600 < /dev/ttyS0 
+on the development machine and have passed serial=0,9600n8 option and 
+gdbbaud=9600 via lilo to the debug kernel. 
+ 
+when i run 
+%stty speed 
+on the development machine it still reports 38400. 
+so i changed the gdbbaud and serial= values to 38400 on the test machine. even 
+this doesn't work. 
+any ideas
+--sridhar
+ps: i have tried redirecting the kernel messages( without patching it with 
+kgdb) over the serial line and read it with minicom . that works fine. 
+please email as i am not subscribed. 

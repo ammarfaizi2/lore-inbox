@@ -1,183 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVCKS6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVCKStv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVCKS6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVCKS5k
+	id S261365AbVCKStv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVCKSnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:57:40 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:13358 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261308AbVCKSwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:52:46 -0500
-Date: Fri, 11 Mar 2005 18:51:48 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] break_lock forever broken
-Message-ID: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 11 Mar 2005 13:43:40 -0500
+Received: from mailfe10.swip.net ([212.247.155.33]:11737 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261246AbVCKSXp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:23:45 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Re: Strange memory leak in 2.6.x
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Tobias Hennerich <Tobias@Hennerich.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050311183207.A22397@bart.hennerich.de>
+References: <20050308133735.A13586@bart.hennerich.de>
+	 <20050308173811.0cd767c3.akpm@osdl.org>
+	 <20050309102740.D3382@bart.hennerich.de>
+	 <20050311183207.A22397@bart.hennerich.de>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 19:23:40 +0100
+Message-Id: <1110565420.2501.12.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lock->break_lock is set when a lock is contended, but cleared only in
-cond_resched_lock.  Users of need_lockbreak (journal_commit_transaction,
-copy_pte_range, unmap_vmas) don't necessarily use cond_resched_lock on it.
+> > > Please grab 2.6.11, apply the below patch, set CONFIG_PAGE_OWNER and follow
+> > > the below instructions.
+> > 
+> > thank you for you mails. We installed the patch from Alex on a test-system
+> > last night and will switch it to the production machine this evening. The
+> > problem will start after 48-72 hours, so we hope to send feedback
+> > on friday.
+> 
+> Ok, we had another crash this morning after an uptime of only 36
+> hours 8-(.
+> 
+> No oom-killer this time, but we got a very high load (>40) in the
+> end. Our cron-job which starts the page_owner-sort every 10 minutes
+> didn't return the last 4 times.
+> 
+> The new 2.6.11-kernel changed the graphs a little bit - values for
+> 'MemTree' are much higher, but values for 'Cached' and 'Buffered' are
+> still very low.
+> 
+> Here the graph for the last week:
+> 
+>   http://download.hennerich.de/memory-leak2.png
+> 
+> (the left part is the same like our first graph last week
+> http://download.hennerich.de/memory-leak.png, the weekend is well visible)
+> 
+> Detailed view of the last 40 hours:
+> 
+>   http://download.hennerich.de/memory-leak3.png
+> 
+> Some output of the page_owner-sort:
+> 
+>
+>   http://download.hennerich.de/page_owner_sorted_20050311_0820.bz2
 
-So, if the lock has been contended at some time in the past, break_lock
-remains set thereafter, and the fastpath keeps dropping lock unnecessarily.
-Hanging the system if you make a change like I did, forever restarting a
-loop before making any progress.
+Yikes something isn't right with these backtraces that page_owner is
+showing. Even without frame pointers it shouldn't be this noisy.
 
-Should it be cleared when contending to lock, just the other side of the
-cpu_relax loop?  No, that loop is preemptible, we don't want break_lock
-set all the while the contender has been preempted.  It should be cleared
-when we unlock - any remaining contenders will quickly set it again.
+I'm afraid I'm going to need to ask for more help, could you please
+select CONFIG_FRAME_POINTER under 
+Kernel hacking => "Compile the kernel with frame pointers"
 
-So cond_resched_lock's spin_unlock will clear it, no need for it to do
-that; and use need_lockbreak there too, preferring optimizer to #ifdefs.
+And when that kernel is booted, could you directly send me the output
+of /proc/page_owner (sort or unsorted) so that I can see if something is
+wrong with the data it's producing (just to be sure).
 
-Or would you prefer the few need_lockbreak users to clear it in advance?
-Less overhead, more errorprone.
+If it works better with CONFIG_FRAME_POINTER, i'm also going to have to
+ask you to do another one of these runs that you just did.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Thanks
+Alexander
 
---- 2.6.11-bk7/kernel/sched.c	2005-03-11 13:33:09.000000000 +0000
-+++ linux/kernel/sched.c	2005-03-11 17:46:50.000000000 +0000
-@@ -3753,14 +3753,11 @@ EXPORT_SYMBOL(cond_resched);
-  */
- int cond_resched_lock(spinlock_t * lock)
- {
--#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
--	if (lock->break_lock) {
--		lock->break_lock = 0;
-+	if (need_lockbreak(lock)) {
- 		spin_unlock(lock);
- 		cpu_relax();
- 		spin_lock(lock);
- 	}
--#endif
- 	if (need_resched()) {
- 		_raw_spin_unlock(lock);
- 		preempt_enable_no_resched();
---- 2.6.11-bk7/kernel/spinlock.c	2005-03-02 07:38:52.000000000 +0000
-+++ linux/kernel/spinlock.c	2005-03-11 17:46:50.000000000 +0000
-@@ -163,6 +163,8 @@ void __lockfunc _write_lock(rwlock_t *lo
- 
- EXPORT_SYMBOL(_write_lock);
- 
-+#define _stop_breaking(lock)
-+
- #else /* CONFIG_PREEMPT: */
- 
- /*
-@@ -250,12 +252,19 @@ BUILD_LOCK_OPS(spin, spinlock);
- BUILD_LOCK_OPS(read, rwlock);
- BUILD_LOCK_OPS(write, rwlock);
- 
-+#define _stop_breaking(lock)						\
-+	do {								\
-+		if ((lock)->break_lock)					\
-+			(lock)->break_lock = 0;				\
-+	} while (0)
-+
- #endif /* CONFIG_PREEMPT */
- 
- void __lockfunc _spin_unlock(spinlock_t *lock)
- {
- 	_raw_spin_unlock(lock);
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_spin_unlock);
- 
-@@ -263,6 +272,7 @@ void __lockfunc _write_unlock(rwlock_t *
- {
- 	_raw_write_unlock(lock);
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_write_unlock);
- 
-@@ -270,6 +280,7 @@ void __lockfunc _read_unlock(rwlock_t *l
- {
- 	_raw_read_unlock(lock);
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_read_unlock);
- 
-@@ -278,6 +289,7 @@ void __lockfunc _spin_unlock_irqrestore(
- 	_raw_spin_unlock(lock);
- 	local_irq_restore(flags);
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_spin_unlock_irqrestore);
- 
-@@ -286,6 +298,7 @@ void __lockfunc _spin_unlock_irq(spinloc
- 	_raw_spin_unlock(lock);
- 	local_irq_enable();
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_spin_unlock_irq);
- 
-@@ -294,6 +307,7 @@ void __lockfunc _spin_unlock_bh(spinlock
- 	_raw_spin_unlock(lock);
- 	preempt_enable();
- 	local_bh_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_spin_unlock_bh);
- 
-@@ -302,6 +316,7 @@ void __lockfunc _read_unlock_irqrestore(
- 	_raw_read_unlock(lock);
- 	local_irq_restore(flags);
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_read_unlock_irqrestore);
- 
-@@ -310,6 +325,7 @@ void __lockfunc _read_unlock_irq(rwlock_
- 	_raw_read_unlock(lock);
- 	local_irq_enable();
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_read_unlock_irq);
- 
-@@ -318,6 +334,7 @@ void __lockfunc _read_unlock_bh(rwlock_t
- 	_raw_read_unlock(lock);
- 	preempt_enable();
- 	local_bh_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_read_unlock_bh);
- 
-@@ -326,6 +343,7 @@ void __lockfunc _write_unlock_irqrestore
- 	_raw_write_unlock(lock);
- 	local_irq_restore(flags);
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_write_unlock_irqrestore);
- 
-@@ -334,6 +352,7 @@ void __lockfunc _write_unlock_irq(rwlock
- 	_raw_write_unlock(lock);
- 	local_irq_enable();
- 	preempt_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_write_unlock_irq);
- 
-@@ -342,6 +361,7 @@ void __lockfunc _write_unlock_bh(rwlock_
- 	_raw_write_unlock(lock);
- 	preempt_enable();
- 	local_bh_enable();
-+	_stop_breaking(lock);
- }
- EXPORT_SYMBOL(_write_unlock_bh);
- 

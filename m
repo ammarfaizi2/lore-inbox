@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUJLWdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUJLWgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268008AbUJLWdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 18:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268013AbUJLWdi
+	id S268036AbUJLWgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 18:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267988AbUJLWgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 18:33:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14272 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268008AbUJLWdc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 18:33:32 -0400
-Date: Tue, 12 Oct 2004 15:33:21 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, danmechanic@yahoo.com, zaitcev@redhat.com,
-       greg@kroah.com
-Subject: Crash with cat /proc/bus/usb/devices and disconnect
-Message-ID: <20041012153321.525d753f@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs119.1 (GTK+ 2.4.7; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 12 Oct 2004 18:36:10 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:26344 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268036AbUJLWft
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 18:35:49 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Totally broken PCI PM calls
+Date: Tue, 12 Oct 2004 15:35:09 -0700
+User-Agent: KMail/1.6.2
+Cc: Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
+       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <1097455528.25489.9.camel@gaston> <200410121152.53140.david-b@pacbell.net> <1097619180.908.6.camel@gaston>
+In-Reply-To: <1097619180.908.6.camel@gaston>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410121535.09543.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Marcelo:
+On Tuesday 12 October 2004 3:13 pm, Benjamin Herrenschmidt wrote:
+> On Wed, 2004-10-13 at 04:52, David Brownell wrote:
+> 
+> > Drivers that don't reset the controller in resume()
+> > will need special handling for those BIOS cases.
+> > That means USB HCDs, and maybe not a lot else
+> > yet in Linux.
+> 
+> Usually, at least for OHCI, you can read the controller
+> status and know if it got reset or is still in suspend state,
+> at least that how we did so far (and how apple does as well
+> afaik) and seems to work.
 
-Here's a patch, I'd like to be in -pre.
+Either of those cases have been handled OK for ages;
+but the MM tree has OHCI code that also knows about
+some (I hope all!) of the "new" BIOS states.
 
-It is not the best fix. The 2.6 took a more fundamental approach, but I do
-not wish to rock the boat too much. Also, I'm not sure if 2.6 even gets it
-right at all, considering Fedora Core 3 bug 135171. At least this patch fixes
-the problem for me! :-)  so I suppose better this than nothing, because
-getting oops otherwise is just too easy.
 
-I would like this to be in -pre.
+> I don't know about EHCI. 
 
-Here's the 2.6 bug (unfixed yet):
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=135171
+It's on my list to find out ... :)  One part of it should be
+as simple OHCI states. 
 
-The 2.4 bug (fixed by this patch - admittedly a contrived scenario):
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=129265
+- Dave
 
-Thanks,
--- Pete
 
-diff -urp -X dontdiff linux-2.4.28-pre3/drivers/usb/devices.c linux-2.4.28-pre3-usb/drivers/usb/devices.c
---- linux-2.4.28-pre3/drivers/usb/devices.c	2004-09-12 14:24:09.000000000 -0700
-+++ linux-2.4.28-pre3-usb/drivers/usb/devices.c	2004-10-05 13:54:14.000000000 -0700
-@@ -552,9 +552,13 @@ static ssize_t usb_device_dump(char **bu
- 	
- 	/* Now look at all of this device's children. */
- 	for (chix = 0; chix < usbdev->maxchild; chix++) {
--		if (usbdev->children[chix]) {
--			ret = usb_device_dump(buffer, nbytes, skip_bytes, file_offset, usbdev->children[chix],
-+		struct usb_device *childdev = usbdev->children[chix];
-+		if (childdev) {
-+			usb_inc_dev_use(childdev);
-+			ret = usb_device_dump(buffer, nbytes, skip_bytes,
-+					file_offset, childdev,
- 					bus, level + 1, chix, ++cnt);
-+			usb_dec_dev_use(childdev);
- 			if (ret == -EFAULT)
- 				return total_written;
- 			total_written += ret;
+> Ben.
+> 
+> 

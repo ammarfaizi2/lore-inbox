@@ -1,93 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263297AbTCNJWA>; Fri, 14 Mar 2003 04:22:00 -0500
+	id <S263290AbTCNJVX>; Fri, 14 Mar 2003 04:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263293AbTCNJWA>; Fri, 14 Mar 2003 04:22:00 -0500
-Received: from sunny.pacific.net.au ([203.2.228.40]:59365 "EHLO
-	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S263292AbTCNJVy>; Fri, 14 Mar 2003 04:21:54 -0500
-From: "David Luyer" <david@luyer.net>
-To: "'Florian Weimer'" <fw@deneb.enyo.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: NetFlow export
-Date: Fri, 14 Mar 2003 20:32:35 +1100
-Message-ID: <002a01c2ea0c$a5af9550$638317d2@pacific.net.au>
+	id <S263292AbTCNJVX>; Fri, 14 Mar 2003 04:21:23 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:33033 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S263290AbTCNJVW>; Fri, 14 Mar 2003 04:21:22 -0500
+Message-Id: <200303140921.h2E9Lqu08107@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Oleg Drokin <green@linuxhacker.ru>, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: dpt_i2o.c fix for possibly memory corruption on reset timeout
+Date: Fri, 14 Mar 2003 11:18:49 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       deanna_bonds@adaptec.com
+References: <20030313182819.GA2213@linuxhacker.ru> <20030313105125.1548d67c.rddunlap@osdl.org> <20030313185628.GA2485@linuxhacker.ru>
+In-Reply-To: <20030313185628.GA2485@linuxhacker.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <87llzj8jmr.fsf@deneb.enyo.de>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer wrote:
-> Jakob Oestergaard <jakob@unthought.net> writes:
-> 
-> > You asked for netflow data export. Netramet can give you something
-> > similar to netflow (I never used netflow, but from what I 
-> > hear, netramet is similar only more flexible).
-> 
-> I need the NetFlow data format, not something else.
+On 13 March 2003 20:56, Oleg Drokin wrote:
+> Hello!
+>
+> On Thu, Mar 13, 2003 at 10:51:25AM -0800, Randy.Dunlap wrote:
+> > | Ok, so please consider applying this patch instead (appies to
+> > | both 2.4 and 2.5)
+>
+> Ok, here's the one with spelling fix from Randy ;)
+>
+> Bye,
+>     Oleg
+>
+> ===== drivers/scsi/dpt_i2o.c 1.9 vs edited =====
+> --- 1.9/drivers/scsi/dpt_i2o.c	Wed Jan  8 18:26:13 2003
+> +++ edited/drivers/scsi/dpt_i2o.c	Thu Mar 13 21:55:08 2003
+> @@ -1318,7 +1318,9 @@
+>  	while(*status == 0){
+>  		if(time_after(jiffies,timeout)){
+>  			printk(KERN_WARNING"%s: IOP Reset Timeout\n",pHba->name);
+> -			kfree(status);
+> +			/* We lose 4 bytes of "status" here, but we cannot
+> +			   free these because controller may awake and corrupt
+> +			   those bytes at any time */
 
-NetFlowMet is the NetFlow module for netramet.  But it's only a
-receiver, not a transmitter.
+I'd leave kfree() inside the comment - less effort for those
+operating under -ENOCAFFEINE condition
 
-However, 'ntop' can generate NetFlow packets from a Linux system,
-using libpcap.
+			/* do NOT do kfree(status): we lose ....
 
-I suggest you read http://www.switch.ch/tf-tant/floma/software.html
+I don't like the whole idea that mem leak is tolerable.
 
-> > With 10 lines of Perl you could do full ASN-1   ;)
-> 
-> NetFlow is not based on ASN.1.  It's a completely different format (an
-> industry standard which is implemented by quite a few vendors).
-
-NetFlow interacts with SNMP a little though.  The interface ID numbers
-in NetFlow come from the SNMP interface index table.
-
-> > Point being; if what you want is flow information from a 
-> > Linux router, excellent user space software (both "meter" and
-> > retrieval/filtering tools) already exist for that.
-> 
-> I fear the performance impact of copying all packet headers to user
-> space.
-
-It's only the headers, not the packets.
-
-NetFlow in Cisco routers is a route caching path which happens to
-keep counters that it can export as flow export packets.  It can
-also be used to do things such as caching policy routing (reducing
-ACL lookups and so on).  But chances are there are patents covering
-the use of NetFlow route caching.
-
-> > If you want something else, then I have completely misread 
-> > your mails.  Please elaborate, in that case  :)
-> 
-> I'd like to see something which has virtually no impact on forwarding,
-> so that it's a no-brainer to enable it.  I doubt copying all the
-> packet headers to user space falls into this category.
-
-Maybe you should try ntop and see what impact it has (preferably in a
-test lab first, if you have a performance testing lab)?  If the impact
-is too high, you could consider an alternate approach (eg, using some
-form of kernel IP accounting and periodically scanning the accounting
-table and exporting the flows as NetFlow packets).
-
-Personally I considered once implementing a kernel *receiver* for
-NetFlow packets as receiving NetFlow packets is an extremely critical
-application for me.  However in the end I wrote a userspace NetFlow
-receiver that's a mix of assembler and C (but not using libc) and
-is careful to accumulate data into 128k blocks before writing it to
-a RAID array optimized for 128k writes, and it can receive an insane
-amount of NetFlow data (compared to older utilities running on
-mid-range DEC Alpha or Sun systems on commercial operating systems,
-which had problems keeping up with one busy router, this runs on an
-aging Intel ISP2150 and collects from over 50 busy routers, still
-at low load) so I never had to actually go down the kernel path.
-
-David.
-
+Can we just add a 4 byte scratch pad status to
+struct _adpt_hba? Let it scribble there...
+--
+vda

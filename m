@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277012AbRKZJYN>; Mon, 26 Nov 2001 04:24:13 -0500
+	id <S281537AbRKZJpG>; Mon, 26 Nov 2001 04:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280744AbRKZJYD>; Mon, 26 Nov 2001 04:24:03 -0500
-Received: from [213.237.118.153] ([213.237.118.153]:60544 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S277012AbRKZJX4>;
-	Mon, 26 Nov 2001 04:23:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Releases
-Date: Mon, 26 Nov 2001 10:22:36 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <4.3.2.7.2.20011124231412.00b40c50@mail.osagesoftware.com>
-In-Reply-To: <4.3.2.7.2.20011124231412.00b40c50@mail.osagesoftware.com>
+	id <S281543AbRKZJoq>; Mon, 26 Nov 2001 04:44:46 -0500
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:35518 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281544AbRKZJon>; Mon, 26 Nov 2001 04:44:43 -0500
+Date: Mon, 26 Nov 2001 09:44:38 +0000 (GMT)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: <alastair@gurney>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16-pre1 and "-rc" releases
+Message-ID: <Pine.GSO.4.33.0111260935260.2460-100000@gurney>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E168HyH-0000xw-00@Princess>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 November 2001 05:27, David Relson wrote:
+Despite everything that's been said, I strongly support the idea of
+'slowing down' a little, and having an -rc release before -final.
+Perhaps things will now slow down anyway, since 2.4.x has hopefully
+"made it" and won't be seeing radical changes under Marcelo's
+stewardship.
 
-<snip>
-> When the kernel maintainer, now Marcelo for 2.4, is ready to release the
-> next kernel, for example 2.4.16, I suggest he switch from "pre?" to "-rc1"
-> (as in release candidate).  A day or two with -rc1 will quickly show if it
-> has a show stopper.  If so, then the minor fixes (and nothing else) go into
-> -rc2.  A day or two ..., and either -rc3 appears or we have a stable
-> release and 2.4.16 is ready to be released.
+But like it or not, 3 of the last 5 releases from 2.4.x have had
+significantly embarrassing bugs / compilation issues, and I would hate
+for this sort of thing to start tarnishing the reputation of Linux in
+the media....
 
-Like Linus said, it's a statistical problem: An unofficial kernel would never 
-get the same attention as a released one. We would keep seeing problems arise 
-once the kernel has been released. 
+I have tended to track 2.4.x since the start, because it's been changing
+and improving so rapidly. I know I *should* wait a few days before
+building each new -final release, but let's be honest, lots of people
+don't or won't, so it's important that they be of good quality.
 
-One thing we could do, was to do the same as the vendors do, and maintain a 
--post kernel with the most glaring bug-fixed, especially build-ones. 
+Recently, I've started to run -pre kernels on production machines, like
+some others by the sound of it. Let's slow down, consider an -rc
+release and nail this little recurring problem!
 
-The need to do it however is not that big..
+Cheers
+Alastair
+
+(off to see if his 'greased-turkey' machine has safely got over the
+filesystem corruption problem...)
+
+o o o o o o o o o o o o o o o o o o o o o o o o o o o o
+Alastair Stevens           \ \
+MRC Biostatistics Unit      \ \___________ 01223 330383
+Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+

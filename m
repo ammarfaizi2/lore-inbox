@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263902AbTETTkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 15:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263901AbTETTkA
+	id S263911AbTETTmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 15:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263912AbTETTmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 15:40:00 -0400
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:4499 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S263902AbTETTj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 15:39:59 -0400
-Date: Tue, 20 May 2003 12:52:31 -0700
-From: Andy Whitcroft <apw@shadowen.org>
-To: Andrew Morton <akpm@digeo.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm7
-Message-ID: <535806509.1053435150@IBM-O1F8DZ9MWMH>
-In-Reply-To: <20030519012336.44d0083a.akpm@digeo.com>
-References: <20030519012336.44d0083a.akpm@digeo.com>
-X-Mailer: Mulberry/3.0.3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 May 2003 15:42:16 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:27151 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263911AbTETTmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 15:42:15 -0400
+Date: Tue, 20 May 2003 20:55:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] futex patches, futex-2.5.69-A2
+Message-ID: <20030520205512.A5889@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030520150826.A18282@infradead.org> <Pine.LNX.4.44.0305201748020.14480-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0305201748020.14480-100000@localhost.localdomain>; from mingo@elte.hu on Tue, May 20, 2003 at 06:02:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems that -mm7, has broken compilation of subarch visws:
+On Tue, May 20, 2003 at 06:02:07PM +0200, Ingo Molnar wrote:
+> you havent ever used Ulrich's nptl-enabled glibc, have you? It will boot
+> on any 2.4.1+ kernel, with and without nptl/tls support. It switches the
+> threading implementation depending on the kernel features it detects.
 
-arch/i386/kernel/built-in.o: In function `cpu_stop_apics':
-arch/i386/kernel/built-in.o(.text+0xe511): undefined reference to 
-`stop_this_cpu'
-arch/i386/kernel/built-in.o: In function `stop_apics':
-arch/i386/kernel/built-in.o(.text+0xe552): undefined reference to 
-`reboot_cpu'
-arch/i386/mach-visws/built-in.o: In function `machine_restart':
-arch/i386/mach-visws/built-in.o(.text+0x1): undefined reference to 
-`smp_send_stop'
+I have built a nptl-enabled glibc and no, it's doesn't work on 2.4 at all.
 
-Seems that the culprit is the reboot on boot processor changes, reverting 
-the following patches fixes the compilation:
-
-	patch -R -p1 <kexec-revert-NORET_TYPE.patch
-	patch -R -p1 <reboot_on_bsp.patch
-
-Cheers.
-
--apw

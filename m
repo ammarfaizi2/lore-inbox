@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUDCFON (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 00:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUDCFON
+	id S261369AbUDCFY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 00:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbUDCFY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 00:14:13 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:45289 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261443AbUDCFOG (ORCPT
+	Sat, 3 Apr 2004 00:24:57 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:61685 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261369AbUDCFYz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 00:14:06 -0500
-Date: Fri, 2 Apr 2004 21:12:58 -0800
+	Sat, 3 Apr 2004 00:24:55 -0500
+Date: Fri, 2 Apr 2004 21:23:50 -0800
 From: Paul Jackson <pj@sgi.com>
 To: colpatch@us.ibm.com
 Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 5/23] mask v2 - Add new mask.h file
-Message-Id: <20040402211258.0540497f.pj@sgi.com>
-In-Reply-To: <1080937563.9787.109.camel@arrakis>
+Subject: Re: [Patch 6/23] mask v2 - Replace cpumask_t with one using mask
+Message-Id: <20040402212350.547eb77d.pj@sgi.com>
+In-Reply-To: <1080944675.9787.113.camel@arrakis>
 References: <20040401122802.23521599.pj@sgi.com>
-	<20040401131129.4329336f.pj@sgi.com>
-	<1080937563.9787.109.camel@arrakis>
+	<20040401131136.792495fa.pj@sgi.com>
+	<1080944675.9787.113.camel@arrakis>
 Organization: SGI
 X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -27,54 +27,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm not a bit fan of the names of these macros ... MASK_ALL1 ...
+Matthew wrote:
+> a better way to do this for UP.
+> +#define	cpu_online_map			\
+> +({						\
+> +	cpumask_t m = MASK_ALL1(NR_CPUS);	\
+> +	m;					\
+> +})
 
-Hmmm ... the way these names were, in this patch a couple of days
-ago, they spanned files (defined in mask.h, used in cpumask.h).
-So making the names a little "bigger" might make sense.  I use "big"
-names for stuff that is intended to be visible in larger namespaces.
+This only helps cpu_online_map and cpu_possible_map, and only on UP's.
 
-However:
+My controversial patch 24/23 helps all MASK_ALL based initializations,
+and all mask_of_bit based initializations, for all systems up to 32 CPUs
+(or 64, depending on sizeof(long)).
 
- 1) With yesterdays 24/23 patch, these names only span a few
-    lines in mask.h, so short cryptic names are perhaps more
-    appropriate.
-
- 2) The key issue here is whether the mask.h type is intended to
-    usable in its own right, only to generate various named
-    mask types.
-
-    We _could_ have three levels of coding multiword bit masks:
-
-        cpumask, nodemask, ...
-        mask
-        bitmap, bitops, plain old C
-
-    When I first started thinking about these a few months ago,
-    I intended to make both the mask and cpumask/nodemask level
-    widely usable.  Now I don't think that's a good idea.  Others
-    only need two levels:
-
-        cpumask, nodemask, ...
-        bitmap, bitops, plain old C
-
-    The 'mask.h' stuff now exists only to provide a common implementation
-    basis for the named mask types.  Perhaps I should rename 'mask.h'
-    to something such as 'mask_innards.h' ... ;).
-
-    Notice the comment in mask.h, after the lengthy explanation of
-    bitmap, bitops, mask and cpumask/nodemask:
-
-        Summary:
-            Don't use mask.h directly - use cpumask.h and nodemask.h.
-
-So, to make a long story short, the "unfriendly" names MASK_ALL1
-fit their use.  The solution to the problem of remembering what
-they mean is ... don't use them ;).
-
-What am I missing?  What itch is not yet being scratched?
-
- ... hmmm ... "mask_innards.h" ... I rather like that.
+In particular, grep for 'cpumask_of_cpu(0)' in the kernel. You will find
+many hits.  This should be efficient for all 'normal' sized systems.
 
 -- 
                           I won't rest till it's the best ...

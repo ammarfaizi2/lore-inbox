@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSGIMvf>; Tue, 9 Jul 2002 08:51:35 -0400
+	id <S315167AbSGIMtr>; Tue, 9 Jul 2002 08:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315191AbSGIMve>; Tue, 9 Jul 2002 08:51:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45005 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315179AbSGIMvb>;
-	Tue, 9 Jul 2002 08:51:31 -0400
-Date: Tue, 9 Jul 2002 14:54:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+	id <S315179AbSGIMtq>; Tue, 9 Jul 2002 08:49:46 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:62678 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S315120AbSGIMtn>; Tue, 9 Jul 2002 08:49:43 -0400
+Date: Tue, 9 Jul 2002 14:52:14 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       <linux-ide@vger.kernel.org>
 Subject: Re: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709125412.GB1940@suse.de>
-References: <20020709102249.GA20870@suse.de> <01742490.20020709144349@uni.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01742490.20020709144349@uni.de>
+In-Reply-To: <Pine.SOL.3.96.1020709114618.20865B-100000@libra.cus.cam.ac.uk>
+Message-ID: <Pine.SOL.4.30.0207091447560.15575-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09 2002, Tobias Rittweiler wrote:
-> Hello Jens,
-> 
-> Tuesday, July 9, 2002, 12:22:49 PM, you wrote:
-> 
-> JA> *.kernel.org://pub/linux/kernel/people/axboe/patches/v2.5/2.5.25/
-> 
-> After downloading each of the 7 .gz-patches, applying them without any
-> complains, I started to compile the new bzImage, but I got an error
-> in relation to the FAT support. By switching this support off
-> everything'll compile without any further problem though, and I can
-> boot from this image even.. :-)
 
-Try doing something ala
+On Tue, 9 Jul 2002, Anton Altaparmakov wrote:
 
-#ifdef CONFIG_IDE_25
-#include <linux/ide.h>  /* IDE xlate */
-#else
-#include <linux/ide24.h>
-#endif
+> On Tue, 9 Jul 2002, Jens Axboe wrote:
+> > I've forward ported the 2.4 IDE core (well 2.4.19-pre10-ac2 to be exact)
+> > to 2.5.25. It consists of 7 separate patches:
+>
+> Fantastic! Seeing that the patches are bitkeeper generated, would it be
+> possible for you to make a repository available with the patches? (on
+> bkbits perhaps?) Would make it a lot easier for us bitkeeper users just to
+> pull from your repository... Especially once you update the patches...
 
-instead of including ide.h directly in fs/partitions/msdos.c
+Okay, tired of fantastic ;-)
+This forward port has still broken PIO transfer on errors and really
+borken multi PIO writes, all due to buffer_head -> bio transition in 2.5.
 
-Yeah it's ugly, but it should fix it for now.
+Jens, you would better spend your time on enhancing block layer to
+allow me fixing them cleanly...
 
--- 
-Jens Axboe
+Regards
+--
+Bartlomiej
+
+> Best regards,
+>
+> 	Anton
+> --
+> Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+> Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+> WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

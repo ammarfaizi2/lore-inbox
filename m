@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S278155AbUKBA10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S292702AbUKBA17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S278155AbUKBA10 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 19:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S292686AbUKBA1Y
+	id S292702AbUKBA17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 19:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270498AbUKBA1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 19:27:24 -0500
-Received: from mail.gmx.net ([213.165.64.20]:4748 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S292593AbUKBA0H (ORCPT
+	Mon, 1 Nov 2004 19:27:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51160 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270329AbUKBAZe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 19:26:07 -0500
-X-Authenticated: #1045983
-From: Helge Deller <deller@gmx.de>
-To: adaplas@pol.net
-Subject: Re: [Linux-fbdev-devel] Help re Frame Buffer/Console Problems
-Date: Tue, 2 Nov 2004 01:26:01 +0100
-User-Agent: KMail/1.7.50
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>, jsimmons@infradead.org,
-       geert@linux-m68k.org, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-       wli@holomorphy.com
-References: <Pine.LNX.4.10.10411011719270.2438-100000@mtfhpc.demon.co.uk> <200411020746.27871.adaplas@hotpop.com>
-In-Reply-To: <200411020746.27871.adaplas@hotpop.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 1 Nov 2004 19:25:34 -0500
+Date: Mon, 1 Nov 2004 16:29:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dhowells@redhat.com
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+Subject: Re: [PATCH 12/14] FRV: Generate more useful debug info
+Message-Id: <20041101162929.63af1d0d.akpm@osdl.org>
+In-Reply-To: <200411011930.iA1JUMgs023243@warthog.cambridge.redhat.com>
+References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
+	<200411011930.iA1JUMgs023243@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411020126.01891.deller@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 November 2004 00:46, Antonino A. Daplas wrote:
-> On Tuesday 02 November 2004 01:32, Mark Fortescue wrote:
-> > Hi all,
-> >
-> > Thanks for the info Antonino. I see you spotted my typing error. Yes it is
-> > the 2.6.10-rc1-bk6 kernel. The oter error is the 2.2.8.1. It should be
-> > 2.6.8.1.
-> >
-> > The cgthree driver does not currently set up the all->info.var.red,
-> > all->info.var.green or all->info.var.blue structures. Putting a value of 8
-> > in the length field of these structures (correct for the cgthree) does get
-> > me my logo back but I am still getting black on black text. It makes it
-> > very difficult to read. It is begining to look like there is something
-> > werid going on with the colour pallet stuf for PSEUDO_COLOUR.
+dhowells@redhat.com wrote:
+>
+> The attached patch permits the generation of more useful debugging information
+> by reducing the optimisation level and by telling the assembler to produce
+> debug info too.
 
-I saw similiar problems with the stifb driver on HPPA. 
-Changing the driver's pseudo_palette[] struct to support 256 colors solved this problem.
-But there might be a problem in higher levels as well....
+Generates rejects against Sam's tree and appears to be unrelated to FRV,
+yes?
 
-Helge
+I'd prefer that this be worked through Sam's tree as a separate enhancement
+please.
+
+
++ifdef CONFIG_DEBUG_INFO
++CFLAGS		+= -g -O1
++AFLAGS		+= -Wa,--gdwarf2
++ASFLAGS		+= -Wa,--gdwarf2
++else
+
+Are you sure that all architectures want this?  And that their toolchains
+will continue to work correctly?  And that it doesn't break older gcc's and
+that kgdb will continue to work correctly, etc?
+
+I'm not...

@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbULZNms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbULZNpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbULZNms (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 08:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbULZNms
+	id S261652AbULZNpU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 08:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbULZNpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 08:42:48 -0500
-Received: from siaag2af.compuserve.com ([149.174.40.136]:3512 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S261651AbULZNml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 08:42:41 -0500
-Date: Sun, 26 Dec 2004 08:38:25 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: lease.openlogging.org is unreachable
-To: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200412260839_MC3-1-91CA-FAF5@compuserve.com>
+	Sun, 26 Dec 2004 08:45:20 -0500
+Received: from mail.fuw.edu.pl ([193.0.80.14]:27025 "EHLO mail.fuw.edu.pl")
+	by vger.kernel.org with ESMTP id S261652AbULZNpO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 08:45:14 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Ho ho ho - Linux v2.6.10
+Date: Sun, 26 Dec 2004 14:45:08 +0100
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Wichert Akkerman <wichert@wiggy.net>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <1103977161.22646.6.camel@localhost.localdomain> <20041226113059.GC10303@wiggy.net>
+In-Reply-To: <20041226113059.GC10303@wiggy.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
 Content-Disposition: inline
+Organization: FUW
+From: "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412261445.09336.Rafal.Wysocki@fuw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+On Sunday, 26 of December 2004 12:30, Wichert Akkerman wrote:
+> 2.6.10 broke resume for me: when I resume it immediately tries to
+> suspend the machine again but gets stuck after suspending USB.
 
-> The interesting thing is that the code already has a backup in it and I just
-> checked that code path and it works.
+Usually, it resumes sucessfully for me, but sometimes it fails, like this (on 
+an AMD64):
 
- Huh.  The first time the lease renewal hung up and I hit ctrl-C when it
-didn't seem to be working (tcpdump showed a series of unanswered SYNs.)
-Later I let it run to completion and it must have worked, but since there
-was no output from the program I assumed it had just failed silently like
-some other bitkeeper commands will do. Then the Christmas morning mayhem
-hit and I didn't have any more time to play with it.
+ swsusp: Image: 43552 Pages
+ swsusp: Pagedir: 341 Pages
+pmdisk: Reading pagedir (341 Pages)
+Relocating 
+pagedir ...........................................................................................................................0
 
- You should output a confirmation message when 'bk lease renew' succeeds.
+Call Trace:<ffffffff8016de7e>{__alloc_pages+766} 
+<ffffffff8016df21>{__get_free_pages+33}
+       <ffffffff8056191c>{swsusp_read+1020} 
+<ffffffff8015f711>{software_resume+33}
+       <ffffffff8010c142>{init+162} <ffffffff8010f57b>{child_rip+8}
+       <ffffffff8010c0a0>{init+0} <ffffffff8010f573>{child_rip+0}
 
---
-Please take it as a sign of my infinite respect for you,
-that I insist on you doing all the work.
-                                        -- Rusty Russell
+out of memory
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::g
+PM: Resume from disk failed.
+
+Greets,
+RJW

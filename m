@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbUK3Hsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUK3Hu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbUK3Hsi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 02:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUK3Hsh
+	id S262006AbUK3Hu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 02:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUK3Hu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 02:48:37 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:54543 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S262005AbUK3Hrt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 02:47:49 -0500
-Message-ID: <41AA2A43.4000507@mrv.com>
-Date: Sun, 28 Nov 2004 21:42:59 +0200
-From: emann@mrv.com (Eran Mann)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Ingo Molnar <mingo@elte.hu>, remi.colinet@wanadoo.fr
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 30 Nov 2004 02:50:59 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:34066 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262006AbUK3Huy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 02:50:54 -0500
+Subject: Re: [PATCH] RLIMIT_MEMLOCK accounting of shmctl() SHM_LOCK is
+	broken
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041129234353.378586a9.akpm@osdl.org>
+References: <200411292204.iATM4o4C005049@hera.kernel.org>
+	 <1101800060.2640.21.camel@laptop.fenrus.org>
+	 <20041129234353.378586a9.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1101801044.2640.31.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 30 Nov 2004 08:50:45 +0100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Ingo,
-> 
-> I'm getting this error with V0.7.31-13
-> 
-...
-> CC kernel/latency.o
-> kernel/latency.c: In function `check_critical_timing':
-> kernel/latency.c:730: too few arguments to function `___trace'
-> kernel/latency.c:730: warning: too few arguments passed to inline function, suppressing inlining
-> kernel/latency.c: In function `__start_critical_timing':
-> kernel/latency.c:810: incompatible type for argument 1 of `____trace'
-> kernel/latency.c:810: warning: passing arg 2 of `____trace' makes pointer from integer without a cast
-...
+On Mon, 2004-11-29 at 23:43 -0800, Andrew Morton wrote:
 
-> kernel/latency.c:810: warning: too few arguments passed to inline function, suppressing inlining
-> make[1]: *** [kernel/latency.o] Error 1
-> make: *** [kernel] Error 2
-> [root@tigre01 im]#
-> 
-> Regards
-> Remi
-I'm guessing here, but with the following patch it at least compiles:
+> (I get the feeling that I'm missing your point here)
 
---- kernel/latency.c.orig       2004-11-28 21:32:04.757015856 +0200
-+++ kernel/latency.c    2004-11-28 21:28:28.000000000 +0200
-@@ -727,7 +727,7 @@
-         tr->critical_end = parent_eip;
-
-  #ifdef CONFIG_LATENCY_TRACE
--       ___trace(CALLER_ADDR0, parent_eip);
-+       ___trace(TRACE_FN, CALLER_ADDR0, parent_eip, 0, 0, 0);
-         update_max_trace(tr);
-  #endif
-
-@@ -807,7 +807,7 @@
-         tr->critical_start = eip;
-  #ifdef CONFIG_LATENCY_TRACE
-         tr->trace_idx = 0;
--       ____trace(tr, eip, parent_eip, 0, 0, 0);
-+       ____trace(TRACE_FN, tr, eip, parent_eip, 0, 0, 0);
-  #endif
-
-         atomic_dec(&tr->disabled);
+it's more that I'm missing my own point due to lack of caffeine at 9am
 
 -- 
-Eran Mann
-Senior Software Engineer
-MRV International
-Tel: 972-4-9936297
-Fax: 972-4-9890430
-www.mrv.com
+

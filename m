@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263817AbUDTXq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263843AbUDTXvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263817AbUDTXq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 19:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUDTXq4
+	id S263843AbUDTXvh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 19:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264250AbUDTXvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 19:46:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41620 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263817AbUDTXqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 19:46:54 -0400
-Date: Tue, 20 Apr 2004 16:41:04 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Erik Steffl <steffl@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-Message-Id: <20040420164104.7fa61662.rddunlap@osdl.org>
-In-Reply-To: <4085B2B9.6010007@bigfoot.com>
-References: <40853060.2060508@bigfoot.com>
-	<200404202326.24409.kim@holviala.com>
-	<4085B2B9.6010007@bigfoot.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 20 Apr 2004 19:51:37 -0400
+Received: from bay16-f72.bay16.hotmail.com ([65.54.186.122]:36880 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263843AbUDTXvf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 19:51:35 -0400
+X-Originating-IP: [69.40.24.195]
+X-Originating-Email: [bobsmith401@hotmail.com]
+From: "Bob Smith" <bobsmith401@hotmail.com>
+To: pacneil@linuxgeek.net
+Cc: suse-linux-e@suse.com, linux-kernel@vger.kernel.org
+Subject: How to debug stripped binary or set kernel breakpoint (Was: HELP: Konqueror...)
+Date: Tue, 20 Apr 2004 19:51:34 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY16-F72biCnwhLqeb0001b3f1@hotmail.com>
+X-OriginalArrivalTime: 20 Apr 2004 23:51:34.0810 (UTC) FILETIME=[69AE5FA0:01C42732]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Apr 2004 16:31:05 -0700 Erik Steffl wrote:
 
-| Kim Holviala wrote:
-| > On Tuesday 20 April 2004 17:14, Erik Steffl wrote:
-| > 
-| > 
-| >>   it looks that after update to 2.6.5 kernel (debian source package but
-| >>I guess it would be the same with stock 2.6.5) the mouse wheel and side
-| >>button on Logitech Cordless MouseMan Wheel mouse do not work.
-| > 
-| > 
-| > Try my patch for 2.6.5: http://lkml.org/lkml/2004/4/20/10
-| 
-|    which part is patch? click on view this diff only and copy&paste that 
-| and use it as a patch?
+>From: "Neil Schneider" <pacneil@linuxgeek.net>
+>Reply-To: pacneil@linuxgeek.net
+>To: suse-linux-e@suse.com
+>Subject: Re: [SLE] HELP: Konqueror 3.2 hangs SuSE 2.4.21-202-smp4G in 'ps   
+>    uax'
+>Date: Sat, 17 Apr 2004 20:55:35 -0700 (PDT)
+>
+>First thing I would check is memory. Run memtest86 for several hours if
+>any errors appear remove or replace the offending memory. Then look for
+>other problems. Every time I've had this kind of unreproduceable random
+>error it's been a bad memory module.
 
-Don't copy&paste, just save that file to disk.
+Thanks for the help.  I memtest86's overnight and came up with no errors on 
+my one DIMM of Crucial Non-ECC, Non-parity PC2100 SDRAM (6464Z256).
 
-| 
-| > Build psmouse into a module (for easier testing) and insert it with the proto 
-| > parameter. I'd say "modprobe psmouse proto=exps" works for you, but you might 
-| > want to try imps and ps2pp too. The reason I wrote the patch in the first 
-| > place was that a lot of PS/2 Logitech mice refused to work (and yes, exps 
-| > works for me and others)....
+Updating, strace shows a hang on a /proc/<pid>/stat read, as whown below.  
+When run under strace, you can recover the terminal with Ctrl-C if and only 
+if no strace log file is specified.
 
+I'd like to use ps, or better yet vmstat as test tools, since they reliable 
+freeze.  They are, unfortunately stripped binaries under SuSE 9.0.  Can 
+anyone tell me if there's an easy way to get the symbols file(s) for these 
+executable(s)?
 
---
-~Randy
-"We have met the enemy and he is us."  -- Pogo (by Walt Kelly)
-(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)
+Also, am I correct in thinking /boot/System.map will allow me to trace into 
+the kernel?
+
+TIA,
+Bob
+
+_________________________________________________________________
+MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
+download! http://toolbar.msn.com/go/onm00200413ave/direct/01/
+

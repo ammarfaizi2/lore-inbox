@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266630AbUHBQza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUHBQ76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbUHBQza (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 12:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUHBQza
+	id S264550AbUHBQ76 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 12:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUHBQ76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 12:55:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34502 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266630AbUHBQz0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 12:55:26 -0400
-Date: Mon, 2 Aug 2004 17:12:35 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Christoph Hellwig <hch@infradead.org>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, dipankar@in.ibm.com
-Subject: Re: [patchset] Lockfree fd lookup 1 of 5
-Message-ID: <20040802161235.GM12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040802101053.GB4385@vitalstatistix.in.ibm.com> <20040802101350.GC4385@vitalstatistix.in.ibm.com> <20040802143825.A5073@infradead.org>
+	Mon, 2 Aug 2004 12:59:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44210 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264550AbUHBQ7o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 12:59:44 -0400
+Date: Mon, 2 Aug 2004 09:57:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch for review] BSD accounting IO stats
+Message-Id: <20040802095742.0c62bea8.akpm@osdl.org>
+In-Reply-To: <410E26FC.208@bull.net>
+References: <410E26FC.208@bull.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040802143825.A5073@infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 02:38:25PM +0100, Christoph Hellwig wrote:
-> On Mon, Aug 02, 2004 at 03:43:52PM +0530, Ravikiran G Thirumalai wrote:
-> > Here's the first patch.  This patch 'shrinks' struct kref by removing
-> > the release pointer in the struct kref.  GregKH has applied this to his tree
-> 
-> What's the advantage of this kref API over opencoded atomic_t usage?
+Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
+>
+> diff -uprN -X dontdiff linux-2.6.8-rc2/drivers/block/ll_rw_blk.c linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c
+>  --- linux-2.6.8-rc2/drivers/block/ll_rw_blk.c	2004-07-18 06:57:42.000000000 +0200
+>  +++ linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c	2004-07-27 09:17:33.149321480 +0200
+>  @@ -1949,10 +1949,12 @@ void drive_stat_acct(struct request *rq,
+>   
+>   	if (rw == READ) {
+>   		disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
+>  +		current->rblk += nr_sectors;
+>   		if (!new_io)
+>   			disk_stat_inc(rq->rq_disk, read_merges);
+>   	} else if (rw == WRITE) {
+>   		disk_stat_add(rq->rq_disk, write_sectors, nr_sectors);
+>  +		current->wblk += nr_sectors;
+>   		if (!new_io)
+>   			disk_stat_inc(rq->rq_disk, write_merges);
+>   	}
 
-More interesting question is how much does it win compared to simple
-switch to rwlock?
+The `wblk' accounting will be quite wrong - most writes will be accounted
+to pdflush, kjournald, etc.

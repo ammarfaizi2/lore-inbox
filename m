@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267183AbUBSKkD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:40:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUBSKkD
+	id S267178AbUBSKvW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:51:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUBSKvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:40:03 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:24580 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267183AbUBSKj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:39:57 -0500
-Subject: Re: 2.6: No hot_UN_plugging of PCMCIA network cards
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, rmk+lkml@arm.linux.org.uk, aahrend@web.de,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040219015216.6055b65a.akpm@osdl.org>
-References: <20040122210501.40800ea7.aahrend@web.de>
-	 <20040122213757.H23535@flint.arm.linux.org.uk>
-	 <20040123232025.4a128ead.aahrend@web.de>
-	 <20040124004530.B25466@flint.arm.linux.org.uk> <4034016C.5070307@pobox.com>
-	 <1077183550.802.3.camel@teapot.felipe-alfaro.com>
-	 <20040219015216.6055b65a.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1077187178.957.3.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 19 Feb 2004 11:39:38 +0100
+	Thu, 19 Feb 2004 05:51:22 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:55180 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S267178AbUBSKvV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 05:51:21 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16436.38183.533759.45718@laputa.namesys.com>
+Date: Thu, 19 Feb 2004 13:51:19 +0300
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       error27@email.com
+Subject: Re: [Announce] Strace Test
+In-Reply-To: <20040219023813.2d4b0ced.akpm@osdl.org>
+References: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
+	<16436.35563.593635.277584@laputa.namesys.com>
+	<20040219023813.2d4b0ced.akpm@osdl.org>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-19 at 10:52, Andrew Morton wrote:
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> >
-> >  I've been experiencing hangs with -mm kernels and my CardBus 3Com NIC
-> >  when resuming from APM suspend to disk which seem to be caused by the
-> >  3c59x driver. The hang just gets resolved by unplugging, then plugging
-> >  the CardBus NIC. This doesn't happen with vanilla tree, however.
-> > 
-> >  I've found that reverting 3c9x-enable_wol.patch fixes this situation for
-> >  me.
-> 
-> Sigh.  Cannot you add the enable_wol module parameter?
+Andrew Morton writes:
+ > Nikita Danilov <Nikita@Namesys.COM> wrote:
+ > >
+ > >  > Strace Test uses a modified version of strace 4.5.1.  
+ > >   > Instead of printing out information about system calls, 
+ > >   > the modified version calls the syscalls with improper 
+ > >   > values.
+ > > 
+ > >  It immediately DoSes kernel by calling sys_sysctl() with huge nlen:
+ > >  printk() consumes all CPU.
+ > 
+ > Something like this?
 
-Yup! Reapplying 3c9x-enable_wol.patch and supplying "enable_wol=1" to
-3c95x.ko seems to solve the problem. It seems that 3c59x power
-management is only enable if wake-on-LAN is enabled... why?
+On slow console (serial kgdb) this still would be problematic. I think
+printk_ratelimit() is needed. But why this loop is needed at all? It
+seems strange that syscall prints its arguments instead of just
+returning -EINVAL.
 
-Now, dual booting between vanilla and -mm kernels causes problems when
-loading the module since vanilla doesn't yet recognize "enable_wol", but
-this is only a minor problem.
+ > 
+ > --- 25/kernel/sysctl.c~sysctl-nlen-check	2004-02-19 02:36:20.000000000 -0800
+ > +++ 25-akpm/kernel/sysctl.c	2004-02-19 02:37:40.000000000 -0800
+ > @@ -913,6 +913,9 @@ asmlinkage long sys_sysctl(struct __sysc
+ >  
+ >  	if (copy_from_user(&tmp, args, sizeof(tmp)))
+ >  		return -EFAULT;
+ > +
+ > +	if (tmp.nlen < 0 || tmp.nlen > CTL_MAXNAME)
+ > +		return -EINVAL;
+ >  	
+ >  	if (tmp.nlen != 2 || copy_from_user(name, tmp.name, sizeof(name)) ||
+ >  	    name[0] != CTL_KERN || name[1] != KERN_VERSION) { 
 
-Thanks!
+Nikita.
 
+ > 
+ > _
+ > 

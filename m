@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264383AbRFHWy7>; Fri, 8 Jun 2001 18:54:59 -0400
+	id <S264385AbRFHW5A>; Fri, 8 Jun 2001 18:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264385AbRFHWys>; Fri, 8 Jun 2001 18:54:48 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:46095 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264383AbRFHWyj>;
-	Fri, 8 Jun 2001 18:54:39 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106082254.f58MsWE487361@saturn.cs.uml.edu>
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-To: hps@intermeta.de
-Date: Fri, 8 Jun 2001 18:54:32 -0400 (EDT)
+	id <S264393AbRFHW4u>; Fri, 8 Jun 2001 18:56:50 -0400
+Received: from blount.mail.mindspring.net ([207.69.200.226]:35096 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S264385AbRFHW4j>; Fri, 8 Jun 2001 18:56:39 -0400
+Subject: Re: Is Kernel2.2 is SMP versioned by default?
+From: Robert Love <rml@ufl.edu>
+To: jalaja devi <jala_74@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9fq2ce$gkb$1@forge.intermeta.de> from "Henning P. Schmiedehausen" at Jun 08, 2001 08:29:02 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20010608145848.8371.qmail@web13707.mail.yahoo.com>
+In-Reply-To: <20010608145848.8371.qmail@web13707.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 08 Jun 2001 18:56:39 -0400
+Message-Id: <992041001.9209.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henning P. Schmied writes:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On 08 Jun 2001 07:58:48 -0700, jalaja devi wrote:
+> Hi,
+> Could anyone plz tell me whether the kernel - 2.2.14
+> is SMP or NON-SMP by default?
+> To make it SMP versioned, Do I need to add some flags
+> in the kernel header files and re-compile to kernel?
 
->> So it comes down to the question of whether the module is linking
->> (which is about dependancies and requirements) and what the legal
->> scope is. Which is a matter for lawyers.
->
-> And this would void DaveMs' argument, that only the "official in
-> Linus' kernel published interface is allowed for binary modules". This
-> would mean, that putting the posted, unofficial patch under GPL into
-> the kernel and then using this interface for a binary module is just
-> the same as using only the official ABI from a lawyers' point of
-> view! 
->
-> This would make DaveMs' position even less understandable, because
-> there would be no difference for a proprietary vendor but keeping the
-> patch out of the kernel makes life harder for people like the original
-> poster that want to test new (open sourced) protocols like SCTP.
+i actually think it may be SMP (for whatever odd reason).
+you need to configure and compile the kernel, anyhow.
+select from one of:
 
-Yep.
+make config (text)
+make menuconfig (curses)
+make xconfig (Tk)
 
-Consider a chunk of x86 instructions using a home-grown OS
-abstraction layer, and drivers that implement that layer for
-both Linux and any non-GPL operating system. The binary blob
-is obviously not derived from Linux, and may in fact run
-without modification in a BSD or Solaris/x86 kernel.
+and make sure SMP is enabled, as well as support for the rest of your
+hardware and the features you want.
 
-There is in fact just such a layer. It might not currently
-have the features needed to implement TCP, but it could be
-extended as needed.
+then: make dep clean bzImage modules
 
+see the Kernel Compile HOWTO
 
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 

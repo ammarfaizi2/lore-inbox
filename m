@@ -1,35 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263323AbSJCPFP>; Thu, 3 Oct 2002 11:05:15 -0400
+	id <S261447AbSJCPRE>; Thu, 3 Oct 2002 11:17:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263330AbSJCPFP>; Thu, 3 Oct 2002 11:05:15 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:51437 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S263323AbSJCPEx>; Thu, 3 Oct 2002 11:04:53 -0400
-Message-ID: <3D9C5DD6.40103@metaparadigm.com>
-Date: Thu, 03 Oct 2002 23:10:14 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Kevin Corry <corryk@us.ibm.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 2/4: evms.h
-References: <02100307363402.05904@boiler> <20021003155023.C17513@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261409AbSJCPQt>; Thu, 3 Oct 2002 11:16:49 -0400
+Received: from ns.suse.de ([213.95.15.193]:17678 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261509AbSJCPQi>;
+	Thu, 3 Oct 2002 11:16:38 -0400
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EVMS core 3/4: evms_ioctl.h
+References: <02100307370503.05904@boiler.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Oct 2002 17:22:03 +0200
+In-Reply-To: Kevin Corry's message of "3 Oct 2002 15:22:49 +0200"
+Message-ID: <p73vg4jr1ic.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kevin Corry <corryk@us.ibm.com> writes:
 
->>+#define DEV_PATH			"/dev"
->>+#define EVMS_DIR_NAME			"evms"
->>+#define EVMS_DEV_NAME			"block_device"
->>+#define EVMS_DEV_NODE_PATH		DEV_PATH "/" EVMS_DIR_NAME "/"
->>+#define EVMS_DEVICE_NAME		DEV_PATH "/" EVMS_DIR_NAME "/" EVMS_DEV_NAME
-> 
-> 
-> The kernel doesn't know about device names at all.
 
-It does for specifying root devices and for devfs.
+> +struct evms_plugin_ioctl_pkt {
+> +	ulong feature_id;
+> +	s32 feature_command;
+> +	s32 status;
+> +	void *feature_ioctl_data;
+> +};
 
+This is passed between user space and kernel space right? 
+
+For 32bit emulation on 64bit purposes you should always use explicitely
+sized types (u32/u64 not ulong). The pointer will still need to be 
+converted. Best is to avoid pointers if possible (e.g. couldn't the data
+just be tacked on here?) 
+
+
+> +#define EVMS_EVENT_END_OF_DISCOVERY     0
+> +
+> +/**
+> + * struct evms_notify_pkt - evms event notification ioctl packet definition
+> + * @command:	0 = unregister, 1 = register
+> + * @eventry:	event structure
+> + * @status:	returned operation status
+> + *
+> + * ioctl packet definition for EVMS_PROCESS_NOTIFY_EVENT ioctl
+> + **/
+> +struct evms_notify_pkt {
+> +	s32 command;
+> +	struct evms_event eventry;
+
+If eventry contains any potential 64bit stuff it would be best to align it 
+to 64bit explicitely
+> + **/
+> +struct evms_user_disk_info_pkt {
+> +	u32 status;
+> +	u32 flags;
+> +	u64 disk_handle;
+> +	u32 disk_dev;
+> +	u32 geo_sectors;
+> +	u32 geo_heads;
+> +	u64 geo_cylinders;
+
+emulation trap: on x86-64/ia64 u64 have different alignment on 32bit vs
+64bit (4 bytes vs natural). Please make sure that u64 is always explicitely
+64bit aligned. It isn't here.
+
+
+> +	u64 disk_handle;
+> +	s32 io_flag;
+> +	u64 starting_sector;
+
+Same issue
+
+
+It would be best to clean the ABI up now when you can still change it.
+Otherwise the emulation functions later will be very ugly
+(take a look at the LVM horror in arch/x86_64/ia32/ia32_ioctl.c for a 
+bad example - LVM1 wasn't cleaned up in time)
+
+-Andi

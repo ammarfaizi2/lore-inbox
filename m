@@ -1,52 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130929AbRAYSgl>; Thu, 25 Jan 2001 13:36:41 -0500
+	id <S135844AbRAYSgl>; Thu, 25 Jan 2001 13:36:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135844AbRAYSgb>; Thu, 25 Jan 2001 13:36:31 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:13449 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130929AbRAYSgR>;
-	Thu, 25 Jan 2001 13:36:17 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S135845AbRAYSgb>; Thu, 25 Jan 2001 13:36:31 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:27150 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S135584AbRAYSgX>;
+	Thu, 25 Jan 2001 13:36:23 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101251835.VAA09183@ms2.inr.ac.ru>
+Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Thu, 25 Jan 2001 21:35:48 +0300 (MSK)
+Cc: davem@redhat.com (Dave Miller), ak@muc.de (Andi Kleen),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A6F3C4A.27E148E9@colorfullife.com> from "Manfred Spraul" at Jan 24, 1 09:34:18 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14960.29127.172573.22453@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 10:34:47 -0800 (PST)
-To: Jeremy Hansen <jeremy@xxedgexx.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hotmail can't deal with ECN
-In-Reply-To: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com>
-In-Reply-To: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Jeremy Hansen writes:
- > 
- > After mentioning ECN, this is the response I received from hotmail.
+I take my words back. Manfred is right, this requirement is not a MUST.
 
-Hmmm...
+Real problem is much worse, and it is wholly on the shame of solaris.
+Tcpdump shows at least two different bugs there.
 
- > From: MSN Hotmail Support <support_x@hotmail.com>
- > To: jeremy@xxedgexx.com
- > Subject: RE: CST23725481ID - Ban on Ecropolis
 
- ...
+  2060  16:31:42.879337 eth0 < dynamic.ih.lucent.com.39406 > static.8664: . 675
+80:67580(0) ack 1582261 win 1460 (DF)
+  2061  16:31:42.907940 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
+3721:1583721(0) ack 67580 win 1460 (DF)
 
- > There are firmware updates being planned by our vendor, but they
- > are not available yet.
- ...
+All is OK until now. Solaris's state should be:
 
-The problematic systems they have are CISCOs, which we know
-have fixes available, therefore these statements are utterly false.
+SND.NXT=SND.UNA=67580
+SND.WND=1460
+RCV.NXT=1582261
 
-That's it, in 4 weeks time I am putting a kernel onto vger.kernel.org
-that speaks ECN.  This is my official and only warning.
+  2062  16:31:42.908620 eth0 < dynamic.ih.lucent.com.39406 > static.8664: . 675
+80:67581(1) ack 1583721 win 0 (DF)
 
-Later,
-David S. Miller
-davem@redhat.com
+Solaris sends one byte.
+
+SND.NXT++
+RCV.NXT=1583721
+
+
+  2063  16:31:43.098761 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
+3721:1583721(0) ack 67581 win 1460 (DF)
+
+We ACK it.
+
+  2064  16:31:43.100993 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 675
+81:68456(875) ack 1583721 win 0 (DF)
+  2065  16:31:43.101524 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 684
+56:69041(585) ack 1583721 win 0 (DF)
+
+Solaris sends two segments, filling all the window.
+
+SND.NXT=69041
+
+
+  2066  16:31:43.108759 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
+3720:1583720(0) ack 69041 win 0 (DF)
+
+We send zero window probe. SEG.SEQ=1583720.
+
+Solaris accepts ACK from it!!! (bug #1) But does not accept window.
+
+So, now it thinks that SND.UNA=SND.NXT=69041
+		       SND.WND=1460
+
+State is corrupted.
+
+This is hard bug. But it is still not fatal. Actually, such corruptions
+(but by different reasons) are common with stacks, which borrowed code
+from BSD. Look into tcp-impl, Subj: "Send window update algorithm ..."
+They are recoverable, provided stack is sane.
+
+
+  2067  16:31:43.110623 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 690
+41:69628(587) ack 1583721 win 0 (DF)
+
+Solaris send some crap out of window, because of corrupted state.
+No problems.
+
+
+  2068  16:31:43.110679 eth0 > static.8664 > dynamic.ih.lucent.com.39406: . 158
+3721:1583721(0) ack 69041 win 0 (DF)
+
+We tell "No pasaran", of course.
+
+According to rules, Solaris must shrink window now.
+This is the only way to recover corrupted state.
+
+
+  2069  16:31:43.111641 eth0 < dynamic.ih.lucent.com.39406 > static.8664: P 696
+28:70501(873) ack 1583721 win 0 (DF)
+
+It does not. And this is point after which recovery is impossible.
+Fatal bug#2.
+
+
+To resume: it is impossible to help to this from Linux side.
+We may accept ACK&WIN from out-of-window segments, and this
+will help in this case _occasionally_. But  Solaris is still
+deemed to lockup randomly with such sawdust in the head.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

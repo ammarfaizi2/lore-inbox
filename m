@@ -1,521 +1,369 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262625AbSJWCBf>; Tue, 22 Oct 2002 22:01:35 -0400
+	id <S262664AbSJWCBy>; Tue, 22 Oct 2002 22:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262679AbSJWCBf>; Tue, 22 Oct 2002 22:01:35 -0400
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:3066 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S262625AbSJWCBX>; Tue, 22 Oct 2002 22:01:23 -0400
-Date: Tue, 22 Oct 2002 21:59:47 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
+	id <S262631AbSJWCBy>; Tue, 22 Oct 2002 22:01:54 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:55943 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262664AbSJWCBl>;
+	Tue, 22 Oct 2002 22:01:41 -0400
+Date: Tue, 22 Oct 2002 21:07:13 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
 To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com, <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.5.44-ac1 : drivers/media/video/adv7175.c
-Message-ID: <Pine.LNX.4.44.0210222155570.873-100000@localhost.localdomain>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: 2.5 Problem Report Status
+Message-ID: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  The following patch performs the i2c-old --> i2c api update to the 
-adv7175.c driver. I believe this driver was one of the original conversion 
-files, but it seems to have been missed. It applies cleanly against 
-2.5.44-ac1 . Please review.
-Regards,
-Frank
+Following is the latest version of my status report web page.  It can be 
+found at:
 
---- linux/drivers/media/video/adv7175.c.old	2002-10-21 
-23:31:51.000000000 -0400
-+++ linux/drivers/media/video/adv7175.c	2002-10-21 
-23:32:36.000000000 -0400
-@@ -45,7 +45,7 @@
- #include <linux/version.h>
- #include <asm/uaccess.h>
- 
--#include <linux/i2c-old.h>
-+#include <linux/i2c.h>
- 
- #include <linux/video_encoder.h>
- 
-@@ -55,28 +55,15 @@
- #define DEBUG(x...)
- #endif
- 
--/* ----------------------------------------------------------------------- */
--
--struct adv7175 {
--	struct i2c_bus *bus;
--	int addr;
--	unsigned char reg[128];
--
--	int norm;
--	int input;
--	int enable;
--	int bright;
--	int contrast;
--	int hue;
--	int sat;
--};
-+#define I2C_ADV7175	0xd4
-+#define I2C_ADV7176	0x54
- 
--#define   I2C_ADV7175        0xd4
--#define   I2C_ADV7176        0x54
-+#define IF_NAME		"adv7175"
- 
- static char adv7175_name[] = "adv7175";
- static char adv7176_name[] = "adv7176";
- static char unknown_name[] = "UNKNOWN";
-+char *dname;
- 
- #if (DEBUGLEVEL > 0)
- static char *inputs[] = { "pass_through", "play_back", "color_bar" };
-@@ -85,64 +72,34 @@
- 
- #define I2C_DELAY   10
- 
--/* ----------------------------------------------------------------------- */
--
--static int adv7175_write(struct adv7175 *dev, unsigned char subaddr, unsigned char data)
--{
--	int ack;
--
--	LOCK_I2C_BUS(dev->bus);
--
--	i2c_start(dev->bus);
--	i2c_sendbyte(dev->bus, dev->addr, I2C_DELAY);
--	i2c_sendbyte(dev->bus, subaddr, I2C_DELAY);
--	ack = i2c_sendbyte(dev->bus, data, I2C_DELAY);
--	dev->reg[subaddr] = data;
--	i2c_stop(dev->bus);
--	UNLOCK_I2C_BUS(dev->bus);
--	return ack;
--}
--
--static unsigned char adv7175_read(struct adv7175 *dev, unsigned char subaddr)
--{
--	unsigned char data;
-+static unsigned short normal_i2c[] = {I2C_ADV7175, I2C_CLIENT_END};
-+static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
-+static unsigned short probe[2] = {I2C_CLIENT_END, I2C_CLIENT_END};
-+static unsigned short probe_range[2] = {I2C_CLIENT_END, I2C_CLIENT_END};
-+static unsigned short ignore[2] = {I2C_CLIENT_END, I2C_CLIENT_END};
-+static unsigned short ignore_range[2] = {I2C_CLIENT_END, I2C_CLIENT_END};
-+static unsigned short force[2] = {I2C_CLIENT_END, I2C_CLIENT_END};
-+
-+static struct i2c_client_address_data addr_data = {
-+						normal_i2c, normal_i2c_range,
-+						probe, probe_range,
-+						ignore, ignore_range,
-+						force};
-+static struct i2c_client client_template;
- 
--	LOCK_I2C_BUS(dev->bus);
--
--	i2c_start(dev->bus);
--	i2c_sendbyte(dev->bus, dev->addr, I2C_DELAY);
--	i2c_sendbyte(dev->bus, subaddr, I2C_DELAY);
--	i2c_sendbyte(dev->bus, dev->addr + 1, I2C_DELAY);
--	data = i2c_readbyte(dev->bus, 1);
--	dev->reg[subaddr] = data;
--	i2c_stop(dev->bus);
--	UNLOCK_I2C_BUS(dev->bus);
--	return data;
--}
--
--static int adv7175_write_block(struct adv7175 *dev,
--			       unsigned const char *data, unsigned int len)
--{
--	int ack = 0;
--	unsigned subaddr;
--
--	while (len > 1) {
--		LOCK_I2C_BUS(dev->bus);
--		i2c_start(dev->bus);
--		i2c_sendbyte(dev->bus, dev->addr, I2C_DELAY);
--		ack = i2c_sendbyte(dev->bus, (subaddr = *data++), I2C_DELAY);
--		ack = i2c_sendbyte(dev->bus, (dev->reg[subaddr] = *data++), I2C_DELAY);
--		len -= 2;
--		while (len > 1 && *data == ++subaddr) {
--			data++;
--			ack = i2c_sendbyte(dev->bus, (dev->reg[subaddr] = *data++), I2C_DELAY);
--			len -= 2;
--		}
--		i2c_stop(dev->bus);
--		UNLOCK_I2C_BUS(dev->bus);
--	}
--	return ack;
--}
-+struct adv7175 {
-+	struct i2c_client 	*client;
-+	int 			addr;
-+	unsigned char 		reg[128];
-+	struct semaphore	lock;
-+	int 			norm;
-+	int 			input;
-+	int 			enable;
-+	int 			bright;
-+	int 			contrast;
-+	int 			hue;
-+	int 			sat;
-+};
- 
- /* ----------------------------------------------------------------------- */
- // Output filter:  S-Video  Composite
-@@ -203,65 +160,87 @@
- 	0x06, 0x1a,		/* subc. phase */
- };
- 
--static int adv7175_attach(struct i2c_device *device)
-+static int adv717x_attach(struct i2c_adapter *adap, int addr, unsigned short flags, int kind)
- {
--	int i;
- 	struct adv7175 *encoder;
--	char *dname;
-+	struct	i2c_client	*client;
-+	int rv, i, x_common=39; /* x is number entries init_common - 1 */
- 
--	MOD_INC_USE_COUNT;
-+	printk(KERN_INFO "adv717x: video chip found.\n");
-+	client=kmalloc(sizeof(*client), GFP_KERNEL);
-+	if(client == NULL)
-+		return -ENOMEM;
-+
-+	client_template.adapter = adap;
-+	client_template.addr = addr;
-+	memcpy(client, &client_template, sizeof(*client));
- 
--	device->data = encoder = kmalloc(sizeof(struct adv7175), GFP_KERNEL);
-+	encoder = kmalloc(sizeof(*encoder), GFP_KERNEL);
- 	if (encoder == NULL) {
--		MOD_DEC_USE_COUNT;
-+		kfree(client);
- 		return -ENOMEM;
- 	}
- 
--
--	memset(encoder, 0, sizeof(struct adv7175));
--	if ((device->addr == I2C_ADV7175) || (device->addr == (I2C_ADV7175 + 2))) {
-+	memset(encoder, 0, sizeof(*encoder));
-+	if ((encoder->addr == I2C_ADV7175) || (encoder->addr == (I2C_ADV7175 + 2))) {
- 		dname = adv7175_name;
--	} else if ((device->addr == I2C_ADV7176) || (device->addr == (I2C_ADV7176 + 2))) {
-+	} else if ((encoder->addr == I2C_ADV7176) || (encoder->addr == (I2C_ADV7176 + 2))) {
- 		dname = adv7176_name;
- 	} else {
- 		// We should never get here!!!
- 		dname = unknown_name;
- 	}
--	strcpy(device->name, dname);
--	encoder->bus = device->bus;
--	encoder->addr = device->addr;
-+	strcpy(client->name, dname);
-+	init_MUTEX(&encoder->lock);
-+	encoder->client = client;
-+	encoder->addr = addr;
- 	encoder->norm = VIDEO_MODE_PAL;
- 	encoder->input = 0;
- 	encoder->enable = 1;
- 
--	i = adv7175_write_block(encoder, init_common, sizeof(init_common));
--	if (i >= 0) {
--		i = adv7175_write(encoder, 0x07, TR0MODE | TR0RST);
--		i = adv7175_write(encoder, 0x07, TR0MODE);
--		i = adv7175_read(encoder, 0x12);
--		printk(KERN_INFO "%s_attach: %s rev. %d at 0x%02x\n",
--		       device->name, dname, i & 1, device->addr);
-+	for (i=1; i<x_common; i++) {
-+		rv = i2c_smbus_write_byte(client,init_common[i]);
-+		if (rv < 0) {
-+			printk(KERN_ERR "%s_attach: init error %d\n", client->name, rv);
-+			break;
-+		}
- 	}
--	if (i < 0) {
--		printk(KERN_ERR "%s_attach: init error %d\n", device->name,
--		       i);
-+
-+	if (rv >= 0) {
-+		i2c_smbus_write_byte_data(client,0x07, TR0MODE | TR0RST);
-+		i2c_smbus_write_byte_data(client,0x07, TR0MODE);
-+		i2c_smbus_read_byte_data(client,0x12);
-+		printk(KERN_INFO "%s_attach: %s rev. %d at 0x%02x\n",
-+		       client->name, dname, rv & 1, client->addr);
- 	}
- 
-+	i2c_attach_client(client);
-+
- 	return 0;
- }
- 
-+static
-+int adv717x_probe(struct i2c_adapter *adap)
-+{
-+	return i2c_probe(adap, &addr_data, adv717x_attach);
-+}
-+
- 
--static int adv7175_detach(struct i2c_device *device)
-+static int adv717x_detach(struct i2c_client *client)
- {
--	kfree(device->data);
--	MOD_DEC_USE_COUNT;
-+	i2c_detach_client(client);
-+	kfree(client->data);
-+	kfree(client);
- 	return 0;
- }
- 
--static int adv7175_command(struct i2c_device *device, unsigned int cmd,
-+static int adv717x_command(struct i2c_client *client, unsigned int cmd,
- 			   void *arg)
- {
--	struct adv7175 *encoder = device->data;
-+	struct adv7175 *encoder = client->data;
-+	int i, x_ntsc=13, x_pal=13; 
-+		/* x_ntsc is number of entries in init_ntsc -1 */
-+		/* x_pal is number of entries in init_pal -1 */
- 
- 	switch (cmd) {
- 
-@@ -286,29 +265,21 @@
- 				switch (iarg) {
- 
- 				case VIDEO_MODE_NTSC:
--					adv7175_write_block(encoder,
--							    init_ntsc,
--							    sizeof
--							    (init_ntsc));
-+					for (i=1; i< x_ntsc; i++)
-+						i2c_smbus_write_byte(client, init_ntsc[i]);
- 					if (encoder->input == 0)
--						adv7175_write(encoder, 0x0d, 0x4f);	// Enable genlock
--					adv7175_write(encoder, 0x07,
--						      TR0MODE | TR0RST);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE);
-+						i2c_smbus_write_byte_data(client,0x0d, 0x4f); // Enable genlock
-+					i2c_smbus_write_byte_data(client,0x07, TR0MODE | TR0RST);
-+					i2c_smbus_write_byte_data(client,0x07, TR0MODE);
- 					break;
- 
- 				case VIDEO_MODE_PAL:
--					adv7175_write_block(encoder,
--							    init_pal,
--							    sizeof
--							    (init_pal));
-+					for (i=1; i< x_pal; i++)
-+						i2c_smbus_write_byte(client, init_pal[i]);
- 					if (encoder->input == 0)
--						adv7175_write(encoder, 0x0d, 0x4f);	// Enable genlock
--					adv7175_write(encoder, 0x07,
--						      TR0MODE | TR0RST);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE);
-+						i2c_smbus_write_byte_data(client,0x0d, 0x4f); // Enable genlock
-+					i2c_smbus_write_byte_data(client,0x07, TR0MODE | TR0RST);
-+					i2c_smbus_write_byte_data(client,0x07, TR0MODE);
- 					break;
- 
- 				case VIDEO_MODE_SECAM:	// WARNING! ADV7176 does not support SECAM.
-@@ -316,27 +287,23 @@
- 					// it does not work due to genlock: when decoder
- 					// is in SECAM and encoder in in PAL the subcarrier
- 					// can not be syncronized with horizontal frequency)
--					adv7175_write_block(encoder,
--							    init_pal,
--							    sizeof
--							    (init_pal));
-+					for (i=1; i< x_pal; i++)
-+						i2c_smbus_write_byte(client, init_pal[i]);
- 					if (encoder->input == 0)
--						adv7175_write(encoder, 0x0d, 0x49);	// Disable genlock
--					adv7175_write(encoder, 0x07,
--						      TR0MODE | TR0RST);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE);
-+						i2c_smbus_write_byte_data(client,0x0d, 0x49); // Disable genlock
-+					i2c_smbus_write_byte_data(client,0x07, TR0MODE | TR0RST);
-+					i2c_smbus_write_byte_data(client,0x07, TR0MODE);
- 					break;
- 				default:
- 					printk(KERN_ERR
- 					       "%s: illegal norm: %d\n",
--					       device->name, iarg);
-+					       client->name, iarg);
- 					return -EINVAL;
- 
- 				}
- 				DEBUG(printk
- 				      (KERN_INFO "%s: switched to %s\n",
--				       device->name, norms[iarg]));
-+				       client->name, norms[iarg]));
- 				encoder->norm = iarg;
- 			}
- 		}
-@@ -354,51 +321,45 @@
- 				switch (iarg) {
- 
- 				case 0:
--					adv7175_write(encoder, 0x01, 0x00);
--					adv7175_write(encoder, 0x0c, TR1CAPT);	/* TR1 */
-+					i2c_smbus_write_byte_data(client, 0x01, 0x00);
-+					i2c_smbus_write_byte_data(client, 0x0c, TR1CAPT);	/* TR1 */
- 					if (encoder->norm ==
- 					    VIDEO_MODE_SECAM)
--						adv7175_write(encoder, 0x0d, 0x49);	// Disable genlock
-+						i2c_smbus_write_byte_data(client, 0x0d, 0x49);	// Disable genlock
- 					else
--						adv7175_write(encoder, 0x0d, 0x4f);	// Enable genlock
--					adv7175_write(encoder, 0x07,
--						      TR0MODE | TR0RST);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE);
-+						i2c_smbus_write_byte_data(client, 0x0d, 0x4f);	// Enable genlock
-+					i2c_smbus_write_byte_data(client, 0x07, TR0MODE | TR0RST);
-+					i2c_smbus_write_byte_data(client, 0x07, TR0MODE);
- 					//udelay(10);
- 					break;
- 
- 				case 1:
--					adv7175_write(encoder, 0x01, 0x00);
--					adv7175_write(encoder, 0x0c, TR1PLAY);	/* TR1 */
--					adv7175_write(encoder, 0x0d, 0x49);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE | TR0RST);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE);
-+					i2c_smbus_write_byte_data(client, 0x01, 0x00);
-+					i2c_smbus_write_byte_data(client, 0x0c, TR1PLAY);	/* TR1 */
-+					i2c_smbus_write_byte_data(client, 0x0d, 0x49);
-+					i2c_smbus_write_byte_data(client, 0x07, TR0MODE | TR0RST);
-+					i2c_smbus_write_byte_data(client, 0x07, TR0MODE);
- 					//udelay(10);
- 					break;
- 
- 				case 2:
--					adv7175_write(encoder, 0x01, 0x80);
--					adv7175_write(encoder, 0x0d, 0x49);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE | TR0RST);
--					adv7175_write(encoder, 0x07,
--						      TR0MODE);
-+					i2c_smbus_write_byte_data(client, 0x01, 0x80);
-+					i2c_smbus_write_byte_data(client, 0x0d, 0x49);
-+					i2c_smbus_write_byte_data(client, 0x07, TR0MODE | TR0RST);
-+					i2c_smbus_write_byte_data(client, 0x07, TR0MODE);
- 					//udelay(10);
- 					break;
- 
- 				default:
- 					printk(KERN_ERR
- 					       "%s: illegal input: %d\n",
--					       device->name, iarg);
-+					       client->name, iarg);
- 					return -EINVAL;
- 
- 				}
- 				DEBUG(printk
- 				      (KERN_INFO "%s: switched to %s\n",
--				       device->name, inputs[iarg]));
-+				       client->name, inputs[iarg]));
- 				encoder->input = iarg;
- 			}
- 		}
-@@ -420,7 +381,7 @@
- 			int *iarg = arg;
- 
- 			encoder->enable = !!*iarg;
--			adv7175_write(encoder, 0x61,
-+			i2c_smbus_write_byte_data(client, 0x61,
- 				      (encoder->
- 				       reg[0x61] & 0xbf) | (encoder->
- 							    enable ? 0x00 :
-@@ -435,42 +396,60 @@
- 	return 0;
- }
- 
-+static void adv717x_inc_use(struct i2c_client *client)
-+{
-+	MOD_INC_USE_COUNT;
-+}
-+
-+static void adv717x_dec_use(struct i2c_client *client)
-+{
-+	MOD_DEC_USE_COUNT;
-+}
-+
-+
- /* ----------------------------------------------------------------------- */
- 
- static struct i2c_driver i2c_driver_adv7175 = {
--	"adv7175",		/* name */
--	I2C_DRIVERID_VIDEOENCODER,	/* ID */
--	I2C_ADV7175, I2C_ADV7175 + 3,
--
--	adv7175_attach,
--	adv7175_detach,
--	adv7175_command
-+	name:		"adv7175",		/* name */
-+	id:		I2C_DRIVERID_ADV717x,	/* ID */
-+	flags:		I2C_DF_NOTIFY, //I2C_ADV7175, I2C_ADV7175 + 3,
-+	attach_adapter:	adv717x_probe,
-+	detach_client:	adv717x_detach,
-+	command:	adv717x_command,
-+	inc_use:	&adv717x_inc_use,
-+	dec_use:	&adv717x_dec_use
- };
- 
- static struct i2c_driver i2c_driver_adv7176 = {
--	"adv7175",		/* name */
--	I2C_DRIVERID_VIDEOENCODER,	/* ID */
--	I2C_ADV7176, I2C_ADV7176 + 3,
--
--	adv7175_attach,
--	adv7175_detach,
--	adv7175_command
-+	name:		"adv7176",		/* name */
-+	id:		I2C_DRIVERID_ADV717x,	/* ID */
-+	flags:		I2C_DF_NOTIFY, //I2C_ADV7176, I2C_ADV7176 + 3,
-+	attach_adapter:	adv717x_probe,
-+	detach_client:	adv717x_detach,
-+	command:	adv717x_command,
-+	inc_use:	&adv717x_inc_use,
-+	dec_use:	&adv717x_dec_use
-+};
-+
-+static struct i2c_client client_template = {
-+	name:		"adv7175_client",
-+	driver:		&i2c_driver_adv7175
- };
- 
--static int adv7175_init(void)
-+static int adv717x_init(void)
- {
- 	int res_adv7175 = 0, res_adv7176 = 0;
--	res_adv7175 = i2c_register_driver(&i2c_driver_adv7175);
--	res_adv7176 = i2c_register_driver(&i2c_driver_adv7176);
-+	res_adv7175 = i2c_add_driver(&i2c_driver_adv7175);
-+	res_adv7176 = i2c_add_driver(&i2c_driver_adv7176);
- 	return (res_adv7175 | res_adv7176);	// Any idea how to make it better?
- }
- 
--static void adv7175_exit(void)
-+static void adv717x_exit(void)
- {
--	i2c_unregister_driver(&i2c_driver_adv7176);
--	i2c_unregister_driver(&i2c_driver_adv7175);
-+	i2c_del_driver(&i2c_driver_adv7176);
-+	i2c_del_driver(&i2c_driver_adv7175);
- }
- 
--module_init(adv7175_init);
--module_exit(adv7175_exit);
-+module_init(adv717x_init);
-+module_exit(adv717x_exit);
- MODULE_LICENSE("GPL");
+http://members.cox.net/tmolina/kernprobs/status.html
 
+I've seen a lot of positive feedback for Martin's proposal to create a 
+bugzilla for kernel bug reports so this is likely to be my last formal 
+posting on this subject.  I intend to enter these as the "seed" bug 
+reports for his effort, so any comment on this is welcome.  
 
+                               2.5 Kernel Problem Reports as of 22 Oct
+   Status                 Discussion  Problem Title
+
+   open                   04 Oct 2002 AIC7XXX boot failure
+   1. http://marc.theaimsgroup.com/?l=linux-kernel&m=103356254615324&w=2
+
+--------------------------------------------------------------------------
+   open                   05 Oct 2002 oops in lock_get_status
+   2. http://marc.theaimsgroup.com/?l=linux-kernel&m=103244657605155&w=2
+
+--------------------------------------------------------------------------   
+   open                   21 Oct 2002 problems loading/unloading ide-scsi 
+                                      modules
+   3. http://marc.theaimsgroup.com/?l=linux-kernel&m=103446296810822&w=2
+
+--------------------------------------------------------------------------
+   open                   08 Oct 2002 IDE problems on prePCI
+   4. http://marc.theaimsgroup.com/?l=linux-kernel&m=103277899317468&w=2
+
+--------------------------------------------------------------------------
+   open                   09 Oct 2002 USB Mass Storage problems
+   5. http://marc.theaimsgroup.com/?l=linux-kernel&m=103404393623200&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 init_irq() function doing unsafe 
+                                      things inside ide_lock
+   6. http://marc.theaimsgroup.com/?l=linux-kernel&m=103316967724891&w=2
+
+--------------------------------------------------------------------------
+   open                   04 Oct 2002 register_console() called in illegal 
+                                      context
+   7. http://marc.theaimsgroup.com/?l=linux-kernel&m=103282695403237&w=2
+
+--------------------------------------------------------------------------
+   open                   09 Oct 2002 eata2x_detect() calls port_detect() 
+                                      under driver_lock
+   8. http://marc.theaimsgroup.com/?l=linux-kernel&m=103281310122580&w=2
+
+--------------------------------------------------------------------------
+   open                   04 Oct 2002 sym_eh_handler does down(&ep->sem) 
+                                      and might sleep
+   9. http://marc.theaimsgroup.com/?l=linux-kernel&m=103372067026942&w=2
+
+--------------------------------------------------------------------------
+   open                   07 Oct 2002 illegal sleeping function called 
+                                      from acpi_os_wait_semaphore()
+  10. http://marc.theaimsgroup.com/?l=linux-kernel&m=103404677824885&w=2
+
+--------------------------------------------------------------------------
+   open                   09 Oct 2002 migration_thread atomicity error
+  11. http://marc.theaimsgroup.com/?l=linux-kernel&m=103408159014496&w=2
+
+--------------------------------------------------------------------------
+   open                   08 Oct 2002 snd_via8233 atomicity error
+  12. http://marc.theaimsgroup.com/?l=linux-kernel&m=103410375210315&w=2
+
+--------------------------------------------------------------------------
+   open                   19 Oct 2002 atomicity error in 
+                                      sound/pci/via82xx.c
+  13. http://marc.theaimsgroup.com/?l=linux-kernel&m=103459664021147&w=2
+
+--------------------------------------------------------------------------
+   open                   11 Oct 2002 scheduling while atomic in 
+                                      autofs4_root_lookup
+  14. http://marc.theaimsgroup.com/?l=linux-kernel&m=103426998326969&w=2
+
+--------------------------------------------------------------------------
+   open                   14 Oct 2002 atomicity error in 
+                                      drivers/net/ppp_async.c
+  15. http://marc.theaimsgroup.com/?l=linux-kernel&m=103456920802806&w=2
+
+--------------------------------------------------------------------------
+   open                   14 Oct 2002 atomicity error in bond_enslave
+  16. http://marc.theaimsgroup.com/?l=linux-kernel&m=103462775624793&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 swsusp atomicity error
+  17. http://marc.theaimsgroup.com/?l=linux-kernel&m=103489821623783&w=2
+
+--------------------------------------------------------------------------
+   possible fix available 19 Oct 2002 atomicity error in snd_pcm/emufx.c
+  18. http://marc.theaimsgroup.com/?l=linux-kernel&m=103502805324053&w=2
+
+--------------------------------------------------------------------------
+   open                   03 Oct 2002 ACPI Mutex failure
+  19. http://marc.theaimsgroup.com/?l=linux-kernel&m=103369523011536&w=2
+
+--------------------------------------------------------------------------
+   open                   16 Oct 2002 initrd breakage
+  20. http://marc.theaimsgroup.com/?l=linux-kernel&m=103364305822611&w=2
+
+--------------------------------------------------------------------------
+   open                   05 Oct 2002 2.5.x and 8250 UART problems
+  21. http://marc.theaimsgroup.com/?l=linux-kernel&m=103383019409525&w=2
+
+--------------------------------------------------------------------------
+   open                   19 Oct 2002 mouse/keyboard freeze in X
+  22. http://marc.theaimsgroup.com/?l=linux-kernel&m=103441624616220&w=2
+
+--------------------------------------------------------------------------
+   open                   07 Oct 2002 bug related to virtual consoles
+  23. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403138113853&w=2
+
+--------------------------------------------------------------------------
+   open                   07 Oct 2002 oops in kmem_cache_create
+  24. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403423716317&w=2
+
+--------------------------------------------------------------------------
+   open                   07 Oct 2002 USB Hub failure
+  25. http://marc.theaimsgroup.com/?l=linux-kernel&m=103402696809279&w=2
+
+--------------------------------------------------------------------------
+   open                   08 Oct 2002 boot problem on 440GX
+  26. http://marc.theaimsgroup.com/?l=linux-kernel&m=103399796506960&w=2
+
+--------------------------------------------------------------------------
+   open                   08 Oct 2002 oops in run_timer_tasklet
+  27. http://marc.theaimsgroup.com/?l=linux-kernel&m=103393743102152&w=2
+
+--------------------------------------------------------------------------
+   open                   08 Oct 2002 oops while running kjournald
+  28. http://marc.theaimsgroup.com/?l=linux-kernel&m=103408191314814&w=2
+
+--------------------------------------------------------------------------
+   open                   09 Oct 2002 64GB highmem BUG()
+  29. http://marc.theaimsgroup.com/?l=linux-kernel&m=103399745406334&w=2
+
+--------------------------------------------------------------------------
+   open                   09 Oct 2002 Attempt to release TCP socket errors
+  30. http://marc.theaimsgroup.com/?l=linux-kernel&m=103409524231641&w=2
+
+--------------------------------------------------------------------------
+   closed                 09 Oct 2002 raid 0/1 problems in 2.5
+  31. http://marc.theaimsgroup.com/?l=linux-kernel&m=103414903003887&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 raid5 hangs system
+  32. http://marc.theaimsgroup.com/?l=linux-kernel&m=103495428502729&w=2
+
+--------------------------------------------------------------------------
+   open                   06 Oct 2002 analog joystick oops
+  33. http://marc.theaimsgroup.com/?l=linux-kernel&m=103393598801189&w=2
+
+--------------------------------------------------------------------------
+   open                   07 Oct 2002 DRI not working
+  34. http://marc.theaimsgroup.com/?l=linux-kernel&m=103403348315804&w=2
+
+--------------------------------------------------------------------------
+   open                   10 Oct 2002 keyboard generates bogus key results
+  35. http://marc.theaimsgroup.com/?l=linux-kernel&m=103423327423623&w=2
+
+--------------------------------------------------------------------------
+   closed                 19 Oct 2002 no mouse wheel
+  36. http://marc.theaimsgroup.com/?l=linux-kernel&m=103351918416613&w=2
+
+--------------------------------------------------------------------------
+   open                   10 Oct 2002 PCMCIA trouble
+  37. http://marc.theaimsgroup.com/?l=linux-kernel&m=103420230730597&w=2
+
+--------------------------------------------------------------------------
+   open                   13 Oct 2002 apm hangs instead of suspending
+  38. http://marc.theaimsgroup.com/?l=linux-kernel&m=103454656623320&w=2
+
+--------------------------------------------------------------------------
+   open                   11 Oct 2002 tcp packets lost
+  39. http://marc.theaimsgroup.com/?l=linux-kernel&m=103429736523667&w=2
+
+--------------------------------------------------------------------------
+   open                   11 Oct 2002 shutdown problems in 
+                                      driverfs_remove_file
+  40. http://marc.theaimsgroup.com/?l=linux-kernel&m=103443278524877&w=2
+
+--------------------------------------------------------------------------
+   open                   11 Oct 2002 broke ARM zImage/Image
+  41. http://marc.theaimsgroup.com/?l=linux-kernel&m=103442271819464&w=2
+
+--------------------------------------------------------------------------
+   open                   20 Oct 2002 loadlin boot failure
+  42. http://marc.theaimsgroup.com/?l=linux-kernel&m=103444415832048&w=2
+
+--------------------------------------------------------------------------
+   open                   13 Oct 2002 dual pointing device problem on 
+                                      laptop
+  43. http://marc.theaimsgroup.com/?l=linux-kernel&m=103454188820088&w=2
+
+--------------------------------------------------------------------------
+   open                   14 Oct 2002 fbcon oops
+  44. http://marc.theaimsgroup.com/?l=linux-kernel&m=103458863514865&w=2
+
+--------------------------------------------------------------------------
+   open                   14 Oct 2002 ACPI/Suspend with an Acer Travelmate 
+                                      350
+  45. http://marc.theaimsgroup.com/?l=linux-kernel&m=103463029127750&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 nfsd oops in auth_domain function
+  46. http://marc.theaimsgroup.com/?l=linux-kernel&m=103462971527133&w=2
+
+--------------------------------------------------------------------------
+   open                   15 Oct 2002 BUG in put_device during rmmod
+  47. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470283114965&w=2
+
+--------------------------------------------------------------------------
+   open                   15 Oct 2002 BUG in kmem_cache_alloc_one_tail on 
+                                          2.5.42
+  48. http://marc.theaimsgroup.com/?l=linux-kernel&m=103472220913410&w=2
+
+--------------------------------------------------------------------------
+   open                   15 Oct 2002 oops stopping serial
+  49. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470900729987&w=2
+
+--------------------------------------------------------------------------
+   open                   15 Oct 2002 kernel hangs executing rpcinfo
+  50. http://marc.theaimsgroup.com/?l=linux-kernel&m=103462345019675&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 reboot kills Dell Latitude keyboard
+  51. http://marc.theaimsgroup.com/?l=linux-kernel&m=103484425027884&w=2
+
+--------------------------------------------------------------------------
+   open                   19 Oct 2002 power down fails after 2.5.41
+  52. http://marc.theaimsgroup.com/?l=linux-kernel&m=103479527518536&w=2
+
+--------------------------------------------------------------------------
+   open                   16 Oct 2002 ACPI/Sb16 IRQ conflict
+  53. http://marc.theaimsgroup.com/?l=linux-kernel&m=103480163226174&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 oops booting via ide controller
+  54. http://marc.theaimsgroup.com/?l=linux-kernel&m=103480082625264&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 IDE not powered down on shutdown
+  55. http://marc.theaimsgroup.com/?l=linux-kernel&m=103476420012508&w=2
+
+--------------------------------------------------------------------------
+   closed                 20 Oct 2002 scsi/raid-related smp boot crash
+  56. http://marc.theaimsgroup.com/?l=linux-kernel&m=103485010600696&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 nfs-related oops
+  57. http://marc.theaimsgroup.com/?l=linux-kernel&m=103477312121275&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 neofb oops on shutdown
+  58. http://marc.theaimsgroup.com/?l=linux-kernel&m=103485950708944&w=2
+
+--------------------------------------------------------------------------
+   open                   17 Oct 2002 oops inserting xircom_cb network 
+                                      card
+  59. http://marc.theaimsgroup.com/?l=linux-kernel&m=103474343128893&w=2
+
+--------------------------------------------------------------------------
+   open                   20 Oct 2002 usb-related boot hang
+  60. http://marc.theaimsgroup.com/?l=linux-kernel&m=103463093028435&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 io-apic bug and spinlock deadlock
+  61. http://marc.theaimsgroup.com/?l=linux-kernel&m=103482589715521&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 buslogic scsi broke
+  62. http://marc.theaimsgroup.com/?l=linux-kernel&m=103496938421117&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 color problem with atyfb
+  63. http://marc.theaimsgroup.com/?l=linux-kernel&m=103424151129857&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 ipv4 /proc/net/route bug
+  64. http://marc.theaimsgroup.com/?l=linux-kernel&m=103497845730726&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 crash with shared page table
+  65. http://marc.theaimsgroup.com/?l=linux-kernel&m=103499186007896&w=2
+
+--------------------------------------------------------------------------
+   open                   18 Oct 2002 qlogic 2x00 driver broke
+  66. http://marc.theaimsgroup.com/?l=linux-kernel&m=103470985631070&w=2
+
+--------------------------------------------------------------------------
+   open                   19 Oct 2002 tcq causes filesystem corruption
+  67. http://marc.theaimsgroup.com/?l=linux-kernel&m=103498823305987&w=2
+
+--------------------------------------------------------------------------
+   open                   19 Oct 2002 ncr adaptor doesn't see devices
+  68. http://marc.theaimsgroup.com/?l=linux-kernel&m=103506893016255&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 ide-cd module broke
+  69. http://marc.theaimsgroup.com/?l=linux-kernel&m=103508472223894&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 unable to eject zip disk
+  70. http://marc.theaimsgroup.com/?l=linux-kernel&m=103523397807029&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 isdn badly broken
+  71. http://marc.theaimsgroup.com/?l=linux-kernel&m=103513416515540&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 ide hangs on boot
+  72. http://marc.theaimsgroup.com/?l=linux-kernel&m=103515327029718&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 scsi hang on shutdown
+  73. http://marc.theaimsgroup.com/?l=linux-kernel&m=103504174230947&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 oops in ieee1394
+  74. http://marc.theaimsgroup.com/?l=linux-kernel&m=103519819428268&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 oops on boot in parport_pc module
+  75. http://marc.theaimsgroup.com/?l=linux-kernel&m=103524170815346&w=2
+
+--------------------------------------------------------------------------
+   open                   21 Oct 2002 ZONE_NORMAL exhaustion (dcache slab)
+  76. http://marc.theaimsgroup.com/?l=linux-kernel&m=103523368106684&w=2
+
+--------------------------------------------------------------------------
+   open                   22 Oct 2002 2.5.44 fs corruption
+  77. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532467828806&w=2
+
+--------------------------------------------------------------------------
+   open                   22 Oct 2002 CS4236B stopping working as of 
+                                      2.5.44
+  78. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532492529636&w=2
+
+--------------------------------------------------------------------------
+   open                   22 Oct 2002 2.5.44-mm1 numa-q panic on boot
+  79. http://marc.theaimsgroup.com/?l=linux-kernel&m=103533122402278&w=2
+
+--------------------------------------------------------------------------
+   open                   22 Oct 2002 poisoned oops unmounting ramfs
+  80. http://marc.theaimsgroup.com/?l=linux-kernel&m=103530750609277&w=2
+
+--------------------------------------------------------------------------
 

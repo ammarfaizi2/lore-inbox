@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265529AbUAZGcP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 01:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbUAZGcP
+	id S265579AbUAZGZT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 01:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265581AbUAZGZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 01:32:15 -0500
-Received: from opersys.com ([64.40.108.71]:21522 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S265529AbUAZGcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 01:32:13 -0500
-Message-ID: <4014B573.1020703@opersys.com>
-Date: Mon, 26 Jan 2004 01:36:35 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: JustFillBug <mozbugbox@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Cooperative Linux
-References: <20040125193518.GA32013@callisto.yi.org> <40148C1C.5040102@vgertech.com> <slrnc193vo.42h.mozbugbox@mozbugbox.somehost.org> <4014A058.9080206@vgertech.com>
-In-Reply-To: <4014A058.9080206@vgertech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 26 Jan 2004 01:25:19 -0500
+Received: from h80ad25ed.async.vt.edu ([128.173.37.237]:64961 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265579AbUAZGZP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 01:25:15 -0500
+Message-Id: <200401260625.i0Q6P4op023127@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Steve Youngs <sryoungs@bigpond.net.au>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: (as177) Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core 
+In-Reply-To: Your message of "Mon, 26 Jan 2004 15:55:06 +1000."
+             <microsoft-free.87d697s18l.fsf@eicq.dnsalias.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <microsoft-free.877jzfoc5h.fsf@eicq.dnsalias.org> <20040125222242.A24443@mail.kroptech.com> <microsoft-free.87hdyjs3h3.fsf@eicq.dnsalias.org> <200401260521.i0Q5LRha021370@turing-police.cc.vt.edu>
+            <microsoft-free.87d697s18l.fsf@eicq.dnsalias.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-997692841P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 26 Jan 2004 01:25:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-997692841P
+Content-Type: text/plain; charset=us-ascii
 
-Nuno Silva wrote:
-> That's xen. You can learn more here:
-> 
->     http://www.cl.cam.ac.uk/Research/SRG/netos/xen/
+On Mon, 26 Jan 2004 15:55:06 +1000, Steve Youngs <sryoungs@bigpond.net.au>  said:
 
-For a UP system, Xen may be fine, depending on what you're trying to
-do. If you're looking for a better VMware, then Xen is likely to fit
-your bill. However, there are a few things to keep in mind when
-looking at this sort of stuff. So, for example, Xen assumes that all
-OSes are going to use the same devices for I/O: same disk, same
-NIC, etc. It therefore implements lots of virtual devices for these.
-But what if you wanted each OS to manage separate hardware? Also,
-I'm not sure I want my OS instances to have to request memory on
-a page basis with the nanokernel/monitor. Wouldn't it be just better
-to reuse the existing work on the hotplug hardware (hotplug CPU,
-hotplug memory, etc.) to have the kernels get/return hardware
-resources to the nanokernel? Also, how generic is the virtualization
-solution being examined? I've put some thought into getting a
-virtualization architecture which spans UP, SMP, SMP-clusters, and
-hard-rt, and wrote that down as a series of papers about Adeos. I
-probably don't have the final answer, and there are probably many
-things I haven't figured out in the papers I've written on the topic,
-but you may want to take a look.
+> Because the 2nd user is still using the module so its in-use bit
+> should still be set.  Remember that when the module was first loaded
+> it registered a function with the kernel for testing whether the
+> module is in use.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Anybody who's ever been in a bathroom stall and somebody turned off the
+lights on their way out will intuitively understand why you need a reference
+count and not an in-use bit,
 
+--==_Exmh_-997692841P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAFLK/cC3lWbTT17ARApDUAJsHMnrydJcKRp73jfUO/c9r8WeDQwCdFomr
+AhbH9FOdPWHZBJj8bHOHwL8=
+=/yj6
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-997692841P--

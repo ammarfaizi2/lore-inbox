@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129539AbQLWSMJ>; Sat, 23 Dec 2000 13:12:09 -0500
+	id <S129752AbQLWSOL>; Sat, 23 Dec 2000 13:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbQLWSMA>; Sat, 23 Dec 2000 13:12:00 -0500
-Received: from colorfullife.com ([216.156.138.34]:31757 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129539AbQLWSLx>;
-	Sat, 23 Dec 2000 13:11:53 -0500
-Message-ID: <3A44E4D0.E8F177B9@colorfullife.com>
-Date: Sat, 23 Dec 2000 18:45:52 +0100
-From: Manfred <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: mulder.abg@sni.de, jgarzik@mandrakesoft.com
-CC: linux-kernel@vger.kernel.org
-Subject: Q: natsemi.c spinlocks
+	id <S130375AbQLWSOB>; Sat, 23 Dec 2000 13:14:01 -0500
+Received: from open.your.mind.be ([195.162.205.66]:48119 "HELO
+	portablue.intern.mind.be") by vger.kernel.org with SMTP
+	id <S129752AbQLWSNt>; Sat, 23 Dec 2000 13:13:49 -0500
+Date: Sat, 23 Dec 2000 18:43:03 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test12 on Miata
+Message-ID: <20001223184303.M792@mind.be>
+Mail-Followup-To: p2@mind.be, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Answer: 42
+X-Operating-system: Debian GNU/Linux
+From: p2@mind.be (Peter De Schrijver)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff, Tjeerd,
+Hi,
 
-I spotted the spin_lock in natsemi.c, and I think it's bogus.
+Compiling 2.4.0-test12 for the Miata Alpha platform seems to result in a kernel
+which does not correctly handle (or initialize ?) ISA IRQ's. The result is that
+ps/2 keyboard and mouse and floppy don't work. I didn't check if the serial or
+parallel ports work. Compiling 2.4.0-test12 for the generic Alpha platform does
+work. Any ideas or insights ?
 
-The "simultaneous interrupt entry" is a bug in some 2.0 and 2.1 kernel
-(even Alan didn't remember it exactly when I asked him), thus a sane
-driver can assume that an interrupt handler is never reentered.
+Thanks,
 
-Donald often uses dev->interrupt to hide other races, but I don't see
-anything in this driver (tx_timeout and netdev_timer are both trivial)
-
-
---
-  Manfred
+Peter.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

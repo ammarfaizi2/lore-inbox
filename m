@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUHaRyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUHaR5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbUHaRyu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266096AbUHaRyt
+	id S265805AbUHaR5E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUHaR5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:54:49 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:47091 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266006AbUHaRxJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:53:09 -0400
-Message-ID: <4134BACC.60203@us.ibm.com>
-Date: Tue, 31 Aug 2004 10:52:12 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Tue, 31 Aug 2004 13:57:03 -0400
+Received: from mx-out.forthnet.gr ([193.92.150.6]:27556 "EHLO
+	mx-out-04.forthnet.gr") by vger.kernel.org with ESMTP
+	id S265805AbUHaR4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:56:03 -0400
+From: V13 <v13@priest.com>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+Date: Tue, 31 Aug 2004 20:55:55 +0300
+User-Agent: KMail/1.7
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, reiserfs-list@namesys.com
+References: <41323AD8.7040103@namesys.com>
+In-Reply-To: <41323AD8.7040103@namesys.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [rfc][patch] DRM initial function table support.
-References: <Pine.LNX.4.58.0408311409530.18657@skynet> <20040831152015.GC22978@redhat.com> <4134A22F.7000103@us.ibm.com> <20040831180129.A23112@infradead.org>
-In-Reply-To: <20040831180129.A23112@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408312055.56335.v13@priest.com>
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, Aug 31, 2004 at 09:07:11AM -0700, Ian Romanick wrote:
-> 
->>I think the intention is to have default functions set in the 
->>device-independent code and have the device-dependent code over-ride 
->>them.  Since the defaults may not always be NULL, doing a struct like 
->>that wouldn't really work.  I suppose we could have a struct and a 
->>device-independent function that copies the non-NULL pointers from the 
->>per-device struct.  Would that be better?
-> 
-> Don't copy them.  Just put
-> 
-> if (foo->ops->method1)
-> 	foo->ops->method1(args);
-> else
-> 	generic_method1(args);
-> 
-> in your code.  It's an additional branch, but you avoid the indirect
-> functioncalloverhead in exchange.
+On Sunday 29 August 2004 23:21, Hans Reiser wrote:
+> The Idea
+>
+> You should be able to access metadata about a file the same way you
+> access the file's data, but with a name based on the filename followed
+> by a name to select the metadata of interest.
+>
+> Examples:
+>
+> cat song_of_silence/metas/owner
+> cat song_of_silence/metas/permissions
+> cat 10 > song_of_silence/metas/mixer_defaults/volume
+> cat song_of_silence/metas/license
 
-<MrHorse>No sir, I didn't like it.</MrHorse>  That would not only be 
-ugly to read, but it would add maintenance burden.  If the default 
-changes from NULL to non-NULL, code has to be changed from doing nothing 
-in the NULL case to calling generic_method1.  The one place that we miss 
-is the one place that will crash Linus' box. :)
+Maybe I'm crazy but:
 
+ You're talking about a major change in the way filesystems work if this is 
+going to be used by other FSs too. If  I understand this correctly it is a 
+completely new thing and trying to do it by patching existing well-known 
+'primitives' may be wrong. 
+
+  AFAIK and AFAICS the metadata are not files or directories. You can look at 
+them as files/dirs but they are not, just like a tar is not a directory. I 
+believe that the correct thing to do (tm) is to add a new 'concept' named 
+'metadata' (which already exists). This way you'll have files, directories 
+and metadata (or whatever you call them). So, each directory can have 
+metadatas and files and each file can have metadatas. Then you have to 
+provide some new methods of accessing them and not to use chdir() etc. (lets 
+say chdir_meta() to enter the meta dir which will work for files too). After 
+entering the 'metadir' you'll be able to use existing methods etc to access 
+its 'files'.
+
+  This approach doesn't mess with existing things and can be extended for 
+other filesystems too.
+
+(Just a thought)
+
+<<V13>>

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTDYJiN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 05:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTDYJiN
+	id S263389AbTDYJq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 05:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTDYJq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 05:38:13 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:62901 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S263522AbTDYJiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 05:38:12 -0400
-Date: Fri, 25 Apr 2003 00:51:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030424225103.GC1198@elf.ucw.cz>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net>
-Mime-Version: 1.0
+	Fri, 25 Apr 2003 05:46:27 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:50705 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S263389AbTDYJq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 05:46:26 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] aha1740 update
+References: <wrpk7dkt84r.fsf@hina.wild-wind.fr.eu.org>
+	<1051210184.4005.12.camel@dhcp22.swansea.linux.org.uk>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 25 Apr 2003 11:56:50 +0200
+Message-ID: <wrpptnasxwd.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <1051210184.4005.12.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030423183413.C1425@almesberger.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > Actually, I agree with the submitter. Having the volume default to 0
-> > is stupid - userspace tools are all very well, but no substitute for
-> > sensible kernel defaults.
-> 
-> You've obviously never been to a meeting/conference and booted
-> a Linux notebook with a kernel that sets things to a non-zero
-> default :-)
-> 
-> If the default is to turn up also the microphone (and to enable
-> it in the first place), you might notice that even apparently
+Alan> The AHA1740 has firmware handled abort/reset handling. The "head
+Alan> in sand" kernel code is correct for once 8)
 
-So don't enable the microphone unless /dev/dsp is open for reading...
+That's nice ! :-) Is there any way to stop the kernel from screaming
+each time the module loads ? Would defining a dummy abort handler
+work ?
 
-								Pavel
+Thanks,
+
+        M.
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Places change, faces change. Life is so very strange.

@@ -1,123 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbTJGSCw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 14:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbTJGSCw
+	id S262550AbTJGR6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 13:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTJGR6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 14:02:52 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28178
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S262497AbTJGSCs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 14:02:48 -0400
-Subject: Badness in get_io_context
-From: Robert Love <rml@tech9.net>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1065549763.690.5.camel@localhost>
+	Tue, 7 Oct 2003 13:58:24 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:43923 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262550AbTJGR6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 13:58:22 -0400
+Date: Tue, 7 Oct 2003 18:58:17 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: devfs vs. udev
+Message-ID: <20031007175817.GB1125@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+	Andreas Jellinghaus <aj@dungeon.inka.de>
+References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de> <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net> <pan.2003.10.07.16.06.52.842471@dungeon.inka.de> <20031007165404.GB29870@carfax.org.uk> <20031007174928.GB1956@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Tue, 07 Oct 2003 14:02:43 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
+Content-Disposition: inline
+In-Reply-To: <20031007174928.GB1956@kroah.com>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.0-test6-mm4.  UP.  as-iosched.
 
-I got the following today when I tried to send SIGTERM to a GNOME
-application:
+--JYK4vJDZwFMowpUq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Badness in get_io_context at drivers/block/ll_rw_blk.c:2677
-Call Trace:
-[<c0205bbe>] get_io_context+0xce/0xd0
-[<c02041bb>] get_request+0x2b/0x2a0
-[<c0204c2b>] __make_request+0x10b/0x5a0
-[<c02051c5>] generic_make_request+0x105/0x190
-[<c011bd30>] autoremove_wake_function+0x0/0x50
-[<c020528d>] submit_bio+0x3d/0x80
-[<c01709f3>] mpage_bio_submit+0x23/0x40
-[<c0170cd6>] do_mpage_readpage+0x196/0x3b0
-[<c0177f94>] load_elf_binary+0x524/0xba0
-[<c0132bb0>] add_to_page_cache+0x70/0x100
-[<c017103e>] mpage_readpages+0x14e/0x1a0
-[<c01874e0>] ext3_get_block+0x0/0xa0
-[<c0117d69>] pgd_alloc+0x19/0x20
-[<c011bf05>] mm_init+0x95/0xd0
-[<c0139882>] read_pages+0x162/0x170
-[<c01874e0>] ext3_get_block+0x0/0xa0
-[<c013740f>] __alloc_pages+0xbf/0x360
-[<c0139b91>] do_page_cache_readahead+0x101/0x180
-[<c0134192>] filemap_nopage+0x122/0x330
-[<c0141779>] do_no_page+0xc9/0x370
-[<c0141c20>] handle_mm_fault+0xe0/0x180
-[<c011845c>] do_page_fault+0x34c/0x550
-[<c02f830b>] error_code+0x2f/0x38
+On Tue, Oct 07, 2003 at 10:49:28AM -0700, Greg KH wrote:
+> On Tue, Oct 07, 2003 at 05:54:04PM +0100, Hugo Mills wrote:
+> > 
+> >    Surely udev needs the ability to make more than one device node or
+> > symlink when a device is plugged in anyway, so I just see this as an
+> > issue of writing the appropriate default configuration files.
+> 
+> More than one device node per device?  Why would you want that?
 
-Send SIGTERM to it again:
+   OK, more than one actual node per device (i.e. per major:minor
+pair) may not necessarily be required, but in devfs there are, for
+example device nodes created in /dev/scsi/host0/bus0/device0/lun0/...
+etc, and links to those device nodes created in /dev/discs/disc0/...
+It can occasionally be useful to have the two distinct namespaces
+available.
 
-Badness in get_io_context at drivers/block/ll_rw_blk.c:2677
-Call Trace:
-[<c0205bbe>] get_io_context+0xce/0xd0
-[<c02041bb>] get_request+0x2b/0x2a0
-[<c0204c2b>] __make_request+0x10b/0x5a0
-[<c02051c5>] generic_make_request+0x105/0x190
-[<c0152573>] __find_get_block+0x73/0xf0
-[<c0154d97>] bio_alloc+0xd7/0x1d0
-[<c020528d>] submit_bio+0x3d/0x80
-[<c0152353>] __bread_slow_wq+0x53/0x100
-[<c01526ee>] __bread+0x3e/0x50
-[<c0188f2b>] ext3_free_branches+0xab/0x270
-[<c01895fb>] ext3_truncate+0x50b/0x620
-[<c0191fcd>] journal_start+0xad/0xe0
-[<c0186703>] start_transaction+0x23/0x60
-[<c01868a8>] ext3_delete_inode+0xc8/0x120
-[<c01867e0>] ext3_delete_inode+0x0/0x120
-[<c0169b4a>] generic_delete_inode+0x6a/0x110
-[<c0169de3>] iput+0x63/0x90
-[<c0166b9b>] dput+0x12b/0x280
-[<c01508b9>] __fput+0x79/0xc0
-[<c0144405>] exit_mmap+0x165/0x190
-[<c011bffa>] mmput+0x7a/0xf0
-(I missed the rest, sorry)
+> And sure, it's just software, it can be made to do that, if someone
+> sends me a patch... :)
 
-Another GNOME application:
+   If it doesn't do it when I want it to do that, I'll send you the
+patch. :)
 
-Badness in alloc_as_io_context at drivers/block/as-iosched.c:202
-Call Trace:
-[<c0208d7a>] alloc_as_io_context+0xca/0xd0
-[<c0208db5>] as_get_io_context+0x35/0x50
-[<c020a41e>] as_add_request+0x3e/0x210
-[<c0202099>] __elv_add_request+0x29/0x40
-[<c0204dfe>] __make_request+0x2de/0x5a0
-[<c02051c5>] generic_make_request+0x105/0x190
-[<c0152573>] __find_get_block+0x73/0xf0
-[<c0154d97>] bio_alloc+0xd7/0x1d0
-[<c020528d>] submit_bio+0x3d/0x80
-[<c0152353>] __bread_slow_wq+0x53/0x100
-[<c01526ee>] __bread+0x3e/0x50
-[<c0188f2b>] ext3_free_branches+0xab/0x270
-[<c01895fb>] ext3_truncate+0x50b/0x620
-[<c0191fcd>] journal_start+0xad/0xe0
-[<c0186703>] start_transaction+0x23/0x60
-[<c01868a8>] ext3_delete_inode+0xc8/0x120
-[<c01867e0>] ext3_delete_inode+0x0/0x120
-[<c0169b4a>] generic_delete_inode+0x6a/0x110
-[<c0169de3>] iput+0x63/0x90
-[<c0166b9b>] dput+0x12b/0x280
-[<c01508b9>] __fput+0x79/0xc0
-[<c0144405>] exit_mmap+0x165/0x190
-[<c011bffa>] mmput+0x7a/0xf0
-[<c011fc75>] do_exit+0xd5/0x360
-[<c011ffaa>] do_group_exit+0x3a/0xb0
-[<c01290cb>] get_signal_to_deliver+0x25b/0x360
-[<c010b29f>] do_signal+0x8f/0x110
-[<c016306a>] do_poll+0x6a/0xd0
-[<c0162534>] poll_freewait+0x44/0x50
-[<c0163352>] sys_poll+0x282/0x2d0
-[<c0162540>] __pollwait+0x0/0xd0
-[<c010b357>] do_notify_resume+0x37/0x40
-[<c02f814a>] work_notifysig+0x13/0x15
+   Hugo.
 
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+                 --- This year,  I'm giving up Lent. ---                 
 
+--JYK4vJDZwFMowpUq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/gv65ssJ7whwzWGARAvl6AKClXfUoHTaoro9A5o/GuZVo+VxlMwCgpbir
+ZHMZXWWWX6NqrKA8jdohOmM=
+=BlCl
+-----END PGP SIGNATURE-----
+
+--JYK4vJDZwFMowpUq--

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbUBVDIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 22:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUBVDIT
+	id S261656AbUBVDHN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 22:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUBVDHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 22:08:19 -0500
-Received: from [61.49.148.218] ([61.49.148.218]:5628 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S261650AbUBVDIO (ORCPT
+	Sat, 21 Feb 2004 22:07:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261650AbUBVDHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 22:08:14 -0500
-Date: Sun, 22 Feb 2004 11:20:55 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200402221920.i1MJKt303325@adam.yggdrasil.com>
-To: christophe@saout.de
-Subject: Re: dm-crypt, new IV and standards
-Cc: linux-kernel@vger.kernel.org
+	Sat, 21 Feb 2004 22:07:10 -0500
+Date: Sat, 21 Feb 2004 19:12:20 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+In-Reply-To: <20040222025957.GA31813@MAIL.13thfloor.at>
+Message-ID: <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>
+ <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
+ <20040222025957.GA31813@MAIL.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2004-02-19 22:20:37, Christophe Saout wrote:
->I've started to write a userspace program for reencryption. I don't know
->if this is very clever because I have to lock the part that is currently
->beeing reencrypted (deadlocks & co). Perhaps as another dm target like
->dm-mirror for pvmove? We'd have to keep a log or something because we
->don't *exactly* know what has been successfully written. This would mean
->a lot of seeks. It's complicated if it has to be safe against crashes
->and power outages.
 
-	Device-mapper already has support for different regions of a
-device being mapped differently (for example a single disk where
-0-100GB is mapped to disk A, 100GB-200GB is mapped to disk B), and
-I believe it has some support for changing this mapping while the
-device is opened or mounted.  So, if you wanted to add support for
-rekeying an encrypted block device while it is active, you could
-probably do it in fewer lines of code with an approach based on
-device-mapper than one based on a device.
 
-	One scheme for reencryption with minimal extra seeks and
-data transfers would be to configure a gap of, say, 128kB, at the
-front (or back) of a block device.  During rekeying, this gap would
-incrementally be moved forward (or backward).  The area before the
-gap would be encrypted with key A, and the area after
-the gap would be encrypted with key B.  Before you move the gap,
-you arrange so that the old location of the gap has the same
-contents as the new location of the gap, except that the old location
-was encrypted with the old key, and the new location was encrypted with
-the new key.  I can detail this more if my description is unclear,
-but I suspect you get the picture.
+On Sun, 22 Feb 2004, Herbert Poetzl wrote:
+> 
+> hmm, so the current x86_64 will be changed to x86-64 or
+> will there be x86_64 and x86-64?
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
+No. The filesystem policy _tends_ to be that dashes and spaces are turned 
+into underscores when used as filenames. Don't ask me why (well, the space 
+part is obvious, since real spaces tend to be a pain to use on the command 
+line, but don't ask me why people tend to conver a dash to an underscore).
+
+So the real name is (and has always been, as far as I can tell) x86-64. 
+
+Actually, I'm a bit disgusted at Intel for not even _mentioning_ AMD in 
+their documentation or their releases, so I'd almost be inclined to rename 
+the thing as "AMD64" just to give credit where credit is due. However, 
+it's just not worth the pain and confusion.
+
+Any Intel people on this list: tell your managers to be f*cking ashamed of
+themselves. Just because Intel didn't care about their customers and has
+been playing with some other 64-bit architecture that nobody wanted to use
+is no excuse for not giving credit to AMD for what they did with x86-64.
+
+(I'm really happy Intel finally got with the program, but it's pretty 
+petty to not even mention AMD in the documentation and try to make it 
+look like it was all their idea).
+
+		Linus

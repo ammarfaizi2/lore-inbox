@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266253AbSKEEIq>; Mon, 4 Nov 2002 23:08:46 -0500
+	id <S266228AbSKEEIV>; Mon, 4 Nov 2002 23:08:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbSKEEIq>; Mon, 4 Nov 2002 23:08:46 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:58026 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S266253AbSKEEIo>; Mon, 4 Nov 2002 23:08:44 -0500
-Message-Id: <200211050412.gA54CpPi011677@pool-141-150-241-241.delv.east.verizon.net>
-Date: Mon, 4 Nov 2002 23:12:49 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.46
-References: <200211050401.gA541YPi006905@pool-141-150-241-241.delv.east.verizon.net> <Pine.LNX.4.44.0211042016050.956-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211042016050.956-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Mon, Nov 04, 2002 at 08:17:04PM -0800
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out002.verizon.net from [141.150.241.241] at Mon, 4 Nov 2002 22:15:14 -0600
+	id <S267321AbSKEEIV>; Mon, 4 Nov 2002 23:08:21 -0500
+Received: from ns.suse.de ([213.95.15.193]:41736 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266228AbSKEEIT> convert rfc822-to-8bit;
+	Mon, 4 Nov 2002 23:08:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Tue, 5 Nov 2002 05:14:53 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, davej@suse.de
+References: <20021101085148.E105A2C06A@lists.samba.org> <1036175565.2260.20.camel@mentor>
+In-Reply-To: <1036175565.2260.20.camel@mentor>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211050514.53709.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> On Mon, 4 Nov 2002, Skip Ford wrote:
-> > Kai Germaschewski wrote:
-> > > On Mon, 4 Nov 2002, george anzinger wrote:
-> > >
-> > > > I think we need a newer objcopy :(
-> > >
-> > > Alternatively, use this patch. (It's not really needed to force people to
-> > > upgrade binutils when ld can do the job, as it e.g. does in
-> > > arch/i386/boot/compressed/Makefile already).
-> > >
-> > > -	( cd $(obj) ; ./gen_init_cpio | gzip -9c > initramfs_data.cpio.gz )
-> > > +	( cd $(obj) ; ./$< | gzip -9c > $@ )
-> >
-> > I get errors with your patch.  I had to remove the 'cd $(obj)' above
-> > from usr/Makefile.
-> 
-> With the latest binutils it works flawlessy w/out any patches ...
+On Friday 01 November 2002 19:32, Dax Kelson wrote:
+> On Fri, 2002-11-01 at 01:49, Rusty Russell wrote:
+> > I'm down to 8 undecided features: 6 removed and one I missed earlier.
+>
+> How about Olaf Dietsche's filesystem capabilities support? It has been
+> posted a couple times to LK, yesterday even.
+>
+>
+> We've had capabilities for ages (2.2?) but no filesystem support.
+>
+> OpenBSD is recently bragging about no longer having any SUID root
+> binaries on the system.
+>
+> With FS capabilities we (Linux) can have the same situation.  Security
+> is a hot topic, and anything the kernel can do make security
+> better/easier seems worthy of consideration.
 
-His patch is intended to negate the need for a recent binutils.  I
-already have binutils 2.13 and had no trouble building.  But with his
-patch that I assume Linus will apply, it errors out no matter which
-binutils you have.
+We have little experience with full blown capability enabled systems. Rushing 
+things doesn't seem like a good idea. IMO we should wait until vendors have 
+integrated FS caps before adding this to the standard kernel.
 
--- 
-Skip
+--Andreas.

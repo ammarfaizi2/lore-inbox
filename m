@@ -1,80 +1,231 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270987AbTGPRlo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270969AbTGPRk1
+	id S271027AbTGPRrp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270965AbTGPRrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:40:27 -0400
-Received: from mh57.com ([217.160.185.21]:50850 "EHLO mithrin.mh57.de")
-	by vger.kernel.org with ESMTP id S270965AbTGPRjG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:39:06 -0400
-Date: Wed, 16 Jul 2003 19:53:28 +0200
-From: Martin Hermanowski <martin@mh57.de>
-To: Peter Chubb <peter@chubb.wattle.id.au>, Andries Brouwer <aebr@win.tue.nl>,
-       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030716175328.GU8228@mh57.de>
-References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com> <20030715170804.GA1089@win.tue.nl> <16148.53643.475710.301248@wombat.chubb.wattle.id.au> <20030716170720.GC2681@matchmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
+	Wed, 16 Jul 2003 13:47:14 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:57618 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S271001AbTGPRpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:45:43 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1 - CRC errors on floppy block the whole system
+Date: Wed, 16 Jul 2003 21:59:15 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030716170720.GC2681@matchmail.com>
-User-Agent: Mutt/1.5.4i
-X-Authenticated-ID: martin
+Message-Id: <200307162159.16021.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Under KDE I went into floppy and made rm *. After this keyboard was lost - 
+even CAPS LED did not respond to keypress. I stil could use mouse to start 
+new windows and even execute some commands by copy'n'paste from available 
+text :)
 
---JWEK1jqKZ6MHAcjA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Attempt to exit KDE ended in black screen. I had to press reset; after that 
+the following text was found in syslog (slightly abridged, it had much more 
+those "floppy driver state"s).
 
-On Wed, Jul 16, 2003 at 10:07:20AM -0700, Mike Fedyk wrote:
-> On Wed, Jul 16, 2003 at 02:16:11PM +1000, Peter Chubb wrote:
-> > >>>>> "Andries" =3D=3D Andries Brouwer <aebr@win.tue.nl> writes:
-> >=20
-> > Andries> On Mon, Jul 14, 2003 at 05:03:31PM -0700, Mike Fedyk wrote:
-> > >> So, will the DOS partition make it up to 2TB?  If so, then we won't
-> > >> have a problem until we have larger than 2TB drives
-> >=20
-> > Andries> Yes, DOS partition table works up to 2^32 sectors, and with
-> > Andries> 2^9-byte sectors that is 2 TiB.
-> >=20
-> > Andries> People are encountering that limit already. We need something
-> > Andries> better, either use some existing scheme, or invent something.
-> >=20
-> > We had this discussion before, back when I first submitted the large
-> > block device patches.  The consensus then was to use EFI, or LDM.
-> >=20
-> > Unless the BIOS supports a partitioning scheme, you're not
-> > going to be able to boot anyway, or at least not without doing
-> > something clever.
->=20
-> The bios shouldn't even know about partition tables.  It just loads the c=
-ode
-> in the MBR, and the boot loader deals with the rest from there.
+Floppies are not that robust, everyone knows it. It is rather unfriendly to 
+handle media errors in such manner :)
 
-There are some bios variants that refuse to boot if the hard disk has no
-partition with the boot-flag set.
+-andrey
 
-LLAP, Martin
+Jul 16 21:31:01 localhost kernel: floppy0: data CRC error: track 0, head 0, 
+sector 6, size 2
+Jul 16 21:31:01 localhost kernel: end_request: I/O error, dev fd0, sector 5
+Jul 16 21:31:01 localhost kernel: Unable to handle kernel paging request at 
+virtual address cc623048
+Jul 16 21:31:01 localhost kernel: printing eip:
+Jul 16 21:31:01 localhost kernel: d2d18494
+Jul 16 21:31:01 localhost kernel: *pde = 00032067
+Jul 16 21:31:01 localhost kernel: *pte = 0c623000
+Jul 16 21:31:01 localhost kernel: Oops: 0000 [#1]
+Jul 16 21:31:01 localhost kernel: CPU:    0
+Jul 16 21:31:01 localhost kernel: EIP:    0060:[<d2d18494>]    Tainted: P  
+Jul 16 21:31:01 localhost kernel: EFLAGS: 00010246
+Jul 16 21:31:01 localhost kernel: EIP is at bad_flp_intr+0x64/0x100 [floppy]
+Jul 16 21:31:01 localhost kernel: eax: 00000000   ebx: 00000000   ecx: 
+00000000   edx: 00000000
+Jul 16 21:31:01 localhost kernel: esi: 00000000   edi: cc623048   ebp: 
+cff5df38   esp: cff5df28
+Jul 16 21:31:01 localhost kernel: ds: 007b   es: 007b   ss: 0068
+Jul 16 21:31:01 localhost kernel: Process events/0 (pid: 4, 
+threadinfo=cff5c000 task=c12c1000)
+Jul 16 21:31:01 localhost kernel: Stack: 0000001f 0000001f 00000000 00000000 
+cff5df60 d2d18e65 00000000 00000000 
+Jul 16 21:31:01 localhost kernel: 00000002 00000000 00000000 d2d22be4 cff5c000 
+00000000 cff5df6c d2d15ff4 
+Jul 16 21:31:01 localhost kernel: d2d22c20 cff5dfec c0137cb2 00000000 cffa902c 
+cffa901c 00000000 d2d15fe0 
+Jul 16 21:31:01 localhost kernel: Call Trace:
+Jul 16 21:31:01 localhost kernel: [<d2d18e65>] rw_interrupt+0x2b5/0x390 
+[floppy]
+Jul 16 21:31:01 localhost kernel: [<d2d15ff4>] 
+main_command_interrupt+0x14/0x20 [floppy]
+Jul 16 21:31:01 localhost kernel: [<c0137cb2>] worker_thread+0x232/0x3e0
+Jul 16 21:31:01 localhost kernel: [<d2d15fe0>] main_command_interrupt+0x0/0x20 
+[floppy]
+Jul 16 21:31:01 localhost kernel: [<c01205b0>] default_wake_function+0x0/0x20
+Jul 16 21:31:01 localhost kernel: [<c010b3d6>] ret_from_fork+0x6/0x20
+Jul 16 21:31:01 localhost kernel: [<c01205b0>] default_wake_function+0x0/0x20
+Jul 16 21:31:01 localhost kernel: [<c0137a80>] worker_thread+0x0/0x3e0
+Jul 16 21:31:01 localhost kernel: [<c0109029>] kernel_thread_helper+0x5/0xc
+Jul 16 21:31:01 localhost kernel: 
+Jul 16 21:31:01 localhost kernel: Code: 8b 0f 8a 55 f3 8d 04 92 8d 04 42 c1 e0 
+03 3b 88 90 36 d2 d2 
+Jul 16 21:31:01 localhost kernel: <3>FAT: bread(block 5) in fat_access failed
+Jul 16 21:31:21 localhost kernel: 
+Jul 16 21:31:21 localhost kernel: floppy driver state
+Jul 16 21:31:21 localhost kernel: -------------------
+Jul 16 21:31:21 localhost kernel: now=621544 last interrupt=601544 diff=20000 
+last called handler=d2d15fe0
+Jul 16 21:31:21 localhost kernel: timeout_message=request done %d
+Jul 16 21:31:21 localhost kernel: last output bytes:
+Jul 16 21:31:21 localhost kernel: 0 90 601346
+Jul 16 21:31:21 localhost kernel: 13 90 601346
+Jul 16 21:31:21 localhost kernel: 0 90 601346
+Jul 16 21:31:21 localhost kernel: 1a 90 601346
+Jul 16 21:31:21 localhost kernel: 0 90 601346
+Jul 16 21:31:21 localhost kernel: 3 90 601346
+Jul 16 21:31:21 localhost kernel: c1 90 601346
+Jul 16 21:31:21 localhost kernel: 10 90 601346
+Jul 16 21:31:21 localhost kernel: 7 80 601346
+Jul 16 21:31:21 localhost kernel: 0 90 601346
+Jul 16 21:31:21 localhost kernel: 8 81 601347
+Jul 16 21:31:21 localhost kernel: e6 80 601347
+Jul 16 21:31:21 localhost kernel: 0 90 601347
+Jul 16 21:31:21 localhost kernel: 0 90 601347
+Jul 16 21:31:21 localhost kernel: 0 90 601347
+Jul 16 21:31:21 localhost kernel: 6 90 601347
+Jul 16 21:31:21 localhost kernel: 2 90 601347
+Jul 16 21:31:21 localhost kernel: 12 90 601347
+Jul 16 21:31:21 localhost kernel: 1b 90 601347
+Jul 16 21:31:21 localhost kernel: ff 90 601347
+Jul 16 21:31:21 localhost kernel: last result at 601544
+Jul 16 21:31:21 localhost kernel: last redo_fd_request at 601346
+Jul 16 21:31:21 localhost kernel: 40 20 20  0  0  6  2 
+Jul 16 21:31:21 localhost kernel: status=80
+Jul 16 21:31:21 localhost kernel: fdc_busy=1
+Jul 16 21:31:21 localhost kernel: cont=d2d22c80
+Jul 16 21:31:21 localhost kernel: current_req=00000000
+Jul 16 21:31:21 localhost kernel: command_status=-1
+Jul 16 21:31:21 localhost kernel: 
+Jul 16 21:31:21 localhost kernel: floppy0: floppy timeout called
+Jul 16 21:31:21 localhost kernel: floppy.c: no request in request_done
+Jul 16 21:31:24 localhost kernel: 
+Jul 16 21:31:24 localhost kernel: floppy driver state
+Jul 16 21:31:24 localhost kernel: -------------------
+Jul 16 21:31:24 localhost kernel: now=624545 last interrupt=621545 diff=3000 
+last called handler=d2d177d0
+Jul 16 21:31:24 localhost kernel: timeout_message=redo fd request
+Jul 16 21:31:24 localhost kernel: last output bytes:
+Jul 16 21:31:24 localhost kernel: 0 90 601346
+Jul 16 21:31:24 localhost kernel: 3 90 601346
+Jul 16 21:31:24 localhost kernel: c1 90 601346
+Jul 16 21:31:24 localhost kernel: 10 90 601346
+Jul 16 21:31:24 localhost kernel: 7 80 601346
+Jul 16 21:31:24 localhost kernel: 0 90 601346
+Jul 16 21:31:24 localhost kernel: 8 81 601347
+Jul 16 21:31:24 localhost kernel: e6 80 601347
+Jul 16 21:31:24 localhost kernel: 0 90 601347
+Jul 16 21:31:24 localhost kernel: 0 90 601347
+Jul 16 21:31:24 localhost kernel: 0 90 601347
+Jul 16 21:31:24 localhost kernel: 6 90 601347
+Jul 16 21:31:24 localhost kernel: 2 90 601347
+Jul 16 21:31:24 localhost kernel: 12 90 601347
+Jul 16 21:31:24 localhost kernel: 1b 90 601347
+Jul 16 21:31:24 localhost kernel: ff 90 601347
+Jul 16 21:31:24 localhost kernel: 8 80 621545
+Jul 16 21:31:24 localhost kernel: 8 80 621545
+Jul 16 21:31:24 localhost kernel: 8 80 621545
+Jul 16 21:31:24 localhost kernel: 8 80 621545
+Jul 16 21:31:24 localhost kernel: last result at 621545
+Jul 16 21:31:24 localhost kernel: last redo_fd_request at 621544
+Jul 16 21:31:24 localhost kernel: c3  0 
+Jul 16 21:31:24 localhost kernel: status=80
+Jul 16 21:31:24 localhost kernel: fdc_busy=1
+Jul 16 21:31:24 localhost kernel: floppy_work.func=d2d177d0
+Jul 16 21:31:24 localhost kernel: cont=d2d22c80
+Jul 16 21:31:24 localhost kernel: current_req=c9b83004
+Jul 16 21:31:24 localhost kernel: command_status=-1
+Jul 16 21:31:24 localhost kernel: 
+Jul 16 21:31:24 localhost kernel: floppy0: floppy timeout called
+Jul 16 21:31:24 localhost kernel: end_request: I/O error, dev fd0, sector 19
+Jul 16 21:31:24 localhost kernel: Buffer I/O error on device fd0, logical 
+block 19
+Jul 16 21:31:27 localhost kernel: 
+Jul 16 21:31:27 localhost kernel: floppy driver state
+Jul 16 21:31:27 localhost kernel: -------------------
+Jul 16 21:31:27 localhost kernel: now=627545 last interrupt=624546 diff=2999 
+last called handler=d2d177d0
 
---JWEK1jqKZ6MHAcjA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+[ ... STRIPPED ... ]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Jul 16 21:33:02 localhost kernel: floppy0: floppy timeout called
+Jul 16 21:33:22 localhost kernel: 
+Jul 16 21:33:22 localhost kernel: floppy driver state
+Jul 16 21:33:22 localhost kernel: -------------------
+Jul 16 21:33:22 localhost kernel: now=742567 last interrupt=645548 diff=97019 
+last called handler=d2d177d0
+Jul 16 21:33:22 localhost kernel: timeout_message=do wakeup
+Jul 16 21:33:22 localhost kernel: last output bytes:
+Jul 16 21:33:22 localhost kernel: 8 80 633547
+Jul 16 21:33:22 localhost kernel: 8 80 633547
+Jul 16 21:33:22 localhost kernel: 8 80 633547
+Jul 16 21:33:22 localhost kernel: 8 80 633547
+Jul 16 21:33:22 localhost kernel: 8 80 636548
+Jul 16 21:33:22 localhost kernel: 8 80 636548
+Jul 16 21:33:22 localhost kernel: 8 80 636548
+Jul 16 21:33:22 localhost kernel: 8 80 636548
+Jul 16 21:33:22 localhost kernel: 8 80 639547
+Jul 16 21:33:22 localhost kernel: 8 80 639547
+Jul 16 21:33:22 localhost kernel: 8 80 639547
+Jul 16 21:33:22 localhost kernel: 8 80 639547
+Jul 16 21:33:22 localhost kernel: 8 80 642548
+Jul 16 21:33:22 localhost kernel: 8 80 642548
+Jul 16 21:33:22 localhost kernel: 8 80 642548
+kernel: 8 80 642548
+kernel: 8 80 645548
+kernel: 8 80 645548
+kernel: 8 80 645548
+kernel: 8 80 645548
+kernel: last result at 645548
+kernel: last redo_fd_request at 648547
+kernel: c3  0 
+kernel: status=80
+kernel: fdc_busy=1
+kernel: floppy_work.func=d2d1a0b0
+kernel: cont=d2d22c80
+kernel: current_req=00000000
+kernel: command_status=-1
+kernel: 
+kernel: floppy0: floppy timeout called
+kernel: floppy.c: no request in request_done
+kernel: Debug: sleeping function called from illegal context at mm/slab.c:1811
+kernel: Call Trace:
+kernel: [<c0122ba8>] __might_sleep+0x58/0x70
+kernel: [<c014c75f>] kmem_cache_alloc+0x18f/0x1a0
+kernel: [<c015e8e4>] get_vm_area+0x24/0x160
+kernel: [<c011e116>] __ioremap+0xa6/0xf0
+kernel: [<c011e176>] ioremap_nocache+0x16/0xb0
+kernel: [<d2ee9c57>] os_map_kernel_space+0x37/0x60 [nvidia]
+kernel: [<d2dcfb97>] __nvsym00517+0x1f/0x2c [nvidia]
+kernel: [<d2dd1a6e>] __nvsym00711+0x6e/0xdc [nvidia]
+kernel: [<d2dd1afa>] __nvsym00718+0x1e/0x184 [nvidia]
+kernel: [<d2dd2b28>] rm_init_adapter+0xc/0x10 [nvidia]
+kernel: [<d2ee6db2>] nv_kern_open+0x102/0x210 [nvidia]
+kernel: [<c016f17f>] chrdev_open+0x15f/0x350
+kernel: [<c01b0d9f>] devfs_open+0x13f/0x160
+kernel: [<c0163ce6>] dentry_open+0x156/0x240
+kernel: [<c0163b81>] filp_open+0x51/0x60
+kernel: [<c016412f>] sys_open+0x3f/0x70
+kernel: [<c010b527>] syscall_call+0x7/0xb
+kernel: 
 
-iD8DBQE/FZEYmGb6Npij0ewRAkNfAKCBBo5/mdCZbWp4SOrzijG/N0q8gACgnQjp
-fzZOIa07wUtiy9lJEZlmbRI=
-=xg9w
------END PGP SIGNATURE-----
-
---JWEK1jqKZ6MHAcjA--

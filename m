@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262205AbSIZGg0>; Thu, 26 Sep 2002 02:36:26 -0400
+	id <S262211AbSIZGyp>; Thu, 26 Sep 2002 02:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262206AbSIZGgZ>; Thu, 26 Sep 2002 02:36:25 -0400
-Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:49892 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S262205AbSIZGgZ>; Thu, 26 Sep 2002 02:36:25 -0400
-Date: Thu, 26 Sep 2002 00:42:11 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Peter Chubb <peter@chubb.wattle.id.au>
-cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux
-In-Reply-To: <15762.20827.271317.595537@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.44.0209260038500.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262212AbSIZGyp>; Thu, 26 Sep 2002 02:54:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:11202 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262211AbSIZGyo>;
+	Thu, 26 Sep 2002 02:54:44 -0400
+Date: Thu, 26 Sep 2002 08:59:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020926065951.GD12862@suse.de>
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com> <20020926064455.GC12862@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020926064455.GC12862@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 26 2002, Jens Axboe wrote:
+> > Now alter fifo_batch, everything else default:
+> > 
+> > 	fifo_batch (units)	time cat kernel/*.c (secs)
+> > 		64			5.0
+> > 		32			2.0
+> > 		16			0.2
+> > 		 8			0.17
+> > 
+> > OK, that's a winner.
+> 
+> Cool, I'm resting benchmarks with 16 as the default now. I fear this
+> might be too agressive, and that 32 will be a decent value.
 
-On Thu, 26 Sep 2002, Peter Chubb wrote:
-> +/**
-> + * slist_del -	remove an entry from list
-> + * @head:	head to remove it from
-> + * @entry:	entry to be removed
-> + */
-> +#define slist_del(_head, _entry)		\
-> +do {						\
-> +	(_head)->next = (_entry)->next;		\
-> +	(_entry)->next = NULL;			\
-> +}
+fifo_batch=16 drops throughput slightly on tiobench, however it also
+gives really really good interactive behaviour here. Using 32 doesn't
+change that a whole lot, the throughput that is. This might just be
+normal deviation between runs, more are needed to be sure.  Note that
+I'm testing with the last_sec patch I posted, you should too.
 
-What about
+BTW, for SCSI, it would be nice to first convert more drivers to use the
+block level queued tagging. That would provide us with a much better
+means to control starvation properly on SCSI as well.
 
-#define slist_del(_head)			\
-do {						\
-	typeof(_head) _entry = (_head)->next;	\
-	(_head)->next = _entry->next;		\
-	_entry->next = NULL;			\
-} while (0)
-
-> static inline int slist_del(struct slist *head, struct slist *entry)
-
-I don't want to inline (just like once, with list.h) because I want any 
-type to match here...
-
-			Thunder
 -- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+Jens Axboe
 

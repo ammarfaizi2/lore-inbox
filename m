@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289222AbSAIHnK>; Wed, 9 Jan 2002 02:43:10 -0500
+	id <S289224AbSAIHpX>; Wed, 9 Jan 2002 02:45:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289224AbSAIHnB>; Wed, 9 Jan 2002 02:43:01 -0500
-Received: from [213.171.51.190] ([213.171.51.190]:39307 "EHLO ns.yauza.ru")
-	by vger.kernel.org with ESMTP id <S289222AbSAIHmx>;
-	Wed, 9 Jan 2002 02:42:53 -0500
-Date: Wed, 9 Jan 2002 10:42:47 +0300
-From: Nikita Gergel <fc@yauza.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Patch contributing question
-Message-Id: <20020109104247.1d88f5da.fc@yauza.ru>
-Organization: YAUZA-Telecom
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-alt-linux)
-X-Face: /kH/`k:.@|9\`-o$p/YBn<xFr)I]mglEQW0$I${i4Q;J|JXWbc}de_p8c1;:W~5{WV,.l%B S|A4'A1hnId[
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg=pgp-sha1; boundary="=.AYEtH0,yqkZv_s"
+	id <S289227AbSAIHpN>; Wed, 9 Jan 2002 02:45:13 -0500
+Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:51468 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289224AbSAIHoz>;
+	Wed, 9 Jan 2002 02:44:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        Luigi Genoni <kernel@Expansa.sns.it>
+Subject: Re: Preemtive kernel (Was: Re: [2.4.17/18pre] VM and swap - it's really unusable)
+Date: Wed, 9 Jan 2002 08:48:41 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>, Anton Blanchard <anton@samba.org>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
+In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it> <E16OCCE-0000CJ-00@starship.berlin> <200201090728.g097SPo11772@mailf.telia.com>
+In-Reply-To: <200201090728.g097SPo11772@mailf.telia.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ODTW-0000Cz-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.AYEtH0,yqkZv_s
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On January 9, 2002 08:25 am, Roger Larsson wrote:
+> (the subject has been wrong for some time now...)
+> 
+> On Wednesday den 9 January 2002 07.26, Daniel Phillips wrote:
+> > On January 9, 2002 12:02 am, Luigi Genoni wrote:
+> > > On Tue, 8 Jan 2002, Daniel Phillips wrote:
+> > > > On January 8, 2002 04:29 pm, Andrea Arcangeli wrote:
+> > > > > but I just wanted to make clear that the
+> > > > > idea that is floating around that preemptive kernel is all goodness
+> > > > > is very far from reality, you get very low mean latency but at a
+> > > > > price.
+> > > >
+> > > > A price lots of people are willing to pay
+> > >
+> > > Probably sometimes they are not making a good business.
+> >
+> > Perhaps.  But they are happy customers and their music sounds better.
+> >
+> > Note: the dominating cost of -preempt is not Robert's patch, but the fact
+> > that you need to have CONFIG_SMP enabled, even for uniprocessor, turning
+> > all those stub macros into real spinlocks.  For a dual processor you have
+> > to have this anyway and it just isn't an issue.
+> 
+> Well you don't - the first versions used the SMP spinlocks macros but
+> replaced them with own code. (basically an INC on entry and a DEC and test
+> when leaving)
+> 
+> Think about what happens on a UP
+> There are two cases
+>  - the processor is in the critical section, it can not be preempted = no
+>    other process can take the CPU away from it.
+>  - the processor is not in a critical section, no process can be executing
+>    inside it = can never be busy.
+> => no real spinlocks needed on a UP
 
-Hello!
+Right, thanks, it was immediately obvious when you pointed out that the 
+macros are just used to find the bounds of the critical regions.  So the cost 
+of -preempt is somewhat less than I had imagined.
 
-I've written a patch to 2.5 kernel that fixing bugs with 'MINOR' in emu10k1 driver. How do I contribute this patch? According to FAQ at kernel.org I must attach the patch to my post and send it to this list. Am I right?
-
--- 
-Nikita Gergel					System Administrator
-Moscow, Russia					YAUZA-Telecom
-
---=.AYEtH0,yqkZv_s
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8O/R8FP8BYTTFfXkRAoL6AJ9eBU/QrFaVhTCyJIa99D0J8ZY6RgCfVVXB
-BPZh5iXdDeyCdr4IVx/ypWs=
-=XmcW
------END PGP SIGNATURE-----
-
---=.AYEtH0,yqkZv_s--
-
+--
+Daniel

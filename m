@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129427AbRBSLYw>; Mon, 19 Feb 2001 06:24:52 -0500
+	id <S129667AbRBSL3b>; Mon, 19 Feb 2001 06:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129667AbRBSLYl>; Mon, 19 Feb 2001 06:24:41 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15888 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129427AbRBSLYZ>; Mon, 19 Feb 2001 06:24:25 -0500
-Subject: Re: problems with reiserfs + nfs using 2.4.2-pre4
-To: neilb@cse.unsw.edu.au (Neil Brown)
-Date: Mon, 19 Feb 2001 11:23:56 +0000 (GMT)
-Cc: dek_ml@konerding.com, neilb@cse.unsw.edu.au (Neil Brown),
-        linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-In-Reply-To: <14992.38288.497367.324493@notabene.cse.unsw.edu.au> from "Neil Brown" at Feb 19, 2001 02:40:00 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129804AbRBSL3L>; Mon, 19 Feb 2001 06:29:11 -0500
+Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:8146 "EHLO
+	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S129667AbRBSL3J>; Mon, 19 Feb 2001 06:29:09 -0500
+Message-ID: <003b01c09a67$29367e40$8d19b018@c779218a>
+From: "Nicholas Knight" <tegeran@home.com>
+To: "Jeff Garzik" <jgarzik@mandrakesoft.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>
+Subject: Re: [LONG RANT] Re: Linux stifles innovation...
+Date: Mon, 19 Feb 2001 03:28:56 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14UoQA-0003BM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I hope to put out a patch set for testing in a day or so and possibly
-> suggest it to Alan for his -ac series.  I don't see it going into
-> 2.4.2, but 2.4.3 might be possible if Linus agrees.
+----- Original Message -----
+From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
+To: "Werner Almesberger" <Werner.Almesberger@epfl.ch>
+Cc: "Henning P. Schmiedehausen" <hps@tanstaafl.de>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, February 19, 2001 3:07 AM
+Subject: Re: [LONG RANT] Re: Linux stifles innovation...
 
-Im not interested in a patch that requires NFS is hacked for each file system
-that tells me the implementation is wrong. The previous setup worked perfectly
-for everything but reiserfs, so why isnt the newer setup one allowing each fs
-to override a generic behaviour which is the current working behaviour, thereby
-meaning all the other fs's work.
 
-FS authors shouldnt have to do extra work to support knfsd unless they are doing
-interesting and unusual things
+> On Mon, 19 Feb 2001, Werner Almesberger wrote:
+> > Now what's at stake ? Look at the Windows world. Also there, companies
+> > could release their drivers as Open Source. Quick, how many do this ?
+> > Almost none. So, given the choice, most companies have defaulted to
+> > closed source. Consistently complaining when a company tries to release
+> > only closed source drivers for Linux seems to generally have the desired
+> > effect of making them change their policy.
+>
+> FWIW, -every single- Windows driver source code I've seen has been
+> bloody awful.  Asking them to release that code would probably result in
+> embarrassment.  Same reasoning why many companies won't release hardware
+> specifications...  The internal docs are bad.  Really bad.
+
+While I understand that internal docs and source are often simply a mess, I
+fail to see why this should prevent a company from releasing specs or
+source.
+Sure somebody will come along and say "What on earth were you people
+THINKING?!", and then they'll get over it and do something useful with the
+specs and/or source to the drivers (or if they don't, somebody else will)
+I seriously doubt it'd lead to a company seeing a drop in sales because of
+it... and even if they did, I'd say it's a calculated risk, as they could
+well pick up a higher number of new customers than the number of old
+customers they lost due to wider ranging support.
+And even if their specs and code were the worst peices of trash on the
+planet, I'd still thank them for opening them up to the public.
+
+-NK
 

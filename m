@@ -1,86 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313827AbSDIIno>; Tue, 9 Apr 2002 04:43:44 -0400
+	id <S313116AbSDIJDv>; Tue, 9 Apr 2002 05:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313828AbSDIInn>; Tue, 9 Apr 2002 04:43:43 -0400
-Received: from mail.spylog.com ([194.67.35.220]:54144 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S313827AbSDIInm>;
-	Tue, 9 Apr 2002 04:43:42 -0400
-Date: Tue, 9 Apr 2002 12:43:35 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: BUG: 2.4.19-pre6aa1
-Message-ID: <20020409084335.GA10890@spylog.ru>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: SpyLOG ltd.
+	id <S313828AbSDIJDu>; Tue, 9 Apr 2002 05:03:50 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30983 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S313116AbSDIJDu>; Tue, 9 Apr 2002 05:03:50 -0400
+Message-Id: <200204090901.g3991JX01875@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: [DEADLOCK] automount, kupdated: D state
+Date: Tue, 9 Apr 2002 12:04:32 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <5.1.0.14.2.20020405155322.01ff3b40@pop.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 5 April 2002 12:59, Anton Altaparmakov wrote:
+> >kernel: 2.5.7 + new NTFS driver
+> >ps and ksymoopsed parts of Alt-Sysrq-T output are attached.
+> >ksymoops warnings trimmed except automount.dump.ksymoops
+> >(they were the same).
+>
+>  From looking at the information supplied, NTFS doesn't seem to be
+> involved. The processes seem to be stuck trying to write dirty buffers as
+> well as in nfs and pipefs - buffers could never get dirtied by the current
+> NTFS as it is entirely read-only.
 
-1. kernel 2.4.19-pre6aa1, 1CPU, highmem 4Gb, userspace 3.5Gb
- 
-2. log from serial console:
+I don't think NTFS is related, I just wanted people to know what kernel I'm 
+using.
 
-...
-VFS: Mounted root (nfs filesystem).
-Freeing unused kernel memory: 252k freed
-INIT: version 2.78 booting
-kernel BUG at panic.c:139!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<e0115c1c>]    Not tainted
-EFLAGS: 00010202
-eax: e27d3260   ebx: 3ffe5005   ecx: 00000120   edx: ffff02b0
-esi: ffff02b0   edi: ffff12b0   ebp: 080ad000   esp: e1c17f1c
-ds: 0018   es: 0018   ss: 0018
-Process init (pid: 1, stackpage=e1c17000)
-Stack: e012069b e27d3130 e1c16000 e27d3158 e27d5134 00000001 080ad000 e27de080 
-       e27d4080 e0114caa e27d5134 e27d50a4 e27d3260 e27ca000 e27d6584 e27d6aa4 
-       00000011 e27d3260 e27d50a4 e27d50c0 e1c16000 e27d326c e01154b7 00000011 
-Call Trace: [<e012069b>] [<e0114caa>] [<e01154b7>] [<e0107270>] [<e010858b>] 
+> btw. You had sent a problem report about cyrillic names with NTFS and I
+> suggested to try the new NTFS driver but you never got back to me whether
+> that fixed it or not... How is the new driver behaving? Are you stil seing
+> problems or is everything working fine now?
 
-Code: 0f 0b 8b 00 36 f5 25 e0 eb fe 8d 76 00 8d bc 27 00 00 00 00 
- <0>Kernel panic: Attempted to kill init!
+I tried four times to post a reply to lkml, never seen my own posts.
+This is becoming a problem, need to debug email route to lkml :-)
 
+I needed storage badly and had to delete problematic files before 
+trying new NTFS driver, sorry. :-( Now I'm running 2.5.7 with new driver,
+seems to work fine. Well done! I'll report anything unusual.
 
- 3. keymoops :
-
-..
-
->>EIP; e0115c1c <out_of_line_bug+0/14>   <=====
-Trace; e012069a <copy_page_range+1da/334>
-Trace; e0114caa <copy_mm+222/2bc>
-Trace; e01154b6 <do_fork+42e/744>
-Trace; e0107270 <sys_fork+14/1c>
-Trace; e010858a <system_call+32/38>
-Code;  e0115c1c <out_of_line_bug+0/14>
-00000000 <_EIP>:
-Code;  e0115c1c <out_of_line_bug+0/14>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  e0115c1e <out_of_line_bug+2/14>
-   2:   8b 00                     mov    (%eax),%eax
-Code;  e0115c20 <out_of_line_bug+4/14>
-   4:   36                        ss
-Code;  e0115c20 <out_of_line_bug+4/14>
-   5:   f5                        cmc    
-Code;  e0115c22 <out_of_line_bug+6/14>
-   6:   25 e0 eb fe 8d            and    $0x8dfeebe0,%eax
-Code;  e0115c26 <out_of_line_bug+a/14>
-   b:   76 00                     jbe    d <_EIP+0xd> e0115c28
-<out_of_line_bug+c/14>
-Code;  e0115c28 <out_of_line_bug+c/14>
-   d:   8d bc 27 00 00 00 00      lea    0x0(%edi,1),%edi
-
-
-
-
--- 
-bye.
-Andrey Nekrasov, SpyLOG.
+Are there any plans for RW support for NTFS?
+--
+vda

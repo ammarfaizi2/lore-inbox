@@ -1,65 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264289AbUDNRL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 13:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUDNRL2
+	id S264280AbUDNRM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 13:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUDNRM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 13:11:28 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50397
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264289AbUDNRLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 13:11:22 -0400
-Date: Wed, 14 Apr 2004 19:11:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Benchmarking objrmap under memory pressure
-Message-ID: <20040414171126.GT2150@dualathlon.random>
-References: <1130000.1081841981@[10.10.2.4]> <20040413005111.71c7716d.akpm@osdl.org> <120240000.1081903082@flay> <20040414162700.GS2150@dualathlon.random> <25670000.1081960943@[10.10.2.4]>
+	Wed, 14 Apr 2004 13:12:59 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:50098 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264280AbUDNRMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 13:12:41 -0400
+Date: Wed, 14 Apr 2004 18:11:47 +0100
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, petrides@redhat.com
+Subject: [SECURITY] CAN-2004-0109 isofs fix.
+Message-ID: <20040414171147.GB23419@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, petrides@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <25670000.1081960943@[10.10.2.4]>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 09:42:24AM -0700, Martin J. Bligh wrote:
-> > As expected the 6 second difference was nothing compared the the noise,
-> > though I'd be curious to see an average number.
-> 
-> Yeah, I don't think either is worse or better - I really want a more stable
-> test though, if I can find one.
+Merged in 2.4, and various vendor kernels today..
 
-a test involving less tasks and that cannot take any advantage from the
-cache and the age information should be more stable, though I don't have
-obvious suggestions.
+  iDefense reported a buffer overflow flaw in the ISO9660 filesystem code.
+  An attacker could create a malicious filesystem in such a way that they
+  could gain root privileges if that filesystem is mounted. The Common
+  Vulnerabilities and Exposures project (cve.mitre.org) has assigned the name
+  CAN-2004-0109 to this issue.
 
-> Yeah, that's odd.
+Ernie Petrides came up with the following patch which I fixed up a slight
+reject in to apply to 2.6. Otherwise, unchanged from the 2.4 patch.
 
-I just wonder the VM needs a bit of fixing besides the rmap removal, or
-if it was just a pure concidence. if it happens again in the -aa pass
-too then it may not be a conincidence.
+diff against bk-HEAD from a few minutes ago.
 
-> Because it's frigging hard to make a 16GB machine swap ;-) 'twas just my
-> desktop.
+		Dave
 
-mem= should fix the problem for the benchmarking ;)
+--- linux/fs/isofs/rock.c.orig
++++ linux/fs/isofs/rock.c
+@@ -14,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/pagemap.h>
+ #include <linux/smp_lock.h>
+ #include <linux/buffer_head.h>
++#include <asm/page.h>
+ 
+ #include "rock.h"
+@@ -419,7 +420,7 @@ int parse_rock_ridge_inode_internal(stru
+   return 0;
+ }
+ 
+-static char *get_symlink_chunk(char *rpnt, struct rock_ridge *rr)
++static char *get_symlink_chunk(char *rpnt, struct rock_ridge *rr, char *plimit)
+ {
+ 	int slen;
+ 	int rootflag;
+@@ -431,16 +432,25 @@ static char *get_symlink_chunk(char *rpn
+ 		rootflag = 0;
+ 		switch (slp->flags & ~1) {
+ 		case 0:
++			if (slp->len > plimit - rpnt)
++				return NULL;
+ 			memcpy(rpnt, slp->text, slp->len);
+ 			rpnt+=slp->len;
+ 			break;
++		case 2:
++			if (rpnt >= plimit)
++				return NULL;
++			*rpnt++='.';
++			break;
+ 		case 4:
++			if (2 > plimit - rpnt)
++				return NULL;
+ 			*rpnt++='.';
+-			/* fallthru */
+-		case 2:
+ 			*rpnt++='.';
+ 			break;
+ 		case 8:
++			if (rpnt >= plimit)
++				return NULL;
+ 			rootflag = 1;
+ 			*rpnt++='/';
+ 			break;
+@@ -457,17 +467,23 @@ static char *get_symlink_chunk(char *rpn
+ 			 * If there is another SL record, and this component
+ 			 * record isn't continued, then add a slash.
+ 			 */
+-			if ((!rootflag) && (rr->u.SL.flags & 1) && !(oldslp->flags & 1))
++			if ((!rootflag) && (rr->u.SL.flags & 1) &&
++			    !(oldslp->flags & 1)) {
++				if (rpnt >= plimit)
++					return NULL;
+ 				*rpnt++='/';
++			}
+ 			break;
+ 		}
+ 
+ 		/*
+ 		 * If this component record isn't continued, then append a '/'.
+ 		 */
+-		if (!rootflag && !(oldslp->flags & 1))
++		if (!rootflag && !(oldslp->flags & 1)) {
++			if (rpnt >= plimit)
++				return NULL;
+ 			*rpnt++='/';
+-
++		}
+ 	}
+ 	return rpnt;
+ }
+@@ -548,7 +564,10 @@ static int rock_ridge_symlink_readpage(s
+ 			CHECK_SP(goto out);
+ 			break;
+ 		case SIG('S', 'L'):
+-			rpnt = get_symlink_chunk(rpnt, rr);
++			rpnt = get_symlink_chunk(rpnt, rr,
++						 link + (PAGE_SIZE - 1));
++			if (rpnt == NULL)
++				goto out;
+ 			break;
+ 		case SIG('C', 'E'):
+ 			/* This tells is if there is a continuation record */
 
-swapping in general is important for 16GB 32-way too (and that's the
-thing that 2.4 mainline cannot swap efficiently, and that's why I had to
-add objrmap in 2.4-aa too).
-
-> Yeah, it's hard to do mem= on NUMA, but I have a patch from someone 
-> somehwere. Those machines don't tend to swap heavily anyway, but I suppose
-> page reclaim in general will happen.
-
-I see what you mean with mem= being troublesome, I forgot you're numa=y,
-you can either disable numa temporarily, or use the more complex syntax
-that you should find in arch/i386/kernel/setup.c, that should work w/o
-kernel changes and w/o patches since it simply trimes the e820 map,
-everything else numa is built on top of that map, you've just to give
-an hundred megs from the start of every node, and hopefully it'll boot ;).

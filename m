@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263207AbSJaVyu>; Thu, 31 Oct 2002 16:54:50 -0500
+	id <S265385AbSJaWBO>; Thu, 31 Oct 2002 17:01:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265326AbSJaVyt>; Thu, 31 Oct 2002 16:54:49 -0500
-Received: from momus.sc.intel.com ([143.183.152.8]:10443 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S263207AbSJaVyt>; Thu, 31 Oct 2002 16:54:49 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A493@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Greg KH'" <greg@kroah.com>
-Cc: "Lee, Jung-Ik" <jung-ik.lee@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: bare pci configuration access functions ?
-Date: Thu, 31 Oct 2002 14:00:27 -0800
+	id <S265387AbSJaWBN>; Thu, 31 Oct 2002 17:01:13 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20209 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265385AbSJaWBF>;
+	Thu, 31 Oct 2002 17:01:05 -0500
+Message-ID: <3DC1A983.7B5B12B2@mvista.com>
+Date: Thu, 31 Oct 2002 14:06:59 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: lost messages
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Greg KH [mailto:greg@kroah.com] 
-> In 2.5 we now have a 
-> pci_bus_read_*
-> and pci_bus_write_* functions, which the pci hotplug drivers use, as
-> they at least know the bus on which the devices they are 
-> looking for are
-> on.  I also had to convert over some ACPI code that was using the
-> pci_read_config functions to get everything to work properly, but I
-> don't seem to be able to find that code in the latest 2.5 tree, so I
-> guess you don't need to do that anymore?
+I just stepped over the line again with a message too long
+for the lklm.  Am I the only one who would like a message
+back when lklm drops a message?  The mail system seems to
+say:
+relay=vger.kernel.org. [209.116.70.75], 
+stat=Sent (2.7.0 nothing apparently wrong in the message.;
+S264820AbSJaKoJ)
 
-It's still there in drivers/acpi/osl.c. We use the pci_root_ops directly,
-instead of bus->ops (which is usually set to pci_root_ops anyways) but I
-just mention this as a sidenote.
-
-Regards -- Andy
+and then drop the message.  Maybe, at least this response
+could be changed.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

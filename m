@@ -1,82 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313560AbSDQL3U>; Wed, 17 Apr 2002 07:29:20 -0400
+	id <S313565AbSDQLck>; Wed, 17 Apr 2002 07:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313565AbSDQL3U>; Wed, 17 Apr 2002 07:29:20 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:56561 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313560AbSDQL3T>;
-	Wed, 17 Apr 2002 07:29:19 -0400
-Date: Wed, 17 Apr 2002 13:28:52 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-Message-Id: <20020417132852.4cf20276.sebastian.droege@gmx.de>
-In-Reply-To: <3CBD28D1.6070702@evision-ventures.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.TsqYka/1nnHVG6"
+	id <S313566AbSDQLcj>; Wed, 17 Apr 2002 07:32:39 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8709 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S313565AbSDQLci>; Wed, 17 Apr 2002 07:32:38 -0400
+Message-Id: <200204171128.g3HBS5X29316@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: traditional bug: only one of two serial ports found on HP Vectra XM
+Date: Wed, 17 Apr 2002 14:30:16 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3CBD382B.20432.3A9A82@localhost>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.TsqYka/1nnHVG6
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On 17 April 2002 04:54, Ulrich Windl wrote:
+> historically I believed Linux very much. When it said my HP Vecra XM
+> only has one serial port I was surprised, but believed it. That was
+> some years ago. 2.4.18 still says that there is one serial port:
+>
+> ttyS00 at 0x3f8 (irq=4) as a 16550A
+>
+> However recently I had to work on the backside of the PC and found
+> two(!) serial ports labelled "Serial A" and "Serial B". So shouldn't
+> both ports be detected?
 
-On Wed, 17 Apr 2002 09:48:33 +0200
-Martin Dalecki <dalecki@evision-ventures.com> wrote:
+How about opening the case and checking whether those ports actually
+connected to motherboard? Checking BIOS config?
+Without waiting for another 'some years' :-)
 
-> Sebastian Droege wrote:
-> > On Tue, 16 Apr 2002 20:09:14 +0200
-> > Jens Axboe <axboe@suse.de> wrote:
-> > 
-> > 
-> >>On Tue, Apr 16 2002, Sebastian Droege wrote:
-> >>
-> >>>Hi,
-> >>>just one short question:
-> >>>My hda supports TCQ but my hdb doesn't
-> >>>Is it safe to enable TCQ in kernel config?
-> >>
-> >>yes, should be safe.
-> >>
-> >>-- 
-> >>Jens Axboe
-> >>
-> > 
-> > Ok it really works ;)
-> > But there's another problem in 2.5.8 with ide patches until 37 applied (they don't appear with 2.5.8 and ide patches until 35), the unexpected interrupts (look at the relevant dmesg output at the bottom). They appear with and without TCQ enabled.
-> > If you need more informations, just ask :)
-> 
-> They are not a problem. They are just diagnostics for us and will
-> go away at some point in time.
-Ok but there are actually 2 real problems then...
-1.
-TCQ on hda is enabled with queue depth 32 and CONFIG_BLK_DEV_IDE_TCQ_FULL enabled
-When I do many transfers on the hard disk I get a "ide_dma_queued_start: abort (stat=d0)" after some time and the IDE system doesn't respond anymore :(
-2.
-when I cat /proc/ide/ide1/hdc/identify I get 2 unexpected interrupts
-hdc and hdd are both cdrom drives (accessed via scsi-emulation if relevant) but the problem shows up only with hdc
-
-and maybe a third problem ;)
-in /proc/ide/ide0/hda/tcq there is written:
-DMA status: not running
-but DMA is explicitly enabled by hdparm and shows up in /proc/ide/ide0/hda/settings
-
-I'll do some more testings later the day
-
-Bye
---=.TsqYka/1nnHVG6
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8vVx3e9FFpVVDScsRAnZGAJ9JA4sUP1AU3Xm2bnxQdiUllIt/UQCgpD51
-AqW3Glk0/dvug++9MCv/A7s=
-=5px5
------END PGP SIGNATURE-----
-
---=.TsqYka/1nnHVG6--
-
+Seriously, do you have any reason to think second port is really
+exists beside physical connector?
+--
+vda

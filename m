@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284491AbRLMSBT>; Thu, 13 Dec 2001 13:01:19 -0500
+	id <S284507AbRLMSEJ>; Thu, 13 Dec 2001 13:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284500AbRLMSBK>; Thu, 13 Dec 2001 13:01:10 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:42411 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S284491AbRLMSA6>; Thu, 13 Dec 2001 13:00:58 -0500
-Date: Thu, 13 Dec 2001 18:02:56 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, LKML <linux-kernel@vger.kernel.org>
+	id <S284500AbRLMSEA>; Thu, 13 Dec 2001 13:04:00 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:405 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S284507AbRLMSDw>; Thu, 13 Dec 2001 13:03:52 -0500
+Date: Thu, 13 Dec 2001 10:03:12 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: LKML <linux-kernel@vger.kernel.org>
 Subject: Re: Repost: could ia32 mmap() allocations grow downward?
-In-Reply-To: <Pine.LNX.4.33.0112130920260.19658-100000@mf1.private>
-Message-ID: <Pine.LNX.4.21.0112131745580.1594-100000@localhost.localdomain>
+In-Reply-To: <BE42B9D5208@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0112130945410.19658-100000@mf1.private>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Wayne Whitney wrote:
-> On Thu, 13 Dec 2001, Hugh Dickins wrote:
-> 
-> > My fear is that you may encounter an indefinite number of buggy apps,
-> > which expect an mmap() to follow the mmap() before: easy bug to
-> > commit, and to go unnoticed, until you reverse the layout.
-> 
-> Hmm, so which is more important to support, buggy users of (unguaranteed
-> side effects of) the new interface, or users of the legacy interface?  I
-> can see the argument that that the buggy users of the new interface are
-> more important.  Maybe CONFIG_MMAP_GROWS_DOWNWARDS, or a /proc entry?
+On Thu, 13 Dec 2001, Petr Vandrovec wrote:
 
-Hard to know until you try it: my fear may prove groundless,
-or experience may discourage you from the exercise completely.
+> Maybe we should move to bug-glibc instead, as there is no way to force
+> stdio to not ignore mallopt() parameters, it still insist on using
+> mmap, and I think that it is a glibc2.2 bug.
 
-Quick guess is that what you'd really want in the end is not a
-CONFIG option or /proc tunable, but some mark in an ELF section
-for what behaviour that particular executable wants.
+OK, that makes sense for the glibc2 subthread of this discussion.  Would
+you mind submitting the bug report, as you have a better command of the
+issues than I do?  Or if you want, I can do it and just quote you.  :-)
 
-I'm reluctant to call wanting a large virtual address space buggy;
-but expecting contiguous ascending mmaps (without MAP_FIXED) is buggy.
+> P.S.: I did some testing, and about 95% of mremap() allocations is
+> targeted to last VMA, so no VMA move is needed for them. But no Java
+> was part of picture, only c/c++ programs I use - gcc, mc, perl.
 
-Hugh
+Ah, so this is important data.  It shows that the mmap() grows downward
+strategy will hurt the common case.  I don't have any handle on the
+magnitude of this effect, but if it is significant, then I would have to
+agree that supporting the legacy brk() apps is not as important as keeping
+mremap() of the last VMA cheap.  How expensive is moving a VMA, and how
+often do programs mremap()?
+
+How about the idea of modifying brk() (or adding an alternative) to move
+VMAs out of the way as necessary?  This way the negative impact (of moving
+VMAs) is only borne by the legacy brk() using app.  Or is there some other
+downside that I am missing?
+
+Wayne
+
+
 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133028AbRAFUnG>; Sat, 6 Jan 2001 15:43:06 -0500
+	id <S133016AbRAFUr0>; Sat, 6 Jan 2001 15:47:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133007AbRAFUm5>; Sat, 6 Jan 2001 15:42:57 -0500
-Received: from [156.46.206.66] ([156.46.206.66]:17167 "EHLO eagle.netwrx1.com")
-	by vger.kernel.org with ESMTP id <S132156AbRAFUmp>;
-	Sat, 6 Jan 2001 15:42:45 -0500
+	id <S132977AbRAFUrS>; Sat, 6 Jan 2001 15:47:18 -0500
+Received: from [156.46.206.66] ([156.46.206.66]:24335 "EHLO eagle.netwrx1.com")
+	by vger.kernel.org with ESMTP id <S132900AbRAFUrK>;
+	Sat, 6 Jan 2001 15:47:10 -0500
 From: "George R. Kasica" <georgek@netwrx1.com>
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.0 make bzImage failure
-Date: Sat, 06 Jan 2001 14:42:43 -0600
+Subject: Linux 2.4.0 make bzImage failure - Followup
+Date: Sat, 06 Jan 2001 14:47:09 -0600
 Organization: Netwrx Consulting Inc.
 Reply-To: georgek@netwrx1.com
-Message-ID: <lm0f5toih0k7oou8dds64ead6clmiqa1sc@4ax.com>
+Message-ID: <q11f5tg6b07jatkjona1ah4pbish0s95bd@4ax.com>
 X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -46,8 +46,7 @@ make: *** [bzImage] Error 2
 
 I'm running the following:
 
-
-[root@eagle linux]# gcc -v
+ [root@eagle linux]# gcc -v
 Reading specs from
 /usr/local/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/specs
 gcc version 2.95.2 19991024 (release)
@@ -68,6 +67,11 @@ LILO version 21.6-1, Copyright (C) 1992-1998 Werner Almesberger
 Linux Real Mode Interface library Copyright (C) 1998 Josh Vanderhoof
 Development beyond version 21 Copyright (C) 1999-2000 John Coffman
 Released 16-Dec-2000 and compiled at 12:26:34 on Jan  6 2001.
+
+ALSO:
+
+[root@eagle linux]# ld -v
+GNU ld version 2.10.1 (with BFD 2.10.1)
 
 
 ===[George R. Kasica]===        +1 262 513 8503

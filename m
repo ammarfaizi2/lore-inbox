@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbTEFUwO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 16:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTEFUwO
+	id S261953AbTEFU4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 16:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTEFUz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 16:52:14 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:47720 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261886AbTEFUwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 16:52:12 -0400
-Date: Tue, 6 May 2003 14:01:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, jaharkes@cs.cmu.edu,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] Process Attribute API for Security Modules 2.5.69
-Message-Id: <20030506140104.78dda82f.akpm@digeo.com>
-In-Reply-To: <1052237601.1377.991.camel@moss-huskers.epoch.ncsc.mil>
-References: <1052237601.1377.991.camel@moss-huskers.epoch.ncsc.mil>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 6 May 2003 16:55:59 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:38662 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261953AbTEFUz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 16:55:56 -0400
+Date: Tue, 6 May 2003 22:08:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
+Message-ID: <20030506220828.A19971@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Hunold <hunold@convergence.de>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <3EB7DCF0.2070207@convergence.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 May 2003 21:04:38.0874 (UTC) FILETIME=[1B2353A0:01C31413]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EB7DCF0.2070207@convergence.de>; from hunold@convergence.de on Tue, May 06, 2003 at 06:04:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley <sds@epoch.ncsc.mil> wrote:
->
-> This patch against 2.5.69 implements a process attribute API for
-> security modules via a set of nodes in a /proc/pid/attr directory.
+and your devfs stuff is a mess.  I already told one of the DVB folks
+(it wasn't you IIRC) that I'll publish a 2.5 devfs API on 2.4 header.
+But first I have to fix the devfs API on 2.5 and randomly bringing
+back old crap and lots of ifdefs in those changing areas won't help.
 
-Just a few triviata:
-
-> +static int proc_attr_readdir(struct file * filp,
-
-Can all this be inside CONFIG_SOMETHING?  It's quite a lot of code.
-
-> +	switch (i) {
-> +		case 0:
-
-We often line the `case' up with the `switch' to save a tabstop.
-
-> +			if (i>=sizeof(attr_stuff)/sizeof(attr_stuff[0])) {
-
-The ARRAY_SIZE macro does this.
-
-> +static ssize_t proc_pid_attr_read(struct file * file, char * buf,
-> +				  size_t count, loff_t *ppos)
-> +{
-> ...
-> +	copy_to_user(buf, (char *) page + *ppos, count);
-
-Need to check the return value here, return a short read if something was
-copied, else -EFAULT.  Or just EFAULT.
-
+What the problem with 2.5, dvb and devfs? 
 

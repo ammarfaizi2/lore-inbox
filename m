@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbTBUK20>; Fri, 21 Feb 2003 05:28:26 -0500
+	id <S267348AbTBUKdl>; Fri, 21 Feb 2003 05:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267344AbTBUK2Z>; Fri, 21 Feb 2003 05:28:25 -0500
-Received: from moutvdom.kundenserver.de ([212.227.126.252]:37064 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S267342AbTBUK2Y>; Fri, 21 Feb 2003 05:28:24 -0500
-From: Thomas Stuefe <thomas.stuefe@online.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.62 hisax compile broke. isac_setup double defined (hisax.o & hisax_isac.o)
-Date: Fri, 21 Feb 2003 11:38:19 +0100
-User-Agent: KMail/1.5
+	id <S267353AbTBUKdk>; Fri, 21 Feb 2003 05:33:40 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:254 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S267348AbTBUKdj> convert rfc822-to-8bit; Fri, 21 Feb 2003 05:33:39 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302211138.19592.thomas.stuefe@online.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: [BENCHMARK] TIObench 2.5.60 performance
+Date: Fri, 21 Feb 2003 16:13:32 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867217CCBE@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] TIObench 2.5.60 performance
+Thread-Index: AcLTRCTgdbHq/5bATjGW7KpcxVtR2QGUUrzA
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Feb 2003 10:43:32.0529 (UTC) FILETIME=[1418DA10:01C2D996]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-
-tried to compile 2.5.62. 
-
-when linking hisax/built-in.o, the linker complains about the function 
-isac_setup being defined twice, once in hisax.o and once in hisax_isac.o.
+Here is TIObench performance of 2.5.62. Comparison of 2.5.62 and 2.5.60 is given below.
 
 
-make -f scripts/Makefile.build obj=drivers/isdn/hisax
-   ld -m elf_i386  -r -o drivers/isdn/hisax/built-in.o 
-drivers/isdn/hisax/hisax.o drivers/isdn/hisax/hisax_isac.o 
-drivers/isdn/hisax/hisax_fcpcipnp.o drivers/isdn/hisax/hisax_hfcpci.o
-drivers/isdn/hisax/hisax_isac.o: In function `isac_setup':
-drivers/isdn/hisax/hisax_isac.o(.text+0x77e): multiple definition of 
-`isac_setup'
-drivers/isdn/hisax/hisax.o(.text+0x1a732): first defined here
-ld: Warning: size of symbol `isac_setup' changed from 39 to 587 in 
-drivers/isdn/hisax/hisax_isac.o
+
+-----------------------------------------------------------------------------------------------------------------
+test					2.5.62 (as compared to
+					2.5.60) APPROXIMATE % change
+----------------------------------------------------------------------------------------------------------------
+rate (megabytes per second)		less than 5% increase
+CPU % utilization			less than 5% increase
+Average Latency			5 % decrease
+Maximum latency			5-10 % increase
+CPU efficiency				less than 5% increase
+-----------------------------------------------------------------------------------------------------------------
 
 
-These are the relevant .config ISDN settings:
+************************************************************
+		TIObench for kernel 2.5.62
+************************************************************
+No size specified, using 252 MB
 
-#
-# ISDN subsystem
-#
-CONFIG_ISDN_BOOL=y
+Unit information
+================
+File size = megabytes
+Blk Size  = bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
 
-#
-# CAPI subsystem
-#
-# CONFIG_ISDN_CAPI is not set
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.62                        252   4096   10    7.93 4.271%    12.438     2841.36   0.00000  0.00000   186
 
-#
-# Passive cards
-#
-CONFIG_ISDN_DRV_HISAX=y
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.62                        252   4096   10    0.47 0.552%   213.629     1301.68   0.00000  0.00000    84
 
-#
-# D-channel protocol features
-#
-CONFIG_HISAX_EURO=y
-CONFIG_DE_AOC=y
-CONFIG_HISAX_1TR6=y
-CONFIG_HISAX_MAX_CARDS=1
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.62                        252   4096   10   12.39 21.14%     6.214    37150.05   0.10157  0.00782    59
 
-#
-# HiSax supported cards
-#
-CONFIG_HISAX_FRITZPCI=y
-CONFIG_HISAX_FRITZ_PCIPNP=y
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.62                        252   4096   10    0.73 0.891%     0.762     1761.34   0.00000  0.00000    81
+No size specified, using 252 MB
 
-
-bye thomas
+Aniruddha Marathe
+WIPRO Technologies, India.

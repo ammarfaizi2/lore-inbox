@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319035AbSHMR4u>; Tue, 13 Aug 2002 13:56:50 -0400
+	id <S319026AbSHMSAD>; Tue, 13 Aug 2002 14:00:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319041AbSHMR4t>; Tue, 13 Aug 2002 13:56:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:15881 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S319035AbSHMRz7>; Tue, 13 Aug 2002 13:55:59 -0400
-Date: Tue, 13 Aug 2002 14:59:30 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
+	id <S319043AbSHMSAC>; Tue, 13 Aug 2002 14:00:02 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:36252 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319026AbSHMR7z>;
+	Tue, 13 Aug 2002 13:59:55 -0400
+Date: Tue, 13 Aug 2002 20:03:52 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rob Landley <landley@trommello.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Daniel Phillips <phillips@arcor.de>, Larry McVoy <lm@bitmover.com>,
-       <frankeh@watson.ibm.com>, <davidm@hpl.hp.com>,
-       David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <Pine.LNX.4.44.0208131054240.9145-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0208131458430.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit_free(), 2.5.31-A0
+In-Reply-To: <Pine.LNX.4.44.0208131057390.9145-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208131959160.5990-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 On Tue, 13 Aug 2002, Linus Torvalds wrote:
-> On Tue, 13 Aug 2002, Rik van Riel wrote:
-> >
-> > Having a license that explicitly states that people who
-> > contribute and use Linux shouldn't sue you over it might
-> > prevent some problems.
->
-> The thing is, if you own the patent, and you sneaked the code into the
-> kernel, you will almost certainly be laughed out of court for trying to
-> enforce it.
 
-Apparently not everybody agrees on this:
+> > we dont really want any signal overhead, and we also dont want any extra
+> > context-switching to the 'master thread'. And there's no master thread
+> > anymore either.
+> 
+> That still doesn't make it any les crap: because any thread that exits
+> without calling the "magic exit-flag interface" will then silently be
+> lost, with no information left around anywhere.
 
-http://zdnet.com.com/2100-1106-884681.html
+that should be a pretty rare occurance: with the upcoming signals patch
+any segmentation fault zaps all threads and does a proper (and
+deadlock-free) multithreaded coredump. Sysadmin doing a kill(1) will get
+all threads killed as well. The only possible way for an uncontrolled exit
+is for the thread to call sys_exit() explicitly (which is not possible
+without the glibc cleanup handlers being called), or for someone to send a
+SIGKILL via sys_tkill().
 
-regards,
+but even in this rare and malicious case, whatever resources a thread has,
+they are lost if there's an uncontrolled exit anyway. There's tons of
+other stuff that glibc might have to clean up on exit - mutexes,
+malloc()s, etc. Thread exit needs to be cooperative, no matter what. The
+stack cache does not change this situation the least.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+	Ingo
 

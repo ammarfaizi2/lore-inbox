@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271155AbTGPWKz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271152AbTGPWKV
+	id S271147AbTGPWKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbTGPWIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:10:21 -0400
-Received: from home.wiggy.net ([213.84.101.140]:8068 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S271165AbTGPWIy (ORCPT
+	Wed, 16 Jul 2003 18:08:11 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:16907 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S271147AbTGPWFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 18:08:54 -0400
-Date: Thu, 17 Jul 2003 00:23:45 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: joe <joe@tmsusa.com>
-Subject: Re: Linux 2.6.0-test1-ac2
-Message-ID: <20030716222345.GE17931@wiggy.net>
-Mail-Followup-To: linux kernel <linux-kernel@vger.kernel.org>,
-	joe <joe@tmsusa.com>
-References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com> <20030716201339.GA618@sokrates> <1058392329.7677.1.camel@dhcp22.swansea.linux.org.uk> <3F15CB80.4020306@tmsusa.com> <20030716220801.GD1821@matchmail.com>
+	Wed, 16 Jul 2003 18:05:24 -0400
+Date: Thu, 17 Jul 2003 00:20:15 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Message-ID: <20030716222015.GB1964@win.tue.nl>
+References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org> <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org> <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716220801.GD1821@matchmail.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030716143902.4b26be70.akpm@osdl.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Mike Fedyk wrote:
-> I'm sure the others do, (debian, suse, mandrake, gentoo, etc)
+On Wed, Jul 16, 2003 at 02:39:02PM -0700, Andrew Morton wrote:
+> Andries Brouwer <aebr@win.tue.nl> wrote:
+> >
+> > On Wed, Jul 16, 2003 at 02:13:20PM -0700, Andrew Morton wrote:
+> > 
+> > > The new dev_t encoding is a bit weird because we of course continue to
+> > > support the old 8:8 encoding.  I think the rule is: "if the top 32-bits are
+> > > zero, it is 8:8, otherwise 32:32".  We can express this nicely with
+> > > "%u:%u".
+> > 
+> > 16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
 
-Debian at least has had alsa packages since june 1998. Time sure
-flies..
+> Why do we need the 16:16 option?
 
-Wichert.
+It is not very important, but major 0 is reserved, so if userspace
+(or a filesystem) hands us a 32-bit device number, we have to
+split that in some way, not 0+32. Life is easiest with 16+16.
+(Now the major is nonzero, otherwise we had 8+8.)
+Other choices lead to slightly more complicated code.
 
--- 
-Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
-http://www.wiggy.net/                     It is hard to make things simple.
+Andries
 

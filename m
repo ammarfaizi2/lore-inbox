@@ -1,254 +1,247 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbVAKRPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVAKRDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbVAKRPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbVAKRMV
+	id S262864AbVAKRDV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVAKQzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:12:21 -0500
-Received: from maxipes.logix.cz ([217.11.251.249]:33160 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S262850AbVAKRIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:08:42 -0500
-Date: Tue, 11 Jan 2005 18:08:42 +0100 (CET)
-From: Michal Ludvig <michal@logix.cz>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] PadLock processing multiple blocks at a time
-In-Reply-To: <Pine.LNX.4.61.0412031353120.17402@maxipes.logix.cz>
-Message-ID: <Pine.LNX.4.61.0501111808170.7104@maxipes.logix.cz>
-References: <Xine.LNX.4.44.0411301009560.11945-100000@thoron.boston.redhat.com>
- <Pine.LNX.4.61.0411301722270.4409@maxipes.logix.cz>
- <20041130222442.7b0f4f67.davem@davemloft.net> <Pine.LNX.4.61.0412031353120.17402@maxipes.logix.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Jan 2005 11:55:52 -0500
+Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:34176 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262831AbVAKQcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 11:32:21 -0500
+To: akpm@osdl.org, torvalds@osdl.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 11/11] FUSE - direct I/O
+Message-Id: <E1CoOw6-0003NA-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 11 Jan 2005 17:32:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# 
-# Update to padlock-aes.c that enables processing of the whole 
-# buffer of data at once with the given chaining mode (e.g. CBC).
-# 
-# Signed-off-by: Michal Ludvig <michal@logix.cz>
-# 
-Index: linux-2.6.10/drivers/crypto/padlock-aes.c
-===================================================================
---- linux-2.6.10.orig/drivers/crypto/padlock-aes.c	2005-01-07 17:26:42.000000000 +0100
-+++ linux-2.6.10/drivers/crypto/padlock-aes.c	2005-01-10 17:59:17.000000000 +0100
-@@ -369,19 +369,54 @@ aes_set_key(void *ctx_arg, const uint8_t
- 
- /* ====== Encryption/decryption routines ====== */
- 
--/* This is the real call to PadLock. */
--static inline void
-+/* These are the real calls to PadLock. */
-+static inline void *
- padlock_xcrypt_ecb(uint8_t *input, uint8_t *output, uint8_t *key,
--		   void *control_word, uint32_t count)
-+		   uint8_t *iv, void *control_word, uint32_t count)
- {
- 	asm volatile ("pushfl; popfl");		/* enforce key reload. */
- 	asm volatile (".byte 0xf3,0x0f,0xa7,0xc8"	/* rep xcryptecb */
- 		      : "+S"(input), "+D"(output)
- 		      : "d"(control_word), "b"(key), "c"(count));
-+	return NULL;
-+}
-+
-+static inline void *
-+padlock_xcrypt_cbc(uint8_t *input, uint8_t *output, uint8_t *key,
-+		   uint8_t *iv, void *control_word, uint32_t count)
-+{
-+	asm volatile ("pushfl; popfl");		/* enforce key reload. */
-+	asm volatile (".byte 0xf3,0x0f,0xa7,0xd0"	/* rep xcryptcbc */
-+		      : "=m"(*output), "+S"(input), "+D"(output), "+a"(iv)
-+		      : "d"(control_word), "b"(key), "c"(count));
-+	return iv;
-+}
-+
-+static inline void *
-+padlock_xcrypt_cfb(uint8_t *input, uint8_t *output, uint8_t *key,
-+		   uint8_t *iv, void *control_word, uint32_t count)
-+{
-+	asm volatile ("pushfl; popfl");		/* enforce key reload. */
-+	asm volatile (".byte 0xf3,0x0f,0xa7,0xe0"	/* rep xcryptcfb */
-+		      : "=m"(*output), "+S"(input), "+D"(output), "+a"(iv)
-+		      : "d"(control_word), "b"(key), "c"(count));
-+	return iv;
-+}
-+
-+static inline void *
-+padlock_xcrypt_ofb(uint8_t *input, uint8_t *output, uint8_t *key,
-+		   uint8_t *iv, void *control_word, uint32_t count)
-+{
-+	asm volatile ("pushfl; popfl");		/* enforce key reload. */
-+	asm volatile (".byte 0xf3,0x0f,0xa7,0xe8"	/* rep xcryptofb */
-+		      : "=m"(*output), "+S"(input), "+D"(output), "+a"(iv)
-+		      : "d"(control_word), "b"(key), "c"(count));
-+	return iv;
+This patch adds support for the "direct_io" mount option of FUSE.
+
+When this mount option is specified, the page cache is bypassed for
+read and write operations.  This is useful for example, if the
+filesystem doesn't know the size of files before reading them, or when
+any kind of caching is harmful.
+
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+diff -Nurp a/fs/fuse/file.c b/fs/fuse/file.c
+--- a/fs/fuse/file.c	2005-01-11 16:28:28.000000000 +0100
++++ b/fs/fuse/file.c	2005-01-11 16:28:28.000000000 +0100
+@@ -354,8 +354,134 @@ static int fuse_commit_write(struct file
+ 	return err;
  }
  
- static void
--aes_padlock(void *ctx_arg, uint8_t *out_arg, const uint8_t *in_arg, int encdec)
-+aes_padlock(void *ctx_arg, uint8_t *out_arg, const uint8_t *in_arg,
-+	    uint8_t *iv_arg, size_t nbytes, int encdec, int mode)
- {
- 	/* Don't blindly modify this structure - the items must 
- 	   fit on 16-Bytes boundaries! */
-@@ -419,21 +454,126 @@ aes_padlock(void *ctx_arg, uint8_t *out_
- 	else
- 		key = ctx->D;
- 	
--	memcpy(data->buf, in_arg, AES_BLOCK_SIZE);
--	padlock_xcrypt_ecb(data->buf, data->buf, key, &data->cword, 1);
--	memcpy(out_arg, data->buf, AES_BLOCK_SIZE);
-+	if (nbytes == AES_BLOCK_SIZE) {
-+		/* Processing one block only => ECB is enough */
-+		memcpy(data->buf, in_arg, AES_BLOCK_SIZE);
-+		padlock_xcrypt_ecb(data->buf, data->buf, key, NULL,
-+				   &data->cword, 1);
-+		memcpy(out_arg, data->buf, AES_BLOCK_SIZE);
-+	} else {
-+		/* Processing multiple blocks at once */
-+		uint8_t *in, *out, *iv;
-+		int gfp = in_atomic() ? GFP_ATOMIC : GFP_KERNEL;
-+		void *index = NULL;
++static void fuse_release_user_pages(struct fuse_req *req, int write)
++{
++	unsigned i;
 +
-+		if (unlikely(((long)in_arg) & 0x0F)) {
-+			in = crypto_aligned_kmalloc(nbytes, gfp, 16, &index);
-+			memcpy(in, in_arg, nbytes);
-+		}
-+		else
-+			in = (uint8_t*)in_arg;
-+
-+		if (unlikely(((long)out_arg) & 0x0F)) {
-+			if (index)
-+				out = in;	/* xcrypt can work "in place" */
-+			else
-+				out = crypto_aligned_kmalloc(nbytes, gfp, 16,
-+							     &index);
-+		}
-+		else
-+			out = out_arg;
-+
-+		/* Always make a local copy of IV - xcrypt may change it! */
-+		iv = data->buf;
-+		if (iv_arg)
-+			memcpy(iv, iv_arg, AES_BLOCK_SIZE);
-+
-+		switch (mode) {
-+			case CRYPTO_TFM_MODE_ECB:
-+				iv = padlock_xcrypt_ecb(in, out, key, iv,
-+							&data->cword,
-+							nbytes/AES_BLOCK_SIZE);
-+				break;
-+
-+			case CRYPTO_TFM_MODE_CBC:
-+				iv = padlock_xcrypt_cbc(in, out, key, iv,
-+							&data->cword,
-+							nbytes/AES_BLOCK_SIZE);
-+				break;
-+
-+			case CRYPTO_TFM_MODE_CFB:
-+				iv = padlock_xcrypt_cfb(in, out, key, iv,
-+							&data->cword,
-+							nbytes/AES_BLOCK_SIZE);
-+				break;
-+
-+			case CRYPTO_TFM_MODE_OFB:
-+				iv = padlock_xcrypt_ofb(in, out, key, iv,
-+							&data->cword,
-+							nbytes/AES_BLOCK_SIZE);
-+				break;
-+
-+			default:
-+				BUG();
-+		}
-+
-+		/* Back up IV */
-+		if (iv && iv_arg)
-+			memcpy(iv_arg, iv, AES_BLOCK_SIZE);
-+
-+		/* Copy the 16-Byte aligned output to the caller's buffer. */
-+		if (out != out_arg)
-+			memcpy(out_arg, out, nbytes);
-+
-+		if (index)
-+			kfree(index);
++	for (i = 0; i < req->num_pages; i++) {
++		struct page *page = req->pages[i];
++		if (write)
++			set_page_dirty_lock(page);
++		put_page(page);
 +	}
 +}
 +
-+static void
-+aes_padlock_ecb(void *ctx, uint8_t *dst, const uint8_t *src,
-+		uint8_t *iv, size_t nbytes, int encdec, int inplace)
++static int fuse_get_user_pages(struct fuse_req *req, const char __user *buf,
++			       unsigned nbytes, int write)
 +{
-+	aes_padlock(ctx, dst, src, NULL, nbytes, encdec,
-+		    CRYPTO_TFM_MODE_ECB);
++	unsigned long user_addr = (unsigned long) buf;
++	unsigned offset = user_addr & ~PAGE_MASK;
++	int npages;
++
++	nbytes = min(nbytes, (unsigned) FUSE_MAX_PAGES_PER_REQ << PAGE_SHIFT);
++	npages = (nbytes + offset + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	npages = min(npages, FUSE_MAX_PAGES_PER_REQ);
++	down_read(&current->mm->mmap_sem);
++	npages = get_user_pages(current, current->mm, user_addr, npages, write,
++				0, req->pages, NULL);
++	up_read(&current->mm->mmap_sem);
++	if (npages < 0)
++		return npages;
++
++	req->num_pages = npages;
++	req->page_offset = offset;
++	return 0;
 +}
 +
-+static void
-+aes_padlock_cbc(void *ctx, uint8_t *dst, const uint8_t *src, uint8_t *iv,
-+		size_t nbytes, int encdec, int inplace)
++static ssize_t fuse_direct_io(struct file *file, const char __user *buf,
++			      size_t count, loff_t *ppos, int write)
 +{
-+	aes_padlock(ctx, dst, src, iv, nbytes, encdec,
-+		    CRYPTO_TFM_MODE_CBC);
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++	unsigned nmax = write ? fc->max_write : fc->max_read;
++	loff_t pos = *ppos;
++	ssize_t res = 0;
++	struct fuse_req *req = fuse_get_request(fc);
++	if (!req)
++		return -ERESTARTSYS;
++
++	while (count) {
++		unsigned tmp;
++		unsigned nres;
++		size_t nbytes = min(count, nmax);
++		int err = fuse_get_user_pages(req, buf, nbytes, !write);
++		if (err) {
++			res = err;
++			break;
++		}
++		tmp = (req->num_pages << PAGE_SHIFT) - req->page_offset;
++		nbytes = min(nbytes, tmp);
++		if (write)
++			nres = fuse_send_write(req, file, inode, pos, nbytes);
++		else
++			nres = fuse_send_read(req, file, inode, pos, nbytes);
++		fuse_release_user_pages(req, !write);
++		if (req->out.h.error) {
++			if (!res)
++				res = req->out.h.error;
++			break;
++		} else if (nres > nbytes) {
++			res = -EIO;
++			break;
++		}
++		count -= nres;
++		res += nres;
++		pos += nres;
++		buf += nres;
++		if (nres != nbytes)
++			break;
++		if (count)
++			fuse_reset_request(req);
++	}
++	fuse_put_request(fc, req);
++	if (res > 0) {
++		if (write && pos > i_size_read(inode))
++			i_size_write(inode, pos);
++		*ppos = pos;
++	} else if (write && (res == -EINTR || res == -EIO))
++		fuse_invalidate_attr(inode);
++
++	return res;
 +}
 +
-+static void
-+aes_padlock_cfb(void *ctx, uint8_t *dst, const uint8_t *src, uint8_t *iv,
-+		size_t nbytes, int encdec, int inplace)
++static ssize_t fuse_file_read(struct file *file, char __user *buf,
++			      size_t count, loff_t *ppos)
 +{
-+	aes_padlock(ctx, dst, src, iv, nbytes, encdec,
-+		    CRYPTO_TFM_MODE_CFB);
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++
++	if (fc->flags & FUSE_DIRECT_IO)
++		return fuse_direct_io(file, buf, count, ppos, 0);
++	else
++		return generic_file_read(file, buf, count, ppos);
 +}
 +
-+static void
-+aes_padlock_ofb(void *ctx, uint8_t *dst, const uint8_t *src, uint8_t *iv,
-+		size_t nbytes, int encdec, int inplace)
++static ssize_t fuse_file_write(struct file *file, const char __user *buf,
++			       size_t count, loff_t *ppos)
 +{
-+	aes_padlock(ctx, dst, src, iv, nbytes, encdec,
-+		    CRYPTO_TFM_MODE_OFB);
- }
- 
- static void
- aes_encrypt(void *ctx_arg, uint8_t *out, const uint8_t *in)
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++
++	if (fc->flags & FUSE_DIRECT_IO) {
++		ssize_t res;
++		/* Don't allow parallel writes to the same file */
++		down(&inode->i_sem);
++		res = fuse_direct_io(file, buf, count, ppos, 1);
++		up(&inode->i_sem);
++		return res;
++	}
++	else
++		return generic_file_write(file, buf, count, ppos);
++}
++
+ static int fuse_file_mmap(struct file *file, struct vm_area_struct *vma)
  {
--	aes_padlock(ctx_arg, out, in, CRYPTO_DIR_ENCRYPT);
-+	aes_padlock(ctx_arg, out, in, NULL, AES_BLOCK_SIZE,
-+		    CRYPTO_DIR_ENCRYPT, CRYPTO_TFM_MODE_ECB);
++	struct inode *inode = file->f_dentry->d_inode;
++	struct fuse_conn *fc = get_fuse_conn(inode);
++
++	if (fc->flags & FUSE_DIRECT_IO)
++		return -ENODEV;
++
+ 	if ((vma->vm_flags & VM_SHARED)) {
+ 		if ((vma->vm_flags & VM_WRITE))
+ 			return -ENODEV;
+@@ -373,8 +499,8 @@ static int fuse_set_page_dirty(struct pa
  }
  
- static void
- aes_decrypt(void *ctx_arg, uint8_t *out, const uint8_t *in)
- {
--	aes_padlock(ctx_arg, out, in, CRYPTO_DIR_DECRYPT);
-+	aes_padlock(ctx_arg, out, in, NULL, AES_BLOCK_SIZE,
-+		    CRYPTO_DIR_DECRYPT, CRYPTO_TFM_MODE_ECB);
- }
+ static struct file_operations fuse_file_operations = {
+-	.read		= generic_file_read,
+-	.write		= generic_file_write,
++	.read		= fuse_file_read,
++	.write		= fuse_file_write,
+ 	.mmap		= fuse_file_mmap,
+ 	.open		= fuse_open,
+ 	.flush		= fuse_flush,
+diff -Nurp a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+--- a/fs/fuse/fuse_i.h	2005-01-11 16:28:28.000000000 +0100
++++ b/fs/fuse/fuse_i.h	2005-01-11 16:28:28.000000000 +0100
+@@ -34,6 +34,9 @@
+     be flushed on open */
+ #define FUSE_KERNEL_CACHE        (1 << 2)
  
- static struct crypto_alg aes_alg = {
-@@ -454,9 +594,25 @@ static struct crypto_alg aes_alg = {
- 	}
++/** Bypass the page cache for read and write operations  */
++#define FUSE_DIRECT_IO           (1 << 3)
++
+ /** Allow root and setuid-root programs to access fuse-mounted
+     filesystems */
+ #define FUSE_ALLOW_ROOT		 (1 << 4)
+@@ -205,6 +208,9 @@ struct fuse_conn {
+ 	/** Maximum read size */
+ 	unsigned max_read;
+ 
++	/** Maximum write size */
++	unsigned max_write;
++
+ 	/** Readers of the connection are waiting on this */
+ 	wait_queue_head_t waitq;
+ 
+diff -Nurp a/fs/fuse/inode.c b/fs/fuse/inode.c
+--- a/fs/fuse/inode.c	2005-01-11 16:28:28.000000000 +0100
++++ b/fs/fuse/inode.c	2005-01-11 16:28:28.000000000 +0100
+@@ -255,6 +255,7 @@ enum {
+ 	OPT_ALLOW_OTHER,
+ 	OPT_ALLOW_ROOT,
+ 	OPT_KERNEL_CACHE,
++	OPT_DIRECT_IO,
+ 	OPT_MAX_READ,
+ 	OPT_ERR
  };
+@@ -267,6 +268,7 @@ static match_table_t tokens = {
+ 	{OPT_ALLOW_OTHER,		"allow_other"},
+ 	{OPT_ALLOW_ROOT,		"allow_root"},
+ 	{OPT_KERNEL_CACHE,		"kernel_cache"},
++	{OPT_DIRECT_IO,			"direct_io"},
+ 	{OPT_MAX_READ,			"max_read=%u"},
+ 	{OPT_ERR,			NULL}
+ };
+@@ -321,6 +323,10 @@ static int parse_fuse_opt(char *opt, str
+ 			d->flags |= FUSE_KERNEL_CACHE;
+ 			break;
  
-+static int disable_multiblock = 0;
-+MODULE_PARM(disable_multiblock, "i");
-+MODULE_PARM_DESC(disable_multiblock,
-+		 "Disable encryption of whole multiblock buffers.");
++		case OPT_DIRECT_IO:
++			d->flags |= FUSE_DIRECT_IO;
++			break;
 +
- int __init padlock_init_aes(void)
- {
--	printk(KERN_NOTICE PFX "Using VIA PadLock ACE for AES algorithm.\n");
-+	if (!disable_multiblock) {
-+		aes_alg.cra_u.cipher.cia_max_nbytes = (size_t)-1;
-+		aes_alg.cra_u.cipher.cia_req_align  = 16;
-+		aes_alg.cra_u.cipher.cia_ecb        = aes_padlock_ecb;
-+		aes_alg.cra_u.cipher.cia_cbc        = aes_padlock_cbc;
-+		aes_alg.cra_u.cipher.cia_cfb        = aes_padlock_cfb;
-+		aes_alg.cra_u.cipher.cia_ofb        = aes_padlock_ofb;
-+	}
-+
-+	printk(KERN_NOTICE PFX 
-+		"Using VIA PadLock ACE for AES algorithm%s.\n", 
-+		disable_multiblock ? "" : " (multiblock)");
+ 		case OPT_MAX_READ:
+ 			if (match_int(&args[0], &value))
+ 				return 0;
+@@ -350,6 +356,8 @@ static int fuse_show_options(struct seq_
+ 		seq_puts(m, ",allow_root");
+ 	if (fc->flags & FUSE_KERNEL_CACHE)
+ 		seq_puts(m, ",kernel_cache");
++	if (fc->flags & FUSE_DIRECT_IO)
++		seq_puts(m, ",direct_io");
+ 	if (fc->max_read != ~0)
+ 		seq_printf(m, ",max_read=%u", fc->max_read);
+ 	return 0;
+@@ -552,6 +560,7 @@ static int fuse_fill_super(struct super_
+ 	fc->max_read = d.max_read;
+ 	if (fc->max_read / PAGE_CACHE_SIZE < fc->bdi.ra_pages)
+ 		fc->bdi.ra_pages = fc->max_read / PAGE_CACHE_SIZE;
++	fc->max_write = FUSE_MAX_IN / 2;
  
- 	gen_tabs();
- 	return crypto_register_alg(&aes_alg);
+ 	*get_fuse_conn_super_p(sb) = fc;
+ 

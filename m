@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbTJ3Vdi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTJ3Vdh
+	id S262862AbTJ3VXv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTJ3VXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:33:37 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:43762 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262888AbTJ3Vde
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:33:34 -0500
-Subject: [ANNOUNCE] JFS 1.1.4
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1067549605.29596.50.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 30 Oct 2003 15:33:25 -0600
+	Thu, 30 Oct 2003 16:23:51 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:63939 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S262855AbTJ3VXt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:23:49 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: 8250 serial issues in 2.6.0-test9
+Date: Thu, 30 Oct 2003 14:23:47 -0700
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310301423.47442.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.1.4 of JFS was made available today.
+Hi Russell,
 
-Drop 67 on October 30, 2003 includes fixes to the file system and
-utilities.
+I know you don't want to mess with the setserial problem I
+tripped over, and that's fine -- it's not a huge issue for
+me.  While poking around at it, I noticed a couple other
+issues, which I'll just mention here in case anybody else
+wants to have a go at reworking this code.
 
-Utilities changes
+Mostly this mail is just because I'm about to go on vacation,
+and didn't want all my pondering to be completely wasted :-)
 
-- Work around gcc 2.95 bug
-- Handle log full without crashing
-- Message format fix
+Bjorn
 
-File System changes
 
-- Make sure journal buffer gets flushed to disk
-- Improved error handling
-- Remove racy, redundant call to block_flushpage
-- Fix race between link() and unlink()
+serial8250_release_port():
+	When releasing an RSA port, it looks like serial8250_release_port()
+	releases the wrong range ("start + offset" rather than "start") 
+	for the standard IO port region.
 
-Note: The 2.4.23 and 2.6 kernel.org development kernels are kept up to 
-date with the latest JFS code.  The file system updates available on 
-the web site are only needed for maintaining earlier 2.4 kernels.
+serial8250_request_port():
+	The error path ("ret < 0") leaks memory because request_region()
+	kmallocs the new resource, but release_resource() doesn't free it.
 
-For more details about JFS, please see our website:
-http://oss.software.ibm.com/jfs
--- 
-David Kleikamp
-IBM Linux Technology Center
+serial8250_config_port():
+	Same leak as in serial8250_request_port().
+
+serial8250_release_port()/serial8250_request_port():
+	The problem I mentioned before -- _request_port() doesn't
+	ioremap the region that was iounmapped by _release_port(),
+	so "setserial /dev/ttyS0 port 0x3f8" causes an oops if
+	ttyS0 is an MMIO uart:
+
+	    uart_set_info()
+	        serial8250_release_port()
+	            iounmap(membase);
+	            membase = NULL;
+	            release_mem_region(mapbase, ...);
+	        serial8250_request_port()
+	            request_mem_region(mapbase, ...);
+	        serial8250_startup()
+	            serial_out()
+	                port.iotype == IO_MEM, so
+	                    writeb(value, membase);
+	                        oops - null pointer dereference (membase == NULL)
 

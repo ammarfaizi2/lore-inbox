@@ -1,51 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbTADWY6>; Sat, 4 Jan 2003 17:24:58 -0500
+	id <S261581AbTADWYS>; Sat, 4 Jan 2003 17:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbTADWY6>; Sat, 4 Jan 2003 17:24:58 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:64196 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S261624AbTADWYz>;
-	Sat, 4 Jan 2003 17:24:55 -0500
-Message-ID: <002401c2b441$4e03eff0$18df9641@steven>
-From: "Steven Barnhart" <sbarn03@softhome.net>
-To: "Andrew Morton" <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-kernel-mm@vger.kernel.org
-References: <3E16A2B6.A741AE17@digeo.com> <pan.2003.01.04.15.47.43.915841@softhome.net> <3E174FBB.9065575A@digeo.com>
-Subject: Re: 2.5.54-mm3
-Date: Sat, 4 Jan 2003 17:31:54 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S261624AbTADWYR>; Sat, 4 Jan 2003 17:24:17 -0500
+Received: from pD9EC209A.dip.t-dialin.net ([217.236.32.154]:25216 "HELO
+	schottelius.net") by vger.kernel.org with SMTP id <S261581AbTADWYQ>;
+	Sat, 4 Jan 2003 17:24:16 -0500
+Date: Sat, 4 Jan 2003 12:39:01 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: "Alfred M. Szmidt" <ams@kemisten.nu>
+Cc: bug-fileutils@gnu.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bugs in df [problem of fileutils or kernel?]
+Message-ID: <20030104113901.GB255@schottelius.org>
+References: <20021231141036.GA494@schottelius.org> <E18TRt6-0004wx-00@lgh163a.kemisten.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
+Content-Disposition: inline
+In-Reply-To: <E18TRt6-0004wx-00@lgh163a.kemisten.nu>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.5.53
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> autofsv4 has been working fine across the 2.5 series.  You'll need to
-> send a (much) better report.
+--3lcZGd9BuhuYXNfi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't really know what the problem is..everything seems to be working
-right except when it goes to mount the system from ro mode to rw mode.
-Therefore well everything goes down hill after that. I looked through the
-/var/log/messages and all those files but nothing specific to the problem.
-If I disable fsck and append rw mode kernel boots fine. One minor note, boot
-also fails during Mounting other filesystems and gives the typical mount
-error about bad superblock, or to many mounted filesystems. My .config was
-attached before(?) and that's all I have..anything paticular you are looking
-for?
+Alfred M. Szmidt [Tue, Dec 31, 2002 at 08:17:16PM +0100]:
+>    I am using 2.5.53,ext3 on /dev/root,isofs on /mnt/dvd and df is
+>=20
+> 2.5.53 of what exactly?
 
-> You could try statically linking it, yes.  More details are needed,
-> such as a description of what hardware you have and what driver you're
-> using.
+the kernel. I will try 2.5.54 soon,too.
 
-I have a i810 Intel graphics card/motherboard, intel celeron 1.06 GHz
-processor, and agp 3 enabled, could that be the problem? I have enabled the
-intel i810 driver in the graphics area as you can see in the .config. The
-intel driver seems to be enabled fine as in the Xfree/GDM log it says
-something about Intel. Only error is it can't find device /dev/agpgart even
-though it *is* there. Any more info you would need?
+>    flapp:/home/user/nico # df --version
+>    df (GNU fileutils) 4.0.35
+>=20
+> Could you try and see if this still presists in GNU Fileutils 4.1 [1]?
 
+nico@flapp:~/fileutils-4.1/src $ ./df  -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/root              18G   19G  136M 100% /
+/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
+nico@flapp:~/fileutils-4.1/src $ ./df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/root             19228276  19088984    139292 100% /
+/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
+nico@flapp:~/fileutils-4.1/src $ ./du /mnt/dvd/ -sh
+505M    /mnt/dvd
+
+
+yes, it does.
+
+> Or if you feel brave GNU Coreutils (an merge of Fileutils, Shutils and
+> Textutils) [2]?=20
+
+nico@flapp:~/coreutils-4.5.4/src $ ./df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/root             19228276  19080532    147744 100% /
+/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
+nico@flapp:~/coreutils-4.5.4/src $ ./df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/root              19G   19G  145M 100% /
+/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
+nico@flapp:~/coreutils-4.5.4/src $ ./du /mnt/dvd/ -sh
+505M    /mnt/dvd/
+
+yes, it does. but at least is the size now correct in -h.
+
+=3D=3D=3D=3D> now trying with 2.5.54 <=3D=3D=3D=3D
+nico@flapp:~ $ df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/root             19228276  19086992    141284 100% /
+/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
+nico@flapp:~ $ df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/root              18G   19G  137M 100% /
+/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
+nico@flapp:~ $ df --version
+df (fileutils) 4.1
+
+and the cdrom is again 505 MB big...
+
+nico@flapp:~/coreutils-4.5.4/src $ ./df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/root             19228276  19087008    141268 100% /
+/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
+nico@flapp:~/coreutils-4.5.4/src $ ./df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/root              19G   19G  138M 100% /
+/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
+nico@flapp:~/coreutils-4.5.4/src $ ./du /mnt/dvd/ -sh
+505M    /mnt/dvd/
+
+
+=3D=3D> so coreutils at least prints correct human values...
+    I am still thinking it could be a kernel bug..so I am rebooting to
+    2.4.21-pre2.
+
+But this does not make a difference...
+
+> If it still exists in those, could you try debugging
+> it?
+
+nice,1002 lines of code in df.c.. okay, let's have a look into it...
+(currently I think it _could_ be a kernel bug, so I will pass this message
+alon to lkml)
+
+I had a quick view at the code, but didn't have the time to look into
+it closely. Perhaps the next days!
+
+Am I the only one where df reports wrong disk space?
+
+Nico
+
+
+--=20
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--3lcZGd9BuhuYXNfi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+FsfVtnlUggLJsX0RAqhlAJ0axIQS1suUXAK+zbXdweU0+PCH/ACfb3F1
+YEPU4hPZgNgWVb3LwLZQFGo=
+=lUZw
+-----END PGP SIGNATURE-----
+
+--3lcZGd9BuhuYXNfi--

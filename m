@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131487AbRBKBjT>; Sat, 10 Feb 2001 20:39:19 -0500
+	id <S131511AbRBKBjU>; Sat, 10 Feb 2001 20:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131511AbRBKBjK>; Sat, 10 Feb 2001 20:39:10 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:42764 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131487AbRBKBjC>; Sat, 10 Feb 2001 20:39:02 -0500
-Message-ID: <3A85ED20.761E8240@transmeta.com>
-Date: Sat, 10 Feb 2001 17:38:40 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S131549AbRBKBjK>; Sat, 10 Feb 2001 20:39:10 -0500
+Received: from kwalitee.nolab.conman.org ([208.143.53.154]:37224 "EHLO
+	nolab.conman.org") by vger.kernel.org with ESMTP id <S131511AbRBKBjD>;
+	Sat, 10 Feb 2001 20:39:03 -0500
+Date: Sat, 10 Feb 2001 20:38:55 -0500 (EST)
+From: Mark Grosberg <myg@nolab.conman.org>
+To: linux-kernel@vger.kernel.org
+Subject: Bug in AMI Raid controller, Linux 2.4
+Message-ID: <Pine.LNX.4.04.10102102035090.8227-100000@kwalitee.nolab.conman.org>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: bidirectional named pipe?
-In-Reply-To: <E14OxTz-0007yS-00@the-village.bc.nu> <3A81D5B4.9CBC9B0D@kasey.umkc.edu> <95v90g$ke6$1@cesium.transmeta.com> <20010210181246.C8934@metastasis.f00f.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> 
-> On Thu, Feb 08, 2001 at 03:10:08PM -0800, H. Peter Anvin wrote:
-> 
->     I would really like it if open() on a socket would be the same
->     thing to connect to a socket as a client.  I don't think it's a
->     good idea to do that for the server side, though, since it would
->     have to know about accept() anyway.
-> 
-> things like this (non-portable hacks) belong in libc surely?
-> 
 
-Not if it makes more sense to implement in the kernel.  I can't think of
-a way to implement it in glibc without races, perhaps you can.
+Hello all, forgive me if this has already been discovered...
 
-	-hpa
+I think I have found a bug in the AMI Megatrends RAID controller driver,
+scsi/megaraid.c.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+If I look in the old, 2.2.x code, in the routine mega_findCard, I find:
+
+    if (flag != BOARD_QUARTZ) {
+      /* Request our IO Range */
+      if (check_region (megaBase, 16)) {
+        printk (KERN_WARNING "megaraid: Couldn't register I/O range!" ...
+        scsi_unregister (host);
+        continue;
+      }
+     request_region (megaBase, 16, "megaraid");
+
+And in the 2.4.1 code, same routine, I find:
+
+         if (flag != BOARD_QUARTZ) {
+      /* Request our IO Range */
+      if (request_region (megaBase, 16, "megaraid")) {
+        printk (KERN_WARNING "megaraid: Couldn't register I/O range!" ...
+        scsi_unregister (host);
+        continue;
+      }
+    }
+
+I think the code is missing a "!" in front of request_region(). It seems
+that the 2.4.1 kernel does not recognize my RAID controller where as
+2.2.x does. 
+
+L8r,
+Mark G.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

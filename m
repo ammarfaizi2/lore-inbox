@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289769AbSAWKUG>; Wed, 23 Jan 2002 05:20:06 -0500
+	id <S289767AbSAWKXD>; Wed, 23 Jan 2002 05:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289772AbSAWKTy>; Wed, 23 Jan 2002 05:19:54 -0500
-Received: from danielle.hinet.hr ([195.29.148.143]:43926 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S289769AbSAWKTg>; Wed, 23 Jan 2002 05:19:36 -0500
-Date: Wed, 23 Jan 2002 11:19:34 +0100
-From: Mario Mikocevic <mozgy@hinet.hr>
+	id <S289768AbSAWKWo>; Wed, 23 Jan 2002 05:22:44 -0500
+Received: from fractus.met.ed.ac.uk ([129.215.133.165]:3486 "EHLO
+	fractus.met.ed.ac.uk") by vger.kernel.org with ESMTP
+	id <S289767AbSAWKWd>; Wed, 23 Jan 2002 05:22:33 -0500
+Date: Wed, 23 Jan 2002 10:22:29 +0000 (GMT)
+From: H C Pumphrey <hcp@met.ed.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: i810 TCO ?!
-Message-ID: <20020123111934.C9441@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+Subject: nm256 patch for Latitude LS
+Message-ID: <Pine.GSO.4.10.10201231005500.11847-100000@humilis>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I would like to use i810 watchdog module (i810-tco).
+Dear all, 
 
-Upon modprobing I get ->
+The enclosed patch allows the nm256 kernel module to be used on the Dell
+Latitude LS Laptop. Without the patch, the kernel locks up instantly with
+no messages as soon as the module is loaded. (This problem has been known
+about for a long time -- an ex-LS-owner sent me the patch only yesterday
+having seen on my web pages that I would have a use for it.)
 
-kernel: i810 TCO timer: failed to reset NO_REBOOT flag, reboot disabled by hardware
+With the patch, the hardware seems to work OK. I don't know whether the
+"fix" causes a "break" on any other nm256 hardware. I have tested the
+patch on kernels 2.2.19 and 2.2.20 -- once I upgrade to Debian testing
+I'll try out a 2.4 kernel. I'm posting this now in the hope that this
+information might be of use to at least one other nm256 user out there.
+It's a darn sight better than the pcsp patch!
 
-what should I do now ?
+Best Wishes.
 
- - add some options to insmod ?
- - change some option in BIOS (I can't pinpoint any)
- - change some jumper onboard ?
- - apply some patch ?
+Hugh
 
+*** nm256_audio.c.old	Sun Sep 30 12:26:08 2001
+--- nm256_audio.c	Sun Dec 16 23:02:34 2001
+***************
+*** 896,902 ****
+  
+      /* Reset the mixer.  'Tis magic!  */
+      nm256_writePort8 (card, 2, 0x6c0, 1);
+-     nm256_writePort8 (card, 2, 0x6cc, 0x87);
+      nm256_writePort8 (card, 2, 0x6cc, 0x80);
+      nm256_writePort8 (card, 2, 0x6cc, 0x0);
+  
+--- 896,901 ----
 
-driver is 0.03 posted on this list in Oct last year.
-Kernel is latest 2.4.x (currently 18-pre4).
+============S=u=p=p=o=r=t===D=e=b=i=a=n===http://www.debian.org============
+Dr. Hugh C. Pumphrey             | Tel. 0131-650-6026,Fax:0131-650-5780
+Institute for Meteorology        | Replace 0131 with +44-131 if outside UK
+The University of Edinburgh      | Email hcp@met.ed.ac.uk
+EDINBURGH EH9 3JZ, Scotland      | URL: http://www.met.ed.ac.uk/~hcp
+============S=u=p=p=o=r=t==g=9=5==http://g95.sourceforge.net/==============
 
-lspci ->
-
-# lspci
-00:00.0 Host bridge: Intel Corporation 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 02)
-00:02.0 VGA compatible controller: Intel Corporation 82815 CGC [Chipset Graphics Controller]  (rev 02)
-00:1e.0 PCI bridge: Intel Corporation 82801BAM PCI (rev 02)
-00:1f.0 ISA bridge: Intel Corporation 82801BA ISA Bridge (ICH2) (rev 02)
-00:1f.1 IDE interface: Intel Corporation 82801BA IDE U100 (rev 02)
-00:1f.2 USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 02)
-00:1f.3 SMBus: Intel Corporation 82801BA(M) SMBus (rev 02)
-00:1f.4 USB Controller: Intel Corporation 82801BA(M) USB (Hub B) (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 Audio (rev 02)
-01:08.0 Ethernet controller: Intel Corporation 82801BA(M) Ethernet (rev 01)
-
-any other information available on request,
-
-
-TIA,
-
--- 
-Mario Mikoèeviæ (Mozgy)
-mozgy at hinet dot hr
-My favourite FUBAR ...

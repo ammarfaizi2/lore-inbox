@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310488AbSCSXUF>; Tue, 19 Mar 2002 18:20:05 -0500
+	id <S310548AbSCSXZ0>; Tue, 19 Mar 2002 18:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310501AbSCSXTy>; Tue, 19 Mar 2002 18:19:54 -0500
-Received: from zero.tech9.net ([209.61.188.187]:61970 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S310488AbSCSXTm>;
-	Tue, 19 Mar 2002 18:19:42 -0500
+	id <S310654AbSCSXZF>; Tue, 19 Mar 2002 18:25:05 -0500
+Received: from bitmover.com ([192.132.92.2]:20196 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S310548AbSCSXZE>;
+	Tue, 19 Mar 2002 18:25:04 -0500
+Date: Tue, 19 Mar 2002 15:25:02 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: Bitkeeper licence issues
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-        "David S. Miller" <davem@redhat.com>, lm@bitmover.com, pavel@ucw.cz,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 19 Mar 2002 18:19:13 -0500
-Message-Id: <1016579961.15474.4.camel@phantasy>
+Message-ID: <20020319152502.J14877@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@suse.cz>, Dave Jones <davej@suse.de>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz> <20020319002241.K17410@suse.de> <20020319220631.GA1758@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-03-19 at 18:08, Rik van Riel wrote:
-
-> Hey, don't forget about Brazil ;)
+On Tue, Mar 19, 2002 at 11:06:32PM +0100, Pavel Machek wrote:
+> >  > > Pavel, the problem here is your fundamental distrust.  
+> >  > By giving me binary-only installer you ask me to trust you. You ask me
+> >  > to trust you without good reason [it only generates .tar.gz and
+> >  > shellscript, why should it be binary? Was not shar designed to handle
+> >  > that?], and that's pretty suspect.
+> > 
+> >  Bitmover doing anything remotely suspect in an executable installer
+> >  would be commercial suicide, do you distrust realplayer too?
 > 
-> I know folks in Silicon Valley who pay more rent than what
-> I earn in a month ... and I'm earning enough money to have
-> a comfortable life here, at a fairly safe distance from the
-> DMCA and its friends ;)
+> Actually, the installer contains security hole allowing any user to
+> overwrite any file on system if you install it as root with simple
+> symlink. 
 
-That's why you need to work for a Silicon Valley firm, get paid a
-Silicon Valley paycheck, but work remotely from the country side. ;)
+Come on Pavel, in order to make this happen, you have to
 
-	Robert Love
+	a) run the installer as root
+	b) know the next pid which will be allocated
+	c) put the symlink in /tmp/installer$pid
 
+and do all before that pid gets used.  Have you actually be able to
+do that?  I'd like to see how you did so without knowing exactly when
+root was going to install the package and without filling up /tmp with
+64,000 symlinks.
+
+I'll grant you this is something we can trivially make go away as an 
+issue, and we have, but it's mostly to make you go away as an issue,
+not because we believe for one second this is a realistic problem.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267552AbTBFTBn>; Thu, 6 Feb 2003 14:01:43 -0500
+	id <S267630AbTBFTMB>; Thu, 6 Feb 2003 14:12:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267558AbTBFTBn>; Thu, 6 Feb 2003 14:01:43 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:33446 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S267552AbTBFTBn>; Thu, 6 Feb 2003 14:01:43 -0500
-Message-ID: <3E42B37E.2080202@kegel.com>
-Date: Thu, 06 Feb 2003 11:11:58 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Monta Vista software license terms
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267628AbTBFTMA>; Thu, 6 Feb 2003 14:12:00 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:44763 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S267630AbTBFTL7>; Thu, 6 Feb 2003 14:11:59 -0500
+Subject: Re: skb_padto and small fragmented transmits
+From: Chris Leech <christopher.leech@intel.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: netdev@oss.sgi.com, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <BD9B60A108C4D511AAA10002A50708F20BA2AAE3@orsmsx118.jf.intel.com>
+References: <BD9B60A108C4D511AAA10002A50708F20BA2AAE3@orsmsx118.jf.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044559328.4618.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 06 Feb 2003 11:22:08 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My two bits:
+On Thu, 2003-02-06 at 10:44, David S. Miller wrote:
+>    From: Chris Leech <christopher.leech@intel.com>
+>    Date: 06 Feb 2003 11:22:51 -0800
+>    
+>    I fail to see how the statement "skb->len + skb->data_len" has any
+>    usable meaning, or how it can be anything other than a bug.
+> 
+> This equation is the standard way to find the full length
+> on any skb.  For linear skbs, data_len is always zero.
+> 
+> I asked Alan to use this formula so that greps on the source
+> tree would always show data_len being taken into account, and
+> thus usage would be consistent.
 
-1. I am eternally grateful for the contributions Montavista has
-made to the gnu tools.  Their recent contribution of a
-multithread cabable gdbserver to gdb-5.3 is invaluable.
+OK, now I'm really getting confused.  Every other example I can find in
+the networking code, and every scatter-gather capable driver, uses
+skb->len as the full length and skb->len - skb->data_len as the length
+of the first or linear portion.
 
-2. I contantly see Montavista people feeding back improvements
-here and there, and they are quick to respond when I have
-questions about issues like the ppc405 erratum 77 workarounds.
-And I've never given them any money!
-
-Montavista *is* playing nice.  As far as I can
-tell, they obey the rules, and actively feed
-their improvements back to the community.
-
-Yes, they could do more -- but they don't have to, and if
-they did, it might endanger their cash flow and thus the
-stream of improvements they're feeding back to the community.
-
-Please let them be.  I like what they're doing.
-- Dan
-
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 

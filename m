@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBWOQa>; Fri, 23 Feb 2001 09:16:30 -0500
+	id <S129065AbRBWOfN>; Fri, 23 Feb 2001 09:35:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129065AbRBWOQV>; Fri, 23 Feb 2001 09:16:21 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:35345 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129066AbRBWOQH>;
-	Fri, 23 Feb 2001 09:16:07 -0500
-Message-ID: <3A967081.5CDF5797@mandrakesoft.com>
-Date: Fri, 23 Feb 2001 09:15:29 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: Andrey Panin <pazke@orbita.don.sitek.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/char/serial.c unchecked ioremap() calls
-In-Reply-To: <20010223105359.A20170@orbita1.ru> <20010223064543.C12444@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii
+	id <S129066AbRBWOfE>; Fri, 23 Feb 2001 09:35:04 -0500
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:16913 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id <S129065AbRBWOeu>; Fri, 23 Feb 2001 09:34:50 -0500
+To: linux-sound@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] (2.4.2) aci.c, radio-miropcm20.c for miroSOUND cards
+From: Robert Siemer <Robert.Siemer@gmx.de>
+X-Mailer: Mew version 1.94b25 on Emacs 20.5 / Mule 4.0 (HANANOEN)
+Reply-To: Robert Siemer <siemer@panorama.hadiko.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010223153203L.siemer@panorama.hadiko.de>
+Date: Fri, 23 Feb 2001 15:32:03 +0100
+X-Dispatcher: imput version 990425(IM115)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaldo Carvalho de Melo wrote:
-> 
-> Em Fri, Feb 23, 2001 at 10:53:59AM +0300, Andrey Panin escreveu:
-> >
-> > Hi all,
-> >
-> > 16x50 serial driver doesn't check ioremap() return value.
-> > Atached patch should fix this it.
-> 
-> humm, have not checked, but it seems as if you don't release the previous
-> successful mappings on failure. Wipe out this message if I was too quick to
-> answer and this is not true. 8)
+Hello!
 
-Also, the proper return from a failed ioremap is -ENOMEM, so I think
-Andrey's serial.c patch should modify some functions to return a failure
-code...
+The patch is for miroSOUND sound cards. The corresponding driver files
+are aci.c and radio-miropcm20.c
 
-	Jeff
+The latest is for 2.4.2 and can be found on:
+http://www.uni-karlsruhe.de/~Robert.Siemer/Private/
+http://www.uni-karlsruhe.de/~Robert.Siemer/Private/aci-2.4.2.patch
+(61kB)
+
+Changes: 
+aci.c
+  -general clean-up and rewrite of aci.c for 2.4.x 
+  -added SMP safe locking 
+  -ioctl pointer bugfix 
+  -added (OSS-limited) equalizer support 
+  -better distinction of PCM1/PCM12/PCM20 for good
+           mixer-labeling/mic-preamp/output-amplification handling 
+  -threw mad16 dependence away: no mixer-number hack anymore 
+  -'solo' mode doesn't need some private ioctl() anymore 
+radio-miropcm20.c 
+  -removed unclear volume handling (maybe I add it later again) 
+  -added stereo/corrected mute handling 
+  -tune-ioctl() pays attention to different aci-versions 
+  -introduced TUNER_LOW for 50kHz steps 
+  -integrated lowlevel RDS routines, currently only for finegrained
+           signal strength value 
+other changes 
+  -documentation updates/corrections 
 
 
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Bye,
+	Robert

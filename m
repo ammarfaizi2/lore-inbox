@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278649AbRKHWEJ>; Thu, 8 Nov 2001 17:04:09 -0500
+	id <S278660AbRKHWM7>; Thu, 8 Nov 2001 17:12:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278662AbRKHWD7>; Thu, 8 Nov 2001 17:03:59 -0500
-Received: from imsp.terry.uga.edu ([128.192.28.146]:58379 "EHLO
-	ember.terry.uga.edu") by vger.kernel.org with ESMTP
-	id <S278660AbRKHWDu>; Thu, 8 Nov 2001 17:03:50 -0500
-To: linux-kernel@vger.kernel.org (Linux kernel)
-Subject: test SYN cookies (was Re: SYN cookies security bugfix?)
-In-Reply-To: <E161oM3-0007Xm-00@the-village.bc.nu>
-From: Ed L Cashin <ecashin@terry.uga.edu>
-Date: 08 Nov 2001 17:00:30 -0500
-In-Reply-To: <E161oM3-0007Xm-00@the-village.bc.nu>
-Message-ID: <m3y9lgkjnl.fsf@terry.uga.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S278665AbRKHWMj>; Thu, 8 Nov 2001 17:12:39 -0500
+Received: from dire.bris.ac.uk ([137.222.10.60]:22769 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S278660AbRKHWMc>;
+	Thu, 8 Nov 2001 17:12:32 -0500
+Date: Thu, 8 Nov 2001 22:10:57 +0000 (GMT)
+From: Matt <madmatt@bits.bris.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: WOL stops working on halt
+In-Reply-To: <3BEAC5E2.5A301DB@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0111082139390.32072-100000@bits.bris.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Andrew Morton mentioned the following:
 
-> > I received a forwarded message from SuSE regarding a security vulnerability
-> > with respect to randomization of the ISN for SYN cookies - or something to
-> > that effect.  I have not been able to find the patch which addresses this
-> > problem; if anyone can point me towards it, I would be appreciative.
-> 
-> Its fixed in 2.2.20, you can grab the 2.2 patch from there
+| Matt wrote:
+| > 
+| > I have a 3c980 NIC plugged into an Abit KT7-RAID and connected together
+| > with a WOL cable. I can't seem to get WOL to work using the ether-wake
+| > utility if I power the box down with shutdown(8). The only way I can
+| > currently get WOL to work is if I reboot the box, then physically press
+| > the power button to turn it off.
+| 
+| As far as the driver is concerned, a shutdown and a reboot are identical,
+| so we need to look at external causes.  Presumably Linux APM or BIOS.
 
-What is a good way to test SYN cookies?  I can induce a three-second
-delay (on victim host V) before new TCP connections are accepted by
-sending a burst of 2000 SYN packets (from attacker A), where V is
-running a 2.2.14 or 2.2.17 kernel.  During the three seconds ICMP echo
-requests from A to V are being answered.
+I've looked through the BIOS settings, and there doesn't seem to be much I
+can change. There was one option to toggle "ACPI Suspend" between S3 and
+S5 I think, and another which was something like "PM by APM", which could
+be set to either Y or N. I'm not sure what other options I should be
+looking for which might make a difference...I can't see anything obvios.
 
-Turning on SYN cookies after /proc is mounted does not affect the
-three-second pause, though, so I figure that either the pause is not
-on account of a full half-open connection queue or SYN cookies are not
-working.
+I've tried enabling ACPI support, but that has succeeded in confusing me
+as I can't work out how to use it, acpid seems to do nothing.
 
+Even without APM support compiled in, the box still manages to turn itself
+off, (running poweroff), and every time it won't respond to WOL. In all
+cases, the card is still powered up and negotiated to the switch.
+
+Matt
 -- 
---Ed Cashin                   PGP public key:
-  ecashin@terry.uga.edu       http://www.terry.uga.edu/~ecashin/pgp/
+"Phase plasma rifle in a forty-watt range?"
+"Only what you see on the shelves, buddy."
+
 

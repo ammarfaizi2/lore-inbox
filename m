@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUBKI0p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 03:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUBKI0p
+	id S263726AbUBKI07 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 03:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUBKI07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 03:26:45 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:3463 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S263679AbUBKI0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 03:26:44 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
-Date: Wed, 11 Feb 2004 16:36:18 +0800
-User-Agent: KMail/1.5.4
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200402050941.34155.mhf@linuxmail.org> <200402100625.41288.mhf@linuxmail.org> <20040210185137.GD4478@dualathlon.random>
-In-Reply-To: <20040210185137.GD4478@dualathlon.random>
-X-OS: KDE 3 on GNU/Linux
+	Wed, 11 Feb 2004 03:26:59 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:10417 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263726AbUBKI05 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 03:26:57 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402111636.18779.mhf@linuxmail.org>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] Re: APM good, ACPI bad (2.6.2-rc1 / p4 HT / Uniwill N258SA0)
+Date: Wed, 11 Feb 2004 16:25:03 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401CBB69A@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] Re: APM good, ACPI bad (2.6.2-rc1 / p4 HT / Uniwill N258SA0)
+Thread-Index: AcPrr1X85fSifgMNRtCqhoiA5vohuAEyQAoA
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "Huw Rogers" <count0@localnet.com>, <linux-kernel@vger.kernel.org>,
+       <ncunningham@users.sourceforge.net>, <linux-laptop@mobilix.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 11 Feb 2004 08:26:02.0969 (UTC) FILETIME=[AF9F2490:01C3F078]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 February 2004 02:51, Andrea Arcangeli wrote:
-> On Tue, Feb 10, 2004 at 11:24:01PM +0800, Michael Frank wrote:
-> > +	ClearPageNosave(page);
+
 > 
-> why this clearpagenosave? looks superflous, you're not doing it in the
-> normal zone anyways.
+> Well, when _my_ laptop has HT, I guess :-)))))).
+>
 
-OK, this gets removed.
-
-Regards
-Michael
-
+Great!  
+ 
+--Luming

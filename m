@@ -1,148 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVB0Ow4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVB0PAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVB0Ow4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 09:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVB0Ow4
+	id S261398AbVB0PAt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 10:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVB0PAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 09:52:56 -0500
-Received: from ptr210-netcat ([66.230.167.210]:16282 "EHLO
-	mail.globalproof.net") by vger.kernel.org with ESMTP
-	id S261397AbVB0Owu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 09:52:50 -0500
-Date: Sun, 27 Feb 2005 16:52:54 +0200
-From: nuclearcat <nuclearcat@nuclearcat.com>
-X-Mailer: The Bat! (v3.0.1.33) Professional
-Reply-To: nuclearcat <nuclearcat@nuclearcat.com>
-Organization: NUC
-X-Priority: 3 (Normal)
-Message-ID: <1232377275.20050227165254@nuclearcat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: torvalds@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re[2]: pty_chars_in_buffer NULL pointer (kernel oops)
-In-Reply-To: <20050225230432.GD15251@logos.cnet>
-References: <1567604259.20050218105653@nuclearcat.com>
- <20050225230432.GD15251@logos.cnet>
+	Sun, 27 Feb 2005 10:00:48 -0500
+Received: from abo-131-24-69.mtz.modulonet.fr ([85.69.24.131]:46209 "EHLO
+	gw.reolight.net") by vger.kernel.org with ESMTP id S261398AbVB0PAj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 10:00:39 -0500
+Message-ID: <4221E08D.7000403@reolight.net>
+Date: Sun, 27 Feb 2005 16:00:29 +0100
+From: Auzanneau Gregory <greg@reolight.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: fr, fr-fr, en, en-gb, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: kernel BUG at drivers/media/video/video-buf.c:226!
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear, Marcelo.
 
-You wrote Saturday, February 26, 2005, 1:04:32 AM:
+Starting VideoLan on 2.6.8 with a bttv Pinnacle Studio Pro segfaults kernel.
 
-Sorry about delay, i had switched kernel to non-SMP mode.
-I cannot debug on kernel (it is loaded VPN server, and there is no
-redundancy for now).
-I have only few old oopses, saved before (it is on old redhat kernel)
-Feb 16 06:44:41 nss kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Feb 16 06:44:41 nss kernel:  printing eip:
-Feb 16 06:44:41 nss kernel: 00000000
-Feb 16 06:44:41 nss kernel: *pde = 00000000
-Feb 16 06:44:41 nss kernel: Oops: 0000
-Feb 16 06:44:41 nss kernel: cls_u32 sch_sfq sch_cbq ip_nat_ftp ip_conntrack_ftp tun ipt_REJECT ipt_REDIRECT nls_iso8859-1 loop cipcb ip_gre ipip ppp_async pp
-Feb 16 06:44:41 nss kernel: CPU:    3
-Feb 16 06:44:41 nss kernel: EIP:    0060:[<00000000>]    Not tainted
-Feb 16 06:44:41 nss kernel: EFLAGS: 00010286
-Feb 16 06:44:41 nss kernel:
-Feb 16 06:44:41 nss kernel: EIP is at [unresolved] (2.4.20-20.9smp)
-Feb 16 06:44:41 nss kernel: eax: d4b26000   ebx: ce7fe000   ecx: c01997c0   edx: ef7c6b80
-Feb 16 06:44:41 nss kernel: esi: 00000000   edi: ce7fe000   ebp: e040a880   esp: cfdf7ee0
-Feb 16 06:44:41 nss kernel: ds: 0068   es: 0068   ss: 0068
-Feb 16 06:44:41 nss kernel: Process pptpctrl (pid: 15960, stackpage=cfdf7000)
-Feb 16 06:44:41 nss kernel: Stack: c019d839 d4b26000 00000000 c019b2e6 ce7fe000 ce7fe974 cfdf7f48 ce7fe000
-Feb 16 06:44:41 nss kernel:        e040a880 00000004 00000010 c0197a15 ce7fe000 e040a880 00000000 00000000
-Feb 16 06:44:41 nss kernel:        e040a880 c01662b7 e040a880 00000000 cfdf6000 00000145 cfdf6000 00001962
-Feb 16 06:44:41 nss kernel: Call Trace:   [<c019d839>] pty_chars_in_buffer [kernel] 0x39 (0xcfdf7ee0))
-Feb 16 06:44:41 nss kernel: [<c019b2e6>] normal_poll [kernel] 0x106 (0xcfdf7eec))
-Feb 16 06:44:41 nss kernel: [<c0197a15>] tty_poll [kernel] 0x85 (0xcfdf7f0c))
-Feb 16 06:44:41 nss kernel: [<c01662b7>] do_select [kernel] 0x247 (0xcfdf7f24))
-Feb 16 06:44:41 nss kernel: [<c016663e>] sys_select [kernel] 0x34e (0xcfdf7f60))
-Feb 16 06:44:41 nss kernel: [<c01098cf>] system_call [kernel] 0x33 (0xcfdf7fc0))
-Feb 16 06:44:41 nss kernel:
-Feb 16 06:44:41 nss kernel:
-Feb 16 06:44:41 nss kernel: Code:  Bad EIP value.
+Here the debug lines to diagnose the source of the problem.
 
+------------[ cut here ]------------
+kernel BUG at drivers/media/video/video-buf.c:226!
+invalid operand: 0000 [#1]
+PREEMPT
+Modules linked in: thermal fan button processor ac battery af_packet
+uhci_hcd oh
+ci_hcd ehci_hcd usbcore 8139cp snd_bt87x tuner tda9887 msp3400 bttv
+video_buf i2
+c_algo_bit v4l2_common btcx_risc videodev snd_via82xx snd_ac97_codec
+snd_pcm_oss
+ snd_mixer_oss snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart
+snd_raw
+midi snd_seq_device snd soundcore pci_hotplug amd_k7_agp agpgart floppy
+pcspkr r
+tc evdev 8139too mii parport_pc parport dm_mod capability commoncap
+i2c_viapro i
+2c_isa lm80 eeprom via686a i2c_sensor i2c_core ide_cd cdrom xfs ext2
+ext3 jbd mb
+cache ide_generic via82cxxx hpt366 ide_disk ide_core unix font vesafb
+cfbcopyare
+a cfbimgblt cfbfillrect
+CPU:    0
+EIP:    0060:[<f0b35605>]    Not tainted
+EFLAGS: 00210246   (2.6.8-2-k7)
+EIP is at videobuf_dma_pci_sync+0x25/0x60 [video_buf]
+eax: 00000000   ebx: effc0a64   ecx: effc0aac   edx: e84cfee0
+esi: 00000000   edi: efde6610   ebp: e8635ec0   esp: e84cff00
+ds: 007b   es: 007b   ss: 0068
+Process vlc (pid: 3416, threadinfo=e84ce000 task=e858ee90)
+Stack: efde6600 00000000 efde6610 00000000 f0b365a4 ef843800 effc0a64
+00000001
+       e757480c e7574808 00000001 001b0000 efde6600 00000000 e8635ec0
+00007fff
+       f0b65102 e8635ec0 efde6610 42f68008 00007fff e84cffac 00000000
+00000000
+Call Trace:
+ [<f0b365a4>] videobuf_read_one+0xa4/0x240 [video_buf]
+ [<f0b65102>] bttv_read+0x102/0x140 [bttv]
+ [<c015352b>] vfs_read+0xdb/0x140
+ [<c01537d1>] sys_read+0x51/0x80
+ [<c0106107>] syscall_call+0x7/0xb
+Code: 0f 0b e2 00 80 72 b3 f0 eb ec c7 44 24 08 12 11 72 19 89 44
 
-
-in new kernel there is no debug messages to find where is problem, but
-problem looks very similar
-
-Feb 17 13:13:54 nss kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Feb 17 13:13:54 nss kernel:  printing eip:
-Feb 17 13:13:54 nss kernel: 00000000
-Feb 17 13:13:54 nss kernel: *pde = 00000000
-Feb 17 13:13:54 nss kernel: Oops: 0000
-Feb 17 13:13:54 nss kernel: CPU:    3
-Feb 17 13:13:54 nss kernel: EIP:    0010:[<00000000>]    Not tainted
-Feb 17 13:13:54 nss kernel: EFLAGS: 00010286
-Feb 17 13:13:54 nss kernel: eax: ec32e000   ebx: f6891000   ecx: c01f56a0   edx: d6547980
-Feb 17 13:13:54 nss kernel: esi: f6891000   edi: 00000000   ebp: f39c4c00   esp: d66bbed8
-Feb 17 13:13:54 nss kernel: ds: 0018   es: 0018   ss: 0018
-Feb 17 13:13:54 nss kernel: Process pptpctrl (pid: 10632, stackpage=d66bb000)
-Feb 17 13:13:54 nss kernel: Stack: c01f9829 ec32e000 00000000 c01f7e66 f6891000 00000010 00000202 f68910c0
-Feb 17 13:13:54 nss kernel:        f6891000 f39c4c00 00000000 c01f3bb0 f6891000 f39c4c00 00000000 00000000
-Feb 17 13:13:54 nss kernel:        f39c4c00 00000004 00000010 c0153a87 f39c4c00 00000000 d66ba000 00000145
-Feb 17 13:13:54 nss kernel: Call Trace:    [<c01f9829>] [<c01f7e66>] [<c01f3bb0>] [<c0153a87>] [<c0153e0e>]
-Feb 17 13:13:54 nss kernel:   [<c010ae99>] [<c0108f67>]
-Feb 17 13:13:54 nss kernel:
-Feb 17 13:13:54 nss kernel: Code:  Bad EIP value.
-
-
-And problem disappearing in non-SMP kernel.
-
-
-> Hi, 
-
-> On Fri, Feb 18, 2005 at 10:56:53AM +0200, nuclearcat wrote:
-
->> Is discussed at
-
->> http://kerneltrap.org/mailarchive/1/message/12508/thread 
-
->> bug fixed in 2.4.x tree? Cause seems i have downloaded 2.4.29, and it
->> is not fixed (still my kernel on vpn server crashing almost at start),
->> i have grepped fast pre and bk patches, but didnt found any fixed
->> related to tty/pty.
-
-> Can you please post the oops? Have you done so already? 
-
-> What makes you think it is the same race discussed in the above thread?
-
-> BTW, I fail to see any drivers/char/pty.c change related to the race which triggers
-> the pty_chars_in_buffer->0 oops.
-
-> Quoting the first message from thread you mention:
-> "That last call trace entry is the call in pty_chars_in_buffer() to 
-
->         /* The ldisc must report 0 if no characters available to be read */
->         count = to->ldisc.chars_in_buffer(to);
-> "
-
-> Alan, Linus, what correction to the which the above thread discusses has
-> been deployed? 
-
->> Provided in thread patch from Linus working, but after night i have
->> checked server, and see load average jumped to 700.
->> Can anybody help in that? I am not kernel guru to provide a patch, but
->> seems by search in google it is actual problem for people, who own
->> poptop vpn servers, it is really causing serious instability for
->> servers.
-
-> Can you compile a list of such v2.4 reports? 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Thank you all for the good work with linux, keep up with it ! :)
 
 -- 
-With best regards,
-GlobalProof Globax Division Manager,
-Denys Fedoryshchenko
-mailto:denys@globalproof.net
-
+Auzanneau Grégory
+GPG 0x99137BEE

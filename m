@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280947AbRK1Wjn>; Wed, 28 Nov 2001 17:39:43 -0500
+	id <S280937AbRK1Wlx>; Wed, 28 Nov 2001 17:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280938AbRK1Wjd>; Wed, 28 Nov 2001 17:39:33 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:27922 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S280937AbRK1WjY>; Wed, 28 Nov 2001 17:39:24 -0500
-Message-Id: <200111282239.fASMdMY82422@aslan.scsiguy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel's X86 ffs() doesn't work on constants.
-Date: Wed, 28 Nov 2001 15:39:22 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S280938AbRK1Wln>; Wed, 28 Nov 2001 17:41:43 -0500
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:6880 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S280937AbRK1Wlh>; Wed, 28 Nov 2001 17:41:37 -0500
+Date: Wed, 28 Nov 2001 14:41:23 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: John Alvord <jalvo@mbay.net>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPLONLY kernel symbols???
+In-Reply-To: <6ja1vt430au190m9e2n07bo35pn2rlms5v@4ax.com>
+Message-ID: <Pine.LNX.4.33.0111281440430.23481-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you attempt to call ffs(SOME_CONSTAT) in an x86 kernel under
-Linux, you get messages like this:
+On Mon, 12 Nov 2001, John Alvord wrote:
 
-{standard input}: Assembler messages:
-{standard input}:14864: Error: suffix or operands invalid for `bsf'
+> The best programmer I ever knew told me that if you couldn't fake and
+> utilize another programmer's style... you were only an amateur.
 
-I'm not enough of a GCC asm syntax guru to understand why the
-compiler/assembler doesn't handle this, but it is hightly anoying.
+I don't see how coding style has anything to do with the abilities of a 
+programmer whatsoever.
 
-"Why not just code in the constant bit offset?", you ask?  If
-the constant the bit offset is based on is ever changed, I must
-recognize that the change occured and change the second constant.
-For constants that are maintained outside of my code, I'd rather
-code the dependency once and let the compiler ensure that the constants
-are in sync.
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
---
-Justin

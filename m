@@ -1,92 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbTEGIL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 04:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTEGIL7
+	id S262974AbTEGI1z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 04:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbTEGI1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 04:11:59 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38214 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S262953AbTEGIL6
+	Wed, 7 May 2003 04:27:54 -0400
+Received: from mail.convergence.de ([212.84.236.4]:58780 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S262974AbTEGI1x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 04:11:58 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-References: <20030506164252.GA5125@mail.jlokier.co.uk>
-	<m13cjranqb.fsf@frodo.biederman.org>
-	<20030506215552.GA6284@mail.jlokier.co.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 May 2003 02:21:25 -0600
-In-Reply-To: <20030506215552.GA6284@mail.jlokier.co.uk>
-Message-ID: <m1vfwn88vu.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	Wed, 7 May 2003 04:27:53 -0400
+Message-ID: <3EB8C67A.4020500@convergence.de>
+Date: Wed, 07 May 2003 10:40:26 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
+X-Accept-Language: de-at, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
+References: <3EB7DCF0.2070207@convergence.de> <20030506220828.A19971@infradead.org>
+In-Reply-To: <20030506220828.A19971@infradead.org>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+Hello Christoph,
 
-> Eric W. Biederman wrote:
-> > >  We could even modularise parts of the kernel which aren't
-> > > modular now, so that we could take advantage of even more parts of Linux.
-> > > 
-> > > What do you think?
-> > 
-> > At the very best support wise you would fall under the same category
-> > as if you loaded a binary only driver.
-> > 
-> > On a very practical side you would suffer severe bitrot.  As I have
-> > seen no project that has attempted this being able to keep up with 
-> > the kernel API.  Netkit, Mach and MILO are good examples of why not to
-> > do this.
-> 
-> I do not see any practical alternative way to create a new kind of
-> operating system kernel that is compatible with the wide range of PC
-> hardware, other than:
-> 
->   (a) read lots of open source code and then write drivers,
->       filesystems etc. from what is learned, or
->   (b) just use the available code with appropriate wrapping.
-> 
-> Both are lots of work.  But isn't (b) going to be less work?  I'm not
-> sure.
+> What the problem with 2.5, dvb and devfs? 
 
-(c) Modify the drivers to fit into your kernel. (See below).
-    As far as I know this is the only long term stable approach.
- 
-> Your mention of Mach leads me to imagine someone saying "don't waste
-> your energies writing a new kernel, spend them improving Linux!".  But
-> then I think, how is it conceivable to "improve" Linux into a very
-> different vision of what an OS kernel can be like?  No, it is
-> necessary to experiment with radical new things to try the ideas out,
-> yet it is quite impractical to develop drivers from scratch without
-> at least _reading_ existing open source code.  And then, maybe it is
-> easier to build wrappers than to learn and rewrite.
->
-> This whole question comes from that, and the question of whether any
-> radical experiment in kernel design would have to be GPL'd to take
-> advantage of the Linux driver code, or whether said code would have to
-> be rewritten.  (The advantage of the latter is that ideas from many
-> operating systems could be more effectively integrated, though, such
-> as combining hard drive blacklists from BSD and Linux, etc.)
+The main problem is that our development "dvb-kernel" CVS tree *should* 
+compile under 2.4 aswell, because most of the dvb-users don't want to 
+participate in kernel development in general, but only on the 
+development of the dvb subsystem. So work is done on the "dvb-kernel" 
+tree, which should be synced with the 2.5 kernel frequently.
 
-There is no stable Linux kernel API for drivers.  There is a software
-interface but it is continually morphing, changing becoming different
-and hopefully better.
+So, regarding devfs, I introduced #ifdefs around the functions that have 
+changed recently. That's not nice, I know. But in my eyes it's important 
+to keep the CVS and the kernel version more in sync.
 
-The only practical solution I know of (short of porting Linux to run
-on top of your kernel), is to use the Linux code as a base as a starting
-point and derive your own drivers.  Everyone who attempts to just
-reuse the Linux drivers gets stuck with a snapshot of the kernel
-at the time they did the work.  Later kernels always wind up unsupported.
+IIRC Gerd Knorr has the same problems with his driver packages 
+(regarding the i2c subsystem mainly), but he has written some perl 
+scripts to remove the #ifdef stuff before submitting his patches...
 
-The successful example I know of is etherboot.  Where many of it's drivers
-are derived from Linux but it is an entirely different source base.   So
-etherboot and Linux evolve at different rates.  
+> I already told one of the DVB folks
+> (it wasn't you IIRC) that I'll publish a 2.5 devfs API on 2.4 header.
 
-Beyond that the whole closed thing is a turn-off.  Which is likely to
-reduce interest in your research OS and get you no free feedback on
-the weird situations.
+No, you spoke to Holger I think, who has maintained the dvb-core kernel 
+submissions before me.
 
-Eric
+> But first I have to fix the devfs API on 2.5 and randomly bringing
+> back old crap and lots of ifdefs in those changing areas won't help.
+
+I understand. But delaying the dvb updates just because a few calls to 
+the devfs subsystem (which are now separated by #ifdefs and can easily 
+be found) is not a good option either, or is it?
+
+CU
+Michael.
+

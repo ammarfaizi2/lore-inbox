@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264520AbTI2TQM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 15:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264521AbTI2TQM
+	id S264517AbTI2TN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 15:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTI2TN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 15:16:12 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:35341 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S264520AbTI2TQI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 15:16:08 -0400
-Date: Mon, 29 Sep 2003 21:10:14 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Michael Hunold <hunold@convergence.de>
-cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@fs.tum.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] select for drivers/media
-In-Reply-To: <3F787A90.7020706@convergence.de>
-Message-ID: <Pine.LNX.4.44.0309292100430.8124-100000@serv>
-References: <20030928160536.GJ15338@fs.tum.de> <3F774CCC.3040707@convergence.de>
- <20030928212630.GS15338@fs.tum.de> <20030929173021.GA1762@kroah.com>
- <3F787A90.7020706@convergence.de>
+	Mon, 29 Sep 2003 15:13:58 -0400
+Received: from web40902.mail.yahoo.com ([66.218.78.199]:25657 "HELO
+	web40902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264517AbTI2TNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 15:13:54 -0400
+Message-ID: <20030929191352.10470.qmail@web40902.mail.yahoo.com>
+Date: Mon, 29 Sep 2003 12:13:52 -0700 (PDT)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030929120910.A6895@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Mr. Wright,
 
-On Mon, 29 Sep 2003, Michael Hunold wrote:
+--- Chris Wright <chrisw@osdl.org> wrote:
+> * Andrew Morton (akpm@osdl.org) wrote:
+> > Bradley Chapman <kakadu_croc@yahoo.com> wrote:
+> > >
+> > > I am experiencing defunct event/0 kernel daemons under 2.6.0-test6-mm1
+> > >  with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20 with synaptics
+> > >  support, and XFree86 4.3.0-10. Moving the touchpad in either X or with
+> > >  gpm causes defunct event/0 processes to be created. 
+> > 
+> > Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
+> > 
+> > You could try reverting synaptics-reconnect.patch, and then
+> serio-reconnect.patch from
+> 
+> Andrew, I wonder if this isn't caused by the call_usermodehelper patch.
+> Looks like you were right ;-)
 
-> So here it comes: The idea is to allow the user to basically select
-> everything. If a subsystem or utitlity stuff is needed (NET, INET, PCI, USB, I2C)
-> it's selected automatically.
+He is right. I reverted call_usermodehelper-retval-fix-2.patch and everything
+works again. Why would that break the source of events/0 and hotplug?
 
-Please don't use select for something like PCI or NET, if e.g. PCI is not 
-selected no pci driver should be visible or you annoy users which don't 
-have a pci bus, but have to wade through thousands of nonrelevant drivers.
+I'd post a link to my reponse but the USSG archive is slow ;-)
 
-bye, Roman
+> 
+> thanks,
+> -chris
 
+Brad
+
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

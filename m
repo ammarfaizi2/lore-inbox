@@ -1,151 +1,342 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264039AbTEOOgG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 10:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTEOOgG
+	id S264050AbTEOOls (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 10:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264051AbTEOOls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 10:36:06 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:58767 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264039AbTEOOgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 10:36:03 -0400
-Date: Fri, 16 May 2003 00:49:33 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.69-bk[89]: software suspend compile error
-Message-ID: <20030515144933.GB632@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	Thu, 15 May 2003 10:41:48 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:28332 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP id S264050AbTEOOlh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 10:41:37 -0400
+Message-ID: <3EC3AA1E.6050401@mvista.com>
+Date: Thu, 15 May 2003 09:54:22 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Problem with e100 driver and latency on different packet sizes
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070804090203030505070908"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tried to see if I could fix this myself but couldn't figure out what was
-happening. the ld line that creates the built-in.o has suspend_asm.o in
-it which, in turn, seems to contain the right labels so I'm a bit lost.
-Anyhow, here's part of the output and the relevant (I hope) bit of the
-.config.
+This is a multi-part message in MIME format.
+--------------070804090203030505070908
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-...
-   ld -m elf_i386  -R arch/i386/kernel/vsyscall-syms.o -r -o arch/i386/kernel/built-in.o arch/i386/kernel/process.o arch/i386/kernel/semaphore.o arch/i386/kernel/signal.o arch/i386/kernel/entry.o arch/i386/kernel/traps.o arch/i386/kernel/irq.o arch/i386/kernel/vm86.o arch/i386/kernel/ptrace.o arch/i386/kernel/i8259.o arch/i386/kernel/ioport.o arch/i386/kernel/ldt.o arch/i386/kernel/setup.o arch/i386/kernel/time.o arch/i386/kernel/sys_i386.o arch/i386/kernel/pci-dma.o arch/i386/kernel/i386_ksyms.o arch/i386/kernel/i387.o arch/i386/kernel/dmi_scan.o arch/i386/kernel/bootflag.o arch/i386/kernel/doublefault.o arch/i386/kernel/cpu/built-in.o arch/i386/kernel/timers/built-in.o arch/i386/kernel/acpi/built-in.o arch/i386/kernel/reboot.o arch/i386/kernel/suspend.o arch/i386/kernel/suspend_asm.o arch/i386/kernel/sysenter.o arch/i386/kernel/vsyscall.o
-...
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -o init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/mounts.o init/initramfs.o
-        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
-arch/i386/kernel/built-in.o(.data+0x160a): undefined reference to `saved_context_esp'
-arch/i386/kernel/built-in.o(.data+0x160f): undefined reference to `saved_context_eax'
-arch/i386/kernel/built-in.o(.data+0x1615): undefined reference to `saved_context_ebx'
-arch/i386/kernel/built-in.o(.data+0x161b): undefined reference to `saved_context_ecx'
-arch/i386/kernel/built-in.o(.data+0x1621): undefined reference to `saved_context_edx'
-arch/i386/kernel/built-in.o(.data+0x1627): undefined reference to `saved_context_ebp'
-arch/i386/kernel/built-in.o(.data+0x162d): undefined reference to `saved_context_esi'
-arch/i386/kernel/built-in.o(.data+0x1633): undefined reference to `saved_context_edi'
-arch/i386/kernel/built-in.o(.data+0x163a): undefined reference to `saved_context_eflags'
-arch/i386/kernel/built-in.o: In function `ret_point':
-arch/i386/kernel/built-in.o(.data+0x167a): undefined reference to `saved_context_esp'
-arch/i386/kernel/built-in.o(.data+0x1680): undefined reference to `saved_context_ebp'
-arch/i386/kernel/built-in.o(.data+0x1685): undefined reference to `saved_context_eax'
-arch/i386/kernel/built-in.o(.data+0x168b): undefined reference to `saved_context_ebx'
-arch/i386/kernel/built-in.o(.data+0x1691): undefined reference to `saved_context_ecx'
-arch/i386/kernel/built-in.o(.data+0x1697): undefined reference to `saved_context_edx'
-arch/i386/kernel/built-in.o(.data+0x169d): undefined reference to `saved_context_esi'
-arch/i386/kernel/built-in.o(.data+0x16a3): undefined reference to `saved_context_edi'
-arch/i386/kernel/built-in.o(.data+0x16ae): undefined reference to `saved_context_eflags'
-arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel_s4bios':
-arch/i386/kernel/built-in.o(.data+0x16c2): undefined reference to `saved_context_esp'
-arch/i386/kernel/built-in.o(.data+0x16c7): undefined reference to `saved_context_eax'
-arch/i386/kernel/built-in.o(.data+0x16cd): undefined reference to `saved_context_ebx'
-arch/i386/kernel/built-in.o(.data+0x16d3): undefined reference to `saved_context_ecx'
-arch/i386/kernel/built-in.o(.data+0x16d9): undefined reference to `saved_context_edx'
-arch/i386/kernel/built-in.o(.data+0x16df): undefined reference to `saved_context_ebp'
-arch/i386/kernel/built-in.o(.data+0x16e5): undefined reference to `saved_context_esi'
-arch/i386/kernel/built-in.o(.data+0x16eb): undefined reference to `saved_context_edi'
-arch/i386/kernel/built-in.o(.data+0x16f2): undefined reference to `saved_context_eflags'
-make: *** [.tmp_vmlinux1] Error 1
+I'm seeing an odd thing with the e100 driver.  It seems to be this way
+with the 2.4 series and with 2.5.68, and I couldn't find anything with a
+search.
 
-.config:
+I've attached a small program to measure latency of round-trip time on
+UDP.  If I send 85-byte packets between two of my machines, I get 170us
+round-trip latency.  If I send 86-byte packets, I get 1329us latency. 
+This seems quite odd.  If I test on the eepro100 driver, I get expected
+linear increase in round-trip time as the packet size increases, and it
+never gets close to 1300us.
 
-...
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=15
+To run the program, do:
 
-#
-# Loadable module support
-#
-# CONFIG_MODULES is not set
+./ip_lat -s <port>
 
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
+on one machine to run the server, and then do
 
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
+./ip_lat <server IP> <port> 1000 85
 
-#
-# ACPI Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
+to send 1000 85-byte packets from another machine.  Change the 85 to 86
+to see the latency go up.
 
-#
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_TABLE=y
+-Corey
 
-#
-# CPUFreq processor drivers
-#
-CONFIG_X86_ACPI_CPUFREQ=y
-CONFIG_X86_SPEEDSTEP=y
+--------------070804090203030505070908
+Content-Type: text/plain;
+ name="ip_lat.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ip_lat.c"
 
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/poll.h>
+#include <sys/time.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <malloc.h>
+#include <errno.h>
+#include <popt.h>
+
+static int server;
+
+struct poptOption poptOpts[]=
+{
+    {
+	"server",
+	's',
+	POPT_ARG_NONE,
+	NULL,
+	's',
+	"Enable the server",
+	""
+    },
+    POPT_AUTOHELP
+    {
+	NULL,
+	0,
+	0,
+	NULL,
+	0		 
+    }	
+};
+
+void
+do_server(int port)
+{
+    int                fd;
+    char               buffer[2048];
+    struct sockaddr    addr;
+    struct sockaddr_in ipaddr;
+    socklen_t          addrlen;
+    size_t             len;
+    int                rv;
+
+    fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (fd == -1) {
+	perror("Could not bind to port");
+	exit(1);
+    }
+
+    ipaddr.sin_family = AF_INET;
+    ipaddr.sin_port = htons(port);
+    ipaddr.sin_addr.s_addr = INADDR_ANY;
+
+    rv = bind(fd, (struct sockaddr *) &ipaddr, sizeof(ipaddr));
+    if (rv) {
+	perror("Could not bind to port");
+	exit(1);
+    }
+
+    for (;;) {
+	addrlen = sizeof(addr);
+	len = recvfrom(fd, buffer, sizeof(buffer), 0, &addr, &addrlen);
+	if (len > 0) {
+	    rv = sendto(fd, buffer, len, 0, &addr, addrlen);
+	    if (rv == -1)
+		perror("error in sendto");
+	} else {
+	    perror("Error in recvfrom");
+	}
+    }
+}
+
+static long
+diff_timeval(struct timeval *left,
+	     struct timeval *right)
+{
+    if (   (left->tv_sec < right->tv_sec)
+	|| (   (left->tv_sec == right->tv_sec)
+	    && (left->tv_usec < right->tv_usec)))
+    {
+	/* If left < right, just force to zero, don't allow negative
+           numbers. */
+	return 0;
+    }
+
+    return (((left->tv_sec - right->tv_sec) * 1000000)
+	    + (left->tv_usec - right->tv_usec));
+}
+
+static long
+average(long *data, int size, long *max, long *min)
+{
+    int  i;
+    long rv = 0;
+
+    *max = LONG_MIN;
+    *min = LONG_MAX;
+    for (i=0; i<size; i++) {
+	if (data[i] < 0)
+	    continue;
+	if (data[i] > *max)
+	    *max = data[i];
+	if (data[i] < *min)
+	    *min = data[i];
+	rv += data[i];
+    }
+
+    return (rv / size);
+}
+
+void do_client(struct in_addr *dest_addr, int port, int count, int size)
+{
+    int                fd;
+    struct sockaddr_in ipaddr;
+    struct sockaddr    addr;
+    socklen_t          addrlen;
+    int                rv;
+    int                i;
+    size_t             len;
+    char               buffer[2048];
+    char               buffer2[2048];
+    long               *times;
+    long               avg, max, min;
+    int                curr_port;
+
+    times = malloc(sizeof(long) * count);
+    if (!times) {
+	fprintf(stderr, "Out of memory\n");
+	exit(1);
+    }
+
+    fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (fd == -1) {
+	fprintf(stderr, "Out of memory\n");
+	exit(1);
+    }
+
+    curr_port = 1000;
+    do {
+	curr_port++;
+	ipaddr.sin_family = AF_INET;
+	ipaddr.sin_port = htons(curr_port);
+	ipaddr.sin_addr.s_addr = INADDR_ANY;
+
+	rv = bind(fd, (struct sockaddr *) &ipaddr, sizeof(ipaddr));
+    } while ((curr_port < 65536) && (rv == -1));
+
+    ipaddr.sin_family = AF_INET;
+    ipaddr.sin_port = htons(port);
+    ipaddr.sin_addr = *dest_addr;
+
+    for (i=0; i<size; i++) {
+	buffer[i] = i;
+    }
+
+    for (i=0; i<count; i++) {
+	struct timeval start_time;
+	struct timeval end_time;
+	struct timeval wait_time;
+	fd_set read_set;
+
+	times[i] = -1;
+
+	FD_ZERO(&read_set);
+	FD_SET(fd, &read_set);
+	wait_time.tv_sec = 2;
+	wait_time.tv_usec = 0;
+
+	gettimeofday(&start_time, NULL);
+	rv = sendto(fd, buffer, size, 0,
+		    (struct sockaddr *) &ipaddr, sizeof(ipaddr));
+	if (rv == -1) {
+	    perror("Error in sendto");
+	    continue;
+	}
+    retry:
+	rv = select(fd+1, &read_set, NULL, NULL, &wait_time);
+	gettimeofday(&end_time, NULL);
+	if (rv == -1) {
+	    if (errno == EINTR)
+		goto retry;
+	    perror("Error in select");
+	    continue;
+	}
+	if (rv == 0) {
+	    fprintf(stderr, "Timeout waiting for response %d\n", i);
+	    continue;
+	}
+
+	addrlen = sizeof(addr);
+	len = recvfrom(fd, buffer2, sizeof(buffer2), 0, &addr, &addrlen);
+	if (rv == -1) {
+	    perror("Error in recvfrom");
+	    continue;
+	}
+
+	if (len != size) {
+	    fprintf(stderr, "Invalid length in response to buffer %d,"
+		    " waiting more\n", i);
+	    goto retry;
+	}
+	if (memcmp(buffer, buffer2, size) != 0) {
+	    fprintf(stderr, "Invalid data in response to buffer %d,"
+		    " waiting more\n", i);
+	    goto retry;
+	}
+
+	times[i] = diff_timeval(&end_time, &start_time);
+    }
+
+    avg = average(times, count, &max, &min);
+    printf("Average: %ldus, Max: %ldus, Min: %ldus\n", avg, max, min);
+}
+
+int
+main(int argc, const char *argv[])
+{
+    int            o;
+    struct hostent *ent;
+    struct in_addr addr;
+    int            port;
+    int            count;
+    int            size;
+    
+    poptContext poptCtx = poptGetContext("ip_lat", argc, argv, poptOpts,0);
+
+    while (( o = poptGetNextOpt(poptCtx)) >= 0)
+    {   
+	switch( o )
+	{
+	    case 's':
+		server = 1;
+		break;
+
+	    default:
+		poptPrintUsage(poptCtx, stderr, 0);
+		exit(1);
+	}
+    }
+
+    argv = poptGetArgs(poptCtx);
+
+    if (!argv) {
+	fprintf(stderr, "Not enough arguments\n");
+	exit(1);
+    }
+
+    for (argc=0; argv[argc]!= NULL; argc++)
+	;
+
+    if ((server && (argc < 1)) || (!server && (argc < 4))) {
+	fprintf(stderr, "Not enough arguments\n");
+	exit(1);
+    }
+
+    if (server) {
+	port = atoi(argv[0]);
+	do_server(port);
+    } else {
+	ent = gethostbyname(argv[0]);
+	if (!ent) {
+	    fprintf(stderr, "gethostbyname failed: %s\n", strerror(h_errno));
+	    exit(1);
+	}
+	memcpy(&addr, ent->h_addr_list[0], ent->h_length);
+	port = atoi(argv[1]);
+
+	count = atoi(argv[2]);
+	size = atoi(argv[3]);
+	do_client(&addr, port, count, size);
+    }
+
+    return 0;
+}
+
+--------------070804090203030505070908--
+

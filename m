@@ -1,82 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUHNTll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUHNTlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbUHNTll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 15:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUHNTlQ
+	id S264980AbUHNTlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 15:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUHNTkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 15:41:16 -0400
-Received: from [213.4.129.150] ([213.4.129.150]:62334 "EHLO telesmtp3.mail.isp")
-	by vger.kernel.org with ESMTP id S264923AbUHNThe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 15:37:34 -0400
-Subject: Re: 2.6.8: IDE cdrecord problems
-From: Emilio =?ISO-8859-1?Q?Jes=FAs?= Gallego Arias 
-	<egallego@telefonica.net>
-To: linux-kernel@vger.kernel.org
-Cc: colin@colino.net, axboe@suse.de
+	Sat, 14 Aug 2004 15:40:20 -0400
+Received: from dh138.citi.umich.edu ([141.211.133.138]:52610 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264980AbUHNTdN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 15:33:13 -0400
+Subject: PATCH [6/7] Fix posix locking code
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Sat, 14 Aug 2004 21:38:16 +0200
-Message-Id: <1092512296.5403.11.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1092511991.4109.36.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 14 Aug 2004 15:33:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20040814192211.312de2a2 () jack ! colino ! net>
+ VFS: get rid of the fl_notify, fl_insert, fl_remove fields from
+      struct file_lock. They belong in the new lock_manager_operations
+      structure.
 
-Jack Colino wrote:
+ Signed-off-by: Trond Myklebust <trond.myklebust@fys.uio.no>
 
-> Something quickly took all the memory and swap available, OOM started
-> to kill things and the laptop got bogged down so much that I had to 
-> reboot.
-> Everything is fine with 2.6.8-rc2
-> Excerpts of the syslog are attached. I started to burn at about 14:52,
-> tried to login remotely at 15:27:47 (but ssh timed out).
+ fs/lockd/svclock.c |    3 +--
+ fs/locks.c         |   27 ++++++---------------------
+ include/linux/fs.h |    7 +++----
+ 3 files changed, 10 insertions(+), 27 deletions(-)
 
-Umm, interesting. I've had the same problem and I blamed the drive, but 
-I've the same logs:
-
-Aug  8 00:59:00 localhost kernel: oom-killer: gfp_mask=0xd2
-Aug  8 00:59:01 localhost kernel: DMA per-cpu:
-Aug  8 00:59:01 localhost kernel: cpu 0 hot: low 2, high 6, batch 1
-Aug  8 00:59:01 localhost kernel: cpu 0 cold: low 0, high 2, batch 1
-Aug  8 00:59:01 localhost kernel: Normal per-cpu:
-Aug  8 00:59:01 localhost kernel: cpu 0 hot: low 32, high 96, batch 16
-Aug  8 00:59:01 localhost kernel: cpu 0 cold: low 0, high 32, batch 16
-Aug  8 00:59:01 localhost kernel: HighMem per-cpu: empty
-Aug  8 00:59:01 localhost kernel:
-Aug  8 00:59:01 localhost kernel: Free pages:        2396kB (0kB HighMem)
-Aug  8 00:59:01 localhost kernel: Active:16513 inactive:407 dirty:0 writeback:0 unstable:0 free:599 slab:2859 mapped:16891 pagetables:686
-Aug  8 00:59:01 localhost kernel: DMA free:1420kB min:20kB low:40kB high:60kB active:11880kB inactive:104kB present:16384kB
-Aug  8 00:59:01 localhost kernel: protections[]: 10 360 360
-Aug  8 00:59:03 localhost kernel: Normal free:976kB min:700kB low:1400kB high:2100kB active:54172kB inactive:1524kB present:507840kB
-Aug  8 00:59:03 localhost kernel: protections[]: 0 350 350
-Aug  8 00:59:03 localhost kernel: HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
-Aug  8 00:59:03 localhost kernel: protections[]: 0 0 0
-Aug  8 00:59:03 localhost kernel: DMA: 1*4kB 1*8kB 0*16kB 0*32kB 0*64kB 1*128kB 1*256kB 0*512kB 1*1024kB 0*2048kB 0*4096kB = 1420kB
-Aug  8 00:59:03 localhost kernel: Normal: 72*4kB 4*8kB 1*16kB 0*32kB 0*64kB 1*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 976kB
-Aug  8 00:59:03 localhost kernel: HighMem: empty
-Aug  8 00:59:03 localhost kernel: Swap cache: add 50405, delete 50305, find 1397/2028, race 0+0
-Aug  8 00:59:03 localhost kernel: Out of Memory: Killed process 3004 (mysqld).
-
-This log repeats for every cd i tried to burn.
-
-Unfortunately I've no blank media until Monday I can go to the shop :) so 
-will test a stock kernel soon.
-
-Running:
-
-ellugar:/var/log# uname -a
-Linux ellugar 2.6.8-rc4 #48 Fri Aug 13 19:25:22 CEST 2004 i686 GNU/Linux
-
-Debian unstable.
-
-More info and testing on request.
-Any changeset to revert?
-
-Please cc me as I'm not subscribed to lkml.
-
-Regards, Emilio
-
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-05-nlm_lockowner/fs/lockd/svclock.c linux-2.6.8.1-06-cleanup_locks/fs/lockd/svclock.c
+--- linux-2.6.8.1-05-nlm_lockowner/fs/lockd/svclock.c	2004-08-14 14:29:27.000000000 -0400
++++ linux-2.6.8.1-06-cleanup_locks/fs/lockd/svclock.c	2004-08-14 14:29:43.000000000 -0400
+@@ -42,7 +42,6 @@
+ static void	nlmsvc_insert_block(struct nlm_block *block, unsigned long);
+ static int	nlmsvc_remove_block(struct nlm_block *block);
+ static void	nlmsvc_grant_callback(struct rpc_task *task);
+-static void	nlmsvc_notify_blocked(struct file_lock *);
+ 
+ /*
+  * The list of blocked locks to retry
+@@ -193,7 +192,6 @@ nlmsvc_create_block(struct svc_rqst *rqs
+ 		goto failed_free;
+ 
+ 	/* Set notifier function for VFS, and init args */
+-	block->b_call.a_args.lock.fl.fl_notify = nlmsvc_notify_blocked;
+ 	block->b_call.a_args.lock.fl.fl_lmops = &nlmsvc_lock_operations;
+ 	block->b_call.a_args.cookie = *cookie;	/* see above */
+ 
+@@ -487,6 +485,7 @@ static int nlmsvc_same_owner(struct file
+ 
+ struct lock_manager_operations nlmsvc_lock_operations = {
+ 	.fl_compare_owner = nlmsvc_same_owner,
++	.fl_notify = nlmsvc_notify_blocked,
+ };
+ 
+ /*
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-05-nlm_lockowner/fs/locks.c linux-2.6.8.1-06-cleanup_locks/fs/locks.c
+--- linux-2.6.8.1-05-nlm_lockowner/fs/locks.c	2004-08-14 14:29:12.000000000 -0400
++++ linux-2.6.8.1-06-cleanup_locks/fs/locks.c	2004-08-14 14:29:43.000000000 -0400
+@@ -189,9 +189,6 @@ void locks_init_lock(struct file_lock *f
+ 	fl->fl_flags = 0;
+ 	fl->fl_type = 0;
+ 	fl->fl_start = fl->fl_end = 0;
+-	fl->fl_notify = NULL;
+-	fl->fl_insert = NULL;
+-	fl->fl_remove = NULL;
+ 	fl->fl_ops = NULL;
+ 	fl->fl_lmops = NULL;
+ }
+@@ -225,9 +222,6 @@ void locks_copy_lock(struct file_lock *n
+ 	new->fl_type = fl->fl_type;
+ 	new->fl_start = fl->fl_start;
+ 	new->fl_end = fl->fl_end;
+-	new->fl_notify = fl->fl_notify;
+-	new->fl_insert = fl->fl_insert;
+-	new->fl_remove = fl->fl_remove;
+ 	new->fl_ops = fl->fl_ops;
+ 	new->fl_lmops = fl->fl_lmops;
+ 	if (fl->fl_ops && fl->fl_ops->fl_copy_lock)
+@@ -332,9 +326,6 @@ static int flock_to_posix_lock(struct fi
+ 	fl->fl_pid = current->tgid;
+ 	fl->fl_file = filp;
+ 	fl->fl_flags = FL_POSIX;
+-	fl->fl_notify = NULL;
+-	fl->fl_insert = NULL;
+-	fl->fl_remove = NULL;
+ 	fl->fl_ops = NULL;
+ 	fl->fl_lmops = NULL;
+ 
+@@ -374,9 +365,6 @@ static int flock64_to_posix_lock(struct 
+ 	fl->fl_pid = current->tgid;
+ 	fl->fl_file = filp;
+ 	fl->fl_flags = FL_POSIX;
+-	fl->fl_notify = NULL;
+-	fl->fl_insert = NULL;
+-	fl->fl_remove = NULL;
+ 	fl->fl_ops = NULL;
+ 	fl->fl_lmops = NULL;
+ 
+@@ -412,9 +400,6 @@ static int lease_alloc(struct file *filp
+ 	}
+ 	fl->fl_start = 0;
+ 	fl->fl_end = OFFSET_MAX;
+-	fl->fl_notify = NULL;
+-	fl->fl_insert = NULL;
+-	fl->fl_remove = NULL;
+ 	fl->fl_ops = NULL;
+ 	fl->fl_lmops = NULL;
+ 
+@@ -490,8 +475,8 @@ static void locks_wake_up_blocks(struct 
+ 		struct file_lock *waiter = list_entry(blocker->fl_block.next,
+ 				struct file_lock, fl_block);
+ 		__locks_delete_block(waiter);
+-		if (waiter->fl_notify)
+-			waiter->fl_notify(waiter);
++		if (waiter->fl_lmops && waiter->fl_lmops->fl_notify)
++			waiter->fl_lmops->fl_notify(waiter);
+ 		else
+ 			wake_up(&waiter->fl_wait);
+ 	}
+@@ -508,8 +493,8 @@ static void locks_insert_lock(struct fil
+ 	fl->fl_next = *pos;
+ 	*pos = fl;
+ 
+-	if (fl->fl_insert)
+-		fl->fl_insert(fl);
++	if (fl->fl_ops && fl->fl_ops->fl_insert)
++		fl->fl_ops->fl_insert(fl);
+ }
+ 
+ /*
+@@ -532,8 +517,8 @@ static void locks_delete_lock(struct fil
+ 		fl->fl_fasync = NULL;
+ 	}
+ 
+-	if (fl->fl_remove)
+-		fl->fl_remove(fl);
++	if (fl->fl_ops && fl->fl_ops->fl_remove)
++		fl->fl_ops->fl_remove(fl);
+ 
+ 	locks_wake_up_blocks(fl);
+ 	locks_free_lock(fl);
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-05-nlm_lockowner/include/linux/fs.h linux-2.6.8.1-06-cleanup_locks/include/linux/fs.h
+--- linux-2.6.8.1-05-nlm_lockowner/include/linux/fs.h	2004-08-14 14:40:11.000000000 -0400
++++ linux-2.6.8.1-06-cleanup_locks/include/linux/fs.h	2004-08-14 14:29:43.000000000 -0400
+@@ -627,12 +627,15 @@ extern void close_private_file(struct fi
+ typedef struct files_struct *fl_owner_t;
+ 
+ struct file_lock_operations {
++	void (*fl_insert)(struct file_lock *);	/* lock insertion callback */
++	void (*fl_remove)(struct file_lock *);	/* lock removal callback */
+ 	void (*fl_copy_lock)(struct file_lock *, struct file_lock *);
+ 	void (*fl_release_private)(struct file_lock *);
+ };
+ 
+ struct lock_manager_operations {
+ 	int (*fl_compare_owner)(struct file_lock *, struct file_lock *);
++	void (*fl_notify)(struct file_lock *);	/* unblock callback */
+ };
+ 
+ /* that will die - we need it for nfs_lock_info */
+@@ -651,10 +654,6 @@ struct file_lock {
+ 	loff_t fl_start;
+ 	loff_t fl_end;
+ 
+-	void (*fl_notify)(struct file_lock *);	/* unblock callback */
+-	void (*fl_insert)(struct file_lock *);	/* lock insertion callback */
+-	void (*fl_remove)(struct file_lock *);	/* lock removal callback */
+-
+ 	struct fasync_struct *	fl_fasync; /* for lease break notifications */
+ 	unsigned long fl_break_time;	/* for nonblocking lease breaks */
+ 
 

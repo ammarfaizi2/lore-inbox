@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264958AbUE0S17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUE0Sdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264958AbUE0S17 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 14:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUE0S1X
+	id S264957AbUE0Sdh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 14:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUE0Sdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:27:23 -0400
-Received: from acolyte.scowler.net ([216.254.112.45]:22477 "EHLO
-	acolyte.scowler.net") by vger.kernel.org with ESMTP id S264956AbUE0SZe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:25:34 -0400
-Date: Thu, 27 May 2004 14:25:31 -0400
-From: Clint Adams <schizo@debian.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, prism54-devel@prism54.org,
-       debian-kernel@lists.debian.org
-Subject: Re: [Prism54-devel] Re: [PATCH 0/14] prism54: bring up to sync with prism54.org cvs rep
-Message-ID: <20040527182531.GA8942@scowler.net>
-Mail-Followup-To: Clint Adams <schizo@debian.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	"Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com, prism54-devel@prism54.org,
-	debian-kernel@lists.debian.org
-References: <20040524083003.GA3330@ruslug.rutgers.edu> <40B63132.4050906@pobox.com>
+	Thu, 27 May 2004 14:33:36 -0400
+Received: from cpe-66-87-73-84.ca.sprintbbd.net ([66.87.73.84]:253 "EHLO
+	elrond.shiresoft.com") by vger.kernel.org with ESMTP
+	id S264957AbUE0Sd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 14:33:26 -0400
+Subject: Re: 4k stacks in 2.6
+From: Guy Sotomayor <ggs@shiresoft.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Arjan van de Ven <arjanv@redhat.com>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0405270754360.1648@ppc970.osdl.org>
+References: <20040525211522.GF29378@dualathlon.random>
+	 <20040526103303.GA7008@elte.hu>
+	 <20040526125014.GE12142@wohnheim.fh-wedel.de>
+	 <20040526125300.GA18028@devserv.devel.redhat.com>
+	 <20040526130047.GF12142@wohnheim.fh-wedel.de>
+	 <20040526130500.GB18028@devserv.devel.redhat.com>
+	 <20040526164129.GA31758@wohnheim.fh-wedel.de>
+	 <20040527124551.GA12194@elte.hu> <20040527135930.GC3889@dualathlon.random>
+	 <40B5F8C0.2010005@didntduck.org> <20040527145033.GF3889@dualathlon.random>
+	 <Pine.LNX.4.58.0405270754360.1648@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: ShireSoft
+Message-Id: <1085682709.5910.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B63132.4050906@pobox.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 27 May 2004 11:31:50 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >[PATCH 8/14 linux-2.6.7-rc1] prism54: Fix prism54.org bugs 39, 73
+On Thu, 2004-05-27 at 07:55, Linus Torvalds wrote:
 
-> I'm considering rejecting the entire series because of this obfuscation 
-> of changes, and getting you to resend with the whitespace crapola 
-> separated out.
+> "minor implementation detail"?
+> 
+> You need to get to the thread info _some_ way, and you need to get to it
+> _fast_. There are really no sane alternatives. I certainly do not want to
+> play games with segments.
 
-Please at least apply the changes in the "8/14" patch, because without
-them the driver is unusable on big-endian architectures.
+While segments on x86 are in general to be avoided (aka the 286
+segmented memory models) they can be useful for some things in the
+kernel.
+
+Here's a couple of examples:
+      * dereference gs:0 to get the thread info.  The first element in
+        the structure is its linear address (ie usable for being deref'd
+        off of DS).
+      * use SS to enforce the stack limit.  This way you'd absolutely
+        get an exception when there was a stack overflow (underflow). 
+        SS gets reloaded on entry into the kernel and on interrupts
+        anyway so there really shouldn't be a performance impact.  I
+        haven't looked at all the (potential) gcc implications here so
+        this one may not be completely doable.
+-- 
+
+TTFN - Guy
+

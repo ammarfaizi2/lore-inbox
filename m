@@ -1,59 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267618AbUJRTtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267751AbUJRTtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267618AbUJRTtz (ORCPT <rfc822;willy@w.ods.org>);
+	id S267751AbUJRTtz (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 18 Oct 2004 15:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUJRTrK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUJRTq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:47:10 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:60885 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267649AbUJRTqc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:46:32 -0400
-Date: Mon, 18 Oct 2004 21:46:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-Message-ID: <20041018194632.GB9550@elte.hu>
-References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041018193251.GA15313@nietzsche.lynx.com> <20041018193603.GB8159@elte.hu> <20041018194040.GC15313@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018194040.GC15313@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 18 Oct 2004 15:46:26 -0400
+Received: from ranger.systems.pipex.net ([62.241.162.32]:45033 "EHLO
+	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S267638AbUJRTnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:43:25 -0400
+Message-ID: <41741CDB.5010300@dsl.pipex.com>
+Date: Mon, 18 Oct 2004 20:43:23 +0100
+From: Johan Groth <jgroth@dsl.pipex.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Dma problems with Promise IDE controller
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I'm using a Promise controller controlling 4 IDE HD:s, setup as a sw 
+raid0 array. Lately I'm getting interuppt problems that looks like this:
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+Oct 18 18:03:06 lion kernel: hdg: dma_timer_expiry: dma status == 0x61
+Oct 18 18:03:16 lion kernel: hdg: dma timeout retry: status=0x51 { 
+DriveReady SeekComplete Error }
+Oct 18 18:03:16 lion kernel: hdg: dma timeout retry: error=0x40 { 
+UncorrectableError }, LBAsect=53500655, sector=53500520
+Oct 18 18:03:16 lion kernel: end_request: I/O error, dev 22:01 (hdg), 
+sector 53500520
+Oct 18 18:03:16 lion kernel: blk: queue c030c85c, I/O limit 4095Mb (mask 
+0xffffffff)
+Oct 18 18:03:21 lion kernel: hdg: read_intr: status=0x59 { DriveReady 
+SeekComplete DataRequest Error }
+Oct 18 18:03:21 lion kernel: hdg: read_intr: error=0x40 { 
+UncorrectableError }, LBAsect=53500655, sector=53500592
+Oct 18 18:03:21 lion kernel: end_request: I/O error, dev 22:01 (hdg), 
+sector 53500592
 
-> On Mon, Oct 18, 2004 at 09:36:03PM +0200, Ingo Molnar wrote:
-> > * Bill Huey <bhuey@lnxw.com> wrote:
-> > > 
-> > >   CC      arch/i386/kernel/traps.o
-> > > arch/i386/kernel/traps.c: In function `do_debug':
-> > > arch/i386/kernel/traps.c:786: error: `sysenter_past_esp' undeclared (first use in this function)
-> > > arch/i386/kernel/traps.c:786: error: (Each undeclared identifier is reported only once
-> > > arch/i386/kernel/traps.c:786: error: for each function it appears in.)
-> > > make[1]: *** [arch/i386/kernel/traps.o] Error 1
-> > > make: *** [arch/i386/kernel] Error 2
-> > 
-> > i guess this might be an -mm1 breakage if CONFIG_KGDB enabled - does it
-> > happen with vanilla -mm1 too?
-> 
-> yep, should I wait for -mm2 ?
+System info:
+lion:~# uname -a
+Linux lion 2.4.25 #4 Mon Aug 9 15:30:49 CEST 2004 i586 GNU/Linux
 
-since 2.6.9's release is imminent there will unlikely be an -rc4-mm2,
-2.6.9-mm1 should be the next one.
+lion:~# gcc --version
+gcc (GCC) 3.3.2 (Debian)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	Ingo
+lion:~# lspci -v
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+         Flags: bus master, medium devsel, latency 16
+         Memory at e0000000 (32-bit, prefetchable) [size=64M]
+         Capabilities: [a0] AGP version 1.0
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo 
+MVP3/Pro133x AGP] (prog-if 00 [Normal decode])
+         Flags: bus master, 66Mhz, medium devsel, latency 0
+         Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+         I/O behind bridge: 00009000-00009fff
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] 
+(rev 12)
+         Subsystem: VIA Technologies, Inc. VT82C596/A/B PCI to ISA Bridge
+         Flags: bus master, stepping, medium devsel, latency 0
+
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06) 
+(prog-if 8a [Master SecP PriP])
+         Flags: bus master, medium devsel, latency 64
+         I/O ports at a000 [size=16]
+
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 08) (prog-if 00 
+[UHCI])
+         Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
+         Flags: bus master, medium devsel, latency 64, IRQ 11
+         I/O ports at a400 [size=32]
+
+00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management 
+(rev 20)
+         Flags: medium devsel
+
+00:09.0 Unknown mass storage controller: Promise Technology, Inc. 20268 
+(rev 02) (prog-if 85)
+         Subsystem: Promise Technology, Inc. Ultra100TX2
+         Flags: bus master, 66Mhz, slow devsel, latency 64, IRQ 12
+         I/O ports at a800 [size=8]
+         I/O ports at ac00 [size=4]
+         I/O ports at b000 [size=8]
+         I/O ports at b400 [size=4]
+         I/O ports at b800 [size=16]
+         Memory at eb100000 (32-bit, non-prefetchable) [size=16K]
+         Expansion ROM at e8000000 [disabled] [size=16K]
+         Capabilities: [60] Power Management version 1
+
+lion:~# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 9
+model name      : AMD-K6(tm) 3D+ Processor
+stepping        : 1
+cpu MHz         : 451.036
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow 
+k6_mtrr
+bogomips        : 897.84
+
+hde: WDC WD800BB-32BSA0, ATA DISK drive
+hdf: WDC WD800BB-32BSA0, ATA DISK drive
+blk: queue c030c408, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue c030c544, I/O limit 4095Mb (mask 0xffffffff)
+hdg: WDC WD800BB-32BSA0, ATA DISK drive
+hdh: WDC WD800BB-32CCB0, ATA DISK drive
+blk: queue c030c85c, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue c030c998, I/O limit 4095Mb (mask 0xffffffff)
+
+Well, that is all the info I can think of.
+As you can see the system is a:
+AMD K6-3 450 MHz with VIA Apollo MVP3 chipset.
+Promise Ultra TX02 controller
+4 x Western Digital 80 GB ATA100
+
+I thought the controller was dying so I bought a new one but with the 
+same result. Can it be that hdg is dying?
+
+Please, CC me as I'm not subscribed to this list.
+
+Regards,
+Johan Groth

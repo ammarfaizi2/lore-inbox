@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbTKNUz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTKNUz5
+	id S262410AbTKNU4L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 15:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTKNU4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:55:57 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:65412 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S261678AbTKNUz4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:55:56 -0500
-Date: Fri, 14 Nov 2003 20:55:48 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein.homenet
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Harald Welte <laforge@netfilter.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: seq_file API strangeness
-In-Reply-To: <20031114202327.GK24159@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0311142048520.849-100000@einstein.homenet>
+	Fri, 14 Nov 2003 15:56:11 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:32392 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S262410AbTKNU4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 15:56:08 -0500
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Some thoughts about stable kernel development
+References: <m3u15de669.fsf@defiant.pm.waw.pl> <3FAE9026.60500@stesmi.com>
+	<m3ekwd8w2m.fsf@defiant.pm.waw.pl> <3FB25A28.1070800@stesmi.com>
+	<m3oevh7cnu.fsf@defiant.pm.waw.pl> <3FB333B2.2090006@stesmi.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 13 Nov 2003 20:55:37 +0100
+In-Reply-To: <3FB333B2.2090006@stesmi.com>
+Message-ID: <m3wua411s6.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+Stefan Smietanowski <stesmi@stesmi.com> writes:
 
-On the same subject, but a different issue:
+> x.y.z+1 pre/rc q does not contain
+> something that x.y.z pre/rc r has is NOT easy. We both know that
+> me and you will have no problem whatsoever with this scheme. So it's
+> not about me and you. I just think it will confuse some people that's
+> all.
 
-In the ->open() method I allocate a seq->private like this:
+That's correct. It seems I have misunderstood your previous email.
 
-  err = seq_open(file, sop);
-  if (!err) {
-	struct seq_file *m = file->private_data;
+This scheme aims for less workload on the maintainers (compared to
+different test + stable trees, as with many popular projects) -
+the added bit of complexity at least seems to scale well.
 
-	m->private = kmalloc(sizeof(struct ctask), GFP_KERNEL);
-        if (!m->private) {
-                        kfree(file->private_data);
-                        return -ENOMEM;
-        }
-  }
+Users already have to live with 2.5.1 being a little older than 2.4.22.
 
-Now, freeing the structure that I did not allocate (file->private_data 
-allocated in seq_open()) is not nice. But calling seq_release() from 
-->open() method is not nice either (different arguments, namely 'inode'
-and also m->buf is NULL at that point, although I believe kfree(NULL) is 
-not illegal).
+testing/* patches are IMHO not for people who may have problems (bigger
+than just a moment of confusion) with such things - they will have much
+more problems reporting a bug should they found one.
 
-What do you think?
-
-Kind regards
-Tigran
-
+I know this isn't an ideal solution, that's the best I'm currently aware
+of: we'd gain much shorter devel cycle at a really small cost.
+I agree entirely with Alan and his opinion expressed in this thread.
+-- 
+Krzysztof Halasa, B*FH

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318794AbSHWNJd>; Fri, 23 Aug 2002 09:09:33 -0400
+	id <S318802AbSHWNRV>; Fri, 23 Aug 2002 09:17:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318796AbSHWNJd>; Fri, 23 Aug 2002 09:09:33 -0400
-Received: from [213.191.86.30] ([213.191.86.30]:17795 "EHLO nox.lemuria.org")
-	by vger.kernel.org with ESMTP id <S318794AbSHWNJd>;
-	Fri, 23 Aug 2002 09:09:33 -0400
-Date: Fri, 23 Aug 2002 15:13:43 +0200
-From: Tom <tom@lemuria.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: page_alloc bug
-Message-ID: <20020823151343.A15667@lemuria.org>
-References: <20020823090527.A7715@lemuria.org> <20020823125734.GA8854@www.kroptech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020823125734.GA8854@www.kroptech.com>; from akropel1@rochester.rr.com on Fri, Aug 23, 2002 at 08:57:34AM -0400
-X-message-flag: Outlook: A program to spread viri, but it can do mail too.
+	id <S318804AbSHWNRV>; Fri, 23 Aug 2002 09:17:21 -0400
+Received: from avscan1.sentex.ca ([199.212.134.11]:21511 "EHLO
+	avscan1.sentex.ca") by vger.kernel.org with ESMTP
+	id <S318802AbSHWNRU>; Fri, 23 Aug 2002 09:17:20 -0400
+Message-ID: <006901c24aa8$506124a0$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "Omar" <omar@natasha.org>, <linux-kernel@vger.kernel.org>
+References: <OFE708D02D.C1935D57-ON85256C1D.006DDF9E@pok.ibm.com> <001f01c24a31$d4956a50$493e1f7e@IRV429>
+Subject: Re: serial driver maintaner
+Date: Fri, 23 Aug 2002 09:23:48 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 08:57:34AM -0400, Adam Kropelin wrote:
-> > EIP: 0010:[<c012b96d>] Tainted: P
->                                   ^
-> What proprietary modules did you have loaded when this BUG() was hit? nVidia,
-> perhaps? Reproduce the problem from a cold boot without ever having loaded the
-> closed-source module(s). If you can't, go talk to whomever made the module; the
-> community cannot help you solve a problem when we can't see the code.
+From: "Omar" <omar@natasha.org>
+> I've been trying to find out information on the Linux serial driver.  The
+> maintainer hasn't updated his web site in a long time, does anyone know if
+> he's still maintaining it ??
 
-Several people told me so. I will do that and see if the bug reappears.
+Ted doesn't seem to be maintaining it anymore. If you look in the
+linux-kernel archive you'll find that Russell King is doing a rewrite
+for 2.5/6 anyway.
+
+> I am asking because I have a uart that isn't directly supported in the
+> driver and I may need to add support for it, but I don't want to modify
+the
+> serial driver unless it can be included in the main distribution channel.
+
+Update the driver, make a patch and send it to the list. If it's good
+likely it will be included.
+
+You may want to check out linux-serial also.
+
+..Stu
 
 
--- 
-PGP/GPG key: http://web.lemuria.org/pubkey.html
-pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
-     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5

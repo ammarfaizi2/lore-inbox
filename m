@@ -1,78 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVAKTgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVAKThK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbVAKTgm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVAKTgm
+	id S262337AbVAKThK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:37:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVAKThE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:36:42 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:17159 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262315AbVAKTgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:36:32 -0500
-Subject: Re: make flock_lock_file_wait static
-From: Arjan van de Ven <arjan@infradead.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: viro@zenII.uk.linux.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1105471004.12005.46.camel@lade.trondhjem.org>
-References: <20050109194209.GA7588@infradead.org>
-	 <1105310650.11315.19.camel@lade.trondhjem.org>
-	 <1105345168.4171.11.camel@laptopd505.fenrus.org>
-	 <1105346324.4171.16.camel@laptopd505.fenrus.org>
-	 <1105367014.11462.13.camel@lade.trondhjem.org>
-	 <1105432299.3917.11.camel@laptopd505.fenrus.org>
-	 <1105471004.12005.46.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 20:36:22 +0100
-Message-Id: <1105472182.3917.49.camel@laptopd505.fenrus.org>
+	Tue, 11 Jan 2005 14:37:04 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:30413 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262337AbVAKTgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 14:36:49 -0500
+Date: Tue, 11 Jan 2005 11:34:56 -0800
+From: Greg KH <greg@kroah.com>
+To: Ron <ron@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Code to snatch a device from a generic driver
+Message-ID: <20050111193455.GE4623@kroah.com>
+References: <20050111024050.GA3255@hank.shelbyville.oz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111024050.GA3255@hank.shelbyville.oz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 14:16 -0500, Trond Myklebust wrote:
-> > (you may think "it's only 100 bytes", well, there are 700+ other such
-> > functions, total that makes over at least 70Kb of unswappable, wasted
-> > memory if not more.)
+On Tue, Jan 11, 2005 at 01:10:50PM +1030, Ron wrote:
 > 
-> A list of these 700+ unused exported APIs would be very useful so that
-> we can deprecate and/or get rid of them.
-
-http://people.redhat.com/arjanv/unused
-
-has the list of symbols that are unused on an i386 allmodconfig based on
-the -bk tree 2 days ago.
-
-
-> Concerning this case, though, and to make what I said in the earlier
-> mails (a lot) more explicit.
+> Hi,
 > 
-> If you unexport flock_lock_file_wait(), then you might as well back out
-> the entire bloody ->flock() changeset instead because keeping the
-> ->flock() VFS override support without the functionality to make
-> implementation practical (which is what you appear to want to do) is a
-> waste of more than 70 bytes of memory.
+> We're presently working on enabling the cpad[1] and wacom kernel
+> modules to retrieve their particular devices from a more generic
+> driver that may have already claimed them, without resorting to
+> patching other drivers as we see with the quirks in usbhid.
+> In 2.6 we can no longer even pull the 'add below hid' stunt
+> that got us by from userspace in 2.4 [2] -- however the new driver
+> core model as I understand it seems like it should be able to
+> handle this very nicely from within the module itself.
 > 
-> Now please go and figure out what it is you actually want to do here.
+> The following code (derived from a patch sent to me by Jan
+> Steinhoff) seems to do the job, but is surely not correct yet.
 
-save space most of all, and reduce bloat that is not used.
-Again if you're going to use it soon, fine. If not, as you say, the
-entire thing should probably go because it's a bunch of unused code,
-additions to data structures and conditional branches.
+No, try something like the following.  It creates a sysfs file that you
+can write to to unbind the device manually.
+
+The binding a driver to a device manually is left as an exercise to the
+reader :)
+
+Seriously, I'm working on adding this to the driver core so you don't
+have to do stuff like this in drivers.
+
+thanks,
+
+greg k-h
 
 
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	2005-01-11 09:35:48 -08:00
++++ b/drivers/base/bus.c	2005-01-11 09:35:48 -08:00
+@@ -243,6 +243,17 @@
+ 	return ret;
+ }
+ 
++/* manually detach a device from it's associated driver. */
++/* Any write will cause it to happen. */
++static ssize_t device_unbind(struct device *dev, const char *buf, size_t count)
++{
++	down_write(&dev->bus->subsys.rwsem);
++	device_release_driver(dev);
++	up_write(&dev->bus->subsys.rwsem);
++	return count;
++}
++static DEVICE_ATTR(unbind, S_IWUSR, NULL, device_unbind);
++
+ /**
+  *	device_bind_driver - bind a driver to one device.
+  *	@dev:	device.
+@@ -264,6 +275,7 @@
+ 	sysfs_create_link(&dev->driver->kobj, &dev->kobj,
+ 			  kobject_name(&dev->kobj));
+ 	sysfs_create_link(&dev->kobj, &dev->driver->kobj, "driver");
++	device_create_file(dev, &dev_attr_unbind);
+ }
+ 
+ 
+@@ -389,6 +401,7 @@
+ 	if (drv) {
+ 		sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
+ 		sysfs_remove_link(&dev->kobj, "driver");
++		device_remove_file(dev, &dev_attr_unbind);
+ 		list_del_init(&dev->driver_list);
+ 		device_detach_shutdown(dev);
+ 		if (drv->remove)

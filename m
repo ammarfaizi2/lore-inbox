@@ -1,40 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUJKPxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUJKPxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269080AbUJKPxj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269068AbUJKPxh
+	id S269059AbUJKPxX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269078AbUJKPvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:53:37 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:59875 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269080AbUJKPxH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:53:07 -0400
-Message-ID: <416AAC5F.7020109@ens-lyon.fr>
-Date: Mon, 11 Oct 2004 17:53:03 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 11:51:09 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:10715 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S269059AbUJKPQT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 11:16:19 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1
+Date: Mon, 11 Oct 2004 17:17:53 +0200
+User-Agent: KMail/1.6.2
+Cc: "J.A. Magallon" <jamagallon@able.es>
+References: <2O5L3-5Jq-11@gated-at.bofh.it> <200410111623.08848.rjw@sisk.pl> <1097504930l.6177l.3l@werewolf.able.es>
+In-Reply-To: <1097504930l.6177l.3l@werewolf.able.es>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org> <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org> <20041011145628.GA2672@elf.ucw.cz>
-In-Reply-To: <20041011145628.GA2672@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410111717.53898.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which machine is that, btw? Evo N620c has probably BIOS/firmware bug
-> that kills machine on attempt to enter S3 or S4. It takes pressing
-> power button 3 times (!) to get machine back.
-> 								Pavel
+On Monday 11 of October 2004 16:28, J.A. Magallon wrote:
+> 
+> On 2004.10.11, Rafael J. Wysocki wrote:
+> > On Monday 11 of October 2004 16:12, J.A. Magallon wrote:
+> > > 
+> > > On 2004.10.11, Rafael J. Wysocki wrote:
+> > > > On Monday 11 of October 2004 14:40, Andi Kleen wrote:
+> > > > > Tim Cambrant <cambrant@acc.umu.se> writes:
+> > > > > 
+> > > > > > On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
+> > > > > >>
+> > > > > >> optimize-profile-path-slightly.patch
+> > > > > >>   Optimize profile path slightly
+> > > > > >>
+> > > > > >
+> > > > > > I'm still getting an oops at startup with this patch. After 
+reversing
+> > > > > > it, everything is fine. Weren't you supposed to remove that from 
+your
+> > > > > > tree until it was fixed?
+> > > > > 
+> > > > > There's a fixed version around. I thought Andrew had merged that 
+one?
+> > > > [-- snip --]
+> > > > 
+> > > > This one does not apply to -mm.
+> > > > 
+> > > 
+> > > Use this:
+> > [-- snip --]
+> > 
+> > This one does not apply too.
+> > 
+> 
+> Uh ? What are you patching ?
+> I had just used and booted it, and I have now saved my own mail received
+> from LKML to check if my mailer had been playin with it, and it patches 
+fine.
+> Sure you applied -mm1 before ? Is you mailer changing tabs to spaces or
+> wrapping lines ?
 
-Hi,
+Ahh, it's on top of optimize-profile-path-slightly.patch, not instead of it 
+(Andi's patch was meant to be instead of it).  Applied.
 
-On my N600c, suspend-to-RAM seems to complete... but when I try to wake 
-up the laptop (by pressing the power button), it blinks strangely and 
-then immediately shutdowns instead of resuming...
+Thanks,
+RJW
 
-Brice
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

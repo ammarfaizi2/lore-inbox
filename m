@@ -1,78 +1,174 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262597AbTCRV7R>; Tue, 18 Mar 2003 16:59:17 -0500
+	id <S262866AbTCRWDD>; Tue, 18 Mar 2003 17:03:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262599AbTCRV7R>; Tue, 18 Mar 2003 16:59:17 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:45715 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262597AbTCRV7N>; Tue, 18 Mar 2003 16:59:13 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Date: Wed, 19 Mar 2003 09:09:49 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15991.39213.798975.721205@notabene.cse.unsw.edu.au>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: kernel nfsd
-In-Reply-To: message from Stephan von Krawczynski on Tuesday March 18
-References: <20030318155731.1f60a55a.skraw@ithnet.com>
-	<15991.15327.29584.246688@charged.uio.no>
-	<20030318164204.03eb683f.skraw@ithnet.com>
-X-Mailer: VM 7.11 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S262868AbTCRWDD>; Tue, 18 Mar 2003 17:03:03 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:27382 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262866AbTCRWC7>;
+	Tue, 18 Mar 2003 17:02:59 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 18 Mar 2003 23:13:54 +0100 (MET)
+Message-Id: <UTC200303182213.h2IMDse09784.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH - for playing only] change type of dev_t
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday March 18, skraw@ithnet.com wrote:
-> On Tue, 18 Mar 2003 16:31:43 +0100
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> 
-> > >>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
-> > 
-> >      > Hello Trond, hello all, can you explain what this means:
-> > 
-> >      > kernel: nfsd-fh: found a name that I didn't expect: <filename>
-> > 
-> >      > Should something be done against it, or is it simply
-> >      > informative?
-> > 
-> > The comment in the code just above the printk() reads
-> > 
-> >                 /* Now that IS odd.  I wonder what it means... */
-> > 
-> > Looks like you and Neil (and possibly the ReiserFS team) might want to
-> > have a chat...
-> 
-> I'm all for it. Who has a glue? I have in fact tons of these messages, it's a
-> pretty large nfs server.
+Below some random patch, not to be applied, so that
+people can play with a 32-bit dev_t.
 
-When knfsd gets a request for a filehandle which refers to an object
-that isn't in the dcache, it needs to get it into the dcache.  This
-involves finding it's name and splicing it in.
+Nothing here is hewn in stone.
+By some coincidence the division below is 16+16, but
+a simple edit turns that into 12+20 or 32+32.
+Elsewhere there are no (well, there still are a few,
+but they will be eliminated), there are no assumptions
+on the sizes involved.
 
-It gets hold of an inode for the parent directory (don't worry how)
-and reads through that directory looking for a name with the right
-inode number.  When it finds the name, it checks to see that the name
-isn't already in the dcache under that directory.  As the object with
-that name isn't in the dcache you would expect the name not to be
-their either.  This message indicates that the name was there.
+A major and a minor are unsigned ints of unknown size.
 
-I think there is enough locking in place so that a race between one
-process adding the name and another process looking up the name for an
-object should not stumble over each other - both hold i_sem for the
-directory.  So I don't think that would be the cause.
+Of course not all filesystems can handle all sizes.
 
-Maybe this is reiserfs specific.  Has anyone seen it on a non-reiserfs
-filesystem?  Possibly reiserfs does something funny with inode numbers
-that is confusing the name lookup.
+Andries
 
-If it doesn't seem to correlate with other symptoms, I probably
-wouldn't worry about it.
+[I still see a B_FREE here - had removed that earlier,
+but perhaps the patch was not applied. There is another
+occurrence in video/pm3fb.h that can be removed, and one
+in video/pm3fb.c that should become NODEV. Will find this
+patch again.]
 
-2.5 does all this quite differently so shouldn't have the same problem
-(it certainly doesn't contain the same error message).
-
-NeilBrown
+----------------------- 19-devt-type -----------------------
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/libfs.c b/fs/libfs.c
+--- a/fs/libfs.c	Thu Jan  2 14:32:11 2003
++++ b/fs/libfs.c	Tue Mar 18 22:14:48 2003
+@@ -340,6 +340,6 @@
+ const char * kdevname(kdev_t dev)
+ {
+ 	static char buffer[32];
+-	sprintf(buffer, "%02x:%02x", major(dev), minor(dev));
++	sprintf(buffer, "%04x:%04x", major(dev), minor(dev));
+ 	return buffer;
+ }
+diff -u --recursive --new-file -X /linux/dontdiff a/include/asm-i386/posix_types.h b/include/asm-i386/posix_types.h
+--- a/include/asm-i386/posix_types.h	Mon Feb 24 23:02:56 2003
++++ b/include/asm-i386/posix_types.h	Tue Mar 18 22:14:48 2003
+@@ -7,7 +7,7 @@
+  * assume GCC is being used.
+  */
+ 
+-typedef unsigned short	__kernel_dev_t;
++typedef unsigned long	__kernel_dev_t;
+ typedef unsigned long	__kernel_ino_t;
+ typedef unsigned short	__kernel_mode_t;
+ typedef unsigned short	__kernel_nlink_t;
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/kdev_t.h b/include/linux/kdev_t.h
+--- a/include/linux/kdev_t.h	Fri Nov 22 22:40:57 2002
++++ b/include/linux/kdev_t.h	Tue Mar 18 22:14:48 2003
+@@ -70,13 +70,13 @@
+  * static arrays, and they are sized for a 8-bit index.
+  */
+ typedef struct {
+-	unsigned short value;
++	unsigned int value;
+ } kdev_t;
+ 
+-#define KDEV_MINOR_BITS		8
+-#define KDEV_MAJOR_BITS		8
++#define KDEV_MINOR_BITS		16
++#define KDEV_MAJOR_BITS		16
+ 
+-#define __mkdev(major,minor)	(((major) << KDEV_MINOR_BITS) + (minor))
++#define __mkdev(major, minor)	(((major) << KDEV_MINOR_BITS) + (minor))
+ 
+ #define mk_kdev(major, minor)	((kdev_t) { __mkdev(major,minor) } )
+ 
+@@ -99,7 +99,6 @@
+ 
+ #define HASHDEV(dev)	(kdev_val(dev))
+ #define NODEV		(mk_kdev(0,0))
+-#define B_FREE		(mk_kdev(0xff,0xff))
+ 
+ extern const char * kdevname(kdev_t);	/* note: returns pointer to static data! */
+ 
+@@ -110,17 +109,55 @@
+ 
+ #define kdev_none(d1)	(!kdev_val(d1))
+ 
+-/* Mask off the high bits for now.. */
+-#define minor(dev)	((dev).value & 0xff)
+-#define major(dev)	(((dev).value >> KDEV_MINOR_BITS) & 0xff)
++#define minor(dev)	((dev).value & 0xffff)
++#define major(dev)	(((dev).value >> KDEV_MINOR_BITS) & 0xffff)
+ 
+ /* These are for user-level "dev_t" */
++/* Since glibc uses 8+8 in <include/sysmacros.h>, we'll get
++   incompatibilities with a simple scheme like 12+20.
++   Use 8+8 for 16-bit values, some other division, say 16+16,
++   for 32-bit values. */
+ #define MINORBITS	8
+ #define MINORMASK	((1U << MINORBITS) - 1)
+ 
+-#define MAJOR(dev)	((unsigned int) ((dev) >> MINORBITS))
+-#define MINOR(dev)	((unsigned int) ((dev) & MINORMASK))
+-#define MKDEV(ma,mi)	(((ma) << MINORBITS) | (mi))
++#include <linux/types.h>	/* dev_t */
++#if 1
++/* macro versions */
++
++#define MAJOR(dev)	((unsigned int)(((dev) & 0xffff0000) ? ((dev) >> 16) & 0xffff : ((dev) >> 8) & 0xff))
++#define MINOR(dev)	((unsigned int)(((dev) & 0xffff0000) ? ((dev) & 0xffff) : ((dev) & 0xff)))
++#define MKDEV(ma,mi)	((dev_t)((((ma) & ~0xff) == 0 && ((mi) & ~0xff) == 0) ? (((ma) << 8) | (mi)) : (((ma) << 16) | (mi))))
++
++#else
++/* inline function versions */
++
++static inline unsigned int
++MAJOR(dev_t dev) {
++	unsigned int ma;
++
++	ma = ((dev >> 16) & 0xffff);
++	if (ma == 0)
++		ma = ((dev >> 8) & 0xff);
++	return ma;
++}
++
++static inline unsigned int
++MINOR(dev_t dev) {
++	unsigned int mi;
++
++	mi = (dev & 0xffff);
++	if (mi == dev)
++		mi = (dev & 0xff);
++	return mi;
++}
++
++static inline dev_t
++MKDEV(unsigned int ma, unsigned int mi) {
++	if ((ma & ~0xff) == 0 && (mi & ~0xff) == 0)
++		return ((ma << 8) | mi);
++	return ((ma << 16) | mi);
++}
++#endif
+ 
+ /*
+  * Conversion functions
+@@ -128,12 +165,16 @@
+ 
+ static inline int kdev_t_to_nr(kdev_t dev)
+ {
+-	return MKDEV(major(dev), minor(dev));
++	unsigned int ma = major(dev);
++	unsigned int mi = minor(dev);
++	return MKDEV(ma, mi);
+ }
+ 
+-static inline kdev_t to_kdev_t(int dev)
++static inline kdev_t to_kdev_t(dev_t dev)
+ {
+-	return mk_kdev(MAJOR(dev),MINOR(dev));
++	unsigned int ma = MAJOR(dev);
++	unsigned int mi = MINOR(dev);
++	return mk_kdev(ma, mi);
+ }
+ 
+ #else /* __KERNEL__ */

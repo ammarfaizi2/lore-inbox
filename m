@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130800AbRBLAim>; Sun, 11 Feb 2001 19:38:42 -0500
+	id <S130105AbRBLA5d>; Sun, 11 Feb 2001 19:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130806AbRBLAid>; Sun, 11 Feb 2001 19:38:33 -0500
-Received: from pille.addcom.de ([62.96.128.34]:40974 "HELO pille.addcom.de")
-	by vger.kernel.org with SMTP id <S130800AbRBLAiR>;
-	Sun, 11 Feb 2001 19:38:17 -0500
-Date: Mon, 12 Feb 2001 01:39:59 +0100 (CET)
-From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-To: Kurt Roeckx <Q@ping.be>
-cc: <linux-kernel@vger.kernel.org>, BaRT <bart11@dingoblue.net.au>
-Subject: Re: OOPS with 2.4.1-ac8
-In-Reply-To: <20010211154253.A484@ping.be>
-Message-ID: <Pine.LNX.4.30.0102120122430.1155-100000@vaio>
+	id <S130397AbRBLA5X>; Sun, 11 Feb 2001 19:57:23 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:4358 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S130105AbRBLA5T>; Sun, 11 Feb 2001 19:57:19 -0500
+Date: Sun, 11 Feb 2001 19:56:11 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>, Daniel Stone <daniel@kabuki.eyep.net>
+cc: Chris Wedgwood <cw@f00f.org>, David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
+        Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <107980000.981939371@tiny>
+In-Reply-To: <3A86387B.D3142DD9@namesys.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Feb 2001, Kurt Roeckx wrote:
 
-> I suddenly started to get those oopses.  It didn't seem to cause
-> any problems tho.
 
-> Feb 11 15:04:01 Q kernel: Call Trace: [cached_lookup+14/80]
-> [path_walk+1337/1944] [getname+91/152] [__user_walk+58/84] 
-> [sys_newstat+21/108]
-> [system_call+51/64]  
+On Sunday, February 11, 2001 10:00:11 AM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
 
-This looks similar to an Oops posted by BaRT a couple of days ago. Out of 
-curiosity, are you using ISDN, too? The oops doesn't seem to be related to 
-the ISDN code AFAICS, but on the other hand you never know ;)
+> Daniel Stone wrote:
+>> 
+>> On 11 Feb 2001 02:02:00 +1300, Chris Wedgwood wrote:
+>> > On Thu, Feb 08, 2001 at 05:34:44PM +1100, Daniel Stone wrote:
+>> > 
+>> >     I run Reiser on all but /boot, and it seems to enjoy corrupting my
+>> >     mbox'es randomly.
+>> > 
+>> > what kind of corruption are you seeing?
+>> 
+>> Zeroed bytes.
+> 
+> This sounds like the same bug as the syslog bug, please try to help Chris
+> reproduce it.
+> 
+> zam, if Chris can't reproduce it by Monday, please give it a try.
+> 
 
---Kai
+I had a bunch of scripts running over the weekend to try and reproduce
+this, but the results were ruined when a major storm killed the power (no,
+still haven't gotten around to configuring my UPS to shut things down ;-).
 
+So, I'll try again.
+
+-chris
 
 
 

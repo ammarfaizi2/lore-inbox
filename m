@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbTISTcO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 15:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbTISTcO
+	id S261699AbTISTfu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 15:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTISTfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 15:32:14 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:38875 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261691AbTISTcM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 15:32:12 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH 2.6.x] additional kernel event notifications
-Date: Fri, 19 Sep 2003 12:32:08 -0700
-Message-ID: <7F740D512C7C1046AB53446D372001732DEC70@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.x] additional kernel event notifications
-Thread-Index: AcN+3nZTCSX3T3aTQWag4ZjXL/tw+AABU6IQ
-From: "Villacis, Juan" <juan.villacis@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Jesse Barnes" <jbarnes@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Sep 2003 19:32:09.0029 (UTC) FILETIME=[B75A2F50:01C37EE4]
+	Fri, 19 Sep 2003 15:35:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261699AbTISTfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 15:35:43 -0400
+Date: Fri, 19 Sep 2003 20:35:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Roland Bless <bless@tm.uka.de>, miquels@cistron.nl,
+       linux-kernel@vger.kernel.org, walter@tm.uka.de, winter@tm.uka.de,
+       doll@tm.uka.de
+Subject: Re: Fix for wrong OOM killer trigger?
+Message-ID: <20030919203538.D1919@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	Roland Bless <bless@tm.uka.de>, miquels@cistron.nl,
+	linux-kernel@vger.kernel.org, walter@tm.uka.de, winter@tm.uka.de,
+	doll@tm.uka.de
+References: <20030919191613.36750de3.bless@tm.uka.de> <20030919192544.GC1312@velociraptor.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030919192544.GC1312@velociraptor.random>; from andrea@suse.de on Fri, Sep 19, 2003 at 09:25:44PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 19, 2003 at 09:25:44PM +0200, Andrea Arcangeli wrote:
+>...
+> the same too.
+> 
+> Andrea
+> 
+> /*
+>  * If you refuse to depend on closed software for a critical
+>  * part of your business, these links may be useful:
+>  *
+>  * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
+>  * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
+>  * http://www.cobite.com/cvsps/
+>  *
+>  * svn://svn.kernel.org/linux-2.6/trunk
+>  * svn://svn.kernel.org/linux-2.4/trunk
+>  */
 
-Our sampling driver kernel module which uses these hooks is GPL
-and could be included in the kernel.org tree.
+Would you mind following nettiquette guidelines for your signature.
+It appears to be overly large and contain inflamitory material, both
+of which are equally good reasons on their _own_ not to use it.
 
-The current version of the driver (also GPL, but which hooks the
-sys_call_table for 2.4.x-based kernels) is posted at,
-
-  http://www.intel.com/software/products/opensource/vdk/
-
-We plan to post our new driver for kernel 2.6.0-test5 (with the
-event notification patch applied) on both IA-32 and IA-64 to the
-above site early next week.
-
--juan
-
-
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Friday, September 19, 2003 11:28 AM
-To: Jesse Barnes
-Cc: Villacis, Juan; linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.x] additional kernel event notifications
-
-jbarnes@sgi.com (Jesse Barnes) wrote:
->
-> Any chance of this getting into 2.6?  I for one would like to see it
-so
-> that the performance monitoring tools can work properly without having
-> to resort to syscall table patching.
-
-If the code which uses these hooks is included in the kernel.org tree,
-yes.
-
-If the code which needs the hooks is not in the kernel.org tree then
-people
-can patch the core kernel at the same time as adding the performance
-analysis patch.
-
-If the code which needs these hooks is not appropriately licensed then
-these hooks basically constitute a GPL bypass and that is not a
-direction
-we wish to be heading in.
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

@@ -1,78 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262436AbRGWWaA>; Mon, 23 Jul 2001 18:30:00 -0400
+	id <S261289AbRGWWfk>; Mon, 23 Jul 2001 18:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbRGWW3u>; Mon, 23 Jul 2001 18:29:50 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45829 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262436AbRGWW3g>; Mon, 23 Jul 2001 18:29:36 -0400
-Date: Mon, 23 Jul 2001 19:29:36 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
-Cc: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>,
-        <linux-fsdev@vger.kernel.org>, <martizab@libertsurf.fr>,
-        <rusty@rustcorp.com.au>
-Subject: Re: Yet another linux filesytem: with version control
-In-Reply-To: <3B5CA2EC.2498775@wanadoo.fr>
-Message-ID: <Pine.LNX.4.33L.0107231925040.20326-100000@duckman.distro.conectiva>
+	id <S262715AbRGWWfa>; Mon, 23 Jul 2001 18:35:30 -0400
+Received: from Campbell.cwx.net ([216.17.176.12]:48655 "EHLO campbell.cwx.net")
+	by vger.kernel.org with ESMTP id <S261289AbRGWWfN>;
+	Mon, 23 Jul 2001 18:35:13 -0400
+Message-ID: <3B5CA6A1.4050807@campbell.cwx.net>
+Date: Mon, 23 Jul 2001 16:35:13 -0600
+From: Allen Campbell <lkml@campbell.cwx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: FYI: vmware breakage w/2.4.7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Jerome de Vivie wrote:
-> Rik van Riel a écrit :
-> > On Mon, 23 Jul 2001, Larry McVoy wrote:
-> >
-> > > b) Filesystem support for SCM is really a flawed approach.
-> >
-> > Agreed.  I mean, how can you cleanly group changesets and
-> > versions with a filesystem level "transparent" SCM ?
->
-> With label !
->
-> In my initial post, i have explain that labels are used to
-> identify individual files AND are also uses to select for
-> each files of a set, one version (= select a configuration).
-> It works !
+2.4.7 appears to break vmware (latest build: 1142.)  Looks like some
+#defines moved. The vmmon build produces the following noise:
 
-Hmmmm, so it's not completely transparent. Good.
+Building the vmmon module.
 
-Now if you want to make this kernel-accessible, why
-not make a userland NFS daemon which uses something
-like bitkeeper or PRCS as its backend ?
+make: Entering directory `/tmp/vmware-config1/vmmon-only'
+make[1]: Entering directory `/tmp/vmware-config1/vmmon-only'
+make[2]: Entering directory `/tmp/vmware-config1/vmmon-only/driver-2.4.7'
+make[2]: Leaving directory `/tmp/vmware-config1/vmmon-only/driver-2.4.7'
+make[2]: Entering directory `/tmp/vmware-config1/vmmon-only/driver-2.4.7'
+In file included from /usr/src/linux/include/linux/highmem.h:5,
+                 from /usr/src/linux/include/linux/pagemap.h:16,
+                 from /usr/src/linux/include/linux/locks.h:8,
+                 from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
+                 from /usr/src/linux/include/linux/miscdevice.h:4,
+                 from ../linux/driver.h:10,
+                 from .././linux/driver.c:58:
+/usr/src/linux/include/asm/pgalloc.h: In function `get_pgd_slow':
+/usr/src/linux/include/asm/pgalloc.h:56: `PAGE_OFFSET' undeclared (first 
+use in
+this function)
+/usr/src/linux/include/asm/pgalloc.h:56: (Each undeclared identifier is 
+reported
+ only once
+/usr/src/linux/include/asm/pgalloc.h:56: for each function it appears in.)
+/usr/src/linux/include/asm/pgalloc.h: In function `pte_alloc_one':
+/usr/src/linux/include/asm/pgalloc.h:103: `PAGE_SIZE' undeclared (first 
+use in t
+his function)
+In file included from /usr/src/linux/include/linux/pagemap.h:16,
+                 from /usr/src/linux/include/linux/locks.h:8,
+                 from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
+                 from /usr/src/linux/include/linux/miscdevice.h:4,
+                 from ../linux/driver.h:10,
+                 from .././linux/driver.c:58:
+/usr/src/linux/include/linux/highmem.h: In function `clear_user_highpage':
+/usr/src/linux/include/linux/highmem.h:48: `PAGE_SIZE' undeclared (first 
+use in
+this function)
+/usr/src/linux/include/linux/highmem.h: In function `clear_highpage':
+/usr/src/linux/include/linux/highmem.h:54: `PAGE_SIZE' undeclared (first 
+use in
+this function)
+/usr/src/linux/include/linux/highmem.h: In function `memclear_highpage':
+/usr/src/linux/include/linux/highmem.h:62: `PAGE_SIZE' undeclared (first 
+use in
+this function)
+/usr/src/linux/include/linux/highmem.h: In function 
+`memclear_highpage_flush':
+/usr/src/linux/include/linux/highmem.h:76: `PAGE_SIZE' undeclared (first 
+use in
+this function)
+/usr/src/linux/include/linux/highmem.h: In function `copy_user_highpage':
+/usr/src/linux/include/linux/highmem.h:90: `PAGE_SIZE' undeclared (first 
+use in
+this function)
+/usr/src/linux/include/linux/highmem.h: In function `copy_highpage':
+/usr/src/linux/include/linux/highmem.h:101: `PAGE_SIZE' undeclared 
+(first use in
+ this function)
+.././linux/driver.c: In function `LinuxDriver_Ioctl':
+.././linux/driver.c:928: structure has no member named `dumpable'
+make[2]: *** [driver.o] Error 1
+make[2]: Leaving directory `/tmp/vmware-config1/vmmon-only/driver-2.4.7'
+make[1]: *** [driver] Error 2
+make[1]: Leaving directory `/tmp/vmware-config1/vmmon-only'
+make: *** [auto-build] Error 2
+make: Leaving directory `/tmp/vmware-config1/vmmon-only'
+Unable to build the vmmon module.
 
-The system would then look like this:
 
- _____    _______    _____    _____
-|     |  |       |  |     |  |     |
-| SCM |--| UNFSD |--| NET |--| NFS |
-|_____|  |_______|  |_____|  |_____|
+Doubtless were looking at the result of an inappropriate dependency on
+the part of vmware.  I'm not expecting any sort of help or fix.  This
+is just an FYI for those that need to emulate windows.
 
-
-And there, you have a transparent SCM filesystem
-that works over the network ... without ever having
-to modify the kernel or implement SCM.
-
-
-> versioning is yet a first step.
-
-And I'm not convinced it is even needed. All you
-really need is the glue layer between the SCM
-system and the kernel. A user level NFS server
-will do this just fine.
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbSJNVFq>; Mon, 14 Oct 2002 17:05:46 -0400
+	id <S262456AbSJNVD5>; Mon, 14 Oct 2002 17:03:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262210AbSJNVFq>; Mon, 14 Oct 2002 17:05:46 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:27921 "EHLO
+	id <S262460AbSJNVD5>; Mon, 14 Oct 2002 17:03:57 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:17 "EHLO
 	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S262214AbSJNVFo>; Mon, 14 Oct 2002 17:05:44 -0400
-Date: Mon, 14 Oct 2002 15:07:51 -0600
+	id <S262456AbSJNVD4>; Mon, 14 Oct 2002 17:03:56 -0400
+Date: Mon, 14 Oct 2002 15:06:00 -0600
 From: Stephen Cameron <steve.cameron@hp.com>
 To: linux-kernel@vger.kernel.org
 Cc: axboe@suse.de
-Subject: [PATCH] 2.5.42, cciss, set gendisk fops (2 of 7)
-Message-ID: <20021014150751.B1257@zuul.cca.cpqcorp.net>
+Subject: [PATCH] 2.5.42, cciss, no scsi tape timeouts (1 of 7)
+Message-ID: <20021014150600.A1257@zuul.cca.cpqcorp.net>
 Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,19 +20,35 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have re-done our cciss patches for 2.5.42, and reordered them so that 
+smaller/simpler/important ones are first, bigger more complicated/less 
+important ones are last to make them easier to swallow.
 
-Patch 2 of 7
-This patch sets the fops (IBM logical volume manager needs this, for one.)
-Applies to 2.5.42.
+Here's the first:  patch (1 of 7) 
+This patch eliminates the timeout on scsi commands to tape drives.
+The driver doesn't do anything good if the command times out, and the
+timeout is too short.  Better to have no timeout.
 
-diff -urN linux-2.5.42-b/drivers/block/cciss.c linux-2.5.42-c/drivers/block/cciss.c
---- linux-2.5.42-b/drivers/block/cciss.c	Mon Oct 14 10:08:01 2002
-+++ linux-2.5.42-c/drivers/block/cciss.c	Mon Oct 14 10:19:07 2002
-@@ -2448,6 +2448,7 @@
- 		disk->major = MAJOR_NR + i;
- 		disk->first_minor = j << NWD_SHIFT;
- 		disk->minor_shift = NWD_SHIFT;
-+		disk->fops = &cciss_fops;
- 		if( !(drv->nr_blocks))
- 			continue;
- 		(BLK_DEFAULT_QUEUE(MAJOR_NR + i))->hardsect_size = drv->block_size;
+-- steve
+
+diff -urN linux-2.5.42-a/drivers/block/cciss_scsi.c linux-2.5.42-b/drivers/block/cciss_scsi.c
+--- linux-2.5.42-a/drivers/block/cciss_scsi.c	Fri Sep 27 16:49:15 2002
++++ linux-2.5.42-b/drivers/block/cciss_scsi.c	Mon Oct 14 10:08:24 2002
+@@ -913,7 +913,7 @@
+ 
+ 	memset(cp->Request.CDB, 0, sizeof(cp->Request.CDB));
+ 	memcpy(cp->Request.CDB, cdb, cdblen);
+-	cp->Request.Timeout = 1000;		// guarantee completion. 
++	cp->Request.Timeout = 0;
+ 	cp->Request.CDBLen = cdblen;
+ 	cp->Request.Type.Type = TYPE_CMD;
+ 	cp->Request.Type.Attribute = ATTR_SIMPLE;
+@@ -1445,7 +1445,7 @@
+ 	
+ 	// Fill in the request block...
+ 
+-	cp->Request.Timeout = 1000; // guarantee completion
++	cp->Request.Timeout = 0;
+ 	memset(cp->Request.CDB, 0, sizeof(cp->Request.CDB));
+ 	if (cmd->cmd_len > sizeof(cp->Request.CDB)) BUG();
+ 	cp->Request.CDBLen = cmd->cmd_len;

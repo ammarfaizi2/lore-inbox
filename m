@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbUK0ESo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbUK0ESo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbUK0ESo (ORCPT <rfc822;willy@w.ods.org>);
+	id S262185AbUK0ESo (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 23:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbUK0D7v
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbUK0D5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:59:51 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:42947 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262382AbUKZTaf (ORCPT
+	Fri, 26 Nov 2004 22:57:47 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262464AbUKZTbH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:30:35 -0500
-Date: Thu, 25 Nov 2004 17:57:55 +0100
+	Fri, 26 Nov 2004 14:31:07 -0500
+Date: Thu, 25 Nov 2004 12:28:01 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 5/51: Workthread freezer support.
-Message-ID: <20041125165755.GD476@openzaurus.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101293394.5805.209.camel@desktop.cunninghams>
+To: "Zhu, Yi" <yi.zhu@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] [PATCH] make pm_suspend_disk suspend/resume sysdev and dpm_off_irq
+Message-ID: <20041125112801.GB1014@elf.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F8403BD586A@pdsmsx403>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1101293394.5805.209.camel@desktop.cunninghams>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD586A@pdsmsx403>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> This thread adds freezer support for workthreads.
+> >> This patch makes the new swsusp code ( pm_suspend_disk since
+> >> 2.6.9-rc3) call suspend/resume functions for sysdev and devices in
+> >> dpm_off_irq list. Otherwise, PCI link device in the system won't
+> >> provide correct interrupt for PCI devices during resume.
+> > 
+> > I do not think this is right approach; you enable interrupts
+> > then disable that again, potentially without interrupt controller
+> > being initialized. 
+> > 
+> > This should be better patch:
 > 
-> A new parameter in the create_ functions allows the thread to be marked
-> as PF_NOFREEZE. This should only be used for threads that may need to
-> run during writing the image.
+> Agreed. Your patch solves the bug. But do you plan to deal with the 
+> devices in dpm_off_irq list?
 
-Ok.
-				Pavel
+Ouch, okay... Calling irq-off phase of device_suspend() is not
+intuitive at all and I hate that -EAGAIN idea.
+
+...ouch, wait, it is less messy than I expected. I have no business
+calling sysdev_suspend directly.
+
+I'll test the patch and post it in the next message.
+								Pavel
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

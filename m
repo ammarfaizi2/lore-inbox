@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272350AbRH3RTo>; Thu, 30 Aug 2001 13:19:44 -0400
+	id <S269815AbRH3RTO>; Thu, 30 Aug 2001 13:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272352AbRH3RTe>; Thu, 30 Aug 2001 13:19:34 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:40453 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272350AbRH3RTZ>; Thu, 30 Aug 2001 13:19:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: ptb@it.uc3m.es
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Date: Thu, 30 Aug 2001 19:26:19 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200108301703.TAA05549@nbd.it.uc3m.es>
-In-Reply-To: <200108301703.TAA05549@nbd.it.uc3m.es>
+	id <S272350AbRH3RTF>; Thu, 30 Aug 2001 13:19:05 -0400
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:1034 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S269815AbRH3RSv>; Thu, 30 Aug 2001 13:18:51 -0400
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200108301718.f7UHIWq19376@wildsau.idv-edu.uni-linz.ac.at>
+Subject: arp.c duplicate assignment of skb->dev ("cosmetic")
+To: linux-kernel@vger.kernel.org
+Date: Thu, 30 Aug 2001 19:18:32 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010830171934Z16012-32384+1116@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 30, 2001 07:03 pm, Peter T. Breuer wrote:
-> "Daniel Phillips wrote:"
-> > More than anything, it shows that education is needed, not macro 
-patch-ups.
-> > We have exactly the same issues with < and >, should we introduce 
-> > three-argument macros to replace them?
-> 
-> # define le(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) == _a ; })
-> # define ge(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) == _b ; })
 
-Oh, you are one sick puppy.
+hi,
 
-For completeness:
+this is rather cosmetical than functional, but in arp.c,
+in arp_send(), on line 489
 
-# define lt(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) != _b ; })
-# define gt(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) != _a ; })
+	skb->dev=dev;
 
---
-Daniel
+is assigned. in line 563, still in the same routine, it is
+assigned again without skb or skb->dev being changed. so I guess
+this second assignment is not neccessary. I can't see where
+skb->dev is changed within the 80  lines. so, we could remove
+the second assignment.
+
+/herp
 

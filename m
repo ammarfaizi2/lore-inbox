@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbTCUCme>; Thu, 20 Mar 2003 21:42:34 -0500
+	id <S263226AbTCUCr3>; Thu, 20 Mar 2003 21:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263252AbTCUCkm>; Thu, 20 Mar 2003 21:40:42 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:57216 "EHLO
+	id <S263227AbTCUCr3>; Thu, 20 Mar 2003 21:47:29 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:59008 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S263250AbTCUCkG>; Thu, 20 Mar 2003 21:40:06 -0500
-Date: Fri, 21 Mar 2003 11:50:18 +0900
+	id <S263226AbTCUCrZ>; Thu, 20 Mar 2003 21:47:25 -0500
+Date: Fri, 21 Mar 2003 11:57:37 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5.65-ac1] Support PC-9800 subarchitecture (8/14) kconfig
-Message-ID: <20030321025018.GH1847@yuzuki.cinet.co.jp>
+Subject: [PATCH 2.5.65-ac1] Support PC-9800 subarchitecture (10/14) parport
+Message-ID: <20030321025737.GJ1847@yuzuki.cinet.co.jp>
 References: <20030321022850.GA1767@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,44 +22,74 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac1. (8/14)
+against 2.5.65-ac1. (10/14)
 
-Add selection CONFIG_X86_PC9800.
+Parallel port support.
+ - Change IO port and IRQ assign.
+ - Add probing for PC98 parport.
+
+I make this patch simplify by limiting usage bi-directioal only.
+Since lp_old98 supports output only parpose.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux-2.5.64-ac4/arch/i386/Kconfig linux98-2.5.64-ac4/arch/i386/Kconfig
---- linux-2.5.64-ac4/arch/i386/Kconfig	2003-03-15 01:15:40.000000000 +0900
-+++ linux98-2.5.64-ac4/arch/i386/Kconfig	2003-03-15 01:59:17.000000000 +0900
-@@ -104,6 +104,12 @@
- 	  A kernel compiled for the Visual Workstation will not run on PCs
- 	  and vice versa. See <file:Documentation/sgi-visws.txt> for details.
+diff -Nru linux-2.5.64-ac2/drivers/parport/parport_pc.c linux98-2.5.64-ac2/drivers/parport/parport_pc.c
+--- linux-2.5.64-ac2/drivers/parport/parport_pc.c	2003-03-08 08:25:20.000000000 +0900
++++ linux98-2.5.64-ac2/drivers/parport/parport_pc.c	2003-03-08 10:44:43.000000000 +0900
+@@ -1892,6 +1892,9 @@
+ 			config & 0x80 ? "Level" : "Pulses");
  
-+config X86_PC9800
-+	bool "PC-9800 (NEC)"
-+	help
-+	  To make kernel for NEC PC-9801/PC-9821 sub-architecture, say Y.
-+	  If say Y, kernel works -ONLY- on PC-9800 architecture.
+ 		configb = inb (CONFIGB (pb));
++		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
++			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
 +
- endchoice
+ 		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
+ 			pb->base, config, configb);
+ 		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
+@@ -2032,6 +2035,9 @@
+ 	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
  
+ 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
++	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
++		intrLine = 5; /* IRQ 14 */
++
+ 	irq = lookup[intrLine];
  
-@@ -1081,7 +1087,7 @@
+ 	ECR_WRITE (pb, oecr);
+@@ -2248,7 +2254,7 @@
+ 			parport_ECR_present(p);
+ 	}
  
- config EISA
- 	bool "EISA support"
--	depends on ISA
-+	depends on ISA && !X86_PC9800
- 	---help---
- 	  The Extended Industry Standard Architecture (EISA) bus was
- 	  developed as an open alternative to the IBM MicroChannel bus.
-@@ -1099,7 +1105,7 @@
+-	if (base != 0x3bc) {
++	if (!pc98 && base != 0x3bc) {
+ 		EPP_res = request_region(base+0x3, 5, fake_name);
+ 		if (EPP_res)
+ 			if (!parport_EPP_supported(p))
+@@ -3022,6 +3028,26 @@
+ {
+ 	int count = 0;
  
- config MCA
- 	bool "MCA support"
--	depends on !(X86_VISWS || X86_VOYAGER)
-+	depends on !(X86_VISWS || X86_VOYAGER || X86_PC9800)
- 	help
- 	  MicroChannel Architecture is found in some IBM PS/2 machines and
- 	  laptops.  It is a bus system similar to PCI or ISA. See
++	if (pc98) {
++		/* Set default settings for IEEE1284 parport */
++		int	base = 0x140;
++		int	base_hi = 0x14c;
++		int	irq = 14;
++		int	dma = PARPORT_DMA_NONE;
++
++		/* Check PC9800 old style parport */
++		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
++		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
++			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
++			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
++				if (parport_pc_probe_port(base, base_hi,
++							  irq, dma, NULL))
++					count++;
++			}
++		}
++
++	}
++
+ 	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
+ 		count++;
+ 	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))

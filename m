@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313125AbSEYR1L>; Sat, 25 May 2002 13:27:11 -0400
+	id <S313181AbSEYRdw>; Sat, 25 May 2002 13:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSEYR1K>; Sat, 25 May 2002 13:27:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23052 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313125AbSEYR1J>; Sat, 25 May 2002 13:27:09 -0400
-Date: Sat, 25 May 2002 10:27:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Schwebel <robert@schwebel.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <20020525110830.U598@schwebel.de>
-Message-ID: <Pine.LNX.4.44.0205251025010.6515-100000@home.transmeta.com>
+	id <S314101AbSEYRdv>; Sat, 25 May 2002 13:33:51 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:3343 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S313181AbSEYRdu>;
+	Sat, 25 May 2002 13:33:50 -0400
+Date: Sat, 25 May 2002 10:31:24 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Larry McVoy <lm@bitmover.com>
+cc: Erwin Rol <erwin@muffin.org>, <linux-kernel@vger.kernel.org>,
+        RTAI users <rtai@rtai.org>
+Subject: Re: RTAI/RtLinux
+In-Reply-To: <20020525090537.G28795@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33L2.0205251019130.18051-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Sat, 25 May 2002, Larry McVoy wrote:
 
-On Sat, 25 May 2002, Robert Schwebel wrote:
-> >
-> > Which is, in my opinion, the only sane way to handle hard realtime. No
-> > confusion about priority inversions, no crap. Clear borders between what
-> > is "has to happen _now_" and "this can do with the regular soft realtime".
->
-> ... which in turn results in the situation that applications must be
-> implemented as kernel modules.
+| On Sat, May 25, 2002 at 11:05:32AM +0200, Erwin Rol wrote:
+| > Both Linus and Larry seem to be not very interested in hard-realtime
+| > Linux additions, this is OK.
+|
+| I'm interested in hard realtime.  I'm extremely uninterested in changes
+| to the mainline source base in order to get them.  That's exactly why
+| I like the RT/Linux approach so much, it is the least invasive to the
+| kernel and - surprise - also has the best performance.
+|
+| If people were to learn that real time and multi-user throughput are
+| by definition mutually exclusive, I'd be a lot happier.  As it is,
+| we have the SGI/Montevista crowd cramming their stuff into the kernel
 
-That's a load of bull.
+In this example, SGI and MV are at opposite ends of the
+spectrum, right?  High-end servers vs. embedded (and maybe RT).
 
-It results in the fact that you need to have a _clear_interface_ between
-the hard realtime parts, and the stuff that isn't.
+I expect that most of the continued growth of Linux will be
+in these 2 areas (servers and embedded) -- but we can't just
+abondon the desktop/workstation space either.
+Having 1 person say that Linux has problems in the embedded space
+doesn't carry much weight with me, but having 2-3 other people
+confirm it does start to concern me.
 
-Yes, that does imply a certain amount of good design. And it requires you
-to understand which parts are time-critical, and which aren't.
+| and each "little" thing makes the kernel a less pleasant place to be
+| and brings it one step closer to the point when it gets abandoned
+| like ever other OS in the history of our field.
 
-> This is only correct for open-loop applications. Most real life apps are
-> closed-loop.
+What I'd like to see/hear is a discussion about how to
+accommodate all of these OS spaces (servers, workstations,
+mobile, embedded) without making Linux ugly (or uglier in a
+few cases).  Maybe a good topic for discussion in Canada...
+in a hallway or a bar or a BOF.
 
-Most real life apps have nothing to do with hard-RT.
+Maybe the embedded/RT space is always maintained outside of
+the kernel.org kernel tree; I don't know.
+But certainly parts of the high-end server space want to be
+included in the mainstream kernel.org tree.
 
-		Linus
+Sorry about adding something non-legal to the discussion.
+Not.
+
+-- 
+~Randy
 

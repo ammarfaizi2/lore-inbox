@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268997AbUHZOtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269041AbUHZOxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268997AbUHZOtk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268976AbUHZOti
+	id S269041AbUHZOxa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUHZOuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:49:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269028AbUHZOpn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:45:43 -0400
-Date: Thu, 26 Aug 2004 15:45:41 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Hans Reiser <reiser@namesys.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826144541.GL16196@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com> <20040826140500.GA29965@fs.tum.de> <1093530313.11694.56.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093530313.11694.56.camel@leto.cs.pocnet.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Aug 2004 10:50:12 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31748 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S269032AbUHZOqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:46:17 -0400
+From: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: 2.6.9-rc1-mm1
+Date: Thu, 26 Aug 2004 16:45:54 +0200
+User-Agent: KMail/1.7
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl>
+In-Reply-To: <200408261636.06857.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart10618987.bdzzmUu5oY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408261646.08419.lkml@felipe-alfaro.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 04:25:13PM +0200, Christophe Saout wrote:
-> What reiser4 can do, but the VFS can't is to insert or remove data in
-> the middle of a file. Adding this above the page cache would probably be
-> almost impossible (truncate seems already complicated enough).
-> 
-> But below page-cache and thus invisible from the VFS or the applications
-> it is extremely useful for the compression plugin. When changing some
-> data in the middle of the file the compressed data might grow in size.
-> reiser4 can handle this inside the storage layer and doesn't mess with
-> the rest of the filesystem.
+--nextPart10618987.bdzzmUu5oY
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Never say never ... regular readers of -fsdevel already know what I'm
-going to say so can skip this post.
+On Thursday 26 August 2004 16:36, Rafael J. Wysocki wrote:
 
-When compressing data on an ext2-like filesystem, you can use the
-property of "holes" to deallocate disc blocks in the middle of a file.
-It works like this:
+> I think the problem is that relatively not so many people run -mm, and ev=
+en
+> less people try to use them for a longer time.  Also, there sometimes are
+> some issues with -mm that must be sorted out first, but then there's not
+> much time left for testing the scheduler before the next -mm.
 
-Split the file into 64k chunks
-Compress each chunk individually, then write them to disc on 64k boundaries,
-leaving gaps.
-Now you can quickly seek to the appropriate 64k block for the data you're
-looking for and decompress just that 64k block.
+I think this is the main reason of existence for -mm kernels: find problems=
+,=20
+sort them out and fix them. I've been running -mm kernels since 2.5.80+ and=
+=20
+all problems I have had were resolved in a timely manner.
 
-This is how RISCiX managed to fit an 80MB distro onto a 50MB disc.
-Someone has written an equivalent filesystem for Linux called SquashFS.
+What I think is that Con's scheduler is the one that needs to get into -mm=
+=20
+kernels to give it more exposure. Currently, it has a very limited audience.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+--nextPart10618987.bdzzmUu5oY
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBLfewBmklErlTjhURApKwAKCnfy/Elh63IGcbtDN9MUgajEbNLQCdH1H/
+0EBkxqyFHyvoCmjMdUx2QAc=
+=RlVQ
+-----END PGP SIGNATURE-----
+
+--nextPart10618987.bdzzmUu5oY--

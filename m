@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVCRAF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVCRAI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVCRAF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 19:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCRAFZ
+	id S261395AbVCRAI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 19:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCRAI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 19:05:25 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:16038 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261396AbVCRAEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 19:04:42 -0500
-Date: Thu, 17 Mar 2005 16:04:39 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prezeroing V8
-In-Reply-To: <20050317155908.56e77b8e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503171600320.10205@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com>
- <20050317140831.414b73bb.akpm@osdl.org> <Pine.LNX.4.58.0503171423590.10008@schroedinger.engr.sgi.com>
- <20050317151151.47fd6e5f.akpm@osdl.org> <Pine.LNX.4.58.0503171525360.10205@schroedinger.engr.sgi.com>
- <20050317155908.56e77b8e.akpm@osdl.org>
+	Thu, 17 Mar 2005 19:08:57 -0500
+Received: from li-22.members.linode.com ([64.5.53.22]:14996 "EHLO
+	www.cryptography.com") by vger.kernel.org with ESMTP
+	id S261395AbVCRAIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 19:08:52 -0500
+Message-ID: <423A1BED.1010608@root.org>
+Date: Thu, 17 Mar 2005 16:08:13 -0800
+From: Nate Lawson <nate@root.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] IDE failure on ACPI resume
+References: <1110741241.8136.46.camel@tyrosine>  <423518E7.3030300@root.org>	 <1111072221.8136.171.camel@tyrosine>  <4239E9BA.7050105@root.org> <1111104154.8136.179.camel@tyrosine>
+In-Reply-To: <1111104154.8136.179.camel@tyrosine>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Mar 2005, Andrew Morton wrote:
+Matthew Garrett wrote:
+> On Thu, 2005-03-17 at 12:34 -0800, Nate Lawson wrote:
+>>Very interesting.  I was hoping to someday have _GTF et al implemented 
+>>but the ATA knowledge required was above my head.  I also strongly 
+>>suspected that the info published by _GTF would likely be invalid.  Does 
+>>Windows actually use that method or just hardcoded ATA initialization?
+> 
+> I believe that Windows does use the _GTF methods.
 
-> >  http://oss.sgi.com/projects/page_fault_performance/
->
-> Oh no, not that page again ;)
+You are correct.  A quick scan of my w2k drivers shows atapi.sys uses 
+the _GTF, _GTM, and _STM methods.
 
-Yes indeed!
-
-> Seems to say that prezeroing makes negligible difference to kernel builds,
-> but speeds up a big malloc+memset by 3x to 4x, yes?
-
-Correct.
-
-> Are there any real-worldish workloads which show an appreciable benefit?
-
-Ummm. Big loads are our real-worldish workloads here.
-
-> The large speedup for a big memset seems odd - I assume it's simply
-> transferring CPU load from the user's process over to kscrubd.  Or is it
-> the fancy page-zeroing hardware?  How do we differentiate the two?
-
-I switched off the page-zeroing hardware for the tests.
-
-> Are there any workloads which are seeing a benefit on a CPU which doesn't
-> have the zeroing hardware?
-
-Without zeroing hardware the eroing actions are moved to idle
-system time (load < /proc/sys/vm/scrub_load). Its shifting the cpu load.
-
-But I just fixed things up so that the kernel can return hot zeroed
-pages to the pool for quicklist management. This yields zeroed pages
-without kscrubd.
+-- 
+Nate

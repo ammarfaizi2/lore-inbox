@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVAaHce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVAaHcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVAaHce (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVAaH3E
+	id S261943AbVAaHcg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVAaH2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:29:04 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:39297 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S261675AbVAaH1N (ORCPT
+	Mon, 31 Jan 2005 02:28:53 -0500
+Received: from waste.org ([216.27.176.166]:11500 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261944AbVAaH0A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:27:13 -0500
-Date: Sun, 30 Jan 2005 23:27:08 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
+	Mon, 31 Jan 2005 02:26:00 -0500
+Date: Mon, 31 Jan 2005 01:25:52 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Watchdog] alim7101_wdt problem on 2.6.10
-Message-ID: <20050131072708.GA17354@hockin.org>
-References: <41FDDCA3.7090701@cs.aau.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41FDDCA3.7090701@cs.aau.dk>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <4.687457650@selenic.com>
+Message-Id: <5.687457650@selenic.com>
+Subject: [PATCH 4/8] base-small: shrink PID tables
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 08:22:11AM +0100, Emmanuel Fleury wrote:
-> Jan 30 00:58:21 hermes vmunix: alim7101_wdt: ALi 1543 South-Bridge does
-> not have the correct revision number (???1001?) - WDT
-> not set
-> 
-> What did I do wrong ?
+CONFIG_BASE_SMALL reduce size of pidmap table for small machines
 
-You used the wrong South Bridge revision.  Seriously, older revisions of
-M7101 did not have a WDT.  You seem to have an older revision.  Sorry.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
+Index: tq/include/linux/threads.h
+===================================================================
+--- tq.orig/include/linux/threads.h	2005-01-25 09:26:16.000000000 -0800
++++ tq/include/linux/threads.h	2005-01-26 15:16:55.000000000 -0800
+@@ -7,7 +7,7 @@
+  * The default limit for the nr of threads is now in
+  * /proc/sys/kernel/threads-max.
+  */
+- 
++
+ /*
+  * Maximum supported processors that can run under SMP.  This value is
+  * set via configure setting.  The maximum is equal to the size of the
+@@ -25,11 +25,12 @@
+ /*
+  * This controls the default maximum pid allocated to a process
+  */
+-#define PID_MAX_DEFAULT 0x8000
++#define PID_MAX_DEFAULT (CONFIG_BASE_SMALL ? 0x1000 : 0x8000)
+ 
+ /*
+  * A maximum of 4 million PIDs should be enough for a while:
+  */
+-#define PID_MAX_LIMIT (sizeof(long) > 4 ? 4*1024*1024 : PID_MAX_DEFAULT)
++#define PID_MAX_LIMIT (CONFIG_BASE_SMALL ? PAGE_SIZE * 8 : \
++	(sizeof(long) > 4 ? 4 * 1024 * 1024 : PID_MAX_DEFAULT))
+ 
+ #endif

@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317355AbSGDHna>; Thu, 4 Jul 2002 03:43:30 -0400
+	id <S317359AbSGDHob>; Thu, 4 Jul 2002 03:44:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317361AbSGDHn3>; Thu, 4 Jul 2002 03:43:29 -0400
-Received: from cmailg7.svr.pol.co.uk ([195.92.195.177]:29024 "EHLO
-	cmailg7.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S317355AbSGDHn2>; Thu, 4 Jul 2002 03:43:28 -0400
-Date: Thu, 4 Jul 2002 08:45:34 +0100
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Jens Axboe <axboe@suse.de>, linux-lvm@sistina.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [linux-lvm] LVM2 modifies the buffer_head struct?
-Message-ID: <20020704074534.GA884@fib011235813.fsnet.co.uk>
-References: <F19741gcljD2E2044cY00004523@hotmail.com> <20020702141702.GA9769@fib011235813.fsnet.co.uk> <20020703100838.GH14097@suse.de> <20020703120124.GB615@fib011235813.fsnet.co.uk> <20020703121024.GC21568@suse.de> <15651.54044.557070.109158@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
+	id <S317361AbSGDHoa>; Thu, 4 Jul 2002 03:44:30 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19444 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317359AbSGDHo1>;
+	Thu, 4 Jul 2002 03:44:27 -0400
+Message-ID: <3D23FD5F.19C0DDDC@mvista.com>
+Date: Thu, 04 Jul 2002 00:46:39 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Xinwen - Fu <xinwenfu@cs.tamu.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel timers vs network card interrupt
+References: <Pine.LNX.3.95.1020703143207.1862A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15651.54044.557070.109158@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.28i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 04, 2002 at 02:46:20PM +1000, Neil Brown wrote:
-> I think this can work sanely and is something I have considered for
-> raid1-read and multipath in md.
+"Richard B. Johnson" wrote:
 > 
-> struct privatebit {
->   bio_end_io_t  *oldend;
->   void          *oldprivate;
->   ...other...stuff;
-> };
+> On Wed, 3 Jul 2002, Xinwen - Fu wrote:
 > 
-> make_request(struct request_queue_t *q, struct buffer_head *bh, int rw)
-> {
+> > Hi, all,
+> >       I'm curious that if a network card interrupt happens at the same
+> > time as the kernel timer expires, what will happen?
+> >
+> >       It's said the kernel timer is guaranteed accurate. But if
+> > interrupts are not masked off, the network interrupt also should get
+> > response when a kernel timer expires. So I don't know who will preempt
+> > who.
+> >
+> >       Thanks for information!
+> >
+> > Xinwen Fu
 > 
->  struct privatebit *pb = kmalloc(...);
-> 
->   pb->oldend = bh->b_end_io;
->   pb->oldprivate = bh->b_private;
->   bh->b_private = pb;
->   bh->b_end_io = my_end_handler;
-> 
->   ..remap b_rdev, b_rsector ...
-> 
->   generic_make_request(bh, rw);
-> 
-> }
-> 
-> Then my_end_handler have do some local cleanup,
-> re-instate oldend and oldprivate, and pass the bh back up.
-> For raid1/multipath it would arrange to resubmit the request if there
-> as an error.
-> 
-> This stacks nicely and allows for the extra bit to be alloced to be
-> minimal.
+> The highest priority interrupt will get serviced first. It's the timer.
+> Interrupts are serviced in priority-order. Hardware "remembers" which
+> ones are pending so none are lost if some driver doesn't do something
+> stupid.
 
-This is exactly what I'm doing in device-mapper :)
-
-> Ofcourse this ceases to be an issue in 2.5 because the filesys uses 
-> pages or buffer_heads and the device driver uses bios.
-
-y, 2.5 is fine.
-
-- Joe
+That is true as far as it goes, HOWEVER, timers are serviced
+by bottom half code which is run at the end of the
+interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
+servicing can be interrupted by an interrupt and thus be
+delayed.
+ 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

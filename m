@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUHTHXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUHTHWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUHTHXG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHTHXF
+	id S262062AbUHTHWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHTHWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:23:05 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:20355 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S267633AbUHTHUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:20:47 -0400
-Date: Fri, 20 Aug 2004 00:19:05 -0700
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, nickpiggin@yahoo.com.au
-Subject: Re: Possible dcache BUG
-Message-ID: <20040820001905.27a9ff8f@laptop.delusion.de>
-In-Reply-To: <20040820001154.0a5cf331.akpm@osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
-	<20040808113930.24ae0273.akpm@osdl.org>
-	<200408100012.08945.gene.heskett@verizon.net>
-	<200408102342.12792.gene.heskett@verizon.net>
-	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
-	<20040810211849.0d556af4@laptop.delusion.de>
-	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
-	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>
-	<20040812180033.62b389db@laptop.delusion.de>
-	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>
-	<20040820000238.55e22081@laptop.delusion.de>
-	<20040820001154.0a5cf331.akpm@osdl.org>
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
+	Fri, 20 Aug 2004 03:22:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38801 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267602AbUHTHSW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:18:22 -0400
+Date: Fri, 20 Aug 2004 00:16:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: cherry@osdl.org, linux-kernel@vger.kernel.org, zam@namesys.com,
+       demidov@namesys.com
+Subject: Re: 2.6.8.1-mm2
+Message-Id: <20040820001629.387715be.akpm@osdl.org>
+In-Reply-To: <4125A2F6.5050308@namesys.com>
+References: <20040819014204.2d412e9b.akpm@osdl.org>
+	<1092927166.29916.0.camel@cherrybomb.pdx.osdl.net>
+	<4125A2F6.5050308@namesys.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__20_Aug_2004_00_19_05_-0700_h0OCs19U.tQrZP/m"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__20_Aug_2004_00_19_05_-0700_h0OCs19U.tQrZP/m
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Hans Reiser <reiser@namesys.com> wrote:
+>
+> John Cherry wrote:
+> 
+> >The new "errors" are from reiser4 code and they all appear to be...
+> >
+> >fs/reiser4/reiser4.h:18:2: #error "Please turn 4k stack off"
+> >
+> >  
+> >
+> zam, can you or Mr. Demidov work on using kmalloc to reduce stack usage?
+> 
+> Andrew suggested that for statically sized objects kmalloc is quite fast 
+> (one instruction I think he said), so my objection to kmallocing a lot 
+> has faded.
 
-On Fri, 20 Aug 2004 00:11:54 -0700 Andrew Morton (AM) wrote:
+err, not that quick - but it's pretty quick.
 
-AM> "Udo A. Steinberg" <us15@os.inf.tu-dresden.de> wrote:
-AM> >
-AM> > I've tried to download 700 MB of data from a digital camera via USB using
-AM> >  "gphoto2 --get-all-files" and I can repeatedly run my 128 MB box out of
-AM> >  memory using either Linux 2.4.26 or 2.6.8.1 for that.
-AM> 
-AM> whee.  How much swap is online?
+With a kmalloc with a constant size and, preferably, a constant gfp mask
+we'll jump directly into __cache_alloc() and in the common case we'll pluck
+an entry directly out of the cpu-local head array:
 
-Something close to 512 MB.
+So the kmalloc fastpath is, effectively:
 
-Adding 506512k swap on /dev/hda2.  Priority:-1 extents:1
+	local_irq_save(save_flags);
+	ac = ac_data(cachep);
+	if (likely(ac->avail)) {
+		ac->touched = 1;
+		objp = ac_entry(ac)[--ac->avail];
+	}
+	local_irq_restore(save_flags);
+	return objp;
 
-AM> Not that it matters - you seem to have a bunch of reclaimable pagecache
-AM> just sitting there.  Very odd.
-AM> 
-AM> Could gphoto2 be using mlock?  Does it run as root?
 
-No, gphoto2 was not running as root.
-
--Udo.
-
---Signature=_Fri__20_Aug_2004_00_19_05_-0700_h0OCs19U.tQrZP/m
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBJaXpnhRzXSM7nSkRAmx3AJ0Xm0J9k0iZagfsEp6wnqsKUUeUJQCfRE0M
-Ex+6PaD1j+0yyqm57sAV0Zo=
-=f7aO
------END PGP SIGNATURE-----
-
---Signature=_Fri__20_Aug_2004_00_19_05_-0700_h0OCs19U.tQrZP/m--
+Not bad...

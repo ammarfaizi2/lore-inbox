@@ -1,53 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264161AbUEHHCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264166AbUEHH4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbUEHHCz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 03:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264160AbUEHHCz
+	id S264166AbUEHH4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 03:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264170AbUEHH4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 03:02:55 -0400
-Received: from viefep12-int.chello.at ([213.46.255.25]:23828 "EHLO
-	viefep12-int.chello.at") by vger.kernel.org with ESMTP
-	id S264161AbUEHHCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 03:02:54 -0400
-From: Anubis <kerub@gmx.net>
-To: linux-kernel@vger.kernel.org, petri.koistinen@iki.fi, lathiat@sixlabs.org,
-       janitor@sternwelten.at
-Subject: Re: Bug for making NETFILTER
-Date: Sat, 8 May 2004 09:04:59 +0200
-User-Agent: KMail/1.6
-References: <200405050743.42833.kerub@gmx.net> <20040505175653.GA2250@mars.ravnborg.org>
-In-Reply-To: <20040505175653.GA2250@mars.ravnborg.org>
-MIME-Version: 1.0
+	Sat, 8 May 2004 03:56:22 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:37637 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264166AbUEHH4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 03:56:21 -0400
+Date: Sat, 8 May 2004 08:56:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jun Sun <jsun@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Xplore CVS! (xcvs) - a web-based CVS tracking tool
+Message-ID: <20040508085620.A6228@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jun Sun <jsun@mvista.com>, linux-kernel@vger.kernel.org
+References: <20040507162223.E9702@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405080904.59703.kerub@gmx.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040507162223.E9702@mvista.com>; from jsun@mvista.com on Fri, May 07, 2004 at 04:22:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 05 May 2004 19:56, Sam Ravnborg wrote:
-> > make[3]: *** No rule to make target `net/ipv4/netfilter/ipt_mark.o',
-> > needed by `net/ipv4/netfilter/built-in.o'.  Stop.
-> > for linux-2.6.5
-> Check permissions on the file - or maybe something else went wrong whan
-> patching up the kernel src?
+On Fri, May 07, 2004 at 04:22:23PM -0700, Jun Sun wrote:
+> 
+> I am pleased to announce that xcvs has reached its late beta
+> release v0.2.1.
 
-Permissions are ok, but filename probably is not: ipt_MARK.c
-Anyway I did not patch the kernel but got the full distribution.
+Well, nice tool - but how can this be considered ontopic for lkml?
 
-I copied ipt_MARK.c to ipt_mark.c and got the following:
-  CC      net/ipv4/netfilter/ipt_mark.o
-net/ipv4/netfilter/ipt_mark.c:13:43: linux/netfilter_ipv4/ipt_mark.h: No such 
-file or directory
-net/ipv4/netfilter/ipt_mark.c: In function `match':
-net/ipv4/netfilter/ipt_mark.c:30: error: dereferencing pointer to incomplete 
-type
-net/ipv4/netfilter/ipt_mark.c:30: error: dereferencing pointer to incomplete 
-type
-net/ipv4/netfilter/ipt_mark.c:30: error: dereferencing pointer to incomplete 
-type
-net/ipv4/netfilter/ipt_mark.c: In function `checkentry':
-net/ipv4/netfilter/ipt_mark.c:40: error: invalid application of `sizeof' to an 
-incomplete type
-make[3]: *** [net/ipv4/netfilter/ipt_mark.o] Error 1

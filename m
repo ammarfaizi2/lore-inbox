@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130076AbQLWOnt>; Sat, 23 Dec 2000 09:43:49 -0500
+	id <S130011AbQLWPWP>; Sat, 23 Dec 2000 10:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130142AbQLWOnk>; Sat, 23 Dec 2000 09:43:40 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:51973 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S130076AbQLWOnW>; Sat, 23 Dec 2000 09:43:22 -0500
-Date: Sat, 23 Dec 2000 15:10:43 +0100
-From: Harald Welte <laforge@gnumonks.org>
+	id <S130155AbQLWPWF>; Sat, 23 Dec 2000 10:22:05 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:24072 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S130011AbQLWPV5>; Sat, 23 Dec 2000 10:21:57 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Rohloff <lundril@gmx.net>
-Subject: Re: A way to crash an 2.4-test11 kernel
-Message-ID: <20001223151043.X5858@coruscant.gnumonks.org>
-In-Reply-To: <20001219032531.A1922@flashline.chipnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001219032531.A1922@flashline.chipnet>; from lundril@gmx.net on Tue, Dec 19, 2000 at 03:25:31AM +0000
-X-Operating-System: 2.4.0-test11p4
-X-Date: Today is Prickle-Prickle, the 62nd day of The Aftermath in the YOLD 3166
+Subject: Re: test13-pre4-ac2 - part of diff fails
+Date: Sat, 23 Dec 2000 07:52:33 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
+Cc: daniel@kabuki.eyep.net
+MIME-Version: 1.0
+Message-Id: <00122307523300.01837@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 03:25:31AM +0000, Ingo Rohloff wrote:
-> Hi,
-> 
-> I found a way to crash an SMP 2.4-test11 kernel:
-> 
-> 1. Create a BIG file (lets say about 300-400 MByte)
-> 2. use losetup and the loop device to create an
->    ext2 filesystem within the file
-> 3. mount the file
-> 4. copy huge amounts of data into the file.
->    (for example copy your /usr directory into it.)
-> 
-> -> Kernel deadlocks after some time.
-> 
-> Could someone try to reproduce this behaviour ?
+Daniel Stone wrote:
+>linux-2.4.0-test12 + reiserfs + test13-pre4 + reiserfs makefile fix (only
+>changes fs/reiserfs/Makefile) + netfilter patch-o-matic stuff (only touches
+>net/ipv4/netfilter) + test13-pre4-ac2.
 
-Well... I've once encountered this kind of problem while porting
-the kerneli patch (loopback encryption, ...) and thought it is 
-a problem of the kerneli patch. I've never thought about the 
-possibility that this problem even occurs without encryption.
+I was able to patch and build 2.4.0test13pre4-ac2.  I did not see the problem
+with smp.c which existed with the earlier test13pre3-ac3.
 
-The other issue is: I wasn't able to reproduce this problem either :(
+[root@localhost src]# date;uname -a
+Sat Dec 23 07:33:48 MST 2000
+Linux localhost.localdomain 2.4.0-test13pre4-ac2 #3 Fri Dec 22 22:06:06 MST 
+2000 i686 unknown
 
-> so long
->   Ingo
+1 Script started on Fri Dec 22 18:28:38 2000
+2 [root@localhost linux]# patch -p1 <patch-2.4.0test13pre4-ac2
+3 patching file CREDITS
+[snipped]
+28 patching file arch/i386/kernel/setup.c
+29 patching file arch/i386/kernel/smp.c
+30 patching file arch/i386/kernel/smpboot.c
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+I did things in this order:
+
+tar zxvf linux-2.4.0-test12.tar.gz 
+patch -p0 <test13-pre4
+cd linux
+patch -p1 <patch-2.4.0test13pre4-ac2
+
+Found problem with build, fixed it, submitted patch.
+
+cd /usr/src
+patch -p0 <linux-2.4.0-test12-reiserfs-3.6.23-patch
+patch -p0 <reiserfs-Makefile-patch
+
+I then built a kernel with reiserfs-3.6.23 which I'm running now.
+
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129105AbQKLPJd>; Sun, 12 Nov 2000 10:09:33 -0500
+	id <S130745AbQKLPhg>; Sun, 12 Nov 2000 10:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129237AbQKLPJO>; Sun, 12 Nov 2000 10:09:14 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:24368 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129105AbQKLPJE>; Sun, 12 Nov 2000 10:09:04 -0500
-Date: Sun, 12 Nov 2000 17:16:49 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: lav@yars.free.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sound problems caused by masking irq for too long
-In-Reply-To: <20001112165609.A1006@long.yar.ru>
-Message-ID: <Pine.LNX.4.21.0011121715140.9477-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130548AbQKLPh1>; Sun, 12 Nov 2000 10:37:27 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31600 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130745AbQKLPhM>; Sun, 12 Nov 2000 10:37:12 -0500
+Date: Sun, 12 Nov 2000 16:37:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        Tigran Aivazian <tigran@veritas.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+Message-ID: <20001112163705.A4933@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet> <m1ofzmcne5.fsf@frodo.biederman.org> <20001112122910.A2366@athlon.random> <m1k8a9badf.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1k8a9badf.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Nov 12, 2000 at 06:14:36AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Nov 2000, Alexander V. Lukyanov wrote:
+On Sun, Nov 12, 2000 at 06:14:36AM -0700, Eric W. Biederman wrote:
+> x86-64 doesn't load the segment registers at all before use.
 
-> Hi!
-> 
-> In some cases sound gets interrupted for a moment, this happens in two
-> occasions. When unmaskirq flag is off on ide cdrom and it is accessed,
-> and when tdfxfb console (800x600) flashes (tput flash, or `set bell-style
-> visible' in .inputrc).
-> 
-> It seems the problem is caused by masking irq for too long, and then
-> the sound dma buffer underruns. This is fixed by unmasking irq for ide
-> cdrom by `hdparm -u1 /dev/cdrom', and by changing spin_(un)lock_irq
-> in console.c to spin_(un)lock_bh.
-> 
-> This was observed on 2.4.0-pre10, the problem with ide also exists on
-> 2.2.17, the console.c in 2.2.17 only disables CONSOLE_BH.
+Yes, before switching to 64bit long mode we never do any data access. We do a
+stack access to clear eflags only while we still run in legacy mode with paging
+disabled and so we only rely on ss to be valid when the bootloader jumps at
+0x100000 for executing the head.S code (and not anymore on the gdt_48 layout).
 
-The above story also explains why my sound 'hickups' when I switch from
-console to X (yes, and I do that a lot).
+> I can tell you don't have real hardware.  The non obviousness
 
-Is this a recent change from 2.2.15 -> >= 2.2.16 or so ?
+Current code definitely works fine on the simnow simulator so if current code
+shouldn't work because it's buggy then at least the simulator is sure buggy as
+well (and that isn't going to be the case as its behaviour is in full sync with
+the specs as far I can see).
 
-> The audio card is old awe32 (isa), sound driver is modular.
+> So while you load the gdt before you set a segment register later,
+> which is good the more important part was still missed.
 
-This is a SB16 PnP
+Sorry but I don't see the missing part. Are you sure you're not missing this
+part of the x86-64 specs?
 
+	Data and Stack Segments:
 
+	In 64-bit mode, the contents of the ES, DS, and SS segment registers
+	are ignored. All fields (base, limit, and attribute) in the
+	corresponding segment descriptor registers (hidden part) are also
+	ignored.
 
-	Igmar
+	Address calculations in 64-bit mode that reference the ES, DS, or SS
+	segments, are treated as if the segment base is zero.  Rather than
+	perform limit checks, the processor instead checks that all
+	virtual-address references are in canonical form.
 
+You'll find the above at the top of page 42 of the specs.
+
+Basically in 64bit long mode only CS matters and basically only to specify
+CS.L=1 and CS.D=0.
+
+The only subtle case is during iret where we need a valid data segment for some
+subtle reason (but that's unrelated to head.S that instead only needs to
+switch to 64bit mode and jump into head64.c where we do the rest of the work
+like clearing bss in C). Infact we need only 1 32bit compatibility mode data
+segment in the gdt.
+
+> O.k. on monday I'll dig up my patch and that clears this up.
+
+Sure, go ahead if you weren't missing that basic part of the long mode specs.
+Thanks.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265786AbSKOFML>; Fri, 15 Nov 2002 00:12:11 -0500
+	id <S265800AbSKOFau>; Fri, 15 Nov 2002 00:30:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSKOFML>; Fri, 15 Nov 2002 00:12:11 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:267
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265786AbSKOFML>; Fri, 15 Nov 2002 00:12:11 -0500
-Date: Fri, 15 Nov 2002 00:12:29 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Corey Minyard <cminyard@mvista.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NMI handling rework
-In-Reply-To: <3DD47D0D.7080801@mvista.com>
-Message-ID: <Pine.LNX.4.44.0211142354030.2750-100000@montezuma.mastecende.com>
-X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265806AbSKOFau>; Fri, 15 Nov 2002 00:30:50 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:31245 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S265800AbSKOFat>; Fri, 15 Nov 2002 00:30:49 -0500
+Date: Fri, 15 Nov 2002 03:37:33 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, aris@cathedrallabs.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH] drivers/acpi/ac.c: convert to seq_file
+Message-ID: <20021115053733.GA18180@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>, aris@cathedrallabs.org,
+	acpi-devel@lists.sourceforge.net
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A50E@orsmsx119.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A50E@orsmsx119.jf.intel.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Nov 2002, Corey Minyard wrote:
+Em Thu, Nov 14, 2002 at 02:34:35PM -0800, Grover, Andrew escreveu:
+> > From: Arnaldo Carvalho de Melo [mailto:acme@conectiva.com.br] 
+> > 	Please consider pulling from:
+> > 
+> > bk://oops.kerneljanitors.org:acpi-2.5
+> > 
+> > 	This is the first in a series of changesets converting
+> > ACPI to seq_file, please lets us know if something is unacceptable.
+> > 
+> > 	The work was done by Aristeu Rozanski.
+> 
+> Hi acme,
+> 
+> Looks like an improvement. My thanks to you and Aristeu.
 
-> RCU does.  Basically, the code pulls it from the list atomically wrt to 
-> the NMI handler, and uses RCU to schedule the actual free of the data to 
-> be done after all CPUs have gone to idle or returned from interrupts. 
->  It's subtle, you have to think about it a little.  But it does work.
+np
+ 
+> Let me know when you're done with all the changesets and I'll pull
+> everything.
 
-Still not convinced, i still want to know which interrupt rate and how 
-many processors. Are the following functions really protected from say 
-NMIs at 300,000/s? request_nmi actually looks dodgiest.
+mmmkay, I have already more than 10 changesets from Aristeu, its just a
+matter of reviewing it all and I'll be back talking with you.
 
-static void free_nmi_handler(void *arg)
-{
-	struct nmi_handler *handler = arg;
+Best Regards,
 
-	INIT_LIST_HEAD(&(handler->link));
-	complete(&(handler->complete));
-}
-
-void release_nmi(struct nmi_handler *handler)
-{
-	spin_lock(&nmi_handler_lock);
-	list_del_rcu(&(handler->link));
-	init_completion(&(handler->complete));
-	call_rcu(&(handler->rcu), free_nmi_handler, handler);
-	spin_unlock(&nmi_handler_lock);
-}
-
--- 
-function.linuxpower.ca
-
-
-
-
-
-
+- Arnaldo

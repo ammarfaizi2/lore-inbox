@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267408AbUHWFBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUHWFZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267408AbUHWFBi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 01:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUHWFBi
+	id S267362AbUHWFZk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 01:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267383AbUHWFZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 01:01:38 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19113 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S267408AbUHWFBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 01:01:34 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm4
-References: <20040822013402.5917b991.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Aug 2004 23:00:15 -0600
-In-Reply-To: <20040822013402.5917b991.akpm@osdl.org>
-Message-ID: <m14qmu4ffk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Mon, 23 Aug 2004 01:25:40 -0400
+Received: from main.gmane.org ([80.91.224.249]:49359 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267362AbUHWFZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 01:25:38 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Trivial IPv6-for-Fedora HOWTO
+Date: Mon, 23 Aug 2004 14:25:32 +0900
+Message-ID: <cgbv4e$pd6$1@sea.gmane.org>
+References: <4129236E.9020205@pobox.com> <E1Bz1ya-0006Vi-00@calista.eckenfels.6bone.ka-ip.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
+X-Accept-Language: bg, en, ja, ru, de
+In-Reply-To: <E1Bz1ya-0006Vi-00@calista.eckenfels.6bone.ka-ip.net>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm4/
+Bernd Eckenfels wrote:
+> In article <4129236E.9020205@pobox.com> you wrote:
+> 
+>>If you have an iptables ipv4 firewall, you'll want to
+>>
+>>F1) allow ipv6 tunnelled packets to pass through to ip6tables, by 
+>>allowing protocol 41
+>>
+>>iptables -A block -p 41 -j ACCEPT
+>>("block" is a custom chain on my firewall)
+>>
+>>F2) duplicate your ipv4 firewall rules for ipv6, using ip6tables.  Some 
+>>things, like masquerade, are not applicable to ipv6.
 > 
 > 
-> - Added the kexec code.  Again.  This was in -mm a year or so ago but didn't
->   make it.
+> Note that you have to terminate the tunnel on your firewall in order to
+> filter the encapsulated ipv6. This is important, since letting tunnel
+> packets pass your firewall is a major security problem, otherwise.
 
-Hopefully it will this round :)
+And what exactly does this mean?
 
-There is a null pointer dereference bug in ide_print_status,
-the following patch allows me to boot.
+"terminate the tunnel on your firewall" ???
 
-The function still looks fishy as there is another access
-to rq outside of ide_lock, a few lines earlier.
+Would you enlighten me (and the list) how do you do that with ip{,6}tables?
 
-Eric
+Kalin.
 
-diff -uNrX linux-exclude-files linux-2.6.8.1-mm4-i8259-shutdown-x86_64/drivers/ide/ide.c linux-2.6.8.1-mm4-i8259-x86_64/drivers/ide/ide.c
---- linux-2.6.8.1-mm4-i8259-shutdown-x86_64/drivers/ide/ide.c	Sun Aug 22 21:15:25 2004
-+++ linux-2.6.8.1-mm4-i8259-x86_64/drivers/ide/ide.c	Sun Aug 22 22:07:54 2004
-@@ -442,7 +442,10 @@
- 		int opcode = 0x100;
- 
- 		spin_lock(&ide_lock);
--		rq = HWGROUP(drive)->rq;
-+		rq = 0;
-+		if (HWGROUP(drive)) {
-+			rq = HWGROUP(drive)->rq;
-+		}
- 		spin_unlock(&ide_lock);
- 		if (!rq)
- 			goto out;
+-- 
+ || ~~~~~~~~~~~~~~~~~~~~~~ ||
+(  ) http://ThinRope.net/ (  )
+ || ______________________ ||
+

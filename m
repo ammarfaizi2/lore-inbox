@@ -1,64 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266661AbUHXHee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266682AbUHXHhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266661AbUHXHee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 03:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUHXHee
+	id S266682AbUHXHhw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 03:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUHXHhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 03:34:34 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:13830 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266661AbUHXHeb
+	Tue, 24 Aug 2004 03:37:52 -0400
+Received: from eagle-s17.mtl.enter-net.com ([216.252.75.209]:58130 "EHLO abc")
+	by vger.kernel.org with ESMTP id S266682AbUHXHhk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 03:34:31 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: davem@redhat.com (David S. Miller)
-Subject: Re: IPv6 oops on ifup in latest BK
-Cc: jgarzik@pobox.com, yoshfuji@linux-ipv6.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20040823235123.71f18c04.davem@redhat.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
-Message-Id: <E1BzVoY-00018s-00@gondolin.me.apana.org.au>
-Date: Tue, 24 Aug 2004 17:33:54 +1000
+	Tue, 24 Aug 2004 03:37:40 -0400
+From: formationun@netcourrier.com
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=C9laboration=20d'un=20plan=20de=20formation?=
+Date: Mon, 23 Aug 2004 21:43:44 -0400
+MIME-Version: 1.0 (produced by Synapse)
+x-mailer: Synapse - Delphi & Kylix TCP/IP library by Lukas Gebauer
+Content-type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Content-Description: Message text
+Message-Id: <S266682AbUHXHhk/20040824073740Z+290@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller <davem@redhat.com> wrote:
-> 
-> Maybe new code should be something like:
-> 
->                if (dev && dev != &loopback_dev) {
+ÉLABORATION D'UN PLAN DE FORMATION
 
-You want
-		 if (dev) {
-here.
+Formation: 
 
->                        dev_put(dev);
->                        in6_dev_put(idev);
->                }
->                dev = &loopback_dev;
->                dev_hold(dev);
->                idev = in6_dev_get(dev);
->                if (!idev) {
->                        err = -ENODEV;
->                        goto out;
->                }
-> 
-> What do you think?
+Atelier d'un jour - Le 27 Septembre 2004 à Montréal 
+et le 24 Septembre 2004 à Québec
 
-Yes this would work.  But I think Yoshifuji-san is trying to avoid the
-unnecessary put/get in the case where dev is already loopback_dev.
-So something like this might work:
+"Pour ceux qui pensent que la formation coûte cher... essayez l'ignorance".
 
-		if (dev != &loopback_dev) {
-			if (dev) {
-				dev_put(dev);
-				in6_dev_put(idev);
-			}
-			...
-		}
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+CETTE FORMATION S'ADRESSE AUX DIRECTEURS FORMATION, DIRECTEURS 
+DES
+RESSOURCES HUMAINES, GESTIONNAIRES D'ENTREPRISE ET DIRECTEURS 
+DE
+DÉPARTEMENT GÉRANT LEUR FORMATION.
+  
+Suivez cette formation pour :
+ 
+Apprendre à développer un plan de formation en lien direct avec les
+objectifs stratégiques de votre entreprise 
+Gérer les compétences : outils d'analyse d'écart de compétences et mise à
+niveau 
+Améliorer la productivité et la compétitivité 
+Comprendre le processus pédagogique
+
+Mieux placer votre entreprise sur son marché 
+Accroître le retour sur investissement de la formation 
+Mieux gérer votre budget formation vis-à-vis de la loi 90 
+Vous assurer que les méthodes apprises sont correctement appliquées et
+implantées dans votre entreprise
+
+OBJECTIFS:
+Développer une démarche permettant d'analyser les besoins en formation et
+de planifier les actions significatives.
+Acquérir des compétences et connaître des méthodes afin de planifier les
+achats de formation en fonction des objectifs stratégiques de l'entreprise.
+Connaître les outils d'évaluation et de gestion de compétences.
+Connaître les enjeux et l'importance de la planification de la formation
+dans le contexte de la mondialisation.
+ 
+
+PLAN DE COURS:
+
+Introduction:  Dans le contexte de la globalisation des marchés - la
+formation aujourd'hui
+
+Présentation de la démarche en 5 points:
+
+Le diagnostic:  analyser les besoins en formation 
+L'objectif stratégique 
+L'objectif opérationnel 
+Les objectifs de formation 
+L'entretien avec le commanditaire du projet de formation 
+Impact de la formation sur ... 
+La compétence 
+La motivation 
+L'environnement de travail 
+Étude de faisabilité 
+Analyse stratégique 
+Analyse de risque 
+L'action de formation:  concevoir la réponse au besoin 
+Le processus pédagogique 
+Inscription 
+Implication 
+Action de formation 
+Suivi 
+Évaluation 
+Conception de l'action de formation 
+Le plan de formation:  la planification des actions 
+Les acteurs 
+Planification 
+Aides 
+Le plan de formation 
+La fiche d'action de formation 
+Sélection des prestataires:  les moyens 
+Classification des achats en formation 
+Sélection des prestataires 
+Le cahier des charges 
+Critères de sélection 
+Coût de la formation 
+Le marché de la formation 
+Évaluation des projets de formation 
+Évaluation du processus 
+Évaluation des résultats 
+Typologie 
+Évaluation à froid 
+Évaluation à chaud 
+Évaluation individuelle 
+Évaluation collective 
+
+Date de la formation:  27 Septembre 2004 à Montréal et le 24 Septembre à
+Québec
+Lieu de la formation: Hôtel Plaza Québec  3031, Boul Laurier Ste-Foy 
+Lieu de la formation:  Best Western Laval, 3655, Aut. des Laurentides, Laval
+
+Pour inscription, veuillez contacter Mme Maryse Morin au 1-800-861-6618
+ 
+
+Conseillers en sciences de gestion et technologies avancées
+450-226-2238 ou le 1-800-861-6618
+
+www.compufinder.com
+
+
+Pour vous désabonner de notre liste d'envoi écrire à 
+ 
+info.compufinder@quebecemail.com
+ 
+merci
+ 
+
+
+ 
+

@@ -1,33 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbTDRXiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 19:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTDRXiR
+	id S263309AbTDRXqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 19:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTDRXqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 19:38:17 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56304 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263301AbTDRXiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 19:38:16 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200304182350.h3INoC728630@devserv.devel.redhat.com>
-Subject: Re: My P3 runs at.... zero Mhz (bug rpt)
-To: pekon@informatics.muni.cz (Petr Konecny)
-Date: Fri, 18 Apr 2003 19:50:12 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk (Dave Jones),
-       thunder7@xs4all.nl (Jurriaan), jgarzik@pobox.com (Jeff Garzik),
-       alan@redhat.com (Alan Cox)
-In-Reply-To: <qwwvfxb1nvu.fsf@decibel.fi.muni.cz> from "Petr Konecny" at Ebr 18, 2003 11:44:53 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Apr 2003 19:46:40 -0400
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:52352 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S263309AbTDRXqj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 19:46:39 -0400
+Date: Sat, 19 Apr 2003 01:58:36 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.67-mm4 & IRQ balancing
+Message-Id: <20030419015836.6acbaeb6.philippe.gramoulle@mmania.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws87 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Importance: high
+X-Priority: 1 (Highest)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It does not help me with 2.5.67-ac2 + pcmcia patch. I get 0.000 MHz,
-> 589.82 BogoMIPS with or without CPUFreq. It did the same thing with
-> 2.5.67-ac1 (did not test w/o CPUFreq).
 
-Its a bug in the mach- patches. Someone sent a fix to l/k
+Hello,
 
+It may be not related to -mm4 only but as i hadn't checked before ( with 2.5.x kernels),
+I just wonder about /proc/interrupts output:
+
+$ cat /proc/interrupts 
+           CPU0       CPU1       
+  0:   47851610          0    IO-APIC-edge  timer
+  1:      51789          0    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  3:        171          0    IO-APIC-edge  serial
+  8:     772066          0    IO-APIC-edge  rtc
+ 12:          3          0    IO-APIC-edge  i8042, i8042, i8042, i8042
+ 15:         58          1    IO-APIC-edge  ide1
+ 16:      47047          0   IO-APIC-level  ohci1394
+ 18:     391753          0   IO-APIC-level  EMU10K1
+ 19:     911863          0   IO-APIC-level  uhci-hcd
+ 20:     261806          0   IO-APIC-level  eth0
+ 22:     273648          0   IO-APIC-level  aic7xxx
+ 23:          0          0   IO-APIC-level  uhci-hcd
+NMI:   47853468   47852927 
+LOC:   47860500   47860630 
+ERR:          0
+MIS:          0
+
+Shouldn't the interrupts be balanced on both CPUs ? 
+
+DELL MT 530 Ws , SMP Xeon 1.5Ghz, 512 Mo RAM on Debian Unstable.
+
+Thanks,
+
+Philippe

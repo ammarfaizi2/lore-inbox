@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288689AbSADTEj>; Fri, 4 Jan 2002 14:04:39 -0500
+	id <S288724AbSADTGj>; Fri, 4 Jan 2002 14:06:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288712AbSADTET>; Fri, 4 Jan 2002 14:04:19 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:3337 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S288689AbSADTEO>;
-	Fri, 4 Jan 2002 14:04:14 -0500
-Date: Fri, 4 Jan 2002 20:04:10 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020104200410.E21887@suse.cz>
-In-Reply-To: <20020103133454.A17280@suse.cz> <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl>
+	id <S288726AbSADTGU>; Fri, 4 Jan 2002 14:06:20 -0500
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:2224 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S288712AbSADTGB>;
+	Fri, 4 Jan 2002 14:06:01 -0500
+Date: Fri, 4 Jan 2002 22:41:08 -0500
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk, anton@samba.org
+Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
+Message-Id: <20020104224108.430d7eac.johnpol@2ka.mipt.ru>
+In-Reply-To: <Pine.LNX.4.33.0201041743050.8766-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0201041743050.8766-100000@localhost.localdomain>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Jan 04, 2002 at 07:28:58PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 07:28:58PM +0100, Maciej W. Rozycki wrote:
+On Fri, 4 Jan 2002 18:05:23 +0100 (CET)
+Ingo Molnar <mingo@elte.hu> wrote:
 
-> > > Thats why I also suggested using lspci and looking for an ISA bridge.
-> > > If you have no PCI its probably ISA. If you have no PCI/ISA bridge its
-> > > very very unlikely to be ISA
-> > 
-> > Uh, no. Almost all 486 PCI boards and early Pentium/K5/K6 boards have
-> > the PCI bus hanging of the VLB or other local bus, and on those ISA
-> > isn't behind an ISA bridge. These chipsets do have ISA but no ISA
-> > bridge.
 > 
->  These can be checked for explicitly as the list isn't likely to grow.  I
-> can dig a few Intel docs for IDs of 486-class PCI chipsets that have no
-> PCI-ISA bridge if they'd be useful.
+> this is the next release of the O(1) scheduler:
 > 
->  Also note that there are PCI-ISA bridges that are reported as "non-VGA
-> unclassified" devices as they predate PCI 2.0.  The SIO (82378IB/ZB) comes
-> to mind here.  The bridge is used in certain models of Alpha systems as
-> well.  The bridges would need to be listed by IDs, too. 
+> 	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-A1.patch
+> 	http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-A1.patch
+> 
+> this release includes fixes and small improvements. (The 2.5.2-A1 patch
+is
+> against the 2.5.2-pre7 kernel.) I cannot reproduce any more failures
+with
+> this patch, but i couldnt test the vfat lockup problem. The X lockup
+> problem never occured on any of my boxes, but it might be fixed by one
+of
+> the changes included in this patch nevertheless.
 
-And of course, there will be a huge amount of false positives, because
-all the new chipsets have an ISA bridge built into the southbridge chip
-and it is there even when no ISA slots are present.
+Nop. System hangs after couple of minutes in X mode... :(
+vfat is compiled into the 2.4.17 vanilla-kernel.
+Non smp i386 but with smp kernel.
+Any other info?
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> 
+> 	Ingo
+
+---
+WBR. //s0mbre

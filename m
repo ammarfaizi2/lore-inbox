@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285183AbRLFUq5>; Thu, 6 Dec 2001 15:46:57 -0500
+	id <S285196AbRLFUy5>; Thu, 6 Dec 2001 15:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284237AbRLFUpW>; Thu, 6 Dec 2001 15:45:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45065 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284246AbRLFUn5>; Thu, 6 Dec 2001 15:43:57 -0500
-Date: Thu, 6 Dec 2001 12:37:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <E16C43U-0002in-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0112061236050.10877-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285192AbRLFUxT>; Thu, 6 Dec 2001 15:53:19 -0500
+Received: from bitmover.com ([192.132.92.2]:33923 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284245AbRLFUuG>;
+	Thu, 6 Dec 2001 15:50:06 -0500
+Date: Thu, 6 Dec 2001 12:50:05 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Larry McVoy <lm@bitmover.com>,
+        Stephan von Krawczynski <skraw@ithnet.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011206125005.K27589@work.bitmover.com>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Larry McVoy <lm@bitmover.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011202155440.F2622@work.bitmover.com> <2379997133.1007402344@mbligh.des.sequent.com> <20011206134642.D49@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011206134642.D49@toy.ucw.cz>; from pavel@suse.cz on Thu, Dec 06, 2001 at 01:46:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Then we can create memnet (netdevice over shared memory), and Larry's dream
+> can come true...
 
-On Thu, 6 Dec 2001, Alan Cox wrote:
->
-> The internal representation is kdev_t, which wants to turn into a pointer
+I'm hoping, but my dreams do not include shared memory over a network.
+That's just way too slow.  It's been done a pile of times, every time
+people say that the caching will make it fast enough and those people
+are wrong every time.
 
-No.
-
-That kdev_t has been around for years, and is going away. In 2.6 there
-will _be_ no kdev_t.
-
-There is "struct block_device" for internal stuff, and "dev_t" for
-external stuff. The first one is a real structure, the second one is just
-a cookie.
-
-		Linus
-
+People who think DSM is a good idea are the same people who think a
+millisecond is OK for a cache miss (current cache miss times are well
+under .0002 milliseconds).
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

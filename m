@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270715AbTHALMP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 07:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbTHALMP
+	id S274859AbTHALCl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 07:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275212AbTHALCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 07:12:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36915 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S270715AbTHALMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 07:12:12 -0400
-To: Robert Love <rml@tech9.net>
-Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: [PATCH] protect migration/%d etc from sched_setaffinity
-References: <20030731224604.GA24887@tsunami.ccur.com>
-	<1059692548.931.329.camel@localhost>
-	<20030731230635.GA7852@rudolph.ccur.com>
-	<1059693499.786.1.camel@localhost>
-	<20030731231850.GC7378@werewolf.able.es>
-	<1059694637.786.11.camel@localhost>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Aug 2003 05:09:00 -0600
-In-Reply-To: <1059694637.786.11.camel@localhost>
-Message-ID: <m1u191ws6r.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Aug 2003 07:02:03 -0400
+Received: from 213-0-202-111.dialup.nuria.telefonica-data.net ([213.0.202.111]:34184
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S274859AbTHALAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 07:00:51 -0400
+Date: Fri, 1 Aug 2003 13:00:49 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm2
+Message-ID: <20030801110049.GB5762@localhost>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20030730223810.613755b4.akpm@osdl.org> <1059648996.1263.1.camel@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1059648996.1263.1.camel@debian>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> writes:
+On Thursday, 31 July 2003, at 12:57:23 +0200,
+Ramón Rey Vicente???? wrote:
 
-> On Thu, 2003-07-31 at 16:18, J.A. Magallon wrote:
+> The best desktop experience for me since I run 2.5/2.6 kernels. No more
+> sound skips and a very good response of all applications into  the
+> X-Windows.
 > 
-> > Er, why 'she' ?
-> > In spanish we use root==admin as male, and root==tree or plant root,
-> > as female.
-> 
-> In English, the pronoun refers to the sex of the person. These is no
-> gender of words like in Spanish (i.e., a dog is a dog).
-> 
-> So, since administrators come in both sexes, I picked one.
+I have the same opinion with respect to 2.6.0-test2-mm2 here, but with a
+box much more powrful than yours (fact that did not prevent jerky
+behaviour in past kernel releases though).
 
-Except the convention in English is to use the male in that case.
-Using the female pronoun tends to distract from the point.
+Under my "common" workload (X, Mozilla in pages full of crap^Wflash,
+xmms, several monitors, spamassassin analyzing no less than 10
+simultaneous mails, and "make -j25 bzImage" to add some more work to the
+mix) mouse movement was smooth, and MP3 didn't skip. So i nthis aspect,
+2.6.0-test2-mm2 is better than 2.6.0-test2-G7 (2.6.0-test2 with Ingo's
+sched-2.6.0-test1-G7).
 
-There are plenty of plural forms that do not imply gender at all.
-As in:
+But there is one thing 2.6.0-test2-mm2 "does" worse than 2.6.0-test2-G7,
+and that is prevent windows in X to freeze under heavy window movement
+(with "show contents of windows while moving" ON, of course). Under
+2.6.0-test2-G7 I was unable to make windows freeze, but with
+2.6.0-test2-mm2 I can after several seconds, and the moving window (and
+the rest of them) get frozen for a while (couple of seconds).
 
-> Yah, I know. But this is a lot of code just to prevent root users from hanging
-> themselves, and there are plenty of other ways they can do that.
+Hope this helps.
 
-Eric
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test2-mm2)

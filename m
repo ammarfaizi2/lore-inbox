@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbUDAX3n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 18:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263346AbUDAX3n
+	id S262235AbUDAX6t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 18:58:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbUDAX6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 18:29:43 -0500
-Received: from rav-az.mvista.com ([65.200.49.157]:44067 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S263338AbUDAX3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 18:29:41 -0500
-Subject: Re: epoll reporting events when it hasn't been asked to
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Ben Mansell <ben@zeus.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0404011125510.2509-100000@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.44.0404011125510.2509-100000@bigblue.dev.mdolabs.com>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1080862174.9534.112.camel@persist.az.mvista.com>
+	Thu, 1 Apr 2004 18:58:49 -0500
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:34254 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S262235AbUDAX6s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 18:58:48 -0500
+Date: Thu, 1 Apr 2004 15:58:45 -0800
+From: Joe Buck <Joe.Buck@synopsys.COM>
+To: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
+Cc: Andi Kleen <ak@suse.de>, gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com
+Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
+Message-ID: <20040401155845.A8242@synopsys.com>
+References: <20040401143908.B4619@synopsys.com> <200404012248.AAA23951@faui1d.informatik.uni-erlangen.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 01 Apr 2004 16:29:35 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200404012248.AAA23951@faui1d.informatik.uni-erlangen.de>; from weigand@i1.informatik.uni-erlangen.de on Fri, Apr 02, 2004 at 12:48:55AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-01 at 12:28, Davide Libenzi wrote:
-> On Thu, 1 Apr 2004, Ben Mansell wrote:
+On Fri, Apr 02, 2004 at 12:48:55AM +0200, Ulrich Weigand wrote:
+> Joe Buck wrote:
 > 
-> > > It is a feature. epoll OR user events with POLLHUP|POLLERR so that even if
-> > > the user sets the event mask to zero, it can still know when something
-> > > like those abnormal condition happened. Which problem do you see with this?
-> > 
-> > What should the application do if it gets events that it didn't ask for?
-> > If you choose to ignore them, the next time epoll_wait() is called it
-> > will return instantly with these same messages, so the app will spin and
-> > eat CPU.
+> > Case 2: make falsely thinks that the .c is younger than the .o.  It
+> > recompiles the .c file, even though it didn't have to.  Harmless.
 > 
-> Shouldn't the application handle those exceptional conditions instead of 
-> ignoring them?
+> *Not* harmless, in fact this is exactly what breaks my bootstrap.
 > 
-> 
+> Think about what happens when cc1 is 'harmlessly' rebuilt just
+> while in a parallel make that very same cc1 binary is used to
+> run a compile ...
 
-If an exception occurs (example a socket is disconnected) the socket
-should be removed from the fd list.  There is really no point in passing
-in an excepted fd.
+Well, then, you have a problem: how to handle ties?  Consider a system
+with no extra precision, and one-second time resolution.  You see an .o
+file and a .c file that are the same age.  Rebuild or not?  If we don't
+and are wrong, the .o file is bad.  If we do and are wrong, the target
+will be modified while some process is trying to use it.  Somehow we
+have to figure out how to do the makefile so that neither problem can
+occur.
 
-epoll works just like poll and the expected SUS behavior in this regard.
-
-Thanks
--steve
-
-
+In your particular case, for example, if the command to rebuild cc1 builds
+the new version in a different place, then does an mv, the rebuild *will*
+be harmless.

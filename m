@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129757AbQJ0US6>; Fri, 27 Oct 2000 16:18:58 -0400
+	id <S129609AbQJ0UU6>; Fri, 27 Oct 2000 16:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129609AbQJ0USi>; Fri, 27 Oct 2000 16:18:38 -0400
-Received: from balin.ap.univie.ac.at ([131.130.11.50]:10500 "EHLO
-	balin.ap.univie.ac.at") by vger.kernel.org with ESMTP
-	id <S129536AbQJ0US3>; Fri, 27 Oct 2000 16:18:29 -0400
-Date: Fri, 27 Oct 2000 22:18:27 +0200 (MET DST)
-From: Ulrich Kiermayr <uk@ap.univie.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: netscape and 2.2.18pre1[67] alpha
-Message-ID: <Pine.OSF.4.21.0010272213410.25459-100000@balin.ap.univie.ac.at>
+	id <S130247AbQJ0UUs>; Fri, 27 Oct 2000 16:20:48 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:262 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129609AbQJ0UUc>;
+	Fri, 27 Oct 2000 16:20:32 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Date: Fri, 27 Oct 2000 22:18:27 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: NCPFS flags all files executable on NetWare Volumes wit
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <B2B7DE64537@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On 27 Oct 00 at 13:46, Jeff V. Merkey wrote:
+> Here's the complete set of 3.x/4.x/5.x Namespace NCP calls with proper
+> return codes.  I'll run down the huge-data info and post a bit later.
 
-I have a problem with netscape 4.75 under RH6.2 with a  2.2.18pre1[67].
+Thanks. Main problem with hardlinks is that unlink through NFS namespace
+kills server (at least up to 5.0, I did not checked it during last few
+months), and unlink through DOS (or OS2) namespace removes all instances 
+of hardlinked file :-( A bit unfortunate behavior.
+ 
+> let me know.  I have a 600 page document I wrote two years ago that
+> details every single NCP and NDS NCP used,
+> and can send it to you via UPS in .cz.   It's too big to fax, or post.
 
-running it as root wirks fine, running it as ordinary user hangs very
-fast.
+Not for now.
 
-The logs show several 
+> 2222/6804       Return Bindery Context (you need to implement this one
+> -- I did not see it in your code)
 
-Oct 27 21:29:25 guinevere kernel: <sc 0(84,c8,11ffffa78)><sc
-53(8,c8,11ffffa78)><sc 0(17,336,11ffffa78)><sc
-53(8,336,11ffffa78)>set_program_attributes(12000000 d98000 14000000
-457440)
+ncpfs 2.2.0.18 implements this (lib/ds/bindctx.c:NWDSGetBinderyContext),
+but does not use it itself...
 
-messages
+> 2222/6805       Monitor NDS Connection (this one will allow you to
+> intercept NDS replica packets and suck an NDS replica local)
 
-I have tried this on 2 different Alpha-Types (Avanti, SX164) with several
-tifferent compiling-options, bon without success.
+Novell documentation is a bit - hmm - unclear on this one...
+ 
+> 2222/1631       Open Data Stream (this NCP will allow you to open the
+> MAC namespace data fork and read it remotely for MAC clients)
 
-Any suggestions how I can make netscape and maybe other Tru64 Binaries
-work properly, since the alphas are in a cluster  with some Tru64 servers?
-
-LL&P UK
--- 
-===============================================================================
-Ulrich Kiermayr                    | Internet eMail:
-Zentraler Informatikdienst der     |      ulrich.kiermayr@ap.univie.ac.at
-Universitaet Wien                  |      ulrich.kiermayr@univie.ac.at
-                                   | ------------------------------------------
-   Abteilung Dezentrale Systeme    | eMail Hotline-Service:
-   Aussenstelle Physik             |      hotline@ap.univie.ac.at
-                                   | ------------------------------------------
-Boltzmanngasse 5, A-1090 Vienna    | Tel: +43-1-4277 /14104,    Hotline: /14100
-Austria, Europe                    | Fax: +43-1-4277 /9141
-===============================================================================
-
+Userspace ncpfs (specifically ncopy) uses 
+(lib/filemgmt.c:ncp_ns_open_create_entry) NCP 87,30 or 87,33 for this
+(and NW3.x is out of luck, AFAIK). Kernel code does not support MAC
+forks (and ACL and extended attributes), as up to now there is no 
+vfs API for this... You have to use ncopy,nwdir/nwrights,
+nwtrustee,...,nwdir/eaops,nwdir for accessing MAC(&FTAM)/ACL/EAs for now.
+(for EAs you must have post-August 27 ncpfs, betas are on
+ftp://platan.vc.cvut.cz/private/ncpfs)
+                                        Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSFQNb6>; Mon, 17 Jun 2002 09:31:58 -0400
+	id <S313477AbSFQNhk>; Mon, 17 Jun 2002 09:37:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSFQNb5>; Mon, 17 Jun 2002 09:31:57 -0400
-Received: from sys-209.inet6.fr ([62.210.110.209]:54656 "EHLO ns1.inet6.fr")
-	by vger.kernel.org with ESMTP id <S313416AbSFQNb4>;
-	Mon, 17 Jun 2002 09:31:56 -0400
-Message-ID: <3D0DE4CC.9010901@inet6.fr>
-Date: Mon, 17 Jun 2002 15:31:56 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
+	id <S313492AbSFQNhj>; Mon, 17 Jun 2002 09:37:39 -0400
+Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:39943 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S313477AbSFQNhj>; Mon, 17 Jun 2002 09:37:39 -0400
+Subject: PIIX4 IDE tri-state support?
+To: linux-kernel@vger.kernel.org
+Date: Mon, 17 Jun 2002 15:37:37 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL95 (25)]
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 hardlock w/ hdparm
-References: <Pine.LNX.4.44.0206150948140.30400-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E17JwhN-000847-00@alf.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+Hi,
 
->Hi Lionel, Martin,
->2.5.20, hdparm + IDE deadlocks on my testbox
->  
->
+as I can see, there are IDE driver updates in the 2.4.19pre kernels
+including support for bus tri-state feature on some newer chipsets.
+How about the good old PIIX4 chip?  Here is the datasheet:
 
-I don't follow 2.5 dev (yet). I merely follow Andre's work on 2.4 and 
-code a new chipset capabilities detection code in order to support newer 
- chipsets.
-Is the v0.13 driver driver already forward ported to 2.5 by somebody ?
-If there's a need (some 2.5 developpers needing a more uptodate driver 
-and uncomfortable with forward porting IDE chipset drivers), I'll do it...
+  http://www.intel.com/design/intarch/DATASHTS/29056201.pdf
 
->kernel:Linux version 2.5.20+prempt (zwane@montezuma.mastecende.com) (gcc version
->2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #24 SMP Wed Jun 5 21:48:07 SAST 2002
->
->ata subsys:
->ATA/ATAPI device driver v7.0.0
->ATA: PCI bus speed 33.3MHz
->ATA: Silicon Integrated Systems [SiS] 5513 [IDE], PCI slot 00:00.1
->PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try using pci=biosirq.
->ATA: chipset rev.: 208
->ATA: non-legacy mode: IRQ probe delayed
->SiS620
->
+See page 66, bits 11 and 12 of GENCFG register (function 0, address
+0xb0 in PCI config space).  Is anyone working on supporting this?
 
-Unless the SiS620 is not compatable with the 630 IDE support spec or 
-affected by some bugs I corrected for PIO mode timings (unlikely as they 
-were unnoticed for a quiet long time) since sis5513.c v0.11 this should 
-not be an IDE chipset problem.
+Sure, hot-swapping IDE disks is still risky, but some people are
+doing it anyway :) so let's make it a little less risky - unmount
+everything, then "hdparm -Y" (flush any write cache, spin down),
+then "hdparm -b0" and only then remove the disk.
 
->[...] btw Martin you seem to like pain so get ready for when i whip out the old 
->Quantum mavericks, 486 (SiS) and Opti621 card ;)
->  
->
+Perhaps there should be some higher level logic here, like this:
 
-Hum, 486 SiS chipsets might bring pain to me also...
-I've received several bugreports for old SiS IDE chipset (ie pre ATA66) 
-that I couldn't solve without disabling the SiS driver or passing 
-"ide=nodma". I've triple-checked the specs and couldn't see the problem.
+ - if no device is found on an IDE bus on startup (or module load),
+   tri-state that bus (so it is "safe" to connect a device later)
 
->Thanks,
->	Zwane Mwaikambo
->  
->
-LB
+ - if the driver is told to tri-state an IDE bus, first make sure
+   the devices on that bus are not busy, tell them to go to sleep,
+   unregister them (as they will be removed - if not, the bus will
+   be rescanned later anyway, after it is re-enabled)
+
+ - if the driver is told to rescan the bus that was tri-stated,
+   re-enable it first (if no devices found, tri-state it again)
+
+ - if the system is being shut down (or driver module is removed),
+   also tri-state the bus (as above, first tell all devices to go to
+   sleep, etc.) - the "go to sleep" part is already being done by
+   the Debian shutdown scripts, as it seems to be the only sure way
+   to flush write caches on some disks before power off.
+
+I admit I haven't looked much at 2.5 yet, so excuse me if parts of
+this are already done.  It's just a few small suggestions...
+
+Thanks,
+Marek
 

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281153AbRLDRpJ>; Tue, 4 Dec 2001 12:45:09 -0500
+	id <S283228AbRLDRqt>; Tue, 4 Dec 2001 12:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281157AbRLDRnp>; Tue, 4 Dec 2001 12:43:45 -0500
-Received: from mail213.mail.bellsouth.net ([205.152.58.153]:11013 "EHLO
-	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281647AbRLDRnF>; Tue, 4 Dec 2001 12:43:05 -0500
-Message-ID: <3C0D0B21.732FBAF@mandrakesoft.com>
-Date: Tue, 04 Dec 2001 12:42:57 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jordan Breeding <ledzep37@attbi.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: OSS driver cleanups.
-In-Reply-To: <E16BJ58-0002hg-00@the-village.bc.nu> <3C0D04A5.7090400@attbi.com>
+	id <S283221AbRLDRpT>; Tue, 4 Dec 2001 12:45:19 -0500
+Received: from ns.caldera.de ([212.34.180.1]:17607 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283218AbRLDRor>;
+	Tue, 4 Dec 2001 12:44:47 -0500
+Date: Tue, 4 Dec 2001 18:43:51 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: dalecki@evision.ag
+Cc: esr@thyrsus.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204184351.A15714@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>, dalecki@evision.ag,
+	esr@thyrsus.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>,
+	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+In-Reply-To: <20011204173309.A10746@emma1.emma.line.org> <E16BJ9v-0002ii-00@the-village.bc.nu> <20011204121950.E16578@thyrsus.com> <3C0D0845.6FA6FBFD@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0D0845.6FA6FBFD@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Dec 04, 2001 at 06:30:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Breeding wrote:
-> Once in 2.5.X will the ALSA drivers still be modular only or will they
-> be able to be linked statically into the kernel as the current OSS
-> drivers are able to be?
+On Tue, Dec 04, 2001 at 06:30:45PM +0100, Martin Dalecki wrote:
+> ~# rpm -qa | grep -i python
+> python-1.5.2-35
+> python-xmlrpc-1.5.0-1
+> pythonlib-1.28-1
+> rpm-python-4.0.3-1.03
+> python-devel-1.5.2-35
+> 
+> Just another megaton unnecessary programming language to compile
+> somehting like the kernel? I think you are exaggerating the problem.
 
-They will need to use module_init/exit, which allows static or modular
-build at your choice.
+Same here (A few weeks old Caldera development snapshot):
 
-	Jeff
+[hch@sb hch]$ rpm -qa | grep python
+dcoppython-2.2.1-2
+python-1.5.2-8
+python-devel-1.5.2-8
+python-doc-1.5.2-8
+python-eclass-1.2-6
+python-tk-1.5.2-8
 
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
 

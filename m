@@ -1,34 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269725AbUJVIHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269771AbUJVIL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269725AbUJVIHc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269704AbUJVIH0
+	id S269771AbUJVIL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269743AbUJVILz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:07:26 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:33211 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S269725AbUJVIHG
+	Fri, 22 Oct 2004 04:11:55 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:62428 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269848AbUJVIHn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:07:06 -0400
-Subject: [ALPHA 2.6.9] __ioremap gone in include/asm-alpha/io.h
-From: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
-Reply-To: Alexander.Rauth@promotion-ie.de
-To: Kernel-List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Pro/Motion Industrie-Elektronik GmbH
-Message-Id: <1098432320.30655.8.camel@pro30.local.promotion-ie.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 10:05:20 +0200
+	Fri, 22 Oct 2004 04:07:43 -0400
+Message-ID: <4178BFCC.50804@free.fr>
+Date: Fri, 22 Oct 2004 10:07:40 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SCSI adaptec 2940 : problem since 2.6.9 and up to 2.6.9-bk6
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.9 __ioremap( ) is gone in include/asm-alpha/io.h resp. the
-#define that linked alphas generic ioremap was deleted
+Here is the log message I get :
 
-Which brakes build on alpha.
-Could we revert the cleanup that caused this????
-Or complete it ????
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+         <Adaptec 2940 Ultra SCSI adapter>
+         aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
 
-Alex 
+(scsi0:A:3:0): Unexpected busfree in Message-out phase
+SEQADDR == 0x16f
+(scsi0:A:3:0): Unexpected busfree in Message-out phase
+SEQADDR == 0x16f
+(scsi0:A:3:0): Unexpected busfree in Message-out phase
+SEQADDR == 0x16f
+
+several ten's of such lines removed
+...
+
+The second different model works fine though :
+
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+         <Adaptec 29160 Ultra160 SCSI adapter>
+         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+
+(scsi1:A:6): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
+   Vendor: QUANTUM   Model: ATLAS10K3_36_WLS  Rev: 020W
+   Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi1:A:6:0: Tagged Queuing enabled.  Depth 64
+
+
+Furthermore, my HP DAT allthough correctly detected/probed by SCSI BIOS 
+is no more detected...
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+
+
 

@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269937AbRHEMQA>; Sun, 5 Aug 2001 08:16:00 -0400
+	id <S269948AbRHEMTL>; Sun, 5 Aug 2001 08:19:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269946AbRHEMPv>; Sun, 5 Aug 2001 08:15:51 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:62985 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269937AbRHEMPj>; Sun, 5 Aug 2001 08:15:39 -0400
-Date: Sun, 5 Aug 2001 14:15:46 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S269946AbRHEMTA>; Sun, 5 Aug 2001 08:19:00 -0400
+Received: from mgate2.uni-hannover.de ([130.75.2.5]:50840 "EHLO
+	mgate2.uni-hannover.de") by vger.kernel.org with ESMTP
+	id <S269948AbRHEMS6>; Sun, 5 Aug 2001 08:18:58 -0400
+Date: Sun, 5 Aug 2001 14:09:42 +0200
+From: Lukas Dobrek <dobrek@itp.uni-hannover.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
-Message-ID: <20010805141546.B13438@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>, <9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org> <3B6B4B21.B68F4F87@zip.com.au>, <3B6B4B21.B68F4F87@zip.com.au> <20010804131904.E18108@weta.f00f.org> <3B6B53A9.A9923E21@zip.com.au> <20010804060423.I16516@emma1.emma.line.org> <20010805063003.B20111@weta.f00f.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: HOWTO hide a process.
+Message-ID: <20010805140941.A23189@spica.itp.uni-hannover.de>
+User-Agent: Mutt/1.2.5i
+MIME-version: 1.0
+Content-type: multipart/signed; boundary="lrZ03NoBR/3+SXJZ"; micalg="pgp-md5"; protocol="application/pgp-signature"
 Content-Disposition: inline
-In-Reply-To: <20010805063003.B20111@weta.f00f.org>
-User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Aug 2001, Chris Wedgwood wrote:
 
-> Anyhow, if you read recent comments it looks like thre are filesystems
-> which will be badly affected by placing this logic into the VFS
-> (eg. Coda).  It may well be this should become a fs-specific thing
-> (which sucks a little, because it makes the suggestion of tracking
-> link/unlink directories ugly) and for some filesystems such as
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Why does it? Each file-system is self-contained with respect to hard
-links. You cannot have link cross file system boundaries.
 
-Common code can be placed into a library. (Probably 2.5 stuff though.)
+Hi,
+I am very new in kernel stuff, so I dont know if it is a feature or
+a some kind of bug, but using several line code one can somhow hide a
+proces. The process is not visible for any known me ps tool.=20
+If I lode the module:
 
--- 
-Matthias Andree
+struct task_struct * task;
+task=3Dfind_task_by_pid(<pid>);
+task->pid=3D0;
+
+I can not see this task using ps, top, pstree but it is running.=20
+I know that if one is able to load modules one can do a lot,
+but I was just suprise that it is so simple.=20
+
+Perhaps it will cause problems letter but now it works.=20
+
+Best regards
+Lukasz
+
+
+--=20
+=A3ukasz Dobrek
+Institut f=FCr Theoretische Physik
+Appelstra=DFe 2, 30167 Hannover, Germany
+e-mail:dobrek@itp.uni-hannover.de
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7bTeEEMOMSYY3nYoRAuYtAJwK6HQqJE3gQlKNIzh3GM7alxlUYACfQz7p
+plyP2AzoGRf3bCUnJbup8dQ=
+=tG7H
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--

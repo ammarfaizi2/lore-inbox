@@ -1,56 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264306AbUEYQCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264939AbUEYQCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264306AbUEYQCM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 12:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbUEYQCM
+	id S264939AbUEYQCV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 12:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbUEYQCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 12:02:12 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:37341 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S264306AbUEYQCL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 12:02:11 -0400
-Date: Tue, 25 May 2004 09:02:00 -0700
-From: Andy Isaacson <adi@bitmover.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christian <evil@g-house.de>, linux-kernel@vger.kernel.org,
-       support@bitmover.com
-Subject: Re: tarballs of patchsets?
-Message-ID: <20040525160200.GA30213@bitmover.com>
-References: <40B21F98.1080803@g-house.de> <20040524105552.311a990b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040524105552.311a990b.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 25 May 2004 12:02:21 -0400
+Received: from mail.kssb.net ([198.248.45.1]:47292 "EHLO california.campus")
+	by vger.kernel.org with ESMTP id S264939AbUEYQCQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 12:02:16 -0400
+Message-ID: <40B36E0B.3090605@kssb.net>
+Date: Tue, 25 May 2004 11:02:19 -0500
+From: Bradley Hook <bhook@kssb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <1085468812.2783.7.camel@laptop.fenrus.com> <B58A76BA-AE60-11D8-BD27-000A95CC3A8A@mesatop.com>
+In-Reply-To: <B58A76BA-AE60-11D8-BD27-000A95CC3A8A@mesatop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 May 2004 16:02:17.0441 (UTC) FILETIME=[A70A1510:01C44271]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 10:55:52AM -0700, Andrew Morton wrote:
-> Christian <evil@g-house.de> wrote:
-> > i am trying to chase some bug and i know, it must be somewhere
-> > between 2.6.4 and 2.6.5.
+Steven Cole wrote:
 > 
-> The most practical way of doing this would be to download bitkeeper and do
-> a binary search.
+> On May 25, 2004, at 1:06 AM, Arjan van de Ven wrote:
 > 
->  1: Do `bk changes > foo'.
-[snip]
->  2: Do
->  	bl clone -ql -r1.1734 ref-repo test-repo
-[snip]
->  3: cd test-repo ; bk -r get
->  4: build, test, choose new revision, goto step 1.
+>>
+>>
+>>> explanation part of the patch. That sign-off would be just a single line
+>>> at the end (possibly after _other_ peoples sign-offs), saying:
+>>>
+>>>     Signed-off-by: Random J Developer <random@developer.org>
+>>
+>>
+>> well this obviously needs to include that you signed off on the DCO and
+>> not some other random piece of paper, and it probably should include the
+>> DCO revision number you signed off on.
+>> Without the former the Signed-off-by: line is entirely empty afaics,
+>> without the later we're not future proof.
+>>
+>>
+> 
+> How about something like:
+> 
+>     DCO 1.0 Signed-off-by: Random J Developer <random@developer.org>
+> 
+> This new process being "an ounce of prevention is worth a pound
+> of cure" should retain the property of being lightweight and not
+> unduly burdensome.  This change seems to fall into that category.
+> 
+>     Steven  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-FWIW, we're batting around the idea of automating this -- it would be
-cool (and quite trivial) to have a "bk-findbug.sh" script that takes
- - a repo
- - "I know the bug wasn't present in 1.1562"
- - "the bug is present in 1.1699"
- - a shell fragment that exits 1 if the bug exists, 0 if the bug is squashed
+Why not design the DCO so that it assumes an author accepts the most 
+recent published version unless specified. You could then shorten the 
+line to:
 
-and tells you which cset causes the bug to appear.
+DCO-Sign-Off: Random J Developer <random@developer.org>
 
-But, applying this to the kernel is more problematic; you have to
-reboot, or run under vmware/UML/Xen/whatever.
+And if they wanted to specify a version, use something like:
 
--andy
+DCO-Sign-Off: Random J Developer <random@developer.org> [DCO 1.0]
+
+You could also define the signoff line to use different delimiters for 
+various types of information, to allow for all of these "custom" ideas 
+that contributing companies may feel they "need".
+
+For example, say any text not enclosed by any delimiters is considered a 
+name, anything in <> is an email, in [] is a DCO version, and {} allows 
+for optional information. This would allow for stuff like Yarroll 
+submitted while I was typing this email, for example:
+
+DCO-Sign-Off: La Monte H.P. Yarroll <piggy@timesys.com> [DCO 1.0] {TS00062}
+
+Nothing other than name and email would be required, but they would be 
+available for those that wish to use them. This would make it easy for 
+scripts to sort out the info on this line.
+
+~Brad

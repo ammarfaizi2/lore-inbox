@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316042AbSENUaJ>; Tue, 14 May 2002 16:30:09 -0400
+	id <S316043AbSENUey>; Tue, 14 May 2002 16:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316041AbSENUaI>; Tue, 14 May 2002 16:30:08 -0400
-Received: from uucp.cistron.nl ([195.64.68.38]:37894 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S316040AbSENUaH>;
-	Tue, 14 May 2002 16:30:07 -0400
-From: Rene Blokland <reneb@orac.aais.org>
-Subject: Foloppy always read only after 2.5.12?
-Date: Tue, 14 May 2002 22:20:23 +0200
-Organization: Cistron
-Message-ID: <slrnae2sc7.dhe.reneb@orac.aais.org>
-Reply-To: reneb@cistron.nl
-X-Trace: ncc1701.cistron.net 1021408206 12840 195.64.94.30 (14 May 2002 20:30:06 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S316044AbSENUex>; Tue, 14 May 2002 16:34:53 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:29828 "EHLO
+	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S316043AbSENUew>; Tue, 14 May 2002 16:34:52 -0400
+Subject: Re: InfiniBand BOF @ LSM - topics of interest
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, "Woodruff, Robert J" <woody@co.intel.com>
+In-Reply-To: <20020514162331.B13781@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 14 May 2002 13:33:40 -0700
+Message-Id: <1021408420.2372.70.camel@wookie-laptop.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When  try to run lilo with a kernel after 2.5.12 to a floppy i get:
-Fatal: open /dev/fd0: Read-only file system
-Im runnig on a x86 platform with with a AMD K6 
-to me it seems at an enduser error because knowbody has this problem reported
-this or is it realy a bug.
-The floppy drive is detected :
-May 14 07:09:07 orac kernel: Floppy drive(s): fd0 is 1.44M
-May 14 07:09:07 orac kernel: FDC 0 is a post-1991 82077
+  I have IA-32 and IA-64 machines with PCI HCA's we
+can move them around. 
 
+Tim
 
-Groeten / Regards, Rene J. Blokland
+On Tue, 2002-05-14 at 13:23, Pete Zaitcev wrote:
+> > From: "Timothy D. Witham" <wookie@osdl.org>
+> > Date: 14 May 2002 13:09:53 -0700
+> 
+> >   As an FYI to the group the OSDL has put out a
+> > RFQ for equipment to build a IB development environment
+> > and I was wondering if any of the possible developers
+> > would like to comment on the mix.  
+> > 
+> > http://www.osdl.org/rfqs/infiniband_dev_env
+> 
+> Very interesting. Are you going to plug it into Itanic based
+> hosts? Obviously, vendors cannot "support" that, but being
+> Linux based we should be able to get that running, right?
+> 
+> -- Pete
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

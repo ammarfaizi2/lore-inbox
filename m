@@ -1,145 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272039AbRHVQDd>; Wed, 22 Aug 2001 12:03:33 -0400
+	id <S272040AbRHVQFD>; Wed, 22 Aug 2001 12:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272040AbRHVQDX>; Wed, 22 Aug 2001 12:03:23 -0400
-Received: from [217.10.198.166] ([217.10.198.166]:5760 "EHLO
-	www.igreconline.com") by vger.kernel.org with ESMTP
-	id <S272039AbRHVQDO>; Wed, 22 Aug 2001 12:03:14 -0400
-Date: Wed, 22 Aug 2001 19:07:36 +0300
-Message-Id: <200108221607.f7MG7a501809@www.igreconline.com>
-From: "Octavian Cerna" <tavy@igreconline.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bug in sendto() causes OOPS when using RAW sockets
-X-Mailer: NeoMail 1.23
-X-IPAddress: 212.93.134.61
+	id <S272043AbRHVQEx>; Wed, 22 Aug 2001 12:04:53 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:30864 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S272040AbRHVQEn>; Wed, 22 Aug 2001 12:04:43 -0400
+From: Christoph Rohland <cr@sap.com>
+To: andersen@codepoet.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] sysinfo compatibility
+In-Reply-To: <Pine.LNX.4.21.0108211137340.1320-100000@localhost.localdomain>
+	<m34rr12ueb.fsf@linux.local> <20010821114640.A25151@codepoet.org>
+	<m3bsl81tm0.fsf@linux.local> <20010822094554.A9760@codepoet.org>
+Organisation: SAP LinuxLab
+Date: 22 Aug 2001 18:04:37 +0200
+In-Reply-To: <20010822094554.A9760@codepoet.org>
+Message-ID: <m3hev0w06i.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=NEOMAIL_ATT_0.374205518121929"
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Erik,
 
-------=NEOMAIL_ATT_0.374205518121929
-Content-Type: text/plain; charset=iso-8859-2
+On Wed, 22 Aug 2001, Erik Andersen wrote:
+> On Wed Aug 22, 2001 at 08:44:39AM +0200, Christoph Rohland wrote:
+>> 
+>> BTW I appreciate the basics of the change for 2.4, but I don't
+>> agree that we should break cases which worked before. (And the
+>> comment in the sources is plain wrong that 2.2 failed in these
+>> cases)
+> 
+> But 2.2 _did_ fail.  If you take a linux 2.2.x system, add 4 Gigs of
+> swap, and then use sysinfo(), the sizes you get back are junk...
 
- 
-Hi,
- 
-Studying the implementation of raw IPv4 sockets I found that calling
-sendto() on a raw socket with a NULL socket address generates a kernel
-OOPS.
- 
-I checked this on kernel 2.4.3, but I also checked the sources in CVS on
-vger -- the bug is still there.
- 
-The problem is that raw_sendmsg() in net/ipv4/raw.c blindly assumes that
-msg_name is valid if msg_namelen is non-zero. I found that sys_sendto()
-doesn't  correctly build the msghdr structure if the socket address is
-NULL.
- 
-I attached a small patch to fix this issue, a C program for testing the
-problem and my OOPS log.
- 
- 
-Best Regards,
- 
-Octavian Cerna
-IGREC Labs
+But if you add 3.9GB it is ok. Also with 3.9GB RAM. And that's a quite
+common machine in our environment.
 
-------=NEOMAIL_ATT_0.374205518121929
-Content-Type: application/octet-stream;
-	name="sendto.diff"
-Content-Transfer-Encoding: base64
+If one of these overflows I agree that the 2.4 scheme is better. But
+we should keep compatibility as long as we have no single field which
+overflows.
 
-LS0tIGxpbnV4LW9yaWcvbmV0L3NvY2tldC5jCVN1biBBcHIgMjkgMjE6MjU6NTEgMjAwMQorKysg
-bGludXgvbmV0L3NvY2tldC5jCVdlZCBBdWcgMjIgMTg6MDA6NDEgMjAwMQpAQCAtMTIwMywxMyAr
-MTIwMywxNCBAQAogCW1zZy5tc2dfaW92bGVuPTE7CiAJbXNnLm1zZ19jb250cm9sPU5VTEw7CiAJ
-bXNnLm1zZ19jb250cm9sbGVuPTA7Ci0JbXNnLm1zZ19uYW1lbGVuPWFkZHJfbGVuOworCW1zZy5t
-c2dfbmFtZWxlbj0wOwogCWlmKGFkZHIpCiAJewogCQllcnIgPSBtb3ZlX2FkZHJfdG9fa2VybmVs
-KGFkZHIsIGFkZHJfbGVuLCBhZGRyZXNzKTsKIAkJaWYgKGVyciA8IDApCiAJCQlnb3RvIG91dF9w
-dXQ7CiAJCW1zZy5tc2dfbmFtZT1hZGRyZXNzOworCQltc2cubXNnX25hbWVsZW49YWRkcl9sZW47
-CiAJfQogCWlmIChzb2NrLT5maWxlLT5mX2ZsYWdzICYgT19OT05CTE9DSykKIAkJZmxhZ3MgfD0g
-TVNHX0RPTlRXQUlUOwo=
+And that's what my patch implements.
 
-------=NEOMAIL_ATT_0.374205518121929
-Content-Type: application/octet-stream;
-	name="sendto.c"
-Content-Transfer-Encoding: base64
+Greetings
+		Christoph
 
-I2luY2x1ZGUgPHN5cy9zb2NrZXQuaD4KI2luY2x1ZGUgPG5ldGluZXQvaW4uaD4KI2luY2x1ZGUg
-PHN0ZGlvLmg+CiNpbmNsdWRlIDxlcnJuby5oPgoKaW50IG1haW4gKCkKewogIGNoYXIgYnVmZmVy
-WzY0XTsgIAogIGludCBmZCA9IHNvY2tldCAoUEZfSU5FVCwgU09DS19SQVcsIElQUFJPVE9fUkFX
-KTsKICBpZiAoZmQgPCAwKQogICAgewogICAgICBmcHJpbnRmIChzdGRlcnIsICJDYW4ndCBjcmVh
-dGUgcmF3IHNvY2tldDogJXNcbiIsIHN0cmVycm9yIChlcnJubykpOwogICAgICByZXR1cm4gMTsK
-ICAgIH0KICAgIAogIC8qIE9uIGEgYnVnZ3kga2VybmVsIHRoZSBuZXh0IGxpbmUgZ2VuZXJhdGVz
-IGFuIG9vcHMsIAogICAgIG9uIGEgZml4ZWQga2VybmVsIGl0IHJldHVybnMgLTEgd2l0aCBlcnJu
-byA9PSBFSU5WQUwuICovCiAgc2VuZHRvIChmZCwgYnVmZmVyLCA2NCwgMCwgTlVMTCwgMTYpOyAg
-CiAgcHJpbnRmICgic2VuZHRvKCkgPT4gJXNcbiIsIHN0cmVycm9yIChlcnJubykpOwogIAogIGNs
-b3NlIChmZCk7Cn0K
 
-------=NEOMAIL_ATT_0.374205518121929
-Content-Type: application/octet-stream;
-	name="sendto.oops"
-Content-Transfer-Encoding: base64
-
-QXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6ICA8MT5VbmFibGUgdG8gaGFuZGxlIGtl
-cm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAwMDAw
-CkF1ZyAyMiAxNTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiBjMDIwMjA1NgpBdWcgMjIgMTU6NTU6
-MTggbG9jYWxob3N0IGtlcm5lbDogT29wczogMDAwMApBdWcgMjIgMTU6NTU6MTggbG9jYWxob3N0
-IGtlcm5lbDogQ1BVOiAgICAwCkF1ZyAyMiAxNTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiBFSVA6
-ICAgIDAwMTA6W3Jhd19zZW5kbXNnKzg2LzcyMF0KQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBr
-ZXJuZWw6IEVJUDogICAgMDAxMDpbPGMwMjAyMDU2Pl0KQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9z
-dCBrZXJuZWw6IEVGTEFHUzogMDAwMTAyMTIKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJu
-ZWw6IGVheDogMDAwMDAwMTAgICBlYng6IDAwMDAwMDAwICAgZWN4OiAwMDAwMDAwMCAgIGVkeDog
-Y2MyYzdlY2MKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6IGVzaTogY2ZhMGJkZDgg
-ICBlZGk6IGMwN2JiODQwICAgZWJwOiBjZmEwYmRkOCAgIGVzcDogY2ZhMGJjZTgKQXVnIDIyIDE1
-OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOApB
-dWcgMjIgMTU6NTU6MTggbG9jYWxob3N0IGtlcm5lbDogUHJvY2VzcyBzZW5kdG8gKHBpZDogMTIx
-NzUsIHN0YWNrcGFnZT1jZmEwYjAwMCkKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
-IFN0YWNrOiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMiBjYjQ4MzljMCAwMDAwMDAwMSAwMDAw
-MDAwMCAwODA0ODAwMCBjM2EyOWJjMCAKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
-ICAgICAgICA0MDAwMDAwMCBjZmEwYmQ1NCAwMDAwMDMwNyAwMDAwMTQyZCAwMzA3MDAwMCBjMDE4
-MjE2MyBjZmEwYmQ1NCBjZmYxNWMwMCAKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
-ICAgICAgICAwMDAwMDMwNyAwMDAwMTQyZCAwMzA3MmZmZSAwMDAwMjAzMyBjZmEwYmUzOCBjMDEz
-ODc0NiAwMDAwMDMwNyBjZmEwYmU0YyAKQXVnIDIyIDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6
-IENhbGwgVHJhY2U6IFtqb3VybmFsX2VuZCsxOS8zMl0gW2JyZWFkKzIyLzExMl0gW2luZXRfc2Vu
-ZG1zZys1MS82NF0gW3N5c19zZW5kdG8rMzkzLzQ0OF0gW3ZzcHJpbnRmKzkwOC85NjBdIApBdWcg
-MjIgMTU6NTU6MTggbG9jYWxob3N0IGtlcm5lbDogQ2FsbCBUcmFjZTogWzxjMDE4MjE2Mz5dIFs8
-YzAxMzg3NDY+XSBbPGMwMjA4ZDgzPl0gWzxjMDFkNDVhOT5dIFs8YzAyMTFjYmM+XSAKQXVnIDIy
-IDE1OjU1OjE4IGxvY2FsaG9zdCBrZXJuZWw6ICAgIFs8YzAxNDg5NzQ+XSBbPGMwMjExZDAyPl0g
-WzxjMDFkMzY5ZD5dIFs8YzAxMmVhY2I+XSBbPGMwMWQ1MDYzPl0gWzxjMDEyNDQ0ND5dIApBdWcg
-MjIgMTU6NTU6MTggbG9jYWxob3N0IGtlcm5lbDogICAgWzxjMDE0YWRiYT5dIFs8YzAxMTJlYzA+
-XSBbPGMwMTEzMDFhPl0gWzxmZmZmMDAwMT5dIFs8YzAxMGJkMTQ+XSBbPGMwMTMzZTU2Pl0gCkF1
-ZyAyMiAxNTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiAgICBbPGMwMTA2ZDgzPl0gCkF1ZyAyMiAx
-NTo1NToxOCBsb2NhbGhvc3Qga2VybmVsOiBDb2RlOiA2NiA4MyAzYiAwMiA3NCAzNiBhMSBjMCBl
-OSAyYSBjMCA0MCBhMyBjMCBlOSAyYSBjMCA0OCA3NSAxOSAKCj4+RUlQOyBjMDIwMjA1NiA8cmF3
-X3NlbmRtc2crNTYvMmQwPiAgIDw9PT09PQpUcmFjZTsgYzAxODIxNjMgPGpvdXJuYWxfZW5kKzEz
-LzIwPgpUcmFjZTsgYzAxMzg3NDYgPGJyZWFkKzE2LzcwPgpUcmFjZTsgYzAyMDhkODMgPGluZXRf
-c2VuZG1zZyszMy80MD4KVHJhY2U7IGMwMWQ0NWE5IDxzeXNfc2VuZHRvKzE4OS8xYzA+ClRyYWNl
-OyBjMDIxMWNiYyA8dnNwcmludGYrMzhjLzNjMD4KVHJhY2U7IGMwMTQ4OTc0IDxkX2FsbG9jKzE0
-LzE3MD4KVHJhY2U7IGMwMjExZDAyIDxzcHJpbnRmKzEyLzIwPgpUcmFjZTsgYzAxZDM2OWQgPHNv
-Y2tfbWFwX2ZkK2VkLzE2MD4KVHJhY2U7IGMwMTJlYWNiIDxfX2FsbG9jX3BhZ2VzKzZiLzM0MD4K
-VHJhY2U7IGMwMWQ1MDYzIDxzeXNfc29ja2V0Y2FsbCszNzMvNjQwPgpUcmFjZTsgYzAxMjQ0NDQg
-PGhhbmRsZV9tbV9mYXVsdCs2NC9kMD4KVHJhY2U7IGMwMTRhZGJhIDxfX21hcmtfaW5vZGVfZGly
-dHkrMmEvNzA+ClRyYWNlOyBjMDExMmVjMCA8ZG9fcGFnZV9mYXVsdCswLzUyMD4KVHJhY2U7IGMw
-MTEzMDFhIDxkb19wYWdlX2ZhdWx0KzE1YS81MjA+ClRyYWNlOyBmZmZmMDAwMSA8RU5EX09GX0NP
-REUrMmY1YmYyZmIvPz8/Pz4KVHJhY2U7IGMwMTBiZDE0IDxvbGRfbW1hcCtmNC8xMzA+ClRyYWNl
-OyBjMDEzM2U1NiA8c3lzX2Nsb3NlKzg2L2EwPgpUcmFjZTsgYzAxMDZkODMgPHN5c3RlbV9jYWxs
-KzMzLzM4PgpDb2RlOyAgYzAyMDIwNTYgPHJhd19zZW5kbXNnKzU2LzJkMD4KMDAwMDAwMDAgPF9F
-SVA+OgpDb2RlOyAgYzAyMDIwNTYgPHJhd19zZW5kbXNnKzU2LzJkMD4gICA8PT09PT0KICAgMDog
-ICA2NiA4MyAzYiAwMiAgICAgICAgICAgICAgIGNtcHcgICAkMHgyLCglZWJ4KSAgIDw9PT09PQpD
-b2RlOyAgYzAyMDIwNWEgPHJhd19zZW5kbXNnKzVhLzJkMD4KICAgNDogICA3NCAzNiAgICAgICAg
-ICAgICAgICAgICAgIGplICAgICAzYyA8X0VJUCsweDNjPiBjMDIwMjA5MiA8cmF3X3NlbmRtc2cr
-OTIvMmQwPgpDb2RlOyAgYzAyMDIwNWMgPHJhd19zZW5kbXNnKzVjLzJkMD4KICAgNjogICBhMSBj
-MCBlOSAyYSBjMCAgICAgICAgICAgIG1vdiAgICAweGMwMmFlOWMwLCVlYXgKQ29kZTsgIGMwMjAy
-MDYxIDxyYXdfc2VuZG1zZys2MS8yZDA+CiAgIGI6ICAgNDAgICAgICAgICAgICAgICAgICAgICAg
-ICBpbmMgICAgJWVheApDb2RlOyAgYzAyMDIwNjIgPHJhd19zZW5kbXNnKzYyLzJkMD4KICAgYzog
-ICBhMyBjMCBlOSAyYSBjMCAgICAgICAgICAgIG1vdiAgICAlZWF4LDB4YzAyYWU5YzAKQ29kZTsg
-IGMwMjAyMDY3IDxyYXdfc2VuZG1zZys2Ny8yZDA+CiAgMTE6ICAgNDggICAgICAgICAgICAgICAg
-ICAgICAgICBkZWMgICAgJWVheApDb2RlOyAgYzAyMDIwNjggPHJhd19zZW5kbXNnKzY4LzJkMD4K
-ICAxMjogICA3NSAxOSAgICAgICAgICAgICAgICAgICAgIGpuZSAgICAyZCA8X0VJUCsweDJkPiBj
-MDIwMjA4MyA8cmF3X3NlbmRtc2crODMvMmQwPgoK
-
-------=NEOMAIL_ATT_0.374205518121929--

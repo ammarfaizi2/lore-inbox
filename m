@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbSLKJG0>; Wed, 11 Dec 2002 04:06:26 -0500
+	id <S267081AbSLKJNs>; Wed, 11 Dec 2002 04:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267081AbSLKJG0>; Wed, 11 Dec 2002 04:06:26 -0500
-Received: from mx1.visp.co.nz ([210.55.24.20]:61703 "EHLO mail.visp.co.nz")
-	by vger.kernel.org with ESMTP id <S267079AbSLKJGZ>;
-	Wed, 11 Dec 2002 04:06:25 -0500
-Subject: CD Writing in 2.5.51
-From: mdew <mdew@orcon.net.nz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S267083AbSLKJNs>; Wed, 11 Dec 2002 04:13:48 -0500
+Received: from pD9552139.dip.t-dialin.net ([217.85.33.57]:16347 "EHLO xpc823")
+	by vger.kernel.org with ESMTP id <S267081AbSLKJNp>;
+	Wed, 11 Dec 2002 04:13:45 -0500
+Message-ID: <079901c2a0f6$fdcc0340$4b00000a@elite>
+From: "Felix Domke" <tmbinc@elitedvb.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Allocating 16MB aligned phsyical memory
+Date: Wed, 11 Dec 2002 10:23:39 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Dec 2002 22:14:07 +1300
-Message-Id: <1039598049.480.7.camel@nirvana>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-So many howto's for writing in 2.4.x, simply put, what do i need
-(kernel-wise) to get IDE CD writing going? 
+i'm almost a newbie to kernel hacking, and i'm currently writing a driver
+for some powerpc-based chipset by IBM (STBxxxx), using the
+2.4.xx-linuxppc_devel kernel.
 
-the lwn.net announcements dont really explain what needs to been done,
-what modules need to be loaded (and what I dont need anymore) etc.
+Some On-Chip-Devices require a very strict alignment of memory. For example,
+one function (mpeg2 transport demuxer) require that all (32) queues (each of
+them about 32kb) reside in one 16MB region, each of them not crossing 1MB
+boundary.
 
+At the moment, i'm reserving a 16MB space of ram for which i made an own
+allocater. needless to say that this sucks. So now i'm searching for a way
+to allocate physical-mapped, contiguous, aligned (at 2^24 bytes) memory. I
+already tried to understand __get_free_pages, map_page and the
+powerpc-specific "consistent_alloc", but i couldn't think of enforcing the
+alignments. I don't want to allocate 16MB more memory just for the
+alignment.
 
--mdew
+I know that allocating 16MB-aligned memory isn't nice. But the other choice
+is to completely reserve 16MB of RAM, which isn't nice either, since i only
+need ~2MB of them.
 
+Can anybody give me a hint how to do this?
 
+felix domke
 

@@ -1,47 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVBHR7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVBHSOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVBHR7M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 12:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVBHR7L
+	id S261570AbVBHSOm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 13:14:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVBHSOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 12:59:11 -0500
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:51721 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S261611AbVBHR7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 12:59:09 -0500
-Date: Tue, 8 Feb 2005 12:00:20 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org, petero2@telia.com
-Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
-Message-ID: <20050208180020.GB17379@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
-	petero2@telia.com
-References: <20050207154326.GA13539@digitasaru.net> <d120d50005020708512bb09e0@mail.gmail.com> <20050207180950.GA12024@digitasaru.net> <d120d50005020710591181fe69@mail.gmail.com> <20050207190541.GB12024@digitasaru.net> <d120d5000502071112599fa61c@mail.gmail.com> <20050207191615.GC12024@digitasaru.net> <d120d500050207114959466682@mail.gmail.com> <20050207195918.GD12024@digitasaru.net>
+	Tue, 8 Feb 2005 13:14:42 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:48356 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261570AbVBHSOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 13:14:37 -0500
+Date: Tue, 8 Feb 2005 10:14:36 -0800
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] SIOCSIFNAME wildcard support (resend)
+Message-ID: <20050208181436.GA29717@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050207195918.GD12024@digitasaru.net>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Joseph Pingenot on Monday, 07 February, 2005:
->Hope that helps.
+	Hi Marcelo,
 
-Did it help any?
+	I did not receive any feedback on this e-mail, so I assume it
+was lost on the way. Would you mind pushing that in 2.4.x ?
+	Thanks...
 
--Joseph
--- 
-trelane@digitasaru.net--------------------------------------------------
-[An Intel exec] said, basically, that customers are "wed" to the Windows
-desktop.  What he didn't say is that hardware suppliers are wed to Microsoft as
-well. And as long as the rest of the world depends on that marriage, there won't
-be any room for innovation on the desktop, except by equally proprietary
-alternatives such as those from Apple.   --Doc Searls' Suit Watch, Dec. 8, 2004
+	Jean
+
+----- Forwarded message from jt -----
+
+Subject: [PATCH 2.4] SIOCSIFNAME wildcard support
+E-mail: jt@hpl.hp.com
+
+	Hi Marcelo,
+
+	This patch adds wildcard support for the SIOCSIFNAME ioctl,
+like what was done in 2.6.1. SIOCSIFNAME allow a user space tool to
+change network interface names (such as nameif, ifrename, or ip link),
+this patch allow those tools to specify a pattern, such as "eth%d" or
+"wlan%d", and the kernel use the lowest available slot.
+	The reason I'm sending you this patch is that I've got some
+2.4.X users who requested the feature...
+	This patch was initially done for 2.4.23, and I rediffed and
+retested with 2.4.29. It's somewhat different from the patch Stephen
+and me added to 2.6.1, because the netdev init code is different and
+also this patch is more conservative.
+
+	Have fun...
+
+	Jean
+
+-------------------------------------------------------------
+
+diff -u -p linux/net/core/dev.j1.c linux/net/core/dev.c
+--- linux/net/core/dev.j1.c	Wed Dec  3 14:29:21 2003
++++ linux/net/core/dev.c	Wed Dec  3 18:55:27 2003
+@@ -2179,10 +2179,26 @@ static int dev_ifsioc(struct ifreq *ifr,
+ 		case SIOCSIFNAME:
+ 			if (dev->flags&IFF_UP)
+ 				return -EBUSY;
+-			if (__dev_get_by_name(ifr->ifr_newname))
+-				return -EEXIST;
+-			memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
+-			dev->name[IFNAMSIZ-1] = 0;
++			/* Check if name contains a wildcard */
++			if (strchr(ifr->ifr_newname, '%')) {
++				char format[IFNAMSIZ + 1];
++				int ret;
++				memcpy(format, ifr->ifr_newname, IFNAMSIZ);
++				format[IFNAMSIZ-1] = 0;
++				/* Find a free name based on format.
++				 * dev_alloc_name() replaces "%d" with at max
++				 * 2 digits, so no name overflow. - Jean II */
++				ret = dev_alloc_name(dev, format);
++				if (ret < 0)
++					return ret;
++				/* Copy the new name back to caller. */
++				strncpy(ifr->ifr_newname, dev->name, IFNAMSIZ);
++			} else {
++				if (__dev_get_by_name(ifr->ifr_newname))
++					return -EEXIST;
++				memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
++				dev->name[IFNAMSIZ-1] = 0;
++			}
+ 			notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
+ 			return 0;
+ 
+@@ -2315,6 +2331,7 @@ int dev_ioctl(unsigned int cmd, void *ar
+ 		 *	- return a value
+ 		 */
+ 		 
++		case SIOCSIFNAME:
+ 		case SIOCGMIIPHY:
+ 		case SIOCGMIIREG:
+ 			if (!capable(CAP_NET_ADMIN))
+@@ -2350,7 +2367,6 @@ int dev_ioctl(unsigned int cmd, void *ar
+ 		case SIOCDELMULTI:
+ 		case SIOCSIFHWBROADCAST:
+ 		case SIOCSIFTXQLEN:
+-		case SIOCSIFNAME:
+ 		case SIOCSMIIREG:
+ 		case SIOCBONDENSLAVE:
+ 		case SIOCBONDRELEASE:

@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267429AbUIFEHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267427AbUIFEIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267429AbUIFEHY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 00:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUIFEHY
+	id S267427AbUIFEIc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 00:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUIFEIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 00:07:24 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:51973 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267429AbUIFEHW (ORCPT
+	Mon, 6 Sep 2004 00:08:31 -0400
+Received: from forums.kisikew.org ([66.11.160.83]:33474 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S267427AbUIFEIR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 00:07:22 -0400
-Message-ID: <9e473391040905210762427f42@mail.gmail.com>
-Date: Mon, 6 Sep 2004 00:07:21 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: perex@suse.cz
-Subject: Re: Intel ICH - sound/pci/intel8x0.c
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-In-Reply-To: <20040905190937.36e72b49.rddunlap@osdl.org>
+	Mon, 6 Sep 2004 00:08:17 -0400
+Date: Mon, 6 Sep 2004 04:08:07 +0000
+From: simon@nuit.ca
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sig11 with sch_ingress in 2.6.8.1
+Message-ID: <20040906040807.GA6830@nuit.ca>
+References: <20040905223644.GB19153@nuit.ca> <20040905204210.5cd1b1c6.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040905184852.GA25431@linux.ensimag.fr>
-	 <9e47339104090514244873fd05@mail.gmail.com>
-	 <1094417386.1911.0.camel@localhost.localdomain>
-	 <20040905190937.36e72b49.rddunlap@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+In-Reply-To: <20040905204210.5cd1b1c6.davem@davemloft.net>
+X-Operating-System: Debian GNU/Linux
+X-GPG-Key-Server: x-hkp://subkeys.pgp.net
+User-Agent: Mutt/1.5.6+20040818i
+X-Scan-Signature: smtp.nuit.ca 1C4AnY-0001oM-5A c40fcd4687f3a6de1be088f5dff9044c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 05 Sep 2004 21:49:50 +0100 Alan Cox wrote:
-> | On Sul, 2004-09-05 at 22:24, Jon Smirl wrote:
-> | > I'd don't know enough about the LPC bridge chip to know what the
-> | > correct answer is for this. Right now I tend to think that the PCI
-> | > driver should own the bridge chip. If not the PCI driver then there
-> | > should be an explicit bridge driver. I don' think it is correct that a
-> | > joystick driver is attaching to a bridge chip given the simple fact
-> |
-> | Nobody else currently needs to attach to it so why make life needlessly
-> | complicated.
 
-I just spent a while looking at the code. The joystick driver doesn't
-need to exist. Instead the snd_intel8x0_probe() routine could have a
-loop that does pci_get_subsys() over the ID's in
-snd_intel8x0_joystick_ids[]. When it finds one, use the config space
-to enable the joystick/midiports. You can locate the ports since
-pci_get_subsys() returns the pci_dev* for the bridge device.  Save the
-pci_dev* and set the ports back in snd_intel8x0_remove(). Don't forget
-to pci_put() the bridge device.
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This isn't a device driver for the bridge, we just want to locate it
-and flip some bits. Later on if a driver for the bridge get written it
-should support an API for setting these bits and the search loop can
-be removed.
+Ce jour Sun, 05 Sep 2004, David S. Miller a dit:
 
-All of these devices are listed as Intel LPC bridges:
-2410, 2420, 2440, 244c, 2450, 2480, 2484, 24c0, 24cc, 24d0, 24dc,
-25a1, 2640, 2641, 2642
-I have a 24D0 which isn't in the driver list, this is probably why
-MIDI doesn't work on my system.
+>=20
+> Known problem, fixed shortly afterwards in 2.6.9-rc1 and later.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+thank you. i was hoping that was so.=20
+
+--=20
+Microsoft is to operating systems & security ....
+                                 .... what McDonalds is to gourmet cooking.
+
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQGVAwUBQTvipWqIeuJxHfCXAQJXOAv6AkNUM6EZBEVau5i/AncZONIWlaFdmA+9
+zruxx0O3V/VNi8LDGjOu6EWSXITLWyeE6tNoYaEC51eW5M/Subxn6ijC5D3N7oKv
+HuK3V9uSbQo0HE2VUPrC215Obu2u0FGpbPcxtvdSIVhFfSf2RH95dRiZw2Ev6QTj
+DVfPAyidgxeLC3cPevQvAjqV1V1sBjMqodCVE8szX6oNamQgmaylMhCygAeHXNPX
+hKSIcxsoE0/6tVpsC9VTpSCXO5hSXGE05VjYv3MpAKM72iImaUFYBXb1OQARXZdm
++Kc3jeZfOuSJ7d4DAP4x9CNIWxZr5fEcOemS0Dkujhk2UnJ3Qfa4exIbQnOyR0G3
+8u/fsGWDycvjsVqjx3it8i1gAwDznDRqDJP7/8dnv26lde2YC4GKwMpvhF9C+4+H
+9B01H1L1RIRYIUCHOI1rvnrxDWTFGMEjIrDrVKcwjgpwyPjdYhVbsOqSFbPGveb4
+ev771dZSaMh93UsBjHPCDYlrn0Wu3xSr
+=CQUs
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

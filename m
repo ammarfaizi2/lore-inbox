@@ -1,138 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269549AbRHHVKC>; Wed, 8 Aug 2001 17:10:02 -0400
+	id <S269527AbRHHVJC>; Wed, 8 Aug 2001 17:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269542AbRHHVJ6>; Wed, 8 Aug 2001 17:09:58 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:43785 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S269545AbRHHVJm>;
-	Wed, 8 Aug 2001 17:09:42 -0400
-Date: Wed, 8 Aug 2001 22:09:37 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-cc: Mark Atwood <mra@pobox.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <200108080841.KAA26569@sunrise.pg.gda.pl>
-Message-ID: <Pine.LNX.4.33.0108082128250.12565-100000@infradead.org>
+	id <S269541AbRHHVIw>; Wed, 8 Aug 2001 17:08:52 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:26385 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269527AbRHHVId>; Wed, 8 Aug 2001 17:08:33 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: PCI NVRAM Memory Card
+Date: 8 Aug 2001 14:08:36 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ks9ok$jl6$1@cesium.transmeta.com>
+In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrzej.
+Followup to:  <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+By author:    Mike Jadon <mikej@umem.com>
+In newsgroup: linux.dev.kernel
+>
+> My company has released a PCI NVRAM memory card but we haven't developed a 
+> Linux driver for it yet.  We want the driver to be open to developers to 
+> build upon.  Is there a specific path we should follow with this being our 
+> goal?  In researching Linux driver development I have come across "GPL" or 
+> "LGPL".  Where do you recommend we go to find out more about this 
+> development process?
+> 
+> Thanks and my apologies for using a technical forum for this question, but 
+> wanted to go to the right source.
+> 
 
- >>> If I build a system with several identical (other than MAC)
- >>> FooCorp PCI ethernics, they will number up in order of
- >>> ascending MAC address.
- >>>
- >>> I take the same system, replace the FooCorp cards with BarInc
- >>> NICs, they will number up in reverse MAC address.
- >>>
- >>> Replace them instead with Baz Systems NICs, and I get them in
- >>> bus scan order (at which point I'm dependent on the firmware
- >>> version of my PCI bridge too!).
- >>>
- >>> And if I elect to use Frob Networking NICs, I instead get them
- >>> in the *random* order that their oncard processors won the race
- >>> to power up.
- >>>
- >>> Gods and demons help me if I try putting several of all four
- >>> brands in one box, or the firmware on my NICs or in my PCI
- >>> bridges changes!
+Since you're willing to open the source, you are probably best off
+making the kernel portion of your driver GPL and submit it for
+integration into the main kernel tree.  The drivers included in the
+main kernel tree tend to be the ones that work reliably over time, and
+are therefore most valuable to your customers.
 
- >> I dealt with this problem in a previous email, but will repeat it
- >> for your benefit. The ONLY provisos I will use are the following
- >> two:
- >>
- >>  1. All ethernet interfaces in your machine have distinct MAC's.
- >>
- >>  2. If the firmware in your NIC's changes, the MAC's do not.
- >>
- >> Providing both of these are met, the enclosed BASH SHELL SCRIPT
- >> implements the `ifconfig` command with the port name replaced by
- >> its MAC address.
+As someone else mentioned, user-space libraries should be LGPL.
 
- > 1. NFS-root needs to have RARP/NFS servers on eth0.
+It should be pointed out that you, as the copyright holder, can
+"dual-license" the code if you want to use the same code for
+closed-source projects.  If so, the mention of the dual license nature
+should be specified in the open code, to keep you from getting in a
+sticky situation when someone submits patches.  The most formal such
+license is probably the MPL (Mozilla Public License); I do not know
+if MPL'd code would be considered "GPL compatible" and therefore
+eligible for inclusion in the main kernel.
 
-I have to admit that I've never actually used NFS root, although I
-have read documents on it. I also have to say that my understanding
-was that it broadcast RARP packets on ALL configured network ports,
-and used the lowest numbered one for the rest of the boot process. If
-this isn't the case, then the documentation needs to be changed to
-reflect what it actually does - or, better still, the behaviour needs
-to be changed to match the documentation, as the documented behaviour
-would kill this problem completely.
+Another possible license used in a few places is the "New BSD" license
+(as opposed to the "Old BSD" license, with the so-called "advertising
+clause".)  The BSD license allows *anyone* (including yourselves, of
+course, but also your competitors) to take the code and use it in a
+closed-source project.
 
- > How can you deal with it if you have two boards supported by a
- > single driver and, unfortunately, the one you need is detected
- > as eth1 ? Assume that you cannot switch them as they use
- > different media type...
-
-Assuming your claim is correct, then the behaviour needs to be changed
-to comform to the documeted behaviour, so this should be reported as a
-bug - IMHO, that is.
-
- >> With this change, it doesn't actually matter what port name a
- >> particular interface is given, because ALL of the other network
- >> config tools refer to the interface by its assigned IP address,
- >> not its port name. As a result, if its port name changes between
- >> boots, the routing automatically changes with it.
-
- > 2. ipfwadm / ipchains / iptables may use interface names,
-
-I've yet to use iptables, so can't comment on that. With both ipfwadm
-and ipchains, the ONLY ports I've ever had reason to explicitly name
-have always been either ppp+ to refer to the PPP link across the
-modem, or sl0 to refer to the AX.25 link to my ham radio stuff. As a
-result, I've never actually experienced a situation that would be
-affected by this.
-
-However, it's not hard to write code to translate. How about hw2eth
-which is a BASH script to convert from a stated MAC address to the
-port that MAC is mapped to:
-
- Q> ifconfig | grep ^eth | fgrep "HWaddr $1" | cut -d ' ' -f 1
-
-How about ip2eth which is a BASH script to convert from the local IP
-address of the port the interface in question maps to to its port
-name:
-
- Q> ifconfig | grep -B1 "inet addr:$1" | grep ^eth | cut -d ' ' -f 1
-
-The other option, route2eth (a program to convert a particular remote
-IP address to the port name of the interface we would use to connect
-to it) involves analysing the output of `route -n` so would be rather
-better suited to a C (or other) compiled program. However, even this
-shouldn't be that hard for a competent programmer to produce.
-
- > 3. dhcpd may need interface names to be provided,
-
-I have to admit that I've never used dhcpd, so am somewhat
-disadvantaged here. However, I would imagine that the scripts above
-would provide the necessary translations.
-
- > 4. you may want to pass an interface name argument to tcpdump.
-
-Whenever I use tcpdump on a system with multiple NIC's, I always have
-to use `ifconfig` to remember which interface attaches to which
-network, and then use the interface determined from that. I would
-assume that others would tend to do the same, and in this case, this
-problem case vanishes.
-
-Even if this wasn't the case, the scripts above should help to
-minimise the problems.
-
- > In 2.2+ you can deal with 2.-4. changing interface names using
- > ip from iproute2. But I doubt whether ifconfig based scripts
- > would work properly then.
-
-You shouldn't need to fudge the issue like that anyway, and if you do,
-then the various tools need to be redesigned to provide simple ways
-round the problem.
-
- > And problem 1. is still valid ...
-
-So is the solution above.
-
-Best wishes from Riley.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

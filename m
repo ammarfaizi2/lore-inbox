@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270279AbRHSK3M>; Sun, 19 Aug 2001 06:29:12 -0400
+	id <S270138AbRHSKph>; Sun, 19 Aug 2001 06:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270314AbRHSK3C>; Sun, 19 Aug 2001 06:29:02 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:33698 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S270279AbRHSK2r>; Sun, 19 Aug 2001 06:28:47 -0400
-Date: Sun, 19 Aug 2001 03:28:58 -0700
-From: "Adam J. Richter" <adam@ns1.yggdrasil.com>
-Message-Id: <200108191028.DAA01752@ns1.yggdrasil.com>
-To: geert@linux-m68k.org
-Subject: Re: [Linux-fbdev-devel] Patch, please TEST: linux-2.4.9 console font modularization
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        mj@ucw.cz
+	id <S270314AbRHSKpQ>; Sun, 19 Aug 2001 06:45:16 -0400
+Received: from post-10.mail.nl.demon.net ([194.159.73.20]:28904 "EHLO
+	post.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id <S270138AbRHSKpI>; Sun, 19 Aug 2001 06:45:08 -0400
+Message-Id: <4.2.2.20010819124512.00a9bce0@pop3.demon.nl>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.2 
+Date: Sun, 19 Aug 2001 12:48:06 +0200
+To: linux-kernel@vger.kernel.org
+From: Eric Jan <fugitive@fugitive.demon.nl>
+Subject: Re:Kernel suggestion
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->What's wrong with the ancient console ioctl()s to change the font at runtine?
->(damned, I can't remember the name of the command)
-[...]
->Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ >At 03:11 AM 8/19/01 -0500, you wrote:
+ >Hi, I have a suggestion for any upcoming version of the kernel, if you could
+ >pass this on to the appropriate people who might be interested in tackling
+ >this project.  I would like to see, if possible, support for the Philips
+ >CDD4801 CD-R/RW.  Your work on this would be greatly appreciated.
+ >
+ >Sincerely,
+ >Clint Maxwell
+ >clint_maxwell@yahoo.com
 
-	I don't know enough about fbdev vs. the old PC VGA console 
-to know whether those ioctl's are available for fbdev.
+  Yes, this is most likely, what about the new Plextor drives, (like 24/10/40) ?
+for it's  alpha firmware 1.00 ?
 
-	As far as I'm concerned, loading fonts by user level programs
-would be even better than by loading modules, although, I think that,
-when trying to move a facility from kernel to userland, people are a
-lot more willing to try that change if the kernel-based way is still
-available, but normally just compiled as modules that people gradually
-stop using.
+Thanks, Bedankt,
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Eric Jan.
+

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313946AbSDVAB1>; Sun, 21 Apr 2002 20:01:27 -0400
+	id <S313996AbSDVBMB>; Sun, 21 Apr 2002 21:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313964AbSDVAB0>; Sun, 21 Apr 2002 20:01:26 -0400
-Received: from bitmover.com ([192.132.92.2]:63132 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S313946AbSDVAB0>;
-	Sun, 21 Apr 2002 20:01:26 -0400
-Date: Sun, 21 Apr 2002 17:01:24 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421170124.B12798@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	dean gaudet <dean-list-linux-kernel@arctic.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16yzOr-0000lT-00@starship> <Pine.LNX.4.44.0204211158160.30929-100000@twinlark.arctic.org> <3CC31F8D.455886F5@zip.com.au>
+	id <S313997AbSDVBMA>; Sun, 21 Apr 2002 21:12:00 -0400
+Received: from jalon.able.es ([212.97.163.2]:159 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S313996AbSDVBL7>;
+	Sun, 21 Apr 2002 21:11:59 -0400
+Date: Mon, 22 Apr 2002 03:11:48 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.19-pre7-jam4
+Message-ID: <20020422011148.GA5211@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 01:22:37PM -0700, Andrew Morton wrote:
-> The reason why people do not express their disquiet is very plain - any
-> time anyone dares comes out, they promptly get their head kicked in.
+Hi all.
 
-In the "let's be fair" department, it's obvious that there is enough 
-head kicking to go around on all sides, right?  No answer needed...
+New version of my patch collection.
+This version includes to main updates: ide-6 and the updated version of
+the O(1) scheduler, backpòrted from 2.5 by Robet Love.
 
-> So.  Life goes on.  We will have regular bitkeeper flamewars, and
-> that's a good thing - it reminds everyone that there are different
-> opinions and different work practices which need to be accommodated.
+Main features: vm-33 + sched-O1-rml + mini-low-latency
+Bonus: ide-6 + bproc-3.1.9 + netconsole.
 
-If Daniel had started out this thread with
+Get it at:
 
-    Hey, I've noticed that the BK patches aren't getting as much review
-    or notification on the lk list, is there something we can do about
-    that?
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam4.tar.gz
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam4/
 
-He would have gotten a useful answer in a few minutes, and we would have
-moved on.
+See README for full credits and origins of patches.
+
+Enjoy !!
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam4 #1 SMP lun abr 22 00:52:56 CEST 2002 i686

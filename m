@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131057AbRBVDGG>; Wed, 21 Feb 2001 22:06:06 -0500
+	id <S130788AbRBVDKR>; Wed, 21 Feb 2001 22:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131023AbRBVDF5>; Wed, 21 Feb 2001 22:05:57 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:49924 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129839AbRBVDFu>; Wed, 21 Feb 2001 22:05:50 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Matt Stegman <mas9483@cis.ksu.edu>
-Date: Thu, 22 Feb 2001 14:05:15 +1100 (EST)
+	id <S131023AbRBVDKH>; Wed, 21 Feb 2001 22:10:07 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:44295 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130788AbRBVDJ6>;
+	Wed, 21 Feb 2001 22:09:58 -0500
+Message-ID: <3A9482C9.65A51FEF@innominate.de>
+Date: Thu, 22 Feb 2001 04:08:57 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andreas Dilger <adilger@turbolinux.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+In-Reply-To: <3A9469D8.DB4679DB@innominate.de> <200102220203.f1M237Z20870@webber.adilger.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14996.33259.965914.505080@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: partitions for RAID volumes?
-In-Reply-To: message from Matt Stegman on Wednesday February 21
-In-Reply-To: <14996.16520.832011.18@notabene.cse.unsw.edu.au>
-	<Pine.GSO.4.21.0102212039100.28766-100000@polaris.cis.ksu.edu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday February 21, mas9483@cis.ksu.edu wrote:
-> On Thu, 22 Feb 2001, Neil Brown wrote:
-
-
-Paragraph 1
-> > Using this, I can RAID1 hda and hdc together as md0 == mda and then
-> > partition it up as mda1 (root) mda2 (swap) mda3 (other).  And if I
-> > have too, I can boot off either drive individually with any raid
-> > happening.
+Andreas Dilger wrote:
 > 
-
-Paragraph 2
-> Is there any particular reason to prefer this over LVM?  With 2.4, LVM can
-> be a layer atop of software RAID, allowing for multiple volumes, online
-> volume resizing, and other cool things.
+> Daniel Phillips writes:
+> > Easy, with average dirent reclen of 16 bytes each directory leaf block
+> > can holds up to 256 entries.  Each index block indexes 512 directory
+> > blocks and the root indexes 511 index blocks.  Assuming the leaves are
+> > on average 75% full this gives:
+> >
+> >       (4096 / 16) * 512 * 511 * .75 = 50,233,344
+> >
+> > I practice I'm getting a little more than 90,000 entries indexed by a
+> > *single* index block (the root) so I'm not just making this up.
 > 
-> -Matt Stegman
-> <mas9483@cis.ksu.edu>
+> I was just doing the math for 1k ext2 filesystems, and the numbers aren't
+> nearly as nice.  We get:
 > 
+>         (1024 / 16) * 127 * .75 = 6096          # 1 level
+>         (1024 / 16) * 128 * 127 * .75 = 780288  # 2 levels
+> 
+> Basically (IMHO) we will not really get any noticable benefit with 1 level
+> index blocks for a 1k filesystem - my estimates at least are that the break
+> even point is about 5k files.  We _should_ be OK with 780k files in a single
+> directory for a while.  Looks like we will need 2-level indexes sooner than
+> you would think though.  Note that tests on my workstation showed an average
+> filename length of 10 characters (excluding MP3s at 78 characters), so this
+> would give 20-byte (or 88-byte) dirents for ext3, reducing the files count
+> to 4857 and 621792 (or 78183 and 40029696 for 4k filesystems) at 75% full.
 
+But you are getting over 3/4 million files in one directory on a 1K
+blocksize system, and you really shouldn't be using 1K blocks on a
+filesystem under that big a load.  Is it just to reduce tail block
+fragmentation?  That's what tail merging is for - it does a much better
+job than shrinking the block size.
 
-Paragraph 1 is my answer to paragraph 2.
+But if you are *determined* to use 1K blocks and have more than 1/2
+million files in one directory then I suppose a 3rd level is what you
+need.  The uniform-depth tree still works just fine and still doesn't
+need to be rebalanced - it's never out of balance.
 
-Also, I don't particularly want to use LVM.  Partitions work fine for
-me.  I don't need to learn new tools.
-
-It's about choice.
-
-NeilBrown
+--
+Daniel

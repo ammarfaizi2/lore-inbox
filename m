@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUFPUzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266348AbUFPU6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264821AbUFPUzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 16:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264819AbUFPUzw
+	id S266348AbUFPU6e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 16:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUFPU4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 16:55:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33443 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264815AbUFPUyy (ORCPT
+	Wed, 16 Jun 2004 16:56:12 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:8622 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S264791AbUFPUyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 16:54:54 -0400
-Date: Wed, 16 Jun 2004 16:54:37 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: A possible approach to the IDE shadow problem
-Message-ID: <20040616205437.GA9907@devserv.devel.redhat.com>
+	Wed, 16 Jun 2004 16:54:52 -0400
+Subject: Re: IPMI hangup in 2.6.6-rc3
+From: Alex Williamson <alex.williamson@hp.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: Holger Kiehl <Holger.Kiehl@dwd.de>,
+       Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <40D0B0D1.60804@acm.org>
+References: <Pine.LNX.4.58.R0405040649310.15047@praktifix.dwd.de>
+	 <20040525165335.GA28905@titan.lahn.de>  <40C0E2BF.3040705@acm.org>
+	 <1086887543.4182.46.camel@tdi>
+	 <Pine.LNX.4.58.0406161225210.17908@praktifix.dwd.de>
+	 <40D056E2.4010605@acm.org> <40D05779.9080203@acm.org>
+	 <Pine.LNX.4.58.0406161822280.13439@praktifix.dwd.de>
+	 <Pine.LNX.4.58.0406161842180.13439@praktifix.dwd.de>
+	 <40D0B0D1.60804@acm.org>
+Content-Type: text/plain
+Organization: LOSL
+Message-Id: <1087419276.4274.97.camel@tdi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 16 Jun 2004 14:54:36 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some IDE devices don't decode master/slave (notably PCMCIA CF stuff), other
-stuff has flash and disk mixed. Either assumption is broken so the kernel
-sometimes double detects devices like microdrives. 
+On Wed, 2004-06-16 at 14:42, Corey Minyard wrote:
+> I cannot figure out from the traceback what is wrong, and I haven't been 
+> able to reproduce this, even with ipmitool.
+> 
+> What kernel version are you running?  Can you verify that the attached 
+> patch is in your code?
+> 
 
-It occurred to me there may be a very easy way to fix this, so this patch
-is for comment [Linus don't apply it yet 8)]
+   This fixed it for me.  I was running on stock 2.6.7, which does not
+include the patch below.  My test program now works.  Thanks,
+
+	Alex
+
+> --- linux-2.6.7-rc3-full/drivers/char/ipmi/ipmi_devintf.c.orig	Wed Jun  9 12:08:23 2004
+> +++ linux-2.6.7-rc3-full/drivers/char/ipmi/ipmi_devintf.c	Wed Jun  9 12:07:09 2004
+> @@ -199,7 +199,7 @@ static int handle_send_req(ipmi_user_t  
+>  			goto out;
+>  		}
+>  
+> -		if (copy_from_user(&msgdata,
+> +		if (copy_from_user(msgdata,
+>  				   req->msg.data,
+>  				   req->msg.data_len))
+>  		{
+> 
+> 
+> If that doesn't help, can you upgrade to 2.6.7-rc3-mm2 and re-try this 
+> patch?
+> 
+> If that doesn't help, Can you turn on frame pointers and try again?  
+> This will give a cleaner backtrace.
+> 
+> -Corey
 
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.7/drivers/ide/ide-probe.c 2.6.7-ac/drivers/ide/ide-probe.c
---- linux-2.6.7/drivers/ide/ide-probe.c	2004-06-16 21:11:35.907453312 +0100
-+++ 2.6.7-ac/drivers/ide/ide-probe.c	2004-06-16 21:19:28.422620088 +0100
-@@ -749,6 +749,16 @@
- 		ide_drive_t *drive = &hwif->drives[unit];
- 		drive->dn = (hwif->channel ? 2 : 0) + unit;
- 		(void) probe_for_drive(drive);
-+		if (drive->present && hwif->present && unit == 1)
-+		{
-+			if(strcmp(hwif->drives[0].id->model, drive->id->model) == 0 &&
-+			   strcmp(drive->id->model, "UNKNOWN") && /* Don't do this for non ATA or for noprobe */
-+			   strncmp(hwif->drives[0].id->serial_no, drive->id->serial_no, 20) == 0)
-+			{
-+				printk(KERN_WARNING "ide-probe: ignoring undecoded slave\n");
-+				drive->present = 0;
-+			}
-+		}
- 		if (drive->present && !hwif->present) {
- 			hwif->present = 1;
- 			if (hwif->chipset != ide_4drives ||

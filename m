@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261380AbTCTLhy>; Thu, 20 Mar 2003 06:37:54 -0500
+	id <S261390AbTCTLqm>; Thu, 20 Mar 2003 06:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261389AbTCTLhy>; Thu, 20 Mar 2003 06:37:54 -0500
-Received: from smtp02.wxs.nl ([195.121.6.54]:29926 "EHLO smtp02.wxs.nl")
-	by vger.kernel.org with ESMTP id <S261380AbTCTLhu> convert rfc822-to-8bit;
-	Thu, 20 Mar 2003 06:37:50 -0500
-Date: Thu, 20 Mar 2003 12:47:01 +0100
-From: Maarten Ghijsen <maarten.ghijsen@planet.nl>
-Subject: wake_up call from IRQ handler freezes system (no Oops)
-To: linux-kernel@vger.kernel.org
-Message-id: <005501c2eed6$6ec71cb0$0400000a@mdomain.local>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	id <S261401AbTCTLqm>; Thu, 20 Mar 2003 06:46:42 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:2946 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261390AbTCTLql>; Thu, 20 Mar 2003 06:46:41 -0500
+Date: Thu, 20 Mar 2003 11:55:20 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: David Brownell <david-b@pacbell.net>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] PCI MWI cacheline size fix
+Message-ID: <20030320115520.GB6995@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	David Brownell <david-b@pacbell.net>,
+	Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+	Russell King <rmk@arm.linux.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20030320135950.A2333@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030320135950.A2333@jurassic.park.msu.ru>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Mar 20, 2003 at 01:59:50PM +0300, Ivan Kokshaysky wrote:
+ > +
+ > +	pci_cache_line_size = 32 >> 2;
+ > +	if (c->x86 >= 6 && c->x86_vendor == X86_VENDOR_AMD)
+ > +		pci_cache_line_size = 64 >> 2;	/* K7 & K8 */
+ > +	else if (c->x86 > 6)
+ > +		pci_cache_line_size = 128 >> 2;	/* P4 */
+ >  
 
-I am designing a linux driver for a DVB/ASI PCI card. 
+I'd feel more comfortable with this with a c->x86_vendor == X86_VENDOR_INTEL
+on the else if clause. The above code will silently break if for eg,
+VIA, Transmeta or any other clone manufacturer make a model 7 or higher CPU.
 
-One of the IOCTL commands implemented in my driver allows the user to
-transfer a buffer to the PCI card (using DMA). While the DMA is in progress
-I want to sleep the user process/thread. For the sleeping I use the
-wait_event function, which waits for an event that is 'fired' from the DMA
-done interrupt (with wake_up call). As soon as the interrupt handler calls
-the wake_up my system freezes completely, without any Oops or other
-exception message. 
-
-As far as I can gather from the linux device driver book and other sources
-from drivers it is common practice to use a wake_up in the interrupt routine
-to awaken any sleeping user threads. I am pretty sure that I have
-initialised my wait_queue_head_t correctly with a call to
-init_waitqueue_head.
-
-Does anyone have any idea why the system hangs on the wake-up from the
-interrupt handler?
-
-Below you will find some pseudo code for with the wait_event and the
-wake_up:
-
-// wait from DMA IOCTL handler
-void Dta1xxTxIoCtlDma()
-{
-	startdma();
-
-	wait_event(my_wait_queue, ( 1==dma_done_flag) );
-
-	return;
-}
-
-// wake_up from interrupt handler
-void Dta1xxIRQ()
-{
-	if ( IsDmaDoneInterruptSet() ) {
-		dma_done_flag = 1;
-		wake_up(&my_wait_queue);
-	}
-}
-
-I am using linux kernel version 2.4.18.
-
-Regards,
- 
-Maarten
-
+		Dave
 

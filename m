@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312888AbSDOFqa>; Mon, 15 Apr 2002 01:46:30 -0400
+	id <S312898AbSDOFs0>; Mon, 15 Apr 2002 01:48:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312895AbSDOFq3>; Mon, 15 Apr 2002 01:46:29 -0400
-Received: from 137-5.red-dsl.cpl.net ([192.216.137.5]:26897 "HELO
-	mail.heronforge.net") by vger.kernel.org with SMTP
-	id <S312888AbSDOFq3>; Mon, 15 Apr 2002 01:46:29 -0400
-Date: Sun, 14 Apr 2002 22:46:24 -0700 (PDT)
-From: Stephen Carville <carville@cpl.net>
-X-X-Sender: <stephen@warlock.heronforge.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Assertion Failure
-Message-ID: <Pine.LNX.4.33.0204142226300.28965-100000@warlock.heronforge.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312913AbSDOFsZ>; Mon, 15 Apr 2002 01:48:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35599 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312898AbSDOFsY>;
+	Mon, 15 Apr 2002 01:48:24 -0400
+Date: Mon, 15 Apr 2002 07:47:59 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8 does not boot
+Message-ID: <20020415054759.GA12608@suse.de>
+In-Reply-To: <UTC200204142229.WAA577107.aeb@cwi.nl> <Pine.LNX.4.33.0204141803010.1206-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sunday, the DBA was importing data into an Oracle 9i database when the
-system just stopped responding.  Anyone have an idea what this means
-and how to fix it:
+On Sun, Apr 14 2002, Linus Torvalds wrote:
+> 
+> 
+> On Sun, 14 Apr 2002 Andries.Brouwer@cwi.nl wrote:
+> >
+> > Booting 2.5.8 yields a crash at ide-disk.c:360
+> > 	BUG_ON(drive->tcq->active_tag != -1);
+> 
+> The TCQ stuff is definitely experimental, you should probably configure it
+> out for now.
 
-jordan kernel: Assertion failure in journal_bmap_Rsmp_1330f299() at
-journal.c:602: "ret != 0"
-
-The system:
-
-Dell 2550
-1 Ghz PIII (X2)
-1024 Meg RAM
-Adaptec aic7899 SCSI adapter
-FUJITSU  MAJ3364MC drices (X5)
-Redhat 7.2 (security fixes only)
-2.4.7 kernel
-
-I am not a member of this list so please CC me any answers.
+Definitely, it's an early merge and I thought that Martin left out the
+config options... That said, Andries could you send me your ide boot
+messages?
 
 -- 
--- Stephen Carville http://www.heronforge.net/~stephen/gnupgkey.txt
+Jens Axboe
 

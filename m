@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTLSRE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 12:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTLSRE2
+	id S263528AbTLSQ6t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 11:58:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbTLSQ6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 12:04:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58336 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263452AbTLSRE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 12:04:27 -0500
-Date: Fri, 19 Dec 2003 09:03:08 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: dale_d@telusplanet.net, linux-kernel@vger.kernel.org
-Subject: Re: ieee1394 subsystem causes segfaults
-Message-Id: <20031219090308.6966e068.rddunlap@osdl.org>
-In-Reply-To: <20031217141057.GC551@phunnypharm.org>
-References: <1071670222.2519.5.camel@localhost>
-	<20031217141057.GC551@phunnypharm.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 19 Dec 2003 11:58:49 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2506 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263528AbTLSQ6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 11:58:46 -0500
+Date: Fri, 19 Dec 2003 17:58:38 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mac@melware.de,
+       isdn4linux@listserv.isdn4linux.de, kkeil@suse.de,
+       kai.germaschewski@gmx.de
+Subject: [patch] 2.6.0-test11-mm1: isdn/eicon/eicon_mod.c doesn't compile
+Message-ID: <20031219165837.GN12750@fs.tum.de>
+References: <20031217014350.028460b2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031217014350.028460b2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003 09:10:57 -0500 Ben Collins <bcollins@debian.org> wrote:
+Hi Andrew,
 
-| > 5. no oops message
-| 
-| Not sure how things can segv without some sort of kernel message. Are
-| you sure it didn't print anything at all?
+I got the following compile error in 2.6.0-test11-mm1:
 
-What messages are there then?  You should post the kernel log
-showing the problem(s).  (Yes, I looked at the original posting.)
+<--  snip  -->
 
-I have seen kernel bugs cause user space segfaults, so maybe
-it's an app that is having the segfault.
+...
+  CC [M]  drivers/isdn/eicon/eicon_mod.o
+drivers/isdn/eicon/eicon_mod.c: In function `eicon_exit':
+drivers/isdn/eicon/eicon_mod.c:1362: warning: implicit declaration of 
+function `mca_mark_as_unused'
+drivers/isdn/eicon/eicon_mod.c: In function `eicon_mca_find_card':
+drivers/isdn/eicon/eicon_mod.c:1500: warning: implicit declaration of 
+function `mca_find_unused_adapter'
+drivers/isdn/eicon/eicon_mod.c:1502: `MCA_NOTFOUND' undeclared (first 
+use in this function)
+drivers/isdn/eicon/eicon_mod.c:1502: (Each undeclared identifier is 
+reported only once
+drivers/isdn/eicon/eicon_mod.c:1502: for each function it appears in.)
+drivers/isdn/eicon/eicon_mod.c: In function `eicon_mca_probe':
+drivers/isdn/eicon/eicon_mod.c:1558: warning: implicit declaration of 
+function `mca_read_stored_pos'
+drivers/isdn/eicon/eicon_mod.c:1619: warning: implicit declaration of 
+function `mca_set_adapter_name'
+drivers/isdn/eicon/eicon_mod.c:1622: warning: implicit declaration of 
+function `mca_mark_as_used'
+make[3]: *** [drivers/isdn/eicon/eicon_mod.o] Error 1
 
---
-~Randy
-MOTD:  Always include version info.
+<--  snip  -->
+
+
+The fix is simple:
+
+
+--- linux-2.6.0-test11-mm1-modular-no-smp/drivers/isdn/eicon/eicon_mod.c.old	2003-12-19 17:26:56.000000000 +0100
++++ linux-2.6.0-test11-mm1-modular-no-smp/drivers/isdn/eicon/eicon_mod.c	2003-12-19 17:28:29.000000000 +0100
+@@ -29,6 +29,7 @@
+ #include <linux/init.h>
+ #ifdef CONFIG_MCA
+ #include <linux/mca.h>
++#include <linux/mca-legacy.h>
+ #endif /* CONFIG_MCA */
+ 
+ #include "eicon.h"
+
+
+
+Please apply
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

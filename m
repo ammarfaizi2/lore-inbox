@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbSLQRJ2>; Tue, 17 Dec 2002 12:09:28 -0500
+	id <S265134AbSLQRLF>; Tue, 17 Dec 2002 12:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbSLQRJ2>; Tue, 17 Dec 2002 12:09:28 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:52362 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265099AbSLQRJ1>; Tue, 17 Dec 2002 12:09:27 -0500
-Date: Tue, 17 Dec 2002 12:19:31 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.3.95.1021217120925.25972A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.95.1021217121612.25972B-100000@chaos.analogic.com>
+	id <S265135AbSLQRLF>; Tue, 17 Dec 2002 12:11:05 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:5535 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265134AbSLQRLF>;
+	Tue, 17 Dec 2002 12:11:05 -0500
+Date: Tue, 17 Dec 2002 09:14:15 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] move LOG_BUF_SIZE to header file
+In-Reply-To: <20021217094150.A2467@infradead.org>
+Message-ID: <Pine.LNX.4.33L2.0212170911120.17648-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Dec 2002, Richard B. Johnson wrote:
+On Tue, 17 Dec 2002, Christoph Hellwig wrote:
 
-> On Tue, 17 Dec 2002, Manfred Spraul wrote:
-> 
-> > >
-> > >
-> > >   pushl %ebp
-> > >   movl $0xfffff000, %ebp
-> > >   call *%ebp
-> > >   popl %ebp
-> > >  
-> > >
-> > 
-> > You could avoid clobbering a register with something like
-> > 
-> > pushl $0xfffff000
-> > call *(%esp)
-> > addl %esp,4
-> > 
-> 
-> This is a near 'call'.
-> 
-> 	pushl $0xfffff000
-> 	ret
-> 
+| On Mon, Dec 16, 2002 at 10:11:42PM -0800, Randy.Dunlap wrote:
+| > --- ./arch/i386/Kconfig%LOGBUF	Sun Dec 15 18:07:47 2002
+| > +++ ./arch/i386/Kconfig	Sun Dec 15 20:45:09 2002
+| > @@ -1573,6 +1573,43 @@
+| >  	  If you don't debug the kernel, you can say N, but we may not be able
+| >  	  to solve problems without frame pointers.
+| >
+| > +choice
+| > +	prompt "Kernel log buffer size"
+| > +	default LOG_BUF_128KB if ARCH_S390
+| > +	default LOG_BUF_64KB if X86_NUMAQ || IA64
+| > +	default LOG_BUF_32KB if SMP
+| > +	default LOG_BUF_16KB
+|
+| yuck.  Why don't you just add and integer LOG_BUG_SHIFT symbol that can
+| be freely choosen?
 
-I hate answering my own stuff......... This gets back and modifies
-no registers.
+I'll think about that, see how it works out.
+LOG_BUF_SHIFT seems reasonable (for developers, not for users), but I
+think that there should be some decent defaults also.
 
-Actually I should be:
-
-	pushl	$next_address	# Where to go when the call returns
-	pushl	$0xfffff000	# Put this on the stack
-	ret			# 'Return' to it (jump)
-next_address:			# Were we end up after
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+-- 
+~Randy
 

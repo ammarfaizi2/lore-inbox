@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136805AbREISPM>; Wed, 9 May 2001 14:15:12 -0400
+	id <S136806AbREISRx>; Wed, 9 May 2001 14:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136806AbREISPB>; Wed, 9 May 2001 14:15:01 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17668 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136805AbREISOx>; Wed, 9 May 2001 14:14:53 -0400
-Date: Wed, 9 May 2001 13:36:18 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mark Hemment <markhe@veritas.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
-In-Reply-To: <Pine.LNX.4.21.0105090957420.31900-100000@alloc>
-Message-ID: <Pine.LNX.4.21.0105091334540.13878-100000@freak.distro.conectiva>
+	id <S136808AbREISRn>; Wed, 9 May 2001 14:17:43 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:47844 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S136806AbREISRd>;
+	Wed, 9 May 2001 14:17:33 -0400
+Date: Wed, 9 May 2001 20:16:25 +0200 (CEST)
+From: Benedikt Eric Heinen <beh@icemark.net>
+X-X-Sender: <beh@fenun.icemark.ch>
+To: Carles Pina i Estany <is08139@salleURL.edu>
+cc: <gmo@broadcom.com>, <linux-kernel@vger.kernel.org>,
+        "'linux-tp600@icemark.ch'" <linux-tp600@icemark.ch>
+Subject: Re: [Linux/TP600] RE: PCMCIA Cards on 2.4.0
+In-Reply-To: <Pine.LNX.4.30.0101201900100.10134-100000@vela.salleURL.edu>
+Message-ID: <Pine.LNX.4.33.0105092013150.14739-100000@fenun.icemark.ch>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Well, 2.4.0 does not seem to be able to talk to
+> > the card. The first sign of trouble is the lines:
+> >
+> > cs: socket c13d4800 timed out during reset.
+> > 	Try increasing setup_delay.
+> >
+> > at the point where other kernels say instead:
+> >
+> > cs: cb_alloc(bus 5): vendor 0x10b7, device 0x5057
+> >
+> > and so the former does not seem to be able to access
+> > the card while the others are happy.
 
 
-On Wed, 9 May 2001, Mark Hemment wrote:
-
-> 
-> On Tue, 8 May 2001, David S. Miller wrote: 
-> > Actually, the change was made because it is illogical to try only
-> > once on multi-order pages.  Especially because we depend upon order
-> > 1 pages so much (every task struct allocated).  We depend upon them
-> > even more so on sparc64 (certain kinds of page tables need to be
-> > allocated as 1 order pages).
-> > 
-> > The old code failed _far_ too easily, it was unacceptable.
-> > 
-> > Why put some strange limit in there?  Whatever number you pick
-> > is arbitrary, and I can probably piece together an allocation
-> > state where the choosen limit is too small.
-> 
->   Agreed, but some allocations of non-zero orders can fall back to other
-> schemes (such as an emergency buffer, or using vmalloc for a temp
-> buffer) and don't want to be trapped in __alloc_pages() for too long.
-> 
->   Could introduce another allocation flag (__GFP_FAIL?) which is or'ed
-> with a __GFP_WAIT to limit the looping?
-
-__GFP_FAIL is in the -ac tree already and it is being used by the bounce
-buffer allocation code. 
+While this "thread" is sort of reallly old now; does anyone have
+any more solutions to offer? I only recently tried to upgrade my
+TP600 from linux-2.4.0-test6 to 2.4.2... And I am stuck with the
+above error. Neither of previously proposed solutions (disable
+ACPI and build PCMCIA support into kernel instead of a module)
+work. My Xircom 100MB+56k still fails with the above error... :(
 
 
+Any further ideas, what could be done to "fix" this?
+
+
+  Benedikt
+
+          By three methods we may learn wisdom:
+             First, by reflection which is noblest;
+             second, by imitation, which is the easiest;
+             and third, by experience, which is the bitterest.
+                         - Confucius  (B.C. 551-479)
 

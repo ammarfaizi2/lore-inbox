@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285343AbRLSQAw>; Wed, 19 Dec 2001 11:00:52 -0500
+	id <S285344AbRLSQCM>; Wed, 19 Dec 2001 11:02:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285339AbRLSQAl>; Wed, 19 Dec 2001 11:00:41 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2835 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S285345AbRLSQAh>; Wed, 19 Dec 2001 11:00:37 -0500
-Date: Wed, 19 Dec 2001 12:46:00 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.17-rc2
-In-Reply-To: <3C1FCE78.9F87D16D@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0112182230550.5026-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285355AbRLSQCB>; Wed, 19 Dec 2001 11:02:01 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:52498 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S285344AbRLSQBq>;
+	Wed, 19 Dec 2001 11:01:46 -0500
+Date: Wed, 19 Dec 2001 17:01:43 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Brendan Pike <spike@superweb.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE Harddrive Performance
+Message-ID: <20011219160143.GA8658@gondor.com>
+In-Reply-To: <20011219153233.GA3424@leukertje.hitnet.rwth-aachen.de> <01121911444703.31762@spikes>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01121911444703.31762@spikes>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 19, 2001 at 11:44:47AM -0400, Brendan Pike wrote:
+> I dont really know, I dont think its possible to get higher then that from a 
+> 5400 RPM disk. Heres mine,
 
+/dev/hda:
+ Timing buffered disk reads:  64 MB in  2.32 seconds = 27.59 MB/sec
 
-On Tue, 18 Dec 2001, Jeff Garzik wrote:
+bash-2.05a# cat /proc/ide/hda/model 
+Maxtor 98196H8
 
-> Marcelo Tosatti wrote:
-> > - Make some erroneously global spinlocks
-> >   static                                        (David C. Hansen)
-> 
-> This is a release-candidate patch???   Looks like cleanup to me.
+This is a 5400rpm drive, too.
 
-Jeff,
-
-This patch is obviously correct and it cant break anything.
-
-> > - More __devexit_p fixes                        (Daniel T. Chen)
-> 
-> This patch is 100% wrong.  The hardware is question is not hotplug
-> hardware, so therefore should not be marked with __devexit.  I strongly
-> urge that you revert this patch...  none of the affected drivers could
-> be called popular at any rate.
-
-Agreed. I'll remove it.
-
+Jan
 

@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbRHSFIR>; Sun, 19 Aug 2001 01:08:17 -0400
+	id <S268017AbRHSFI5>; Sun, 19 Aug 2001 01:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268017AbRHSFII>; Sun, 19 Aug 2001 01:08:08 -0400
-Received: from mx1.sac.fedex.com ([199.81.208.10]:30991 "EHLO
-	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S267650AbRHSFIA>; Sun, 19 Aug 2001 01:08:00 -0400
-Date: Sun, 19 Aug 2001 13:09:26 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
+	id <S270009AbRHSFIt>; Sun, 19 Aug 2001 01:08:49 -0400
+Received: from mx3.sac.fedex.com ([199.81.208.11]:14353 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S268017AbRHSFId>; Sun, 19 Aug 2001 01:08:33 -0400
+Date: Sun, 19 Aug 2001 13:10:02 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
 X-X-Sender: <root@boston.corp.fedex.com>
 To: Paul <set@pobox.com>
 cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
 In-Reply-To: <20010819004703.A226@squish.home.loc>
-Message-ID: <Pine.LNX.4.33.0108191308480.6458-100000@boston.corp.fedex.com>
+Message-ID: <Pine.LNX.4.33.0108191309470.6458-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xdos runs fine for me for all of 2.4.x. Mine is P3.
+Xdos runs fine for me for all of 2.4.x. Mine is P3.
 
 Thanks,
 Jeff

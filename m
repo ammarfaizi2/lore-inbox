@@ -1,96 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266595AbUBQVFu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUBQVFu
+	id S266634AbUBQVOp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266597AbUBQVKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:05:50 -0500
-Received: from [217.219.143.160] ([217.219.143.160]:1548 "HELO 67.72.78.212")
-	by vger.kernel.org with SMTP id S266584AbUBQVFc (ORCPT
+	Tue, 17 Feb 2004 16:10:16 -0500
+Received: from mail.shareable.org ([81.29.64.88]:8069 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S266619AbUBQVJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:05:32 -0500
-Message-Id: <S266584AbUBQVFc/20040217210532Z+501@vger.kernel.org>
-From: <kaewen@fastbowler.com>
-To: unlisted-recipients:; (no To-header on input)
-Date: Tue, 17 Feb 2004 16:05:32 -0500
+	Tue, 17 Feb 2004 16:09:27 -0500
+Date: Tue, 17 Feb 2004 21:09:19 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Alex Belits <abelits@phobos.illtel.denver.co.us>
+Cc: Marc Lehmann <pcg@schmorp.de>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
+Message-ID: <20040217210919.GG24311@mail.shareable.org>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161603420.10177@sm1420.belits.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402161603420.10177@sm1420.belits.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Return-Path: <kaewen@fastbowler.com>
-Received: from 228.46.38.34 by 217.219.143.160; Tue, 17 Feb 2004 23:02:17 -0100
-From: "Angelina Steward" <kaewen@fastbowler.com>
-To: linux-msdos@vger.kernel.org
-Cc: linux-kernel-owner@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: 91.PI. nothing?
-Date: Tue, 17 Feb 2004 22:03:17 -0200
-Message-ID: <WCJBXTWHPRS$186$coljlzs@yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	boundary="--3975054382653183"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE:  Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-Content-Length: 1982
+Alex Belits wrote:
+>   UTF-8 is dependent on Unicode, that is cumbersome, not user-expandable,
 
+Ah, Alex, welcome back. :)
 
-Rejuvenate your skin with BOTOX in a Bottle. HOT TICKET ITEM!
+> This means, it's quite possible that this standard will be replaced
+> by something better in the future
 
-Special price on this amazing Anti-Aging Anti-Wrinkle serum.
-See these incredible Before and After photos.
+You mean like Unicode 4 will be replaced by Unicode 5 or something? :)
 
-http://www.a10zing29.com/promo.php?id=93976
+Seriously, if there was another standard encompassing all languages
+and characters, why would they call it something different?
 
+> and this is why poor design of Unicode is tolerated by users, and
+> this is also why many people use non-Unicode-based charsets.
 
-This special anti-wrinkle serum works like BOTOX but without the doctor, the needle, and the expensive price that accompanies it.
+You've said this many times before, without explanation.
 
-PROVEN TO WORK OR YOUR MONEY BACK! YOU WILL SEE RESULTS FAST! GREAT GIFT FOR ALL!
+As far as I know, Unicode is a superset of all pre-existing computer
+charsets used anywhere - but do feel free to correct me.
 
+Unicode does have its problems - but what possible advantage does
+_any_ known non-Unicode charset have over Unicode, apart from space saving?
 
-http://www.a10zing29.com/promo.php?id=93976
+You mention that Unicode doesn't well support language identification.
+This is true - but the non-Unicode charsets (koi8-r etc.) don't
+support that either!  Or do they?
 
+>   And this is perfectly fine. Displaying and editing multilingual text is
+> a user interface issue, that kernel should not be involved in.
 
+Actually the kernel does have a line editor which needs to know a little.
 
+>   I can point at the example of this "solution" that happened years ago
+> when UCS-2 was all the rage, and it got hardcoded and enforced by NTFS
+> and everything that handles it. Who is laughing about that decision now?
 
+We are all laughing ;)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-This communication is privileged and contains confidential information 
-intended only for the person(s) to whom it is addressed.  Any 
-unauthorized disclosure, copying, other distribution  of this communication or 
-taking any action on its contents is strictly  prohibited. If you have 
-received this message in error, please notify us immediately OR remove 
-yourself from our list if there is no interest in regards to our 
-services or products.
-
-http://www.a10zing29.com/remove.php?id=93976
-
-
-deficient denny depart teet railway the jimenez goshawk acrylate cleft flute isomorph 
-lt
-
-
-
-
-
-
+-- Jamie

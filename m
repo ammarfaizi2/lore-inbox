@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293132AbSBWNG3>; Sat, 23 Feb 2002 08:06:29 -0500
+	id <S293135AbSBWNQW>; Sat, 23 Feb 2002 08:16:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293133AbSBWNGT>; Sat, 23 Feb 2002 08:06:19 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:42461 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S293132AbSBWNGD>;
-	Sat, 23 Feb 2002 08:06:03 -0500
-Date: Sat, 23 Feb 2002 16:03:14 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.33.0202231551300.4173-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293134AbSBWNQM>; Sat, 23 Feb 2002 08:16:12 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:15958 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S293133AbSBWNQC>; Sat, 23 Feb 2002 08:16:02 -0500
+Date: Sat, 23 Feb 2002 13:16:19 +0000
+From: Adam Huffman <bloch@verdurin.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Boot problem with PDC20269
+Message-ID: <20020223131619.A2603@bloch.verdurin.priv>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10202221953470.3281-100000@master.linux-ide.org> <3C778797.3BC039A@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C778797.3BC039A@gmx.net>; from gunther.mayer@gmx.net on Sat, Feb 23, 2002 at 13:14:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 23 Feb 2002, Gunther Mayer wrote:
 
-On Sat, 23 Feb 2002, Rusty Russell wrote:
+> Andre Hedrick wrote:
+> 
+> > Hi Adam,
+> >
+> > http://www.tecchannel.de/hardware/817/index.html
+> >
+> > We do not put ATAPI devices on such HOSTS.
+> 
+> put == support ?
+> 
 
-> 1) Interface is: open /dev/usem, pread, pwrite.
+I wasn't clear enough in my original mail - the ATAPI device is on the
+VIA southbridge, not the Promise card.  The two drives on the Promise
+card are hde and hdg.
 
-i like the patch, but the interface is ugly IMO. Why not new syscalls? I
-think these lightweight semaphores will become an important part of Linux,
-so having their own syscall entries is the most correct interface,
-something like:
+> >
+> > The driver will not work w/ ATAPI there because it uses a different DMA
+> > engine location and is not supported in Linux.
+> 
+> It is a serious bug in the IDE driver to hang the system (and not the user's
+> fault).
+> 
+> A fix would be to printk("The linux IDE driver does not (yet?)support ATAPI
+> devices on PDC20269. Ignoring the device.\n");
+> and continue running.
+> 
+> -
+> Gunther
+> 
 
-  sys_sem_create()
-  sys_sem_destroy()
-  sys_sem_down()
-  sys_sem_up()
+At this stage I'm not all that bothered about the performance issues, I
+just want to be able to use the two drives.
 
-/dev/usem is such an ... ioctl()-ish approach. It's a scalability problem
-as well: read()/write() has (or can have) some implicit locking that is
-imposed on the usem interface as well. It's a usage robustness issue as
-well: chroot() environments that have no /dev directory will suddenly lose
-a functionality of Linux. There is absolutely no problem with adding new
-syscalls for things like this.
-
-Plus sys_sem_create() should do some proper resource limit management,
-pinning down an unlimited number of pages is bad.
-
-	Ingo
-
+Thanks for the replies,
+Adam

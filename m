@@ -1,94 +1,107 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317381AbSFCMFA>; Mon, 3 Jun 2002 08:05:00 -0400
+	id <S317383AbSFCMDk>; Mon, 3 Jun 2002 08:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317382AbSFCME7>; Mon, 3 Jun 2002 08:04:59 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:34536 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317381AbSFCME6>;
-	Mon, 3 Jun 2002 08:04:58 -0400
-Date: Mon, 3 Jun 2002 17:38:10 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Paul McKenney <paul.mckenney@us.ibm.com>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
-Message-ID: <20020603173810.A8437@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <1022600998.20317.44.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317381AbSFCMDj>; Mon, 3 Jun 2002 08:03:39 -0400
+Received: from mailbox.univie.ac.at ([131.130.1.27]:9105 "EHLO
+	mailbox.univie.ac.at") by vger.kernel.org with ESMTP
+	id <S317377AbSFCMDh>; Mon, 3 Jun 2002 08:03:37 -0400
+Message-ID: <3CFB5B04.2090508@univie.ac.at>
+Date: Mon, 03 Jun 2002 14:03:16 +0200
+From: Gerald Teschl <gerald.teschl@univie.ac.at>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+CC: zwane@commfireservices.com, perex@suse.cz
+Subject: isapnp problems with opl3sa2 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 28, 2002 at 08:49:58AM -0700, Robert Love wrote:
-> I agree the numbers posted are nice, but I remain skeptical like Linus. 
-> Sure, the locking overhead is nearly gone in the profiled function where
-> RCU is used.  But the overhead has just been _moved_ to wherever the RCU
-> work is now done.  Any benchmark needs to include the damage done there,
-> too.
+Hi,
 
-Hi Robert,
+first of all, I don't know C and I am no expert, so please apologize if 
+some of
+my questions/comments are stupid.
 
-I did a crude analysis of RCU overhead for rt_rcu-2.5.3-1.patch
-and the corresponding RCU infrastructure patch rcu_ltimer-2.5.3-1.patch.
-(http://prdownloads.sourceforge.net/lse/rcu_ltimer-2.5.3-1.patch).
-The rcu_ltimer patch uses the local timer interrupt handler to check
-if there is any RCU pending for that that CPU. The 
-smp_local_timer_interrupt() routine is never counted for profiling,
-but it happens every 10ms and the RCU overhead is limited
-to checking a few CPU-local things and scheduling the per-CPU
-RCU tasklet. The rest of the RCU code is entirely in rcupdate.c
-and were measured in kernel profiling.
+I have a yamaha based sound card which works with the opl3sa2 driver. 
+However,
+the isapnp activation of this card fails (this has been broken ever 
+since the 2.4 series).
+So I did some investigations and eventually found out that the reason is 
+the following
+check from isapnp_check_dma(..) in isapnp.c:
 
-Here is an analysis of what we can measure -
+-------------
+    /* Some machines allow DMA 0, but others don't. In fact on some
+       boxes DMA 0 is the memory refresh. Play safe */
 
-1. rt_rcu with neighbor table garbage collection threshold increased
-   prevent frequent overflow (due to random dest addresses).
-   (8-1-32-gc31048576gcint60 configuration in earlier published results).
+    if (dma < 1 || dma == 4 || dma > 7)
+        return 1;
+--------------
+
+However, the opl3sa2 card insists on dma=0,dma2=1. In particular, if I 
+change
+"(dma < 1 || dma == 4 || dma > 7)" to "(dma < 0 || dma == 4 || dma > 7)" 
+everything
+works fine.
+
+Now I am wondering what should be done:
+
+1) Make the above change to isapnp.c. According to the above comment 
+this will break
+some other boxes, so probably this should be configurable via /proc/isapnp.
+2) Change opl3sa2.c and force isapnp to use dma=0 (a patch can be found 
+at the end of this
+message).
+
+What do the experts think is the right way to fix this problem?
+
+A few further remarks concerning my patch:
+*) The patch also adds a line "opl3sa2_state[card].activated = 1" which 
+is an
+obvious omission in the original driver.
+*) I have to force the driver to use both dma=0 and dma2=1. From what I
+understand dma=0 should be sufficient, but this will not work. Looks like
+a bug in isapnp.c to me. However, this should do no harm since according
+to /proc/isapnp, the card only offers these values anyway.
+
+Thanks for your comments,
+Gerald
 
 
-Function                              2.5.3              rt_rcu-2.5.3
---------                              ------             ------------
-ip_route_output_key [c0214470]:        4486                2026
+-----------------------------------------------
+--- drivers/sound/opl3sa2.c.orig        Thu May  2 23:36:45 2002
++++ drivers/sound/opl3sa2.c     Sun Jun  2 15:19:44 2002
+@@ -57,6 +57,7 @@
+  *                         (Jan 7, 2001)
+  * Zwane Mwaikambo        Added PM support. (Dec 4 2001)
+  * Zwane Mwaikambo        Code, data structure cleanups. (Feb 15 2002)
++ * Gerald Teschl          Fixed ISA PnP activate. (Jun 02 2002)
+  *
+  */
+ 
+@@ -868,8 +869,15 @@
+                opl3sa2_state[card].activated = 1;
+        }
+        else {
++               /* isapnp.c disallows dma=0 but the opl3sa2 card only 
+accepts this value */
++               if (!dev->ro) {
++                       isapnp_resource_change(&dev->dma_resource[0], 0, 1);
++                       isapnp_resource_change(&dev->dma_resource[1], 1, 1);
++               }
++               opl3sa2_state[card].activated = 1;
++
+                if(dev->activate(dev) < 0) {
+-                       printk(KERN_WARNING PFX "ISA PnP activate 
+failed\n");
++                       printk(KERN_WARNING PFX "ISA PnP activate 
+failed.\n");
+                        opl3sa2_state[card].activated = 0;
+                        return -ENODEV;
+                }
+------------------------------------------------
 
-call_rcu [c0125f40]:                   N/A                 11
-rcu_process_callbacks [c01261d0]:      N/A                 4
-rcu_invoke_callbacks [c0125fc0]:       N/A                 4
-
-So with infrequent updates, clearly RCU overheads are practically
-negligible.
-
-
-2. rt_rcu with frequent neighbor table overflow (due to random dest addresses)
-   (8-1-32 configuration in earlier published results).
-
-
-Function                              2.5.3              rt_rcu-2.5.3
---------                              ------             ------------
-ip_route_output_key [c0214470]:       2358                 1646
-
-call_rcu [c0125f40]:                  N/A                  262
-rcu_invoke_callbacks [c0125fc0]:      N/A                  57
-rcu_process_callbacks [c01261d0]:     N/A                  49
-rcu_check_quiescent_state [c0126030]: N/A                  27
-rcu_check_callbacks [c01260d0]:       N/A                  24
-rcu_reg_batch [c0125ff0]:             N/A                  3
-
-This shows that with very frequent RCU updates, the real gains
-made in ip_route_output_key() is less but still outweighs RCU overhead. 
-I suspect that such frequent update is not a common occurrence, but Davem
-can confirm that.
-
-The bottom line is that RCU overhead is tolerable where we know that
-updates are not going to be frequent. Also different RCU
-algorithms are likely to have different overheads. We will
-present analysis for these algorithms as we go along.
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264666AbUD1Fp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264675AbUD1Fuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264666AbUD1Fp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 01:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbUD1Fp6
+	id S264675AbUD1Fuv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 01:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264678AbUD1Fuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 01:45:58 -0400
-Received: from opersys.com ([64.40.108.71]:62480 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S264666AbUD1Fp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 01:45:56 -0400
-Message-ID: <408F4658.9050109@opersys.com>
-Date: Wed, 28 Apr 2004 01:51:20 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 28 Apr 2004 01:50:51 -0400
+Received: from mail.inf.tu-dresden.de ([141.76.2.1]:54212 "EHLO
+	mail.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S264675AbUD1Fus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 01:50:48 -0400
+Message-ID: <408F4632.2090705@inf.tu-dresden.de>
+Date: Wed, 28 Apr 2004 07:50:42 +0200
+From: Christoph Pohl <christoph.pohl@inf.tu-dresden.de>
+Organization: TU Dresden, Dept. CS
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: de, en, ru
 MIME-Version: 1.0
-To: ncunningham@linuxmail.org
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What does tainting actually mean?
-References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>
-In-Reply-To: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>
+To: linux-kernel@vger.kernel.org
+CC: Jurriaan <thunder7@xs4all.nl>
+Subject: Re: Low bogomips on IBM x445 (kernel 2.6.5)
+References: <408E3D74.2090301@inf.tu-dresden.de> <20040427180117.GA2150@middle.of.nowhere>
+In-Reply-To: <20040427180117.GA2150@middle.of.nowhere>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jurriaan wrote:
+>>I'm currently configuring an IBM x445 box with 4 Xeon CPUs (3GHz) and 
+>>hyperthreading enabled. Everything seems to work fine since kernel 2.6.5 
+>>but I keep wondering about the *very low* Bogomips numbers. Here is what 
+>>I see in /proc/cpuinfo:
+>>
+> 
+> What does 
+> 
+> cat /proc/mtrr
 
-Nigel Cunningham wrote:
-> What I mean is, how does it help to know that a kernel is tainted? When  
-> I'm working on Software Suspend and someone sends me an oops, I don't  
-> really care whether it's marked as tainted or not. For all I know, even 
-> if  it's not tainted, they may have thrown in half a dozen different 
-> patches  aside from Suspend, any one of which could be playing a role in 
-> the  appearance of the oops. It doesn't help me to know that the kernel 
+reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
+reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
+reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
+reg04: base=0x100000000 (4096MB), size=4096MB: write-back, count=1
+reg05: base=0x200000000 (8192MB), size=8192MB: write-back, count=1
 
-The legal/moral implications of taint/binary-mods/etc. aside, I think it
-may be worth putting some thought into coming up with a way to identify
-which patches were applied to a kernel -- given the wide-spread use of this
-method to add/remove/amend kernel functionality. Maybe there should be a
-/proc/sys/kernel/patches file at runtime which would provide a list of
-applied patches and some characteristics/description? When patches are
-applied, there could then be a toplevel .patches file which all patch
-submitters/providers/distributors would be strongly encouraged or
-<form>insert your favorite coercive method or torture technique here</form>
-to amend as they add their code. At build time, the makefile could then
-use this file the generate some header used by the code printing out the
-/proc/sys/kernel/patches. At oops time, the content of this file would also
-be part of the dump.
+> say and how much memory is in that thing?
 
-Note: such a mechanism is not an alternative to "tainting", it's an
-additional tool for trying to identify potential problems. I, for one,
-would love to be able to find out which patches the various distro vendor
-have found useful to include with their kernel. Currently, this takes more
-time than I'm willing to invest ... at least until something serious
-comes up ...
+8192MB (8GB), plus 2GB swap space.
+Does memory size somehow affect bogomips calculation?
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+There are however some noteworthy lines in syslog during reboot:
+(...)
+Apr 26 14:25:40 x445 kernel: Using local APIC timer interrupts.
+Apr 26 14:25:40 x445 kernel: calibrating APIC timer ...
+Apr 26 14:25:40 x445 kernel: ..... CPU clock speed is 2993.0654 MHz.
+Apr 26 14:25:40 x445 kernel: ..... host bus clock speed is 99.0788 MHz.
+Apr 26 14:25:40 x445 kernel: checking TSC synchronization across 8 CPUs:
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#0 improperly initialized, has 
+7358270 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#1 improperly initialized, has 
+7358270 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#2 improperly initialized, has 
+-7358271 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#3 improperly initialized, has 
+-7358271 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#4 improperly initialized, has 
+7358271 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#5 improperly initialized, has 
+7358270 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#6 improperly initialized, has 
+-7358269 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: BIOS BUG: CPU#7 improperly initialized, has 
+-7358271 usecs TSC skew! FIXED.
+Apr 26 14:25:40 x445 kernel: Brought up 8 CPUs
+(...)
 
+I don't know if that's any help.
+
+Tell me if you need more details like .config, syslog etc.
+
+Please CC me when replying!
+
+Thanks,
+Christoph

@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130442AbRCGIa0>; Wed, 7 Mar 2001 03:30:26 -0500
+	id <S130436AbRCGIt2>; Wed, 7 Mar 2001 03:49:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130443AbRCGIaQ>; Wed, 7 Mar 2001 03:30:16 -0500
-Received: from office.globe.cz ([212.27.204.26]:50448 "HELO gw.office.globe.cz")
-	by vger.kernel.org with SMTP id <S130442AbRCGIaJ>;
-	Wed, 7 Mar 2001 03:30:09 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: binfmt_script and ^M
-In-Reply-To: <3AA4D92D.CDDB764D@ftel.co.uk>
-	<JKEGJJAJPOLNIFPAEDHLEEDGCJAA.laramie.leavitt@btinternet.com>
-	<20010306151242.D31649@dev.sportingbet.com>
-From: Ondrej Sury <sury.ondrej@globe.cz>
-Date: 07 Mar 2001 09:29:22 +0100
-In-Reply-To: <20010306151242.D31649@dev.sportingbet.com>
-Message-ID: <87g0gq7zj1.fsf@druid.office.globe.cz>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.0.98
+	id <S130437AbRCGItI>; Wed, 7 Mar 2001 03:49:08 -0500
+Received: from www.wen-online.de ([212.223.88.39]:29452 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130436AbRCGItD>;
+	Wed, 7 Mar 2001 03:49:03 -0500
+Date: Wed, 7 Mar 2001 09:47:59 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Vibol Hou <vhou@khmer.cc>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>, <andrewm@uow.edu.au>,
+        <balbir@reflexnet.net>, <hahn@coffee.psychology.mcmaster.ca>
+Subject: Re: System slowdown on 2.4.2-ac5 (recurring from 2.4.1-ac20 and
+ 2.4.0)
+In-Reply-To: <NDBBKKONDOBLNCIOPCGHAEAEFDAA.vhou@khmer.cc>
+Message-ID: <Pine.LNX.4.33.0103070939011.1305-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Hunter <sean@dev.sportingbet.com> writes:
+On Tue, 6 Mar 2001, Vibol Hou wrote:
 
-> I propose
-> /proc/sys/kernel/im_too_lame_to_learn_how_to_use_the_most_basic_of_unix_tools_so_i_want_the_kernel_to_be_filled_with_crap_to_disguise_my_ineptitude
+> Hi,
+>
+> This is a follow up report on a server I run which is now using 2.4.2-ac5.
+> It was suggested that the problem might be a NIC driver issue, but that
+> seems unlikely at this point.
+>
+> You can find my previous posts at the following links to get a better idea
+> of what I am encountering:
+>
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0101.3/0470.html
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.3/0401.html
+>
+> The problem still persists with the new 2.4.2-ac5 kernel, and I have a
+> feeling it has to do with the VM subsystem.  The system runs Apache, MySQL,
+> and Sendmail.  It has ~900MB RAM.  The first lockup in 2.4.2-ac5 occured
 
-Well, too me it seems that you are intolerant.
+Hi,
 
+This portion of your log...
 
-I think that it should not be added to kernel because:
+httpd     S 7FFFFFFF  3700 15058   1684        (NOTLB)   15061 15055
+Call Trace: [<IN MWaI tcWahtdochg do[] <ce01ted9c9t2edd> L] OC[K<UPc0 o1ndb
+1CPadU0>],  re[<gic0st1e1r3bsf:
+8>] C[<c<c001f1f2f2afa66>>]]  [ <  c0 01c013f05:[5<>]c 010[<7ec0411>c4]3
+8d>EF] LA
+GS:  0  00  00 0 8[7
+<c0 eac0x:2 8ac042208a[>]<c 0 13 e32bxd3: >]ce 8[4a<c00010 26  e6ec0>x:]
+f7[<94ce0013803 43  5>ed]x : [0<0c00010008e00c
+b>] e
+i:dht  tp  d   0 0     Se dDi:7 A4ce3F8428a0 00       0eb 1p:5 0c601 28 a
+412680 4    es  p:    ce8 (4NbeOTfLc
+B) ds: 0018   es: 0018   ss: 0018
 
-#!/bin/sh
-/usr/bin/perl^M
+...leads me to believe that the NMI-Watchdog fired.  (I think that points
+the finger away from VM, but..)  It looks like it's saying that a lock
+of cpu 0 was detected if I squint at it right.  It's too munged to tell.
 
-will write
---
-: No such file or directory
---
-(in real it writes '/usr/bin/perl<CR>: No such file or directory')
+	-Mike
 
-But what I do think is that more meaningful message should be printed to
-output, because it is not only ^M issue.  You could mistype name of
-interpreter and don't notice (/usr/bin/eprl or similar typos), and printing
-message saying 'script.pl: file not found' is confusing.
-
-I see problem somewhere else.  There are editors and viewers (for example
-midnight commander) which will hide ^M from you, and left you totally
-confused (that's why I am using emacs ;-), because you have no idea why it
-doesn't work, because everything seems ok with this _broken_ behaviour.
-This is really BAD thing.
-
-And even more BAD thing is the intolerance shown in this thread.  People
-are not morons just because they don't understand confusing message which
-shell gives them.  Behaviour of kernel is good, error message is wrong.
-What should be fixed is error message.
-
--- 
-Ondøej Surý <ondrej@globe.cz>         Globe Internet s.r.o. http://globe.cz/
-Tel: +420235365000   Fax: +420235365009         Plánièkova 1, 162 00 Praha 6
-Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
-GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273

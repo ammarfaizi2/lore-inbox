@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbTEMWPz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 18:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTEMWNs
+	id S263711AbTEMWSe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 18:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbTEMWSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 18:13:48 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:29681 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263643AbTEMWNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 18:13:20 -0400
-Date: Tue, 13 May 2003 15:21:41 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mjbligh@us.ibm.com
-Subject: Re: [RFC][PATCH] Interface to invalidate regions of mmaps
-Message-Id: <20030513152141.5ab69f07.akpm@digeo.com>
-In-Reply-To: <20030513133636.C2929@us.ibm.com>
-References: <20030513133636.C2929@us.ibm.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 13 May 2003 18:18:18 -0400
+Received: from mailsrv.rollanet.org ([192.55.114.7]:47235 "HELO
+	mx.rollanet.org") by vger.kernel.org with SMTP id S263704AbTEMWQy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 18:16:54 -0400
+Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support only
+From: Nathan Neulinger <nneul@umr.edu>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       openafs-devel@openafs.org
+In-Reply-To: <20030513213759.A9244@infradead.org>
+References: <8943.1052843591@warthog.warthog>
+	 <20030513213759.A9244@infradead.org>
+Content-Type: text/plain
+Organization: University of Missouri - Rolla
+Message-Id: <1052864839.20037.2.camel@nneul-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 13 May 2003 17:27:20 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 May 2003 22:26:02.0535 (UTC) FILETIME=[A2EB1B70:01C3199E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->
-> This patch adds an API to allow networked and distributed filesystems
-> to invalidate portions of (or all of) a file.  This is needed to 
-> provide POSIX or near-POSIX semantics in such filesystems, as
-> discussed on LKML late last year:
+> > +static kmem_cache_t *vfs_token_cache;
+> > +static kmem_cache_t *vfs_pag_cache;
 > 
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=103609089604576&w=2
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=103167761917669&w=2
-> 
-> Thoughts?
+> How many of those will be around for a typical AFS client?  I have the vague
+> feeling the slabs are overkill..
 
-What filesystems would be needing this, and when could we see live code
-which actually uses it?
+What's a "typical client"?
 
-> +/*
-> + * Helper function for invalidate_mmap_range().
-> + * Both hba and hlen are page numbers in PAGE_SIZE units.
-> + */
-> +static void 
-> +invalidate_mmap_range_list(struct list_head *head,
-> +			   unsigned long const hba,
-> +			   unsigned long const hlen)
+I have machines that typically have 0 pags and tokens in kernel, and I
+have machines that typically have a few hundred to a thousand.
 
-Be nice to consolidate this with vmtruncate_list, so that it gets
-exercised.
+Per pag on most clients will only have a single token, but number of
+pags will depend totally on the nature of the machine. 
+
+I also have machines that have a few hundred pags around that don't have
+any tokens in them, but could at any time.
+
+-- Nathan
+
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216
 

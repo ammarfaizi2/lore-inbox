@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUH2Alc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUH2Apx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268145AbUH2Alc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 20:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUH2Alc
+	id S267464AbUH2Apx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 20:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUH2Apw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 20:41:32 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:27936 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S268148AbUH2AlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 20:41:05 -0400
-Date: Sun, 29 Aug 2004 02:41:03 +0200 (CEST)
-From: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
-To: Jeremy <jeremy@felonyroom.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PWC driver changes
-In-Reply-To: <loom.20040829T011815-40@post.gmane.org>
-Message-ID: <Pine.LNX.4.61.0408290214030.569@senta.theria.org>
-References: <loom.20040829T011815-40@post.gmane.org>
-PGP: 0B B4 BC 28 53 62 FE 94  6A 57 EE B8 A6 E2 1B E4  (0xAA5412F0)
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 28 Aug 2004 20:45:52 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7626 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267464AbUH2Apu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 20:45:50 -0400
+Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin
+	and others)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: spaminos-ker@yahoo.com, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1093739136.7078.1.camel@krustophenia.net>
+References: <20040828015937.50607.qmail@web13902.mail.yahoo.com>
+	 <41312174.40707@bigpond.net.au>  <1093739136.7078.1.camel@krustophenia.net>
+Content-Type: text/plain
+Message-Id: <1093740349.7078.13.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 20:45:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Aug 2004, Jeremy wrote:
+On Sat, 2004-08-28 at 20:25, Lee Revell wrote:
+> On Sat, 2004-08-28 at 20:21, Peter Williams wrote:
+> > spaminos-ker@yahoo.com wrote:
+> > > --- Peter Williams <pwil3058@bigpond.net.au> wrote:
+> 
+> > >     -----------------
+> > >  => started at: kernel_fpu_begin+0x21/0x60
+> > >  => ended at:   _mmx_memcpy+0x131/0x180
+> > > =======>
+> > > 00000001 0.000ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+> > > 00000001 0.730ms (+0.730ms): sub_preempt_count (_mmx_memcpy)
+> > > 00000001 0.730ms (+0.000ms): _mmx_memcpy (check_preempt_timing)
+> > > 00000001 0.730ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+> > > 
+> > 
+> > As far as I can see sub_preempt_count() is part of the latency measuring 
+> > component of the voluntary preempt patch so, like you, I'm not sure 
+> > whether this report makes any sense.
+> 
+> Is this an SMP machine?  There were problems with that version of the
+> voluntary preemption patches on SMP.  The latest version, Q3, should fix
+> these.
+> 
 
-> This whole affair is especially disappointing for me, as I just got a Phillips
-> webcam up and running the other day using pwcx.
+Hmm, after rereading the entire thread, I am not sure that voluntary
+preemption will help you here.  Voluntary preemption (and preemption in
+general) deals with the situation in which you have a high priority
+task, often the highest priority task on the system, that spends most of
+its time sleeping on some resource, and this task needs to run as soon
+as possible once it becomes runnable.  In that situation the scheduler
+doesn't have a very difficult decision, there is no question that it
+should run this task ASAP.  How long 'ASAP' is depends on how long it
+takes whatever task was running when our high priority task became
+runnable to yield the processor.  The scheduler has a very easy job
+here, there is only one right thing to do.  Also the intervals involved
+are very small, usually less than 1ms, whereas you are talking about a
+variance of several seconds.
 
-I received mine just one day too late... And I guess I'm not the only one. 
-The fact that I bought it especially because of Linux support after trying 
-3 other cams last week, adds some irony to ease the bitterness. :)
+In the situation you describe, you have two tasks running at the same
+base priority, and the scheduler does not seem to be doing a good job
+balancing them.  This is a different situation, and much more dependent
+on the scheduling policy.
 
->  Will some kind soul please
-> post something indicating which files contained the hook?  Was it part of pwc
-> somewhere?
-
-Yes. I assume it's all the stuff that contains the word 'decompressor'. 
-Such as:
-
--       pdev->decompressor = NULL;
-+       /* Find our decompressor, if any */
-+       pdev->decompressor = pwc_find_decompressor(pdev->type);
-
-You can easily do a diff between the previous kernel version and a more 
-recent one without the hooks.
-
-Here's the patch that removed the whole driver:
-http://linux.bkbits.net:8080/linux-2.6/gnupatch@412d8e0cqutBsdGubqorXXCeHHdS2g
-
-You can reverse-patch this and then do a diff compare between the tree and 
-the pwc-9.0.2 package. Or find the patchset that removed the hook.
-
-A quick look with diff shows changes in:
-./pwc-ctrl.c
-./pwc-if.c
-./pwc-uncompress.h
-./pwc.h
-
->  I'd like to compare the older kernel sources I have to the 2.6.8 I
-> just downloaded so I can see what I need to change in order to keep pwcx
-> working.
->
-
-Do email Philips customer support though. Let them know you use linux, 
-bought their product and want a driver.
+Lee
 

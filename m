@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUHCA1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUHCA2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbUHCA1K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 20:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUHCA1K
+	id S264658AbUHCA2r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 20:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUHCA2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 20:27:10 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:26553 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264643AbUHCA1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 20:27:08 -0400
-Subject: Re: DRM code reorganization
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Ian Romanick <idr@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-In-Reply-To: <20040802210935.GF12724@redhat.com>
-References: <410E9FEE.60108@us.ibm.com>
-	 <20040802204204.88994.qmail@web14926.mail.yahoo.com>
-	 <20040802210935.GF12724@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091489058.1649.8.camel@localhost.localdomain>
+	Mon, 2 Aug 2004 20:28:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39899 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264658AbUHCA1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 20:27:15 -0400
+Date: Mon, 2 Aug 2004 17:26:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Luis Miguel Garc?a Mancebo <ktech@wanadoo.es>
+Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB troubles in rc2
+Message-ID: <20040803002634.GB26323@kroah.com>
+References: <200408022100.54850.ktech@wanadoo.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 03 Aug 2004 00:24:21 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408022100.54850.ktech@wanadoo.es>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-02 at 22:09, Dave Jones wrote:
-> Whip me, beat me, make me clean up drivers/char/drm
+On Mon, Aug 02, 2004 at 09:00:54PM +0200, Luis Miguel Garc?a Mancebo wrote:
+> Hello,
 > 
-> 8-)
+> 	I have a nforce2 motherboard. I have to report that recent changes in usb 
+> code make my board don't work at all.
+> 
+> 	In 2.6.7-mm7, I just reverted the bk-usb.patch and the things started to 
+> work, but now it's on mainstream, so I cannot make it work.
+> 
+> 	Do you want for me to do some tests?
 
-Im sure that can be arranged by someone.
+Yes please.  What exactly "does not work"?
 
-> Another possibility of course is that the BSD & Linux kernel side bits
-> go their seperate ways. How active is the kernel side of the BSD world ?
+Also, let's cc: the linux-usb-devel mailing list to try to help out
+here...
 
-Eric Anholt works actively on it.
+thanks,
 
+greg k-h

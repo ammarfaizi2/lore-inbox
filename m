@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUIULHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUIULIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUIULHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 07:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUIULHw
+	id S267565AbUIULIM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 07:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUIULIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 07:07:52 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64016 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267563AbUIULHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 07:07:49 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Linas Vepstas <linas@austin.ibm.com>
-Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
-Date: Tue, 21 Sep 2004 14:07:09 +0300
-User-Agent: KMail/1.5.4
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org, anton@samba.org
-References: <20040920221933.GB1872@austin.ibm.com> <20040920223121.GC1872@austin.ibm.com>
-In-Reply-To: <20040920223121.GC1872@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Tue, 21 Sep 2004 07:08:12 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:62426 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267565AbUIULIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 07:08:07 -0400
+Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+In-Reply-To: <1095758630.3332.133.camel@gaston>
+References: <1095758630.3332.133.camel@gaston>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409211407.09764.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <1095761113.30931.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 21 Sep 2004 11:05:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 September 2004 01:31, Linas Vepstas wrote:
+On Maw, 2004-09-21 at 10:23, Benjamin Herrenschmidt wrote:
+> Hi !
 > 
-> Forgot to attach the actual patch.
-> 
-> On Mon, Sep 20, 2004 at 05:19:33PM -0500, Linas Vepstas was heard to remark:
-> > Hi,
-> 
-> 
-> This file mixes tabs with 8 spaces, leading to poor display 
-> if one's editor doesn't have tab-stops set to 8.   Please apply.
+> Linus, I don't know if you did that on purpose, but you removed the
+> "volatile" statement from the definition of the __raw_* IO accessors
+> on ppc64, which cause some real bad optisations to happen in some
+> fbdev's like matroxfb to happen (just imagine that matroxfb loops
+> reading an IO register waiting for a bit to change).
 
-There are lots of such places.
-Automated scripts can easily produce megabytes worth of whitespace
-patches.
+Why is it using __raw if it cares about ordering and not using barriers
+? Way back when the original definition was that __raw didnt do
+barriers. Thats why I2O for example uses __raw_ so that messages can be
+generated as efficiently as possible.
 
-As I understand, such patches aren't accepted because
-merging pain is much greater than gain.
-Typically whitespace cleanups are piggybacked on some code changes.
---
-vda
 

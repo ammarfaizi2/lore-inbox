@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263747AbRFHOUh>; Fri, 8 Jun 2001 10:20:37 -0400
+	id <S263903AbRFHO3h>; Fri, 8 Jun 2001 10:29:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263789AbRFHOU1>; Fri, 8 Jun 2001 10:20:27 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:31497 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S263747AbRFHOUZ>;
-	Fri, 8 Jun 2001 10:20:25 -0400
-Date: Fri, 8 Jun 2001 16:19:17 +0200 (CEST)
-From: Tobias Ringstrom <tori@unhappy.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106081440300.389-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33.0106081532140.2013-100000@boris.prodako.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263966AbRFHO32>; Fri, 8 Jun 2001 10:29:28 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:34052 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S263965AbRFHO3X>; Fri, 8 Jun 2001 10:29:23 -0400
+Date: Fri, 8 Jun 2001 18:16:12 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+Message-ID: <20010608181612.A561@jurassic.park.msu.ru>
+In-Reply-To: <20010607212015.A17908@jurassic.park.msu.ru> <Pine.GSO.3.96.1010607193120.16852B-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1010607193120.16852B-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Thu, Jun 07, 2001 at 08:28:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jun 2001, Mike Galbraith wrote:
-> I gave this a shot at my favorite vm beater test (make -j30 bzImage)
-> while testing some other stuff today.
+On Thu, Jun 07, 2001 at 08:28:04PM +0200, Maciej W. Rozycki wrote:
+>  DU seems to map as low as possible, it would seem.
 
-Could you please explain what is good about this test?  I understand that
-it will stress the VM, but will it do so in a realistic and relevant way?
+Yes, I've just checked, starting at 64K...
 
-Isn't the interesting case when you have a number of processes using lots
-of memory, but only a part of all that memory is beeing actively used, and
-that memory fits in RAM.  In that case, the VM should make sure that the
-not used memory is swapped out.  In RAM you should have the used memory,
-but also disk cache if there is any RAM left.  Does the current VM handle
-this case fine yet?  IMHO, this is the case most people care about.  It is
-definately the case I care about, at least. :-)
+>  Maybe we could just
+> do the same for OSF/1 binaries by setting TASK_UNMAPPED_BASE
+> appropriately? 
 
-I'm not saying that it's a completely uninteresting case when your active
-memory is bigger than you RAM of course, but perhaps there should be other
-algorithms handling that case, such as putting some of the swapping
-processes to sleep for some time, especially if you have lots of processes
-competing for the memory. I may be wrong, but it seems to me that your
-testcase falls into this second category (also known as thrashing).
+No. I've changed in load_aout_binary() set_personality(PER_LINUX) to
+set_personality(PER_LINUX_32BIT), and now I have another error.
+You will laugh, but...
 
-An at last, a humble request:  Every problem I've had with the VM has been
-that it either swapped out too many processes and used too much cache, or
-the other way around.  I'd really enjoy a way to tune this behaviour, if
-possible.
+$ netscape
+665:/usr/lib/netscape/netscape-communicator: : Fatal Error: mmap available address is not larger than requested
 
-/Tobias
+This happens after
+mmap(0x7fdc8000, 40960, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40018000
 
+And note, this is the message from loader, not from netscape itself.
+So I think my second patch is an easiest solution for now.
+Look, compared with the code in Linus' tree:
+- it doesn't add any overhead in general case (addr == 0);
+- if the specified address is too high and we can't find a free
+  area above it, we just continue search from TASK_UNMAPPED_BASE
+  as usual; 
+- if address is too low, extra cost is only compare and taken branch.
+I think it's clean enough.
+
+Ivan.

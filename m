@@ -1,60 +1,104 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315295AbSDWTE6>; Tue, 23 Apr 2002 15:04:58 -0400
+	id <S315307AbSDWTFb>; Tue, 23 Apr 2002 15:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315307AbSDWTE5>; Tue, 23 Apr 2002 15:04:57 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:12275 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S315295AbSDWTE4>;
-	Tue, 23 Apr 2002 15:04:56 -0400
-Message-ID: <3CC5B018.AE8E2F97@mvista.com>
-Date: Tue, 23 Apr 2002 12:03:52 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S315311AbSDWTFa>; Tue, 23 Apr 2002 15:05:30 -0400
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:4100 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S315307AbSDWTF3>; Tue, 23 Apr 2002 15:05:29 -0400
+Message-ID: <007f01c1eaf9$a63aeb40$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Alexander Viro" <viro@math.psu.edu>,
+        "Alvaro Figueroa" <fede2@fuerzag.ulatina.ac.cr>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0204231041010.8087-100000@weyl.math.psu.edu>
+Subject: Re: Adding snapshot capability to Linux
+Date: Tue, 23 Apr 2002 12:04:00 -0700
 MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: John Alvord <jalvo@mbay.net>, Pavel Machek <pavel@suse.cz>,
-        davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <Pine.LNX.4.20.0204221019280.20972-100000@otter.mbay.net> <3CC4861C.F21859A6@mvista.com> <20020422232627.GA5527@krispykreme>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-> 
-> 
-> > Please folks.  When can we put the "tick on demand" thing to bed?  If in
-> > doubt, get the patch from the high-res-timers sourceforge site (see
-> > signature for the URL) and try it.  Overhead becomes higher with system
-> > load passing the ticked system at relatively light loads.  Just what we
-> > want, very low overhead idle systems!
+This type of snapshot is very desirable.  It can be done by remounting
+the fs ro, then taking EVMS or LVM snapshot, but you can't do that with open
+files.
+
+For file level COW (not block level),
+ I wonder if DMAPI available with SGI's XFS (IRIX & Linux)
+provides the VFS like hooks that could be used to build such a system.
+
+Perhaps it could be implemented on other FS or generically in VFS.  The nice
+thing is it's a standard and already has a working implementation (XFS)
+
+from dmapi man page (oss.sgi.com XFS project):
+
+DESCRIPTION
+dmi is a system interface used to implement the interface defined in the
+X/Open document: Systems Management: Data Storage Management (XDSM) API
+dated February 1997. This interface is made available on Silicon Graphics
+systems by means of the libdm library.
+
+That spec is available from opengroup.org to view online for free.
+
+For a journaling fs cooperation with snapshot while rw,
+the fs must accept a snapshot request,
+pause in flight IO, sync all pending buffers, flush it's log, mark fs clean
+(almost like umount)
+continue the block dev snapshot, mark fs in use, resume io.
+
+Not so bad for journaling fs?  Non journaling would be easier, I think.
+
+How about having all FS export methods for this, and VFS export to
+userspace.
+The holy grail is to generically support consistent online snapshot backup,
+no?
+
+Jeremy
+
+----- Original Message -----
+From: "Alexander Viro" <viro@math.psu.edu>
+To: "Alvaro Figueroa" <fede2@fuerzag.ulatina.ac.cr>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+Sent: Tuesday, April 23, 2002 7:45 AM
+Subject: Re: Adding snapshot capability to Linux
+
+
+>
+>
+> On 23 Apr 2002, Alvaro Figueroa wrote:
+>
+> > > Instead of changing VFS you can probably make a generic stackable FS
+module
+> > > .....that can stack on top of the physical filesystems  and happily
+take
+> > > snapshots at "FS" level :) ! and you can use the FIST to create a
+basic
+> > > stackable FS and then modify it to take care of snapshoting !
 > >
-> > The problem is in accounting (or time slicing if you prefer) where we
-> > need to start a timer each time a task is context switched to, and stop
-> > it when the task is switched away.  The overhead is purely in the set up
-> > and tear down.  MOST of these never expire.
-> 
-> Did you work out where exactly the overhead was and if it was hardware
-> specific? On ppc for example updating the timer is just a write to a cpu
-> register.
+> > Since this solution doens't solve Lisbor's request of using it on smb
+> > filesystems, well, you could as well save up all of the programmer
+> > cycles and use EVMS.
+> >
+> > It has a pluggin for treating normal partitions as EVMS objets, so you
+> > don't need to translate them or so; and with EVMS you can even use RW
+> > snapshots.
+>
+> You _can't_ get consistent snapshots without cooperation from fs.  LVM,
+> EVMS, whatever.  Only filesystem knows what IO needs to be pushed to
+> make what we have on device consistent and what IO needs to be held
+> back.  Neither VFS nor device driver do not and can not have such
+> knowledge - it depends both on fs layout and on implementation details.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-It has nothing to do with hardware.  The over head is putting a timer
-entry in the list and then removing it.  Almost all timers are canceled
-before they expire.  Even with the O(1) timer list, this takes time and
-when done at the context switch rate the time mounts rapidly.  And we
-need at least one timer when we switch to a task.  In the test code I
-only start a "slice" timer.  This means that a task that wants a
-execution time signal may find the signal delayed by as much as a slice,
-but it does keep the overhead lower.
-> 
-> Anton
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

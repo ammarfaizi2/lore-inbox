@@ -1,79 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319266AbSIKSgA>; Wed, 11 Sep 2002 14:36:00 -0400
+	id <S319264AbSIKS3d>; Wed, 11 Sep 2002 14:29:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319268AbSIKSgA>; Wed, 11 Sep 2002 14:36:00 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:21360 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S319266AbSIKSf6>; Wed, 11 Sep 2002 14:35:58 -0400
-Date: Wed, 11 Sep 2002 20:41:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Austin Gonyou <austin@coremetrics.com>
-Cc: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.20pre5aa2
-Message-ID: <20020911184111.GY17868@dualathlon.random>
-References: <20020911201602.A13655@pc9391.uni-regensburg.de> <1031768655.24629.23.camel@UberGeek.coremetrics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031768655.24629.23.camel@UberGeek.coremetrics.com>
-User-Agent: Mutt/1.3.27i
+	id <S319266AbSIKS3c>; Wed, 11 Sep 2002 14:29:32 -0400
+Received: from achenar.cyan.com ([216.64.128.131]:17345 "EHLO cyan.com")
+	by vger.kernel.org with ESMTP id <S319264AbSIKS3G>;
+	Wed, 11 Sep 2002 14:29:06 -0400
+From: "Rob Emanuele" <rje@cyan.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: sym53c875J frequent bus resets
+Date: Wed, 11 Sep 2002 11:33:54 -0700
+Message-ID: <OAEILKBAEOODHMLHNAFFOEJCEPAA.rje@cyan.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-was a collision between new xfs and new scheduler, you can use this fix
-in the meantime:
+I've been running the 2.4 kernel for about a year on several
+computers.   On this one computer the scsi bus resets at an
+alarming frequency.  More so if the bus is being used.  This
+never happened with the 2.2 kernel so I keep wondering if I need
+a new configuration parameter for the driver.  The device that
+seems to be causing the reset is a basic NEC SCSI cd-rom drive.
+The drive works fine: reads any disk I put in it.
 
---- 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c.~1~	Wed Sep 11 05:17:46 2002
-+++ 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c	Wed Sep 11 06:00:35 2002
-@@ -2055,9 +2055,9 @@ pagebuf_iodone_daemon(
- 	spin_unlock_irq(&current->sigmask_lock);
- 
- 	/* Migrate to the right CPU */
--	current->cpus_allowed = 1UL << cpu;
--	while (smp_processor_id() != cpu)
--		schedule();
-+	set_cpus_allowed(current, 1UL << cpu);
-+	if (cpu() != cpu)
-+		BUG();
- 
- 	sprintf(current->comm, "pagebuf_io_CPU%d", bind_cpu);
- 	INIT_LIST_HEAD(&pagebuf_iodone_tq[cpu]);
+Thanks for any help!
 
-also remeber to apply the O_DIRECT fixes for reiserfs and ext3 (that
-were left over after merging the new nfs stuff). all will be fixed in
-next -aa of course.
+--Rob
 
---- 2.4.19pre3aa1/fs/reiserfs/inode.c.~1~	Tue Mar 12 00:07:18 2002
-+++ 2.4.19pre3aa1/fs/reiserfs/inode.c	Tue Mar 12 01:24:21 2002
-@@ -2161,10 +2161,11 @@
- 	}
- }
- 
--static int reiserfs_direct_io(int rw, struct inode *inode, 
-+static int reiserfs_direct_io(int rw, struct file * filp,
-                               struct kiobuf *iobuf, unsigned long blocknr,
- 			      int blocksize) 
- {
-+    struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
-     return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
-                              reiserfs_get_block_direct_io) ;
- }
---- 2.4.20pre5aa2/fs/ext3/inode.c.~1~	Mon Sep  9 02:38:08 2002
-+++ 2.4.20pre5aa2/fs/ext3/inode.c	Tue Sep 10 05:22:18 2002
-@@ -1385,9 +1385,10 @@ static int ext3_releasepage(struct page 
- }
- 
- static int
--ext3_direct_IO(int rw, struct inode *inode, struct kiobuf *iobuf,
-+ext3_direct_IO(int rw, struct file * filp, struct kiobuf *iobuf,
- 		unsigned long blocknr, int blocksize)
- {
-+	struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
- 	struct ext3_inode_info *ei = EXT3_I(inode);
- 	handle_t *handle = NULL;
- 	int ret;
 
-Andrea
+>From "/var/log/messages":
+
+Sep 11 10:13:43 pulsar kernel: scsi : aborting command due to
+timeout : pid 428547, scsi0, channel 0, id 4, lun 0 Read TOC 00
+00 00 00 00 00 00 0c 00
+Sep 11 10:13:43 pulsar kernel: sym53c8xx_abort: pid=428547
+serial_number=428547 serial_number_at_timeout=428547
+Sep 11 10:13:46 pulsar kernel: SCSI host 0 abort (pid 428547)
+timed out - resetting
+Sep 11 10:13:46 pulsar kernel: SCSI bus is being reset for host 0
+channel 0.
+Sep 11 10:13:46 pulsar kernel: sym53c8xx_reset: pid=428547
+reset_flags=2 serial_number=428547
+serial_number_at_timeout=428547
+Sep 11 10:13:46 pulsar kernel: sym53c875J-0: restart (scsi
+reset).
+Sep 11 10:13:46 pulsar kernel: sym53c875J-0: Downloading SCSI
+SCRIPTS.
+Sep 11 10:13:46 pulsar kernel: sym53c875J-0-<4,*>: FAST-10 SCSI
+8.0 MB/s (125.0 ns, offset 15)
+Sep 11 10:13:46 pulsar kernel: sym53c875J-0-<0,*>: FAST-10 WIDE
+SCSI 20.0 MB/s (100.0 ns, offset 15)
+
+>From "/proc/scsi/scsi":
+
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: SEAGATE  Model: ST15230W SUN4.2G Rev: 0738
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+  Vendor: NEC      Model: CD-ROM DRIVE:461 Rev: 2.3d
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 05 Lun: 00
+  Vendor: HP       Model: C1130A           Rev: 3540
+  Type:   Processor                        ANSI SCSI revision: 02
+
+>From "/proc/scsi/sym53c8xx/0":
+
+General information:
+  Chip sym53c875J, device id 0x8f, revision id 0x4
+  On PCI bus 0, device 11, function 0, IRQ 9
+  Synchronous period factor 12, max commands per lun 32
+
+>From "/var/log/dmesg":
+
+SCSI subsystem driver Revision: 1.00
+kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno
+= 2
+PCI: Found IRQ 9 for device 00:0b.0
+sym53c8xx: at PCI bus 0, device 11, function 0
+sym53c8xx: setting PCI_COMMAND_PARITY...(fix-up)
+sym53c8xx: 53c875J detected with Symbios NVRAM
+sym53c875J-0: rev 0x4 on pci bus 0 device 11 function 0 irq 9
+sym53c875J-0: Symbios format NVRAM, ID 7, Fast-20, Parity
+Checking
+sym53c875J-0: on-chip RAM at 0xef000000
+sym53c875J-0: restart (scsi reset).
+sym53c875J-0: Downloading SCSI SCRIPTS.
+scsi0 : sym53c8xx-1.7.3c-20010512
+blk: queue c7f54618, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: SEAGATE   Model: ST15230W SUN4.2G  Rev: 0738
+  Type:   Direct-Access                      ANSI SCSI revision:
+02
+blk: queue c7f54818, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: NEC       Model: CD-ROM DRIVE:461  Rev: 2.3d
+  Type:   CD-ROM                             ANSI SCSI revision:
+02
+blk: queue c7b55018, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: HP        Model: C1130A            Rev: 3540
+  Type:   Processor                          ANSI SCSI revision:
+02
+blk: queue c7b55218, I/O limit 4095Mb (mask 0xffffffff)
+sym53c875J-0-<0,0>: tagged command queue depth set to 8
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+sym53c875J-0-<0,*>: FAST-10 WIDE SCSI 20.0 MB/s (100.0 ns, offset
+15)
+SCSI device sda: 8386733 512-byte hdwr sectors (4294 MB)
+Partition check:
+ sda: sda1 sda2 sda3
+

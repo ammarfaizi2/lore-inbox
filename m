@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263043AbVCDU4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263253AbVCDVXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263043AbVCDU4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263070AbVCDUwp
+	id S263253AbVCDVXy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 16:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbVCDVTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:52:45 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36339 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263043AbVCDUvR
+	Fri, 4 Mar 2005 16:19:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64673 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263153AbVCDUy3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:51:17 -0500
-Message-ID: <4228CA2F.2030508@mvista.com>
-Date: Fri, 04 Mar 2005 12:50:55 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ncunningham@cyclades.com
-CC: David Brownell <david-b@pacbell.net>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>, linux-pm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
-References: <20050302020306.GA5724@slurryseal.ddns.mvista.com>	 <20050302085619.GA1364@elf.ucw.cz> <200503031817.06993.david-b@pacbell.net> <1109911788.3772.228.camel@desktop.cunningham.myip.net.au>
-In-Reply-To: <1109911788.3772.228.camel@desktop.cunningham.myip.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 15:54:29 -0500
+Cc: stefan@desire.ch
+Subject: [PATCH] I2C: fix for fscpos voltage values
+In-Reply-To: <11099685944086@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:36:34 -0800
+Message-Id: <11099685943850@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-...
-> Two way communication between a userspace policy manager and kernel
-> drivers is implemented via DBus.
-> 
-> In this scheme, 'kernel drivers' doesn't just refer to the drivers for
-> hardware. It refers to anything remotely power management related,
-> including code to implement suspend-to-RAM, to disk or the like, ACPI
-> drivers or code to implement system power states.
-> 
-> The policy manager can enumerate devices and inter-relationships,
-> capabilities, settings and status information, set and query policies
-> and implementation results. The drivers can notify events. This
-> communication doesn't use complicated structures or type definitions.
-> Rather, all the nous regarding interpretation of the messages that are
-> sent is in the policy manager and the drivers. One driver might say it's
-> capable of states called "D0, D1 and D3", another (system) states called
-> "Deep Sleep" and "Big Sleep". Nothing but the driver itself and
-> userspace manager need to how to interpret & use these states.
-> 
-> Inter-relationships between drivers are _not_ included in this
-> information. The policy manager sets policy, the drivers deal with the
-> specifics of implementing it.
+ChangeSet 1.2089, 2005/03/02 11:59:41-08:00, stefan@desire.ch
 
-This all sounds exactly like the way we're headed as well, so I'm 
-definitely interested in anything I can do to help.  Was thinking that 
-can start defining kobject_uevent power events and attributes (with 
-enough detail that acpid could use it instead of /proc if the ACPI 
-drivers were to convert to it).
+[PATCH] I2C: fix for fscpos voltage values
 
-Capturing the relationships between drivers is difficult.  If nobody's 
-already looking into this then I'll take this up soon.
+Multiplied the voltage multipliers by 10 in order to comply with the sysfs
+guidelines.
 
-> The userspace manager can in turn [en|dis]able capabilites and send a
-> list of run-time states that the driver can move between according to
-> its own logic (eg lack of active children) without notifying the
-> userspace manager. This would fit in with your power modes above, even
-> to the level of "cpu idle".
-
-At dynamicpower.sf.net we do something similar for cpufreq-style scaling 
-of platform clocks and voltages, setting up desired policy for various 
-platform clocks/voltages according to changes in low-level system state 
-(primarily scheduler state) from userspace and then letting the state 
-machine run without interaction.  Similar policy objects for devices 
-sounds intriguing, although the device-specific nature of event triggers 
-probably makes this quite difficult.
-
-Mac OS X support for some of these concepts is documented at 
-developer.apple.com, looking for ideas to steal...  Thanks,
+Signed-off-by: Stefan Ott <stefan@desire.ch>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
--- 
-Todd
+ drivers/i2c/chips/fscpos.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/fscpos.c b/drivers/i2c/chips/fscpos.c
+--- a/drivers/i2c/chips/fscpos.c	2005-03-04 12:25:44 -08:00
++++ b/drivers/i2c/chips/fscpos.c	2005-03-04 12:25:44 -08:00
+@@ -244,19 +244,19 @@
+ static ssize_t show_volt_12(struct device *dev, char *buf)
+ {
+ 	struct fscpos_data *data = fscpos_update_device(dev);
+-	return sprintf(buf, "%u\n", VOLT_FROM_REG(data->volt[0], 1420));
++	return sprintf(buf, "%u\n", VOLT_FROM_REG(data->volt[0], 14200));
+ }
+ 
+ static ssize_t show_volt_5(struct device *dev, char *buf)
+ {
+ 	struct fscpos_data *data = fscpos_update_device(dev);
+-	return sprintf(buf, "%u\n", VOLT_FROM_REG(data->volt[1], 660));
++	return sprintf(buf, "%u\n", VOLT_FROM_REG(data->volt[1], 6600));
+ }
+ 
+ static ssize_t show_volt_batt(struct device *dev, char *buf)
+ {
+ 	struct fscpos_data *data = fscpos_update_device(dev);
+-	return sprintf(buf, "%u\n", VOLT_FROM_REG(data->volt[2], 330));
++	return sprintf(buf, "%u\n", VOLT_FROM_REG(data->volt[2], 3300));
+ }
+ 
+ /* Watchdog */
+

@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbTIZUhs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 16:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTIZUhr
+	id S261559AbTIZUxe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 16:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTIZUxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 16:37:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39109 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261546AbTIZUhq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 16:37:46 -0400
-Subject: Re: IA32 - 6 New warnings (gcc 3.2.2)
-From: John Cherry <cherry@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030926155654.GO15696@fs.tum.de>
-References: <200309260548.h8Q5mZt3015714@cherrypit.pdx.osdl.net>
-	 <20030926155654.GO15696@fs.tum.de>
+	Fri, 26 Sep 2003 16:53:34 -0400
+Received: from h-64-236-243-31.twi.com ([64.236.243.31]:42083 "EHLO
+	wbsmtphost.wb-mail.com") by vger.kernel.org with ESMTP
+	id S261559AbTIZUxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 16:53:33 -0400
+Subject: Prefered method to map PCI memory into userspace.
+From: Jim Deas <jdeas@jadsystems.com>
+Reply-To: jdeas@jadsystems.com
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Organization: 
-Message-Id: <1064608625.10304.52.camel@cherrytest.pdx.osdl.net>
+Organization: JAD Systems
+Message-Id: <1064609623.16160.11.camel@ArchiveLinux>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 26 Sep 2003 13:37:06 -0700
+Date: 26 Sep 2003 13:53:43 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am looking for the most current (blessed) structure
+for mapping PCI memory to a user process. One that allows
+both PIO and busmastering to work on a common block of
+PCI RAM. I am not concerned with backporting to older
+kernels but it would be nice if the solution wasn't ibm specific.
 
-On Fri, 2003-09-26 at 08:56, Adrian Bunk wrote:
-> On Thu, Sep 25, 2003 at 10:48:35PM -0700, John Cherry wrote:
-> >...
-> > drivers/char/drm/sis_mm.c:92: warning: unused variable `req'
-> >...
-> 
-> Looking at the code, this seems to be a bogus warning in the gcc version
-> you are using.
-> 
-> cu
-> Adrian
+My problem is a 64M window into a frame buffer that I would
+like to map into user space. I am more than willing to put
+forth the effort, I just want to make sure I'm heading in
+the right direction.
 
-Yes, this warning looks bogus.  Hard to understand why this was flagged
-as a warning by gcc 3.2.2...
+Is there a better forum for posting this? Regards,
+J. Deas
 
-int sis_fb_alloc( DRM_IOCTL_ARGS )
-{
-        drm_sis_mem_t fb;
--->     struct sis_memreq req;
-        int retval = 0;
-                                                                                
-        DRM_COPY_FROM_USER_IOCTL(fb, (drm_sis_mem_t *)data, sizeof(fb));
-                                                                                
-        req.size = fb.size;
--->     sis_malloc(&req);
-        if (req.offset) {
-                /* TODO */
-                fb.offset = req.offset;
-                fb.free = req.offset;
-                if (!add_alloc_set(fb.context, VIDEO_TYPE, fb.free)) {
-                        DRM_DEBUG("adding to allocation set fails\n");
-                        sis_free(req.offset);
-                        retval = DRM_ERR(EINVAL);
-                }
-        } else {
-                fb.offset = 0;
-                fb.size = 0;
-                fb.free = 0;
-        }
-<snip>
+RH9.0 2.4.20-6smp kernel and above.
 
-John
 
+-- 
+Jim Deas <jdeas@jadsystems.com>
+JAD Systems
 

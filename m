@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310457AbSCLHKa>; Tue, 12 Mar 2002 02:10:30 -0500
+	id <S310470AbSCLHNa>; Tue, 12 Mar 2002 02:13:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310464AbSCLHKU>; Tue, 12 Mar 2002 02:10:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:23047 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310457AbSCLHKD>;
-	Tue, 12 Mar 2002 02:10:03 -0500
-Date: Tue, 12 Mar 2002 08:10:02 +0100
-From: Andi Kleen <ak@suse.de>
-To: Brad Pepers <brad@linuxcanada.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Multi-threading
-Message-ID: <20020312081002.A14745@wotan.suse.de>
-In-Reply-To: <20020311182111Z310364-889+120750@vger.kernel.org.suse.lists.linux.kernel> <p73zo1e4voi.fsf@oldwotan.suse.de> <20020312000310.DBCF41EDB9@Cantor.suse.de>
+	id <S310468AbSCLHNU>; Tue, 12 Mar 2002 02:13:20 -0500
+Received: from codepoet.org ([166.70.14.212]:55471 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S310464AbSCLHNQ>;
+	Tue, 12 Mar 2002 02:13:16 -0500
+Date: Tue, 12 Mar 2002 00:13:18 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, Bill Davidsen <davidsen@tmr.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Message-ID: <20020312071318.GA20921@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020311185647.27404G-100000@gatekeeper.tmr.com> <3C8D4D12.90606@mandrakesoft.com> <20020312005840.GA13955@codepoet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020312000310.DBCF41EDB9@Cantor.suse.de>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20020312005840.GA13955@codepoet.org>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 05:02:50PM -0700, Brad Pepers wrote:
-> > atomic_dec_and_return() doesn't strike me as too useful, because
-> > it would need to lie to you. When you have a reference count
-> > and you unlink the object first from public view you can trust
-> > a 0 check (as atomic_dec_and_test does). As long as the object
-> > is in public view someone else can change the counts and any
-> > "atomic return" of that would be just lying. You can of course
-> > always use atomic_read(), but it's not really atomic. I doubt the
-> > microsoft equivalent is atomic neither, they are probably equivalent
-> > to atomic_inc(); atomic_read(); or atomic_dec(); atomic_read() and
-> > some hand weaving.
-> 
-> Apparently the Microsoft one really is in Windows 98 and up (not in 95).  
-> I've had it explained that the asm code (semi-pseudo code here) is like this:
-> 
->         movl       reg, #-1
->         lock xadd  reg, counter
->         decl       reg
->         movl       result, reg
-> 
-> This is in comparison to the current code which does something like this:
-> 
->         lock decl counter
->         sete      result
-> 
-> I don't see how the first asm code lies to you.  It is returning the value as 
-> it was decremented to and the lock on the xadd keeps it safe.
+On Mon Mar 11, 2002 at 05:58:41PM -0700, Erik wrote:
+> I have no argument with basic command validation.  But take a
+> look at ide_cmd_type_parser(), for example.  Do we really need a
+> giant switch statement listing all the allowed commands, just so
+> we can throw back a IDE_DRIVE_TASK_INVALID to user-space if they
 
-Just it might change immediately afterwards if you don't remove the 
-object from public view first. An "atomic" value that you cannot depend
-on is not very useful. The Linux convention of using atomic_dec_and_test()
-is also only safe when you remove it first, but the dec_and_test encourages
-this at least.  atomic_inc_and_read() could only be safe when you remove
-the object first too, but I don't see how it could be ever useful assuming
-you keep the convention that reference count == 0 means freeable object. 
+In looking closer at the ide driver, it turns out that
+ide_cmd_type_parser() is _not_ filtering HDIO_DRIVE_TASKFILE
+ioctl commands at all.  My mistake.  There is actually no
+filtering at all HDIO_DRIVE_TASKFILE ioctl. 
 
-> 
-> > BTW regarding atomic.h: while it is nicely usable on i386 in userspace
-> > it isn't completely portable. Some architectures require helper functions
-> > that are hard to implement in user space.
-> 
-> Its too bad Linux didn't have a nice wrapper around atom inc/dec/test that 
-> was completely portable.  Do you know what arch's have trouble implementing 
-> this?
+Strangely enough, ide_cmd_type_parser() is filtering commands
+issued by the ide driver itself.
 
-sparc32 at least. 
-I think pa-risc32 too. 
+ -Erik
 
--Andi
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315943AbSFYVzH>; Tue, 25 Jun 2002 17:55:07 -0400
+	id <S315946AbSFYV7e>; Tue, 25 Jun 2002 17:59:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315946AbSFYVzG>; Tue, 25 Jun 2002 17:55:06 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:29444 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S315943AbSFYVzF>;
-	Tue, 25 Jun 2002 17:55:05 -0400
-Date: Tue, 25 Jun 2002 23:54:15 +0200
-From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
-Message-Id: <200206252154.g5PLsFG11517@linux06.vertis.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] [2.4.19-rc1] w9966 doesn't compile
+	id <S315988AbSFYV7d>; Tue, 25 Jun 2002 17:59:33 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24593 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S315946AbSFYV7d>; Tue, 25 Jun 2002 17:59:33 -0400
+Date: Tue, 25 Jun 2002 18:57:39 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: rwhron@earthlink.net
+cc: davej@suse.de, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
+In-Reply-To: <20020625105837.GA12264@rushmore>
+Message-ID: <Pine.LNX.4.44L.0206251856280.21905-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 25 Jun 2002 rwhron@earthlink.net wrote:
 
-While trying to compile 2.4.19-rc1 the following error occurs:
+> dbench isn't scaling as well with the -rmap13b patch.
 
-w9966.c:68: warning: invalid character in macro parameter name
-w9966.c:68: badly punctuated parameter list in `#define'
-w9966.c:69: warning: invalid character in macro parameter name
-w9966.c:69: badly punctuated parameter list in `#define'
-w9966.c: In function `w9966_init':
-w9966.c:329: warning: implicit declaration of function `DPRINTF'
-w9966.c: In function `w9966_setup':
-w9966.c:432: warning: implicit declaration of function `DASSERT'
+That probably means the system is fairer. Dbench "performance"
+is at its best when the system is less fair.
 
-Relevant config options seem to me:
+I won't lecture you on why dbench isn't a good benchmark since
+you must have heard that 100 times now ;)
 
-CONFIG_VIDEO_W9966=m
+regards,
 
-Cheers,
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Rolf
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290796AbSCRR06>; Mon, 18 Mar 2002 12:26:58 -0500
+	id <S290818AbSCRR06>; Mon, 18 Mar 2002 12:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSCRR0k>; Mon, 18 Mar 2002 12:26:40 -0500
-Received: from penguin.linuxhardware.org ([63.173.68.170]:15560 "EHLO
-	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
-	id <S290796AbSCRR0g>; Mon, 18 Mar 2002 12:26:36 -0500
-Date: Mon, 18 Mar 2002 12:13:10 -0500 (EST)
-From: Kristopher Kersey <augustus@linuxhardware.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
-Subject: Re: Kernel Panics on IDE Initialization
-In-Reply-To: <20020302130353.A24918@ucw.cz>
-Message-ID: <Pine.LNX.4.33.0203181211200.30202-100000@penguin.linuxhardware.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290796AbSCRR0l>; Mon, 18 Mar 2002 12:26:41 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59129
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S290423AbSCRR0f>; Mon, 18 Mar 2002 12:26:35 -0500
+Date: Mon, 18 Mar 2002 09:27:56 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Colin Leroy <colin@colino.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question about 2.4.18 and ext3
+Message-ID: <20020318172756.GK2254@matchmail.com>
+Mail-Followup-To: Colin Leroy <colin@colino.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020318180158.2886dd4a.colin@colino.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just wanted to let everyone know that the problem with the HighPoint
-controller on the SOYO Dragon has been fixed with the latest 2.4.19 pre
-patches.
+On Mon, Mar 18, 2002 at 06:01:58PM +0100, Colin Leroy wrote:
+> Is there a problem with ext3 on 2.3.18 ?
 
-Thanks,
-Kris Kersey
-augustus@linuxhardware.org
+You should try the ppc kernel available from http://www.penguinppc.org/
 
-On Sat, 2 Mar 2002, Vojtech Pavlik wrote:
+Has ppc been merged enough to use the stock kernel now?
 
-> On Fri, Mar 01, 2002 at 08:56:59PM +0000, Alan Cox wrote:
-> > > I have word that it's the HighPoint controller's fault.  I will verify
-> > > this myself and let you know.
-> >
-> > Ok
->
-> I have many reports the HPT RAID controllers cause kernels (RH 7.3
-> install) to crash, unfortunately because the VIA IDE spits an unrelated
-> warning message on many of the affected mainboards just before the HPT
-> code crashes ...
->
-> Well, this patch fixes two possible array overflows in the HPT code.
-> There is quite likely a lot more of stuff to fix.
->
-> --
-> Vojtech Pavlik
-> SuSE Labs
->
 

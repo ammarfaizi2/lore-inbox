@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266071AbUAFGHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 01:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUAFGHZ
+	id S266075AbUAFGUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 01:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266076AbUAFGUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 01:07:25 -0500
-Received: from unthought.net ([212.97.129.88]:8415 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S266071AbUAFGHY (ORCPT
+	Tue, 6 Jan 2004 01:20:50 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:12930 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S266075AbUAFGUu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 01:07:24 -0500
-Date: Tue, 6 Jan 2004 07:07:22 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Pentium M config option for 2.6
-Message-ID: <20040106060722.GA27889@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Tomas Szepe <szepe@pinerecords.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200401041227.i04CReNI004912@harpo.it.uu.se> <20040104123358.GB24913@louise.pinerecords.com>
+	Tue, 6 Jan 2004 01:20:50 -0500
+Subject: Re: ACPI battery problem with 2.6.1-rc1-mm2 kernel patch
+From: Dax Kelson <dax@gurulabs.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, "Yu, Luming" <luming.yu@intel.com>,
+       Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>,
+       linux-kernel@vger.kernel.org, linux-acpi@intel.com
+In-Reply-To: <200401060259.i062xrb3002240@turing-police.cc.vt.edu>
+References: <1073354003.4101.11.camel@idefix.homelinux.org>
+	 <20040105180859.7e20e87a.akpm@osdl.org>
+	 <200401060259.i062xrb3002240@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Message-Id: <1073370806.2687.18.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040104123358.GB24913@louise.pinerecords.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 05 Jan 2004 23:33:26 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 01:33:58PM +0100, Tomas Szepe wrote:
-> On Jan-04 2004, Sun, 13:27 +0100
-> Mikael Pettersson <mikpe@csd.uu.se> wrote:
+On Mon, 2004-01-05 at 19:59, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 05 Jan 2004 18:08:59 PST, Andrew Morton said:
 > 
-> > IOW, don't lie to the compiler and pretend P-M == P4
-> > with that -march=pentium4.
+> > Thanks, the acpi-20031203 patch seems to have introduced a handful of
+> > regressions.
 > 
-> What do you recommend to use as march then?  There is
-> no pentiumm subarch support in gcc yet;  I was convinced
-> p4 was the closest match.
+> As suggested by Yu Luming, the patch at http://bugzilla.kernel.org/show_bug.cgi?id=1766
+> is confirmed to fix my issue.  2.6.1-rc1-mm2 with that patch gives me:
 
-Use the same as for P-III.
+Just confirming that the same patched fixed up the battery reporting
+problems on my laptop as well.
 
-The P-M has the same instruction decoder (and execution unit) setup as
-the P-III, which is *very* different from P-IV (which has one decoder
-only, and then a trace cache for the decoded uops).  This is an
-important difference from a code generator point of view.
-
->From reading Intel's optimization guides, it seems to me like the P-M is
-pretty much just a slightly enhanced P-III (more cache AFAIR) which
-happens to get shipped with a good mobile chipset - and that package
-together is called Centrino.
-
-That would also explain why Centrino leaves the P-IV based laptops in
-the dust ;)
-
-Cheers,
-
- / jakob
+Dax Kelson
+Guru Labs
 

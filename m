@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280966AbRKCO6h>; Sat, 3 Nov 2001 09:58:37 -0500
+	id <S280961AbRKCOsr>; Sat, 3 Nov 2001 09:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280965AbRKCO61>; Sat, 3 Nov 2001 09:58:27 -0500
-Received: from sumo.solutionsfirst.net ([61.8.3.51]:39175 "HELO
-	sumo.solutionsfirst.net") by vger.kernel.org with SMTP
-	id <S280964AbRKCO6T>; Sat, 3 Nov 2001 09:58:19 -0500
-Date: Sun, 4 Nov 2001 02:03:34 +1100
-From: Jeff Waugh <jdub@perkypants.org>
+	id <S280962AbRKCOsg>; Sat, 3 Nov 2001 09:48:36 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:30925 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S280961AbRKCOs2>; Sat, 3 Nov 2001 09:48:28 -0500
+Disclaimer: this mail was relayed by an official relay of the linux-society.
+From: Andreas Achtzehn <linux-kernel@achtzehn.2y.net>
 To: linux-kernel@vger.kernel.org
-Subject: More recent I/O profiling patches? (sct)
-Message-ID: <20011104020334.Q11848@perkypants.org>
-Reply-To: jdub@perkypants.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-Reply-By: Fri, 27 Jul 2001 01:57:27 +1000
-X-Operating-System: Linux 2.4.10-xfs-win4lin i686
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Uptime: 01:57:27 up 6 days,  1:54,  5 users,  load average: 0.13, 0.53, 0.42
+Subject: 2.4.13: unresolved symbols with modules_install
+Date: Sat, 3 Nov 2001 15:48:18 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01110315481802.06645@paris>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Dear list readers,
 
-Are there more recent patches for I/O profiling than the ones found on sct's
-ftp archive? Most of the Google hits are 1999ish.
+I have severe problems compiling a 2.4.13 kernel on a LFS based system. (gcc 
+2.95.2, glibc 2.2.4)
+For those who have not yet used a LFS system: I have a fully running 
+linux-system on a partition. I do the following before compiling the kernel
 
-  ftp://ftp.uk.linux.org/pub/linux/sct/fs/profiling/
+mount -t proc proc /mnt2/proc
+chroot /mnt2 /usr/bin/env -i HOME=/root TERM=$TERM /bin/bash --login
 
-Thanks,
+I follow this way to compile a kernel for my system:
 
-- Jeff
+tar xvfz linux-2.4.13.tar.gz
+cd linux
+cp ../config.aktuell ./.config # this is a config I created before
+make menuconfig # no changes, just exit (otherwise no autoconfig.h)
+make dep 
+make clean
+make bzImage # works quite well up to here
+cp System.map /boot
+make modules
+make modules_install 
 
--- 
-           What do you get when you cross a web server and a hen?           
-                                  Apoache.                                  
+The modules_install ends with 
+
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.13; fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.13/kernel/drivers/net/wan/comx.o
+depmod:         proc_get_inode
+achtzehn:/usr/src/linux#       
+
+Is it possible that this is due to the proc-system and its unusual mounting?
+
+Regards,
+Andreas Achtzehn

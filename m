@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbUCYSub (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 13:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbUCYSuD
+	id S263542AbUCYSzY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 13:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263554AbUCYSzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 13:50:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38082 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263561AbUCYStG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 13:49:06 -0500
-Message-ID: <40632994.7080504@pobox.com>
-Date: Thu, 25 Mar 2004 13:48:52 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Thu, 25 Mar 2004 13:55:24 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:23046 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263542AbUCYSzS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 13:55:18 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6529.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Kevin Corry <kevcorry@us.ibm.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org
-Subject: Re: "Enhanced" MD code avaible for review
-References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com>
-In-Reply-To: <40632804.1020101@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: cciss updates [1 of 2]
+Date: Thu, 25 Mar 2004 12:55:15 -0600
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF105BC1F61@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cciss updates [1 of 2]
+Thread-Index: AcQShHL/sJGM69cuTyi4RuIv/Rr3cAAFhkuQ
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Mar 2004 18:55:16.0255 (UTC) FILETIME=[B618AAF0:01C4129A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> My take on things...  the configuration of RAID arrays got a lot more 
-> complex with DDF and "host RAID" in general.  Association of RAID arrays 
-> based on specific hardware controllers.  Silently building RAID0+1 
-> stacked arrays out of non-RAID block devices the kernel presents. 
-> Failing over when one of the drives the kernel presents does not respond.
+Yep, that would the right thing to do. But right now management wants this :(
+
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com]
+Sent: Thursday, March 25, 2004 10:14 AM
+To: Miller, Mike (OS Dev)
+Cc: axboe@suse.de; linux-kernel@vger.kernel.org
+Subject: Re: cciss updates [1 of 2]
+
+
+mikem@beardog.cca.cpqcorp.net wrote:
+> Please consider this change for inclusion in the 2.4 kernel.
 > 
-> All that just screams "do it in userland".
+> This change is required to support the new MSA30 storage enclosure.
+> If you do a SCSI inquiry to a SATA disk bad things happen. This patch prevents 
+> the inquiry from going to SATA disks.
 
-Just so there is no confusion...  the "failing over...in userland" thing 
-I mention is _only_ during discovery of the root disk.
 
-Similar code would need to go into the bootloader, for controllers that 
-do not present the entire RAID array as a faked BIOS INT drive.
+I 'ack' both of those patches, but am still curious:  wouldn't you want 
+to either (a) simulate an inquiry page via ATA's identify device or (b) 
+allow userspace to issue identify device?
 
 	Jeff
 

@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265737AbUFDLcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265740AbUFDLdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265737AbUFDLcj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 07:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265741AbUFDLcj
+	id S265740AbUFDLdH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 07:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbUFDLdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 07:32:39 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20395 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265737AbUFDLce (ORCPT
+	Fri, 4 Jun 2004 07:33:07 -0400
+Received: from holomorphy.com ([207.189.100.168]:16037 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265740AbUFDLdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 07:32:34 -0400
-Date: Fri, 4 Jun 2004 13:32:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-ID: <20040604113226.GU1946@suse.de>
-References: <1085689455.7831.8.camel@localhost> <20040603193107.54308dc9.akpm@osdl.org> <20040604094256.GM1946@suse.de> <200406040722.14026.edt@aei.ca>
+	Fri, 4 Jun 2004 07:33:02 -0400
+Date: Fri, 4 Jun 2004 04:32:53 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>, Paul Jackson <pj@sgi.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
+Message-ID: <20040604113252.GA21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mikael Pettersson <mikpe@csd.uu.se>, Paul Jackson <pj@sgi.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+	ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+	Simon.Derr@bull.net
+References: <20040603101010.4b15734a.pj@sgi.com> <1086313667.29381.897.camel@bach> <40BFD839.7060101@yahoo.com.au> <20040603221854.25d80f5a.pj@sgi.com> <16576.16748.771295.988065@alkaid.it.uu.se> <20040604093712.GU21007@holomorphy.com> <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406040722.14026.edt@aei.ca>
+In-Reply-To: <20040604112744.GZ21007@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04 2004, Ed Tomlinson wrote:
-> On June 4, 2004 05:42 am, Jens Axboe wrote:
-> > On Thu, Jun 03 2004, Andrew Morton wrote:
-> > > Ed Tomlinson <edt@aei.ca> wrote:
-> > > >
-> > > > Hi,
-> > > > 
-> > > > I am still getting these ide errors with 7-rc2-mm2.  I  get the errors even
-> > > > if I mount with barrier=0 (or just defaults).  It would seem that something is 
-> > > > sending my drive commands it does not understand...  
-> > > > 
-> > > > May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > > > May 27 18:18:05 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-> > > > 
-> > > > How can we find out what is wrong?
-> > > > 
-> > > > This does not seem to be an error that corrupts the fs, it just slows things 
-> > > > down when it hits a group of these.  Note that they keep poping up - they
-> > > > do stop (I still get them hours after booting).
-> > > 
-> > > Jens, do we still have the command bytes available when this error hits?
-> > 
-> > It's not trivial, here's a hack that should dump the offending opcode
-> > though.
-> 
-> Hi Jens,
-> 
-> I applied the patch below and booted into the new kernel (the boot
-> message showed the new compile time).  The error messages remained the
-> same - no extra info.  Is there another place that prints this (or
-> (!rq) is true)?
+On Fri, Jun 04, 2004 at 04:27:44AM -0700, William Lee Irwin III wrote:
+> If you care to export an architecture-neutral and/or 32/64 -bit
+> compatible binary representation of a bitmap, please provide the
+> implementation in lib/bitmap.c; I'm relatively agnostic on the ASCII
+> vs. whatever issue. Others may not be...
+> The cpu count for cpumask_t should be visible to userspace as the
+> dreaded sysconf(_SC_NPROCESSORS_CONF)...  don't ask how this is
+> implemented, you don't want to know.
+> Thanks.
+> -- wli
 
-!rq should not be true, strange... are you sure it just doesn't to go
-/var/log/messages, it should be there in dmesg. Alternatively, add a
-KERN_ERR to that printk.
+Hmm. Okay, I'd better confess. It parses /proc/cpuinfo... except there's
+no information there about the NR_CPUS used for cpumask_t, but rather
+only num_cpus_online().
 
--- 
-Jens Axboe
+akpm, apps are in trouble. Some interface is needed to export NR_CPUS
+so the kernel doesn't clobber their memory if they guess too low. Andi,
+how does libnuma cope with this?
 
+
+-- wli

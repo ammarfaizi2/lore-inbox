@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268431AbTCFVzw>; Thu, 6 Mar 2003 16:55:52 -0500
+	id <S268414AbTCFV47>; Thu, 6 Mar 2003 16:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbTCFVzw>; Thu, 6 Mar 2003 16:55:52 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:1028 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S268431AbTCFVzv>;
-	Thu, 6 Mar 2003 16:55:51 -0500
-Date: Thu, 6 Mar 2003 22:41:13 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: daveman@bellatlantic.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Missing keypress when ACPI enabled
-Message-ID: <20030306214113.GA181@elf.ucw.cz>
-References: <20030306164840.GA2078@bellatlantic.net>
+	id <S268435AbTCFV47>; Thu, 6 Mar 2003 16:56:59 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:42768
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S268414AbTCFV45>; Thu, 6 Mar 2003 16:56:57 -0500
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+From: Robert Love <rml@tech9.net>
+To: Martin Waitz <tali@admingilde.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20030306220307.GA1326@admingilde.org>
+References: <20030228202555.4391bf87.akpm@digeo.com>
+	 <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+	 <20030306220307.GA1326@admingilde.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046988457.715.37.camel@phantasy.awol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030306164840.GA2078@bellatlantic.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 06 Mar 2003 17:07:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2003-03-06 at 17:03, Martin Waitz wrote:
 
-> Since about 2.5.60, the first 2.5 kernel that has built/booted for
-> me, I've noticed X/Kscreensaver fails to capture a keystroke after
-> about 20 minutes of inactivity, in the password login prompt. It is
-> only the first keypress that is lost, all later keypresses work
-> fine. I believe I've narrowed it down to an interaction with having
-> ACPI enabled, as booting the kernel with 'acpi=off' seems to make
-> the problem go away. I've attached dmesg and .config output. Please
-> let me know if I can assist further.
+> RE: the patch, i think using sleep_avg is a wrong metric from the
+> beginning.
 
-Be happy (and keep your lines < 70 columns): HP omnibook locks up
-randomly when you type on keyboard, and pressing power button is
-needed to unlock it.
+Eh?  It is as close to a heuristic of interactivity as I can think of.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> in addition, timeslices should be shortest for high priority processes
+> (depending on dynamic prio, not static)
+
+No, they should be longer.  In some cases they should be nearly
+infinitely long (which is sort of what we do with the reinsertion into
+the active array for highly interactive tasks).  We want interactive
+tasks to always be able to run.
+
+You may think they need shorter timeslice because they are I/O-bound. 
+Keep in mind they need not _use_ all their timeslice in one go, and
+having a large timeslice ensures they have timeslice available when they
+wake up and need to run.
+
+	Robert Love
+

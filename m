@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265247AbTIDQOU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 12:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbTIDQOT
+	id S265253AbTIDQTI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbTIDQTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 12:14:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30127 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265247AbTIDQNZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 12:13:25 -0400
-Date: Thu, 4 Sep 2003 09:03:43 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: paulus@samba.org, rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-Message-Id: <20030904090343.50fd35c4.davem@redhat.com>
-In-Reply-To: <20030904082605.C22822@home.com>
-References: <20030903203231.GA8772@lst.de>
-	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
-	<20030904071334.GA14426@lst.de>
-	<20030904083007.B2473@flint.arm.linux.org.uk>
-	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
-	<20030904023624.592f1601.davem@redhat.com>
-	<20030904073650.B22822@home.com>
-	<20030904073009.6684112e.davem@redhat.com>
-	<20030904082605.C22822@home.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Thu, 4 Sep 2003 12:19:07 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:49093 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S265253AbTIDQSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 12:18:46 -0400
+Date: Thu, 4 Sep 2003 17:17:35 +0100
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       marcelo.tosatti@cyclades.com.br, samel@mail.cz
+Subject: Re: BK-kernel-tools/shortlog update
+Message-ID: <20030904161735.GN32335@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org,
+	marcelo.tosatti@cyclades.com.br, samel@mail.cz
+References: <20030903233333.C8468854D0@merlin.emma.line.org> <20030904160511.GB3357@redhat.com> <20030904160911.GA6694@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030904160911.GA6694@merlin.emma.line.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003 08:26:05 -0700
-Matt Porter <mporter@kernel.crashing.org> wrote:
+On Thu, Sep 04, 2003 at 06:09:11PM +0200, Matthias Andree wrote:
 
-> That will work for the PCI case.  It does force us to maintain a
-> remap_page_range64() in arch/ppc, duplicating code, and creating a
-> maintainer headache.
+ > > On Thu, Sep 04, 2003 at 01:33:33AM +0200, Matthias Andree wrote:
+ > >  >  'davej:codmonkey.org.uk' => 'Dave Jones',
+ > > This one looks fishy.
+ > Are you sure this hasn't ever been used by accident? Then I'll drop it.
 
-We've had an io_remap_page_range() with an extra "space"
-argument for the >32bits of the physical address on sparc32
-for ages exactly for this purpose.
+Looks like Linus typoed it once, as that one went in via gnu patch..
+
+ChangeSet@1.676, 2002-10-08 10:14:07-07:00, davej@codmonkey.org.uk
+  [PATCH] Various drivers using longs instead of ulongs for flags.
+
+ > >  >  'davej:suse.de' => 'Dave Jones',
+ > > You can nuke this one, I won't be using it again.
+ > >  >  'davej:tetrachloride.(none)' => 'Dave Jones',
+ > > Ditto, this box is no more.
+ > I'm reluctant to drop addresses.
+
+Ok.
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269390AbRHGTtJ>; Tue, 7 Aug 2001 15:49:09 -0400
+	id <S269387AbRHGTs7>; Tue, 7 Aug 2001 15:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269385AbRHGTs7>; Tue, 7 Aug 2001 15:48:59 -0400
-Received: from [64.175.255.50] ([64.175.255.50]:64443 "HELO kobayashi.soze.net")
-	by vger.kernel.org with SMTP id <S269380AbRHGTsw>;
-	Tue, 7 Aug 2001 15:48:52 -0400
-Date: Tue, 7 Aug 2001 12:48:34 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: encrypted swap
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C9A8@mail0.myrio.com>
-Message-ID: <Pine.LNX.4.33.0108071223100.17919-100000@kobayashi.soze.net>
+	id <S269385AbRHGTsu>; Tue, 7 Aug 2001 15:48:50 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:15358 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269380AbRHGTsf>; Tue, 7 Aug 2001 15:48:35 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108071948.f77Jm42H016486@webber.adilger.int>
+Subject: Re: encrypted swap
+In-Reply-To: <Pine.LNX.4.33L2.0108072212590.18776-100000@spiral.extreme.ro>
+ "from Dan Podeanu at Aug 7, 2001 10:23:15 pm"
+To: Dan Podeanu <pdan@spiral.extreme.ro>
+Date: Tue, 7 Aug 2001 13:48:04 -0600 (MDT)
+CC: Torrey Hoffman <torrey.hoffman@myrio.com>,
+        "'David Maynor'" <david.maynor@oit.gatech.edu>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Torrey Hoffman wrote:
+Dan writes:
+> Or, somehow better & safer (or, explain the drawback):
+> 
+> spiral:~# dd if=/dev/zero of=/swap bs=1024k count=16
+> 16+0 records in
+> 16+0 records out
+> spiral:~# losetup -e DES /dev/loop0 /swap
+> Password:
+> Init (up to 16 hex digits):
+> spiral:~# mkswap /dev/loop0
+> Setting up swapspace version 1, size = 16773120 bytes
+> spiral:~# swapon /dev/loop0
+> spiral:~# cat /proc/swaps
+> Filename                        Type            Size    Used    Priority
+> /dev/loop0                      partition       16376   0       -3
+> 
+> Of course, you'll need to enter the losetup password upon booting, which
+> might prove annoying
 
-> Imagine you have:
-> - a Linux laptop with a small amount of RAM
-> - Email and important documents encrypted on disk, either
->   with GPG / PGP or with an encrypted /home partition.
-> - Documents and email are decrypted, viewed, and edited by
->   applications, not all of which are SUID root, so
->   unencrypted data might be swapped out.
->
-> Now that laptop is stolen at an airport. The thief decides
-> to try to improve his take by grabbing useful information
-> from documents.  The encrypted documents are untouchable,
-> of course.  It _doesn't matter_ that the thief has the
-> hardware, the decryption key is protected by a passphrase
-> which is _nowhere_ on the hard drive.
+Actually, since you don't care about the old contents of swap on each
+boot, just have something like:
 
-As someone just pointed out, if the laptop's suspended, the password for
-encrypted swap pretty much has to be in ram, unless you're going to add
-hooks in resume such that before anything even starts running again
-(possible?) it prompts for the decryption password.  Otherwise, you can't
-block swap access, and if the data's encrypted, seems like that will crash
-the machine.
+losetup -e AES /dev/loop0 /swap < /dev/random
 
-With encryption boards, what's to stop either hackers with root or people
-with physical access from simply dumping everything sent across the bus to
-the encryption card, unless your whole [embedded] computer is tamper-
-resistant, the kernel doesn't accept loadable modules, and has been proven
-secure.  The only thing that doesn't have to be attack-resistant is the
-hd, since it only ever sees encrypted data.
+then you get a random password each boot, which is strong because it
+uses the full 256 character passwords, as opposed to passwords that
+people can easily use/remember.
 
-And of course, "tamper-resistant", not "tamper-proof".  I wouldn't bet
-very much money against the NSA being able to get at least some data out
-of the ibm card.
+You would likely need something more along the lines of (I don't know
+what input format losetup actually needs):
 
+dd if=/dev/random bs=1 count=16 | od -tx4 | \
+    awk '/0000000/ { print $2 $3 $4 $5 }' | losetup -e AES -p0 /dev/loop0 /swap
 
-justin
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264028AbTE3W7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTE3W7R
+	id S264042AbTE3XBm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 19:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbTE3XBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:59:17 -0400
-Received: from web41501.mail.yahoo.com ([66.218.93.84]:163 "HELO
-	web41501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264028AbTE3W7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:59:11 -0400
-Message-ID: <20030530231231.64427.qmail@web41501.mail.yahoo.com>
-Date: Fri, 30 May 2003 16:12:31 -0700 (PDT)
-From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: Cute kernel trick, or communistic ploy?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 30 May 2003 19:01:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19727 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264042AbTE3XBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 19:01:40 -0400
+Date: Sat, 31 May 2003 00:14:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jun Sun <jsun@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: Properly implement flush_dcache_page in 2.4?  (Or is it possible?)
+Message-ID: <20030531001458.H9419@flint.arm.linux.org.uk>
+Mail-Followup-To: Jun Sun <jsun@mvista.com>, linux-kernel@vger.kernel.org,
+	Ralf Baechle <ralf@linux-mips.org>
+References: <20030530103254.B1669@mvista.com> <20030530190929.E9419@flint.arm.linux.org.uk> <20030530160002.D1669@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030530160002.D1669@mvista.com>; from jsun@mvista.com on Fri, May 30, 2003 at 04:00:02PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Output of program to simulate a /proc file in a stopped kernel,
-using the same kernel function(s) used to generate the actual file
-when the kernel is up:
+On Fri, May 30, 2003 at 04:00:02PM -0700, Jun Sun wrote:
+> Is this routine tested to be working?  At least passing a page
+> index as a full virtual address to flush_cache_page() looks suspicious.
 
-(gdb) source ./proc-uptime
-$3 = (void *) 0xa1aec000
-$4 = (void *) 0xa1da48d4
-$5 = (void *) 0xa1da4384
-$6 = (void *) 0xa1da48ac
-$7 = 0
-"remember to 'call(kfree($page))' when finished
-"4080219633.89 395.85
-(gdb) 
+Well, given that it doesn't actually trip up any real life programs
+(for me) its not that easy to say "yes, it works".  However, you are
+correct, and the right flush_cache_page() call should be:
 
-  This program works fine in the um arch but I was wondering what
-the pitfalls are in an approach like this. This is a trivial example,
-but other /proc files do very complicated bookkeeping and formatting;
-and this method should be equally applicable to those.
+                flush_cache_page(mpnt, mpnt->vm_start + off << PAGE_SHIFT);
 
+> In addition, I am not sure if the vma struct will show up in the
+> "shared" list _if_ the page is only mapped in one user process and
+> in kernel (for example, those pages you obtain through get_user_pages()
+> call).
 
-GDB program 'proc-uptime' (18 lines):
+If a mapping is using MAP_SHARED, my understanding is that the pages should
+appear on the i_mmap_shared list.
 
-set $gfp_atomic=0x20
-call(kmalloc(4096,$gfp_atomic))
-set $page=$
-call(kmalloc(32,$gfp_atomic))
-set $zero=(int *)$
-set *$zero=(int)0
-call(kmalloc(32,$gfp_atomic))
-set $start=(int **)$
-set *$start=$zero
-call(kmalloc(32,$gfp_atomic))
-set $eof=(int *)$
-set *$eof=1
-call(uptime_read_proc((char *)$page,(char **)$start,(off_t)0,\
-  0,$eof,(void *)$zero))
-call(kfree($zero))
-call(kfree($eof))
-call(kfree($start))
-echo "remember to 'call(kfree($page))' before continuing\n"
-printf "%s\n",$page
+I don't see a reason to worry about privately mapped pages on the i_mmap
+list since they are private, and therefore shouldn't be updated with
+modifications to other mappings, which I'd have thought would include
+writes to the file (although I'm not so sure atm.)
 
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

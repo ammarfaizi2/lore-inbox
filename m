@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282932AbRLCJKy>; Mon, 3 Dec 2001 04:10:54 -0500
+	id <S284352AbRLCIvv>; Mon, 3 Dec 2001 03:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282083AbRLCJKI>; Mon, 3 Dec 2001 04:10:08 -0500
-Received: from ns.etm.at ([212.88.180.5]:48139 "EHLO etm.at")
-	by vger.kernel.org with ESMTP id <S281862AbRLCJIO>;
-	Mon, 3 Dec 2001 04:08:14 -0500
-Message-Id: <01Dec3.100854cet.117132@fwetm.etm.at>
-From: "Stanislav Meduna" <stano@meduna.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200112030244.fB32iMx4024126@sleipnir.valparaiso.cl>
-Subject: Re: Coding style - a non-issue 
-Date: Mon, 3 Dec 2001 10:07:59 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Msmail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-Mimeole: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S281821AbRLCItZ>; Mon, 3 Dec 2001 03:49:25 -0500
+Received: from ugw.utcc.utoronto.ca ([128.100.100.3]:7401 "HELO
+	ugw.utcc.utoronto.ca") by vger.kernel.org with SMTP
+	id <S284867AbRLCHwk>; Mon, 3 Dec 2001 02:52:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock on kernels > 2.4.13-pre6
+In-Reply-To: <20011130164031.A8741@wolverine.lohacker.net> from "Emmanuele
+	Bassi" at Nov 30, 2001 04:40:31 PM
+Date: Mon, 3 Dec 2001 02:52:34 -0500
+From: Chris Siebenmann <cks@utcc.utoronto.ca>
+Message-Id: <01Dec3.025238est.230202@ugw.utcc.utoronto.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
+| I've recently compiled and tested each kernel since 2.4.13-pre6[0],
+| and I've noticed a recurrent (and reproducible[1]) deadlock on my
+| system when I try to play an mp3[2].
 
-> Have you got any idea how QA is done in closed environments?
+ I have now seen two lockups under 2.4.16 that may be the same problem.
+Points of similarity:
+- playing mp3s (both times have been streaming mp3 audio over my PPP link)
+- Creative Soundblaster AWE (AWE32 for me, though); mine is configured
+  entirely through the kernel's PnP mechanisms.
 
-Yes I do. I write commercial sofware for 10 years and have
-experience with QA systems in two companies, one of them
-major. I think I have seen the full range of QA in various projects -
-from a complete negation to a silly buerocratic inefficient one.
+ I believe my lockups are irregular and infrequent, but it may just feel
+that way to me because I haven't listened to mp3's on this machine very
+much.
 
-> Complex software *has* bugs, bugs which aren't apparent
-> except under unsusual circumstances are rarely found in the
-> first round of bug chasing.
+ When the hang happens, the first symptom is that my mouse cursor in
+X locks and stops tracking; music continues playing for a bit longer
+before stopping. As far as I can tell nothing really happens after that
+point; if I forcefully disconnect the PPP link it does not redial, for
+example. SysRq-B will reboot the machine but SysRq-S to sync it will
+produce no audible results, and SysRq-U doesn't seem to have any effect.
+(This is an isolated home machine, which makes more precise diagnostics
+hard to get when it hangs in X.)
 
-Sure. But we now have 2.4.16, not 2.4.0 and guess what? -
-there is a big thread about fs corruption going right now
-in the l-k  :-( This should _not_ happen in the stab{le,ilizing}
-series and if it happened, the cause should be identified
-and measures taken.
+ 2.4.13-ac5 is, as far as I can tell, completely stable. I don't have
+experience with intermediate kernel versions; I jumped straight from
+2.4.13-ac5 to 2.4.16.
 
-I for one think that the kernel has overgrown its current
-development model and that some _incremental_ steps
-in the direction of both more formal control and delegation
-of responsibilities are needed. I think that the most active
-kernel developers should discuss the future of the development
-model, as they are the only ones that can really come up
-with a solution.
+ My environment is UP Pentium II, ext2, aic7880 SCSI with a single disk,
+Matrox G400 AGP graphics, XFree86 4.1.0 (using the fully free drivers).
+Both lockups have happened while X was running.
 
-It is of course only my opinion - if I am alone having it, forget it.
+ I will see if I can reproduce a lockup in the console and capture
+SysRq output that's got some useful information.
 
-> > As a user of the vendor's kernel I have no idea what to do
-> > with a bug.
-> 
-> Report it to the vendor, through the documented channels?
-
-Did this. It is two months, I did some cornering of the problem
-and augmented the report several times. The issue is still NEW,
-without any response asking to try a patch, supply more details
-or such. Yes, this speaks more of the vendor than of the Linux.
-But what impression do you think the average user gets from
-such experience?
-
-Regards
--- 
-                                                       Stano
-
-
+	- cks

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbTAVVDv>; Wed, 22 Jan 2003 16:03:51 -0500
+	id <S263256AbTAVVE2>; Wed, 22 Jan 2003 16:04:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTAVVDv>; Wed, 22 Jan 2003 16:03:51 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:23460 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263246AbTAVVDu>;
-	Wed, 22 Jan 2003 16:03:50 -0500
-Date: Wed, 22 Jan 2003 22:12:37 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dave Jones <davej@codemonkey.org.uk>, Alan <alan@lxorguk.ukuu.org.uk>,
-       "Matthew D. Pitts" <mpitts@suite224.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NForce Chipset support in which kernels?
-Message-ID: <20030122221237.A7122@ucw.cz>
-References: <3E287188.9030909@hanaden.com> <1043052878.12182.26.camel@dhcp22.swansea.linux.org.uk> <001d01c2c161$90449f40$0100a8c0@pcs686> <1043189251.1384.9.camel@dhcp22.swansea.linux.org.uk> <20030122013130.GA1652@codemonkey.org.uk>
+	id <S263276AbTAVVE2>; Wed, 22 Jan 2003 16:04:28 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:36595 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S263256AbTAVVEZ>; Wed, 22 Jan 2003 16:04:25 -0500
+Date: Wed, 22 Jan 2003 14:12:42 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: remove EXT2_MAX_BLOCK_SIZE
+Message-ID: <20030122141242.K1594@schatzie.adilger.int>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20030122202851.GR780@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030122013130.GA1652@codemonkey.org.uk>; from davej@codemonkey.org.uk on Wed, Jan 22, 2003 at 01:31:30AM +0000
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030122202851.GR780@holomorphy.com>; from wli@holomorphy.com on Wed, Jan 22, 2003 at 12:28:51PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 22, 2003 at 01:31:30AM +0000, Dave Jones wrote:
-
-> On Tue, Jan 21, 2003 at 10:47:32PM +0000, Alan Cox wrote:
->  > On Tue, 2003-01-21 at 15:24, Matthew D. Pitts wrote:
->  > > Unless you get the drivers from nVIDIA website.
->  > 
->  > Which are binary only. So its still best avoided
->  
-> For someone with far too much time on their hands, the
-> 20KB binary object (complete with symbols) shouldn't be
-> too much work to reverse engineer 8)
+On Jan 22, 2003  12:28 -0800, William Lee Irwin III wrote:
+> Remove 100% unused EXT2_MAX_BLOCK_SIZE.
 > 
-> Although Jeff seems to be think that the chip is a clone
-> of another existing NIC, so it may not be worth the effort
-> if $driver can be made to work with it by adding some IDs..
+> diff -urpN cleanup-2.5.59-3/include/linux/ext2_fs.h cleanup-2.5.59-4/include/linux/ext2_fs.h
+> --- cleanup-2.5.59-3/include/linux/ext2_fs.h	2003-01-16 18:21:39.000000000 -0800
+> +++ cleanup-2.5.59-4/include/linux/ext2_fs.h	2003-01-22 12:26:00.000000000 -0800
+> @@ -90,7 +90,6 @@ static inline struct ext2_sb_info *EXT2_
+>   * Macro-instructions used to manage several block sizes
+>   */
+>  #define EXT2_MIN_BLOCK_SIZE		1024
+> -#define	EXT2_MAX_BLOCK_SIZE		4096
+>  #define EXT2_MIN_BLOCK_LOG_SIZE		  10
+>  #ifdef __KERNEL__
+>  # define EXT2_BLOCK_SIZE(s)		((s)->s_blocksize)
 
-Well, the IDE part in nForce certainly is a clone of another IDE, so
-it's likely the NIC is as well. An idea comes to mind which one it could
-be ...
+Actually, the correct fix is to check in ext2_read_super() whether the
+blocksize is larger than EXT2_MAX_BLOCK_SIZE like ext3 does, and maybe
+even fix up the code drift between that part of ext2_read_super() and
+ext3_read_super()...
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Both ext2 and ext3 will in theory support a blocksize up to PAGE_SIZE,
+but nobody with access to a > 4kB PAGE_SIZE system has bothered to test
+whether it works, so EXT[23]_MAX_BLOCK_SIZE has not been increased.
+Any e2fsprogs from the last year or so will support larger blocksizes,
+but it has never been tested AFAIK.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUHAP6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUHAQSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUHAP6B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 11:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUHAP6B
+	id S265654AbUHAQSM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 12:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUHAQSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 11:58:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:45508 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263736AbUHAP57 (ORCPT
+	Sun, 1 Aug 2004 12:18:12 -0400
+Received: from pD9E0E790.dip.t-dialin.net ([217.224.231.144]:24197 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S265654AbUHAQSJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 11:57:59 -0400
-Date: Sun, 1 Aug 2004 17:57:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd problems
-Message-ID: <20040801155753.GA13702@suse.de>
-References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de> <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <20040731210257.GA22560@bliss> <cehqak$1pq$1@sea.gmane.org>
+	Sun, 1 Aug 2004 12:18:09 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, Scott Wood <scott@timesys.com>
+In-Reply-To: <20040729222657.GA10449@elte.hu>
+References: <40F3F0A0.9080100@vision.ee>
+	 <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe>
+	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu>  <20040729222657.GA10449@elte.hu>
+Content-Type: text/plain
+Message-Id: <1091377000.5392.18.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cehqak$1pq$1@sea.gmane.org>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 01 Aug 2004 18:16:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 01 2004, Alexander E. Patrakov wrote:
-> Zinx Verituse wrote:
-> >I don't believe command filtering is neccessary, since all of the
-> >ide-cd ioctls are still there (ioctls that allow playing, reading, etc)
-> >Only the SG_IO ioctl itself would have to be checked (i.e., not each
-> >individual command available with SG_IO, just the overall ioctl itself,
-> >categorizing all of SG_IO more or less as raw IO.  If this isn't doable
-> >with the current design, then the ide-cd interface should at least be
-> >very conspicuously documented as being extremely insecure as far as
-> >"read" access is concerned, as I know I wouldn't expect users to be able
-> >to overwrite my drive's firmware simply by granting the read access.
-> >
+Ingo Molnar wrote :
+> i've uploaded the latest version of the voluntary-preempt patch:
+>  
+>    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-M5
 > 
-> Remember that it is still possible to write CDs through ide-cd in 2.4.x 
-> using some pre-alpha code in cdrecord:
-> 
-> cdrecord dev=ATAPI:1,1,0 image.iso
 
-(don't trim cc lists on linux-kernel!)
+This patch doesn't solve the latency spikes I see every ~8 seconds on my
+system. They still appear in latencytest when the rtc interrupt is the
+only non threaded interrupt on the system, and they still produce xruns
+in jack in conjunction with the keyboard even if the the sound card's
+interrupt is the only non threaded irq and jack's SCHED_FIFO priority is
+higher than the irq threads. I suspected a clock issue and switched from
+tsc to pmtmr without success. I now suspect a hardware issue (the
+machine is a laptop with a PIII M 1GHz cpu) or a scheduler corner case.
+Running jack at 96000Hz with 2 periods of 64 samples, I can see regular
+bursts of cpu usage every 2 or 3 seconds. Oprofile reveals that schedule
+is then the second most CPU intensive function on the system.
 
-Don't ever use that interface, period. It's not just the cdrecord code
-that may be alpha (I doubt it matters, it's easy to use), the interface
-it uses is not worth the lines of code it occupies.
+Thomas
 
--- 
-Jens Axboe
 

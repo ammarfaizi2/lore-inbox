@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314070AbSDKOQQ>; Thu, 11 Apr 2002 10:16:16 -0400
+	id <S314072AbSDKORY>; Thu, 11 Apr 2002 10:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314071AbSDKOQP>; Thu, 11 Apr 2002 10:16:15 -0400
-Received: from sebula.traumatized.org ([193.121.72.130]:30085 "EHLO
-	sparkie.is.traumatized.org") by vger.kernel.org with ESMTP
-	id <S314070AbSDKOQO>; Thu, 11 Apr 2002 10:16:14 -0400
-Date: Thu, 11 Apr 2002 16:08:38 +0200
-From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: arch/sparc64/kernel/traps.c
-Message-ID: <20020411140838.GE7545@sparkie.is.traumatized.org>
-In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <200204110547.g3B5l3X08802@Port.imtp.ilyichevsk.odessa.ua> <20020411103444.GA7280@sparkie.is.traumatized.org> <200204111249.g3BCnnX10316@Port.imtp.ilyichevsk.odessa.ua>
+	id <S314076AbSDKORR>; Thu, 11 Apr 2002 10:17:17 -0400
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:27908 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S314074AbSDKORD>; Thu, 11 Apr 2002 10:17:03 -0400
+Date: Thu, 11 Apr 2002 16:16:53 +0200
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Anil Kumar <anilk@cdotd.ernet.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Read Data from  Serial Port
+Message-ID: <20020411141653.GF1405@arthur.ubicom.tudelft.nl>
+In-Reply-To: <15541.28044.720063.458160@notabene.cse.unsw.edu.au> <Pine.OSF.4.10.10204111700160.10556-100000@moon.cdotd.ernet.in>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i (Linux 2.4.19-pre5 sparc64)
-X-Files: the truth is out there
+User-Agent: Mutt/1.3.28i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 03:00:14PM +0200, Denis Vlasenko wrote:
-> 
-> >it all looks like the new version to me
-> 
-> Double check that you built ksymoops against these libs, not older ones.
-> Even if you deleted them, you may still be using old ksymoops binary!
+On Thu, Apr 11, 2002 at 05:08:15PM +0500, Anil Kumar wrote:
+>   I am new to Linux .
+>  I am looking for provisions in linux Kernel or Linux User Space  through
+> which i can read  data directly from
+> serial port (A device is Connected to Serial Port).
 
-i don't have an old ksymoops binary :) it just did not want to
-compile until i removed the old binutils, and installed the new
-version.
+open("/dev/ttyS0"), see "man open".
 
-just to be sure, i removed the source dir for ksymoops, unpacked it
-again, recompiled, and ran it from thre. same result.
+>   I read the literature regarding Raw Sockets but could not figure out 
+>  how to read data from serial port.
+
+A serial port is a device file in /dev. Sockets are for networking.
+
+>    If there is any URL where i can find  information regarding this please
+> mail me that also.
+
+You can read the Serial-Programming-HOWTO. There is also a lot of
+information in the book "Advanced programming in the UNIX environment"
+by W. Richard Stevens. The book is expensive, but worth its price.
 
 
-i think i'll just let it rest, and give it another go next time i get
-an oops :) so far my box seems to be running as i expect it to run,
-so i won't worry too much about it.
-unless one of the developers really needs it :)
+Erik
 
-best regards,
-Jurgen.
+PS: this kind of userland questions is off-topic for this list. Next
+  time use the linux-c-programming mailing list, see
+  http://lists.linux.org.au/listinfo/linuxcprogramming
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

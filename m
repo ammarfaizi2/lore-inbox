@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTE0S5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTE0S5O
+	id S263315AbTE0S7t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTE0S7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:57:14 -0400
-Received: from adsl-67-122-203-155.dsl.snfc21.pacbell.net ([67.122.203.155]:447
+	Tue, 27 May 2003 14:59:49 -0400
+Received: from adsl-67-122-203-155.dsl.pltn13.pacbell.net ([67.122.203.155]:6847
 	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
-	id S263129AbTE0S5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:57:13 -0400
-Message-ID: <3ED3B805.9050005@storadinc.com>
-Date: Tue, 27 May 2003 12:09:57 -0700
+	id S263315AbTE0S7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:59:47 -0400
+Message-ID: <3ED3B899.6070804@storadinc.com>
+Date: Tue, 27 May 2003 12:12:25 -0700
 From: manish <manish@storadinc.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
 X-Accept-Language: en-us, en
@@ -64,12 +64,28 @@ Marcelo Tosatti wrote:
 >
 >Huh? You mean bonnie still deadlocks or ?
 >
-Well, this is to the kernel that has the io_request_lock removed. The 
-stock kernel (with the fix-pausing-2 patch) is running fine upto now. 
-However, we will have to give it a few hrs of runtime.
+At the time the processes get stuck:
 
-Thanks
-Manish
+
+[root@dyn-10-123-130-235 vm]# more /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  3709870080 3699126272 10743808        0 18313216 3531255808
+Swap: 1077501952        0 1077501952
+MemTotal:      3622920 kB
+MemFree:         10492 kB
+MemShared:           0 kB
+Buffers:         17884 kB
+Cached:        3448492 kB
+SwapCached:          0 kB
+Active:          25252 kB
+Inactive:      3445344 kB
+HighTotal:     2752512 kB
+HighFree:         2120 kB
+LowTotal:       870408 kB
+LowFree:          8372 kB
+SwapTotal:     1052248 kB
+SwapFree:      1052248 kB
+
 
 
 

@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318752AbSHQWJ7>; Sat, 17 Aug 2002 18:09:59 -0400
+	id <S318761AbSHQWOx>; Sat, 17 Aug 2002 18:14:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318757AbSHQWJ7>; Sat, 17 Aug 2002 18:09:59 -0400
-Received: from [143.166.83.88] ([143.166.83.88]:36618 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S318756AbSHQWJ6>; Sat, 17 Aug 2002 18:09:58 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB79@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: lm@bitmover.com, linux-kernel@vger.kernel.org
-cc: davej@suse.de, torvalds@transmeta.com
-Subject: RE: [BK PATCH 2.5.x] move asm-ia64/efi.h to linux/efi.h
-Date: Sat, 17 Aug 2002 17:13:52 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 1140152B77630-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318762AbSHQWOx>; Sat, 17 Aug 2002 18:14:53 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:19431 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318761AbSHQWOw>; Sat, 17 Aug 2002 18:14:52 -0400
+Date: Sat, 17 Aug 2002 23:18:33 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: CLONE_DETACHED and exit notification (was user-vm-unlock-2.5.31-A2)
+Message-ID: <20020817231833.A5804@kushida.apsleyroad.org>
+References: <Pine.LNX.4.44.0208161033090.3193-100000@home.transmeta.com> <Pine.LNX.4.44.0208172044540.16707-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208172044540.16707-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Aug 17, 2002 at 08:48:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is starting to be a FAQ so...
-> 
-> The way Linus wants to work with BK is to have a BK tree from which he
-> can pull when he is ready to accept those changes.  You can set up a
-> tree at your site if they haven't firewalled everything or you can set
-> one up on bkbits.net.
+Yay! [ ;) ]
 
-I'd like to thank Larry for his assistance today.  Being behind a company
-firewall with no outbound ssh port access, pushing stuff to bkbits.net
-wasn't working.  He opened up a second ssh port (2222) on bkbits.net that
-isn't generally blocked, and now I can push there.
+Just a note: I recall that Linus suggested the optimisation of checking
+mm->mm_count > 1, but Ingo is right to not include this -- it's possible
+for the tid word to be stored in shared memory.
 
-BK_RSH="ssh -p 2222" bk push bk://project.bkbits.net/repository
-
-Thanks!
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
-
+-- Jamie

@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262663AbSJVOVR>; Tue, 22 Oct 2002 10:21:17 -0400
+	id <S262580AbSJVO2t>; Tue, 22 Oct 2002 10:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262665AbSJVOVR>; Tue, 22 Oct 2002 10:21:17 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:53679 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262663AbSJVOVR>; Tue, 22 Oct 2002 10:21:17 -0400
-Date: Tue, 22 Oct 2002 12:26:55 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Bill Davidsen <davidsen@tmr.com>,
-       Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-In-Reply-To: <m17kgbuo0i.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.44L.0210221221460.25116-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262590AbSJVO2t>; Tue, 22 Oct 2002 10:28:49 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:36072 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262580AbSJVO2s>;
+	Tue, 22 Oct 2002 10:28:48 -0400
+Date: Tue, 22 Oct 2002 16:34:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Take Vos <Take.Vos@binary-magic.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: PS/2 keyboard and mouse not available/working/weird
+Message-ID: <20021022163453.A22665@ucw.cz>
+References: <200210221603.54816.Take.Vos@binary-magic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210221603.54816.Take.Vos@binary-magic.com>; from Take.Vos@binary-magic.com on Tue, Oct 22, 2002 at 04:03:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Oct 2002, Eric W. Biederman wrote:
-> "Martin J. Bligh" <mbligh@aracnet.com> writes:
->
-> > > So why has no one written a pte_chain reaper?  It is perfectly sane
-> > > to allocate a swap entry and move an entire pte_chain to the swap
-> > > cache.
-> >
-> > I think the underlying subsystem does not easily allow for dynamic regeneration,
-> > so it's non-trivial.
->
-> We swap pages out all of the time in 2.4.x, and that is all I was
-> suggesting swap out some but not all of the pages, on a very long
-> pte_chain.  And swapping out a page is not terribly complex, unless
-> something very drastic has changed.
+On Tue, Oct 22, 2002 at 04:03:49PM +0200, Take Vos wrote:
 
-Imagine a slightly larger than normal Oracle server.
-Say 5000 processes with 1 GB of shared memory.
+> I just upgraded to 2.5.44 from 2.5.43.
+> 
+> In 2.5.43 I had a small PS/2 mouse problem, as it din't see my wart but only 
+> my scratch pad.
 
-Just the page tables needed to map this memory would
-take up 5 GB of RAM ... with shared page tables we
-only need 1 MB of page tables.
+Known bug, still trying to find out why this happens. Any chance your
+notebook has an IBM touchpad?
 
-The corresponding reduction in rmaps is a nice bonus,
-but hardly any more dramatic than the page table
-overhead.
+> In 2.5.44 both my PS/2 mice are not available, neither is my keyboard, 
+> although after sufficient keystrokes, sometimes 5, sometimes more, the 
+> keyboard is found, this is with Xfree. 
 
-In short, we really really want shared page tables.
+Interesting.
 
-regards,
+> Here is some relevant dmesg information.
+> 	--snip--
+> 	drivers/usb/core/usb.c: registered new driver hid
+> 	drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+> 	drivers/usb/core/usb.c: registered new driver usbscanner
+> 	drivers/usb/image/scanner.c: 0.4.6:USB Scanner Driver
+> 	register interface 'mouse' with class 'input
+> 	mice: PS/2 mouse device common for all mice
+> 	register interface 'joystick' with class 'input
+> 	register interface 'event' with class 'input
+> 	serio: i8042 AUX port at 0x60,0x64 irq 12
+> 	serio: i8042 KBD port at 0x60,0x64 irq 1
+> 	--snip--
+> 	MTRR: setting reg 3
+> 	atkbd.c: Unknown key (set 0, scancode 0xf0, on isa0060/serio0) pressed.
+> 	atkbd.c: Unknown key (set 0, scancode 0x4b, on isa0060/serio0) pressed.
+> 	atkbd.c: Unknown key (set 0, scancode 0x43, on isa0060/serio0) pressed.
+> 	atkbd.c: Unknown key (set 0, scancode 0xf0, on isa0060/serio0) pressed.
+> 	atkbd.c: Unknown key (set 0, scancode 0x43, on isa0060/serio0) pressed.
+> 	input: AT Set 2 keyboard on isa0060/serio0
+> 
 
-Rik
+Very interesting.
+
+> The last time I booted in 2.5.44 the keyboard was found after about 20 
+> keystrokes but was useless as it produced weird escape sequences instead of 
+> normal characters, this was without XFree (to check if it had something to do 
+> with that).
+
+Can you try with #define DEBUG in i8042.c?
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+Vojtech Pavlik
+SuSE Labs

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbUCEAUv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 19:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbUCEAUv
+	id S262083AbUCEAhF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 19:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUCEAhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 19:20:51 -0500
-Received: from moraine.clusterfs.com ([66.246.132.190]:16558 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262033AbUCEAUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 19:20:50 -0500
-Date: Thu, 4 Mar 2004 17:20:46 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Blaschke <blaschke@us.ibm.com>
-Subject: Re: [PATCH] JFS DMAPI
-Message-ID: <20040305002046.GM1219@schnapps.adilger.int>
-Mail-Followup-To: Dave Kleikamp <shaggy@austin.ibm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Dave Blaschke <blaschke@us.ibm.com>
-References: <1078444492.9162.56.camel@shaggy.austin.ibm.com>
+	Thu, 4 Mar 2004 19:37:05 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:13790 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S262083AbUCEAgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 19:36:50 -0500
+Date: Fri, 5 Mar 2004 01:36:49 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: no locks available ???
+Message-ID: <20040305003649.GA6726@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <1078444492.9162.56.camel@shaggy.austin.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 04, 2004  17:54 -0600, Dave Kleikamp wrote:
-> Would you consider adding this patch to -mm?  This would add the DMAPI
-> interface to JFS.  This function has long been requested by HSMs
-> (Hierarchical Storage Managers).  It is based on SGI's XFS
-> implementation, but has been clean up to avoid their vnode interface.
-> 
-> Most of the code is in the fs/jfs/dmapi subdirectory.  The amount of
-> code in the normal jfs codepaths is quite small.  There is no code
-> outside of fs/jfs.
+Hi all...
 
-It looks like the largest portion of this code is actually not JFS specific.
-Why not put the common code into fs/dmapi instead of fs/jfs/dmapi and then
-there will be some possibility that the XFS and JFS DMAPI implementations
-will become a single one (only one place to fix bugs, etc), and also give
-the opportunity to have DMAPI support in other filesystems?
+I am trying to lock a file from about 40 boxes, mark a line and unlock it
+(kinda job dispatcher ;) ). Via NFS.
 
-I'm sure Christoph will jump all over this (even though his name is in the
-code), so I thought I'd do it nicely first ;-).
+Just 8 boxes can get the lock. After that
+(even when the 8 boxes got their jobs and are working, so unlocked the file),
+the rest of boxes fail on fcntl() with 'no locks available'. 
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Server and clients are RH9.0, with kernel  2.4.20 (various RH versions).
 
+Any idea ? Kernel problem ? NFS problem ? Tunable ?
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Community) for i586
+Linux 2.6.4-rc1-jam2 (gcc 3.4.0 (Mandrake Linux 10.0 3.4.0-0.4mdk))

@@ -1,52 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286309AbRLTSC5>; Thu, 20 Dec 2001 13:02:57 -0500
+	id <S286301AbRLTRyR>; Thu, 20 Dec 2001 12:54:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286310AbRLTSCr>; Thu, 20 Dec 2001 13:02:47 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:40466 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286309AbRLTSCb>; Thu, 20 Dec 2001 13:02:31 -0500
-Date: Thu, 20 Dec 2001 10:05:25 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Kegel <dank@kegel.com>
-cc: mingo@elte.hu, "David S. Miller" <davem@redhat.com>,
-        bcrl <bcrl@redhat.com>, billh <billh@tierra.ucsd.edu>,
-        torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>
-Subject: Re: aio
-In-Reply-To: <3C22129C.4A4E2269@kegel.com>
-Message-ID: <Pine.LNX.4.40.0112201004580.1622-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286309AbRLTRyH>; Thu, 20 Dec 2001 12:54:07 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:20390 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S286301AbRLTRxw>; Thu, 20 Dec 2001 12:53:52 -0500
+Date: Thu, 20 Dec 2001 17:55:26 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.1-dj4
+Message-ID: <20011220175526.A22717@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Dec 2001, Dan Kegel wrote:
+Just a resync patch this time. All is quiet, all is calm..
 
-> Ingo Molnar wrote:
->
-> > it's not a fair comparison. The system was set up to not exhibit any async
-> > IO load. So a pure, atomic sendfile() outperformed TUX slightly, where TUX
-> > did something slightly more complex (and more RFC-conform as well - see
-> > Date: caching in X12 for example). Not something i'd call a proof - this
-> > simply works around the async IO interface. (which RT-signal driven,
-> > fasync-helped async IO interface, as phttpd has proven, is not only hard
-> > to program and is unrobust, it also performs *very badly*.)
->
-> Proper wrapper code can make them (almost) easy to program with.
-> See http://www.kegel.com/dkftpbench/doc/Poller_sigio.html for an example
-> of a wrapper that automatically handles the fallback to poll() on overflow.
-> Using this wrapper I wrote ftp clients and servers which use a thin wrapper
-> api that lets the user choose from select, poll, /dev/poll, kqueue/kevent, and RT signals
-> at runtime.
+Patch is available from:
+http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj4.diff.bz2
 
-Hey, you forgot /dev/epoll, the fastest one :)
+Some of these fixes still haven't found their way back to Marcelo yet
+but should show up in 2.4.17-rc3 / 2.4.18pre1 with any luck.
 
 
+2.5.1-dj4
+o   Merge with 2.4.17-rc2
+    | Most was already here, more or less just fixes for
+	| reiserfs & netfilter, and some VM changes.
+
+2.5.1-dj3
+o   Drop Manfreds multithread coredump changes		(Me)
+    | They caused ltp waitpid05 regression on 2.5
+    | (Same patch is fine for 2.4)
+o   Intermezzo compile fix.				(Chris Wright)
+o   Fix ymfpci & hisax merge errors.			(Me)
+o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
+o   Make hpfs work again.				(Al Viro)
+o   Alpha Jensen compile fixes.				(Ronald Lembcke)
+o   Make NCR5380 compile non modularly.			(Erik Andersen)
 
 
-- Davide
+2.5.1-dj2
+o   bio fixes for qlogicfas.			(brett@bad-sports.com)
+o   Correct x86 CPU helptext.			(Me)
+o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
+o   Use better ide-floppy fixes.		(Jens Axboe)
+o   Make NFS 'fsx' proof.			(Trond Mykelbust)
+    | 2 races & 4 bugs, hopefully this is all.
+o   devfs update				(Richard Gooch)
+o   Backout early CPU init, needs more work.	(Me)
+    | This should fix several strange reports.
+o   drop new POSIX kill semantics for now	(Me)
 
 
+2.5.1-dj1
+o   Resync with 2.5.1
+    | drop reiserfs changes. 2.4's look to be more complete.
+o   Fix potential sysvfs oops.				(Christoph Hellwig)
+o   Loopback driver deadlock fix.			(Andrea Arcangeli)
+o   __devexit cleanups in drivers/net/			(Daniel Chen,
+    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
+o   Configure.help updates				(Eric S. Raymond)
+o   Make reiserfs compile again.				(Me)
+o   bio changes for ide floppy					(Me)
+    | handle with care, compiles, but is unfinished.
+o   Make x86 identify_cpu() happen earlier			(Me)
+    | PPro errata workaround & APIC setup got a little
+    | cleaner as a result.
+o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
+o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
+o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
+    atyfb & fbmem.
+
+
+-- 
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

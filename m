@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265936AbTBPWFA>; Sun, 16 Feb 2003 17:05:00 -0500
+	id <S267689AbTBPWNF>; Sun, 16 Feb 2003 17:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267610AbTBPWFA>; Sun, 16 Feb 2003 17:05:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8708 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265936AbTBPWE6>; Sun, 16 Feb 2003 17:04:58 -0500
-Date: Sun, 16 Feb 2003 22:14:54 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Signal/gdb oddity in 2.5.61
-Message-ID: <20030216221454.F12489@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20030216191543.D12489@flint.arm.linux.org.uk> <20030216221023.GA6806@nevyn.them.org>
+	id <S267687AbTBPWNF>; Sun, 16 Feb 2003 17:13:05 -0500
+Received: from packet.digeo.com ([12.110.80.53]:21472 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267689AbTBPWNE>;
+	Sun, 16 Feb 2003 17:13:04 -0500
+Date: Sun, 16 Feb 2003 14:23:46 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Steve French <smfrench@austin.rr.com>
+Cc: tmolina@cox.net, linux-kernel@vger.kernel.org
+Subject: Re: compile problem with 2.5.61-bk
+Message-Id: <20030216142346.08aa3150.akpm@digeo.com>
+In-Reply-To: <3E4FF2CE.60208@austin.rr.com>
+References: <3E4FF2CE.60208@austin.rr.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030216221023.GA6806@nevyn.them.org>; from dan@debian.org on Sun, Feb 16, 2003 at 05:10:23PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Feb 2003 22:22:55.0978 (UTC) FILETIME=[F43244A0:01C2D609]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 16, 2003 at 05:10:23PM -0500, Daniel Jacobowitz wrote:
-> This is a consequence of ARM's separate get_signal_to_deliver. 
+Steve French <smfrench@austin.rr.com> wrote:
 >
-> Roland's changes for group stops require code in get_signal_to_deliver,
-> so if you aren't using the common version, you're out of luck.
-> 
-> I think you'll have to either update yours to match, or use the new
-> hooks David Miller added to use the common get_signal_to_deliver.
+> Those two functions are not exported (see e.g. ksyms.c) so are not 
+> available for modules to access but work when built as part of the kernel.
+> For the time being this means the CIFS VFS can not be built as a module.
+> Looks like I will have to figure out an alternate way to get at those two
+> functions either directly by exporting them or preferably by calling them 
+> indirectly
 
-This is using the common version in 2.5.61.
+I think exporting them makes sense.  In fact, given that ->readpages() is an
+address_space op, filesystems do have to be able to add these pages to pagecache.
 
-You might want to completely review your reply in light of this.
+It might be simpler to just use add_to_page_cache_lru(), and to export that
+instead.  But that is a little more lock-intensive, and is equivalent to
+exporting add_to_page_cache() and __pagevec_lru_add().
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+btw, cifs_copy_cache_pages() can use the more efficient kmap_atomic(KM_USER0)
+in place of the kmap().
 

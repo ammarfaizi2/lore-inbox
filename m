@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261431AbSIWWQk>; Mon, 23 Sep 2002 18:16:40 -0400
+	id <S261439AbSIWWdi>; Mon, 23 Sep 2002 18:33:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261460AbSIWWQk>; Mon, 23 Sep 2002 18:16:40 -0400
-Received: from dsl-213-023-022-250.arcor-ip.net ([213.23.22.250]:26295 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261431AbSIWWQj>;
-	Mon, 23 Sep 2002 18:16:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Dave Olien <dmo@osdl.org>
-Subject: Re: DAC960 in 2.5.38, with new changes
-Date: Tue, 24 Sep 2002 00:22:04 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
-References: <20020923120400.A15452@acpi.pdx.osdl.net> <E17tb9H-0003d7-00@starship> <20020923150302.A16033@acpi.pdx.osdl.net>
-In-Reply-To: <20020923150302.A16033@acpi.pdx.osdl.net>
+	id <S261441AbSIWWdi>; Mon, 23 Sep 2002 18:33:38 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:43197 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S261439AbSIWWdf>; Mon, 23 Sep 2002 18:33:35 -0400
+Message-ID: <D9223EB959A5D511A98F00508B68C20C0A5389BB@orsmsx108.jf.intel.com>
+From: "Rhoads, Rob" <rob.rhoads@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [ANNOUNCE] Linux Hardened Device Drivers Project 
+Date: Mon, 23 Sep 2002 15:38:32 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17tbaf-0003dC-00@starship>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 September 2002 00:03, Dave Olien wrote:
-> By the way, I don't know how extensive your code reviewing 
-> of my changes has been.
+I appreciate all the feedback. Based on the wide variety 
+of ideas/comments, it looks like I need to go back and 
+incorporate these ideas into the document, potentially 
+changing areas in major ways where appropriate.    
 
-Horribly unextensive.
+Rather than bog down this mailing list with exchanges, 
+I would like to move this discussion to the hardened 
+driver mailing list.  Please don't feel like I'm 
+ignoring your feedback--just moving the forum.
 
-> This morning I sent you the complete driver patch from 2.5.38
-> to the latest version of the driver.  That contains all of
-> the changes I sent you last week, plus new ones.
-> 
-> Would it be better for me to send you incremental patches
-> in the future?  I could instead generate a patch relative to the
-> previous version of the driver I sent you.
+An underlying theme tends to revolve around the binding
+of the concepts of 'hardening' and RAS features being 
+added to drivers.  We will be looking into splitting 
+these two different approaches out from this singular 
+document and into their appropriate locations.
 
-Far better to send the whole patch.  If anybody should be sending
-incremental patches, it's me to you.
+If you are interested (even if you aren't) please go 
+to http://lists.sourceforge.net/lists/listinfo/hardeneddrivers-discuss 
+and subscribe to the mailing list.
 
-I have a number of code reading projects going at the moment, DAC960
-is one of them.  Rather than read the whole think I'll just start
-with your bio changes, because it's fairly central and also fairly
-focussed, plus I need the incentive to go in and figure out just what
-Jens, Suparna et al have done in there.
++=+=+
+Rob Rhoads                     mailto:rob.rhoads@intel.com
+Staff Software Engineer        office: 503-677-5498
+Telecom Software Platforms
+Intel Communications Group
 
--- 
-Daniel
+This email message solely contains my own personal views, and not
+necessarily those of my employer.
+

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbQLWNUT>; Sat, 23 Dec 2000 08:20:19 -0500
+	id <S129894AbQLWNW3>; Sat, 23 Dec 2000 08:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129894AbQLWNUK>; Sat, 23 Dec 2000 08:20:10 -0500
-Received: from dsl-206.169.4.82.wenet.com ([206.169.4.82]:14607 "EHLO
-	phobos.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id <S129652AbQLWNUB>; Sat, 23 Dec 2000 08:20:01 -0500
-Date: Sat, 23 Dec 2000 04:52:06 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: linux-kernel@vger.kernel.org
-Subject: Re: OS & Games Software
-In-Reply-To: <20001223122239Z129458-439+5853@vger.kernel.org>
-Message-ID: <Pine.LNX.4.20.0012230444590.18753-100000@phobos.illtel.denver.co.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129930AbQLWNWT>; Sat, 23 Dec 2000 08:22:19 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:22146 "HELO kabuki.eyep.net")
+	by vger.kernel.org with SMTP id <S129894AbQLWNWF>;
+	Sat, 23 Dec 2000 08:22:05 -0500
+To: Mark Orr <markorr@intersurf.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: test13-pre4-ac2 - part of diff fails 
+In-Reply-To: Your message of "Sat, 23 Dec 2000 06:23:19 CDT."
+             <XFMail.20001223062319.markorr@intersurf.com> 
+In-Reply-To: <XFMail.20001223062319.markorr@intersurf.com> 
+Date: Sat, 23 Dec 2000 23:53:50 +1100
+From: Daniel Stone <daniel@kabuki.eyep.net>
+Message-Id: <20001223132215Z129894-440+3714@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2000 photon55@mail.com wrote:
-
-> Subject: OS & Games Software
 > 
-> Are you still using an old operating system? Why not upgrade to a 
-> newer and
-> more reliable version? You'll enjoy greater features and more 
-> stability. 
+> On 23-Dec-2000 Daniel Stone wrote:
+> >> > patching file arch/i386/kernel/smp.c
+> >> > Reversed (or previously applied) patch detected!  Assume -R? [n] 
+> >> > Apply anyway? [n] y
+> >> > Hunk #1 FAILED at 278.
+> >> > Hunk #2 succeeded at 511 (offset 9 lines).
+> >> > 1 out of 2 hunks FAILED -- saving rejects to file
+> >> > arch/i386/kernel/smp.c.rej
+> >> > 
+> >> > Works fine if I reverse it and then put it back in. ?
+> >> 
+> >> Its a bug in my patch - get 13pre4ac2 ..
+> > 
+> > Um.
+> > Subject: Re: test13-pre4-ac2 - part of diff fails
+> > It's _IN_ 13-4ac2.
 > 
-> Microsoft Dos 6.22				$15
-> Microsoft Windows 3.11				$15
-> Microsoft Windows 95				$15
-> Microsoft Windows 98 SE 			$20
-> Microsoft Windows Millenium 			$20
-> Microsoft Windows 2000 Pro 			$20
-> Microsoft Windows 2000 Server			$50
-> Microsoft Windows 2000 Advanced Server (25CAL)	$65
-> 
+> I applied test13-pre4-ac2 here, and it applied cleanly.
+> Are you applying it to a clean tree?  Are your using
+> patch v2.5.4 ?   (that's the version I have)
 
-  Is this a desperate Microsoft's attempt to slow Linux development by
-insulting developers? ;-))
+linux-2.4.0-test12 + reiserfs + test13-pre4 + reiserfs makefile fix (only
+changes fs/reiserfs/Makefile) + netfilter patch-o-matic stuff (only touches
+net/ipv4/netfilter) + test13-pre4-ac2.
 
-  I mean, what other purpose can this possibly have? Unless, of course,
-some unintelligent person got linux-kernel address in a list of
-prepackaged "n millions email addresses for sale" (and then he must be not
-moron*2, or moron^2, but at least e^moron).
+also seen on just linux-2.4.0-test12 + test13-pre4 + test13-pre4-ac2.
+ 
+> FWIW, I was getting smp.c patch failures (well, it said the
+> patch was previously applied) along with a bunch of
+> IPTables stuff -- that was a couple of -ac's ago.
 
--- 
-Alex
+same here, just forgot to report it.
 
-----------------------------------------------------------------------
- Excellent.. now give users the option to cut your hair you hippie!
-                                                  -- Anonymous Coward
+> AC1 and AC2 applied cleanly, tho AC1 wouldnt compile
+> uniprocessor/no-quotas unless you added a 
+> #include <linux/smp_lock.h> to fs/ext2/balloc.c
+> (i.e. it left some hanging refs to lock_kernel and
+> unlock_kernel in fs.o,  and I think there was also
+> one in the UDF module.    It's fixed in -ac2.
 
+ac1 came out while I was asleep, and I woke up to ac2 being released.
 
+d
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

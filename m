@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313744AbSDPQLt>; Tue, 16 Apr 2002 12:11:49 -0400
+	id <S313758AbSDPQ0h>; Tue, 16 Apr 2002 12:26:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313754AbSDPQLG>; Tue, 16 Apr 2002 12:11:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62992 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313744AbSDPQJT>; Tue, 16 Apr 2002 12:09:19 -0400
-Date: Tue, 16 Apr 2002 09:06:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        David Lang <david.lang@digitalinsight.com>,
-        Vojtech Pavlik <vojtech@suse.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <200204161558.g3GFwMH10945@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0204160902570.1319-100000@home.transmeta.com>
+	id <S313759AbSDPQ0g>; Tue, 16 Apr 2002 12:26:36 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65029 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313758AbSDPQ0f>; Tue, 16 Apr 2002 12:26:35 -0400
+Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Tue, 16 Apr 2002 17:09:17 +0100 (BST)
+Cc: jfranosc@physik.tu-muenchen.de (Moritz Franosch), marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020416165358.E29747@dualathlon.random> from "Andrea Arcangeli" at Apr 16, 2002 04:53:58 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16xVW9-0000Fq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > The problem is that writing to a DVD-RAM, ZIP or MO device almost
+> > totally blocks reading from a _different_ device. Here is some data.
 
+Yes I saw this with M/O disks, thats one reason the -ac tree doesn't adopt
+all the ll_rw_blk/elevator changes from the vanilla tree.
 
-On Tue, 16 Apr 2002, Richard Gooch wrote:
->
-> What I object to is the removal of a feature that people depend on,
-> *without a replacement being made available prior to removal*. If you
-> want to remove a feature, build the replacement *first*. Don't remove
-> the feature and say "the rest of you can pick up the pieces".
+> > DVD-RAM while reading from the (fast) 130GB HDD (benchmark 2) almost
+> > totally blocks the read process. Under 2.4.19-rc5, it takes 14 times
 
-Hey, that happens all the time - look how many times VFS changes have made
-various filesystems unusable (including yours ;)
+You'll see this on other things too. Large file creates seem to basically
+stall anything wanting swap
 
-The fact is, many things are easier to fix afterwards. Particularly
-because that's the only time you'll find people motivated enough to bother
-about it. If you were to need to fix everything before-the-fact, nothing
-fundamental would ever get fixed, simply because the people who can fix
-one thing are not usually the same people who can fix another.
+> > benchmarks 1-4, kernel 2.4.19-pre5 performed much worse than
+> > 2.4.18. The reason may be that the main throughput stems from the
+> > short moments where, for what reason whatsoever, read speed increases
 
-(Just to take an example that _isn't_ the IDE driver, this is exactly what
-the more generic bio changes have been an example of - it's just
-inconceivable to fix every use of the old request interface, so somebody
-has to take the first step and taker the heat about it. Otherwise it never
-gets anywhere)
+Fairness, throughput, latency - pick any two..  
 
-		Linus
+> Right fix is different but not suitable for 2.4.
 
+Curious - what do you think the right fix is ?

@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbULPCma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbULPDO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbULPCma (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 21:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbULPCm3
+	id S261916AbULPDO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 22:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULPDO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 21:42:29 -0500
-Received: from out011pub.verizon.net ([206.46.170.135]:32188 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S261914AbULPCmZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 21:42:25 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: realtime preempt 2.6.10-rc3-mm1-V0.33-0
-Date: Wed, 15 Dec 2004 21:42:23 -0500
-User-Agent: KMail/1.7
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-References: <200412141123.02293.gene.heskett@verizon.net> <200412151212.17243.gene.heskett@verizon.net> <41C07352.1040703@nortelnetworks.com>
-In-Reply-To: <41C07352.1040703@nortelnetworks.com>
+	Wed, 15 Dec 2004 22:14:27 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:9661 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261916AbULPDOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 22:14:22 -0500
+Message-ID: <41C0FDBA.5060406@comcast.net>
+Date: Wed, 15 Dec 2004 22:15:06 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Sockets from kernel space?
+References: <41C0E720.8050201@comcast.net> <41C0DF8B.2020007@conectiva.com.br>
+In-Reply-To: <41C0DF8B.2020007@conectiva.com.br>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412152142.23837.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.42.94] at Wed, 15 Dec 2004 20:42:24 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 December 2004 12:24, Chris Friesen wrote:
->Gene Heskett wrote:
->> Thats a debian/morphix based release, does anyone know the inittab
->> setting for a non x boot with full facilities?, I'm confused, too
->> many years of redhat experience :(
->
->I think that would be level 3.
->
->Chris
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks.  But I was just fooling with it again just now, trying to get
-the networking to work (and failing miserably, ping losses are circa
-70%) by resetting the MTU to 1492 like the rest of my system is
-forced into by the DSL overhead.  I've changed the *only* 1500 that
-was 'grep'able in the whole /etc tree, which is in
-/etc/sysconfig/networking-scripts/ifcfg-eth0 to a MTU=1492 and have
-restarted the networking several times without effecting the change.
-ISTR I added that MTU statement to that file earlier, but at 1492,
-how it got reset to 1500, damnifIknow.
+Thanks.  I'll look at those.
 
-It got my attention that even though the default inittab setting is
-for runlevel 2, it is not even attempting to start the Xserver now,
-giving me a root login right on the terminal, and a startx fails
-because it cannot A find a screen now, and B find a usb mouse I just
-plugged in because the ps2 mouse was such a dawg.  The mouse works
-just fine when that same machine is booted to FC3RC3.  And the
-networking doesn't work there either, same symptoms.  The yellow led
-on the interface jack is blinking rapidly.  NDI what that means.
+I'm aiming at potentially writing an LSM that allows a process to attach
+to the kernel, which will then be sent messages through an AF_UNIX
+(these are the app<->app sockets right?) socket with the details of any
+listen(2) or connect(2) calls made.  I was going to do it in userspace,
+but realized it was easily avoidable that way.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+If this works, I can pretty much securely create a host firewall that
+regulates based on network operations, user, and program.  This would
+allow the creation of discressionary firewalls, like Zone Alarm, Norton
+PF, McAffee PF, etc.  The daemon sits in userspace, the kernel asks it
+for policy decisions, it asks connected/authenticated clients about
+unknown policy, and makes them re-authenticate to get an answer.  The
+authentication is in userspace (PAM), hence the daemon.
 
+Arnaldo Carvalho de Melo wrote:
+[...]
+|
+| Please send networking development related messages to netdev@oss.sgi.com,
+| there are several networking hackers that don't even subscribe lkml.
+|
+| Having said that, look at the svc_makesock and svc_create_socket functions
+| in net/sunrpc/svcsock.c as a starting point.
+|
+| - Arnaldo
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBwP26hDd4aOud5P8RAhSjAJ956RdBt9deoh3RgW7UKWdEgNeLMACeOR+b
+nVFR/uA/ZNXkv2b6HYcRczw=
+=VUfC
+-----END PGP SIGNATURE-----

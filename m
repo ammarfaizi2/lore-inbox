@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTILXHs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 19:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTILXHr
+	id S261873AbTILXFO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 19:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbTILXFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 19:07:47 -0400
-Received: from smtp1.globo.com ([200.208.9.168]:13204 "EHLO mail.globo.com")
-	by vger.kernel.org with ESMTP id S261928AbTILXHh convert rfc822-to-8bit
+	Fri, 12 Sep 2003 19:05:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62944 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261873AbTILXFJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 19:07:37 -0400
-From: Marcelo Penna Guerra <eu@marcelopenna.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SII SATA request size limit
-Date: Fri, 12 Sep 2003 20:07:23 -0300
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200309122007.35542.eu@marcelopenna.org>
+	Fri, 12 Sep 2003 19:05:09 -0400
+Date: Fri, 12 Sep 2003 18:05:04 -0500
+Subject: Re: (kconfig) IDE DMA dependencies
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <1063405576.5783.13.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <8B61CFDE-E575-11D7-AC00-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Friday, Sep 12, 2003, at 17:26 US/Central, Alan Cox wrote:
 
-Alan Cox escreveu:
+> On Gwe, 2003-09-12 at 22:36, Hollis Blanchard wrote:
+>> I noticed this when my linker couldn't find ide_setup_dma() last 
+>> night.
+>> It looks like most of the drivers/ide/pci/ drivers use ide_setup_dma()
+>> in their .init_dma() function. ide_setup_dma() is defined in
+>
+> It should be falling out as a stub function I think. In the non DMA
+> case it should never get invoked anyway
 
-> It isnt that simple, unfortunately you need an NDA for the full story.
-> If you want to check which chips need it get a setup that hangs reliably
-> with large transfers, put the same disks on a newer controller that
-> doesnt and see what happens
+drivers/built-in.o(.text+0x39f90): In function `init_dma_generic':
+drivers/ide/pci/generic.c:77: undefined reference to `ide_setup_dma'
+drivers/built-in.o(.text+0x4a7e8): In function `ide_hwif_setup_dma':
+drivers/ide/setup-pci.c:511: undefined reference to `ide_setup_dma'
 
-So, shouldn't we go back to my suggestion? A lot of users won't know that this 
-limit is being set and telling them on boot time would be a good thing I 
-think.
+Even if it is stubbed correctly though, don't we want DMA (i.e. it's 
+safe) with most of those drivers?
 
-And I still don't know how to set this limit back to 128 with 2.6.x kernels. 
-It can't be done the same way as in 2.4.x, can it?
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
-Marcelo Penna Guerra
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/YlGyD/U0kdg4PFoRAiHdAJ97opZnlt0uVKh+GVERMtKbH4HmWACgj21x
-0zSI4+LRkBs3Dz6gDvdilIU=
-=Saft
------END PGP SIGNATURE-----

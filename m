@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268164AbTBNKoq>; Fri, 14 Feb 2003 05:44:46 -0500
+	id <S268346AbTBNKqE>; Fri, 14 Feb 2003 05:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268346AbTBNKoq>; Fri, 14 Feb 2003 05:44:46 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:47577 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S268164AbTBNKop>; Fri, 14 Feb 2003 05:44:45 -0500
-Date: Fri, 14 Feb 2003 11:54:34 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Pavel Machek <pavel@suse.cz>, John Levon <levon@movementarian.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
-In-Reply-To: <15948.50644.705291.922086@kim.it.uu.se>
-Message-ID: <Pine.GSO.3.96.1030214115026.666C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S268349AbTBNKqE>; Fri, 14 Feb 2003 05:46:04 -0500
+Received: from denise.shiny.it ([194.20.232.1]:9941 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S268346AbTBNKqD>;
+	Fri, 14 Feb 2003 05:46:03 -0500
+Message-ID: <XFMail.20030214115507.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com>
+Date: Fri, 14 Feb 2003 11:55:07 +0100 (CET)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: RE: Synchronous signal delivery..
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Mikael Pettersson wrote:
 
-> My goal was to not change any behaviour from our current code, and from
-> what I can tell, our current code does not support PM suspend and resume
-> for old external-local-APIC machines. (They're mostly 486 MPs, right?)
+> It's a generic "synchronous signal delivery" method, and it uses a
+> perfectly regular file descriptor to deliver an arbitrary set of signals
+> that are pending.
+>
+> It adds one new system call:
+>
+>       fd = sigfd(sigset_t * mask, unsigned long flags);
 
- Both i486 and Pentium (typically for quad support, etc.).
+IMHO it's not simply a signal delivery system, it's a message queue. It's
+possible to deliver any kind of data to the process, and the fd can be
+used to send data to other processes as well.
 
-> The suspend/resume procedures only work on P6/K7 and up. There's a
-> bug there in that we may try to run the suspend on a UP P5 with enabled
-> local APIC, which won't work. So far, no one seems to have noticed :->
 
- OK, but then the question is: are the following calls:
-
-+	driver_register(&local_apic_driver);
-+	return sys_device_register(&device_local_apic);
-
-for suspend/resume exclusively?
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Bye.
 

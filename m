@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268172AbUHKToy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268192AbUHKTqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268172AbUHKToy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268192AbUHKToy
+	id S268192AbUHKTqn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 15:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268196AbUHKTqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:44:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18901 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268172AbUHKTox (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:44:53 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Date: Wed, 11 Aug 2004 12:44:38 -0700
-User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
-References: <20040811192411.36763.qmail@web14927.mail.yahoo.com>
-In-Reply-To: <20040811192411.36763.qmail@web14927.mail.yahoo.com>
-MIME-Version: 1.0
+	Wed, 11 Aug 2004 15:46:42 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56757 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S268192AbUHKTq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 15:46:27 -0400
+Date: Wed, 11 Aug 2004 16:20:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: "'Vernon Mauery'" <vernux@us.ibm.com>,
+       "'David Weinehall'" <tao@debian.org>,
+       "'Brown, Len'" <len.brown@intel.com>,
+       "'lkml'" <linux-kernel@vger.kernel.org>, linux-acpi@intel.com
+Subject: Re: [ACPI][2.6.8-rc2-bk #] - ACPI shutdown problems on IBMThinkpads (T42)
+Message-ID: <20040811142021.GE1120@openzaurus.ucw.cz>
+References: <1091120589.14718.4.camel@bluerat> <000701c475b8_5737e650_0200080a@panic>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408111244.38904.jbarnes@engr.sgi.com>
+In-Reply-To: <000701c475b8_5737e650_0200080a@panic>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, August 11, 2004 12:24 pm, Jon Smirl wrote:
-> Jesse, did you notice that the quirk for tracking the boot video device
-> is x86 only? I believe this needs to run on ia64 and x86_64 too. How do
-> we want to do that? It will do the wrong thing on architectures that
-> don't shadow video ROMs to C0000.
+Hi!
 
-Yeah, but I don't know of any ia64 platforms that need the quirk.  All of them 
-that I'm aware of use add-on boards.
+> Something else I noticed, when ACPI fails to shut the machine down fully,
+> and I hold the power button to shut it off completely, I hear a buzzing
+> sound from the back, if I remove the battery and plug it back in the laptop
+> becomes completely silent. I'm not sure what this is though (?).
+> 
+> That issue I don't think is connected to ACPI. 
 
-Jesse
+Thats hw problem...
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

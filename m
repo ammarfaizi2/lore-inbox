@@ -1,95 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbSLFTGU>; Fri, 6 Dec 2002 14:06:20 -0500
+	id <S265608AbSLFTMF>; Fri, 6 Dec 2002 14:12:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265608AbSLFTGU>; Fri, 6 Dec 2002 14:06:20 -0500
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:7934 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S265587AbSLFTGS> convert rfc822-to-8bit; Fri, 6 Dec 2002 14:06:18 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: s390 update.
-Date: Fri, 6 Dec 2002 20:11:04 +0100
-X-Mailer: KMail [version 1.4]
+	id <S265647AbSLFTMF>; Fri, 6 Dec 2002 14:12:05 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43791 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265608AbSLFTME>; Fri, 6 Dec 2002 14:12:04 -0500
+Date: Fri, 6 Dec 2002 11:20:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: george anzinger <george@mvista.com>
+cc: Jim Houston <jim.houston@ccur.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <Pine.LNX.4.44.0212060944030.23118-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212061111090.1489-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212061944.22688.schwidefsky@de.ibm.com>
-Cc: com.ibm@arndb.de, idrys@gmx.de
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-big sellout for s/390. We have progressed with the common i/o layer rework
-to a point where its working fine again. There are some leftovers but
-we can fix these later without causing another huge patch. Dependent on
-the cio rework are the device drivers. There are patches to get 3215, iucv,
-dasd, tape, lcs and ctc working with the new cio layer.
-Changes worth noticing:
- * Remove the award winning channel device layer ("How to NOT write kernel
-   driver"). It gets replaced by ccwgroups.
- * Overall conversion to the new device model (sysfs).
- * CIO is now completly asynchronous and has a proper state machine for
-   the ccw devices. Channel path verification while the device is up 
-   should work now.
- * Clean separation between a subchannel and a ccw device (not every
-   subchannel is a ccw device). 
- * Better integration of qdio.
- * Rewritten tape device driver.
- * Rewritten lcs network driver.
 
-The patch overview:
+On Fri, 6 Dec 2002, Linus Torvalds wrote:
+>
+> I just pushed my version of the system call restart code to the BK trees.
+> It's losely based on Georges code, but subtly different. Also, I didn't
+> actually update any actual system calls to use it, I just did the
+> infrastructure.
 
-01: Kconfig and defconfig again. New options: DEBUG_KERNEL, DEBUG_SLAB,
-    KALLSYMS and DEBUG_SPINLOCK_SLEEP.
-02: gcc 3.3 allocates variables that are initialized to zero to the .bss
-    section instead of .data. This caused some mischief with memory_size
-    that is detected and stored before .bss is cleared.
-03: Add s390 elf relocations to include/linux/elf.h
-04: Suppress kern info message about debug levels if DEBUG is off. This
-    removes quite a lot of unnecessary noise in the boot messages.
-05: Adapt s390 backend to changed do_fork call.
-06: Add missing include in ptrace.c
-07: Documentation changes for the s390 debugging guide.
-08: Remove channel device layer.
-09: This is the big one: the reworked common i/o layer.  I can't see a way
-    to split this into meaningful parts. It is basically: delete the old
-    code, add the new code.
-10: Add the ccwgroup driver. This is the replacement for chandev and is
-    surprisingly simple. Grouping is done by echoing a string containing
-    the subchannels identifiers of a group to an entry in the sysfs.
-    E.g. for lcs "echo 0:0100,0:0101 > /sysfs/bus/ccwgroup/drivers/lcs/group".
-    This creates a ccw group with the first subchannel as group leader. The
-    lcs driver then creates additional attributes in 
-    /sysfs/bus/ccw/devices/0:0100 that are used to configure the lcs device.
-    Same method is used for ctc but with different attributes. The burden
-    to find the subchannels which belong to a device is put into the
-    userspace where it belongs (configure scripts).
-11: Update for the documentation about the common io layer.
-12: 3215 adaptions for the new channel subsystem interface.
-13: sysfs changes for the iucv driver.
-14: dasd changes related to the new channel subsystem driver.
-15: The rewritten tape device driver.
-16: Add cu3088 metadriver. ctc and lcs both use the cu type 3088. To support
-    these two in the new driver model a metadriver for 3088 subchannels
-    is introduced. ctc and lcs plug into it to get their subchannels. The
-    3088 driver just gets all 3088 subchannels for safe-keeping until
-    ctc or lcs will pick their channels at the time the ccwgroup is created.
-17: Convert ctc to the new channel subsystem and 3088 driver.
-18: Complete rewrite of the lcs driver. It now uses the new channel subsystem
-    interface and the 3088 driver. It shrunk a lot and is imho now much
-    easier to read and understand.
-19: Some improvements for the rewritten sclp driver I sent last time.
-    Most of them are concerned about error recovery.
+I did the nanosleep() implementation using the new infrastructure now, and
+am pushing it out as I write this.
 
-I keep the finger crossed that everythings applies on the bitkeeper tree.
+Ironically (considering the origin of the thread), this actually _breaks_
+the kernel/compat.c nanosleep handling, since the restarting really needs
+to know the type for "struct timespec", and the common "do_nanosleep()"
+was just too stupid and limited to be able to do restarting sanely.
 
-blue skies,
-  Martin.
+Compat people can hopefully fix it up. Either by just copying the
+nanosleep function and not even trying to share code, or by making the
+restart function be a function pointer argument to a new and improved
+common "do_nanosleep()".
 
-P.S. some of the patches are too big for lkm. I only post the description
-     file on lkm. If anybody needs the patches just send me a mail and I'll
-     forward them.
+It's been tested, and the only problem I found (which is kind of
+fundamental) is that if the system call gets interrupted by a signal and
+restarted, and then later returns successfully, the partial restart will
+have updated the "remaining time" field to whatever was remaining when the
+restart was started.
+
+That could be fixed by making the restart block contain not just the
+restart pointer, but also a "no restart possible" pointer, which would be
+the one called if the signal handler logic ended up returning -EINTR.
+
+It's a trivial extension, and possibly worth it regardless (it might be
+useful for other system call cases too that may want to undo some
+reservation or whatever), but I would like to hear from the standards
+lawyers whether POSIX/SuS actually cares or not. George?
+
+			Linus
 

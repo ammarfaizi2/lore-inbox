@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbTKNVPz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 16:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTKNVPz
+	id S264333AbTKNV2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTKNV2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 16:15:55 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:9969 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262288AbTKNVPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 16:15:54 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 14 Nov 2003 22:15:45 +0100 (MET)
-Message-Id: <UTC200311142115.hAELFjt09878.aeb@smtp.cwi.nl>
-To: torvalds@osdl.org, willy@debian.org
-Subject: Re: [PATCH] Fix XFree86 build
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+	Fri, 14 Nov 2003 16:28:23 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:4333 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S264333AbTKNV2X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:28:23 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: Test message please ignore
+Date: Fri, 14 Nov 2003 13:28:20 -0800
+Message-ID: <59C7D667A0EADB45866C62DD1B55A0FDBCA7F8@aime2k02.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Test message please ignore
+Thread-Index: AcOq9jl0U7OuHxPgS7K9nuV4ezXv0A==
+From: "Green, Jeff" <Jeff_Green@adaptec.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	--- a/include/linux/kd.h	29 Jul 2003 17:02:13 -0000	1.1
-	+++ b/include/linux/kd.h	14 Nov 2003 20:18:38 -0000
+Test
 
-	+#ifdef __KERNEL__
+ 
+ 
+Jeff Green
+Network Operations 
+Adaptec Inc. 
+691 S. Milpitas Blvd 
+Milpitas, CA 95035 
+408-957-6916
 
->From maintaining things like mount and kbd I can tell you
-that it is hopeless to try and have user space source that
-is source compatible with all kernel source versions.
 
-Today the rule is "avoid including kernel includes".
-Thus, one has to write
-
-  /* from <linux/kd.h> */
-  struct kbd_repeat {
-          int delay;        /* in msec; <= 0: don't change */
-          int period;       /* in msec; <= 0: don't change */
-  };
-
-or so, repeating the kernel include data in the user source.
-
-Usually this is not too bad. It only gets really messy if the
-kernel definitions are architecture-dependent.
-
-On the other hand, the kernel is fairly good at staying
-binary compatible. Thus, such copies in user space code
-do not harm so much - once copied, they tend to remain correct.
-
-Of course everybody hates this situation, and several people
-have proposed action to remedy. I think you were one.
-I did too, and got half a dozen replies from people who would like to
-help constructing a kernel include hierarchy suitable for user space.
-
-But we don't have it yet.
-
-Andries

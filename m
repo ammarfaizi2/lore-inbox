@@ -1,48 +1,50 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154428-8316>; Thu, 10 Sep 1998 08:50:20 -0400
-Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.69.0.28]:3391 "HELO MIT.EDU" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154498-8316>; Thu, 10 Sep 1998 08:27:41 -0400
-Date: Thu, 10 Sep 1998 11:05:38 -0400
-Message-Id: <199809101505.LAA24441@dcl.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: hpa@transmeta.com
-Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: H. Peter Anvin's message of 10 Sep 1998 01:37:05 GMT, <6t7ag1$trf$1@palladium.transmeta.com>
+Received: by vger.rutgers.edu id <154473-8316>; Thu, 10 Sep 1998 10:34:20 -0400
+Received: from adsl179.mpls.uswest.net ([209.180.29.179]:4311 "EHLO adsl179.mpls.uswest.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154698-8316>; Thu, 10 Sep 1998 10:27:07 -0400
+Date: Thu, 10 Sep 1998 12:05:25 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: Chris Wedgwood <chris@cybernet.co.nz>, colin@nyx.net, tytso@MIT.EDU, andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
 Subject: Re: GPS Leap Second Scheduled!
-Address: 1 Amherst St., Cambridge, MA 02139
-Phone: (617) 253-8091
+In-Reply-To: <199809100836.KAA00899@cave.BitWizard.nl>
+Message-ID: <Pine.LNX.3.96.980910120009.27760F-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   From: hpa@transmeta.com (H. Peter Anvin)
-   Date: 	10 Sep 1998 01:37:05 GMT
-   Right.  I think the right solution is one I suggested on c.o.l.d.s
-   recently:
+On Thu, 10 Sep 1998, Rogier Wolff wrote:
 
-   - time_t being a 64-bit signed integer linked to UTC
-   - struct timespec (and struct timeval, presumably) having an extra
-     field added:
+> Chris Wedgwood wrote:
+> > On Wed, Sep 09, 1998 at 02:13:42PM -0600, Colin Plumb wrote:
+> > 
+> > > - gettimeofday() never returns the same value twice (documented BSD
+> > >   behaviour)
+> > 
+> > Ouch... gettimeofday(2) only presently has usec resolution. I suspect
+> > we can make this report the same value twice on really high end boxes
+> > (667MHz Alpha maybe, 400Mhz Sparcs?), if not now, in a year or so.
+> > Even a P.ii 600 or so can probably manage it.
+> 
+> This is defined behaviour. On processors where gettimeofday can be
+> called more than once in a microsecond (SMP systems, and fast
+> systems), the kernel is required to keep a last-time-returned, and
+> increment it and return that if the value calculated is below the
+> stored value.
 
-	   64-bit seconds field (same as time_t) linked to UTC
-	   32-bit nanosecond field (microsecond for timeval) linked to TAI
-	   32-bit integral TAI-UTC difference
+Seems wrong to bother the kernel with this at all. Any complexity here
+should be put in libc. After all, the problem is largely with the ANSI C
+spec.
 
-This works, although it would require making a glibc interface change.
-But if the ELF symbol versioning works out, perhaps this won't be as big
-of an issue.
+Also, putting any of this 'hide the leap second' logic in the kernel makes
+it more difficult to later add a consistent interface to libc as the
+information is now hidden in the kernel. 
 
-However, in order to in sync with POSIX.1's definition of how time_t relates to
-UTC time, I'd suggest that we make the progression go as follows:
+Finally, telling the kernel to schedule a leap second seems pretty ugly as
+well.
 
-... making the progress go as follows:
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
 
-	tv_sec		tv_delta	UTC
-	   T-1		N		23:59:59
-	   T		N		23:59:60
-	   T		N+1		00:00:00
-	   T+1		N+1		00:00:01
-
-(that is, repeat tv_sec == T instead of tv_sec == T-1).
-
-						- Ted
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

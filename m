@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUJCUM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268117AbUJCUMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268119AbUJCUM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 16:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUJCUM5
+	id S268117AbUJCUMy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 16:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUJCUMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 16:12:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5776 "EHLO
+	Sun, 3 Oct 2004 16:12:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5520 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S268119AbUJCUMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S268117AbUJCUMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 3 Oct 2004 16:12:53 -0400
-Date: Sun, 3 Oct 2004 21:48:31 +0200
+Date: Sat, 2 Oct 2004 16:24:25 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, sct@redhat.com
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-Message-ID: <20041003194831.GB3089@openzaurus.ucw.cz>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: Re: EXT3-fs errors after going into S1
+Message-ID: <20041002142425.GA3089@openzaurus.ucw.cz>
+References: <1096646879.636.27.camel@boxen>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16733.50382.569265.183099@segfault.boston.redhat.com>
+In-Reply-To: <1096646879.636.27.camel@boxen>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> This patch makes an attempt at supporting the O_NONBLOCK flag for regular
-> files.  It's pretty straight-forward.  One limitation is that we still call
-> into the readahead code, which I believe can block.  However, if we don't
-> do this, then an application which only uses non-blocking reads may never
-> get it's data.
+> I was playing a bit with suspend on 2.6.9-rc3 (latest -bk tree) and noticed this.
+> I run the script below and do "echo -n 1 > /proc/acpi/sleep" maybe 2-3 times and
+> after that ext3 sends some stuff on my console.
+> Reproducible, happens with & without preempt. UP box running debian, no highmem.
+> 
+> #!/bin/sh
+> for i in 0 1 2 3 4 5 6 7 8 9
+> do
+> 	find / &> /dev/null &
+> done
+> 
+> I also did a _fsck.ext3 -f -c /dev/hda9_ to make sure there were no bad sectors.
+> 
 
-This looks very nice. Does it mean that aio and friends are instantly obsolete?
+S1 should be really simple. Try removing actual entering of S1 in hwsleep.c,
+and see if it goes away.
 
-Does it have comparable performance to aio?
+If it does you probably have hw problem.
+
 				Pavel
-
-
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

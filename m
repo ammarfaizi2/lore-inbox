@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbUKRUYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262968AbUKRU1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUKRUYh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 15:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUKRUYa
+	id S262968AbUKRU1f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUKRU1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:24:30 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:62700 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262974AbUKRUXP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:23:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=s6Wao8XDK+d80Y5MSGbhaK1bra6ctWjbx9rKxtjI1CT+B6wpxARZyTVRuCz8iZHCOCl7Mzl2OMKXDmcVGhnXDhitVNyP/5vUe0ypdSAcj5UBMCnuvekuwoTeX9D1ikqwBqJOlzV6NUswjiCORRi9+1tWSWVw/4kdjNLYSn676JM=
-Message-ID: <69304d1104111812234656a606@mail.gmail.com>
-Date: Thu, 18 Nov 2004 21:23:13 +0100
-From: Antonio Vargas <windenntw@gmail.com>
-Reply-To: Antonio Vargas <windenntw@gmail.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: PATCH: Altivec support for RAID-6
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <419C46C7.4080206@zytor.com>
+	Thu, 18 Nov 2004 15:27:33 -0500
+Received: from ultra7.eskimo.com ([204.122.16.70]:32264 "EHLO
+	ultra7.eskimo.com") by vger.kernel.org with ESMTP id S262968AbUKRUTO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:19:14 -0500
+Date: Thu, 18 Nov 2004 12:16:13 -0800
+From: Elladan <elladan@eskimo.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, hbryan@us.ibm.com, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041118201613.GA30308@eskimo.com>
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <419C46C7.4080206@zytor.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Nov 2004 22:52:55 -0800, H. Peter Anvin <hpa@zytor.com> wrote:
-> This patch adds Altivec support for RAID-6, if appropriately configured
-> on the ppc or ppc64 architectures.  Note that it changes the compile
-> flags for ppc64 in order to handle -maltivec correctly; this change was
-> vetted on the ppc64 mailing list and OK'd by paulus.
+On Thu, Nov 18, 2004 at 10:31:27AM -0800, Linus Torvalds wrote:
 > 
-> Signed-off-by: H. Peter Anvin <hpa@zytor.com>
 > 
+> On Thu, 18 Nov 2004, Miklos Szeredi wrote:
+> > 
+> > Well, killing the fuse process _will_ make the system come back to
+> > life, since then all the dirty pages belonging to the filesystem will
+> > be discarded. 
+> 
+> They will? Why? They're still mapped into other processes, still dirty. 
+> How do they go away?
 
-hpa, are you aware of any other routines which should benefit from altivec?
+If the filesystem a dirty page is mapped against ceases to exist,
+wouldn't it make sense to destroy the page?  All such user processes can
+receive SIGBUS and crash.  This is sort of a general problem with a
+filesystem on a "removable" device like a USB stick, and it seems the
+only sane solution is to blow all the mappings against that filesystem
+away.
 
--- 
-Greetz, Antonio Vargas aka winden of network
+Of course, it sucks since the final result will be a crash, but mmap()
+isn't a reliable interface for accessing media that might go away...
 
-Las cosas no son lo que parecen, excepto cuando parecen lo que si son.
+So, a reasonable solution would be to detect when a user fs process
+dies, and initiate a forced unmount procedure where you walk all the
+pages mapped against that filesystem and blow them away.  Similarly for
+a case like pulling a USB reader out while it's being written to (you
+could nag the user to reinsert, but that might be impossible).
+
+This doesn't solve the deadlock as such except as a sort of
+panic-recovery hack, but it seems sensible in general.
+
+-J
+

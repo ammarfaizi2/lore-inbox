@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264806AbUEKPxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUEKPyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264806AbUEKPxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 11:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUEKPxL
+	id S264808AbUEKPyc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 11:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264809AbUEKPyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 11:53:11 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:26602 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S264806AbUEKPxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 11:53:05 -0400
-From: cr7@os.inf.tu-dresden.de
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] USB-HID: IOWarrior added to blacklist
-Date: Tue, 11 May 2004 17:53:23 +0200
-User-Agent: KMail/1.6.2
-Cc: vojtech@suse.cz
-MIME-Version: 1.0
-Content-Disposition: inline
-Organization: TU Dresden - Operating System Group 
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zbPoAIAHZ+Gaqw4"
-Message-Id: <200405111753.23786.cr7@os.inf.tu-dresden.de>
+	Tue, 11 May 2004 11:54:32 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:1190 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S264808AbUEKPyV (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 11:54:21 -0400
+Message-Id: <200405111554.i4BFs4hU015073@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dynamic allocation of swap disk space 
+In-Reply-To: Your message of "Tue, 11 May 2004 16:52:15 BST."
+             <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <fa.n6pggn5.84en31@ifi.uio.no> <40A0EFC0.1040609@sgi.com>
+            <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-202761952P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 11 May 2004 11:54:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-202761952P
+Content-Type: text/plain; charset=us-ascii
 
---Boundary-00=_zbPoAIAHZ+Gaqw4
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 11 May 2004 16:52:15 BST, John Bradford said:
 
-Hi all,
+> Imagine a system with limited physical RAM, and limited swap space, running a
+> process which causes a lot of filesystem activity on the same physical disk
+> as is being used for swap.  If the total RAM, both physical and swap is almost
+> completely full, increasing the swap space may allow some data from physical
+> RAM to be swapped out, in favour of caching filesystem data from the disk.
 
-this is a simple patch of USB's hid-core.c to add Codemercs' IOWarrior 24 and  
-IOWarrior 40 to the blacklist as it's not a "real" HID device.
-It should be used via Codemercs' driver or via libusb.
-
-The datasheet for IOwarrior can be found here:
-http://www.codemercs.com/Downloads/IOWarriorDatasheet.pdf
-
-Regards,
-Carsten
+Possible, but wouldn't that imply that the value of /proc/sys/vm/swappiness
+is very mis-set and causing a too-high estimate of the working set size?
 
 
+--==_Exmh_-202761952P
+Content-Type: application/pgp-signature
 
---Boundary-00=_zbPoAIAHZ+Gaqw4
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="hid-iowarrior.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="hid-iowarrior.patch"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---- /drivers/usb/input/hid-core.c-orig	2004-04-04 05:37:23.000000000 +0200
-+++ /drivers/usb/input/hid-core.c	2004-05-11 13:50:11.877974264 +0200
-@@ -1412,6 +1412,11 @@
- #define USB_VENDOR_ID_CHIC		0x05fe
- #define USB_DEVICE_ID_CHIC_GAMEPAD	0x0014
- 
-+#define USB_VENDOR_ID_CODEMERCS         0x07c0
-+#define USB_DEVICE_ID_CODEMERCS_IOW40   0x1500
-+#define USB_DEVICE_ID_CODEMERCS_IOW24   0x1501
-+
-+
- struct hid_blacklist {
- 	__u16 idVendor;
- 	__u16 idProduct;
-@@ -1479,6 +1484,9 @@
- 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
- 
-+	{ USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW40, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW24, HID_QUIRK_IGNORE },
-+
- 	{ 0, 0 }
- };
- 
+iD8DBQFAoPcccC3lWbTT17ARAnDEAKDpnZcoovTfE30sqm9/Rl41bBofJgCfYi+x
+kJgqMBRpu0PMggHlRzHQKm4=
+=Xcuq
+-----END PGP SIGNATURE-----
 
---Boundary-00=_zbPoAIAHZ+Gaqw4--
-
+--==_Exmh_-202761952P--

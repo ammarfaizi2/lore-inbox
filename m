@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281668AbRLICT7>; Sat, 8 Dec 2001 21:19:59 -0500
+	id <S281910AbRLICW3>; Sat, 8 Dec 2001 21:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281647AbRLICTu>; Sat, 8 Dec 2001 21:19:50 -0500
-Received: from mons.uio.no ([129.240.130.14]:38910 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S281562AbRLICTl>;
-	Sat, 8 Dec 2001 21:19:41 -0500
+	id <S282373AbRLICWT>; Sat, 8 Dec 2001 21:22:19 -0500
+Received: from dsl-213-023-038-245.arcor-ip.net ([213.23.38.245]:44295 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281910AbRLICWL>;
+	Sat, 8 Dec 2001 21:22:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+Date: Sun, 9 Dec 2001 03:24:40 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Ragnar =?iso-8859-1?q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>,
+        Hans Reiser <reiser@namesys.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        reiserfs-dev@namesys.com
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CNHk-0000u4-00@starship.berlin> <1007834523.2566.2.camel@ixodes.goop.org>
+In-Reply-To: <1007834523.2566.2.camel@ixodes.goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15378.51767.917907.458718@charged.uio.no>
-Date: Sun, 9 Dec 2001 03:19:35 +0100
-To: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH: BSD-style credentials for Linux 2.5.0-pre6...
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Cte0-00013u-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On December 8, 2001 07:02 pm, Jeremy Fitzhardinge wrote:
+> On Fri, 2001-12-07 at 07:51, Daniel Phillips wrote:
+> > I did try R5 in htree, and at least a dozen other hashes.  R5 was the 
+> > worst of the bunch, in terms of uniformity of distribution, and caused a 
+> > measurable slowdown in Htree performance.  (Not an order of magnitude, 
+> > mind you, something closer to 15%.)
+> 
+> Did you try the ReiserFS teahash?  I wrote it specifically to address
+> the issue you mentioned in the paper of an attacker deliberately
+> generating collisions; the intention was that each directory (or maybe
+> filesystem) have its own distinct hashing key.
 
-  The embryo of an implementation of BSD credentials for Linux
-2.5.1-pre5 is now ready in the form of a patch on
+Yes, I tried every hash in ReiserFS.  Please have a look at Larry McVoy's 
+'linear congruential' hash in the bitkeeper code.  It's decent.  In fact, the 
+only good hashes I've found after trolling all over the internet are that 
+one, and the one I wrote, both based on combining a sequence of characters 
+with a well-known pseudo-random number generation technique.
 
-  http://www.fys.uio.no/~trondmy/src/bsdcred/linux-2.5.1-pre6_cred.dif
-
-So far there are no changes to the VFS API or even to the SunRPC
-code: I'm just concentrating on setting up the basic interface for
-sharing credentials between the task_structs and the struct file.
-
-The size of the patch is already pretty nasty & long, but most of it
-is just mechanical substitution of current->(|e|u|fs)[ug]id with
-appropriate wrappers, and can be ignored. The real meat lies in the 2
-new files kernel/cred.c and include/linux/cred.h...
-
-Would interested parties (Al are you listening?) please take a look? 
-I'd really appreciate any comments...
-
-Cheers,
-   Trond
-
-PS: There is also a file linux-2.4.16-cred.dif in the same directory
-that contains the same patch against bog-standard linux-2.4.16...
+--
+Daniel

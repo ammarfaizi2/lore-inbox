@@ -1,101 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbTIKXRk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 19:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbTIKXRk
+	id S261631AbTIKXcx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 19:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTIKXcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 19:17:40 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:12795 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S261592AbTIKXRi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 19:17:38 -0400
-Subject: [PATCH] 2.4.22 precedes 0.9.9 in module-init-tools of course
-From: Pat LaVarre <p.lavarre@ieee.org>
+	Thu, 11 Sep 2003 19:32:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47027 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261631AbTIKXc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 19:32:27 -0400
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+From: Craig Thomas <craiger@osdl.org>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1063312953.3347.24.camel@patehci2>
-References: <Pine.LNX.4.44L0.0309111551410.2667-100000@ida.rowland.org>
-	 <1063312953.3347.24.camel@patehci2>
+Cc: piggin@cyberone.com.au, kernel@colivas.org, akpm@osdl.org
 Content-Type: text/plain
 Organization: 
-Message-Id: <1063322319.3616.26.camel@patehci2>
+Message-Id: <1063323132.3255.12.camel@bullpen.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Sep 2003 17:18:39 -0600
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Sep 2003 16:32:12 -0700
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Sep 2003 23:17:37.0773 (UTC) FILETIME=[E3CEB1D0:01C378BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think newbies still need a more emphatic hint, such as:
+At the request of Cliff White, I have run DBT-2 tests agains patches
+from Nick Piggin.  Below are some test results running an OLTP
+transaction database workload with two of Nick Piggin's patches:
 
---- linux-2.6.0-test5/Documentation/Changes	2003-09-08 13:50:28.000000000 -0600
-+++ linux/Documentation/Changes	2003-09-11 16:09:12.155352016 -0600
-@@ -42,6 +42,9 @@
- encountered a bug!  If you're unsure what version you're currently
- running, the suggested command should tell you.
- 
-+Except also upgrade your module-init-tools if your depmod -V gives
-+you a "depmod version" rather than a "module-init-tools" version.
-+
- Again, keep in mind that this list assumes you are already
- functionally running a Linux 2.4 kernel.  Also, not all tools are
- necessary on all systems; obviously, if you don't have any PCMCIA (PC
+PLM ID 2117 - sched_rollup (2.6.0-test5-sched-rollup)
+PLM ID 2119 - sched_rollup_nopolicy (2.6.0-tst5-nick.v14)
 
-Sure, 2.6.0-test5 helps some with:
+I believe, Cliff has run or is running tests on these patches
+using the reaim-7 tests.
 
-$ cp /etc/redhat-release /dev/null
-$ time sudo make install modules_install
-...
-Warning: you may need to install module-init-tools
-See http://www.codemonkey.org.uk/post-halloween-2.5.txt
-...
+These were run on OSDL's STP framework and the kernel patches are
+archived in PLM.  The database tests were configured to run where
+the database was entirely cached in memory and to run where
+the database was larger than memory, forcing I/O activit.
 
-But I believe that hint is insufficient, because I know back when I was
-mystified, that url was unreachable.
 
-I admit Google did eventually direct me to the seemingly more available
-alternate:
-http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
+Cached Runs:
+------------
+These tests run database transactions of an OLTP variety.  The
+test is set up so that the entire database resides in memory
+and thus avoids I/O where possible.  This test is useful for
+determining the overall capababilities of the CPU and memory
+features.
 
-Pat LaVarre
+STP4-000
 
-P.S. A fresh, but more complete, quote of what once mystified me is:
+   Kernel                NOTPM         test id
+-----------------------  -----  ---------------------------------
+linux-2.6.0-test5         2914  http://khack.osdl.org/stp/279496/
+linux-2.6.0-test3         2642  http://khack.osdl.org/stp/279430/
+2.6.0-test5-sched-rollup  2822  http://khack.osdl.org/stp/279670/
+2.6.0-test5-nick.v14      2839  http://khack.osdl.org/stp/279686/
 
-$ uname -r
-2.4.20-6smp
-$ /sbin/depmod -V
-depmod version 2.4.22
-depmod: Can't open /lib/modules/2.4.20-6smp/modules.dep for writing
-$ sudo /sbin/depmod -V
-depmod version 2.4.22
-$
-...
+These results show that Nick's patches are not quite up to the
+overall throughput capability of the standard Linus kernel.
+However, they are better than the last -mm kernel I was able to
+get runs on (2.6.0-test3-mm1), so the changes are heading in the
+right direction.  Unfortunately, I could not get more runs for
+this report, but I could perform more in order to get an average,
+if you'd like.
 
-$ uname -r
-2.6.0-test5
-$ sudo /sbin/modprobe sr_mod
-modprobe: QM_MODULES: Function not implemented
 
-modprobe: QM_MODULES: Function not implemented
+Non Cached (disk intensive) runs:
 
-modprobe: Can't locate module sr_mod
-$
+---------------------------------
+These tests run a larger version of the same database, but because
+of its larger size and queries over a larger table, I/O is used
+heavily.
 
-Since being demystified, I've adopted a procedure I discovered only by
-combining in order from module-init-tools all of man depmod, May
-./README, Feb ./FAQ, Nov ./INSTALL:
+These runs were taken on two different machines.  One system is
+slightly faster all around than the other.  Thus, the runs are broken
+down by system, rather than lumped all together.
 
-cp /sbin/lsmod /dev/null
-./configure --prefix=/
-make
-./depmod -V
-sudo make moveold
-sudo make install
-sudo ./generate-modprobe.conf /etc/modprobe.conf
-sudo vi /etc/rc.d/rc.sysinit +/USEMODULES=
+STP4-001
 
-I see I should also submit a patch elsewhere for the module-init-tools
-README and FAQ.  I believe the INSTALL is incorrect by design (by being
-generic).
+   Kernel                NOTPM         test id
+-----------------------  -----   ---------------------------------
+linux-2.6.0-test5         1185   http://khack.osdl.org/stp/279495/
+2.6.0-test5-nick.v14      1187   http://khack.osdl.org/stp/279693/
+2.6.0-test5-nick.v14      1226   http://khack.osdl.org/stp/279689/
+2.6.0-test5-sched-rollup  1214   http://khack.osdl.org/stp/279691/
 
+
+stp4-002
+
+   Kernel                NOTPM         test id
+-----------------------  -----  --------------------------------
+linux-2.6.0-test5         1317  http://khack.osdl.org/stp/279500/
+linux-2.6.0-test5         1336  http://khack.osdl.org/stp/279494/
+2.6.0-test5-nick.v14      1348  http://khack.osdl.org/stp/279692/
+2.6.0-test5-sched-rollup  1329  http://khack.osdl.org/stp/279688/
+2.6.0-test5-sched-rollup  1333  http://khack.osdl.org/stp/279690/
+
+
+It appears that for non-cached runs, where I/O us used, the
+numbers start looking the same as the Linus kernel.  This implies
+that the patches from Andrew and Nick are not intrusive.  I don't
+beliefve the difference in the numbers are significant in these
+cases.
+
+So, overall, the scheduler changes of each kernel don't seem to
+have an impact on OLTP transaction database processes where I/O
+is involved.
+
+The test id URL, point to information about the system resources
+(vmstat, sar, etc.) if anybody really wants to dig down into the
+details.
+
+-- 
+Craig Thomas
+craiger@osdl.org
 

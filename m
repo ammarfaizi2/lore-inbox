@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVAQTh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVAQTrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbVAQTh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 14:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVAQTh6
+	id S262846AbVAQTrb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 14:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVAQTrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 14:37:58 -0500
-Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:40107 "EHLO
-	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S262849AbVAQThr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 14:37:47 -0500
-Message-ID: <41EC1406.6040500@kavefish.net>
-Date: Mon, 17 Jan 2005 14:37:42 -0500
-From: Chris Bookholt <kavefish@kavefish.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6 Series Mem Mgmt
-References: <g7Idbr9m.1105713630.9207120.khali@localhost>	<200501151654.46412.pioppo@ferrara.linux.it>	<20050115175545.743a39f9.khali@linux-fr.org>	<200501162332.14324.pioppo@ferrara.linux.it> <20050117201901.3e712cfa.khali@linux-fr.org>
-In-Reply-To: <20050117201901.3e712cfa.khali@linux-fr.org>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 14:47:31 -0500
+Received: from dialin-160-45.tor.primus.ca ([216.254.160.45]:5760 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262846AbVAQTr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 14:47:29 -0500
+Date: Mon, 17 Jan 2005 14:46:15 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Thomas Zehetbauer <thomasz@hostmaster.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: usb-storage on SMP?
+Message-ID: <20050117194615.GA2028@node1.opengeometry.net>
+Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Thomas Zehetbauer <thomasz@hostmaster.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1105982247.21895.26.camel@hostmaster.org> <200501171826.33496.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501171826.33496.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm hoping someone can help explain part of the layout of a process' 
-virtual address space in the 2.6 series kernel.
+On Mon, Jan 17, 2005 at 06:26:33PM +0100, Rafael J. Wysocki wrote:
+> On Monday, 17 of January 2005 18:17, Thomas Zehetbauer wrote:
+> > Hi,
+> > 
+> > can anyone confirm that writing to usb-storage devices is working on SMP
+> > systems?
+> 
+> Generally, it is.  Recently, I've written some stuff to a USB pendrive (using
+> 2.6.10-ac7 or -ac9).
 
-Below is the output of "cat /proc/self/maps" on Fedora Core 3 
-(2.6.9-1.6_FC2) with exec-shield[-randomize] disabled and 
-legacy_vm_layout enabled.
+Same here with Abit VP6 dual-P3 and 2.6.10.  It shows up as /dev/sda,
+and I can do anything that I would do with normal harddisk.
 
-What is being mapped in at last line (ffffe000-fffff000 ---p)?  This is 
-always there, no matter what process I run.  To my knowledge, this 
-wasn't the case on 2.4.
+But, I still can't boot from it. :/  I can now mount it as root
+filesystem, but I can't load the kernel from USB key drive.
 
- >$ cat /proc/self/maps
-08048000-0804c000 r-xp 00000000 03:03 2490451    /bin/cat
-0804c000-0804d000 rw-p 00003000 03:03 2490451    /bin/cat
-0804d000-0806e000 rw-p 0804d000 00:00 0
-42344000-42359000 r-xp 00000000 03:03 950351     /lib/ld-2.3.3.so
-42359000-4235a000 r--p 00014000 03:03 950351     /lib/ld-2.3.3.so
-4235a000-4235b000 rw-p 00015000 03:03 950351     /lib/ld-2.3.3.so
-4235d000-42473000 r-xp 00000000 03:03 950450     /lib/tls/libc-2.3.3.so
-42473000-42474000 r--p 00116000 03:03 950450     /lib/tls/libc-2.3.3.so
-42474000-42477000 rw-p 00117000 03:03 950450     /lib/tls/libc-2.3.3.so
-42477000-42479000 rw-p 42477000 00:00 0
-55017000-55018000 rw-p 55017000 00:00 0
-55018000-55218000 r--p 00000000 03:03 114690 
-/usr/lib/locale/locale-archive
-feffe000-ff000000 rw-p feffe000 00:00 0
-ffffe000-fffff000 ---p 00000000 00:00 0
-
-I have not had much success in my search for information via Google & 
-IRC and the books I have are specific to the 2.4 series.  Any help would 
-be greatly appreciated.
-
--Chris
+-- 
+William Park <opengeometry@yahoo.ca>, Toronto, Canada
+Slackware Linux -- because I can type.

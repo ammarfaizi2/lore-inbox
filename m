@@ -1,110 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262749AbVCWRY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVCWRY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262749AbVCWRY2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261679AbVCWRY2 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 23 Mar 2005 12:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVCWRWq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVCWRWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 12:22:46 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:29047 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262749AbVCWRRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 12:17:33 -0500
-Date: Wed, 23 Mar 2005 17:16:29 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: akpm@osdl.org, davem@davemloft.net, tony.luck@intel.com,
-       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH 6/6] freepgt: hugetlb area is clean
-In-Reply-To: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0503231715340.15274@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 23 Mar 2005 12:22:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37013 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261679AbVCWRR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 12:17:29 -0500
+Date: Wed, 23 Mar 2005 12:17:23 -0500
+From: Dave Jones <davej@redhat.com>
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+Message-ID: <20050323171723.GA9663@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Giuseppe Bilotta <bilotta78@hotpop.com>,
+	linux-kernel@vger.kernel.org
+References: <20050314083717.GA19337@elf.ucw.cz> <200503140855.18446.jbarnes@engr.sgi.com> <20050314191230.3eb09c37.diegocg@gmail.com> <1110827273.14842.3.camel@mindpipe> <20050323013729.0f5cd319.diegocg@gmail.com> <1111539217.4691.57.camel@mindpipe> <20050323011313.GL15879@redhat.com> <MPG.1cab456fb7b20f93989718@news.gmane.org> <20050323161441.GA7994@redhat.com> <MPG.1cabbc978b50163989719@news.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MPG.1cabbc978b50163989719@news.gmane.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once we're strict about clearing away page tables, hugetlb_prefault can
-assume there are no page tables left within its range.  Since the other
-arches continue if !pte_none here, let i386 do the same.
+On Wed, Mar 23, 2005 at 05:49:47PM +0100, Giuseppe Bilotta wrote:
+ > > > What are the cons of using "all of" the RAM at boot time to 
+ > > > cache the boot disk?
+ > 
+ > Dave Jones wrote:
+ > > It's memory that's otherwise unused. Once you start using the system
+ > > anything cached will get reclaimed as its needed.
+ > 
+ > So there is no substantial loss? IOW, it would suffice to have 
+ > all the "loaded at boot" stuff in the first <amount of RAM>
+ > bytes of the hard disk?
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+It very likely also needs to be contiguous on-disk (Ie, no in-file
+fragmentation). You want to limit the amount of seeking that gets
+done so the drive readahead just performs continuous reads.
 
- arch/i386/mm/hugetlbpage.c  |   11 ++---------
- arch/ppc64/mm/hugetlbpage.c |   37 -------------------------------------
- 2 files changed, 2 insertions(+), 46 deletions(-)
+		Dave
 
---- freepgt5/arch/i386/mm/hugetlbpage.c	2005-03-18 10:22:18.000000000 +0000
-+++ freepgt6/arch/i386/mm/hugetlbpage.c	2005-03-23 15:41:23.000000000 +0000
-@@ -246,15 +246,8 @@ int hugetlb_prefault(struct address_spac
- 			goto out;
- 		}
- 
--		if (!pte_none(*pte)) {
--			pmd_t *pmd = (pmd_t *) pte;
--
--			page = pmd_page(*pmd);
--			pmd_clear(pmd);
--			mm->nr_ptes--;
--			dec_page_state(nr_page_table_pages);
--			page_cache_release(page);
--		}
-+		if (!pte_none(*pte))
-+			continue;
- 
- 		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
- 			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
---- freepgt5/arch/ppc64/mm/hugetlbpage.c	2005-03-21 19:07:01.000000000 +0000
-+++ freepgt6/arch/ppc64/mm/hugetlbpage.c	2005-03-23 15:41:23.000000000 +0000
-@@ -203,8 +203,6 @@ static int prepare_low_seg_for_htlb(stru
- 	unsigned long start = seg << SID_SHIFT;
- 	unsigned long end = (seg+1) << SID_SHIFT;
- 	struct vm_area_struct *vma;
--	unsigned long addr;
--	struct mmu_gather *tlb;
- 
- 	BUG_ON(seg >= 16);
- 
-@@ -213,41 +211,6 @@ static int prepare_low_seg_for_htlb(stru
- 	if (vma && (vma->vm_start < end))
- 		return -EBUSY;
- 
--	/* Clean up any leftover PTE pages in the region */
--	spin_lock(&mm->page_table_lock);
--	tlb = tlb_gather_mmu(mm, 0);
--	for (addr = start; addr < end; addr += PMD_SIZE) {
--		pgd_t *pgd = pgd_offset(mm, addr);
--		pmd_t *pmd;
--		struct page *page;
--		pte_t *pte;
--		int i;
--
--		if (pgd_none(*pgd))
--			continue;
--		pmd = pmd_offset(pgd, addr);
--		if (!pmd || pmd_none(*pmd))
--			continue;
--		if (pmd_bad(*pmd)) {
--			pmd_ERROR(*pmd);
--			pmd_clear(pmd);
--			continue;
--		}
--		pte = (pte_t *)pmd_page_kernel(*pmd);
--		/* No VMAs, so there should be no PTEs, check just in case. */
--		for (i = 0; i < PTRS_PER_PTE; i++) {
--			BUG_ON(!pte_none(*pte));
--			pte++;
--		}
--		page = pmd_page(*pmd);
--		pmd_clear(pmd);
--		mm->nr_ptes--;
--		dec_page_state(nr_page_table_pages);
--		pte_free_tlb(tlb, page);
--	}
--	tlb_finish_mmu(tlb, start, end);
--	spin_unlock(&mm->page_table_lock);
--
- 	return 0;
- }
- 

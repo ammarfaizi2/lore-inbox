@@ -1,139 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314087AbSDKPNp>; Thu, 11 Apr 2002 11:13:45 -0400
+	id <S314088AbSDKPPh>; Thu, 11 Apr 2002 11:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314088AbSDKPNo>; Thu, 11 Apr 2002 11:13:44 -0400
-Received: from [193.110.2.40] ([193.110.2.40]:23891 "HELO helimore1878.com")
-	by vger.kernel.org with SMTP id <S314087AbSDKPNn>;
-	Thu, 11 Apr 2002 11:13:43 -0400
-From: "MRS. MARIAM ABACHA" <m.abacha@totalise.com>
-Reply-To: m.abacha@totalise.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 10 Apr 2002 18:38:39 -0700
-Subject: Private
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	id <S314091AbSDKPPg>; Thu, 11 Apr 2002 11:15:36 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1858 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S314088AbSDKPPe>; Thu, 11 Apr 2002 11:15:34 -0400
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: suparna@in.ibm.com, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+In-Reply-To: <1759496962.1018114339@[10.10.2.3]>
+	<m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com>
+	<m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com>
+	<m1y9fvlfyb.fsf@frodo.biederman.org> <1018461522.4453.212.camel@andyp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Apr 2002 09:08:44 -0600
+Message-ID: <m1pu16l1c3.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="===_LikeYe_888_2faigdmqkeobak"
-Message-Id: <20020411151343Z314087-22651+4132@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---===_LikeYe_888_2faigdmqkeobak
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Andy Pfiffer <andyp@osdl.org> writes:
 
+> On Wed, 2002-04-10 at 08:40, Eric W. Biederman wrote:
+> 
+> > Unless I missed something the Linux kernel won't work on smp though.
+> > It is a matter of resetting the state of the apics, and ensuring you
+> > are running on the first processor.  I don't believe bootimg did/does that.
+> > 
+> 
+> The copy of bootimg that I have makes no effort to offline CPU's or
+> reset the APICs.  If there is a newer version, I could not find it.
+> 
+> I have tried 3 different solutions for for Linux-reloading-linux
+> (bootimg, two-kernel monte, and kexec), and none of them fully support
+> the kinds of enterprise-class systems we (OSDL) care about:
+> 
+> 	1. multiprocessor x86 (p3, p4, +xeons) with APICs
+> 	2. >4GB memory
+> 	3. CPU hotplug
+> 	4. device hotplug
+> 	5. >= 2.5.x kernel
+
+kexec should handle.
+        1. multiprocessor x86 (p3, p4, +xeons) with APICs
+        2. >4GB memory
+        3. >= 2.5.x kernel
+        4. potentially non-x86.
  
-HAJIA MARIAM ABACHA =28MRS=29=2E 
-FROM=3A MRS=2E MARIAM ABACHA 
-C=2FO BARRISTER BISI MUSTAPHA & CO=2E 
-LAGOS NIGERIA=2E 
+> In fact, I have yet to find any variation of linux-loading-linux that
+> works at all on the 2-way P4-Xeon under my desk or the 8-way P3-Xeon in
+> the lab.  The only system I have ever seen Two Kernel Monte work on here
+> is a Celeron-based machine in a nearby cube.
 
-Good day=2C 
+Interesting.  I know I have it runs on the 2-way P4-Xeon under my
+desk.  So maybe it is a compiler bug, or some weird firmware case I
+don't handle correctly.
+ 
+> The >4GB of memory problem is an interesting quirk -- if the
+> linux-loading-linux implementation assumes that it can perform the final
+> copy in 32-bit protected mode *without* paging enabled, it won't
+> reliably work on >4GB systems.
 
-I am Mrs=2E Mariam Abacha=2C the widow of the late Gen=2E 
-Sani Abacha former 
-Nigerian Military Head of State who died mysteriously 
-as a result of 
-Cardiac Arrest=2ESince after my husband=EDs death=2C my 
-family is under restriction of movement and that not 
-withstanding=2C we are being molested=2C policed and our 
-Bank Accounts both here and abroad are frozen by the 
-Civilian Government of Nigeria=2E 
-Furthermore=2C my elder son is in detention by the 
-Nigerian Government 
-for more interrogation about my husband=EDs assets and 
-some other vital 
-documents=2E 
-Following the recent discovery of my husband=EDs Bank 
-Account by the Nigerian Government with Swiss Bank in 
-which the huge sum of US$700 Million and Dutch 450 
-Million was logged=2E I therefore decided to contact you 
-in confidence that I was able to move out the sum of 
-US$27=2E3 Million Dollars=2C which was secret and is 
-sealed in Metal Boxes for security reasons=2E 
-I personally therefore appeal to you seriously and 
-religiously for your 
-urgent assistant to move this money into your country 
-where I believe 
-it will be safe since I cannot leave the country due 
-to the restriction 
-movement imposed on the members of my family by the 
-Nigerian Government=2E 
-You can contact me through my family Lawyer=2CE-mail=3A 
-b=5Fmustapha=40mail=2Ecom 
-and my Lawyer shall arrange with you to visit any of 
-the European states in order to liaise with you toward 
-effective completion of this transaction=2E 
-However=2C arrangements have been put in place to move 
-this money out of 
-the country in the secret vault through a security 
-company to any of 
-the European States and as soon as you indicate your 
-interest=2C my Lawyer shall send you the certificate of 
-deposite and other related documents so that you can 
-help to claim the consignment=2EConclusively=2C we have 
-agreed to offer you 20% of the total sum and 10%to be 
-set aside for reimbursement of all expenses incurred 
-by both parties=2C while 70% is to be held on trust by 
-you until we can decide on a suitable business 
-investment in your country subsequent to our free 
-movement by the Nigerian Government=2E 
-Please=2C reply urgently and treat with absolute 
-confidentiality and 
-sincerity=2E 
+Sure it will, if it only allocates the memory from the low 4GB, in fact
+my kexec code makes certain to allocate memory from the kernel address
+space.  get_free_page() in ZONE_NORMAL.  This is the low 896MB.  So
+there shouldn't be a problem.  This was done very deliberately so it
+would work on these kinds of systems.
 
-Thanks=2E 
+> > In general yes.  There are some interesting side effects though.
+> > Going through the pci bus and shutting off bus masters is a good
+> > first approximation of what needs to happen.
+> > 
+> 
+> The new device model from Pat (mochel@osdl.org) is probably the best way
+> to go here; you'll be able to walk the driver tree and reliably turn off
+> devices.
 
-Best regards=2C 
+I totally agree.  Walking the driver tree is exactly what I want.
+Disabling bus masters is just a quick hack to rule out a DMA killing
+your linux booting linux.
 
-HAJIA MARIAM ABACHA =28MRS=2E=29 
+> For the CPU side of things, the CPU hotplug work looks promising as
+> well.
 
+Interesting.  So far I haven't seen a system that supports CPU hot
+plug, on x86 so I have no clue here.
 
-
-
-
-
---===_LikeYe_888_2faigdmqkeobak
-Content-Type: application/octet-stream; name="SearchResults.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="SearchResults.txt"
-
-Y3VydDM1QGhvdG1haWwuY29tDQpsYXJpdmV0ZXJAeWFob28uY29tDQphc2hvbGVlNjlAaG90bWFp
-bC5jb20NCmFsaXRheWxvcjE3QGhvdG1haWwuY29tDQprYW9ydS15QGhoLmlpajR1Lm9yLmpwDQpi
-cm93bmllc2luZ2VyQGhvdG1haWwuY29tDQpjYW1pbGxleV8wMkB5YWhvby5jb20NCnNjYWRnaXJs
-MDFAYW9sLmNvbQ0KYXNoYmFzaEB1c2EubmV0DQpkYXdub2Zrb3RldkBob3RtYWlsLmNvbQ0Kc3dl
-ZXRfamVjZUBob3RtYWlsLmNvbQ0Kc3VtMXNiYWJ5Z3VybDIwQHlhaG9vLmNvbQ0KbWlkbml0ZXN0
-YXIyN0Bob3RtYWlsLmNvbQ0KcGFpZ2VpcndpbjIwMDBAeWFob28uY29tDQpob29ra2lkc0BwZW5u
-LmNvbQ0KbG92ZWxpYmVydHlkaXNjb19kdWRlQHlhaG9vLmNvbQ0Kc3BkcjNAeWFob28uY29tDQpi
-cmFkZ2FnbmVyQHN5bXBhdGljby5jYQ0KYXRydXM3MkB5YWhvby5jb20NCmVicmlzY0BpY3FtYWls
-LmNvbQ0KaWtub3dob3RnaXJsc0BicmlnaHQubmV0DQpkaWxsb21hbmlhY0BnZW9jaXRpZXMuY29t
-DQp2YWwyMDAyNGxpZmVAeWFob28uY29tDQpsaWxfZm9vdF8xMTE5QGhvdG1haWwuY29tDQpjcmFw
-cHlncmlsbEBob3RtYWlsLmNvbQ0Kd2VibWFzdGVyQDQxMWxvY2F0ZS5jb20NCmRhbEBoeXBlcmhv
-Zy5uZXQNCmJhZGIwNUBob3RtYWlsLmNvbQ0Ka2JpZjg4NUBwYWNpZmljLm5ldC5zZw0KcGx1cGFy
-ZmFpdEBob3RtYWlsLmNvbQ0KaWNlY3Jvc3NlckBhZGVscGhpYS5uZXQNCnJrZXR0ZXJsQGhvdG1h
-aWwuY29tDQpkYWRkeV9tYWNfMTBAcmVkcml2ZXJvay5jb20NCmxhY3lhbmtsZXNAaG90bWFpbC5j
-b20NCnRyaWJ1bGF0aW9uX3NhaW50c0Bob3RtYWlsLmNvbQ0KZ3JlZ0B1cGNvbWluZ21vdmllcy5j
-b20NCm1vZGVyYXRlZC1uZy1mYXEtMS05ODMxNzQ1ODFAc3djcC5jb20NCnRvYW5fY3MxOTg4QGhv
-dG1haWwuY29tDQppY2VibGFkZXMzMkB5YWhvby5jb20NCndlYmVmb3JlQGtpbmdjb24uY29tDQpj
-b3JyaW5lOTcyZ2lybEBjcy5jb20NCmd3aEBnY3JvbmxpbmUuY29tDQphZHViYjhAaG90bWFpbC5j
-b20NCmdyb3Vwcy1zdXBwb3J0QGdvb2dsZS5jb20NCmdyb3Vwcy1hYnVzZUBnb29nbGUuY29tDQox
-NTkzNEBzcmktYXJwYS51dWNwDQo1MTIyQGZlcm53b29kLm1way5jYS51cw0Kd2l6YXJkc0Bkb2Mu
-aWMuYWMudWsNCmJwNDVAaG90bWFpbC5jb20NCnd3dy5xd2VzczY2NkBleGNpdGUuY29tDQpqdmtj
-bWtlZG5AeWFob28uY29tDQpiYXNrZXRiYWxsX3BsYXllckBob29wcy5uZXQNCmplc3VzZnJlYWti
-b3lAaG90bWFpbC5jb20NCnNwb2thbG9vMUB5YWhvby5jb20NCnBlYXN0ZXJmYW5hdGljQGhvdG1h
-aWwuY29tDQp0aGF0c19udW55YV9idWlzbmVzc0Bob3RtYWlsLmNvbQ0KbWF4X3NrYXllckB5YWhv
-by5jb20NCmtpenpfbWU2MEBob3RtYWlsLmNvbQ0KY3JhenlfYmxvbmQ0dUBob3RtYWlsLmNvbQ0K
-cmFpbmRycDg1QGhvdG1haWwuY29tDQpzcG9pbGRicmF0MTdAaG90bWFpbC5jb20NCmplc3N0YXI0
-MUBib2x0LmNvbQ0KY2VsdGlja2l0dHk4MUBob3RtYWlsLmNvbQ0KdmlyZ2luaWEyODVAYW9sLmNv
-bQ0Kcm1qODdAaG90bWFpbC5jb20NCmFqY2FydGVyNUBob3RtYWlsLmNvbQ0KbHBjYXJlYmVhckBs
-aWdodGRvZy5jb20NCmRlcmVrcm95ODJAaG90bWFpbC5jb20NCmJpdHR5Ymx1ZUBhb2wuY29tDQpl
-eHBzdmNAbG9va3NtYXJ0Lm5ldA0KMTE1YWZlc2VhcmNoQGdvb2dsZS5jb20NCg==
-
---===_LikeYe_888_2faigdmqkeobak
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---===_LikeYe_888_2faigdmqkeobak--
+Eric

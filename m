@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUIOCrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266894AbUIOC7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUIOCrg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 22:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUIOCrg
+	id S266894AbUIOC7o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 22:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUIOC7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 22:47:36 -0400
-Received: from [69.28.190.101] ([69.28.190.101]:52354 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S266891AbUIOCrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 22:47:31 -0400
-Date: Tue, 14 Sep 2004 22:47:20 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Mark Lord <lsml@rtr.ca>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, Mark Lord <lkml@rtr.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
-Message-ID: <20040915024720.GA23694@havoc.gtf.org>
-References: <41471163.10709@rtr.ca> <414723B0.1090600@pobox.com> <1095186343.2008.29.camel@mulgrave> <4147AB5A.4060804@rtr.ca>
+	Tue, 14 Sep 2004 22:59:44 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62391 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266894AbUIOC7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 22:59:42 -0400
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+From: Lee Revell <rlrevell@joe-job.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@ximian.com>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040915023611.GH9106@holomorphy.com>
+References: <41470021.1030205@yahoo.com.au>
+	 <20040914150316.GN4180@dualathlon.random>
+	 <1095185103.23385.1.camel@betsy.boston.ximian.com>
+	 <20040914185212.GY9106@holomorphy.com>
+	 <1095188569.23385.11.camel@betsy.boston.ximian.com>
+	 <20040914192104.GB9106@holomorphy.com>
+	 <1095189593.16988.72.camel@localhost.localdomain>
+	 <1095207749.2406.36.camel@krustophenia.net>
+	 <20040915014610.GG9106@holomorphy.com>
+	 <1095213644.2406.90.camel@krustophenia.net>
+	 <20040915023611.GH9106@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1095217186.2406.121.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4147AB5A.4060804@rtr.ca>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Sep 2004 22:59:46 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-09-14 at 22:36, William Lee Irwin III wrote:
+> I have neither of these locally. I suspect someone needs to care enough
+> about the code for anything to happen soon. I suppose there are things
+> that probably weren't tried, e.g. auditing to make sure dependencies on
+> external synchronization are taken care of, removing implicit sleeping
+> with the BKL held, then punt a private recursive spinlock in reiser3's
+> direction. Not sure what went on, or if I want to get involved in this
+> particular case.
+> 
 
-Groovy.  FWIW (if it wasn't obvious from context) my objection in
-general to the driver is withdrawn, since you explained it is RAID and
-not an ATA driver.
+There isn't really any information in the archives about what was
+tried.  Here's Andrew's message:
 
-I would really like to work on consolidating the ATA code in libata,
-though.  As the name implies, it's a library -- don't feel that your
-driver must conform to the libata driver API in order to make use of all
-its functions.  And feel free to add to it.
+http://lkml.org/lkml/2004/7/12/266
 
-	Jeff
+And Hans':
 
+http://lkml.org/lkml/2004/8/10/320
 
+I suspect that "Use reiser4 (or ext3) if you care about latency" is a
+good enough answer for most people.
+
+Lee
 

@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSKRBQJ>; Sun, 17 Nov 2002 20:16:09 -0500
+	id <S261310AbSKRB0g>; Sun, 17 Nov 2002 20:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261290AbSKRBQJ>; Sun, 17 Nov 2002 20:16:09 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:23050 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261286AbSKRBQI>; Sun, 17 Nov 2002 20:16:08 -0500
-Date: Sun, 17 Nov 2002 20:23:02 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Shanti Katta <katta@csee.wvu.edu>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Compiling packages from source on Ultrasparc
-Message-ID: <20021118012302.GD544@phunnypharm.org>
-References: <1037581211.30240.17.camel@indus.csee.wvu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037581211.30240.17.camel@indus.csee.wvu.edu>
-User-Agent: Mutt/1.4i
+	id <S261321AbSKRB0g>; Sun, 17 Nov 2002 20:26:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22536 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261310AbSKRB0f>; Sun, 17 Nov 2002 20:26:35 -0500
+Date: Sun, 17 Nov 2002 17:33:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, Luca Barbieri <ldb@ldb.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+In-Reply-To: <3DD824E5.1000909@redhat.com>
+Message-ID: <Pine.LNX.4.44.0211171712360.22749-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 17, 2002 at 08:00:11PM -0500, Shanti Katta wrote:
-> Hi,
-> I understand that userland is 32-bit on Ultrasparc. I am trying to
-> compile user-mode-linux on Ultrasparc, and I guess I need to compile it
-> in 32-bit mode for it to run as a normal user-level process. UML make
-> use of certain files in asm-{base-arch} during compilation. Now, to
-> compile uml in 32-bit mode, I did not include any flags in
-> makefiles(like -m64, -mcpu=ultrasparc) that would include 64-bit
-> specific asm code.
-> My question is that, what difference does it make when I compile UML, in
-> a sparc32 shell, as compared to the above process without executing the
-> sparc32 shell. I understand that if compiled in sparc32 shell, it
-> recognizes the host-arch as "sparc" instead of "sparc64". But other than
-> that, does it make any other difference? I am also not sure, which is
-> the right method for compiling UML.
-> Any pointers will be appreciated.
 
-To compile it as a 32bit app, use the sparc32 wrapper to be safe, or
-pass sparc as the target arch for UML.
+On Sun, 17 Nov 2002, Ulrich Drepper wrote:
+> 
+> > Hmm? I _think_ NPTL is fine with the current semantics, right? It just
+> > sets both of the current flags, and that's all it really wants? Uli?
+> 
+> Not for the fork() implementation.  With the patch I've replaced the
+> fork() syscall with an clone() syscall:
+> 
+>   sys_clone(CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD, 0,
+> 	    NULL, NULL, &THREAD_SELF->tid)
+> 
+> I.e., the information is stored only in the child.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+And the point of this is? The child has to re-initialize it's pthread 
+structures anyway after a fork, since the child certainly doesn't have the 
+threads that the fork()ing parent had. I don't see how the TID paths help 
+you there, you still have to make sure that if/when the child tries to 
+create new threads of its own, it re-initializes everything first.
+
+> If you dislike the introduction of the additional flag you can use the
+> less obvious way of the first patch: check whether CLONE_VM is set.
+> Ingo said you'd dislike this (probably with good reason) but these since
+> CLONE_CHILD_SETTID and CLONE_PARENT_SETTID have exactly the same
+> semantics if CLONE_VM is set spending a flag bit might just be as ugly.
+
+The thing is, I don't see the _point_. I refuse to add magic flags that
+are just some obscure implementation issue inside of glibc. A flag should
+have a _meaning_, and I seriously dislike the "meaning" behind
+CLONE_CHILD_SETTID. I dislike in particular its asynchronous behaviour, 
+which is visible in the parent if CLONE_VM isn't set.
+
+Asynchronous behaviour without good reason is _bad_. Clearly, CLEARTID
+needs to be async, since it happens when the child exits, which is 
+fundamentally asynchronous for the parent. But SETTID is certainly _not_ 
+an asynchronous thing.
+
+> And one last thing.  I am toying with the idea of having a function
+> 
+>   int cfork (pid_t *);
+> 
+> (name can be discussed) which works like fork() but always returns the
+> PID to the caller (in the memory location pointed to by the parameter),
+> even in the child.  This seems to be the interface fork() should have
+> gotten from the beginning.  For this implementation something like the
+> CLONE_CHILD_SETTID flag should be available.
+
+Actually, the above interface is most easily done by just havign
+CLONE_SETTID take effect _before_ we start copying the VM space. Which may
+well make sense (and avoids any extra page dirtying and COW breakage, as
+well as all asynchronous behaviour).
+
+So moving the CLONE_SETTID check to _before_ copy_mm() will give you
+exactly the semantics you want. I wouldn't have any issues with that
+approach (it's certainly synchronous, and in fact it has to be done there
+if we want to use this for non-CLONE_VM anyway).
+
+		Linus
+

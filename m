@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268056AbTBWH5O>; Sun, 23 Feb 2003 02:57:14 -0500
+	id <S268057AbTBWIEH>; Sun, 23 Feb 2003 03:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268057AbTBWH5O>; Sun, 23 Feb 2003 02:57:14 -0500
-Received: from holomorphy.com ([66.224.33.161]:49323 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268056AbTBWH5O>;
-	Sun, 23 Feb 2003 02:57:14 -0500
-Date: Sun, 23 Feb 2003 00:05:56 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Larry McVoy <lm@bitmover.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030223080556.GH10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
-	Larry McVoy <lm@bitmover.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <20030222232859.GC31268@work.bitmover.com> <E18mjhj-0004x6-00@w-gerrit2> <20030223080142.GC11953@work.bitmover.com>
+	id <S268059AbTBWIEH>; Sun, 23 Feb 2003 03:04:07 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:23980 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S268057AbTBWIEG>;
+	Sun, 23 Feb 2003 03:04:06 -0500
+Date: Sun, 23 Feb 2003 09:13:30 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: make the sl82c105 work again
+Message-ID: <20030223091330.A31359@ucw.cz>
+References: <E18lCZa-0006Ec-00@the-village.bc.nu> <20030218185309.C9785@flint.arm.linux.org.uk> <1045601367.570.56.camel@zion.wanadoo.fr> <1045620358.25795.24.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030223080142.GC11953@work.bitmover.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1045620358.25795.24.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 19, 2003 at 02:05:59AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 04:09:15PM -0800, Gerrit Huizenga wrote:
->> You are going to drag 1994 technology into this to compare against
->> something in 2003?  Hmm.  You might win on that comparison.  But yeah,
->> Sequent way back then was in that ballpark.  World has moved forwards
->> since then...
+On Wed, Feb 19, 2003 at 02:05:59AM +0000, Alan Cox wrote:
 
-On Sun, Feb 23, 2003 at 12:01:43AM -0800, Larry McVoy wrote:
-> Really?  "Several orders of magnitude"?  Show me the data.
+> On Tue, 2003-02-18 at 20:49, Benjamin Herrenschmidt wrote:
+> > and when setting xfer mode. Not on hdparm -d1. I'm still wondering
+> > what is the best fix for that. For ide-pmac, I did the later
+> > (only do the job in check()), but I also think we should change
+> > ide.c to actually call hwif->ide_dma_check() when DMA is turned
+> > ON with hdparm instead of ide_dma_on().
+> 
+> I think thats the right change for 2.5 at least
 
-I was assuming ethernet when I said that.
+I think it'd be VERY good for 2.4 as well. Older 2.4's did setup the
+DMA timing when -d1 only was used.
 
-
--- wli
+-- 
+Vojtech Pavlik
+SuSE Labs

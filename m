@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVAKUrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVAKUsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVAKUrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVAKUrN
+	id S262161AbVAKUsp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVAKUsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:47:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4576 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262156AbVAKUrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:47:08 -0500
-Date: Tue, 11 Jan 2005 12:47:07 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Matt Mackall <mpm@selenic.com>, "Jack O'Quin" <joq@io.com>,
-       Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
+	Tue, 11 Jan 2005 15:48:45 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:31742 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262161AbVAKUsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:48:19 -0500
 Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050111124707.J10567@build.pdx.osdl.net>
-References: <20050107134941.11cecbfc.akpm@osdl.org> <20050107221059.GA17392@infradead.org> <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us> <20050110212019.GG2995@waste.org> <87d5wc9gx1.fsf@sulphur.joq.us> <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us> <20050111200549.GW2940@waste.org> <1105475349.4295.21.camel@krustophenia.net>
+From: utz lehmann <lkml@s2y4n2c.de>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       Con Kolivas <kernel@kolivas.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <87oefw3p7m.fsf@sulphur.joq.us>
+References: <200501111305.j0BD58U2000483@localhost.localdomain>
+	 <87oefw3p7m.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 21:47:26 +0100
+Message-Id: <1105476446.4692.40.camel@segv.aura.of.mankind>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1105475349.4295.21.camel@krustophenia.net>; from rlrevell@joe-job.com on Tue, Jan 11, 2005 at 03:29:09PM -0500
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a3828f1c4d839cf12e8a3b808f7ed34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Tue, 2005-01-11 at 12:05 -0800, Matt Mackall wrote:
-> > Anyway, *plonk*.
+On Tue, 2005-01-11 at 10:28 -0600, Jack O'Quin wrote:
+> Paul Davis <paul@linuxaudiosystems.com> writes:
 > 
-> Plonk?  WTF?  Jack comes up with what many people think is a reasonable
-> solution to a real problem, that affects thousands of users, and in the
-> middle of what seems to me a civilized discussion, you killfile him
-> because he disagrees with you?
+> >>Rlimits are neither UID/GID or PAM-specific. They fit well within
+> >>the general model of UNIX security, extending an existing mechanism
+> >>rather than adding a completely new one. That PAM happens to be the
+> >>way rlimits are usually administered may be unfortunate, yes, but it
+> >>doesn't mean that rlimits is the wrong way.
 > 
-> Plonk to you too, asshole.
+> PAM is how most GNU/Linux systems manage rlimits.  It is very UID/GID
+> oriented.  So from the sysadmin perspective, claiming that rlimits is
+> "better" or "easier to manage" than "GID hacks" is bogus.
 
-Guys, could we please bring this back to a useful discussion.  None of
-you have commented on whether the rlimits for priority are useful.  As I
-said before, I've no real problem with the module as it stands since it's
-tiny, quite contained, and does something people need.  But I agree it'd
-be better to find something that's workable as long term solution.
+Why do you have such a problem with a rlimit base approach?
+IMHO it's not a hack like realtime LSM, usable for other things beside
+pro audio (see "scheduling priorities with rlimit" thread), securer and
+more user friendly.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+With realtime LSM a user in the realtime group can change the nice
+values and RT priorities of other users processes, incl. owned by root
+and kernel threads. This has to be fixed. I think this means a rewrite
+(not using CAP_SYS_NICE).
+
+It can't be used with distro kernels which have common-caps complied in,
+eg. fedora.
+
+IMHO for a possible mainline inclusion the mlock part have to taken away
+because RLIMIT_MLOCK is a better solution. A pro audio user have to deal
+with rlimits for mlock and realtime LSM for the RT priority part.
+Doing both with rlimits is more user friendly. Most of them have only to
+put something like this in limits.conf:
+
+me	hard	memlock		500000
+me	soft	memlock		500000
+me	hard	realtime	60
+me	soft	realtime	60
+
+And with rlimits you can drop privileges on process basis. Just set the
+hard RLIMIT_RT to 0 (ulimit). You can't do this with realtime LSM.
+ 
+With realtime rlimit you can even think about to give users realtime
+prios on a multi user machine. Limit the RT prio for users to 10 and
+have a rt-watchdog process with a higher priority which kills runaway
+user RT processes.
+With realtime LSM you can't limit the RT prio. It's all or nothing.
+
+

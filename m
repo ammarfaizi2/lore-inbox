@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132241AbRCVX3j>; Thu, 22 Mar 2001 18:29:39 -0500
+	id <S132242AbRCVX3j>; Thu, 22 Mar 2001 18:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132242AbRCVX3c>; Thu, 22 Mar 2001 18:29:32 -0500
-Received: from mail-oak-2.pilot.net ([198.232.147.17]:44537 "EHLO
-	mail02-oak.pilot.net") by vger.kernel.org with ESMTP
-	id <S132246AbRCVX11>; Thu, 22 Mar 2001 18:27:27 -0500
-Message-ID: <973C11FE0E3ED41183B200508BC7774C0124F077@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <twoller@crystal.cirrus.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, andrew.grover@intel.com
-Cc: "Woller, Thomas" <twoller@crystal.cirrus.com>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Incorrect mdelay() results on Power Managed Machines x86
-Date: Thu, 22 Mar 2001 17:26:05 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S132246AbRCVX3d>; Thu, 22 Mar 2001 18:29:33 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:39536 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S132241AbRCVX2f>;
+	Thu, 22 Mar 2001 18:28:35 -0500
+Message-ID: <20010323002752.A5650@win.tue.nl>
+Date: Fri, 23 Mar 2001 00:27:52 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: stephenc@theiqgroup.com (Stephen Clouse),
+        riel@conectiva.com.br (Rik van Riel),
+        orourke@missioncriticallinux.com (Patrick O'Rourke),
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010322230041.A5598@win.tue.nl> <E14gDwB-0003Tj-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <E14gDwB-0003Tj-00@the-village.bc.nu>; from Alan Cox on Thu, Mar 22, 2001 at 10:52:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 22, 2001 at 10:52:09PM +0000, Alan Cox wrote:
 
-> > I wonder if there is a way to modify mdelay to use a kernel timer if
-> > interval > 10msec? I am not familiar with this section of the kernel,
-> but I
-> > do know that Microsoft's similar function KeStallExecutionProcessor is
-> not
-> > recommended for more than 50 *micro*seconds.
-> 
-	>>Basically the same kind of recommendation applies. But as with all
-rules its
-	>>sometimes appropriate to break it
+> > You see, the bug is that malloc does not fail. This means that the
+> > decisions about what to do are not taken by the program that knows
+> > what it is doing, but by the kernel.
 
-	thanks, i just tested the "notsc" option (.config has CONFIG_X86_TSC
-enabled=y, but CONFIG_M586TSC is not enabled.. if that's ok), but this time
-I booted and kept the machine on battery power the ENTIRE time, i had not
-tried this before.  the MHZ value Detected in time.c is 132Mhz (down from
-500Mhz if not on battery power).  but the interesting thing that i just
-noticed is that the mdelay() wait time, is STILL about 25% of what it should
-delay.  i use 10000 (for a 10 second delay) and get only about 2-3 seconds
-out of it.  this smaller delay occurs with or without "notsc" on the boot
-line.  now, i did not expect this behaviour if i did not plug in to get more
-CPU speed, with the calculated cpu rate when on battery power.  i expected
-that mdelay() would function properly with the appropriate wait time if i
-booted and stayed on battery power, at the same reduced CPU frequency.
-Alan, you might have answered this in your first post but i don't under the
-INTEL speedstep logic to understand if this is expected behaviour.  but the
-bottom line is that my delay of 700 milleseconds in the driver fails if i
-boot and stay on battery power exclusively.  did anyone else expect this
-behaviour?  
+> Even if malloc fails the situation is no different.
+
+Why do you say so?
+
+> You can do overcommit avoidance in Linux if you are bored enough to try it.
+
+Would you accept it as the default? Would Linus?
+
+(With disk I/O we are terribly conservative, using very cautious settings,
+and many people use hdparm to double or triple their disk speed.
+But for a few these optimistic settings cause data corruption,
+so we do not make it the default.
+Similarly I would be happy if the "no overcommit", "no OOM killer"
+situation was the default. The people who need a reliable system
+will leave it that way. The people who do not mind if some process
+is killed once in a while use vmparm or /proc/vm/overcommit or so
+to make Linux achieve more on average.)
+
+Andries

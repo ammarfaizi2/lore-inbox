@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbUKQSPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbUKQS1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbUKQSPS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUKQSLS
+	id S262399AbUKQS1v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 13:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbUKQSXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 13:11:18 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:45696 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262480AbUKQSJK
+	Wed, 17 Nov 2004 13:23:10 -0500
+Received: from uslec-66-255-166-25.cust.uslec.net ([66.255.166.25]:47488 "EHLO
+	mail.ultrawaves.com") by vger.kernel.org with ESMTP id S262399AbUKQSVV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 13:09:10 -0500
-Date: Wed, 17 Nov 2004 09:55:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Tejun Heo <tj@home-tj.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-Message-ID: <20041117175504.GE28285@kroah.com>
-References: <20041109223729.GB7416@kroah.com> <d120d50004111612437ebe76d9@mail.gmail.com> <20041116230828.GB16690@kroah.com> <200411170200.32860.dtor_core@ameritech.net>
+	Wed, 17 Nov 2004 13:21:21 -0500
+Subject: Re: [PATCH] cx88: fix printk arg. type
+From: Jelle Foks <jelle@foks.8m.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>
+In-Reply-To: <20041117172519.GB8176@bytesex>
+References: <419A89A3.90903@osdl.org>  <20041117172519.GB8176@bytesex>
+Content-Type: text/plain
+Message-Id: <1100715680.2004.33.camel@zoot.ultrawaves>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411170200.32860.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 17 Nov 2004 13:21:21 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 02:00:32AM -0500, Dmitry Torokhov wrote:
-> On Tuesday 16 November 2004 06:08 pm, Greg KH wrote:
-> > On Tue, Nov 16, 2004 at 03:43:21PM -0500, Dmitry Torokhov wrote:
-> > > On Mon, 15 Nov 2004 21:54:40 -0800, Greg KH <greg@kroah.com> wrote:
-> > > > On Tue, Nov 09, 2004 at 10:49:43PM -0500, Dmitry Torokhov wrote:
-> > > > > In the meantime, can I please have bind_mode patch applied? I believe
-> > > > > it is useful regardless of which bind/unbind solution will be adopted
-> > > > > and having them will allow me clean up serio bus implementaion quite a
-> > > > > bit.
-> > > > >
-> > > > > Pretty please...
-> > > > 
-> > > > Care to resend it?  I can't find it in my archives.
-> > > > 
-> > > 
-> > > Here it is, against 2.6.10-rc2. Apologies for sending it as an attachment
-> > > but this interface will not let me put it inline without mangling.
-> > 
-> > No, for now, if you want to do this, do it in the serio code only, let's
-> > clean up the locking first before we do this in the core.
-> > 
+On Wed, 2004-11-17 at 12:25, Gerd Knorr wrote:
+> > -		dprintk(0, "ERROR: Firmware size mismatch (have %ld, expected %d)\n",
+> > +		dprintk(0, "ERROR: Firmware size mismatch (have %Zd, expected %d)\n",
 > 
-> *confused* This patch is completely independent from any locking issues in
-> driver core...
+> Thanks, merged to cvs.  I like that 'Z'.  Or is that just a linux-kernel
+> printk specific thingy?  Or is this standardized somewhere?  So I could
+> use that in userspace code as well maybe?
 
-I agree, it's a convient excuse to use to keep any other driver core
-changes from happening right now :)
+btw Gerd, did you see the patch I sent to the video4linux mailing list
+last sunday? It includes some small fixes to make things much closer to
+working (some +1/-1 type fixes). After that patch, the main open issue
+is syncing the video scaling and audio muting settings between the two
+video devices/chips (2388 and 23416) -> The cx23416 needs to be set to
+the same (/related) video scaling settings as the 2388, and the 2388
+audio must be unmuted for the mpeg stream to contain audio.
 
-> It is just 2 flags in device and driver structures that are checked in
-> device_attach and driver_attach.
+And of course then it needs some ioctl for the mpeg codec settings.
 
-But I'm not so sure we want to add this to the driver core yet.  We can
-discuss this after the locking stuff is finished, ok?
+Jelle.
 
-thanks,
+> 
+>   Gerd
 
-greg k-h
+

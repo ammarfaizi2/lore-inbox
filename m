@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281449AbRKFDtq>; Mon, 5 Nov 2001 22:49:46 -0500
+	id <S281465AbRKFECv>; Mon, 5 Nov 2001 23:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281453AbRKFDth>; Mon, 5 Nov 2001 22:49:37 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:40597 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281449AbRKFDte>;
-	Mon, 5 Nov 2001 22:49:34 -0500
-Date: Mon, 5 Nov 2001 22:49:32 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] disk throughput
-In-Reply-To: <Pine.LNX.4.33.0111051748250.1710-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0111052236001.27713-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281464AbRKFECm>; Mon, 5 Nov 2001 23:02:42 -0500
+Received: from zero.tech9.net ([209.61.188.187]:25871 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281453AbRKFECf>;
+	Mon, 5 Nov 2001 23:02:35 -0500
+Subject: Re: kernel 2.4.14 compiling fail for loop device
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Terminator <jimmy@mtc.dhs.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011105194316.B665@mikef-linux.matchmail.com>
+In-Reply-To: <Pine.LNX.4.33.0111051936090.18663-100000@www.mtc.dhs.org> 
+	<20011105194316.B665@mikef-linux.matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.31 (Preview Release)
+Date: 05 Nov 2001 23:02:36 -0500
+Message-Id: <1005019360.897.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-11-05 at 22:43, Mike Fedyk wrote:
+> Did anyone have this problem with pre8???
 
+Nope, it was added post-pre8 to final.  The deactivate_page function was
+removed completely.
 
-On Mon, 5 Nov 2001, Linus Torvalds wrote:
-
-> One such improvement has already been put on the table: remove the
-> algorithm, and make it purely greedy.
-
-OK, some digging had brought another one:
-
-a) if it's first-level directory - get it the fsck out of root's cylinder
-group.
-b) if we just keep creating directories in a cylinder group and do not
-create any files there - stop, it's no good (i.e. there's a limit on
-number of back-to-back directory creations in the same group).
-c) try putting it into the parent's CG, but reserve some number of inodes
-and data blocks in it.  If we can't - tough, get the fsck out of there.
-
->From the first reading of the code (aside of general yuck wrt style,
-but that's actually more about the older code in there) it seems to
-be reasonable.  It should solve the problem with fast-growth scenario
-and it puts some effort to avoid nastiness with slow-growth one.
+	Robert Love
 

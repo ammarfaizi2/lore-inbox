@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbTLOOoo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 09:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTLOOoo
+	id S263642AbTLOOtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 09:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTLOOtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 09:44:44 -0500
-Received: from mail6.iserv.net ([204.177.184.156]:12168 "EHLO mail6.iserv.net")
-	by vger.kernel.org with ESMTP id S263666AbTLOOon (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 09:44:43 -0500
-Message-ID: <3FDDC8BC.1090802@didntduck.org>
-Date: Mon, 15 Dec 2003 09:44:12 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Mon, 15 Dec 2003 09:49:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13442 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263642AbTLOOtL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 09:49:11 -0500
+Date: Mon, 15 Dec 2003 09:50:34 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+In-Reply-To: <200312131040.hBDAeisM000455@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0312150938540.9281@chaos>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
+ <Pine.LNX.4.53.0312121000150.10423@chaos> <200312121928.hBCJSLBs000384@81-2-122-30.bradfords.org.uk>
+ <Pine.LNX.4.53.0312121435570.1356@chaos> <200312131040.hBDAeisM000455@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-CC: arjanv@redhat.com, Gabriel Paubert <paubert@iram.es>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
-Subject: Re: PCI Express support for 2.4 kernel
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com>	 <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>	 <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
-In-Reply-To: <3FDDBDFE.5020707@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Kondratiev wrote:
+On Sat, 13 Dec 2003, John Bradford wrote:
 
-> Got it.
-> Should I understand it this way: for system with >=1Gb RAM, I will be 
-> unable to ioremap 256Mb region?
-> It looks confusing. On my test system (don't ask details, I am not 
-> alowed to share this info), I see
-> video controller with 256Mb BAR. Does it mean this controller will not 
-> work as well?
+> Quote from "Richard B. Johnson" <root@chaos.analogic.com>:
+>
+> > Yes, and I recall we agreed to disagree where the FDC stop must
+> > be put, but we both agreed that it must be stopped. I still contend
+> > that since the Linux startup code takes control away from the BIOS,
+> > it's that codes responsibility to turn OFF things that the BIOS
+> > might have left ON.
+>
+> Well, on a practical level, yes, I agree with you, it is the easiest
+> way to solve the problem.
+>
+> On a technical level, I still think that the BIOS configuration is
+> broken if it leaves the floppy motor on, on a system running a kernel
+> without the floppy code compiled in.
+>
+> John.
+>
 
-But that video card's BAR is not ioremapped into the kernel (XFree86 
-will mmap it into userspace).
+Hmmm. The BIOS doesn't know that you have a kernel without any
+floppy code. The BIOS also doesn't know that its timer queue
+is going to be destroyed by the data (code) that it's properly
+reading from some disk. All it knows is that every time the
+floppy is accessed, the motor must be turn ON before access
+and must be turned OFF two seconds after the last access. Since
+it doesn't know when the last access will be (it doesn't know the
+future), it resets a timer-variable upon every access. The timer-
+queue bumps the variable and if it gets to zero, turns OFF the
+FDC motor.
 
---
-               Brian Gerst
+The BIOS code is properly doing its job. When control is
+taken away from the BIOS, the code that took control must
+tie up any loose-ends that the BIOS wasn't able to finish.
+
+It's not the job of the boot-loader because it didn't alter
+the BIOS in any way. It used the BIOS to put the kernel in
+it's correct place. Then it gives control to the kernel
+code. It's that kernel code that takes control away from
+the BIOS. It's the responsibility of that kernel code
+to handle the consequences of doing that.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

@@ -1,81 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269049AbUHaTlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268877AbUHaTlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269049AbUHaTlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268877AbUHaThw
+	id S268877AbUHaTlP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUHaTgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:37:52 -0400
-Received: from mx-out.forthnet.gr ([193.92.150.6]:5910 "EHLO
-	mx-out-04.forthnet.gr") by vger.kernel.org with ESMTP
-	id S268873AbUHaTgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:36:33 -0400
-From: V13 <v13@priest.com>
-To: Spam <spam@tnonline.net>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
-Date: Tue, 31 Aug 2004 22:35:34 +0300
-User-Agent: KMail/1.7
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, reiserfs-list@namesys.com
-References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com> <36793180.20040831201736@tnonline.net>
-In-Reply-To: <36793180.20040831201736@tnonline.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Aug 2004 15:36:44 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63195 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268955AbUHaTgA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:36:00 -0400
+Date: Tue, 31 Aug 2004 21:37:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+Message-ID: <20040831193734.GA29852@elte.hu>
+References: <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu> <1093934448.5403.4.camel@krustophenia.net> <20040831070658.GA31117@elte.hu> <1093980065.1603.5.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408312235.35733.v13@priest.com>
-X-Spam-Flag: NO
+In-Reply-To: <1093980065.1603.5.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 August 2004 21:17, Spam wrote:
-> > On Sunday 29 August 2004 23:21, Hans Reiser wrote:
-> >> The Idea
-> >>
-> >> You should be able to access metadata about a file the same way you
-> >> access the file's data, but with a name based on the filename followed
-> >> by a name to select the metadata of interest.
-> >>
-> >> Examples:
-> >>
-> >> cat song_of_silence/metas/owner
-> >> cat song_of_silence/metas/permissions
-> >> cat 10 > song_of_silence/metas/mixer_defaults/volume
-> >> cat song_of_silence/metas/license
-> >
-> > Maybe I'm crazy but:
-> >
-> >  You're talking about a major change in the way filesystems work if this
-> > is going to be used by other FSs too. If  I understand this correctly it
-> > is a completely new thing and trying to do it by patching existing
-> > well-known 'primitives' may be wrong.
-> >
-> >   AFAIK and AFAICS the metadata are not files or directories. You can
-> > look at them as files/dirs but they are not, just like a tar is not a
-> > directory. I believe that the correct thing to do (tm) is to add a new
-> > 'concept' named 'metadata' (which already exists). This way you'll have
-> > files, directories and metadata (or whatever you call them). So, each
-> > directory can have metadatas and files and each file can have metadatas.
-> > Then you have to provide some new methods of accessing them and not to
-> > use chdir() etc. (lets say chdir_meta() to enter the meta dir which will
-> > work for files too). After entering the 'metadir' you'll be able to use
-> > existing methods etc to access its 'files'.
-> >
-> >   This approach doesn't mess with existing things and can be extended for
-> > other filesystems too.
-> >
-> > (Just a thought)
->
->   It  is a good thought. However I think they are trying to figure out
->   a  way  to have the metadata and streams to be accesible with legacy
->   applications.
 
-They will be since after chdir_meta() the user will be able to look at the 
-metadata just like Hans described it. The only thing that changes (from the 
-userland POV) is the way someone can enter the 'metadata directory'. This way 
-you don't have to have a special name, just a special function and no 
-existing application (like tar) can possibly break because it will not know 
-how to enter this 'metadata directory'.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-<<V13>>
+> 00000001 0.009ms (+0.000ms): generic_set_mtrr (set_mtrr)
+> 00000001 0.009ms (+0.000ms): prepare_set (generic_set_mtrr)
+
+this is the call to prepare_set() [implicit mcount()].
+
+> 00000002 0.010ms (+0.000ms): prepare_set (generic_set_mtrr)
+
+explicit mcount() #1,
+
+> 00000002 0.010ms (+0.000ms): prepare_set (generic_set_mtrr)
+
+#2,
+
+> 00000002 0.375ms (+0.364ms): prepare_set (generic_set_mtrr)
+
+#3. So the latency is this codepath:
+
++       mcount();
+        wbinvd();
++       mcount();
+
+bingo ...
+
+to continue:
+
+> 00000002 0.375ms (+0.000ms): prepare_set (generic_set_mtrr)
+
+mcount #4
+
+> 00000002 0.526ms (+0.150ms): prepare_set (generic_set_mtrr)
+
+#5. This means the following code had the latency:
+
+        write_cr0(cr0);
++       mcount();
+        wbinvd();
++       mcount();
+
+the other wbinvd(). Since we didnt execute all that much it didnt take
+as much time as the first wbinvd() [the cache was just write-flushed, so
+less flushing had to be done second time around].
+
+plus:
+
+ 00000002 0.548ms (+0.006ms): generic_set_mtrr (set_mtrr)
+ 00000002 0.552ms (+0.004ms): post_set (generic_set_mtrr)
+ 00000001 0.708ms (+0.155ms): set_mtrr (mtrr_add_page)
+ 00000001 0.713ms (+0.005ms): sub_preempt_count (sys_ioctl)
+
+proves that it's post_set() that took 155 usecs here, which too does a 
+wbinvd().
+
+so it's the invalidation of the cache that takes so long.
+
+i believe that the invalidations are excessive. It is quite likely that
+no invalidation has to be done at all. Does your box still start up X
+fine if you uncomment all those wbinvd() calls?
+
+	Ingo

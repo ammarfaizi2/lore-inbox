@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261952AbTCLUg4>; Wed, 12 Mar 2003 15:36:56 -0500
+	id <S261982AbTCLUjd>; Wed, 12 Mar 2003 15:39:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261980AbTCLUg4>; Wed, 12 Mar 2003 15:36:56 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50631
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261952AbTCLUgy>; Wed, 12 Mar 2003 15:36:54 -0500
-Subject: Re: 2.5.64: i2c-proc kills machine at boot
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030312161451.GA30741@wohnheim.fh-wedel.de>
-References: <20030311104721.GA401@elf.ucw.cz>
-	 <20030312125631.GA27966@wohnheim.fh-wedel.de>
-	 <1047484999.22696.7.camel@irongate.swansea.linux.org.uk>
-	 <20030312161451.GA30741@wohnheim.fh-wedel.de>
-Content-Type: text/plain
+	id <S261983AbTCLUjc>; Wed, 12 Mar 2003 15:39:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12558 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261982AbTCLUjY>; Wed, 12 Mar 2003 15:39:24 -0500
+Message-ID: <3E6F9D61.8090009@zytor.com>
+Date: Wed, 12 Mar 2003 12:49:37 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: John Bradford <john@grabjohn.com>, dana.lacoste@peregrine.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+References: <3E6F6E84.1010601@zytor.com> <200303121757.h2CHveVF001517@81-2-122-30.bradfords.org.uk> <20030312180304.GA30788@work.bitmover.com>
+In-Reply-To: <20030312180304.GA30788@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047506134.23730.18.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Mar 2003 21:55:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 16:14, =?unknown-8bit?Q?J=F6rn?= Engel wrote:
-> On Wed, 12 March 2003 16:03:19 +0000, Alan Cox wrote:
-> > 
-> > > It also isn't listed in the current MAINTAINERS file. Is i2o currently
-> > > unmaintained?
-> > 
-> > Its kind of mine. Maintained is an overly strong word for it however, but I 
-> > do take patches 8)
+Larry McVoy wrote:
+>>I thought that BK has been able to export everything to a text file
+>>since the first version.
 > 
-> All right. The following is against 2.5.64, compiles and reduces the
-> worst stack offender to 0x190 bytes. It is untested though, I don't
-> have any hardware for it.
+> 
+> bk export -tpatch -r1.900 > patch.1.900
+> bk changes -v -r1.900 > comments.1.900
+> 
+> Been there forever.  So has ways to get all the metadata from the command
+> line without having to reverse engineer the file format.  See
+> 
+>     http://www.bitkeeper.com/manpages/bk-prs-1.html
+> 
+> it's all there.  Always has been.
+> 
+> Wayne wanted me to point that it is easy to write the BK to CVS exporter
+> completely from the command line, we prototyped it that way, the only
+> reason we rewrote part of it in C was for performance.  The point being
+> that you guys could have done this yourself without help from us because
+> all the metadata is right there.  Ditto for anyone else worried about 
+> getting their data out of BK now or in the future.  The whole point of
+> prs is to be able to have a will-always-work way to get at the data or
+> the metadata, it makes the file format a non-issue.  
+>
 
-I have hardware however so I'll give it a check
+This is a Good Thing[TM] for a whole bunch of reasons.
+
+Maybe this output could be made available automatically in addition to
+the CVS tree?  If bandwidth is a concern then I reiterate what I said
+offline yesterday, if you can give me a ballpark idea of what the
+requirements seem to be I'll start hunting for a place to park a
+.kernel.org server dedicated to this task.
+
+	-hpa
+
+
 

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267223AbSKPFu2>; Sat, 16 Nov 2002 00:50:28 -0500
+	id <S267225AbSKPFyw>; Sat, 16 Nov 2002 00:54:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267224AbSKPFu2>; Sat, 16 Nov 2002 00:50:28 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:26876 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267223AbSKPFu1>;
-	Sat, 16 Nov 2002 00:50:27 -0500
-Message-ID: <3DD5DE2E.9CC9941A@mvista.com>
-Date: Fri, 15 Nov 2002 21:57:02 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S267226AbSKPFyv>; Sat, 16 Nov 2002 00:54:51 -0500
+Received: from excalibur.cc.purdue.edu ([128.210.189.22]:44045 "EHLO
+	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
+	id <S267225AbSKPFyu>; Sat, 16 Nov 2002 00:54:50 -0500
+Date: Sat, 16 Nov 2002 01:04:35 -0500 (EST)
+From: Patrick Finnegan <pat@purdueriots.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Dan Kegel <dank@kegel.com>, john slee <indigoid@higherplane.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why can't Johnny compile?
+In-Reply-To: <3DD5DC77.2010406@pobox.com>
+Message-ID: <Pine.LNX.4.44.0211160059540.16668-100000@ibm-ps850.purdueriots.com>
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@broadpark.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47-bk4 compile failure, due to crypto
-References: <3DD53234.B0F1C9C8@broadpark.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The QUICK fix is to turn the offending function into a
-"#define"...
+On Sat, 16 Nov 2002, Jeff Garzik wrote:
 
--g
+> Most of the stuff that doesn't compile (or link) is typically stuff that
+> is lesser used, or never used.  A lot of the don't-compile complaints
+> seem to be vocal-minority type complaints or "why can't I build _every_
+> module in the kernel?" complaints.  Ref allmodconfig, above.
+>
+> If people want to get rivafb or an ancient ISA net driver building
+> again... patches welcome.  But I don't think calls for the kernel to
+> compile 100 percent of the drivers is realistic or even reasonable.
+> Some of the APIs, particularly SCSI, are undergoing API stabilization.
+> And SCSI is an excellent example of drivers where
+> I-dont-have-test-hardware patches to fix compilation may miss subtle
+> problems -- and then six months later when the compileable-but-broken
+> SCSI driver is used by a real user, we have to spend more time in the
+> long run tracking down the problem.
 
-Helge Hafting wrote:
-> 
-> I get this, even if I de-selects all the crypto stuff.
-> Helge Hafting
-> 
-> make -f scripts/Makefile.build obj=net/core
->   gcc -Wp,-MD,net/core/.skbuff.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=skbuff -DKBUILD_MODNAME=skbuff   -c -o
-> net/core/skbuff.o net/core/skbuff.c
-> In file included from include/net/xfrm.h:6,
->                  from net/core/skbuff.c:61:
-> include/linux/crypto.h: In function `crypto_tfm_alg_modname':
-> include/linux/crypto.h:202: dereferencing pointer to incomplete type
-> include/linux/crypto.h:205: warning: control reaches end of non-void
-> function
-> make[2]: *** [net/core/skbuff.o] Error 1
-> make[1]: *** [net/core] Error 2
-> make: *** [net] Error 2
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Wouldn't it then seem reasonable to remove things from the kernel that
+have been broken for a long time, and no one seems to care enough to fix?
+I know of at least one driver (IOmega Buz v4l) that seems to have fallen
+into disrepair possibly since before 2.4.0, and as far as I know has not
+been repaired since then.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Pat
+--
+Purdue Universtiy ITAP/RCS
+Information Technology at Purdue
+Research Computing and Storage
+http://www-rcd.cc.purdue.edu
+
+

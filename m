@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUHJIWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUHJIZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUHJIWj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 04:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUHJIV5
+	id S261857AbUHJIZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 04:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUHJIZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 04:21:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36760 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261239AbUHJIVN (ORCPT
+	Tue, 10 Aug 2004 04:25:29 -0400
+Received: from holomorphy.com ([207.189.100.168]:58342 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261857AbUHJIXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 04:21:13 -0400
-Date: Tue, 10 Aug 2004 10:20:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Robert Crawford <flacycads@access4less.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1 & mm2 break k3b
-Message-ID: <20040810082046.GA11201@suse.de>
-References: <200408100011.30730.flacycads@access4less.net> <20040810081453.GJ10381@suse.de>
+	Tue, 10 Aug 2004 04:23:44 -0400
+Date: Tue, 10 Aug 2004 01:23:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810082340.GH11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080430.GA25866@elte.hu> <20040810080801.GA26014@elte.hu> <20040810081752.GG11200@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810081453.GJ10381@suse.de>
+In-Reply-To: <20040810081752.GG11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10 2004, Jens Axboe wrote:
-> On Tue, Aug 10 2004, Robert Crawford wrote:
-> > I posted this on the Con Kolivas kernel list, and he suggested I post
-> > here, regarding 2.6.8-rc3-mm kernels. I'm no expert by any means, but
-> > have been testing kernels since 2.5.67, and have posted about kernels
-> > on the Gentoo & PCLOS forums, among others.
-> > 
-> > "Just tested the latest staircase7.I with 2.6.8-rc3 vanilla, and
-> > 2.6.8-rc3-mm2, and both work fine- no problems I can see so far on my
-> > test box. However,  2.6.8-rc3-mm1 and mm2 both still break my k3b cd
-> > burning software, with these errors (using cdrecord 2.1a33, on Gentoo)
-> > :
-> > 
-> > Unable to determine the last tracks data mode. using default cdrecord
-> > returned an unknown error (code 12) Cannot allocate memory
-> > 
-> > Sometimes it says to lower the burn speed, even when it's set to 4x
-> > (on a 48x burner), but that doesn't solve the problem. I get the same
-> > errors.
-> > 
-> > This doesn't occur with all previous mm kernels (up to 2.6.8-rc2-mm2),
-> > or any other kernel I've tried, and not with any ck patches, so I'm
-> > convinced it's the rc3-mm patches causing this, and not anything ck."
-> > If I boot with other kernels, same hardware, same config file, k3b
-> > works perfectly.
-> 
-> Try 2.6.8-rc4, please.
+At some point in the past, someone wrote:
+>>> is keventd_up() true during normal SMP bootup? [...]
 
-Or 2.6.8-rc4-mm1, I see that is out as well.
+On Tue, Aug 10, 2004 at 10:08:01AM +0200, Ingo Molnar wrote:
+>> it ought to be up at this point - smp_init() is done from the init
+>> thread and the scheduler is up and running.
 
--- 
-Jens Axboe
+On Tue, Aug 10, 2004 at 01:17:52AM -0700, William Lee Irwin III wrote:
+> Well, I'm working backward from an "unacceptable fix", where I changed
+> a bunch of things defensively at once and (of course) it was adding the
+> printk()'s that actually fixed things.
+> One of those changes was to ditch the schedule_work() shenanigans in
+> do_boot_cpu(), which was actually meant to rule out the initializers
+> for the struct create_idle getting miscompiled or otherwise not
+> behaving as I expected.
 
+The "unacceptable fix" is now down to one line. So, what I need to
+figure out now is what the printk did.
+
+
+--- mm2-2.6.8-rc3/arch/ia64/kernel/smpboot.c.orig	2004-08-10 13:42:38.000000000 -0700
++++ mm2-2.6.8-rc3/arch/ia64/kernel/smpboot.c	2004-08-10 01:03:51.527428678 -0700
+@@ -671,6 +671,7 @@
+ 		return 0;
+ 	}
+ 	/* Processor goes to start_secondary(), sets online flag */
++	printk("about to call do_boot_cpu(%d, %d)\n", sapicid, cpu);
+ 	ret = do_boot_cpu(sapicid, cpu);
+ 	if (ret < 0)
+ 		return ret;

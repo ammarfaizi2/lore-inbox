@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129439AbRBGSBH>; Wed, 7 Feb 2001 13:01:07 -0500
+	id <S129057AbRBGSA1>; Wed, 7 Feb 2001 13:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129865AbRBGSBA>; Wed, 7 Feb 2001 13:01:00 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:11861 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129444AbRBGSAr>; Wed, 7 Feb 2001 13:00:47 -0500
-Date: Wed, 7 Feb 2001 18:00:40 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: [PATCH] micro-opt DEBUG_ADD_PAGE
-In-Reply-To: <Pine.LNX.4.21.0102071744440.5204-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0102071755200.5243-100000@localhost.localdomain>
+	id <S129439AbRBGSAS>; Wed, 7 Feb 2001 13:00:18 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:22676 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129057AbRBGSAF>; Wed, 7 Feb 2001 13:00:05 -0500
+Date: Wed, 7 Feb 2001 18:55:26 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, mingo@redhat.com,
+        linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+Subject: Re: UP APIC reenabling vs. cpu type detection ordering
+In-Reply-To: <3A817F68.1A5C4EC1@transmeta.com>
+Message-ID: <Pine.GSO.3.96.1010207184159.1418E-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Linus Torvalds wrote:
-> > -		if (bh->b_size % correct_size) {
-> > +		if (bh->b_size != correct_size) {
-> 
-> Actually, I'd rather leave it in, but speed it up with the saner and
-> faster  	if (bh->b_size & (correct_size-1)) {
+On Wed, 7 Feb 2001, H. Peter Anvin wrote:
 
-Micro-optimization season?
+> Why is the test there in the first place?  If the machine has an APIC, it
+> should be able to use it.  Presumably no other CPU uses the same MSR
+> address (am I wrong?) for anything else -- if so, it should be able to
+> poke it as long as the kernel intercepts the #GP(0) that may come if it
+> is not enabled.  The Linux kernel has pretty sophisticated support for
+> trapping faults.
 
---- linux-2.4.2-pre1/include/linux/swap.h	Wed Feb  7 15:21:13 2001
-+++ linux/include/linux/swap.h	Wed Feb  7 17:21:25 2001
-@@ -200,8 +200,8 @@
-  * with the pagemap_lru_lock held!
-  */
- #define DEBUG_ADD_PAGE \
--	if (PageActive(page) || PageInactiveDirty(page) || \
--					PageInactiveClean(page)) BUG();
-+	if ((page)->flags & ((1<<PG_active)|(1<<PG_inactive_dirty)| \
-+					(1<<PG_inactive_clean))) BUG();
- 
- #define ZERO_PAGE_BUG \
- 	if (page_count(page) == 0) BUG();
+ The point is whether it is safe to enable the local APIC that was
+disabled by BIOS on an unknown CPU.  Probably yes, but who knows -- we
+might need additional setup to be performed for interrupts to work. 
+
+> In other words, I'd like to see a reason for making any vendor-specific
+> determinations, and if so, they should ideally be centralized to the CPU
+> feature-determination code.
+
+ It would be hard to decide how to classify it.  It's something like "the
+CPU has a local APIC that we know how to handle in the non-MPS system". 
+
+ It might be viable just to delete the test altogether, though and just
+trap #GP(0) on the MSR access.  For the sake of simplicity.  If a problem
+with a system ever arizes, we may handle it then.
+
+ Note that we still have to choose appropriate vendor-specific PeMo
+handling and an event for the NMI watchdog anyway.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

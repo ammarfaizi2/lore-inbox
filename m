@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264104AbTFDV3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 17:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFDV3T
+	id S264124AbTFDVea (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 17:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTFDVea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 17:29:19 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:34028 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264104AbTFDV3R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 17:29:17 -0400
-content-class: urn:content-classes:message
+	Wed, 4 Jun 2003 17:34:30 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:24411 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264124AbTFDVe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 17:34:29 -0400
+Message-ID: <3EDE68F8.7DF2D0AC@digeo.com>
+Date: Wed, 04 Jun 2003 14:47:36 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.70-mm3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.4.21-rc7 ACPI broken
-Date: Wed, 4 Jun 2003 14:42:46 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A847E96F28@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.21-rc7 ACPI broken
-Thread-Index: AcMq4SdtUFb1pbHnT9OjwRWtjyoZwgAAOAAQ
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Grzegorz Jaskiewicz" <gj@pointblue.com.pl>
-Cc: <acpi-support@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Jun 2003 21:42:46.0612 (UTC) FILETIME=[3CB73140:01C32AE2]
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mm3 hang
+References: <1274420000.1054758735@flay>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jun 2003 21:47:59.0651 (UTC) FILETIME=[F74D2730:01C32AE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Grzegorz Jaskiewicz [mailto:gj@pointblue.com.pl] 
-> I know that latest acpi patch is against -rc3, but it aply to 
-> -rc7 just with 
-> one problem in documentation, so i dont care. Anyway, 
-> recompilation if it 
-> fails:
+"Martin J. Bligh" wrote:
+> 
+> SDET hangs it every few runs.
+> 
 
-Fix already done, config acpi PHP out until that's merged -- Andy
+You have a large number of `ps' instances which appear to be
+stuck on /proc's i_sem and lots of processes stuck in
+sched_balance_exec->set_cpus_allowed->wait_for_completion.
+
+The latter is a NUMA-special.  You might want to examine the
+sched_best_cpu() fixes carefully.  Also see whether 2.5.70+bk
+does the same thing.

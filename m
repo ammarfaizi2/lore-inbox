@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUCRBPD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 20:15:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUCRBPD
+	id S262278AbUCRBdY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 20:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbUCRBdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 20:15:03 -0500
-Received: from opersys.com ([64.40.108.71]:60431 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262266AbUCRBO6 (ORCPT
+	Wed, 17 Mar 2004 20:33:24 -0500
+Received: from zero.aec.at ([193.170.194.10]:23047 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262278AbUCRBdV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 20:14:58 -0500
-Message-ID: <4058F91C.9000207@opersys.com>
-Date: Wed, 17 Mar 2004 20:19:24 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 17 Mar 2004 20:33:21 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-raid@vger.kernel.org, justin_gibbs@adaptec.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "Enhanced" MD code avaible for review
+References: <1AOTW-4Vx-7@gated-at.bofh.it> <1AOTW-4Vx-5@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 18 Mar 2004 02:33:17 +0100
+In-Reply-To: <1AOTW-4Vx-5@gated-at.bofh.it> (Jeff Garzik's message of "Wed,
+ 17 Mar 2004 20:30:12 +0100")
+Message-ID: <m3wu5jey76.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Mark Gross <mgross@linux.co.intel.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       lkml <linux-kernel@vger.kernel.org>, Philippe Gerum <rpm@xenomai.org>
-Subject: Re: Call for HRT in 2.6 kernel was Re: finding out the value of HZ
- from userspace
-References: <20040311141703.GE3053@luna.mooo.com> <200403161757.48786.mgross@linux.intel.com> <20040317023059.GD19564@mail.shareable.org> <200403170848.01156.mgross@linux.intel.com> <20040317200702.GA25293@mail.shareable.org>
-In-Reply-To: <20040317200702.GA25293@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik <jgarzik@pobox.com> writes:
+>
+> ioctl's are a pain for 32->64-bit translation layers.  Using a
+> read/write interface allows one to create an interface that requires
+> no translation layer -- a big deal for AMD64 and IA32e processors
+> moving forward -- and it also gives one a lot more control over the
+> interface.
 
-Jamie Lokier wrote:
-> So there is hope with HRT, but it needs more than an implementation to
-> get into the standard tree (IMHO): it has to be fairly small,
-> non-invasive, not harm existing performance, and backed by convincing
-> experimental data showing worthwhile improvements.
+Sorry, Jeff, but that's just not true. While ioctls need an additional
+entry in the conversion table, they can at least easily get an
+translation handler if needed. When they are correctly designed you
+just need a single line to enable pass through the emulation.
+If you don't want to add that line to the generic compat_ioctl.h
+file you can also do it in your driver.
 
-Looking at the high-res timer stuff, it's somewhat similar to what
-RTAI does (reprogram timer chip, use nanoseconds for computations,
-provide API for ease of use, etc.) except that it can't guarantee
-hard-rt, and it's integrated directly with Linux's scheduling
-whereas RTAI has its own scheduler and lives as a module.
+read/write has the big disadvantage that if someone gets the emulation
+wrong (and that happens regularly) it is near impossible to add an 
+emulation handler then, because there is no good way to hook
+into the read/write paths.
 
-It's not my intention to debate which is better, I'll leave that
-for another day. What I'm interested in, however, is that there is
-a common functionality that all such facilities can use to achieve/
-deliver hard-rt.
+There may be valid reasons to go for read/write, but 32bit emulation
+is not one of them. In fact from the emulation perspective read/write
+should be avoided.
 
-I'm thinking here of Adeos. It's the smallest subset of services
-required for obtaining hard-rt in the kernel, and it's fairly
-non-invasive (not to mention that configuring it out results in no
-changes to the kernel.) So while Adeos doesn't provide abstract
-services such as "tasks" or "timers", it does provide the basic
-mechanism for all add-ons that want to provide these to obtain
-the hard-rt from Adeos using an architecture-independent API.
-
-Here are a few examples of software that can obtain hard-rt with
-Adeos:
-- RT Executives: Currently RTAI uses Adeos on x86 and a port of
-RTLinux/GPL to Adeos is planned. Adeos, however, isn't limited to
-either of these executives, and could easily be used by any other
-RT executive to sit side-by-side with Linux and other kernels.
-- hard-rt drivers: It's fairly trivial for a driver to hook into the
-Adeos pipeline and obtain hard-rt without using either RTAI or
-RTLinux. In that case, there's just the standard Linux kernel with
-a hard-rt driver side-by-side atop Adeos.
-- HRT: Any mechanism that modifies the PIT can then export timer
-services to drivers for providing them with deterministic timer
-response times. Granted there would be no integration with the
-current Linux scheduler, but the added advantage is that HRT can
-live as a loadable module. Scheduling/notifying of user-space
-processes using such HRT is possible; RTAI's hard-rt scheduling
-of normal Linux processes being an example.
-
-Actually, most software that needs hard-rt can live as loadable
-modules once Adeos is integrated in the kernel.
-
-The Adeos patches are available here for those who are interested:
-http://download.gna.org/adeos/patches/
-
-P.S.: Before anyone comes back shouting after looking at the #ifdefs
-used to modify _existing_ kernel files in the current Adeos patches,
-please keep in mind that they are mainly there because they make it
-fairly trivial to create patches for new kernels. When cleaning up
-the patches for inclusion, most of these would disappear.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+-Andi
 

@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265578AbSLSPBN>; Thu, 19 Dec 2002 10:01:13 -0500
+	id <S265657AbSLSPB5>; Thu, 19 Dec 2002 10:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSLSPBN>; Thu, 19 Dec 2002 10:01:13 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59276 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265578AbSLSPBM>; Thu, 19 Dec 2002 10:01:12 -0500
-Date: Thu, 19 Dec 2002 10:11:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: billyrose@billyrose.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <1040308834.3e01da62a8761@209.51.155.18>
-Message-ID: <Pine.LNX.3.95.1021219095836.4206A-100000@chaos.analogic.com>
+	id <S265752AbSLSPB5>; Thu, 19 Dec 2002 10:01:57 -0500
+Received: from fw1.afb.de ([195.30.9.122]:13804 "EHLO fw1.afb.de")
+	by vger.kernel.org with ESMTP id <S265657AbSLSPBy> convert rfc822-to-8bit;
+	Thu, 19 Dec 2002 10:01:54 -0500
+Message-ID: <2F4E8F809920D611B0B300508BDE95FE294471@AFB91>
+From: BoehmeSilvio <Boehme.Silvio@afb.de>
+To: "'Dave Jones'" <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via KT400
+Date: Thu, 19 Dec 2002 16:11:07 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Scanner: exiscan *18P2Iu-0007PE-00*AmloFHLOC0E* on Astaro Security Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002 billyrose@billyrose.net wrote:
+Hi Dave,
 
-> Richard B. Johnson wrote:
-> 
-> > The target, i.e., the label 'goto' would be the reserved page for the
-> > system call. The whole purpose was to minimize the number of CPU cycles
-> > necessary to call 0xfffff000 and return. The system call does not have
-> > issue a 'far' return, it can do anything it requires. The page at
-> > 0xfffff000 is mapped into every process and is in that process CS space
-> > already.
-> 
-> that being the case, why push %cs and reload it without reason as the
-> code is mapped into every process?
-> 
-> therefore, would it not suffice to use:
-> 
->         ...
->         long_call(); //call to $0xfffff000 via near ret
->         //code at $0xfffff000 returns directly here when a ret is issued
->         ...
-> 
-> long_call:
->         pushl $0xfffff000
->         ret
-> 
+just to inform you:
+I have requested the KT400 agp specs from VIA.
+I'll receive the docs in 1-2 days.
+As far as i have the docs, I can help you with on the VIA AGP 3 issue.
 
-Because the number pushed onto the stack is a displacement, not
-an address, i.e., -4095. To have the address act as an address,
-you need to load a full-pointer, i.e. SEG:OFFSET (like the old
-16-bit days). The offset is 32-bits and the segment is whatever
-the kernel has set up for __USER_CS (0x23). All the 'near' calls
-are calls to a signed displacement, same for jumps.
+My state:
+	- found a 2.4.20-rc? patch for the Intel 7505 with agp 3 support.
+	- copied via_generic_setup to via_kt400_setup and modified it to
+agp3
+	- waiting for the via specs 
 
-It would be nice if you could just do 	call	$0xfffff000,
-the problem is that the 'call' expects a displacement, usually
-determined (fixed-up) by the linker. So, in this case, you
-end up calling some code that exists 4095 bytes before the
-call instruction NotGood(tm).
+By
 
-So the whole idea of this exercise is to do the same thing as
-	call far ptr 0x23:0xfffff000 (Intel syntax), without
-reguiring a fixup, but minimizing the instructions and disruption
-due to reloading a segment.
+Silvio
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+
+-----Ursprüngliche Nachricht-----
+Von: Dave Jones [mailto:davej@codemonkey.org.uk]
+Gesendet: Donnerstag, 19. Dezember 2002 11:43
+An: Courtney Grimland
+Cc: Tupshin Harper; linux-kernel@vger.kernel.org
+Betreff: Re: Via KT400
 
 
+On Wed, Dec 18, 2002 at 11:26:53PM -0600, Courtney Grimland wrote:
+ > I have the 7VAXP.  I only had problems with AGP and sound, and using
+ > 2.4.20-ac2 absolutely everything on this board works (finally -
+ > sound!).  AGP worked in 2.4.20-ac1 as well as 2.4.21-pre1.  I think
+ > the the IDE issue was resolved in 2.4.20.
+
+The AGP only works if the chipset is in 2.0 compatability mode.
+Luckily some BIOSen out there seem to do that if a 2.0 card is present.
+If you have an AGP 3.0 card in there you're shit out of luck right now.
+I'm working on it..
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

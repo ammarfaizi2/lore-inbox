@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbVCWWCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVCWWGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbVCWWCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVCWWCd
+	id S261436AbVCWWGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbVCWWGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:02:33 -0500
-Received: from ozlabs.org ([203.10.76.45]:34501 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262936AbVCWWCU (ORCPT
+	Wed, 23 Mar 2005 17:06:36 -0500
+Received: from ozlabs.org ([203.10.76.45]:42949 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261436AbVCWWGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:02:20 -0500
-Date: Thu, 24 Mar 2005 09:00:37 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Mark Wong <markw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 journalling BUG on full filesystem
-Message-ID: <20050323220037.GR17561@krispykreme>
-References: <20050323202130.GA30844@osdl.org>
-Mime-Version: 1.0
+	Wed, 23 Mar 2005 17:06:32 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050323202130.GA30844@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16961.59549.946004.551974@cargo.ozlabs.ibm.com>
+Date: Thu, 24 Mar 2005 09:07:25 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: "Hugh Dickins" <hugh@veritas.com>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       <akpm@osdl.org>, <davem@davemloft.net>, <benh@kernel.crashing.org>,
+       <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 1/6] freepgt: free_pgtables use vma list
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0324516D@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0324516D@scsmsx401.amr.corp.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luck, Tony writes:
 
-Hi,
+> Can we legislate that "end==0" isn't possible.
 
-> I originally reported this to the linuxppc64-dev list, since I made it
-> happen on a POWER system.  I'm told this might be more generic...
-> 
-> Anyone run into something like this?
+I think this is only likely to be a problem on 32-bit platforms with
+hardware support for separate user and kernel address spaces.  m68k
+and sparc32 come to mind, though I might be mistaken.
 
-Just in case it got lost in the rest of the xmon output... We hit a BUG():
-
-kernel BUG in submit_bh at fs/buffer.c:2706!
-
-Which looks like:
-
-        BUG_ON(!buffer_mapped(bh));
-
-Backtrace:
-
-	ll_rw_block+0x160/0x164
-	journal_commit_transaction+0xd88/0x16d4
-	kjournald+0x114/0x308
-	kernel_thread+0x4c/0x6c
-
-Anton
+Paul.

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131097AbRCGONx>; Wed, 7 Mar 2001 09:13:53 -0500
+	id <S131081AbRCGOPx>; Wed, 7 Mar 2001 09:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131098AbRCGONn>; Wed, 7 Mar 2001 09:13:43 -0500
-Received: from pucc.Princeton.EDU ([128.112.129.99]:56344 "EHLO
-	pucc.Princeton.EDU") by vger.kernel.org with ESMTP
-	id <S131097AbRCGONd>; Wed, 7 Mar 2001 09:13:33 -0500
-To: linux-kernel@vger.kernel.org
-From: Neale.Ferguson@softwareAG-usa.com
-Date: Wed, 7 Mar 2001 09:04:31 +0200
-Subject: 2.4.0-s390x progress
-Message-Id: <20010307141337Z131097-407+2208@vger.kernel.org>
+	id <S131083AbRCGOPr>; Wed, 7 Mar 2001 09:15:47 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:18187 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131081AbRCGOO1>;
+	Wed, 7 Mar 2001 09:14:27 -0500
+Date: Wed, 7 Mar 2001 15:13:12 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andre Hedrick <andre@linux-ide.org>,
+        Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
+Subject: Re: scsi vs ide performance on fsync's
+Message-ID: <20010307151312.F526@suse.de>
+In-Reply-To: <E14aGHY-0000Yc-00@the-village.bc.nu> <Pine.LNX.4.10.10103061042250.1989-100000@penguin.transmeta.com> <20010307134824.A3715@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010307134824.A3715@redhat.com>; from sct@redhat.com on Wed, Mar 07, 2001 at 01:48:24PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been using the "Linux from Scratch" (LFS) document as a guide for building
-a basic Linux system. The only things I've done outside the instructions
-include:
+On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> SCSI certainly lets us do both of these operations independently.  IDE
+> has the sync/flush command afaik, but I'm not sure whether the IDE
+> tagged command stuff has the equivalent of SCSI's ordered tag bits.
+> Andre?
 
-1. Built 32 bit version of binutils, gcc, glibc for s390x
-2. Built kernel
-3. Created /root64 and populated it with /usr /bin etc.
-4. Built 64-bit libncurses
+IDE has no concept of ordered tags...
 
-I've now built statically linked 64-bit versions of:
-1. bash
-2. bzip2
-3. diffutils
-4. fileutils
+-- 
+Jens Axboe
 
-These are all installed in the /root64 tree.
-
-According to the LFS instructions I should now build grep, gzip, make,
-sed, shellutils, tar, and textutils, before going onto the next phase.
-However, I cannot find grep, sed, or tar srpms on the SuSE CDs.
-
-In any event, progress is being made.
-
-Neale

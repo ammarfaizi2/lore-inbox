@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSHXB6j>; Fri, 23 Aug 2002 21:58:39 -0400
+	id <S315267AbSHXCCA>; Fri, 23 Aug 2002 22:02:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315275AbSHXB6j>; Fri, 23 Aug 2002 21:58:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52242 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315265AbSHXB6i>;
-	Fri, 23 Aug 2002 21:58:38 -0400
-Message-ID: <3D66E944.9080507@mandrakesoft.com>
-Date: Fri, 23 Aug 2002 22:02:44 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
+	id <S315275AbSHXCCA>; Fri, 23 Aug 2002 22:02:00 -0400
+Received: from dsl-213-023-038-001.arcor-ip.net ([213.23.38.1]:39336 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315267AbSHXCB7>;
+	Fri, 23 Aug 2002 22:01:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marc-Christian Petersen <m.c.p@gmx.net>
+Subject: Re: 2.4 kernel series and the oom_killer and /proc/sys/vm/overcommit_memory
+Date: Sat, 24 Aug 2002 04:07:43 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200208221719.50568.m.c.p@gmx.net> <1030037573.3090.3.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1030037573.3090.3.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Andre Hedrick <andre@linux-ide.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-flash device and hard disk on same controller
-References: <Pine.LNX.4.10.10208222014450.13077-100000@master.linux-ide.org> <20020823114433.10784@192.168.4.1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17iQL2-0001VV-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> Well... x86 PCs with ordinary BIOSes did. Other firmwares,
-> embedded devices, whatever.... may not, or eventually the firmware
-> will have reset everything prior to booting the kernel (go figure
-> why, but that happens).
-> 
-> It's not difficult nor harmful to wait for that dawn busy bit to
-> go away, so why not do it ?
+On Thursday 22 August 2002 19:32, Alan Cox wrote:
+> 3 is a totally paranoid [overcommit policy] that will require everything in
+> ram can be dumped to swap or paged back from backing store
 
+How do you handle the situation where you have a lot of shared memory in a 
+half-paged-out state, so that each shared page consumes both ram and swap?
 
-Basically think about the consequences of trying to handle a completely 
-unknown state -- if you are going to attempt to handle this you would 
-need to check for data, not just the BSY bit.  And read the data into a 
-throwaway buffer, if there is data to be read, or write the data it's 
-expecting.
-
-So it's not just the busy bit :)
-
+-- 
+Daniel

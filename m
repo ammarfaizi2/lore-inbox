@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289297AbSBJFkG>; Sun, 10 Feb 2002 00:40:06 -0500
+	id <S288677AbSBJFih>; Sun, 10 Feb 2002 00:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289293AbSBJFj4>; Sun, 10 Feb 2002 00:39:56 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:41736 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S289297AbSBJFjl>; Sun, 10 Feb 2002 00:39:41 -0500
-Subject: 2.5.4-pre5 -- fbdev.c:1814: incompatible types in assignment in
-	function `riva_set_fbinfo'
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 09 Feb 2002 21:36:36 -0800
-Message-Id: <1013319396.28886.8.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
+	id <S289293AbSBJFi0>; Sun, 10 Feb 2002 00:38:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55044 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288677AbSBJFiR>; Sun, 10 Feb 2002 00:38:17 -0500
+Date: Sat, 9 Feb 2002 23:23:43 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BUG preserve registers
+In-Reply-To: <3C660517.AAA7FA8@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0202092322310.11734-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-make[4]: Entering directory `/usr/src/linux/drivers/video/riva'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=athlon   
--DKBUILD_BASENAME=fbdev  -c -o fbdev.o fbdev.c
-fbdev.c: In function `riva_set_fbinfo':
-fbdev.c:1814: incompatible types in assignment
-make[4]: *** [fbdev.o] Error 1
-make[4]: Leaving directory `/usr/src/linux/drivers/video/riva'
 
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_RIVA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
+On Sat, 9 Feb 2002, Andrew Morton wrote:
+>
+> This is the cue for Keith to pop up and say "fixed in kbuild 2.5".
 
+Nope.
+
+> __BASE_FILE__ seems to have been supported for a sufficiently long time.
+
+__BASE_FILE__ is not useful.
+
+Remember: when we have a BUG in a header file, we need to get the HEADER
+file, not the base file.
+
+__BASE_FILE__ only works for .c files.
+
+And .c files aren't the problem anyway (ie if we didn't have BUG()
+statements in header files, we wouldn't have problems anyway).
+
+		Linus
 

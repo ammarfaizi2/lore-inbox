@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVA0Toj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVA0Tqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbVA0Toj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 14:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbVA0Toj
+	id S262710AbVA0Tqj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 14:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVA0Tqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 14:44:39 -0500
-Received: from p-mail2.rd.francetelecom.com ([195.101.245.16]:2824 "EHLO
-	p-mail2.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S262708AbVA0Toi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 14:44:38 -0500
-Message-ID: <41F94462.7080108@francetelecom.REMOVE.com>
-Date: Thu, 27 Jan 2005 20:43:30 +0100
-From: Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Patch 4/6  randomize the stack pointer
-References: <20050127101117.GA9760@infradead.org> <20050127101322.GE9760@infradead.org>
-In-Reply-To: <20050127101322.GE9760@infradead.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jan 2005 19:42:39.0478 (UTC) FILETIME=[5C051160:01C504A8]
+	Thu, 27 Jan 2005 14:46:39 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37304 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262710AbVA0Tq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 14:46:27 -0500
+Date: Thu, 27 Jan 2005 14:46:03 -0500
+From: Dave Jones <davej@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Pavel Machek <pavel@ucw.cz>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: Patch 1/6  introduce sysctl
+Message-ID: <20050127194603.GA31127@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+References: <20050127101117.GA9760@infradead.org> <20050127101201.GB9760@infradead.org> <20050127181525.GA4784@elf.ucw.cz> <20050127191120.GA10460@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050127191120.GA10460@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not very important but ((get_random_int() % 4096) << 4) could be 
-optimized into get_random_int() & 0xFFF0. Because 4096 is a power of 2 
-you won't loose any entropy by doing  & 0xFFF instead of %4096
+On Thu, Jan 27, 2005 at 08:11:20PM +0100, Ingo Molnar wrote:
 
-Regards,
+ > so, i'm glad to report, it's a non-issue. Sometimes developers want to
+ > disable randomisation during development (quick'n'easy hacks get quicker
+ > and easier - e.g. if you watch an address within gdb), so having the
+ > capability for unprivileged users to disable randomisation on the fly is
+ > useful and Fedora certainly offers that, but from a support and
+ > bug-reporting POV it's not a problem.
 
--- 
-Julien TINNES - & france telecom - R&D Division/MAPS/NSS
-Research Engineer - Internet/Intranet Security
-GPG: C050 EF1A 2919 FD87 57C4 DEDD E778 A9F0 14B9 C7D6
+It's worth noting that some users have found the randomisation disable useful
+for running things like xine/mplayer etc with win32 codecs that seem
+to just segfault otherwise.  These things seem to be incredibly fragile
+to address space layout changes, which is a good argument for trying to
+avoid these wierdo formats where possible in favour of free codecs.
+
+		Dave
 

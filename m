@@ -1,68 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUGZAiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUGZAnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbUGZAiY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 20:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUGZAiY
+	id S264704AbUGZAnN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 20:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUGZAnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 20:38:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1773 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264701AbUGZAiR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 20:38:17 -0400
-Date: Sun, 25 Jul 2004 17:36:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
+	Sun, 25 Jul 2004 20:43:13 -0400
+Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:32927 "EHLO
+	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264704AbUGZAnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 20:43:11 -0400
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org>
+Message-ID: <cone.1090802581.972906.20693.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] Autotune swappiness01
-Message-Id: <20040725173652.274dcac6.akpm@osdl.org>
-In-Reply-To: <cone.1090801520.852584.20693.502@pc.kolivas.org>
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: Autotune swappiness01
+Date: Mon, 26 Jul 2004 10:43:01 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> Attached is a patch designed to improve the behaviour of the swappiness knob 
-> in 2.6.8-rc1-mm1. 
+Andrew Morton writes:
+
+> Con Kolivas <kernel@kolivas.org> wrote:
+>>
+>> Attached is a patch designed to improve the behaviour of the swappiness knob 
+>> in 2.6.8-rc1-mm1. 
+>> 
+>> The current mechanism decides to reclaim mapped pages based on the 
+>> combination of mapped_ratio/2 and the manual setting of swappiness currently 
+>> tuned to 60. Biasing this mechanism to be proportional to the square root of 
+>> mapped_ratio gives good overall performance improvement for desktop 
+>> workloads without any noticable detriment to other loads.
 > 
-> The current mechanism decides to reclaim mapped pages based on the 
-> combination of mapped_ratio/2 and the manual setting of swappiness currently 
-> tuned to 60. Biasing this mechanism to be proportional to the square root of 
-> mapped_ratio gives good overall performance improvement for desktop 
-> workloads without any noticable detriment to other loads.
+> OK...
+> 
+>> It has the effect 
+>> of being fairly aggressive at avoiding loss of applications to swap under 
+>> conditions of heavy or sustained file stress while allowing applications to 
+>> swap out under what would be considered "application" memory stresses on a 
+>> desktop.
+> 
+> But decreasing /proc/sys/vm/swappiness does that too?
 
-OK...
+Low memory boxes and ones that are heavily laden with applications find that 
+ends up making things slow down trying to keep all applications in physical 
+ram.
 
-> It has the effect 
-> of being fairly aggressive at avoiding loss of applications to swap under 
-> conditions of heavy or sustained file stress while allowing applications to 
-> swap out under what would be considered "application" memory stresses on a 
-> desktop.
+> 
+>> It has no measurable effect on any known benchmarks.
+> 
+> So how are we to evaluate the desirability of the patch???
 
-But decreasing /proc/sys/vm/swappiness does that too?
+Get desktop users to report back their experiences which is what I have 
+currently. Sorry we're in the realm of subjectivity again.
 
-> It has no measurable effect on any known benchmarks.
+> Shouldn't mapped_bias be local to refill_inactive_zone()?
 
-So how are we to evaluate the desirability of the patch???
+That is so a followup patch can use it elsewhere...
 
-> The swappiness knob is kept intact and ironically is set to the same value 
-> of 60, and overall behaves the same as previous patches posted for 
-> autoregulating swappiness. The idea of this patch is to ultimately deprecate 
-> the need for a swappiness knob if this achieves good performance in most 
-> workloads.
+> Why is `swappiness' getting squared?  AFAICT this will simply make the
+> swappiness control behave nonlinearly, which seems undesirable?
 
-Don't think so.  If you have a machine with a lot of memory which is doing
-mainly pagecache-intensive work and you also want it to aggressively swap
-out anonymous pages (ie: your initials are akpm) then you'll be setting
-swappiness to 100.
+To parallel the nonlinear nature of the mapped bias effect. 
 
-
-Shouldn't mapped_bias be local to refill_inactive_zone()?
-
-Why is `swappiness' getting squared?  AFAICT this will simply make the
-swappiness control behave nonlinearly, which seems undesirable?
-
+Con

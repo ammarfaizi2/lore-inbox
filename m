@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280101AbRKFTC2>; Tue, 6 Nov 2001 14:02:28 -0500
+	id <S280191AbRKFTC2>; Tue, 6 Nov 2001 14:02:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280031AbRKFTCZ>; Tue, 6 Nov 2001 14:02:25 -0500
-Received: from ns.suse.de ([213.95.15.193]:59661 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280191AbRKFTCP>;
-	Tue, 6 Nov 2001 14:02:15 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: current as segment register was Re: Using %cr2 to reference "current"
-In-Reply-To: <E161AkQ-0001Fp-00@the-village.bc.nu.suse.lists.linux.kernel> <Pine.LNX.4.33.0111061006150.2222-100000@penguin.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Nov 2001 20:02:09 +0100
-In-Reply-To: Linus Torvalds's message of "6 Nov 2001 19:20:45 +0100"
-Message-ID: <p73lmhjyb7y.fsf_-_@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S280101AbRKFTCX>; Tue, 6 Nov 2001 14:02:23 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:56719 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S280031AbRKFTBN>; Tue, 6 Nov 2001 14:01:13 -0500
+Message-ID: <3BE841C4.947416CB@t-online.de>
+Date: Tue, 06 Nov 2001 21:02:12 +0100
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+CC: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.12-ac3 floppy module requires 0x3f0-0x3f1 ioports
+In-Reply-To: <Pine.LNX.4.33.0111051219080.29021-100000@druid.if.uj.edu.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
-
-
-> There are some people who think that the 5kB stack we have now is too
-> small ;(
-
-It was too small on x86-64 ;)
-
+Maciej Zenczykowski wrote:
 > 
-> So it would basically be a small per-CPU/thread area, not just the "struct
-> task_struct".
+> On 4 Nov 2001, Thomas Hood wrote:
+> >
+> > Maciej: perhaps on your machine the motherboard uses 0x3f0-0x3f1
+> > for some other (secret, highly classified) purpose.  Have you
+> > read your hardware reference manual?
+> >
+> I did that before posting the previous time - beautiful over 100 page
+> manual - but no mention of 03xf0-0x3f1 being special and can't find them
+> in any bios setup screens either...
 
-x86-64 has such a per cpu area. It is accessed via gs. It is needed to make
-the SYSCALL system entry code work. So far I didn't move
-that many fields into it to keep the patches small, but current is just
-a field in the PDA (processor data area). The x86-64 has special instructions
-to quickly save/restore gs on kernel entry.
+Diagnosis:
+----------
+Your PNPBIOS announces these ports:
+   0c PNP0c02 Motherboard resources
+        io 0x03f0-0x03f1
 
-One nasty thing is that lea doesn't work on segment registers. It needs
-an quite ugly inline assembly mess similar to get/put_user to implement
-read/write/add_pda functions for the fundamental types. To implement
-that properly without hardcoded offsets it is also needed to have an
-offset.c like many other ports that puts structure offsets at compile
-time into an include file.
+These ports are used by various SuperIO chips, e.g.Winbond W83877ATF:
+  8.2 Extended Function Index Registers (EFIRs), Extended Function Data Registers(EFDRs)
+  After the extended function mode is entered, the Extended Function Index Register (EFIR) must be
+  loaded with an index value (0H, 1H, 2H, ..., or 29H) to access Configuration Register 0 (CR0),
+  Configuration Register 1 (CR1), Configuration Register 2 (CR2), and so forth through the Extended
+  Function Data Register (EFDR). The EFIRs are write-only registers with port address 251H or 3F0H
+  (as described in section 8.0) on PC/AT systems; the EFDRs are read/write registers with port address
+  252H or 3F1H (as described in section 8.0) on PC/AT systems. The function of each configuration
+  register is described ...
 
-Also all system entry have to enter with interrupts off to avoid races
-in switching %gs.
+You have to write various magic vendor defined values to
+vendor defined ports to enable "extended function mode" :-)
 
-So far I have not moved the task_struct into a slab cache yet, but it is
-a trivial step now because all the infrastructure is there.
+http://home.t-online.de/home/gunther.mayer/lssuperio-0.63.tar.gz will
+identify your chip sitting at 0x3f0/0x3f1 !
 
-The code size impact seems to be minimal between current as rsp & mask and 
-%gs:current_offset.  smp_processor_id() is much cheaper however. The current
-x86 implementation of that was quite bad.
-
-Long term I hope more per CPU data (e.g. in networking, in the scheduler or 
-in interrupt handling) should migrate into the per data area.
-Accessing the data there is much more efficent than indexing an cache line
-padded array, and it saves a lot of cache too because the cache lines can be 
-shared.
-
--Andi
-
+Solution:
+---------
+PnPBIOS in linux should _not_ reserve these 2 ports (this kind of
+solution is commonly called a quirks).

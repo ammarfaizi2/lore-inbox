@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281038AbRKCU40>; Sat, 3 Nov 2001 15:56:26 -0500
+	id <S281039AbRKCVC1>; Sat, 3 Nov 2001 16:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281040AbRKCU4R>; Sat, 3 Nov 2001 15:56:17 -0500
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:46729 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S281038AbRKCU4D>; Sat, 3 Nov 2001 15:56:03 -0500
-Message-ID: <20011103205601.2170.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Sat, 3 Nov 2001 21:56:01 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Google's mm problems
-In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin>
+	id <S281040AbRKCVCR>; Sat, 3 Nov 2001 16:02:17 -0500
+Received: from are.twiddle.net ([64.81.246.98]:9402 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S281039AbRKCVCF>;
+	Sat, 3 Nov 2001 16:02:05 -0500
+Date: Sat, 3 Nov 2001 13:01:56 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Juergen Doelle <jdoelle@de.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Pls apply this spinlock patch to the kernel
+Message-ID: <20011103130156.D5984@twiddle.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Juergen Doelle <jdoelle@de.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011103115556.A5984@twiddle.net> <Pine.LNX.4.33.0111031215490.2026-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Oct 31, 2001 at 12:07:17AM +0100
+In-Reply-To: <Pine.LNX.4.33.0111031215490.2026-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 03, 2001 at 12:20:53PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 12:07:17AM +0100, Daniel Phillips wrote:
-> Hi, I've been taking a look on a mm problem that Ben Smith of Google posted 
-> a couple of weeks ago.  As it stands, Google can't use 2.4 yet because all
-> known flavors of 2.4 mm fall down in one way or another.  This is not good.
+On Sat, Nov 03, 2001 at 12:20:53PM -0800, Linus Torvalds wrote:
+> If you have a 4-byte entry that is aligned to 128 bytes, you have 124
+> bytes of stuff that the linker _will_ fill up with other things.
 
-Andrea suggested that this might be a mlock bug and someone else
-pointed out that madvise instead of mlock exhibits similar behaviour.
-So I looked at this code and this patch looks obviously correct:
+If you put the alignment on the type, not the variable, e.g.
 
---- mlock.c.old Sat Nov  3 19:53:43 2001
-+++ mlock.c     Sat Nov  3 19:55:18 2001
-@@ -90,7 +90,6 @@
-        left->vm_end = start;
-        right->vm_start = end;
-        right->vm_pgoff += (right->vm_start - left->vm_start) >> PAGE_SHIFT;
--       vma->vm_flags = newflags;
-        left->vm_raend = 0;
-        right->vm_raend = 0;
-        if (vma->vm_file)
+  typedef int aligned_int __attribute__((aligned(128)));
+  aligned_int foo;
 
-This assignment is redundant and it is not protected by any locks.
-As far as I can see vma->vm_mm->page_table_lock is supposed to protect
-modifications of vma->vm_flags. If this is true we probably need this
-as well:
+then sizeof(foo) == 128, and the linker sees a 128-byte object,
+not a 4 byte object with 128 byte alignment.
 
---- filemap.c.old       Sat Nov  3 21:44:12 2001
-+++ filemap.c   Sat Nov  3 21:46:36 2001
-@@ -2178,7 +2178,9 @@
+It's a subtle difference between alignment of types and alignment
+of variables, but it makes sense if you think about it.
 
-        if (start == vma->vm_start) {
-                if (end == vma->vm_end) {
-+                       spin_lock(&vma->vm_mm->page_table_lock);
-                        setup_read_behavior(vma, behavior);
-+                       spin_unlock(&vma->vm_mm->page_table_lock);
-                        vma->vm_raend = 0;
-                } else
-                        error = madvise_fixup_start(vma, end, behavior);
 
-I doubt that this is the reason for the google memory problems, but
-who knows?
-
-    regards  Christian
-
--- 
-THAT'S ALL FOLKS!
+r~

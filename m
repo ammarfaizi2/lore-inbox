@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270352AbTGRUM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 16:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270359AbTGRUM1
+	id S271757AbTGRURT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 16:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271787AbTGRURS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 16:12:27 -0400
-Received: from mail.gmx.de ([213.165.64.20]:42406 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270352AbTGRUM0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 16:12:26 -0400
-Message-Id: <5.2.1.1.2.20030718221052.01a88eb8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Fri, 18 Jul 2003 22:31:40 +0200
-To: Davide Libenzi <davidel@xmailserver.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O6int for interactivity 
-Cc: Valdis.Kletnieks@vt.edu,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0307181038450.5608@bigblue.dev.mcafeelabs.co
- m>
-References: <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
- <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <200307170030.25934.kernel@kolivas.org>
- <200307170030.25934.kernel@kolivas.org>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
- <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net>
- <Pine.LNX.4.55.0307180951050.5608@bigblue.dev.mcafeelabs.com>
- <Pine.LNX.4.55.0307181004200.5608@bigblue.dev.mcafeelabs.com>
- <200307181739.h6IHdFq3006996@turing-police.cc.vt.edu>
+	Fri, 18 Jul 2003 16:17:18 -0400
+Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:2944 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S271757AbTGRURP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 16:17:15 -0400
+Subject: Re: Bitkeeper
+From: Shawn <core@enodev.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Richard Stallman <rms@gnu.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1058560325.2662.31.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 18 Jul 2003 15:32:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:31 PM 7/18/2003 -0700, Davide Libenzi wrote:
->On Fri, 18 Jul 2003 Valdis.Kletnieks@vt.edu wrote:
->
-> > On Fri, 18 Jul 2003 10:05:05 PDT, Davide Libenzi said:
-> > > On Fri, 18 Jul 2003, Davide Libenzi wrote:
-> > >
-> > > > control them. It is right to apply uncontrolled unfairness to userspace
-> > > > tasks though.
-> > >
-> > > s/It is right/It is not right/
-> >
-> > OK.. but is it right to apply *controlled* unfairness to userspace?
->
->I'm sorry to say that guys, but I'm afraid it's what we have to do. We did
->not think about it when this scheduler was dropped inside 2.5 sadly. The
->interactivity concept is based on the fact that a particular class of
->tasks characterized by certain sleep->burn patterns are never expired and
->eventually, only oscillate between two (pretty high) priorities. Without
->applying a global CPU throttle for interactive tasks, you can create a
->small set of processes (like irman does) that hit the coded sleep->burn
->pattern and that make everything is running with priority lower than the
->lower of the two of the oscillation range, to almost completely starve.
->Controlled unfairness would mean throttling the CPU time we reserve to
->interactive tasks so that we always reserve a minimum time to non
->interactive processes.
+To add to this, why?
 
-I'd like to find a way to prevent that instead.  There's got to be a way.
+I don't mean to jump on anyone, but so long as someone can pull all the
+BK data out if Larry gets unreasonable (via the active and existing SVN
+or CVS gateways) who the frig cares if there's a BK clone??? If things
+got nasty, pull the data and switch unceremoniously switch to SVN or
+whatever.
 
-It's easy to prevent irman type things from starving others permanently (i 
-call this active starvation, or wakeup starvation), and this does something 
-fairly similar to what you're talking about.  Just crawl down the queue 
-heads looking for the oldest task periodically instead of always taking the 
-highest queue.  You can do that very fast, and it does prevent active 
-starvation.
+Are there folks out there today with current SVN repos which have all
+the BK metadata everyone keeps pissing on about?
 
-         -Mike 
+On Fri, 2003-07-18 at 15:06, Rik van Riel wrote:
+> On Fri, 18 Jul 2003, Richard Stallman wrote:
+> 
+> > I think it would be appropriate at this point to write a free client
+> > that talks with Bitkeeper,
+> 
+> Maybe.  I'll leave that decision to whomever decides to
+> invest his time and/or money in implementing such software.
+> 
+> > and for Linux developers to start switching to that from Bitkeeper.
+> 
+> That would be a bit premature.  I certainly wouldn't switch
+> to a piece of software that doesn't exist yet. ;)
 

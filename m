@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129836AbRBWTEn>; Fri, 23 Feb 2001 14:04:43 -0500
+	id <S131698AbRBWTMz>; Fri, 23 Feb 2001 14:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131734AbRBWTEX>; Fri, 23 Feb 2001 14:04:23 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63756 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129836AbRBWTER>; Fri, 23 Feb 2001 14:04:17 -0500
-Subject: Re: 3c509 + sb16 bug
-To: jjs@toyota.com (J Sloan)
-Date: Fri, 23 Feb 2001 19:07:09 +0000 (GMT)
-Cc: sjthorne@ozemail.com.au (Steve),
-        linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <3A96B395.5124FFC1@toyota.com> from "J Sloan" at Feb 23, 2001 11:01:41 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131772AbRBWTMo>; Fri, 23 Feb 2001 14:12:44 -0500
+Received: from adsl-208-190-202-115.dsl.kscymo.swbell.net ([208.190.202.115]:48262
+	"HELO sbox") by vger.kernel.org with SMTP id <S131698AbRBWTM0>;
+	Fri, 23 Feb 2001 14:12:26 -0500
+Date: Fri, 23 Feb 2001 13:12:05 -0600
+From: Ian Wehrman <ian@wehrman.com>
+To: mhaque@haque.net, adilger@turbolinux.com, linux-kernel@vger.kernel.org
+Subject: Re: EXT2-fs error
+Message-ID: <20010223131205.A10434@wehrman.com>
+Reply-To: ian@wehrman.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14WNYd-0006tS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps it's cold comfort, but I found long ago that
-> 3c509 and SB don't mix too well, at least in Linux.
+Mohammad A. Haque <mhaque@haque.net> wrote:
+> I got the following after compiling/rebooting into 2.4.2 and forcing a
+> fsck.
+> 
+> EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory
+> #508411: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0,
+> name_len=0
+> EXT2-fs error (device ide0(3,3)): ext2_readdir: bad entry in directory
+> #508411: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0,
+> name_len=0
+> 
+> Possibly the result of the 'silent' bug in 2.4.1?
 
-I've had them mixed ok before
+you are not the only one who found this bug. immediately after booting 2.4.2 i
+received dozens of these errors, resulting in _major_ filesystem corruption.
+after a half hour of fsck'ing i managed to bring the machine back into a usable
+state, but there are still many files and directories around the fs that have
+the wrong uid/gid associated with them, as well as incorrect file type,
+permissions, etc. i'm not using any unusual hardware, and haven't had any
+other recent issues like this. let me know if i can provide further information,
+or test patches. 
 
-> ISA devices are somewhat dumb, switching one
-> of the cards for a PCI version does the trick here.
-
-I think the problem here thought isnt the 3c509 and SB card, its the kernel
-plug and play code. You might want to try building kernels with no PnP support
-at all and see how they behave
+thanks,
+ian wehrman 

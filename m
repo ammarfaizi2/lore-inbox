@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266330AbTAYLxQ>; Sat, 25 Jan 2003 06:53:16 -0500
+	id <S266323AbTAYLvc>; Sat, 25 Jan 2003 06:51:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266356AbTAYLxQ>; Sat, 25 Jan 2003 06:53:16 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:38593 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266330AbTAYLxP>;
-	Sat, 25 Jan 2003 06:53:15 -0500
-Date: Sat, 25 Jan 2003 13:02:24 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: AnonimoVeneziano <voloterreno@tin.it>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Fix for ATAPI CD/DVD-ROMs and burners with vt8235 (and other chipsets)
-Message-ID: <20030125130224.A29748@ucw.cz>
-References: <20021227111116.A2614@ucw.cz> <3E2C10C0.1080606@tin.it>
+	id <S266330AbTAYLvb>; Sat, 25 Jan 2003 06:51:31 -0500
+Received: from ns1.netroute.cz ([212.71.168.2]:48810 "HELO pop3.netroute.cz")
+	by vger.kernel.org with SMTP id <S266323AbTAYLvb>;
+	Sat, 25 Jan 2003 06:51:31 -0500
+Date: Sat, 25 Jan 2003 13:00:38 +0100
+From: Jan Hudec <bulb@ucw.cz>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
+Message-ID: <20030125120038.GL693@vagabond>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
+	David Wagner <daw@mozart.cs.berkeley.edu>,
+	linux-kernel@vger.kernel.org
+References: <20030124154935.GB20371@elf.ucw.cz> <20030124171415.34636.qmail@web80310.mail.yahoo.com> <20030124180255.GF1099@marowsky-bree.de> <b0sqag$mau$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E2C10C0.1080606@tin.it>; from voloterreno@tin.it on Mon, Jan 20, 2003 at 04:07:44PM +0100
+In-Reply-To: <b0sqag$mau$1@abraham.cs.berkeley.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 04:07:44PM +0100, AnonimoVeneziano wrote:
-> I've tried to install 2.4.21-pre3-ac4, that should include these 
-> patches, but this doesn't solve the problem as vt8235-atapi does.
+On Sat, Jan 25, 2003 at 01:46:56AM +0000, David Wagner wrote:
+> Lars Marowsky-Bree  wrote:
+> >All alternatives I have seen to UML (plex, vmware, UMLinux) suck IMHO.
 > 
-> So, please , if there is something wrong correct that.
-> 
-> Excuse me please.
+> It seems plausible to expect that it might be easier to verify security
+> in plex86-based approaches than it is to verify security in UML.
 
-I'll send you a new experimental patch soon.
+IIRC plex86 requires quite large module on the host. And I am not sure
+it's does not have any privilegies. Umlinux requires no or very minimal
+(thus easy to check for insecurities) patch to kernel and does not need
+any privilegies (except the helper that sets up networking, but that's
+pretty minimalistic too). If you properly chroot the umlinux process,
+it's very secure (the skas mode will only work in chroot once it's made
+to use syscall).
 
--- 
-Vojtech Pavlik
-SuSE Labs
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

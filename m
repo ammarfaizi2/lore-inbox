@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315762AbSHAREB>; Thu, 1 Aug 2002 13:04:01 -0400
+	id <S315734AbSHARCS>; Thu, 1 Aug 2002 13:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSHAREA>; Thu, 1 Aug 2002 13:04:00 -0400
-Received: from daimi.au.dk ([130.225.16.1]:40602 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S315762AbSHAREA>;
-	Thu, 1 Aug 2002 13:04:00 -0400
-Message-ID: <3D496A24.4E134ED5@daimi.au.dk>
-Date: Thu, 01 Aug 2002 19:04:36 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
-       stas.orel@mailcity.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] vm86: Clear AC on INT
-References: <Pine.GSO.3.96.1020801183410.8256M-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S315762AbSHARCS>; Thu, 1 Aug 2002 13:02:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:60425 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315734AbSHARCR>;
+	Thu, 1 Aug 2002 13:02:17 -0400
+Date: Thu, 1 Aug 2002 10:04:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Enugala Venkata Ramana <caps_linux@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: installation of latest kernel on compaq notebook
+Message-ID: <20020801170403.GB26625@kroah.com>
+References: <20020801044026.27710.qmail@webmail10.rediffmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020801044026.27710.qmail@webmail10.rediffmail.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 04 Jul 2002 15:31:46 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" wrote:
-> 
-> On Thu, 1 Aug 2002, Kasper Dupont wrote:
-> 
-> > Ehrm, that wasn't my point. My point was that if the feature exist
-> > in virtual 86 mode but not in real mode, the kernel should prevent
-> > it from being used in virtual 86 mode because it is supposed to
-> > emulate real mode.
-> 
->  The mode is supposed to emulate an 8086 which doesn't have the flag.
+On Thu, Aug 01, 2002 at 04:40:26AM -0000, Enugala Venkata Ramana wrote:
+> Hi ,
+>  This is what is existing configuration
+>    have compaq presario 1200 12XL506 model notebook
+>    installed Redhat Linux 7.1
+>    Everything is fine except the usb to ethernet (SmartNic2 
+> 1500
+> ) does not work although it is shown in the /proc/usb/devices
 
-OK, but if it is only supposed to emulate an 8086 shouldn't it have
-trapped on every instruction not existing on 8086? It doesn't and
-that is quite fortunate, because we can then use it for other purposes
-namely runing software that expects to have the entire computer for
-itself in a multitasking environment. However it seems no matter how
-we do it, what is emulated will not work exactly like any CPU in real
-mode.
+Please provide the USB specific information that is asked for in the
+Linux USB FAQ at http://www.linux-usb.org/  That would help us out a lot
+:)
 
-> Any "real mode" code that operates on the AC flag must have been
-> created after i386 was released as it requires 32-bit instructions.  Hence
-> it has to be prepared to deal with the vm86 mode.
+thanks,
 
-That does make some sense, but not all software written for i386 and
-later processors does deal with vm86 in the desired way. Some software
-was only intended for real mode when being written, but we might now
-want to run it in virtual 86 mode. Thanks to emm386 we probably don't
-see many DOS programs not working in virtual 86 mode, but emm386 itself
-plain refuses to load in virtual 86 mode.
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+greg k-h

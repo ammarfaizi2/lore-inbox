@@ -1,72 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129385AbQKVW1M>; Wed, 22 Nov 2000 17:27:12 -0500
+        id <S129392AbQKVWcF>; Wed, 22 Nov 2000 17:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129434AbQKVW1B>; Wed, 22 Nov 2000 17:27:01 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:22546 "EHLO
-        thalia.fm.intel.com") by vger.kernel.org with ESMTP
-        id <S129150AbQKVW0p>; Wed, 22 Nov 2000 17:26:45 -0500
-Message-ID: <9678C2B4D848D41187450090276D1FAE2999D6@FMSMSX32>
-From: "Peel, Jeffery S" <jeffery.s.peel@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: Cruft mounting option incorrect in ISOFS code
-Date: Wed, 22 Nov 2000 13:56:29 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-        charset="ISO-8859-1"
+        id <S129485AbQKVWby>; Wed, 22 Nov 2000 17:31:54 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:23741 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S129392AbQKVWbj>; Wed, 22 Nov 2000 17:31:39 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 22 Nov 2000 14:01:36 -0800
+Message-Id: <200011222201.OAA29131@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patch(?): pci_device_id tables for linux-2.4.0-test11/drivers/block
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-There is a pretty bad bug in the "/fs/isofs/inode.c" file under linux kernel
-version 2.2.17.  Search the file for the word "dipshit" (not a joke) and
-look at the cruft mounting code.  It assumes that the maximum size of a
-dvd-rom file is 1 gigabyte.  This is certainly not a correct assumption when
-talking about dvd-rom's with nothing but data on them as the maximum size of
-an iso-9660 file is something like 2^32.  It is also incorrect if he is
-referring to dvd movies as the maximum file size of any non title set file
-is also only bounded by the iso-9660 file system limitations.  The dvd video
-specification only limits title set files in the form of vts_0x_x.vob to
-under 1 gig in size.  You can exhibit the problem by mounting the dvd movie
-"The World is Not Enough" as it contains a video_ts.vob which is larger than
-1 gigabyte.  You will see that most of the file lengths are incorrect due to
-the "cruft mounting option" hacking off the high order byte.  There are
-certainly many more movies out there that exhibit this problem so it would
-be a good thing for someone to fix.
+	Just to avoid duplication of effort, I am posting this preliminary
+patch which adds PCI MODULE_DEVICE_TABLE declarations to the three PCI
+drivers in linux-2.4.0-test11/drivers/block.  In response to input from
+Christoph Hellwig, I have reduced my threshhold on using named initializers
+to three entries, although I think that may be going to far, as I would
+really like to keep the number of files that initialize the pci_device_id
+arrays this way low so that changing struct pci_device_id remains feasible.
 
-Here is the code in question.....
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-	/* There are defective discs out there - we do this to protect
-	   ourselves.  A cdrom will never contain more than 800Mb 
-	   .. but a DVD may be up to 1Gig (Ulrich Habel) */
-	if((inode->i_size < 0 || inode->i_size > 1073741824) &&
-	    inode->i_sb->u.isofs_sb.s_cruft == 'n') {
-	  printk("Warning: defective cdrom.  Enabling \"cruft\" mount
-option.\n");
-	  inode->i_sb->u.isofs_sb.s_cruft = 'y';
-	}
-
-/* Some dipshit decided to store some other bit of information in the high
-   byte of the file length.  Catch this and holler.  WARNING: this will make
-   it impossible for a file to be > 16Mb on the CDROM!!!*/
-
-	if(inode->i_sb->u.isofs_sb.s_cruft == 'y' &&
-	   inode->i_size & 0xff000000){
-/*	  printk("Illegal format on cdrom.  Pester manufacturer.\n"); */
-	  inode->i_size &= 0x00ffffff;
-	}
-
---> I am not subscribed to the mailing list so any reply will have to be
-made to my e-mail address <--
-
-Jeff Peel
-<mailto:jeffery.s.peel@intel.com>
-Senior Software Engineer
-Intel IAL - Consumer Media Technology
-
-
+--- linux-2.4.0-test11/drivers/block/DAC960.c	Thu Oct 26 23:35:47 2000
++++ linux/drivers/block/DAC960.c	Wed Nov 22 12:42:23 2000
+@@ -40,11 +40,22 @@
+ #include <linux/spinlock.h>
+ #include <linux/timer.h>
+ #include <linux/pci.h>
++#include <linux/init.h>
+ #include <asm/io.h>
+ #include <asm/segment.h>
+ #include <asm/uaccess.h>
+ #include "DAC960.h"
+ 
++
++static struct pci_device_id DAC960_pci_tbl[] __initdata = {
++ { PCI_VENDOR_ID_MYLEX, PCI_DEVICE_ID_MYLEX_DAC960_BA, PCI_ANY_ID, PCI_ANY_ID},
++ { PCI_VENDOR_ID_MYLEX, PCI_DEVICE_ID_MYLEX_DAC960_LP, PCI_ANY_ID, PCI_ANY_ID},
++ { PCI_VENDOR_ID_DEC,   PCI_DEVICE_ID_DEC_21285,       PCI_ANY_ID, PCI_ANY_ID},
++ { PCI_VENDOR_ID_MYLEX, PCI_DEVICE_ID_MYLEX_DAC960_PG, PCI_ANY_ID, PCI_ANY_ID},
++ { PCI_VENDOR_ID_MYLEX, PCI_DEVICE_ID_MYLEX_DAC960_PD, PCI_ANY_ID, PCI_ANY_ID},
++ { }			/* Terminating entry */
++};
++MODULE_DEVICE_TABLE(pci, DAC960_pci_tbl);
+ 
+ /*
+   DAC960_ControllerCount is the number of DAC960 Controllers detected.
+--- linux-2.4.0-test11/drivers/block/cciss.c	Thu Oct 26 23:35:47 2000
++++ linux/drivers/block/cciss.c	Wed Nov 22 12:29:27 2000
+@@ -50,6 +50,17 @@
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Charles M. White III - Compaq Computer Corporation");
+ MODULE_DESCRIPTION("Driver for Compaq Smart Array Controller 5300");
++static struct pci_device_id cciss_pci_tbl[] __initdata = {
++	{
++	  vendor: PCI_VENDOR_ID_COMPAQ,
++	  device: PCI_DEVICE_ID_COMPAQ_CISS,
++	  subvendor: PCI_ANY_ID,
++	  subdevice: PCI_ANY_ID,
++	},
++	{ }			/* Terminating entry */
++};
++MODULE_DEVICE_TABLE(pci, cciss_pci_tbl);
++
+ 
+ #include "cciss_cmd.h"
+ #include "cciss.h"
+--- linux-2.4.0-test11/drivers/block/cpqarray.c	Thu Nov 16 11:30:29 2000
++++ linux/drivers/block/cpqarray.c	Wed Nov 22 12:34:53 2000
+@@ -52,6 +52,16 @@
+ MODULE_AUTHOR("Compaq Computer Corporation");
+ MODULE_DESCRIPTION("Driver for Compaq Smart2 Array Controllers");
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
++static struct pci_device_id cpqarray_pci_tbl[] __initdata = {
++  { PCI_VENDOR_ID_DEC,    PCI_DEVICE_ID_COMPAQ_42XX,   PCI_ANY_ID, PCI_ANY_ID},
++  { PCI_VENDOR_ID_NCR,    PCI_DEVICE_ID_NCR_53C1510,   PCI_ANY_ID, PCI_ANY_ID},
++  { PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_SMART2P,PCI_ANY_ID, PCI_ANY_ID},
++  { }			/* Terminating entry */
++};
++MODULE_DEVICE_TABLE(pci, cpqarray_pci_tbl);
++#endif
++
+ #define MAJOR_NR COMPAQ_SMART2_MAJOR
+ #include <linux/blk.h>
+ #include <linux/blkdev.h>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbULXUzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbULXVGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbULXUzV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 15:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbULXUzV
+	id S261452AbULXVGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 16:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbULXVGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 15:55:21 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:23005
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261447AbULXUzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 15:55:17 -0500
-Date: Fri, 24 Dec 2004 12:55:04 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, akpm@osdl.org
-Subject: Re: VM fixes [4/4]
-Message-Id: <20041224125504.4caa4270.davem@davemloft.net>
-In-Reply-To: <20041224182219.GH13747@dualathlon.random>
-References: <20041224174156.GE13747@dualathlon.random>
-	<20041224100147.32ad4268.davem@davemloft.net>
-	<20041224182219.GH13747@dualathlon.random>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Dec 2004 16:06:04 -0500
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:24773 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261449AbULXVGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 16:06:00 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: Prezeroing V2 [3/4]: Add support for ZEROED and NOT_ZEROED free maps
+To: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       linux-ia64@vger.kernel.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 24 Dec 2004 22:10:02 +0100
+References: <fa.n0l29ap.1nqg39@ifi.uio.no> <fa.n04s9ar.17sg3f@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1ChwhG-00011c-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Dec 2004 19:22:19 +0100
-Andrea Arcangeli <andrea@suse.de> wrote:
+Christoph Lameter wrote:
 
-> On Fri, Dec 24, 2004 at 10:01:47AM -0800, David S. Miller wrote:
-> > On Fri, 24 Dec 2004 18:41:56 +0100
-> > Andrea Arcangeli <andrea@suse.de> wrote:
-> > 
-> > > + * All archs should support atomic ops with
-> > > + * 1 byte granularity.
-> > > + */
-> > > +	unsigned char memdie;
-> > 
-> > Again, older Alpha's do not.
-> 
-> If those old cpus really supported smp in linux, then fixing this bit is
-> trivial, just change it to short. Do they support short at least?
+> o Add scrub daemon
 
-No, they do not.  The smallest atomic unit is one 32-bit word.
-And yes there are SMP systems using these chips.
+Please use names a simple user may understand.
+
+What about memcleand or zeropaged instead?
+
+¢¢

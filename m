@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318319AbSHEGem>; Mon, 5 Aug 2002 02:34:42 -0400
+	id <S318323AbSHEG4I>; Mon, 5 Aug 2002 02:56:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318320AbSHEGem>; Mon, 5 Aug 2002 02:34:42 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:25996 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S318319AbSHEGel>; Mon, 5 Aug 2002 02:34:41 -0400
-Message-Id: <5.1.0.14.2.20020805163418.02d69248@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 05 Aug 2002 16:37:37 +1000
-To: torvalds@transmeta.com (Linus Torvalds)
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating
-  user mode linux]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ail2qh$bf0$1@penguin.transmeta.com>
-References: <1028294887.18635.71.camel@irongate.swansea.linux.org.uk>
- <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain>
- <m3u1mb5df3.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S318324AbSHEG4I>; Mon, 5 Aug 2002 02:56:08 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:1541 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318323AbSHEG4H>; Mon, 5 Aug 2002 02:56:07 -0400
+Date: Sun, 4 Aug 2002 23:52:11 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 IDE Partition Check issue 
+In-Reply-To: <200208050241.g752fBC12491@verdi.et.tudelft.nl>
+Message-ID: <Pine.LNX.4.10.10208042350020.11932-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:35 AM 5/08/2002 +0000, Linus Torvalds wrote:
-> >Linux got a lot slower in signal delivery when the SSE2 support was
-> >added. That got this speed back.
->
->This will break _horribly_ when (if) glibc starts using SSE2 for things
->like memcpy() etc.
->
->I agree that it is really sad that we have to save/restore FP on
->signals, but I think it's unavoidable. Your hack may work for you, but
->it just gets really dangerous in general. having signals randomly
->subtly corrupt some SSE2 state just because the signal handler uses
->something like memcpy (without even realizing that that could lead to
->trouble) is bad, bad, bad.
+On Mon, 5 Aug 2002, Rob van Nieuwkerk wrote:
 
-how about putting the onus on userspace to tell the kernel if/when it uses 
-extensions that require FP state to be saved/restored?
-if/when glibc starts using SSE2, it could then use these extensions.
+> 
+> Alan wrote:
+> > The Promise stuff is fixed in -ac and was exactly this issue. LBA48 is
+> > not supported by the earlier promise controllers. The highpoint may well
+> 
+> Hi Alan,
+> 
+> I planned to do a massive disk replace/relocate action on my machines
+> soon and part of the plan is having a 160GB Maxtor in some machines.
+> Got scared by statement above .. :-)
+> 
+> I got myself a 2.4.19-ac3 tree, looked around in the IDE code and wasn't
+> able to find the answer for my questions:
+> 
+> Any chance of lba48 working on a:
+> 
+>     - Promise Ultra66 (PDC20262: chipset revision 1) ?
 
-could be as simple as user-space setting some bit somewhere.
+Yes if BIOS is updated.
 
->And yes, this signal handler thing is clearly visible on benchmarks.
->MUCH too clearly visible.  I just didn't see any safe alternatives
->(and I still don't ;( )
+>     - Intel 82371AB PIIX4 IDE (rev 01) (On P-III BX-chipset mobo) ?
 
-it probably isn't worthwhile penalising all users of signal just for those 
-few userspace apps that actually do use SSE2.
+Yes confirmed from Intel, their T13 representative.
 
+>     - Intel 82371FB PIIX IDE [Triton I] (rev 02) (On P-I Triton I mobo) ?
 
-cheers,
+NO confirmed from Intel, their T13 representative, untested in Linux
 
-lincoln.
+> 	greetings,
+> 	Rob van Nieuwkerk
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

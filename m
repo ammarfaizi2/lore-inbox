@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291222AbSAaSdu>; Thu, 31 Jan 2002 13:33:50 -0500
+	id <S291223AbSAaSjK>; Thu, 31 Jan 2002 13:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291221AbSAaSdl>; Thu, 31 Jan 2002 13:33:41 -0500
-Received: from [63.204.6.12] ([63.204.6.12]:4596 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S291218AbSAaSd2>;
-	Thu, 31 Jan 2002 13:33:28 -0500
-Message-ID: <3C598DE3.8090405@somanetworks.com>
-Date: Thu, 31 Jan 2002 13:33:07 -0500
-From: "Deepinder Singh" <dsingh@somanetworks.com>
-Organization: Somanetworks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S291224AbSAaSjA>; Thu, 31 Jan 2002 13:39:00 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6665 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291223AbSAaSir>;
+	Thu, 31 Jan 2002 13:38:47 -0500
+Date: Thu, 31 Jan 2002 16:38:25 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Momchil Velikov <velco@fadata.bg>,
+        John Stoffel <stoffel@casc.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <Pine.LNX.4.33.0201311031180.1637-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0201311635290.32634-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Memory leaks with GRE Tunnels 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
+On Thu, 31 Jan 2002, Linus Torvalds wrote:
 
-I have been doing some testing using GRE tunnels in Linux ( which btw 
-work great ). I found that creating and deleting a tunnel results in a 
-memory leak.
+> > Also there must be some significant memory overhead that can be
+> > triggered with a certain layout of pages, in some configuration it
+> > should take much more ram than the hashtable if I understood well how it
+> > works.
+>
+> Considering that the radix tree can _remove_ 8 bytes per "struct
+> page", I suspect you potentially win more memory than you lose.
 
-To test it out I wrote a small script that basically loops around 
-creating and then deleting 8000 tunnel interfaces at a time. On the 
-eighth iteration  the system hangs a whole with no error messages. There 
-  was still enoungh virtual memory around even with the leaks so I 
-figured something else is wrong. It turns out that the interface numbers 
-( as seen in ' ip link ls' )  do not seem to be reused when an interface 
-is deleted and as such the system hangs when the number reaches 64K.
+Actually, since the page cache hash table is also 8 bytes
+per page, the radix trees effectively remove 16 bytes per
+struct page.
 
-I suspect the two issues are realted but am more of a cisco guy and know 
-kernel internals. The total mem leak for the 64 K tunnels is about 200 megs.
+Also, Momchil's radix trees are only as deep as needed
+for each file, so most files should have very shallow
+radix trees.
 
-Please cc me if you reply to this post as I am not on the list.
+Combine these two facts with min_readahead and you'll
+see that the memory consumption for radix trees should
+be pretty decent.
 
-thanks,
-Deepinder Singh
-Sr. Network Eng.
-Soma Networks
+It's still a question whether we'll want to use 128 as
+the branch factor or another number ... but I'm sure
+somebody will figure that out (and it can be changed
+later, it's just one define).
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

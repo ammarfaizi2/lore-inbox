@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310612AbSCMOUS>; Wed, 13 Mar 2002 09:20:18 -0500
+	id <S310614AbSCMOdy>; Wed, 13 Mar 2002 09:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310611AbSCMOUI>; Wed, 13 Mar 2002 09:20:08 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:8978 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S310612AbSCMOT4>;
-	Wed, 13 Mar 2002 09:19:56 -0500
-Message-ID: <3C8F5F9D.6050600@evision-ventures.com>
-Date: Wed, 13 Mar 2002 15:18:05 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Rik van Riel <riel@conectiva.com.br>, Hans Reiser <reiser@namesys.com>,
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: PROBLEM: Kernel Panic on 2.5.6 and 2.5.7-pre1 boot [PATCH] and discussion of Linux testing procedures
-In-Reply-To: <Pine.GSO.4.21.0203130903470.22930-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310615AbSCMOdo>; Wed, 13 Mar 2002 09:33:44 -0500
+Received: from ns.suse.de ([213.95.15.193]:56074 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310614AbSCMOd2>;
+	Wed, 13 Mar 2002 09:33:28 -0500
+Date: Wed, 13 Mar 2002 15:33:27 +0100
+From: Dave Jones <davej@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
+Message-ID: <20020313153327.I7658@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Adam J. Richter" <adam@yggdrasil.com>, rmk@arm.linux.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203130023.QAA08389@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200203130023.QAA08389@adam.yggdrasil.com>; from adam@yggdrasil.com on Tue, Mar 12, 2002 at 04:23:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+On Tue, Mar 12, 2002 at 04:23:24PM -0800, Adam J. Richter wrote:
 
-> Proposal is a bit naive, though - in most of the cases fuckups merrily
-> pass original testing.
+ > 	Maybe you are thinking of the patches that I posted a
+ > while ago that included an update to some locking changes for
+ > a bunch of the scsi drivers.  Alan spoke up and said that
+ > I should not apply the NCR53C80 part of those patches because
+ > I had made a mistake and becuase there was a newer driver in 2.4,
 
-No argument here - this was my point.
+ Someone else did exactly the same thing you did, and somehow
+ Linus picked it up that time.  Anyway, its backed out now,
+ so its a moot point.
+ 
+ > 	Maybe you were thinking of some other event when you
+ > said "I believe changes to NCR53c80 were recently reverted back because
+ > these 'fixes' lead to massive data corruption."  If so, I would be
+ > interested in hearing about it.
 
+ The data corruption issue was the lack of fixed locking and
+ assorted fixes that Alan did after the 2.4/2.5 split.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

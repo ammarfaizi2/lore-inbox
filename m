@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUHYJbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUHYHhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUHYJbL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 05:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUHYJ3a
+	id S268515AbUHYHhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 03:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268518AbUHYHhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 05:29:30 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:56449 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266114AbUHYJ0p (ORCPT
+	Wed, 25 Aug 2004 03:37:42 -0400
+Received: from ns.suse.cz ([82.119.242.84]:22029 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id S268515AbUHYHhg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 05:26:45 -0400
+	Wed, 25 Aug 2004 03:37:36 -0400
+Message-ID: <412C41BC.8020607@suse.cz>
+Date: Wed, 25 Aug 2004 09:37:32 +0200
+From: Michal Ludvig <mludvig@suse.cz>
+Organization: SuSE CR, s.r.o.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040606
+X-Accept-Language: cs, cz, en
 MIME-Version: 1.0
+To: Michael Halcrow <mahalcro@us.ibm.com>
+Cc: CryptoAPI List <cryptoapi@lists.logix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /dev/crypto for Linux
+References: <412BB517.4040204@suse.cz> <20040824215351.GA9272@halcrow.us>
+In-Reply-To: <20040824215351.GA9272@halcrow.us>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16684.23372.311191.218551@alkaid.it.uu.se>
-Date: Wed, 25 Aug 2004 11:26:36 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Philippe Elie <phil.el@wanadoo.fr>
-Cc: Zarakin <zarakin@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: nmi_watchdog=2 - Oops with 2.6.8
-In-Reply-To: <20040825061248.GB556@zaniah>
-References: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net>
-	<20040825061248.GB556@zaniah>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Elie writes:
- > > EIP:  0060: [<0xc0110d4b>] Not tainted
- > > EIP is at clear_msr_range+0x18/0x25
- > > eax: 0  ebx:1f  ecx: 3ba  edx: 0
- > > esi: 3a0  edi: 1a  ebp:0 esp: d7d83f74
- > > ds: 7b es: 7b ss: 68
- > > 
- > > Dump of assembler code for function clear_msr_range:
- > > 0xc0110d33 <clear_msr_range+0>: push   %edi
- > > 0xc0110d34 <clear_msr_range+1>: xor    %edi,%edi
- > > 0xc0110d36 <clear_msr_range+3>: push   %esi
- > > 0xc0110d37 <clear_msr_range+4>: push   %ebx
- > > 0xc0110d38 <clear_msr_range+5>: mov    0x14(%esp,1),%ebx
- > > 0xc0110d3c <clear_msr_range+9>: mov    0x10(%esp,1),%esi
- > > 0xc0110d40 <clear_msr_range+13>:        cmp    %ebx,%edi
- > > 0xc0110d42 <clear_msr_range+15>:        jae    0xc0110d54
- > > 0xc0110d44 <clear_msr_range+17>:        xor    %eax,%eax
- > > 0xc0110d46 <clear_msr_range+19>:        lea    (%edi,%esi,1),%ecx
- > > 0xc0110d49 <clear_msr_range+22>:        mov    %eax,%edx
- > > 0xc0110d4b <clear_msr_range+24>:        wrmsr
- > 
- > Intel removed MSR 0x3ba/0x3bb (MSR_IQ_ESCR0 and 1) in prescott processor
- > (family 15 model 3). I'm going to sleep, if nobody beat me I'll try to
- > provide a patch, see nmi.c:setup_p4_watchdog() --> clear_msr_range(0x3A0, 31);
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I figured that too. Strangely enough, perfctr has been run
-successfully on two CPUID 0xF3x machines, and it didn't hit
-this problem. I have no idea why, yet. Maybe they haven't
-removed IQ_ESCR{0,1} from the Nocona?
+Michael Halcrow told me that:
+> On Tue, Aug 24, 2004 at 11:37:27PM +0200, Michal Ludvig wrote:
+>
+>>attached is a driver for OpenBSD-like /dev/crypto device (aka
+>>CryptoDev) that makes a way for userspace processes to access
+>>ciphers provided by in-kernel CryptoAPI modules.
+>
+> Cool!  Now if I'm interpreting this right, this is only good for
+> working on up to one page worth of data at a time, right?
 
-I don't have physical access to either a Prescott or a Nocona,
-but it it shouldn't be difficult to test. Just set up IQ_ESCR{0,1}
-with a clock-like event and see what happens.
+Of course the userspace can request encrypting any amount of data (well,
+multiple of blocksize), but only at most one page at a time is copied
+into the kernel, encrypted and returned back to the process' memory.
 
-/Mikael
+IMHO It is faster than allocating e.g. 4 MB in the kernel, copying all
+of this from userspace, encrypting and returning back. That wouldn't use
+the CPU cache too efficiently.
+
+> In cryptfs, I have written some functions that essentially do what
+> your FILL_SG() macro does, only it spreads across multiple sg's, if
+> necessary.  Do you think this might be appropriate for /dev/crypto?
+
+As I'm currently working only on one kernel page at a time I think
+FILL_SG() is sufficient. But I'm definitely interested how to use
+multiple sg's at once (although I don't immediately ned it). Where can I
+see these functions? Maybe thay could go to some library directly in
+linux/crypto/...?
+
+Michal Ludvig
+- --
+SUSE Labs                    mludvig@suse.cz
+(+420) 296.542.396        http://www.suse.cz
+Personal homepage http://www.logix.cz/michal
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBLEGhDDolCcRbIhgRApPrAJ9ghoyWXhxnk+wUQL9evde3o5uDqgCfdde8
+OsMo/MlzKifupt1+pbNovYk=
+=yKGK
+-----END PGP SIGNATURE-----

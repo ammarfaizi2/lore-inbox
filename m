@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131673AbRCOL7p>; Thu, 15 Mar 2001 06:59:45 -0500
+	id <S131678AbRCOMUt>; Thu, 15 Mar 2001 07:20:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131675AbRCOL7g>; Thu, 15 Mar 2001 06:59:36 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:7173 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S131673AbRCOL7d>; Thu, 15 Mar 2001 06:59:33 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: mid@earth.zigamorph.net
-cc: linux-kernel@vger.kernel.org
-Message-ID: <CA256A10.00419BCF.00@d73mta05.au.ibm.com>
-Date: Thu, 15 Mar 2001 16:34:25 +0530
-Subject: Core dumps for threads: Request for your patch (hack)
+	id <S131681AbRCOMUj>; Thu, 15 Mar 2001 07:20:39 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:16907 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131678AbRCOMUZ>; Thu, 15 Mar 2001 07:20:25 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 15 Mar 2001 23:17:22 +1100
+To: Paul Larson <plars@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, cyeoh@linuxcare.com.au
+Subject: Re: Kernel stress testing coverage
+Message-ID: <20010315231722.A31185@linuxcare.com>
+In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com>; from plars@us.ibm.com on Thu, Mar 08, 2001 at 02:57:35PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+Hi,
 
->
->(I have a complimentary hack that will dump the stacks of all the
->rest of the threads as well (though its a good trick to get gdb to
->interpret this). Available upon request.)
->
+> Are you talking about the same posix test suite that LSB is using?  I've
+> looked into that a little, but here are the two problems I'm wanting to
+> address:
+> 
+> 1. How much of the kernel is getting hit on a run of any given test?  Even
+> an approximate percentage is fine as long as I can prove it.
+> 
+> 2. I could run many many copies simultaneously I suppose and get some
+> stress, but I'd prefer to stress individual pieces one at a time.  Those
+> pieces could then be mixed together in later runs for mixed load stress.
+> Additional mixed load tests will be performed with general applications
+> (web servers, databases, etc) for more of a "real world" environment, but I
+> want to have focused tests as well.
 
-Hello Adam,
+The POSIX tests are good for regression testing not necessarily for
+stress testing, obviously both are important. The person to talk to
+about this is Chris Yeoh <cyeoh@linuxcare.com.au>.
 
-Could I take a look at your patch ?
+> I'm betting that there are probably a LOT of quick and dirty test programs
+> that kernel hackers have written to expose a problem or thoroughly test a
+> piece of the kernel that they modified.  These type of things would be
+> FYI this project will be going on sourceforge very soon.  I want to have a
+> little more to start out with though and finish putting together a good
+> project description, testplans, etc. to post as soon as we put it on there.
+> I hate it when people start projects and you don't see any good information
+> about it for weeks.
 
-Regards
-Suparna
+Yes for example I have a set of scripts I use to test software raid,
+loopback, ramdisk etc for sparc because there is a tendency for these
+things to break and not get found until long afterwards.
 
-  Suparna Bhattacharya
-  IBM Software Lab, India
-  E-mail : bsuparna@in.ibm.com
-  Phone : 91-80-5267117, Extn : 2525
-
-
+Anton

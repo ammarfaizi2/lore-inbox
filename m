@@ -1,59 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbSL0Wsv>; Fri, 27 Dec 2002 17:48:51 -0500
+	id <S265247AbSL0Wyp>; Fri, 27 Dec 2002 17:54:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265205AbSL0Wsv>; Fri, 27 Dec 2002 17:48:51 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:40614 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S265201AbSL0Wst>;
-	Fri, 27 Dec 2002 17:48:49 -0500
-Message-ID: <3E0CDABE.7000907@colorfullife.com>
-Date: Fri, 27 Dec 2002 23:57:02 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re:  [RFT][PATCH] generic device DMA implementation
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265246AbSL0Wyp>; Fri, 27 Dec 2002 17:54:45 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:12819 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S265243AbSL0Wyj>;
+	Fri, 27 Dec 2002 17:54:39 -0500
+Date: Sat, 28 Dec 2002 00:02:55 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, sparclinux@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: kbuild/sparc64: archhelp update
+Message-ID: <20021227230255.GB24310@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->+
->+Consistent memory is memory for which a write by either the device or
->+the processor can immediately be read by the processor or device
->+without having to worry about caching effects.
->
-This is not entirely correct:
-The driver must use the normal memory barrier instructions even in 
-coherent memory. Could you copy the section about wmb() from DMA-mapping 
-into your new documentation?
+Moved archhelp to arch/sparc64/Makefile
+Introduced usage of $(build)
+Removed superflous targets archclean and archmrproper
+Dependent on other kbuild changes already posted
 
-+
-+Warnings:  Memory coherency operates at a granularity called the cache
-+line width.  In order for memory mapped by this API to operate
-+correctly, the mapped region must begin exactly on a cache line
-+boundary and end exactly on one (to prevent two separately mapped
-+regions from sharing a single cache line).  Since the cache line size
-+may not be known at compile time, the API will not enforce this
-+requirement.  Therefore, it is recommended that driver writers who
-+don't take special care to determine the cache line size at run time
-+only map virtual regions that begin and end on page boundaries (which
-+are guaranteed also to be cache line boundaries).
-+
-
-Noone obeys that rule, and it's not trivial to fix it.
-
-- kmalloc (32,GFP_KERNEL) returns a 32-byte object, even if the cache line size is 128 bytes. The 4 objects in the cache line could be used by four different users.
-- sendfile() with an odd offset.
-
-Is it really impossible to work around that in the platform specific code?
-In the worst case, the arch code could memcopy to/from a cacheline aligned buffer.
+Please apply,
+	Sam
 
 
---
-    Manfred
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
+===================================================================
+
+
+ChangeSet@1.961, 2002-12-27 23:40:13+01:00, sam@mars.ravnborg.org
+  kbuild/sparc64: archhelp and $(build)
+  
+  Moved archhelp to arch/sparc64/Makefile
+  introduced usage of $(build)
+  Removed superflous targets archclean and archmrproper
+
+
+ Makefile      |   12 ++++++------
+ boot/Makefile |    4 ----
+ 2 files changed, 6 insertions(+), 10 deletions(-)
+
+
+diff -Nru a/arch/sparc64/Makefile b/arch/sparc64/Makefile
+--- a/arch/sparc64/Makefile	Fri Dec 27 23:56:06 2002
++++ b/arch/sparc64/Makefile	Fri Dec 27 23:56:06 2002
+@@ -71,11 +71,11 @@
+ # FIXME: is drivers- right?
+ drivers-$(CONFIG_OPROFILE)	+= arch/sparc64/oprofile/
+ 
+-makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/sparc64/boot $(1)
+-
+ tftpboot.img vmlinux.aout:
+-	$(call makeboot,arch/sparc64/boot/$@)
+-
+-archmrproper:
+-archclean:
++	$(Q)$(MAKE) $(build)=arch/sparc64/boot arch/sparc64/boot/$@
+ 
++define archhelp
++  echo  '* vmlinux       - Standard sparc64 kernel'
++  echo  '  vmlinux.aout  - a.out kernel for sparc64'
++  echo  '  tftpboot.img  - Image prepared for tftp'
++endef
+diff -Nru a/arch/sparc64/boot/Makefile b/arch/sparc64/boot/Makefile
+--- a/arch/sparc64/boot/Makefile	Fri Dec 27 23:56:06 2002
++++ b/arch/sparc64/boot/Makefile	Fri Dec 27 23:56:06 2002
+@@ -24,7 +24,3 @@
+ 	$(call if_changed,elftoaout)
+ 	@echo '  kernel: $@ is ready'
+ 
+-archhelp:
+-	@echo  '* vmlinux       - Standard sparc64 kernel'
+-	@echo  '  vmlinux.aout  - a.out kernel for sparc64'
+-	@echo  '  tftpboot.img  - Image prepared for tftp'
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.961
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch24269
+M'XL(`(;:##X``[V6;6_:,!#'7^-/<5*1VJXBL1V3!"2F=EVU55VUCJH?P"2&
+M(!(;V0[;I'SX.6&%4N@#W4,(),'_.^[.][,Y@#LC=+]E>($.X+,RMM\JN#:>
+MY@LY4GKBN;<;&2KE1OQ,%<)W6M_HQ,^GLOSASX26(O=',W\V*J=YBISZAMLD
+M@X70IM\B7K#ZQOZ<BWYK>/'I[LO9$*'!`,XS+B?B5E@8#)!5>L'SU)QRF^5*
+M>E9S:0IAN9>HHEI)*XHQ=:\NB0+<#2L28A95"4D)X8R(%%,6APRY,$^W4GGD
+MA5`:41K0+JDP<X_H(Q"O%Q+`U"?4IQ'0H,]PGP0GF/0QAIU.X81"!Z,/\'<3
+M.$<)+&OJFSG72<CZX"Y9)O(Y<)E"^Z@9/78Z=UZKA4C7`JN:^WM3_YK/Q'B:
+M"Z><2JM56B9.7AH^$:#&#WT-1=&X,N5<Z'&N2@.6ZXFPIO&8Y(++YO?KIT+/
+MM7(Z=`4L9!3=K*<4=?8\$,(<H_<OE'$CJY'KRU5J#^KJ)K-7A;@;DVJ,HQ$7
+M)$IQPNFHSFMG8[S@=MDI#..X"BF->_N%N3O"N*(QZ\75..($AV0D!`Y('/'7
+M1/A4<#B,@UZ#UD[YRYC]0=PHY0M1G,K2&D].Y8Q[TC7[<V%CU_DD9*P*6<R6
+M]%'\&#X</P]?")WPG\"W393-I@;J^#TW?/DZC$HI1>JN]PR-E88U0P_X:6;N
+M*W3T]^9T/-P\@?#^8'V,&%#W&0%#ES$&@EKMHV_'[:/KLZN+XU78@RT*8)N+
+M]JES0:"+4A>-%*L"(0"19`K@\!TLBF9W@.71@5OKDN7:P;?T!,MMXW!M`_<V
+M'E>EK6VX5]\LA4W5?MMN&-FQG==1>=-B4AM=%O5,S+5P6E?TVJR6'"(A7;C;
+M8&R0OB<=;UA\FEUIKW7'08*[C-"@(I@&0<,(VQ<1#!WVGQ#9W;&NNYM5\[GV
+BWDC^+3U.Z^Y>_=E(,I',3%D,(I9V>Q&/T"]'9YL,[0@`````
+`
+end

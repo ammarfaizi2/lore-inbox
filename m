@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVC0SEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVC0SEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVC0SEY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 13:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVC0SEY
+	id S261269AbVC0SEh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 13:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVC0SEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 13:04:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62131 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261268AbVC0SEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 13:04:20 -0500
-Date: Sun, 27 Mar 2005 19:04:17 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Aaron Gyes <floam@sh.nu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050327180417.GD3815@gallifrey>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <1111913399.6297.28.camel@laptopd505.fenrus.org> <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.11-rc5 (i686)
-X-Uptime: 18:58:24 up 9 days,  6:08,  1 user,  load average: 0.09, 0.06, 0.04
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 27 Mar 2005 13:04:37 -0500
+Received: from mta6.srv.hcvlny.cv.net ([167.206.4.201]:15610 "EHLO
+	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261269AbVC0SEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 13:04:32 -0500
+Date: Sun, 27 Mar 2005 13:04:31 -0500
+From: Nick Orlov <bugfixer@list.ru>
+Subject: 2.6.12-rc1-mm3: class_simple API
+To: linux-kernel@vger.kernel.org
+Mail-followup-to: linux-kernel@vger.kernel.org
+Message-id: <20050327180431.GA4327@nikolas.hn.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=koi8-r
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kyle Moffett (mrmacman_g4@mac.com) wrote:
+I'm really sorry for bringing such a "flame-creative" topic to the list,
+but Greg asked me to do so after a short discussion in private.
 
-> <flame type="Binary Driver Hatred">
-> NOTE: I *strongly* discourage binary drivers.  They're crap and 
-> frustrate poor PowerPC users like me.
+Problem is that the latest bk-driver-core patch included in the 2.6.12-rc1-mm3
+removes class_simple API without providing EXPORT_SYMBOL'ed (as opposed to
+EXPORT_SYMBOL_GPL) alternative.
 
-I mostly agree - there is one case where I think they *might*
-be acceptable; (and I think the original poster *may* fall
-into this category).
+As the result I don't see a way how out-of-the-kernel non-GPL drivers
+(nvidia in my case) could be fixed.
 
-If you are making a very specialist piece of equipment; not
-the type of thing you can go and plug into any old PC; but
-say an entire box with some obscure piece of hardware in
-that no one would want to buy as a seperate add on. I just
-don't see the need to force someone to make drivers for
-this type of thing public.
+So, basically the questions are:
 
-Of course the poster could just go and use one of the BSDs
-which is probably his safest bet.
+ - Whether the changes like the one above are "the right thing to do" ?
+ - What's the best way to deal with this particular issue ?
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+
+P.S. Please CC me, I'm not subscribed to the list.
+
+-- 
+With best wishes,
+	Nick Orlov.
+

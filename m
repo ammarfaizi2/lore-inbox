@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266110AbUANJyj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUANJyi
+	id S266149AbUANKL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 05:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUANKL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:54:38 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:60288 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S266110AbUANJyb
+	Wed, 14 Jan 2004 05:11:27 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:57336 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S266149AbUANKLZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:54:31 -0500
-Subject: Re: [PATCH] Add CONFIG for -mregparm=3
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, jh@suse.cz
-In-Reply-To: <20040114012928.1e90af3b.akpm@osdl.org>
-References: <20040114090603.GA1935@averell>
-	 <20040114012928.1e90af3b.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oHrKuz7U/eOpT3EHT+nv"
-Organization: Red Hat, Inc.
-Message-Id: <1074074055.4981.6.camel@laptop.fenrus.com>
+	Wed, 14 Jan 2004 05:11:25 -0500
+Date: Wed, 14 Jan 2004 11:10:41 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Dave Jones <davej@redhat.com>, paul.devriendt@amd.com, pavel@ucw.cz,
+       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Cleanups for powernow-k8
+Message-ID: <20040114101041.GB16737@dominikbrodowski.de>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	paul.devriendt@amd.com, pavel@ucw.cz, cpufreq@www.linux.org.uk,
+	linux-kernel@vger.kernel.org
+References: <99F2150714F93F448942F9A9F112634C080EF392@txexmtae.amd.com> <20040113230605.GM14674@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 14 Jan 2004 10:54:15 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
+Content-Disposition: inline
+In-Reply-To: <20040113230605.GM14674@redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-oHrKuz7U/eOpT3EHT+nv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--St7VIuEGZ6dlpu13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 2004-01-14 at 10:29, Andrew Morton wrote:
+On Tue, Jan 13, 2004 at 11:06:05PM +0000, Dave Jones wrote:
+> Part of the justification for cpufreq (at least on x86) was an alternative
+> for when ACPI just doesn't work, or for when folks either don't want to,
+> or can't run ACPI (through various other AML bugs for eg).
 
-> How _much_ of a hassle it will be I can not say - I'd be looking to vendo=
-rs
-> to advise before merging this into mainline.
+Except that the ACPI P-States implementation also uses the cpufreq
+infrastructure.
 
-I am compiling my kernel rpms with this already and have the full
-intention to keep doing that into production.
-
---=-oHrKuz7U/eOpT3EHT+nv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	Dominik
+--St7VIuEGZ6dlpu13
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBABRHHxULwo51rQBIRAkHSAJ9ERTCFcg0UqiAofpeKqvWuFf/dNgCcDg1k
-Wj4yUxgf53JBben7AzzyxQU=
-=UoXS
+iD8DBQFABRWhZ8MDCHJbN8YRAmDFAJ9gOP+vbzJS0uHO7FG/NTSsRLYpGQCeMGIP
+SYuEdVcscqj6H0wnUhnVLw8=
+=NH+k
 -----END PGP SIGNATURE-----
 
---=-oHrKuz7U/eOpT3EHT+nv--
+--St7VIuEGZ6dlpu13--

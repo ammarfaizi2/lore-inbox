@@ -1,31 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310850AbSCHNKz>; Fri, 8 Mar 2002 08:10:55 -0500
+	id <S310861AbSCHNS5>; Fri, 8 Mar 2002 08:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310855AbSCHNKq>; Fri, 8 Mar 2002 08:10:46 -0500
-Received: from [203.197.61.115] ([203.197.61.115]:31622 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S310850AbSCHNKh>; Fri, 8 Mar 2002 08:10:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vinolin <vinolin@nodeinfotech.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Routing tables
-Date: Fri, 8 Mar 2002 18:43:27 +0530
-X-Mailer: KMail [version 1.2]
+	id <S310862AbSCHNSr>; Fri, 8 Mar 2002 08:18:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25099 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310861AbSCHNSg>; Fri, 8 Mar 2002 08:18:36 -0500
+Subject: Re: root-owned /proc/pid files for threaded apps?
+To: duvall@emufarm.org (Danek Duvall)
+Date: Fri, 8 Mar 2002 13:33:57 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020308100632.GA192@lorien.emufarm.org> from "Danek Duvall" at Mar 08, 2002 02:06:32 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <0203081843270P.00884@Vinolin>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16jKVR-0006Bb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi !
-For routing, two routing tables are used.
-	1. main_table
-	2. local_table
-Why we need  local_table separately ?
-Please explain the necessity for maintaining these 2 tables.
+> Ok, I found the responsible hunk, though I haven't any idea why it would
+> make a difference:
 
-Thanks in advance.
+Nor me at the moment, but at least I know what to stare at 8)
 
-Regards,
-Vinolin. 
+Alan

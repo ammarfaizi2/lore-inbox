@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVB1Xxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVB1Xyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVB1Xxq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 18:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVB1Xxp
+	id S261825AbVB1Xyd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 18:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVB1Xyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 18:53:45 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:57027
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261825AbVB1Xxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 18:53:39 -0500
-Date: Mon, 28 Feb 2005 15:51:42 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
-Subject: Re: SPARC64: Modular floppy?
-Message-Id: <20050228155142.12ae31a7.davem@davemloft.net>
-In-Reply-To: <200502282007.j1SK7hgE031074@laptop11.inf.utfsm.cl>
-References: <200502282007.j1SK7hgE031074@laptop11.inf.utfsm.cl>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 28 Feb 2005 18:54:33 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:43450 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261825AbVB1Xy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 18:54:27 -0500
+Subject: Re: Multichannel audio ?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: robinud@volja.net, linux-kernel@vger.kernel.org
+In-Reply-To: <4223A838.1050507@tmr.com>
+References: <1109599986.422326f240b1b@webmail.volja.net>
+	 <1109599986.422326f240b1b@webmail.volja.net>
+	 <1109625077.9273.18.camel@mindpipe>  <4223A838.1050507@tmr.com>
+Content-Type: text/plain
+Date: Mon, 28 Feb 2005 18:54:25 -0500
+Message-Id: <1109634865.10783.0.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Feb 2005 17:07:43 -0300
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+On Mon, 2005-02-28 at 18:24 -0500, Bill Davidsen wrote:
+> Lee Revell wrote:
+> > On Mon, 2005-02-28 at 15:13 +0100, robinud@volja.net wrote:
+> > 
+> >>Hi!
+> >>
+> >>How does one use the extra channels on a six channel card ?
+> >>I can only hear the 2 front speakers.
+> > 
+> > 
+> > Off topic.  Please switch to ALSA (OSS is deprecated) then ask this
+> > question on the ALSA lists.
+> 
+> What "the ALSA list" is that? I have asked the same question on 
+> linux-sound several times and gotten no answer. If that list is dead it 
+> should go away!
+> 
 
-> So, either the dependencies have to get fixed so floppy can't be modular
-> for this architecture, or the relevant functions have to move from entry.S
-> to the module.
+Yes, it should.  linux-audio-user is active too. 
 
-I think the former is the best solution.  The assembler code really
-needs to get at floppy.c symbols.
+Lee
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVAHGLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbVAHGHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVAHGLX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 01:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVAHGJX
+	id S261805AbVAHGHf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 01:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVAHGGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 01:09:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20357 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261809AbVAHFr6 convert rfc822-to-8bit
+	Sat, 8 Jan 2005 01:06:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:20101 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261805AbVAHFr6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 8 Jan 2005 00:47:58 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <1105163268703@kroah.com>
+In-Reply-To: <11051632683808@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Fri, 7 Jan 2005 21:47:48 -0800
-Message-Id: <11051632684120@kroah.com>
+Message-Id: <11051632682199@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,266 +22,290 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.38, 2004/12/17 16:11:38-08:00, zaitcev@redhat.com
+ChangeSet 1.1938.446.40, 2004/12/20 14:17:44-08:00, stern@rowland.harvard.edu
 
-[PATCH] Clean mct_u232 in 2.6.10-rc2
+[PATCH] USB: Create usb_hcd structures within usbcore [1/13]
 
-I would like to clean up mct_u232 a little bit, although primarily to make
-my fixes to 2.4 branch look better. The attached patch does this:
- - zeroes whole private structure
- - zaps dangling pointer (or why do we check it then)
- - removes unused code for FIX_WRITE_RETURN_CODE_PROBLEM
- - changes version
- - makes the diagnostic name not quite as pompous
- - makes debugging printouts a little more informative
+This patch changes the usbcore routines, making them fully responsible for
+the entire lifecycle of each usb_hcd.  It also splits up registration of
+the USB host class_device into an _init and an _add phase, to match the
+initialization and registration of the USB bus belonging to the host.
 
-From: Pete Zaitcev <zaitcev@redhat.com>
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/serial/mct_u232.c |  148 +++---------------------------------------
- 1 files changed, 12 insertions(+), 136 deletions(-)
+ drivers/usb/core/hcd-pci.c |   21 +++-------------
+ drivers/usb/core/hcd.c     |   59 ++++++++++++++++++++++++++++++++++++---------
+ drivers/usb/core/hcd.h     |   27 +++++++++-----------
+ 3 files changed, 66 insertions(+), 41 deletions(-)
 
 
-diff -Nru a/drivers/usb/serial/mct_u232.c b/drivers/usb/serial/mct_u232.c
---- a/drivers/usb/serial/mct_u232.c	2005-01-07 15:44:27 -08:00
-+++ b/drivers/usb/serial/mct_u232.c	2005-01-07 15:44:27 -08:00
-@@ -82,21 +82,10 @@
- /*
-  * Version Information
-  */
--#define DRIVER_VERSION "v1.2"
-+#define DRIVER_VERSION "z2.0"		/* Linux in-kernel version */
- #define DRIVER_AUTHOR "Wolfgang Grandegger <wolfgang@ces.ch>"
- #define DRIVER_DESC "Magic Control Technology USB-RS232 converter driver"
+diff -Nru a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
+--- a/drivers/usb/core/hcd-pci.c	2005-01-07 15:44:04 -08:00
++++ b/drivers/usb/core/hcd-pci.c	2005-01-07 15:44:04 -08:00
+@@ -124,7 +124,7 @@
+ 	// driver->reset(), later on, will transfer device from
+ 	// control by SMM/BIOS to control by Linux (if needed)
  
--/*
-- * Some not properly written applications do not handle the return code of
-- * write() correctly. This can result in character losses. A work-a-round
-- * can be compiled in with the following definition. This work-a-round
-- * should _NOT_ be part of an 'official' kernel release, of course!
-- */
--#undef FIX_WRITE_RETURN_CODE_PROBLEM
--#ifdef FIX_WRITE_RETURN_CODE_PROBLEM
--static int write_blocking; /* disabled by default */
--#endif
--
- static int debug;
+-	hcd = driver->hcd_alloc ();
++	hcd = usb_create_hcd (driver);
+ 	if (hcd == NULL){
+ 		dev_dbg (&dev->dev, "hcd alloc fail\n");
+ 		retval = -ENOMEM;
+@@ -144,20 +144,16 @@
+ 	hcd->region = region;
  
- /*
-@@ -108,12 +97,6 @@
- 					  struct file *filp);
- static void mct_u232_close	         (struct usb_serial_port *port,
- 					  struct file *filp);
--#ifdef FIX_WRITE_RETURN_CODE_PROBLEM
--static int  mct_u232_write	         (struct usb_serial_port *port,
--					  const unsigned char *buf,
--					  int count);
--static void mct_u232_write_bulk_callback (struct urb *urb, struct pt_regs *regs);
--#endif
- static void mct_u232_read_int_callback   (struct urb *urb, struct pt_regs *regs);
- static void mct_u232_set_termios         (struct usb_serial_port *port,
- 					  struct termios * old);
-@@ -151,7 +134,7 @@
+ 	pci_set_drvdata (dev, hcd);
+-	hcd->driver = driver;
+-	hcd->description = driver->description;
+ 	hcd->self.bus_name = pci_name(dev);
+ #ifdef CONFIG_PCI_NAMES
+ 	hcd->product_desc = dev->pretty_name;
+-#else
+-	if (hcd->product_desc == NULL)
+-		hcd->product_desc = "USB Host Controller";
+ #endif
+ 	hcd->self.controller = &dev->dev;
  
- static struct usb_serial_device_type mct_u232_device = {
- 	.owner =	     THIS_MODULE,
--	.name =		     "Magic Control Technology USB-RS232",
-+	.name =		     "MCT U232",
- 	.short_name =	     "mct_u232",
- 	.id_table =	     id_table_combined,
- 	.num_interrupt_in =  2,
-@@ -160,10 +143,6 @@
- 	.num_ports =	     1,
- 	.open =		     mct_u232_open,
- 	.close =	     mct_u232_close,
--#ifdef FIX_WRITE_RETURN_CODE_PROBLEM
--	.write =	     mct_u232_write,
--	.write_bulk_callback = mct_u232_write_bulk_callback,
--#endif
- 	.read_int_callback = mct_u232_read_int_callback,
- 	.ioctl =	     mct_u232_ioctl,
- 	.set_termios =	     mct_u232_set_termios,
-@@ -366,15 +345,11 @@
- 	struct mct_u232_private *priv;
- 	struct usb_serial_port *port, *rport;
- 
--	/* allocate the private data structure */
- 	priv = kmalloc(sizeof(struct mct_u232_private), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
--	/* set initial values for control structures */
-+	memset(priv, 0, sizeof(struct mct_u232_private));
- 	spin_lock_init(&priv->lock);
--	priv->control_state = 0;
--	priv->last_lsr = 0;
--	priv->last_msr = 0;
- 	usb_set_serial_port_data(serial->port[0], priv);
- 
- 	init_waitqueue_head(&serial->port[0]->write_wait);
-@@ -404,8 +379,10 @@
- 	for (i=0; i < serial->num_ports; ++i) {
- 		/* My special items, the standard routines free my urbs */
- 		priv = usb_get_serial_port_data(serial->port[i]);
--		if (priv)
-+		if (priv) {
-+			usb_set_serial_port_data(serial->port[i], NULL);
- 			kfree(priv);
-+		}
- 	}
- } /* mct_u232_shutdown */
- 
-@@ -459,14 +436,16 @@
- 	port->read_urb->dev = port->serial->dev;
- 	retval = usb_submit_urb(port->read_urb, GFP_KERNEL);
- 	if (retval) {
--		err("usb_submit_urb(read bulk) failed");
-+		err("usb_submit_urb(read bulk) failed pipe 0x%x err %d",
-+		    port->read_urb->pipe, retval);
- 		goto exit;
+ 	if ((retval = hcd_buffer_create (hcd)) != 0) {
+ clean_3:
+-		kfree (hcd);
++		pci_set_drvdata (dev, NULL);
++		usb_put_hcd (hcd);
+ 		goto clean_2;
  	}
  
- 	port->interrupt_in_urb->dev = port->serial->dev;
- 	retval = usb_submit_urb(port->interrupt_in_urb, GFP_KERNEL);
- 	if (retval)
--		err(" usb_submit_urb(read int) failed");
-+		err(" usb_submit_urb(read int) failed pipe 0x%x err %d",
-+		    port->interrupt_in_urb->pipe, retval);
- 
- exit:
- 	return 0;
-@@ -486,101 +465,6 @@
- } /* mct_u232_close */
- 
- 
--#ifdef FIX_WRITE_RETURN_CODE_PROBLEM
--/* The generic routines work fine otherwise */
--
--static int mct_u232_write (struct usb_serial_port *port,
--			   const unsigned char *buf, int count)
--{
--	struct usb_serial *serial = port->serial;
--	int result, bytes_sent, size;
--
--	dbg("%s - port %d", __FUNCTION__, port->number);
--
--	if (count == 0) {
--		dbg("%s - write request of 0 bytes", __FUNCTION__);
--		return (0);
--	}
--
--	/* only do something if we have a bulk out endpoint */
--	if (!serial->num_bulk_out)
--		return(0);
--	
--	/* another write is still pending? */
--	if (port->write_urb->status == -EINPROGRESS) {
--		dbg("%s - already writing", __FUNCTION__);
--		return (0);
--	}
--		
--	bytes_sent = 0;
--	while (count > 0) {
--		size = (count > port->bulk_out_size) ? port->bulk_out_size : count;
--		
--		usb_serial_debug_data(debug, &port->dev, __FUNCTION__, size, buf);
--		
--		memcpy (port->write_urb->transfer_buffer, buf, size);
--		
--		/* set up our urb */
--		usb_fill_bulk_urb(port->write_urb, serial->dev,
--			      usb_sndbulkpipe(serial->dev,
--					      port->bulk_out_endpointAddress),
--			      port->write_urb->transfer_buffer, size,
--			      ((serial->type->write_bulk_callback) ?
--			       serial->type->write_bulk_callback :
--			       mct_u232_write_bulk_callback),
--			      port);
--		
--		/* send the data out the bulk port */
--		result = usb_submit_urb(port->write_urb, GFP_ATOMIC);
--		if (result) {
--			err("%s - failed submitting write urb, error %d", __FUNCTION__, result);
--			return result;
--		}
--
--		bytes_sent += size;
--		if (write_blocking)
--			interruptible_sleep_on(&port->write_wait);
--		else
--			break;
--
--		buf += size;
--		count -= size;
--	}
--	
--	return bytes_sent;
--} /* mct_u232_write */
--
--static void mct_u232_write_bulk_callback (struct urb *urb, struct pt_regs *regs)
--{
--	struct usb_serial_port *port = (struct usb_serial_port *)urb->context;
--	struct usb_serial *serial = port->serial;
--       	struct tty_struct *tty = port->tty;
--
--	dbg("%s - port %d", __FUNCTION__, port->number);
--	
--	if (!serial) {
--		dbg("%s - bad serial pointer, exiting", __FUNCTION__);
--		return;
--	}
--
--	if (urb->status) {
--		dbg("%s - nonzero write bulk status received: %d", __FUNCTION__,
--		    urb->status);
--		return;
--	}
--
--	if (write_blocking) {
--		wake_up_interruptible(&port->write_wait);
--		tty_wakeup(tty);
--	} else {
--		/* from generic_write_bulk_callback */
--		schedule_work(&port->work);
--	}
--
--	return;
--} /* mct_u232_write_bulk_callback */
--#endif
--
- static void mct_u232_read_int_callback (struct urb *urb, struct pt_regs *regs)
- {
- 	struct usb_serial_port *port = (struct usb_serial_port *)urb->context;
-@@ -591,8 +475,6 @@
- 	int status;
- 	unsigned long flags;
- 
--        dbg("%s - port %d", __FUNCTION__, port->number);
--
- 	switch (urb->status) {
- 	case 0:
- 		/* success */
-@@ -612,7 +494,8 @@
- 		dbg("%s - bad serial pointer, exiting", __FUNCTION__);
- 		return;
+@@ -168,7 +164,6 @@
+ 		dev_err (hcd->self.controller, "can't reset\n");
+ 		goto clean_3;
  	}
--	
+-	hcd->state = USB_STATE_HALT;
+ 
+ 	pci_set_master (dev);
+ #ifndef __sparc__
+@@ -177,7 +172,7 @@
+ 	bufp = __irq_itoa(dev->irq);
+ #endif
+ 	retval = request_irq (dev->irq, usb_hcd_irq, SA_SHIRQ,
+-				hcd->description, hcd);
++				hcd->driver->description, hcd);
+ 	if (retval != 0) {
+ 		dev_err (hcd->self.controller,
+ 				"request interrupt %s failed\n", bufp);
+@@ -189,12 +184,6 @@
+ 		(driver->flags & HCD_MEMORY) ? "pci mem" : "io base",
+ 		resource);
+ 
+-	usb_bus_init (&hcd->self);
+-	hcd->self.op = &usb_hcd_operations;
+-	hcd->self.release = &usb_hcd_release;
+-	hcd->self.hcpriv = (void *) hcd;
+-	init_timer (&hcd->rh_timer);
+-
+ 	usb_register_bus (&hcd->self);
+ 
+ 	if ((retval = driver->start (hcd)) < 0) {
+@@ -409,7 +398,7 @@
+ 		pci_set_power_state (dev, 0);
+ 	dev->dev.power.power_state = 0;
+ 	retval = request_irq (dev->irq, usb_hcd_irq, SA_SHIRQ,
+-				hcd->description, hcd);
++				hcd->driver->description, hcd);
+ 	if (retval < 0) {
+ 		dev_err (hcd->self.controller,
+ 			"can't restore IRQ after resume!\n");
+diff -Nru a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+--- a/drivers/usb/core/hcd.c	2005-01-07 15:44:04 -08:00
++++ b/drivers/usb/core/hcd.c	2005-01-07 15:44:04 -08:00
+@@ -312,7 +312,7 @@
+  	// id 3 == vendor description
+ 	} else if (id == 3) {
+                 sprintf (buf, "%s %s %s", UTS_SYSNAME, UTS_RELEASE,
+-			hcd->description);
++			hcd->driver->description);
+ 
+ 	// unsupported IDs --> "protocol stall"
+ 	} else
+@@ -676,6 +676,8 @@
+ 	bus->bandwidth_isoc_reqs = 0;
+ 
+ 	INIT_LIST_HEAD (&bus->bus_list);
 +
-+        dbg("%s - port %d", __FUNCTION__, port->number);
- 	usb_serial_debug_data(debug, &port->dev, __FUNCTION__, urb->actual_length, data);
++	class_device_initialize(&bus->class_dev);
+ }
+ EXPORT_SYMBOL (usb_bus_init);
+ 
+@@ -734,7 +736,7 @@
+ 	snprintf(bus->class_dev.class_id, BUS_ID_SIZE, "usb%d", busnum);
+ 	bus->class_dev.class = &usb_host_class;
+ 	bus->class_dev.dev = bus->controller;
+-	retval = class_device_register(&bus->class_dev);
++	retval = class_device_add(&bus->class_dev);
+ 	if (retval) {
+ 		clear_bit(busnum, busmap.busmap);
+ 		up(&usb_bus_list_lock);
+@@ -1430,12 +1432,8 @@
+ 
+ /*
+  * usb_hcd_operations - adapts usb_bus framework to HCD framework (bus glue)
+- *
+- * When registering a USB bus through the HCD framework code, use this
+- * usb_operations vector.  The PCI glue layer does so automatically; only
+- * bus glue for non-PCI system busses will need to use this.
+  */
+-struct usb_operations usb_hcd_operations = {
++static struct usb_operations usb_hcd_operations = {
+ 	.get_frame_number =	hcd_get_frame_number,
+ 	.submit_urb =		hcd_submit_urb,
+ 	.unlink_urb =		hcd_unlink_urb,
+@@ -1447,7 +1445,6 @@
+ 	.hub_resume =		hcd_hub_resume,
+ #endif
+ };
+-EXPORT_SYMBOL (usb_hcd_operations);
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+@@ -1549,11 +1546,51 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-void usb_hcd_release(struct usb_bus *bus)
++static void hcd_release (struct usb_bus *bus)
+ {
+ 	struct usb_hcd *hcd;
+ 
+-	hcd = container_of (bus, struct usb_hcd, self);
++	hcd = container_of(bus, struct usb_hcd, self);
+ 	kfree(hcd);
+ }
+-EXPORT_SYMBOL (usb_hcd_release);
++
++/**
++ * usb_create_hcd - create and initialize an HCD structure
++ * @driver: HC driver that will use this hcd
++ * Context: !in_interrupt()
++ *
++ * Allocate a struct usb_hcd, with extra space at the end for the
++ * HC driver's private data.  Initialize the generic members of the
++ * hcd structure.
++ *
++ * If memory is unavailable, returns NULL.
++ */
++struct usb_hcd *usb_create_hcd (const struct hc_driver *driver)
++{
++	struct usb_hcd *hcd;
++
++	hcd = kcalloc(1, sizeof(*hcd) + driver->hcd_priv_size, GFP_KERNEL);
++	if (!hcd)
++		return NULL;
++
++	usb_bus_init(&hcd->self);
++	hcd->self.op = &usb_hcd_operations;
++	hcd->self.hcpriv = hcd;
++	hcd->self.release = &hcd_release;
++
++	init_timer(&hcd->rh_timer);
++
++	hcd->driver = driver;
++	hcd->product_desc = (driver->product_desc) ? driver->product_desc :
++			"USB Host Controller";
++	hcd->state = USB_STATE_HALT;
++
++	return hcd;
++}
++EXPORT_SYMBOL (usb_create_hcd);
++
++void usb_put_hcd (struct usb_hcd *hcd)
++{
++	usb_bus_put(&hcd->self);
++}
++EXPORT_SYMBOL (usb_put_hcd);
+diff -Nru a/drivers/usb/core/hcd.h b/drivers/usb/core/hcd.h
+--- a/drivers/usb/core/hcd.h	2005-01-07 15:44:04 -08:00
++++ b/drivers/usb/core/hcd.h	2005-01-07 15:44:04 -08:00
+@@ -63,14 +63,13 @@
+ 	struct usb_bus		self;		/* hcd is-a bus */
+ 
+ 	const char		*product_desc;	/* product/vendor string */
+-	const char		*description;	/* "ehci-hcd" etc */
+ 
+ 	struct timer_list	rh_timer;	/* drives root hub */
  
  	/*
-@@ -893,12 +776,5 @@
- MODULE_DESCRIPTION( DRIVER_DESC );
- MODULE_LICENSE("GPL");
+ 	 * hardware info/state
+ 	 */
+-	struct hc_driver	*driver;	/* hw-specific hooks */
++	const struct hc_driver	*driver;	/* hw-specific hooks */
+ 	unsigned		saw_irq : 1;
+ 	unsigned		can_wakeup:1;	/* hw supports wakeup? */
+ 	unsigned		remote_wakeup:1;/* sw should use wakeup? */
+@@ -103,6 +102,12 @@
+ 	 * input size of periodic table to an interrupt scheduler. 
+ 	 * (ohci 32, uhci 1024, ehci 256/512/1024).
+ 	 */
++
++	/* The HC driver's private data is stored at the end of
++	 * this structure.
++	 */
++	unsigned long hcd_priv[0]
++			__attribute__ ((aligned (sizeof(unsigned long))));
+ };
  
--#ifdef FIX_WRITE_RETURN_CODE_PROBLEM
--module_param(write_blocking, int, 0);
--MODULE_PARM_DESC(write_blocking, 
--		 "The write function will block to write out all data");
--#endif
+ /* 2.4 does this a bit differently ... */
+@@ -152,6 +157,8 @@
+ 
+ struct hc_driver {
+ 	const char	*description;	/* "ehci-hcd" etc */
++	const char	*product_desc;	/* product/vendor string */
++	size_t		hcd_priv_size;	/* size of private data */
+ 
+ 	/* irq handler */
+ 	irqreturn_t	(*irq) (struct usb_hcd *hcd, struct pt_regs *regs);
+@@ -180,15 +187,6 @@
+ 	/* return current frame number */
+ 	int	(*get_frame_number) (struct usb_hcd *hcd);
+ 
+-	/* memory lifecycle */
+-	/* Note: The absence of hcd_free reflects a temporary situation;
+-	 * in the near future hcd_alloc will disappear as well and all
+-	 * allocations/deallocations will be handled by usbcore.  For the
+-	 * moment, drivers are required to return a pointer that the core
+-	 * can pass to kfree, i.e., the struct usb_hcd must be the _first_
+-	 * member of a larger driver-specific structure. */
+-	struct usb_hcd	*(*hcd_alloc) (void);
 -
- module_param(debug, bool, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(debug, "Debug enabled or not");
+ 	/* manage i/o requests, device state */
+ 	int	(*urb_enqueue) (struct usb_hcd *hcd,
+ 					struct usb_host_endpoint *ep,
+@@ -213,6 +211,10 @@
+ extern void usb_hcd_giveback_urb (struct usb_hcd *hcd, struct urb *urb, struct pt_regs *regs);
+ extern void usb_bus_init (struct usb_bus *bus);
+ 
++extern struct usb_hcd *usb_create_hcd (const struct hc_driver *driver);
++extern void usb_put_hcd (struct usb_hcd *hcd);
++
++
+ #ifdef CONFIG_PCI
+ struct pci_dev;
+ struct pci_device_id;
+@@ -237,7 +239,6 @@
+ 	void *addr, dma_addr_t dma);
+ 
+ /* generic bus glue, needed for host controllers that don't use PCI */
+-extern struct usb_operations usb_hcd_operations;
+ extern irqreturn_t usb_hcd_irq (int irq, void *__hcd, struct pt_regs *r);
+ extern void usb_hc_died (struct usb_hcd *hcd);
+ 
+@@ -356,8 +357,6 @@
+ 
+ 	return usb_register_root_hub (usb_dev, hcd->self.controller);
+ }
 -
+-extern void usb_hcd_release (struct usb_bus *);
+ 
+ extern void usb_set_device_state(struct usb_device *udev,
+ 		enum usb_device_state new_state);
 

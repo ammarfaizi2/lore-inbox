@@ -1,105 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUD1QFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUD1QRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUD1QFr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 12:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUD1QFr
+	id S264923AbUD1QRM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 12:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUD1QRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 12:05:47 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:15792 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264791AbUD1QFc convert rfc822-to-8bit
+	Wed, 28 Apr 2004 12:17:12 -0400
+Received: from wirefire.bureaudepost.com ([66.38.187.209]:65236 "EHLO
+	oasis.linuxant.com") by vger.kernel.org with ESMTP id S264923AbUD1QPV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 12:05:32 -0400
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-x-mimeole: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Bug#246149: kernel-image-2.6.5-1-686: pci_hotplug fails at boot
-Date: Wed, 28 Apr 2004 08:51:40 -0700
-Message-ID: <468F3FDA28AA87429AD807992E22D07E1175CE@orsmsx408.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Bug#246149: kernel-image-2.6.5-1-686: pci_hotplug fails at boot
-Thread-Index: AcQtC5kX/ZLQ6PBCQAKthk0hVDrqoQALEiiw
-From: "Sy, Dely L" <dely.l.sy@intel.com>
-To: "Herbert Xu" <herbert@gondor.apana.org.au>,
-       "Ruben Porras" <nahoo82@telefonica.net>, <246149@bugs.debian.org>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 28 Apr 2004 15:51:46.0028 (UTC) FILETIME=[B588DAC0:01C42D38]
+	Wed, 28 Apr 2004 12:15:21 -0400
+In-Reply-To: <408F99D5.1010900@aitel.hist.no>
+References: <20040427165819.GA23961@valve.mbsi.ca> <1083107550.30985.122.camel@bach> <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com> <1083117450.2152.222.camel@bach> <1EF114FF-98C4-11D8-85DF-000A95BCAC26@linuxant.com> <408F99D5.1010900@aitel.hist.no>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <3D29390A-992F-11D8-85DF-000A95BCAC26@linuxant.com>
+Content-Transfer-Encoding: 7bit
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Marc Boucher <marc@linuxant.com>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Date: Wed, 28 Apr 2004 12:15:17 -0400
+To: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch should fix the problem seen in 2.6.5 kernel.  The same fix is
-already in 2.6.6-rc2 kernel.
 
-Thanks,
-Dely 
+Hi Helge,
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Herbert Xu
-Sent: Wednesday, April 28, 2004 3:19 AM
-To: Ruben Porras; 246149@bugs.debian.org
-Cc: Linux Kernel Mailing List; Andrew Morton
-Subject: Re: Bug#246149: kernel-image-2.6.5-1-686: pci_hotplug fails at
-boot
+On Apr 28, 2004, at 7:47 AM, Helge Hafting wrote:
 
-tags 246149 pending
-quit
-
-On Tue, Apr 27, 2004 at 04:44:23PM +0200, Ruben Porras wrote:
-> Package: kernel-image-2.6.5-1-686
-> Version: 2.6.5-2
-> Severity: normal
+> Marc Boucher wrote:
+>> Dear Rusty,
+>> We generally prefer to focus on making stuff work for users,
+>> rather than waste time arguing about controversial GPL politics.
 >
-> shpchp: acpi_shpchprm:\_SB_.PCI0 _CRS fail=0x300b
-> shpchp: acpi_shpchprm:\_SB_.PCI0 evaluate _CRS fail=0x300b
+> There is no need to _argue_ about the GPL if you don't want to.
+> Just obey the terms.  If you don't, then you're arguing.
 
-This means that the adding of the bridges failed and therefore
-we don't have any bridges.
+We are not disobeying the terms nor is there anything in the GPL that 
+prohibits specifically our workaround. In fact, there is tons of GPL 
+software out there that use even more blatant/questionable techniques 
+to work around constraints imposed by commercial software, which 
+illustrates the hypocrisy of some advocates.
 
-> shpchp: shpc_init : shpc_cap_offset == 0
-> shpchp: shpc_init : shpc_cap_offset == 0
-> shpchp: Standard Hot Plug PCI Controller Driver version: 0.4
-> Unable to handle kernel NULL pointer dereference at virtual address
-00000050
->  printing eip:
-> e0a79719
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT 
-> CPU:    0
-> EIP:    0060:[<e0a79719>]    Not tainted
-> EFLAGS: 00010292   (2.6.5-1-686) 
-> EIP is at print_acpi_resources+0x9/0x140 [shpchp]
-> eax: 00000000   ebx: 00000000   ecx: c02b5ef0   edx: 00000000
-> esi: 00000000   edi: df736000   ebp: c02b7658   esp: df737f58
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 659, threadinfo=df736000 task=dfd0e660)
-> Stack: c0120ce0 0000000a 00000400 e0a7c000 df737f90 de392680 c02e7e40
-00000000 
->        e0a83560 e0a7986a 00000000 df736000 e0936070 e0a7c000 e0a8356c
-c02b7670 
->        e0a83560 c02b7670 c01371c0 c034e688 00000001 e0a83560 40164000
-0804ee38 
-> Call Trace:
->  [<c0120ce0>] printk+0x130/0x190
->  [<e0a7986a>] shpchprm_print_pirt+0x1a/0x40 [shpchp]
->  [<e0936070>] shpcd_init+0x70/0x96 [shpchp]
->  [<c01371c0>] sys_init_module+0x100/0x210
->  [<c0109319>] sysenter_past_esp+0x52/0x71
-> 
-> Code: 8b 46 50 85 c0 0f 84 e3 00 00 00 48 0f 84 9f 00 00 00 89 34 
+>
+> To me, the argument above looks like "we concentrate on making
+> things work for our customers, not on obeying the laws."  An argument 
+> frequently used by people you probably don't want to be compared with. 
+> You probably didn't intend it that way, but that
+> what it looks like for those serious about the GPL.
 
-Now it tries to print the bridges which is NULL.
+You can try to make it look like whatever you like but this is not what 
+I said.
 
-The following patch should fix the crash.
+>
+>> That's why after the practical workaround was done we moved on
+>> to deal with more acute technical issues at the time and failed
+>> to properly discuss/follow up on the matter with you. Please accept my
+>> sincere personal apology for this.
+>> I would like however to point out that part of the reason why people
+>> sometimes resort to such kludges is that some kernel maintainers have
+>> been rather reluctant to accommodate proprietary drivers which
+> Do not be surprised that people don't want to support your driver for 
+> free.
+> Everything has a price. Business usually wants to be paid in money,
+> kernel coders tend to want payment in the form of GPL'ed code.
+>
+> Not wanting to pay in code _is_ ok, but then you get to deal with any
+> trouble happening to any kernel running your module, because nobody
+> else volunteers.
 
-Thanks,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+We are providing code as much as possible, without expecting free 
+support, but are still getting flamed.
+
+>
+>> unfortunately are a necessary real-world evil (Linus told me just a 
+>> few
+>> days ago that he didn't care and to "go away" after we requested a 
+>> clean
+>> solution to handle larger kernel stacks for "foreign" NDIS drivers in 
+>> a way
+>> that could perhaps coexist with the new 4K stacks used by default in
+>> recent 2.6.6/fedora kernels).
+>
+> Well, sometimes design decisions simply doesn't go your way.  There may
+> indeed be no way to make Linus change his mind, so of course he tells 
+> you
+> to go away.  The same would happen if you tried to have microsoft make 
+> a
+> design change _they_ don't want.  You are lucky in the linux case 
+> though,
+> kernel developers may not support your NDIS driver but you _can_ supply
+> your own kernel patch (or a complete kernel) with big stacks.
+> Right now the 4k stack is relatively new, so the patch for 8k is 
+> simple.
+> In the future, there will probably be bigger pages and then your
+> problem goes away.  In the meantime you're allowed to maintain your
+> own patch for whatever you can't get into mainline.
+
+Kernel patching and recompilation is not a practical option for most 
+average linux users, who are unable or unwilling do it, because it is a 
+long and difficult procedure.  We aim to provide professional products 
+that are straightforward to install and just work out of the box, with 
+standard distributions, not custom kernel patches.
+
+>> Anyway, in an effort to reasonably resolve the \0 issue, to 
+>> (hopefully) mutual
+>> satisfaction I propose that we update our drivers to explicitly set 
+>> the tainted
+>> bit manually after they are loaded - perhaps via sysctl() or by 
+>> running
+>> "echo 1 > /proc/sys/kernel/tainted" via {modules,modprobe}.conf,
+>> or simply changing the '\0' to ' ' in one of the modules' 
+>> MODULE_LICENSE()
+>> macro, causing the kernel to be tainted upon load and the confusing 
+>> messages
+>> to appear once instead of 5-6 times in a row. The latter approach 
+>> seems
+>> simple and straightforward. Would it be acceptable to you as a 
+>> compromise until
+>> your patch and hopefully something equivalent for 2.4 propagate to 
+>> users?
+> I believe you have to remove the \0 to operate legally (or release the 
+> full source under the GPL for real.)
+> Your customer's problem is fixable though.  Either by also changing 
+> the logging level
+> so the message doesn't go out on the console, or by patching the line 
+> with that printk() out of your customer's kernel.
+> You can do this as a part of your install program.  If it gets too 
+> hard, consider
+> supplying the customer with your own precompiled kernel.
+
+Thank you for the advice. However, if you knew our customers and 
+understood their needs better you would realize that these are not 
+feasible options.
+
+Marc
+
+>
+> Helge Hafting
+>
+

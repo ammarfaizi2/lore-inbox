@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267823AbTAHRj2>; Wed, 8 Jan 2003 12:39:28 -0500
+	id <S267788AbTAHRl2>; Wed, 8 Jan 2003 12:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267827AbTAHRj2>; Wed, 8 Jan 2003 12:39:28 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:21673 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S267823AbTAHRj1>; Wed, 8 Jan 2003 12:39:27 -0500
-Message-Id: <4.3.2.7.2.20030108124514.02d6f1d0@pop.rcn.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 08 Jan 2003 12:53:57 -0500
-To: apache-modules@covalent.net
-From: Charles Reitzel <creitzel@rcn.com>
-Subject: Re: [apache-modules] Best HTML Parser
-Cc: apache-modules@covalent.net, DCOM <DCOM@DISCUSS.MICROSOFT.COM>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, modssl-users@modssl.org,
-       netfilter@lists.netfilter.org, TEAMICE <teamice@yahoogroups.com>
-In-Reply-To: <5.2.0.9.0.20030108124223.009f3e00@mail.SoftHome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S267799AbTAHRl2>; Wed, 8 Jan 2003 12:41:28 -0500
+Received: from zeke.inet.com ([199.171.211.198]:24476 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S267788AbTAHRl1>;
+	Wed, 8 Jan 2003 12:41:27 -0500
+Message-ID: <3E1C64CE.8050709@inet.com>
+Date: Wed, 08 Jan 2003 11:50:06 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Murray J. Root" <murrayr@brain.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: USB CF reader reboots PC
+References: <20030108165130.GA1181@Master.Wizards> <20030108173356.GA1189@Master.Wizards>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am partial to HTML Tidy for a few reasons:
+Murray J. Root wrote:
+> Ooops - kernel 2.5.5[234]
+> 
+> On Wed, Jan 08, 2003 at 11:51:30AM -0500, Murray J. Root wrote:
+> 
+>>ASUS P4S533 (SiS645DX chipset)
+>>P4 2GHz
+>>1G PC2700 RAM
+>>SanDisk SDDR-77 ImageMate Dual Card Reader (using only CF cards)
+>>
+>>----------------------------
+>>devfs compiled in to kernel, devfs=nomount in lilo.conf
+>>  
+>>Insert CF card. mount it. cd to it, do reads and/or writes
+>>umount card. remove card.
+>>insert a different card (does not happen if the same card is used)
+>>mount it. system reboots. logs are corrupted
+>>
+>>Doesn't happen every time for read - sometimes I can read 2 or 3 cards first
+>>Happens every time for write - if I write to a card then changing cards
+>>causes a reboot
+>>
+[snip]
 
-1) cross-platform, reentrant C library
-2) very forgiving of sloppy, malformed markup
-3) produces clean markup - XHTML if requested
-4) C++, Perl, Pascal, COM and .NET bindings available,
-    others easily done with SWIG
+Somewhat similar vein, but a different set of symptoms, I've seen a 
+RedHat box not see that the CF card changed...
+(USB SanDisk CF & SD reader, also using only CF cards.)
 
-But I must admit, as one of the primary developers, I am probably 
-biased.  But if you need to get your markup cleaned up so that you can 
-apply XML tools to it, it is probably the best game in town.
+insert 128MB CF card.
+everything is ok.
+remove 128MB CF card, still see 128MB partition
+insert 256MB CF card.
+see 128MB partition.
+(based on /proc/partitions)
 
-For more info: http://tidy.sourceforge.net/
+I've not followed this up to figure out why yet.
+You might check that situation to see if yours is related at all.
 
-take it easy,
-Charlie
-
-
-At 12:43 PM 1/8/2003 +0530, Blesson Paul wrote:
->Hi all
->              Which is the Best HTML Parser in C/C++
->
->regards
->Blesson Paul
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

@@ -1,212 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266493AbUBLPmc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 10:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUBLPmb
+	id S266482AbUBLPku (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 10:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUBLPku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 10:42:31 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:23719 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266493AbUBLPly
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 10:41:54 -0500
-Date: Thu, 12 Feb 2004 16:41:50 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4: Problems with dead code/data with gcc 3.4
-Message-ID: <Pine.LNX.4.55.0402121613510.22119@jurand.ds.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Feb 2004 10:40:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54959 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266482AbUBLPks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 10:40:48 -0500
+Subject: Re: 2.6.3-rc2-mm1
+From: Mark Haverkamp <markh@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Christine Moore <cem@osdl.org>
+In-Reply-To: <402B6251.2060909@cyberone.com.au>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+	 <402B6251.2060909@cyberone.com.au>
+Content-Type: text/plain
+Message-Id: <1076600437.22976.3.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 12 Feb 2004 07:40:38 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2004-02-12 at 03:24, Nick Piggin wrote:
+> Andrew Morton wrote:
+> 
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc2/2.6.3-rc2-mm1/
+> >
+> >
+> 
+> Nether this nor the previous one boots on the NUMAQ at osdl.
+> Not sure which is the last -mm that did. 2.6.3-rc2 boots.
+> 
+> I turned early_printk on and nothing. It stops at
+> Loading linux..............
 
- After upgrading gcc to 3.4 I've discovered the compiler is now more
-serious about discarding dead code or data.  As a result parts of the
-kernel that appear unused, such as the ".setup.init" or ".modinfo"
-sections, get removed, and the "unused" attribute only masks the problem
-by quieting warnings.  However, gcc currently provides another attribute,
-"used", that instead of removing warnings, actually tells the compiler
-that whatever it's attached to is indeed used, perhaps in a way that
-cannot be observed by the compiler.  There's code in init/main.c that
-assumes a non-empty ".setup.init" section and failing that leads to
-unpredictable behavior (it just hangs for me on a MIPSel/Linux box).
+I saw this behavior with the last mm kernel on my 8-way with
+CONFIG_HIGHMEM64G.  The problem went away when I backed out the
+highmem-equals-user-friendliness.patch
 
- Here's a patch that makes the kernel work for me for i386/Linux.  It's
-based on similar changes that are already present in 2.6 and leaves the
-setup as is for gcc versions before 3.3 and using the new attribute for
-newer versions, by defining an "__attribute_used__" macro appropriately.
-
- Marcelo, would consider such a change for past 2.4.25?
-
- Ralf, for MIPS/Linux the change is insufficient -- due to fragile
-constructs in arch/mips/kernel/syscall.c some code is removed, but using
-the "used" attribute does not help.  While the code is back again, it's
-reordered compared to what's emitted by older compilers and it's enough to
-stop it working.  I'm currently investigating a solution, or have you
-perhaps looked at the problem already?  It's there for 2.6 as well.
-
-  Maciej
+Mark.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Mark Haverkamp <markh@osdl.org>
 
-patch-2.4.24-gcc3-0.1
-diff -up --recursive --new-file linux-2.4.24.macro/include/linux/compiler.h linux-2.4.24/include/linux/compiler.h
---- linux-2.4.24.macro/include/linux/compiler.h	2001-09-18 14:12:45.000000000 +0000
-+++ linux-2.4.24/include/linux/compiler.h	2004-02-12 14:57:06.000000000 +0000
-@@ -13,4 +13,10 @@
- #define likely(x)	__builtin_expect((x),1)
- #define unlikely(x)	__builtin_expect((x),0)
- 
-+#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
-+#define __attribute_used__	__attribute__((__used__))
-+#else
-+#define __attribute_used__	__attribute__((__unused__))
-+#endif
-+
- #endif /* __LINUX_COMPILER_H */
-diff -up --recursive --new-file linux-2.4.24.macro/include/linux/init.h linux-2.4.24/include/linux/init.h
---- linux-2.4.24.macro/include/linux/init.h	2004-02-12 12:48:26.000000000 +0000
-+++ linux-2.4.24/include/linux/init.h	2004-02-12 14:57:06.000000000 +0000
-@@ -2,6 +2,7 @@
- #define _LINUX_INIT_H
- 
- #include <linux/config.h>
-+#include <linux/compiler.h>
- 
- /* These macros are used to mark some functions or 
-  * initialized data (doesn't apply to uninitialized data)
-@@ -67,7 +68,7 @@ extern struct kernel_param __setup_start
- 
- #define __setup(str, fn)								\
- 	static char __setup_str_##fn[] __initdata = str;				\
--	static struct kernel_param __setup_##fn __attribute__((unused)) __initsetup = { __setup_str_##fn, fn }
-+	static struct kernel_param __setup_##fn __attribute_used__ __initsetup = { __setup_str_##fn, fn }
- 
- #endif /* __ASSEMBLY__ */
- 
-@@ -76,12 +77,12 @@ extern struct kernel_param __setup_start
-  * or exit time.
-  */
- #define __init		__attribute__ ((__section__ (".text.init")))
--#define __exit		__attribute__ ((unused, __section__(".text.exit")))
-+#define __exit		__attribute_used__ __attribute__ ((__section__ (".text.exit")))
- #define __initdata	__attribute__ ((__section__ (".data.init")))
--#define __exitdata	__attribute__ ((unused, __section__ (".data.exit")))
--#define __initsetup	__attribute__ ((unused,__section__ (".setup.init")))
--#define __init_call	__attribute__ ((unused,__section__ (".initcall.init")))
--#define __exit_call	__attribute__ ((unused,__section__ (".exitcall.exit")))
-+#define __exitdata	__attribute_used__ __attribute__ ((__section__ (".data.exit")))
-+#define __initsetup	__attribute_used__ __attribute__ ((__section__ (".setup.init")))
-+#define __init_call	__attribute_used__ __attribute__ ((__section__ (".initcall.init")))
-+#define __exit_call	__attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
- 
- /* For assembly routines */
- #define __INIT		.section	".text.init","ax"
-diff -up --recursive --new-file linux-2.4.24.macro/include/linux/module.h linux-2.4.24/include/linux/module.h
---- linux-2.4.24.macro/include/linux/module.h	2004-02-12 13:12:17.000000000 +0000
-+++ linux-2.4.24/include/linux/module.h	2004-02-12 15:08:00.000000000 +0000
-@@ -8,6 +8,7 @@
- #define _LINUX_MODULE_H
- 
- #include <linux/config.h>
-+#include <linux/compiler.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
- 
-@@ -202,19 +203,22 @@ extern int try_inc_mod_count(struct modu
- 
- /* For documentation purposes only.  */
- 
--#define MODULE_AUTHOR(name)						   \
--const char __module_author[] __attribute__((section(".modinfo"))) = 	   \
--"author=" name
--
--#define MODULE_DESCRIPTION(desc)					   \
--const char __module_description[] __attribute__((section(".modinfo"))) =   \
--"description=" desc
-+#define MODULE_AUTHOR(name)						\
-+const char __module_author[]						\
-+  __attribute_used__							\
-+  __attribute__((section(".modinfo"))) = "author=" name
-+
-+#define MODULE_DESCRIPTION(desc)					\
-+const char __module_description[]					\
-+  __attribute_used__							\
-+  __attribute__((section(".modinfo"))) = "description=" desc
- 
- /* Could potentially be used by kmod...  */
- 
--#define MODULE_SUPPORTED_DEVICE(dev)					   \
--const char __module_device[] __attribute__((section(".modinfo"))) = 	   \
--"device=" dev
-+#define MODULE_SUPPORTED_DEVICE(dev)					\
-+const char __module_device[]						\
-+  __attribute_used__							\
-+  __attribute__((section(".modinfo"))) = "device=" dev
- 
- /* Used to verify parameters given to the module.  The TYPE arg should
-    be a string in the following format:
-@@ -229,15 +233,17 @@ const char __module_device[] __attribute
- 	s	string
- */
- 
--#define MODULE_PARM(var,type)			\
--const char __module_parm_##var[]		\
--__attribute__((section(".modinfo"))) =		\
--"parm_" __MODULE_STRING(var) "=" type
--
--#define MODULE_PARM_DESC(var,desc)		\
--const char __module_parm_desc_##var[]		\
--__attribute__((section(".modinfo"))) =		\
--"parm_desc_" __MODULE_STRING(var) "=" desc
-+#define MODULE_PARM(var,type)						\
-+const char __module_parm_##var[]					\
-+  __attribute_used__							\
-+  __attribute__((section(".modinfo"))) =				\
-+  "parm_" __MODULE_STRING(var) "=" type
-+
-+#define MODULE_PARM_DESC(var,desc)					\
-+const char __module_parm_desc_##var[]					\
-+  __attribute_used__							\
-+  __attribute__((section(".modinfo"))) =				\
-+  "parm_desc_" __MODULE_STRING(var) "=" desc
- 
- /*
-  * MODULE_DEVICE_TABLE exports information about devices
-@@ -283,9 +289,10 @@ static const struct gtype##_id * __modul
-  * 3.	So vendors can do likewise based on their own policies
-  */
-  
--#define MODULE_LICENSE(license) 	\
--static const char __module_license[] __attribute__((section(".modinfo"))) =   \
--"license=" license
-+#define MODULE_LICENSE(license) 					\
-+static const char __module_license[]					\
-+  __attribute_used__							\
-+  __attribute__((section(".modinfo"))) = "license=" license
- 
- /* Define the module variable, and usage macros.  */
- extern struct module __this_module;
-@@ -296,11 +303,11 @@ extern struct module __this_module;
- #define MOD_IN_USE		__MOD_IN_USE(THIS_MODULE)
- 
- #include <linux/version.h>
--static const char __module_kernel_version[] __attribute__((section(".modinfo"))) =
--"kernel_version=" UTS_RELEASE;
-+static const char __module_kernel_version[] __attribute_used__
-+	__attribute__((section(".modinfo"))) = "kernel_version=" UTS_RELEASE;
- #ifdef MODVERSIONS
--static const char __module_using_checksums[] __attribute__((section(".modinfo"))) =
--"using_checksums=1";
-+static const char __module_using_checksums[] __attribute_used__
-+	__attribute__((section(".modinfo"))) = "using_checksums=1";
- #endif
- 
- #else /* MODULE */

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292933AbSB0Wor>; Wed, 27 Feb 2002 17:44:47 -0500
+	id <S292880AbSB0Wkh>; Wed, 27 Feb 2002 17:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293025AbSB0WoW>; Wed, 27 Feb 2002 17:44:22 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:41741 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293009AbSB0WoG>;
-	Wed, 27 Feb 2002 17:44:06 -0500
-Date: Wed, 27 Feb 2002 14:37:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Allo! Allo! <lachinois@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel module ethics.
-Message-ID: <20020227223731.GB7760@kroah.com>
-In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 30 Jan 2002 20:00:06 -0800
+	id <S292918AbSB0Wjl>; Wed, 27 Feb 2002 17:39:41 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:46094 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S293018AbSB0Wim>; Wed, 27 Feb 2002 17:38:42 -0500
+Message-ID: <3C7D5ED5.2030500@megapathdsl.net>
+Date: Wed, 27 Feb 2002 14:33:57 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020217
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: 2.5.5-dj2 -- serial.c:649: too many arguments to function `handle_sysrq'
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 04:11:38PM -0500, Allo! Allo! wrote:
-> 
-> The hardware needs a firmware to run. Since this firmware is under NDA, the 
-> first compromise is to write the main part of the driver GPL but keep the 
-> firmware of the card in binary format. The driver can then load the 
-> firmware separately and this should not infringe on the GPL and I'm quite 
-> ok with this requirement. Now the problem is that any of our competitor's 
-> cards will work with the same closed sourced firmware and GPL engine. In 
-> pure capitalist thinking, the company finds this particularly troublesome...
+2.5.5-dj2 + nls.patch + migrate.diff + console_8.diff + roberto 
+nibaldo's patches:
 
-There are already a number of drivers that do just this (download closed
-source firmware into a device, with a open source driver), so this is
-probably the best thing to do.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon 
+-DKBUILD_BASENAME=serial  -DEXPORT_SYMTAB -c serial.c
+serial.c: In function `receive_chars':
+serial.c:649: too many arguments to function `handle_sysrq'
+make[3]: *** [serial.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/char'
 
-Now the fact that your firmware will run on other company's cards means
-that you need to modify your hardware so that this is not possible :)
-
-Good luck,
-
-greg k-h

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271793AbRICUHJ>; Mon, 3 Sep 2001 16:07:09 -0400
+	id <S271795AbRICUKT>; Mon, 3 Sep 2001 16:10:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271795AbRICUG7>; Mon, 3 Sep 2001 16:06:59 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:60602 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S271793AbRICUGp>; Mon, 3 Sep 2001 16:06:45 -0400
-Date: Mon, 3 Sep 2001 14:07:03 -0600
-Message-Id: <200109032007.f83K73H27504@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: <pmhahn@titan.lahn.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpuid/msr + devfs
-In-Reply-To: <Pine.LNX.4.33.0108121020050.1068-100000@titan.lahn.de>
-In-Reply-To: <Pine.LNX.4.33.0108121020050.1068-100000@titan.lahn.de>
+	id <S271797AbRICUKJ>; Mon, 3 Sep 2001 16:10:09 -0400
+Received: from [212.59.31.66] ([212.59.31.66]:4383 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S271795AbRICUJv>;
+	Mon, 3 Sep 2001 16:09:51 -0400
+Date: Mon, 3 Sep 2001 22:07:53 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: Transparent proxy support in 2.4 - revisited
+To: "Nadav Har'El" <nyh@math.technion.ac.il>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <20010607170825.A18760@leeor.math.technion.ac.il> <20010608014443.A28407@saw.sw.com.sg> <20010903131240.A9791@leeor.math.technion.ac.il> <20010903144442.A32332@castle.nmd.msu.ru>
+ <20010903161621.A14859@leeor.math.technion.ac.il>
+In-Reply-To: <20010903161621.A14859@leeor.math.technion.ac.il>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+Message-ID: <ISPFE7kvSHoZKTjuLd30000006f@mail.takas.lt>
+X-OriginalArrivalTime: 03 Sep 2001 20:08:15.0828 (UTC) FILETIME=[2AB3F940:01C134B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philipp Matthias Hahn writes:
-> Hello Richard, LKML!
-> 
-> Back in 2000 Philip Langdale posted a patch to make
-> arch/i386/kernel/{cpuid,msr}.c devfs aware. Richard Gooch had some
-> comments for him but I never saw an "improved" patch.
-> 
-> I tried to clean it up a little bit and it look's better, but here are the
-> things I don't like myself:
-> - Do we need to keep cpu_devfs_handle or should we re-find it on
->   unregister?
+NH> This is the kind of thing I need in Linux 2.4 too.
+NH> I'm still puzzled by the fact that this support simply disappeared between
+NH> 2.2 and 2.4, and nobody seems to know why (or people who know why don't
+NH> reply).
 
-Better to have a central place which creates per-CPU directories,
-which you can call into and grab a directory for a CPU.
+Please look at the archives here: http://lists.samba.org/mailman/listinfo/netfilter-devel
 
-> - There is no devfs_unregister_series.
+Regards,
+Nerijus
 
-Correct. I'm not sure that we really want one, either.
 
-> - Shouldn't we register_chrdev() "cpu/%d/cpuid"?
-
-You could if you want.
-
-> - "cpu/%d" directoried are never removed on unregister.
-
-Such directories should only be removed when a CPU is removed. And to
-support that, you need the CPU hotplug patch.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,177 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272278AbTHNJju (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 05:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272279AbTHNJjt
+	id S272251AbTHNKHq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 06:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272253AbTHNKHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 05:39:49 -0400
-Received: from krynn.se.axis.com ([193.13.178.10]:24282 "EHLO
-	krynn.se.axis.com") by vger.kernel.org with ESMTP id S272278AbTHNJjq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 05:39:46 -0400
-Message-ID: <D069C7355C6E314B85CF36761C40F9A42E20AB@mailse02.se.axis.com>
-From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
-To: "'Timothy Miller'" <miller@techsource.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RE: generic strncpy - off-by-one error
-Date: Thu, 14 Aug 2003 11:34:50 +0200
+	Thu, 14 Aug 2003 06:07:45 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:55781 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S272251AbTHNKHo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 06:07:44 -0400
+Date: Thu, 14 Aug 2003 12:05:28 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Matthew Wilcox <willy@debian.org>, Russell King <rmk@arm.linux.org.uk>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
+       rddunlap@osdl.org, davej@redhat.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+In-Reply-To: <3F3A9FA1.8000708@pobox.com>
+Message-ID: <Pine.GSO.4.21.0308141202410.12289-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Trimmed the recipient list. ]
-
-> -----Original Message-----
-> From: Timothy Miller [mailto:miller@techsource.com] 
-> Sent: Wednesday, August 13, 2003 21:04
-> To: andersen@codepoet.org
-> Cc: Albert Cahalan; linux-kernel mailing list; 
-> bernd@firmix.at; Anthony.Truong@mascorp.com; 
-> alan@lxorguk.ukuu.org.uk; schwab@suse.de; 
-> ysato@users.sourceforge.jp; willy@w.ods.org; 
-> Valdis.Kletnieks@vt.edu; william.gallafent@virgin.net
-> Subject: Re: generic strncpy - off-by-one error
+On Wed, 13 Aug 2003, Jeff Garzik wrote:
+> > On Wed, Aug 13, 2003 at 03:44:44PM -0400, Jeff Garzik wrote:
+> >>enums are easy  putting direct references would be annoying, but I also 
+> >>argue it's potentially broken and wrong to store and export that 
+> >>information publicly anyway.  The use of enums instead of pointers is 
+> >>practically required because there is a many-to-one relationship of ids 
+> >>to board information structs.
+> > 
+> > The hard part is that it's actually many-to-many.  The same card can have
+> > multiple drivers.  one driver can support many cards.
 > 
-> Erik Andersen wrote:
-> 
-> > char *strncpy(char * s1, const char * s2, size_t n)
-> > {
-> >     register char *s = s1;
-> >     while (n) {
-> > 	if ((*s = *s2) != 0) s2++;
-> > 	++s;
-> > 	--n;
-> >     }
-> >     return s1;
-> > }
-> 
-> 
-> 
-> Nice!
+> pci_device_tables are (and must be) at per-driver granularity.  Sure the 
+> same card can have multiple drivers, but that doesn't really matter in 
+> this context, simply because I/we cannot break that per-driver 
+> granularity.  Any solution must maintain per-driver granularity.
 
-I can but agree.
+Aren't there any `hidden multi-function in single-function' PCI devices out
+there? E.g. cards with a serial and a parallel port?
 
-> How about this:
-> 
-> 
-> char *strncpy(char * s1, const char * s2, size_t n)
-> {
-> 	register char *s = s1;
-> 
-> 	while (n && *s2) {
-> 		n--;
-> 		*s++ = *s2++;
-> 	}
-> 	while (n--) {
-> 		*s++ = 0;
-> 	}
-> 	return s1;
-> }
+At least for the Zorro bus, these exist. E.g. the Ariadne card contains both
+Ethernet and 2 parallel ports, so the Ariadne Ethernet driver and the (still to
+be written) Ariadne parallel port driver are both drivers for the same Zorro
+device.
 
-This may be improved further:
+Gr{oetje,eeting}s,
 
-char *strncpy(char *dest, const char *src, size_t count)
-{
-	char *tmp = dest;
+						Geert
 
-	while (count) {
-		if (*src == '\0')
-			break;
+P.S. Yes, according to the IBM slides at LKS, m68k is dead ;-)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-		*tmp++ = *src++;
-		count--;
-	}
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-	while (count) {
-		*tmp++ = '\0';
-		count--;
-	}
-
-	return dest;
-}
-
-Moving the check for *src == '\0' into the first loop seems
-to let the compiler reuse the object code a little better
-(may depend on the optimizer). Also note that your version
-of the second loop needs an explicit  comparison with -1,
-whereas mine uses an implicit comparison with 0.
-
-Testing on the CRIS architecture, your version is 24 instructions,
-whereas mine is 18. For comparison, Eric's one is 12 and the
-currently used implementation is 26 (when corrected for the
-off-by-one error by comparing with > 1 rather than != 0 in the
-second loop).
-
-Here is another version that I think is quite pleasing
-aesthetically (YMMV) since the loops are so similar (it is 21
-instructions on CRIS):
-
-char *strncpy(char *dest, const char *src, size_t count)
-{
-	char *tmp = dest;
-
-	for (; count && *src; count--)
-		*tmp++ = *src++;
-
-	for (; count; count--)
-		*tmp++ = '\0';
-
-	return dest;
-}
-
-This is probably the version I would choose if I were to decide
-as the object code generated for the actual loops are optimal in
-this version (at least for CRIS).
-
-> This reminds me a lot of the ORIGINAL, although I didn't pay much 
-> attention to it at the time, so I don't remember.  It may be that
-> the original had "n--" in the while () condition of the first 
-> loop, rather than inside the loop.
-> 
-> I THINK the original complaint was that n would be off by 1 
-> upon exiting the first loop.  The fix is to only decrement n 
-> when n is nonzero.
-> 
-> If s2 is short enough, then we'll exit the first loop on the nul byte 
-> and fill in the rest in the second loop.  Since n is only decremented 
-> with we actually write to s, we will only ever write n bytes.  No 
-> off-by-one.
-> 
-> If s2 is too long, the first loop will exit on n being zero, 
-> and since it doesn't get decremented in that case, it'll be 
-> zero upon entering the second loop, thus bypassing it properly.
-> 
-> Erik's code is actually quite elegant, and its efficiency is probably 
-> essentially the same as my first loop.  But my second loop would 
-> probably be faster at doing the zero fill.
-> 
-> 
-> Now, consider this for the second loop!
-> 
-> 	while (n&3) {
-
-I think sizeof(int)-1 would be better than 3. ;)
-And long would probably be better for the 64-bit architectures?
-
-> 		*s++ = 0;
-> 		n--;
-> 	}
-> 	l = n>>2;
-> 	while (l--) {
-> 		*((int *)s)++ = 0;
-> 	}
-> 	n &= 3;
-> 	while (n--) {
-> 		*s++ = 0;
-> 	}
-> 
-> This is only a win for relatively long nul padding.  How often is the 
-> padding long enough?
-
-I guess another way would be to replace the second loop with
-memset(s, '\0', n), but that would probably only be a win for
-quite long paddings.
-
-//Peter

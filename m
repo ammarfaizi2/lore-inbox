@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316971AbSHOOJi>; Thu, 15 Aug 2002 10:09:38 -0400
+	id <S317005AbSHOOPk>; Thu, 15 Aug 2002 10:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316996AbSHOOJi>; Thu, 15 Aug 2002 10:09:38 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:11526 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S316971AbSHOOJh>; Thu, 15 Aug 2002 10:09:37 -0400
-Date: Thu, 15 Aug 2002 08:13:06 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: zhengchuanbo <zhengcb@netpower.com.cn>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: problem with Adaptec aic7899 in linux2.4
-Message-ID: <2222740000.1029420786@aslan.scsiguy.com>
-In-Reply-To: <200208152016307.SM00808@zhengcb>
-References: <200208152016307.SM00808@zhengcb>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S317006AbSHOOPk>; Thu, 15 Aug 2002 10:15:40 -0400
+Received: from pat.uio.no ([129.240.130.16]:64910 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317005AbSHOOPi>;
+	Thu, 15 Aug 2002 10:15:38 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <15707.47212.44395.87243@charged.uio.no>
+Date: Thu, 15 Aug 2002 16:19:24 +0200
+To: marius@citi.umich.edu
+Cc: Brian Pawlowski <beepy@netapp.com>, dax@gurulabs.com,
+       torvalds@transmeta.com, kmsmith@umich.edu, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [NFS] Re: Will NFSv4 be accepted?
+In-Reply-To: <20020815062332.GB9122@umich.edu>
+References: <shs8z39dr15.fsf@charged.uio.no>
+	<200208142234.g7EMYvQ21700@tooting-fe.eng>
+	<20020815062332.GB9122@umich.edu>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i met a problem with the scsi disk on linux2.4.19-pre1.
-> during the boot of the system,the following messages were displayed,
-> 
-> (scsi:A:15:0): Unexpected busfree while idle
-> scsi: <fdomain> Detection failed (no card)
-> sys53c416.c: Version 1.0.0-ac
-> 
-> then the system hang the. we use adaptec aic7899. 
-> btw,the same system worked on another machine with the same type of scsi
-> disk. so what's the problem?
-> please cc.thanks.
+>>>>> " " == marius aamodt eriksen <marius@umich.edu> writes:
 
-It would help to have more information about the system and the peripherals
-attached to it.  A dmesg would do that.
+     > and let's not forget such things as getting rid of the
+     > representation of users as UIDs over the wire, as well as
+     > delegations (i.e. better caching == better performance), named
+     > (extended) attributes support, soon-to-come interoperability
+     > with a vast array of operating systems, etc. etc.
 
---
-Justin
+Right. I wasn't saying that NFSv4 doesn't have anything going for
+it. Just that Kerberos isn't the killer argument: it can easily be
+integrated with earlier versions of NFS (and in fact Andy and I had
+the basic Linux version running on NFSv3 in February *before* it was
+tested for NFSv4).
 
+IMHO the main argument for NFSv4 is the improved support for WANs.
+
+Cheers,
+  Trond

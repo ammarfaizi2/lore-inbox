@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264994AbUFWJkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265238AbUFWJ4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbUFWJkp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 05:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUFWJkp
+	id S265238AbUFWJ4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 05:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUFWJ4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 05:40:45 -0400
-Received: from cpmx.mail.saic.com ([139.121.17.160]:60645 "EHLO
-	cpmx.mail.saic.com") by vger.kernel.org with ESMTP id S264994AbUFWJkj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 05:40:39 -0400
-Subject: problems with 3com 3c2000 under 2.6.7
-From: Eamonn Hamilton <EAMONN.HAMILTON@saic.com>
+	Wed, 23 Jun 2004 05:56:23 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:15239 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S265238AbUFWJ4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 05:56:19 -0400
+Date: Wed, 23 Jun 2004 11:56:17 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 23 Jun 2004 10:40:21 +0100
-Message-Id: <1087983621.19509.8.camel@ukabzc383.uk.saic.com>
+Subject: Re: 2.6.7-rc2-mm2 udp multicast problem (sendto hangs)
+Message-Id: <20040623115617.68b93100@phoebee>
+In-Reply-To: <20040622164000.110f2a63@phoebee>
+References: <20040622164000.110f2a63@phoebee>
+X-Mailer: Sylpheed-Claws 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+if I use MSG_DONTWAIT with sendto, I get temporarily unavailable resources
+(many!):
 
-I'm trying to get a gigabit lan set-up for a friend. He's got a mix of
-XP and linux machines using 3com 3c2000 adapters attached to a gigabit
-switch ( which doesn't understand jumbo frames ).
+sendto(sendfd): Resource temporarily unavailable
 
-All MTUs are 1500, but when sending to the linux box he gets ~100 KB/
-sec, using ftp, samba, whatever. Pulling from the box delivers ~15 MB/
-sec ( which is probably his local disk saturating ). All the boxes are
-on the same subnet so there's no router involved, and the performance
-stays the same when the cards are conmnected back-to-back so the switch
-is eliminated.
+but isn't udp supposed to not block?
 
-I've read about problems with 3c940 adapters, and also had a look at the
-3c2000 driver supplied with the card which was forked from the sk98
-driver I believe, but it's for 2.4 only.
+Martin
 
-Has anybody else seen anything like this, or does anybody have any
-ideas?
+-- 
+MyExcuse:
+astropneumatic oscillations in the water-cooling
 
-Cheers,
-Eamonn
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
 
+TechnoTrend AG <http://www.technotrend.de>

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUDOIR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 04:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUDOIR6
+	id S262065AbUDOIbc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 04:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDOIbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 04:17:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23813 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262574AbUDOIR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 04:17:57 -0400
-Date: Thu, 15 Apr 2004 09:17:52 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040415091752.A24815@flint.arm.linux.org.uk>
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	Maneesh Soni <maneesh@in.ibm.com>,
-	LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040414064015.GA4505@in.ibm.com> <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Apr 2004 04:31:32 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:64691 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262065AbUDOIbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 04:31:23 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Duncan Sands <baldrick@free.fr>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
+Date: Thu, 15 Apr 2004 10:31:19 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Frederic Detienne <fd@cisco.com>
+References: <200404141245.37101.baldrick@free.fr> <200404142239.08408.oliver@neukum.org> <200404151005.22143.baldrick@free.fr>
+In-Reply-To: <200404151005.22143.baldrick@free.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Wed, Apr 14, 2004 at 08:02:27AM +0100
+Message-Id: <200404151031.19940.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 08:02:27AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Apr 14, 2004 at 12:10:16PM +0530, Maneesh Soni wrote:
-> > I am not sure, if pinning the kobject for the life time of symlink (dentry)
-> > may result in same problems like rmmod hang which we saw in case of pinning
-> > kobject for the life time of its directory (dentry).
-> 
-> Erm...  If rmmod _ever_ waits for refcount on kobject to reach zero, it's
-> already broken.  Do you have any examples of such behaviour?
+Am Donnerstag, 15. April 2004 10:05 schrieb Duncan Sands:
+> On Wednesday 14 April 2004 22:39, Oliver Neukum wrote:
+> > > > I would prefer a real WARN_ON() so that the imbedded people compiling
+> > > > for size are not affected.
+> > >
+> > > What do you mean?  How is a real WARN_ON() better?
+> >
+> > WARN_ON can be defined away to make a smaller kernel. Code that does
+> > not use it takes away that option.
+>
+> Hi Oliver, I thought you meant that CONFIG_EMBEDDED made WARN_ON go away
+> (or something like that).  If you just mean that it is easy to redefine
+> WARN_ON by hand, then all I can say is: it is also easy to redefine warn by
+> hand!  Anyway, I made you the following patch:
 
-Every single module which unregisters a struct device_driver.
+Yes, but I don't trust gcc to optimise away the 'if' if you redefine warn().
 
- *      driver_unregister - remove driver from system.
- *      @drv:   driver.
-...
- *      This will block until the driver refcount reaches 0, and it is
- *      released. Only modular drivers will call this function, and we
- *      have to guarantee that it won't complete, letting the driver
- *      unload until all references are gone.
+But there is another point. The embedded people deserve a single switch
+to remove assertion checks. The purpose of macros like WARN_ON() is
+easy and _central_ choice of debugging output vs. kernel size.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Regards
+		Oliver
+

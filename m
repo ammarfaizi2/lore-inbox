@@ -1,104 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUIPQlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUIPQni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268346AbUIPQlT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 12:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUIPQlF
+	id S268312AbUIPQni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 12:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268229AbUIPQhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:41:05 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:9931 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268346AbUIPQkH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:40:07 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9
-From: Robert Love <rml@novell.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <cic9os$ibd$1@gatekeeper.tmr.com>
-References: <1095263565.19906.19.camel@vertex>
-	 <cic9os$ibd$1@gatekeeper.tmr.com>
-Content-Type: text/plain
-Date: Thu, 16 Sep 2004 12:39:02 -0400
-Message-Id: <1095352742.23385.148.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 12:37:35 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:50155 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S268463AbUIPQgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 12:36:37 -0400
+To: cramerj@intel.com, john.ronciak@intel.com, ganesh.venkatesan@intel.com
+Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][resend] Update e1000 to use module_param()
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 16 Sep 2004 09:36:35 -0700
+Message-ID: <52oek6tbl8.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Sep 2004 16:36:35.0103 (UTC) FILETIME=[5497E2F0:01C49C0B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-16 at 11:07 -0400, Bill Davidsen wrote:
+(resending because this seems to have been lost; e1000 still has mixed
+MODULE_PARM and module_param use)
 
-> Did you work for Microsoft? Bloat doesn't count? And is this going to be 
->   low memory you pin? And is every file create or delete (or update of 
-> atime) going to blast this mess through cache looking for people to notify?
+The change to e1000_main.c in
 
-No.  I suggest looking at the source.
+    ChangeSet@1.1722.32.6, 2004-05-27 13:44:06-04:00, ganesh.venkatesan@intel.com
+      [PATCH] e1000 7/7: Support for ethtool msglevel based error
 
-We are pinning the very inodes we are using.  So,
+added module_param(debug, ...) to e1000_main.c.  Since e1000_param.c
+still uses MODULE_PARM(), this means that one gets
 
-	(a) There is no cache effects because the inodes are already
-	    in use.  So when you go to, say, write to a file the kernel
-	    already has the inode handy, and we just check in O(1) to
-	    see if the inode has a watcher on it.  We never walk a list
-	    of inodes (why would you ever do that?  how would you do
-	    that?).
-	(b) Many of the pinned inodes are already in memory, cached,
-	    since the probability of of used inodes and watched inodes
-	    is high.  Right now, on a system without inotify, I have
-	    60MB of inodes in memory.
-	(c) The inodes are pinned to prevent races.  Or, don't even
-	    look at it like this.  Just look at it as elevating the
-	    ref count on the data structure while we are using it.
+    e1000: Ignoring new-style parameters in presence of obsolete ones
 
-But here is the kicker: I don't think this pinning behavior is any
-different than dnotify.  So this is a total utter nonissue.
+when e1000 is loaded, so the debug parameter cannot even be set.
 
-> > Older release notes:
-> > I am resubmitting inotify for comments and review. Inotify has
-> > changed drastically from the earlier proposal that Al Viro did not
-> > approve of. There is no longer any use of (device number, inode number)
-> > pairs. Please give this version of inotify a fresh view.
-> 
-> We are hacking all over the kernel to save 4k in stack size and you want 
-> to pin up to 32MB?
+The patch below fixes this by updating e1000_param.c to use
+module_param() as well.  Since module_param might make the parameters
+visible in sysfs, I removed the __devinitdata notation from the
+parameter arrays as well, just to be safe.
 
-The 4K is 4K per process, and it is done not to save 4K once (or even
-4K*number of processes) but because first order allocations (8KB on x86)
-become nontrivial as memory becomes fragmented.
+Thanks,
+  Roland
 
-I bet on most modern systems there is already much more than 32MB of
-inodes in memory, and you have to explicitly add watches anyhow.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-> If I were doing this, and I admit I may not understand all of the 
-> features, I would have a bitmap per filesystem of inodes being watched, 
-> and anything which did an action which might require notify would check 
-> the bit. If the bit were set the filesystem and inode info would be 
-> passed to user space which could do anything it wanted. Use of the 
-> netlink is an example of ways to do this.
-
-Race, race, race, if even possible to implement "a bitmap per filesystem
-of inodes" in a sane way.
-
-> Then the user program could do whatever it wanted in nice pageable 
-> space, allow as many watchers as it wished, and be flexible to anything 
-> a site wanted, scalable, could use semaphores, fifos, network 
-> monitoring, message queues... in other words low impact, scalable, and 
-> flexible.
-
-If you assume that you have to pin the inodes while you watch them (and
-you do), then inotify really is this minimum abstraction that you talk
-of.
-
-> Feel free to tell me there is some urgent need for this feature to be 
-> present and fast, I learn new things every day.
-
-You act like file notification is something new.  Every operating system
-provides this feature.  Linux currently does, too: dnotify.
-
-But dnotify sucks, and modern systems are hitting its numerous limits.
-So, enter inotify.
-
-Fondest regards,
-
-	Robert Love
-
-
+Index: linux-2.6.8.1/drivers/net/e1000/e1000_param.c
+===================================================================
+--- linux-2.6.8.1.orig/drivers/net/e1000/e1000_param.c	2004-08-14 03:55:48.000000000 -0700
++++ linux-2.6.8.1/drivers/net/e1000/e1000_param.c	2004-08-15 08:16:31.109671753 -0700
+@@ -55,9 +55,11 @@
+  * over and over (plus this helps to avoid typo bugs).
+  */
+ 
++static int param_count;
++
+ #define E1000_PARAM(X, S) \
+-static const int __devinitdata X[E1000_MAX_NIC + 1] = E1000_PARAM_INIT; \
+-MODULE_PARM(X, "1-" __MODULE_STRING(E1000_MAX_NIC) "i"); \
++static int X[E1000_MAX_NIC + 1] = E1000_PARAM_INIT; \
++module_param_array(X, int, param_count, 0); \
+ MODULE_PARM_DESC(X, S);
+ 
+ /* Transmit Descriptor Count

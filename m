@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130897AbRACQjz>; Wed, 3 Jan 2001 11:39:55 -0500
+	id <S131230AbRACQnf>; Wed, 3 Jan 2001 11:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbRACQjp>; Wed, 3 Jan 2001 11:39:45 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:20122 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130897AbRACQjg>; Wed, 3 Jan 2001 11:39:36 -0500
-Date: Wed, 3 Jan 2001 16:07:36 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-cc: Gerold Jury <geroldj@grips.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>, dl8bcu@gmx.net,
-        Maik.Zumstrull@gmx.de
-Subject: Re: Happy new year^H^H^H^Hkernel..
-In-Reply-To: <Pine.LNX.4.30.0101022348550.1202-100000@vaio>
-Message-ID: <Pine.LNX.4.21.0101031539200.1427-100000@localhost.localdomain>
+	id <S132294AbRACQn0>; Wed, 3 Jan 2001 11:43:26 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3970 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131230AbRACQnT>;
+	Wed, 3 Jan 2001 11:43:19 -0500
+Date: Wed, 3 Jan 2001 11:12:48 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Andreas Dilger <adilger@enel.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
+In-Reply-To: <20010103121609.C1290@redhat.com>
+Message-ID: <Pine.GSO.4.21.0101031051080.15658-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Kai Germaschewski wrote:
 
-> I think the problem was that we relied on divert_if being initialized to
-> zero automatically, which didn't happen because it was not declared static
-> and therefore not in .bss (*is this true?*).
 
-This is true in this particular case, and your added "static" is good.
-But you seem to miss the root of the problem, that isdn_common.c declares
-an "isdn_divert_if *divert_if", and divert/divert_init.c declares
-an "isdn_divert_if divert_if" (initialized non-zero).  When the two .os
-were linked, you got a single "divert_if" (initialized non-zero in .data).
-Wouldn't it be best to (keep the "static" but also) change the name of the
-pointer in isdn_common.c?
+On Wed, 3 Jan 2001, Stephen C. Tweedie wrote:
 
-Hugh
+> Having preallocated blocks allocated immediately is deliberate:
+> directories grow slowly and remain closed most of the time, so the
+> normal preallocation regime of only preallocating open files and
+> discarding preallocation on close just doesn't work.
+
+Erm. For directories we would not have the call of discard_prealloc()
+on close(2) - they have NULL ->release() anyway and for them it would
+happen only on ext2_put_inode(), i.e. upon the final dput(). Which would
+not happen while some descendent would stay in dcache.
+
+IOW, if directory is really going to grow (which normally mean that we
+are busily writing into files in it or its subdirectories) we will not
+get discard_prealloc() until it's all over. open()/close() has nothing
+to it - even if we used the same ->release() as for files, it would be
+a no-op since all opens are read-only. Even for normal files close() after
+read-only open() doesn't do anything to preallocation.
+
+Comments? I'm not saying that it's necessary a good idea, but the argument
+about file-like preallocation regime really doesn't apply - regime will
+be different anyway...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

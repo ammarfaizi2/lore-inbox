@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312267AbSCRJd5>; Mon, 18 Mar 2002 04:33:57 -0500
+	id <S312269AbSCRJj6>; Mon, 18 Mar 2002 04:39:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312268AbSCRJdi>; Mon, 18 Mar 2002 04:33:38 -0500
-Received: from tsukuba.m17n.org ([192.47.44.130]:62390 "EHLO tsukuba.m17n.org")
-	by vger.kernel.org with ESMTP id <S312267AbSCRJdg>;
-	Mon, 18 Mar 2002 04:33:36 -0500
-Date: Mon, 18 Mar 2002 18:33:29 +0900 (JST)
-Message-Id: <200203180933.g2I9XTg07727@mule.m17n.org>
-From: NIIBE Yutaka <gniibe@m17n.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <shs8z8qb8c5.fsf@charged.uio.no>
+	id <S312270AbSCRJjs>; Mon, 18 Mar 2002 04:39:48 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:61196 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S312269AbSCRJjf>;
+	Mon, 18 Mar 2002 04:39:35 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Andreas Dilger <adilger@clusterfs.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Cleanup port 0x80 use (was: Re: IO delay ...) 
+In-Reply-To: Your message of "Mon, 18 Mar 2002 10:18:06 BST."
+             <Pine.LNX.4.33.0203180938060.9609-100000@biker.pdb.fsc.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 18 Mar 2002 20:39:18 +1100
+Message-ID: <4463.1016444358@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
- > Er... Why?
+On Mon, 18 Mar 2002 10:18:06 +0100 (CET), 
+Martin Wilck <Martin.Wilck@fujitsu-siemens.com> wrote:
+>On Sun, 17 Mar 2002, Jamie Lokier wrote:
+>
+>> As long as __SLOW_DOWN_IO_PORT is a simple constant, you can just use
+>> this instead:
+>>
+>>     #define __SLOW_DOWN_IO_ASM	"\noutb %%al,$" #__SLOW_DOWN_IO_PORT
+>
+>What cpp are you guys using? Mine does stringification (#s) only with
+>arguments of function-like macros. However
 
-Because the inode could be on inode_unused, being still on the hash at
-the client side, and server could reuse the inode (in case of
-unfsd/ext3).  When the inode will be reused for different type, it
-will result error.  Here is a scenario for non-patched 2.4.18:
+Recent 2.4 and 2.5 kernels have include/linux/stringify.h.  This should
+work.
 
-   (1) Symbolic link has been removed.  The inode is put on inode_unused.
-       Say the inode # was 0x1234.
-   (2) Client issue "creat", server returns inode # 0x1234 (by the reuse).
-   (3) Call chain is:
+#define __SLOW_DOWN_IO_ASM	"\noutb %%al,$" __stringify(__SLOW_DOWN_IO_PORT)
 
-	 nfs_create -> nfs_instantiate -> nfs_fhget -> __nfs_fhget -> iget4
-
-       iget4 returns the cached inode object on inode_unused.
-   (4) nfs_fill_inode doesn't fill it, because inode->i_mode is not 0.
-   (5) nfs_refresh_inode result error because inode->i_mode != fattr->mode.
-
-Note that this is _real_ case.
-
- > If you really want to change something in nfs_find_actor() then the
- > following works better w.r.t. init_special_inode() on character
- > devices:
- > 
- >         if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
- >                 return 0;
-
-Well, I've just tested this.  This works well, thank you.
--- 

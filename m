@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUG0J5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUG0KJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUG0J5n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 05:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUG0J5n
+	id S262406AbUG0KJV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 06:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUG0KJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 05:57:43 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:33546 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S261252AbUG0J5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 05:57:41 -0400
-Date: Tue, 27 Jul 2004 11:57:51 +0200
-From: DervishD <raul@pleyades.net>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The dreadful CLOSE_WAIT
-Message-ID: <20040727095751.GA10048@DervishD>
-Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <20040727083947.GB31766@DervishD> <yw1xllh5ol3i.fsf@kth.se>
+	Tue, 27 Jul 2004 06:09:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:4030 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262406AbUG0KJT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 06:09:19 -0400
+Date: Tue, 27 Jul 2004 12:07:24 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ed Sweetman <safemode@comcast.net>,
+       Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: OOM-killer going crazy.
+Message-ID: <20040727100724.GA11189@suse.de>
+References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <410500FD.8070206@comcast.net> <4105D7ED.5040206@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xllh5ol3i.fsf@kth.se>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+In-Reply-To: <4105D7ED.5040206@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Måns :)
+On Tue, Jul 27 2004, Nick Piggin wrote:
+> Ed Sweetman wrote:
+> 
+> >This is not the same problem as I and other are describing.  There is 
+> >no free memory when the OOM killer activates in our situation.  The 
+> >kernel has allocated all available ram and as such, the OOM killer 
+> >can't kill the memory hog because it's the kernel, itself.  So the OOM 
+> >killer kills all the big apps running ...but it's to no use because 
+> >the kernel just keeps trying to use more until the cd is completed.   
+> >After which the memory is still never released.
+> >Your thread has nothing to do with mine.
+> >
+> 
+> I believe it could be the same problem. Jan-Frode's system has all
+> ZONE_NORMAL memory used up. The free memory would be highmem which
+> would be unsuable for those allocations that are causing OOM.
+> 
+> The vfs_cache_pressure change could possibly be responsible for the
+> problem...  I don't have the code in front of me, but I think it
+> divides by 100 first, then multiplies by vfs_cache_pressure. I
+> wouldn't have thought this would have such a large impact though.
 
- * Måns Rullgård <mru@kth.se> dixit:
-> >     Seems under Linux that, when a connection is in the CLOSE_WAIT
-> > state, the only wait to go to LAST_ACK is the application doing the
-> > 'shutdown()' or 'close()'. Doesn't seem to be a timeout for that.
-> Is that why some programs seem to hang forever when my NAT gateway
-> decides to drop a connection?
+Ed,
 
-    I don't know. Look at the output of your netstat command. If you
-have connections in the CLOSE_WAIT state related to the NAT gateway,
-it may be the cause :? But anyway the effect is just the opposite. Is
-not CLOSE_WAIT state that hangs a program, but a hung program (or at
-least one not doing its duty) which puts a connection in CLOSE_WAIT
-state.
-
-    Hope this helps.
-
-    Raúl Núñez de Arenas Coronado
+Can you please try Nicks suggestion? A vm problem makes sense to me,
+what doesn't make sense is that we leak memory on some hardware while
+burning and don't on others.
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Jens Axboe
+

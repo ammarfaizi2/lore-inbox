@@ -1,83 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268029AbTBYQcg>; Tue, 25 Feb 2003 11:32:36 -0500
+	id <S268034AbTBYQoJ>; Tue, 25 Feb 2003 11:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268030AbTBYQcg>; Tue, 25 Feb 2003 11:32:36 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:51110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268029AbTBYQcf>;
-	Tue, 25 Feb 2003 11:32:35 -0500
-Date: Tue, 25 Feb 2003 08:38:11 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: vherva@twilight.cs.hut.fi, mikael.starvik@axis.com,
-       linux-kernel@vger.kernel.org, tinglett@vnet.ibm.com,
-       torvalds@transmeta.com
-Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
-Message-Id: <20030225083811.797fbce6.rddunlap@osdl.org>
-In-Reply-To: <20030225113557.C9257@flint.arm.linux.org.uk>
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se>
-	<20030225092520.A9257@flint.arm.linux.org.uk>
-	<20030225110704.GD159052@niksula.cs.hut.fi>
-	<20030225113557.C9257@flint.arm.linux.org.uk>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S268038AbTBYQoJ>; Tue, 25 Feb 2003 11:44:09 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14795 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S268034AbTBYQoI>; Tue, 25 Feb 2003 11:44:08 -0500
+Date: Tue, 25 Feb 2003 17:54:17 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Martijn Uffing <mp3project@cam029208.student.utwente.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] Re: 2.5.63 : Compile failure in ne driver
+Message-ID: <20030225165417.GO7685@fs.tum.de>
+References: <Pine.LNX.4.44.0302250013350.16352-100000@cam029208.student.utwente.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302250013350.16352-100000@cam029208.student.utwente.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Feb 2003 11:35:57 +0000
-Russell King <rmk@arm.linux.org.uk> wrote:
+On Tue, Feb 25, 2003 at 12:20:52AM +0100, Martijn Uffing wrote:
 
-| On Tue, Feb 25, 2003 at 01:07:04PM +0200, Ville Herva wrote:
-| > On Tue, Feb 25, 2003 at 09:25:20AM +0000, you [Russell King] wrote:
-| > > Agreed - zImage is already around 1MB on many ARM machines, and since
-| > > loading zImage over a serial port using xmodem takes long enough
-| > > already, this is one silly feature I'll definitely keep out of the
-| > > ARM tree.
-| > 
-| > Why not make it a config option (like the other (two? three?) rejected
-| > patches that implemented this did)?
-| 
-| I, for one, do not see any point in trying to put more and more crap
-| into one file, when its perfectly easy to just use the "cp" command
-| to produce the same end result, namely a copy of zImage, System.map
-| and configuration, thusly:
-| 
-| cp arch/$ARCH/boot/zImage /boot/vmlinuz-$VERSION
-| cp .config /boot/config-$VERSION
-| cp System.map /boot/System.map-$VERSION
+> Ave people
 
-Yes, that almost matches my 'new.kernel' install script.
+Hi Martijn,
 
-| No hastles with configuration options.  No hastles with bloated zImage
-| files.  No hastles with adding extra stuff to makefiles to do special
-| mangling to zImage.
+> 2.5.63 won't compile for me.
+> In my .config I  got PNP selected but ISAPNP not. 
+> 
+> This because I  have a 
+> -PCI pnp sound card
+> -ISA nopnp ne2000 clone network card.
+> 
+> Greetz Mu
+> 
+> make -f scripts/Makefile.build obj=drivers/net
+>   gcc -Wp,-MD,drivers/net/.ne.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=ne -DKBUILD_MODNAME=ne -c -o drivers/net/ne.o drivers/net/ne.c
+> drivers/net/ne.c: In function `ne_probe_isapnp':
+> drivers/net/ne.c:208: too many arguments to function `pnp_activate_dev'
+> make[2]: *** [drivers/net/ne.o] Error 1
+> make[1]: *** [drivers/net] Error 2
+> make: *** [drivers] Error 2
+>...
 
-Yes, you wouldn't have to use it.
+please try the following patch:
 
-| If people are worried about vmlinuz being out of step with config, once
-| you add the above to the installation target of the kernel makefile,
-| unless you do things manually, you won't get out of step.
-| 
-| If you're worried about config-* and System.map-* being out of step with
-| the kernel you're running, exactly the same applies to the "everything
-| in one file" version as well.
-| 
-| If you need to make a backup of it:
-| 
-| mkdir /boot/old
-| cp /boot/*-$VERSION /boot/old
-| 
-| Nice.  Simple.  No crap.
+--- linux-2.5.63-notfull/drivers/net/ne.c.old	2003-02-25 17:50:25.000000000 +0100
++++ linux-2.5.63-notfull/drivers/net/ne.c	2003-02-25 17:50:41.000000000 +0100
+@@ -205,7 +205,7 @@
+ 			/* Avoid already found cards from previous calls */
+ 			if (pnp_device_attach(idev) < 0)
+ 				continue;
+-			if (pnp_activate_dev(idev, NULL) < 0) {
++			if (pnp_activate_dev(idev) < 0) {
+ 			      	pnp_device_detach(idev);
+ 			      	continue;
+ 			}
 
-I'm just guessing that it will be difficult to convince you otherwise,
-but I think you are missing the point of this.  It's not for someone
-who already has scripts to handle this or already uses 3+ commands
-to handle it every time that they build a new kernel.  It's for
-people who are less organized than you are -- gosh, maybe even
-for Linux users.
 
---
-~Randy
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

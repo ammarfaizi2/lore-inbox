@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310737AbSCHIhB>; Fri, 8 Mar 2002 03:37:01 -0500
+	id <S310745AbSCHI63>; Fri, 8 Mar 2002 03:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310738AbSCHIgv>; Fri, 8 Mar 2002 03:36:51 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:785 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S310737AbSCHIgh>;
-	Fri, 8 Mar 2002 03:36:37 -0500
-Message-ID: <3C8877D7.2020708@evision-ventures.com>
-Date: Fri, 08 Mar 2002 09:35:35 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S310747AbSCHI6T>; Fri, 8 Mar 2002 03:58:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54030 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310745AbSCHI6H>;
+	Fri, 8 Mar 2002 03:58:07 -0500
+Message-ID: <3C887D34.4BE740F9@mandrakesoft.com>
+Date: Fri, 08 Mar 2002 03:58:28 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: arjan@fenrus.demon.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
-In-Reply-To: <200203080823.g288NC514338@fenrus.demon.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux-Kernel list <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>
+Subject: Caution about e100...
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arjan@fenrus.demon.nl wrote:
-> In article <3C88742A.4090804@evision-ventures.com> you wrote:
-> 
->>Uhh oh, that's actually interresting and you are right on this point.
->>One should just add the functionality. If you dare to wait the weekend
->>it will happen in 2.5 ;-). Or of you care your self, then plase
->>have a look at the following code in 2.5.6-pre3 in ide-pci:
->>
-> 
-> Ehm. Linux *needs* to see the controller as IDE controller in order to
-> support the raid. see pdcraid.c. It layers on top of the IDE layer
-> to operate.
+Note to all,
 
-Please look closer at my posting. I just think, that since there
-are apparently no tru hardware raid devices out there it would
-be sufficient to expand the detection code to not ignore
-RAID class devices at all. This would just prevent
-us from having two different entries in the
-device detection list. Not much more involved I think.
+I merged e100 into 2.5.x to get it some wider testing and feedback.  The
+driver currently has several PCI posting bugs particularly, and other
+outstanding bugs that need zapping before the driver will be considered
+stable.
 
+DO NOT USE THIS DRIVER IN PRODUCTION.
+
+After these bugs are fixed and it has received wider testing and
+feedback, only then will it be merged into the stable 2.4.x series.
+
+I recommend all vendors avoid this driver, for the moment.  It is for
+developers, testers, and early adopters only.  It should be ok for
+normal use, but edge cases are not yet zapped.
+
+</PSA>
+
+-- 
+Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
+Building 1024    | censorship as damage and routes around it."
+MandrakeSoft     |

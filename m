@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287711AbSAPP5s>; Wed, 16 Jan 2002 10:57:48 -0500
+	id <S288972AbSAPP7i>; Wed, 16 Jan 2002 10:59:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288972AbSAPP5i>; Wed, 16 Jan 2002 10:57:38 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:50070 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S287711AbSAPP5X> convert rfc822-to-8bit; Wed, 16 Jan 2002 10:57:23 -0500
-Subject: [PATCHLET] Tiny fixes for fastrouting
-To: linux-kernel@vger.kernel.org
-Cc: kuznet@ms2.inr.ac.ru, davem@redhat.com
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF58C79499.EC73CC6E-ONC1256B43.00542D7F@de.ibm.com>
-From: "Cornelia Huck" <COHUCK@de.ibm.com>
-Date: Wed, 16 Jan 2002 16:57:27 +0100
-X-MIMETrack: Serialize by Router on D12ML030/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 16/01/2002 16:57:29
+	id <S289983AbSAPP72>; Wed, 16 Jan 2002 10:59:28 -0500
+Received: from cj326439-a.alex1.va.home.com ([65.1.135.172]:38134 "EHLO
+	xabean.xabean.net") by vger.kernel.org with ESMTP
+	id <S288972AbSAPP7N>; Wed, 16 Jan 2002 10:59:13 -0500
+Message-Id: <200201161601.g0GG1BB27489@xabean.xabean.net>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+From: Richard Harman <rharman@xabean.net>
+Subject: Re: aic7xxx driver v6.2.4 "queue abort message" questions 
+In-Reply-To: Your message of "Wed, 16 Jan 2002 08:47:41 MST."
+             <200201161547.g0GFlfx06709@aslan.scsiguy.com> 
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <27485.1011196870.1@xabean.xabean.net>
+Date: Wed, 16 Jan 2002 11:01:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+It's a dual P3 600/100 with 512mb of ram, tyan thunder 100 gx (s1836dulan model) with an onboard aic-7895 dual channel UW SCSI.  I'm booting off channel B (the 68pin only channel) Id 1, which is my seagate 36g SCA drive in a 5 bay sca enclosure.  Id 0 is a ultraplex 40x. Channel A has a 50pin 8x2x20 plexwriter.  The motherboard has a PIIX4 (GX) chipset.  (http://www.tyan.com/products/html/a_thunder100gx.html)
 
-the following patchlet fixes two things:
+I've hand copied down what I could of the v6.2.4 driver's debug messages, but wasn't able to catch all of it.  (I hope to switch to serial console as soon as I find a null modem cable and log it that way.)  Shall I send the screenfull to the list or you directly?
 
-- The calculation of netdev_fastroute_obstacles should now be correct.
-- A driver exploiting fastrouting compiled as a module will need
-netdev_fastroute to be exported.
+Thanks,
+Richard G Harman Jr <rharman+nospam@xabean.net>
 
-Patchlet should go fine into 2.4.18-pre4 and 2.5.3-pre1.
-
-[Please cc me since I'm not subscribed to lkml]
-
-diff -Naur linux.vanilla/net/core/dev.c linux/net/core/dev.c
---- linux.vanilla/net/core/dev.c   Wed Jan 16 14:23:32 2002
-+++ linux/net/core/dev.c Wed Jan 16 14:28:13 2002
-@@ -238,7 +238,7 @@
-
- #ifdef CONFIG_NET_FASTROUTE
-     /* Hack to detect packet socket */
--    if (pt->data) {
-+    if ((pt->data) && ((int)(pt->data)!=1)) {
-          netdev_fastroute_obstacles++;
-          dev_clear_fastroute(pt->dev);
-     }
-diff -Naur linux.vanilla/net/netsyms.c linux/net/netsyms.c
---- linux.vanilla/net/netsyms.c    Wed Jan 16 14:23:32 2002
-+++ linux/net/netsyms.c  Wed Jan 16 14:25:43 2002
-@@ -519,6 +519,10 @@
- EXPORT_SYMBOL(hippi_type_trans);
- #endif
-
-+#ifdef CONFIG_NET_FASTROUTE
-+EXPORT_SYMBOL(netdev_fastroute);
-+#endif
-+
- #ifdef CONFIG_SYSCTL
- EXPORT_SYMBOL(sysctl_wmem_max);
- EXPORT_SYMBOL(sysctl_rmem_max);
-
-Mit freundlichen Grüßen/Regards
-Cornelia Huck
-
-Linux for zSeries Development
-IBM Deutschland Entwicklung GmbH
-Email: cohuck@de.ibm.com
-Phone: ext. +49(0)7031/16-4837, int. *120-4837
-
+  Quoted from "Justin T. Gibbs":
+> >I've got a box that will nolonger boot off it's scsi disk anymore, (but dual b
+> >ooting to windows works just fine...) did anyone ever get to the bottom of wha
+> >t caused the "attempting to queue an abort message" bug was?
+> 
+> Those messages don't usually indicate bugs.  Without knowing more about
+> your system, the devices attached to it, if you happen to have one of
+> those broken VIA chipsets, etc. its hard to diagnose your problem.
+> 
+> --
+> Justin
+> 

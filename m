@@ -1,76 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbTHWINo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 04:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbTHWINo
+	id S261711AbTHWIAo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 04:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbTHWIAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 04:13:44 -0400
-Received: from wall.ttu.ee ([193.40.254.238]:18701 "EHLO wall.ttu.ee")
-	by vger.kernel.org with ESMTP id S261963AbTHWINm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 04:13:42 -0400
-Date: Sat, 23 Aug 2003 11:13:39 +0300 (EET DST)
-From: Siim Vahtre <siim@pld.ttu.ee>
-To: linux-kernel@vger.kernel.org
-Subject: cryptoloop bug with 2.6.0-test3
-Message-ID: <Pine.GSO.4.53.0308231109170.20934@pitsa.pld.ttu.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Aug 2003 04:00:44 -0400
+Received: from users.linvision.com ([62.58.92.114]:46306 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id S261711AbTHWIAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 04:00:42 -0400
+Date: Sat, 23 Aug 2003 09:55:21 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Christoph Hellwig <hch@infradead.org>, davej@codemonkey.org.uk,
+       kernel list <linux-kernel@vger.kernel.org>, paul.devriendt@amd.com,
+       aj@suse.de
+Subject: Re: Cpufreq for opteron
+Message-ID: <20030823095521.B14519@bitwizard.nl>
+References: <20030822135946.GA2194@elf.ucw.cz> <20030822155207.A17469@infradead.org> <20030822195427.GB2306@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030822195427.GB2306@elf.ucw.cz>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-siim@void:/boot$ lsmod
-Module                  Size  Used by
-crypto_null             1792  0
-twofish                38272  0
-ext2                   46372  0
-des                    11296  0
-serpent                13248  0
-aes                    32192  0
-cryptoloop              2336  0
-loop                   13704  1 cryptoloop
-fbcon                  27040  0
-font                    5600  1 fbcon
-i810fb                 27296  1
-cfbcopyarea             3584  1 i810fb
-vgastate                9280  1 i810fb
-cfbimgblt               2784  1 i810fb
-cfbfillrect             3456  1 i810fb
+On Fri, Aug 22, 2003 at 09:54:27PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > +/* driver entry point for term */
+> > > +static void __exit
+> > > +drv_exit(void)
+> > > +{
+> > > +	dprintk(KERN_INFO PFX "drv_exit\n");
+> > > +
+> > > +	cpufreq_unregister_driver(&cpufreq_amd64_driver);
+> > > +	if (ppst) {
+> > > +		kfree(ppst);
+> > 
+> > kfree(NULL) is fine.
+> > 
+> > > +		ppst = 0;
+> > 
+> > this should be ppst = NULL but in fact is completly superflous as
+> > the module is gone afterwards.
+> 
+> Ok.
 
-siim@void:/boot$ sudo rmmod twofish crypto_null des serpent aes cryptoloop loop
+Guys, good programming practise would leave this in. If you want,
+you could add a comment that in the current code, this is superfluous. 
 
-Unable to handle kernel paging request at virtual address 19000040
- printing eip:
-c01d4f24
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c01d4f24>]    Not tainted
-EFLAGS: 00010206
-EIP is at kobject_del+0x34/0x80
-eax: 19000000   ebx: cdced650   ecx: cdced650   edx: 19000000
-esi: cfd845a0   edi: cfd84660   ebp: cd4ee000   esp: cd4efef4
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 22179, threadinfo=cd4ee000 task=c9a28760)
-Stack: cfdab780 00000000 cd4ee000 cdced650 c01d4f83 cdced650 cdced600
-c020ddda
-       cdced650 cdced600 c021167e cdced600 cfd845a0 c0332538 c02125f3
-cfd845a0
-       cfd845a0 cfd845a0 c0183466 cfd845a0 00000000 00000000 c0332538
-00000000
-Call Trace:
- [<c01d4f83>] kobject_unregister+0x13/0x30
- [<c020ddda>] elv_unregister_queue+0x1a/0x40
- [<c021167e>] blk_unregister_queue+0x1e/0x50
- [<c02125f3>] unlink_gendisk+0x13/0x40
- [<c0183466>] del_gendisk+0x66/0xe0
- [<d4a120e0>] cleanup_module+0x70/0x8b [loop]
- [<c01317eb>] sys_delete_module+0x11b/0x140
- [<c0146c00>] do_munmap+0x90/0x190
- [<c0146d44>] sys_munmap+0x44/0x70
- [<c01092ab>] syscall_call+0x7/0xb
+In the current code it is also not performance critical. So to maintain
+good programming practise I would recommend to leave the ppst = NULL. 
 
-Code: 8b 52 40 85 d2 74 25 89 5c 24 08 8b 41 24 c7 04 24 1e 62 30
-Segmentation fault
+The code might get copied somewhere else. In that case the ppst=NULL
+will indicate that it's pointing nowhere. Also, this will prevent
+the bug from becoming a bug: The developer will immediately see that
+he's made a mistake and fix it before it becomes a real bug. But
+if you leave the dangling pointer around, you will address memory
+that until recently contained believable data. So it will work
+most of the time. Only when an interrupt comes by  that allocates
+memory and actually writes the relevant parts will you get problems.
+That might be quite rare and very difficult to track down. 
 
-After that, 'lsmod' hangs and is unkillable.
+In writing code, simple bugs are not a problem. These are the bugs
+that show up while compiling the code, or in first testing. 
+
+You should try to prevent the hard bugs with good programming 
+practise. These are the bugs where you get a report: My server
+locks up every day or two. It's too long to sit by the machine 
+to wait for it to happen, it's too long to log everything, but 
+it's way too short to say: Sorry, you'll have to live with it.
+
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

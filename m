@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289089AbSBSAvB>; Mon, 18 Feb 2002 19:51:01 -0500
+	id <S289084AbSBSArb>; Mon, 18 Feb 2002 19:47:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289096AbSBSAuv>; Mon, 18 Feb 2002 19:50:51 -0500
-Received: from mail.gmx.de ([213.165.64.20]:14561 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S289089AbSBSAum>;
-	Mon, 18 Feb 2002 19:50:42 -0500
-Message-ID: <3C71A149.3030706@GMX.li>
-Date: Tue, 19 Feb 2002 01:50:17 +0100
-From: Jan Schubert <Jan.Schubert@GMX.li>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, boris@kista.gajba.net
-Subject: Re: mdacon driver updates
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289089AbSBSArW>; Mon, 18 Feb 2002 19:47:22 -0500
+Received: from holomorphy.com ([216.36.33.161]:25999 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S289084AbSBSArJ>;
+	Mon, 18 Feb 2002 19:47:09 -0500
+Date: Mon, 18 Feb 2002 16:46:51 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
+        riel@surriel.com, davem@redhat.com, rwhron@earthlink.net
+Subject: Re: [PATCH] [rmap] operator-sparse Fibonacci hashing of waitqueues
+Message-ID: <20020219004651.GG3511@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org, riel@surriel.com, davem@redhat.com,
+	rwhron@earthlink.net
+In-Reply-To: <20020217090111.GF832@holomorphy.com> <E16cwJZ-0000jZ-00@starship.berlin> <20020219003450.GF3511@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020219003450.GF3511@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've posted a small fix to mdacon.c at the end of last year (while 
-Marcello was in vacation). It has'nt made it to the kernel yet, nor was 
-there any feedback. I've thought, thats the way like open source works...
+On Mon, Feb 18, 2002 at 04:34:50PM -0800, William Lee Irwin III wrote:
+> where it's 1's all the way down. Some additional study also revealed
+> that how close the continued fraction of a number is to phi is related
+> to how uniform the spectrum is. For brevity, I write continued fractions
+> in-line, for instance, 0,1,1,1,1,... for phi, or 0,1,2,3,4,... for
+> 
+> 0 + 1
+>    -----
+>    1 + 2
+>       -----
+>       1 + 3
+>          -----
+>          1 + 4
+>             ....
 
-So, here we go again (against 2.4.17; my MDA is detected, but not 
-initialized, see my last posting):
+doh! Sorry, I just woke up
 
---- drivers/video/mdacon.c.orig    Sun Dec 30 02:44:25 2001
-+++ drivers/video/mdacon.c    Sun Dec 30 21:36:50 2001
-@@ -24,6 +24,7 @@
-  *
-  *  Changelog:
-  *  Paul G. (03/2001) Fix mdacon= boot prompt to use __setup().
-+ *  20011230 Jan.Schubert@GMX.li - consider non-Hercules MDA compatible
-  */
+0 + 1
+   -----
+   1 + 1
+      -----
+      2 + 1
+         -----
+         3 + 1
+            -----
+            4 + 1
+               ...
 
- #include <linux/types.h>
-@@ -291,6 +292,10 @@
-                                break;
-                }
-        }
-+       else {  /* consider non-Hercules as Hercules-compatible */
-+               mda_type = TYPE_HERC;
-+               mda_type_name = "Hercules compatible (hopefully)";
-+       }
 
-        return 1;
- }
-@@ -342,9 +347,8 @@
-                return NULL;
-        }
-
--       if (mda_type != TYPE_MDA) {
--               mda_initialize();
--       }
-+       /* at this point, we found an MDA */
-+       mda_initialize();
-
-        /* cursor looks ugly during boot-up, so turn it off */
-        mda_set_cursor(mda_vram_len - 1);
-
+Cheers,
+Bill

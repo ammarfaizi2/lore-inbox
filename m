@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbUDFDC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 23:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbUDFDC1
+	id S263602AbUDFDDu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 23:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbUDFDDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 23:02:27 -0400
-Received: from web40501.mail.yahoo.com ([66.218.78.118]:6920 "HELO
-	web40501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263605AbUDFDCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 23:02:14 -0400
-Message-ID: <20040406030200.37338.qmail@web40501.mail.yahoo.com>
-Date: Mon, 5 Apr 2004 20:02:00 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Timothy Miller <miller@techsource.com>, John Stoffel <stoffel@lucent.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <200404060255.40219.robin.rosenberg.lists@dewire.com>
+	Mon, 5 Apr 2004 23:03:49 -0400
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:38598 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S263602AbUDFDDq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 23:03:46 -0400
+Date: Mon, 5 Apr 2004 23:03:45 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: Tony Breeds <tony@bakeyournoodle.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: Stupid question re: register_cdrom()
+In-Reply-To: <20040405230351.GR3445@bakeyournoodle.com>
+Message-ID: <Pine.LNX.4.33L2.0404052301550.16268-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Apr 2004, Tony Breeds wrote:
 
---- Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-wrote:
-> On Tuesday 06 April 2004 00:52, Sergiy Lozovsky
-> wrote:
-> > (I don't want to start Holly War :-) but I think,
-> that
-> > Java is lower lavel than C, I recognize, that I
-> can be
-> > wrong)
-> Yes, you could..., but that's OT. Isn't LISP lower
-> level. Just
-> the names of it's instructions (Content of Address
-> part of Register and 
-> Content of Decrement part of Register) imply that.
-> Shudddrdrrddrr. :-)
-> 
-> I like Lisp, it's a hacker language, or was at
-> least.
-> 
-> -- robin
+> On Mon, Apr 05, 2004 at 04:53:16PM -0400, Calin A. Culianu wrote:
+> >
+> > Let's say I was coding a cdrom emulator in software for kernel 2.4.  I
+> > am unclear about register_cdrom().  Does register_cdrom() in
+> > cdrom.c take care of telling the kernel that my kdev_t major/minor
+> > combination in fact leads to a real driver?  Or do I need to take care of
+> > that outside of regsiter_cdrom()?
+> >
+> > If not.. how do I tell the kernel data structures that my driver's major
+> > number does in fact point to a cdrom driver.  Basically, I want my
+> > driver's major number to show up in /proc/devices..
+> >
+> > This might be a stupid question, but I am not a linux kernel expert...
+>
+> Neither am I, therefore I hope you get a reply from someone else
+> refuting or acknowledging my claims.
+>
+>
+> I looks to me that the code that does the actual registration of the
+> driver is in drivers/ide/ide-cd.c NOT cdrom.c.  Specifically
+> ide_cdrom_attach().  Said function eventually calls the register_cdrom()
+> you ask about.
+>
+> For writing a cdrom emulator  You may want to look more closely at the
+> non-IDE/SCSI devices as they seem to register their driver data
+> themselves  I had a quick read of aztcd.c, I think between cdrom.c and
+> aztcd.c you should be able to piece together what you want.
+>
+> Also Try reading http://www.xml.com/ldd/chapter/book/ for details on 2.4
+> drivers
+>
 
+This is actually very good advice.  I need to look at sample code to more
+quickly bring myself up to speed on the kernel API. Having a good example
+in aztcd.c would probably do it.  Thanks! (I have yet to read the code,
+but I just wanted to thank you for replying).
 
-Sounds like music to  me :-) If I would not be (very)
-familiar with LISP prior to that project, I would not
-chose it probably. It's syntax is so simple (it is a
-marvel :-) I would think twice to put in the kernel
-something with more complex syntax.
+-Calin
 
-After all Emacs uses LISP, too :-) Though it is this
-big one - Common Lisp :-)
-
-Serge.
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/

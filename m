@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVCYWsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVCYWwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVCYWsv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVCYWsc
+	id S261875AbVCYWwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVCYWvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:48:32 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:44161 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261872AbVCYWpX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 17:45:23 -0500
-Date: Fri, 25 Mar 2005 14:45:19 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Jay Lan <jlan@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
-       Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-In-Reply-To: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
-Message-ID: <Pine.LNX.4.62.0503251440260.1481@twinlark.arctic.org>
-References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Mar 2005 17:51:46 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:22441 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261845AbVCYWtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 17:49:20 -0500
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4244860E.5090800@gmail.com>
+References: <20050323021335.960F95F8@htj.dyndns.org>
+	 <20050323021335.4682C732@htj.dyndns.org>
+	 <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com>
+	 <20050323071920.GJ24105@suse.de> <1111591213.5441.19.camel@mulgrave>
+	 <20050323152550.GB16149@suse.de> <1111711558.5612.52.camel@mulgrave>
+	 <20050325031511.GA22114@htj.dyndns.org> <1111726965.5612.62.camel@mulgrave>
+	 <20050325053842.GA24499@htj.dyndns.org> <1111778388.5692.38.camel@mulgrave>
+	  <4244860E.5090800@gmail.com>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 16:49:10 -0600
+Message-Id: <1111790950.5692.63.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Mar 2005, Guillaume Thouvenin wrote:
+On Sat, 2005-03-26 at 06:43 +0900, Tejun Heo wrote:
+>  1. Allocate scsi_request and request (two are linked)
 
-...
->   The lmbench shows that the overhead (the construction and the sending
-> of the message) in the fork() routine is around 7%.
-...
-> +		/* 
-> +		 * size of data is the number of characters 
-> +		 * printed plus one for the trailing '\0'
-> +		 */
-> +		memset(msg->data, '\0', CN_FORK_INFO_SIZE);
-> +		msg->len = scnprintf(msg->data, CN_FORK_INFO_SIZE-1, 
-> +				    "%i %i %i", 
-> +				    smp_processor_id(), parent, child) + 1;
+This can't be done because the scsi_cmnd's are allocated specially (slab
+with reserve pool).
 
-i'm certain that if you used a struct {} and filled in 3 fields rather 
-than zeroing 64 bytes of memory, and doing 3 conversions to decimal ascii 
-then you'd see a marked decrease in the overhead of this.  it's not clear 
-to me why you need ascii here -- the rest of the existing bsd accounting 
-code is not ascii (i'm assuming the purpose of the fork connector is for 
-accounting).
+James
 
--dean
+

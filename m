@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265132AbSLMQr2>; Fri, 13 Dec 2002 11:47:28 -0500
+	id <S265134AbSLMQnE>; Fri, 13 Dec 2002 11:43:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbSLMQr2>; Fri, 13 Dec 2002 11:47:28 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:19966 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265132AbSLMQr1>; Fri, 13 Dec 2002 11:47:27 -0500
-Date: Fri, 13 Dec 2002 11:55:08 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Symlink indirection
-Message-ID: <20021213115508.A16493@devserv.devel.redhat.com>
-References: <3DF9F780.1070300@walrond.org> <mailman.1039792562.8768.linux-kernel2news@redhat.com> <200212131616.gBDGGH302861@devserv.devel.redhat.com> <3DFA0F6D.1010904@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DFA0F6D.1010904@walrond.org>; from andrew@walrond.org on Fri, Dec 13, 2002 at 04:48:45PM +0000
+	id <S265135AbSLMQnD>; Fri, 13 Dec 2002 11:43:03 -0500
+Received: from mg01.austin.ibm.com ([192.35.232.18]:43501 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265134AbSLMQnC>; Fri, 13 Dec 2002 11:43:02 -0500
+Message-ID: <3DFA0F2B.8080001@us.ibm.com>
+Date: Fri, 13 Dec 2002 10:47:39 -0600
+From: steven pratt <slpratt@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, alan@redhat.com, marcelo@hera.kernel.org
+CC: slpratt@us.ibm.com
+Subject: [PATCH] sscanf doesn't handle %x in 2.4.20
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Fri, 13 Dec 2002 16:48:45 +0000
-> From: Andrew Walrond <andrew@walrond.org>
+In vsscanf in vsprintf.c incorectly uses isdigit to check for a leading 
+numeric
+after finding a %x and setting the base to 16.   This breaks device 
+mapper under
+certain conditions.   Following patch is backport from 2.5.50.
 
-> Sorry for being dense, but what do you mean by 'bindings' ? Hard links?
+--- vsprintf.c    Thu Oct 11 13:17:22 2001
++++ /usr/src/linux-2.4.20/lib/vsprintf.c    Fri Dec 13 09:57:14 2002
+@@ -637,7 +637,11 @@
+         while (isspace(*str))
+             str++;
+ 
+-        if (!*str || !isdigit(*str))
++        if (!*str
++                    || (base == 16 && !isxdigit(*str))
++                    || (base == 10 && !isdigit(*str))
++                    || (base == 8 && (!isdigit(*str) || *str > '7'))
++                    || (base == 0 && !isdigit(*str)))
+             break;
+ 
+         switch(qualifier) {
 
-$ man mount
 
-       Since Linux 2.4.0 it is possible to remount part of the file  hierarchy
-       somewhere else. The call is
-              mount --bind olddir newdir
-       After this call the same contents is accessible in two places.
-
--- Pete

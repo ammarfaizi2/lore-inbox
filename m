@@ -1,36 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292326AbSBBRPy>; Sat, 2 Feb 2002 12:15:54 -0500
+	id <S292327AbSBBRQy>; Sat, 2 Feb 2002 12:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292327AbSBBRPo>; Sat, 2 Feb 2002 12:15:44 -0500
-Received: from ns.caldera.de ([212.34.180.1]:47021 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S292326AbSBBRPa>;
-	Sat, 2 Feb 2002 12:15:30 -0500
-Date: Sat, 2 Feb 2002 18:14:15 +0100
-Message-Id: <200202021714.g12HEF524703@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: akpm@zip.com.au (Andrew Morton)
-Cc: linux-kernel@vger.kernel.org, Ricardo Galli <gallir@uib.es>
-Subject: Re: O_DIRECT fails in some kernel and FS
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3C5AFE2D.95A3C02E@zip.com.au>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
+	id <S292328AbSBBRQp>; Sat, 2 Feb 2002 12:16:45 -0500
+Received: from fes2.whowhere.com ([209.185.123.102]:9006 "HELO mailcity.com")
+	by vger.kernel.org with SMTP id <S292327AbSBBRQZ>;
+	Sat, 2 Feb 2002 12:16:25 -0500
+To: linux-kernel@vger.kernel.org
+Date: Sat, 02 Feb 2002 22:46:20 +0530
+From: "Alpha Beta" <abbashake007@lycos.com>
+Message-ID: <MCOPFDJKMGLLEBAA@mailcity.com>
+Mime-Version: 1.0
+Cc: abbashake007@yahoo.com
+X-Sent-Mail: off
+Reply-To: abbashake007@lycos.com
+X-Expiredinmiddle: true
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Qn: kernel_thread()
+X-Sender-Ip: 203.197.98.3
+Organization: Lycos Mail  (http://mail.lycos.com:80)
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C5AFE2D.95A3C02E@zip.com.au> you wrote:
->> Oliver Diedrich also told he could make work O_DIRECT with ext3 and 2.4.17.
->> 
->> Is this normal? Does it really work on 2.4.14? Or it doesn't but the kernel
->> doesn't avoid caching?
->> 
->
-> ext2 is the only filesystem which has O_DIRECT support.
+In the code of 
+int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+in arch/i386/kernel/process.c
 
-You forgot JFS and XFS.  Also there is a patche for NFS, but this one
-requires a prototype change for ->directIO.
+as can be seen in the code here, a system call is made by trigerring the 0x80 interrupt.
+this function kernel_thread() is used to launch the init process during booting by
+start_kernel()	//in init/main.c
+But at that time, the process 0 which calls kernel_thread is executing in Kernel mode, so why should some process in kernel mode make a system call??
 
-	Christoph
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+
+int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+{
+	long retval, d0;
+
+	__asm__ __volatile__(
+		"movl %%esp,%%esi\n\t"
+		"int $0x80\n\t"		/* Linux/i386 system call */
+		"cmpl %%esp,%%esi\n\t"	/* child or parent? */
+		"je 1f\n\t"		/* parent - jump */
+		/* Load the argument into eax, and push it.  That way, it does
+		 * not matter whether the called function is compiled with
+		 * -mregparm or not.  */
+		"movl %4,%%eax\n\t"
+		"pushl %%eax\n\t"		
+		"call *%5\n\t"		/* call fn */
+		"movl %3,%0\n\t"	/* exit */
+		"int $0x80\n"
+		"1:\t"
+		:"=&a" (retval), "=&S" (d0)
+		:"0" (__NR_clone), "i" (__NR_exit),
+		 "r" (arg), "r" (fn),
+		 "b" (flags | CLONE_VM)
+		: "memory");
+	return retval;
+}
+
+
+
+

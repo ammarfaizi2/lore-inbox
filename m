@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbSLOWzx>; Sun, 15 Dec 2002 17:55:53 -0500
+	id <S263215AbSLOXBc>; Sun, 15 Dec 2002 18:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbSLOWzx>; Sun, 15 Dec 2002 17:55:53 -0500
-Received: from mail.michigannet.com ([208.49.116.30]:45574 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S263204AbSLOWzw>; Sun, 15 Dec 2002 17:55:52 -0500
-Date: Sun, 15 Dec 2002 18:03:44 -0500
-From: Paul <set@pobox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Oops 2.5.51] PnPBIOS: cat /proc/bus/pnp/escd
-Message-ID: <20021215230344.GE1432@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S263228AbSLOXBc>; Sun, 15 Dec 2002 18:01:32 -0500
+Received: from mx1.mail.ru ([194.67.57.11]:22791 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id <S263215AbSLOXBb>;
+	Sun, 15 Dec 2002 18:01:31 -0500
+Message-ID: <001701c2a48f$4b7606e0$a9043ac3@r66.ru>
+From: "Ilya Teterin" <alienhard@mail.ru>
+To: <linux-kernel@vger.kernel.org>
+Subject: arp poisoning immunity
+Date: Mon, 16 Dec 2002 04:11:26 +0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi;
+Hello,
 
-	'cat /proc/bus/pnp/escd' consistantly produces this:
+here is a patch (URL: http://securitylab.ru/_tools/antidote2.diff.gz) for
+linux kernel (2.4.18 and .19 tested) to resisting ARP spoofing (improves LAN
+security). Comments are welcome.
 
-Paul
-set@pobox.com
+If applied, it brings a new sysctl parameter:
 
-(need any more info, just ask)
+net.ipv4.neigh.<interface name>.arp_antidote
 
-Unable to handle kernel paging request at virtual address ffffd000
- printing eip:
-00007b74
-*pde = 00001063
-*pte = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0088:[<00007b74>]    Not tainted
-EFLAGS: 00010007
-EIP is at 0x7b74
-eax: 000000a0   ebx: 00a0d07b   ecx: 00000400   edx: 00000000
-esi: 0000d000   edi: 00000000   ebp: c31e7eb0   esp: c31e7e88
-ds: 00a0   es: 0098   ss: 0068
-Process md5sum (pid: 25925, threadinfo=c31e6000 task=c7204640)
-Stack: 00000000 0090d000 00907b89 d049d4eb 00000042 00680068 0246d016 00920098 
-       c31e7efc 0080000b 00000042 00a00098 00000090 00000000 c0217074 00000060 
-       00000082 00000000 00000000 00000068 00000068 00000246 00000042 c31e7efc 
-Call Trace:
- [<c0217074>] __pnp_bios_read_escd+0xf0/0x14c
- [<c02170df>] pnp_bios_read_escd+0xf/0x30
- [<c02180cf>] proc_read_escd+0x5f/0xf0
- [<c015dab5>] proc_file_read+0xb9/0x174
- [<c0138d27>] vfs_read+0xab/0x150
- [<c0138ff4>] sys_read+0x28/0x3c
- [<c010a7c7>] syscall_call+0x7/0xb
+that defines kernel behaviour when changes in correspondence between MAC
+and IP are detected.
 
-Code:  Bad EIP value.
- <6>note: cat[25925] exited with preempt_count 1
+Parameter value 0 corresponds standart behaviour, ARP cache will be
+silently updated.
+
+Value=1..3 corresponds "verification" behaviour. Kernel will send ARP
+request to test if there is a host at "old" MAC address. If such
+response received it lets us know than one IP pretends to have
+several MAC addresses at one moment, that probably caused by ARP spoof
+attack.
+
+Value=1 - just report attack and ignore spoofing attempt.
+Value=2 - ARP cache record will be marked as "static" to prevent attacks
+in future.
+Value=3 - ARP cache record will be marked as "banned", no data will be
+delivered to attacked IP anymore, untill system administrator unban
+ARP record updating it manually.
+

@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRAIEPn>; Mon, 8 Jan 2001 23:15:43 -0500
+	id <S129573AbRAIE05>; Mon, 8 Jan 2001 23:26:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbRAIEPd>; Mon, 8 Jan 2001 23:15:33 -0500
-Received: from mail2.megatrends.com ([155.229.80.11]:15878 "EHLO
-	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S129485AbRAIEP0>; Mon, 8 Jan 2001 23:15:26 -0500
-Message-ID: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>
-From: Venkatesh Ramamurthy <Venkateshr@ami.com>
-To: "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
-        linux-kernel@vger.kernel.org
-Subject: RE: Confirmation request about new 2.4.x. kernel limits
-Date: Mon, 8 Jan 2001 23:11:05 -0500 
+	id <S129562AbRAIE0r>; Mon, 8 Jan 2001 23:26:47 -0500
+Received: from linuxjedi.org ([192.234.5.42]:3346 "EHLO linuxjedi.org")
+	by vger.kernel.org with ESMTP id <S129573AbRAIE0d>;
+	Mon, 8 Jan 2001 23:26:33 -0500
+Message-ID: <3A5A9444.5B2772F2@linuxjedi.org>
+Date: Mon, 08 Jan 2001 23:32:04 -0500
+From: "David L. Parsley" <parsley@linuxjedi.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+To: linux-kernel@vger.kernel.org
+Subject: question on generating a patch
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I read the FAQ and SubmittingPatches, but how best to generate a patch
+that moves a file from on dir to another?  diff -urNP makes the patch a
+lot longer than it seems like it should be... (fortunately it's just a
+short header file)
 
-	> Max. RAM size:			64 GB	(any slowness
-accessing RAM over 4 GB
-*	with 32 bit machines ?)
-	Imore than 4GB in RAM is bounce buffered, so there is performance
-penalty as the data have to be copied into the 4GB RAM area
+Is there a better way?
+
+regards,
+	David
+-- 
+David L. Parsley
+Network Administrator
+Roanoke College
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

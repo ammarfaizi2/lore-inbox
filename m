@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264064AbTKJXim (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 18:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbTKJXim
+	id S263259AbTKJXlg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 18:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTKJXlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 18:38:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41442 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264064AbTKJXik (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 18:38:40 -0500
-Date: Mon, 10 Nov 2003 15:42:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: suparna@in.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-aio@kvack.org
-Subject: Re: 2.6.0-test9-mm2 - AIO tests still gets slab corruption
-Message-Id: <20031110154232.55eb9b10.akpm@osdl.org>
-In-Reply-To: <1068505605.2042.11.camel@ibm-c.pdx.osdl.net>
-References: <20031104225544.0773904f.akpm@osdl.org>
-	<1068505605.2042.11.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 10 Nov 2003 18:41:36 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16779
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S263259AbTKJXle
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 18:41:34 -0500
+Date: Tue, 11 Nov 2003 00:41:08 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+Message-ID: <20031110234108.GG6834@x30.random>
+References: <3FAFD1E5.5070309@zytor.com> <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com> <20031110183722.GE6834@x30.random> <3FAFE22B.3030108@zytor.com> <20031110193101.GF6834@x30.random> <3FAFEA34.7090005@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FAFEA34.7090005@zytor.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
-> Andrew,
-> 
-> test9-mm2 is still getting slab corruption with AIO:
+On Mon, Nov 10, 2003 at 11:42:44AM -0800, H. Peter Anvin wrote:
+> Good grief.  This is messy as hell, and really interferes rather badly
+> with the whole kernel.org mirror setup.
 
-Why?
+allowing coherent checkouts from the mirrors too is an interesting
+matter, I believe I've a solution for it, but it obviously requires a
+special script to spread the mirror of /pub/scm. However pserver is also
+not being mirrored right now, and rsync is still more efficient (and it
+carries all the info, not just a certain local copy), so even w/o
+mirror-coherency it would be better.
 
-> Maximal retry count.  Bytes done 0
-> Slab corruption: start=dc70f91c, expend=dc70f9eb, problemat=dc70f91c
-> Last user: [<c0192fa3>](__aio_put_req+0xbf/0x200)
-> Data: 00 01 10 00 00 02 20 00 *********6C ******************************A5
-> Next: 71 F0 2C .A3 2F 19 C0 71 F0 2C .********************
-> slab error in check_poison_obj(): cache `kiocb': object was modified after freeing
-> 
-> With suparna's retry-based-aio-dio patch, there are no kernel messages
-> and the tests do not see any uninitialized data.
-> 
-> Any reason not to add suparna's patch to -mm to fix these problems?
+> I guess the "best" solution is to use LVM atomic snapshots, and only
+> allow rsync off the atomic snapshot.  That way any particular rsync
+> session would always be consistent.  That's a *HUGE* amount of work,
+> though, and still doesn't solve the mirrors issue -- I don't control
+> what the mirrors run.  On the other hand, I don't know how many mirror
+> sites actually mirror /pub/scm since it's not a requirement.
 
-It relies on infrastructure which is not present in Linus's kernel.  We
-should only be interested in fixing mainline 2.6.x.
+I'm unsure how you can leave an rsync running on the old snapshot and
+the new forked off ones running in the new snapshot. as for the mirror
+issues it should be possible to make it work like this:
 
-Furthermore I'd like to see the direct-vs-buffered locking fixes fully
-implemented against Linus's tree, not -mm.  They're almost there, but are
-not quite complete.  Running off and making it dependent on the retry
-infrastructure is not really helpful.
+1) increase file1 on the mirror
+2) read file2 on the master and store it on the userspace stack
+3) copy the tree from master to mirror
+4) read file1 on the master and compare it with file2 on the stack
+5) if they're different goto 2 after a delay
+6) increase file2 on the mirror
 
+basically those sequence numbers should not be copied, they should be
+completely separated, each server exporting the tree will have its own
+sequence numbers. ideally the master could be at sequence number 1000
+and the mirror could be at sequence number 100, depends on the frequency
+of the mirror sync and the age of the mirror. the mirror could fetch
+multiple updats at once and its sequence number would advance slower, or
+it could sync more frequently than there are updates on the server and
+its sequence number would advance more quickly than the master.
+
+(for simplicity I'm using the two sequence number model, but clearly the
+above can be easily converted to the single sequence number model, and
+infact that's preferable since having a single sequence number is
+cleaner from a filesystem maintainance point of view, both models are
+functionally equivalent)

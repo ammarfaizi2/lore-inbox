@@ -1,170 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316609AbSHSBZg>; Sun, 18 Aug 2002 21:25:36 -0400
+	id <S316601AbSHSBYK>; Sun, 18 Aug 2002 21:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSHSBZf>; Sun, 18 Aug 2002 21:25:35 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:34832 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S316609AbSHSBZd>;
-	Sun, 18 Aug 2002 21:25:33 -0400
-Date: Sun, 18 Aug 2002 21:20:52 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.31 : include/asm-generic/a.out.h 
-Message-ID: <Pine.LNX.4.44.0208182101270.861-100000@localhost.localdomain>
+	id <S316609AbSHSBYK>; Sun, 18 Aug 2002 21:24:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:49556 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316601AbSHSBYI>;
+	Sun, 18 Aug 2002 21:24:08 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15712.18690.602717.216938@argo.ozlabs.ibm.com>
+Date: Mon, 19 Aug 2002 11:25:22 +1000 (EST)
+To: torvalds@transmeta.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] update 2.5 ide-pmac.c
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  The following patch creates a new file, include/asm-generic/a.out.h , 
-that attempts to consolidate 'struct exec' within the individual 
-include/asm/a.out.h files without creating a #ifdef mess. Arch diffs for cris, i386, mips, and 
-ppc are included. Please review. 
+This patch updates drivers/ide/ide-pmac.c to use the 2.5 block device
+interface rather than the 2.4 interface.  I have heard that Andre's
+new code is going in, which will be good, but until then those of us
+with powermacs will need this patch, so Linus, please apply this to
+your tree.
 
-Regards,
-Frank
+Paul.
 
---- dev/null	Wed Dec 31 19:00:00 1969
-+++ include/asm-generic/a.out.h	Thu Aug  8 21:45:20 2002
-@@ -0,0 +1,30 @@
-+#ifndef __ASMGEN_A_OUT_H__
-+#define __ASMGEN_A_OUT_H__
+diff -urN linux-2.5/drivers/ide/ide-pmac.c pmac-2.5/drivers/ide/ide-pmac.c
+--- linux-2.5/drivers/ide/ide-pmac.c	Fri Aug 16 22:07:14 2002
++++ pmac-2.5/drivers/ide/ide-pmac.c	Sat Aug 17 21:32:02 2002
+@@ -46,7 +46,7 @@
+ 
+ extern void ide_do_request(ide_hwgroup_t *hwgroup, int masked_irq);
+ 
+-#define IDE_PMAC_DEBUG
++#undef IDE_PMAC_DEBUG
+ 
+ #define DMA_WAIT_TIMEOUT	500
+ 
+@@ -746,11 +746,11 @@
+ 		name = pmac_ide[i].node->full_name;
+ 		if (memcmp(name, bootdevice, n) == 0 && name[n] == 0) {
+ 			/* XXX should cope with the 2nd drive as well... */
+-			return MKDEV(ide_majors[i], 0);
++			return mk_kdev(ide_majors[i], 0);
+ 		}
+ 	}
+ 
+-	return 0;
++	return NODEV;
+ }
+ 
+ void __init
+@@ -925,7 +925,7 @@
+ #endif /* CONFIG_PMAC_PBOOK */
+ 
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+-		if (np->n_addrs >= 2) {
++		if (pdev && np->n_addrs >= 2) {
+ 			/* has a DBDMA controller channel */
+ 			pmac_ide_setup_dma(np, i);
+ 		}
+@@ -993,35 +993,19 @@
+ {
+ 	ide_hwif_t *hwif = &ide_hwifs[ix];
+ 	struct pmac_ide_hwif *pmif = &pmac_ide[ix];
+-	struct buffer_head *bh;
++	request_queue_t *q = &hwif->drives[DEVICE_NR(rq->rq_dev) & 1].queue;
+ 	struct scatterlist *sg = pmif->sg_table;
+-	int nents = 0;
++	int nents;
+ 
+-	if (hwif->sg_dma_active)
+-		BUG();
+-		
+-	if (rq->cmd == READ)
++	nents = blk_rq_map_sg(q, rq, pmif->sg_table);
 +
-+/* This defines the generic a.out exec struct used by all archs
-+ *
-+ **/
++	if (rq->q && nents > rq->nr_phys_segments)
++		printk("ide-pmac: received %d phys segments, build %d\n", rq->nr_phys_segments, nents);
 +
-+struct exec
-+{
-+#ifdef (__SPARC_A_OUT_H__ || __SPARC64_A_OUT_H__ )
-+  unsigned char a_dynamic:1;
-+  unsigned char a_toolversion:7;
-+  unsigned a_machtype;
-+#endif
-+  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
-+  unsigned long a_text;		/* length of text, in bytes */
-+  unsigned long a_data;		/* length of data, in bytes */
-+  unsigned long a_bss;		/* length of uninitialized data area for file, in bytes */
-+  unsigned long a_syms;		/* length of symbol table data in file, in bytes */
-+  unsigned long a_entry;		/* start address */
-+  unsigned long a_trsize;		/* length of relocation info for text, in bytes */
-+  unsigned long a_drsize;		/* length of relocation info for data, in bytes */
-+};
++	if (rq_data_dir(rq) == READ)
+ 		pmif->sg_dma_direction = PCI_DMA_FROMDEVICE;
+ 	else
+ 		pmif->sg_dma_direction = PCI_DMA_TODEVICE;
+-	bh = rq->bh;
+-	do {
+-		unsigned char *virt_addr = bh->b_data;
+-		unsigned int size = bh->b_size;
+-
+-		if (nents >= MAX_DCMDS)
+-			return 0;
+-
+-		while ((bh = bh->b_reqnext) != NULL) {
+-			if ((virt_addr + size) != (unsigned char *) bh->b_data)
+-				break;
+-			size += bh->b_size;
+-		}
+-		memset(&sg[nents], 0, sizeof(*sg));
+-		sg[nents].address = virt_addr;
+-		sg[nents].length = size;
+-		nents++;
+-	} while (bh != NULL);
+ 
+ 	return pci_map_sg(hwif->pci_dev, sg, nents, pmif->sg_dma_direction);
+ }
+@@ -1041,20 +1025,22 @@
+ 		pmif->sg_dma_direction = PCI_DMA_TODEVICE;
+ 	else
+ 		pmif->sg_dma_direction = PCI_DMA_FROMDEVICE;
+-	
 +
+ 	if (sector_count > 128) {
+ 		memset(&sg[nents], 0, sizeof(*sg));
+-		sg[nents].address = virt_addr;
++		sg[nents].page = virt_to_page(virt_addr);
++		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
+ 		sg[nents].length = 128  * SECTOR_SIZE;
+ 		nents++;
+ 		virt_addr = virt_addr + (128 * SECTOR_SIZE);
+ 		sector_count -= 128;
+ 	}
+ 	memset(&sg[nents], 0, sizeof(*sg));
+-	sg[nents].address = virt_addr;
++	sg[nents].page = virt_to_page(virt_addr);
++	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
+ 	sg[nents].length =  sector_count  * SECTOR_SIZE;
+ 	nents++;
+-   
 +
-+#define N_TRSIZE(a)	((a).a_trsize)
-+#define N_DRSIZE(a)	((a).a_drsize)
-+#define N_SYMSIZE(a)	((a).a_syms)
-+
-+#endif
-
-
---- asm-cris/a.out.h.old	Thu Feb  8 19:32:44 2001
-+++ asm-cris/a.out.h	Thu Aug  8 21:48:27 2002
-@@ -9,23 +9,6 @@
- /* grabbed from the intel stuff  */   
- #define STACK_TOP TASK_SIZE
+ 	return pci_map_sg(hwif->pci_dev, sg, nents, pmif->sg_dma_direction);
+ }
  
--
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
--
-+#include <asm-generic/a.out.h>
+@@ -1080,7 +1066,7 @@
+ 		udelay(1);
  
- #endif
-
---- asm-i386/a.out.h.old	Fri Jun 16 14:33:06 1995
-+++ asm-i386/a.out.h	Thu Aug  8 21:50:56 2002
-@@ -1,21 +1,7 @@
- #ifndef __I386_A_OUT_H__
- #define __I386_A_OUT_H__
- 
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
-+#include <asm-generic/a.out.h>
- 
- #ifdef __KERNEL__
- 
---- asm-mips/a.out.h.old	Wed Dec 13 05:39:45 1995
-+++ asm-mips/a.out.h	Thu Aug  8 22:04:18 2002
-@@ -1,21 +1,7 @@
- #ifndef __ASM_MIPS_A_OUT_H
- #define __ASM_MIPS_A_OUT_H
- 
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
-+#include <asm-generic/a.out.h>
- 
- #ifdef __KERNEL__
- 
---- asm-ppc/a.out.h.old	Mon May 21 18:02:06 2001
-+++ asm-ppc/a.out.h	Thu Aug  8 23:01:38 2002
-@@ -7,23 +7,6 @@
- /* grabbed from the intel stuff  */   
- #define STACK_TOP TASK_SIZE
- 
--
--struct exec
--{
--  unsigned long a_info;		/* Use macros N_MAGIC, etc for access */
--  unsigned a_text;		/* length of text, in bytes */
--  unsigned a_data;		/* length of data, in bytes */
--  unsigned a_bss;		/* length of uninitialized data area for file, in bytes */
--  unsigned a_syms;		/* length of symbol table data in file, in bytes */
--  unsigned a_entry;		/* start address */
--  unsigned a_trsize;		/* length of relocation info for text, in bytes */
--  unsigned a_drsize;		/* length of relocation info for data, in bytes */
--};
--
--
--#define N_TRSIZE(a)	((a).a_trsize)
--#define N_DRSIZE(a)	((a).a_drsize)
--#define N_SYMSIZE(a)	((a).a_syms)
--
-+#include <asm-generic/a.out.h>
- 
- #endif
-
+ 	/* Build sglist */
+-	if (HWGROUP(drive)->rq->cmd == IDE_DRIVE_TASKFILE)
++	if (HWGROUP(drive)->rq->flags & REQ_DRIVE_TASKFILE)
+ 		pmac_ide[ix].sg_nents = i = pmac_ide_raw_build_sglist(ix, rq);
+ 	else
+ 		pmac_ide[ix].sg_nents = i = pmac_ide_build_sglist(ix, rq);
+@@ -1346,7 +1332,7 @@
+ 		OUT_BYTE(args->tfRegister[IDE_COMMAND_OFFSET], IDE_COMMAND_REG);
+ 	}
+ #else
+-		if (HWGROUP(drive)->rq->cmd == IDE_DRIVE_TASKFILE) {
++		if (HWGROUP(drive)->rq->flags & REQ_DRIVE_TASKFILE) {
+ 			ide_task_t *args = HWGROUP(drive)->rq->special;
+ 			OUT_BYTE(args->tfRegister[IDE_COMMAND_OFFSET], IDE_COMMAND_REG);
+ 		} else if (drive->addressing == 1)

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbTLMHg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 02:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTLMHg1
+	id S264487AbTLMHs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 02:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbTLMHsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 02:36:27 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:40334 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S264485AbTLMHg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 02:36:26 -0500
-Date: Fri, 12 Dec 2003 23:36:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1677] New: Kernel hang with message "ACPI: IRQ9	SCI: Level Trigger"
-Message-ID: <1361920000.1071300981@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sat, 13 Dec 2003 02:48:55 -0500
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:23424
+	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S264487AbTLMHsy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 02:48:54 -0500
+Message-ID: <20031213074852.3111.qmail@dag.newtech.fi>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+To: linux-kernel@vger.kernel.org
+cc: dag@newtech.fi
+Subject: uhci driver looping in 2.6-test10
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Sat, 13 Dec 2003 09:48:52 +0200
+From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1677
 
-           Summary: Kernel hang with message "ACPI: IRQ9 SCI: Level Trigger"
-    Kernel Version: 2.6.0-test11
-            Status: NEW
-          Severity: normal
-             Owner: len.brown@intel.com
-         Submitter: gustavo.michels@ig.com.br
+Hi,
 
+I installed 2.6-test10 on one system here some time ago
+and had my first crash tonight.
+The system was completely frozen and the console in X window
+state and didn't respond to SysRq, so I didn't get an OOPS.
+But the kernellog shows one irregularity:
 
-Distribution: Gentoo Linux
-Hardware Environment: Laptop HP Pavilion ze4430us
+Dec 12 16:25:57 dag kernel: drivers/usb/host/uhci-hcd.c: 1080: wakeup_hc
+Dec 12 16:25:59 dag kernel: drivers/usb/host/uhci-hcd.c: 1080: suspend_hc
+.......
+Dec 13 02:01:59 dag kernel: drivers/usb/host/uhci-hcd.c: 1080: suspend_hc
+Dec 13 02:01:59 dag kernel: drivers/usb/host/uhci-hcd.c: 1080: wakeup_hc
+Dec 13 02:02:02 dag kernel: drivers/usb/host/uhci-hcd.c: 1080: suspend_hc
+Dec 13 02:02:02 dag kernel: drivers/usb/host/uhci-hcd.c: 1080: wakeup_hc
+(This was obviously the  time of the crash)
 
-Problem Description: Kernel hangs with message "ACPI: IRQ9 SCI: Level Trigger". 
-Only bootable if acpi=off is passed as option. I applied the latest patch 
-available (acpi-20031203-2.6.0-test11.diff.bz2) with the same results.
+It seems to have been looping with about 3 sec intervals.
 
-I tried pci=noacpi and noapic also, no luck.
+The system is a 2x500MHz Pentium3, Intel N440BX motherboard
+and it was very busy yesterday compiling a lot of software (still was
+when it crashed)
+There was absolutely NO activity on the USB yesterday.
 
-Also tried 2.6.0.test10-mm1, same thing.
+BRGDS
+
+-- 
+Dag Nygren                               email: dag@newtech.fi
+Oy Espoon NewTech Ab                     phone: +358 9 8024910
+Träsktorpet 3                              fax: +358 9 8024916
+02360 ESBO                              Mobile: +358 400 426312
+FINLAND
 
 

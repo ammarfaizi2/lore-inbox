@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137167AbREKQf7>; Fri, 11 May 2001 12:35:59 -0400
+	id <S137170AbREKQnU>; Fri, 11 May 2001 12:43:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137168AbREKQfk>; Fri, 11 May 2001 12:35:40 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:21243 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S137167AbREKQf3>; Fri, 11 May 2001 12:35:29 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105111634.f4BGY8l6015883@webber.adilger.int>
-Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
-In-Reply-To: <Pine.GSO.4.21.0105110315480.5863-100000@weyl.math.psu.edu>
- "from Alexander Viro at May 11, 2001 03:19:00 am"
-To: Alexander Viro <viro@math.psu.edu>
-Date: Fri, 11 May 2001 10:34:08 -0600 (MDT)
-CC: phillips@bonn-fries.net,
-        Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S137171AbREKQnK>; Fri, 11 May 2001 12:43:10 -0400
+Received: from idiom.com ([216.240.32.1]:56074 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S137170AbREKQmt>;
+	Fri, 11 May 2001 12:42:49 -0400
+Message-ID: <3AFBB40D.6A52A7D8@namesys.com>
+Date: Fri, 11 May 2001 02:42:37 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: hps@intermeta.de
+CC: linux-kernel@vger.kernel.org, nikita@namesys.com
+Subject: Re: reiserfs, xfs, ext2, ext3
+In-Reply-To: <20010511013913.D31966@emma1.emma.line.org> <172380000.989592181@tiny> <9dgvvn$n3h$1@forge.intermeta.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al writes:
-> On Fri, 11 May 2001, Andreas Dilger wrote:
-> > I've tested again, now with kdb, and the system loops in ext2_find_entry()
-> > or ext2_add_link(), because there is a directory with a zero rec_len.
-> > While the actual cause of this problem is elsewhere, the fact that
-> > ext2_next_entry() will loop forever with a bad rec_len is a bug not in
-> > the old ext2 code.
-> 
-> No. Bug is that data ends up in pages without being validated. That's
-> the real thing to watch for - if ext2_get_page() is the only way to
-> get pages in cache you get all checks in one place and done once.
+"Henning P. Schmiedehausen" wrote:
 
-OK, I don't think that Daniel is aware of this, I wasn't either.  He
-is using ext2_bread() modified to access the page cache instead of the
-buffer cache.
+> Chris Mason <mason@suse.com> writes:
+>
+> >It requires explicit changes to each filesystem that wants to work over
+> >NFS, and is a somewhat large change.
+>
+> Come on, we got zerocopy TCP pushed into a stable kernel release with
+> the words "get over it".
+>
+> So please, push this patch to Linus; I really like to "get over it".
+>
+> I think with the growing acceptance of ReiserFS in the Linux
+> community, it is tiresome to have to apply a patch again and again
+> just to get working NFS. 2.2 NFS horrors all over again.
+>
+>         Regards
+>                 Henning
+> --
+> Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+> INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+>
+> Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+> D-91054 Buckenhof     Fax.: 09131 / 50654-20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-It turns out that in adding the checks for rec_len, I fixed my original
-bug, but added another...  Please disregard my previous patch.  
+nikita, ask Neil what the timeline is for it going into Linux.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Hans
+

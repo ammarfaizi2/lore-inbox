@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136475AbRD3Hww>; Mon, 30 Apr 2001 03:52:52 -0400
+	id <S136477AbRD3H6v>; Mon, 30 Apr 2001 03:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136476AbRD3Hwo>; Mon, 30 Apr 2001 03:52:44 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:46295 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S136475AbRD3Hwf>; Mon, 30 Apr 2001 03:52:35 -0400
-Message-Id: <5.0.2.1.2.20010430085034.00b0d3b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 30 Apr 2001 08:52:34 +0100
-To: esr@thyrsus.com
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-Cc: John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010429214136.A2260@thyrsus.com>
-In-Reply-To: <5.0.2.1.2.20010430023154.03cd52b0@pop.cus.cam.ac.uk>
- <15084.12152.956561.490805@gargle.gargle.HOWL>
- <20010427193501.A9805@thyrsus.com>
- <15084.12152.956561.490805@gargle.gargle.HOWL>
- <20010429183526.B32748@thyrsus.com>
- <5.0.2.1.2.20010430023154.03cd52b0@pop.cus.cam.ac.uk>
+	id <S136478AbRD3H6m>; Mon, 30 Apr 2001 03:58:42 -0400
+Received: from smtp3.xs4all.nl ([194.109.127.132]:61451 "EHLO smtp3.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S136477AbRD3H6i>;
+	Mon, 30 Apr 2001 03:58:38 -0400
+From: thunder7@xs4all.nl
+Date: Mon, 30 Apr 2001 07:40:27 +0200
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [lkml]Re: Mounting an external USB host-powered ZIP 250 drive hangs in mount()
+Message-ID: <20010430074027.A3914@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <20010429075856.A821@middle.of.nowhere> <20010429211346.A8349@one-eyed-alien.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010429211346.A8349@one-eyed-alien.net>; from mdharm-kernel@one-eyed-alien.net on Sun, Apr 29, 2001 at 09:13:46PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:41 30/04/2001, Eric S. Raymond wrote:
->Anton Altaparmakov <aia21@cam.ac.uk>:
-> > I don't know about whether this is possible with Tcl but have you tried A)
-> > invisible text and/or B) white space character text (e.g. one or more
-> > spaces)? That's the kind of thing I usually try in this situation... Just
-> > an idea...
->
->I tried whitespace, but the default Tkinter font isn't fixed-width.  How
->do you do invisible text?
+On Sun, Apr 29, 2001 at 09:13:46PM -0700, Matthew Dharm wrote:
+> I see you're using the alternate uhci driver... are hte results the same
+> with the other UHCI driver?
 
-Text colour = background colour -> invisible
+I have read in the help-files that that was the one to use on this
+VIA694 motherboard.
+> 
+> Can you turn on usb mass storage verbose debuggig (compile option) and then
+> send me the logs?
+> 
+I'll do that. In the meantime, 2.4.4 does work - so it's something in
+the ac12 kernel that prevents it from working. Unfortunately I can't try
+ac13 or ac14, since the pcnet32 code doesn't compile in those.
 
-Anton
-
-
+Jurriaan
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+And money rides while people crawl
+And another quiet night goes by
+	Oysterband - Another quiet night in England
+GNU/Linux 2.4.4 SMP/ReiserFS 2x1743 bogomips load av: 0.27 0.06 0.02

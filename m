@@ -1,146 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVBNGVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVBNHjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVBNGVe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 01:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVBNGVe
+	id S261361AbVBNHjd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 02:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBNHjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 01:21:34 -0500
-Received: from mxc.rambler.ru ([81.19.66.31]:22539 "EHLO mxc.rambler.ru")
-	by vger.kernel.org with ESMTP id S261358AbVBNGVL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 01:21:11 -0500
-Date: Mon, 14 Feb 2005 09:23:29 -0500
-From: Pavel Fedin <sonic_amiga@rambler.ru>
-To: linux-kernel@vger.kernel.org
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Non-DMA mode for floppy on PowerPC
-Message-Id: <20050214092329.2e3fb64c.sonic_amiga@rambler.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Mon__14_Feb_2005_09_23_29_-0500_djPDw6.zzJeKXNOR"
-X-Auth-User: sonic_amiga, whoson: (null)
+	Mon, 14 Feb 2005 02:39:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49826 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261361AbVBNHja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 02:39:30 -0500
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Andi Kleen <ak@suse.de>,
+       "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>,
+       Adrian Bunk <bunk@stusta.de>,
+       Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>,
+       linux-kernel@vger.kernel.org, Chris Bruner <cryst@golden.net>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Matt Domsch <Matt_Domsch@dell.com>, <fastboot@osdl.org>
+Subject: Re: COMMAND_LINE_SIZE increasing in 2.6.11-rc1-bk6
+References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
+	<20050120162807.GA3174@stusta.de> <20050120164829.GG450@wotan.suse.de>
+	<Pine.LNX.4.61.0501210857170.17260@webhosting.rdsbv.ro>
+	<20050121071144.GB657@wotan.suse.de>
+	<20050207035707.C25338@almesberger.net>
+	<m1hdkhzxxj.fsf@ebiederm.dsl.xmission.com>
+	<20050212115106.A1257@almesberger.net>
+	<m1brapzu1s.fsf@ebiederm.dsl.xmission.com>
+	<20050214024916.B1257@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Feb 2005 00:36:01 -0700
+In-Reply-To: <20050214024916.B1257@almesberger.net>
+Message-ID: <m1oeeny4ny.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Werner Almesberger <wa@almesberger.net> writes:
 
---Multipart=_Mon__14_Feb_2005_09_23_29_-0500_djPDw6.zzJeKXNOR
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> Eric W. Biederman wrote:
+> > Something like that.    I have yet to see a even a proof of concept
+> > of the idea of passing device information, to clean up probes.
+> 
+> Yes, the kexec-based boot loader first, then this. For a
+> kexec-based boot loader, passing device scan results will be
+> very useful, plus it's a good environment for experimenting
+> with such a feature.
 
- This patch allows to use floppy drive in non-DMA mode on PegasosPPC machines. To use it:
- 1. Do not build floppy driver as a module, link it statically. Transferring parameters to it from insmod is still problematic, at least it doesn't work properly on my system. May be i'll clean it up in future.
- 2. Specify floppy=nodma in kernel's arguments. Also you'll need to specify your drive type here using floppy=<Drive number>,<Drive type>,cmos. For example, floppy=0,4,cmos specifies type 4 (1.44 mb 3.5") for drive 0 on my system.
- This patch does not affect operation of the driver in DMA mode so it's safe to use on any platform.
+And from another perspective what drives things are practical
+requirements.  Boot speed while nice does not yet seem to be a
+driver, and that is all I have seen proposed with passing
+the list of hardware.  What is currently a driver in
+the kexec scenario is booting a kernel without firmware
+calls, and in the kexec-on-panic case booting a kernel
+without a kernel where the hardware is in a known messed
+up state.
 
--- 
-Best regards,
-Pavel Fedin,									mailto:sonic_amiga@rambler.ru
+So far I have seen nothing that even resembles an architecture
+independent solution to avoiding firmware calls.  And right
+now I'm not even certain I even expect to see something it become
+architecture independent.  At the very least we need some
+clean architecture specific support first, so we can have
+a clue what needs to be generalized.  ia64 and ppc are coming...
 
---Multipart=_Mon__14_Feb_2005_09_23_29_-0500_djPDw6.zzJeKXNOR
-Content-Type: application/octet-stream;
- name="ppc_floppy-vdma.diff"
-Content-Disposition: attachment;
- filename="ppc_floppy-vdma.diff"
-Content-Transfer-Encoding: base64
+At any rate I see the problem of which hardware devices
+are present as a subset of the problem of booting without firmware.
+So I suspect we are going to get some pretty weird architecture
+specific implementations at least in the first go round.
 
-LS0tIGluY2x1ZGUvYXNtLXBwYy9mbG9wcHkuaC5vcmlnCTIwMDQtMDgtMTQgMDk6MzY6NDUuMDAw
-MDAwMDAwICswNDAwCisrKyBpbmNsdWRlL2FzbS1wcGMvZmxvcHB5LmgJMjAwNS0wMi0xMiAwMjoy
-Njo1NC4wMDAwMDAwMDAgKzAzMDAKQEAgLTExLDMwICsxMSwxODggQEAKICNpZm5kZWYgX19BU01f
-UFBDX0ZMT1BQWV9ICiAjZGVmaW5lIF9fQVNNX1BQQ19GTE9QUFlfSAogCisjaW5jbHVkZSA8bGlu
-dXgvdm1hbGxvYy5oPgorCisjZGVmaW5lIENTVyBmZF9yb3V0aW5lW2Nhbl91c2VfdmlydHVhbF9k
-bWEgJiAxXQorCiAjZGVmaW5lIGZkX2luYihwb3J0KQkJCWluYl9wKHBvcnQpCiAjZGVmaW5lIGZk
-X291dGIodmFsdWUscG9ydCkJCW91dGJfcCh2YWx1ZSxwb3J0KQogCi0jZGVmaW5lIGZkX2VuYWJs
-ZV9kbWEoKSAgICAgICAgIGVuYWJsZV9kbWEoRkxPUFBZX0RNQSkKLSNkZWZpbmUgZmRfZGlzYWJs
-ZV9kbWEoKSAgICAgICAgZGlzYWJsZV9kbWEoRkxPUFBZX0RNQSkKLSNkZWZpbmUgZmRfcmVxdWVz
-dF9kbWEoKSAgICAgICAgcmVxdWVzdF9kbWEoRkxPUFBZX0RNQSwiZmxvcHB5IikKLSNkZWZpbmUg
-ZmRfZnJlZV9kbWEoKSAgICAgICAgICAgZnJlZV9kbWEoRkxPUFBZX0RNQSkKLSNkZWZpbmUgZmRf
-Y2xlYXJfZG1hX2ZmKCkgICAgICAgY2xlYXJfZG1hX2ZmKEZMT1BQWV9ETUEpCi0jZGVmaW5lIGZk
-X3NldF9kbWFfbW9kZShtb2RlKSAgIHNldF9kbWFfbW9kZShGTE9QUFlfRE1BLG1vZGUpCi0jZGVm
-aW5lIGZkX3NldF9kbWFfYWRkcihhZGRyKSAgIHNldF9kbWFfYWRkcihGTE9QUFlfRE1BLCh1bnNp
-Z25lZCBpbnQpdmlydF90b19idXMoYWRkcikpCi0jZGVmaW5lIGZkX3NldF9kbWFfY291bnQoY291
-bnQpIHNldF9kbWFfY291bnQoRkxPUFBZX0RNQSxjb3VudCkKKyNkZWZpbmUgZmRfZGlzYWJsZV9k
-bWEoKQlDU1cuX2Rpc2FibGVfZG1hKEZMT1BQWV9ETUEpCisjZGVmaW5lIGZkX3JlcXVlc3RfZG1h
-KCkgICAgICAgIENTVy5fcmVxdWVzdF9kbWEoRkxPUFBZX0RNQSwiZmxvcHB5IikKKyNkZWZpbmUg
-ZmRfZnJlZV9kbWEoKSAgICAgICAgICAgQ1NXLl9mcmVlX2RtYShGTE9QUFlfRE1BKQorI2RlZmlu
-ZSBmZF9nZXRfZG1hX3Jlc2lkdWUoKSAgICBDU1cuX2dldF9kbWFfcmVzaWR1ZShGTE9QUFlfRE1B
-KQorI2RlZmluZSBmZF9kbWFfbWVtX2FsbG9jKHNpemUpCUNTVy5fZG1hX21lbV9hbGxvYyhzaXpl
-KQorI2RlZmluZSBmZF9kbWFfc2V0dXAoYWRkciwgc2l6ZSwgbW9kZSwgaW8pIENTVy5fZG1hX3Nl
-dHVwKGFkZHIsIHNpemUsIG1vZGUsIGlvKQogI2RlZmluZSBmZF9lbmFibGVfaXJxKCkgICAgICAg
-ICBlbmFibGVfaXJxKEZMT1BQWV9JUlEpCiAjZGVmaW5lIGZkX2Rpc2FibGVfaXJxKCkgICAgICAg
-IGRpc2FibGVfaXJxKEZMT1BQWV9JUlEpCi0jZGVmaW5lIGZkX2NhY2hlZmx1c2goYWRkcixzaXpl
-KSAvKiBub3RoaW5nICovCi0jZGVmaW5lIGZkX3JlcXVlc3RfaXJxKCkgICAgICAgIHJlcXVlc3Rf
-aXJxKEZMT1BQWV9JUlEsIGZsb3BweV9pbnRlcnJ1cHQsIFwKLQkJCQkJICAgIFNBX0lOVEVSUlVQ
-VHxTQV9TQU1QTEVfUkFORE9NLCBcCi0JCQkJICAgICAgICAgICAgImZsb3BweSIsIE5VTEwpCiAj
-ZGVmaW5lIGZkX2ZyZWVfaXJxKCkgICAgICAgICAgIGZyZWVfaXJxKEZMT1BQWV9JUlEsIE5VTEwp
-OwogCi1fX2lubGluZV9fIHZvaWQgdmlydHVhbF9kbWFfaW5pdCh2b2lkKQorc3RhdGljIGludCB2
-aXJ0dWFsX2RtYV9jb3VudDsKK3N0YXRpYyBpbnQgdmlydHVhbF9kbWFfcmVzaWR1ZTsKK3N0YXRp
-YyBjaGFyICp2aXJ0dWFsX2RtYV9hZGRyOworc3RhdGljIGludCB2aXJ0dWFsX2RtYV9tb2RlOwor
-c3RhdGljIGludCBkb2luZ19wZG1hOworCitzdGF0aWMgaXJxcmV0dXJuX3QgZmxvcHB5X2hhcmRp
-bnQoaW50IGlycSwgdm9pZCAqZGV2X2lkLCBzdHJ1Y3QgcHRfcmVncyAqIHJlZ3MpCit7CisJcmVn
-aXN0ZXIgdW5zaWduZWQgY2hhciBzdDsKKworI3VuZGVmIFRSQUNFX0ZMUFlfSU5UCisKKyNpZmRl
-ZiBUUkFDRV9GTFBZX0lOVAorCXN0YXRpYyBpbnQgY2FsbHM9MDsKKwlzdGF0aWMgaW50IGJ5dGVz
-PTA7CisJc3RhdGljIGludCBkbWFfd2FpdD0wOworI2VuZGlmCisJaWYgKCFkb2luZ19wZG1hKQor
-CQlyZXR1cm4gZmxvcHB5X2ludGVycnVwdChpcnEsIGRldl9pZCwgcmVncyk7CisKKyNpZmRlZiBU
-UkFDRV9GTFBZX0lOVAorCWlmKCFjYWxscykKKwkJYnl0ZXMgPSB2aXJ0dWFsX2RtYV9jb3VudDsK
-KyNlbmRpZgorCXsKKwkJcmVnaXN0ZXIgaW50IGxjb3VudDsKKwkJcmVnaXN0ZXIgY2hhciAqbHB0
-cjsKKworCQlzdCA9IDE7CisJCWZvcihsY291bnQ9dmlydHVhbF9kbWFfY291bnQsIGxwdHI9dmly
-dHVhbF9kbWFfYWRkcjsgCisJCSAgICBsY291bnQ7IGxjb3VudC0tLCBscHRyKyspIHsKKwkJCXN0
-PWluYih2aXJ0dWFsX2RtYV9wb3J0KzQpICYgMHhhMCA7CisJCQlpZihzdCAhPSAweGEwKSAKKwkJ
-CQlicmVhazsKKwkJCWlmKHZpcnR1YWxfZG1hX21vZGUpCisJCQkJb3V0Yl9wKCpscHRyLCB2aXJ0
-dWFsX2RtYV9wb3J0KzUpOworCQkJZWxzZQorCQkJCSpscHRyID0gaW5iX3AodmlydHVhbF9kbWFf
-cG9ydCs1KTsKKwkJfQorCQl2aXJ0dWFsX2RtYV9jb3VudCA9IGxjb3VudDsKKwkJdmlydHVhbF9k
-bWFfYWRkciA9IGxwdHI7CisJCXN0ID0gaW5iKHZpcnR1YWxfZG1hX3BvcnQrNCk7CisJfQorCisj
-aWZkZWYgVFJBQ0VfRkxQWV9JTlQKKwljYWxscysrOworI2VuZGlmCisJaWYoc3QgPT0gMHgyMCkK
-KwkJcmV0dXJuIElSUV9IQU5ETEVEOworCWlmKCEoc3QgJiAweDIwKSkgeworCQl2aXJ0dWFsX2Rt
-YV9yZXNpZHVlICs9IHZpcnR1YWxfZG1hX2NvdW50OworCQl2aXJ0dWFsX2RtYV9jb3VudD0wOwor
-I2lmZGVmIFRSQUNFX0ZMUFlfSU5UCisJCXByaW50aygiY291bnQ9JXgsIHJlc2lkdWU9JXggY2Fs
-bHM9JWQgYnl0ZXM9JWQgZG1hX3dhaXQ9JWRcbiIsIAorCQkgICAgICAgdmlydHVhbF9kbWFfY291
-bnQsIHZpcnR1YWxfZG1hX3Jlc2lkdWUsIGNhbGxzLCBieXRlcywKKwkJICAgICAgIGRtYV93YWl0
-KTsKKwkJY2FsbHMgPSAwOworCQlkbWFfd2FpdD0wOworI2VuZGlmCisJCWRvaW5nX3BkbWEgPSAw
-OworCQlmbG9wcHlfaW50ZXJydXB0KGlycSwgZGV2X2lkLCByZWdzKTsKKwkJcmV0dXJuIElSUV9I
-QU5ETEVEOworCX0KKyNpZmRlZiBUUkFDRV9GTFBZX0lOVAorCWlmKCF2aXJ0dWFsX2RtYV9jb3Vu
-dCkKKwkJZG1hX3dhaXQrKzsKKyNlbmRpZgorCXJldHVybiBJUlFfSEFORExFRDsKK30KKworc3Rh
-dGljIHZvaWQgdmRtYV9kaXNhYmxlX2RtYSh1bnNpZ25lZCBpbnQgZHVtbXkpCiB7Ci0JLyogTm90
-aGluZyB0byBkbyBvbiBQb3dlclBDICovCisJZG9pbmdfcGRtYSA9IDA7CisJdmlydHVhbF9kbWFf
-cmVzaWR1ZSArPSB2aXJ0dWFsX2RtYV9jb3VudDsKKwl2aXJ0dWFsX2RtYV9jb3VudD0wOwogfQog
-CitzdGF0aWMgaW50IHZkbWFfcmVxdWVzdF9kbWEodW5zaWduZWQgaW50IGRtYW5yLCBjb25zdCBj
-aGFyICogZGV2aWNlX2lkKQoreworCXJldHVybiAwOworfQorCitzdGF0aWMgdm9pZCB2ZG1hX25v
-cCh1bnNpZ25lZCBpbnQgZHVtbXkpCit7Cit9CisKKworc3RhdGljIGludCB2ZG1hX2dldF9kbWFf
-cmVzaWR1ZSh1bnNpZ25lZCBpbnQgZHVtbXkpCit7CisJcmV0dXJuIHZpcnR1YWxfZG1hX2NvdW50
-ICsgdmlydHVhbF9kbWFfcmVzaWR1ZTsKK30KKworCitzdGF0aWMgaW50IGZkX3JlcXVlc3RfaXJx
-KHZvaWQpCit7CisJaWYoY2FuX3VzZV92aXJ0dWFsX2RtYSkKKwkJcmV0dXJuIHJlcXVlc3RfaXJx
-KEZMT1BQWV9JUlEsIGZsb3BweV9oYXJkaW50LFNBX0lOVEVSUlVQVCwKKwkJCQkJCSAgICJmbG9w
-cHkiLCBOVUxMKTsKKwllbHNlCisJCXJldHVybiByZXF1ZXN0X2lycShGTE9QUFlfSVJRLCBmbG9w
-cHlfaW50ZXJydXB0LAorCQkJCQkJICAgU0FfSU5URVJSVVBUfFNBX1NBTVBMRV9SQU5ET00sCisJ
-CQkJCQkgICAiZmxvcHB5IiwgTlVMTCk7CQorCit9CisKK3N0YXRpYyBpbmxpbmUgdW5zaWduZWQg
-bG9uZyBkbWFfbWVtX2FsbG9jKHVuc2lnbmVkIGxvbmcgc2l6ZSkKK3sKKwlyZXR1cm4gX19nZXRf
-ZG1hX3BhZ2VzKEdGUF9LRVJORUwsZ2V0X29yZGVyKHNpemUpKTsKK30KKworCitzdGF0aWMgaW5s
-aW5lIHVuc2lnbmVkIGxvbmcgdmRtYV9tZW1fYWxsb2ModW5zaWduZWQgbG9uZyBzaXplKQorewor
-CXJldHVybiBfX2dldF9mcmVlX3BhZ2VzKEdGUF9LRVJORUwsZ2V0X29yZGVyKHNpemUpKTsKK30K
-Kworc3RhdGljIGludCB2ZG1hX2RtYV9zZXR1cChjaGFyICphZGRyLCB1bnNpZ25lZCBsb25nIHNp
-emUsIGludCBtb2RlLCBpbnQgaW8pCit7CisJZG9pbmdfcGRtYSA9IDE7CisJdmlydHVhbF9kbWFf
-cG9ydCA9IGlvOworCXZpcnR1YWxfZG1hX21vZGUgPSAobW9kZSAgPT0gRE1BX01PREVfV1JJVEUp
-OworCXZpcnR1YWxfZG1hX2FkZHIgPSBhZGRyOworCXZpcnR1YWxfZG1hX2NvdW50ID0gc2l6ZTsK
-Kwl2aXJ0dWFsX2RtYV9yZXNpZHVlID0gMDsKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGludCBo
-YXJkX2RtYV9zZXR1cChjaGFyICphZGRyLCB1bnNpZ25lZCBsb25nIHNpemUsIGludCBtb2RlLCBp
-bnQgaW8pCit7CisJLyogYWN0dWFsLCBwaHlzaWNhbCBETUEgKi8KKwlkb2luZ19wZG1hID0gMDsK
-KwljbGVhcl9kbWFfZmYoRkxPUFBZX0RNQSk7CisJc2V0X2RtYV9tb2RlKEZMT1BQWV9ETUEsbW9k
-ZSk7CisJc2V0X2RtYV9hZGRyKEZMT1BQWV9ETUEsKHVuc2lnbmVkIGludCl2aXJ0X3RvX2J1cyhh
-ZGRyKSk7CisJc2V0X2RtYV9jb3VudChGTE9QUFlfRE1BLHNpemUpOworCWVuYWJsZV9kbWEoRkxP
-UFBZX0RNQSk7CisJcmV0dXJuIDA7Cit9CisKK3N0cnVjdCBmZF9yb3V0aW5lX2wgeworCXZvaWQg
-KCpfZGlzYWJsZV9kbWEpKHVuc2lnbmVkIGludCBkbWFucik7CisJaW50ICgqX3JlcXVlc3RfZG1h
-KSh1bnNpZ25lZCBpbnQgZG1hbnIsIGNvbnN0IGNoYXIgKiBkZXZpY2VfaWQpOworCXZvaWQgKCpf
-ZnJlZV9kbWEpKHVuc2lnbmVkIGludCBkbWFucik7CisJaW50ICgqX2dldF9kbWFfcmVzaWR1ZSko
-dW5zaWduZWQgaW50IGR1bW15KTsKKwl1bnNpZ25lZCBsb25nICgqX2RtYV9tZW1fYWxsb2MpICh1
-bnNpZ25lZCBsb25nIHNpemUpOworCWludCAoKl9kbWFfc2V0dXApKGNoYXIgKmFkZHIsIHVuc2ln
-bmVkIGxvbmcgc2l6ZSwgaW50IG1vZGUsIGludCBpbyk7Cit9IGZkX3JvdXRpbmVbXSA9IHsKKwl7
-CisJCWRpc2FibGVfZG1hLAorCQlyZXF1ZXN0X2RtYSwKKwkJZnJlZV9kbWEsCisJCWdldF9kbWFf
-cmVzaWR1ZSwKKwkJZG1hX21lbV9hbGxvYywKKwkJaGFyZF9kbWFfc2V0dXAKKwl9LAorCXsKKwkJ
-dmRtYV9kaXNhYmxlX2RtYSwKKwkJdmRtYV9yZXF1ZXN0X2RtYSwKKwkJdmRtYV9ub3AsCisJCXZk
-bWFfZ2V0X2RtYV9yZXNpZHVlLAorCQl2ZG1hX21lbV9hbGxvYywKKwkJdmRtYV9kbWFfc2V0dXAK
-Kwl9Cit9OworCiBzdGF0aWMgaW50IEZEQzEgPSAweDNmMDsKIHN0YXRpYyBpbnQgRkRDMiA9IC0x
-OwogCg==
-
---Multipart=_Mon__14_Feb_2005_09_23_29_-0500_djPDw6.zzJeKXNOR--
+Eric

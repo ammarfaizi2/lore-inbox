@@ -1,106 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263534AbTE3J6M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 05:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTE3J6M
+	id S263535AbTE3J71 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 05:59:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTE3J71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 05:58:12 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:44562 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263534AbTE3J6J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 05:58:09 -0400
-Date: Fri, 30 May 2003 12:11:08 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: 21rc6 serverworks IDE blows even more than is usual :)
-Message-Id: <20030530121108.6a6a82de.skraw@ithnet.com>
-In-Reply-To: <20030529114001.GD7217@louise.pinerecords.com>
-References: <20030529114001.GD7217@louise.pinerecords.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 30 May 2003 05:59:27 -0400
+Received: from catv-50622120.szolcatv.broadband.hu ([80.98.33.32]:40065 "EHLO
+	catv-50622120.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S263535AbTE3J70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 05:59:26 -0400
+Message-ID: <3ED72E97.7060008@freemail.hu>
+Date: Fri, 30 May 2003 12:12:39 +0200
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, hu
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-mm2
+References: <3ED70B9A.5050104@freemail.hu> <20030530012710.57cca756.akpm@digeo.com> <3ED728DF.8030203@freemail.hu>
+In-Reply-To: <3ED728DF.8030203@freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 May 2003 13:40:01 +0200
-Tomas Szepe <szepe@pinerecords.com> wrote:
+Boszormenyi Zoltan wrote:
 
-> Hi Alan, Bartolomiej, Marcelo,
-> 
-> I can't seem to get the onboard Serverworks CSB5 IDE controller (rev 93)
-> in a Compaq Proliant ML350 G3 to work (reliably/at all) no matter what
-> kernel I use:
-> 
-> o  2.4.21-rc6
-> 	intrerrupt timeouts, can't r/w from/to drive reliably in pio, dma hosed
-> 
-> o  2.4.21-rc2-ac3
-> 	r/w in pio ok, dma hosed
-> 
-> o  2.4.20
-> 	intrerrupt timeouts, can't r/w from/to drive reliably in pio, dma hosed
-> 
-> o  2.4.20-pre8-ac3 (has always worked on OSB4 beasts for me)
-> 	intrerrupt timeouts, can't r/w from/to drive reliably in pio, dma hosed
-> 
-> lspci & .config excerpts plus other bits of info follow.
-> The box is SMP + highmem.
-> 
-> --
-> 
-> 00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93) (prog-if 8a
-> [Master SecP PriP])
-> 	Subsystem: ServerWorks CSB5 IDE Controller
-> 	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+
-> 	Stepping- SERR+ FastB2B- Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
-> 	DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- Latency: 64
-> 	Region 0: I/O ports at <ignored>
-> 	Region 1: I/O ports at <ignored>
-> 	Region 2: I/O ports at <unassigned>
-> 	Region 3: I/O ports at <unassigned>
-> 	Region 4: I/O ports at 2000 [size=16]
+> Andrew Morton wrote:
+>
+>> Boszormenyi Zoltan <zboszor@freemail.hu> wrote:
+>>  
+>>
+>>> Hi,
+>>>
+>>> I am testing it now with your two extra patches.
+>>> I started vmware but I don't notice it now. Everything is snappy.
+>>> The system is a RH9 with upgrades. The latest errata kernel still
+>>> stops for seconds sometimes and vmware (and rsync between two drives
+>>> for that matter) makes a noticable performance impact. With .70-mm2,
+>>> I can still work on other things and not wait for other things to
+>>> finish first.
+>>>   
+>>
+>>
+>> OK, thanks. 
+>
 
-I don't know if this is in anyway interesting for you, but I got the same
-chipset on an Asus board and been burning GBs of data onto DVDs with it and no
-(ide) problem.
+I am running it now, it seems rock solid.
+Two rsync and one "cp -ar" a 2.4 GB directory between the same two drives
+are finishing faster than with RH9 kernel-smp-2.4.20-13.9. :-)
 
-Mine:
-
-00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93) (prog-if 8a
-	[Master SecP PriP])
-        Subsystem: ServerWorks CSB5 IDE Controller
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr-
-	Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-	<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64, cache line size 08
-        Region 0: I/O ports at <ignored>
-        Region 1: I/O ports at <ignored>
-        Region 2: I/O ports at <ignored>
-        Region 3: I/O ports at <ignored>
-        Region 4: I/O ports at 9400 [size=16]
-
-/dev/hdc:
-
- Model=SONY DVD RW DRU-500A, FwRev=2.0c, SerialNo=XXXXXXXX
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 
- AdvancedPM=no
- Drive conforms to: device does not report version:  4 5 6
+> OK. :-) However, "modprobe capability" is still not automatic.
+> What is the alias line for capability? I can't figure it out myself.
+> Perhaps it's not supported configuring capability
+> (aka CONFIG_SECURITY_CAPABILITIES) as a module?
+> It's definitely allowed...
 
 
+OK, compiled as built-in, not too many problems left.
+I will still have to fiddle with alias lines for USB to not complain on 
+boot.
+I don't have any USB devices though.
 
-Regards,
-Stephan
+Best regards,
+Zoltán Böszörményi
 
 

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264915AbSL0M4r>; Fri, 27 Dec 2002 07:56:47 -0500
+	id <S264925AbSL0NFo>; Fri, 27 Dec 2002 08:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264919AbSL0M4r>; Fri, 27 Dec 2002 07:56:47 -0500
-Received: from extern.genomatix.de ([213.221.100.139]:18641 "EHLO
-	mail.genomatix.de") by vger.kernel.org with ESMTP
-	id <S264915AbSL0M4q>; Fri, 27 Dec 2002 07:56:46 -0500
-Message-ID: <3E0C4FF9.1010100@mailsammler.de>
-Date: Fri, 27 Dec 2002 14:04:57 +0100
-From: Torben Frey <kernel@mailsammler.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: de-de, de, en, en-us
-MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <3E01D7D7.2070201@mailsammler.de> <3E0276B9.40001@vgertech.com>
-In-Reply-To: <3E0276B9.40001@vgertech.com>
-Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264931AbSL0NFo>; Fri, 27 Dec 2002 08:05:44 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:61396 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264925AbSL0NFk>; Fri, 27 Dec 2002 08:05:40 -0500
+Date: Fri, 27 Dec 2002 08:37:55 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Anomalous Force <anomalous_force@yahoo.com>
+Cc: wa@almesberger.net, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: holy grail
+Message-ID: <20021227083755.C628@nightmaster.csn.tu-chemnitz.de>
+References: <20021227010338.A1406@almesberger.net> <20021227072142.26177.qmail@web13208.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20021227072142.26177.qmail@web13208.mail.yahoo.com>; from anomalous_force@yahoo.com on Thu, Dec 26, 2002 at 11:21:42PM -0800
+X-Spam-Score: -3.0 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18RuJJ-0000bq-00*ZAGFCf5W5N6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nuno,
+Hi,
 
-> AFAIK, this is because you have some GB of memory (RAM) that are beeing 
-> used as disk-cache. It took 22 seconds for the cached writes-to-disk 
-> being flushed to the device.
+On Thu, Dec 26, 2002 at 11:21:42PM -0800, Anomalous Force wrote:
+[hot swapping the kernel]
+> yes, it would be extremely difficult. but, as with all fields of
+> endevour, a holy grail is only such because it is. the question
+> remains, is this do-able? perhaps not now, or in two years, but
+> what about five? say, kernel 3.x.x or even 4.x.x?
 
-Yes, I guess you are right...must be the flushing of my buffers, altogether it writes out 
-exactly the amount of data I would expect (the "22seconds block" included).
+I would just say: Start it yourself and see how hard it is. i
 
-Regards,
-Torben
+You might find contributors and even sponsors, while you actually
+work on it. There certainly is a market for this feature, because
+there are OSes support this. Would be nice, if Linux could crack
+into this market, too.
 
-PS: Sorry for my long delay, but I was at home over Xmas and could not reply earlier.
+So happy hacking and good luck!
 
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

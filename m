@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265335AbSKAIvJ>; Fri, 1 Nov 2002 03:51:09 -0500
+	id <S265528AbSKAJOd>; Fri, 1 Nov 2002 04:14:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265369AbSKAIvJ>; Fri, 1 Nov 2002 03:51:09 -0500
-Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:19636
-	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
-	id <S265335AbSKAIvI>; Fri, 1 Nov 2002 03:51:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: 2.5.45: initrd broken?
-Date: Fri, 1 Nov 2002 03:57:28 -0500
-User-Agent: KMail/1.4.2
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-References: <20021031170340.GA18058@bytesex.org> <Pine.GSO.4.21.0210311148190.16688-100000@weyl.math.psu.edu> <20021031192155.GA19825@bytesex.org>
-In-Reply-To: <20021031192155.GA19825@bytesex.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211010357.28964.dcinege@psychosis.com>
+	id <S265600AbSKAJOd>; Fri, 1 Nov 2002 04:14:33 -0500
+Received: from mail.hometree.net ([212.34.181.120]:50131 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265528AbSKAJOc>; Fri, 1 Nov 2002 04:14:32 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: What's left over.
+Date: Fri, 1 Nov 2002 09:20:59 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <apth1r$b36$1@forge.intermeta.de>
+References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com> <Pine.LNX.3.96.1021101000448.23822B-100000@gatekeeper.tmr.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1036142459 1902 212.34.181.4 (1 Nov 2002 09:20:59 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 1 Nov 2002 09:20:59 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 October 2002 14:21, Gerd Knorr wrote:
-> > > 2.5.45 doesn't boot for me.  I'm using a initrd to load some modules.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-Yep broken here too...it's one/some of the changes in rd.c
+>  You're not listening! Screw the vendors! The users want this enough to
+                         ^^^^^^^^^^^^^^^^^^
+>be patching it into their kernels now.
 
-It's dying in my code with 
-	close(in_fd); 
-in_fd of course being the /dev/initrd area.
+[...]
 
-> f7dcd820 Call Trace:
->  [<c0144583>] sync_blockdev+0x33/0x50
+>  I also have Solaris and AIX servers, and if they go down I send a crash
+>dump to the vendor who can then provide support. Big difference. Visible
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-I start out with 
-	initrd_release+0x79/0x80
+q.e.d. End of Discussion.
 
-But initrd_release() in rd.c hasen't changed since 2.5.44?
-(Should it have??)
-
-
+	Regard
+		Henning
 
 
 -- 
-The time is now 22:48 (Totalitarian)  -  http://www.ccops.org/
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

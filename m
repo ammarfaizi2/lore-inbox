@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264264AbTLFJlb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 04:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbTLFJla
+	id S264971AbTLFJud (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 04:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbTLFJuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 04:41:30 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:38928 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S264264AbTLFJl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 04:41:29 -0500
-Message-ID: <3FD1A54F.101@kolumbus.fi>
-Date: Sat, 06 Dec 2003 11:45:51 +0200
-From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 6 Dec 2003 04:50:32 -0500
+Received: from main.gmane.org ([80.91.224.249]:8650 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264971AbTLFJuZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 04:50:25 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-CC: William Lee Irwin III <wli@holomorphy.com>
-Subject: Numaq in 2.4 and 2.6
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 06.12.2003 11:43:28,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 06.12.2003 11:42:38,
-	Serialize complete at 06.12.2003 11:42:38
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+From: Jens Benecke <jens-usenet@spamfreemail.de>
+Subject: Help: 2.4 -> 2.6 (test11,bk2) kernel module file size (due to debug options?)
+Date: Sat, 06 Dec 2003 10:17:50 +0100
+Message-ID: <bqs6rq$vv3$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="nextPart9916970.C3pLvd3usl"
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.6
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While comparing numaq support in 2.4.23 and 2.6.0-test11 came accross 
-following...
+--nextPart9916970.C3pLvd3usl
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
 
-In 2.4.23 mpparse.c we do :
-    phys_cpu_present_map |= apicid_to_phys_cpu_present(m->mpc_apicid);
+Hi,
 
-and then launch the cpus using NMI and logical addressing in the order 
-phys_cpu_present_map indicates.
+after installing (actually - creating a debian package for) 2.6.0-test11-bk2
+I have this:
 
+2.3M    /boot
+366M    /lib/modules/2.6.0-test11-bk2                           !!!
+15k     /usr/share/doc/kernel-image-2.6.0-test11-bk2
 
-In 2.6.0-test11mpparse.c we do :
-    tmp = apicid_to_cpu_present(apicid);
-    physids_or(phys_cpu_present_map, phys_cpu_present_map, tmp);
+Almost all .ko files are >200k in size. What kernel setting is/can be
+responsible for this?
 
-where apicid is the result of :
-    static inline int generate_logical_apicid(int quad, int phys_apicid)
-    {
-        return (quad << 4) + (phys_apicid ? phys_apicid << 1 : 1);
-    }
+N.B. I'm compiling the test11 to test it on my hardware, so ATM I'm not too
+worried about size if debugging is made easier. But this is _quite_ a
+drastic size increase compared to 2.4.22, where most driver files were
+10-40k in size.
 
-and phys_apicid == m->mpc_apicid
-
-Again we lauch the cpus using NMI and logical addressing.
-
-
-So the the set of apicids fed to do_boot_cpu() in 2.4 and 2.6 must be 
-different using the same mp table. And both use logical addressing. 
-Seems that 2.4 expects mpc_apicid to be something like (quad | cpu) and 
-2.6 only cpu, the quad comes from the translation table.
-
-The conclusion is that the same mp table can't work in 2.4 and 2.6? No?
-
---Mika
+.config attached. Compiled cleanly, with a couple warnings. 
+I'll now test it on my laptop.
 
 
+Thanks!
+
+
+-- 
+Jens Benecke
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--nextPart9916970.C3pLvd3usl--

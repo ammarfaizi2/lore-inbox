@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277435AbRKMRux>; Tue, 13 Nov 2001 12:50:53 -0500
+	id <S277568AbRKMRzn>; Tue, 13 Nov 2001 12:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277568AbRKMRun>; Tue, 13 Nov 2001 12:50:43 -0500
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:30084 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S277435AbRKMRue>; Tue, 13 Nov 2001 12:50:34 -0500
-Message-ID: <3BF15D63.10D9948C@randomlogic.com>
-Date: Tue, 13 Nov 2001 09:50:27 -0800
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac10 i686)
-X-Accept-Language: en
+	id <S277599AbRKMRzd>; Tue, 13 Nov 2001 12:55:33 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:57046 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S277568AbRKMRzY>; Tue, 13 Nov 2001 12:55:24 -0500
+Date: Tue, 13 Nov 2001 13:11:18 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Which kernel, Linus' or Alan's for Athlon?
+In-Reply-To: <3BF15B5C.4F23EE33@randomlogic.com>
+Message-ID: <Pine.LNX.4.40.0111131306370.88-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-To: Chris Abbey <linux@cabbey.net>
-CC: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>,
-        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
-Subject: Re: Missing source files for standard libraries
-In-Reply-To: <Pine.LNX.4.33.0111130036270.13264-100000@tweedle.cabbey.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Abbey wrote:
-> 
-> Yesterday, Paul G. Allen wrote:
-> > I'm working on a game engine and there's a bug (actually, more than one
-> > ;) causing seg faults within different functions in the C/C++ libraries
-> > (e.g. - stdlib). I installed all the development stuff from the Red Hat
-> > CD's, do I need to get the gcc source or something in order to get these
-> > files?
-> 
-> most likely you need the glibc-devel package, or potentially the glibc
-> sources, I'm not sure how RH packages it... but in either case stdlib
-> is user space, not kernel space, so wrong list. ;)
-> 
+On Tue, 13 Nov 2001, Paul G. Allen wrote:
 
+> I've been running a slightly modified 2.4.9ac10 kernel and I think it
+> might be time to upgrade. I have a Tyan K7 Thunder with two 1.4GHz
+> Athlons (NOT MPs or XPs, plain Athlons). Which kernel best supports this
+> board?
 
-I knew between the two lists, someone would know. I installed the
-glibc-devel package though.
+Well Alan's kernel is quickly becoming Linus' which will be Marcelo's not
+long after that.
 
-PGA
+So, I'd say try out Linus' 2.4.15-pres or wait for 2.4.15 final and see
+how they work for you.  Cause this is where 2.4 is at now, and if it
+doesn't work well for you, people need to know.
+
+Other than that, any of the late 2.4s should work fine on that board.
+
+-Chris
 -- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

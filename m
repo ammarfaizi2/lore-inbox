@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbSKXO4x>; Sun, 24 Nov 2002 09:56:53 -0500
+	id <S261368AbSKXOzQ>; Sun, 24 Nov 2002 09:55:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbSKXO4x>; Sun, 24 Nov 2002 09:56:53 -0500
-Received: from holomorphy.com ([66.224.33.161]:63627 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261364AbSKXO4w>;
-	Sun, 24 Nov 2002 09:56:52 -0500
-Date: Sun, 24 Nov 2002 07:00:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: akpm@digeo.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+	id <S261375AbSKXOzQ>; Sun, 24 Nov 2002 09:55:16 -0500
+Received: from services.cam.org ([198.73.180.252]:20245 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S261368AbSKXOzP>;
+	Sun, 24 Nov 2002 09:55:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: William Lee Irwin III <wli@holomorphy.com>
 Subject: Re: hugetlb page patch for 2.5.48-bug fixes
-Message-ID: <20021124150039.GB18063@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ed Tomlinson <tomlins@cam.org>, akpm@digeo.com, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <25282B06EFB8D31198BF00508B66D4FA03EA5B14@fmsmsx114.fm.intel.com> <200211240944.10660.tomlins@cam.org> <20021124144905.GA18063@holomorphy.com> <200211241001.27971.tomlins@cam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211241001.27971.tomlins@cam.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Sun, 24 Nov 2002 10:01:27 -0500
+User-Agent: KMail/1.4.3
+Cc: akpm@digeo.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <25282B06EFB8D31198BF00508B66D4FA03EA5B14@fmsmsx114.fm.intel.com> <200211240944.10660.tomlins@cam.org> <20021124144905.GA18063@holomorphy.com>
+In-Reply-To: <20021124144905.GA18063@holomorphy.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211241001.27971.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> Okay, you've jumped into oblivion. What fs's were you using here?
+On November 24, 2002 09:49 am, William Lee Irwin III wrote:
+> On Sun, Nov 24, 2002 at 09:44:10AM -0500, Ed Tomlinson wrote:
+> > bounds: 0000
+> > CPU:    0
+> > EIP:    0060:[i8042_exit+155901274/-1072694240]    Not tainted
+> > EFLAGS: 00010283
+> > EIP is at 0x94ae13a
+> > eax: dfdee040   ebx: c33151f4   ecx: c02b7ca2   edx: 094ae040
+> > esi: dfdce000   edi: 00000056   ebp: dfdce000   esp: dfdcfe80
+> > ds: 0068   es: 0068   ss: 0068
+> > Process kswapd0 (pid: 5, threadinfo=dfdce000 task=c151f840)
+> > Stack: 48094ae0 c015a7d8 c33151f4 dab225e0 c015965f c33151f4 dfdce000
+> > 0000004d 00000056 c015836f dab225e0 000001d0 00000000 c01586b6 00000056
+> > c0134b5c 00000056 000001d0 01ee7b30 00000000 000186fe dffee760 00000212
+> > c02b6cb4 Call Trace:
+> > [iput+88/128] iput+0x58/0x80
+> > [prune_one_dentry+63/128] prune_one_dentry+0x3f/0x80
+> > [prune_dcache+175/192] prune_dcache+0xaf/0xc0
+> > [shrink_dcache_memory+54/64] shrink_dcache_memory+0x36/0x40
+> > [shrink_slab+252/352] shrink_slab+0xfc/0x160
+> > [balance_pgdat+243/352] balance_pgdat+0xf3/0x160
+> > [kswapd+291/320] kswapd+0x123/0x140
+>
+> Okay, you've jumped into oblivion. What fs's were you using here?
 
-On Sun, Nov 24, 2002 at 10:01:27AM -0500, Ed Tomlinson wrote:
-> reiserfs.  (sorry about the subject line)
+reiserfs.  (sorry about the subject line)
 
-Did you have CONFIG_HUGETLB_FS=y and/or the patch in this thread applied?
-
-
-Thanks,
-Bill
+Ed

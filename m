@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVAPUSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVAPUUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbVAPUSw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 15:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVAPUSw
+	id S262576AbVAPUUT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 15:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbVAPUUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 15:18:52 -0500
-Received: from smtpout4.uol.com.br ([200.221.4.195]:4549 "EHLO smtp.uol.com.br")
-	by vger.kernel.org with ESMTP id S262574AbVAPUSu (ORCPT
+	Sun, 16 Jan 2005 15:20:19 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:49091 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262576AbVAPUUF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 15:18:50 -0500
-Date: Sun, 16 Jan 2005 18:18:47 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Steve Snyder <swsnyder@insightbb.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Testing optimize-for-size suitability?
-Message-ID: <20050116201847.GC4009@ime.usp.br>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Steve Snyder <swsnyder@insightbb.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200501161040.12907.swsnyder@insightbb.com> <1105890403.8734.20.camel@laptopd505.fenrus.org>
+	Sun, 16 Jan 2005 15:20:05 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: conglomerate objects in reference*.pl 
+In-reply-to: Your message of "Sun, 16 Jan 2005 11:45:33 -0800."
+             <41EAC45D.30207@osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1105890403.8734.20.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 17 Jan 2005 06:47:43 +1100
+Message-ID: <15456.1105904863@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 16 2005, Arjan van de Ven wrote:
-> On Sun, 2005-01-16 at 10:40 -0500, Steve Snyder wrote:
-> > Is there a benchmark or set of benchmarks that would allow me to test
-> > the suitability of the CONFIG_CC_OPTIMIZE_FOR_SIZE kernel config
-> > option?
-> 
-> it also saves 400 kb of memory that can be used by the pagecache now...
-> that doesn't show in a microbenchmark but it's a quite sizable gain if
-> you remember that a disk seek is 10msec..that is a LOT of cpu cycles..
+On Sun, 16 Jan 2005 11:45:33 -0800, 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>Keith Owens wrote:
+>> On Sat, 15 Jan 2005 20:49:33 -0800, 
+>> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>>>I'm seeing some drivers/*/built-in.o that should be ignored AFAIK,
+>>>but they are not ignored.  Any ideas?
 
-Since I'm using a Duron 600MHz (the lowest model, AFAIK), I decided to
-compile a new kernel with the -Os option. Despite the scary warning on the
-help, it seems to be working fine for the first few moments with Debian's
-testing gcc (3.3.5).
+   ld -m elf_i386  -r -o drivers/ide/legacy/built-in.o drivers/ide/legacy/hd.o
+   ld -m elf_i386  -r -o drivers/ide/built-in.o drivers/ide/legacy/built-in.o
 
-I haven't noticed any other improvement, but I guess that more memory
-available to applications would never hurt (as long as stability is
-preserved).
+drivers/ide/legacy/built-in.o and drivers/ide/built-in.o consist of
+exactly one object in your build.  From scripts/reference*.pl:
 
-I will also try to compile other applications (like Firefox), since my main
-memory is so limited and the small cache of my processor would surely
-appreciate it.
+# Ignore conglomerate objects, they have been built from multiple objects and we
+# only care about the individual objects.  If an object has more than one GCC:
+# string in the comment section then it is conglomerate.  This does not filter
+# out conglomerates that consist of exactly one object, can't be helped.
 
-Perhaps it is time to give the tiny-linux project a try to see what other
-optimizations I can achieve.
+built-in.o added to the conglomerate list to help a bit.
 
-
-Just another data point, Rogério.
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

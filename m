@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267492AbTBLS6s>; Wed, 12 Feb 2003 13:58:48 -0500
+	id <S267536AbTBLTCi>; Wed, 12 Feb 2003 14:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267530AbTBLS6s>; Wed, 12 Feb 2003 13:58:48 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:18694
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S267492AbTBLS6r>; Wed, 12 Feb 2003 13:58:47 -0500
-Message-ID: <3E4A9B49.3000108@rackable.com>
-Date: Wed, 12 Feb 2003 11:06:49 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Promise SATA chips
-References: <yw1xd6lxadbs.fsf@magnum.e.kth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 12 Feb 2003 19:08:23.0081 (UTC) FILETIME=[1CF48990:01C2D2CA]
+	id <S267574AbTBLTCi>; Wed, 12 Feb 2003 14:02:38 -0500
+Received: from inmail.compaq.com ([161.114.64.102]:47375 "EHLO
+	zmamail02.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S267536AbTBLTCh>; Wed, 12 Feb 2003 14:02:37 -0500
+Date: Wed, 12 Feb 2003 13:13:04 +0600
+From: steve cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: Re: [PATCH] 2.5.60 make cciss driver compile
+Message-ID: <20030212071304.GC1032@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
 
->Are there any drivers being developed for Promise's SATA chips
->(e.g. the pdc20275 with PCI id 0x3375)?  Or do I have to disassemble
->their driver to use it on non-intel machines?
->
->  
->
-  Last I checked there was no open driver and no prospect of one.  Do 
-yourself a favor and use the silicon image chipset.
+Allow cciss driver attached disks other than the first to be accessed.
+(patch 3 of 11)
+-- steve
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+--- linux-2.5.60/drivers/block/cciss.c~nth_vol_partition	2003-02-12 10:12:44.000000000 +0600
++++ linux-2.5.60-scameron/drivers/block/cciss.c	2003-02-12 10:12:44.000000000 +0600
+@@ -353,7 +353,7 @@ static int cciss_open(struct inode *inod
+ 	 * but I'm already using way to many device nodes to claim another one
+ 	 * for "raw controller".
+ 	 */
+-	if (inode->i_bdev->bd_inode->i_size == 0) {
++	if (hba[ctlr]->drv[dsk].nr_blocks == 0) {
+ 		if (minor(inode->i_rdev) != 0)
+ 			return -ENXIO;
+ 		if (!capable(CAP_SYS_ADMIN))
 
-
-
+_

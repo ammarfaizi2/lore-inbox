@@ -1,60 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310448AbSCBUpD>; Sat, 2 Mar 2002 15:45:03 -0500
+	id <S310451AbSCBUuD>; Sat, 2 Mar 2002 15:50:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310451AbSCBUoy>; Sat, 2 Mar 2002 15:44:54 -0500
-Received: from think.faceprint.com ([166.90.149.11]:49282 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S310448AbSCBUop>; Sat, 2 Mar 2002 15:44:45 -0500
-Date: Sat, 2 Mar 2002 15:43:07 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.5-dj2
-Message-ID: <20020302204305.GA6593@faceprint.com>
-In-Reply-To: <20020228221845.GA6682@faceprint.com> <20020302075755.GD20536@kroah.com>
+	id <S310452AbSCBUts>; Sat, 2 Mar 2002 15:49:48 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:60716 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S310451AbSCBUtd>; Sat, 2 Mar 2002 15:49:33 -0500
+Date: Sat, 2 Mar 2002 21:47:39 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <20020302214739.B20606@dualathlon.random>
+In-Reply-To: <Pine.LNX.3.96.1020228221750.3310D-100000@gatekeeper.tmr.com> <200203021958.g22JwKq08818@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020302075755.GD20536@kroah.com>
-User-Agent: Mutt/1.3.27i
-From: faceprint@faceprint.com (Nathan Walp)
+In-Reply-To: <200203021958.g22JwKq08818@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 02, 2002 at 09:57:49PM -0200, Denis Vlasenko wrote:
+> If rmap is really better than current VM, it will be merged into head 
+> development branch (2.5). There is no anti-rmap conspiracy :-)
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Indeed.
 
-On Fri, Mar 01, 2002 at 11:57:55PM -0800, Greg KH wrote:
-> On Thu, Feb 28, 2002 at 05:18:48PM -0500, Nathan Walp wrote:
-> > got this either unplugging and plugging my usb printer from the hub, or
-> > turning it on and off (don't remember the exact timing). =20
->=20
-> Were you sending data to the printer at the time?
->=20
-> And does this also happen on 2.5.6-pre2?
-
-There was a print job spooled in CUPS at the time, so I assume it was
-trying to talk to it in some way.  I'll have to let you know about
-2.5.6-pre2 (or some later version) in about a week, as that machine is
-in my dorm turned off for spring break this week. =20
-
-Nathan
-
---FL5UXtIhxfXey3p5
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8gTlZPkYs3Ekt234RAqFyAKCXrQu+J5IpFByBe60R4kPUZLugFgCfUnHo
-/E7a+kZXRQG8jQAF3NlE19k=
-=tGS6
------END PGP SIGNATURE-----
-
---FL5UXtIhxfXey3p5--
+Andrea

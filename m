@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313328AbSDGOqL>; Sun, 7 Apr 2002 10:46:11 -0400
+	id <S312754AbSDGOwY>; Sun, 7 Apr 2002 10:52:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313341AbSDGOqK>; Sun, 7 Apr 2002 10:46:10 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:33554 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S313328AbSDGOqK>; Sun, 7 Apr 2002 10:46:10 -0400
-Message-ID: <3CB05CF8.4513BA83@linux-m68k.org>
-Date: Sun, 07 Apr 2002 16:51:36 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S313332AbSDGOwX>; Sun, 7 Apr 2002 10:52:23 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:62093 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S312754AbSDGOwW>;
+	Sun, 7 Apr 2002 10:52:22 -0400
+Date: Sun, 7 Apr 2002 16:51:33 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.8-pre2
+In-Reply-To: <20020407143437.F30048@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0204071648290.2567-100000@lisianthus.sonytel.be>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 2.0 is available
-In-Reply-To: <28682.1018189712@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Keith Owens wrote:
-
-> >These 14 seconds (or 37 seconds on my machine) are always needed
-> >whatever I try, e.g. "make foo/bar.o" also needs that time.
+On Sun, 7 Apr 2002, Russell King wrote:
+> On Sun, Apr 07, 2002 at 12:42:45PM +0200, Geert Uytterhoeven wrote:
+> > On Sun, 7 Apr 2002, Russell King wrote:
+> > > (Oh, and a bugbear - people go running around adding checks for the
+> > > return value of request_region and friends on embedded devices where
+> > > there can't be the possibility of a clash waste memory needlessly.)
+> > 
+> > Perhaps you want to modularize the driver later? Resource management also
+> > prevents you from insmoding two drivers for the same hardware.
 > 
-> make NO_MAKEFILE_GEN=1 foo/bar.o.  Very low overhead for quick and
-> dirty testing of changes, but if you want an accurate kernel build, you
-> have to take the overhead.  kbuild 2.4 overhead for a full build when
-> only minor changes have been made is even worse.
+> Point 1: You can't perform resource management on the System RAM since
+>  they're already claimed.
 
-I don't want a kernel build, I just want a single object file to be
-rebuilt?!
-I can understand that it takes longer, when I change a Makefile or the
-config, but why has the Makefile to be rebuilt, when only a source file
-changed?
+Hmmm... Just guessing: perhaps because you created the System RAM resource
+using request_mem_region() instead of request_resource()?
 
-bye, Roman
+On Amiga the Chip RAM allocator uses the resource management system, and both
+the whole bunch of Chip RAM (parent) and all allocated blocks (children) show
+up in /proc/iomem.
+
+> Point 2: You can't perform resource management on bits in a control
+>  register that performs many other random functions; resource management
+>  is byte based not bit based.
+
+That's indeed more nasty.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

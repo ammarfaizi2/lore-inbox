@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280084AbRKSQ7Y>; Mon, 19 Nov 2001 11:59:24 -0500
+	id <S280037AbRKSRCy>; Mon, 19 Nov 2001 12:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280051AbRKSQ7P>; Mon, 19 Nov 2001 11:59:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:28433 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280037AbRKSQ7A>; Mon, 19 Nov 2001 11:59:00 -0500
-Date: Mon, 19 Nov 2001 14:58:36 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Remco Post <r.post@sara.nl>
-Cc: James A Sutherland <jas88@cam.ac.uk>, <linux-kernel@vger.kernel.org>,
-        <remco@zhadum.sara.nl>
-Subject: Re: Swap 
-In-Reply-To: <200111191346.OAA04290@zhadum.sara.nl>
-Message-ID: <Pine.LNX.4.33L.0111191458150.1491-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S280051AbRKSRCo>; Mon, 19 Nov 2001 12:02:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32776 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280037AbRKSRCi>; Mon, 19 Nov 2001 12:02:38 -0500
+Date: Mon, 19 Nov 2001 08:57:32 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        Andrea Arcangeli <andrea@suse.de>, <ehrhardt@mathematik.uni-ulm.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM-related Oops: 2.4.15pre1 
+In-Reply-To: <588.1006159468@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111190839520.8103-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, Remco Post wrote:
 
-> Linux does swap (I guess), swapping is a very extreem measure, "I need
-> memory now, and the paging algorithm does not work any more", this is
-> quite rare, but a few runaway netscape processes can easily cause
-> this....
+On Mon, 19 Nov 2001, David Woodhouse wrote:
+>
+> Is it worth making put_unaligned and get_unaligned on x86 avoid this by
+> loading/storing the two halves of the required datum separately, then?
 
-Guess again.  Linux doesn't have load control implemented ...
+No, modern CPU's do it well enough - starting from the Pentium, Intel does
+all locking internally in the caches, and depends on the cache coherency
+protocol to show the atomicity to the rest of the world. Only an i486 will
+actually show the locked cycles on the bus, if I remember correctly.
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+In fact, I think the CPU will do a unaligned non-cache-crossing operation
+as fast as a aligned store. The cacheline-crossing case is noticeably
+slower, at least on a PPro (the Pentium had some optimizations where it
+would pair the two cacheline accesses, and could do two cacheline accesses
+in one cycle - so the cacheline crosser could execute at full speed, but
+it would hurt pairing with _other_ memory instructions).
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Testing shows:
+ - PPro core:
+	single-cycle stores, whether aligned or not, within a
+	cacheline.
+
+	8 cycles for cacheline crossing stores
+
+ - Athlon:
+	single cycle for unaligned, whether cache-line croesser or not.
+
+(And as mentioned, I think Pentiums act the same as athlons).
+
+In short, unaligned integer ops are not affected very much at all. They do
+take more resources internally (ie they use two write-ports to the cache
+when cache-crossing), so even when they run at the "same" speed, it pairs
+etc better if aligned, but x86 is very very good at unaligned handling.
+
+One of the advantages of a legacy of crap: x86 never had the choice to be
+designed for "the good case". In order to run fast, an x86 has to run fast
+even on bad code.
+
+Because in real life, it doesn't matter how well you do on spec benchmarks
+with good compilers.
+
+		Linus
 

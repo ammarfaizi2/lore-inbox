@@ -1,40 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbTEBVMl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 17:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263127AbTEBVMl
+	id S263084AbTEBVJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 17:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbTEBVJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 17:12:41 -0400
-Received: from ns.suse.de ([213.95.15.193]:51210 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263124AbTEBVMk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 17:12:40 -0400
-Date: Fri, 2 May 2003 23:25:05 +0200
-From: Andi Kleen <ak@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-Message-ID: <20030502212505.GD21239@oldwotan.suse.de>
-References: <Pine.LNX.4.44.0305021325130.6565-100000@devserv.devel.redhat.com.suse.lists.linux.kernel> <200305021829.h42ITclA000178@81-2-122-30.bradfords.org.uk.suse.lists.linux.kernel> <b8udjm$cgq$1@cesium.transmeta.com.suse.lists.linux.kernel> <p73n0i5138g.fsf@oldwotan.suse.de> <3EB2DB8C.70600@zytor.com> <20030502210758.GB21239@oldwotan.suse.de> <3EB2DEA2.6070002@zytor.com>
+	Fri, 2 May 2003 17:09:27 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:11491 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S263084AbTEBVJ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 17:09:26 -0400
+Subject: Re: 2.5.68-mm4
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030502140508.02d13449.akpm@digeo.com>
+References: <20030502020149.1ec3e54f.akpm@digeo.com>
+	 <1051905879.2166.34.camel@spc9.esa.lanl.gov>
+	 <20030502133405.57207c48.akpm@digeo.com>
+	 <1051908541.2166.40.camel@spc9.esa.lanl.gov>
+	 <20030502140508.02d13449.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051910420.2166.55.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EB2DEA2.6070002@zytor.com>
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 02 May 2003 15:20:20 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 02, 2003 at 02:09:54PM -0700, H. Peter Anvin wrote:
-> Andi Kleen wrote:
-> >>
-> >>Why is that?  And, in particular, why is it "too late to turn it back
-> > 
-> > mprotect() didn't (and probably still does not) work when you change
-> > PROT_EXEC.
+On Fri, 2003-05-02 at 15:05, Andrew Morton wrote:
+> Steven Cole <elenstev@mesatop.com> wrote:
 > >
+> > On Fri, 2003-05-02 at 14:34, Andrew Morton wrote:
+> > > Steven Cole <elenstev@mesatop.com> wrote:
+> > > >
+> > > > For what it's worth, kexec has worked for me on the following
+> > > > two systems.
+> > > > ...
+> > > > 00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+> > > 
+> > > Are you using eepro100 or e100?  I found that e100 failed to bring up the
+> > > interface on restart ("failed selftest"), but eepro100 was OK.
+> > 
+> > CONFIG_EEPRO100=y
+> > # CONFIG_EEPRO100_PIO is not set
+> > # CONFIG_E100 is not set
+> > 
+> > I can test E100 again to verify if that would help.
 > 
-> Kernel bug or CPU bug?
+> May as well.
+> 
+> There's something in the driver shutdown which is failing to bring the
+> device into a state in which the driver startup can start it up.  Probably
+> just a missing device reset.  I'll bug Scott about it if we get that far.
+> 
+Here is a snippet from dmesg output for a successful kexec e100 boot:
 
-Kernel bug probably. Need to debug it sometime, but there were more important
-things to do. Of course patches would be welcome if anybody is motivated ;)
+Intel(R) PRO/100 Network Driver - version 2.2.21-k1
+Copyright (c) 2003 Intel Corporation
 
--Andi
+e100: selftest OK.
+Freeing alive device c1b23000, eth%d
+e100: eth0: Intel(R) PRO/100 Network Connection
+  Hardware receive checksums enabled
+  cpu cycle saver enabled
+
+I booted the e100 2.5.68-mm4 kernel twice with kexec, initially from the
+eepro100 version, and once from the e100 version.  Both worked OK.
+
+Steven
+  
+
+

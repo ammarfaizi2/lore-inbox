@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316614AbSFUORO>; Fri, 21 Jun 2002 10:17:14 -0400
+	id <S316616AbSFUOTB>; Fri, 21 Jun 2002 10:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSFUORN>; Fri, 21 Jun 2002 10:17:13 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:62082 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316614AbSFUORK> convert rfc822-to-8bit;
-	Fri, 21 Jun 2002 10:17:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: "Taavo Raykoff" <traykoff@snet.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18 IDE channels block each other under load?
-Date: Fri, 21 Jun 2002 16:17:14 +0200
-User-Agent: KMail/1.4.1
-References: <000801c2192c$72e37580$ad0aa8c0@trws>
-In-Reply-To: <000801c2192c$72e37580$ad0aa8c0@trws>
+	id <S316621AbSFUOTA>; Fri, 21 Jun 2002 10:19:00 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:18959 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316616AbSFUOS4> convert rfc822-to-8bit; Fri, 21 Jun 2002 10:18:56 -0400
+Message-ID: <3D1335AC.6080100@evision-ventures.com>
+Date: Fri, 21 Jun 2002 16:18:20 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206211617.14863.roy@karlsbakk.net>
+To: Martin Devera <devik@cdi.cz>
+CC: leif@denali.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.22 ide disk hang on boot
+References: <Pine.LNX.4.44.0206211613330.788-100000@luxik.cdi.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 June 2002 16:03, Taavo Raykoff wrote:
-> Can someone tell me what is going on here?
-> <snip>
-> hdparm settings appear to have no influence on this behavior.
+U¿ytkownik Martin Devera napisa³:
+> I just read about IDE PIO related hangup in 2.5.22/3.
+> I'm having the same problem. Also I can't compile as
+> UP because compile crashes then :(
+> Please can you tell me where to find the ide-clean-92.diff ?
+> 
+> I'd like to test it. I debug USB bug and it was recommended
+> to me to test 2.5.23 but it is hard when I can't boot it :-\
+> Thanks, devik
+> 
+> 
 
-Are you running DMA on these controllers? It looks like they're running PIO
-
-Can you check the output of 'hdparm /dev/hd_' and "cat 
-/proc/ide/hd_/settings"?
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Please go ahead to 2.5.24, it could help it.
 

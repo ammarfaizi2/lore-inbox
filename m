@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272318AbTG3XCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 19:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272324AbTG3XCT
+	id S272257AbTG3W5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 18:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272320AbTG3W4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 19:02:19 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:3575 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272318AbTG3XCQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 19:02:16 -0400
-Subject: Re: Dell 2650 Dual Xeon freezing up frequently
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: nelsonis@earthlink.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F283E3A.7060200@earthlink.net>
-References: <3F283E3A.7060200@earthlink.net>
-Content-Type: text/plain
+	Wed, 30 Jul 2003 18:56:20 -0400
+Received: from dm7-80.slc.aros.net ([66.219.221.80]:55212 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S272318AbTG3Wzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 18:55:38 -0400
+Message-ID: <3F284CE6.6080701@aros.net>
+Date: Wed, 30 Jul 2003 16:55:34 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2+ext3+dbench=Buffer I/O error
+References: <5.2.1.1.2.20030730163933.00b41b50@wen-online.de> <20030730150902.5281f72c.akpm@osdl.org>
+In-Reply-To: <20030730150902.5281f72c.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059605809.10452.13.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Jul 2003 23:56:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-30 at 22:52, Ian S. Nelson wrote:
-> I'm running a RedHat 2.4.20 kernel on some 2650's   all dual xeon 
-> (pentium 4 jacksonized  so it looks like 4 procsessors)  2 have 1GB of 
-> RAM and 1 has 2GB of RAM.   THey all wedge, some times after a few 
-> minutes,  sometimes after hours.
+Andrew Morton wrote:
 
-With tg3 networking. If so make sure you either have a current errata or
-switch to the broadcom provided driver and that may help.
+>Mike Galbraith <efault@gmx.de> wrote:
+>  
+>
+>>Greetings,
+>>
+>>While trying to duplicate Randy Hron's "dbench has intermittent hang on 
+>>2.6.0-test1-ac2" report, I received quite a few "Buffer I/O error on 
+>>/dev/hda8, logical block N" messages.  (changing elevators makes no 
+>>difference fwiw).
+>>    
+>>
+>
+>That's just a gremlinlet.  You can delete the offending printk for now.
+>
+>  
+>
+>>I went back to test1, and it spat up a couple of "buffer 
+>>layer error" messages and associated traces.   Attempting to umount 
+>>afterward to run fsck left umount in D state.  See attachment.
+>>    
+>>
+>
+>Well that's a worry.  Is it repeatable? . . .
+>
+Any chance this problem is a consequence of not yet having Sean 
+Estabrooks partial bvec patch in this person's kernel??? 
+<http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0861.html>. Jens 
+said he applied it on 2003/7/27 so it doesn't seem like this could have 
+made it into 2.6.0-test1-ac2.
 

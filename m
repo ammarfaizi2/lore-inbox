@@ -1,53 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTKSQPx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 11:15:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTKSQPx
+	id S263906AbTKSQMy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 11:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263920AbTKSQMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 11:15:53 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:27623 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263930AbTKSQPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 11:15:51 -0500
-Date: Wed, 19 Nov 2003 16:10:44 +0000
-From: Dave Jones <davej@redhat.com>
-To: kernel@mikebell.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/mtrr in 2.6
-Message-ID: <20031119161044.GA27802@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, kernel@mikebell.org,
-	linux-kernel@vger.kernel.org
-References: <20031119051233.GB1485@mikebell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031119051233.GB1485@mikebell.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 19 Nov 2003 11:12:54 -0500
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:26833 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263906AbTKSQMu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 11:12:50 -0500
+MIME-Version: 1.0
+To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: lk-changelog.pl 0.195
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Wed_Nov_19_16_12_48_UTC_2003_0@merlin.emma.line.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20031119161248.764309550D@merlin.emma.line.org>
+Date: Wed, 19 Nov 2003 17:12:48 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 18, 2003 at 09:12:34PM -0800, kernel@mikebell.org wrote:
- > In 2.6, having /proc/mtrr support in a kernel run on a system which
- > lacks MTRR support (like my crusoe) results in /proc/mtrr existing, but
- > giving EIO if you try to read it. On 2.4, it is detected as not existing
- > and not created. Is this the new intentional behaviour, or just a bug?
+This is a semi-automatic announcement.
 
-Need something like this perhaps ?
+lk-changelog.pl aka. shortlog version 0.195 has been released.
 
---- 1/arch/i386/kernel/cpu/mtrr/if.c~	2003-11-19 16:00:10.000000000 +0000
-+++ 2/arch/i386/kernel/cpu/mtrr/if.c	2003-11-19 16:09:25.000000000 +0000
-@@ -352,6 +352,14 @@
- 
- static int __init mtrr_if_init(void)
- {
-+	struct cpuinfo_x86 *c = &boot_cpu_data;
-+
-+	if ((!cpu_has(c, X86_FEATURE_MTRR)) ||
-+	    (!cpu_has(c, X86_FEATURE_K6_MTRR)) ||
-+	    (!cpu_has(c, X86_FEATURE_CYRIX_ARR)) ||
-+	    (!cpu_has(c, X86_FEATURE_CENTAUR_MCR)))
-+		return -ENODEV;
-+
- 	proc_root_mtrr =
- 	    create_proc_entry("mtrr", S_IWUSR | S_IRUGO, &proc_root);
- 	if (proc_root_mtrr) {
+This script is used by Linus and Marcelo to rearrange and reformat BK
+ChangeSet logs into a more human-readable format, and the official
+repository is bk://kernel.bkbits.net/torvalds/tools/
+
+As the script has grown large, this mail only contains a diff against
+the last released version.
+
+You can always download the full script and GPG signatures from
+http://mandree.home.pages.de/linux/kernel/
+
+My thanks go to Vitezslav Samel who has spent a lot of time on digging
+out the real names for addresses sending in BK ChangeSets.
+
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
+
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
+
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
+
+----------------------------
+revision 0.195
+date: 2003/11/19 16:08:02;  author: emma;  state: Exp;  lines: +5 -1
+Add 2nd address of Atul Mukker of LSI Logic.
+----------------------------
+revision 0.194
+date: 2003/11/11 09:21:00;  author: vita;  state: Exp;  lines: +14 -1
+10 new addresses
+=============================================================================
+Index: lk-changelog.pl
+===================================================================
+RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
+retrieving revision 0.194
+retrieving revision 0.195
+diff -u -r0.194 -r0.195
+--- lk-changelog.pl	11 Nov 2003 09:21:00 -0000	0.194
++++ lk-changelog.pl	19 Nov 2003 16:08:02 -0000	0.195
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.194 2003/11/11 09:21:00 vita Exp $
++# $Id: lk-changelog.pl,v 0.195 2003/11/19 16:08:02 emma Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -233,6 +233,7 @@
+ 'asit.k.mallick:intel.com' => 'Asit K. Mallick', # by Kristian Peters
+ 'asl:launay.org' => 'Arnaud S. Launay',
+ 'atulm:lsil.com' => 'Atul Mukker',
++'atul.mukker:lsil.com' => 'Atul Mukker',
+ 'axboe:burns.home.kernel.dk' => 'Jens Axboe', # guessed
+ 'axboe:hera.kernel.org' => 'Jens Axboe',
+ 'axboe:suse.de' => 'Jens Axboe',
+@@ -2127,6 +2128,9 @@
+ __END__
+ # --------------------------------------------------------------------
+ # $Log: lk-changelog.pl,v $
++# Revision 0.195  2003/11/19 16:08:02  emma
++# Add 2nd address of Atul Mukker of LSI Logic.
++#
+ # Revision 0.194  2003/11/11 09:21:00  vita
+ # 10 new addresses
+ #
+

@@ -1,85 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264465AbUDZJwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264456AbUDZKFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbUDZJwy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 05:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbUDZJwy
+	id S264456AbUDZKFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 06:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbUDZKFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 05:52:54 -0400
-Received: from [203.105.59.85] ([203.105.59.85]:59379 "EHLO mail.mailprove.com")
-	by vger.kernel.org with ESMTP id S264465AbUDZJwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 05:52:50 -0400
-Message-ID: <408CDBF1.90301@mailprove.com>
-Date: Mon, 26 Apr 2004 17:52:49 +0800
-From: Seve Ho <sho@mailprove.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Mon, 26 Apr 2004 06:05:08 -0400
+Received: from web13909.mail.yahoo.com ([216.136.172.94]:48566 "HELO
+	web13909.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264456AbUDZKE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 06:04:57 -0400
+Message-ID: <20040426100456.82710.qmail@web13909.mail.yahoo.com>
+X-RocketYMMF: knobi.rm
+Date: Mon, 26 Apr 2004 03:04:56 -0700 (PDT)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: Two problems after upgrade tto 2.4.26
+To: Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1082861443.3160.18.camel@dhcppc4>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mkinitrd error
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am trying to recompile kernel on Itanium2 Redhat box.( This is my 
-first time to do it and actually I am new to Linux )
-After recompilation, I tried to create initial ramdisk with mkinitrd. 
-However, it failed with following error messages...
-Does anyone have idea about what is jdb? And how can i make the ramdisk 
-successfully?
+--- Len Brown <len.brown@intel.com> wrote:
+> On Fri, 2004-04-23 at 04:22, Martin Knoblauch wrote:
+> 
+> Re: keyboard/mouse instability with ACPI enabled starting in 2.4.26
+> 
+> > >Does /proc/interrupts show any acpi events?
+> > >Did it in 2.4.23?
+> > >
+> > Len,
+> > 
+> >   some ACPI Interrupts:
+> > 
+> > cat /proc/interrupts
+> >            CPU0
+> >   0:      31464          XT-PIC  timer
+> >   1:        570          XT-PIC  keyboard
+> >   2:          0          XT-PIC  cascade
+> >   3:          5          XT-PIC  HiSax
+> >   8:          2          XT-PIC  rtc
+> >   9:       1197          XT-PIC  acpi
+> >  10:       1695          XT-PIC  eth0, usb-uhci, Texas Instruments
+> >  PCI1420, Texas Instruments PCI1420 (#2)
+> >  12:       5460          XT-PIC  PS/2 Mouse
+> >  14:      18052          XT-PIC  ide0
+> >  15:         11          XT-PIC  ide1
+> 
+> kill acpid and
+> # cat /proc/acpi/event
+> to see what the events are.
+> We we are working on a GPE issue related to spurious
+> ACPI interrupts right now, but I'd actually expect
+> 2.4.26 to get _fewer_ acpi interrupts than 2.4.25, not more.
+>
+Hi Len,
 
-Any help  or hints will be greatly appreciated.( I am not on the list, 
-could you kindly cc your answer or suggestion to sho@mailprove.com ? )
+ just to make things clear: I never talked about 2.4.25 :-) I went
+directly from 2.4.23 to 2.4.26. And ACPI was not set in my 2.4.23
+config. Not sure how it got set in 2.4.26? Interesting ...
 
+ Anyway, I killed acpid and did a cat on the event stream. All I see
+is:
 
-Seve
+# cat /proc/acpi/event
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+thermal_zone THRM 00000081 00000000
+^C
+#
 
+ During this snapshot, the number of ACPI interrupts went up by about
+270. So, it seems not every ACPI interrupt ends in /proc/acpi/event.
 
-[root@SDV900 root]# mkinitrd -v initrd-2.4.18-e.31custom20040426.img  
-2.4.18-e.31custom20040426
-Using modules:  ./kernel/drivers/scsi/scsi_mod.o 
-./kernel/drivers/scsi/sd_mod.o 
-./kernel/drivers/scsi/sym53c8xx_2/sym53c8xx_2.o ./kernel/fs/jbd/jbd.o 
-./kernel/fs/ext3/ext3.o
-Using loopback device /dev/loop0
-/sbin/nash -> /tmp/initrd.naSZEa/bin/nash
-/sbin/insmod.static -> /tmp/initrd.naSZEa/bin/insmod
-`/lib/modules/2.4.18-e.31custom20040426/./kernel/drivers/scsi/scsi_mod.o' 
--> `/tmp/initrd.naSZEa/lib/scsi_mod.o'
-`/lib/modules/2.4.18-e.31custom20040426/./kernel/drivers/scsi/sd_mod.o' 
--> `/tmp/initrd.naSZEa/lib/sd_mod.o'
-`/lib/modules/2.4.18-e.31custom20040426/./kernel/drivers/scsi/sym53c8xx_2/sym53c8xx_2.o' 
--> `/tmp/initrd.naSZEa/lib/sym53c8xx_2.o'
-`/lib/modules/2.4.18-e.31custom20040426/./kernel/fs/jbd/jbd.o' -> 
-`/tmp/initrd.naSZEa/lib/jbd.o'
-`/lib/modules/2.4.18-e.31custom20040426/./kernel/fs/ext3/ext3.o' -> 
-`/tmp/initrd.naSZEa/lib/ext3.o'
-Loading module scsi_mod
-Loading module sd_mod
-Loading module sym53c8xx_2
-Loading module jbd
-Loading module ext3
-*tar: ./lib/jbd.o: Wrote only 0 of 10240 bytes
-tar: Skipping to next header
-tar: Error exit delayed from previous errors*
+ In general, the whole thing is pretty hard to reproduce. It seems to
+be also depenant on the system load. The keyboard double-hit is much
+more likely to happen when running a kernel compile instead of an
+otherwise idle system.
 
--- 
-Seve Ho
-Programmer
+> Re: fan running more
+> it would be interesting if you notice a temperature difference
+> between the releases in /proc/acpi/thermal...
+> 
+> eg.
+> cat /proc/acpi/thermal_zone/THRM/temperature
+> temperature:             37 C
+> 
+> 
+> FAN isn't always controlled by ACPI.  If it is, you'll see it
+> in the dmesg like this:
+> ACPI: Power Resource [PFAN] (off)
+> In either case, it may be that we're running hotter (say idle
+> isn't working right), or we're running the fan more often by mistake.
+>
 
-Tel   (852) 3105 2920
-Fax   (852) 3105 2926
-Email Seve.Ho@MailProve.com
+ Nope, no such messages in dmesg.
+ 
+> For idle, you can compare the /proc/acpi/processor/CPU0/power
+> file in the two releases to see if one release is getting into
+> a deeper power-saving state than the other.
+> 
+> Eg, this centrino box isn't getting into C3 because USB is active.
+> 
+> cat /proc/acpi/processor/CPU0/power
+> active state:            C2
+> default state:           C1
+> bus master activity:     ffffffff
+> states:
+>     C1:                  promotion[C2] demotion[--] latency[000]
+> usage[00000010]
+>    *C2:                  promotion[C3] demotion[C1] latency[001]
+> usage[00370077]
+>     C3:                  promotion[--] demotion[C2] latency[085]
+> usage[00000000]
+> 
+>
 
+ On my system it looks like this:
 
-Mail Prove Ltd.
-806, Cyberport 1
-100 Cyberport Rd.
-Pokfulam, H. K. 
+# cat /proc/acpi/processor/CPU0/power
+active state:            C2
+default state:           C1
+bus master activity:     00000000
+states:
+    C1:                  promotion[C2] demotion[--] latency[000]
+usage[00012170]
+   *C2:                  promotion[--] demotion[C1] latency[010]
+usage[00888388]
+    C3:                  <not supported>
 
+ 
+> cheers,
+> -Len
+> 
+Thanks
+Martin
 
-
-
+=====
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

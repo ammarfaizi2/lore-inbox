@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTKRPpP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 10:45:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKRPpP
+	id S263679AbTKRPt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 10:49:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263688AbTKRPt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 10:45:15 -0500
-Received: from smtp.dkm.cz ([62.24.64.34]:34055 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S263434AbTKRPpL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 10:45:11 -0500
-From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: HT enable on BIOS which doesn't supports it?
-Date: Tue, 18 Nov 2003 16:45:02 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Nov 2003 10:49:26 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:48310 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263679AbTKRPtZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 10:49:25 -0500
+Date: Tue, 18 Nov 2003 15:49:21 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031118154921.GA28942@mail.shareable.org>
+References: <1068512710.722.161.camel@cube.suse.lists.linux.kernel> <20031111133859.GA11115@bitwizard.nl.suse.lists.linux.kernel> <20031111085323.M8854@devserv.devel.redhat.com.suse.lists.linux.kernel> <bp0p5m$lke$1@cesium.transmeta.com.suse.lists.linux.kernel> <20031113233915.GO1649@x30.random.suse.lists.linux.kernel> <3FB4238A.40605@zytor.com.suse.lists.linux.kernel> <20031114011009.GP1649@x30.random.suse.lists.linux.kernel> <3FB42CC4.9030009@zytor.com.suse.lists.linux.kernel> <p734qx7rmyf.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311181645.02744.cijoml@volny.cz>
+In-Reply-To: <p734qx7rmyf.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, in my laptop Acer TravelMate242 I have HT enabled CPU,
+Andi Kleen wrote:
+> > s/EINTR/short count/, of course :)
+> 
+> That would be buggy because existing users of sendfile don't know
+> about this and would silently only copy part of the file when a signal
+> happens.
 
-but when I try start up with SMP or LocalAPIC kernel enabled, kernel freezes 
-during boot time.
+That doesn't make sense.  There aren't any existing users of sendfile
+to copy files.
 
-Is there any possibility to run HT enabled CPU on my laptop without BIOS 
-support?
-
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Celeron(R) CPU 2.40GHz
-stepping        : 9
-cpu MHz         : 2398.001
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
-pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 4784.12
-
-Thanks a lot
-
-Michal
-
+-- Jamie

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272667AbTG1E6y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 00:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272671AbTG1E6y
+	id S272662AbTG1F1a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 01:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272663AbTG1F1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 00:58:54 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:21473 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S272667AbTG1E6x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 00:58:53 -0400
-Date: Sun, 27 Jul 2003 22:13:54 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 982] New: cu -l /dev/ttyS0 got a signal hangup in 2.5 kernel 
-Message-ID: <3606320000.1059369234@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 28 Jul 2003 01:27:30 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:37312 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S272662AbTG1F13 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 01:27:29 -0400
+Date: Mon, 28 Jul 2003 07:26:14 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 has i8042 mux problems
+Message-ID: <20030728052614.GA5022@rootdir.de>
+References: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org>
+Reply-By: Don Jul 31 07:22:07 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test1-ac3 i686
+X-No-archive: yes
+X-Uptime: 07:22:07 up  9:07,  2 users,  load average: 0.00, 0.04, 0.08
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=982
-
-           Summary: cu -l /dev/ttyS0 got a signal hangup in 2.5 kernel
-    Kernel Version: 2.5.75
-            Status: NEW
-          Severity: normal
-             Owner: rmk@arm.linux.org.uk
-         Submitter: hien1@us.ibm.com
-                CC: sglass@us.ibm.com
+Hello Dean!
 
 
-Distribution: SuSE SLES8 
-Hardware Environment:NetVista 6579-A4U Pentium III - 866 MHz 256MB RAM 
-Software Environment:2.5.75 kernel 
-Problem Description: cu session fails to log into the other machine which is connected with a 
-null modem serial cable between serial ports. 
-It works fine in 2.4.19 4GB kernel 
- 
-Steps to reproduce: 
-  1. connecting two systems with a null modem serial cable between serial ports. 
-  2. On one machine, do : cu -l /dev/ttyS0 
-      On other system, have /sbin/agetty -L 9600 ttyS0 vt100  running. 
-      and ttyS0 has been defined in /etc/securetty 
-  3. cu session connected and showed you the login prompt. 
-  4. Got a hangup signal and disconnected after typing "root" or any user ID. 
-      It supposes to prompt you "password:" to let you type the password of the other machine 
-      to login to that system.
+I am not sure, if i understand it, but here I could not use my old
+keyboard with kernel 2.6.0-test1. The kernel switched off the keyboard
+conntroller while booting.
+My keyboard is about 10-12 years old, but it always worked.
+There should be a switch for lilo/grub to override the testing.
 
+I have got a via KT400a chipset. The keyboard is an AT/XT-switchable
+keaboard.
+With a newer PS2-Keyboard it works.
+
+
+bye, claas

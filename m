@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318308AbSG3Opy>; Tue, 30 Jul 2002 10:45:54 -0400
+	id <S318323AbSG3Oxq>; Tue, 30 Jul 2002 10:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318312AbSG3Opx>; Tue, 30 Jul 2002 10:45:53 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:26637 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318308AbSG3Opx>; Tue, 30 Jul 2002 10:45:53 -0400
-Date: Tue, 30 Jul 2002 10:43:03 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: martin@dalecki.de
-cc: Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-In-Reply-To: <3D3AF6E0.2040107@evision.ag>
-Message-ID: <Pine.LNX.3.96.1020730103928.4042C-100000@gatekeeper.tmr.com>
+	id <S318326AbSG3Oxq>; Tue, 30 Jul 2002 10:53:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1292 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318323AbSG3Oxp>;
+	Tue, 30 Jul 2002 10:53:45 -0400
+Message-ID: <3D46A944.9080401@mandrakesoft.com>
+Date: Tue, 30 Jul 2002 10:57:08 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Abraham vd Merwe <abraham@2d3d.co.za>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: questions about network device drivers
+References: <20020730161505.A23281@crystal.2d3d.co.za> <1028044126.6726.35.camel@irongate.swansea.linux.org.uk> <20020730164853.A24348@crystal.2d3d.co.za>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jul 2002, Marcin Dalecki wrote:
+Abraham vd Merwe wrote:
+> Hi Alan!
+> 
+> 
+>>>hard_start_xmit() method
+>>>========================
+>>>
+>>>when should this function return 0 and when should it return 1 and in which
+>>>cases should it do netif_stop_queue() and/or free the dev_kfree_skb() ?
+>>
+>>0 - OK
+>>1 - I am busy, give me it later.
+>>
+>>If you return 1 be sure to netif_stop_queue. The netif_wake_queue will
+>>continue transmission
+> 
+> 
+> In both cases, should I free the sk_buff structure or only if I return 0?
+> Also, if I understand you correctly, I should _only_ call netif_stop_queue()
+> if the function fails to transmit the packet?
+> 
+> What about cases where the packet will always fail, e.g. the frame length is
+> bigger than what the device supports. I take it in those cases I should
+> return 0, but should I call netif_stop_queue() as well?
 
-> I strongly oppose OSes with mutating semantics and don't like the
-> "plugin" idea at all therefore.
 
-I don't think that's the case, it's a little hard to say modules are a
-plus and plugins are evil. This is not the core of the filesystem being
-plugged, at least I hope not, but features which might have a new
-implementation, or which may not be ready at the freeze. Think PAM for
-filesystems.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+free it if you are returning zero.  But of course, after the card has 
+handled the packet.
+
+If you set your MTU correctly, you shouldn't get frames larger than 
+proper length.
+
+netif_stop_queue and netif_start_queue and netif_wake_queue are your 
+queue management tools.  _only_ enable the queue when there is room for 
+more packets.
+
+	Jeff
+
 

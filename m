@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbTATGXU>; Mon, 20 Jan 2003 01:23:20 -0500
+	id <S261330AbTATHO1>; Mon, 20 Jan 2003 02:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTATGXU>; Mon, 20 Jan 2003 01:23:20 -0500
-Received: from holomorphy.com ([66.224.33.161]:4745 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261448AbTATGXT>;
-	Mon, 20 Jan 2003 01:23:19 -0500
-Date: Sun, 19 Jan 2003 22:32:19 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpumask_t
-Message-ID: <20030120063219.GL780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
-References: <20020808.073630.37512884.davem@redhat.com> <20020809080517.E4BE5443C@lists.samba.org> <20030119213524.GH780@holomorphy.com> <20030119.221013.65242960.davem@redhat.com>
+	id <S261368AbTATHO1>; Mon, 20 Jan 2003 02:14:27 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:10509 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S261330AbTATHO0>;
+	Mon, 20 Jan 2003 02:14:26 -0500
+Date: Mon, 20 Jan 2003 08:23:29 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD Changer
+Message-ID: <20030120072329.GI30184@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <002c01c2c001$f36db9f0$0a01a8c0@aaprilhome>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lqaZmxkhekPBfBzr"
 Content-Disposition: inline
-In-Reply-To: <20030119.221013.65242960.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <002c01c2c001$f36db9f0$0a01a8c0@aaprilhome>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+x-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 10:10:13PM -0800, David S. Miller wrote:
-> I'm totally fine with this work, in fact I consider it
-> a cleanup.
-> I could call it a bug fix, but that would be stretching it :-)
 
-I'll try to maintain it, then. It's received zero runtime testing,
-esp. not in true NR_CPUS > BITS_PER_LONG circumstances. But I don't
-have any kind of regular (read as: once annually or less) access to
-such systems, so the best I can do is chip in and attempt to keep
-(largely untested/untestable) patches current.
+--lqaZmxkhekPBfBzr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This looks like it diverged a little bit from rusty's implementation,
-partly because I thought it'd be easier to just pound things out from
-scratch as opposed to attempting to port directly.
+On Sun, 2003-01-19 16:30:12 -0500, Alexandre April <alexandre.april@sympati=
+co.ca>
+wrote in message <002c01c2c001$f36db9f0$0a01a8c0@aaprilhome>:
+> 	I need to be able to export all 4 of my CDR-251 4x4 CD Changer
+> using NFS or SAMBA. I found some way to do it but never been able to
+> accomplish it, cause of older kernel. I'm running on a 2.4.18-14 kernel.
 
-rusty, if you could comment on the differences, I'd be much obliged.
+I used to use a 7way CD-Changer (a SCSI model) over years. It's quite
+simple, no patches requited. I simply had to switch on "Scan all LUNs"
+in kernel's config. Then, all four slots appear as separate devices so
+you can mount them all (in parallel) and share them (by NFS/SMB/...).
+However, because there's actually only one CD drive inside the box,
+persormance suck mountains is you access two (or more) CDs at a time,
+because they're constantly swapped...
 
-I'll also attempt to get a SPARC toolchain together (as I understand it,
-there are some divergences from mainline/current gcc/binutils) and do
-some compiletesting-like and API conversion things there.
+MfG, JBG
 
-Thanks,
-Bill
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
+   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
+
+--lqaZmxkhekPBfBzr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+K6PxHb1edYOZ4bsRAmLlAJ9CGx26vJe45FUSqE8qrtqGplwxJwCgjvm/
+yfkr2FDDCurWmZ0u2vWEXzU=
+=vZPM
+-----END PGP SIGNATURE-----
+
+--lqaZmxkhekPBfBzr--

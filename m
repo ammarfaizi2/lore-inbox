@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264466AbTIIVTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTIIVTZ
+	id S264493AbTIIVeG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTIIVeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:19:25 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:48775 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264466AbTIIVSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:18:51 -0400
-Subject: Re: Efficient IPC mechanism on Linux
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luca Veraldi <luca.veraldi@katamail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <00f201c376f8$231d5e00$beae7450@wssupremo>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063142262.30981.17.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 9 Sep 2003 17:34:05 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19474 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264493AbTIIVdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:33:52 -0400
+Date: Tue, 9 Sep 2003 22:33:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
+Message-ID: <20030909223347.U4216@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030909204803.N4216@flint.arm.linux.org.uk> <Pine.LNX.4.53.0309091559110.14426@montezuma.fsmlabs.com> <20030909220452.S4216@flint.arm.linux.org.uk> <1063142578.30981.22.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Tue, 09 Sep 2003 22:17:42 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1063142578.30981.22.camel@dhcp23.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Sep 09, 2003 at 10:22:59PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-09 at 18:30, Luca Veraldi wrote:
-> Hi all.
-> At the web page
-> http://web.tiscali.it/lucavera/www/root/ecbm/index.htm
-> You can find the results of my attempt in modifing the linux kernel sources
-> to implement a new Inter Process Communication mechanism.
+On Tue, Sep 09, 2003 at 10:22:59PM +0100, Alan Cox wrote:
+> On Maw, 2003-09-09 at 22:04, Russell King wrote:
+> > I want this to be foolproof, because its me people bug when their cardbus
+> > cards oops when they insert the damned things.  If people are happy to
+> > ignore this issue, I'm happy to ignore the bug reports.
+> > 
+> > It basically isn't something I want to deal with, and we need to find a
+> > way to stop these stupidities appearing in the first place.
+> > 
+> > Any ideas?
 > 
-> It is called ECBM for Efficient Capability-Based Messaging.
+> You've already got symbols for initdata start and end, just check the 
+> pointers in the pci_register code. I guess you want a per platform
 > 
-> In the reading You can also find the comparison of ECBM 
-> against some other commonly-used Linux IPC primitives 
-> (such as read/write on pipes or SYS V tools).
+> BUG_IF_INIT(x)
 
-The text is a little hard to follow for an English speaker. I can follow
-a fair bit and there are a few things I'd take issue with (forgive me if
-I'm misunderstanding your material)
+That would work for built-in drivers.  We could couple that with an idea
+Kai came up with (in private mail) to catch them in modpost.  However,
+the problem with modpost is that it gets false positives for these
+drivers which explicitly want to discard their module device id tables.
 
+As we currently stand, there seem to be only four drivers which want to
+discard their driver id tables.  Is it really worth adding extra code
+to the kernel to try to trap these, or just not mark the device id
+tables with __initdata or __devinitdata and detect the bad guys with
+a grep?
 
-1. Almost all IPC is < 512 bytes long. There are exceptions including
-X11 image passing which is an important performance one
-
-2. One of the constraints that a message system has is that if it uses
-shared memory it must protect the memory queues from abuse. For example
-if previous/next pointers are kept in the shared memory one app may be
-able to trick another into modifying the wrong thing. Sometimes this
-matters.
-
-3. An interesting question exists as to how whether you can create the
-same effect with current 2.6 kernel primitives. We have posix shared
-memory objects, we have read only mappings and we have extremely fast
-task switch and also locks (futex locks)
-
-Also from the benching point of view it is always instructive to run a
-set of benchmarks that involve the sender writing all the data bytes,
-sending it and the receiver reading them all. Without this zero copy
-mechanisms (especially mmu based ones) look artificially good. 
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

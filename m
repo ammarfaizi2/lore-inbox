@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265461AbUBFNuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 08:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265468AbUBFNuX
+	id S265464AbUBFNnL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 08:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbUBFNnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 08:50:23 -0500
-Received: from almesberger.net ([63.105.73.238]:14602 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S265461AbUBFNuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 08:50:18 -0500
-Date: Fri, 6 Feb 2004 10:50:09 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matt <dirtbird@ntlworld.com>, linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ?
-Message-ID: <20040206105008.B18820@almesberger.net>
-References: <402359E1.6000007@ntlworld.com> <20040206011630.42ed5de1.akpm@osdl.org> <40235DCC.2060606@ntlworld.com> <20040206013523.394d89f1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040206013523.394d89f1.akpm@osdl.org>; from akpm@osdl.org on Fri, Feb 06, 2004 at 01:35:23AM -0800
+	Fri, 6 Feb 2004 08:43:11 -0500
+Received: from imap.gmx.net ([213.165.64.20]:61642 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265464AbUBFNnJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 08:43:09 -0500
+X-Authenticated: #4512188
+Message-ID: <402399E4.10804@gmx.de>
+Date: Fri, 06 Feb 2004 14:43:00 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: a.verweij@student.tudelft.nl
+CC: Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>,
+       =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>,
+       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
+References: <Pine.GHP.4.44.0402061433510.7943-100000@elektron.its.tudelft.nl>
+In-Reply-To: <Pine.GHP.4.44.0402061433510.7943-100000@elektron.its.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Not unless we can think of a way in which it actually matters, thanks.
+Oh, I am using a furthermore patched version of this kernel:
 
-What I'm struggling with when reading that POSIX draft is to
-understand whether CLONE_FILES is appropriate or not for
-pthread_create.
+http://forums.gentoo.org/viewtopic.php?p=840090#840090
 
-If this is unspecified, the f_pos issue becomes largely academic,
-although one might argue that read() should behave either one
-way or the other.
+It is based on 2.6-mm1 and has a lot of goodies.
 
-And no, luckily, I don't have a real-life application for this
-either :-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Prakash

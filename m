@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284794AbRLURDJ>; Fri, 21 Dec 2001 12:03:09 -0500
+	id <S284791AbRLUQ7T>; Fri, 21 Dec 2001 11:59:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284969AbRLURC7>; Fri, 21 Dec 2001 12:02:59 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:20234 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284965AbRLURCt>;
-	Fri, 21 Dec 2001 12:02:49 -0500
-Date: Fri, 21 Dec 2001 18:01:56 +0100
-From: Jens Axboe <axboe@kernel.org>
-To: rwhron@earthlink.net
-Cc: Jens Axboe <axboe@kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre1 dbench 32 hangs in vmstat "b" state
-Message-ID: <20011221180156.C2929@suse.de>
-In-Reply-To: <20011221091104.A120@earthlink.net> <20011221154654.E811@suse.de> <20011221114352.A8661@earthlink.net>
-Mime-Version: 1.0
+	id <S284882AbRLUQ7J>; Fri, 21 Dec 2001 11:59:09 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35665 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S284952AbRLUQ6w>; Fri, 21 Dec 2001 11:58:52 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
+In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil>
+	<m18zbzwp34.fsf@frodo.biederman.org> <3C205FBC.60307@zytor.com>
+	<m1zo4fursh.fsf@frodo.biederman.org>
+	<9vrlef$mat$1@cesium.transmeta.com>
+	<m1r8pqv1w3.fsf@frodo.biederman.org> <3C218BF3.6010603@zytor.com>
+	<m1n10dvobd.fsf@frodo.biederman.org> <3C222F84.4060509@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Dec 2001 09:57:09 -0700
+In-Reply-To: <3C222F84.4060509@zytor.com>
+Message-ID: <m17krgse8q.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011221114352.A8661@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21 2001, rwhron@earthlink.net wrote:
-> On Fri, Dec 21, 2001 at 03:46:54PM +0100, Jens Axboe wrote:
-> > You neglected to mention what disk I/O system you are using? IDE or
-> > SCSI, and if the latter what host adapter?
-> > 
-> > -- 
-> > Jens Axboe
-> 
-> Sorry about that.  It's an IDE drive.
-> 
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-> 00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-> 00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-> 00:0f.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
-> 
-> CONFIG_IDE=y
-> CONFIG_BLK_DEV_IDE=y
-> CONFIG_BLK_DEV_IDEDISK=y
-> CONFIG_IDEDISK_MULTI_MODE=y
-> CONFIG_BLK_DEV_IDECD=m
-> CONFIG_BLK_DEV_IDEPCI=y
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> CONFIG_IDEDMA_AUTO=y
-> CONFIG_BLK_DEV_IDE_MODES=y
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Thanks -- could you also try and do sysrq-t back traces when it seems
-stuck?
+> Eric W. Biederman wrote:
+> 
+> > Agreed.  And to completely dispel the myth.  Etherboot has been doing
+> > something similar for years.  It disables interrupts in 32bit mode so
+> > it doesn't have quite as much work to do but otherwise it is pretty
+> > much the same picture.
+> >
+> 
+> 
+> If you disable interrupts in 32-bit mode a lot of things will not work.
 
-Does a non-highmem kernel run ok?
+The basic technique use by etherboot is:
+In 32bit mode handle no interrupts.  When you want to do a BIOS call
+switch to 16bit mode enable interrupts do the call.  disable interrupts
+and switch back to 32bit mode.
 
--- 
-Jens Axboe
+As far as I can tell this is a similar idea to what you are doing in
+genesis.  etherboot doesn't need everything so it doesn't handle the
+general case.  But given that it is public program, I mentioned it
+because to help dispell the myth that you can do bios call from 32 bit
+protected mode..
+
+> > I finally tracked down the reason why Setup.S is run in real mode,
+> > instead of being called from protected mode.  And that is in extremely
+> > hostile environments (like loadlin works in) loading the kernel wrecks
+> > the firmware callbacks.  So you must do your BIOS calls as a special
+> > case before you switch to protected mode.
+> 
+> 
+> No, it's because it was easier to do it that way -- do all BIOS calls once and
+> for all in the early part of the execution of the kernel, and then forget about
+> it.
+
+That may have been the original reason.  But the reason to keep the
+code that way is so we work with loadlin, (and any kin it might have).  
+
+I have tested it and after you are loaded by loadlin you cannot go
+back and make BIOS calls.  The problem is that dos TSR's and device
+drivers have intercepted BIOS interrupts, and we stomp all over
+those.
+
+It may be possible to overcome this by saving the state of the entire
+dos session but to be safe we would need to take a core dump of the
+entire machine.  And for such little gain I don't think that is worth
+it.
+
+Eric
 

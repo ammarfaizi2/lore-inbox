@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271627AbRIYVyh>; Tue, 25 Sep 2001 17:54:37 -0400
+	id <S271719AbRIYVz5>; Tue, 25 Sep 2001 17:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271333AbRIYVy1>; Tue, 25 Sep 2001 17:54:27 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:48523
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S271741AbRIYVyR>; Tue, 25 Sep 2001 17:54:17 -0400
-Date: Tue, 25 Sep 2001 14:54:33 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jim Potter <jrp@wvi.com>, linux-kernel@vger.kernel.org
-Subject: Re: question from linuxppc group
-Message-ID: <20010925145433.D11230@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <3BB0E2F2.CD668D18@wvi.com> <20010925213557.7782@smtp.adsl.oleane.com>
+	id <S271514AbRIYVzs>; Tue, 25 Sep 2001 17:55:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:26004 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271278AbRIYVzk>;
+	Tue, 25 Sep 2001 17:55:40 -0400
+Date: Tue, 25 Sep 2001 14:55:47 -0700 (PDT)
+Message-Id: <20010925.145547.90825509.davem@redhat.com>
+To: bcrl@redhat.com
+Cc: marcelo@conectiva.com.br, andrea@suse.de, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Locking comment on shrink_caches()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010925170055.B19494@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0109251601360.2193-100000@freak.distro.conectiva>
+	<20010925.132905.32720330.davem@redhat.com>
+	<20010925170055.B19494@redhat.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010925213557.7782@smtp.adsl.oleane.com>
-User-Agent: Mutt/1.3.22i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 11:35:57PM +0200, Benjamin Herrenschmidt wrote:
-> >We have  a host bridge (plus PIC, mem ctlr, etc.) that is essentially
-> >identical
-> >for ppc and mips.  Where is the best place to put the code since we
-> >don't want to
-> >duplicate it for both architectures?
-> 
-> Well, most of the PCI & interrupt frameworks are mostly arch specific.
-> I can't tell for MIPS, but the way you setup a PCI host bridge on PPC
-> was written by me and Paulus without looking at MIPS. 
+   From: Benjamin LaHaise <bcrl@redhat.com>
+   Date: Tue, 25 Sep 2001 17:00:55 -0400
+   
+   Last time I looked, those patches made the already ugly vm locking 
+   even worse.  I'd rather try to use some of the rcu techniques for 
+   page cache lookup, and per-page locking for page cache removal 
+   which will lead to *cleaner* code as well as a much more scalable 
+   kernel.
+   
+I'm willing to investigate using RCU.  However, per hashchain locking
+is a much proven technique (inside the networking in particular) which
+is why that was the method employed.  At the time the patch was
+implemented, the RCU stuff was not fully formulated.
 
-Well, MIPS has been looking at us a bit I know.  Also, the patch that
-Mark/Matt did uses the pci_auto stuff for setting up the bridges (iirc
-thats what that code is for anyhow :)) and MIPS has been using that
-as well of late, tho their gt64120 bits don't look like they use it
-right now.
+Please note that the problem is lock cachelines in dirty exclusive
+state, not a "lock held for long time" issue.
 
-> I don't think there is real need to have common code here. Maybe some
-> common definitions (register defs for example) could go into a linux/*.h
-> file.
+   Keep in mind that just because a lock is on someone's hitlist doesn't 
+   mean that it is for the right reasons.  Look at the io_request_lock 
+   that is held around the bounce buffer copies in the scsi midlayer.  
+   *shudder*
 
-If nothing else, yeah.  And all of the drivers into drivers/.
+I agree.  But to my understanding, and after having studied the
+pagecache lock usage, it was minimally used and not used in any places
+unnecessarily as per the io_request_lock example you are stating.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+In fact, the pagecache_lock is mostly held for extremely short periods
+of time.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com
+

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUJBRA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUJBRAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUJBRA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 13:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUJBRA3
+	id S267397AbUJBRAe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 13:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUJBRAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 13:00:29 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:6205 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S267385AbUJBRA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 13:00:33 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:27723 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S267397AbUJBRA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 2 Oct 2004 13:00:26 -0400
 Date: Sat, 2 Oct 2004 19:00:24 +0200
-Message-Id: <200410021700.i92H0Ova021178@anakin.of.borg>
+Message-Id: <200410021700.i92H0Oct021183@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Fbdev <linux-fbdev-devel@lists.sourceforge.net>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 491] Amifb: update pseudocolor bitfield lenghts
+Subject: [PATCH 493] Amiga frame buffer: kill obsolete DMI Resolver code
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga frame buffer: The new convention (introduced in 2.6.9-rc1) requires that
-the usable color depth for pseudocolor visuals is indicated by the lengths of
-the color bitfields. Update amifb for this convention, and add a special case
-for HAM (Hold-and-Modify) mode (colormap has 16 (HAM6) or 64 (HAM8) entries).
+Amiga frame buffer: Kill remainings of the DMI Resolver support code that got
+removed somewhere between 2.0 and 2.2.
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.9-rc3/drivers/video/amifb.c	2004-08-24 13:33:43.000000000 +0200
-+++ linux-m68k-2.6.9-rc3/drivers/video/amifb.c	2004-09-10 21:23:26.000000000 +0200
-@@ -2949,21 +2949,11 @@ static int ami_encode_var(struct fb_var_
- 	var->bits_per_pixel = par->bpp;
- 	var->grayscale = 0;
+--- linux-2.6.9-rc3/drivers/video/amifb.c	2004-09-30 18:08:25.000000000 +0200
++++ linux-m68k-2.6.9-rc3/drivers/video/amifb.c	2004-09-30 20:11:02.000000000 +0200
+@@ -2268,19 +2268,6 @@ int __init amifb_init(void)
+ 		return -ENXIO;
  
--	if (IS_AGA) {
--		var->red.offset = 0;
--		var->red.length = 8;
--		var->red.msb_right = 0;
--	} else {
--		if (clk_shift == TAG_SHRES) {
--			var->red.offset = 0;
--			var->red.length = 2;
--			var->red.msb_right = 0;
--		} else {
--			var->red.offset = 0;
--			var->red.length = 4;
--			var->red.msb_right = 0;
--		}
+ 	/*
+-	 * TODO: where should we put this? The DMI Resolver doesn't have a
+-	 *	 frame buffer accessible by the CPU
+-	 */
+-
+-#ifdef CONFIG_GSP_RESOLVER
+-	if (amifb_resolver){
+-		custom.dmacon = DMAF_MASTER | DMAF_RASTER | DMAF_COPPER |
+-				DMAF_BLITTER | DMAF_SPRITE;
+-		return 0;
 -	}
-+	var->red.offset = 0;
-+	var->red.msb_right = 0;
-+	var->red.length = par->bpp;
-+	if (par->bplcon0 & BPC0_HAM)
-+	    var->red.length -= 2;
- 	var->blue = var->green = var->red;
- 	var->transp.offset = 0;
- 	var->transp.length = 0;
+-#endif
+-
+-	/*
+ 	 * We request all registers starting from bplpt[0]
+ 	 */
+ 	if (!request_mem_region(CUSTOM_PHYSADDR+0xe0, 0x120,
 
 Gr{oetje,eeting}s,
 

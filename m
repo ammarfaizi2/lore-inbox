@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbULEMLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbULEMOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbULEMLr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 07:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbULEMLr
+	id S261295AbULEMOx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 07:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbULEMOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 07:11:47 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:54500 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261279AbULEMLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 07:11:45 -0500
-Subject: Re: [PATCH] Fix ALSA resume
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-In-Reply-To: <41B2DDA5.20208@triplehelix.org>
-References: <1102195391.1560.65.camel@tux.rsn.bth.se>
-	 <20041204172855.350100d0.akpm@osdl.org>	<41B282F0.3020704@triplehelix.org>
-	 <20041204235155.3b8ad3fc.akpm@osdl.org>  <41B2DDA5.20208@triplehelix.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HHUuHLKgGAfTZAWPS4FX"
-Message-Id: <1102248700.1560.69.camel@tux.rsn.bth.se>
+	Sun, 5 Dec 2004 07:14:53 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6925 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261295AbULEMOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 07:14:51 -0500
+Date: Sun, 5 Dec 2004 12:14:46 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc3
+Message-ID: <20041205121446.B25743@flint.arm.linux.org.uk>
+Mail-Followup-To: David Brownell <david-b@pacbell.net>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200412041903.55583.david-b@pacbell.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 05 Dec 2004 13:11:40 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200412041903.55583.david-b@pacbell.net>; from david-b@pacbell.net on Sat, Dec 04, 2004 at 07:03:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 04, 2004 at 07:03:55PM -0800, David Brownell wrote:
+> > From:       Martin Josefsson <gandalf () wlug ! westbo ! se>
+> > Date:       2004-12-04 21:42:11
+> > 
+> > That's an usb2.0 bug, the ehci driver sleeps when it can't sleep.
+> 
+> Who changed it so that context was no longer allowed to sleep???
 
---=-HHUuHLKgGAfTZAWPS4FX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+suspend and resume methods must be able to sleep because you may
+need to talk to external hardware, wait for queues to drain, etc
+which may in turn require kernel threads to run.
 
-On Sun, 2004-12-05 at 11:06, Joshua Kwan wrote:
-> Andrew Morton wrote:
-> > OK, suspend was failing, yes?
->=20
-> Yes.
->=20
-> > Can you please test Martin's patch?
->=20
-> Works for me.
+We must be able to sleep in suspend/resume methods.  PCMCIA requires
+it, as do other subsystems.
 
-Works here as well.
-This is the only problem I've had with ALSA and swsusp.
-It even handles suspending in the middle of playing music and then
-resuming and continuing where it was.
-
---=20
-/Martin
-
---=-HHUuHLKgGAfTZAWPS4FX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBsvr7Wm2vlfa207ERAgliAJ0R31DlwbNSPQkimfo+EBd8q13qggCdG7Lx
-lxL8pnj2HvLMAzBIPCPPD9I=
-=jyRt
------END PGP SIGNATURE-----
-
---=-HHUuHLKgGAfTZAWPS4FX--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

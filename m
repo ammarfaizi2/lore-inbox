@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264689AbRFQEhS>; Sun, 17 Jun 2001 00:37:18 -0400
+	id <S264690AbRFQEmu>; Sun, 17 Jun 2001 00:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264690AbRFQEhJ>; Sun, 17 Jun 2001 00:37:09 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:44040 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S264689AbRFQEg6>;
-	Sun, 17 Jun 2001 00:36:58 -0400
-Date: Sun, 17 Jun 2001 00:41:10 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: warp@whitestar.soark.net
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
-        rick@linuxmafia.com
-Subject: Re: Kernel configuration.  It's not just a job, it's an adventure!
-Message-ID: <20010617004110.A12668@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	warp@whitestar.soark.net, CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net, rick@linuxmafia.com
-In-Reply-To: <20010616222709.A11872@thyrsus.com> <20010617002138.A9374@whitestar.soark.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010617002138.A9374@whitestar.soark.net>; from kernel@whitestar.soark.net on Sun, Jun 17, 2001 at 12:21:38AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S264691AbRFQEmk>; Sun, 17 Jun 2001 00:42:40 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:37760 "HELO
+	smtp2.pandora.be") by vger.kernel.org with SMTP id <S264690AbRFQEm3>;
+	Sun, 17 Jun 2001 00:42:29 -0400
+Message-ID: <3B2C351A.5030901@aquazul.com>
+Date: Sun, 17 Jun 2001 06:42:02 +0200
+From: Mourad De Clerck <mourad@aquazul.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac13 i686; en-US; rv:0.9.1) Gecko/20010612
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: More spontaneous reboots with 440LX chipsets (2.4.5ac7)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel@whitestar.soark.net <kernel@whitestar.soark.net>:
-> I have to ask, is this something you wrote, or an actual log from
-> something you wrote? (=:]
+Hi,
 
-What?  Moi, perpetrate a trifling and crude hoax?  You wound me, sir,
-by supposing I would ever stoop to such gaucherie.  It is so much more
-*elegantly* absurd to actually write the program, is it not?
 
-CML2 Adventure is part of the 1.6.1 release of CML2.  You can download
-it from <http://www.tuxedo.org/~esr/cml2/> and try it out yourself.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+I have a Soltek AT motherboard with
+- a 440LX/EX chipset
+- a celeron 533
+- 96 mb of ram (tested with memtest86, just to be sure)
+- an ATI rage pro (agp)
+- a western digital harddisk
+- a 3c509b
 
-Hoplophobia (n.): The irrational fear of weapons, correctly described by 
-Freud as "a sign of emotional and sexual immaturity".  Hoplophobia, like
-homophobia, is a displacement symptom; hoplophobes fear their own
-"forbidden" feelings and urges to commit violence.  This would be
-harmless, except that they project these feelings onto others.  The
-sequelae of this neurosis include irrational and dangerous behaviors
-such as passing "gun-control" laws and trashing the Constitution.
+that's it, nothing fancy.
+
+But ever since the 2.4 series (i used 2.4.3, 2.4.4acXX, and now 
+2.4.5ac7) i get spontaneous reboots quite often. Usually it isn't doing 
+anything fancy when it happens, no harddisk activity or memory pressure, 
+it just pops and croaks.
+
+I'm using reiserfs by the way.
+
+Just thought i'd mention it, because i've seen other people having 
+spontaneous reboots with LX chipsets.
+
+Mourad DC
 

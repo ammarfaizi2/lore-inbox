@@ -1,81 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271621AbRIGJF5>; Fri, 7 Sep 2001 05:05:57 -0400
+	id <S271636AbRIGJVC>; Fri, 7 Sep 2001 05:21:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271625AbRIGJFr>; Fri, 7 Sep 2001 05:05:47 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:27800 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S271621AbRIGJFl>; Fri, 7 Sep 2001 05:05:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-Date: Fri, 7 Sep 2001 09:06:00 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9na2lo$ad$1@forge.intermeta.de>
-In-Reply-To: <20010906172316.E0B74BC06C@spike.porcupine.org> <E15f4ul-0000J5-00@the-village.bc.nu> <20010906221152.F13547@emma1.emma.line.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 999853560 25932 212.34.181.4 (7 Sep 2001 09:06:00 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 7 Sep 2001 09:06:00 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S271640AbRIGJUw>; Fri, 7 Sep 2001 05:20:52 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:11700 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271636AbRIGJUg>;
+	Fri, 7 Sep 2001 05:20:36 -0400
+Date: Fri, 07 Sep 2001 10:15:27 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Daniel Phillips <phillips@bonn-fries.net>, riel@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [RFC] Defragmentation proposal: preventative maintenance and cleanup [LONG]
+Message-ID: <1427827800.999857726@[169.254.198.40]>
+In-Reply-To: <1426827386.999856726@[169.254.198.40]>
+In-Reply-To: <1426827386.999856726@[169.254.198.40]>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 
->On Thu, 06 Sep 2001, Alan Cox wrote:
+>> It becomes effectively useless.  The probability of all 8 pages of a given
+>> 8 page unit being free when only 1% of memory is free is (1/100)**8 =
+>> 1/(10**16).
 
->> If you accept 10.0.0.1 from the outside you are leaking information. It
+> Sorry to sound like a broken record, but apply the
+> /proc/memareas patch and you can see this happening. After extensive
+> activity, you see practically none of the free pages in order 0
+> blocks. You might see only a small number (20 or 30 on a 64k
+> machine) of (say) order 3 blocks, but if you run your stats
+> you would have an expected value of well less than one, and the
+> chance of having 20 or 30 would be vanishingly small.
 
->No, if you accept 10.*.*.* from the outside, your routers are broken.
+Ooops, what I wrote was factually correct, but misleading.
+What I meant was it looks like this:
 
-BS. This has nothing to do with "accepting connections from addresses":
+   Zone     4kB     8kB    16kB    32kB    64kB   128kB   256kB   512kB  1024kB  2048kB Tot Pages/kb
+    DMA     495     348     196      72      10       1       1       0       0       0 =     2807)
+  @frag      0%     18%     42%     70%     91%     97%     98%    100%    100%    100% =    11228kB
+ Normal       0    1579    1670     667     140      12       3       1       0       0 =    18118)
+  @frag      0%      0%     17%     54%     84%     96%     98%     99%    100%    100% =    72472kB
 
-% telnet mail.intermeta.de smtp
-Trying 212.34.181.3...            <---- Note!
-Connected to mail.intermeta.de.
-Escape character is '^]'.
-220 mail.intermeta.de ESMTP Sendmail 8.11.6/8.11.6; Fri, 7 Sep 2001 11:00:01 +0200
-HELO mail.hometree.net
-250 mail.intermeta.de Hello IDENT:henning@tangens.hometree.net [212.34.181.34], pleased to meet you
-MAIL FROM: <henning@hometree.net>
-250 2.1.0 <henning@hometree.net>... Sender ok
-RCPT TO: <henning@[192.168.2.1]>
-550 5.7.1 <henning@[192.168.2.1]>... Relaying denied
-RCPT TO: <henning@[192.168.2.3]>
-250 2.1.5 <henning@[192.168.2.3]>... Recipient ok
-RCPT TO: <henning@[10.11.12.13]>
-550 5.7.1 <henning@[10.11.12.13]>... Relaying denied
-QUIT
+If your model was correct, you would see free pages
+per order run like
+  N = a (K ^ (2^-o)); (for a>0, K>1, o=order)
 
-You may guess now, which the _real_ IP address of "mail.intermeta.de"
-is.  Yes, "that other mailer" leaks this information. But only for its
-own, local IP address.
+This doesn't happen. Instead you get GOOD coalescence
+at oder 0 (in the Normal zone they've ALL been coalesced),
+and not bad at order 1 (see how many order 2's we have).
 
-More "real world" you can't get as in this example. The box transfers
-about 1000 Mails per day which may not be much in todays internet but
-is fine as "my little mail home". Percentage of failed mails because
-of [ip-addr] adressing: 0.00%
+8 page unit is order 3 (32k). This system has 20% of
+memory free at the point where I took the snap shot.
+Probability would be, (1/5)^8 = 2^8 / 10^8 =
+roughly p = 2.5 x 10^-6. In a system with 32000 pages
+(128Kb), if you were right, I'd expect to see about
+0.08 free pages at order 3. But here I see 750.
 
-So where lies the problem with all this? If the current reporting of
-the netmasks is a bug: Fine, fix it, get on with life.  
+The chance of seeing more than 500 events of probability
+p = 2.5 ^ (10^-6) across 32000 samples, is vanishingly
+small. Yet it looks this way all the time.
 
-I agree totally with Alan here. If the config can be reported by the
-4.3 API, then it should be and be correct. If it can't: Well tough
-luck for "really, really" portable mailers.
+Hence I conclude your model is wrong :-)
 
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--
+Alex Bligh

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287287AbSASUuU>; Sat, 19 Jan 2002 15:50:20 -0500
+	id <S287244AbSASUqU>; Sat, 19 Jan 2002 15:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287289AbSASUuK>; Sat, 19 Jan 2002 15:50:10 -0500
-Received: from fep07-0.kolumbus.fi ([193.229.0.51]:64909 "EHLO
-	fep07-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id <S287287AbSASUtx>; Sat, 19 Jan 2002 15:49:53 -0500
-Message-ID: <000e01c1a12a$d9c9e470$1400870a@joulu>
-From: "Jani Forssell" <jani.forssell@viasys.com>
-To: "Ville Herva" <vherva@niksula.hut.fi>
-Cc: <linux-kernel@vger.kernel.org>, "Tim Moore" <timothymoore@bigfoot.com>
-In-Reply-To: <00c201c1a033$1cf46700$b71c64c2@viasys.com> <3C48BF64.FBF58C7C@bigfoot.com> <20020119110143.GB135220@niksula.cs.hut.fi>
-Subject: Re: VIA KT133 & HPT 370 IDE disk corruption
-Date: Sat, 19 Jan 2002 22:49:47 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S287287AbSASUqL>; Sat, 19 Jan 2002 15:46:11 -0500
+Received: from ns.suse.de ([213.95.15.193]:58130 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287244AbSASUp6>;
+	Sat, 19 Jan 2002 15:45:58 -0500
+To: Hans-Joachim Baader <hjb@pro-linux.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Usage of filetype
+In-Reply-To: <20020119192756.Z3627@mandel.hjb.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Jan 2002 21:45:57 +0100
+In-Reply-To: Hans-Joachim Baader's message of "19 Jan 2002 19:27:59 +0100"
+Message-ID: <p73adva3w8q.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Note that culprit wasn't the slot that shares an irq with the highpoint
-> controllers (HPT370 on this board). We knew to avoid that slow from the
-> beginning (I have a BP6 at home), but I think we tried slot 5 out of
-> interest after we had verified slot 3 works. I think slot 5 showed the
-> problem as well - Jani?
+Hans-Joachim Baader <hjb@pro-linux.de> writes:
 
-That's right, when the NIC was in slot 4, 5 or 6, it oopsed almost
-immediately when both the drives on HPT370 IDE and the NIC 
-were stressed simultaneously. 
+> in the tune2fs manual I found the ext2 option 'filetype'. A file type seems
+> to be an 8 bit number, defined in linux/dirent.h in struct dirent64.
+> However, I didn't find any further docs about it, and I don't know any
+> userspace tools to read/set it. Could anyone please point me to more info
+> (or explain if this feature has any use)?
 
-Jani Forssell
+It sets the d_type field in struct dirent on readdir. See 
+/usr/include/dirent.h in glibc for a list of the types. It's useful 
+to find out something about a file without reading its inode
+(=causing a slow seek of the hard disk). For example it can be used
+to optimize find(1) or ls(1). 
 
 
+-Andi

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274549AbRJAEWF>; Mon, 1 Oct 2001 00:22:05 -0400
+	id <S274557AbRJAEoT>; Mon, 1 Oct 2001 00:44:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274539AbRJAEVz>; Mon, 1 Oct 2001 00:21:55 -0400
-Received: from codepoet.org ([166.70.14.212]:8822 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S274549AbRJAEVj>;
-	Mon, 1 Oct 2001 00:21:39 -0400
-Date: Sun, 30 Sep 2001 22:22:11 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] cleanup of partition code
-Message-ID: <20010930222210.A24037@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0109301819220.12896-100000@weyl.math.psu.edu>
+	id <S274558AbRJAEoJ>; Mon, 1 Oct 2001 00:44:09 -0400
+Received: from shell.aros.net ([207.173.16.19]:14610 "EHLO shell.aros.net")
+	by vger.kernel.org with ESMTP id <S274557AbRJAEoA>;
+	Mon, 1 Oct 2001 00:44:00 -0400
+Date: Sun, 30 Sep 2001 22:44:27 -0600
+From: Lawrence Gold <gold@shell.aros.net>
+To: linux-kernel@vger.kernel.org
+Subject: Success using "Athlon bug stomper" on VIA motherboard
+Message-ID: <20010930224427.A42360@shell.aros.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109301819220.12896-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Sep 30, 2001 at 06:31:55PM -0400, Alexander Viro wrote:
-> 
-> 	One thing that doesn't work yet is support of Acorn partitions -
-> I'm switching it to pagecache right now.
+The patch posted here
 
-Well, acorn is broken anyways....  Try enabling in on a device
-with native 2048 byte sectors and _no_ partition table will be
-found on those devices (just an error msg resulting from acorn)
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0109.1/0817.html
 
- -Erik
+allows my Epox 8kta3 motherboard to run 2.4.10 with Athlon optimizations.
+Without this patch, I get immediate oopses on startup.  For those who are
+curious, it's a Duron 800 and the BIOS is the revision from 18 May 2001.
 
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--
+P.S. Some more information in case it's helpful to anyone:
+
+I used to use this motherboard with my 1.2GHz Athlon.  If I used an Athlon
+kernel with CONFIG_X86_USE_3DNOW disabled, it would run well most of the
+time.  However, certain operations, such as rapidly skipping through an
+mpeg in MPlayer, could cause an oops.  Replacing my PC133 ram with PC166
+seemed to have cleared up most of the oopses, but there were occasional
+problems such as sig11 errors when running two compile jobs and playing an
+mpeg.
+
+I wonder if the PCI fixup could affect these problems as well.
+
+Anyhow, good detective work!  IMHO, it should at least make its way in as
+an experimental config option.
+

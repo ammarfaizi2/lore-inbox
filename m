@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135324AbRAKWq1>; Thu, 11 Jan 2001 17:46:27 -0500
+	id <S135362AbRAKWur>; Thu, 11 Jan 2001 17:50:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132957AbRAKWqS>; Thu, 11 Jan 2001 17:46:18 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:55045 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S132628AbRAKWqH>; Thu, 11 Jan 2001 17:46:07 -0500
-Message-ID: <3A5E37B3.233B9C03@Hell.WH8.TU-Dresden.De>
-Date: Thu, 11 Jan 2001 23:46:11 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, de-DE
+	id <S131833AbRAKWu1>; Thu, 11 Jan 2001 17:50:27 -0500
+Received: from 24-216-78-5.hsacorp.net ([24.216.78.5]:54025 "EHLO
+	mccoy.penguinpowered.com") by vger.kernel.org with ESMTP
+	id <S130330AbRAKWuU>; Thu, 11 Jan 2001 17:50:20 -0500
+From: Jens Petersohn <jkp@mccoy.penguinpowered.com>
+Message-Id: <200101112248.QAA07735@mccoy.penguinpowered.com>
+Subject: Re: Ingo's RAID patch for 2.2.18 final?
+To: taki@enternet.hu (Takacs Sandor)
+Date: Thu, 11 Jan 2001 16:48:53 -0600 (CST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jkp@mccoy.penguinpowered.com (Jens Petersohn),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0101112336240.10955-100000@mail.enternet.hu> from "Takacs Sandor" at Jan 11, 2001 11:42:33 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <UTC200101112234.XAA98877.aeb@ark.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
 > 
-> These days umount is done by directory, not by device,
-> since a device may be mounted multiple times, so
-> I expect the silly message is gone.
-> (Is your umount recent?)
+> On Thu, 11 Jan 2001, Alan Cox wrote:
 > 
-> [But this is only about the "none". I don't know what is
-> wrong in your situation.]
+> > > I tried to apply it. If I finish it I will send the patch to mingo :)
+> > 
+> > try http://www.linuxraid.org/
+> 
+> If I see it there is no raid patch for 2.2.18 final, only
+> 2.2.18pre13. This patch (raid-2.2.18-A2) rejects some diffs. I will apply
+> it by hand :)
+> 
+> -- 
+> Takika
 
-My umount is 2.10r. Alan says he knows what is wrong,
-so we're all curiously expecting -ac7 ;)
+Check lower on the page. There is a patch for the patch to bring it up
+to A3. This resulting patch will apply semi-cleanly (with fuzz) to the
+final kernel.
 
--Udo.
+--Jens Petersohn
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

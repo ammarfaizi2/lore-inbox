@@ -1,73 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130749AbRAGLuk>; Sun, 7 Jan 2001 06:50:40 -0500
+	id <S130676AbRAGLwU>; Sun, 7 Jan 2001 06:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130758AbRAGLub>; Sun, 7 Jan 2001 06:50:31 -0500
-Received: from slamp.tomt.net ([195.139.204.145]:55183 "HELO slamp.tomt.net")
-	by vger.kernel.org with SMTP id <S130749AbRAGLuM>;
-	Sun, 7 Jan 2001 06:50:12 -0500
-From: "Andre Tomt" <andre@tomt.net>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: "Jim Olsen" <jim@browsermedia.com>
-Subject: RE: Which kernel fixes the VM issues?
-Date: Sun, 7 Jan 2001 12:50:07 +0100
-Message-ID: <OPECLOJPBIHLFIBNOMGBAENACHAA.andre@tomt.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <01010706312902.10913@jim.cyberjunkees.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S130758AbRAGLwK>; Sun, 7 Jan 2001 06:52:10 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:53256 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130676AbRAGLvx>;
+	Sun, 7 Jan 2001 06:51:53 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Pixel@the-babel-tower.nobis.phear.org (Nicolas Noble),
+        linux-kernel@vger.kernel.org (Linux-kernel's Mailing list)
+Subject: Re: Little question about modules... 
+In-Reply-To: Your message of "Sun, 07 Jan 2001 09:58:47 -0000."
+             <200101070958.f079wmx22407@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 07 Jan 2001 22:51:43 +1100
+Message-ID: <31837.978868303@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi... I have a question or two that would help me clear up a bit
-> of the fuzz
-> I have relating to the VM: do_try_to_free_pages issue.
+On Sun, 7 Jan 2001 09:58:47 +0000 (GMT), 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>Nicolas Noble writes:
+>> Why do I have used by -1 for the module ipv6 onto my system?
+>
+>I guess this is going to be a new FAQ!  Can we add it to the lkml FAQ
+>please?
 
-<snip>
+>From man insmod in modutils 2.4.1 (not released yet).
 
-> About once a week I get the 'VM: do_try_to_free_pages ...' error and
-> eventually get a complete system lockup. And just this morning it
-> locked up
-> again, although this time with a 'VFS: LRU block list corrupted'
-> message in
-> the logs, which i'm assuming is related to the VM issue as well.
-
-This issue is fixed in 2.2.18 AFAIK (never seen it since).
-
-<snip>
-
-> My question is, exactly which kernel should I use in order to rid
-> my server
-> of this VM issue?  I'm uncomfortable (and always have been) with
-> running pre*
-> kernels on production machines, so i'd like to stick with 2.2.18,
-> but I would
-> like to know if it truly does fix the problem(s) with the VM.  If
-> I need to,
-> though, I will (hesitantly) put a 2.2.19pre* kernel on the box.
-
-Latest 2.2.19-pre has merged in Andrea's VM-global patch, which in my
-experience makes life much easier on loaded servers. This patch is also
-available as a 2.2.18-patch at
-ftp://ftp.<countrycode>.kernel.org/pub/linux/kernel/people/andrea/patches/2.
-2.18/VM-global-2.2.18pre25-7.bz2
-
-(some mirrors lack this, so skipping the countrycode could be wise)
-
-The latest 2.2.18 pre-version of this patch applied cleanly on my 2.2.18
-final, and I've had no problems with it to date (as it's essentially the
-same kernel, with just the version number bumped).
-
-<snip>
-
---
-Andre. Alfred?
+  If the module controls its own unloading via a can_unload routine
+  then the user count displayed by lsmod is always -1, irrespective of
+  the real use count.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

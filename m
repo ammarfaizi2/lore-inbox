@@ -1,132 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUH1FzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUH1F6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268185AbUH1FzE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 01:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268186AbUH1FzE
+	id S266864AbUH1F6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 01:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268190AbUH1F6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 01:55:04 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:44626 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268185AbUH1Fy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 01:54:56 -0400
-Message-ID: <41301E27.2020504@yahoo.com.au>
-Date: Sat, 28 Aug 2004 15:54:47 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Sat, 28 Aug 2004 01:58:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9892 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266864AbUH1F6V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 01:58:21 -0400
+Date: Fri, 27 Aug 2004 22:58:09 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: paulus@samba.org, ak@muc.de, davem@davemloft.net, ak@suse.de,
+       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com,
+       benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support
+ added
+In-Reply-To: <20040827223954.7d021aac.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0408272256030.17485@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
+ <20040816143903.GY11200@holomorphy.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
+ <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
+ <20040827233602.GB1024@wotan.suse.de> <Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com>
+ <20040827172337.638275c3.davem@davemloft.net> <20040827173641.5cfb79f6.akpm@osdl.org>
+ <20040828010253.GA50329@muc.de> <20040827183940.33b38bc2.akpm@osdl.org>
+ <16687.59671.869708.795999@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com>
+ <20040827204241.25da512b.akpm@osdl.org> <Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com>
+ <20040827223954.7d021aac.akpm@osdl.org>
 MIME-Version: 1.0
-To: Ram Pai <linuxram@us.ibm.com>
-CC: Hugh Dickins <hugh@veritas.com>, Gergely Tamas <dice@mfa.kfki.hu>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: data loss in 2.6.9-rc1-mm1
-References: <Pine.LNX.4.44.0408271950460.8349-100000@localhost.localdomain>	 <1093640668.11648.50.camel@dyn319181.beaverton.ibm.com>	 <41300B82.8080203@yahoo.com.au> <1093669312.11648.80.camel@dyn319181.beaverton.ibm.com>
-In-Reply-To: <1093669312.11648.80.camel@dyn319181.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Pai wrote:
-> On Fri, 2004-08-27 at 21:35, Nick Piggin wrote:
-> 
->>Ram Pai wrote:
->>
->>>got it!  Everything got changed to the new convention except that
->>>the calculation of 'nr' just before the check "nr <= offset" .
->>>
->>>I have generated this patch which takes care of that and hence fixes the
->>>data loss problem as well. I guess it is cleaner too. 
->>>
->>>This patch is generated w.r.t 2.6.8.1. If everybody blesses this patch I
->>>will forward it to Andrew.
->>
->>It looks like it should be OK... but at what point does it become
->>simpler to use my patch which just moves the original calculation
->>up, and does it again if we have to ->readpage()?
->>
->>(assuming you agree that it solves the problem)
-> 
-> 
-> I agree your patch also solves the problem.
-> 
-> Either way is fine. Even Hugh's patch almost does the same thing as
-> yours.
+On Fri, 27 Aug 2004, Andrew Morton wrote:
 
-Ahh, yep - Hugh just forgot to also move the "nr" calculation
-into the ->readpage path, so it hits twice on the fast path.
+> atomic64_t already appears to be implemented on alpha, ia64, mips, s390 and
+> sparc64.
+>
+> As I said - for both these applications we need a new type which is
+> atomic64_t on 64-bit and atomic_t on 32-bit.
 
-> The only advantage with my page is it does the calculation in
-> only one place and does not repeat it. Also I feel its more intuitive to
+That is simply a new definition in include/asm-*/atomic.h
 
-Well kind of - but you are having to jump through hoops to get there.
-Yours does the following checks:
+so
 
-	/* fast path, read nr_pages from pagecache */
-	if (!isize)
-		goto out;
-	for (i = 0; i < nr_pages; i++) {
-		if (index > end_index)
-			goto out;
-		if (index == end_index) {
-			nr = ((isize - 1) & ~PAGE_CACHE_MASK) + 1;
-			if (nr <= offset) {
-				page_cache_release(page);
-				goto out;
-			}
-		}
+#define atomic_long atomic64_t
 
-		/* slowpath, ->readpage */
-		if (unlikely(!isize || index > end_index)) {
-			page_cache_release(page);
-			goto out;
-		}
-	}
+on 64 bit
 
+and
 
-Mine does:
-	if (index > end_index)
-		goto out;
-	for (i = 0; i < pages_to_read; i++) {
-		if (index == end_index) {
-			nr = isize & ~PAGE_CACHE_MASK;
-			if (nr <= offset)
-				goto out;
-		}
+#define atomic_long atomic_t
 
-		/* slowpath, ->readpage */
-		if (index > end_index) {
-			page_cache_release(page);
-			goto out;
-		}
-		if (index == end_index) {
-			nr = isize & ~PAGE_CACHE_MASK;
-			if (nr <= offset) {
-				page_cache_release(page);
-				goto out;
-			}
-		}
-	}
-
-So my fastpath is surely leaner, while the slowpath isn't a clear loser.
-
-What's more, it looks like mine handles the corner case of reading off the
-end of a non-PAGE_SIZE file (but within the same page). I think yours will
-drop through and do the ->readpage, while mine doesn't...?
-
-
-> assume that index 0 covers range 0 to 4095 i.e index n covers range
-> n*PAGE_SIZE to ((n+1)*PAGE_SIZE)-1.  Currently the code assumes index 0
-> covers range 1 to 4096  i.e index n covers range (n*PAGE_SIZE)+1 to
-> (n+1)*PAGE_SIZE. 
-> 
-
-It is definitely a pretty ugly function all round. I like the 0-4095 thing
-better too, but my counter argument to that is that this is the minimal
-change, and similar to how it has previously worked.
-
-> this is the 4th time we are trying to nail down the same thing. We
-> better get it right this time. So any correct patch is ok with me.
-> 
-
-I agree. We'll leave it to someone else to decide, then ;)
+on 32bit?

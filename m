@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263265AbUJ2Lcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263239AbUJ2LeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263265AbUJ2Lcb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 07:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUJ2Lca
+	id S263239AbUJ2LeS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 07:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUJ2LeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 07:32:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26632 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263239AbUJ2LcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 07:32:19 -0400
-Date: Fri, 29 Oct 2004 13:31:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sched.c: remove an unused macro
-Message-ID: <20041029113147.GE6677@stusta.de>
-References: <20041028231445.GE3207@stusta.de> <41819D48.7000005@bigpond.net.au>
+	Fri, 29 Oct 2004 07:34:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31631 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263239AbUJ2LdA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 07:33:00 -0400
+Date: Fri, 29 Oct 2004 13:34:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SysRq-n changes RT tasks to normal
+Message-ID: <20041029113405.GA32204@elte.hu>
+References: <yw1xy8hpix4z.fsf@inprovide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <41819D48.7000005@bigpond.net.au>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xy8hpix4z.fsf@inprovide.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:30:48AM +1000, Peter Williams wrote:
-> 
-> You missed some :-).  The cpu_to_node_mask() macros don't seem to be 
-> used either.
 
-I only searched for unused static inline functions (since this was 
-relatively easy).
+* Måns Rullgård <mru@inprovide.com> wrote:
 
+> +	for_each_process (p) {
+> +		if (!rt_task(p))
+> +			continue;
+> +
+> +		read_lock_irq(&tasklist_lock);
+> +		rq = task_rq_lock(p, &flags);
 
-But your comment seems to be correct, and below is the patch that 
-removes the cpu_to_node_mask macros.
+you must take the tasklist_lock outside the for_each_process().
 
+otherwise, looks good.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm2-full/kernel/sched.c.old	2004-10-29 13:28:14.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full/kernel/sched.c	2004-10-29 13:28:24.000000000 +0200
-@@ -51,12 +51,6 @@
- 
- #include <asm/unistd.h>
- 
--#ifdef CONFIG_NUMA
--#define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
--#else
--#define cpu_to_node_mask(cpu) (cpu_online_map)
--#endif
--
- /*
-  * Convert user-nice values [ -20 ... 0 ... 19 ]
-  * to static priority [ MAX_RT_PRIO..MAX_PRIO-1 ],
-
+	Ingo

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285417AbRLSTav>; Wed, 19 Dec 2001 14:30:51 -0500
+	id <S285412AbRLST1b>; Wed, 19 Dec 2001 14:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285418AbRLSTab>; Wed, 19 Dec 2001 14:30:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62471 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285417AbRLSTa0>;
-	Wed, 19 Dec 2001 14:30:26 -0500
-Message-ID: <3C20EACF.DC97E803@mandrakesoft.com>
-Date: Wed, 19 Dec 2001 14:30:23 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+	id <S285416AbRLST1V>; Wed, 19 Dec 2001 14:27:21 -0500
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:63655 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S285412AbRLST1G>; Wed, 19 Dec 2001 14:27:06 -0500
+Message-ID: <3C20EA8B.B2CA0E4C@kegel.com>
+Date: Wed, 19 Dec 2001 11:29:15 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jon Wikne <wikne@lynx.uio.no>
-CC: linux-kernel@vger.kernel.org, ajoshi@shell.unixbox.com
-Subject: Re: 2.4.16 rivafb memory recognition problem
-In-Reply-To: <200112191616.RAA07423@lynx.uio.no>
+To: Ben LaHaise <bcrl@redhat.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org
+Subject: Re: aio
+In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin> <Pine.LNX.4.33.0112190859050.1872-100000@penguin.transmeta.com> <20011219135708.A12608@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Wikne wrote:
+Ben LaHaise wrote:
+> > Ben: end of discussion. I will _not_ apply any patches for aio if they
+> > aren't openly discussed. We're not microsoft, and we're not Sun. We're
+> > "Open Source", not "cram things down peoples throat and spring new
+> > features on them as a fait accompli".
 > 
-> Hi,
-> 
-> I discovered a strange behaviour related to kernel memory recognition
-> when using the rivafb frame buffer option compiled into kernel 2.4.16.
-> The system in question has a Asus AGP7700 nVidia GeForce 2 GTS (32MB)
-> video card. It is a dual PIII SMP system, if that might matter.
-> 
-> When I select nVidia Riva support, at first it seemed to work perfectly.
-> But then I discovered that the kernel only recognizes 32MB of total
-> memory during boot! Excessive swapping is the result.
-> 
-> When instead I compile the kernel with VESA frame buffer support,
-> all other kernel config parameters the same, the resulting kernel
-> recognizes all of the 1GB physical memory actually installed in
-> this box.
+> Discuss them then to your heart's content.  I've posted announcements to
+> both l-k and linux-aio which are both on marc.theaimsgroup.com ...
 
-That code is based on the XFree86 code, maybe you can copy info from
-XFree86's current driver...
+Ben, I think maybe we need to get people excited about your patches,
+and build up a user base, before putting them in the mainline kernel.
+The volume on the linux-aio list has been pretty light, and the
+visibility of the patches has been pretty low.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+I know I volunteered to write some doc for your aio, and haven't delivered;
+thus I'm contributing to the problem.  Mea culpa.  But there are some
+small things that could be done.  A freshmeat.net entry for the project,
+for instance.  Shall I create one, or would you rather do it?
+A home page for linux-aio would be great, too.
+- Dan

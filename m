@@ -1,87 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSLHU56>; Sun, 8 Dec 2002 15:57:58 -0500
+	id <S261527AbSLHVHx>; Sun, 8 Dec 2002 16:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbSLHU55>; Sun, 8 Dec 2002 15:57:57 -0500
-Received: from mail.redswitch.com ([206.14.68.143]:6032 "EHLO redswitch.com")
-	by vger.kernel.org with ESMTP id <S261486AbSLHU54>;
-	Sun, 8 Dec 2002 15:57:56 -0500
-Message-ID: <3DF3B40C.6060000@redswitch.com>
-Date: Sun, 08 Dec 2002 13:05:16 -0800
-From: Xiaogeng Jin <xjin@redswitch.com>
-Organization: RedSwitch Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S261545AbSLHVHx>; Sun, 8 Dec 2002 16:07:53 -0500
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:3844 "EHLO
+	lap.molina") by vger.kernel.org with ESMTP id <S261527AbSLHVHw>;
+	Sun, 8 Dec 2002 16:07:52 -0500
+Date: Sun, 8 Dec 2002 15:06:54 -0600 (CST)
+From: Thomas Molina <tmolina@copper.net>
+X-X-Sender: tmolina@lap.molina
 To: linux-kernel@vger.kernel.org
-Subject: Cross-compile 2.4.20 (released on 11/28/2002) failed.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: rusty@rustcorp.com.au
+Subject: Module loading problems in 2.5
+Message-ID: <Pine.LNX.4.44.0212081428350.950-100000@lap.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a problem when cross compiling linux-2.4.20 for a ppc-8xx 
-system on a RedHat-7.3 x86 host using gcc-2.95.4. It complained that 
-stdarg.h couldn't be found when sched.c is compiled. I compared the 
-Makefile of 2.4.20 with the one of linuxppc_2_4_devel and found that it 
-was caused by the different definition of kbuild_2_4_nostdinc.
+I've done extensive testing of Rusty's module init tools in the later 2.5 
+kernels and I still have problems getting my SMC2632W wireless ethernet 
+adapter working in later 2.5 kernels.  However, I'm not sure the problems 
+can be associated to the known module loading breakage.
 
-2.4.20 Makefile defines kbuild_2_4_nostdinc as the following:
-     kbuild_2_4_nostdinc   := -nostdinc -iwithprefix include
-It doesn't work.
-linuxppc_2_4_devel Makefile defines kbuild_2_4_nostdinc as the following:
-     kbuild_2_4_nostdinc   := -nostdinc $(shell $(CC) -print-search-dirs 
-| sed -ne 's/install: \(.*\)/-I \1include/gp')
-It works for me.
+My system is a Presario laptop model 12XL325 with a 650 MHz PIII 
+processor.  The OS is RedHat 8.0 with updates.  
 
-Please CC replies to me. Thanks.
+Rusty's latest (0.9.1) module init tools work well here with both Linus' 
+as well as RedHat-based 2.4 kernels.  In the 2.5 series, module loading 
+mostly works through 2.5.41 which breaks the orinoco_cs module.  2.5.42 
+through 2.5.45 load and configure eth0 through the SMC card just fine.  
+2.5.46 and 2.5.47 load the modules, but oops on shutdown.  2.5.48 and 
+following, including 2.5.50-bk, do not autoload modules at all.  I can 
+load the required modules by hand, but even that doesn't properly 
+configure the eth0 device.
 
-- Shawn.
+Rusty has been providing various module loading tools for testing, but he 
+doesn't believe his changes are responsible for the breakage I'm seeing.  
+I have compiled various 2.5.50-bk kernel revisions both with built-in 
+drivers as well as modular.  Even building 2.5.50 monolithic doesn't 
+result in a functioning eth0 interface.  I've provided Rusty with strace 
+output for both successful and unsuccessful module loading situations, but 
+he hasn't said anything was remarkable about the data.
 
-Here is the compilatin error message.
-
-make[2]: Entering directory `/home/xjin/code/linux-2.4.20/kernel'
-ppc_8xx-gcc -D__KERNEL__ -I/home/xjin/code/linux-2.4.20/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -I/home/xjin/code/linux-2.4.20/arch/ppc 
--fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized 
--mmultiple -mstring -mcpu=860   -nostdinc -iwithprefix include 
--DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o sched.o sched.c
-In file included from /home/xjin/code/linux-2.4.20/include/linux/wait.h:13,
-                  from /home/xjin/code/linux-2.4.20/include/linux/fs.h:12,
-                  from 
-/home/xjin/code/linux-2.4.20/include/linux/capability.h:17,
-                  from 
-/home/xjin/code/linux-2.4.20/include/linux/binfmts.h:5,
-                  from /home/xjin/code/linux-2.4.20/include/linux/sched.h:9,
-                  from /home/xjin/code/linux-2.4.20/include/linux/mm.h:4,
-                  from sched.c:23:
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:10: stdarg.h: No 
-such file or directory
-In file included from /home/xjin/code/linux-2.4.20/include/linux/wait.h:13,
-                  from /home/xjin/code/linux-2.4.20/include/linux/fs.h:12,
-                  from 
-/home/xjin/code/linux-2.4.20/include/linux/capability.h:17,
-                  from 
-/home/xjin/code/linux-2.4.20/include/linux/binfmts.h:5,
-                  from /home/xjin/code/linux-2.4.20/include/linux/sched.h:9,
-                  from /home/xjin/code/linux-2.4.20/include/linux/mm.h:4,
-                  from sched.c:23:
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:74: parse error 
-before `va_list'
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:74: warning: 
-function declaration isn't a prototype
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:77: parse error 
-before `va_list'
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:77: warning: 
-function declaration isn't a prototype
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:81: parse error 
-before `va_list'
-/home/xjin/code/linux-2.4.20/include/linux/kernel.h:81: warning: 
-function declaration isn't a prototype
-make[2]: *** [sched.o] Error 1
-make[2]: Leaving directory `/home/xjin/code/linux-2.4.20/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/home/xjin/code/linux-2.4.20/kernel'
-make: *** [_dir_kernel] Error 2
+I hope some of this will help a developer figure out where the problem 
+might lie, or at least give someone a nudge to point me where/what to try 
+next.
 

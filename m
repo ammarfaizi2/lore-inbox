@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbUKNISk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbUKNIu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbUKNISk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 03:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbUKNISj
+	id S261260AbUKNIu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 03:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUKNIu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 03:18:39 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:35528 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261258AbUKNIS1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 03:18:27 -0500
-Message-ID: <419714B8.3030804@colorfullife.com>
-Date: Sun, 14 Nov 2004 09:18:00 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+	Sun, 14 Nov 2004 03:50:26 -0500
+Received: from mail3.euroweb.net.mt ([217.145.4.38]:21474 "EHLO
+	mail3.euroweb.net.mt") by vger.kernel.org with ESMTP
+	id S261260AbUKNIuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 03:50:21 -0500
+Message-ID: <41971C4E.6030400@euroweb.net.mt>
+Date: Sun, 14 Nov 2004 09:50:22 +0100
+From: "Josef E. Galea" <josefeg@euroweb.net.mt>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] __init in mm/slab.c
-References: <E1CTDXF-0006mU-00@bkwatch.colorfullife.com>
-In-Reply-To: <E1CTDXF-0006mU-00@bkwatch.colorfullife.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: System call number
+References: <41969845.1060803@euroweb.net.mt> <41969DAF.3080104@osdl.org>
+In-Reply-To: <41969DAF.3080104@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From the bk commit log:
+Randy.Dunlap wrote:
 
->ChangeSet 1.2132, 2004/11/13 20:59:55-08:00, Andries.Brouwer@cwi.nl
+> Josef E. Galea wrote:
 >
->	[PATCH] __init in mm/slab.c
->	
->	The below removes an __initdata
->	(for initarray_generic that is referenced in non-init code).
->  
+>> Hi,
 >
-I think the patch is wrong and should be reverted: initarray_generic is 
-referenced, but never used:
+>
+>> Can anyone tell me the system call number for the function 
+>> write_swap_page() (in kernel/power/pmdisk.c) as I can't find it in 
+>> unistd.h.
+>
+>
+> What kernel version?  I don't see what source file in
+> 2.6.10-rc1-bk23.
+>
+> There are lots of kernel functions that don't have syscall numbers.
+> E.g, write_page() in kernel/power/swsusp.c.
+>
+Version 2.6.8.1. The mention file can be found at 
+http://lxr.linux.no/source/kernel/power/pmdisk.c?v=2.6.8.1#L191
 
-> if (g_cpucache_up == NONE) {
->         /* Note: the first kmem_cache_create must create
->          * the cache that's used by kmalloc(24), otherwise
->          * the creation of further caches will BUG().
->          */
->         cachep->array[smp_processor_id()] = &initarray_generic.cache;
->         g_cpucache_up = PARTIAL;
-> } else {
->         cachep->array[smp_processor_id()] = kmalloc(sizeof(struct 
-> arraycache_init),GFP_KERNEL);
-> }
-
-g_cpucache_up is NONE during bootstrap and FULL after boot. Thus the 
-initarray is never accessed after boot.
-
-Andries, why did you propose this change? Does the current code trigger 
-an automatic test?
-
---
-    Manfred
+Thanks
+Josef

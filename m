@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132683AbRDIEOq>; Mon, 9 Apr 2001 00:14:46 -0400
+	id <S132688AbRDIEUp>; Mon, 9 Apr 2001 00:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132684AbRDIEO0>; Mon, 9 Apr 2001 00:14:26 -0400
-Received: from anarchy.io.com ([199.170.88.101]:17696 "EHLO anarchy.io.com")
-	by vger.kernel.org with ESMTP id <S132683AbRDIEOV>;
-	Mon, 9 Apr 2001 00:14:21 -0400
-Message-Id: <v01530501b6f6dc61c861@[206.224.82.121]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 8 Apr 2001 23:12:14 -0500
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-From: trag@io.com (Jeff Walther)
-Subject: Fast & Wide chip info
-Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+	id <S132686AbRDIEUf>; Mon, 9 Apr 2001 00:20:35 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:9996 "EHLO
+	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
+	id <S132685AbRDIEUY>; Mon, 9 Apr 2001 00:20:24 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A01747F78@dcmtechdom.dcmtech.co.in>
+From: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+To: linux-kernel@vger.kernel.org
+Subject: Network Driver
+Date: Mon, 9 Apr 2001 09:53:51 +0530 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You may already have this information, but in case this info will be useful
-to someone, the data sheets for the successor (pin compatible) chip to the
-SYMBIOS LOGIC 53C825A is here:
-http://www.lsilogic.com/techlib/techdocs/storage_stand_prod/PCISCSICont/Chip
-s/825A.BK.pdf
+Hello All,
 
-LSI Logic bought SYMBIOS several years ago.   Also SYMBIOS is the spinoff
-name of NCR's semiconductor group.  So, for example, the NCR 53CF96 which
-you'll find on the Power Mac 8100 became a SYMBIOS part and then became an
-LSI Logic part.  I suspect that the 53CF96 was licensed and became the MESH
-chip in later Macs.  I haven't had time to do a pinout comparison between
-the 53CF96 and the MESH, but they're in the same package and on casual
-inspection the hookups look similar.
+I have a blue tooth stack and a BT device and the device connects on the
+serial port, over that I have to run tcpip.
 
-Anyway, the 53C825 information is available there and LSI Logic claims to
-have Linux drivers available for download, in case those weren't used when
-support was added.
+Can u tell me which driver I have to need or Is there no need to write any
+driver.
 
-Jeff Walther
+Should I have to write any character driver or network driver, can u pls
+suggeste me over which tcpip wud be run.
 
-P.S.  Anyone have a Mac CPU daughter card slot pinout (x500 machines)?  I
-just need about ten pins.  I have the rest figured out.  I'd be happy to
-supply my Bandit chip pinout.
+Have u any idea about PCMCIA??
 
+>From where i can get any sample code regarding our needs.
+any further suggestion wud be appreciate.
 
+Thanx & Regards 
+Rajeev Nigam 

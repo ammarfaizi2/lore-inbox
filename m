@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269445AbUINPzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269451AbUINPz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269445AbUINPzz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269455AbUINPyl
+	id S269451AbUINPz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUINPyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:54:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34528 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269456AbUINPvQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:51:16 -0400
-Message-ID: <41471366.1070103@pobox.com>
-Date: Tue, 14 Sep 2004 11:51:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "C.Y.M." <syphir@syphir.sytes.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAjtLAU+gqyUq8AePOBiNtXQEAAAAA@syphir.sytes.net> <20040914060628.GC2336@suse.de> <1095156346.16572.2.camel@localhost.localdomain> <41470BBD.7060700@pobox.com> <20040914152509.GA27892@suse.de> <41470F3A.1060308@rtr.ca> <414710AA.80706@rtr.ca>
-In-Reply-To: <414710AA.80706@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 11:54:16 -0400
+Received: from holomorphy.com ([207.189.100.168]:35988 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269455AbUINPvL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 11:51:11 -0400
+Date: Tue, 14 Sep 2004 08:51:03 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ray Bryant <raybry@sgi.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [profile] amortize atomic hit count increments
+Message-ID: <20040914155103.GR9106@holomorphy.com>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040914044748.GZ9106@holomorphy.com> <20040914113419.GH4180@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040914113419.GH4180@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> One obvious safeguard would be to never use FLUSH_CACHE on any
-> drive that lacks UDMA, unless the drive claims to support FLUSH_CACHE.
-> 
-> That will eliminate all current FLASH memory devices.
+On Mon, Sep 13, 2004 at 09:47:48PM -0700, William Lee Irwin III wrote:
+>> timer interrupt, usually at boot. The following patch attempts to 
+>> amortize the atomic operations done on the profile buffer to address 
+>> this stability concern. This patch has nothing to do with performance;
 
-I think you're hunting for hueristics, not making a general rule.  IMO 
-any assumption that this behavior will always be limited to flash 
-devices is a shaky assumption.
+On Tue, Sep 14, 2004 at 01:34:19PM +0200, Andrea Arcangeli wrote:
+> isn't it *much* simpler and much more efficient to just have a per-cpu
+> idle function? I seriously doubt you'll get simultaneous collisions on
+> anything but the 'halt' instruction in the idle function.
 
-Your initial suggestion is probably much better:
-> But one could augment it with a check of the ATA revision code,
-> and possibly exclude drives that predate the *formal* introduction
-> of the FLUSH_CACHE command, unless their IDENTIFY data specifically
-> claims to include it. 
-
-That implies my code would become
-
-	if (ata version < 4)
-		return not-supported
-	if (wbcache-enabled or have-flush-cache or have-flush-cache-ext)
-		return supported
-	return not-supported
-
-Yes?
-
-Alan, do you still feel that the "wbcache-enabled" test should be removed?
-
-Since wbcache-enabled is more of a hueristic than a formal test, I don't 
-mind removing it.
-
-	Jeff
+Sampling the profile buffer at regular intervals shows far less than
+256 distinct functions hit in 1s intervals even with all cpus busy. As
+for whether that would be sufficient, that will have to be answered by
+those who reported the bug. I suppose to test whether things besides
+idling do cause this problem, one would boot with a restricted
+prof_cpu_mask, load all cpus on the machine, set the prof_cpu_mask to
+unrestricted, and see if it livelocks before the load terminates.
 
 
+-- wli

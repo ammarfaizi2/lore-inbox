@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUEWFgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUEWFfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUEWFgs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 01:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUEWFgr
+	id S262256AbUEWFfl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 01:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUEWFfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 01:36:47 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:41875 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S262279AbUEWFgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 01:36:36 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Jim Gifford" <maillist@jg555.com>
-Date: Sun, 23 May 2004 15:36:22 +1000
-Message-ID: <16560.14422.781355.747127@cse.unsw.edu.au>
-MIME-Version: 1.0
+	Sun, 23 May 2004 01:35:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12470 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262256AbUEWFfj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 01:35:39 -0400
+Date: Sun, 23 May 2004 06:35:38 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: consistent ioctl for getting all net interfaces?
+Message-ID: <20040523053538.GW17014@parcelfarce.linux.theplanet.co.uk>
+References: <pan.2004.05.23.04.28.28.143054@triplehelix.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Cc: "Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: Trouble with NFS with -mm3, -mm4, and -mm5
-In-Reply-To: message from Jim Gifford on Saturday May 22
-References: <01ef01c44027$7cb90920$d100a8c0@W2RZ8L4S02>
-	<16559.51530.676312.49328@cse.unsw.edu.au>
-	<047001c4407b$b358c1b0$d100a8c0@W2RZ8L4S02>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <pan.2004.05.23.04.28.28.143054@triplehelix.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday May 22, maillist@jg555.com wrote:
-> ext3. It works under the standard 2.6.6 without the mm patches
+On Sat, May 22, 2004 at 09:28:28PM -0700, Joshua Kwan wrote:
+> Hi,
+> 
+> I'm interested in not having to parse /proc/net/dev to get a list of all
+> available (not necessarily even up) interfaces on the system. I
+> investigated the ioctl SIOCGIFCONF, but it seems to behave differently on
+> 2.4 and 2.6 series kernels, e.g. sometimes it won't return all interfaces.
+> 
+> Is there some end-all ioctl that does what I want, or am I forever doomed
+> to process /proc/net/dev (in C, no less..)?
 
-Hmmm.... I hit the exact same BUG in dcache.h in a completely
-different circumstance (during readlink("/proc/self/exe") in perl).
-It was on ext3 in a recent -mm, but had no connection with nfs.
+ASCII is tough, let's go shopping?
 
+	char name[17];
+	FILE *in = fopen("/proc/net/dev", "r");
+	if (!in)
+		die("can't open");
+	fscanf(in, "%*[^\n]\n%*[^\n]");		/* skip two lines */
+	while (fscanf(in, " %16[^:]:%*[^\n]", name) == 1)
+		do_whatever_you_want(name);
 
-I'm wondering if something in recent dcache or ext3 patches have
-caused us to end up with negative d_count on a dentry.  This could
-cause the line 276 BUG_ON to happen at weird places.
-
-Could you try changing that line from
-
-		BUG_ON(!atomic_read(&dentry->d_count));
-
-to
-
-		BUG_ON(atomic_read(&dentry->d_count) <= 0);
-
-and see if that make it fall over more quickly?
-
-NeilBrown
+That you are calling "forever doomed"?  Wimp...

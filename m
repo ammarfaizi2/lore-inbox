@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267063AbSIRPyH>; Wed, 18 Sep 2002 11:54:07 -0400
+	id <S267201AbSIRQJy>; Wed, 18 Sep 2002 12:09:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267095AbSIRPyH>; Wed, 18 Sep 2002 11:54:07 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:48314 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267063AbSIRPyG>; Wed, 18 Sep 2002 11:54:06 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200209181558.g8IFwNp14249@eng2.beaverton.ibm.com>
-Subject: Re: [RFC] [PATCH] 2.5.35 patch for making DIO async
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Wed, 18 Sep 2002 08:58:22 -0700 (PDT)
-Cc: pbadari@us.ibm.com (Badari Pulavarty), linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-In-Reply-To: <20020918075103.B6143@redhat.com> from "Benjamin LaHaise" at Sep 18, 2002 06:51:03 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S267232AbSIRQJy>; Wed, 18 Sep 2002 12:09:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51469 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267201AbSIRQJx>; Wed, 18 Sep 2002 12:09:53 -0400
+Date: Wed, 18 Sep 2002 09:15:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Ingo Molnar <mingo@elte.hu>, William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
+ elimination, 2.5.35-BK
+In-Reply-To: <20020918123206.GA14595@win.tue.nl>
+Message-ID: <Pine.LNX.4.44.0209180906460.1913-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+On Wed, 18 Sep 2002, Andries Brouwer wrote:
 > 
-> On Tue, Sep 17, 2002 at 02:03:02PM -0700, Badari Pulavarty wrote:
-> > Hi Ben,
-> > 
-> > Here is a 2.5.35 patch to make DIO async. Basically, DIO does not
-> > wait for io completion. Waiting will be done at the higher level
-> > (same way generic_file_read does).
-> 
-> This looks pretty good.  Andrew Morton has had a look over it too and 
-> agrees that it should go in after a bit of testing.  Does someone want 
-> to try comparing throughput of dio based aio vs normal read/write?  It 
-> would be interesting to see what kind of an effect pipelining aios makes 
-> and if there are any performance niggles we need to squash.  Cheer,
-> 
-> 		-ben
+> Please leave pid_max large.
 
-Thanks for looking at the patch. Patch needed few cleanups to get it
-working. Here is the status so far..
+I have to agree.
 
-1) I tested synchronous raw read/write. They perform almost same as
-   without this patch. I am looking at why I can't match the performance.
-   (I get 380MB/sec on 40 dd's on 40 disks without this patch.
-    I get 350MB/sec with this patch).
+There is no goodness in making life complicated, and then putting a lot of 
+effort in solving that complexity with other complexity.
 
-2) wait_on_sync_kiocb() needed blk_run_queues() to make regular read/
-   write perform well.
+I would suggest something like this:
+ - make pid_max start out at 32k or whatever, to make "ps" look nice if 
+   nothing else.
+ - every time we have _any_ trouble at all with looking up a new pid, we 
+   double pid_max.
 
-3) I am testing aio read/writes. I am using libaio.0.3.92. 
-   When I try aio_read/aio_write on raw device, I am get OOPS.
-   Can I use libaio.0.3.92 on 2.5 ? Are there any interface
-   changes I need to worry  between 2.4 and 2.5 ?
+And it's really easy to recognize trouble with something truly trivial
+like the appended. 
 
-Once I get aio read/writes working, I will provide you the performance
-numbers.
+Give me one reason for why these two added lines aren't better than all
+the complexity we've discussed? I can pretty much _guarantee_ that it's
+faster, and it sure as hell is simpler. And all traditional uses that has
+less than a few thousand threads at most will never see the larger pids, 
+so people can stare at "ps" output without going blind - the big pids 
+start showing up only on boxes that might actually _need_ them.
 
-Thanks,
-Badari
+		Linus
+
+----
+--- 1.77/kernel/fork.c	Sun Sep 15 11:01:39 2002
++++ edited/fork.c	Wed Sep 18 09:11:43 2002
+@@ -175,6 +175,8 @@
+ 
+ 	if (last_pid >= next_safe) {
+ inside:
++		if (nr_threads > pid_max >> 4)
++			pid_max <<= 1;
+ 		next_safe = pid_max;
+ 		read_lock(&tasklist_lock);
+ 	repeat:
 

@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUHWVCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUHWUQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUHWVCl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267747AbUHWU7a
+	id S267374AbUHWUQV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267310AbUHWUNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:59:30 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:47506 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267304AbUHWURU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 16:17:20 -0400
-Subject: Re: 2.6.8.1-mm4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: zdzichu@irc.pl, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040823124013.19ceb34f.akpm@osdl.org>
-References: <20040822013402.5917b991.akpm@osdl.org>
-	 <20040823182113.GA30882@irc.pl>
-	 <1093285874.29822.19.camel@localhost.localdomain>
-	 <20040823124013.19ceb34f.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093288507.29850.43.camel@localhost.localdomain>
+	Mon, 23 Aug 2004 16:13:51 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:26100 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267323AbUHWTAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 15:00:53 -0400
+Subject: Re: [PATCH 2.4] gcc-3.4 more fixes
+From: Jon Oberheide <jon@oberheide.org>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+In-Reply-To: <4129F0C5.3040309@ttnet.net.tr>
+References: <4129F0C5.3040309@ttnet.net.tr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gMgRExu0zbr7+3bWmeLo"
+Date: Mon, 23 Aug 2004 15:07:32 -0400
+Message-Id: <1093288052.17313.11.camel@dionysus>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 23 Aug 2004 20:15:08 +0100
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-23 at 20:40, Andrew Morton wrote:
-> Noooo.  copy_*_user() returns zero on success and "number of bytes
-> remaining to be copied" on fault.  The number of places in the kernel which
-> actually care about the precision of the "number remaining to be copied"
-> thing is very small.  Most places just test for non-zeroness.
 
-Sorry thats what I meant to say but got it backwards. There are a lot of
-users of the value actually - all the serial drivers for example use it
-to get the right results. Networking too gets fun because you can send a
-packet and want to report that you did something before the fault
-occurred. True POSIX doesn't seem to require this behaviour (I guess it
-wants to define passing bogus addresses as undefined because of MMUless
-systems and library emulation of calls).
+--=-gMgRExu0zbr7+3bWmeLo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> The problem is that the current semantics are hard to implement on several
-> architectures.  To get it right, sparc64 has to go back and copy one byte
-> at a time just to work out the address at which the fault really occurred.
+On Mon, 2004-08-23 at 16:27 +0300, O.Sezer wrote:
+>  > Ozkan,
+>  >
+>  > This are just warning fixes right?
+>  >
+>  > I dont like this patches, that is, I'm not confident about them.
+>  >
+>  >  Let the warnings be.
+>=20
+> For gcc-3.4 they're warnings. For gcc-3.5 they'll cause compiler
+> failures (that's what mikpe says on cset-1.1490, too)
 
-Who cares? Faults are not fast paths. Also if I understand sparc64
-correctly it doesn't have to go back and copy one at a time because a
-fault can only occur on a page boundary. That means for the normal case
-you already know where the fault occurred and for the unusual case its
-one probe per page, all non fast-path.
+Correct, l-value casts are treated as errors in 3.5.
 
-Alan
+"The cast-as-lvalue, conditional-expression-as-lvalue and compound-
+expression-as-lvalue extensions, which were deprecated in 3.3.4 and 3.4,
+have been removed." - http://gcc.gnu.org/gcc-3.5/changes.html
+
+Regards,
+Jon Oberheide
+
+--=20
+Jon Oberheide <jon@oberheide.org>
+GnuPG Key: 1024D/F47C17FE
+Fingerprint: B716 DA66 8173 6EDD 28F6  F184 5842 1C89 F47C 17FE
+
+--=-gMgRExu0zbr7+3bWmeLo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD4DBQBBKkB0WEIcifR8F/4RAnuQAJYhGd+qsMrjc8wlBbINh4wQ7cXAAKCiktc+
+dNXpyKnYprAbC642TNbe+g==
+=P2JD
+-----END PGP SIGNATURE-----
+
+--=-gMgRExu0zbr7+3bWmeLo--
 

@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262097AbSJAP6U>; Tue, 1 Oct 2002 11:58:20 -0400
+	id <S262167AbSJAPtJ>; Tue, 1 Oct 2002 11:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262100AbSJAP6U>; Tue, 1 Oct 2002 11:58:20 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:22498 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262097AbSJAP5a>;
-	Tue, 1 Oct 2002 11:57:30 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Hugh Dickins <hugh@veritas.com>
-Date: Tue, 1 Oct 2002 18:02:27 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 
-Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <35FD2132190@vcnet.vc.cvut.cz>
+	id <S262170AbSJAPtI>; Tue, 1 Oct 2002 11:49:08 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:37373 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S262167AbSJAPtH>;
+	Tue, 1 Oct 2002 11:49:07 -0400
+Date: Tue, 1 Oct 2002 17:54:28 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Skip Ford <skip.ford@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: KDSETKEYCODE work with new input layer?
+Message-ID: <20021001155428.GA19122@win.tue.nl>
+References: <200209301440.g8UEeBOp000435@pool-141-150-241-241.delv.east.verizon.net> <20021001115413.B9131@ucw.cz> <200210011231.g91CVCdG000289@pool-141-150-241-241.delv.east.verizon.net> <20021001151722.A11750@ucw.cz> <200210011532.g91FW4fG000308@pool-141-150-241-241.delv.east.verizon.net> <20021001174129.A12995@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021001174129.A12995@ucw.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  1 Oct 02 at 14:09, Hugh Dickins wrote:
-> Exemplary bug report!  Many thanks for taking so much trouble to
-> reproduce the problem.  Patch below (against 2.5.39) should fix it:
-> I'll send Linus and Andrew when I can get hold of a 2.5.40 tree.
+On Tue, Oct 01, 2002 at 05:41:29PM +0200, Vojtech Pavlik wrote:
 
-You are my hero! It fixed dnetc client failing with SIGSEGV after call
-to sys_mprotect(). 
+> > Will you be releasing an updated kbd package?
+> 
+> Well, I'm not the maintainer of the kbd package, but I probably will
+> have to release a new tool to set the keycode table.
 
-Unfortunately it did not fixed another problem I have with sys_mprotect.
-If I start X, system stops to do anything useful. After SAK I could
-do remote connect and running 'w' and 'ps axf' moved them to 'D' state.
-Clean sysrq-u,s,b was possible. 2.5.40 kernel plus Hugh's patch, 100%
-reproducible with 2.5.40 SMP (non-preempt) kernel running on UP here...
-                                    Thanks,
-                                                Petr Vandrovec
-                                                
+If possible, make it as a patch of the old [gs]etkeycodes, and such
+that it recognizes the kernel version and does the right thing
+on both 2.4 and 2.6. This is a fairly obscure area, so the utility
+should be as self-documenting as possible.
 
-Oct  1 17:47:35 vana kernel: SysRq : SAK
-Oct  1 17:47:35 vana kernel: SAK: killed process 1482 (XFree86): fd#3 opened to the tty
-...
-Oct  1 17:47:55 vana kernel: XFree86       D DADE7A60     0  1482   1481                     (NOTLB)
-Oct  1 17:47:55 vana kernel: Call Trace:
-Oct  1 17:47:55 vana kernel:  [<c01167df>]schedule+0x3bb/0x488
-Oct  1 17:47:55 vana kernel:  [<c019bdd5>]rwsem_down_read_failed+0x165/0x188
-Oct  1 17:47:55 vana kernel:  [<c0114adb>].text.lock.fault+0x7/0x6c
-Oct  1 17:47:55 vana kernel:  [<c01146b0>]do_page_fault+0x0/0x424
-Oct  1 17:47:55 vana kernel:  [<c01323a2>]do_generic_file_read+0xee/0x35c
-Oct  1 17:47:55 vana kernel:  [<c0132602>]do_generic_file_read+0x34e/0x35c
-Oct  1 17:47:55 vana kernel:  [<c01328cb>]__generic_file_aio_read+0x187/0x1a0
-Oct  1 17:47:55 vana kernel:  [<c0132610>]file_read_actor+0x0/0x134
-Oct  1 17:47:55 vana kernel:  [<c01372bc>]free_block+0x168/0x250
-Oct  1 17:47:55 vana kernel:  [<c0107ec9>]error_code+0x2d/0x38
-Oct  1 17:47:55 vana kernel:  [<c011216f>]flush_tlb_mm+0x1b/0x70
-Oct  1 17:47:55 vana kernel:  [<c0133ed1>]change_protection+0x1a1/0x1dc
-Oct  1 17:47:55 vana kernel:  [<c01341ed>]mprotect_fixup+0x16d/0x188
-Oct  1 17:47:55 vana kernel:  [<c0134392>]sys_mprotect+0x18a/0x2c4
-Oct  1 17:47:55 vana kernel:  [<c0107467>]syscall_call+0x7/0xb
-...
-Oct  1 17:47:55 vana kernel: w             D DADE7A60     0  1563   1558                     (NOTLB)
-Oct  1 17:47:55 vana kernel: Call Trace:
-Oct  1 17:47:55 vana kernel:  [<c015be79>]dput+0x19/0x1d4
-Oct  1 17:47:55 vana kernel:  [<c019bdd5>]rwsem_down_read_failed+0x165/0x188
-Oct  1 17:47:55 vana kernel:  [<c016fecf>].text.lock.array+0x6d/0x10e
-Oct  1 17:47:55 vana kernel:  [<c013b238>]__get_free_pages+0x28/0x60
-Oct  1 17:47:55 vana kernel:  [<c016c807>]proc_info_read+0x4f/0x108
-Oct  1 17:47:55 vana kernel:  [<c0146580>]vfs_read+0xb4/0x134
-Oct  1 17:47:55 vana kernel:  [<c014676a>]sys_read+0x2a/0x3c
-Oct  1 17:47:55 vana kernel:  [<c0107467>]syscall_call+0x7/0xb
-...
-Oct  1 17:47:55 vana kernel: ps            D DADE7A60     0  1583   1582                     (NOTLB)
-Oct  1 17:47:55 vana kernel: Call Trace:
-Oct  1 17:47:55 vana kernel:  [<c015be79>]dput+0x19/0x1d4
-Oct  1 17:47:55 vana kernel:  [<c019bdd5>]rwsem_down_read_failed+0x165/0x188
-Oct  1 17:47:55 vana kernel:  [<c016fecf>].text.lock.array+0x6d/0x10e
-Oct  1 17:47:55 vana kernel:  [<c013b238>]__get_free_pages+0x28/0x60
-Oct  1 17:47:55 vana kernel:  [<c016c807>]proc_info_read+0x4f/0x108
-Oct  1 17:47:55 vana kernel:  [<c0146580>]vfs_read+0xb4/0x134
-Oct  1 17:47:55 vana kernel:  [<c014676a>]sys_read+0x2a/0x3c
-Oct  1 17:47:55 vana kernel:  [<c0107467>]syscall_call+0x7/0xb
+Andries

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265168AbSLVTNU>; Sun, 22 Dec 2002 14:13:20 -0500
+	id <S265169AbSLVTZC>; Sun, 22 Dec 2002 14:25:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbSLVTNU>; Sun, 22 Dec 2002 14:13:20 -0500
-Received: from [195.208.223.238] ([195.208.223.238]:38784 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S265168AbSLVTNT>; Sun, 22 Dec 2002 14:13:19 -0500
-Date: Sun, 22 Dec 2002 22:21:06 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-Message-ID: <20021222222106.B30070@localhost.park.msu.ru>
-References: <m17ke3m3gl.fsf@frodo.biederman.org> <Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> <15877.26255.524564.576439@argo.ozlabs.ibm.com> <1040569382.1966.11.camel@zion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1040569382.1966.11.camel@zion>; from benh@kernel.crashing.org on Sun, Dec 22, 2002 at 04:03:01PM +0100
+	id <S265171AbSLVTZC>; Sun, 22 Dec 2002 14:25:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40968 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265169AbSLVTZB>; Sun, 22 Dec 2002 14:25:01 -0500
+Date: Sun, 22 Dec 2002 11:34:06 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: "James H. Cloos Jr." <cloos@jhcloos.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <3E060D8B.5060208@redhat.com>
+Message-ID: <Pine.LNX.4.44.0212221132370.2692-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 22, 2002 at 04:03:01PM +0100, Benjamin Herrenschmidt wrote:
-> The code has a comment that clearly says that we don't know why address
-> decoding is turned off and that should be fixed, so I suggest we either
-> fix it now or replace the comment with an explanation of why we need to
-> turn it off ;)
 
-It certainly wants to be fixed, thanks. Looks like a thinko.
 
-Just out of curiosity, formerly you mentioned that said ASIC cannot
-be relocated in the PCI address space, why? Firmware issues or anything
-else?
+On Sun, 22 Dec 2002, Ulrich Drepper wrote:
+>
+> It is already available.  I've announced it on the NPTL mailing list a
+> couple of days ago.
 
-Ivan.
+Ok. I was definitely thinking of something rpm-like, since I know building
+it is a bitch, and doing things wrong tends to result in systems that
+don't work all that well.
+
+> If there is interest in RPMs of the binaries I might _try_ to provide
+> some.  But this would mean replacing the system's libc.
+
+I suspect that many people who test out 2.5.x kernels (and especially -bk
+snapshots) don't find that too scary.
+
+		Linus
+

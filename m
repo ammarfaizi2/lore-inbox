@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316135AbSHNXRU>; Wed, 14 Aug 2002 19:17:20 -0400
+	id <S316217AbSHNX1s>; Wed, 14 Aug 2002 19:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSHNXRU>; Wed, 14 Aug 2002 19:17:20 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48285 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S316135AbSHNXRS>;
-	Wed, 14 Aug 2002 19:17:18 -0400
-Date: Wed, 14 Aug 2002 19:21:09 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Brian Pawlowski <beepy@netapp.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>, dax@gurulabs.com,
-       torvalds@transmeta.com, kmsmith@umich.edu, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: Will NFSv4 be accepted?
-In-Reply-To: <200208142234.g7EMYvQ21700@tooting-fe.eng>
-Message-ID: <Pine.GSO.4.21.0208141914430.7192-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319334AbSHNX1s>; Wed, 14 Aug 2002 19:27:48 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:43227 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S316217AbSHNX1r>; Wed, 14 Aug 2002 19:27:47 -0400
+Date: Thu, 15 Aug 2002 00:31:19 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
+Message-ID: <20020815003119.A27436@kushida.apsleyroad.org>
+References: <20020814204556.GA7440@alpha.home.local> <Pine.LNX.4.44.0208141551020.14879-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208141551020.14879-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Wed, Aug 14, 2002 at 03:53:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Lang wrote:
+> rather then debating how to convince gcc how to not optimize them away and
+> messing up the timing we should be talking about how to eliminate such
+> loops in the first place.
 
+You misunderstand.  We _do_ want gcc to optimize away empty loops.
 
-On Wed, 14 Aug 2002, Brian Pawlowski wrote:
-
-> > RPCSEC_GSS is not an argument for NFSv4...
-> 
-> yes.
-> 
-> But ACL support over the wire is an argument for V4 - and fine grained
-> authorization coupled to strong authentication makes for a flexible 
-> security package.
-
-Not really.  With the quality of existing userland (Linux, Solaris, *BSD,
-NT, etc.) _anything_ more complex than "I'm the only one who can create
-or remove objects here" is a big, gaping hole.  Which makes any theoretical
-benefits (if any) of ACL-based schemes moot.  Same (to slightly less extent)
-applies to regular files.
-
-In other words, if you need something more complex than usual - you are
-screwed on the userland side, regardless of the kernel behaviour.
-
+-- Jamie

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbTDYWcm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 18:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTDYWcm
+	id S264528AbTDYWkE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 18:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTDYWkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 18:32:42 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:15757 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262710AbTDYWcl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 18:32:41 -0400
-Date: Fri, 25 Apr 2003 15:10:40 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: TASK_UNMAPPED_BASE & stack location
-Message-ID: <3600000.1051308616@[10.10.2.4]>
-In-Reply-To: <m3sms644zz.fsf@averell.firstfloor.org>
-References: <20030425204012$4424@gated-at.bofh.it>
- <m3sms644zz.fsf@averell.firstfloor.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Apr 2003 18:40:04 -0400
+Received: from iucha.net ([209.98.146.184]:46160 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S264528AbTDYWj5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 18:39:57 -0400
+Date: Fri, 25 Apr 2003 17:52:08 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: it87 driver converted to sysfs
+Message-ID: <20030425225208.GO1069@iucha.net>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+References: <20030424150113.GJ1069@iucha.net> <20030424160431.GC18690@kroah.com> <20030424165132.GK1069@iucha.net> <20030424172758.GA27365@kroah.com> <20030425215335.GN1069@iucha.net> <20030425221304.GA1657@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FbmEh7Ek6NM6xKh/"
 Content-Disposition: inline
+In-Reply-To: <20030425221304.GA1657@kroah.com>
+X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.3i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Is there any good reason we can't remove TASK_UNMAPPED_BASE, and just
->> shove libraries directly above the program text? Red Hat seems to have
->> patches to dynamically tune it on a per-processes basis anyway ...
-> 
-> Yes. You won't get a continuous sbrk/brk heap then anymore. Not sure it
-> is a  big problem though.
 
-Me no understand. I think this *makes* it a contiguous space. The way I see
-it, we currently allocate from TASK_UNMAPPED_BASE up to the top, then start
-again above program text. Which seems a bit silly.
+--FbmEh7Ek6NM6xKh/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> It's probably worth a sysctl at least.
+On Fri, Apr 25, 2003 at 03:13:04PM -0700, Greg KH wrote:
+> Let me know if this patch fixes it or not.
 
-mmm. I'd prefer a config option. Defaulting to 'y' ;-)
+Yes, it does.
 
->> Moreover, can we put the stack back where it's meant to be, below the
->> program text, in that wasted 128MB of virtual space? Who really wants 
->>> 128MB of stack anyway (and can't fix their app)?
-> 
-> You could, but I bet it would break some programs
-> (e.g. just moving __PAGE_OFFSET on amd64 to 4GB for 32bit broke some
-> things)
+Thank you,
+florin
 
-I've moved PAGE_OFFSET around a lot (which moves the stack, as you say). 
-Haven't seen it break anything yet ... IMHO it was broken anyway if this
-hurts it. Obviously not something one could do in a stable kernel series,
-but 2.5 seems like a perfect time for it to me ... unless I'm missing some
-glibc / linker thing, it seems like a simple change.
+--=20
 
-M.
+"NT is to UNIX what a doughnut is to a particle accelerator."
 
+--FbmEh7Ek6NM6xKh/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+qbwYNLPgdTuQ3+QRAk1nAJ9hYJ3aUI+cCakbelkb7MTi1IwLmwCdGt3D
+fDtI7HOeEEvrcuQ+u6abAwg=
+=Qotv
+-----END PGP SIGNATURE-----
+
+--FbmEh7Ek6NM6xKh/--

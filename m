@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132945AbRAPWoU>; Tue, 16 Jan 2001 17:44:20 -0500
+	id <S131067AbRAPWuA>; Tue, 16 Jan 2001 17:50:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133017AbRAPWoK>; Tue, 16 Jan 2001 17:44:10 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:21779 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S132945AbRAPWn4>;
-	Tue, 16 Jan 2001 17:43:56 -0500
-Date: Tue, 16 Jan 2001 15:41:36 -0700
-From: Cort Dougan <cort@fsmlabs.com>
+	id <S131430AbRAPWtv>; Tue, 16 Jan 2001 17:49:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:46979 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131067AbRAPWtg>; Tue, 16 Jan 2001 17:49:36 -0500
+Date: Tue, 16 Jan 2001 17:49:01 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Eli Carter <eli.carter@inet.com>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: lance.c @ 100Mbit
-Message-ID: <20010116154136.M28808@hq.fsmlabs.com>
 In-Reply-To: <3A64CADF.17C9B9A3@inet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <3A64CADF.17C9B9A3@inet.com>; from Eli Carter on Tue, Jan 16, 2001 at 04:27:43PM -0600
+Message-ID: <Pine.LNX.3.95.1010116174603.28076A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-} Quick question:  has anyone used the lance.c driver for a 100BaseT
-} network PCI device?  If so, what successes/failures did you run into?
-} 
-} (I'm working with an Am79C973 chip.)
+On Tue, 16 Jan 2001, Eli Carter wrote:
 
-I'd recommend the pcnet32.c driver for that chip, instead.  I was running
-it for a little over a year at 100Mbps with no serious trouble.  This was
-under Linux/PPC, so there were some endian-ness problems at first but it's
-clean now.
+> Quick question:  has anyone used the lance.c driver for a 100BaseT
+> network PCI device?  If so, what successes/failures did you run into?
+> 
+> (I'm working with an Am79C973 chip.)
+Sure. It's the pcnet32.c file (not lance from which it came). It works
+fine in an embedded system and I'm currently adding some stuff to
+write/rewrite the SEEPROM which contains the IEEE address plus some
+stuff to init it upon reset.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

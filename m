@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261577AbRE0TWR>; Sun, 27 May 2001 15:22:17 -0400
+	id <S261615AbRE0TXh>; Sun, 27 May 2001 15:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbRE0TV6>; Sun, 27 May 2001 15:21:58 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:48392 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S261577AbRE0TVu>;
-	Sun, 27 May 2001 15:21:50 -0400
-Date: Sun, 27 May 2001 21:19:41 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [patch] softirq-2.4.5-B0
-In-Reply-To: <15121.21054.657593.830199@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0105272114350.5852-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261791AbRE0TX1>; Sun, 27 May 2001 15:23:27 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:46634 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261615AbRE0TXW>; Sun, 27 May 2001 15:23:22 -0400
+Date: Sun, 27 May 2001 21:22:56 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.5 does not link on Ruffian (alpha)
+Message-ID: <20010527212256.A5882@athlon.random>
+In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <20010526193649.B1834@athlon.random> <20010526201442.D1834@athlon.random> <3B10521D.346E5886@mandrakesoft.com> <20010527044924.H1834@athlon.random> <20010527184123.E676@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010527184123.E676@athlon.random>; from andrea@suse.de on Sun, May 27, 2001 at 06:41:23PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 27, 2001 at 06:41:23PM +0200, Andrea Arcangeli wrote:
+> On Sun, May 27, 2001 at 04:49:24AM +0200, Andrea Arcangeli wrote:
+> > caused me to write the posted patch to get all compilations right.
+> 
+> The reason I needed that patch is that I was not using 2.4.5aa1 but a
+> corrupted tree (I'm been fooled by an hardlink during developement), it
+> was just two lines away from the real one.
+> 
+> So this is the fix for all 2.4.5 based trees (ac1 and aa1 included) to
+> get generic and dp264 compililations right:
 
-On Sun, 27 May 2001, David S. Miller wrote:
+woops, the dp264 compilation wasn't right yet, this additional patch is
+needed too.
 
-> Hooray, some sanity in this thread finally :-)
+--- 2.4.5aa2/arch/alpha/kernel/core_tsunami.c.~1~	Sat May 26 04:03:35 2001
++++ 2.4.5aa2/arch/alpha/kernel/core_tsunami.c	Sun May 27 20:44:59 2001
+@@ -11,7 +11,6 @@
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+ #include <linux/init.h>
+-#include <linux/bootmem.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+@@ -21,6 +20,8 @@
+ #include <asm/io.h>
+ #include <asm/core_tsunami.h>
+ #undef __EXTERN_INLINE
++
++#include <linux/bootmem.h>
+ 
+ #include "proto.h"
+ #include "pci_impl.h"
 
-[ finally i had some sleep after a really long debugging session :-| ]
 
->  > the attached softirq-2.4.5-B0 patch fixes this problem by calling
->  > do_softirq()  from local_bh_enable() [if the bh count is 0, to avoid
->  > recursion].
->
-> Yikes!  I do not like this fix.
+the bootmem include was the one that broke the __EXTERN_INLINE logic for
+dp264.
 
-i think we have no choice, unfortunately.
-
-and i think function calls are not that scary anymore, especially not with
-regparms and similar compiler optimizations. The function is simple, the
-function just goes in and returns in 90% of the cases, which should be
-handled nicely by most BTBs.
-
-we have other fundamental primitives that are a function call too, eg.
-dget(), and they are used just as frequently. In 2.4 we were moving
-inlined code into functions in a number of cases, and it appeared to work
-out well in most cases.
-
-> I'd rather local_bh_enable() not become a more heavy primitive.
->
-> I know, in one respect it makes sense because it parallels how
-> hardware interrupts work, but not this thing is a function call
-> instead of a counter bump :-(
-
-i believe the important thing is that the function has no serialization or
-other 'heavy' stuff. BHs had the misdesign of not being restarted after
-being re-enabled, and it caused performance problems - we should not
-repeat history.
-
-	Ingo
-
+Andrea

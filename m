@@ -1,60 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130154AbRAVL7q>; Mon, 22 Jan 2001 06:59:46 -0500
+	id <S129846AbRAVMUo>; Mon, 22 Jan 2001 07:20:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131498AbRAVL7g>; Mon, 22 Jan 2001 06:59:36 -0500
-Received: from [213.221.172.237] ([213.221.172.237]:13326 "EHLO
-	smtp-relay2.barrysworld.com") by vger.kernel.org with ESMTP
-	id <S130154AbRAVL7T>; Mon, 22 Jan 2001 06:59:19 -0500
-Date: Mon, 22 Jan 2001 11:58:26 +0000
-From: Scaramanga <scaramanga@barrysworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Firewall netlink question...
-Message-ID: <20010122115826.A11297@lemsip.lan>
-Reply-To: scaramanga@barrysworld.com
-In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de> <20010122102600.A4458@lemsip.lan> <E14Kf9W-0008PJ-00@kabuki.eyep.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E14Kf9W-0008PJ-00@kabuki.eyep.net>; from daniel@kabuki.eyep.net on Mon, Jan 22, 2001 at 11:28:41 +0000
-X-Mailer: Balsa 1.0.1
+	id <S130792AbRAVMUe>; Mon, 22 Jan 2001 07:20:34 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:39950 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129846AbRAVMUZ>;
+	Mon, 22 Jan 2001 07:20:25 -0500
+Date: Mon, 22 Jan 2001 13:20:22 +0100 (CET)
+From: Bernd Kaindl <pppoe@suse.de>
+To: Hubert Mantel <mantel@suse.de>, Roman Drahtmueller <draht@suse.de>,
+        Bernhard Hoelcker <hoelcker@suse.de>, Arvin Schnell <arvin@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pppoe in 2.4.0
+In-Reply-To: <004701c081e1$d21a7d70$0601a8c0@tron>
+Message-ID: <Pine.LNX.4.21.0101221314210.32494-100000@Wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 19 Jan 2001, Daniel Mehrmnann wrote:
+> #PPP
+> alias char-major-108    ppp_generic
+> alias /dev/ppp          ppp_generic
 
-> This is true. This is called ipqmpd or something similar and written by
-> Harald Welte, yes?
-> Your best option is to either check out libipq (can be found in the
-> directory of the same name in the iptables sources), which provides
-> clean C interfaces, or the PERL interface, available from
-> http://www.intercode.com.au/jamesm/
+Kann es sein, daß wir das "alias /dev/ppp" für ppp mit devfs brauchen?
+Hat das schon jemand getestet?
+Unterstützen wir devfs für unseren 2.4 Kernel auf 7.1?
+Gibt es dafür schon einen Punkt im Handbuch?
+                    ein Howto?
+		    oder einen SDB-Artikel?
 
-Yeah, I think that was the one.
+cu, Bernd
 
 
->> What was wrong with the firewall netlink? My re-implementation works great
->> here. I can't see why anything else would be needed, QUEUE seems twice as
->> complex. Unless with QUEUE the userspce applications can make decisions on
->> what to do with the packet? In which case, it would be far too inefficient
->> for an application like mine, where all i need is to be able to read the
->> IP datagrams..
+Complete Mail: On Fri, 19 Jan 2001, Daniel Mehrmnann wrote:
+> From: Daniel Mehrmnann <daniel@tron.dynodns.net>
+> To: linux-kernel@vger.kernel.org
+> Date: Fri, 19 Jan 2001 07:34:05 +0100
+> Subject: Re: pppoe in 2.4.0
 > 
-> It can modify and then reinject the packet if it so wishes.
-
-Excellent, I didn't pick up on that, with the cursory glance at the code i took.
-
-I wonder, would there be any interest/point in my NETLINK module, which
-provides a backward compatible netlink interface. There are a good few
-apps out there which rely on it, and its nice not to have to run a daemon
-and install a new library, and re-write them just to continue using them...
-
---
-// Gianni Tedesco <scaramanga@barrysworld.com>
-Fingerprint: FECC 237F B895 0379 62C4  B5A9 D83B E2B0 02F3 7A68
-Key ID: 02F37A68
-
-egg.microsoft.com: Remote operating system guess: Solaris 2.6 - 2.7
+> 
+> ----- Original Message -----
+> From: "Ian Macdonald" <ianmacd@caliban.org>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Friday, January 19, 2001 7:10 AM
+> Subject: Re: pppoe in 2.4.0
+> 
+> 
+> > On 19 Jan 2001 03:51:20 +0100 in caliban.linux.kernel, you wrote:
+> >
+> > >Does anyone have pppoe working with 2.4.0?
+> > >
+> > >I'm running 2.4.0-ac9 with ppp and pppoe compiled into the kernel
+> (I've
+> > >tried with modules too)
+> > >
+> > >The pppd simply refuses to acknowlege the presence of ppp support
+> in the
+> > >kernel.
+> > >The last release of pppd was in august 2000.  Was this before the
+> ppp
+> > >interface in the
+> > >kernel was overhauled?
+> >
+> > Have you aliased the new module name to ppp?
+> >
+> > I'm using pppd just for simple dial-up from home, but I needed to
+> add
+> > the following line to /etc/modules.conf before pppd would load the
+> > correct module:
+> >
+> > alias ppp ppp_async
+> >
+> 
+> Yes, PPPoE works fine with 2.4.0. PLEASE read
+> $YOUR_KERNEL_SOURCE/Documentation/CHANGES and setup your alias
+> correctly.
+> For example (my System):
+> 
+> /etc/modules.conf:
+> 
+> ---------------cut-----------------
+> # Ok, here we start with 2.4.x stuff !
+> # LVM 0.9
+> alias alias block-major-58      lvm-mod
+> alias char-major-109            lvm-mod
+> 
+> #CPU
+> alias char-major-10-184 microcode
+> 
+> #PPP
+> alias char-major-108    ppp_generic
+> alias /dev/ppp          ppp_generic
+> alias tty-ldisc-3       ppp_async
+> alias tty-ldisc-14      ppp_synctty
+> alias ppp-compress-21   bsd_comp
+> alias ppp-compress-24   ppp_deflate
+> alias ppp-compress-26   ppp_deflate
+> #end 2.4.0
+> ---------------cut--------------------
+> 
+> daniel
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

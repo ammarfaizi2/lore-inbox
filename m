@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTK1JHk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 04:07:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTK1JHj
+	id S262081AbTK1JOu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 04:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTK1JOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 04:07:39 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:62732 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S262076AbTK1JHj (ORCPT
+	Fri, 28 Nov 2003 04:14:50 -0500
+Received: from smtp5.wanadoo.nl ([194.134.35.176]:36402 "EHLO smtp5.wanadoo.nl")
+	by vger.kernel.org with ESMTP id S262081AbTK1JOs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 04:07:39 -0500
-To: linux-kernel@vger.kernel.org
+	Fri, 28 Nov 2003 04:14:48 -0500
+From: Vladimir Lazarenko <vlad@lazarenko.net>
+Organization: Favoretti Spagettolino Inc
+To: kees.bakker@altium.nl (Kees Bakker)
 Subject: Re: 2.6.0-test9/10 speedtouch glitch
-Organization: Altium SOFTWARE B.V.
-References: <200311272023.56413.vlad@lazarenko.net> <200311272143.05662.baldrick@free.fr> <200311272339.26205.vlad@lazarenko.net> <200311272339.26205.vlad@lazarenko.net> <200311280001.30220.baldrick@free.fr>
-X-Face: "A(HPX!owGRCdtOX\NKs=ac*&x%/sYJMc;M<L&"^kH9ogp5;"w#UVc0yt3K{@n#.E+=k>qd bqZYYQvB9_xdS1l+B2\z;:p71RNxrja;ir>Dj?6%GzFA!o>gOL&G}8X;icnhqP|=TU,O@JVM%5LL:X ,G&IkRk9n%h7hZFUltu%RB=ctrdfu?[vSRV%Wzcn;#o>[K0C6_'q*~^+toc))w-Qb8*,afMHVCrNG6
-X-Attribution: KB
-Reply-To: kees.bakker@altium.nl (Kees Bakker)
-From: Kees Bakker <spam@altium.nl>
-Date: 28 Nov 2003 10:06:22 +0100
-Message-ID: <siwu9kuak1.fsf@koli.tasking.nl>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+Date: Fri, 28 Nov 2003 10:14:31 +0100
+User-Agent: KMail/1.5.93
+References: <200311272023.56413.vlad@lazarenko.net> <200311280001.30220.baldrick@free.fr> <siwu9kuak1.fsf@koli.tasking.nl>
+In-Reply-To: <siwu9kuak1.fsf@koli.tasking.nl>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.96
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200311281014.31339.vlad@lazarenko.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Duncan Sands writes:
-> 
-> On Thursday 27 November 2003 23:39, Vladimir Lazarenko wrote:
->> 
->> Using Debian/sid with latest available usbmgr.
->> Tho the module itself loads successfully, just that modem_run isn't able to
->> see the device, I think at that point hotplug has to complete already?
-> 
-> What error message do you get exactly?  When running what command?
+On Friday 28 November 2003 10:06, Kees Bakker wrote:
+> >>>>> Duncan Sands writes:
+> >
+> > On Thursday 27 November 2003 23:39, Vladimir Lazarenko wrote:
+> >> Using Debian/sid with latest available usbmgr.
+> >> Tho the module itself loads successfully, just that modem_run isn't able
+> >> to see the device, I think at that point hotplug has to complete
+> >> already?
+> >
+> > What error message do you get exactly?  When running what command?
+> I always thought that modem_run (the user-space driver) and the kernel
+> driver don't match. Am I wrong?
 
-I always thought that modem_run (the user-space driver) and the kernel
-driver don't match. Am I wrong?
+Yes, modem_run is a tool which loads up the firmware into the modem, and can 
+perfectly match with kernel driver, by passing it the key -k upon startup. 
+(Try updating to the latest sppedbuncle package?)
 
-		Kees
+Anyway, Duncan, messages will be delivered later today. :-)
 
+
+> 		Kees
+
+-- 
+Best regards,
+Vladimir Lazarenko

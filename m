@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSGOKxQ>; Mon, 15 Jul 2002 06:53:16 -0400
+	id <S317314AbSGOK7v>; Mon, 15 Jul 2002 06:59:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317429AbSGOKxP>; Mon, 15 Jul 2002 06:53:15 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:44928 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317427AbSGOKxP>;
-	Mon, 15 Jul 2002 06:53:15 -0400
-Date: Sun, 14 Jul 2002 14:29:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling, SCHED_BATCH
-Message-ID: <20020714122911.GA179@elf.ucw.cz>
-References: <Pine.LNX.4.44.0207102143400.16734-100000@localhost.localdomain> <Pine.LNX.4.44.0207110913030.4489-100000@localhost.localdomain>
+	id <S317430AbSGOK7v>; Mon, 15 Jul 2002 06:59:51 -0400
+Received: from holomorphy.com ([66.224.33.161]:23720 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317314AbSGOK7u>;
+	Mon, 15 Jul 2002 06:59:50 -0400
+Date: Mon, 15 Jul 2002 04:01:35 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Serial: updated serial drivers
+Message-ID: <20020715110135.GI21551@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <20020707010009.C5242@flint.arm.linux.org.uk> <20020715100310.GF23693@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207110913030.4489-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20020715100310.GF23693@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Jul 07, 2002 at 01:00:09AM +0100, Russell King wrote:
+>> I've been maintaining a serial driver "off the side" of the ARM port
+>> which cleans up the serial driver mess that we currently have, with
+>> many duplications of serial.c, each with subtle bugs.
 
-> > > > And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
-> > > > have policy == SCHED_BATCH.
-> > 
-> > well, there's one security consequence here - module loading
-> > (request_module()), which spawns a kernel thread must not run as
-> > SCHED_BATCH. I think the right solution for that path is to set the
-> > policy to SCHED_OTHER upon entry, and restore it to the previous one
-> > afterwards - this way the helper thread has SCHED_OTHER priority.
-> 
-> i've solved this problem by making kernel_thread() spawned threads drop
-> back to SCHED_NORMAL:
+On Mon, Jul 15, 2002 at 03:03:10AM -0700, William Lee Irwin III wrote:
+> global_cli() overhead on my testbox is a significant problem.
+> Profile info from tbench 1024 with ttyS0 as stdout, taken on a 16 cpu
+> i386 box with 16GB of RAM and irqbalance disabled, (needed to boot):
 
-Does it mean that we now have working scheduler class that only
-schedules jobs when no other thread wants to run (as long as
-SCHED_BATCH task does not enter the kernel)?
-									Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+the profiling results were for a kernel without the new serial stuff.
+The new serial stuff appears to need some arch compatibility auditing/
+fixes for NUMA-Q.
+
+
+
+Cheers,
+Bill

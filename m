@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbTIJJgY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 05:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTIJJgY
+	id S261196AbTIJJsY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 05:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTIJJsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 05:36:24 -0400
-Received: from hal-4.inet.it ([213.92.5.23]:13249 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S261278AbTIJJgW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 05:36:22 -0400
-Message-ID: <01c601c3777f$97c92680$5aaf7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: <arjanv@redhat.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 11:40:33 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 10 Sep 2003 05:48:23 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7808 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261196AbTIJJsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 05:48:22 -0400
+Date: Wed, 10 Sep 2003 11:01:36 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309101001.h8AA1amm000407@81-2-122-30.bradfords.org.uk>
+To: davidsen@tmr.com
+Subject: Re: Scaling noise
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> yes a copy of a page is about 3000 to 4000 cycles on an x86 box in the
-> uncached case. A pagetable operation (like the cpu setting the accessed
-> or dirty bit) is in that same order I suspect (maybe half this, but not
-> a lot less). 
+> | Once the option of running a firewall, a hot spare firewall, a
+> | customer webserver, a hot spare customer webserver, mail server,
+> | backup mail server, and a few virtual machines for customers, all on a
+> | 1U box, why are you going to want to pay for seven or more Us in a
+> | datacentre, plus extra network hardware?
+>
+> If you plan to run anything else on your firewall, and use the same
+> machine as a hot spare for itself, I don't want you as my ISP.
+> Reliability is expensive, and what you describe is known as a single
+> point of failure.
 
-Probably you don't know what you're talking about.
-I don't know where you studied computer architectures, but...
-Let's answer.
+Of course, you would be right if we were talking about current
+microcomputer architectures.  I was talking about the possibility of
+current mainframe technologies being implemented in future
+microcomputer architectures.
 
-To set the accessed or dirty bit you use
+Today, it is perfectly acceptable, normal, and commonplace to run hot
+spares of various images on a single Z/Series box.  Infact, the
+ability to do that is often a large factor in budgeting for the
+initial investment.
 
-38         __asm__ __volatile__( LOCK_PREFIX
-39                 "btsl %1,%0"
-40                 :"=m" (ADDR)
-41                 :"Ir" (nr));
+The hardware is fault tollerant by design.  Only extreme events like a
+fire or flood at the datacentre are likely to cause downtime of the
+whole machine.  I don't consider that any less secure than a rack of
+small servers.
 
-which is a ***SINGLE CLOCK CYCLE*** of cpu.
-I don't think really that on any machine Firmware 
-a btsl will require 4000 cycles.
-Neither on Intel x86.
+Different images running in their own LPARs, or under Z/Vm are
+separated from each other.  Assessments of their isolation have been
+done, and ratings are available.
 
-> Changing pagetable content is even more because all the
-> tlb's and internal cpu state will need to be flushed... which is also a
-> microcode operation for the cpu. 
+You absolutely _can_ use the same physical hardware to run a hot
+spare, and protect yourself against software failiures.  A process can
+monitor the virtual machine, and switch to the hot spare if it fails.
 
-Good. The same overhead you will find accessing a message 
-after a read form a pipe. There will occur many TLB faults.
-And the same apply copying the message to the pipe.
-Many many TLB faults.
+Add to that the fact that physical LAN cabling is reduced.  The amount
+of network hardware is also reduced.  That adds to reliability.
 
-> And it's deadly in an SMP environment.
-
-You say "tlb's and internal cpu state will need to be flushed".
-The other cpus in an SMP environment can continue to work, indipendently.
-TLBs and cpu state registers are ***PER-CPU*** resorces.
-
-Probably, it is worse the case of copying a memory page,
-because you have to hold some global lock all the time.
-This is deadly in an SMP environment, 
-because critical section lasts for thousand of cycles, 
-instead of simply a few.
+John.

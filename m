@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263132AbTC1Ucg>; Fri, 28 Mar 2003 15:32:36 -0500
+	id <S263133AbTC1Ugc>; Fri, 28 Mar 2003 15:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263133AbTC1Ucg>; Fri, 28 Mar 2003 15:32:36 -0500
-Received: from [12.47.58.223] ([12.47.58.223]:29798 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S263132AbTC1Ucf>; Fri, 28 Mar 2003 15:32:35 -0500
-Date: Fri, 28 Mar 2003 12:44:51 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: very poor performance in 2.5.66[-mm1]
-Message-Id: <20030328124451.2d09bd33.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0303281247480.11928-100000@admin>
-References: <Pine.LNX.4.44.0303281247480.11928-100000@admin>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Mar 2003 20:43:45.0577 (UTC) FILETIME=[BA012190:01C2F56A]
+	id <S263135AbTC1Ugc>; Fri, 28 Mar 2003 15:36:32 -0500
+Received: from tomts21-srv.bellnexxia.net ([209.226.175.183]:37823 "EHLO
+	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S263133AbTC1Uga>; Fri, 28 Mar 2003 15:36:30 -0500
+Date: Fri, 28 Mar 2003 15:42:36 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: any resolution of keyboard problems?
+In-Reply-To: <20030328122349.55f76130.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.44.0303281541540.1124-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mansfield <lkml@dm.cobite.com> wrote:
->
-> 
-> Hi list.
-> 
-> After all of the rave reviews about the interactivity fixes (both regular 
-> and I/O scheduler related), I decided to give the 2.5.latest a try on my 
-> desktop machine (system described below)
-> 
-> I started X, everything seemed fine, maybe a bit faster.  I opened a 
-> 'gnome-terminal' and typed 'ls -ltr'.  Wow, it was 20x slower.
-> 
-> Here are the timings for 'ls -ltr':
-> 
-> 2.5.66-mm1:      'ls -ltr'         31 seconds
-> 2.5.66-mm1:      'ls -ltr | cat'   2 seconds
-> 2.4.18-rhlatest: 'ls -ltr'         1.14 seconds
+On Fri, 28 Mar 2003, Randy.Dunlap wrote:
 
-How many files were there?
+> On Fri, 28 Mar 2003 15:03:06 -0500 (EST) "Robert P. J. Day" <rpjday@mindspring.com> wrote:
+> 
+> |   i just downloaded the bk4 set of patches for 2.5.66 to see if
+> | anything has changed with respect to the weird keyboard problems
+> | i was having with my dell laptop and its external PS/2 keyboard.
+> | 
+> |   has anyone else been seeing this?  do any of the patches
+> | in the bk4 snapshot address this?  i'm recompiling as we speak,
+> | and i'll test it again as soon as i can.
+> 
+> I looked at the config file that you posted and didn't see
+> any glaring issues with it, but then I don't have a Dell laptop
+> either.
+> 
+> You might have to find an earlier kernel that works and then
+> find where it breaks.  Or turn off some big things, like APM
+> (just for testing).
 
-My /usr/bin contains 3168 files.  An `ls -ltr' in gnome-terminal takes 9.6
-seconds.  In rxvt it takes 0.5 seconds.  That's an 850MHz P3.
+i turned off most of what i could think of to try to isolate the
+problem.  i'll poke around more later with the latest build.
 
-So gnome-terminal appears to be a pretty slow application.  My guess would be
-that something in the 2.5 kernel has exposed a marginality or an outright
-bug in it.
-
-It would be interesting to edit include/asm-i386/param.h and set HZ to 100.
+rday
 

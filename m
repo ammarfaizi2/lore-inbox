@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268527AbTGNN1M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270129AbTGNNUn
+	id S270119AbTGNNbG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270089AbTGNNa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:20:43 -0400
-Received: from [203.94.130.164] ([203.94.130.164]:44712 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id S268527AbTGNNTy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:19:54 -0400
-Date: Mon, 14 Jul 2003 23:02:39 +1000 (EST)
-From: Brett <generica@email.com>
-X-X-Sender: brett@bad-sports.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] [TRIVIAL] cryptoloop in 2.6.0-test1
-Message-ID: <Pine.LNX.4.44.0307142258570.7337-100000@bad-sports.com>
+	Mon, 14 Jul 2003 09:30:26 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:65002 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265182AbTGNN2p convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:28:45 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [Patch] 1/4 PCI Hot-plug driver patch for 2.5.74 kernel
+Date: Mon, 14 Jul 2003 06:43:31 -0700
+Message-ID: <42050DF556283A4D977B111EB7063208100277@orsmsx407.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Patch] 1/4 PCI Hot-plug driver patch for 2.5.74 kernel
+Thread-Index: AcNJ0QT/zJvTafr8SI+bQ6p5FYIhDAAO9M9w
+From: "Sy, Dely L" <dely.l.sy@intel.com>
+To: "Greg KH" <greg@kroah.com>, "Dely Sy" <dlsy@unix-os.sc.intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Jul 2003 13:43:32.0064 (UTC) FILETIME=[EA315E00:01C34A0D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > This patch was sent out to this and pcihpd-discuss mailing lists on
+> > 7/10.  However, it didn't show up on this mailing list most probably
+> > due to the message size.  Now I make it into 4 parts and resend them.
+> > There were already a few discussions on this patch.
 
-Hey,
+> Hm, this just split the patch up along file diffs?  Did you change
+> anything from the one big patch you send me earlier?
 
-Compiling cryptoloop as a module showed up the need for this patch
+Yes, this is just a re-send of the original big patch to the lkml for it
+can't take message more than 100KB.  The original message didn't show up
+in lkml after I sent it.  For this one, I just split it up along file 
+diffs.
 
-thanks,
+I'll look into the feasibility of splitting up the patch into smaller
+ones according to functionality as suggested by you and Dan after I get 
+back from vacation on 7/21.  
 
-	/ Brett
-
---- drivers/block/Kconfig.old	2003-07-14 18:41:20.000000000 +1000
-+++ drivers/block/Kconfig	2003-07-14 18:41:48.000000000 +1000
-@@ -264,6 +264,7 @@
- 
- config BLK_DEV_CRYPTOLOOP
- 	tristate "Cryptoloop Support"
-+	select CRYPTO
- 	depends on BLK_DEV_LOOP
- 	---help---
- 	  Say Y here if you want to be able to use the ciphers that are 
-
-
+Thanks,
+Dely

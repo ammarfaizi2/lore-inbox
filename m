@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131454AbRC1Nx4>; Wed, 28 Mar 2001 08:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131660AbRC1Nxq>; Wed, 28 Mar 2001 08:53:46 -0500
-Received: from james.kalifornia.com ([208.179.59.2]:34420 "EHLO james.kalifornia.com") by vger.kernel.org with ESMTP id <S131454AbRC1Nxf>; Wed, 28 Mar 2001 08:53:35 -0500
-Message-ID: <3AC17BB1.8000201@kalifornia.com>
-Date: Tue, 27 Mar 2001 21:50:41 -0800
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i586; en-US; 0.8.1)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jesse@cats-chateau.net
-CC: Shawn Starr <spstarr@sh0n.net>, Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: Disturbing news..
-References: <Pine.LNX.4.30.0103280225460.8046-100000@coredump.sh0n.net> <01032806093901.11349@tabby>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131777AbRC1ORJ>; Wed, 28 Mar 2001 09:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131830AbRC1OQ6>; Wed, 28 Mar 2001 09:16:58 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:30793 "EHLO tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP id <S131777AbRC1OQu>; Wed, 28 Mar 2001 09:16:50 -0500
+Date: Wed, 28 Mar 2001 08:15:57 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103281415.IAA47715@tomcat.admin.navo.hpc.mil>
+To: kaos@ocs.com.au, jesse@cats-chateau.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Disturbing news.. 
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
+Keith Owens <kaos@ocs.com.au>
+> 
+> On Wed, 28 Mar 2001 06:08:15 -0600, 
+> Jesse Pollard <jesse@cats-chateau.net> wrote:
+> >Sure - very simple. If the execute bit is set on a file, don't allow
+> >ANY write to the file. This does modify the permission bits slightly
+> >but I don't think it is an unreasonable thing to have.
+> 
+> man strip
+> man objcopy
+> man ld
 
-> On Wed, 28 Mar 2001, Shawn Starr wrote:
-> 
->> Well, why can't the ELF loader module/kernel detect or have some sort of
->> restriction on modifying other/ELF binaries including itself from changing
->> the Entry point?
->> 
->> There has to be a way stop this. WHY would anyone want to modify the entry
->> point anyway? (there may be some reasons but I really dont know what).
->> Even if it's user level, this cant affect files with root permissions
->> (unless root is running them or suid).
->> 
->> Any idea?
-> 
-> 
-> Sure - very simple. If the execute bit is set on a file, don't allow
-> ANY write to the file. This does modify the permission bits slightly
-> but I don't think it is an unreasonable thing to have.
-> 
-What a pain in the ass when you are writing / updating a shell script . 
-. . .
+Thought of theses already (well, at least ld...)
 
+strip - not used that much (most executables still have their symbol table
+	but could be handled by removing the execute bit, stripping, then
+	putting it back. Or just use the ld option -s.
+objcopy - copies object files. Object files are not marked executable...
+ld	- on other UNIX systems (Cray/IRIX), I think the output file
+	(-o) specified is first deleted. Whenever I can cause a link
+	error, the output is not marked executable. If the GNU ld doesn't
+	delete it first, then it most likely should.
+
+I was expecting shell scripts to be the complaint first... :-)
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

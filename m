@@ -1,87 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317148AbSFWWAK>; Sun, 23 Jun 2002 18:00:10 -0400
+	id <S317165AbSFWWdX>; Sun, 23 Jun 2002 18:33:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317152AbSFWWAJ>; Sun, 23 Jun 2002 18:00:09 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:19467 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S317148AbSFWWAI>;
-	Sun, 23 Jun 2002 18:00:08 -0400
-Date: Mon, 24 Jun 2002 00:05:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild fixes and more
-Message-ID: <20020624000500.A11471@mars.ravnborg.org>
-References: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>
+	id <S317181AbSFWWdW>; Sun, 23 Jun 2002 18:33:22 -0400
+Received: from jalon.able.es ([212.97.163.2]:31936 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S317165AbSFWWdV>;
+	Sun, 23 Jun 2002 18:33:21 -0400
+Date: Mon, 24 Jun 2002 00:33:13 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.19-pre10-jam3
+Message-ID: <20020623223313.GA1639@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0206231325280.6241-100000@chaos.physics.uiowa.edu>; from kai-germaschewski@uiowa.edu on Sun, Jun 23, 2002 at 01:39:51PM -0500
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 23, 2002 at 01:39:51PM -0500, Kai Germaschewski wrote:
-> 
-> Feedback is very welcome, of course ;)
+Hi all..
 
-1) Tried "make clean"
-In the end it gave the following result:
-make -C arch/i386/lib clean
-Cleaning up
-/home/sam/src/linux/kernel/bk/local/Rules.make:134: warning: overriding commands for target `clean'
-Makefile:168: warning: ignoring old commands for target `clean'
+Now that vm and O1 both are on -aa tree, these are just marginal patches
+(apart from the ide patch). Also, the mix of -aa, some patches (irqrate,
+smptimers) and bproc was bombing (I had lockups removing modules or at
+spurious times), so I have removed both (irqrate, scalable-timers).
 
-make clean is too verbose now, especially taken KBUILD_VERBOSE= in consideration.
+URL:
 
-2) While doing a clean build I spotted:
-  LD     drivers/char/pcmcia/built-in.o
-  LD     drivers/char/built-in.o
-rm defkeymap.c
-  CC     drivers/ide/device.o
-  CC     drivers/ide/ide-taskfile.o
-This rm looks wrong to me.
-Btw. I did not use -j and on UP.
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre10-jam3.tar.gz
 
-Second make did the following:
-  CP     drivers/char/defkeymap.c
-  CC     drivers/char/defkeymap.o
-  LD     drivers/char/built-in.o
-  LD     drivers/built-in.o
-  Generating build number
-  ...
+Extract from contents:
 
-Third make completed with success.
+00-aa-pre10aa4.bz2
+	-aa tree patch.
 
-3) ChangeSet@1.490.1.62
-Within Rules.make in section "Commands useful for boot image"
-In the lines
-#	target: source(s) FORCE
--#		$(if_changed,ld/objcopy)
-+#              $(if_changed,ld/objcopy/gzip)
+02-swap-fix.bz2
+03-tmpfs-fix.bz2
+	Fixes for swap (memleak, unsafe BUG()s, redundant checks)
+	and tmpfs (symlinks,directory itimes, truncate, swapoff speedup)
+	Author: Hugh Dickins <hugh@veritas.com>
 
- 
-4)  Clean up arch/i386
-I miss $(obj) in front of tools/build
-zImage: bootsect setup vmlinux.bin tools/build
--	tools/build bootsect setup vmlinux.bin $(ROOT_DEV) > $@
-+	$(obj)/tools/build bootsect setup vmlinux.bin $(ROOT_DEV) > $@
+04-tux-stats.bz2
+	Remove empty tux stats if tux is not built.
+	Author: Randy Hron <rwhron@earthlink.net>
 
+10-config-nr_cpus.bz2
+	Configure the max number of cpus at compile time (default was 32).
+	Saves memory footprint for kernel (around 240Kb in 32->2).
+	Author: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
 
-bzImage: bbootsect bsetup bvmlinux.bin tools/build
--	tools/build -b bbootsect bsetup bvmlinux.bin $(ROOT_DEV) > $@
-+	$(obj)/tools/build -b bbootsect bsetup bvmlinux.bin $(ROOT_DEV) > $@
+11-mem-barriers.bz2
+	Use specific machine level instructions for mb() for new
+	processors (P3,P4,Athlon).
+	Author: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 
-Reading through the 4 patches I miss $(obj) in many places.
-In generally all temporary and final target needs $(obj)
+12-p2-split.bz2
+3-gcc3-march.bz2
+	Makefile games
 
-5) jobserver unavailable
-I've started too see this when I execute "make -j2":
-make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make rule.
-Dunno if this is my local setup??
-It happens even with nothing to do, e.g. a second make without changes in-between.
-make -v:
-GNU Make version 3.79.1, by Richard Stallman and Roland McGrath.
+20-sched-hints.bz2
+	Hint-based scheduling on top of O1 scheduler.
+	Authonr: Robert Love <rml@tech9.net>
 
-	Sam
+30-shared-zlib.bz2
+40-ide-10.bz2
 
+41-severworks-ide.bz2
+	Attempt to fix the ServerWorks problem with certain disks and DMA.
+	Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+
+42-ide-cd-dma-3.bz2
+70-i2c-2.6.4-20020806.bz2
+71-sensors-2.6.4-20020806.bz2
+80-bproc-3.1.10.bz2
+81-export-task_nice.bz2
+90-make.bz2
+
+Enjoy !!
+
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-pre10-jam3, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.6mdk)

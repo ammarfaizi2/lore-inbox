@@ -1,67 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262392AbSLJPn3>; Tue, 10 Dec 2002 10:43:29 -0500
+	id <S262324AbSLJPlt>; Tue, 10 Dec 2002 10:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbSLJPn3>; Tue, 10 Dec 2002 10:43:29 -0500
-Received: from B5320.pppool.de ([213.7.83.32]:47252 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S262392AbSLJPn1>; Tue, 10 Dec 2002 10:43:27 -0500
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-From: Daniel Egger <degger@fhm.edu>
-To: Juan Quintela <quintela@mandrakesoft.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <m27kei9hd3.fsf@demo.mitica>
-References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
-	 <20021210055215.GA9124@suse.de> <1039504941.30881.10.camel@sonja>
-	 <m27kei9hd3.fsf@demo.mitica>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gLpliAlfutcB7JigjYgg"
-Organization: 
-Message-Id: <1039534841.31316.33.camel@sonja>
+	id <S262326AbSLJPlt>; Tue, 10 Dec 2002 10:41:49 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:53699 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S262324AbSLJPls>; Tue, 10 Dec 2002 10:41:48 -0500
+Message-ID: <2105495.1039535073217.JavaMail.nobody@web55.us.oracle.com>
+Date: Tue, 10 Dec 2002 07:44:33 -0800 (PST)
+From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
+To: rusty@rustcorp.com.au
+Subject: module-init-tools 0.9.3 -- "missing" issue
+Cc: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 10 Dec 2002 16:40:42 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As per the README...
 
---=-gLpliAlfutcB7JigjYgg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[asuardi@dolphin module-init-tools-0.9.3]$ aclocal
+[asuardi@dolphin module-init-tools-0.9.3]$ automake --add-missing --copy
+Makefile.am: installing `./depcomp'
+[asuardi@dolphin module-init-tools-0.9.3]$ autoconf
+[asuardi@dolphin module-init-tools-0.9.3]$ ./configure --prefix=/
+checking build system type... i686-pc-linux-gnu
+checking host system type... i686-pc-linux-gnu
+checking target system type... i686-pc-linux-gnu
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+/download/kernel/v2.5/module-init-tools-0.9.3/missing: Unknown `--run' option
+Try `/download/kernel/v2.5/module-init-tools-0.9.3/missing --help' for more information
+configure: WARNING: `missing' script is too old or missing
+checking for gawk... gawk
+checking whether make sets ${MAKE}... yes
+checking for gcc... gcc
+checking for C compiler default output... a.out
+checking whether the C compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables...
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for style of include used by make... GNU
+checking dependency style of gcc... gcc3
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: executing depfiles commands
 
-Am Die, 2002-12-10 um 13.40 schrieb Juan Quintela:
+So - it complains about 'missing' not knowing the --run option. Indeed:
 
-> Have you tested it?
+[asuardi@dolphin module-init-tools-0.9.3]$ ./missing --help
+./missing [OPTION]... PROGRAM [ARGUMENT]...
 
-Sort of.... :/
+Handle `PROGRAM [ARGUMENT]...' for when PROGRAM is missing, or return an
+error status if there is no known handling for PROGRAM.
 
-> Here, we got cmov to work if the two operands are registers, if any of
-> the operands is in memory, it don't work.
+Options:
+  -h, --help      display this help and exit
+  -v, --version   output version information and exit
 
-Now *this* is really informative because it explains why my
-testapplication which uses=20
- 80488c7:       0f 43 d0                cmovae %eax,%edx
-doesn't SEGILL.
+Supported PROGRAM values:
+  aclocal      touch file `aclocal.m4'
+  autoconf     touch file `configure'
+  autoheader   touch file `config.h.in'
+  automake     touch all `Makefile.in' files
+  bison        create `y.tab.[ch]', if possible, from existing .[ch]
+  flex         create `lex.yy.c', if possible, from existing .c
+  lex          create `lex.yy.c', if possible, from existing .c
+  makeinfo     touch the output file
+  yacc         create `y.tab.[ch]', if possible, from existing .[ch]
+[asuardi@dolphin module-init-tools-0.9.3]$
 
-> Been there, been burned :p=20
 
-Me too, just this morning.
+Unfortunately I'm a newbie in the new module-init-tools && little time to
+ dig deeper, so take this as a very simple report. Thanks,
 
---=20
-Servus,
-       Daniel
-
---=-gLpliAlfutcB7JigjYgg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA99gr5chlzsq9KoIYRAnluAJ9q6KtjCyy7x+6HcEzb/V7J2lTLzgCg4b2+
-ntTbd1HVId1WDckjhjmRSyE=
-=qAZ0
------END PGP SIGNATURE-----
-
---=-gLpliAlfutcB7JigjYgg--
-
+--alessandro

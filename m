@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280150AbRKEDP4>; Sun, 4 Nov 2001 22:15:56 -0500
+	id <S280153AbRKEDUr>; Sun, 4 Nov 2001 22:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280154AbRKEDPq>; Sun, 4 Nov 2001 22:15:46 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14607 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280150AbRKEDPf>;
-	Sun, 4 Nov 2001 22:15:35 -0500
-Date: Mon, 5 Nov 2001 01:15:10 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Ed Tomlinson <tomlins@cam.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] vm_swap_full
-In-Reply-To: <20011104191014.C16017@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33L.0111050114250.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280159AbRKEDU1>; Sun, 4 Nov 2001 22:20:27 -0500
+Received: from taltos.codesourcery.com ([66.92.14.85]:62592 "EHLO
+	taltos.codesourcery.com") by vger.kernel.org with ESMTP
+	id <S280153AbRKEDUZ>; Sun, 4 Nov 2001 22:20:25 -0500
+Date: Sun, 4 Nov 2001 19:20:24 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.20a and gcc 3.0 ?
+Message-ID: <20011104192024.H267@codesourcery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE5EA81.6070400@stesmi.com>
+User-Agent: Mutt/1.3.23i
+From: Zack Weinberg <zack@codesourcery.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Nov 2001, Mike Fedyk wrote:
+> >>gcc-2.95.4 does not exist! The latest stable release is 2.95.3.
+> > Ah, it does exist. You have to check it out from CVS from the GCC people.
+> > I've no doubt a release will be made soon.
+> 
+> That's what's called a not released product.
+> 
+> 2.95.4 might or might not be released shortly.
+> 
+> It is not the final 2.95.4 that is in the CVS.
+> 
+> Another word for it might be BETA...
 
-> But now that nr_swap_pages is *free* swap, you'll have to add another
-> test for (swap > RAM)...
+We're being extremely conservative about patches applied to the 2.95.x
+CVS branch.  It is intended always to be release-quality material.
 
-I talked about this thing with Ed on #kernelnewbies and
-it turns out all which really needs to be added is some
-proper documentation.
+I'm not aware of any plans for an official 2.95.4 anytime soon.
+However, system integrators often track that CVS branch with their GCC
+packages.  For instance:
 
-The thing is correct, but it confused me too at first ;)
+$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+gcc version 2.95.4 20011006 (Debian prerelease)
 
-cheers,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+zw

@@ -1,101 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278345AbRJMS0Q>; Sat, 13 Oct 2001 14:26:16 -0400
+	id <S278346AbRJMS3q>; Sat, 13 Oct 2001 14:29:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278346AbRJMS0G>; Sat, 13 Oct 2001 14:26:06 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:11298 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278345AbRJMSZz>; Sat, 13 Oct 2001 14:25:55 -0400
-Date: Sat, 13 Oct 2001 20:26:15 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13pre2aa1
-Message-ID: <20011013202615.A721@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S278348AbRJMS3g>; Sat, 13 Oct 2001 14:29:36 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:22794 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278347AbRJMS3X>;
+	Sat, 13 Oct 2001 14:29:23 -0400
+Date: Sat, 13 Oct 2001 15:29:44 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Patrick McFarland <unknown@panax.com>
+Cc: "M. Edward Borasky" <znmeb@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+In-Reply-To: <20011013141709.L249@localhost>
+Message-ID: <Pine.LNX.4.33L.0110131526500.2847-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only in 2.4.12aa1: 00_backout-2.4.11pre1-1
-Only in 2.4.12aa1: 00_o_direct-2
-Only in 2.4.13pre2aa1: 00_o_direct-3
+On Sat, 13 Oct 2001, Patrick McFarland wrote:
 
-	Made a self contained patch that applies cleanly to 2.4.13pre2 ready
-	for merging. Many thanks to Janet Morgan for fiding another bug in the
-	blkdev O_DIRECT support.
+> Hmm, I see that as very bad. There should be a bunch of sysctls to do
+> that easily.
 
-Only in 2.4.12aa1: 00_cache-without-buffers-1
-Only in 2.4.12aa1: 00_parport-fix-1
+See /proc/sys/vm/* and the documentation ;)
 
-	Just in mainline.
+> Also, I heard that 2.4 (and I'm assuming 2.2 as well) swaps pages on a
+> last-used-age basis, instead of either a number-of-times-used or a
+> hybrid of the two. That kinda seems stupid,
 
-Only in 2.4.13pre2aa1: 00_files_struct_rcu-2.4.10-04-1
+Don't worry since it's not true, at least the VM in the -ac
+kernels _does_ use a hybrid of access recency and frequency
+to determine page replacement.
 
-	File locking read/write spinlock replaced with RCU.
+The -linus kernel, however only has LRU-like selection.
 
-Only in 2.4.13pre2aa1: 00_ordered-freeing-1
+At the moment the -linus kernel is faster than the -ac kernel
+for some workloads. This may have something to do with better
+clusterable IO ... when page replacement is less precise the
+chance that IO is clusterable is probably larger due to the
+way we scan.
 
-	Free the pages so that they gets allocated in physical order later,
-	shouldn't matter but I got reports of slower in-core (cache)
-	performance on some arch after a fresh boot, and speedup after the
-	freelist got randomized by load.
+I plan to do more explicit IO clustering in -ac to try and
+remedy this difference.
 
-Only in 2.4.13pre2aa1: 00_rcu-poll-1
+regards,
 
-	RCU implementation based on latest Dipankar's patch against 2.4.10.
-	I changed it so that it only has as fast-path/reader-load cost a
-	per-cpu counter increment in scheduler and nothing else. It is not
-	arch dependent either. I also tried to optimized the UP case.
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
-Only in 2.4.12aa1: 00_rwsem-fair-22
-Only in 2.4.13pre2aa1: 00_rwsem-fair-23
+http://www.surriel.com/		http://distro.conectiva.com/
 
-	Rediffed.
-
-Only in 2.4.12aa1: 00_rwsem-fair-22-recursive-4
-Only in 2.4.13pre2aa1: 00_rwsem-fair-23-recursive-4
-
-	Renamed.
-
-Only in 2.4.12aa1: 00_vm-2
-Only in 2.4.13pre2aa1: 00_vm-3
-Only in 2.4.13pre2aa1: 00_vm-3.1
-
-	Further vm changes, backed out the PG_wait_for_IO since it seems not
-	to make a relevant difference. Should behave better under swap load.
-	In particular I'm probing the inactive list from shrink_cache now,
-	so that I get feedback on when it's time to swap before the shrinks
-	on the inactive list starts failing.
-
-Only in 2.4.12aa1: 10_compiler.h-1
-Only in 2.4.13pre2aa1: 10_compiler.h-2
-
-	Rediffed.
-
-Only in 2.4.13pre2aa1: 10_lvm-snapshot-check-1
-Only in 2.4.12aa1: 10_lvm-snapshot-hardsectsize-1
-Only in 2.4.13pre2aa1: 10_lvm-snapshot-hardsectsize-2
-
-	LVM updates from Chris.
-
-Only in 2.4.12aa1: 10_numa-sched-11
-Only in 2.4.13pre2aa1: 10_numa-sched-12
-
-	Rediffed.
-
-Only in 2.4.12aa1: 50_uml-patch-2.4.11-1.bz2
-Only in 2.4.13pre2aa1: 50_uml-patch-2.4.12-1-1.bz2
-
-	Latest patch from Jeff.
-
-Only in 2.4.12aa1: 60_tux-2.4.10-ac10-E6.bz2
-Only in 2.4.13pre2aa1: 60_tux-2.4.10-ac10-F5.bz2
-Only in 2.4.12aa1: 62_tux-generic-file-read-1
-Only in 2.4.13pre2aa1: 62_tux-generic-file-read-2
-
-	Latest update from Ingo.
-
-Andrea

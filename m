@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313326AbSDOWjl>; Mon, 15 Apr 2002 18:39:41 -0400
+	id <S313327AbSDOWp4>; Mon, 15 Apr 2002 18:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313339AbSDOWjk>; Mon, 15 Apr 2002 18:39:40 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:16617 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313326AbSDOWjj>;
-	Mon, 15 Apr 2002 18:39:39 -0400
-Date: Tue, 16 Apr 2002 00:39:31 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Maxwell Spangler <maxwax@mindspring.com>
-Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: Re: [COMMENTS IDE 2.5] - "idebus=66" in 2.5.8 results in "ide_setup: idebus=66 -- BAD OPTION"
-Message-ID: <20020416003931.A31385@ucw.cz>
-In-Reply-To: <E16xA96-0002Ru-00@roos.tartu-labor> <Pine.LNX.4.44.0204151804100.1145-100000@tyan.doghouse.com>
+	id <S313328AbSDOWpz>; Mon, 15 Apr 2002 18:45:55 -0400
+Received: from zero.tech9.net ([209.61.188.187]:28946 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313327AbSDOWpz>;
+	Mon, 15 Apr 2002 18:45:55 -0400
+Subject: Re: [Patch] Compilation error on 2.5.8
+From: Robert Love <rml@tech9.net>
+To: Bongani <bonganilinux@mweb.co.za>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1018911190.2688.67.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 15 Apr 2002 18:45:52 -0400
+Message-Id: <1018910754.3402.33.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 06:04:54PM -0400, Maxwell Spangler wrote:
-> On Mon, 15 Apr 2002, Meelis Roos wrote:
+On Mon, 2002-04-15 at 18:53, Bongani wrote:
+> I get the following error when I try to compile 2.5.8
+> init/main.o: In function `start_kernel':
+> init/main.o(.text.init+0x5e2): undefined reference to
+> `setup_per_cpu_areas'
 > 
-> > MH> Kernel command line: BOOT_IMAGE=2.5.8-without-TCQ ro root=303 video=matrox:vesa:0x118 idebus=66 profile=2
-> > MH> ide_setup: idebus=66
-> > MH> ide: system bus speed 66MHz
-> > 
-> > MH> works like a charm :)
-> > 
-> > Do you really have an IDE controller that does 66 MHz PCI? What kind on IDE
-> > controller is this?
-> 
-> I have a Promise Ultra133TX2 card on my shelf that is 32-bit PCI with 66Mhz 
-> operation.
-> 
-> I don't know to what extent it is supported yet.. Andre?
+> Looking at the code it looks like someone got confused ;)
+> around the ifdefs.I'm  under the assumption that setup_per_cpu_areas()
+> does nothing on a uniprocessor. The patch compile fine on 
+> my PC. 
 
-The promise driver ignores the idebus= value anyway. :) And for others
-66 is usually an invalid setting.
+A better approach would probably be to define setup_per_cpu_areas to
+nothing when CONFIG_SMP is not set so as not to have #ifdefs in the code
+itself ...  for example,
 
--- 
-Vojtech Pavlik
-SuSE Labs
+diff -urN linux-2.5.8/init/main.c linux/init/main.c
+--- linux-2.5.8/init/main.c	Sun Apr 14 15:18:46 2002
++++ linux/init/main.c	Mon Apr 15 18:41:54 2002
+@@ -272,6 +272,8 @@
+ #define smp_init()	do { } while (0)
+ #endif
+ 
++#define setup_per_cpu_areas()	do { } while(0)
++
+ #else
+ 
+ #ifdef __GENERIC_PER_CPU
+
+	Robert Love
+
+

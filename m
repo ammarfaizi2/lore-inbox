@@ -1,100 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVAUAQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVAUAUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVAUAQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 19:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVAUAPF
+	id S262172AbVAUAUN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 19:20:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVAUAST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 19:15:05 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:39114 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261789AbVAUAOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 19:14:14 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
-Date: Fri, 21 Jan 2005 01:14:14 +0100
-User-Agent: KMail/1.7.1
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       hugang@soulinfo.com, LKML <linux-kernel@vger.kernel.org>
-References: <200501202032.31481.rjw@sisk.pl> <200501202358.53918.rjw@sisk.pl> <20050120230616.GD22201@elf.ucw.cz>
-In-Reply-To: <20050120230616.GD22201@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501210114.14859.rjw@sisk.pl>
+	Thu, 20 Jan 2005 19:18:19 -0500
+Received: from main.gmane.org ([80.91.229.2]:38869 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261546AbVAUARN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 19:17:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Subject: Re: intel8x0 and 2.6.11-rc1
+Date: Fri, 21 Jan 2005 02:16:49 +0200
+Message-ID: <pan.2005.01.21.00.16.47.737170@yahoo.com>
+References: <87hdlcc06e.fsf@topaz.mcs.anl.gov> <s5hfz0wrusn.wl@alsa2.suse.de> <878y6oaysw.fsf@topaz.mcs.anl.gov> <s5hbrbkrt6c.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: home-33027.b.astral.ro
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Takashi,
 
-On Friday, 21 of January 2005 00:06, Pavel Machek wrote:
-> Hi!
+The same applies for IBM T40/T41/R50p I have tested so far.
+I had to disable "Headphone Jack Sense" and "Line Jack Sense" too.
+So, what's the deal with these ?
+What are they supposed to do ?
+Should we report this as bug on alsa lists ?
+
+Thanks,
+Paul
+
+On Thu, 20 Jan 2005 16:55:55 +0100, Takashi Iwai wrote:
+>>   If you have "Headphone Jack Sense" mixer control,
+>>   try to turn it off.
+>> 
+>> That did the trick. thanks..
 > 
-> > > > The readability of code is also important, IMHO.
-> > > 
-> > > It did not seem too much better to me.
-> > 
-> > Well, the beauty is in the eye of the beholder. :-)
-> > 
-> > Still, it shrinks the code (22 lines vs 37 lines), it uses less GPRs (5 vs 7), it uses less
-> > SIB arithmetics (0 vs 4 times), it uses a well known scheme for copying data pages.
-> > As far as the result is concerned, it is equivalent to the existing code, but it's simpler
-> > (and faster).  IMO, simpler code is always easier to understand.
-> > 
-> > 
-> > > > > If you want cheap way to speed it up, kill cr3 manipulation.
-> > > > 
-> > > > Sure, but I think it's there for a reason.
-> > > 
-> > > Reason is "to crash it early if we have wrong pagetables".
-> > > 
-> > > > > Anyway, this is likely to clash with hugang's work; I'd prefer this not to be applied.
-> > > > 
-> > > > I am aware of that, but you are not going to merge the hugang's patches soon, are you?
-> > > > If necessary, I can change the patch to work with his code (hugang, what do you think?).
-> > > 
-> > > I think it is just not worth the effort.
-> > 
-> > Why?  It won't take much time.  I've spent more time for writing the messages
-> > in this thread ... ;-)
-> 
-> Well, I know that current code works. It was produced by C compiler,
-> btw. Now, new code works for you, but it was not in kernel for 4
-> releases, and... this code is pretty subtle.
-
-Now, I'm confused. :-)  It's roughly this:
-
-struct pbe *pbe = pagedir_nosave, *end;
-unsigned n = nr_copy_pages;
-if (n) {
-	end = pbe + n;
-	do {
-		memcpy((void *)pbe->orig_address, (void *)pbe->address, PAGE_SIZE);
-		pbe++;
-	} while (pbe < end);
-}
-
-where memcpy() is of course a hand-written inline that includes the cr3 manipulation,
-and pbe, end, n are registers.
-
-> And it is hand-made, not C produced.
-
-Yes, it is.
-
-> So... your code may be better but I do not think it is so much better
-> that I'd like to risk it.
-
-Now, that's clear. :-)
-
-Anyway, if anyone could test it or look at it and say a word, please do so.
-
-Greets,
-RJW
+> Glad to hear that.  What machine do you have?
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

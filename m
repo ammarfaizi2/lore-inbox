@@ -1,153 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbTLFBwr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 20:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264922AbTLFBwr
+	id S264920AbTLFBmk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 20:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbTLFBlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 20:52:47 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:45023 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263868AbTLFBwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 20:52:43 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-From: Craig Bradney <cbradney@zip.com.au>
+	Fri, 5 Dec 2003 20:41:46 -0500
+Received: from dm51.neoplus.adsl.tpnet.pl ([80.54.235.51]:14084 "EHLO
+	satan.blackhosts") by vger.kernel.org with ESMTP id S264920AbTLFBke
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 20:40:34 -0500
+Date: Sat, 6 Dec 2003 02:45:10 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1070672114.2759.8.camel@big.pomac.com>
-References: <1070672114.2759.8.camel@big.pomac.com>
-Content-Type: text/plain
-Message-Id: <1070675560.4117.9.camel@athlonxp.bradney.info>
+Subject: [PATCH][RESEND] tdfxfb fixes for 2.6.0-test
+Message-ID: <20031206014510.GC3914@satan.blackhosts>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 02:52:40 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="p2kqVDKq5asng8Dg"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organization: PLD Linux Distribution
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok.. I decided I would try the patch out.. here are the results:
 
-Interrupts before patch: (booted with nmi-watchdog=2)
+--p2kqVDKq5asng8Dg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-           CPU0
-  0:    2863919          XT-PIC  timer
-  1:       7851    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:          2    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
-12:     104453    IO-APIC-edge  i8042
-14:      26951    IO-APIC-edge  ide0
-15:       8490    IO-APIC-edge  ide1
-19:     211976   IO-APIC-level  radeon@PCI:3:0:0
-21:      17303   IO-APIC-level  ehci_hcd, NVidia nForce2, eth0
-22:          3   IO-APIC-level  ohci1394
-NMI:          0
-LOC:    2863756
-ERR:          0
-MIS:          0
+Hello,
+
+these patches has been already merged by James Simmons into "big" fbdev
+update (known as fbdev.diff), but as it seems unlikely to be merged
+before 2.6.0 release (or am I wrong? but it was removed from -mm some
+time ago), I resend two small patches for tdfxfb, which can (and IMO
+should, at least the first one; second would be nice) be merged in 2.6.0.
+
+The first patch fixes text background colour used for terminal
+"clear" commands in 16/24/32bpp modes.
+The second one is just a port of my changes which were merged into
+2.4.21 (double-scan and interlaced modes support).
 
 
-Interrupts after patch: (booted with nmi-watchdog=2)
-           CPU0
-  0:     435688    IO-APIC-edge  timer
-  1:       2714    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  8:          2    IO-APIC-edge  rtc
-  9:          0   IO-APIC-level  acpi
-12:       5490    IO-APIC-edge  i8042
-14:      16831    IO-APIC-edge  ide0
-15:        392    IO-APIC-edge  ide1
-19:       9931   IO-APIC-level  radeon@PCI:3:0:0
-21:       3980   IO-APIC-level  ehci_hcd, NVidia nForce2, eth0
-22:          3   IO-APIC-level  ohci1394
-NMI:          0
-LOC:     435246
-ERR:          0
-MIS:          0
+-- 
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+PLD Linux       http://www.pld-linux.org/
 
-All the interrupts are the same...except:
-0, timer is now IO-APIC-edge.
+--p2kqVDKq5asng8Dg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-tdfxfb-fillrect.patch"
 
-Im not getting any NMI counts.. should I use nmi-watchdog=1?
+This fixes background used for "clear" terminal commands (^[[J, ^[[K etc.)
+in 16/24/32bpp modes.
 
+	-- Jakub Bogusz <qboosh@pld-linux.org>
 
-dmesg differences:
+--- linux-2.6.0-test2/drivers/video/tdfxfb.c.orig	2003-07-30 08:31:57.000000000 +0200
++++ linux-2.6.0-test2/drivers/video/tdfxfb.c	2003-07-31 00:44:26.000000000 +0200
+@@ -890,7 +890,11 @@
+ 
+ 	banshee_make_room(par, 5);
+ 	tdfx_outl(par,	DSTFORMAT, fmt);
+-	tdfx_outl(par,	COLORFORE, rect->color);
++	if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR) {
++		tdfx_outl(par,	COLORFORE, rect->color);
++	} else { /* FB_VISUAL_TRUECOLOR */
++		tdfx_outl(par, COLORFORE, ((u32*)(info->pseudo_palette))[rect->color]);
++	}
+ 	tdfx_outl(par,	COMMAND_2D, COMMAND_2D_FILLRECT | (tdfx_rop << 24));
+ 	tdfx_outl(par,	DSTSIZE,    rect->width | (rect->height << 16));
+ 	tdfx_outl(par,	LAUNCH_2D,  rect->dx | (rect->dy << 16));
 
-1.
-after:
-..TIMER: vector=0x31 pin1=2 pin2=0
+--p2kqVDKq5asng8Dg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-tdfxfb-interlace+double.patch"
 
-before:
-..TIMER: vector=0x31 pin1=2 pin2=-1
+This patch adds interlace and double-scan mode support to tdfxfb in 2.6.
+It's a port of my changes (incorporated into 2.4.21) to Linux 2.6.
 
-2.
-after:
-...trying to set up timer (IRQ0) through the 8259A ...
-..... (found pin 0) ...works.
-number of MP IRQ sources: 16.
+	-- Jakub Bogusz <qboosh@pld-linux.org>
 
-before:
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ... failed.
-...trying to set up timer as ExtINT IRQ... works.
-number of MP IRQ sources: 15.
+--- linux-2.6.0-test3/include/video/tdfx.h.orig	2003-07-14 05:32:41.000000000 +0200
++++ linux-2.6.0-test3/include/video/tdfx.h	2003-08-09 21:28:04.000000000 +0200
+@@ -114,6 +114,7 @@
+ #define VGAINIT1_MASK                   0x1fffff
+ #define VIDCFG_VIDPROC_ENABLE           BIT(0)
+ #define VIDCFG_CURS_X11                 BIT(1)
++#define VIDCFG_INTERLACE                BIT(3)
+ #define VIDCFG_HALF_MODE                BIT(4)
+ #define VIDCFG_DESK_ENABLE              BIT(7)
+ #define VIDCFG_CLUT_BYPASS              BIT(10)
+--- linux-2.6.0-test3/drivers/video/tdfxfb.c.orig	2003-08-09 21:26:11.000000000 +0200
++++ linux-2.6.0-test3/drivers/video/tdfxfb.c	2003-08-09 22:52:20.000000000 +0200
+@@ -508,8 +508,10 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	/* fixme: does Voodoo3 support interlace? Banshee doesn't */
+-	if ((var->vmode & FB_VMODE_MASK) == FB_VMODE_INTERLACED) {
++	/* Banshee doesn't support interlace, but Voodoo4/5 and probably Voodoo3 do. */
++	/* no direct information about device id now? use max_pixclock for this... */
++	if (((var->vmode & FB_VMODE_MASK) == FB_VMODE_INTERLACED) &&
++			(par->max_pixclock < VOODOO3_MAX_PIXCLOCK)) {
+ 		DPRINTK("interlace not supported\n");
+ 		return -EINVAL;
+ 	}
+@@ -616,10 +618,17 @@
+ 	hbs = hd;
+ 	hbe = ht;
+ 
+-	vbs = vd = info->var.yres - 1;
+-	vs  = vd + info->var.lower_margin;
+-	ve  = vs + info->var.vsync_len;
+-	vbe = vt = ve + info->var.upper_margin - 1;
++	if ((info->var.vmode & FB_VMODE_MASK) == FB_VMODE_DOUBLE) {
++		vbs = vd = (info->var.yres << 1) - 1;
++		vs  = vd + (info->var.lower_margin << 1);
++		ve  = vs + (info->var.vsync_len << 1);
++		vbe = vt = ve + (info->var.upper_margin << 1) - 1;
++	} else {
++		vbs = vd = info->var.yres - 1;
++		vs  = vd + info->var.lower_margin;
++		ve  = vs + info->var.vsync_len;
++		vbe = vt = ve + info->var.upper_margin - 1;
++	}
+   
+ 	/* this is all pretty standard VGA register stuffing */
+ 	reg.misc[0x00] = 0x0f | 
+@@ -742,8 +751,16 @@
+ 	reg.gfxpll = do_calc_pll(..., &fout);
+ #endif
+ 
+-	reg.screensize = info->var.xres | (info->var.yres << 12);
+-	reg.vidcfg &= ~VIDCFG_HALF_MODE;
++	if ((info->var.vmode & FB_VMODE_MASK) == FB_VMODE_DOUBLE) {
++		reg.screensize = info->var.xres | (info->var.yres << 13);
++		reg.vidcfg |= VIDCFG_HALF_MODE;
++		reg.crt[0x09] |= 0x80;
++	} else {
++		reg.screensize = info->var.xres | (info->var.yres << 12);
++		reg.vidcfg &= ~VIDCFG_HALF_MODE;
++	}
++	if ((info->var.vmode & FB_VMODE_MASK) == FB_VMODE_INTERLACED)
++		reg.vidcfg |= VIDCFG_INTERLACE;
+ 	reg.miscinit0 = tdfx_inl(par, MISCINIT0);
+ 
+ #if defined(__BIG_ENDIAN)
 
-
-Ian, from looking back, you have an A7N8X-X bios 1007.
-Interesting that my USB hcis are still sharing IRQs there.
-Any idea how I can get them apart, or if I should try.
-My system was pretty stable as I've stated.. but the patch has changed
-things slightly re the timer.
-
-I've run hdparm about 25 times... and as its almost 3am I'm going to let
-this thing idle for a few hours like this.
-
-Craig
-
-
-
-
-
-
-On Sat, 2003-12-06 at 01:55, Ian Kumlien wrote: 
-> Craig Bradney wrote:
-> > Sounds great.. maybe you have come across something. Yes, the CPU
-> > Disconnect function arrived in your BIOS in revision of 2003/03/27
-> > "6.Adds"CPU Disconnect Function" to adjust C1 disconnects. The Chipset
-> > does not support C2 disconnect; thus, disable C2 function."
-> 
-> I doubt thats related, i run ACPI with powersave anyways... 
-> 
-> > For me though.. Im on an ASUS A7N8X Deluxe v2 BIOS 1007. From what I can
-> > see the CPU Disconnect isnt even in the Uber BIOS 1007 for this ASUS
-> > that has been discussed.
-> 
-> I don't have it either... 
-> 
-> I'm more hopeful about the patch from Mathieu <cheuche+lkml () free ! fr>...
-> 
->            CPU0
->   0:     267486    IO-APIC-edge  timer
->   1:       9654    IO-APIC-edge  keyboard
->   2:          0          XT-PIC  cascade
->   8:          1    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
->  14:      28252    IO-APIC-edge  ide0
->  15:        103    IO-APIC-edge  ide1
->  16:     251712   IO-APIC-level  eth0
->  17:      90632   IO-APIC-level  EMU10K1
->  19:     415529   IO-APIC-level  nvidia
->  20:          0   IO-APIC-level  usb-ohci
->  21:        153   IO-APIC-level  ehci_hcd
->  22:      58257   IO-APIC-level  usb-ohci
-> NMI:        479
-> LOC:     265875
-> ERR:          0
-> MIS:          0
-> 
-> this far and it feels like a closer match to what windows does from what
-> i have read on the ml. 
-> 
-> I haven't even come close to testing this yet, I've only been up 45 mins
-> but i'll leave it running and do what i usually do when it hangs... =)
-> 
-> I'll get back to you about how it goes... 
-
+--p2kqVDKq5asng8Dg--

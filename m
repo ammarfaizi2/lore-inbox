@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133055AbRBRRLA>; Sun, 18 Feb 2001 12:11:00 -0500
+	id <S133053AbRBRROk>; Sun, 18 Feb 2001 12:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133063AbRBRRKv>; Sun, 18 Feb 2001 12:10:51 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:49677 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S133055AbRBRRKd>; Sun, 18 Feb 2001 12:10:33 -0500
-Date: Sun, 18 Feb 2001 12:10:19 -0500
-From: Chris Mason <mason@suse.com>
-To: Frank de Lange <frank@unternet.org>
-cc: linux-kernel@vger.kernel.org, reiser@namesys.com
-Subject: Re: reiserfs on 2.4.1,2.4.2-pre (with null bytes patch) breaks
- mozilla compile
-Message-ID: <1336530000.982516219@tiny>
-In-Reply-To: <20010218030727.C13823@unternet.org>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
-MIME-Version: 1.0
+	id <S133063AbRBRROa>; Sun, 18 Feb 2001 12:14:30 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:54282 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S133053AbRBRROO>; Sun, 18 Feb 2001 12:14:14 -0500
+Message-Id: <200102181714.f1IHE8O94912@aslan.scsiguy.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Nathan Black <NBlack@md.aacisd.com>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx (and sym53c8xx) plans 
+In-Reply-To: Your message of "Sat, 17 Feb 2001 18:05:47 CST."
+             <20010217180547.B28785@cadcamlab.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Sun, 18 Feb 2001 10:14:08 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, February 18, 2001 03:07:27 AM +0100 Frank de Lange
-<frank@unternet.org> wrote:
-> 
-> And no, I'm not running RedHat 7.x for those who might think so (and
-> automatically blame everything on it).
-> 
+>Have you any idea the breadth of cards and chips that aic7xxx supports?
+>Sure, Justin's driver does great with your shiny new 7899, but can you
+>verify that it also drives the 8-year-old EISA AHA-2740 I still have
+>sitting around (actually retired to the parts pile, but that's beside
+>the point, I'm sure some still exist in the wild)?  How about the VLB
+>card I have in my 486 at home?
 
-Minor nit, but I'd rather clear it up now.  Which distribution you run
-doesn't matter for debugging.  What does matter is that we've got known
-problems with a given compiler, and that compiler goes by a few different
-flavors with the same version number.  Since there are known problems, if
-you don't provide the compiler version, I'll ask.  If your bug is *really*
-odd, I might ask a few different ways, just to make sure you give the same
-answer every time ;-)
+I use a Dual Pentium-90 with PCI/EISA slots to test a 2742T and a 2740W.
+I haven't tested a 284X card for some time just for lack of a VLB machine
+(I have a card), but since it uses the aic7770 just like the 274X does,
+I'd be very surprised if it didn't just work.
 
--chris
+Version 6.1.2 of the driver has been tested on a G3 PowerMac, a Compaq
+Blazer IA64 machine, and about 14 different PC motherboards.  We have an
+AS1200 on the way from Compaq too so we can test EISA and PCI support on
+the Alpha.  I've verified the driver's functionality on 25 different cards
+thus far covering the full range of chips from aic7770->aic7899.  Lots of
+people here at Adaptec look at me funny when I pull a PC from the scrap-heap,
+or pull an old, discontinued card from an unused marketing display for use
+in my lab, but I'm well aware of how these cards get used in 386sx
+routers/firewalls etc, and those configurations will be supported.
 
+--
+Justin

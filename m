@@ -1,62 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313005AbSDCCOc>; Tue, 2 Apr 2002 21:14:32 -0500
+	id <S312871AbSDCCSM>; Tue, 2 Apr 2002 21:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312989AbSDCCOX>; Tue, 2 Apr 2002 21:14:23 -0500
-Received: from adsl-67-113-154-34.dsl.sntc01.pacbell.net ([67.113.154.34]:28910
-	"EHLO postbox.aslab.com") by vger.kernel.org with ESMTP
-	id <S312951AbSDCCON>; Tue, 2 Apr 2002 21:14:13 -0500
-Message-ID: <15b401c1dab4$7bf2c240$6502a8c0@jeff>
-From: "Jeff Nguyen" <jeff@aslab.com>
-To: "Trent Piepho" <xyzzy@speakeasy.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <jim@rubylane.com>, <linux-kernel@vger.kernel.org>,
-        <linux-raid@vger.kernel.org>
-In-Reply-To: <E16sZPj-0002vm-00@the-village.bc.nu>
-Subject: Re: Update on Promise 100TX2 + Serverworks IDE issues -- 2.2.20
-Date: Tue, 2 Apr 2002 18:08:44 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S312989AbSDCCSD>; Tue, 2 Apr 2002 21:18:03 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:19965 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S312871AbSDCCRr>;
+	Tue, 2 Apr 2002 21:17:47 -0500
+Date: Tue, 2 Apr 2002 18:17:38 -0800
+To: Linus Torvalds <torvalds@transmeta.com>, irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: IrDA patches on the way...
+Message-ID: <20020402181738.A24912@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are ATAPI devices using UDMA25 such as HP 9300i. These UDMA25
-devices are the problem maker on OSB4. Unless DMA is disabled, the system
-will lock up when accessing the drive.
+        Hi Linus,
 
-If you have UDMA33 ATAPI devices, they work great in OSB4.
+	Do I need to say more ? A new batch of IrDA patches that have
+been waiting on my web page and tested intensively with 2.5.7-SMP
+(Marcelo will have to wait for his turn).
+	This mostly include some race conditions in LAP and discovery,
+correcting my previous IrNET fix and final fixing of the USB driver.
+	Not included in this batch is the LSAP scheduler and my
+partial rewrite of IrTTP, that will have to wait. Martin also promised
+me a new version of the vlsi driver.
+        Have fun...
 
-Jeff
+        Jean
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Trent Piepho" <xyzzy@speakeasy.org>
-Cc: <jim@rubylane.com>; <linux-kernel@vger.kernel.org>;
-<linux-raid@vger.kernel.org>
-Sent: Tuesday, April 02, 2002 5:18 PM
-Subject: Re: Update on Promise 100TX2 + Serverworks IDE issues -- 2.2.20
+-------------------------------------------------------
 
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
 
-> > I think the serverworks IDE is only mode4, not even UDMA33.  I heard a
-lot of
-> > bad things about it, and removed all the IDE drives from our serverworks
-> > system's controller.
->
-> Serverworks OSB4 IDE will do UDMA33 but seems to have problems with
-certain
-> combinations of drives, controllers and unknown influences. The newer CSB5
-> seems to work beautifully
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+ir256_w83977af_bus_to_virt.diff :
+-------------------------------
+	o [CRITICA] Fix w83977af_ir FIR drivers for new DMA API
+	<PCI FIR drivers are still broken and need fixing>
 
+ir257_trivial_fixes-3.diff :
+--------------------------
+	o [CORRECT] Handle signals while IrSock is blocked on Tx
+	o [CORRECT] Fix race condition in LAP when receiving with pf bit
+	o [CRITICA] Prevent queuing Tx data before IrComm is ready
+	o [FEATURE] Warn user of common misuse of IrLPT
+
+ir257_sys_max_tx-2.diff :
+-----------------------
+	o [FEATURE] Allow tuning of Max Tx MTU to workaround spec contradiction
+
+ir256_irnet_disc_ind_again.diff :
+-------------------------------
+	o [CORRECT] Correct fix for IrNET disconnect indication :
+	  if socket is not connected, don't hangup, to allow passive operation
+
+ir257_discovery_fixes.diff :
+--------------------------
+	<Need to apply after ir257_trivial_fixes-3.diff to avoid "offset">
+	o [FEATURE] Propagate mode of discovery to higher protocols
+	o [CORRECT] Disable passive discovery in ircomm and irlan
+	  Prevent client and server to simultaneously connect to each other
+	o [CORRECT] Force expiry of discovery log on LAP disconnect
+
+ir257_usb_disconnect_atomic-2.diff :
+----------------------------------
+	o [CRITICA] Fix race condition between disconnect and the rest
+	o [CRITICA] Force synchronous unlink of URBs in disconnect
+	o [CRITICA] Cleanup instance if disconnect before close
+        <Following patch from Martin Diehl>
+	o [CRITICA] Call usb_submit_urb() with GPF_ATOMIC
+
+ir257_nsc_ob6100.diff :
+---------------------
+        <Following patch from Kevin Thayer>
+	o [FEATURE] Handle what is probably a new variant of NSC chip
+
+ir257_irtty_stats.diff :
+----------------------
+        <Following patch from Frank Becker>
+	o [FEATURE] Update dev tx stats at the right time

@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVDET74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVDEUEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVDET74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVDESaU
+	id S261929AbVDEUEm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 16:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDEUEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:30:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:20125 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261885AbVDESVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:21:48 -0400
-Message-ID: <4252D6F8.6000707@suse.de>
-Date: Tue, 05 Apr 2005 20:20:40 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Tue, 5 Apr 2005 16:04:41 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:54532 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261925AbVDEUCX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 16:02:23 -0400
+Date: Tue, 5 Apr 2005 21:02:24 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Matthew Wilcox <matthew@wil.cx>,
+       "David S. Miller" <davem@davemloft.net>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: iomapping a big endian area
+In-Reply-To: <20050405195506.A16617@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.61L.0504052041250.9632@blysk.ds.pg.gda.pl>
+References: <1112475134.5786.29.camel@mulgrave>
+ <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
+ <20050402183805.20a0cf49.davem@davemloft.net>
+ <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
+ <1112499639.5786.34.camel@mulgrave> <20050405084219.A21615@flint.arm.linux.org.uk>
+ <1112709915.5764.4.camel@mulgrave> <20050405195506.A16617@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Jaco Kroon <jaco@kroon.co.za>
-Cc: linux-kernel@vger.kernel.org, Sebastian Piechocki <sebekpi@poczta.onet.pl>,
-       dtor_core@ameritech.net
-Subject: Re: i8042 controller on Toshiba Satellite P10 notebook - patch
-References: <425166F9.1040800@kroon.co.za>	 <d120d5000504040954354fb3fa@mail.gmail.com>	 <42517442.20602@kroon.co.za>	 <d120d500050404110374fe9deb@mail.gmail.com>	 <4251A515.8040802@kroon.co.za>	 <d120d500050404140253a77ab8@mail.gmail.com>	 <4251B6E2.3010506@kroon.co.za> <d120d50005040415506cd87287@mail.gmail.com> <4251D3CB.4010501@kroon.co.za>
-In-Reply-To: <4251D3CB.4010501@kroon.co.za>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaco Kroon wrote:
-> Dmitry Torokhov wrote:
+On Tue, 5 Apr 2005, Russell King wrote:
 
->>>OT:  I think I prefer synaptics multi-finger tapping to the tapping in
->>>specific locations to get right and middle clicking, but that is another
->>>story that probably has nothing to do with the kernel, and quite likely
->>>something that is configurable in the synaptics xorg driver.
->> 
->> You should be able to control that in xorg.conf.
+> > > physical bus:	31...24	23...16	15...8	7...0
+> > > 
+> > > BE version 1 (word invariant)
+> > >   byte access	byte 0	byte 1	byte 2	byte 3
+> > >   word access	31-24	23-16	15-8	7-0
+> > > 
+> > > BE version 2 (byte invariant)
+> > >   byte access	byte 3	byte 2	byte 1	byte 0
+> > >   word access	7-0	15-8	23-16	31-24
+> > 
+> > These are just representations of the same thing.  However, I did
+> > deliberately elect not to try to solve this problem in the accessors.  I
+> > know all about the register relayout, because 53c700 has to do that on
+> > parisc.
 > 
-> My thoughts exactly.  The same goes for gpm.
+> They aren't.  On some of our platforms, we have to exclusive-or the address
+> for byte accesses with 3 to convert to the right endian-ness.
 
-No. AFAIK multifinger taps are handled by the touchpad firmware, but not
-on ALPS touchpads, only on synaptics.
+ The same with certain MIPS configurations.  And likewise you need to xor 
+addresses with 2 for halfword accesses.
 
-Regards,
+> Sure, from the point of view of which byte each byte of a word represents,
+> it's true that they're indentical.  But as far as the hardware is concerned,
+> they're definitely different.
 
-   Stefan
+ To clarify it a bit: both big and little endian representations are 
+always the same -- it's going to a domain of the reverse endianness that 
+can be done in two different ways, i.e. by preserving either bit or byte 
+ordering (as described above).  Depending on the interpretation of data 
+being passed you want one or the other.  That's why some systems provide 
+ways of doing both kinds of accesses in hardware (e.g. the host bus to PCI 
+bridge) to save CPU cycles needed for bit shuffling otherwise.
+
+  Maciej

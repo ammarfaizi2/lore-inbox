@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261804AbTCGVw2>; Fri, 7 Mar 2003 16:52:28 -0500
+	id <S261805AbTCGV7i>; Fri, 7 Mar 2003 16:59:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261805AbTCGVw2>; Fri, 7 Mar 2003 16:52:28 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28079
+	id <S261808AbTCGV7i>; Fri, 7 Mar 2003 16:59:38 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31151
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261804AbTCGVw0>; Fri, 7 Mar 2003 16:52:26 -0500
-Subject: Re: [PATCH][TRIVIAL] Re: Linux 2.5.64-ac3
+	id <S261805AbTCGV7h>; Fri, 7 Mar 2003 16:59:37 -0500
+Subject: Re: Those ruddy punctuation fixes
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Alan Cox <alan@redhat.com>,
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Dan Kegel <dank@kegel.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.51.0303072131570.23212@dns.toxicfilms.tv>
-References: <200303071756.h27HuiY01551@devserv.devel.redhat.com>
-	 <Pine.LNX.4.51.0303072131570.23212@dns.toxicfilms.tv>
+In-Reply-To: <20030307121723.B3204@redhat.com>
+References: <3E684737.7080704@kegel.com>  <20030307121723.B3204@redhat.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1047078526.23696.3.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1047078959.23697.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 07 Mar 2003 23:08:47 +0000
+Date: 07 Mar 2003 23:15:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 20:33, Maciej Soltysiak wrote:
-> Hi,
+On Fri, 2003-03-07 at 17:17, Benjamin LaHaise wrote:
+> On Thu, Mar 06, 2003 at 11:16:07PM -0800, Dan Kegel wrote:
+> > Or is the hubub really about something else?  Like people
+> > just hate the whole idea, and wish it would go away,
+> > and don't really want to discuss it rationally?
 > 
-> > Linux 2.5.64-ac3
-> > o	Bring core IDE code into sync with the latest	(me)
-> > 	2.4.21pre5-ac code base. The drivers are not
-> > 	quite current with it yet.
-> There's a typo that breaks compiling ide-default.c
-> 
-> Here's the patch:
-> 
-> --- linux-2.5.60/drivers/ide/ide-default.c~	2003-03-07 20:32:32.000000000 +0100
-> +++ linux-2.5.60/drivers/ide/ide-default.c	2003-03-07 21:30:01.000000000 +0100
-> @@ -51,7 +51,7 @@
->  	.name		=	"ide-default",
->  	.version	=	IDEDEFAULT_VERSION,
->  	.attach		=	idedefault_attach,
-> -	.supports_dma	=	1.
-> +	.supports_dma	=	1,
->  	.drives		=	LIST_HEAD_INIT(idedefault_driver.drives)
->  };
+> Spelling fixes are annoying ways to break patches that provide no 
+> user visible value.  It also detracts from the character of the 
+> code: who wants "drain brammage" to be replaced with "brain dammage"?
 
-Thanks. Last minute conversion to C99 format to avoid flames 8)
+There is a difference btween plain wrong and misleading text, printing
+wrong things to the console, text that confuses non first language
+speakers and accidentally removing humour.
 
+Someone broke a little bit of asm and it got fixed. Someone broke
+the pnp layer a lot longer before and its still not fixed. You
+have regular releases, stuff gets broken now and then.
+
+People are actually *doing* things, give them a break.
 

@@ -1,58 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263908AbRFNSa1>; Thu, 14 Jun 2001 14:30:27 -0400
+	id <S263894AbRFNSb6>; Thu, 14 Jun 2001 14:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263894AbRFNSaS>; Thu, 14 Jun 2001 14:30:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64525 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263887AbRFNSaL>; Thu, 14 Jun 2001 14:30:11 -0400
-Subject: Re: threading question
-To: kmacy@netapp.com (Kip Macy)
-Date: Thu, 14 Jun 2001 19:28:32 +0100 (BST)
-Cc: ognen@gene.pbi.nrc.ca, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.10.10106121200330.20809-100000@orbit-fe.eng.netapp.com> from "Kip Macy" at Jun 12, 2001 12:06:40 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263909AbRFNSbb>; Thu, 14 Jun 2001 14:31:31 -0400
+Received: from mail.fluke.com ([129.196.128.53]:51216 "EHLO
+	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
+	id <S263894AbRFNSaq>; Thu, 14 Jun 2001 14:30:46 -0400
+Date: Thu, 14 Jun 2001 11:30:53 -0700 (PDT)
+From: David Dyck <dcd@tc.fluke.com>
+To: Jacques Gelinas <jacques@solucorp.qc.ca>, Bjorn Ekwall <bj0rn@blox.se>
+cc: <linux-kernel@vger.kernel.org>
+Subject: linux Documentation/modules.txt
+Message-ID: <Pine.LNX.4.33.0106141050090.1427-100000@dd.tc.fluke.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Abr6-00057R-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> just processes that share the same address space. Their performance is
-> measurably worse than it is on most commercial Unixes and FreeBSD.
 
-Actually their performance is massively superior. But that is because we were
-not stupid enough to burden the kernel with all of the posix pthread crap.
-Pthreads is an ugly compromise API that can be badly implemented in both
-userland and kernel space. Unfortunately its also a standard.
+I just noticed that file "rc.hints" mentioned in modules.txt
+does not exist anywhere in the module utilities package.
+I looked in modutils-2.4.2 as documented in Changes.
 
-So you have two choices
-1.	Pthread performance is poorer due to library glue
-2.	Every single signal delivery is 20% slower threaded or otherwise due
-	to all the crap that it adds 
-	And it does damage to other calls too.
+If rc.hints really doesn't exist, perhaps the sentence in
+parenthesis should be removed, since it doesn't assist the reader.
 
-In the big picture #1 is definitely preferable. 
-
-There are really only two reasons for threaded programming. 
-
-- Poor programmer skills/language expression of event handling
-
-- OS implementation flaws (and yes the posix/sus unix api has some of these)
-
-Co-routines or better language choices are much more efficient ways to express
-the event handling problem.
-
-fork() is often a better approach than pthreads at least for the design of an
-SMP threaded application because unless you explicitly think about what you
-share you will never get the cache affinity you need for good performance.
-
-And if you don't care about cache affinity then you shouldnt care about
-pthread_create overhead because quite frankly pthread_create overhead is easily
-mitigated (thread cache) and in most real world applications considerably less
-of an performance hit
-
-Alan
+The following text is from modules.txt:
+To use modprobe successfully, you generally place the following
+command in your /etc/rc.d/rc.S script.  (Read more about this in the
+"rc.hints" file in the module utilities package, "modutils-x.y.z.tar.gz".)
 

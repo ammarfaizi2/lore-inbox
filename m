@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129507AbQLHAzz>; Thu, 7 Dec 2000 19:55:55 -0500
+	id <S130110AbQLHA4Q>; Thu, 7 Dec 2000 19:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbQLHAzq>; Thu, 7 Dec 2000 19:55:46 -0500
-Received: from mailgate.ics.forth.gr ([139.91.1.2]:35063 "EHLO
-	ext1.ics.forth.gr") by vger.kernel.org with ESMTP
-	id <S129507AbQLHAzk>; Thu, 7 Dec 2000 19:55:40 -0500
-Posted-Date: Fri, 8 Dec 2000 02:17:54 +0200 (EET)
-Organization: 
-Date: Fri, 8 Dec 2000 02:17:54 +0200 (EET)
-From: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Microsecond accuracy
-In-Reply-To: <3A2FC0C6.3F11057B@nortelnetworks.com>
-Message-ID: <Pine.GSO.4.10.10012080213140.9184-100000@sappho.ics.forth.gr>
+	id <S131675AbQLHA4G>; Thu, 7 Dec 2000 19:56:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16910 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130110AbQLHAz7>; Thu, 7 Dec 2000 19:55:59 -0500
+Subject: Re: Linux 2.2.18pre25
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Fri, 8 Dec 2000 00:27:58 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20001208012052.A23992@inspiron.random> from "Andrea Arcangeli" at Dec 08, 2000 01:20:52 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E144BOL-0003Eg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Such bug can't generate crashes. Did you ever reproduced crashes on your 8Mb
+> 486 with 2.2.18pre24?
 
-On Thu, 7 Dec 2000, Christopher Friesen wrote:
+Yes. Every 20 minutes or so quite reliably. With that change it has yet to 
+crash (its actually running that + page aging + another minor tweak so it
+doesnt return success on page aging until we have a clump of free pages.
 
-> Kotsovinos Vangelis wrote:
-> > 
-> > Is there any way to measure (with microsecond accuracy) the time of a
-> > program execution (without using Machine Specific Registers) ?
-> > I've already tried getrusage(), times() and clock() but they all have
-> > 10 millisecond accuracy, even though they claim to have microsecond
-> > acuracy.
-> > The only thing that seems to work is to use one of the tools that measure
-> > performanc through accessing the machine specific registers. They give you
-> > the ability to measure the clock cycles used, but their accuracy is also
-> > very low from what I have seen up to now.
-> 
-> Can you not just use something like gettimeofday()?  Do two consecutive calls to
-> find the execution time of the instruction itself, and then do two calls on
-> either side of the program execution.  Subtract the instruction execution time
-> from the delta, and that should give a pretty good idea of execution time.
+With just the page aging patch it performed way better but still hung.
 
-Well, it is a pretty complex program that I want to measure, with more
-than one modules that run one after another... they sleep and use signals
-to wake each other up, they use semaphores etc. What I want to measure is
-the time the program is running (not waiting for other processes or
-waiting for a signal etc). 
-Also, there are other processes running on the
-system (for example, my program needs about 50 seconds of real time to
-execute and I estimate the time it is "running" to be about 5000-10000
-microseconds)...
+> ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.18pre24aa1/00_account-failed-buffer-tries-1
+>
 
-Thanks anyway,
+Oh well ;) 
+ 
+> account-failed-buffer-tries-1 is included in VM-global-7 and it was
+> described in the 2.2.18pre21aa2 email to l-k (CC'ed you) in date Fri, 17 Nov
+> 2000 18:54:43 +0100:
 
-Vangelis
+The problem is its hard to know which of your patches depend on what, and
+the complete set is large to say the least.
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

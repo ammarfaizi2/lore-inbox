@@ -1,110 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUH3PDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUH3PFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268136AbUH3PDs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 11:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUH3PDs
+	id S268153AbUH3PFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 11:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUH3PFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 11:03:48 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:49037 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S268136AbUH3PDn
+	Mon, 30 Aug 2004 11:05:33 -0400
+Received: from ihemail1.lucent.com ([192.11.222.161]:63175 "EHLO
+	ihemail1.lucent.com") by vger.kernel.org with ESMTP id S268088AbUH3PEy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 11:03:43 -0400
-Date: Mon, 30 Aug 2004 11:04:36 -0400 (EDT)
-From: Arthur Perry <kernel@linuxfarms.com>
-X-X-Sender: kernel@tiamat.perryconsulting.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: root@chaos.analogic.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Celistica with AMD chip-set
-In-Reply-To: <1093871709.30082.11.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0408301052030.23343@tiamat.perryconsulting.net>
-References: <Pine.LNX.4.53.0408300955470.21607@chaos>
- <1093871709.30082.11.camel@localhost.localdomain>
+	Mon, 30 Aug 2004 11:04:54 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16691.16656.726300.438533@gargle.gargle.HOWL>
+Date: Mon, 30 Aug 2004 11:00:32 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
+       Rik van Riel <riel@redhat.com>, Spam <spam@tnonline.net>,
+       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <4131074D.7050209@namesys.com>
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com>
+	<Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org>
+	<20040828170515.GB24868@hh.idb.hist.no>
+	<Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
+	<4131074D.7050209@namesys.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan and Richard,
 
-I have to advise caution here, as it is currently unconfirmed whether or
-not the PCI bridge configuration is "incorrect", and that it has "very
-poor PCI performance".
-Unless everyone in the whole wide world is setting this value and we are
-the only ones who are not, I find it hard to believe that this statement
-is not overspeculative.
+Hans> My reason is that the things that distinguish between objects
+Hans> should be the names, not the choice of system call.  The reason
+Hans> for this is that it improves closure and namespace unification
+Hans> to do so, because it allows all the objects to be accessed
+Hans> within the same namespace.
 
-The proper place for this should be in the BIOS, if it is indeed a true
-optimization point.
-But until that is positively identified, we should not assume that
-applying this globally for everyone is the right thing to do.
-As in any assumed optimization for a simgle case, it could potentially
-cause performance degradation in somebody else's HBA.
+So who decides what the names mean in a specific context?  How do we
+get consistency across applications?  In the Apple and MicroSoft
+cases, it's a single company which sets the standards for the names of
+the streams and what they mean.  I have no knowledge of how Sun is
+doing this.  I don't see us setting up a single naming authority and
+enforcement mechanism.  
 
-This is a cache optimization.
+I went and read the Pike paper on namespaces which Hans quotes much
+earlier in this thread, and I think it isn't applicable to this
+thread.  In the paper Pike compares the MVS, VMS, DOS and Unix name
+spaces for disk layouts.  It's an interesting paper, though a bit
+dated since it's 20 years old.  The concepts are good, but the
+examples aren't any more.  How many Unix systems today have
+/n/faces/... to link email addresses to digitized images of people
+faces? 
 
-Have you considered the possibility of this "optimization" causing a
-performance hit with Mellanox's PCI implementation?
+The big point of this paper though was to make the syntax simple, and
+the semantics clear and unambiguous.  For example, they point out how
+the "Cedar" file system added in VMS style version numbers to
+filenames with the syntax "<name>!<version>" and they pointedly ask
+what does "/usr/rob!3/bin/cat-v mean?  Which I think just points out
+that the syntax of streams (metas) needs be carefully thought out, and
+how that syntax implies various semantics.  
 
-What about people who have already tailored their device driver to work
-well in on this chipset and currently use "read multiple" rather than
-"read cacheline". This optimization could potentially cause a slight
-degradation of performance for them.
+Lots of people keep asking for ACLs, but time and time again people
+point out that while the Unix permission model isn't as flexible, it
+is _simpler_ and easier to keep track of.  
 
-I just propose that we test this change with various card vendors and see
-what the real impact is before we jump to the conclusion that this is a
-serious performance problem for everybody.
+As an example of complexity, just keeping track of our /etc/sudoers
+file with all the users, hosts and commands that can be defined is a
+huge hassle.  You pretty much need to have a 'lint' style program to
+do the consistency checking.  
 
-Secondly, if it is the case, then the correct place to put this change is
-in the system's BIOS, and having a software workaround is a last resort.
+Hans> Yes, it can be useful to allow a namespace to exclude some
+Hans> objects, but that exclusion should not be mandated.  
 
-If you want, I can write a userspace utility to package with your existing
-tools that can be installed and launched from init to provide this
-optimization feature to the 8131 PCI bridge that your card resides on, to
-ensure that your card gets this necessary optimization.
-Or, you can easily put this capability into your existing device driver.
+Conversely, should a namespace *require* that objects always be there?
+What happens when I mount an NFS filesystem onto a Resierfs4 tree?
+How does the user/apps determine when the semantics of the underlying
+namespace have changed?  
 
-I would just rather not assume too much when dealing with something that
-can potentially have a large reprocussion.
+Hans> If you want to exclude, you should cd or chroot to
+Hans> /proc/nopseudos and find a view of the filesystem that excludes
+Hans> metas, or mount with -nopseuodos.
 
+Hans> Do you see why I say this?  I can say a lot more about the
+Hans> damage of fragmenting namespaces into multiple apis.... Why look
+Hans> at xattrs....;-)
 
+I think one of the advantages of the xattrs is that the core namespace
+doesn't change, nor do the semantics.  They are layered on top and can
+be explicitly looked at.  
 
+A real life problem of namespaces is Network Appliance Filers.  If you
+have a filer with both NFS and CIFS exports, it will nicely manage the
+CIFS ACLs in harmony (for some level you determine) with the NFS and
+Unix permissions.  But to backup that data, and to store that
+information, you need to use either their 'dump' tool or NDMP.  If you
+NFS mount the filesystem to your backup host and then use a simple tar
+to back it up, you lose the information since that window you use to
+look into the namespace is restricted.  
 
+It's a gotcha.  Until we can (or maybe computing in general) come up
+with a new namespace paradym which we can all agree to, this is going
+to be a big issue.  
 
-
-On Mon, 30 Aug 2004, Alan Cox wrote:
-
-> On Llu, 2004-08-30 at 15:02, Richard B. Johnson wrote:
-> > Hello all,
-> >
-> > The Celistica server with the AMD chip-set has very poor
-> > PCI performance with Linux (and probably W$ too).
-> >
-> > The problem was traced to incorrect bridge configuration
-> > in the HyperTransport(tm) chips that connect up pairs
-> > of slots.
->
-> Can you get Celestica to mail me their PCI subvendor
-> id/devid's for the problem configuration or DMI strings
-> and then we can do a PCI quirk properly for this.
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
-
-
-Arthur Perry
-Linux Systems/Software Architect
-Lead Linux Engineer
-CSU Validation Group
-Celestica, Salem, NH
-aperry@celestica.com
-
+John

@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVBUUAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVBUUJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbVBUUAn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 15:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVBUUAn
+	id S261846AbVBUUJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 15:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVBUUJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 15:00:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13283 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262058AbVBUUAe (ORCPT
+	Mon, 21 Feb 2005 15:09:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:33904 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261846AbVBUUJV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 15:00:34 -0500
-Date: Mon, 21 Feb 2005 12:00:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Merging fails reading /dev/uba1
-In-Reply-To: <20050221102431.64de6c6c@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0502211152330.2378@ppc970.osdl.org>
-References: <20050220200059.53db7b1e@localhost.localdomain>
- <20050221075131.GT4056@suse.de> <20050221102431.64de6c6c@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Feb 2005 15:09:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=p5MP8hfwFzcBN0R+8ML39NnBxSrcQiqASTrUhAd4K4ItEYRX1LJoj1g0jlioLJPn/9XaBqyJ+M+M27ubtvoLbJdaf2Ve06yVuZGuqjp70moYm1+JKwAp7QOq9BmYSBZxHllnU862tntZGZTMUXJyrC9Og20RARTa3miMFqmL7W4=
+Message-ID: <b6d0f5fb050221120929c27300@mail.gmail.com>
+Date: Mon, 21 Feb 2005 20:09:20 +0000
+From: Cameron Harris <thecwin@gmail.com>
+Reply-To: Cameron Harris <thecwin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: cifs connection loss hangs
+In-Reply-To: <4219FFD0.8050008@austin.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <4219FFD0.8050008@austin.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 21 Feb 2005, Pete Zaitcev wrote:
+On Mon, 21 Feb 2005 09:35:44 -0600, Steve French <smfrench@austin.rr.com> wrote:
 > 
-> Contiguous pages have nothing to do with it either. I forgot to mention
-> that in the first case (whole device), all reads are done with length of
-> 4KB, while in the second case (partition), all reads are 512 bytes long.
-
-That's because your partition isn't a full 4kB in size.
-
-So the kernel falls back to 512-byte reads, just because they are the only 
-kind that _can_ read the last sector.
-
-> Disk /dev/uba: 1048 MB, 1048576000 bytes
-
-Note: this is a nice multiple of 4kB.
-
-> 64 heads, 32 sectors/track, 1000 cylinders
-> Units = cylinders of 2048 * 512 = 1048576 bytes
+>  >Being a wireless user i experience the occasional connection loss due
+>  >to walking out of range or something, recently after starting to use
+>  >cifs mounts instead of smbfs, I've noticed that stuff tends to break
+>  > if i lose connection.
 > 
->    Device Boot      Start         End      Blocks   Id  System
-> /dev/uba1   *           1        1000     1023983+   6  FAT16
+> cifs does support reconnection after tcp session drops (including
+> reattaching to the server shares and reopening open files, rewriting
+> cached data).
+> 
+> What kernel version ("cat /proc/version") or cifs vfs version ("modinfo
+> /lib/modules/<kernel ver>/kernel/fs/cifs/cifs.ko) are you running?
+> 
+> 2.6.10 includes one fix for a race in the cifs reconnection logic (which
+> is included in cifs version 1.27 or later) and there was an earlier (and
+> more important) reconnection fix in cifs version 1.10 (I think that came
+> in mainline about at kernel version 2.6.6).
+> 
+> There are test patches (or in some cases a copy of the fs/cifs
+> directory) available for a few of the older but common kernels (SLES9,
+> SuseWorkstation 9.2, FC3 etc.) at
+> http://us1.samba.org/samba/ftp/cifs-cvs which include up to 2.6.10 level.
+> 
+> Note that you can view the state of cifs connections by "cat
+> /proc/fs/cifs/DebugData" (also interesting is "cat /proc/fs/cifs/Stats")
+> which will show the cifs tcp sessions, smb sessions and tree connection
+> (mount) and whether they need reconnection - it also shows the state of
+> any pending [cifs] operations on the network.
+> 
+I use 2.6.11-rc1-mm1. I'll check out the /proc/fs/cifs/ stuff next
+time i get a problem. It isn't so much reconnection issues, it's if
+the connection is completely lost for whatever reason it tends to put
+the processes to uninterruptible sleep. It's as though it doesn't
+actually return an error, but instead waits until it can access the
+file again, even when the filesystem is umounted.
 
-And note how this is _not_ (see the "+" at the end), you've got a 
-1023983.5 kB partition.
-
-> It does not look to me as if the partition started from an odd number
-> of sectors. In fact, it starts from a full number of pages.
-
-But it seems to end in an odd number of sectors.
-
-That said, I'm surprised that the difference in performance is _that_ 
-large. Regardless of whether the disk blocksize is 512 bytes or 4096 
-bytes, you should be getting IO merging - it might use more CPU time, but 
-the actual IO should still be done in much larger blocks.
-
-You should be able to try the BLKBSZSET ioctl to set the blocksize by hand 
-if you want to try it out:
-
-	int size = 4096;
-	ioctl(fd, BLKBSZSET, &size);
-
-or similar. Of course, mounting a filesystem on the device tends to do 
-that (or undo it) for you, ie it will set the blocksize to whatever 
-blocksize the filesystem wants.
-
-		Linus
+-- 
+Cameron Harris

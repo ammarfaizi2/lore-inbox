@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277612AbRKACGp>; Wed, 31 Oct 2001 21:06:45 -0500
+	id <S277687AbRKAC0U>; Wed, 31 Oct 2001 21:26:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277585AbRKACGg>; Wed, 31 Oct 2001 21:06:36 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:6768 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277612AbRKACG1>; Wed, 31 Oct 2001 21:06:27 -0500
-Date: Thu, 1 Nov 2001 03:06:53 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ben Smith <ben@google.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Google's mm problem - not reproduced on 2.4.13
-Message-ID: <20011101030653.X1291@athlon.random>
-In-Reply-To: <Pine.LNX.4.33L.0110312341030.2963-100000@imladris.surriel.com> <3BE0AB8D.3040400@google.com>
+	id <S277692AbRKAC0L>; Wed, 31 Oct 2001 21:26:11 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:32504
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S277687AbRKAC0A>; Wed, 31 Oct 2001 21:26:00 -0500
+Date: Wed, 31 Oct 2001 18:26:32 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Merging several patches - Tips and Tricks
+Message-ID: <20011031182632.D15598@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3BE0AB8D.3040400@google.com>; from ben@google.com on Wed, Oct 31, 2001 at 05:55:25PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 05:55:25PM -0800, Ben Smith wrote:
-> >>>*Just in case* it's oom-related I've asked Ben to try it with one less than
-> >>>the maximum number of memory blocks he can allocate.
-> >>>
-> >>I've run this test with my 3.5G machine, 3 blocks instead of 4 blocks,
-> >>and it has the same behavior (my app gets killed, 0-order allocation
-> >>failures, and the system stays up.
-> >>
-> > 
-> > If you still have swap free at the point where the process
-> > gets killed, or if the memory is file-backed, then we are
-> > positive it's a kernel bug.
-> 
-> This machine is configured without a swap file. The memory is file backed, 
+Hi,
 
-ok fine on this side. so again, what's happening is the equivalent of
-mlock lefting those mappings locked. It seems the previous mlock is
-forbidding the cache to be released. Otherwise I don't see why the
-kernel shouldn't release the cache correctly. So it could be an mlock
-bug in the kernel.
+Recently I was asked how I was able to merge a few moderately large patches
+together.
 
-Andrea
+Here's basically what I told him:
+############
+Here's what I did instead of manually fixing the reject...
+
+You need three kernel trees for this...
+
+2.4.13.vanilla
+2.4.13-ac5 (or whatever -ac)
+2.4.13-freeswan
+
+ln -s /usr/src/lk2.4/2.4.13-freeswan /usr/src/linux (for freeswan patching
+   proceedure)
+cd /usr/src/freeswan-1.91
+make insert (no problems with 2.4.13)
+cd /usr/src/lk2.4/2.4.13freeswan-1.91
+patch 2.4.13-ac5 (two rejects)
+cd /usr/src/lk2.4
+
+diff -U1 2.4.13.vanilla/Documentation/Configure.help \
+  2.4.13-ac5/Documentation/Configure.help > 2.4.13-ac5-Configure.help-U1.patch
+  
+mv 2.4.13-freeswan/Documentation/Configure.help~ \
+  2.4.13-freeswan/Documentation/Configure.help
+    
+cd 2.4.13-freeswan
+patch -p1 < ../2.4.13-ac5-Configure.help-U1.patch
+    
+(no rejects!)
+
+Rinse and repeat...
+
+Ok, here's the idea.  Normally, diff uses 3 lines of context, this can cause
+it to create larger chunks within the patch, and patch won't split these
+hunks up to try to get it to apply.  So, if you have smaller chunks and more
+of them, it has a much better chance of being able to integrate it...
+######
+
+This proceedure is working for me, but I am rather new to the whole process.
+Is there another way that doesn't require so many trees, and disk space?
+
+I'd like people to post their tips and tricks, so maybe we can point to it
+when the topic comes up again.  Or, maybe a web site would be better...
+
+Note, none of this will help if the actual code will patch together, but
+won't work afterwards...
+
+Mike

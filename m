@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbUKPKrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbUKPKyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbUKPKrk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 05:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbUKPKrj
+	id S261824AbUKPKyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 05:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbUKPKyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 05:47:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:49009 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261694AbUKPKrG (ORCPT
+	Tue, 16 Nov 2004 05:54:46 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:46747 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261824AbUKPKyo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 05:47:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=tfkrawLH3uoed/0Z6mwUbbVAhXU27x3X3lsbesrL/wHC6PQ4dU6sylvkX3qLQlYTyF6wJW2fPO99razEhU4UhEq8d5Z0r7v4IuyatF2oIAqKLbVX/FWL11PYIc4mxVkKs3/zP5X47jRAHY5melWtz+v0nh3tjSt6PRWTgrqIfB8=
-Message-ID: <aec7e5c304111602474a3103e4@mail.gmail.com>
-Date: Tue, 16 Nov 2004 11:47:05 +0100
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] documentation - nohighio
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_205_4982442.1100602025806"
+	Tue, 16 Nov 2004 05:54:44 -0500
+To: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU hogs ignoring SIGTERM (unkillable processes)
+References: <4198A766.28114.106DD7B@rkdvmks1.ngate.uni-regensburg.de>
+	<4199C06E.14572.3113A6@rkdvmks1.ngate.uni-regensburg.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I represent a sardine!!
+Date: Tue, 16 Nov 2004 11:42:41 +0100
+In-Reply-To: <4199C06E.14572.3113A6@rkdvmks1.ngate.uni-regensburg.de> (Ulrich
+ Windl's message of "Tue, 16 Nov 2004 08:55:09 +0100")
+Message-ID: <je4qjqxefy.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_205_4982442.1100602025806
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+"Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de> writes:
 
-Hello,
+> On 15 Nov 2004 at 14:39, Andreas Schwab wrote:
+>
+>> "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de> writes:
+>> 
+>> > Hello,
+>> >
+>> > today I've discovered a programming error in one of my programs (that's fixed 
+>> > already). When trying to replace the binary, I found out that the processes seem 
+>> > unaffected by a plain "kill": They just continue to consume CPU. However, a "kill 
+>> > -9" terminates them. ist that intended behavior? I guess not. Here are some facts:
+>> 
+>> Are you sure it doesn't block or ignore the signal?
+>
+> Andreas,
+>
+> I don't mess with signals (as said);
 
-The kernel parameter "nohighio" seems to be gone in the code, but the
-parameter is still left in the documentation.
+That is not required.  It could just as well inherit the setting from the
+parent.
 
-/ magnus
+Andreas.
 
-------=_Part_205_4982442.1100602025806
-Content-Type: text/x-patch; name="linux-2.6.10-rc2-no_nohighio.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="linux-2.6.10-rc2-no_nohighio.patch"
-
---- linux-2.6.10-rc2/Documentation/kernel-parameters.txt=092004-11-14 18:35=
-:07.000000000 +0100
-+++ linux-2.6.10-rc2-no_nohighio/Documentation/kernel-parameters.txt=092004=
--11-16 11:37:58.201316728 +0100
-@@ -785,8 +785,6 @@
-=20
- =09nofxsr=09=09[BUGS=3DIA-32]
-=20
--=09nohighio=09[BUGS=3DIA-32] Disable highmem block I/O.
--
- =09nohlt=09=09[BUGS=3DARM]
- =20
- =09no-hlt=09=09[BUGS=3DIA-32] Tells the kernel that the hlt
-
-------=_Part_205_4982442.1100602025806--
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263688AbTDTTpP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 15:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263690AbTDTTpP
+	id S263690AbTDTUHl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 16:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263691AbTDTUHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 15:45:15 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7553 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263688AbTDTTpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 15:45:15 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304202000.h3KK0GsX000976@81-2-122-30.bradfords.org.uk>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 20 Apr 2003 21:00:16 +0100 (BST)
-Cc: skraw@ithnet.com (Stephan von Krawczynski),
-       john@grabjohn.com (John Bradford),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1050864521.11658.8.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 20, 2003 07:48:42 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Sun, 20 Apr 2003 16:07:41 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:32518 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id S263690AbTDTUHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 16:07:40 -0400
+Date: Sun, 20 Apr 2003 16:11:52 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Sean Neakums <sneakums@zork.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: irq balancing; kernel vs. userspace
+In-Reply-To: <6uwuhpl2u5.fsf@zork.zork.net>
+Message-ID: <Pine.LNX.4.50.0304201605360.17265-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
+ <6uwuhpl2u5.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I know you favor a layer between low-level driver and fs
-> > probably. Sure it is clean design, and sure it sounds like
-> > overhead (Yet Another Layer).
+On Sun, 20 Apr 2003, Sean Neakums wrote:
+
+> I thought I'd play with the userspace IRQ-balancer, but booting with
+> noirqbalance seems not to not balance.  Possibly I misunderstand how
+> this all fits together.
 > 
-> Wrong again - its actually irrelevant to the cost of mirroring data, the cost
-> is entirely in the PCI and memory bandwidth. The raid1 management overhead is
-> almost nil
+> $ uname -a
+> Linux peng-33 2.5.68 #1 SMP Sun Apr 20 13:06:57 IST 2003 i686 unknown unknown GNU/Linux
+> $ cat /proc/cmdline
+> auto BOOT_IMAGE=default ro root=801 noirqbalance
+> $ cat /proc/interrupts 
+>            CPU0       CPU1       
+>   0:     853487     854900    IO-APIC-edge  timer
+>   1:          9          4    IO-APIC-edge  i8042
+>   2:          0          0          XT-PIC  cascade
+>   4:      15548      15161    IO-APIC-edge  serial
+>   8:          2          1    IO-APIC-edge  rtc
+>   9:          3          2   IO-APIC-level  eth1
+>  10:       1784       1805   IO-APIC-level  via82cxxx, eth0
+>  11:      10939      10860   IO-APIC-level  aic7xxx
+>  12:         39         21    IO-APIC-edge  i8042
+> NMI:          0          0 
+> LOC:    1708150    1708149 
+> ERR:          0
+> MIS:          0
 
-Actually what I was suggesting was even simpler - in the unlikely
-event that we were talking about an MFM or similar interface disk that
-_was_ basically like a big floppy, and did no error correction of it's
-own, we _could_ reserve, say, one sector per track, and create a 
-fault tollerant device that substituted the spare sector in the event
-of a write fault.
+Local APICs before P4 by default arbitrated for interrupt handling, via a 
+round robin type scheme, this doesn't seem to be the case with P4 since the 
+Arbitration ID register is also gone now.
 
-The overhead would probably be exactly zero, becuase nobody would
-actually compile the feature in and use it :-).
-
-John.
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbTHZAPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 20:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTHZAPS
+	id S262363AbTHZAZn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 20:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTHZAZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 20:15:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50450 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262203AbTHZAPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 20:15:15 -0400
-Date: Tue, 26 Aug 2003 01:15:09 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Hinds <dhinds@sonic.net>
-Cc: damjan@bagra.net.mk, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
-       dahinds@users.sourceforge.net
-Subject: Re: Trivial patch for drivers/serial/8250_cs
-Message-ID: <20030826011509.K16790@flint.arm.linux.org.uk>
-Mail-Followup-To: David Hinds <dhinds@sonic.net>, damjan@bagra.net.mk,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
-	dahinds@users.sourceforge.net
-References: <3F4A7F2C.7080205@bagra.net.mk> <20030825154829.B20096@sonic.net>
+	Mon, 25 Aug 2003 20:25:43 -0400
+Received: from ns.aratech.co.kr ([61.34.11.200]:8625 "EHLO ns.aratech.co.kr")
+	by vger.kernel.org with ESMTP id S262363AbTHZAZm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 20:25:42 -0400
+Date: Tue, 26 Aug 2003 09:27:45 +0900
+From: TeJun Huh <tejun@aratech.co.kr>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
+Message-ID: <20030826002745.GA5139@atj.dyndns.org>
+References: <20030823025448.GA32547@atj.dyndns.org> <20030823040931.GA3872@atj.dyndns.org> <20030823052633.GA4307@atj.dyndns.org> <20030823122813.0c90e241.skraw@ithnet.com> <20030823151315.GA6781@atj.dyndns.org> <20030823173736.13235adc.skraw@ithnet.com> <20030825063155.GA11458@atj.dyndns.org> <20030825092326.7d360471.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030825154829.B20096@sonic.net>; from dhinds@sonic.net on Mon, Aug 25, 2003 at 03:48:29PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030825092326.7d360471.skraw@ithnet.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 03:48:29PM -0700, David Hinds wrote:
-> I would say that "serial_cs" is more accurate since this is the driver
-> for cards that conform to the standard for PCMCIA serial interfaces.
-> Renaming to "8250_cs" is obfuscatory and pointlessly breaks config
-> files for previous kernel versions.  It is second in foolishness only
-> to the genious who thought renaming "ide_cs" to "ide-cs" was a good
-> idea.
+ Hello Stephan,
 
-Yep, and I've also said that I intend changing it back to serial_cs.
-I just haven't gotten around to it yet.
+ I'm sorry but I don't have much idea.  That looks like a deadlock on
+io_request_lock, which I think is very unlikely, or maybe another cpu
+got io_request_lock and hung.  I've also found out that the bh race I
+thought I found didn't exist due to the order of spin_trylock() and
+hardirq_trylock() tests in bh_action().  So, only the first
+irq_enter() related race is valid.  I've been trying to reproduce your
+kernel hang condition with reiserfs and nfs from yesterday without
+success.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+tejun

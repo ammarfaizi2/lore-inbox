@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276665AbRJBU0M>; Tue, 2 Oct 2001 16:26:12 -0400
+	id <S276670AbRJBUml>; Tue, 2 Oct 2001 16:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276667AbRJBU0C>; Tue, 2 Oct 2001 16:26:02 -0400
-Received: from ns.suse.de ([213.95.15.193]:20751 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S276665AbRJBUZz>;
-	Tue, 2 Oct 2001 16:25:55 -0400
-Date: Tue, 2 Oct 2001 22:26:23 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Hristo Grigorov <Hristo.Grigorov@Kolumbus.FI>
-Cc: Dax Kelson <dax@gurulabs.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: ECN now on "Standards Track" RFC 3168
-In-Reply-To: <20011002201604.HRKR1085.fep06-app.kolumbus.fi@there>
-Message-ID: <Pine.LNX.4.30.0110022224040.12199-100000@Appserv.suse.de>
+	id <S276675AbRJBUmc>; Tue, 2 Oct 2001 16:42:32 -0400
+Received: from monsoon.mail.pipex.net ([158.43.128.69]:59885 "HELO
+	monsoon.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S276671AbRJBUmZ>; Tue, 2 Oct 2001 16:42:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Chris Howells <chris@chrishowells.co.uk>
+Organization: @ $HOME
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Subject: Re: linux-kernel-announce?
+Date: Tue, 2 Oct 2001 19:51:00 +0100
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011001164720Z275269-761+14414@vger.kernel.org> <20011001200045.F1144@mea-ext.zmailer.org>
+In-Reply-To: <20011001200045.F1144@mea-ext.zmailer.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011002204228Z276671-760+19765@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Oct 2001, Hristo Grigorov wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > Firewall/Loadbalancing vendors and websites can no longer play the "we
-> > don't support experimental protocols" card.
-> Screw the RFC!
-> If you try to follow them, you will find out that no1 follows them... :(
+On Monday 01 Oct 2001 18:00, Matti Aarnio wrote:
+>
+ 	If you look at:
+> 		http://vger.kernel.org/vger-lists.html
+>
+> 	you will notice that   linux-kernel-announce  list actually exists,
+> 	and has 434 subscribers (or had when the HTML page was generated
+> 	less than 24 hours ago... -- it is generated once a day.)
 
-Which is exactly the attitude that the RFCs set out to counteract.
-Because some vendors decide to get `creative' with their interpretation
-of standards is no reason not to have them.
+That would seem to be the perfect solution, if it was actually used -- I had 
+a look at some archives, and there seemed to be only a few irrelevant posts.
 
-regards,
+- -- 
+Cheers, Chris Howells -- chris@chrishowells.co.uk, howells@kde.org
+Web: http://chrishowells.co.uk, PGP key: http://chrishowells.co.uk/pgp.txt
+KDE: http://www.koffice.org, http://edu.kde.org, http://usability.kde.org
 
-Dave.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+iD8DBQE7ugyUF8Iu1zN5WiwRAoo6AKCBIcn6DW9xKmU2ZP0Pm7Jcv6t9YwCgm/eB
+j25zdGoqK/rHZyvDI1wGssk=
+=+RCL
+-----END PGP SIGNATURE-----

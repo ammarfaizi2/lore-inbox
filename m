@@ -1,58 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSHISia>; Fri, 9 Aug 2002 14:38:30 -0400
+	id <S315427AbSHISrD>; Fri, 9 Aug 2002 14:47:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315427AbSHISia>; Fri, 9 Aug 2002 14:38:30 -0400
-Received: from dsl-213-023-043-103.arcor-ip.net ([213.23.43.103]:38286 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315415AbSHISi3>;
-	Fri, 9 Aug 2002 14:38:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: frankeh@watson.ibm.com, davidm@hpl.hp.com,
-       David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: large page patch (fwd) (fwd)
-Date: Fri, 9 Aug 2002 20:43:42 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, torvalds@transmeta.com,
-       gh@us.ibm.com, Martin.Bligh@us.ibm.com, wli@holomorpy.com,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com> <E17dBZN-0001Ng-00@starship> <200208091432.38561.frankeh@watson.ibm.com>
-In-Reply-To: <200208091432.38561.frankeh@watson.ibm.com>
+	id <S315454AbSHISrD>; Fri, 9 Aug 2002 14:47:03 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63226 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315427AbSHISrC>;
+	Fri, 9 Aug 2002 14:47:02 -0400
+Message-ID: <3D540ED3.58F200F6@mvista.com>
+Date: Fri, 09 Aug 2002 11:49:55 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17dEje-0001Ro-00@starship>
+To: john stultz <johnstul@us.ibm.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
+       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
+Subject: Re: [PATCH] tsc-disable_B9
+References: <1028771615.22918.188.camel@cog> 
+		<1028812663.28883.32.camel@irongate.swansea.linux.org.uk> 
+		<1028860246.1117.34.camel@cog> 
+		<1028884665.28882.173.camel@irongate.swansea.linux.org.uk> <1028915214.1117.46.camel@cog>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 August 2002 20:32, Hubertus Franke wrote:
-> On Friday 09 August 2002 11:20 am, Daniel Phillips wrote:
-> > On Sunday 04 August 2002 19:19, Hubertus Franke wrote:
-> > > "General Purpose Operating System Support for Multiple Page Sizes"
-> > > htpp://www.usenix.org/publications/library/proceedings/usenix98/full_pape
-> > >rs/ganapathy/ganapathy.pdf
-> >
-> > This reference describes roughly what I had in mind for active
-> > defragmentation, which depends on reverse mapping.  The main additional
-> > wrinkle I'd contemplated is introducing a new ZONE_LARGE, and GPF_LARGE,
-> > which means the caller promises not to pin the allocation unit for long
-> > periods and does not mind if the underlying physical page changes
-> > spontaneously.  Defragmenting in this zone is straightforward.
+john stultz wrote:
 > 
-> I think the objection to that is that in many cases the cost of 
-> defragmentation is to heavy to be recollectable through TLB miss handling 
-> alone.
+> On Fri, 2002-08-09 at 02:17, Alan Cox wrote:
+> > On Fri, 2002-08-09 at 03:30, john stultz wrote:
+> > > Not sure I followed that, do you mean per-cpu TSC management for
+> > > gettimeofday?
+> >
+> > We have some x86 setups where people plug say a 300MHhz and a 450MHz
+> > celeron into the same board. This works because they are same FSB,
+> > different multiplier (works and intel certify being two different
+> > things)
+> 
+> Oh yes, with the old NUMAQ hardware here, one can mix nodes of different
+> speed cpus. Once I get a chance, I'm going to begin working on this
+> issue for 2.5. My plan right now is to keep per-cpu last_tsc_low and
+> fast_gettimeoffset_quotient values, then round robin the timer
+> interrupt.
+> 
+An interesting approach, however, could you take a look at
+the high-res-timers patch (see signature).  In that code (in
+the TSC version), we use the TSC to update jiffies and
+_sub_jiffie (which is TSC counts into the next jiffie).  We
+also want to be able to "grab" a new TSC and figure the time
+quickly, without updating either jiffies or _sub_jiffie. 
+Your approach would, I think, mean that both jiffies and
+_sub_jiffie would be per cpu values, not impossible, but,
+well, hard.
 
-You pay the cost only on transition from a load that doesn't use many large
-pages to one that does, it is not an ongoing cost.
+On the other hand, the high-res-timers patch also allows one
+to use the ACPI pm timer, and ignore TSC completely :)
 
-> [...]
->
-> Defragmenting to me seems a matter of last resort, Copying pages is expensive.
-
-It is the only way to ever have a seamless implementation.  Really, I don't
-understand this fear of active defragmentation.  Oh well, like davem said,
-code talks.
+-g
+> 
+> > Needless to say tsc does not work well on such boxes. Thats why I don't
+> > trust the tsc at all in such cases. Since you'll have the nice cyclone
+> > timer for the Summit it seems best not to trust it, and on the summit to
+> > use the cyclone for udelay as well ?
+> >
+> > I agree dodgy_tsc needs to change name. Perhaps we actually want
+> >
+> >       int tsc = select_tsc();
+> >
+> >       switch(tsc)
+> >       {
+> >               case TSC_CYCLONE:
+> >               case TSC_PROCESSOR:
+> >               case TSC_NONE:
+> >               ..
+> >       }
+> 
+> Sounds good. I'll re-work my patch and resubmit.
+> 
+> thanks!
+> -john
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Daniel
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

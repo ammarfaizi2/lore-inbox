@@ -1,86 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSEBW4i>; Thu, 2 May 2002 18:56:38 -0400
+	id <S315472AbSEBXGk>; Thu, 2 May 2002 19:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSEBW41>; Thu, 2 May 2002 18:56:27 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:29280 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315456AbSEBWyT>;
-	Thu, 2 May 2002 18:54:19 -0400
-From: "Kosta Porotchkin" <kporotchkin@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: IO APIC error
-Date: Thu, 2 May 2002 17:44:34 -0600
-Message-ID: <007a01c1f234$d7214eb0$a396a8c0@compaq12xl510a>
+	id <S315473AbSEBXGj>; Thu, 2 May 2002 19:06:39 -0400
+Received: from dsl-213-023-038-046.arcor-ip.net ([213.23.38.46]:13731 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315472AbSEBXGi>;
+	Thu, 2 May 2002 19:06:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Date: Fri, 3 May 2002 01:05:45 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        Jesse Barnes <jbarnes@sgi.com>
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <20020502011750.M11414@dualathlon.random> <20020502002010.GA14243@krispykreme>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E173Pe0-0002Bw-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I discovered some strange behavior of APIC initialization which forced me to
-start reading the kernel source code.
-Platform: Dual Xeon(tm) motherboard with Intel 82870P2 chipset, diskless.
-Net-booting kernel 2.4.17 (Sherman from MontaVista).
-1. For some reason the "dmesg" is not displaying an early kernel messages.
-The log started somewhere from CPU #2 initialization (which is third CPU -
-Two Xeons are recognized as four processors, it is normal). I stopped this
-kernel in debugger and got some messages from MP table parsing procedure
-which were not included in "dmesg" output:
-   I/O APIC # 2 Version 32 at 0xFEC00000
-   I/O APIC # 3 Version 32 at 0xFEC80000
-   I/O APIC # 4 Version 32 at 0xFEC80400
-   I/O APIC # 5 Version 32 at 0xFEC81000
-   I/O APIC # 8 Version 32 at 0xFEC81400
+On Thursday 02 May 2002 02:20, Anton Blanchard wrote:
+> > so ia64 is one of those archs with a ram layout with huge holes in the
+> > middle of the ram of the nodes? I'd be curious to know what's the
+> > hardware advantage of designing the ram layout in such a way, compared
+> > to all other numa archs that I deal with. Also if you know other archs
+> > with huge holes in the middle of the ram of the nodes I'd be curious to
+> > know about them too. thanks for the interesting info!
+> 
+> From arch/ppc64/kernel/iSeries_setup.c:
+> 
+>  * The iSeries may have very large memories ( > 128 GB ) and a partition
+>  * may get memory in "chunks" that may be anywhere in the 2**52 real
+>  * address space.  The chunks are 256K in size.
+> 
+> Also check out CONFIG_MSCHUNKS code and see why I'd love to see a generic
+> solution to this problem.
 
-2. When I looking through the "dmesg" output I can see the IO APICs ID
-re-assignment:
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 2 ... ok.
-Setting 3 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 3 ... ok.
-Setting 4 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 4 ... ok.
-Setting 5 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 5 ... ok.
-Setting 8 in the phys_id_present_map
-...changing IO-APIC physical APIC ID to 8 ... ok.
-init IO_APIC IRQs
+Hmm, I just re-read your numbers above.  Supposing you have 256 GB of
+'installed' memory, divided into 256K chunks at random places in the 52
+bit address space, a hash table with 1M entries could map all that
+physical memory.  You'd need 16 bytes or so per hash table entry, making
+the table 16MB in size.  This would be about .0006% of memory.
 
-3. The things are going wrong during the test phase (i.e. after the "testing
-the IO APIC....................." is printed). IO APIC #2 register #00 reads
-02008000, which is wrong according to the chipset specification - should be
-02000000. That is the reason I got the warning "unexpected IO-APIC, please
-mail to linux-smp@vger.kernel.org". Let's said that the platform I using is
-pretty new and some hardware errors may happen, so I am less worry about
-this particular message. The most strange thing is the readings from the
-rest of IO APICs. The IO APIC #3 reads physical ID 4, #4 also 4, both # 5
-and #8 has 08000000 in their register #00. How it can be?
+More-or-less equivalently, a tree could be used, with the tradeoff being
+a little better locality of reference vs more search steps.  The hash
+structure can also be tweaked to improve locality by making each hash
+entry map several adjacent memory chunks, and hoping that the chunks tend
+to occur in groups, which they most probably do.
 
-4. When I tried to understand the source code, I found that all the IO APIC
-operations are done trough the fixed memory addresses (io_apic_read() and
-io_apic_write() in io_apic.h). I am sure, I do not understand the boot
-process enough for asking my questions, but probably someone from Linux
-community will help me to solve this problem. Why the fixed addresses are
-used? Shouldn't we use the base address provided by BIOS in MP table for
-each IO APIC?
+I'm offering the hash table, combined with config_nonlinear as a generic
+solution.
 
-Thanks
-
-Kosta Porotchkin
-
-
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.351 / Virus Database: 197 - Release Date: 4/19/2002
-
-
+-- 
+Daniel

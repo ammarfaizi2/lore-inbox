@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbTA3ShU>; Thu, 30 Jan 2003 13:37:20 -0500
+	id <S267597AbTA3Sep>; Thu, 30 Jan 2003 13:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267598AbTA3ShU>; Thu, 30 Jan 2003 13:37:20 -0500
-Received: from postal2.lbl.gov ([131.243.248.26]:37288 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S267595AbTA3ShT>;
-	Thu, 30 Jan 2003 13:37:19 -0500
-Message-ID: <3E39730D.3090009@lbl.gov>
-Date: Thu, 30 Jan 2003 10:46:37 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021017
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre4
-References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>	 <3E384D41.9080605@lbl.gov>	 <1043926998.28133.21.camel@irongate.swansea.linux.org.uk>	 <3E395C30.6040903@lbl.gov>	 <1043950661.31674.12.camel@irongate.swansea.linux.org.uk>	 <3E396032.2000503@lbl.gov>	 <1043951291.31674.17.camel@irongate.swansea.linux.org.uk>	 <3E39669F.20302@lbl.gov> <1043955332.31674.27.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267595AbTA3Sep>; Thu, 30 Jan 2003 13:34:45 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2236 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267582AbTA3Sen>; Thu, 30 Jan 2003 13:34:43 -0500
+Date: Thu, 30 Jan 2003 13:44:02 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Konrad Eisele <eiselekd@web.de>
+Cc: PeteZaitcev <zaitcev@redhat.com>, sparclinux@vger.kernel.org,
+       leon_sparc@groups1.vip.scd.yahoo.com, dfoulds@pacbell.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Adding sparc-leon linux to sourcetree
+Message-ID: <20030130134402.A12226@devserv.devel.redhat.com>
+References: <200301301353.h0UDrxO24129@mailgate5.cinetic.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200301301353.h0UDrxO24129@mailgate5.cinetic.de>; from eiselekd@web.de on Thu, Jan 30, 2003 at 02:53:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> Date: Thu, 30 Jan 2003 14:53:59 +0100
+> From: Konrad Eisele <eiselekd@web.de>
 
-> On Thu, 2003-01-30 at 17:53, Thomas Davis wrote:
->
-> >ie, it has a ac97 support in the driver, it calls ac97_probe_codec?
-> >
-> >Is that enough or not?
->
->
-> The codec and the sound card are two seperate things. The FM801
-> hardware has an AC97 digital interface that talks to a codec chip
-> of which there are a considerable number. Which one depends on
-> who made the specific board you have. The ac97 side isnt part
-> of the FM801 any more than a PC motherboard automatically
-> has an Intel CPU
->
+> I would like to ask if it would be possible to add arch/sparc-leon as
+> a new architecture to the sourcetree of linux. From 16.12.02 to 16.3.03
+> I'm employed at the University and by Jiri Gaisler's Gaisler Reasearch
+> to add the MMU that I made as a diploma thesis to the official Leon 
+> distiribution (the open source sparc chip). [...]
 
-Ok, fine.
+I think it is a worthy goal to have a generic Linux for a generic
+LEON, but before I support this particular project, I would like to
+discuss one thing.
 
-How do I get the name in there other than "Unknown"?
+Your VHDL target must be in use by someone long term.
+I do not even care if Opencores or whoever accepts it, but there
+must be a nonzero user base, now and in the future. I do not want
+to add it then to rip it out like AP-1000. For comparison, a recurring
+topic on Sparclinux list is a removal of sun4 and even sun4c.
+I was ready to support David Foulds' MMU before, but it never
+materialized.
 
-It's a single chip card.
+> Almost all the source is a copy from the original sparc distribution
+> of you what I'm basically doing is to write the bootup initialization
+> routines for leon and to throw out the sun hardware stuff.
 
-Thanks.
+"Throw out the sun hardware stuff" sounds broken. Look closer
+at CONFIG_SUN4. So far I do not see why you need a separate
+architecture. Sure, throwing the stuff away helps you to finish
+your diploma on time, but then I have to maintain what's left.
 
-thomas
+> I'm currently adjusting linux for that platform based on linux 2.5.53.
+> I do not know exactly when I willl have a first running kernel,
+> but when I have one then what should I do get it into the sourcetree?
 
+Discuss early, discuss often. Use Sparclinux@vger.kernel.org
+and, perhaps, the Leon list at (bleah!) yahoogroups. Learn
+to send patches, and be ready to stay as a patch for a while
+(a year or so). I think Jeff Dike's UML is a model of project
+management for you (http://user-mode-linux.sourceforge.net/).
+He stayed outside AND in close contact while he proved that the
+project was viable, then Linus took it.
+
+Good luck and send those patches,
+-- Pete

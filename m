@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268964AbUHZORD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUHZOUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268964AbUHZORD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUHZOOa
+	id S268970AbUHZOUm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUHZORT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:14:30 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:44254 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S268928AbUHZOI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:08:58 -0400
-Message-ID: <412DEEF3.2010408@grupopie.com>
-Date: Thu, 26 Aug 2004 15:08:51 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Thu, 26 Aug 2004 10:17:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23965 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268966AbUHZOOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:14:52 -0400
+Date: Thu, 26 Aug 2004 10:12:53 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, <wichert@wiggy.net>, <jra@samba.org>,
+       <torvalds@osdl.org>, <reiser@namesys.com>, <hch@lst.de>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <flx@namesys.com>, <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <200408261700.43253.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Arne Henrichsen <ahenric@yahoo.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: sys_sem* undefined
-References: <20040826090508.79320.qmail@web41508.mail.yahoo.com>
-In-Reply-To: <20040826090508.79320.qmail@web41508.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.32; host: bipbip)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arne Henrichsen wrote:
-> Hi Randy,
-> 
-> thanks for the help. I am very new to Linux
-> programming, and I do not understand what you mean
-> with  'syscalls are not called by name'. 
-> 
-> I did find the header file syscalls.h, recompiled my
-> code but it still says the following:
-> 
-> *** Warning: "sys_semop"
-> [/prj/builds/host/linux/prj.ko] undefined!
-> *** Warning: "sys_semctl"
-> [/prj/builds/host/linux/prj.ko] undefined!
-> *** Warning: "sys_semget"
-> [/prj/builds/host/linux/prj.ko] undefined!
-> 
-> And when I load the module, then it tells me:
-> 
-> insmod: error inserting './prj.ko': -1 Unknown symbol
-> in module
-> 
-> So, I call sys_sem* functions from my code. What else
-> must I do?
+On Thu, 26 Aug 2004, Denis Vlasenko wrote:
 
-Syscalls are supposed to be called from userspace, so that the kernel 
-does something on behalf of an application.
+> I think Hans is not planning turning old "file is a stream of bytes"
+> into eight-stream octopus. One stream will remain as a 'main' one,
+> which contains actual data. Others will keep metadata, etc...
 
-Some syscalls have their do_<syscall name> equivalent because it makes 
-sense to call them from inside the kernel, but others don't.
+This is exactly what the Samba people want, though. 
 
-If you want to use semaphores inside the kernel I suggest you read the 
-Rusty Rusell's Unreliable Guide to Kernel Locking first:
-
-http://wwwos.inf.tu-dresden.de/~ch12/diplom/DocBook/kernel-locking/
-
-I hope this helps,
+Office suites can store a document with embedded images
+and spread sheets "easily" by putting the text, the
+images and spread sheets all in different file streams.
 
 -- 
-Paulo Marques - www.grupopie.com
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

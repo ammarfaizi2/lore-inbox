@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261710AbSJAQa7>; Tue, 1 Oct 2002 12:30:59 -0400
+	id <S261717AbSJAQ1B>; Tue, 1 Oct 2002 12:27:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbSJAQa6>; Tue, 1 Oct 2002 12:30:58 -0400
-Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:52492 "EHLO
-	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S261710AbSJAQa5>; Tue, 1 Oct 2002 12:30:57 -0400
-Date: Tue, 1 Oct 2002 17:35:08 +0100
-To: Jens Axboe <axboe@suse.de>
-Cc: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
-       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-Message-ID: <20021001163508.GA30457@fib011235813.fsnet.co.uk>
-References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it> <20021001154808.GD126@suse.de> <20021001160608.GX3867@suse.de>
-Mime-Version: 1.0
+	id <S261700AbSJAQ1A>; Tue, 1 Oct 2002 12:27:00 -0400
+Received: from web9607.mail.yahoo.com ([216.136.129.186]:32781 "HELO
+	web9607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261717AbSJAQ05>; Tue, 1 Oct 2002 12:26:57 -0400
+Message-ID: <20021001163221.73061.qmail@web9607.mail.yahoo.com>
+Date: Tue, 1 Oct 2002 09:32:21 -0700 (PDT)
+From: Steve G <linux_4ever@yahoo.com>
+Subject: 2.4.18+IPv6+IPV6_ADDRFORM
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021001160608.GX3867@suse.de>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 06:06:08PM +0200, Jens Axboe wrote:
-> On Tue, Oct 01 2002, Dave Jones wrote:
-> > Consider it patch 1/2 of the device mapper merge 8-)
-> 
-> Indeed, the patches are also arriving out of order though, LVM remove
-> patch should be 2/2 not 1/2. IMO.
+Hello,
 
-If LVM remotely worked I would agree with you.
+I am using a 2.4.18 kernel and ran across something I
+thought was odd and need to understand better. I'm
+writing a test suite to verify xinetd and I'm trying
+to check a socket via getsockopt() to see if the
+IPV6_ADDRFORM socket option has been set. I cannot
+find IPV6_ADDRFORM in the Single Unix Standard or man
+pages, so I am going by what is in Richard Steven's
+book, Network Programming vol 1.
 
-Joe Thornber
+According to it, calling getsockopt() with level
+IPPROTO_IPV6 and option IPV6_ADDRFORM should get the
+option value. However, I get a socket error. I changed
+the level to IPPROTO_IP and the call goes through, but
+Richard Stevens' book states that AF_INET or AF_INET6
+should be returned rather than 0 or 1.
+
+1) should the level really be IPPROTO_IPV6?
+2) do other platforms use IPPROTO_IP to retrieve this
+option or said another way, is the behavior observed
+in Linux portable?
+3) should the returned value be 0 & 1 or AF_INET &
+AF_INET6?
+4) Is this a deprecated option and likely to be
+dropped?
+
+Also, the Sus v3, states there is a socket option:
+level IPPROTO_IPV6, option IPV6_V6ONLY...will this be
+supported in 2.4 or 2.6? A grep -r doesn't get any
+hits from /usr/include.
+
+Thanks,
+Steve Grubb
+
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSJUK4m>; Mon, 21 Oct 2002 06:56:42 -0400
+	id <S261321AbSJULL7>; Mon, 21 Oct 2002 07:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261318AbSJUK4m>; Mon, 21 Oct 2002 06:56:42 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:17426 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261317AbSJUK4k>;
-	Mon, 21 Oct 2002 06:56:40 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S261322AbSJULL6>; Mon, 21 Oct 2002 07:11:58 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:33265 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261321AbSJULL6>; Mon, 21 Oct 2002 07:11:58 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
 To: linux-kernel@vger.kernel.org
-Cc: rgooch@atnf.csiro.au, viro@math.psu.edu
-Subject: 2.4.19 breaks devfs mapping for root=
+Cc: netdev@oss.sgi.com
+Subject: rtnetlink interface state monitoring problems.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 21 Oct 2002 21:02:29 +1000
-Message-ID: <565.1035198149@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Mon, 21 Oct 2002 12:18:04 +0100
+Message-ID: <27964.1035199084@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resend #2 - no response to previous mails.
+I'm playing with userspace applications which want to monitor the status of 
+IrDA and Bluetooth devices. Rather than polling for the interface state 
+(this is a handheld device and polling wastes CPU and battery), I want to 
+use netlink. 
 
-A change from 2.4.18 to 2.4.19 has broken the way that devfs maps
-root=.  2.4.18 init/main.c::mount_root() has
+I have two problems:
 
-        devfs_make_root (root_device_name);
-        handle = devfs_find_handle (NULL, ROOT_DEVICE_NAME,
-                                    MAJOR (ROOT_DEV), MINOR (ROOT_DEV),
-                                    DEVFS_SPECIAL_BLK, 1);
+ 1. I appear to need CAP_NET_ADMIN to bind to the netlink groups which give
+	me this  information. I can poll for it just fine, but need 
+	elevated privs to be notified. Why is this, and is there a workaround?
 
-where ROOT_DEVICE_NAME maps to the value of root= for non-initrd.  This
-allowed devfs to remap an entry such as sda3 to whatever driver was
-implementing sda3, even if that driver used a different major number.
-The correct major was returned in handle.
+ 2. Even root doesn't get notification of state changes for Bluetooth
+	interfaces, because they're not treated as 'normal' network devices
+	like IrDA devices are. I can see the logic behind that -- by why
+	is it done differently from IrDA? Is there a way to get notification
+	of BT interface state changes?
 
-2.4.19 init/do_mounts.c::mount_root() has
 
-        devfs_make_root(root_device_name);
-        create_dev("/dev/root", ROOT_DEV, root_device_name);
+--
+dwmw2
 
-create_dev() has
-
-	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
-                    MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
-
-The difference in 2.4.19 is that if dev is already set from
-root_dev_names[] then devfs does NOT get the value of root=, forcing
-the use of major from root_dev_names[].  If a driver reimplements one
-of the standard device names and uses a different major or minor number
-then it no longer works in 2.4.19 because devfs is given incomplete
-information.
-
-Quick and dirty workaround
-
---- 2.4.19/init/do_mounts.c
-+++ 2.4.19/init/do_mounts.c
-@@ -368,7 +368,7 @@
- 	if (!do_devfs)
- 		return sys_mknod(name, S_IFBLK|0600, kdev_t_to_nr(dev));
- 
--	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
-+	handle = devfs_find_handle(NULL, devfs_name,
- 				MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
- 	if (!handle)
- 		return -1;
-
-But that probably breaks initrd.  What should that code be doing to
-cope with both initrd and still allow devfs to remap root=?
 

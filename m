@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbUKJIsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbUKJIuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbUKJIsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 03:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUKJIsQ
+	id S261523AbUKJIuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 03:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUKJIuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 03:48:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19428 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261376AbUKJIsN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 03:48:13 -0500
-Date: Wed, 10 Nov 2004 00:47:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: markus@trippelsdorf.de, bunk@stusta.de, linux-kernel@vger.kernel.org,
-       video4linux-list@redhat.com
-Subject: Re: [patch] 2.6.10-rc1-mm4: bttv-driver.c compile error
-Message-Id: <20041110004735.7982dc17.akpm@osdl.org>
-In-Reply-To: <20041110082407.GA23090@bytesex>
-References: <20041109074909.3f287966.akpm@osdl.org>
-	<1100018489.7011.4.camel@lb.loomes.de>
-	<20041109211107.GB5892@stusta.de>
-	<1100037358.1519.6.camel@lb.loomes.de>
-	<20041110082407.GA23090@bytesex>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 10 Nov 2004 03:50:21 -0500
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:5590 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S261549AbUKJIuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 03:50:06 -0500
+Subject: Re: [Lse-tech] Re: [PATCH 2.6.9 0/2] new enhanced accounting data
+	collection
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Reply-To: guillaume.thouvenin@bull.net
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: lse-tech <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+In-Reply-To: <41916ECB.4070102@engr.sgi.com>
+References: <418FC082.8090706@engr.sgi.com>
+	 <1100007698.18813.12.camel@frecb000711.frec.bull.fr>
+	 <41916ECB.4070102@engr.sgi.com>
+Message-Id: <1100076554.18813.28.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 10 Nov 2004 09:49:15 +0100
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 10/11/2004 09:56:06,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 10/11/2004 09:56:10,
+	Serialize complete at 10/11/2004 09:56:10
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr <kraxel@bytesex.org> wrote:
->
-> > kobject_register failed for <NULL> (-17)
-> 
->  IIRC there was a bug in the driver base and a patch from Gred fixing
->  that floating around, maybe that one helps?
+On Wed, 2004-11-10 at 02:28, Jay Lan wrote:
+> I looked at the latest 2.6.10-rc1-mm4, and found the eop handler
+> acct_process(code) used to be invoked per process from do_exit()
+> has been hijacked :) to become a per group thing. I would still like
+> to have a per process eop handling. How about BSD and ELSA?
 
-err, yes.  Without that patch the kobject layer will scribble on memory and
-all bets are off.
+ELSA uses a daemon called "jobd" which is able to produce a file that
+contains informations about the relationship between a process and its
+job. The conjunction of this file and the per-job accounting information
+(currently the BSD-accounting) allows ELSA to provide per-job
+accounting. Thus, I also need per-process accounting. Maybe the per
+process eop handling can be done with CSA...
 
-Try this:
-
---- a/lib/kobject.c	2004-11-09 12:09:33 -08:00
-+++ b/lib/kobject.c	2004-11-09 12:09:33 -08:00
-@@ -180,10 +180,10 @@
- 
- 	error = create_dir(kobj);
- 	if (error) {
-+		/* unlink does the kobject_put() for us */
- 		unlink(kobj);
- 		if (parent)
- 			kobject_put(parent);
--		kobject_put(kobj);
- 	} else {
- 		kobject_hotplug(kobj, KOBJ_ADD);
- 	}
+Guillaume 
 

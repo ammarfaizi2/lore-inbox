@@ -1,99 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310180AbSB1WlK>; Thu, 28 Feb 2002 17:41:10 -0500
+	id <S293388AbSB1XMq>; Thu, 28 Feb 2002 18:12:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310184AbSB1Whi>; Thu, 28 Feb 2002 17:37:38 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:18563 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S310181AbSB1Wfl>; Thu, 28 Feb 2002 17:35:41 -0500
-Message-Id: <200202282147.OAA27067@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Dave Jones <davej@suse.de>, Steven Cole <elenstev@mesatop.com>
-Subject: Re: [PATCH] 2.5.5-dj2, modify arch/i386/Config.help for highpte options.
-Date: Thu, 28 Feb 2002 15:32:48 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200202281827.LAA26782@tstac.esa.lanl.gov> <20020228220158.I32662@suse.de>
-In-Reply-To: <20020228220158.I32662@suse.de>
+	id <S310186AbSB1XIp>; Thu, 28 Feb 2002 18:08:45 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:8462 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310214AbSB1XFD>;
+	Thu, 28 Feb 2002 18:05:03 -0500
+Date: Thu, 28 Feb 2002 20:04:38 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Christoph Hellwig <hch@caldera.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
+ tree
+In-Reply-To: <Pine.LNX.3.96.1020228174142.2006I-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.33L.0202282002260.2801-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 February 2002 02:01 pm, Dave Jones wrote:
-> On Thu, Feb 28, 2002 at 12:12:51PM -0700, Steven Cole wrote:
->  > Here is a snippet from arch/i386/config.in both 2.5.5-dj2 and
->  > 2.5.6-pre1: choice 'High Memory Support' \
->  >         "off           CONFIG_NOHIGHMEM \
->  >          4GB           CONFIG_HIGHMEM4G \
->  >          4GB-highpte   CONFIG_HIGHMEM4G_HIGHPTE \
->  >          64GB          CONFIG_HIGHMEM64G \
->  >          64GB-highpte  CONFIG_HIGHMEM64G_HIGHPTE" off
+On Thu, 28 Feb 2002, Bill Davidsen wrote:
+> On Tue, 26 Feb 2002, Christoph Hellwig wrote:
 >
->  Would this not be better done using a "use highpte" bool in
->  the !CONFIG_NOHIGHMEM case ?
+> > They shouldn't,  But many old drivers do (and _had to_):
+> >
+> > 	current->policy = SCHED_YIELD;
+> > 	schedule();
+> >
+> > which isn't possible with the new scheduler.
+>
+> Let's see, the choices are to (a) keep the old scheduler which has many
+> performance issues, or (b) put in the new scheduler and let people who
+> need the old drivers either fix them or stop upgrading.
 
-Maybe.  Here is a patch to arch/i386/config.in to try it that way.
+or (c) have proponents of the inclusion of the O(1) scheduler
+fix all drivers before having the O(1) scheduler considered
+for inclusion.
 
-Ingo, is this OK?
+Adding a yield() function to 2.4's scheduler and fixing all
+the drivers to use it isn't that hard. Now all that's needed
+are some O(1) fans willing to do the grunt work.
 
-After the first patch, is another small patch to arch/i386/Config.help which
-provides some explanation of CONFIG_HIGHPTE, which I hope is not
-too inaccurate.  This supercedes the original change to arch/i386/Config.help.
+regards,
 
-Steven
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
---- linux-2.5.5-dj2/arch/i386/config.in.orig	Thu Feb 28 14:33:48 2002
-+++ linux-2.5.5-dj2/arch/i386/config.in	Thu Feb 28 15:20:18 2002
-@@ -161,25 +161,20 @@
- choice 'High Memory Support' \
- 	"off           CONFIG_NOHIGHMEM \
- 	 4GB           CONFIG_HIGHMEM4G \
--	 4GB-highpte   CONFIG_HIGHMEM4G_HIGHPTE \
--	 64GB          CONFIG_HIGHMEM64G \
--	 64GB-highpte  CONFIG_HIGHMEM64G_HIGHPTE" off
--if [ "$CONFIG_HIGHMEM4G" = "y" ]; then
--   define_bool CONFIG_HIGHMEM y
-+	 64GB          CONFIG_HIGHMEM64G" off
-+
-+if [ "$CONFIG_HIGHMEM4G" = "y" -o "$CONFIG_HIGHMEM64G" = "y" ]; then
-+   bool 'Use high memory pte support' CONFIG_HIGHPTE
- fi
--if [ "$CONFIG_HIGHMEM4G_HIGHPTE" = "y" ]; then
-+
-+if [ "$CONFIG_HIGHMEM4G" = "y" ]; then
-    define_bool CONFIG_HIGHMEM y
--   define_bool CONFIG_HIGHPTE y
- fi
-+
- if [ "$CONFIG_HIGHMEM64G" = "y" ]; then
-    define_bool CONFIG_HIGHMEM y
-    define_bool CONFIG_X86_PAE y
- fi
--if [ "$CONFIG_HIGHMEM64G_HIGHPTE" = "y" ]; then
--   define_bool CONFIG_HIGHMEM y
--   define_bool CONFIG_HIGHPTE y
--   define_bool CONFIG_X86_PAE y
--fi
- 
- bool 'Math emulation' CONFIG_MATH_EMULATION
- bool 'MTRR (Memory Type Range Register) support' CONFIG_MTRR
-
---- linux-2.5.5-dj2/arch/i386/Config.help.orig  Thu Feb 28 10:58:01 2002
-+++ linux-2.5.5-dj2/arch/i386/Config.help       Thu Feb 28 15:07:42 2002
-@@ -128,6 +128,12 @@
-
-   If unsure, say "off".
-
-+CONFIG_HIGHPTE
-+  The VM uses one page table entry for each page of physical memory.
-+  For systems with a lot of RAM, this can be wasteful of precious
-+  low memory.  Setting this option will put user-space page table
-+  entries in high memory.
-+
- CONFIG_HIGHMEM4G
-   Select this if you have a 32-bit processor and between 1 and 4
-   gigabytes of physical RAM.
+http://www.surriel.com/		http://distro.conectiva.com/
 

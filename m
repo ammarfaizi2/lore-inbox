@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264993AbRGAGhE>; Sun, 1 Jul 2001 02:37:04 -0400
+	id <S264990AbRGAGdO>; Sun, 1 Jul 2001 02:33:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265001AbRGAGgy>; Sun, 1 Jul 2001 02:36:54 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:693 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264993AbRGAGgk>;
-	Sun, 1 Jul 2001 02:36:40 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S264993AbRGAGdE>; Sun, 1 Jul 2001 02:33:04 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:2485 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S264990AbRGAGct>;
+	Sun, 1 Jul 2001 02:32:49 -0400
+Message-Id: <200107010632.CAA26426@razor.cs.columbia.edu>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Craig Milo Rogers <rogers@ISI.EDU>
+cc: Dan Podeanu <pdan@spiral.extreme.ro>,
+        Miquel van Smoorenburg <miquels@cistron-office.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch. 
+In-Reply-To: Your message of "Thu, 28 Jun 2001 13:18:14 PDT."
+             <21297.993759494@ISI.EDU> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15166.50418.583094.554723@pizda.ninka.net>
-Date: Sat, 30 Jun 2001 23:36:34 -0700 (PDT)
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org, jakub@redhat.com
-Subject: Re: Linux speed on sun4c
-In-Reply-To: <20010630220612.C14361@vitelus.com>
-In-Reply-To: <20010630220612.C14361@vitelus.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Date: Sun, 01 Jul 2001 02:32:46 -0400
+From: Hua Zhong <huaz@cs.columbia.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Aaron Lehmann writes:
- > 
- > NetBSD/Sparc's FAQ asserts:
- > 
- >     Why is NetBSD so much faster than SparcLinux on sun4c (top) 
- > 
- >         The memory management hardware on sun4c machines (SPARCStation
- >         1, 1+, 2, IPC, IPX, SLC, ELC and clones) is not handled particularly
- >         well by Linux. Until Linux reworks their MMU code NetBSD will be very
- >         much faster on this hardware. 
- > 
- > Was there ever any truth to this statement? It seems to be light on
- > technical details. Have these purported issues ever been fixed?
- > 
- > I don't want to be scared into running NetBSD on my SparcStation 2 :D.
+Is this (printing out versions. etc) really a big deal so we should add stuff 
+like "/proc/xxx", KERN_XXXX to make things more complicated?  It sounds to me 
+like to make the kernel "smaller" we'd actually end up with adding more code 
+and complexity to it.  And quite frankly, if people don't read MAINTAINERS, 
+they won't read /proc/maintainers either.
 
-It's totally true, use *BSD on your sun4c systems if top performance
-is your desire. :-)
+> >Print all copyright, config, etc. as KERN_DEBUG.
+> 
+> 	How about a new level, say "KERN_CONFIG", with a "show-config"
+> parameter to enable displaying KERN_CONFIG messages?
 
-I know how to fix it but frankly I have no desire to work on
-that platform any more.
 
-Later,
-David S. Miller
-davem@redhat.com

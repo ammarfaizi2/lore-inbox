@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269591AbUJGBRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269600AbUJGB2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269591AbUJGBRx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 21:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUJGBRx
+	id S269600AbUJGB2N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 21:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269603AbUJGB2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 21:17:53 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:57227 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269591AbUJGBRv
+	Wed, 6 Oct 2004 21:28:13 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:57103 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S269600AbUJGB2L
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 21:17:51 -0400
-Date: Thu, 7 Oct 2004 02:16:34 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@hibernia.jakma.org
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
- <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
- <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Wed, 6 Oct 2004 21:28:11 -0400
+Date: Thu, 7 Oct 2004 02:28:10 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Ingo Molnar <mingo@chiara.csoma.elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] APIC physical broadcast for i82489DX
+Message-ID: <Pine.LNX.4.58L.0410070217360.2397@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, Richard B. Johnson wrote:
+Ingo,
 
-> thing --not. Select must return correct information.
+ The physical broadcast ID is determined incorrectly for the i82489DX,
+which uses 8-bit physical addressing (32-bit logical).  Please apply the
+following patch.
 
-It does, it's just state that select() reported on changed by the 
-time user called recvmsg.
+  Maciej
 
-> When a function call like select() says there are data available, 
-> there must be data available, period.
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
 
-There was, but there wasnt when recvmsg() was called. Time changes 
-things..
-
-> If not, it's broken and needs to be fixed. Requiring one to set 
-> sockets to non-blocking is a poor work- around for an otherwise 
-> fatal flaw.
-
-Any application that expects socket read not to block should set 
-O_NONBLOCK.
-
-> Cheers,
-> Dick Johnson
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Kansas state law requires pedestrians crossing the highways at night to
-wear tail lights.
+patch-mips-2.6.9-rc2-20040920-apic-broadcast-0
+diff -up --recursive --new-file linux-mips-2.6.9-rc2-20040920.macro/arch/i386/kernel/apic.c linux-mips-2.6.9-rc2-20040920/arch/i386/kernel/apic.c
+--- linux-mips-2.6.9-rc2-20040920.macro/arch/i386/kernel/apic.c	2004-09-20 03:57:43.000000000 +0000
++++ linux-mips-2.6.9-rc2-20040920/arch/i386/kernel/apic.c	2004-10-07 01:10:37.000000000 +0000
+@@ -91,7 +91,7 @@ int get_physical_broadcast(void)
+ 	unsigned int lvr, version;
+ 	lvr = apic_read(APIC_LVR);
+ 	version = GET_APIC_VERSION(lvr);
+-	if (version >= 0x14)
++	if (!APIC_INTEGRATED(version) || version >= 0x14)
+ 		return 0xff;
+ 	else
+ 		return 0xf;

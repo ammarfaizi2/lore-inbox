@@ -1,39 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbUJ3XtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbUJ3Xux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbUJ3XtG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUJ3XtF
+	id S261429AbUJ3Xux (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUJ3XuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:49:05 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:25775 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261424AbUJ3Xsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 19:48:31 -0400
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Tim Hockin <thockin@hockin.org>, Lee Revell <rlrevell@joe-job.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <20041030222720.GA22753@hockin.org>
-	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1099176319.25194.10.camel@localhost.localdomain>
+	Sat, 30 Oct 2004 19:50:11 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:7819 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261429AbUJ3Xs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 19:48:58 -0400
+Date: Sun, 31 Oct 2004 10:48:25 +1100
+From: CaT <cat@zip.com.au>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PDC20267 bug and corruption (was: Re: [BK PATCHES] ide-2.6 update)
+Message-ID: <20041030234825.GD1287@zip.com.au>
+References: <58cb370e04102706074c20d6d7@mail.gmail.com> <20041027133431.GF1127@zip.com.au> <58cb370e04102706512283405@mail.gmail.com> <20041030034745.GA1287@zip.com.au> <58cb370e04103011065c265ce4@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 30 Oct 2004 23:45:20 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e04103011065c265ce4@mail.gmail.com>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The gnome/gtk folks know they have a lot of code bloat, and know how to
-shave about 10Mb off the desktop size already. What they don't have is
-enough hands and brains to do this and the other stuff that is pressing.
-So if the desktop stuff is annoying you join gnome-love or whatever the
-kde equivalent is 8)
+On Sat, Oct 30, 2004 at 08:06:11PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Sat, 30 Oct 2004 13:47:45 +1000, CaT <cat@zip.com.au> wrote:
+> > 2. dd if=/dev/hde of=/dev/null
+> >    dd if=/dev/zero of=/dev/hdh
+...
+> > With method #2, a whole lot more fun occurs. The logfile I have is big
+> > (almost 400k) so I've compressed it and included it as an attachment.
+> > This is with kernel 2.6.10-rc1-bk7 (no logs survived from me testing
+> > this with rc1-mm2).
+> 
+> Indeed, this is a lot more fun. ;)
 
-Alan
+:)
 
+> Is this bug new/old?
+
+old.
+
+> Is it pdc202xx_old specific?  Does the same havoc happen
+
+Can I use new with the 20267? According to config help and the source
+code I looked at the 20267 is not listed as one of the devices for new.
+
+> if you connect drives to the on-board Intel IDE controller?
+
+I haven't tried that yet (mainly cos it's a bit of a pain - I have 3
+devs connected to it, inc boot stuff - and i didn't know if it'd be
+really useful info) but I will if need be. Just shout.
+
+I have tried going fron hdd to hdh but nothing bad happened. It's only
+when going from hde to hdh that fun occurs.
+
+> Please post /proc identify data for both drives and PCI config
+
+hde:
+045a 3fff 37c8 0010 0000 0000 003f 0000
+0000 0000 2020 2020 2020 564e 5642 3031
+4732 5241 4b38 5848 0003 0e3b 0034 5632
+324f 4136 3341 4943 3335 4c30 3630 4156
+5632 3037 2d30 2020 2020 2020 2020 2020
+2020 2020 2020 2020 2020 2020 2020 8010
+0000 2f00 4000 0200 0200 0007 ffff 0001
+003f ffc1 003e 0110 a120 0728 0000 0007
+0003 0078 0078 00f0 0078 0000 0000 0000
+0000 0000 0000 001f 0000 0000 0000 0000
+007c 0019 74eb 7fea 4023 7468 3c02 4023
+203f 000f 0000 0000 fffe 600b 80fe 0000
+0000 0000 0000 0000 a120 0728 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0001 000b 0000 0000 0000 001b 0000 0000
+4000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 8000 0000
+424f 0000 0000 0182 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 74a5
+
+hdh:
+0c5a 3fff c837 0010 0000 0000 003f 0000
+0000 0000 2020 2020 2020 2020 2020 2020
+334c 4a32 3259 3846 0000 4000 0004 332e
+3031 2020 2020 5354 3332 3030 3832 3241
+2020 2020 2020 2020 2020 2020 2020 2020
+2020 2020 2020 2020 2020 2020 2020 8010
+0000 2f00 4000 0200 0200 0007 ffff 0001
+003f ffc1 003e 0110 ffff 0fff 0000 0007
+0003 0078 0078 00f0 0078 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+007e 001b 346b 7d01 4003 3469 3c01 4003
+203f 0000 0000 fefe 0000 6d00 8000 0000
+0000 0000 0000 0000 f1b0 1749 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0001 f1b0 1749 f1b0 1749 2020 0002 42b6
+0000 008a 3c06 3c0a 0000 07c6 0100 0800
+10f0 1000 0002 0030 0000 0000 0000 fe06
+0000 fe03 0000 0000 0000 0000 00e3 000b
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 0000
+0000 0000 0000 0000 0000 0000 0000 d8a5
+
+> space dump for PDC20267 so someone can verify them.
+
+0000:00:0d.0 Unknown mass storage controller: Promise Technology, Inc.  PDC20267 (FastTrak100/Ultra100) (rev 02)
+00: 5a 10 30 4d 07 00 10 02 02 00 80 01 00 40 00 00
+10: f1 10 00 00 01 18 00 00 f9 10 00 00 05 18 00 00
+20: 81 10 00 00 00 00 00 42 00 00 00 00 5a 10 33 4d
+30: 00 00 00 00 58 00 00 00 00 00 00 00 0b 01 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: ce 33 00 00 00 00 00 00 01 00 01 00 00 00 00 00
+60: f1 24 41 00 c4 f3 4f 00 04 f3 4f 00 31 24 41 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+-- 
+    Red herrings strewn hither and yon.

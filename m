@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVAMDzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVAMETc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVAMDzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 22:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVAMDzM
+	id S261481AbVAMETc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 23:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVAMETc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 22:55:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56983 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261453AbVAMDyM (ORCPT
+	Wed, 12 Jan 2005 23:19:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12478 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261481AbVAMET3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 22:54:12 -0500
-Date: Wed, 12 Jan 2005 19:54:10 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, torvalds@osdl.org,
-       marcelo.tosatti@cyclades.com, greg@kroah.com, chrisw@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050112195410.G24171@build.pdx.osdl.net>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <20050112194239.0a7b720b.akpm@osdl.org>
+	Wed, 12 Jan 2005 23:19:29 -0500
+Date: Wed, 12 Jan 2005 23:18:32 -0500
+From: Dave Jones <davej@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, adaplas@pol.net,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dwmw2@redhat.com
+Subject: Re: [PATCH] kill symbol_get & friends
+Message-ID: <20050113041831.GB26848@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, adaplas@pol.net,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	dwmw2@redhat.com
+References: <20050112203136.GA3150@lst.de> <1105575573.12794.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050112194239.0a7b720b.akpm@osdl.org>; from akpm@osdl.org on Wed, Jan 12, 2005 at 07:42:39PM -0800
+In-Reply-To: <1105575573.12794.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> yup.  But there are so many ways to cripple a Linux box once you have local
-> access.  Another means which happens to be bug-induced doesn't seem
-> important.
+On Thu, Jan 13, 2005 at 11:19:33AM +1100, Rusty Russell wrote:
+ 
+ > The lack of users is because, firstly, dynamic dependencies are less
+ > common than static ones, and secondly because the remaining inter-module
+ > users (AGP and mtd) have not been converted.  Patches have been sent
+ > several times, but maintainers are distracted, it seems.
 
-That depends on the environment.  If it's already locked down via MAC
-and rlimits, etc. and the bug now creates a DoS that wasn't there before
-it may be important.  But, as a general rule of thumb, local DoS
-is much less severe than other bugs, I fully agree.
+Patch for AGP is going to go in real soon. I wanted to get the
+other agp stuff currently in Andrews tree out of the way first
+as its quite large, and I feel Mikes pain in having to rediff
+that stuff constantly due to more trivial changes taking place.
 
-> > An information leak from kernel space may be equally as mundane to some,
-> > though terrifying to some admins. Would you want some process to be
-> > leaking your root password, credit card #, etc to some other users process ?
-> > 
-> > priveledge escalation is clearly the number one threat. Whilst some
-> > class 'remote root hole' higher risk than 'local root hole', far
-> > too often, we've had instances where execution of shellcode by
-> > overflowing some buffer in $crappyapp has led to a shell
-> > turning a local root into a remote root.
-> 
-> I'd place information leaks and privilege escalations into their own class,
-> way above "yet another local DoS".
+ > I *will* run out of patience and push those patches which take away
+ > intermodule.c one day (hint, hint!).
 
-Yes, me too.
+I must not respond to Rusty's taunts..
 
-> A local privilege escalation hole should be viewed as seriously as a remote
-> privilege escalation hole, given the bugginess of userspace servers, yes?
+8-)
+		Dave
 
-Absolutely, yes.  Local root hole all too often == remote root hole.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

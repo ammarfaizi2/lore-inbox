@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUIAPXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUIAP3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUIAPXc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 11:23:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUIAPXc
+	id S266870AbUIAP3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUIAP3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:23:32 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:6345 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S266867AbUIAPX2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:23:28 -0400
-Date: Wed, 01 Sep 2004 15:23:27 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: microcode_ctl vs udev
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <1093906213l.24821l.1l@werewolf.able.es>
-	<1093950085.32684.3.camel@localhost.localdomain>
-X-Mailer: Balsa 2.2.4
-Message-Id: <1094052207l.8632l.0l@werewolf.able.es>
-X-Balsa-Fcc: file:///home/magallon/mail/sentbox
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
+	Wed, 1 Sep 2004 11:29:22 -0400
+Received: from upco.es ([130.206.70.227]:13035 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S266870AbUIAP2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:28:20 -0400
+Date: Wed, 1 Sep 2004 17:28:17 +0200
+From: Romano Giannetti <romano@dea.icai.upco.es>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Driver retries disk errors.
+Message-ID: <20040901152817.GA4375@pern.dea.icai.upco.es>
+Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040830163931.GA4295@bitwizard.nl> <1093952715.32684.12.camel@localhost.localdomain> <20040831135403.GB2854@bitwizard.nl> <1093961570.597.2.camel@localhost.localdomain> <20040831155653.GD17261@harddisk-recovery.com> <1093965233.599.8.camel@localhost.localdomain> <20040831170016.GF17261@harddisk-recovery.com> <1093968767.597.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1093968767.597.14.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2004.08.31, Alan Cox wrote:
-> On Llu, 2004-08-30 at 23:50, J.A. Magallon wrote:
-> > It looks like udev creates /dev/microcode, but microcode_ctl looks for
-> > /dev/cpu/microcode.
-> > 
-> > Which is the right location ?
+On Tue, Aug 31, 2004 at 05:12:50PM +0100, Alan Cox wrote:
 > 
-> /dev/cpu/microcode according to the LANANA registration table
+> > (1) Imagine an application doing a linear read on a file with an 8
+> > block read ahead and the last block being bad. The kernel will try to
+> > read that bad block 16 times, but because the IDE driver also has 8
+> > retries, the kernel will try to read that bad block *64* times. It
+> > usually takes an IDE drive about 2 seconds to figure out a block is
+> > bad, so the application gets stuck for 2 minutes in that single bad
+> > block.
 > 
+> Right now I know of no way to tell which is readahead for a failed
+> command or of telling the block layer to forget them. Fix this at the
+> block layer and IDE can abort the readahead sequence happily enough
+> because IDE is too dumb to have issued further commands to the drive at
+> this point.
+
+Just a question from a kernel-almost-illiterate. Could this explain the
+behavior of my laptop yesterday, reading a damaged DVD? I had to wait almost
+one full minute of retry until being able to kill xine... 
+
+If maintaining the retries, it could be nice to allow at least kill -9
+between them. I do not know if that's foolish and/or impossible, so please
+do not bash too hard... 
+
+Have a nice day,
+            Romano 
 
 
-I solved this with a rule in rules.d:
-
-KERNEL="microcode",     NAME="cpu/microcode" 
-
-But where is the default ? Kernel or userspace ? And why is it not created
-in the right place ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Beta 1) for i586
-Linux 2.6.8.1-mm2 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #3
-
-
-
-
-
-
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319314AbSIFS1U>; Fri, 6 Sep 2002 14:27:20 -0400
+	id <S319315AbSIFS3f>; Fri, 6 Sep 2002 14:29:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319315AbSIFS1U>; Fri, 6 Sep 2002 14:27:20 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:47887 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S319314AbSIFS1T>; Fri, 6 Sep 2002 14:27:19 -0400
-Date: Fri, 6 Sep 2002 19:31:57 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
+	id <S319318AbSIFS3f>; Fri, 6 Sep 2002 14:29:35 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31663 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319315AbSIFS3d>; Fri, 6 Sep 2002 14:29:33 -0400
+Message-ID: <3D78F4E6.3020101@us.ibm.com>
+Date: Fri, 06 Sep 2002 11:33:10 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020822
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
+       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, Nivedita Singhvi <niv@us.ibm.com>
 Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-Message-ID: <20020906183157.GA44177@compsoc.man.ac.uk>
 References: <3D78C9BD.5080905@us.ibm.com> <53430559.1031304588@[10.10.2.3]> <3D78E7A5.7050306@us.ibm.com> <20020906202646.A2185@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020906202646.A2185@wotan.suse.de>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 06, 2002 at 08:26:46PM +0200, Andi Kleen wrote:
-
-> > c0216ecc 257768   11.4219     inet_bind
+Andi Kleen wrote:
+>>c0106e59 42693    1.89176     restore_all
+>>c01dfe68 42787    1.89592     sys_socketcall
+>>c01df39c 54185    2.40097     sys_bind
+>>c01de698 62740    2.78005     sockfd_lookup
+>>c01372c8 97886    4.3374      fput
+>>c022c110 125306   5.55239     __generic_copy_to_user
+>>c01373b0 181922   8.06109     fget
+>>c020958c 199054   8.82022     tcp_v4_get_port
+>>c0106e10 199934   8.85921     system_call
+>>c022c158 214014   9.48311     __generic_copy_from_user
+>>c0216ecc 257768   11.4219     inet_bind
 > 
 > The profile looks bogus. The NIC driver is nowhere in sight. Normally
 > its mmap IO for interrupts and device registers should show. I would
 > double check it (e.g. with normal profile) 
 
-The system summary shows :
+Actually, oprofile separated out the acenic module from the rest of the 
+kernel.  I should have included that breakout as well. but it was only 1.3 
+of CPU:
+1.3801 0.0000 /lib/modules/2.4.18+O1/kernel/drivers/net/acenic.o
 
-58181      1.8458 0.0000 /lib/modules/2.4.18+O1/kernel/drivers/net/acenic.o
-
-so it won't show up in the monolithic kernel profile. You can probably
-get a combined comparison with
-
-op_time -dnl | grep -e 'vmlinux|acenic'
-
-regards
-john
 
 -- 
- "Are you willing to go out there and save the lives of our children, even if it means losing your own life ?
- Yes I am.
- I believe you, Jeru... you're ready."
+Dave Hansen
+haveblue@us.ibm.com
+

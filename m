@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262922AbSIPU6F>; Mon, 16 Sep 2002 16:58:05 -0400
+	id <S262942AbSIPVAB>; Mon, 16 Sep 2002 17:00:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262942AbSIPU6F>; Mon, 16 Sep 2002 16:58:05 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:5643 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id <S262922AbSIPU6E>; Mon, 16 Sep 2002 16:58:04 -0400
-Date: Mon, 16 Sep 2002 23:06:35 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-To: "David S. Miller" <davem@redhat.com>
-cc: akropel1@rochester.rr.com, linux-kernel@vger.kernel.org, alan@redhat.com
+	id <S262957AbSIPVAB>; Mon, 16 Sep 2002 17:00:01 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61414 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262942AbSIPVAB>;
+	Mon, 16 Sep 2002 17:00:01 -0400
+Date: Mon, 16 Sep 2002 13:56:06 -0700 (PDT)
+Message-Id: <20020916.135606.107746701.davem@redhat.com>
+To: lists@mdiehl.de
+Cc: akropel1@rochester.rr.com, linux-kernel@vger.kernel.org, alan@redhat.com
 Subject: Re: Streaming DMA mapping question
-In-Reply-To: <20020915.203006.123845370.davem@redhat.com>
-Message-ID: <Pine.LNX.4.21.0209162144550.6230-100000@notebook.diehl.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0209162144550.6230-100000@notebook.diehl.home>
+References: <20020915.203006.123845370.davem@redhat.com>
+	<Pine.LNX.4.21.0209162144550.6230-100000@notebook.diehl.home>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, David S. Miller wrote:
+   From: Martin Diehl <lists@mdiehl.de>
+   Date: Mon, 16 Sep 2002 23:06:35 +0200 (CEST)
+   
+   Wasn't there a patch submitted which suggested to add pci_dma_prep_*()
+   calls in order to sync the cpu-driven changes back to the bus? I'm asking
+   because I'm dealing with a driver that needs to reuse streaming pci maps.
+   
+Yes, basically this is what must happen.
 
->    From: Adam Kropelin <akropel1@rochester.rr.com>
->    Date: Fri, 13 Sep 2002 23:51:13 -0400
->    
->    It seems that pci_dma_sync_*() transfers ownership in either direction.
-> 
-> That's a bug in the documentation, and no platform which has to care
-> about this area actually does what you imply.
-> 
-> A new interface needs to be added to transfer control in the other
-> direction.  pci_dma_sync_*() only handles transferring control from
-> device to CPU..
-> 
-> I know this makes drivers like eepro100 buggy, this was discussed
-> a month or two ago wrt. MIPS on linux-kernel, check the archives
-> for the thread.
+If someone would code up a patch that includes the MIPS
+implementation, adds NOP implementations to every other asm/pci.h file
+and updates the Documentation/DMA-mapping.txt file appropriately,
+I'll probably just apply the patch and merge it upstream immediately.
 
-Wasn't there a patch submitted which suggested to add pci_dma_prep_*()
-calls in order to sync the cpu-driven changes back to the bus? I'm asking
-because I'm dealing with a driver that needs to reuse streaming pci maps.
-
-IIRC my impression was you might be willing to accept this for inclusion
-but maybe I'm wrong or it got lost during the long "dmabuf inside struct
-may cross cacheline" thread shortly thereafter.
-
-Do you think it would be a good idea to add some nooped pci_dma_prep_*()
-calls at the right place and expect them to represent some future 
-solution?
-
-Martin
-
+I don't have time to work on this patch right now and I don't know how
+the MIPS part should be implemented so...

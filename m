@@ -1,82 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263872AbUC3TQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 14:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbUC3TQY
+	id S263839AbUC3TQG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 14:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbUC3TP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 14:16:24 -0500
-Received: from rtp-iport-2.cisco.com ([64.102.122.149]:39319 "EHLO
-	rtp-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S263863AbUC3TPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 14:15:48 -0500
-X-BrightmailFiltered: true
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: James Morris <jmorris@redhat.com>, "David S. Miller" <davem@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <Matt_Domsch@dell.com>
-Subject: Re: [PATCH] lib/libcrc32c
-References: <Xine.LNX.4.44.0403261134210.4331-100000@thoron.boston.redhat.com>
-	<yqujr7vai6k4.fsf@chaapala-lnx2.cisco.com>
-	<200403302043.22938.bzolnier@elka.pw.edu.pl>
-From: Clay Haapala <chaapala@cisco.com>
-Organization: Cisco Systems, Inc. SRBU
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
- lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
- do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
- rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
- E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
- V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
- VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
- rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
- wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
- jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
- w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
- yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
- 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
-Date: Tue, 30 Mar 2004 13:11:41 -0600
-In-Reply-To: <200403302043.22938.bzolnier@elka.pw.edu.pl> (Bartlomiej
- Zolnierkiewicz's message of "Tue, 30 Mar 2004 20:43:22 +0200")
-Message-ID: <yqujwu52ywsy.fsf@chaapala-lnx2.cisco.com>
-User-Agent: Gnus/5.110001 (No Gnus v0.1) XEmacs/21.5 (chayote, linux)
+	Tue, 30 Mar 2004 14:15:59 -0500
+Received: from smtp2.fuse.net ([216.68.8.172]:8640 "EHLO smtp2.fuse.net")
+	by vger.kernel.org with ESMTP id S263860AbUC3TPG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 14:15:06 -0500
+From: "Ivica Ico Bukvic" <ico@fuse.net>
+To: "'Russell King'" <rmk+lkml@arm.linux.org.uk>
+Cc: "'A list for linux audio users'" 
+	<linux-audio-user@music.columbia.edu>,
+       <alsa-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <linux-pcmcia@lists.infradead.org>
+Subject: RE: [linux-audio-user] snd-hdsp+cardbus=distortion -- the sagacontinues (cardbus driver=culprit?) UPDATE: 99.9% sure it is the cardbus driver yenta_socket
+Date: Tue, 30 Mar 2004 14:15:10 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20040330090053.A3956@flint.arm.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcQWLSJrWd4H2l+vT7KET0lXWqUIVgAXb5tQ
+Message-Id: <20040330191504.WSHZ17964.smtp2.fuse.net@64BitBadass>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, Bartlomiej Zolnierkiewicz outgrape:
-> +
-> +static u32 crc32c_table[256] = {
+> -----Original Message-----
+> From: Russell King [mailto:rmk@arm.linux.org.uk] On Behalf Of Russell King
+> Sent: Tuesday, March 30, 2004 3:01 AM
+> To: Ivica Ico Bukvic
+> Cc: 'A list for linux audio users'; alsa-devel@lists.sourceforge.net;
+> linux-kernel@vger.kernel.org; linux-pcmcia@lists.infradead.org
+> Subject: Re: [linux-audio-user] snd-hdsp+cardbus=distortion -- the
+> sagacontinues (cardbus driver=culprit?) UPDATE: 99.9% sure it is the
+> cardbus driver yenta_socket
 > 
-> Tables are build time generated in case of CRC32
-> (lib/gen_crc32table.c) so you can trade some performance for smaller
-> size of the table.
+> On Tue, Mar 30, 2004 at 12:52:11AM -0500, Ivica Ico Bukvic wrote:
+> > 6) Pester alsa-dev, lau, and kernel/pcmcia people to death begging for
+> help
+> > :-)
+> >
+> > IN-PROGRESS :-)
 > 
-> [ However I don't know how useful is this. ]
+> What needs to happen is that the card driver author needs to investigate
+> what is going on, and, if it seems related to the core PCMCIA core or
+> the socket driver, we need to get involved.
 > 
-As the table was statically in code in sctp and in the iSCSI driver
-where it originally came from, I left it that way.  Why would the
-table be of a different size?
+> IOW, linux-pcmcia people don't debug card drivers.
+> 
 
-> +/*EXPORT_SYMBOL(crc32c_be);*/
-> +
-> +#if CRC_BE_BITS == 1 u32 attribute((pure)) crc32_be(u32 crc,
-> +unsigned char const *p, size_t len) { int i; while (len--) { crc ^=
-> +*p++ << 24; for (i = 0; i < 8; i++) crc = (crc << 1) ^ ((crc &
-> +0x80000000) ? CRC32C_POLY_BE : 0);
-> +       }
-> +       return crc;
-> +}
-> +#endif
-> 
-> Is there any reason in adding crc32_be() until it is finished
-> (LE version) and/or needed?
-> 
-> Regards,
-> Bartlomiej
+To add to what Tim mentioned, I think that the driver is fine as it does
+work on select notebooks and desktops (the card can be plugged into either
+PCI card or PCMCIA cardbus). Yet, in these select instances it does not work
+even though neither the cardbus driver nor the actual card driver do not
+report any particular problems. Hence the only logical explanation is that
+there is something wrong with the pcmcia controller driver.
 
-I judged the few lines of code needed to do the non-table version was
-worth the bloat to include for completeness.
--- 
-Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
-   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
-		 Dyslexia meets Concealed Carry laws:
-	       "Microsoft bans gnus on these premises"
+This card does tax the throughput of the cardbus like no other card I can
+think of, hence the problem may be more widespread, but exhibits itself just
+in this case where the cardbus is being pushed to its limits. Yet, the
+hardware is not the issue when the same notebook/soundcard combo works
+flawlessly in WinXP.
+
+Hope this helps!
+
+Ico
+
+
+
+

@@ -1,83 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263854AbTE0TOV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 15:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263986AbTE0TOV
+	id S264075AbTE0TTB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTE0TTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 15:14:21 -0400
-Received: from web11804.mail.yahoo.com ([216.136.172.158]:21377 "HELO
-	web11804.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263854AbTE0TOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 15:14:19 -0400
-Message-ID: <20030527192733.81025.qmail@web11804.mail.yahoo.com>
-Date: Tue, 27 May 2003 21:27:33 +0200 (CEST)
-From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
-Subject: Re: menuconfig .config snooping (was Re: 2.5.69 doesn't boot)
-To: Kernel Newbies <kernelnewbies@nl.linux.org>, linux-kernel@vger.kernel.org
-Cc: Ed L Cashin <ecashin@uga.edu>
-In-Reply-To: <87d6i8tfk0.fsf@cs.uga.edu>
+	Tue, 27 May 2003 15:19:01 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:44294 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264075AbTE0TTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:19:00 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH 2.4.21-rc4] Fix oom killer braindamage
+Date: Tue, 27 May 2003 21:31:59 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Jens Axboe <axboe@suse.de>
+References: <200305272104.05802.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271611410.9487@freak.distro.conectiva> <200305272118.29554.m.c.p@wolk-project.de>
+In-Reply-To: <200305272118.29554.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200305272130.43814.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[etienne@localhost linux-2.5.68]$ cat /etc/redhat-release
-Red Hat Linux release 9 (Shrike)
-[etienne@localhost linux]$ tar -xzf linux-2.5.68.tar.gz
-[etienne@localhost linux]$ cd linux-2.5.68
-[etienne@localhost linux-2.5.68]$ make menuconfig > log
-/boot/config-2.4.20-8:28: trying to assign nonexistent symbol
-MAX_USER_RT_PRIO
-/boot/config-2.4.20-8:29: trying to assign nonexistent symbol MAX_RT_PRIO
-/boot/config-2.4.20-8:42: trying to assign nonexistent symbol HIGHIO
-/boot/config-2.4.20-8:65: trying to assign nonexistent symbol AMD_PM768
-........ edited ...........
-[etienne@localhost linux-2.5.68]$ tail -3 log
-# using defaults found in /boot/config-2.4.20-8
-#
-interrupted
+On Tuesday 27 May 2003 21:18, Marc-Christian Petersen wrote:
 
+Hi again ^3 ;)
 
- Maybe linux-2.5 shall not use defaults of linux-2.4 ?
- Repeat solution (not that intuitive):
-cp arch/i386/defconfig  .config
+> > Not suitable for -rc. Btw, -rc5 is already at bkbits.net.
+Please, if there is any chance we can fix the pause/stop bug, delay .21 final 
+for some hours or a day (or maybe two)
 
- Etienne.
+I've CC'ed akpm and Axboe. I think they are the only ones knowing enough about 
+the code to see an obvious error and even fixing the bug?!
 
-............................................
- --- Ed L Cashin writes:
-> Etienne writes:
-> 
->>>> # Character devices
->>>> #
->>>> # CONFIG_VT is not set
->>>> # CONFIG_SERIAL_NONSTANDARD is not set
->>>
->>>No VT console is set.
->>
->>  Did someone noticed that if a user want to test Linux-2.5,
->>  he downloads for the first time a 2.5 kernel, extract and type
->> make menuconfig
->>  and that takes its default (.config) from the only kernel
->>  available on his (really standard) distribution - a 2.4.* kernel.
-> 
-> That isn't true is it?  In the absence of a .config file, does
-> menuconfig really look for a configuration somewhere other than its
-> own kernel source tree?  Looks to me like it's getting the
-> configuration from the defaults.
-> 
->   ecashin@meili bk-linux$ make menuconfig 
->   make -f scripts/Makefile.build obj=scripts
->     gcc -Wp,-MD,scripts/.fixdep.d -Wall -Wstrict-prototypes -O2
-> -fomit-frame-pointer    -o scripts/fixdep scripts/fixdep.c
-> ...
->   ./scripts/kconfig/mconf arch/i386/Kconfig
->   #
->   # using defaults found in arch/i386/defconfig
->   #
+Do you agree? Does anyone else agree? Or disagree?
 
+ciao, Marc
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com

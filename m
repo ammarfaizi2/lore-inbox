@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313362AbSDOXPF>; Mon, 15 Apr 2002 19:15:05 -0400
+	id <S313356AbSDOXOk>; Mon, 15 Apr 2002 19:14:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313366AbSDOXPE>; Mon, 15 Apr 2002 19:15:04 -0400
-Received: from prv-mail20.provo.novell.com ([137.65.81.122]:6947 "EHLO
-	prv-mail20.provo.novell.com") by vger.kernel.org with ESMTP
-	id <S313362AbSDOXPE>; Mon, 15 Apr 2002 19:15:04 -0400
-Message-Id: <scbb0a8c.058@prv-mail20.provo.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.0.1
-Date: Mon, 15 Apr 2002 17:15:12 -0600
-From: "David Rorke" <DRORKE@volera.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: eepro100 and zero copy transmit
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S313358AbSDOXOj>; Mon, 15 Apr 2002 19:14:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32782 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313356AbSDOXOi>; Mon, 15 Apr 2002 19:14:38 -0400
+Message-ID: <3CBB5ECB.2040002@zytor.com>
+Date: Mon, 15 Apr 2002 16:14:19 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020312
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: link() security
+In-Reply-To: <E16xFtQ-0007Gp-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+>>>And then unrealized when they hit performance limitations. Its a trade off
+>>>and one that most news systems seem to prefer to use a custom database
+>>>for
+>>
+>>Well, a database is basically a custom filesystem.
+> 
+> I would have to disagree. There are fundamentally different transaction
+> semantics between the two as well as indexing constraints. I can't for
+> example find commit() and rollback() in posix.1 8)
+> 
 
-Are there any plans to add zero copy transmit support to the eepro100
-driver?
+OK, perhaps I should have been more explicit...
 
-In looking at the archives from a year or so ago, I noticed that at
-that time there was
-no support in the driver because of difficulties in identifying which
-cards have the
-necessary hardware csum and scatter/gather support.   Is this still the
-problem?
+A filesystem is *one kind* of database.
 
-If there are no plans to add this to eepro100.c, does anyone know if
-the Intel
-provided driver in addon/e100 will be supporting this soon?
+The operations that various databases implement differ -- not all
+databases have commit()/rollback(), nor do all of them implement
+relationals, object linking, etc.
 
-Thanks,
+The point was mostly that storing mail in a (basically) unstructured
+flat-file format isn't really consistent with the operations you want to
+perform on it.  I didn't mean the directory/file format was necessarily
+the ultimate solution, only that (a) it works better than mbox, (b) it's
+been around for a long time.
 
-Dave Rorke
+	-hpa
+

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbUL1Npa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbUL1NwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbUL1Npa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 08:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUL1Npa
+	id S261227AbUL1NwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 08:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbUL1NwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 08:45:30 -0500
-Received: from mx01.cybersurf.com ([209.197.145.104]:36757 "EHLO
-	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S261216AbUL1NpZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 08:45:25 -0500
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Matt Mackall <mpm@selenic.com>
-Cc: Patrick McHardy <kaber@trash.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       Mark Broadbent <markb@wetlettuce.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <20041222171836.GL5974@waste.org>
-References: <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com>
-	 <20041221123727.GA13606@electric-eye.fr.zoreil.com>
-	 <49295.192.102.214.6.1103635762.squirrel@webmail.wetlettuce.com>
-	 <20041221204853.GA20869@electric-eye.fr.zoreil.com>
-	 <20041221212737.GK5974@waste.org>
-	 <20041221225831.GA20910@electric-eye.fr.zoreil.com>
-	 <41C93FAB.9090708@trash.net> <41C9525F.4070805@trash.net>
-	 <20041222123940.GA4241@electric-eye.fr.zoreil.com>
-	 <41C98B75.9020802@trash.net>  <20041222171836.GL5974@waste.org>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1104241519.1089.79.camel@jzny.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 28 Dec 2004 08:45:20 -0500
+	Tue, 28 Dec 2004 08:52:06 -0500
+Received: from [143.247.20.203] ([143.247.20.203]:61356 "EHLO
+	cgx-mail.capitalgenomix.com") by vger.kernel.org with ESMTP
+	id S261227AbUL1NwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 08:52:02 -0500
+Message-ID: <41D16500.9070903@capitalgenomix.com>
+Date: Tue, 28 Dec 2004 08:52:00 -0500
+From: "Fao, Sean" <sean.fao@capitalgenomix.com>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem/kernel bug?
+References: <41D02F54.8070107@capitalgenomix.com>
+In-Reply-To: <41D02F54.8070107@capitalgenomix.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-22 at 12:18, Matt Mackall wrote:
-> On Wed, Dec 22, 2004 at 03:57:57PM +0100, Patrick McHardy wrote:
-> > >Of course the patch is completely ugly and violates any layering
-> > >principle one could think of. It was not submitted for inclusion :o)
-> > 
-> > Sure, but I think we should have a short-term workaround until
-> > a better solution has been invented. Maybe dropping the packets
-> > would be best for now, it only affects printks issued in paths
-> > starting at qdisc_restart (-> hard_start_xmit -> ...). Queueing
-> > the packets might also cause reordering since not all packets
-> > are queued.
-> 
-> When I mentioned queueing, I was thinking of a netpoll-private queue
-> that would be hooked to a softirq or some such so that it would be
-> pushed out as soon as possible. Dropping may be the better approach 
+Update:
 
-I think so - just junk those packets. 
+I found these events --and many similar-- in my log file.
 
-cheers,
-jamal
+Dec 26 17:55:43 cgx-mail ReiserFS: warning: is_tree_node: node level 0 
+does not match to the expected one 1
+Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-5150: 
+search_by_key: invalid format found in block 13706028. Fsck?
+Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-13070: 
+reiserfs_read_locked_inode: i/o failure occurred trying to find stat 
+data of [30749 74887 0x0 SD]
+Dec 26 17:55:43 cgx-mail ReiserFS: warning: is_tree_node: node level 0 
+does not match to the expected one 1
+Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-5150: 
+search_by_key: invalid format found in block 13706028. Fsck?
+Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-13070: 
+reiserfs_read_locked_inode: i/o failure occurred trying to find stat 
+data of [30749 74888 0x0 SD]
+Dec 26 17:55:43 cgx-mail ReiserFS: warning: is_tree_node: node level 0 
+does not match to the expected one 1
+Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-5150: 
+search_by_key: invalid format found in block 13706028. Fsck?
+Dec 26 17:55:43 cgx-mail ReiserFS: sda3: warning: vs-13070: 
+reiserfs_read_locked_inode: i/o failure occurred trying to find stat 
+data of [30749 74888 0x0 SD]
 
+Does this shed any new light?  Does it look like I might have a 
+corrupted file system?
+
+Thanks again,
+
+-- 
+Sean

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318163AbSHMPaf>; Tue, 13 Aug 2002 11:30:35 -0400
+	id <S318152AbSHMPk0>; Tue, 13 Aug 2002 11:40:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318167AbSHMPaf>; Tue, 13 Aug 2002 11:30:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5139 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318163AbSHMPae>; Tue, 13 Aug 2002 11:30:34 -0400
-Date: Tue, 13 Aug 2002 08:36:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S318176AbSHMPkZ>; Tue, 13 Aug 2002 11:40:25 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:57610 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318152AbSHMPkZ>; Tue, 13 Aug 2002 11:40:25 -0400
+Date: Tue, 13 Aug 2002 16:44:15 +0100
+From: Christoph Hellwig <hch@infradead.org>
 To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] exit_free(), 2.5.31-A0
-In-Reply-To: <Pine.LNX.4.44.0208131712270.30879-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208130834320.5192-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] clone_startup(), 2.5.31-A0
+Message-ID: <20020813164415.A11554@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Aug 13, 2002 at 05:09:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 13 Aug 2002, Ingo Molnar wrote:
+On Tue, Aug 13, 2002 at 05:09:03PM +0200, Ingo Molnar wrote:
 > 
-> the attached patch implements a new syscall, exit_free():
+> the attached patch implements a new syscall on x86, clone_startup().
+> The parameters are:
 > 
-> 	exit_free(error_code, addr, val);
-> 
-> this syscall is used as a performance optimization in glibc's threading
-> library.
+> 	clone_startup(fn, child_stack, flags, tls_desc, pid_addr)
 
-This looks like a total glibc braindamage hack.
+First the name souns horrible.  What about spawn_thread or create_thread
+instead?  it's not our good old clone and not a lookalike, it's some
+pthreadish monster..
 
-It may be small, but it's crap, unless you can explain to me why glibc
-cannot just cannot just catch the death signal in the master thread and be
-done with it (and do all maintenance in the master).
+> with the help of this syscall glibc's next-generation pthreads code
 
-Too ugly to live.
-
-		Linus
+have you discussed this code with IBM's pthread group?  I think we don't
+want to add a new syscall that is only useful to glibc..
 

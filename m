@@ -1,78 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314686AbSEPVEt>; Thu, 16 May 2002 17:04:49 -0400
+	id <S314709AbSEPVIn>; Thu, 16 May 2002 17:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314694AbSEPVEs>; Thu, 16 May 2002 17:04:48 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:19840 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S314686AbSEPVEr>; Thu, 16 May 2002 17:04:47 -0400
-Date: Thu, 16 May 2002 17:05:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "'Roger Luethi'" <rl@hellgate.ch>
-cc: Shing Chuang <ShingChuang@via.com.tw>,
-        Urban Widmark <urban@teststation.com>,
-        "Ivan G." <ivangurdiev@linuxfreemail.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        AJ Jiang <AJJiang@via.com.tw>
-Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling
-In-Reply-To: <20020516203159.GA10868@k3.hellgate.ch>
-Message-ID: <Pine.LNX.3.95.1020516165412.1477A-100000@chaos.analogic.com>
+	id <S314723AbSEPVIm>; Thu, 16 May 2002 17:08:42 -0400
+Received: from scfdns02.sc.intel.com ([143.183.152.26]:38097 "EHLO
+	crotus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S314709AbSEPVIj>; Thu, 16 May 2002 17:08:39 -0400
+Message-Id: <200205162108.g4GL8Xw01263@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Gross <mgross@unix-os.sc.intel.com>
+Reply-To: mgross@unix-os.sc.intel.com
+Organization: SSG Intel
+To: Daniel Jacobowitz <dan@debian.org>, Andi Kleen <ak@suse.de>
+Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+Date: Thu, 16 May 2002 14:08:10 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B485B@orsmsx111.jf.intel.com.suse.lists.linux.kernel> <20020516192759.A5326@wotan.suse.de> <20020516173634.GA16561@nevyn.them.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 May 2002, 'Roger Luethi' wrote:
+On Thursday 16 May 2002 01:36 pm, Daniel Jacobowitz wrote:
+> On Thu, May 16, 2002 at 07:27:59PM +0200, Andi Kleen wrote:
+> > On Thu, May 16, 2002 at 10:13:40AM -0400, Mark Gross wrote:
+> > > Also, does anyone know WHY the mmap_sem is needed in the elf_core_dump
+> > > code, and is this need still valid if I've suspended all the other
+> > > processes that could even touch that mm?  I.e. can I fix this by
+> > > removing the down_write / up_write in elf_core_dump?
+> >
+> > The mmap_sem is needed to access current->mm (especially the vma list)
+> > safely. Otherwise someone else sharing the mm_struct could modify it.
+> > If you make sure all others sharing the mm_struct are killed first
+> > (including now way for them to start new clones inbetween) then
+> > the only loophole left would be remote access using /proc/pid/mem or
+> > ptrace. If you handle that too then it is probably safe to drop it.
+> > Unfortunately I don't see a way to handle these remote users without at
+> > least
+> > taking it temporarily.
+> >
+> > Of course there are other semaphores in involved in dumping too (e.g. the
+> > VFS ->write code may take the i_sem or other private ones). I guess they
+> > won't be a big problem if you first kill and then dump later.
+>
+> Except unfortunately we don't kill; the other threads are resumed
+> afterwards for cleanup.  They're just suspended.
 
-> > > The driver "waits a little" in the interrupt handler? How long can that
-> > > take, worst case?
-> > 
-> > Forever..........^;)
-> 
-> We should assume that this is indeed the case, but it often helps to know
-> what the expected values and their distribution are.
-> 
-> It's a weird situation anyway: both the buffer descriptor and the interrupt
-> status have been updated by the chip to reflect the abort, but by the time
-> we handle the error it may still be busy coming to a halt.
-> 
-> What tickles my curiosity is that my previous patch didn't fix the stalling
-> for Ivan G. on his VT86C100A. Maybe the chip just wasn't ready to be
-> restarted.
-> 
-> > Even if the chip never breaks, you end up with reports like..
-> > "Strange, I make frisbees when buring CDs while M$ machines do
-> > backups over the network..."
-> 
-> Not if the chip is guaranteed to have its thing done after one or two
-> iterations. We make some inb and outb calls in the ISR either way.
-> 
-> That was hypothetically speaking of course, I'm not suggesting we rely on
-> such a "guarantee".
-> 
-> Roger
+Yes, they start back up after the dump.  
 
-I think one has to <somehow> find that the chip has halted besides
-the current way (noticing that it can't transmit anymore). I don't
-know how to do this, of course, but; if you could know that the
-chip is hung, the first thing to do is to turn off its interrupt
-request(s) (the chip, not the interrupt controller). Some older
-(National) devices needed to have the chip then set to loopback
-mode because they couldn't be programmed properly if data kept
-coming in on the wire. The internal buffer pointers kept changing
-in response to incoming data while the chip was being programmed.
-By the time you got the chip programmed, it was hung by pointer-wrap.
+It certainly seems that with the processes paused that the use of the 
+current->mm->mm_sem could be obsolete for core dumps.  I'm not so sure 
+protecting the core file data from ptrace or /proc/pid/mem is important in 
+the case of core dumping.
 
-In the chip-halted work-around that everybody seems to use now,
-reprogram it from scratch. The last program operation being to remove
-loop-back. I don't even know if this chip can be set to loop-back,
-though, so the whole idea may be moot.
+I just don't want the kernel to lock up dumping the multithreaded core file.
 
-Cheers,
-Dick Johnson
+I'm still not sure we have a problem yet.  (wishful thinking I suppose).   
+Also I've seen zero lock ups from semaphore being held by one of the 
+processes getting pauses temporarily in my testing on the patch I posted.
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+To restate: the only way I see that my design gets into trouble is when a 
+semaphore is HELD, not getting waited on, by one of the processes that gets 
+put onto the phantom runqueue, AND that semaphore is needed in the processing 
+of elf_core_dump(...).
 
-                 Windows-2000/Professional isn't.
+For this to happen that semaphore would have to held across schedule()'s.  
+The ONLY place I've seen that in the kernel is set_CPUs_allowed + 
+migration_thread.  
+
+Can someone point me at other critical sections that have non-deterministic 
+life times as a function of when the process holding the semaphore gets 
+scheduled onto a CPU?  That type of code seems very risky to me.  This is the 
+only type of code that could get my design into trouble.
+
+--mgross
+
 

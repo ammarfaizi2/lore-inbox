@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUFSDuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265796AbUFSEHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUFSDuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 23:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUFSDuY
+	id S265796AbUFSEHM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 00:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUFSEHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 23:50:24 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:58283 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265785AbUFSDuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 23:50:10 -0400
-Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: david-b@pacbell.net, Linux Kernel <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-In-Reply-To: <20040619011416.64d16c4e.spyro@f2s.com>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com> <40D34078.5060909@pacbell.net>
-	<20040618204438.35278560.spyro@f2s.com>
-	<1087588627.2134.155.camel@mulgrave>
-	<20040619002522.0c0d8e51.spyro@f2s.com>
-	<1087601363.2078.208.camel@mulgrave>
-	<20040619005106.15b8c393.spyro@f2s.com>
-	<1087603453.2135.224.camel@mulgrave> 
-	<20040619011416.64d16c4e.spyro@f2s.com>
-Content-Type: text/plain
+	Sat, 19 Jun 2004 00:07:12 -0400
+Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:60606 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265796AbUFSEHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 00:07:09 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Subject: Re: 2.6.7-ck1
+Date: Sat, 19 Jun 2004 14:06:45 +1000
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com> <Pine.LNX.4.58.0406182004370.32121@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.58.0406182004370.32121@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2004 22:49:49 -0500
-Message-Id: <1087616990.2078.240.camel@mulgrave>
-Mime-Version: 1.0
+Message-Id: <200406191406.45750.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 19:14, Ian Molton wrote:
-> On 18 Jun 2004 19:04:11 -0500
-> James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> 
-> > Because the piece of memory you wish to access is bus remote. 
-> 
-> No, its *not*
-> 
-> my CPU can write there directly.
-> 
-> no strings attached.
-> 
-> the DMA API just only understands how to map from RAM, not anything
-> else.
+On Sat, 19 Jun 2004 04:35, Grzegorz Kulewski wrote:
+> Hi Con,
+>
+> I have two problems with 2.6.7-ck1. My distribution is Gentoo Linux
+> unstable with all latest updates. Oh, yes, both 2.6.7-ck1 and 2.6.7-rc3
+> I tested have vesafb-tng applied from http://dev.gentoo.org/~spock/, but
+> it should not cause any problems because it is very non-intrusive patch I
+> think. Maybe you should include this in your patchset?
+>
+> 1. When booting init script freezes after starting input hotplugging (it
+> is udev system). The only way to make it run is to press Ctrl-Alt-SysRQ
+> and various keys to display kernel state several times. After that system
+> starts normally. I do not know if it is only -ck problem because I had
+> no time to test 2.6.7 vanilla, but 2.6.7-rc3 worked fine. (Log included.)
 
-I think you'll actually find that it is.  OHCI is a device (representing
-a USB hub), it's attached to the system by some interface that
-constitutes a bus (the bus interface transforming the CPU access cycles
-to device access cycles, translating interrupts etc.).
+Yes I have a sneaking suspicion it's related to the fact kernel threads are 
+fixed priority at the moment in staircase (they dont descend priority like 
+normal tasks so act like relatively low priority real time tasks). I'm 
+addressing that for the next version so hopefully that will fix it.
 
-But even if you've somehow managed to glue an OHCI directly on to the
-system memory controller, from the point of view of the DMA API, the
-memory the device contains is still bus remote.  To be useful, the API
-has to deal with bus remote memory in all its forms.
+> 2. In Gentoo we are often using rsync to sync with newest ebuilds database
+> (called Portage). Whole portage is something about 300 MB I think. But the
+> part to upgrade is only about 1 MB at most. When I try to rsync the only
+> process running on my system is kswapd and all my RAM is used (I have 512
+> MB of RAM and 768 MB of swap). System uses 90 MB of swap and top shows
+> that only 20 MB are cached. This causes rsync server to terminate
+> connection because of timeout. There is nothing big running on my box
+> besides GNOME and rsync at this time. Here are some /proc files:
 
-James
+Sounds like you need to disable the autoswappiness for this load and set a 
+static value. In fact you may find a very high value useful in speeding this 
+load up. The older "linear" design for autoswappiness may have been a more 
+correct way to tackle it, although desktop users have enjoyed swapping even 
+less using the -as patch. To recreate the older design edit mm/vmscan.c and 
+comment out line 724 like so:
 
+-			vm_swappiness = vm_swappiness * vm_swappiness / 100;
++			// vm_swappiness = vm_swappiness * vm_swappiness / 100;
 
+Con

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135924AbREBBhN>; Tue, 1 May 2001 21:37:13 -0400
+	id <S135990AbREBBnN>; Tue, 1 May 2001 21:43:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135990AbREBBhD>; Tue, 1 May 2001 21:37:03 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:16658 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S135924AbREBBgs>;
-	Tue, 1 May 2001 21:36:48 -0400
-Message-ID: <3AEF65E9.8EAFA4A0@megapathdsl.net>
-Date: Tue, 01 May 2001 18:42:01 -0700
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac3
-In-Reply-To: <E14uhhF-0002Q8-00@the-village.bc.nu>
+	id <S136493AbREBBnD>; Tue, 1 May 2001 21:43:03 -0400
+Received: from [209.191.64.160] ([209.191.64.160]:29957 "HELO linuxninja.org")
+	by vger.kernel.org with SMTP id <S135990AbREBBmx>;
+	Tue, 1 May 2001 21:42:53 -0400
+From: tpepper@vato.org
+Date: Tue, 1 May 2001 18:42:40 -0700
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.4 breaks VMware
+Message-ID: <20010501184240.A28442@cb.vato.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Despite VMware's webpage claiming compatibility issues with 2.4.x kernels I'd
+been using it without any problem until I upgraded to 2.4.4.  I couldn't use
+their precompiled modules of course but compiling to match the running kernel
+worked fine previously.
 
-Hi Alan,
+This patch replaces a wee bit of code vmware wanted in include/linux/skbuff.h
+although I'm guessing it was removed for a reason and vmware should be patched
+to use the new method.
 
-This patch is not showing up on ftp.kernel.org.
-Can you check that you actually got is pushed?
-Perhaps something is busted in the mirroring?
+--- skbuff.h.orig       Tue May  1 18:41:50 2001
++++ skbuff.h    Tue May  1 18:41:55 2001
+@@ -244,6 +244,11 @@
+ 
+ /* Internal */
+ #define skb_shinfo(SKB)                ((struct skb_shared_info *)((SKB)->end))
++/* for vmware */
++static inline atomic_t *skb_datarefp(struct sk_buff *skb)
++{
++	return (atomic_t *)(skb->end);
++}
+ 
+ /**
+  *     skb_queue_empty - check if a queue is empty
 
-Thanks,
-	Miles
+
+Tim

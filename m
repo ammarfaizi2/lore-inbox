@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbTHZVat (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 17:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbTHZVat
+	id S262846AbTHZV15 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 17:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTHZV15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 17:30:49 -0400
-Received: from [66.35.48.5] ([66.35.48.5]:55974 "HELO mail.amsonline.com")
-	by vger.kernel.org with SMTP id S262823AbTHZVao (ORCPT
+	Tue, 26 Aug 2003 17:27:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36499 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262846AbTHZV1z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 17:30:44 -0400
-Message-ID: <3F4BD073.6020105@coraccess.com>
-Date: Tue, 26 Aug 2003 15:26:11 -0600
-From: Marcus Hall <mhall@coraccess.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: linux-arm-2.5.59 problem connecting from win 98
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Aug 2003 17:27:55 -0400
+Message-Id: <200308262127.h7QLRsg08273@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linstab@osdl.org
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [osdl-aim-7] 2.6.0-test4, -test4-mm1
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 26 Aug 2003 14:27:54 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a PXA-255 (ARM xscale) based system running the 2.5.59-rmk1-pxa1
-(+ some trizeps patches) and am having a problem with connecting to the
-system from a windows box.
 
-Things work just fine with http/ftp/telnet from a linux box, but if I
-try to connect from a win 98 system, linux panics (don't really blame
-it..) with the error message 'kernel BUG at net/core/skbuff.c:323',
-which appears to say that an skbuff is being freed while still on a
-list.
+All results: http://developer.osdl.org/cliffw/reaim/index.html
 
-Looking at the packets being sent, it appears that the windows box is
-releating the SYN and ACK packets.  This should be legal, but may be
-what is confusing the linux system.  The packets I see are:
+I am now running two workloads, new_dbase and compute:
+The compute workload has much less IO, more system time.
 
-	windows		linux
-		SYN ->
-		SYN ->
-		<- SYN ACK
-		ACK ->
-		ACK ->
-		data ->
-		...
+On the 1 and 2 cpu machines, very little delta, test4 a little better:
+1-CPU
+STP id PLM# Kernel Name       Workfile  MaxJPM MaxUser Host     Change
+278204 2070 2.6.0-test4-mm1   new_dbase 988.42   17      stp1-001 0.00
+278000 2067 linux-2.6.0-test4 new_dbase 990.15   17      stp1-003 0.18
 
-I don't know if the problem occurs on the 2nd SYN, or the 2nd ACK (or,
-I guess somewhere else...)
+278205 2070 2.6.0-test4-mm1   compute   1011.76  17     stp1-003 0.00
+278001 2067 linux-2.6.0-test4 compute   1019.36  17     stp1-000 0.75
+2-CPU
+278215 2070 2.6.0-test4-mm1   new_dbase 1325.86  22     stp2-000 0.00
+278011 2067 linux-2.6.0-test4 new_dbase 1331.56  24     stp2-000 0.43
 
-I don't believe that there are any changes in the core networking in
-the arm/xscale patches applied to the base 2.5.59 kernel, just some
-tweaking of the smc9194 and cs89x0 modules.  It seems unlikely that this
-problem would exist in the "official" kernel for long, but it also seems
-unlikely to be particular to the arm either...  Is it a known bug
-(hopefully with a patch somewhere)?
+278216 2070 2.6.0-test4-mm1   compute   1511.41  26     stp2-001 0.00
+278012 2067 linux-2.6.0-test4 compute   1535.87  26     stp2-001 1.62
 
-Thank You!
+Running on the 8-cpu machines, delta is larger:
 
-Marcus Hall
-CorAccess Systems
+STP id PLM# Kernel Name       Workfile  MaxJPM MaxUser Host     Change
+278184 2070 2.6.0-test4-mm1   new_dbase 8203.60  136   stp8-001 0.00
+277980 2067 linux-2.6.0-test4 new_dbase 8483.27  144   stp8-002 3.41
+
+278186 2070 2.6.0-test4-mm1   compute   9601.96  160  stp8-003 0.00
+277982 2067 linux-2.6.0-test4 compute   9432.60  160  stp8-000 -1.76
+
+---------------
+Detail on any run:
+http://khack.osdl.org/stp/<STP id>
+Hardware details:
+http://khack.osdl.org/stp/<STP id>/environment/machine_info
+More results:
+http://developer.osdl.org/cliffw/reaim/index.html
+---------------
+
+Code location:
+bk://developer.osdl.org/osdl-aim-7
+tarball:
+http://sourceforge.net/projects/re-aim-7
+
+Run parameters:
+
+./reaim -s$CPU_COUNT -x -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b 
+-l./stp.config
+./reaim -s$CPU_COUNT -q -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b 
+-l./stp.config
+(3 runs each, average of all 6 reported runs repeated with workfile.compute)
+
+cliffw
+
 

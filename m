@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbTLLBYn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 20:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTLLBYn
+	id S264450AbTLLB3H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 20:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTLLB3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 20:24:43 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:32236 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S264409AbTLLBYl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 20:24:41 -0500
-Message-ID: <3FD918D8.7020100@verizon.net>
-Date: Thu, 11 Dec 2003 20:24:40 -0500
-From: RunNHide <res0g1ta@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test11 intio.o build errors
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [4.4.161.12] at Thu, 11 Dec 2003 19:24:41 -0600
+	Thu, 11 Dec 2003 20:29:07 -0500
+Received: from vena.lwn.net ([206.168.112.25]:44484 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S264450AbTLLB3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 20:29:05 -0500
+Message-ID: <20031212012903.26623.qmail@lwn.net>
+To: "Hettinger Tamas" <hetting@freemail.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Fri, 12 Dec 2003 00:37:23 +0100."
+             <002301c3c03f$ba925250$0101010a@client> 
+Date: Thu, 11 Dec 2003 18:29:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-okay - I'm not a n00b but I'm no C programmer or driver developer, 
-either - figured I'd post this - understand there's not a lot of this 
-hardware out there so maybe this will be helpful:
+> 1) When I set a timer, it is added to a timer_list chain with add_timer().
+> If the time is up and the scheduled function is called, should I remove the
+> timer_list struct from the chain via del_timer() ? Or is it removed
+> automatically ?
 
-  CC [M]  drivers/scsi/ini9100u.o
-drivers/scsi/ini9100u.c:111:2: #error Please convert me to 
-Documentation/DMA-mapping.txt
-drivers/scsi/ini9100u.c:146: warning: initialization from incompatible 
-pointer type
-drivers/scsi/ini9100u.c:151: warning: initialization from incompatible 
-pointer type
-drivers/scsi/ini9100u.c:152: warning: initialization from incompatible 
-pointer type
-drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
-drivers/scsi/ini9100u.c:241: error: structure has no member named `next'
-drivers/scsi/ini9100u.c:246: error: structure has no member named `next'
-drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
-drivers/scsi/ini9100u.c:268: error: structure has no member named `next'
-drivers/scsi/ini9100u.c:269: error: structure has no member named `next'
-drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
-drivers/scsi/ini9100u.c:507: error: structure has no member named `address'
-drivers/scsi/ini9100u.c:516: error: structure has no member named `address'
-make[2]: *** [drivers/scsi/ini9100u.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+It will be removed automatically, just before your timer function is called.
 
-Thanks,
-RunNHide
+> 2) How can a module safely removed if it has some running timers ? I have to
+> call del_timer() in cleanup_module() for each running timer ? 
 
+You cannot remove a module (safely) if there are outstanding timers.  Use
+del_timer_sync() to get rid of them and ensure they aren't running on
+another processor.
 
+Chapter 6 of Linux Device Drivers covers this topic; see:
+
+	http://www.xml.com/ldd/chapter/book/ch06.html
+
+jon

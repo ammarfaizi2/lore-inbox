@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbTGAVRd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 17:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTGAVRd
+	id S263823AbTGAVSs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 17:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263848AbTGAVSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 17:17:33 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:4622 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262861AbTGAVRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 17:17:32 -0400
-Date: Tue, 1 Jul 2003 22:31:54 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Peter Cordes <peter@llama.nslug.ns.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73 doesn't build without CONFIG_VT_CONSOLE
-In-Reply-To: <20030701195241.GA2545@llama.nslug.ns.ca>
-Message-ID: <Pine.LNX.4.44.0307012231100.12898-100000@phoenix.infradead.org>
+	Tue, 1 Jul 2003 17:18:48 -0400
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([24.192.190.108]:13060
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S263823AbTGAVSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 17:18:42 -0400
+Date: Tue, 1 Jul 2003 17:33:04 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+cc: caberome@bellsouth.net
+Subject: Re: simple pnp bios io resources bug makes  system unusable
+Message-ID: <Pine.LNX.4.44.0307011728120.470-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Try this patch.
+The problem I experienced was when I disable parport in the IBM BIOS, PnP
+gets invalid values it set io 0x0 -> 0xfffffffffff and some other misc
+values for IRQ and DMA.
 
---- vt.c	Tue Jul  1 14:19:07 2003
-+++ vt.c.new	Tue Jul  1 14:03:17 2003
-@@ -109,7 +109,7 @@
- 
- #include "console_macros.h"
- 
--
-+struct tty_driver *console_driver;
- const struct consw *conswitchp;
- 
- /* A bitmap for codes <32. A bit of 1 indicates that the code
-@@ -2185,8 +2185,6 @@
- quit:
- 	clear_bit(0, &printing);
- }
--
--struct tty_driver *console_driver;
- 
- static struct tty_driver *vt_console_device(struct console *c, int *index)
- {
+This might fix that issue.
+
+isapnp: Card 'Crystal Audio'
+isapnp: Card 'Creative SB32 PnP'
+isapnp: Card 'U.S. Robotics Sportster 33600 FAX/Voice Int'
+isapnp: 3 Plug & Play cards detected total
+
+There some other issues though that are being worked on.
+
+Shawn S.
+
+>my one line patch just skips an io registration with a simple sanity
+>check.
+>never once have i heard a device with an ioport of 0x0.
+>question is why it happens and only once.
+>tested with
+
+>ISA Plug and Play:
+>U.S. Robotics Sportster 33600 FAX/Voice Int
+>Creative ViBRA16C PnP
+>Crystal Codec
+
+>Host/PCI Bridge:
+>VIA Technologies, In VT82C585VP [Apollo V
+>VIA Technologies, In VT82C586/A/B PCI-to-
+>VIA Technologies, In VT82C586/B/686A/B PI
+>VIA Technologies, In USB
+>VIA Technologies, In VT82C586B ACPI
+
+>(also noticing cutoff in /sys/devices/pci0/*/name)
 
 

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267315AbTBKQuq>; Tue, 11 Feb 2003 11:50:46 -0500
+	id <S267488AbTBKQvz>; Tue, 11 Feb 2003 11:51:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267342AbTBKQuq>; Tue, 11 Feb 2003 11:50:46 -0500
-Received: from ma-northadams1b-38.bur.adelphia.net ([24.52.166.38]:6529 "EHLO
-	ma-northadams1b-38.bur.adelphia.net") by vger.kernel.org with ESMTP
-	id <S267315AbTBKQup>; Tue, 11 Feb 2003 11:50:45 -0500
-Date: Tue, 11 Feb 2003 12:00:33 -0500
-From: Eric Buddington <eric@ma-northadams1b-418bur.adelphia.net>
+	id <S267650AbTBKQvz>; Tue, 11 Feb 2003 11:51:55 -0500
+Received: from sark.cc.gatech.edu ([130.207.7.23]:59546 "EHLO
+	sark.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S267488AbTBKQvy>; Tue, 11 Feb 2003 11:51:54 -0500
+Date: Tue, 11 Feb 2003 12:01:38 -0500 (EST)
+From: James Gibson Fusia <visyz@cc.gatech.edu>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.60-i386 freezes after decompress on Athlon
-Message-ID: <20030211120033.B27012@ma-northadams1b-418bur.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+cc: visyz@cc.gatech.edu
+Subject: Keyboard Writing
+Message-ID: <Pine.GSO.4.50.0302111142060.53-100000@oscar.cc.gatech.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.60, compiled for i386 but running on an Athlon, darn near
-everything as modules.
+I've read through the keyboard driver files (kd.h, keyboard*, pc_keyb*),
+and come to the conclusion that you can't write to the keyboard. Get mode,
+set mode, get leds, set leds, change keymap. But no write to keyboard.
 
-I get the standard "Uncompressing linux... booting" on boot, then a
-hard freeze; no keyboard LED response, no SysRq reboot.
+I need to be able to re-program a keyboard from userspace, and this
+involves sending certain keycodes to the keyboard via port manipulation
+(set write bit, write, wait for write bit clear.. blah blah blah), and no
+manipulation handles.
 
-I tried with acpi=off, same result.
+My question to you, then, is how do I add definitions for ioctl to be able
+to write to the ps/2 keyboard from user-space? (the #defs for
+KD(GET|SET)LED seem to be arbitrary and not related to 0x64).
 
-I initially assumed that console traffic was directed elsewhere, but
-VGA console is compiled in and vga=6 specified on the GRUB boot line.
+Essentially, I would like to be able to treat the keyboard like a serial
+port. Any docs you can point me at? (Yes, I've checked everything google
+showed me and none of it seemed pertinent to physically writing to the
+keyboard.)
 
-2.4.20 works fine on this system, 2.5.58 at least boots.
-
-I have no idea what to try next.
-
--Eric
+Please respond directly to me, as I'm a bum and don't want to join the
+kernel-dev list.
+			-James Gibson Fusia (visyz@cc.gatech.edu)

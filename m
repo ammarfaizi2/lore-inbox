@@ -1,68 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUBTTnS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 14:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUBTTmH
+	id S261312AbUBTUlS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 15:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUBTUlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 14:42:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48301 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261369AbUBTT1X (ORCPT
+	Fri, 20 Feb 2004 15:41:17 -0500
+Received: from main.gmane.org ([80.91.224.249]:43157 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261312AbUBTUk0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 14:27:23 -0500
-Date: Fri, 20 Feb 2004 11:32:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, akpm@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [BK PATCH] USB update for 2.6.3
-In-Reply-To: <CB199764-63D9-11D8-AE86-000A95A0560C@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0402201128240.1101@ppc970.osdl.org>
-References: <20040220012802.GA16523@kroah.com> <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
- <1077256996.20789.1091.camel@gaston> <Pine.LNX.4.58.0402192221560.2244@ppc970.osdl.org>
- <1077258504.20781.1121.camel@gaston> <Pine.LNX.4.58.0402192243170.14296@ppc970.osdl.org>
- <1077259375.20787.1141.camel@gaston> <Pine.LNX.4.58.0402192257190.1107@ppc970.osdl.org>
- <20040219230407.063ef209.davem@redhat.com> <1077261041.20787.1181.camel@gaston>
- <20040219233214.56f5b0ce.davem@redhat.com> <Pine.LNX.4.58.0402200714270.1107@ppc970.osdl.org>
- <CBEF20EA-63D0-11D8-AE86-000A95A0560C@us.ibm.com>
- <Pine.LNX.4.58.0402201030060.2533@ppc970.osdl.org>
- <CB199764-63D9-11D8-AE86-000A95A0560C@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 15:40:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Subject: Resume from suspend-to-ram
+Date: Fri, 20 Feb 2004 15:38:18 -0500
+Message-ID: <c15r81$5bu$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="nextPart1390649.zydgha22aa"
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: lmcgw.cs.sunysb.edu
+User-Agent: KNode/0.7.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1390649.zydgha22aa
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+
+I have Dell Latitude D600 laptop with Radeon R250 Lf (Mobility 9000
+M9) video card. I have been trying to get suspend-to-ram work with
+this laptop since 2.5.70 or so. The problem almost always was that if
+frame buffer (I have tried radeon and vesa) is used, resume won't
+finish - it would hang right after pressing power button and if plain
+console is used resume works fine, but the LCD stays off.
+
+Since new radeonfb has suspend/resume driver model, I thought I might
+give it a try, but still the laptop would hang during resume. With a
+bit of trial and error (and some guess work), I got the laptop to
+resume successfully with the following patch.
+
+--- radeon_pm.c.orig    2004-02-20 15:11:18.000000000 -0500
++++ radeon_pm.c 2004-02-20 15:12:23.000000000 -0500
+@@ -907,11 +907,13 @@
+ 
+        /* Restore display & engine */
+        radeonfb_set_par(info);
+-       fb_pan_display(info, &info->var);
+-       fb_set_cmap(&info->cmap, 1, info);
++       /* fb_pan_display(info, &info->var);
++        * fb_set_cmap(&info->cmap, 1, info);
++        */
+ 
+        /* Refresh */
+-       fb_set_suspend(info, 0);
++       /* fb_set_suspend(info, 0);
++        */
+ 
+        /* Unblank */
+        rinfo->lock_blank = 0;
 
 
-On Fri, 20 Feb 2004, Hollis Blanchard wrote:
-> 
-> Well, I was picturing all those *_dma_supported() functions as being 
-> plugged into (new) fields in struct bus_type:
-> 	struct bus_type {
-> 		...
-> 		int (*dma_supported)(struct device *dev, u64 mask);
-> 	}
+Right now after resume, console still remains blank, but X restores
+the screen properly. Note that since frame buffer is not restored
+properly, the console is pretty much useless, but it is not a problem
+for me as I use X all the time.
 
-Ok, that would work. It might even be a good idea (not just DMA-related) 
-to make sure that everything you can portably "do" with a device would 
-show up as device operations. Right now it's not very well specified, and 
-there's obviously a lot of confusion.
+I have used this patch with kernel 2.6.3-mm2. I haven't tried 2.6.3,
+but I think it may work with 2.6.3 too.
 
-> If your *_dma_supported functions only take usb_dev, pci_dev, etc, then 
-> you end up with code like asm-generic/dma-mapping.h:
+I am also attaching config.bz2 and /etc/acpi/sleep (the script used to
+suspend the laptop). 
 
-I agree, that is horrible. On the other hand, some architectures don't 
-need any indirection or any conditionals at all, since they know that they 
-only have one type of DMA. 
+I am not subscribed to LKML, so please CC me.
 
-Making the device operations explicit would be good, though, and would 
-match how we do things in general. It's a fairly big change at this point, 
-but if somebody is willing to put the effort into the cleanup, then I'm 
-all for it.
 
-I'd still ask that people don't do DMA on non-host devices. I'd rather 
-have a USB "struct device" just return "DMA not supported", to make sure 
-that everybody asks the right chip.
+--nextPart1390649.zydgha22aa
+Content-Type: application/x-bzip2; name="config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config.bz2"
 
-		Linus
+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
+--nextPart1390649.zydgha22aa
+Content-Type: application/x-shellscript; name="sleep"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="sleep"
+
+IyEvYmluL3NoCiMvZXRjL2FwbS9hcG1kX3Byb3h5IHN1c3BlbmQgdXNlcgpMT0c9L3Zhci9sb2cv
+c2xlZXAub3V0CmlmIDo7IHRoZW4Kc2V0IC1vIHh0cmFjZQplY2hvICJHb2luZyB0byBzbGVlcCBh
+dCAkKGRhdGUpOiAkKHVuYW1lIC1hKSIKVlQ9JChmZ2NvbnNvbGUpCmNodnQgMgojYXdrICd7cHJp
+bnQgJDF9JyAvcHJvYy9tb2R1bGVzIHwgeGFyZ3Mgcm1tb2QKI2F3ayAne3ByaW50ICQxfScgL3By
+b2MvbW9kdWxlcyB8IHhhcmdzIHJtbW9kCi9ldGMvaW5pdC5kL2Fsc2Egc3RvcAovZXRjL2luaXQu
+ZC9ob3RwbHVnIHN0b3AKcm1tb2QgcmFkZW9uCnJtbW9kIGFncGdhcnQKcm1tb2QgaW50ZWxfYWdw
+CnN5bmMKYmxvY2tkZXYgLS1mbHVzaGJ1ZnMgL2Rldi9oZGEKI2VjaG8gLW4gbWVtID4gL3N5cy9w
+b3dlci9zdGF0ZQplY2hvIC1uIDMgPiAvcHJvYy9hY3BpL3NsZWVwCnNsZWVwIDEKZWNobyAiTWFk
+ZSBpdCBiYWNrIGZyb20gc2xlZXAhIgojc2V0cGNpIC1zIDE0LjAgQ09NTUFORD04MyBMQVRFTkNZ
+X1RJTUVSPTQyIENBQ0hFX0xJTkVfU0laRT0wOAojc2V0cGNpIC1kIDAxOjAwLjAgQ09NTUFORD04
+MyBMQVRFTkNZX1RJTUVSPTQyIENBQ0hFX0xJTkVfU0laRT0wOAojY2h2dCAyCiMvZXRjL2FwbS9h
+cG1kX3Byb3h5IHJlc3VtZSBzdXNwZW5kCm1vZHByb2JlIGludGVsX2FncAptb2Rwcm9iZSBhZ3Bn
+YXJ0Cm1vZHByb2JlIHJhZGVvbgptb2Rwcm9iZSBwc21vdXNlCm1vZHByb2JlIGFmX3BhY2tldApj
+aHZ0ICRWVAplY2hvICJDYW1lIGJhY2sgZnJvbSBzbGVlcCBhdCAkKGRhdGUpIgpmaSA+PiAkTE9H
+Cg==
+--nextPart1390649.zydgha22aa--
+

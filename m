@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUHGWkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUHGWo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbUHGWkh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 18:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUHGWkh
+	id S264538AbUHGWo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 18:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUHGWo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 18:40:37 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:50857 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S263001AbUHGWkf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 18:40:35 -0400
-Date: Sun, 8 Aug 2004 01:40:19 +0300
-From: Pekka Pietikainen <pp@ee.oulu.fi>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jgarzik@pobox.com, jolt@tuxbox.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH] b44 1GB DMA workaround (was: b44: add 47xx support)
-Message-ID: <20040807224019.GA24817@ee.oulu.fi>
-References: <200407232335.37809.jolt@tuxbox.org> <20040726141128.GA5435@ee.oulu.fi> <20040804003108.GA10445@ee.oulu.fi> <20040803183919.2990d045.davem@redhat.com>
+	Sat, 7 Aug 2004 18:44:29 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:6064 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264538AbUHGWo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 18:44:27 -0400
+Date: Sat, 7 Aug 2004 23:42:34 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: Keith Whitwell <keith@tungstengraphics.com>, Ian Romanick <idr@us.ibm.com>,
+       Dave Airlie <airlied@linux.ie>,
+       "DRI developer's list" <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: DRM function pointer work..
+Message-ID: <20040807224234.GD26791@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jon Smirl <jonsmirl@yahoo.com>,
+	Keith Whitwell <keith@tungstengraphics.com>,
+	Ian Romanick <idr@us.ibm.com>, Dave Airlie <airlied@linux.ie>,
+	DRI developer's list <dri-devel@lists.sourceforge.net>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <4113BDC0.6050604@tungstengraphics.com> <20040806174645.77462.qmail@web14924.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040803183919.2990d045.davem@redhat.com>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20040806174645.77462.qmail@web14924.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 06:39:19PM -0700, David S. Miller wrote:
-> Changing skb->data is not legal.  Please implement this in
-> such a way that skb->data does not get modified.  By modifying
-> skb->data you will break things such as packet sniffers and
-> netfilter, and that's just the tip of the iceberg. :-)
-> 
-Haven't noticed any breakage (tm) but I'm just a x86 weenie :-)
+On Fri, Aug 06, 2004 at 10:46:45AM -0700, Jon Smirl wrote:
+ > There are three main ways to get a driver:
+ > 1) vendor release - most stable, I get one every two weeks
+ > 2) Linus bk - very up to date, not as well tested, once a day
+ > 3) copy DRM CVS into Linus bk - bleeding edge, hope you know what you
+ > are doing.
 
-Current approach is:
+In the case of bleeding edge Fedora, (Ie FC3 t1 right now), 1 and 2 are
+the same. Ie, we rebase to the upstream -bk release almost daily.
+(The only time we don't is when both myself and Arjan are otherwise
+ occupied, like recently at OLS etc, but it's rare that both of us
+ are too busy to do a rebase).
 
-        if(1 (just for testing ;) ) || mapping+len > B44_DMA_MASK) {
-                /* Chip can't handle DMA to/from >1GB, use bounce buffer */
-                pci_unmap_single(bp->pdev, mapping, len,PCI_DMA_TODEVICE);
-                memcpy(bp->tx_bufs+entry*TX_PKT_BUF_SZ,skb->data,skb->len);
-                mapping = pci_map_single(bp->pdev,bp->tx_bufs+entry*TX_PKT_BUF_SZ, len, PCI_DMA_TODEVICE);
-        }
+The current release version of Fedora (Ie, FC2 right now) has a slightly
+less aggressive update cycle, typically only when either a) the upstream
+kernel has fixed a lot of bugs that have been biting users, or b) there's
+a security problem to justify another update.
 
-Which also works (tm). Setting the skb to a special value seems a bit tricky
-as skb->len is used in b44_tx for that nop^H^H^Hpci_unmap_single. It looks
-to me as the right things when the code gets changed as above (even for
-archs where the unmapping is not a nop) get done, but I could easily be
-missing something.
+		Dave
 
-
-
--- 
-Pekka Pietikainen

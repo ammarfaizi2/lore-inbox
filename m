@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbUKGVQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUKGVXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbUKGVQS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 16:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbUKGVQR
+	id S261681AbUKGVXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 16:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUKGVXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 16:16:17 -0500
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:60117 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261683AbUKGVP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 16:15:56 -0500
-Message-ID: <418E9088.7060709@myrealbox.com>
-Date: Sun, 07 Nov 2004 13:15:52 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041107)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 32-bit segfaults on x86_64 in recent mm kernels
-References: <418E8759.9070408@myrealbox.com>
-In-Reply-To: <418E8759.9070408@myrealbox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Nov 2004 16:23:47 -0500
+Received: from ozlabs.org ([203.10.76.45]:53637 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261681AbUKGVXq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 16:23:46 -0500
+Date: Mon, 8 Nov 2004 08:22:12 +1100
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, Adam Litke <agl@us.ibm.com>,
+       Andy Whitworth <apw@shadowen.org>
+Subject: Re: [RFC] Consolidate lots of hugepage code
+Message-ID: <20041107212212.GD16976@krispykreme.ozlabs.ibm.com>
+References: <20041029033708.GF12247@zax> <20041029034817.GY12934@holomorphy.com> <20041107172030.GA16976@krispykreme.ozlabs.ibm.com> <20041107192024.GM2890@holomorphy.com> <20041107193007.GC16976@krispykreme.ozlabs.ibm.com> <20041107210943.GN2890@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041107210943.GN2890@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski wrote:
-> I've had segfaults in 32-bit emulation in recent (and not-so-recent) -mm
-> kernels on x86_64.
-> 
-> 2.6.7-gentoo-r11 and 2.6.10-rc1 both work fine (even wine works for the 
-> most part).
-> 
-> 2.6.9-rc3-mm3 can't run wine -- it always segfaults.  Other apps seem OK.
-> 
-> 2.6.10-rc1-mm1 can't run anything -- even this segfaults (compiled with 
-> both
-> 'gcc -o foo -m32 foo.c' and 'gcc -o foo -m32 -Wl,-zexecstack foo.c'):
-> 
-> #include <stdio.h>
-> 
-> int main()
-> {
->        printf("Hello %d\n", (int)(sizeof(int*)));
->        return 0;
-> }
-> 
-> Sorry, no debug info, since debugging tools segfault too.
-> 
-> This is my syslog for 2.6.10-rc1-mm1, with some userspace stuff stripped:
 
-s/2.6.10-rc1-mm1/2.6.10-rc1-mm3/g, obviously.
-
+> On Mon, Nov 08, 2004 at 06:30:07AM +1100, Anton Blanchard wrote:
+> > OK. We have not seen a similar issue on ppc64 even with extensive
+> > testing (although with HPC apps). The question is how long we should
+> > hold off on further hugetlb development waiting for this one bug report
+> > on a single architecture to be chased.
 > 
-> Nov  7 08:37:41 luto Linux version 2.6.10-rc1-mm3 
+> Until it's fixed. Until then I'm considering it a byproduct of that same
+> development. And with your report, that makes it two architectures, not
+> one.
 
-etc.
+We _arent_ seeing it on ppc64. Can we at least have a complete bug
+report if we are to halt all hugetlb development? At the moment we dont
+have much information to go on at all.
 
---Andy
+Anton

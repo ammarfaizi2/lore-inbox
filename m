@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319007AbSHMRHE>; Tue, 13 Aug 2002 13:07:04 -0400
+	id <S319033AbSHMRQM>; Tue, 13 Aug 2002 13:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319009AbSHMRHE>; Tue, 13 Aug 2002 13:07:04 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:56842 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S319007AbSHMRHD>; Tue, 13 Aug 2002 13:07:03 -0400
-Message-Id: <200208131710.g7DHAof03116@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Jens Axboe <axboe@suse.de>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1 
-In-Reply-To: Message from Jens Axboe <axboe@suse.de> 
-   of "Tue, 13 Aug 2002 18:37:21 +0200." <20020813163721.GD32470@suse.de> 
+	id <S319035AbSHMRQM>; Tue, 13 Aug 2002 13:16:12 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:14609 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S319033AbSHMRQK>;
+	Tue, 13 Aug 2002 13:16:10 -0400
+Date: Tue, 13 Aug 2002 10:16:05 -0700
+From: Greg KH <greg@kroah.com>
+To: "Cameron, Steve" <Steve.Cameron@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.30 breaks cciss driver?
+Message-ID: <20020813171605.GC21149@kroah.com>
+References: <45B36A38D959B44CB032DA427A6E10640167D023@cceexc18.americas.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Aug 2002 12:10:50 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+In-Reply-To: <45B36A38D959B44CB032DA427A6E10640167D023@cceexc18.americas.cpqcorp.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Tue, 16 Jul 2002 16:03:06 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-axboe@suse.de said:
-> I wouldn't mind unifying lots of the atapi and cdrom stuff. Most of
-> the stuff I took care off was atapi and scsi cdrom unification, but it
-> could be taken a step further. 
+On Tue, Aug 13, 2002 at 10:09:32AM -0500, Cameron, Steve wrote:
+> Message 2 in thread 
+> Greg KH (greg@kroah.com) wrote:
+> >
+> > Are you running in "devfs=only" mode?  If so, the changes I made
+> > probably are the cause of this.
+> > 
+> 
+> No.  The changes that broke it are to do with the sizes[]
+> being gone, I think.  That yours?
 
-Yes, perhaps in conjunction with a rationalisation of command packet interface 
-to struct request and the block queue that made no prejudgement of what 
-actually the command was packetised for.  One modification I was thinking of 
-would be simply to make struct_request.cmd a pointer rather than a char array. 
- That way, the prep functions can allocate it and fill it in with an arbitrary 
-packet command to be interpreted by the downstream driver (it will also get us 
-out of the command size limitation problem---of course, the SCSI committee 
-would never consider another command size increase...)
+Nope, thankfully :)
 
-> Come to think of it, the reason why I didn't completey unify SCSI
-> request sense (eg) with cdrom stuff was that you quickly run into all
-> sorts of ugliness with the various scsi versions, atapi version,
-> reserved fields, added fields, etc. Something that looks good and
-> should be good, suddenly breaks cdrom model XYZ that used to work
-> (perhaps by chance) and still _ought_ to work. 
+Sorry, but I have no idea of what could be wrong.
 
-In fact, it would be a particularly deep and rancid can of worms?
-
-> But hey, knock yourself out :-) 
-
-Sure, by the time you've got a rational and unified interface that looks good, 
-you'll probably have re-written big chunks of scsi and cdrom.  However, if you 
-can come up with a good scheme for the sense codes, it would be nice (the ASC 
-ASCQ code combinations are in a table that covers thirteen pages of close 
-printed type in the SCSI spec---constants.c only has the more frequently used 
-ones).
-
-James
-
-
+greg k-h

@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbRFOCbC>; Thu, 14 Jun 2001 22:31:02 -0400
+	id <S261969AbRFOCcN>; Thu, 14 Jun 2001 22:32:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261969AbRFOCav>; Thu, 14 Jun 2001 22:30:51 -0400
-Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:33807 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S261894AbRFOCai>; Thu, 14 Jun 2001 22:30:38 -0400
-Message-ID: <3B29734A.738A95D5@damncats.org>
-Date: Thu, 14 Jun 2001 22:30:34 -0400
-From: John Cavan <johnc@damncats.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-ac14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac14
-In-Reply-To: <20010615022033Z261561-17720+4111@vger.kernel.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S261988AbRFOCcD>; Thu, 14 Jun 2001 22:32:03 -0400
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:38919 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S261969AbRFOCbx>; Thu, 14 Jun 2001 22:31:53 -0400
+Date: Thu, 14 Jun 2001 20:31:49 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] Sound on Nautilus Alpha (UP1000, UP1100)
+Message-ID: <20010614203149.A12949@mail.harddata.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="jI8keyz6grp/JLjh"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
-> 
-> Hello Alan,
-> 
-> I see 4.29 GB under shm with your latest try.
-> something wrong?
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1053483008 431419392 622063616   122880 24387584 260923392
-Swap: 394764288        0 394764288
-MemTotal:      1028792 kB
-MemFree:        607484 kB
-MemShared:         120 kB
-Buffers:         23816 kB
-Cached:         254808 kB
-Active:         225536 kB
-Inact_dirty:     53208 kB
-Inact_clean:         0 kB
-Inact_target:       44 kB
-HighTotal:      131056 kB
-HighFree:         1048 kB
-LowTotal:       897736 kB
-LowFree:        606436 kB
-SwapTotal:      385512 kB
-SwapFree:       385512 kB
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I don't seem to have the problem...
+Somehow a code which does Nautilus specific magic to a Trident card
+was forgotten for cases when a "generic" Alpha kernel is in use.
+After a transfer of these few lines from 2.2.19 my sound card started
+to play again.  Nautilus specific kernel should work but this is
+not always in use.
 
-John
+Header comments in trident.c indicate that "#define DRIVER_VERSION"
+was simply forgotten so I updated that as well.
+
+This patch was done with 2.4.5-ac13 but it should fit all trident.c
+from 2.4 kernels possibly with some small line offsets.  Alan, will
+you push that to Linus?
+
+   Michal
+
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="trident.patch"
+
+--- linux-2.4.5ac/drivers/sound/trident.c.orig	Tue Jun 12 16:31:13 2001
++++ linux-2.4.5ac/drivers/sound/trident.c	Thu Jun 14 18:33:34 2001
+@@ -136,11 +136,15 @@
+ #include <linux/bitops.h>
+ #include <linux/proc_fs.h>
+ 
++#if defined CONFIG_ALPHA_NAUTILUS || CONFIG_ALPHA_GENERIC
++#include <asm/hwrpb.h>
++#endif
++
+ #include "trident.h"
+ 
+ #include <linux/pm.h>
+ 
+-#define DRIVER_VERSION "0.14.6"
++#define DRIVER_VERSION "0.14.7a"
+ 
+ /* magic numbers to protect our data structures */
+ #define TRIDENT_CARD_MAGIC	0x5072696E /* "Prin" */
+@@ -3607,10 +3611,17 @@
+ 
+ 	if (card->pci_id == PCI_DEVICE_ID_ALI_5451) {
+ 		/* edited by HMSEO for GT sound */
+-#ifdef CONFIG_ALPHA_NAUTILUS
++#if defined CONFIG_ALPHA_NAUTILUS || CONFIG_ALPHA_GENERIC
+ 		u16 ac97_data;
+-		ac97_data = ali_ac97_get (card->ac97_codec[0], AC97_POWER_CONTROL);
+-		ali_ac97_set (card->ac97_codec[0], AC97_POWER_CONTROL, ac97_data | ALI_EAPD_POWER_DOWN);
++		extern struct hwrpb_struct *hwrpb;
++		
++		if ((hwrpb->sys_type) == 201) {
++			printk(KERN_INFO "trident: Running on Alpha system type Nautilus\n");
++			ac97_data = ali_ac97_get (card->ac97_codec[0],
++						  AC97_POWER_CONTROL);
++			ali_ac97_set (card->ac97_codec[0], AC97_POWER_CONTROL,
++				      ac97_data | ALI_EAPD_POWER_DOWN);
++		}
+ #endif
+ 		/* edited by HMSEO for GT sound*/
+ 	}
+
+--jI8keyz6grp/JLjh--

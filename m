@@ -1,723 +1,490 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVC3DTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVC3DWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVC3DTs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 22:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVC3DTs
+	id S261735AbVC3DWa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 22:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVC3DWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 22:19:48 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:62139 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261731AbVC3C4B (ORCPT
+	Tue, 29 Mar 2005 22:22:30 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:64640 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261735AbVC3C4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 21:56:01 -0500
+	Tue, 29 Mar 2005 21:56:18 -0500
 From: gh@us.ibm.com
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
 Cc: ckrm-tech@lists.sourceforge.net
-Subject: [patch 7/8] CKRM:  Numtasks Controller
-Content-Disposition: inline; filename=07-diff_numtasks
-X-Evolution: 0000000f-0000
-Date: Tue, 29 Mar 2005 18:56:00 -0800
-Message-Id: <E1DGTNA-0007wQ-00@w-gerrit.beaverton.ibm.com>
+Subject: [patch 8/8] CKRM:  Documentation
+Content-Disposition: inline; filename=10-diff_docs
+X-Evolution: 00000010-0000
+Date: Tue, 29 Mar 2005 18:56:14 -0800
+Message-Id: <E1DGTNO-0007wZ-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch provides a resource controller for limiting the number
-of tasks per class in CKRM.
+This patch adds all current documentation on CKRM.
 
-Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
+Signed-Off-By: Vivek Kashyap <vivk@us.ibm.com>
 Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
-
-Index: linux-2.6.12-rc1/include/linux/ckrm_tsk.h
+Index: linux-2.6.12-rc1/Documentation/ckrm/ckrm_basics
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc1/include/linux/ckrm_tsk.h	2005-03-18 15:16:41.818810820 -0800
-@@ -0,0 +1,35 @@
-+/* ckrm_tsk.h - No. of tasks resource controller for CKRM
-+ *
-+ * Copyright (C) Chandra Seetharaman, IBM Corp. 2003
-+ * 
-+ * Provides No. of tasks resource controller for CKRM
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#ifndef _LINUX_CKRM_TSK_H
-+#define _LINUX_CKRM_TSK_H
-+
-+#ifdef CONFIG_CKRM_TYPE_TASKCLASS
-+#include <linux/ckrm_rc.h>
-+
-+typedef int (*get_ref_t) (struct ckrm_core_class *, int);
-+typedef void (*put_ref_t) (struct ckrm_core_class *);
-+
-+extern int numtasks_get_ref(struct ckrm_core_class *, int);
-+extern void numtasks_put_ref(struct ckrm_core_class *);
-+extern void ckrm_numtasks_register(get_ref_t, put_ref_t);
-+
-+#else /* CONFIG_CKRM_TYPE_TASKCLASS */
-+
-+#define numtasks_get_ref(core_class, ref) (1)
-+#define numtasks_put_ref(core_class)  do {} while (0)
-+
-+#endif /* CONFIG_CKRM_TYPE_TASKCLASS */
-+#endif /* _LINUX_CKRM_RES_H */
-Index: linux-2.6.12-rc1/init/Kconfig
-===================================================================
---- linux-2.6.12-rc1.orig/init/Kconfig	2005-03-18 15:16:37.397162502 -0800
-+++ linux-2.6.12-rc1/init/Kconfig	2005-03-18 15:16:41.819810740 -0800
-@@ -185,6 +185,16 @@ config CKRM_TYPE_SOCKETCLASS
- 	
- 	  Say Y if unsure.  
- 
-+config CKRM_RES_NUMTASKS
-+	tristate "Number of Tasks Resource Manager"
-+	depends on CKRM_TYPE_TASKCLASS
-+	default y
-+	help
-+	  Provides a Resource Controller for CKRM that allows limiting no of
-+	  tasks a task class can have.
-+	
-+	  Say N if unsure, Y to use the feature.
-+
- endmenu
- 
- config SYSCTL
-Index: linux-2.6.12-rc1/kernel/ckrm/ckrm_numtasks.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc1/kernel/ckrm/ckrm_numtasks.c	2005-03-18 15:16:41.820810661 -0800
-@@ -0,0 +1,522 @@
-+/* ckrm_numtasks.c - "Number of tasks" resource controller for CKRM
-+ *
-+ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2003
-+ * 
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+/*
-+ * CKRM Resource controller for tracking number of tasks in a class.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <asm/errno.h>
-+#include <asm/div64.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/ckrm_rc.h>
-+#include <linux/ckrm_tc.h>
-+#include <linux/ckrm_tsk.h>
-+
-+#define TOTAL_NUM_TASKS (131072)	/* 128 K */
-+#define NUMTASKS_DEBUG
-+#define NUMTASKS_NAME "numtasks"
-+
-+struct ckrm_numtasks {
-+	struct ckrm_core_class *core;	/* the core i am part of... */
-+	struct ckrm_core_class *parent;	/* parent of the core above. */
-+	struct ckrm_shares shares;
-+	spinlock_t cnt_lock;	/* always grab parent's lock before child's */
-+	int cnt_guarantee;	/* num_tasks guarantee in local units */
-+	int cnt_unused;		/* has to borrow if more than this is needed */
-+	int cnt_limit;		/* no tasks over this limit. */
-+	atomic_t cnt_cur_alloc;	/* current alloc from self */
-+	atomic_t cnt_borrowed;	/* borrowed from the parent */
-+
-+	int over_guarantee;	/* turn on/off when cur_alloc goes  */
-+				/* over/under guarantee */
-+
-+	/* internally maintained statictics to compare with max numbers */
-+	int limit_failures;	/* # failures as request was over the limit */
-+	int borrow_sucesses;	/* # successful borrows */
-+	int borrow_failures;	/* # borrow failures */
-+
-+	/* Maximum the specific statictics has reached. */
-+	int max_limit_failures;
-+	int max_borrow_sucesses;
-+	int max_borrow_failures;
-+
-+	/* Total number of specific statistics */
-+	int tot_limit_failures;
-+	int tot_borrow_sucesses;
-+	int tot_borrow_failures;
-+};
-+
-+struct ckrm_res_ctlr numtasks_rcbs;
-+
-+/* Initialize rescls values
-+ * May be called on each rcfs unmount or as part of error recovery
-+ * to make share values sane.
-+ * Does not traverse hierarchy reinitializing children.
-+ */
-+static void numtasks_res_initcls_one(struct ckrm_numtasks * res)
-+{
-+	res->shares.my_guarantee = CKRM_SHARE_DONTCARE;
-+	res->shares.my_limit = CKRM_SHARE_DONTCARE;
-+	res->shares.total_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
-+	res->shares.max_limit = CKRM_SHARE_DFLT_MAX_LIMIT;
-+	res->shares.unused_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
-+	res->shares.cur_max_limit = 0;
-+
-+	res->cnt_guarantee = CKRM_SHARE_DONTCARE;
-+	res->cnt_unused = CKRM_SHARE_DONTCARE;
-+	res->cnt_limit = CKRM_SHARE_DONTCARE;
-+
-+	res->over_guarantee = 0;
-+
-+	res->limit_failures = 0;
-+	res->borrow_sucesses = 0;
-+	res->borrow_failures = 0;
-+
-+	res->max_limit_failures = 0;
-+	res->max_borrow_sucesses = 0;
-+	res->max_borrow_failures = 0;
-+
-+	res->tot_limit_failures = 0;
-+	res->tot_borrow_sucesses = 0;
-+	res->tot_borrow_failures = 0;
-+
-+	atomic_set(&res->cnt_cur_alloc, 0);
-+	atomic_set(&res->cnt_borrowed, 0);
-+	return;
-+}
-+
-+#if 0
-+static void numtasks_res_initcls(void *my_res)
-+{
-+	struct ckrm_numtasks *res = my_res;
-+
-+	/* Write a version which propagates values all the way down 
-+	   and replace rcbs callback with that version */
-+
-+}
-+#endif
-+
-+static int numtasks_get_ref_local(struct ckrm_core_class *core, int force)
-+{
-+	int rc, resid = numtasks_rcbs.resid;
-+	struct ckrm_numtasks *res;
-+
-+	if ((resid < 0) || (core == NULL))
-+		return 1;
-+
-+	res = ckrm_get_res_class(core, resid, struct ckrm_numtasks);
-+	if (res == NULL)
-+		return 1;
-+
-+	atomic_inc(&res->cnt_cur_alloc);
-+
-+	rc = 1;
-+	if (((res->parent) && (res->cnt_unused == CKRM_SHARE_DONTCARE)) ||
-+	    (atomic_read(&res->cnt_cur_alloc) > res->cnt_unused)) {
-+
-+		rc = 0;
-+		if (!force && (res->cnt_limit != CKRM_SHARE_DONTCARE) &&
-+		    (atomic_read(&res->cnt_cur_alloc) > res->cnt_limit)) {
-+			res->limit_failures++;
-+			res->tot_limit_failures++;
-+		} else if (res->parent != NULL) {
-+			if ((rc =
-+			     numtasks_get_ref_local(res->parent, force)) == 1) {
-+				atomic_inc(&res->cnt_borrowed);
-+				res->borrow_sucesses++;
-+				res->tot_borrow_sucesses++;
-+				res->over_guarantee = 1;
-+			} else {
-+				res->borrow_failures++;
-+				res->tot_borrow_failures++;
-+			}
-+		} else {
-+			rc = force;
-+		}
-+	} else if (res->over_guarantee) {
-+		res->over_guarantee = 0;
-+
-+		if (res->max_limit_failures < res->limit_failures) {
-+			res->max_limit_failures = res->limit_failures;
-+		}
-+		if (res->max_borrow_sucesses < res->borrow_sucesses) {
-+			res->max_borrow_sucesses = res->borrow_sucesses;
-+		}
-+		if (res->max_borrow_failures < res->borrow_failures) {
-+			res->max_borrow_failures = res->borrow_failures;
-+		}
-+		res->limit_failures = 0;
-+		res->borrow_sucesses = 0;
-+		res->borrow_failures = 0;
-+	}
-+
-+	if (!rc) {
-+		atomic_dec(&res->cnt_cur_alloc);
-+	}
-+	return rc;
-+}
-+
-+static void numtasks_put_ref_local(struct ckrm_core_class *core)
-+{
-+	int resid = numtasks_rcbs.resid;
-+	struct ckrm_numtasks *res;
-+
-+	if ((resid == -1) || (core == NULL)) {
-+		return;
-+	}
-+
-+	res = ckrm_get_res_class(core, resid, struct ckrm_numtasks);
-+	if (res == NULL)
-+		return;
-+	if (unlikely(atomic_read(&res->cnt_cur_alloc) == 0)) {
-+		printk(KERN_WARNING "numtasks_put_ref: Trying to decrement "
-+					"counter below 0\n");
-+		return;
-+	}
-+	atomic_dec(&res->cnt_cur_alloc);
-+	if (atomic_read(&res->cnt_borrowed) > 0) {
-+		atomic_dec(&res->cnt_borrowed);
-+		numtasks_put_ref_local(res->parent);
-+	}
-+	return;
-+}
-+
-+static void *numtasks_res_alloc(struct ckrm_core_class *core,
-+				struct ckrm_core_class *parent)
-+{
-+	struct ckrm_numtasks *res;
-+
-+	res = kmalloc(sizeof(struct ckrm_numtasks), GFP_ATOMIC);
-+
-+	if (res) {
-+		memset(res, 0, sizeof(struct ckrm_numtasks));
-+		res->core = core;
-+		res->parent = parent;
-+		numtasks_res_initcls_one(res);
-+		res->cnt_lock = SPIN_LOCK_UNLOCKED;
-+		if (parent == NULL) {
-+			/*
-+			 * I am part of root class. So set the max tasks 
-+			 * to available default.
-+			 */
-+			res->cnt_guarantee = TOTAL_NUM_TASKS;
-+			res->cnt_unused = TOTAL_NUM_TASKS;
-+			res->cnt_limit = TOTAL_NUM_TASKS;
-+		}
-+		try_module_get(THIS_MODULE);
-+	} else {
-+		printk(KERN_ERR
-+		       "numtasks_res_alloc: failed GFP_ATOMIC alloc\n");
-+	}
-+	return res;
-+}
-+
-+/*
-+ * No locking of this resource class object necessary as we are not
-+ * supposed to be assigned (or used) when/after this function is called.
-+ */
-+static void numtasks_res_free(void *my_res)
-+{
-+	struct ckrm_numtasks *res = my_res, *parres, *childres;
-+	struct ckrm_core_class *child = NULL;
-+	int i, borrowed, maxlimit, resid = numtasks_rcbs.resid;
-+
-+	if (!res)
-+		return;
-+
-+	/* Assuming there will be no children when this function is called */
-+
-+	parres = ckrm_get_res_class(res->parent, resid, struct ckrm_numtasks);
-+
-+	if (unlikely(atomic_read(&res->cnt_cur_alloc) < 0)) {
-+		printk(KERN_WARNING "numtasks_res: counter below 0\n");
-+	}
-+	if (unlikely(atomic_read(&res->cnt_cur_alloc) > 0 ||
-+				atomic_read(&res->cnt_borrowed) > 0)) {
-+		printk(KERN_WARNING "numtasks_res_free: resource still "
-+		       "alloc'd %p\n", res);
-+		if ((borrowed = atomic_read(&res->cnt_borrowed)) > 0) {
-+			for (i = 0; i < borrowed; i++) {
-+				numtasks_put_ref_local(parres->core);
-+			}
-+		}
-+	}
-+	/* return child's limit/guarantee to parent node */
-+	spin_lock(&parres->cnt_lock);
-+	child_guarantee_changed(&parres->shares, res->shares.my_guarantee, 0);
-+
-+	/* run thru parent's children and get the new max_limit of the parent */
-+	ckrm_lock_hier(parres->core);
-+	maxlimit = 0;
-+	while ((child = ckrm_get_next_child(parres->core, child)) != NULL) {
-+		childres = ckrm_get_res_class(child, resid, struct ckrm_numtasks);
-+		if (maxlimit < childres->shares.my_limit) {
-+			maxlimit = childres->shares.my_limit;
-+		}
-+	}
-+	ckrm_unlock_hier(parres->core);
-+	if (parres->shares.cur_max_limit < maxlimit) {
-+		parres->shares.cur_max_limit = maxlimit;
-+	}
-+
-+	spin_unlock(&parres->cnt_lock);
-+	kfree(res);
-+	module_put(THIS_MODULE);
-+	return;
-+}
-+
-+/*
-+ * Recalculate the guarantee and limit in real units... and propagate the
-+ * same to children.
-+ * Caller is responsible for protecting res and for the integrity of parres
-+ */
-+static void
-+recalc_and_propagate(struct ckrm_numtasks * res, struct ckrm_numtasks * parres)
-+{
-+	struct ckrm_core_class *child = NULL;
-+	struct ckrm_numtasks *childres;
-+	int resid = numtasks_rcbs.resid;
-+
-+	if (parres) {
-+		struct ckrm_shares *par = &parres->shares;
-+		struct ckrm_shares *self = &res->shares;
-+
-+		/* calculate cnt_guarantee and cnt_limit */
-+		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
-+			res->cnt_guarantee = CKRM_SHARE_DONTCARE;
-+		} else if (par->total_guarantee) {
-+			u64 temp = (u64) self->my_guarantee * parres->cnt_guarantee;
-+			do_div(temp, par->total_guarantee);
-+			res->cnt_guarantee = (int) temp;
-+		} else {
-+			res->cnt_guarantee = 0;
-+		}
-+
-+		if (parres->cnt_limit == CKRM_SHARE_DONTCARE) {
-+			res->cnt_limit = CKRM_SHARE_DONTCARE;
-+		} else if (par->max_limit) {
-+			u64 temp = (u64) self->my_limit * parres->cnt_limit;
-+			do_div(temp, par->max_limit);
-+			res->cnt_limit = (int) temp;
-+		} else {
-+			res->cnt_limit = 0;
-+		}
-+
-+		/* Calculate unused units */
-+		if (res->cnt_guarantee == CKRM_SHARE_DONTCARE) {
-+			res->cnt_unused = CKRM_SHARE_DONTCARE;
-+		} else if (self->total_guarantee) {
-+			u64 temp = (u64) self->unused_guarantee * res->cnt_guarantee;
-+			do_div(temp, self->total_guarantee);
-+			res->cnt_unused = (int) temp;
-+		} else {
-+			res->cnt_unused = 0;
-+		}
-+	}
-+	/* propagate to children */
-+	ckrm_lock_hier(res->core);
-+	while ((child = ckrm_get_next_child(res->core, child)) != NULL) {
-+		childres = ckrm_get_res_class(child, resid, struct ckrm_numtasks);
-+
-+		spin_lock(&childres->cnt_lock);
-+		recalc_and_propagate(childres, res);
-+		spin_unlock(&childres->cnt_lock);
-+	}
-+	ckrm_unlock_hier(res->core);
-+	return;
-+}
-+
-+static int numtasks_set_share_values(void *my_res, struct ckrm_shares *new)
-+{
-+	struct ckrm_numtasks *parres, *res = my_res;
-+	struct ckrm_shares *cur = &res->shares, *par;
-+	int rc = -EINVAL, resid = numtasks_rcbs.resid;
-+
-+	if (!res)
-+		return rc;
-+
-+	if (res->parent) {
-+		parres =
-+		    ckrm_get_res_class(res->parent, resid, struct ckrm_numtasks);
-+		spin_lock(&parres->cnt_lock);
-+		spin_lock(&res->cnt_lock);
-+		par = &parres->shares;
-+	} else {
-+		spin_lock(&res->cnt_lock);
-+		par = NULL;
-+		parres = NULL;
-+	}
-+
-+	rc = set_shares(new, cur, par);
-+
-+	if ((rc == 0) && parres) {
-+		/* Calculate parent's unused units */
-+		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
-+			parres->cnt_unused = CKRM_SHARE_DONTCARE;
-+		} else if (par->total_guarantee) {
-+			u64 temp = (u64) par->unused_guarantee * parres->cnt_guarantee;
-+			do_div(temp, par->total_guarantee);
-+			parres->cnt_unused = (int) temp;
-+		} else {
-+			parres->cnt_unused = 0;
-+		}
-+		recalc_and_propagate(res, parres);
-+	}
-+	spin_unlock(&res->cnt_lock);
-+	if (res->parent) {
-+		spin_unlock(&parres->cnt_lock);
-+	}
-+	return rc;
-+}
-+
-+static int numtasks_get_share_values(void *my_res, struct ckrm_shares *shares)
-+{
-+	struct ckrm_numtasks *res = my_res;
-+
-+	if (!res)
-+		return -EINVAL;
-+	*shares = res->shares;
-+	return 0;
-+}
-+
-+static int numtasks_get_stats(void *my_res, struct seq_file *sfile)
-+{
-+	struct ckrm_numtasks *res = my_res;
-+
-+	if (!res)
-+		return -EINVAL;
-+
-+	seq_printf(sfile, "Number of tasks resource:\n");
-+	seq_printf(sfile, "Total Over limit failures: %d\n",
-+		   res->tot_limit_failures);
-+	seq_printf(sfile, "Total Over guarantee sucesses: %d\n",
-+		   res->tot_borrow_sucesses);
-+	seq_printf(sfile, "Total Over guarantee failures: %d\n",
-+		   res->tot_borrow_failures);
-+
-+	seq_printf(sfile, "Maximum Over limit failures: %d\n",
-+		   res->max_limit_failures);
-+	seq_printf(sfile, "Maximum Over guarantee sucesses: %d\n",
-+		   res->max_borrow_sucesses);
-+	seq_printf(sfile, "Maximum Over guarantee failures: %d\n",
-+		   res->max_borrow_failures);
-+#ifdef NUMTASKS_DEBUG
-+	seq_printf(sfile,
-+		   "cur_alloc %d; borrowed %d; cnt_guar %d; cnt_limit %d "
-+		   "cnt_unused %d, unused_guarantee %d, cur_max_limit %d\n",
-+		   atomic_read(&res->cnt_cur_alloc),
-+		   atomic_read(&res->cnt_borrowed), res->cnt_guarantee,
-+		   res->cnt_limit, res->cnt_unused,
-+		   res->shares.unused_guarantee,
-+		   res->shares.cur_max_limit);
-+#endif
-+
-+	return 0;
-+}
-+
-+static int numtasks_show_config(void *my_res, struct seq_file *sfile)
-+{
-+	struct ckrm_numtasks *res = my_res;
-+
-+	if (!res)
-+		return -EINVAL;
-+
-+	seq_printf(sfile, "res=%s,parameter=somevalue\n", NUMTASKS_NAME);
-+	return 0;
-+}
-+
-+static int numtasks_set_config(void *my_res, const char *cfgstr)
-+{
-+	struct ckrm_numtasks *res = my_res;
-+
-+	if (!res)
-+		return -EINVAL;
-+	printk("numtasks config='%s'\n", cfgstr);
-+	return 0;
-+}
-+
-+static void numtasks_change_resclass(void *task, void *old, void *new)
-+{
-+	struct ckrm_numtasks *oldres = old;
-+	struct ckrm_numtasks *newres = new;
-+
-+	if (oldres != (void *)-1) {
-+		struct task_struct *tsk = task;
-+		if (!oldres) {
-+			struct ckrm_core_class *old_core =
-+			    &(tsk->parent->taskclass->core);
-+			oldres =
-+			    ckrm_get_res_class(old_core, numtasks_rcbs.resid,
-+					       struct ckrm_numtasks);
-+		}
-+		numtasks_put_ref_local(oldres->core);
-+	}
-+	if (newres) {
-+		(void)numtasks_get_ref_local(newres->core, 1);
-+	}
-+}
-+
-+struct ckrm_res_ctlr numtasks_rcbs = {
-+	.res_name = NUMTASKS_NAME,
-+	.res_hdepth = 1,
-+	.resid = -1,
-+	.res_alloc = numtasks_res_alloc,
-+	.res_free = numtasks_res_free,
-+	.set_share_values = numtasks_set_share_values,
-+	.get_share_values = numtasks_get_share_values,
-+	.get_stats = numtasks_get_stats,
-+	.show_config = numtasks_show_config,
-+	.set_config = numtasks_set_config,
-+	.change_resclass = numtasks_change_resclass,
-+};
-+
-+int __init init_ckrm_numtasks_res(void)
-+{
-+	struct ckrm_classtype *clstype;
-+	int resid = numtasks_rcbs.resid;
-+
-+	clstype = ckrm_find_classtype_by_name("taskclass");
-+	if (clstype == NULL) {
-+		printk(KERN_INFO " Unknown ckrm classtype<taskclass>");
-+		return -ENOENT;
-+	}
-+
-+	if (resid == -1) {
-+		resid = ckrm_register_res_ctlr(clstype, &numtasks_rcbs);
-+		printk("........init_ckrm_numtasks_res -> %d\n", resid);
-+		if (resid != -1) {
-+			ckrm_numtasks_register(numtasks_get_ref_local,
-+					       numtasks_put_ref_local);
-+			numtasks_rcbs.classtype = clstype;
-+		}
-+	}
-+	return 0;
-+}
-+
-+void __exit exit_ckrm_numtasks_res(void)
-+{
-+	if (numtasks_rcbs.resid != -1) {
-+		ckrm_numtasks_register(NULL, NULL);
-+	}
-+	ckrm_unregister_res_ctlr(&numtasks_rcbs);
-+	numtasks_rcbs.resid = -1;
-+}
-+
-+module_init(init_ckrm_numtasks_res)
-+module_exit(exit_ckrm_numtasks_res)
-+
-+MODULE_LICENSE("GPL");
-Index: linux-2.6.12-rc1/kernel/ckrm/ckrm_numtasks_stub.c
++++ linux-2.6.12-rc1/Documentation/ckrm/ckrm_basics	2005-03-18 15:16:46.010477430 -0800
+@@ -0,0 +1,66 @@
++CKRM Basics
++-------------
++A brief review of CKRM concepts and terminology will help make installation
++and testing easier. For more details, please visit http://ckrm.sf.net. 
++
++Currently there are two class types, taskclass and socketclass for grouping,
++regulating and monitoring tasks and sockets respectively.
++
++To avoid repeating instructions for each classtype, this document assumes a
++task to be the kernel object being grouped. By and large, one can replace task
++with socket and taskclass with socketclass.
++
++RCFS depicts a CKRM class as a directory. Hierarchy of classes can be
++created in which children of a class share resources allotted to
++the parent. Tasks can be classified to any class which is at any level.
++There is no correlation between parent-child relationship of tasks and
++the parent-child relationship of classes they belong to.
++
++Without a Classification Engine, class is inherited by a task. A privileged
++user can reassigned a task to a class as described below, after which all
++the child tasks under that task will be assigned to that class, unless the
++user reassigns any of them.
++
++A Classification Engine, if one exists, will be used by CKRM to
++classify a task to a class. The Rule based classification engine uses some
++of the attributes of the task to classify a task. When a CE is present
++class is not inherited by a task.
++
++Characteristics of a class can be accessed/changed through the following magic
++files under the directory representing the class:
++
++shares:  allows to change the shares of different resources managed by the
++         class
++stats:   allows to see the statistics associated with each resources managed
++         by the class
++target:  allows to assign a task to a class. If a CE is present, assigning
++         a task to a class through this interface will prevent CE from
++		 reassigning the task to any class during reclassification.
++members: allows to see which tasks has been assigned to a class
++config:  allow to view and modify configuration information of different
++         resources in a class.
++
++Resource allocations for a class is controlled by the parameters:
++
++guarantee: specifies how much of a resource is guranteed to a class. A
++           special value DONT_CARE(-2) mean that there is no specific
++	   guarantee of a resource is specified, this class may not get
++	   any resource if the system is runing short of resources
++limit:     specifies the maximum amount of resource that is allowed to be
++           allocated by a class. A special value DONT_CARE(-2) mean that
++	   there is no specific limit is specified, this class can get all
++	   the resources available.
++total_guarantee: total guarantee that is allowed among the children of this
++           class. In other words, the sum of "guarantee"s of all children
++	   of this class cannot exit this number.
++max_limit: Maximum "limit" allowed for any of this class's children. In
++	   other words, "limit" of any children of this class cannot exceed
++	   this value.
++
++None of this parameters are absolute or have any units associated with
++them. These are just numbers(that are relative to its parents') that are
++used to calculate the absolute number of resource available for a specific
++class.
++
++Note: The root class has an absolute number of resource units associated with it.
++
+Index: linux-2.6.12-rc1/Documentation/ckrm/core_usage
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc1/kernel/ckrm/ckrm_numtasks_stub.c	2005-03-18 15:16:41.821810581 -0800
-@@ -0,0 +1,53 @@
-+/* ckrm_tasks_stub.c - Stub file for ckrm_tasks modules
-+ *
-+ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2004
-+ * 
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
++++ linux-2.6.12-rc1/Documentation/ckrm/core_usage	2005-03-18 15:16:46.011477350 -0800
+@@ -0,0 +1,72 @@
++Usage of CKRM without a classification engine
++-----------------------------------------------
 +
-+#include <linux/spinlock.h>
-+#include <linux/module.h>
-+#include <linux/ckrm_tsk.h>
++1. Create a class
 +
-+static spinlock_t stub_lock = SPIN_LOCK_UNLOCKED;
++   # mkdir /rcfs/taskclass/c1
++   creates a taskclass named c1 , while
++   # mkdir /rcfs/socket_class/s1
++   creates a socketclass named s1 
 +
-+static get_ref_t real_get_ref = NULL;
-+static put_ref_t real_put_ref = NULL;
++The newly created class directory is automatically populated by magic files
++shares, stats, members, target and config.
 +
-+void ckrm_numtasks_register(get_ref_t gr, put_ref_t pr)
-+{
-+	spin_lock(&stub_lock);
-+	real_get_ref = gr;
-+	real_put_ref = pr;
-+	spin_unlock(&stub_lock);
-+}
++2. View default shares 
 +
-+int numtasks_get_ref(struct ckrm_core_class *arg, int force)
-+{
-+	int ret = 1;
-+	spin_lock(&stub_lock);
-+	if (real_get_ref) {
-+		ret = (*real_get_ref) (arg, force);
-+	}
-+	spin_unlock(&stub_lock);
-+	return ret;
-+}
++   # cat /rcfs/taskclass/c1/shares
 +
-+void numtasks_put_ref(struct ckrm_core_class *arg)
-+{
-+	spin_lock(&stub_lock);
-+	if (real_put_ref) {
-+		(*real_put_ref) (arg);
-+	}
-+	spin_unlock(&stub_lock);
-+}
++   "guarantee=-2,limit=-2,total_guarantee=100,max_limit=100" is the default
++   value set for resources that have controllers registered with CKRM.
 +
-+EXPORT_SYMBOL(ckrm_numtasks_register);
-+EXPORT_SYMBOL(numtasks_get_ref);
-+EXPORT_SYMBOL(numtasks_put_ref);
-Index: linux-2.6.12-rc1/kernel/ckrm/Makefile
++3. change shares of a <class>
++
++   One or more of the following fields can/must be specified
++       res=<res_name> #mandatory
++       guarantee=<number>
++       limit=<number>
++       total_guarantee=<number>
++       max_limit=<number>
++   e.g.
++	# echo "res=numtasks,limit=20" > /rcfs/taskclass/c1
++
++   If any of these parameters are not specified, the current value will be
++   retained. 
++
++4. Reclassify a task (listening socket)
++
++   write the pid of the process to the destination class' target file
++   # echo 1004 > /rcfs/taskclass/c1/target	
++
++   write the "<ipaddress>\<port>" string to the destination class' target file 
++   # echo "0.0.0.0\32770"  > /rcfs/taskclass/c1/target
++
++5. Get a list of tasks (sockets) assigned to a taskclass (socketclass)
++
++   # cat /rcfs/taskclass/c1/members
++   lists pids of tasks belonging to c1
++
++   # cat /rcfs/socket_class/s1/members
++   lists the ipaddress\port of all listening sockets in s1 
++
++6. Get the statictics of different resources of a class
++
++   # cat /rcfs/tasksclass/c1/stats
++   shows c1's statistics for each resource with a registered resource
++   controller.
++
++   # cat /rcfs/socket_class/s1/stats
++   show's s1's stats for the listenaq controller.	
++
++7. View the configuration values of the resources associated with a class
++
++   # cat /rcfs/taskclass/c1/config
++   shows per-controller config values for c1.
++
++8. Change the configuration values of resources associated with a class
++   Configuration values are different for different resources. the comman
++   field "res=<resname>" must always be specified.
++
++   # echo "res=numtasks,parameter=value" > /rcfs/taskclass/c1/config
++   to change (without any effect), the value associated with <parameter>.
++
++
+Index: linux-2.6.12-rc1/Documentation/ckrm/crbce
 ===================================================================
---- linux-2.6.12-rc1.orig/kernel/ckrm/Makefile	2005-03-18 15:16:37.399162343 -0800
-+++ linux-2.6.12-rc1/kernel/ckrm/Makefile	2005-03-18 15:16:41.834809547 -0800
-@@ -3,5 +3,6 @@
- #
- 
- obj-y += ckrm_events.o ckrm.o ckrmutils.o
--obj-$(CONFIG_CKRM_TYPE_TASKCLASS) += ckrm_tc.o
-+obj-$(CONFIG_CKRM_TYPE_TASKCLASS) += ckrm_tc.o ckrm_numtasks_stub.o
- obj-$(CONFIG_CKRM_TYPE_SOCKETCLASS) += ckrm_sockc.o
-+obj-$(CONFIG_CKRM_RES_NUMTASKS) += ckrm_numtasks.o
-Index: linux-2.6.12-rc1/kernel/fork.c
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc1/Documentation/ckrm/crbce	2005-03-18 15:16:46.011477350 -0800
+@@ -0,0 +1,33 @@
++CRBCE
++----------
++
++crbce is a superset of rbce. In addition to providing automatic
++classification, the crbce module
++- monitors per-process delay data that is collected by the delay 
++accounting patch
++- collects data on significant kernel events where reclassification
++could occur e.g. fork/exec/setuid/setgid etc., and
++- uses relayfs to supply both these datapoints to userspace
++
++To illustrate the utility of the data gathered by crbce, we provide a
++userspace daemon called crbcedmn that prints the header info received
++from the records sent by the crbce module.
++
++0. Ensure that a CKRM-enabled kernel with following options configured
++   has been compiled. At a minimum, core, rcfs, atleast one classtype,
++   delay-accounting patch and relayfs. For testing, it is recommended
++   all classtypes and resource controllers be compiled as modules.
++
++1. Ensure that the Makefile's BUILD_CRBCE=1 and KDIR points to the
++   kernel of step 1 and call make.
++   This also builds the userspace daemon, crbcedmn.
++
++2..9 Same as rbce installation and testing instructions, 
++     except replacing rbce.ko with crbce.ko
++
++10. Read the pseudo daemon help file
++    # ./crbcedmn -h
++
++11. Run the crbcedmn to display all records being processed
++    # ./crbcedmn 
++
+Index: linux-2.6.12-rc1/Documentation/ckrm/installation
 ===================================================================
---- linux-2.6.12-rc1.orig/kernel/fork.c	2005-03-18 15:16:20.893475145 -0800
-+++ linux-2.6.12-rc1/kernel/fork.c	2005-03-18 15:16:41.836809388 -0800
-@@ -42,6 +42,8 @@
- #include <linux/rmap.h>
- #include <linux/acct.h>
- #include <linux/ckrm_events.h>
-+#include <linux/ckrm_tsk.h>
-+#include <linux/ckrm_tc.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1211,6 +1213,9 @@ long do_fork(unsigned long clone_flags,
- 			clone_flags |= CLONE_PTRACE;
- 	}
- 
-+	if (numtasks_get_ref(&current->taskclass->core, 0) == 0) {
-+		return -ENOMEM;
-+	}
- 	p = copy_process(clone_flags, stack_start, regs, stack_size, parent_tidptr, child_tidptr, pid);
- 	/*
- 	 * Do this prior waking up the new thread - the thread pointer
-@@ -1250,6 +1255,7 @@ long do_fork(unsigned long clone_flags,
- 				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
- 		}
- 	} else {
-+		numtasks_put_ref(&current->taskclass->core);
- 		free_pidmap(pid);
- 		pid = PTR_ERR(p);
- 	}
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc1/Documentation/ckrm/installation	2005-03-18 15:16:46.012477271 -0800
+@@ -0,0 +1,70 @@
++Kernel installation
++------------------------------
++
++<kernver> = version of mainline Linux kernel
++<ckrmver> = version of CKRM
++
++Note: It is expected that CKRM versions will change fairly rapidly. Hence once
++a CKRM version has been released for some <kernver>, it will only be made
++available for future <kernver>'s until the next CKRM version is released. 
++
++1. Patch 
++
++    Apply ckrm/kernel/<kernver>/ckrm-<ckrmversion>.patch to a mainline kernel
++    tree with version <kernver>. 
++
++    If CRBCE will be used, additionally apply the following patches, in order: 
++       delayacctg-<ckrmversion>.patch 
++       relayfs-<ckrmversion>.patch
++    
++ 
++2. Configure
++
++Select appropriate configuration options:
++
++a. for taskclasses 
++
++   General Setup-->Class Based Kernel Resource Management
++
++   [*] Class Based Kernel Resource Management
++   <M> Resource Class File System (User API)
++   [*]   Class Manager for Task Groups  
++   <M>     Number of Tasks Resource Manager
++
++b. To test socket_classes and multiple accept queue controller 
++
++   General Setup-->Class Based Kernel Resource Management
++   [*] Class Based Kernel Resource Management
++   <M> Resource Class File System (User API)
++   [*]   Class Manager for socket groups
++   <M>     Multiple Accept Queues Resource Manager    
++   
++   Device Drivers-->Networking Support-->Networking options-->
++   [*] Network packet filtering (replaces ipchains)  
++   [*] IP: TCP Multiple accept queues support
++
++c. To test CRBCE later (requires 2a.)
++
++   File Systems-->Pseudo filesystems-->
++   <M> Relayfs filesystem support 
++   (enable all sub fields)
++   
++   General Setup-->
++   [*] Enable delay accounting
++   
++
++3. Build, boot into kernel
++
++4. Enable rcfs
++
++    # insmod <patchedtree>/fs/rcfs/rcfs.ko
++    # mount -t rcfs rcfs /rcfs
++ 
++    This will create the directories /rcfs/taskclass and
++    /rcfs/socketclass which are the "roots" of subtrees for creating
++    taskclasses and socketclasses respectively.
++  	
++5. Load numtasks and listenaq controllers
++
++    # insmod <patchedtree>/kernel/ckrm/ckrm_tasks.ko
++    # insmod <patchedtree>/kernel/ckrm/ckrm_listenaq.ko
+Index: linux-2.6.12-rc1/Documentation/ckrm/rbce_basics
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc1/Documentation/ckrm/rbce_basics	2005-03-18 15:16:46.012477271 -0800
+@@ -0,0 +1,67 @@
++Rule-based Classification Engine (RBCE)
++-------------------------------------------
++
++The ckrm/rbce directory contains the sources for two classification engines
++called rbce and crbce. Both are optional, built as kernel modules and share much
++of their codebase. Only one classification engine (CE) can be loaded at a time
++in CKRM.
++
++
++With RBCE, user can specify rules for how tasks are classified to a
++class.  Rules are specified by one or more attribute-value pairs and
++an associated class. The tasks that match all the attr-value pairs
++will get classified to the class attached with the rule.
++
++The file rbce_info under /rcfs/ce directory details the functionality
++of different files available under the directory and also details
++about attributes that can are used to define rules.
++
++order: When multiple rules are defined the rules are executed
++	   according to the order of a rule. Order can be specified
++	   while defining a rule.  If order is not specified, the
++	   highest order will be assigned to the rule(i.e, the new
++	   rule will be executed after all the previously defined
++	   evaluate false). So, order of rules is important as that
++	   will decide, which class a task will get assigned to. For
++	   example, if we have the two following rules: r1:
++	   uid=1004,order=10,class=/rcfs/taskclass/c1 r2:
++	   uid=1004,cmd=grep,order=20,class=/rcfs/taskclass/c2 then,
++	   the task "grep" executed by user 1004 will always be
++	   assigned to class /rcfs/taskclass/c1, as rule r1 will be
++	   executed before r2 and the task successfully matched the
++	   rule's attr-value pairs. Rule r2 will never be consulted
++	   for the command.  Note: The order in which the rules are
++	   displayed(by ls) has no correlation with the order of the
++	   rule.
++
++dependency: Rules can be defined to be depend on another rule. i.e a
++	   rule can be dependent on one rule and has its own
++	   additional attr-value pairs. the dependent rule will
++	   evaluate true only if all the attr-value pairs of both
++	   rules are satisfied.  ex: r1: gid=502,class=/rcfs/taskclass
++	   r2: depend=r1,cmd=grep,class=rcfstaskclass/c1 r2 is a
++	   dependent rule that depends on r1, a task will be assigned
++	   to /rcfs/taskclass/c1 if its gid is 502 and the executable
++	   command name is "grep". If a task's gid is 502 but the
++	   command name is _not_ "grep" then it will be assigned to
++	   /rcfs/taskclass
++
++	   Note: The order of dependent rule must be _lesser_ than the
++	   rule it depends on, so that it is evaluated _before the
++	   base rule is evaluated. Otherwise the base rule will
++	   evaluate true and the task will be assigned to the class of
++	   that rule without the dependent rule ever getting
++	   evaluated. In the example above, order of r2 must be lesser
++	   than order of r1.
++
++app_tag: a task can be attached with a tag(ascii string), that becomes
++	   an attribute of that task and rules can be defined with the
++	   tag value.
++
++state: states are at two levels in RBCE. The entire RBCE can be
++	   enabled or disabled which writing 1 or 0 to the file
++	   rbce_state under /rcfs/ce.  Disabling RBCE, would mean that
++	   the rules defined in RBCE will not be utilized for
++	   classifying a task to a class.  A specific rule can be
++	   enabled/disabled by changing the state of that rule. Once
++	   it is disabled, the rule will not be evaluated.
+Index: linux-2.6.12-rc1/Documentation/ckrm/rbce_usage
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc1/Documentation/ckrm/rbce_usage	2005-03-18 15:16:46.013477191 -0800
+@@ -0,0 +1,98 @@
++Usage of CKRM with RBCE
++--------------------------
++
++0. Ensure that a CKRM-enabled kernel with following options configured
++   has been compiled. At a minimum, core, rcfs and atleast one
++   classtype. For testing, it is recommended all classtypes and
++   resource controllers be compiled as modules.
++
++1. Change ckrm/rbce/Makefile's KDIR to point to this compiled kernel's source
++   tree and call make
++
++2. Load rbce module.
++   # insmod ckrm/rbce/rbce.ko 
++   Note that /rcfs has to be mounted before this.
++   Note: this command should populate the directory /rcfs/ce with files
++   rbce_reclassify, rbce_tag, rbce_info, rbce_state and a directory
++   rules.
++
++   Note2: If these are not created automatically, just create them by
++   using the commands touch and mkdir.(bug that needs to be fixed)
++
++3. Defining a rule
++   Rules are defined by creating(by writing) to a file under the
++   /rcfs/ce/rules directory by concatinating multiple attribute value
++   pairs.
++
++   Note that the classes must be defined before defining rules that
++   uses the classes.  eg: the command # echo
++   "uid=1004,class=/rcfs/taskclass/c1" > /rcfs/ce/rules/r1 will define
++   a rule r1 that classifies all tasks belong to user id 1004 to class
++   /rcfs/taskclass/c1
++
++4. Viewing a rule
++   read the corresponding file.
++   to read rule r1, issue the command:
++      # cat /rcfs/ce/rules/r1
++
++5. Changing a rule
++
++   Changing a rule is done the same way as defining a rule, the new
++   rule will include the old set of attr-value pairs slapped with new
++   attr-value pairs.  eg: if the current r2 is
++   uid=1004,depend=r1,class=/rcfs/taskclass/c1
++   (r1 as defined in step 3)
++
++   the command:
++     # echo gid=502 > /rcfs/ce/rules/r1
++   will change the rule to
++     r1: uid=1004,gid=502,depend=r1,class=/rcfs/taskclass/c1
++
++   the command:
++     # echo uid=1005 > /rcfs/ce/rules/r1
++   will change the rule to
++     r1: uid=1005,class=/rcfs/taskclass/c1
++
++   the command:
++     # echo class=/rcfs/taskclass/c2 > /rcfs/ce/rules/r1
++   will change the rule to
++     r1: uid=1004,depend=r1,class=/rcfs/taskclass/c2
++   
++   the command:
++     # echo depend=r4 > /rcfs/ce/rules/r1
++   will change the rule to
++     r1: uid=1004,depend=r4,class=/rcfs/taskclass/c2
++   
++   the command:
++     # echo +depend=r4 > /rcfs/ce/rules/r1
++   will change the rule to
++     r1: uid=1004,depend=r1,depend=r4,class=/rcfs/taskclass/c2
++   
++   the command:
++     # echo -depend=r1 > /rcfs/ce/rules/r1
++   will change the rule to
++     r1: uid=1004,class=/rcfs/taskclass/c2
++
++6. Checking the state of RBCE
++   State(enabled/disabled) of RBCE can be checked by reading the file
++   /rcfs/ce/rbce_state, it will show 1(enabled) or 0(disabled).
++   By default, RBCE is enabled(1).
++   ex: # cat /rcfs/ce/rbce_state
++
++7. Changing the state of RBCE
++   State of RBCE can be changed by writing 1(enable) or 0(disable).
++   ex: # echo 1 > cat /rcfs/ce/rbce_state
++
++8. Checking the state of a rule
++   State of a rule is displayed in the rule. Rule can be viewed by
++   reading the rule file.  ex: # cat /rcfs/ce/rules/r1
++
++9. Changing the state of a rule
++
++   State of a rule can be changed by writing "state=1"(enable) or
++   "state=0"(disable) to the corresponding rule file. By defeault, the
++   rule is enabled when defined.  ex: to disable an existing rule r1,
++   issue the command 
++   # echo "state=0" > /rcfs/ce/rules/r1
++
++
+Index: linux-2.6.12-rc1/Documentation/ckrm/TODO
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc1/Documentation/ckrm/TODO	2005-03-18 15:16:46.013477191 -0800
+@@ -0,0 +1,16 @@
++Current tasks in queue
++
++- Use __bitfield for enums
++- Add listenaq controller
++- Add RBCE/CRBCE
++- Add memory controller
++- Add I/O controller
++- Add forkrate control to numtasks controller
++- remove target file and move functionality to members file
++- init_task is not classified under any class
++- use netlink instead of relayfs for crbce
++- convert refcount usages to kref_t
++- add kerneldoc format headers to user consumable functions/macros
++- convert ckrm_init() to use standard initcalls
++- verify that the LGPL/GPL header/symbol usage is correct
++-
 
 --

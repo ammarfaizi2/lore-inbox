@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbTDFKSl (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 06:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbTDFKSl (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 06:18:41 -0400
-Received: from mail.interware.hu ([195.70.32.130]:11228 "EHLO
-	mail.interware.hu") by vger.kernel.org with ESMTP id S262894AbTDFKSk (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 06:18:40 -0400
-Message-ID: <3E8FF42E.3090207@cracker.hu>
-Date: Sun, 06 Apr 2003 11:32:30 +0200
-From: BaliHB <balihb@cracker.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: hu, en, en-us
-MIME-Version: 1.0
+	id S262905AbTDFKV2 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 06:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTDFKV1 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 06:21:27 -0400
+Received: from halo.ispgateway.de ([62.67.200.127]:9606 "HELO
+	halo.ispgateway.de") by vger.kernel.org with SMTP id S262905AbTDFKV0 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 06:21:26 -0400
+Subject: USB-Mouse in 2.4.20 vs. 2.5.66 (no wheel)
+From: Jens Ansorg <liste@ja-web.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre7 ac97fix
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049625176.18014.7.camel@lisaserver>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 06 Apr 2003 12:32:57 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-THX AC!
+For years now I have Logitec USB wheel mice running nicely with all last
+versions of the Kernel and XFree.
 
-diff -Naur tmp2/linux-2.4.20/include/linux/ac97_codec.h 
-linux-2.4.20/include/linux/ac97_codec.h
---- tmp2/linux-2.4.20/include/linux/ac97_codec.h        2003-04-06 
-09:57:56.000000000 +0200
-+++ linux-2.4.20/include/linux/ac97_codec.h     2003-04-06 
-10:06:30.000000000 +0200
-@@ -222,6 +222,8 @@
-         int dev_mixer;
-         int type;
+Current Setup is Kernel 2.4.20 and XFree 4.3
 
-+       int modem:1;
-+
-         struct ac97_ops *codec_ops;
+Curious as I am I build a development kernel 2.5.66
 
-         /* controller specific lower leverl ac97 accessing routines */
-@@ -237,6 +239,9 @@
-         int stereo_mixers;
-         int record_sources;
+But with that kernel the scroll wheel on the mouse seems not to work
+anymore in XFree/Gnome.
 
-+       /* Property flags */
-+       int flags;
-+
-         int bit_resolution;
 
-         /* OSS mixer interface */
-@@ -265,6 +270,8 @@
-         int (*amplifier)(struct ac97_codec *codec, int on);
-         /* Digital mode control */
-         int (*digital)(struct ac97_codec *codec, int format);
-+#define AC97_DELUDED_MODEM     1       /* Audio codec reports its a 
-modem */
-+#define AC97_NO_PCM_VOLUME     2       /* Volume control is missing 
-    */
-  };
+dmesg reports
 
-  extern int ac97_read_proc (char *page_out, char **start, off_t off,
+mice: PS/2 mouse device common for all mice
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+
+looks good.
+
+but both xev and mev report no event when moving the scroll wheel on the
+mouse.
+
+
+should mousewheel work with the dev kernels?
+ 
+
+-- 
+Jens Ansorg <liste@ja-web.de>
 

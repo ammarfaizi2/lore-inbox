@@ -1,82 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUF1Xf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUF1Xwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUF1Xf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 19:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbUF1Xf5
+	id S265170AbUF1Xwx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 19:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265301AbUF1Xwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 19:35:57 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:11702 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S265288AbUF1Xfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 19:35:55 -0400
-Date: Mon, 28 Jun 2004 19:29:43 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: __setup()'s not processed in bk-current
-In-Reply-To: <Pine.GSO.4.33.0406281523340.25702-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.GSO.4.33.0406281838260.25702-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Jun 2004 19:52:53 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:60307 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S265170AbUF1Xwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 19:52:49 -0400
+Date: Mon, 28 Jun 2004 16:52:34 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: "David S. Miller" <davem@redhat.com>, Scott Wood <scott@timesys.com>,
+       oliver@neukum.org, greg@kroah.com, arjanv@redhat.com,
+       jgarzik@redhat.com, tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, david-b@pacbell.net
+Subject: Re: drivers/block/ub.c
+Message-ID: <20040628235234.GD8502@one-eyed-alien.net>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	"David S. Miller" <davem@redhat.com>,
+	Scott Wood <scott@timesys.com>, oliver@neukum.org, greg@kroah.com,
+	arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
+	linux-kernel@vger.kernel.org, stern@rowland.harvard.edu,
+	david-b@pacbell.net
+References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406270631.41102.oliver@neukum.org> <20040626233423.7d4c1189.davem@redhat.com> <200406271242.22490.oliver@neukum.org> <20040627142628.34b60c82.davem@redhat.com> <20040628141517.GA4311@yoda.timesys> <20040628132531.036281b0.davem@redhat.com> <20040628205058.GB8502@one-eyed-alien.net> <20040628140157.5813bc73@lembas.zaitcev.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8NvZYKFJsRX2Djef"
+Content-Disposition: inline
+In-Reply-To: <20040628140157.5813bc73@lembas.zaitcev.lan>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jun 2004, Ricky Beam wrote:
->The linked kernel *looks* correct (x86_64 here):
->Contents of section .init.data:
-> ffffffff8058d000 6e6f736d 70006d61 78637075 733d0070  nosmp.maxcpus=.p
->
->Contents of section .init.setup:
-> ffffffff80593510 00d05880 ffffffff 60125780 ffffffff  ..X.....`.W.....
-> ffffffff80593520 00000000 00000000 00000000 00000000  ................
-> ffffffff80593530 06d05880 ffffffff 70125780 ffffffff  ..X.....p.W.....
-> ffffffff80593540 00000000 00000000 00000000 00000000  ................
->
->Do I smell some bad pointer math?  Yeap:
->DEBUG: sizeof(obs_kernel_param): 24 (0x18)
 
-Ahh.  Not bad pointer math.  Bad kernel source :-)  The compiler is not
-aware of the packing/alignment of the .init.setup section until link
-time which is too late.  The .init.setup section is ALIGN(16)'d for
-almost all archs.  (h8300 is 4 bytes.)
+--8NvZYKFJsRX2Djef
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There may be other instances like this that'll eventually bite us in the
-ass.
+On Mon, Jun 28, 2004 at 02:01:57PM -0700, Pete Zaitcev wrote:
+> On Mon, 28 Jun 2004 13:50:58 -0700
+> Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
+>=20
+> > > 	struct txd {
+> > > 		u32 dma_addr;
+> > > 		u32 length;
+> > > 	};
+> > >=20
+> > > It is just total and utter madness to put a packed or the proposed
+> > > __nopadding__ attribute on that structure.  Yet this seems to be
+> > > what was suggested now and at the beginning of this thread.
+> >=20
+> > I guess, in the end, what this comes down to is the fact that we're all
+> > going to get bitten on the ass when we finally get to a platform where =
+the
+> > default alignment is 64-bits, which would then (by default) add padding=
+ to
+> > the above structure.
+> >=20
+> > How long until that time comes?  Likely within my lifetime, and I'd rat=
+her
+> > not have to re-write working code into more working code because I coul=
+dn't
+> > express to the compiler what I needed it to do.
+>=20
+> I, for one, am not engaging into such flights of fancy as a platform
+> with larger than natural alignment requirements. Would you even read
+> what you're writing? The whole freaking world abandons silly platforms
+> and moves to x86 extensions and you're fantasizing about a return
+> to Cray-1. It just ain't happening!
 
-(A) Fix... at least for x86_64.
+Actually, I've been working with a controller for the last several months
+(the "latest and greatest", state-of-the-art technology), which can only to
+loads/stores in 64-byte units at a minimum.
 
-===== include/linux/init.h 1.33 vs edited =====
---- 1.33/include/linux/init.h   2004-06-27 03:19:38 -04:00
-+++ edited/include/linux/init.h 2004-06-28 18:39:37 -04:00
-@@ -107,11 +107,12 @@
-        static initcall_t __initcall_##fn \
-        __attribute_used__ __attribute__((__section__(".security_initcall.init"))) = fn
+Yes, I mean "byte".  128-bits wide * 4 DDR beats (2 dobule-edged clocks).
+There are no DM pins on the memory interface, so any write less than that
+size must be a read-modify-write.
 
-+/* FIXME: not all arch's are aligned on a 16byte boundry */
- struct obs_kernel_param {
-        const char *str;
-        int (*setup_func)(char *);
-        int early;
--};
-+} __attribute__((aligned(16)));
+And, I was just having a conversation with a compiler group which was
+considering moving to 64-byte alignment as a speed optimization for this
+platform, or at least 16-byte (64 bit), which also aligns well with the
+native load/store of the CPU involved.
 
- /* Only for really core code.  See moduleparam.h for the normal way. */
- #define __setup_param(str, unique_id, fn, early)                       \
+I only wish I was fantasizing about this.
 
-===== arch/x86_64/kernel/vmlinux.lds.S 1.23 vs edited =====
---- 1.23/arch/x86_64/kernel/vmlinux.lds.S       2004-05-30 07:33:25 -04:00
-+++ edited/arch/x86_64/kernel/vmlinux.lds.S     2004-06-28 19:20:20 -04:00
-@@ -87,7 +87,7 @@
-        _einittext = .;
-   }
-   .init.data : { *(.init.data) }
--  . = ALIGN(16);
-+  . = ALIGN(32);
-   __setup_start = .;
-   .init.setup : { *(.init.setup) }
-   __setup_end = .;
+Matt
 
-(don't ask me why __setup_start is landing 16b less than it should)
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
---Ricky
+P:  Nine more messages in admin.policy.
+M: I know, I'm typing as fast as I can!
+					-- Pitr and Mike
+User Friendly, 11/27/97
 
+--8NvZYKFJsRX2Djef
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA4K9CIjReC7bSPZARAqYaAKDCl+38Tw4oCvWNK+wb7OpmFYpfrQCgr7PJ
+fAa747ZegmaR3Qe6U87+bik=
+=NT30
+-----END PGP SIGNATURE-----
+
+--8NvZYKFJsRX2Djef--

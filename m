@@ -1,49 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSHVSck>; Thu, 22 Aug 2002 14:32:40 -0400
+	id <S315445AbSHVSnl>; Thu, 22 Aug 2002 14:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSHVScj>; Thu, 22 Aug 2002 14:32:39 -0400
-Received: from mail01.qualys.com ([12.162.2.5]:7069 "HELO mail01.qualys.com")
-	by vger.kernel.org with SMTP id <S315413AbSHVSci>;
-	Thu, 22 Aug 2002 14:32:38 -0400
-Date: Thu, 22 Aug 2002 10:41:27 -0700
-From: Silvio Cesare <silvio@qualys.com>
-To: linux-kernel@vger.kernel.org
-Cc: silvio@qualys.com
-Subject: [PATCH TRIVIAL] 2.5.31/drivers/zorro/proc.c
-Message-ID: <20020822104127.A7911@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="x+6KMIRAuhnl3hBn"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315449AbSHVSnl>; Thu, 22 Aug 2002 14:43:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:4293 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315445AbSHVSnk>;
+	Thu, 22 Aug 2002 14:43:40 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 22 Aug 2002 20:47:49 +0200 (MEST)
+Message-Id: <UTC200208221847.g7MIlnq24081.aeb@smtp.cwi.nl>
+To: Matt_Domsch@Dell.com
+Subject: NULL_GUID
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Earlier this evening I happened to compile a 2.4.20-pre4 and got
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+efi.c: In function `add_gpt_partitions':
+efi.c:728: `NULL_GUID' undeclared (first use in this function)
 
-trivial patch to use loff_t and not int.
+Earlier it was defined in include/asm-ia64/efi.h,
+but since there is no relation with ia64 it is reasonable
+that it was moved, only it never arrived in partitions/efi.h.
 
---
-Silvio
+[I'll be lazy and not supply the trivial patch. Too likely
+that others already did.]
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch.2.5.31.zorro"
-
-diff -u linux-2.5.31/drivers/zorro/proc.c dev/linux-2.5.31/drivers/zorro/proc.c
---- linux-2.5.31/drivers/zorro/proc.c	Sat Aug 10 18:41:19 2002
-+++ dev/linux-2.5.31/drivers/zorro/proc.c	Thu Aug 22 10:36:00 2002
-@@ -51,7 +51,7 @@
- 	struct proc_dir_entry *dp = PDE(ino);
- 	struct zorro_dev *dev = dp->data;
- 	struct ConfigDev cd;
--	int pos = *ppos;
-+	loff_t pos = *ppos;
- 
- 	if (pos >= sizeof(struct ConfigDev))
- 		return 0;
-
---x+6KMIRAuhnl3hBn--
+Andries

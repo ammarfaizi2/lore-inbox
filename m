@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBGQWX>; Wed, 7 Feb 2001 11:22:23 -0500
+	id <S129477AbRBGQdr>; Wed, 7 Feb 2001 11:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129047AbRBGQWO>; Wed, 7 Feb 2001 11:22:14 -0500
-Received: from lama.supermedia.pl ([212.75.96.18]:44302 "EHLO
-	lama.supermedia.pl") by vger.kernel.org with ESMTP
-	id <S129031AbRBGQV5>; Wed, 7 Feb 2001 11:21:57 -0500
-Date: Wed, 7 Feb 2001 17:21:53 +0100
-From: Bartek Krajnik <bartek@sm.pl>
-To: linux-kernel@vger.kernel.org
-Subject: alpha with 2.4.1
-Message-ID: <20010207172153.A7333@lama.supermedia.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S129479AbRBGQdg>; Wed, 7 Feb 2001 11:33:36 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:46861 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S129477AbRBGQd1>; Wed, 7 Feb 2001 11:33:27 -0500
+Message-ID: <B45465FD9C23D21193E90000F8D0F3DF68391C@mailsrv.linkvest.ch>
+From: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
+To: "'acl-devel@bestbits.at'" <acl-devel@bestbits.at>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Lock in with 2.4.1 and NFS
+Date: Wed, 7 Feb 2001 17:33:08 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My console after panic:
-_____________________________________________________________________________
-Code: b26901cc stl a3,460(s0)
 
- a0300000	ldl t0,0(a0)
- 482010c1	extbl t0,0,t0
- 402075a2	cmpeq t0,3,t1
- e4400003	blt t1,.+16
- d3400045	bsr ra,.+280
-*b0090218	stl v0,536(s0)
- c3e00002	br .+12
+Hi,
+I have a strange problem on one of our server.
+I have 2.4.1 patched with ACLs 0.7.5 (from acl.bestbits.at) and some RAID +
+LVM volumes.
+At regular interval, NFS stops working (nfsd stops) and a stop/start of the
+NFS service doesn't work. 
+The NFS service stop blocks in "exportfs -auv" when trying to unmount a
+client working apparently well. One time
+it was a solaris 2.6 client, another time it was a linux 2.4 machine.
+Any help appreciated.
+Thanks
+-jec
 
-Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-_____________________________________________________________________________
+PS: I'm not in the kernel list. Please CC
 
-My cpuinfo:
-______________________________________________________________________________
-cpu                     : Alpha
-cpu model               : EV56
-cpu variation           : 7
-cpu revision            : 0
-cpu serial number       :
-system type             : Noritake
-system variation        : 0
-system revision         : 0
-system serial number    : AY90560615
-cycle frequency [Hz]    : 500000000
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 40
-max. addr. space #      : 127
-BogoMIPS                : 994.44
-kernel unaligned acc    : 318104 (pc=fffffc00003cec04,va=fffffc000e1c25e6)
-user unaligned acc      : 0 (pc=0,va=0)
-platform string         : AlphaServer 800 5/500
-cpus detected           : 1
-______________________________________________________________________________
 
-With kernel 2.2.* I haven't any problems... (expect files >2GB).
-I use reiserfs(ext2: problem with inodes numbers) for /var/spool_news/.
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+Jean-Eric Cuendet
+Linkvest SA
+Av des Baumettes 19, 1020 Renens Switzerland
+Tel +41 21 632 9043  Fax +41 21 632 9090
+http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
--- 
-	BARTEK
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

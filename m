@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRBSVgC>; Mon, 19 Feb 2001 16:36:02 -0500
+	id <S129108AbRBSVkX>; Mon, 19 Feb 2001 16:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130060AbRBSVfw>; Mon, 19 Feb 2001 16:35:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57615 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130046AbRBSVfj>;
-	Mon, 19 Feb 2001 16:35:39 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200102192134.f1JLYGu18870@flint.arm.linux.org.uk>
-Subject: Re: The lack of specification
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Mon, 19 Feb 2001 21:34:16 +0000 (GMT)
-Cc: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <200102192017.f1JKHO952286@saturn.cs.uml.edu> from "Albert D. Cahalan" at Feb 19, 2001 03:17:24 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129338AbRBSVkN>; Mon, 19 Feb 2001 16:40:13 -0500
+Received: from feral.com ([192.67.166.1]:7970 "EHLO feral.com")
+	by vger.kernel.org with ESMTP id <S129310AbRBSVkJ>;
+	Mon, 19 Feb 2001 16:40:09 -0500
+Date: Mon, 19 Feb 2001 13:39:58 -0800 (PST)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
+To: Gérard Roudier <groudier@club-internet.fr>
+cc: Peter Samuelson <peter@cadcamlab.org>,
+        "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx (and sym53c8xx) plans 
+In-Reply-To: <Pine.LNX.4.10.10102192004380.469-100000@linux.local>
+Message-ID: <Pine.LNX.4.21.0102191339280.20022-100000@zeppo.feral.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
-> The TCP maintainers do not seem to be sadistic bastards hell-bent on
-> breaking your drivers. API changes usually have a good reason.
 
-And when the API does change, like it has between Linux 2.2 and Linux 2.4,
-an email gets sent to this list describing the change of API.  Search
-this lists archives to find out:
+> May-be this is the reason some UNIX vendors seem to love UDI. :)
+> 
+> If you also use SYMBIOS chips, you may give a try with SYM-2. For the
+> moment, it replaces only 6 drivers :) as also seems to do, for the moment,
+> Justin's AIC7XXX-6, by the way.
+> 
+> The plans seem clear to me. :-)
+> Btw, I _do_ like a lot better the 'one driver' plan over the '12 or more'
+> one.
 
-1. the reasons for the change
-2. a complete description of the new bits of the API
+Hmm. Well, it's good if it works. The joint Qlogic FC/SCSI driver of mine has
+it's own plusses && minusses...
 
-There are projects around to try to pick this stuff up and put it on the
-web in one place - its called the Kernel Wiki, and iirc it is on
-sourceforge.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

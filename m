@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132211AbQKXIk5>; Fri, 24 Nov 2000 03:40:57 -0500
+        id <S132082AbQKXIkR>; Fri, 24 Nov 2000 03:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132308AbQKXIks>; Fri, 24 Nov 2000 03:40:48 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:32784 "EHLO
-        prins.externet.hu") by vger.kernel.org with ESMTP
-        id <S132211AbQKXIk3>; Fri, 24 Nov 2000 03:40:29 -0500
-Date: Fri, 24 Nov 2000 09:10:22 +0100 (CET)
-From: Boszormenyi Zoltan <zboszor@externet.hu>
+        id <S132211AbQKXIkI>; Fri, 24 Nov 2000 03:40:08 -0500
+Received: from [200.222.191.209] ([200.222.191.209]:32772 "EHLO
+        pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+        id <S132082AbQKXIkC>; Fri, 24 Nov 2000 03:40:02 -0500
+Date: Fri, 24 Nov 2000 06:09:42 -0200
+From: Frédéric L . W . Meunier 
+        <0@pervalidus.net>
 To: linux-kernel@vger.kernel.org
-Subject: Jens Axboe's blk-11 causing problems
-Message-ID: <Pine.LNX.4.02.10011240902070.4804-100000@prins.externet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: gcc-2.95.2-51 is buggy
+Message-ID: <20001124060942.B26543@pervalidus.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt/1.2.5i - Linux 2.2.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andries.Brouwer@cwi.nl wrote:
 
-I tried 2.4.0-test11 (plain, +ac1/2) with and without
-Jens' blk-11 patch. This indeed performs (much) better
-when there is only high disk activity but cdrecord
-starts up _very_ slowly if the kernel was compiled with 
-blk-11. It does not happen if blk-11 is not applied.
+<skip>
+> % /usr/gcc/aeb/bin/gcc -v
+> Reading specs from
+> /usr/gcc/aeb/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/specs
+> gcc version 2.95.2 19991024 (release)gcc version 2.95.2 19991024 (release)
+> % /usr/gcc/aeb/bin/gcc -Wall -O2 -o nobug bug.c; ./nobug
+> 0x0
 
-I stopped cdrecord before it started writing because of
-this suspicious slowness and I did not want to create a bad CD.
+Interesting. On a Slackware 7.1 recently upgraded to glibc 2.2
+(and where gcc 2.95.2 from ftp.gnu.org was built because 2.2
+requires this version) I get:
 
-Other data points:
-The CD-writer is a Yamaha-6416 (SCSI version).
-The SCSI card is a Diamond Fireport-40 (Symbios 53c875j)
-I tested both the in-kernel 1.6b and 1.7.2 versions of the
-sym53c8xx driver.
+% gcc -Wall -O2 -o bug bug.c
+% ./bug
+0x84800000
 
-The slowdown was experienced in every case where
-the kernel contained blk-11.
+% egcs-2.91.66 -Wall -O2 -o bug bug.c
+% ./bug
+0x0
 
-Regards,
-Zoltan Boszormenyi
+% gcc -Wall -O -o bug bug.c
+% ./bug
+0x0
 
+% gcc -v
+Reading specs from
+/usr/lib/gcc-lib/i386-slackware-linux/2.95.2/specs
+gcc version 2.95.2 19991024 (release)
 
+% egcs-2.91.66 -v
+Reading specs from
+/usr/lib/gcc-lib/i386-slackware-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+
+Slackware's -current tree was upgraded to glibc 2.2 and gcc
+2.95.2, but I built them myself.
+
+-- 
+0@pervalidus.{net, com, dyndns.org}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

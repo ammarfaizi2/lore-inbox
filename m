@@ -1,109 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268056AbTBMPMP>; Thu, 13 Feb 2003 10:12:15 -0500
+	id <S268057AbTBMPWB>; Thu, 13 Feb 2003 10:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268057AbTBMPMP>; Thu, 13 Feb 2003 10:12:15 -0500
-Received: from aramis.rutgers.edu ([128.6.4.2]:32479 "EHLO aramis.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S268056AbTBMPMM>;
-	Thu, 13 Feb 2003 10:12:12 -0500
-Subject: Re: O_DIRECT foolish question
-From: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: cw@f00f.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20030212211221.3f73ba45.akpm@digeo.com>
-References: <20030212140338.6027fd94.akpm@digeo.com>
-	 <1045088991.4767.85.camel@urca.rutgers.edu>
-	 <20030212224226.GA13129@f00f.org>
-	 <1045090977.21195.87.camel@urca.rutgers.edu>
-	 <20030212232443.GA13339@f00f.org>
-	 <1045092802.4766.96.camel@urca.rutgers.edu>
-	 <20030212233846.GA13540@f00f.org>
-	 <1045093775.21195.99.camel@urca.rutgers.edu>
-	 <20030212235130.GA13629@f00f.org>
-	 <1045094589.4767.106.camel@urca.rutgers.edu>
-	 <20030213001302.GA13833@f00f.org>
-	 <1045096579.21195.121.camel@urca.rutgers.edu>
-	 <20030212211221.3f73ba45.akpm@digeo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4cqxCqhqhCBPAvoPP7Mt"
-Organization: Rutgers University
-Message-Id: <1045149719.4766.126.camel@urca.rutgers.edu>
+	id <S268058AbTBMPWB>; Thu, 13 Feb 2003 10:22:01 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:19099 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268057AbTBMPWA>;
+	Thu, 13 Feb 2003 10:22:00 -0500
+Date: Thu, 13 Feb 2003 15:27:42 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.60 NFS FSX
+Message-ID: <20030213152742.GA1560@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 13 Feb 2003 10:22:00 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.5.60's NFS seems to have various issues.
+(2.5.60 client, 2.4.21pre3 server)
 
---=-4cqxCqhqhCBPAvoPP7Mt
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+- I ran an fsx and an fsstress in parallel.
+  Client rebooted after 2-3 minutes.
+- fsx on its own, after quite a while, this happens..
 
-Thanks, Andrew. So, no chances of getting this working correctly on 2.4
-kernel for now (I mean, reading files with size !=3D n*block_size), and
-I'd better give up on this... Is it the case, or you think there is
-still something to do to get this working on ext2 and 2.4 kernel?
+truncating to largest ever: 0x3ffff
+skipping zero size read
+skipping zero size write
+skipping zero size write
+skipping zero size write
+READ BAD DATA: offset = 0x358ba, size = 0x4867
+OFFSET	GOOD	BAD	RANGE
+0x36000	0x0000	0x8c1a	0x 1ff3
+operation# (mod 256) for the bad data may be 140
+LOG DUMP (176283 total operations):
+176284(156 mod 256): READ	0x35b07 thru 0x38c67	(0x3161 bytes)	***RRRR***
+176285(157 mod 256): READ	0x12552 thru 0x1af77	(0x8a26 bytes)
+176286(158 mod 256): WRITE	0x3560f thru 0x3ffff	(0xa9f1 bytes)	***WWWW
+176287(159 mod 256): MAPWRITE 0x1aaae thru 0x233bf	(0x8912 bytes)
+176288(160 mod 256): MAPREAD	0x3635d thru 0x3661b	(0x2bf bytes)
+176289(161 mod 256): MAPREAD	0x374c0 thru 0x3ba42	(0x4583 bytes)	***RRRR***
+176290(162 mod 256): WRITE	0x16794 thru 0x192eb	(0x2b58 bytes)
+176291(163 mod 256): READ	0x128bf thru 0x1d5b0	(0xacf2 bytes)
+176292(164 mod 256): READ	0x330d5 thru 0x35b26	(0x2a52 bytes)
+176293(165 mod 256): MAPREAD	0xff6b thru 0x13c4e	(0x3ce4 bytes)
+176294(166 mod 256): MAPWRITE 0x1c5e0 thru 0x2a720	(0xe141 bytes)
+176295(167 mod 256): MAPWRITE 0x2a8df thru 0x2e628	(0x3d4a bytes)
+176296(168 mod 256): MAPWRITE 0x370cc thru 0x3be24	(0x4d59 bytes)	******WWWW
+176297(169 mod 256): MAPWRITE 0x21637 thru 0x30999	(0xf363 bytes)
+... <much more spew .. 
+(full log is at http://www.codemonkey.org.uk/cruft/nfs-fsx-2.5.60.txt )
 
-Bruno.
+Finally, I see a lot of these in the client logs..
 
-On Thu, 2003-02-13 at 00:12, Andrew Morton wrote:
-> Bruno Diniz de Paula <diniz@cs.rutgers.edu> wrote:
-> >
-> > On Wed, 2003-02-12 at 19:13, Chris Wedgwood wrote:
-> > > If I had to guess, write should work more or less the same as reads
-> > > (ie. I should be able to write aligned-but-smaller-than-page-sized
-> > > blocks to the end of files).
-> > >=20
-> > > Testing this however shows this is *not* the case.
-> >=20
-> > This is not the case, I have also tested here and the file written has
-> > n*block_size always. The problem with writing is that we can't sign to
-> > the kernel that the actual data has finished and from that point on it
-> > should zero-fill the bytes. And what is worse, the information about th=
-e
-> > actual size is lost, since the write syscall will store what is passed
-> > on the 3rd argument in the inode (field st_size of stat). This means
-> > that after writing using O_DIRECT we can't read data correctly anymore.
-> > The exception is when we write together with the data information about
-> > the actual size and process disregarding information from stat, for
-> > instance.
-> >=20
-> > Well, I am sure I am completely wrong because this doesn't make any
-> > sense for me. Someone that has already dealt with this and can bring a
-> > light to the discussion?
-> >=20
->=20
-> For writes, I don't think it is reasonable for the kernel to be have to
-> handle byte-granular appends.  O_DIRECT is different.  For this case the
-> application should ftruncate the file back to the desired size prior to
-> closing it.
->=20
-> For the short reads at EOF, the 2.4 kernel refuses to read anything, and
-> returns zero.  The 2.5 kernel will return -EINVAL, which is better behavi=
-our
-> (shouldn't make it just look like the file is shorter than it really is).
->=20
-> The ideal behaviour is that which I mistakenly described previously: we
-> should fill with zeroes and return the partial result.  I'll look at
-> converting 2.5 to do that.  As long as the changes are small - the direct=
--io
-> code does a ton of stuff, is complex, is not tested a lot and breakage te=
-nds
-> to be subtle.
---=20
-Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-Rutgers University
+NFS: server cheating in read reply: count 8192 > recvd 1000
+NFS: server cheating in read reply: count 8192 > recvd 1000
+NFS: server cheating in read reply: count 8192 > recvd 1000
+NFS: server cheating in read reply: count 3888 > recvd 1000
+NFS: server cheating in read reply: count 8192 > recvd 1000
+NFS: server cheating in read reply: count 8192 > recvd 1000
+...
 
---=-4cqxCqhqhCBPAvoPP7Mt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+		Dave
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+S7gXZGORSF4wrt8RAnrnAKCMcX/efG6/QHZtxRivhYkzDqNgogCfTD0S
-C+kJ69plgLAZO1TPMKNlYnw=
-=4qEQ
------END PGP SIGNATURE-----
-
---=-4cqxCqhqhCBPAvoPP7Mt--
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316607AbSFGBKF>; Thu, 6 Jun 2002 21:10:05 -0400
+	id <S316194AbSFGBfj>; Thu, 6 Jun 2002 21:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316603AbSFGBKE>; Thu, 6 Jun 2002 21:10:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:65175 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316600AbSFGBKD>;
-	Thu, 6 Jun 2002 21:10:03 -0400
-Date: Thu, 06 Jun 2002 18:06:33 -0700 (PDT)
-Message-Id: <20020606.180633.05602904.davem@redhat.com>
-To: zaitcev@redhat.com
-Cc: Ulrich.Weigand@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206061737.g56Hbws24655@devserv.devel.redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316530AbSFGBfi>; Thu, 6 Jun 2002 21:35:38 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:50341 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316194AbSFGBfi>;
+	Thu, 6 Jun 2002 21:35:38 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Johannes Niediek <j.niediek@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPX as module in kernel 2.4.18 has unresolved symbols 
+In-Reply-To: Your message of "Thu, 06 Jun 2002 22:58:15 +0200."
+             <200206062058.g56KwFX11306@mailgate5.cinetic.de> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 07 Jun 2002 11:35:31 +1000
+Message-ID: <10246.1023413731@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pete Zaitcev <zaitcev@redhat.com>
-   Date: Thu, 6 Jun 2002 13:37:58 -0400
+On Thu, 6 Jun 2002 22:58:15 +0200, 
+Johannes Niediek <j.niediek@web.de> wrote:
+>I have some trouble with IPX and kernel 2.4.18. I compiled the kernel with IPX-Support as M, but loading the module is not possible and produces the following output:
+>
+>#>modprobe ipx
+>/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol unregister_8022_client_R7acef15d
 
-   >[...]
-   > Of course, the situation is particularly bad on s390, because every
-   > function call needs at least 96 bytes on the stack (due to the register
-   > save areas required by our ABI).
-   
-   How is this different from sparc64?
-   
-Sparc64 even eats 192 bytes per function call, minimum.  Sibling call
-optimization in current GCC helps, but it is still an issue.
+http://www.tux.org/lkml/#s8-8
+

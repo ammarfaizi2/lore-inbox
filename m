@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266212AbUBDBBP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 20:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUBDBBP
+	id S266224AbUBDBIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 20:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUBDBIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 20:01:15 -0500
-Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:49099 "EHLO
-	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
-	id S266212AbUBDBBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 20:01:12 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Reply-To: s0348365@sms.ed.ac.uk
-Organization: University of Edinburgh
+	Tue, 3 Feb 2004 20:08:23 -0500
+Received: from bay1-f172.bay1.hotmail.com ([65.54.245.172]:2564 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S266224AbUBDBIW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 20:08:22 -0500
+X-Originating-IP: [207.254.34.54]
+X-Originating-Email: [highwind747@hotmail.com]
+From: "raymond jennings" <highwind747@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc3-mm1
-Date: Wed, 4 Feb 2004 01:03:36 +0000
-User-Agent: KMail/1.5.94
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
-References: <20040202235817.5c3feaf3.akpm@osdl.org> <200402040017.43787.s0348365@sms.ed.ac.uk> <200402040135.56602.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200402040135.56602.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402040103.36504.s0348365@sms.ed.ac.uk>
+Subject: Create a message board?
+Date: Tue, 03 Feb 2004 17:08:20 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F172CvbQPgmStr0006974a@hotmail.com>
+X-OriginalArrivalTime: 04 Feb 2004 01:08:21.0225 (UTC) FILETIME=[6182C590:01C3EABB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 February 2004 00:35, Bartlomiej Zolnierkiewicz wrote:
-[snip]
->
-> Oh yes, I am stupid^Wtired.  Maybe it is init_idedisk_capacity()?.
-> Can you add some more printks to idedisk_setup() to see where it hangs?
->
+Would a message board based forum help to alleviate some of the mailing list 
+traffic by keeping information exchanges thread local (no pun intended)?  
+This way the developers specializing in a certain portion of the kernel 
+aren't swamped with information about something totally irrelevant, thus 
+they can focus on what they know.  Example:  File system programmers getting 
+messages relating to sound cards.
 
-I did this, and it appears to hang where you suspected, 
-init_idedisk_capacity(). If this a useful datapoint, I haven't boot-tested a 
-kernel since 2.6.2-rc1-mm1. I can test 2.6.2-rc3 if you're puzzled by this 
-result.
+I am interested in any feedback on this idea.
 
-> > I applied the patch on top of your previous changes, as they seemed
-> > innocuous enough.
->
-> OK.
->
-> --bart
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+_________________________________________________________________
+Scope out the new MSN Plus Internet Software — optimizes dial-up to the max! 
+   http://join.msn.com/?pgmarket=en-us&page=byoa/plus&ST=1
 
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    7/10 Darroch Court,
-            University of Edinburgh.

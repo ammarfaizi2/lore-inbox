@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264803AbTFESXe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 14:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264807AbTFESXe
+	id S264807AbTFESan (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 14:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbTFESan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 14:23:34 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30477
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264803AbTFESXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 14:23:33 -0400
-Date: Thu, 5 Jun 2003 11:37:02 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Vladimir Saveliev <vs@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
-       reiserfs-dev@namesys.com
-Subject: Re: file write performance drop between 2.5.60 and 2.5.70
-Message-ID: <20030605183702.GC3291@matchmail.com>
-Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Vladimir Saveliev <vs@namesys.com>,
-	LKML <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
-References: <200306042017.53435.vs@namesys.com> <1054749758.699.5.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054749758.699.5.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.5.4i
+	Thu, 5 Jun 2003 14:30:43 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:6859 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264865AbTFESam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 14:30:42 -0400
+Message-ID: <3EDF8FCD.4020502@austin.ibm.com>
+Date: Thu, 05 Jun 2003 13:45:33 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: re: Nightly regression run results
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04, 2003 at 08:02:39PM +0200, Felipe Alfaro Solana wrote:
-> On Wed, 2003-06-04 at 18:17, Vladimir Saveliev wrote:
-> > Hi
-> > 
-> > It looks like file write performance dropped somewhere between 2.5.60 and 
-> > 2.5.70.
-> > Doing
-> > time dd if=/dev/zero of=file bs=4096 count=60000
-> > 
-> > on a box with Xeon(TM) CPU 2.40GHz and 1gb of RAM
-> > I get for ext2
-> > 2.5.60: 	real	1.42 sys 0.77
-> > 2.5.70: 	real 1.73 sys 1.23
-> > for reiserfs
-> > 2.5.60: 	real 1.62 sys 1.56
-> > 2.5.70: 	real 1.90 sys 1.86
-> > 
-> > Any ideas of what could cause this drop?
-> 
-> What filesystem are you using?
+ > 
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm1/2.5.70-vs-2.5.70-mm1/
 
-Good one.
+This shows a significant (20%) degrade for SpecSDET in the mm1 tree.   
+The degrade carries forward in the mm2 and mm3 trees.    I see lots more 
+calls to page_remove_rmap and page_add_rmap in the profile for mm1.  Not 
+sure if this is the issue, but probably needs to be looked at.
 
-ext2 and reiserfs.
+Steve
 
-Read the origional message again.

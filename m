@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266210AbSKSO0Y>; Tue, 19 Nov 2002 09:26:24 -0500
+	id <S265513AbSKSOXF>; Tue, 19 Nov 2002 09:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266240AbSKSO0Y>; Tue, 19 Nov 2002 09:26:24 -0500
-Received: from ool-4353bc1c.dyn.optonline.net ([67.83.188.28]:34392 "EHLO
-	dps7.oconnoronline.net") by vger.kernel.org with ESMTP
-	id <S266210AbSKSO0X>; Tue, 19 Nov 2002 09:26:23 -0500
-References: <3DDA4921.30403@oracle.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3DDA4921.30403@oracle.com> (message from Alessandro Suardi on Tue, 19 Nov 2002 15:22:25 +0100)
-To: alessandro.suardi@oracle.com
-Subject: Re: Oracle 9.2 OOMs again at startup in 2.5.4[78]
-From: "Billy O'Connor" <billy@oconnoronline.net>
-Date: 19 Nov 2002 09:34:49 -0500
-Message-ID: <84vg2t39x2.fsf@dps7.oconnoronline.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S265517AbSKSOXF>; Tue, 19 Nov 2002 09:23:05 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:63186 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S265513AbSKSOXE>; Tue, 19 Nov 2002 09:23:04 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 19 Nov 2002 16:06:25 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Javier Marcet <jmarcet@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: Re: [PATCH] bttv & 2.5.48
+Message-ID: <20021119150625.GA13525@bytesex.org>
+References: <20021118141328.GA10815@vana> <20021119132106.GA14615@jerry.marcet.dyndns.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021119132106.GA14615@jerry.marcet.dyndns.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- ...just like it did a few kernels ago (the current->mm issue in 2.5.19
-   that eventually got fixed in 2.5.30 or thereabouts, introduced for the
-   bk-enabled by cset 1.373.221.1).
- 
- I'll go building a 2.5.44 kernel (think it's the only one I didn't have
-   too much trouble building / booting in the 2.5.4x series before .47)
-   and see whether it works or not.
+> This fixes the second of the errors, but not the missing
+> AUDC_CONFIG_PINNACLE I get first:
+> 
+> drivers/media/video/bttv-cards.c: In function AUDC_CONFIG_PINNACLE' 
+> undeclared (first use in this function)
 
-I'd like to try to reproduce this, Alessandro.  Could you forward me
-the other details about the server you're experiencing the problem on?
+> Any idea where the error might be?
 
-Billy O'Connor
+http://bytesex.org/patches/2.5/ has patches for this and other issues.
+
+Files starting with digits are the individual patches,
+patch-2.5.48-kraxel.gz is the "all in one" package.
+
+  Gerd
+
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbSLFNmA>; Fri, 6 Dec 2002 08:42:00 -0500
+	id <S262662AbSLFNqP>; Fri, 6 Dec 2002 08:46:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSLFNmA>; Fri, 6 Dec 2002 08:42:00 -0500
-Received: from [212.41.247.32] ([212.41.247.32]:51183 "EHLO falke.mail")
-	by vger.kernel.org with ESMTP id <S262646AbSLFNl7>;
-	Fri, 6 Dec 2002 08:41:59 -0500
-Message-ID: <3DF0AA36.7050401@winischhofer.net>
-Date: Fri, 06 Dec 2002 14:46:30 +0100
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-C
+	id <S262824AbSLFNqO>; Fri, 6 Dec 2002 08:46:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16650 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262662AbSLFNqO>; Fri, 6 Dec 2002 08:46:14 -0500
+Date: Fri, 6 Dec 2002 08:52:22 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Con Kolivas <conman@kolivas.net>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]2.4.19-ck7
+In-Reply-To: <200212061737.36906.conman@kolivas.net>
+Message-ID: <Pine.LNX.3.96.1021206084913.23051A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: SiS framebuffer compile fail
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 10.0.0.13
-X-Return-Path: thomas@winischhofer.net
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 Dec 2002, Con Kolivas wrote:
 
-James Simmons wrote:
- > > I can confirm that the SIS framebuffer code still doesn't compile in
- > > (vanilla) 2.5.50, my compile error looks the same as was reported
- > > below.
- >
- > Ug!!! I just tested it with my latest work. It needs to be updated to
- > the latest api which is in my last patch.
+> I've gone back and looked at ck7 (was a little while ago). -ck doesnt directly 
+> alter skbuff.c but may be responsible for calling it in an interrupt. I'm 
+> sorry I can't enlighten you as to why it's happening and offer a fix as I 
+> don't really know what the problem is.
+> 
+> The fact that it's happening now regularly and not previously is unusual if 
+> the kernel itself is responsible unless some pattern in your usage has 
+> changed. Perhaps seeing if the problem repeats on a vanilla or alternate 
+> kernel may be helpful (-ck is rather different from vanilla).
 
-I will do this as soon as the API is
-
-1) final and
-
-2) in the stock kernel.
-
-I don't have the time to fiddle with new fbdev patches and produce new 
-drivers for every fbdev update.
-
-Thomas
+I suspect that the network load is getting high enough to travel new code
+paths, it's pushing ~200MB/s 24x7, and I'm sure we get some peaks as well.
+Just thought it might be useful, I will be going to something newer next
+week.
 
 -- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:thomas@winischhofer.net            http://www.winischhofer.net/
-
-
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

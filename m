@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTEKWm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 18:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbTEKWm1
+	id S261374AbTEKWom (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 18:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbTEKWom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 18:42:27 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:49797 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S261428AbTEKWm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 18:42:26 -0400
-Subject: Re: [bug 2.5.69] xirc2ps_cs, irq 3: nobody cared, shutdown hangs
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@diego.com>
-In-Reply-To: <1052689233.30506.1.camel@dhcp22.swansea.linux.org.uk>
-References: <200305111647.32113.daniel.ritz@gmx.ch>
-	 <Pine.LNX.4.50.0305111202510.15337-100000@montezuma.mastecende.com>
-	 <3EBE8768.4000007@pobox.com>
-	 <1052673649.29921.15.camel@dhcp22.swansea.linux.org.uk>
-	 <1052690907.15307.10.camel@imladris.demon.co.uk>
-	 <1052689233.30506.1.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052693703.15307.18.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Sun, 11 May 2003 23:55:04 +0100
+	Sun, 11 May 2003 18:44:42 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:63740 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261374AbTEKWok
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 18:44:40 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: The disappearing sys_call_table export.
+Date: Sun, 11 May 2003 15:57:21 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEFFCOAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com, zwane@linuxpower.ca, daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org, akpm@diego.com
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1052689591.30506.9.camel@dhcp22.swansea.linux.org.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-05-11 at 22:40, Alan Cox wrote:
-> On Sul, 2003-05-11 at 23:08, David Woodhouse wrote:
-> > PCMCIA has varying pin length for the CD pins and hence gives you a few
-> > milliseconds of warning before the card is _actually_ disconnected.
-> 
-> Which is less than the worst case IRQ response time (or indeed on some
-> PCs the worst case CPU hold off time for the PCI bus)
 
-On some hardware. 
+> Security requirements are heavily dependant on role and people sometimes
+> forget that. Being down is bad news for an ecommerce site but in many
+> other situations its infinite preferably to most other situations
 
-> > After that period of time has elapsed and the card is actually gone, you
-> > _really_ don't want to be bitbanging its ports.
-> > 
-> > > Its quite safe to do so.
-> > 
-> > Not on all platforms.
-> 
-> On all that matters it is safe, the others are unfixable anyway
+	This reminds me of a funny story. I was at a meeting to confirm that a
+program met some requirements for an agency in Maryland with a three-letter
+name. After they finally agreed that I had to *see* the requirements before
+I could assert that the program met them, we came to a requirement that
+said, roughly, that it must be possible to immediately stop the system from
+processing any information if they lost, or suspected that they had lost,
+control over it.
 
-Said 'others' will tend to give you better worst-case IRQ latency than a
-PeeCee with broken PCI host bridge and IDE controllers :)
+	I pointed out to them that any software mechanism I devised for shutting
+the system down would require that they had control over the system in order
+to invoke the mechanism.
 
-And even if that weren't the case, you appear to be asserting that
-because a problem may still be triggerable in a worst-case scenario with
-certain hardware configurations, we shouldn't attempt to fix it at all.
-With that I disagree.
+	They thought about that for a moment and were about to find that the system
+did not meet the requirements. I pointed out that anyone could pull the plug
+or network cable if needed or shut the system down at the switch and that
+this could be accomplished even if they lost control over the system and
+would certainly stop it from sending any information. They then agreed that
+the system met that requirement.
 
--- 
-dwmw2
+	DS
 
 

@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288344AbSA0SgI>; Sun, 27 Jan 2002 13:36:08 -0500
+	id <S287373AbSA0Ssb>; Sun, 27 Jan 2002 13:48:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288354AbSA0Sf6>; Sun, 27 Jan 2002 13:35:58 -0500
-Received: from adsl-209-233-24-156.dsl.snfc21.pacbell.net ([209.233.24.156]:56072
-	"EHLO nw.muru.com") by vger.kernel.org with ESMTP
-	id <S288344AbSA0Sfy>; Sun, 27 Jan 2002 13:35:54 -0500
-Date: Sun, 27 Jan 2002 10:35:52 -0800
-To: linux-kernel@vger.kernel.org
-Cc: dhinds@pcmcia.sourceforge.org
-Subject: [PATCH] Linux kernel PCMCIA linear flash memory card fix
-Message-ID: <20020127183552.GA8429@atomide.com>
+	id <S287886AbSA0SsV>; Sun, 27 Jan 2002 13:48:21 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:32012
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S287373AbSA0SsN>; Sun, 27 Jan 2002 13:48:13 -0500
+Message-Id: <5.1.0.14.2.20020127133725.00b0d470@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 27 Jan 2002 13:43:11 -0500
+To: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: 2.2.20: pci-scan+natsemi & Device or resource busy
+  [Success!]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020127095000.GA11142@elektroni.ee.tut.fi>
+In-Reply-To: <5.1.0.14.2.20020126183314.01cbb510@whisper.qrpff.net>
+ <5.1.0.14.2.20020126183314.01cbb510@whisper.qrpff.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-URL: http://www.muru.com/ http://www.atomide.com
-X-Accept-Language: fi en
-X-Location: USA, California, San Francisco
-From: Tony Lindgren <tony@atomide.com>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-Here's a little patch to fix the 2.4.17 PCMCIA to make linear flash
-cards work. The patch should work with all the recent kernels.
-
-Linear flash card are rarely used, but are needed to boot some embedded
-systems, like the AMD ELAN. They are also used in some Cisco routers.
-
-Just FYI, here's some Linux related projects where linear flash cards 
-may be used:
-
-Wireless access points running Linux:
-http://opensource.instant802.com/
-
-Alios boot loader for AMD ELAN:
-http://www.telos.de/linux/alios/default_e.htm
-
-Read Cisco flash cards from Linux: 
-ftp://ftp.bbc.co.uk/pub/ciscoflash/
-
-I'm CC'ing dhinds, as I guess he's taking care of the PCMCIA in 
-the kernel?
-
-Here's a short description of the fix:
-
-Basically there were two problems; The RegisterMTD ioctl was
-accidentally dropped at some point, so the flash cards would not
-register. Then the reference to the flash card memory window was   
-incorrect, so the cards were not seen, and the flash drivers would 
-not unload after use.
-
-Cheers,
-
-Tony
 
 
-diff -urN -X ./dontdiff linux-2.4.17-vanilla/drivers/pcmcia/bulkmem.c linux-2.4.17-tony/drivers/pcmcia/bulkmem.c
---- linux-2.4.17-vanilla/drivers/pcmcia/bulkmem.c	Sun Aug 12 17:37:53 2001
-+++ linux-2.4.17-tony/drivers/pcmcia/bulkmem.c	Sat Jan 26 21:41:49 2002
-@@ -300,7 +300,7 @@
-     {
- 	window_handle_t w;
-         int ret = pcmcia_request_window(a1, a2, &w);
--        (window_handle_t *)a1 = w;
-+        *(window_handle_t *)a1 = w;
- 	return  ret;
-     }
-         break;
-diff -urN -X ./dontdiff linux-2.4.17-vanilla/drivers/pcmcia/cs.c linux-2.4.17-tony/drivers/pcmcia/cs.c
---- linux-2.4.17-vanilla/drivers/pcmcia/cs.c	Fri Dec 21 09:41:55 2001
-+++ linux-2.4.17-tony/drivers/pcmcia/cs.c	Sat Jan 26 21:41:15 2002
-@@ -2283,9 +2283,8 @@
-         *(eraseq_handle_t *)a1 = w;
- 	return  ret;
-     }
--        break;
--/*	return pcmcia_register_erase_queue(a1, a2); break; */
--
-+	break;
-+    case RegisterMTD:
- 	return pcmcia_register_mtd(a1, a2); break;
-     case ReleaseConfiguration:
- 	return pcmcia_release_configuration(a1); break;
+I don't know wtf was wrong, but a few lspci's revealed that whoever's in 
+charge of enumerating wasn't even seeing the cards at all... To test, I had 
+him put three more cards in -- a winmodem, a soundcard, and an older 
+netgear card -- and he placed them like this:
+[FA-311] [Winmodumb] [FA-311] [Soundcard] [Empty] [Old Netgear]
+and lspci showed this:
+<empty slot>
+<winmodumb>
+<empty slot>
+<soundcard>
+<empty slot>
+<old netgear>
+
+After fiddling with it some more the machine magically started to see the 
+cards again, at which point everything worked fine. Weird.
+
+TY to all who helped!
+
+
+--
+Stevie-O
+
+Real programmers use cat > /vmlinuz
+

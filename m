@@ -1,74 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTLTUlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 15:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTLTUlE
+	id S261193AbTLTU1G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 15:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTLTU1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 15:41:04 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:36031
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S261464AbTLTUlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 15:41:00 -0500
-Date: Sat, 20 Dec 2003 12:40:57 -0800
-To: linux kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 ps2 mouse
-Message-ID: <20031220204057.GE7522@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux kernel ML <linux-kernel@vger.kernel.org>
-References: <1071923389.3476.6.camel@cripat.acasa-tr.it>
+	Sat, 20 Dec 2003 15:27:06 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:57801 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261193AbTLTU1A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 15:27:00 -0500
+Date: Sat, 20 Dec 2003 21:26:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/5] 2.6.0 sched migrate comment
+Message-ID: <20031220202611.GB32320@elte.hu>
+References: <3FE46885.2030905@cyberone.com.au> <3FE468BF.9000102@cyberone.com.au> <3FE468F5.7020501@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="at6+YcpfzWZg/htY"
+Content-Type: multipart/mixed; boundary="hQiwHBbRI9kgIhsi"
 Content-Disposition: inline
-In-Reply-To: <1071923389.3476.6.camel@cripat.acasa-tr.it>
-User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+In-Reply-To: <3FE468F5.7020501@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---at6+YcpfzWZg/htY
+--hQiwHBbRI9kgIhsi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 20, 2003 at 01:29:50PM +0100, Cristiano De Michele wrote:
-> I gave new 2.6.0 kernel a try and one thing I noticed is that mouse
-> pointer (imps2 logitech optical mouse on /dev/psaux) has become too
-> sensitive, that is in other words it's almost unusable.
-> With 2.4.x I haven't any problem
 
-This is typically a problem with your XF86Config because many read from
-both /dev/psaux AND /dev/input/mice concurrently. However, in 2.6,
-the data from /dev/psaux is included in /dev/input/mice, so all mouse
-events appear to be recorded twice.
+* Nick Piggin <piggin@cyberone.com.au> wrote:
 
-Just remove the entry from the ServerLayout section, and restart the X
-server.
+> Some comments were lost during minor surgery here...
 
---=20
-Joshua Kwan
+this patch collides with John Hawkes' sched_clock() fix-patch which goes
+in first. Also, the patch does more than just comment fixups. It changes
+the order of tests, where a bug slipped in:
 
---at6+YcpfzWZg/htY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
++       if (!idle && (delta <= cache_decay_ticks))
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+This will cause the cache-hot test to almost never trigger, which is
+clearly incorrect. The correct test is:
 
-iQIVAwUBP+Sz2KOILr94RG8mAQKBYQ//UPZeNC3Xf7Gy/L0Wk6yNoSWE7bY/Pisk
-wiuYWVWPPlptpb68apgz+nIYPFpfF6+O7BpD5HqynoAt0ee0Y/4xO+8/5z7qAQ7l
-gKwLHPmtH4ui/rRYDzCJY2yLKv5gSb/hbCtFCBwFNKwlsyjdeSCgiezIvdrHkpDZ
-0FkT+tKWh1LYsFnw/6pYtQMxYQ9OVHaNKB7BN2w20eq9OYjld36a8daZ4LtQ/2wp
-G2GWd8acbFdbpMVgecsgR4SpJKNj+TKmXXhi0vLoKTtSBP8zUFxuZfc4ABHWwD5g
-WH82LoEoeWuyLI2tbOc54WXvtief23HoU5XbudBaRh9uXWryBUsrYbbkbWGT+Cw5
-x72aINHDhWE0PymTGeIKWVCjXAJIvdgTKsb1/SmpR9pWChEG/s39CdM7ta93rp3t
-+q8La/sE3bH4MB0GEAPRsIpgJDkqSbabxAC+2eUdgGW0R2Zev+BfTJ5ifvZgklnZ
-1M7FIfyLRXPwbOoOWLa7vtK52KYiu82ls/RvcV/dH7Xq/MP+MN9PwSKjrQnX8jAq
-xQ45vIIN76pOMzeyBph9hw4M5zkX7Y35i496LyudiNdfOYKuwunf6BcWCh5C8z1m
-sHnkIdFUc1ba3fiRul6GG8rHPNvZO7WRn8H03y4giwD2Hk/MfOD8s5ipcWoy+9EC
-f++A+TXwqL8=
-=ihyT
------END PGP SIGNATURE-----
+        if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
 
---at6+YcpfzWZg/htY--
+anyway, i've fixed it all up (patch attached).
+
+	Ingo
+
+--hQiwHBbRI9kgIhsi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sched-can-migrate-2.6.0-A1"
+
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -1193,25 +1193,25 @@ static inline void pull_task(runqueue_t 
+ }
+ 
+ /*
+- * Previously:
+- *
+- * #define CAN_MIGRATE_TASK(p,rq,this_cpu)	\
+- *	((!idle || (NS_TO_JIFFIES(now - (p)->timestamp) > \
+- *		cache_decay_ticks)) && !task_running(rq, p) && \
+- *			cpu_isset(this_cpu, (p)->cpus_allowed))
++ * can_migrate_task - may task p from runqueue rq be migrated to this_cpu?
+  */
+-
+ static inline int
+ can_migrate_task(task_t *tsk, runqueue_t *rq, int this_cpu, int idle)
+ {
+ 	unsigned long delta = rq->timestamp_last_tick - tsk->timestamp;
+ 
+-	if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
+-		return 0;
++	/*
++	 * We do not migrate tasks that are:
++	 * 1) running (obviously), or
++	 * 2) cannot be migrated to this CPU due to cpus_allowed, or
++	 * 3) are cache-hot on their current CPU.
++	 */
+ 	if (task_running(rq, tsk))
+ 		return 0;
+ 	if (!cpu_isset(this_cpu, tsk->cpus_allowed))
+ 		return 0;
++	if (!idle && (delta <= JIFFIES_TO_NS(cache_decay_ticks)))
++		return 0;
+ 	return 1;
+ }
+ 
+@@ -1273,13 +1273,6 @@ skip_bitmap:
+ skip_queue:
+ 	tmp = list_entry(curr, task_t, run_list);
+ 
+-	/*
+-	 * We do not migrate tasks that are:
+-	 * 1) running (obviously), or
+-	 * 2) cannot be migrated to this CPU due to cpus_allowed, or
+-	 * 3) are cache-hot on their current CPU.
+-	 */
+-
+ 	curr = curr->prev;
+ 
+ 	if (!can_migrate_task(tmp, busiest, this_cpu, idle)) {
+@@ -1289,6 +1282,8 @@ skip_queue:
+ 		goto skip_bitmap;
+ 	}
+ 	pull_task(busiest, array, tmp, this_rq, this_cpu);
++
++	/* Only migrate one task if we are idle */
+ 	if (!idle && --imbalance) {
+ 		if (curr != head)
+ 			goto skip_queue;
+
+--hQiwHBbRI9kgIhsi--

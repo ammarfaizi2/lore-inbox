@@ -1,39 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUENP7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUENP6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUENP7k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 11:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUENP7k
+	id S261605AbUENP6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 11:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUENP6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 11:59:40 -0400
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:19141 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S261606AbUENP7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 11:59:38 -0400
-Date: Fri, 14 May 2004 10:00:40 -0600
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.6 SMP+HT + 1 Intel P4 HT CPU
-Message-ID: <20040514160040.GA17757@bounceswoosh.org>
-Mail-Followup-To: Justin Piszcz <jpiszcz@lucidpixels.com>,
-	bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-References: <5D3C2276FD64424297729EB733ED1F7605FAE205@email1.mitretek.org> <Pine.LNX.4.58.0405140848220.24191@p500> <20040514133947.GB21039@outpost.ds9a.nl> <Pine.LNX.4.58.0405141106460.24191@p500>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405141106460.24191@p500>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 14 May 2004 11:58:52 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:63142
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261605AbUENP6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 11:58:40 -0400
+Message-ID: <40A4EC7E.4010503@redhat.com>
+Date: Fri, 14 May 2004 08:57:50 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040513
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martijn Sipkema <m.j.w.sipkema@student.tudelft.nl>
+CC: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: POSIX message queues should not allocate memory on send
+References: <000701c4399e$88a3aae0$161b14ac@boromir> <20040514095145.GC30909@devserv.devel.redhat.com> <000601c439a3$f793af40$161b14ac@boromir> <20040514104012.GE30909@devserv.devel.redhat.com> <001001c439b0$db1af1e0$161b14ac@boromir>
+In-Reply-To: <001001c439b0$db1af1e0$161b14ac@boromir>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14 at 11:07, Justin Piszcz wrote:
->So essentially, if one does not enable SMP in Linux, they are not taking
->advantage of hyper threading!?
+Martijn Sipkema wrote:
 
-correct
+> Indeed maybe returning ENOMEM from mq_send() is conforming to the
+> standard.
 
+Indeed, it is.
+
+
+> What _is_ clear from the standard is that a queue is supposed to be
+> allocated on creation, even if it may not be required.
+
+Nothing is clear when it comes to the behavior.  There are certainly
+some aspects of a possible implementation which the designers of the
+APIs had in mind, but this is absolutely no requirement.
+
+
+> What use is a message queue for a realtime application when on
+> mq_send() it may have to wait for memory allocation that may even
+> fail?
+
+That's a completely different issue.  You want everybody to suffer
+because of the requirements of have.  This is the same as if you would
+demand the overcommit is disable.
+
+Yes, there are situations where the allocation-on-demand is not
+desirable and the POSIX API description is indeed hinting at such uses.
+ But the APIs are useful even without having such hard requirements and
+so far the people who developed the code have not seen this hard
+realtime requirement.
+
+If you have such requirements I suggest that you sit done and write some
+extensions.  I.e., do not replace the current default behavior, but
+instead make it possible to force pre-allocation.  I'd say the natural
+way is to define a O_* flag which only mq_open() and mq_setattr()
+understands.  The former will get it in the second parameter, the latter
+via the mq_flags field in the incoming struct mq_attr structure.
+Something like O_PREALLOCATE.  Again, the flag would only be needed for
+message queues, so a bit other than the ones used by mq_open() can be
+reused.
+
+
+> Even if POSIX allows errors to be returned that are not in the function's
+> ERRORS list, I don't think one should do this if it can be avoided.
+
+Do your part to fulfill your niche-requirements.
 
 -- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

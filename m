@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbTJJQU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 12:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbTJJQU2
+	id S263072AbTJJQfW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 12:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbTJJQfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 12:20:28 -0400
-Received: from pat.uio.no ([129.240.130.16]:49846 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263036AbTJJQUZ (ORCPT
+	Fri, 10 Oct 2003 12:35:22 -0400
+Received: from wiggis.ethz.ch ([129.132.86.197]:37772 "EHLO wiggis.ethz.ch")
+	by vger.kernel.org with ESMTP id S263068AbTJJQfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 12:20:25 -0400
+	Fri, 10 Oct 2003 12:35:09 -0400
+From: Thom Borton <borton@phys.ethz.ch>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: PCMCIA CD-ROM does not work
+Date: Fri, 10 Oct 2003 18:35:01 +0200
+User-Agent: KMail/1.5.4
+References: <200310101652.53796.borton@phys.ethz.ch> <20031010170402.E4702@flint.arm.linux.org.uk>
+In-Reply-To: <20031010170402.E4702@flint.arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16262.56385.45369.538978@charged.uio.no>
-Date: Fri, 10 Oct 2003 12:20:17 -0400
-To: shuey@fmepnet.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Misc NFSv4 (was Re: statfs() / statvfs() syscall ballsup...)
-In-Reply-To: <200310101055.12626.shuey@fmepnet.org>
-References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
-	<20031010143553.GA28795@mail.shareable.org>
-	<16262.53512.249701.158271@charged.uio.no>
-	<200310101055.12626.shuey@fmepnet.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+Message-Id: <200310101835.03924.borton@phys.ethz.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Michael Shuey <shuey@fmepnet.org> writes:
 
-     > How about other features?  In particular, do the client/server
-     > do authentication (krb5? lipkey/spkm3?), integrity and privacy?
+True, now I will try to compile a kernel with CONFIG_ISA=y.
 
-Client side krb5 authentication was added in November last
-year. Privacy and integrity are queued but fell afoul of the
-code-freeze. I'll bun(d|g)le them into an NFS_ALL after we've tested
-them out in the v4 Bakeathon in Austin (so in about a fortnight).
+Let's see...
 
-I believe the server support is ready too but hasn't yet been merged
-in due to bugs in the upcall mechanism.
+On Fri, Oct 10, 2003 at 04:52:50PM +0200, Thom Borton wrote:
+> Oct 10 09:38:57 grisu kernel: Yenta: CardBus bridge found at 
+0000:00:0c.0 [104d:8082]
+> Oct 10 09:38:57 grisu kernel: Yenta: ISA IRQ list 00b8, PCI irq9
+> Oct 10 09:38:57 grisu kernel: Socket status: 30000086
+> Oct 10 09:38:58 grisu cardmgr[411]: watching 1 socket
+> Oct 10 09:38:58 grisu cardmgr[412]: starting, version is 3.2.5
+> Oct 10 09:39:15 grisu cardmgr[412]: socket 0: Ninja ATA
+> Oct 10 09:39:15 grisu kernel: cs: memory probe 0x0c0000-0x0fffff: 
+excluding 0xc0000-0xcbfff 0xdc000-0xdffff 0xe8000-0xfffff
+> Oct 10 09:39:15 grisu cardmgr[412]: executing: 'modprobe ide-cs'
+> Oct 10 09:39:15 grisu kernel: ide-cs: RequestIRQ: Unsupported mode
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-     > Also, are any patches on Citi's site useful anymore?  I see
-     > patches for 2.6.0-test1, but nothing more recent.  Have they
-     > been folded into the main tree?
+You turned off CONFIG_ISA.
 
-I'm cherrypicking the relevant bugfixes from CITI and folding those
-into the tree. Much of the rest will be part of the forthcoming
-NFS_ALL.
+-- 
+Thom Borton
+Switzerland
 
-Cheers,
-  Trond

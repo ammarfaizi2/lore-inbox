@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129964AbRBCRly>; Sat, 3 Feb 2001 12:41:54 -0500
+	id <S130148AbRBCRly>; Sat, 3 Feb 2001 12:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130148AbRBCRlp>; Sat, 3 Feb 2001 12:41:45 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:54460 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S129964AbRBCRld>; Sat, 3 Feb 2001 12:41:33 -0500
-Date: Sat, 3 Feb 2001 18:41:25 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: <T.Stewart@student.umist.ac.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: DFE-530TX with no mac address
-In-Reply-To: <3A7C3C6E.7296.82EE32@localhost>
-Message-ID: <Pine.LNX.4.30.0102031824030.14465-100000@cola.teststation.com>
+	id <S130320AbRBCRlo>; Sat, 3 Feb 2001 12:41:44 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:49860 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S130148AbRBCRld>; Sat, 3 Feb 2001 12:41:33 -0500
+Message-ID: <3A7C4291.6029AB7@home.com>
+Date: Sat, 03 Feb 2001 12:40:33 -0500
+From: John Cavan <johncavan@home.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Odd behaviour on / filesystem and SCSI removable media
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Feb 2001 T.Stewart@student.umist.ac.uk wrote:
+Hi,
 
-> I noticed that the mac address was stored in the registers and 
-> eprom. I guess it would not be as easy as just writing the mac 
-> back in the blank eprom and registers?
+I noticed an odd thing about my / file system:
 
-What my changed via-diag tries to do is to tell the chip to reload things
-from the eeprom (note that the diag program doesn't actually list the
-eeprom contents).
+du -hx reports 74mb used
+df -h . reports 236mb used
 
-You can always try writing all the registers with "good" values.
+The same behaviour does not show on other mounted filesystems... I'm not
+sure which to believe...
 
+I've seen this with 2.4.1 and 2.4.1-ac1, the filesystem is ReiserFS and
+the kernel was compiled with egcs-1.1.2 (egcs-2.91.66).
 
-> Is there a reset 'thing' for thses chips, that sets them back to 
-> factory tests (like switching them off)?
-[snip]
-> So.....How do I go about playing this game?
+Also, I've seen some interesting behaviour with an Iomega Jaz drive.
+Basically, if I boot without a disk in the drive, the device is listed
+as 1gb assumed so that when I insert a 2gb disk in the drive, it gets
+messed up, unable to read the partition table. Same behaviour with the
+Zip drive, picked up as a default 1gb (no Zip disk I'm aware of is this
+large!) and can't deal with a 100 mb disk. Makes disk swapping with
+removable media rather clunky since modules need to be removed and
+reloaded to detect properly.
 
-You find the reset "thing". Maybe there is better documentation somewhere.
-Maybe your bios allows you to reset something on reboots.
-
-The pdf document has a few things that you can play with, SRST, INIT, 
-STRT.
-
-/Urban
-
+John
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

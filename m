@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRBTO3u>; Tue, 20 Feb 2001 09:29:50 -0500
+	id <S129249AbRBTOlw>; Tue, 20 Feb 2001 09:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129360AbRBTO3a>; Tue, 20 Feb 2001 09:29:30 -0500
-Received: from [206.245.154.69] ([206.245.154.69]:48522 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S129246AbRBTO3Z>; Tue, 20 Feb 2001 09:29:25 -0500
-Date: Tue, 20 Feb 2001 09:29:25 -0500 (EST)
-From: Admin Mailing Lists <mlist@intergrafix.net>
+	id <S129258AbRBTOln>; Tue, 20 Feb 2001 09:41:43 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:42511 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S129249AbRBTOlg>; Tue, 20 Feb 2001 09:41:36 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: kernel problems
+Date: Tue, 20 Feb 2001 14:42:53 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <96tvpd$9tq$1@ncc1701.cistron.net>
+In-Reply-To: <E14VBLx-0006RO-00@the-village.bc.nu> <3A92757C.1913E653@kud-kontrabant.si>
+X-Trace: ncc1701.cistron.net 982680173 10170 195.64.65.67 (20 Feb 2001 14:42:53 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Subject: 2.4 VFS message
-Message-ID: <Pine.LNX.4.10.10102200922410.15986-100000@athena.intergrafix.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3A92757C.1913E653@kud-kontrabant.si>,
+Janez Vrenjak  <janez@kud-kontrabant.si> wrote:
+>> Generally its indicative of hardwae when you get dcache corruption especially
+>> with late 2.2, but it might be more complex. Does the box pass memtest86 ?
+>
+>I'm not shure what  memtest86 is ...
 
-got this message spewed on my console this morning:
+http://www.google.com/search?q=memtest86
 
-VFS: dqduplicate(): Locked quota to be duplicated!
-
-SMP 2.4.1-ac9
-quota is used on 1 ext2 FS, converted from the old quota format with the
-new quota utils quota-3.00
-
-Thanx,
-
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
-
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Mike.
+-- 
+I live the way I type; fast, with a lot of mistakes.
 

@@ -1,88 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263463AbTL2M4e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 07:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263478AbTL2M4d
+	id S263298AbTL2Msd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 07:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTL2Msd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 07:56:33 -0500
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:13216 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S263463AbTL2MyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 07:54:15 -0500
-Date: Mon, 29 Dec 2003 13:54:14 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Speed drop /dev/sda -> /dev/sda1 -> /dev/vg0/test (3ware/LVM)
-Message-ID: <20031229125412.GA28262@cistron.nl>
+	Mon, 29 Dec 2003 07:48:33 -0500
+Received: from gprs214-59.eurotel.cz ([160.218.214.59]:28032 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263298AbTL2Msa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 07:48:30 -0500
+Date: Mon, 29 Dec 2003 13:49:14 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
+Message-ID: <20031229124914.GA317@elf.ucw.cz>
+References: <200312231138.21734.kernel@kolivas.org> <20031226225652.GE197@elf.ucw.cz> <200312271042.55989.kernel@kolivas.org> <20031227110903.GA1413@elf.ucw.cz> <3FEFD18D.3070608@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-NCC-RegID: nl.cistron
+In-Reply-To: <3FEFD18D.3070608@cyberone.com.au>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-	I'm running Linux 2.6.0 with a 3ware 8506 controller in
-hardware RAID5 mode. The RAID5 array is built of 7+1 200 MB SATA
-disks.
+> >>>BTW this is going to be an issue even on normal (non-HT)
+> >>>systems. Imagine memory-bound scientific task on CPU0 and nice -20
+> >>>memory-bound seti&home at CPU1. Even without hyperthreading, your
+> >>>scientific task is going to run at 50% of speed and seti&home is going
+> >>>to get second half. Oops.
+> >>>
+> >>>Something similar can happen with disk, but we are moving out of
+> >>>cpu-scheduler arena with that.
+> >>>
+> >>>[I do not have SMP nearby to demonstrate it, anybody wanting to
+> >>>benchmark a bit?]
+> >>>
+> >>This is definitely the case but there is one huge difference. If you have 
+> >>2x1Ghz non HT processors then the fastest a single threaded task can run 
+> >>is at 1Ghz. If you have 1x2Ghz HT processor the fastest a single threaded 
+> >>task can run is 2Ghz. 
+> >>
+> >
+> >Well, gigaherz is not the *only* important thing.
+> >
+> >On 2x1GHz, 2GB/sec RAM bandwidth, fastest a single threaded task can
+> >run is 1GHz, 2GB/sec. If you run two of them, it is 1GHz,
+> >*1*GB/sec. So you still have effect similar to hyperthreading. And
+> >yes, it can be measured.
+> >
+> 
+> Hi Pavel,
+> Sure this might be a real problem sometimes, but I don't see the
+> CPU scheduler ever handling it unless we want to add a few kitchen
+> sinks to its nice lean code as well.
 
-Now it appears that more "mappings" on the array have a bad
-influence on speed. /dev/sda is the fastest, /dev/sda1 is quite
-a bit slower, LVM on /dev/sda is slower yet and LVM on /dev/sda1
-is the slowest.
+Why is it a problem? If you are handling HT case, anyway, it should be
+fairly easy to say "imagine it is HT system, not SMP one", and poof,
+problem magically goes away.
+								Pavel
 
-Results of a dd write directly on the RAID5 whole device:
+/*
+ *  .----~~|
+ *  \      |
+ *   ~~~~~~
+ */
 
-time -p sh -c "dd if=/dev/zero of=/dev/sda bs=4k count=100000; sync"
-100000+0 records in
-100000+0 records out
-409600000 bytes transferred in 5.120484 seconds (79992437 bytes/sec)
-real 5.23
-user 0.03
-sys 0.98
-
-Results on the first partition:
-
-time -p sh -c "dd if=/dev/zero of=/dev/sda1 bs=4k count=100000; sync"
-100000+0 records in
-100000+0 records out
-409600000 bytes transferred in 6.141125 seconds (66697878 bytes/sec)
-real 6.24
-user 0.04
-sys 2.06
-
-LVM is created on /dev/sda or /dev/sda1 using the following commands:
-pvcreate $DEVICE
-vgcreate vg0 $DEVICE
-lvcreate -L 100G -n test vg0
-
-Results for a logical volume on /dev/sda:
-
-time -p sh -c "dd if=/dev/zero of=/dev/vg0/test bs=4k count=100000; sync"
-100000+0 records in
-100000+0 records out
-409600000 bytes transferred in 8.624306 seconds (47493676 bytes/sec)
-real 8.65
-user 0.05
-sys 1.03
-
-time -p sh -c "dd if=/dev/zero of=/dev/vg0/test bs=4k count=100000; sync"
-Results for a logical volume on /dev/sda1:
-100000+0 records in
-100000+0 records out
-409600000 bytes transferred in 9.223930 seconds (44406234 bytes/sec)
-real 9.27
-user 0.07
-sys 0.97
-
-This is reproducable. I also tested this on a software RAID5
-array, but with SW RAID5 it doesn't matter if I use the whole
-disk, a partition, or a logical volume; performance is always
-the same (slightly faster than HW RAID5; 100 MB/sec).
-
-Any idea how to get the performance back ? How can I go about
-debugging this ?
-
-Mike.
+[Ready-made kitchen-sink for scheduler :-)))]
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265058AbTARUah>; Sat, 18 Jan 2003 15:30:37 -0500
+	id <S265066AbTARUlH>; Sat, 18 Jan 2003 15:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265063AbTARUah>; Sat, 18 Jan 2003 15:30:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:64914 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265058AbTARUag>;
-	Sat, 18 Jan 2003 15:30:36 -0500
-Date: Sat, 18 Jan 2003 12:40:51 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: harinath@cs.umn.edu, adam@yggdrasil.com, alsa-devel@alsa-project.org,
-       perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant
- errno variable
-Message-Id: <20030118124051.2056dc64.akpm@digeo.com>
-In-Reply-To: <20030118202723.GA27477@vana.vc.cvut.cz>
-References: <20030117155717.A6250@baldur.yggdrasil.com>
-	<d9n0lz18an.fsf@bose.cs.umn.edu>
-	<20030118031319.GA19982@vana.vc.cvut.cz>
-	<d9bs2e8o0b.fsf@bose.cs.umn.edu>
-	<20030118202723.GA27477@vana.vc.cvut.cz>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S265074AbTARUlH>; Sat, 18 Jan 2003 15:41:07 -0500
+Received: from pool-151-197-239-219.phil.east.verizon.net ([151.197.239.219]:6528
+	"EHLO ingchai.lan") by vger.kernel.org with ESMTP
+	id <S265066AbTARUlH>; Sat, 18 Jan 2003 15:41:07 -0500
+Date: Sat, 18 Jan 2003 15:50:06 -0500
+From: Steve Lion <steve.lion@verizon.net>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Whole thing about GNU/Linux and Linux
+Message-ID: <20030118205006.GA417@localnet.sytes.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jan 2003 20:39:21.0073 (UTC) FILETIME=[ADD84610:01C2BF31]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
->
-> And as I do not have sound hardware which needs firmware, I do not
-> want to make more changes than absolutely necessary to the code I cannot
-> verify. Of course if you'll find someone with hardware...
+Would like to first say, I am not a hacker or contributor to the
+linux-kernel.  The point of this e-mail will probably not effect anything.  All I have to say is that all of this arguing about the name GNU/Linux / Linux
+must/should come to an end.  You all are arguing over a stale point.
+People will call it GNU/Linux, people will call it Linux.  That's the
+end of it.  All of this crap being exchanged will result in not one damn
+thing.  Some people may not get the credit they deserve, but OH WELL,
+shit happens.  Let people call it what they want.  All of you will just
+keep going back and forth over your own view of the subject, and still,
+nothing good will be at the end.  You can keep making  comment on this
+or not, but the argument will never end.  Neither side will win.
 
-Your patch was clearly an improvement on what was there, so I shall be
-sending it in to Linus.  If it breaks then we will hear about it soon enough.
+-SL
 
-
+I am simply a person who uses the Linux operating system.  Nothing else.

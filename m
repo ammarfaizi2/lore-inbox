@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262043AbSJHLdh>; Tue, 8 Oct 2002 07:33:37 -0400
+	id <S261988AbSJHLda>; Tue, 8 Oct 2002 07:33:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262048AbSJHLdh>; Tue, 8 Oct 2002 07:33:37 -0400
-Received: from holomorphy.com ([66.224.33.161]:34782 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262043AbSJHLdg>;
-	Tue, 8 Oct 2002 07:33:36 -0400
-Date: Tue, 8 Oct 2002 04:36:20 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: akpm@zip.com.au, Martin.Bligh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.41: i386/mm/discontig.c doesn't compile with CONFIG_HIGHMEM
-Message-ID: <20021008113620.GE12432@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Adrian Bunk <bunk@fs.tum.de>, akpm@zip.com.au,
-	Martin.Bligh@us.ibm.com, linux-kernel@vger.kernel.org
-References: <Pine.NEB.4.44.0210081241140.8340-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0210081241140.8340-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S262043AbSJHLda>; Tue, 8 Oct 2002 07:33:30 -0400
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:12501 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S261988AbSJHLda>; Tue, 8 Oct 2002 07:33:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: zlatko.calusic@iskon.hr, Alessandro Suardi <alessandro.suardi@oracle.com>
+Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 2.5.x
+Date: Tue, 8 Oct 2002 13:38:50 +0200
+User-Agent: KMail/1.4.3
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210011401360.991-100000@localhost.localdomain> <874rc4fzml.fsf@atlas.iskon.hr> <87ptulcgzc.fsf@atlas.iskon.hr>
+In-Reply-To: <87ptulcgzc.fsf@atlas.iskon.hr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210081338.50495.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 12:45:05PM +0200, Adrian Bunk wrote:
-> FYI:
-> The compilation of arch/i386/mm/discontig.c fails in both 2.5.41 and
-> 2.5.41-ac1 with the following error when CONFIG_HIGHMEM is enabled:
-> <--  snip  -->
+> I also observed that other application I use occasionally - LXR (Linux
+> source cross referencing tool) - takes much longer to generate xref
+> database (which is in Berkeley DB files). It works in three passes,
+> where the last one, when it dumps symbols into DB, is interesting. In
+> 2.4 it finishes quickly (it uses 100% CPU, then occasionally syncs the
+> databases - heavy write traffic for a second - then continues), but
+> 2.5 has problems with it (it stucks writing to disk all the time, CPU
+> usage is minimal and process progresses very slowly). Andrew, if
+> you're interested I can send you some numbers to describe the case
+> better.
 
-Fix already sent to akpm.
+Hmmm, are you using ext3?  Changes to the meaning of yield sometimes
+make fsync go very slowly.  This problem has been around since 2.5.28,
+and hasn't yet been fixed (As for a fix, Andrew Morton said "I'll sit tight for
+the while, see where shed_yield() behaviour ends up").
 
-Date:   Sat, 5 Oct 2002 17:05:33 -0700
-From:   William Lee Irwin III <wli@holomorphy.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, akpm@zip.com.au
-Subject: 2.5.40 snapshot ia32 discontig compilefix
-Message-ID: <20021006000533.GE12432@holomorphy.com>
+All the best,
 
-
-
-Bill
+Duncan.

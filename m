@@ -1,20 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264765AbTE1PQW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbTE1PQW
+	id S264762AbTE1PPT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264764AbTE1PPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:16:22 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:45191 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264765AbTE1PQL
+	Wed, 28 May 2003 11:15:19 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:48517 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264762AbTE1PPS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:16:11 -0400
-Date: Wed, 28 May 2003 08:29:19 -0700
+	Wed, 28 May 2003 11:15:18 -0400
+Date: Wed, 28 May 2003 08:28:09 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 753] New: hisax needs unresolved symbol kstat__per_cpu 
-Message-ID: <16090000.1054135759@[10.10.2.4]>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       John Stoffel <stoffel@lucent.com>,
+       DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.70 compile error
+Message-ID: <15740000.1054135688@[10.10.2.4]>
+In-Reply-To: <20030528074317.GE19818@holomorphy.com>
+References: <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com> <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com> <16083.35048.737099.575241@gargle.gargle.HOWL> <Pine.LNX.4.44.0305272010550.12110-100000@serv> <20030527184016.GA5847@suse.de> <4060000.1054072761@[10.10.2.4]> <20030528033459.GR8978@holomorphy.com> <13590000.1054102279@[10.10.2.4]> <20030528074317.GE19818@holomorphy.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,238 +28,22 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-           Summary: hisax needs unresolved symbol kstat__per_cpu
-    Kernel Version: 2.5.70-bk1
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: wakko@start.no
+> (1) APIC vs. xAPIC
+> (2) clustered hierarchical DFR vs. flat DFR
+> (3) physical DESTMOD vs. logical DESTMOD in IO-APIC RTE's
+> (4) wakeup via INIT or via NMI
+> (5) physical IPI's or logical IPI's
+> 
+> So one could easily form destinations by:
 
+Yes. It's fixable, and I think that's a good project for 2.7, but I really
+don't think that level of change is justified at the moment. Testing this
+stuff is a pain in the ass, it's a lot of work to do properly and carefully.
+And what does that change buy us in reality? Not a lot. 
 
-Distribution: gentoo 
-Hardware Environment: dynalink isdn card "winbond", athlon xp
-Software Environment: gcc 3.2.3
-Problem Description: 
+I agree it would be nice to do ... just not the focus during a 2.6 
+stabilisation effort, when we have so many other more important things to
+work on, that would have real impact.
 
-make modules gives:
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  Starting the build. KBUILD_BUILTIN= KBUILD_MODULES=1
-  Building modules, stage 2.
-  MODPOST
-*** Warning: "mmu_cr4_features" [drivers/char/drm/radeon.ko] undefined!
-*** Warning: "group_send_sig_info" [drivers/isdn/i4l/isdn.ko] undefined!
-*** Warning: "kstat__per_cpu" [drivers/isdn/hisax/hisax.ko] undefined!
-
-
-Steps to reproduce:
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_1GB=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_LBD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=m
-CONFIG_PPP=y
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_ISDN_BOOL=y
-CONFIG_ISDN=m
-CONFIG_ISDN_PPP=y
-CONFIG_ISDN_PPP_VJ=y
-CONFIG_ISDN_MPP=y
-CONFIG_ISDN_PPP_BSDCOMP=m
-CONFIG_ISDN_CAPI=m
-CONFIG_ISDN_CAPI_MIDDLEWARE=y
-CONFIG_ISDN_CAPI_CAPI20=m
-CONFIG_ISDN_CAPI_CAPIFS_BOOL=y
-CONFIG_ISDN_CAPI_CAPIFS=m
-CONFIG_ISDN_CAPI_CAPIDRV=m
-CONFIG_ISDN_DRV_HISAX=m
-CONFIG_HISAX_EURO=y
-CONFIG_HISAX_MAX_CARDS=8
-CONFIG_HISAX_W6692=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_HW_RANDOM=y
-
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_CODEPAGE_865=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_UTF8=y
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_EMU10K1=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_DEBUG_INFO=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
+M.
 

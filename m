@@ -1,30 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSILUSd>; Thu, 12 Sep 2002 16:18:33 -0400
+	id <S317191AbSILUS2>; Thu, 12 Sep 2002 16:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317215AbSILUSd>; Thu, 12 Sep 2002 16:18:33 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:339 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317194AbSILUSc>; Thu, 12 Sep 2002 16:18:32 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200209122022.g8CKMJS15137@devserv.devel.redhat.com>
-Subject: Re: [PATCH] 2.4-ac task->cpu abstraction and optimization
-To: mikpe@csd.uu.se (Mikael Pettersson)
-Date: Thu, 12 Sep 2002 16:22:19 -0400 (EDT)
-Cc: rml@tech9.net (Robert Love), alan@redhat.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <15744.57073.2852.707839@kim.it.uu.se> from "Mikael Pettersson" at Sep 12, 2002 08:37:36 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S317194AbSILUS2>; Thu, 12 Sep 2002 16:18:28 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:12108 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S317191AbSILUS1>;
+	Thu, 12 Sep 2002 16:18:27 -0400
+Date: Thu, 12 Sep 2002 22:23:14 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pid_max hang again...
+Message-ID: <20020912202314.GA12775@win.tue.nl>
+References: <Pine.LNX.4.33.0209111428280.20725-100000@ccvsbarc.wipro.com> <20020911171934.GA12449@win.tue.nl> <3D7FF3E7.61772A26@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D7FF3E7.61772A26@digeo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > also took a look at your patch -- looks good, you should submit it to
->  > Marcelo... it cannot hurt for 2.4.
+On Wed, Sep 11, 2002 at 06:54:47PM -0700, Andrew Morton wrote:
+> Andries Brouwer wrote:
+> > 
+> > ...
+> > Again. We have 2^30 = 10^9 pids. In reality there are fewer than 10^4
+> > processes. So once in 10^5 pid allocations do we make a scan over
+> > these 10^4 processes,
 > 
-> I might do that, unless Alan plans on pushing the -ac sched.c stuff to
-> Marcelo, in which case my patch would just confuse things. Alan?
+> Inside tasklist_lock?  That's pretty bad from a latency point of
+> view.  A significant number of users would take the slower common
+> case to avoid this.
 
-I'd like to see it in 2.4 base. Its really Marcelo's call.
+That would be unwise of all these users.
+As soon as people have so many processes that this becomes a problem,
+then instead of making things slower they should make things faster
+still, at the cost of a little bit of extra code.
+
+Similarly, people that need real-time guarantees will probably add
+that extra code.
+
+Now that things are ten thousand times better than they were very
+recently I find it a bit surprising that people worry. But yes, when
+needed it is very easy to come with further improvements.
+Once people stand up and say that they need Linux machines with 10^6
+processes, or with 10^4 processes and real time guarantees, then we
+must have a discussion about data structures, and a discussion about
+standards.
+
+The standards part is this: what values are allowed for p->pgrp,
+p->tgid, p->session? Can these be arbitrary numbers? Or can the
+positive values among them be restricted to pid's?
+If this restriction can be imposed we can be slightly more efficient.
+
+But these future discussions must not be about get_pid() but about
+task list handling, scheduling, sending signals, all places that
+today have for_each_task(p) ...
+
+Andries

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314101AbSGBXdC>; Tue, 2 Jul 2002 19:33:02 -0400
+	id <S314149AbSGCADt>; Tue, 2 Jul 2002 20:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSGBXdB>; Tue, 2 Jul 2002 19:33:01 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24057 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314101AbSGBXdA>;
-	Tue, 2 Jul 2002 19:33:00 -0400
-Date: Tue, 2 Jul 2002 19:35:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal 
-In-Reply-To: <32193.1025585595@kao2.melbourne.sgi.com>
-Message-ID: <Pine.GSO.4.21.0207021922520.6472-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314243AbSGCADs>; Tue, 2 Jul 2002 20:03:48 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:22666 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314149AbSGCADs>;
+	Tue, 2 Jul 2002 20:03:48 -0400
+Date: Wed, 3 Jul 2002 02:06:07 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Ralph Corderoy <ralph@inputplus.co.uk>
+Cc: Anton Altaparmakov <aia21@cantab.net>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
+Message-ID: <20020703020607.A7689@ucw.cz>
+References: <aia21@cantab.net> <200207011746.g61Hkxf27019@blake.inputplus.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200207011746.g61Hkxf27019@blake.inputplus.co.uk>; from ralph@inputplus.co.uk on Mon, Jul 01, 2002 at 06:46:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 01, 2002 at 06:46:58PM +0100, Ralph Corderoy wrote:
+> 
+> Hi Anton,
+> 
+> > > What I'd like to see, if both hid.o and usbkbd.o can handle a
+> > > keyboard, is that hid.o gets the job.  Then usbkbd.o can stay in
+> > > config.in and be built just in case it's needed.
+> > 
+> > usbkbd.o is never needed when hid.o is present unless I have
+> > misunderstood something.
+> 
+> Ah, I thought that in the same way the BIOS might not support the HID
+> interface and so can use the simpler Boot interface, a keyboard might
+> not implement the HID interface and just implement the simpler Boot one.
+> Apologies if this isn't the case.  I agree that hid.o should be able to
+> cope with everything then.
 
+No, this is not the case. Even if the device implements only one mode
+and that mode is HIDBP compatible, it's still also HID compatible,
+because HIDBP is a subset of HID.
 
-On Tue, 2 Jul 2002, Keith Owens wrote:
+> > > Ah, OK, thanks.  Unfortunately, I've already moved onto 2.4.18 built
+> > > from source due to some of my other needs.
+> > 
+> > In that case just reconfigure your kernel not to include usbkbd and
+> > use hid instead, recompile, and be happy.
+> 
+> Yes, that's what I've done, and I'm happy, but still wish to persue the
+> problem in order that usbkbd.o gets fixed.  Otherwise, someone else will
+> spend their weekend learning about usbkbd.c, HID, Boot, etc.  :-)
 
-> For netfilter, the use count reflects the number of packets being
-> processed.  Complex and potentially high overhead.
+usbkbd.c will get fixed. No worries.
 
-<blink>
-
-_Why_???
-
-If some rule in your chains needs a module foo, you probably want foo
-to stay around until that rule is removed.  Even if there's no traffic
-whatsoever.
-
-So what's the problem with making use count equal to number of rules
-referencing the module?  You need exclusion between chain changes and
-chain traversing anyway...
- 
-> All of this requires that the module information be passed in multiple
-> structures and assumes that all code is careful about reference
-> counting the code it is about to execute.  There has to be a better
-> way!
-
-You know, I'd rather trust core code to do something right than expect
-all drivers to follow any non-trivial rules (and "you should not block
-in <areas>" _is_ non-trivial enough).
-
-No comments on the network devices - I'll need to read through the code
-to answer that one...
-
+-- 
+Vojtech Pavlik
+SuSE Labs

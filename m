@@ -1,85 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbUCXWF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 17:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUCXWF0
+	id S262132AbUCXWFg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 17:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUCXWFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 17:05:26 -0500
-Received: from ns.suse.de ([195.135.220.2]:21971 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262130AbUCXWFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 17:05:17 -0500
-Date: Wed, 24 Mar 2004 23:03:10 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Non-Exec stack patches
-Message-ID: <20040324220310.GF4504@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Andi Kleen <ak@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <1D3lO-3dh-13@gated-at.bofh.it> <1D3YZ-3Gl-1@gated-at.bofh.it> <m3n066eqbf.fsf@averell.firstfloor.org> <4061619F.4020704@stesmi.com> <20040324112739.GA64848@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="doKZ0ri6bHmN2Q5y"
-Content-Disposition: inline
-In-Reply-To: <20040324112739.GA64848@colin2.muc.de>
-X-Operating-System: Linux 2.6.4-2-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Wed, 24 Mar 2004 17:05:35 -0500
+Received: from chello062178136209.2.14.vie.surfer.at ([62.178.136.209]:33540
+	"EHLO mh.gaugusch.at") by vger.kernel.org with ESMTP
+	id S262132AbUCXWFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 17:05:18 -0500
+Date: Wed, 24 Mar 2004 23:05:14 +0100 (CET)
+From: Markus Gaugusch <markus@gaugusch.at>
+X-X-Sender: markus@phoenix.kerstin.at
+To: Pavel Machek <pavel@ucw.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the
+ merge?]
+In-Reply-To: <20040324102233.GC512@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0403242259220.9887@phoenix.kerstin.at>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au>
+ <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz>
+ <200403232352.58066.dtor_core@ameritech.net> <20040324102233.GC512@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mar 24, Pavel Machek <pavel@ucw.cz> wrote:
 
---doKZ0ri6bHmN2Q5y
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Út 23-03-04 23:52:58, Dmitry Torokhov wrote:
+> > most often is your love for "panic"ing instead of trying to recover. In that
+> > case you understandably want as many preceding messages as possible left
+> > intact on the screen to diagnose the problem. If error recovery is ever done
+> > then some eye-candy probably won't hurt.
+> 
+> Except when error recovery does not work.
+The most valuable tool of all swsusp developers and testers was and is the
+serial console. If there are errors that haven't been found yet by anyone
+(and a lot already have been found and fixed!), it's time to dig out the
+console cable, record it and report it. That's what happend all the time
+in the last year or so.
+In all cases, I never could do much with the text on the screen. Apart 
+from being hard to paste into emails, it also scrolled away in most cases 
+(or worse: everything was just hanging and I had to increase debug level 
+which produced even more output that wouldn't fit on screen). By the way - 
+higher debug levels disable nice output automatically (AFAIR).
 
-Hi Andi,
+> > 'top' running on console overwriting the very same messages. Should we ban
+> > top?
+> 
+> Its bad idea to run top when kernel messages are not redirected
+> somewhere. Unfortunately eye-candy makes that choice for you, and does
+> the wrong thing automatically.
+> 								Pavel
+Did I say redirect to serial console or what? ;-)
 
-On Wed, Mar 24, 2004 at 12:27:39PM +0100, Andi Kleen wrote:
-Stefan Smietanowski <stesmi@stesmi.com> wrote:
-> > I would THINK they would include the NX bit but that's just a guess of
-> > course.
->=20
-> Most likely yes.=20
->=20
-> But who buys such crippled CPUs will have to live with that. Or do a patc=
-h.
+Markus
 
-It should be straightforward. Put a different value in the
-protection_map if such a CPU is detected. That should be all.
-
-> NX support is mostly hype anyways, it doesn't give you much advantage.
-
-It puts the hurdle somewhat higher and for some exploits does prevent
-them. You can still overwrite the return address, but you need to have
-put code into the data section prior to this to exploit. This may or may
-not possible depending on how the daemon works. Marking the data section
-non-executable would help further ...
-
-It's always a tradeoff. Given the simplicity of the patch, I'm in favour
-of having it.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
-
---doKZ0ri6bHmN2Q5y
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAYgWexmLh6hyYd04RAkZRAKCSysnZmTSdOwvzyF5NnjTxsnHTzgCgpmBK
-kGEB5FLy5smmv509Ms9T3wU=
-=NyRc
------END PGP SIGNATURE-----
-
---doKZ0ri6bHmN2Q5y--
+-- 
+__________________    /"\ 
+Markus Gaugusch       \ /    ASCII Ribbon Campaign
+markus(at)gaugusch.at  X     Against HTML Mail
+                      / \

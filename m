@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268696AbUI2QTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268703AbUI2QTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268696AbUI2QTM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 12:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUI2QTL
+	id S268703AbUI2QTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 12:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUI2QTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 12:19:11 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:57013 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S268696AbUI2QTD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 12:19:03 -0400
-Date: Wed, 29 Sep 2004 18:19:05 +0200
-From: maks attems <debian@sternwelten.at>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo.tosatti@cyclades.com, sam@ravnborg.org
-Subject: [patch 2.4] menuconfig fix crash due to infinite recursion
-Message-ID: <20040929161905.GK1835@stro.at>
+	Wed, 29 Sep 2004 12:19:46 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:44292 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268700AbUI2QTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 12:19:41 -0400
+Date: Wed, 29 Sep 2004 17:19:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, brian.b@hp.com
+Subject: Re: patch so cciss stats are collected in /proc/stat
+Message-ID: <20040929171926.A14606@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mike.miller@hp.com,
+	mikem@beardog.cca.cpqcorp.net, marcelo.tosatti@cyclades.com,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+	brian.b@hp.com
+References: <20040929161345.GB22308@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040929161345.GB22308@beardog.cca.cpqcorp.net>; from mike.miller@hp.com on Wed, Sep 29, 2004 at 11:13:45AM -0500
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gawk(1) tells that getline "returns 0 on end of file and -1 on an error."
-in current script for menuconfig if getline has an error,
-it is still treated as true.
+On Wed, Sep 29, 2004 at 11:13:45AM -0500, mike.miller@hp.com wrote:
+> Currently cciss statistics are not collected in /proc/stat. This patch
+> bumps DK_MAX_MAJOR to 111 to fix that. This has been a common complaint
+> by customers wishing to gather info about cciss devices.
+> Please consider this for inclusion. Applies to 2.4.28-pre3.
 
-2.6 don't use that script anymore.
-fix suggestion from Aharon Robbins <arnold@skeeve.com>
-debian bts has 2 bugs open concerning that issue,
-this is the one containing belows fix:
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=147469
+This patch has been reject about half a million times, why are people
+submitting it again and again?
 
-[TM] tested.
-menuconfig still works for me. ;)
-
-
---- a/scripts/Menuconfig	2002-08-03 02:39:46.000000000 +0200
-+++ b/scripts/Menuconfig	2004-09-29 18:00:29.000000000 +0200
-@@ -714,7 +714,7 @@ BEGIN {
- 
- function parser(ifile,menu) {
- 
--	while (getline <ifile) {
-+	while ((getline < ifile) > 0) {
- 		if ($1 == "mainmenu_option") {
- 			comment_is_option = "1"
- 		}
-
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
+You get more detailed statistics in /proc/partitions.
 

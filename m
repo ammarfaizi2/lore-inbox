@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbUKIM6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbUKIM55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbUKIM6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 07:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUKIM6Q
+	id S261245AbUKIM55 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 07:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUKIM55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 07:58:16 -0500
-Received: from 80.178.47.123.forward.012.net.il ([80.178.47.123]:18304 "EHLO
-	linux15") by vger.kernel.org with ESMTP id S261176AbUKIM6K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 07:58:10 -0500
-From: Oded Shimon <ods15@ods15.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: RivaFB on Geforce FX 5200
-Date: Tue, 9 Nov 2004 14:58:06 +0200
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Nov 2004 07:57:57 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:12299 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261245AbUKIM5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 07:57:54 -0500
+Date: Tue, 9 Nov 2004 12:57:47 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: dhowells@redhat.com
+Cc: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: [PATCH 17/20] FRV: Better mmap support in uClinux
+Message-ID: <20041109125747.GB4867@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org,
+	davidm@snapgear.com, linux-kernel@vger.kernel.org,
+	uclinux-dev@uclinux.org
+References: <20040401020550.GG3150@beast> <200411081434.iA8EYKn7023613@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411091458.06585.ods15@ods15.dyndns.org>
+In-Reply-To: <200411081434.iA8EYKn7023613@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> +/* list of shareable VMAs */
+> +LIST_HEAD(nommu_vma_list);
+> +DECLARE_RWSEM(nommu_vma_sem);
 
-I'm trying to get the rivafb module to work on my Geforce FX, i used the 
-rivatv program as reference to simply add the PCI device to the list of 
-supported devices in riva/fbdev.c . After which I was surprised to find out 
-that after compiling and making a module it successfully modprobed, created 
-the /dev/fb device, and MPlayer and X used it happily.
-I now managed to get it to work for FB console as well, but it has some 
-issues, and I really have no idea about the causes and solutions to these 
-problems.
+As I told you this absolutely should be static.
 
-One problem is when switching from X back to FB console, I can still see the X 
-cache (at the different res and color depth, it simply looks like noise...), 
-until some kind of modification has happenned in the console.
-If i run any kind of program which modifies the frame buffer, for ex. fbset or 
-ppmtofb, the FB console is irreversibly ruined until reboot. (it looks mostly 
-like noise which you can barely make out the console text underneath).
-The worst problem - no penguin at boot up. :(  There is a black bar in the 
-area where its supposed to be, but no image...
-My guess is the cause for most of these problem is me causing the driver to 
-think it can support my card, when it doesn't really have all the kinks 
-sorted out...
-
-Up until now I've always used vesafb, and the "nvidia" binary module for X... 
-vesa is slow though, which is why I am trying to get rivafb to work.. I also 
-recently realized that the free "nv" module support geforce FX,  and it works 
-good on my X...
-
-
-- ods15

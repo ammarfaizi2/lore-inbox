@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264456AbTCXWLB>; Mon, 24 Mar 2003 17:11:01 -0500
+	id <S264455AbTCXWJW>; Mon, 24 Mar 2003 17:09:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264457AbTCXWLB>; Mon, 24 Mar 2003 17:11:01 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:57233
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S264456AbTCXWK6>; Mon, 24 Mar 2003 17:10:58 -0500
-Message-ID: <3E7F8505.8020708@redhat.com>
-Date: Mon, 24 Mar 2003 14:21:57 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: clone or ptrace bug?
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264456AbTCXWJW>; Mon, 24 Mar 2003 17:09:22 -0500
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:28036 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S264455AbTCXWJT>;
+	Mon, 24 Mar 2003 17:09:19 -0500
+Date: Mon, 24 Mar 2003 17:20:27 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: SNARE and Ptrace?
+Message-ID: <20030324222027.GD683@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XvKFcGCOAo53UbWW"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Using strace on an MT application I see strange output from restarted
-clone() calls.  Something like this:
-
-[pid 17862]
-clone(CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED
-  ->  child_stack=0x41147ab0,
-flags=CLONE_FILES|CLONE_IDLETASK|CLONE_PTRACE|CLONE_VFORK|CLONE_PARENT|CLONE_THREAD|CLONE_NEWNS|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED|CLONE_UNTRACED|CLONE_CHILD_SETTID|0xbe0000f8,
-[17884], {entry_number:6, base_addr:0x41147d40, limit:1048575,
-seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-seg_not_present:0, useable:1}, 0x41147d88) = 17884
+--XvKFcGCOAo53UbWW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-This is the output of a hacked version of strace.  The part before the
-"->" is printed when the syscall enters the kernel.  Normally nothing
-gets printed at that time.
 
-The problem is that the flags word is different after the syscall.  This
-/might/ not cause any real problems in this case but what happens if the
-syscall gets restarted?
+Has anyone tested to see if "Snare" from intersectalliance.com can
+detect someone executing a ptrace attack?  An old company I used to work
+for has a number of production kernels out and can't just upgrade them
+all over night so they need a good detection method and short-term fix
+if possible.  In the past we had evaluated Snare which I pointed him to
+but we're not sure if/how it might detect such an attack.
 
-In any case, the parameters should be modified.
+Thoughts/Theories?
+  Robert
 
-This is with the 2.5 BK kernel from yesterady or the day before with gcc
-3.2.2-5.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--XvKFcGCOAo53UbWW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+f4UF2ijCOnn/RHQRAuYzAKCpVPRV8rG+NetG3REIC9OrIZLBwQCgsNt6
-S5xj6kjpbKCwZl6WVuadcrA=
-=tvm4
+iD8DBQE+f4Sr8+1vMONE2jsRArBvAKC/AdKs8eMRb9v/ZYskT3/IMl2hOwCfcbRS
+nJroFZXXEq5oMr3xI6Cau+w=
+=g7G2
 -----END PGP SIGNATURE-----
 
+--XvKFcGCOAo53UbWW--

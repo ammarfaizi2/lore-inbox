@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262318AbTEUWyd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 18:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTEUWyc
+	id S262352AbTEUXAK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 19:00:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTEUXAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 18:54:32 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:49538
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S262318AbTEUWyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 18:54:31 -0400
-Date: Wed, 21 May 2003 18:56:51 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: James Cleverdon <jamesclv@us.ibm.com>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "David S. Miller" <davem@redhat.com>, "" <haveblue@us.ibm.com>,
-       "" <wli@holomorphy.com>, "" <arjanv@redhat.com>,
-       "" <pbadari@us.ibm.com>, "" <linux-kernel@vger.kernel.org>,
-       "" <gh@us.ibm.com>, "" <johnstul@us.ibm.com>, "" <akpm@digeo.com>,
-       "" <mannthey@us.ibm.com>
-Subject: Re: userspace irq balancer
-In-Reply-To: <200305210654.22987.jamesclv@us.ibm.com>
-Message-ID: <Pine.LNX.4.50.0305211856090.25777-100000@montezuma.mastecende.com>
-References: <3014AAAC8E0930438FD38EBF6DCEB56402043344@fmsmsx407.fm.intel.com>
- <200305210654.22987.jamesclv@us.ibm.com>
+	Wed, 21 May 2003 19:00:09 -0400
+Received: from as5-6-5.hdn.s.bonet.se ([217.215.97.110]:36992 "EHLO
+	mcojj.vger.org") by vger.kernel.org with ESMTP id S262352AbTEUXAJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 19:00:09 -0400
+From: prox@vger.org
+To: linux-kernel@vger.kernel.org
+Subject: Question: kernel 2.4.20, mount --bind
+Date: Thu, 22 May 2003 01:12:30 +0200
+Message-ID: <uo1ocv4p16jpi22ndi5rhhc6r04lp7jovl@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 May 2003, James Cleverdon wrote:
+I'm wondering how many mounts can 2.4.20+ handle? And are device mounts
+separated from --bind mounts or is it the same table?
 
-> It may be time to think about using the TPRs again, and see if HW interrupt 
-> routing helps Arjan's test case.  Of course for any system using clustered 
-> APIC mode, we will still need to decide which APIC cluster gets which IRQ....
+How much of a preformance lost would it be to have say something like 5k
+--bind mounts?
 
-You can build cpu masks of capable clusters easily, even for NUMAQ
+Thanks
 
-	Zwane
--- 
-function.linuxpower.ca
+--
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb382793634903snlbx806007844
+59087snlbx71765988876376snlbx11172185121099snlbx'|\dc
+:prox:<prox@vger.org>:icq.18682823:www.vger.org:
+:unix/linux.admin/coder:www.vger.org/cv.html:

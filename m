@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277266AbRJJP1H>; Wed, 10 Oct 2001 11:27:07 -0400
+	id <S277270AbRJJPUp>; Wed, 10 Oct 2001 11:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277271AbRJJP06>; Wed, 10 Oct 2001 11:26:58 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:59146 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S277266AbRJJP0l>;
-	Wed, 10 Oct 2001 11:26:41 -0400
-Date: Wed, 10 Oct 2001 17:27:09 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: low-latency patches
-To: alan@lxorguk.ukuu.org.uk,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3BC468CD.5A2C8FF4@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S277266AbRJJPUf>; Wed, 10 Oct 2001 11:20:35 -0400
+Received: from mercury.lss.emc.com ([168.159.40.77]:14087 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S277270AbRJJPUY>; Wed, 10 Oct 2001 11:20:24 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F550792AB@srgraham.eng.emc.com>
+From: "conway, heather" <conway_heather@emc.com>
+To: "'Andre Margis '" <andre@sam.com.br>,
+        "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
+Subject: RE: EMC SYMMETRIX multiple LUN's
+Date: Wed, 10 Oct 2001 11:20:50 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox (alan@lxorguk.ukuu.org.uk) wrote :
-> > Right. It needs to be a conscious, planned decision: "from now on, 
-> > holding a lock for more than 500 usecs is a bug". 
-> 
-> Firstly you can start with "of course some hardware will stall the bus 
-> longer than that" 
+Andre,
+I would recommend that you check out the patch posted by Mike Brown.  The
+name of the thread is [PATCH] Fix: bug in scan_scsis_single()? for 2.4.10
+(PASS 2) and it applies to v2.4.10.  I would recommend that you apply the
+patch and reload your driver.  That should work.
+Thanks.
+Heather
 
-So ?
+-----Original Message-----
+From: conway, heather 
+Sent: Tuesday, October 09, 2001 3:16 PM
+To: 'Andre Margis '; 'linux-kernel@vger.kernel.org '
+Subject: RE: EMC SYMMETRIX multiple LUN's
 
-Some hardware miscalculates certain floating point operations,
-but we still use FPUs.
 
-Some ethernet cards corrupt the packets, but Linux still supports ethernet.
+Andre,
+There is a problem in the SCSI scanning code in v2.4.7 and up.  As of right
+now, I have not found a patch or fix that will work to correct the problem
+of scanning properly with or without the Symmetrix.  In v2.4.7, the SCSI
+scanning code was changed.  That coupled with the fact that sequentail
+scanning is used instead of a REPORT_LUNs and the fact that the SCSI
+midlayer will scan indefinitely for LUNs can cause a panic or can cause the
+host to scan indefinitely.
+There have been a couple of patches posted, but none have fixed the problem
+yet.  
+Heather 
 
-Some IDE hardrives lock up in DMA mode, yet Linux still supports DMA.
+-----Original Message-----
+From: Andre Margis
+To: linux-kernel@vger.kernel.org
+Sent: 10/8/01 9:50 AM
+Subject: EMC SYMMETRIX multiple LUN's
 
-Some softmodems don't work at all, yet Linux still support modems.
+I testing DELL 8450 under Linux, and kernel probe only two LUN's from
+EMC, 0 
+and 1, but I have 2 and 254, if  I use scsi add-single-device to this
+other 
+LUN's, works perfect. I try to set max_scsi_luns, has the same results.
 
-There is always buggy hardware in every category. No reason to not use the good ones.
+I test with kernel 2.4.9, 2.4.10-ac7, both have the same problem.
 
-david, just being a PITA ...
+With Conectiva Linux Kernel 2.4.5-9cl, he show all LUNS, work fine!
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Any Help?
+
+
+Thank's
+
+
+
+
+Andre
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

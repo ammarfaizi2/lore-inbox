@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVABUD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVABUJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVABUD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVABUD7
+	id S261312AbVABUJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVABUJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:03:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9658 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261311AbVABUDt (ORCPT
+	Sun, 2 Jan 2005 15:09:10 -0500
+Received: from tabit.netstar.se ([195.178.179.33]:54219 "HELO tabit.netstar.se")
+	by vger.kernel.org with SMTP id S261312AbVABUJH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:03:49 -0500
-Date: Sun, 2 Jan 2005 12:03:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: wli@holomorphy.com, riel@redhat.com, andrea@suse.de,
-       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
-       kernel@kolivas.org
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-Id: <20050102120324.2b52a848.akpm@osdl.org>
-In-Reply-To: <20050102151147.GA1930@suse.de>
-References: <Pine.LNX.4.61.0412201013080.13935@chimarrao.boston.redhat.com>
-	<20041220125443.091a911b.akpm@osdl.org>
-	<Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com>
-	<20041224160136.GG4459@dualathlon.random>
-	<Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com>
-	<20041224164024.GK4459@dualathlon.random>
-	<Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com>
-	<20041225020707.GQ13747@dualathlon.random>
-	<Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com>
-	<20041225190710.GZ771@holomorphy.com>
-	<20050102151147.GA1930@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 2 Jan 2005 15:09:07 -0500
+Subject: Re: 2.6.10: e100 network broken after swsusp/resume
+From: =?ISO-8859-1?Q?H=E5kan?= Lindqvist <lindqvist@netstar.se>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20050102184239.GA21322@butterfly.hjsoft.com>
+References: <20041228144741.GA2969@butterfly.hjsoft.com>
+	 <20050101172344.GA1355@elf.ucw.cz>
+	 <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net>
+	 <20050102184239.GA21322@butterfly.hjsoft.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sun, 02 Jan 2005 21:09:16 +0100
+Message-Id: <1104696556.2478.12.camel@pefyra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> > Lifting the artificial lowmem restrictions on blockdev mappings
->  > (thereby nuking mapping->gfp_mask altogether) would resolve a number of
->  > problems, not that anything making that much sense could ever happen.
+On sön, 2005-01-02 at 13:42 -0500, John M Flinchbaugh wrote:
+> pci=routeirq worked for me to get my e100 working again after resume.
+
+For the record: It works around my problems with e100 and snd-intel8x0,
+too.
+
 > 
->  It should be lifted for block devices, it doesn't make any sense.
+> so what's that mean?  what's the trade-off for using this option?
 
-Before we can permit blockdev pagecache to use highmem we must convert
-every piece of code which accesses the cache to use kmap/kmap_atomic.  If
-you grep around for b_data you'll see there are a lot of such places.
 
-Probably the migration could be done on a per-fs basis.
+The Documentation/kernel-parameters.txt says this about pci=routeirq:
+"Do IRQ routing for all PCI devices. This is normally done in
+pci_enable_device(), so this option is a temporary workaround for broken
+drivers that don't call it."
+
+Ie, it doesn't sound too bad to use it until the problem is solved.
+And I don't know if this particular issue is a case of broken drivers,
+but that was what the parameter was added to work around.
+
+
+/Håkan
+

@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318919AbSHSPZs>; Mon, 19 Aug 2002 11:25:48 -0400
+	id <S318915AbSHSPba>; Mon, 19 Aug 2002 11:31:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318923AbSHSPZs>; Mon, 19 Aug 2002 11:25:48 -0400
-Received: from waste.org ([209.173.204.2]:2695 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318919AbSHSPZr>;
-	Mon, 19 Aug 2002 11:25:47 -0400
-Date: Mon, 19 Aug 2002 10:29:36 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Marco Colombo <marco@esi.it>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with random.c and PPC
-Message-ID: <20020819152936.GD14427@waste.org>
-References: <20020819140207.GC14427@waste.org> <Pine.LNX.4.44.0208191617400.26653-100000@Megathlon.ESI>
+	id <S318922AbSHSPba>; Mon, 19 Aug 2002 11:31:30 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:12024 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318915AbSHSPb3>; Mon, 19 Aug 2002 11:31:29 -0400
+Subject: Re: 2.4.20-pre2-ac2 pcmcia panic
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Dreher <dreher@math.tsukuba.ac.jp>
+Cc: linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
+In-Reply-To: <20020819150841.69B1113B47@abel.math.tsukuba.ac.jp>
+References: <20020819150841.69B1113B47@abel.math.tsukuba.ac.jp>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 19 Aug 2002 16:35:32 +0100
+Message-Id: <1029771332.19758.34.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208191617400.26653-100000@Megathlon.ESI>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 05:11:03PM +0200, Marco Colombo wrote:
-> On Mon, 19 Aug 2002, Oliver Xymoron wrote:
+On Mon, 2002-08-19 at 16:09, Michael Dreher wrote:
+> 2.4.19-ac4 with pcmcia-cs-3.1.33 shows the same symptoms.
+> 2.4.19-ac4 with pcmcia-cs-3.1.34 does not lock up, but also does not work.
 > 
-> > > If you need a weak solution (a perturbated PRNG), just read a few bits
-> > > from /dev/random at times (but in a controlled and defined way).
-> > 
-> > It might be helpful to think of /dev/urandom as akin to /dev/random with
-> > O_NONBLOCK. "Give me stronger bits if you got 'em" is desirable,
-> > otherwise this thread would be much shorter.
-> 
-> "desirable", yes, I see... B-). But I have to understand why, yet.
-> 
-> "Give me the best you can, but even 0 is ok" just serves to help people
-> waste resources. If your application is fine with (potentially)
-> guessable bits, you don't need /dev/random at all. If you do care
-> about a minimum, you know it in advance, so do fetch those bits
-> (and only them) from /dev/random, and use them. Yes, it may block,
-> but that's life.  Resources aren't infinite.
+> Kernel pcmcia never worked on this box, so I had to resort to the version of
+> David Hinds.
 
-For most people, entropy input far exceeds entropy output and the pool
-is a finite size. There's no reason not to use these entropy bits as
-the pool is always full and we're discarding entropy constantly. It's
-only a problem when the pool is running low and we risk making
-/dev/random block.
- 
-> I'm missing any real argument for having /dev/urandom logic into the
-> kernel.
+The later IDE almost certainly isnt compatible with David Hinds
+pcmcia-cs ide module. The IDE updates that went into pre3 make it even
+more definitely so.
 
-Convenience and control of resource sharing. The latter is slightly
-under-implemented.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

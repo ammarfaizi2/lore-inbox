@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUIGAfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267476AbUIGAsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267451AbUIGAfj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 20:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUIGAfj
+	id S267476AbUIGAsI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 20:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUIGAsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 20:35:39 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:61876
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S267451AbUIGAfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 20:35:37 -0400
-Date: Mon, 6 Sep 2004 20:39:27 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: trivial@rustcorp.com.au
-Subject: [PATCH] Make IRDA_DEBUG() Calls Uniform in ircomm_{lmp,ttp}.c
-Message-ID: <20040907003927.GB4370@kurtwerks.com>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	trivial@rustcorp.com.au
+	Mon, 6 Sep 2004 20:48:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23936 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267476AbUIGAsE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 20:48:04 -0400
+Subject: Re: [NFS] Re: why do i get "Stale NFS file handle" for hours?
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Sven =?ISO-8859-1?Q?K=F6hler?= <skoehler@upb.de>,
+       linux-kernel@vger.kernel.org,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>
+In-Reply-To: <1094353267.13791.156.camel@lade.trondhjem.org>
+References: <chdp06$e56$1@sea.gmane.org>
+	 <1094348385.13791.119.camel@lade.trondhjem.org>  <413A7119.2090709@upb.de>
+	 <1094349744.13791.128.camel@lade.trondhjem.org>  <413A789C.9000501@upb.de>
+	 <1094353267.13791.156.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1094518532.20243.50.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.4.26
-X-Woot: Woot!
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 07 Sep 2004 10:55:32 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While chasing down a kernel janitor task, I found a minor typo/cosmetic
-blemish in ircomm_lmp.c and ircomm_ttp.c. The patches below fix two 
-IRDA_DEBUG calls to look like all of the other IRDA_DEBUG calls in these 
-two files.
+On Sun, 2004-09-05 at 13:01, Trond Myklebust wrote:
+> When your server fails to work as per spec, then it is said to be
+> "broken" no matter what kernel/nfs-utils combination you are using.
+> The spec is that reboots are not supposed to clobber filehandles.
+> 
+> So, there are 3 possibilities:
+> 
+>  1) You are exporting a non-supported filesystem, (e.g. FAT). See the
+> FAQ on http://nfs.sourceforge.org.
+>  2) A bug in your initscripts is causing the table of exports to be
+> clobbered. Running "exportfs" in legacy 2.4 mode (without having the
+> nfsd filesystem mounted on /proc/fs/nfsd) appears to be broken for me at
+> least...
+>  3) There is some other bug in knfsd that nobody else appears to be
+> seeing.
+> 
 
-Diffed against 2.6.7
-Compile tested
+4) You're exporting a filesystem mounted on a block device whose
+   device minor number is dynamic and has changed at the last reboot,
+   e.g. loopback mounts or SCSI.
+5) The mapping of minor numbers is stable but you physically re-arranged
+   the disks or SCSI cards and changed /etc/fstab correspondingly.
 
-Signed-off-by: Kurt Wall <kwall@kurtwerks.com>
+Before you say any more, yes this is broken and fixing it properly is
+Hard.  This is why have the fsid export option.
 
-diff -Naur linux-2.6.7/net/irda/ircomm/ircomm_lmp.c b/net/irda/ircomm/ircomm_lmp.c
---- linux-2.6.7/net/irda/ircomm/ircomm_lmp.c	2003-12-17 21:58:05.000000000 -0500
-+++ b/net/irda/ircomm/ircomm_lmp.c	2004-09-06 20:06:01.000000000 -0400
-@@ -64,7 +64,7 @@
- 
- 	self->lsap = irlmp_open_lsap(LSAP_ANY, &notify, 0);
- 	if (!self->lsap) {
--		IRDA_DEBUG(0,"%sfailed to allocate tsap\n", __FUNCTION__ );
-+		IRDA_DEBUG(0,"%s(), failed to allocate tsap\n", __FUNCTION__ );
- 		return -1;
- 	}
- 	self->slsap_sel = self->lsap->slsap_sel;
-diff -Naur linux-2.6.7/net/irda/ircomm/ircomm_ttp.c b/net/irda/ircomm/ircomm_ttp.c
---- linux-2.6.7/net/irda/ircomm/ircomm_ttp.c	2003-12-17 21:59:41.000000000 -0500
-+++ b/net/irda/ircomm/ircomm_ttp.c	2004-09-06 20:07:16.000000000 -0400
-@@ -65,7 +65,7 @@
- 	self->tsap = irttp_open_tsap(LSAP_ANY, DEFAULT_INITIAL_CREDIT,
- 				     &notify);
- 	if (!self->tsap) {
--		IRDA_DEBUG(0, "%sfailed to allocate tsap\n", __FUNCTION__ );
-+		IRDA_DEBUG(0, "%s(), failed to allocate tsap\n", __FUNCTION__ );
- 		return -1;
- 	}
- 	self->slsap_sel = self->tsap->stsap_sel;
-
-Regards,
-
-Kurt
+Greg.
 -- 
-Intolerance is the last defense of the insecure.
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
+

@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267870AbTCFHZl>; Thu, 6 Mar 2003 02:25:41 -0500
+	id <S267871AbTCFHek>; Thu, 6 Mar 2003 02:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267871AbTCFHZl>; Thu, 6 Mar 2003 02:25:41 -0500
-Received: from flrtn-2-m1-133.vnnyca.adelphia.net ([24.55.67.133]:30592 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S267870AbTCFHZk>;
-	Thu, 6 Mar 2003 02:25:40 -0500
-Message-ID: <3E66FA6B.3050506@tmsusa.com>
-Date: Wed, 05 Mar 2003 23:36:11 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01 (NSCD7.01)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, ahu@ds9a.nl
-Subject: Re: Oops in 2.5.64
-References: <3E66E782.5010502@tmsusa.com> <20030305223638.77c22cb7.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267880AbTCFHek>; Thu, 6 Mar 2003 02:34:40 -0500
+Received: from packet.digeo.com ([12.110.80.53]:18142 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267871AbTCFHej>;
+	Thu, 6 Mar 2003 02:34:39 -0500
+Date: Wed, 5 Mar 2003 23:45:53 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: rml@tech9.net, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Message-Id: <20030305234553.715f975e.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+References: <20030228202555.4391bf87.akpm@digeo.com>
+	<Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Mar 2003 07:45:05.0674 (UTC) FILETIME=[4DAF2EA0:01C2E3B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
->J Sloan <joe@tmsusa.com> wrote:
->  
+Linus Torvalds <torvalds@transmeta.com> wrote:
 >
->>Mar  5 21:17:41 jyro init: Switching to runlevel: 3
->>Mar  5 21:17:42 jyro kernel: mtrr: MTRR 2 not used
->>Mar  5 21:17:43 jyro microcode_ctl: microcode_ctl startup succeeded
->>Mar  5 21:17:44 jyro kernel: Unable to handle kernel paging request at virtual address d85b0000
->>    
->>
->
->hmm, looks like a module address.
->
-ah - hmm...
+> 
+> On Fri, 28 Feb 2003, Andrew Morton wrote:
+> > > 
+> > > Andrew, if you drop this patch, your X desktop usability drops?
+> > 
+> > hm, you're right.  It's still really bad.  I forgot that I was using distcc.
+> > 
+> > And I also forgot that tbench starves everything else only on CONFIG_SMP=n.
+> > That problem remains with us as well.
+> 
+> Andrew, I always thought that the scheduler interactivity was bogus, since
+> it didn't give any bonus to processes that _help_ interactive users
+> (notably the X server, but it could be other things).
 
->>Mar  5 21:17:44 jyro kernel: EFLAGS: 00010216
->>Mar  5 21:17:44 jyro kernel: EIP is at __constant_c_and_count_memset+0x85/0xa0
->>    
->>
->
->Eh?  How come the compiler didn't inline __constant_c_and_count_memset?
->What compiler version are you using?
->
-Yes, odd -
+The current interactivity booster heuristic does appear to work very well - I
+did an A/B comparison with 2.4.x a while back, and 2.5 is distinctly better.
 
-I'm using plain old gcc-3.2 as supplied by Red Hat
+But it is a heuristic, and it will inevitably make mistakes.  The problem
+which I am observing is that the cost of those mistakes is very high.
 
->
->My guess would be that something has tried to reference a module which isn't
->there any more.
->
->Did you at any time unload a module?   If so, which one?
->
-I last unloaded a module while running 2.4.21-pre5-ac1
+I believe that we should recognise that no heuristic will be 100% accurate,
+and that we should seek to minimise the impact of those 0.1%-of-the time
+mistakes which it will make.  Perhaps by just dropping the max timeslice??
 
-I hadn't done so in 2.4.64 - at least not manually...
+Let me redescribe the problem:
 
-Joe
+- Dual 850MHz PIII, 900M of RAM.
+- Start a `make -j3 vmlinux', everything in pagecache
+- Start using X applications.  Moving a window about is the usual trigger.
 
+Everything goes happily for a while, and then blam.  Windows get stuck for
+0.5-1.0 seconds, the mouse pointer gets so laggy that it is uncontrollable,
+etc.  The fix is to put your hands in your pockets for 5-10 seconds and wait
+for the scheduler to notice that the X server is idle.
 
+Interestingly, this does not happen if the background load is a bunch of
+busywaits.  It seems to need the fork&exit load of a compilation to trigger.
+
+Robert was able to reproduce this, and noticed that the scheduler had niced
+the X server down as far as it would go.
+
+I'm a pretty pathological case, because I was driving two 1600x1200x24
+displays with a crufty old AGP voodoo3 and a $2 PCI nvidia.  Am now using a
+presumably less crufty radeon and the problem persists.
+
+But last time I tested Ingo's interactivity patch things were a lot better. 
+I shall retest his latest now.
 

@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbUBWBBx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 20:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbUBWBBt
+	id S261700AbUBWBG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 20:06:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUBWBG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 20:01:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25776 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261301AbUBWBAR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 20:00:17 -0500
-Subject: fbdv/fbcon pending problems
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077497593.5960.28.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 23 Feb 2004 11:53:14 +1100
+	Sun, 22 Feb 2004 20:06:57 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:9132 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261700AbUBWBGv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 20:06:51 -0500
+Message-ID: <40395227.9030606@cyberone.com.au>
+Date: Mon, 23 Feb 2004 12:06:47 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: cw@f00f.org, mfedyk@matchmail.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Large slab cache in 2.6.1
+References: <20040222033111.GA14197@dingdong.cryptoapps.com>	<4038299E.9030907@cyberone.com.au>	<40382BAA.1000802@cyberone.com.au>	<4038307B.2090405@cyberone.com.au>	<40383300.5010203@matchmail.com>	<4038402A.4030708@cyberone.com.au>	<40384325.1010802@matchmail.com>	<403845CB.8040805@cyberone.com.au>	<20040221221721.42e734d6.akpm@osdl.org>	<40384D9D.6040604@cyberone.com.au>	<20040222083637.GA15589@dingdong.cryptoapps.com>	<20040222011350.58f756e8.akpm@osdl.org>	<40394662.5060104@cyberone.com.au>	<20040222162634.560c5306.akpm@osdl.org>	<40394A9F.1050606@cyberone.com.au>	<20040222164617.7fba4321.akpm@osdl.org>	<40394F61.8060509@cyberone.com.au> <20040222170032.0219ea67.akpm@osdl.org>
+In-Reply-To: <20040222170032.0219ea67.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-Here's a list of pending issues with fbdev (either upstream or in the
-fbdev bk treee), I figured posting it here may help getting more people
-on those issues as my time is sparse and I suppose James too.
 
- - First one, I will deal with, just writing it for completeness: When
-switching from KD_GRAPHICS to KD_TEXT (either same console changing mode
-or switching to a different console), we need a callback so the fbdev
-has a chance to restore the accel engine setting (or even the whole
-mode, to be safe).
+Andrew Morton wrote:
 
- - Memory corruption problems. There is still at least one identified
-when using stty. Just use crazy values, like flipping rows & cols (like
-stty rows 132 cols 30) and usually, you'll see the box blow up very soon
-with heavy memory corruption.
+>Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+>>
+>>>yep.
+>>>
+>>>
+>>>
+>>Yeah this is good. I thought the patch you were proposing was
+>>to shrink slab on highmem pressure.
+>>
+>
+>That as well.
+>
+>
 
- - mach64 lockups on LT-G (I'll try on an LT-Pro soon) plus other
-mach64 bugs in the new version in the bk fbdev, I'll have a patch for
-some of the problems, but I didn't find a good explanation for the
-accel lockups yet
+Well this is the complexity I'm talking about. Sure it
+is actually "simpler" code wise, but you're making it
+conceptually more complex.
 
- - Logo problems. When booting with a logo, then going to getty, the
-logo doesn't get erased until we actually switch to another console (or
-reset the console). At this point, using things like vi & scrolling up
-doesn't work properly. Actually, last time I tried, I had to switch
-back & forth twice before my console that had the logo got fully working
-with vi.
+>>Apply some lowmem pressure due to highmem pressure THEN shrink
+>>slab as a result of the lowmem pressure is much better.
+>>
+>
+>Prove it to me ;)
+>
+>
 
- - Back buffer problem: maybe related to the logo ? After boot, doing
-shift-pageup to go back to the boot message, usually you get crap
-displayed at various places.
+Your slab wasn't being shrunk because the slab pressure
+calculation was way off for highmem systems. My patch fixed
+that, so lowmem pressure should shrink slab properly.
 
- - On x86, various junk displayed when the fbdev takes over. Reported
-by radeonfb users, I couldn't test myself, I don't have an x86 with
-radeon at hand for the moment. Apparently, the takeover from vgacon
-doesn't properly "convert" the previous VGA text buffer content
+Then with your patch, highmem pressure will apply lowmem
+pressure. So the end result is that the slab gets appropriate
+pressure.
 
- - stty & mode picking. Currently, fbcon_resize() (called when stty is
-used to resize the console) will hack a "var" strcture by just putting
-new width/height in it and pass that to set_var. The way the various
-drivers react to that mostly broken "var" structure is rather random.
-We need to explicitely differenciate between a mode that is "complete"
-(like what fbset or X passes down the fbdev) or a mode that is just
-width/height and eventually a hint of frequency, like what fbcon passes
-in this case. I added FB_ACTIVATE_FIND for that purpose, but that needs
-better driver support to "pick" up a proper mode. The algorithm for
-that isn't trivial. Could be moved to common code.
-
- - fbset doesn't resize the console. I consider that a regression from
-2.4. I have some code based on the notification mecanism to address
-that, but it tends to trigger the same memory corruption problem as
-reported with stty & bogus coordinates. There is something hairy going
-on with console resizes. That code is a bit foreign to me though.
-
-Ok, that's all that comes to my mind right now, help is welcome :)
-
-Ben.
-
+Can't you just prove to me why that doesn't work? ;)
 

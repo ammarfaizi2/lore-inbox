@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUITXHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUITXOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266199AbUITXHs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 19:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUITXHs
+	id S266187AbUITXOf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 19:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUITXOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 19:07:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4554 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266199AbUITXHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 19:07:40 -0400
-Date: Mon, 20 Sep 2004 19:07:21 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Will Dyson <will.dyson@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Christoph Hellwig <hch@infradead.org>,
-       Andreas Gruenbacher <agruen@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/6] xattr consolidation v2 - generic xattr API
-In-Reply-To: <8e6f9472040920105013b4e0cd@mail.gmail.com>
-Message-ID: <Xine.LNX.4.44.0409201904220.23206-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Sep 2004 19:14:34 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:55457 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S266187AbUITXOc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 19:14:32 -0400
+Subject: [PATCH] Warn people that ipchains and ipfwadm are going away.
+From: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: netfilter-devel@lists.netfilter.org,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1095721742.5886.128.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 21 Sep 2004 09:09:02 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Sep 2004, Will Dyson wrote:
+Name: Warn that ipchains and ipfwadm are going away
+Status: Trivial
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-> I don't plan on holding my breath while waiting for "The linux vfs
-> layer for dummies" to come out. But a quick comment to explain the
-> purpose and use of a block of code can make a world of difference to
-> someone trying to come up to speed.
+At the recent netfilter workshop in Erlangen, we was decided to remove
+the backwards compatibility code for ipchains and ipfwadm.  This will
+allow significant cleanup of interfaces, since we had to have a
+mid-level interface for the backwards compatibility layer to use.
 
-If you want to supply documentation patches, please feel free to do so.
+Start off with a warning for 2.6.9, so any remaining users have a
+chance to migrate.  Their firewall scripts might not check return
+values, and they might get a nasty surprise when this goes away.
 
-> For example:
-> 
-> /*
-> In order to implement different sets of xattr operations for each
-> xattr prefix, a filesystem should create a null-terminated array of
-> struct xattr_handler (one for each prefix) and hang a pointer to it
-> off of the s_xattr field of the superblock. The generic_fooxattr
-> functions will search this list for a xattr_handler with a prefix
-> field that matches the prefix of the xattr we are dealing with and
-> call the apropriate function pointer from that xattr_handler.
-> */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5978-linux-2.6.9-rc2-bk6/net/ipv4/netfilter/ipchains_core.c .5978-linux-2.6.9-rc2-bk6.updated/net/ipv4/netfilter/ipchains_core.c
+--- .5978-linux-2.6.9-rc2-bk6/net/ipv4/netfilter/ipchains_core.c	2004-09-16 00:17:16.000000000 +1000
++++ .5978-linux-2.6.9-rc2-bk6.updated/net/ipv4/netfilter/ipchains_core.c	2004-09-21 09:06:07.000000000 +1000
+@@ -1,3 +1,5 @@
++#warning ipchains is obsolete, and will be removed soon.
++
+ /* Minor modifications to fit on compatibility framework:
+    Rusty.Russell@rustcorp.com.au
+ */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5978-linux-2.6.9-rc2-bk6/net/ipv4/netfilter/ipfwadm_core.c .5978-linux-2.6.9-rc2-bk6.updated/net/ipv4/netfilter/ipfwadm_core.c
+--- .5978-linux-2.6.9-rc2-bk6/net/ipv4/netfilter/ipfwadm_core.c	2004-09-16 00:17:16.000000000 +1000
++++ .5978-linux-2.6.9-rc2-bk6.updated/net/ipv4/netfilter/ipfwadm_core.c	2004-09-21 09:06:18.000000000 +1000
+@@ -1,3 +1,5 @@
++#warning ipfwadm is obsolete, and will be removed soon.
++
+ /* Minor modifications to fit on compatibility framework:
+    Rusty.Russell@rustcorp.com.au
+ */
 
-The above is inaccurate.  e.g. not all of the generic functions search for
-a matching xattr handler.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
 

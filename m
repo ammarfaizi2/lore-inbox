@@ -1,133 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265449AbSKABzd>; Thu, 31 Oct 2002 20:55:33 -0500
+	id <S265451AbSKACBW>; Thu, 31 Oct 2002 21:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265451AbSKABzc>; Thu, 31 Oct 2002 20:55:32 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:36531 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265449AbSKABz2>;
-	Thu, 31 Oct 2002 20:55:28 -0500
-Date: Fri, 1 Nov 2002 02:01:19 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-Message-ID: <20021101020119.GC30865@bjl1.asuk.net>
-References: <20021031230215.GA29671@bjl1.asuk.net> <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+	id <S265481AbSKACBV>; Thu, 31 Oct 2002 21:01:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23057 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265451AbSKACBQ>;
+	Thu, 31 Oct 2002 21:01:16 -0500
+Message-ID: <3DC1E1AE.4070706@pobox.com>
+Date: Thu, 31 Oct 2002 21:06:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Matt D. Robinson" <yakker@aparity.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+References: <Pine.LNX.4.44.0210311732110.23393-100000@nakedeye.aparity.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> Jamie, the futex support can be easily done with one line of code patch. I
-> still prefer the one-to-one mapping between futexes and files. It makes
-> everything easier.
+Matt D. Robinson wrote:
 
-I do agree it is very simple and hence good.
+>On Thu, 31 Oct 2002, Jeff Garzik wrote:
+>|>Linus Torvalds wrote:
+>|>[yes, I realize the LKCD merge debate is over, bear with me :)]
+>
+>For Linus, it is.
+>
+>|>That said, I used to be an LKCD cheerleader until a couple people made 
+>|>some good points to me:  it is not nearly low-level enough to truly be 
+>|>of use in crash situations.  netdump can work if your interrupts are 
+>|>hosed/screaming, and various mid-layers are dying.  For LKCD to be of 
+>|>any use, it needs to _skip_ the block layer and talk directly to 
+>|>low-level drivers.
+>
+>Just to clarify, LKCD is NOT block based dumping, OR net based
+>dumping, or anything.  It's an infrastructure for dumping that
+>lets you, the user, the distributor, the customer, whatever,
+>make the decision for what's right for you.  Yes, we provide
+>disk based dumping now, and are including the net dump code
+>very soon, as well as some of these other smaller dump methods.
+>
+>Has ANYONE other than Christoph and Stephen H. done a full review of
+>the LKCD patch set before commenting?  Or are people just making
+>this stuff up as they go along?  A ton of things have changed
+>over the past year just because people complained about only doing
+>disk dumping.  And then to hear this ...
+>  
+>
+You are confusing review with perspective.  I've read 
+http://lkcd.sourceforge.net/download/latest/ before, and just checked it 
+again tonight before posting.
 
-> I don't really see futex creation/destroy as an high frequency event
-> that might be suitable for optimization. Usually you have your own
-> set of resources to be "protected" and in 95% of cases you know
-> those resources from the beginning.
+My view is:  LKCD becomes useful to merge when the average user can do 
+"safe" disk dumps.  netdumps are better for corporate customers, but for 
+average users, disk dumps are _the_ method which is easiest, most 
+accessible, and thus most helpful to kernel hackers debugging their 
+problems.  LKCD has a dump block dev driver, but it's not even close to 
+being low-level enough to be "safe".
 
-Well, I'll disagree but stay mostly quiet.  I think it is reasonable
-to have a futex per _object_ in certain language run-times.
-Allocation rate: 10,000,000 per second in some examples (f.e. certain
-kinds of threaded simulator).
+Re-read my other post(s) -- I have said repeatedly that LKCD's 
+infrastructure is decent.  But it's completely pointless to merge a 
+decent infrastructure unless the users are up to snuff.  It's much 
+smarter to keep the infrastructure out of the kernel until the low-level 
+dump drivers are hammered out and stable, because that gives you more 
+freedom to change the API.
 
-Hardly any of those will need associated fds, and I have no figures on
-how many or how often, but you can see that futexes are sometimes used
-in a very dynamic way because they are so cheap until contention.
 
-That's the cool thing about futexes: there's absolutely zero kernel
-overhead until contention, and only one "long" of overhead in user
-space.
+>|>So, I think the stock kernel does need some form of disk dumping, 
+>|>regardless of any presence/absence of netdump.  But LKCD isn't
+>|>there yet...
+>
+>Please read the patches and decide again.  If you want the latest
+>net dump patch, let me know.
+>  
+>
 
-At contention, two syscalls resolves it synchronously: futex_wait,
-futex_wake.  The async method using an fd with epoll takes five:
-futex_fd, epoll_ctl, poll, futex_wake, futex_close.  That works, but
-lacks the _cool_ factor that futexes have IMHO.  It should be:
-futex_wait_async, futex_wake.
+I have.  Nothing has changed.  Stable, polling, low-level disk dumps are 
+not in the LKCD patches.
 
-I realise my argument is a weak one though :)
+IMO, net dump is what corporate customers and network admins want.  And 
+overall, net dumps are probably easier and much safer than disk dumps, 
+from an implementor's perspective.  However, disk dumps are what the 
+average kernel hacker will find most useful, because it is the easiest 
+for end users, and thus will generate a higher number of quality bug 
+reports.
 
-> > > Timer, as long as you access them through a file* interface ( like futexes )
-> > > will become trivial too. Another line should be sufficent for dnotify :
-> >
-> > Sorry (<humble/>), ignore timers.  Somehow I picked up the idea that
-> > epoll_wait() didn't have a timeout from some example or other, which
-> > was very silly of me.  I've read the patch properly now!  Of course
-> > epoll supports timers - a timeout is quite enough for user space.
-> 
-> If you want to timeout I/O operations you can easily put a timer routine
-> in your main event scheduler loop. But I still like the idea of timers
-> easily accessible through a file* interface.
+    Jeff
 
-Sure, but using file * interface implies entering the kernel - that
-can sometimes be skipped* if your timer queue is in user space.
 
-* - it happens under heavy load, conveniently.
 
-> > > void __inode_dir_notify(struct inode *inode, unsigned long event)
-> >
-> > Agreed.  This is looking good :)
-> 
-> I asked Linus what he thinks about this one-line patch.
-
-I have no objections to it.  Generally, I'd like epoll to be able to
-report _what_ the event was (not just POLL_RDNORM, but what kind of
-dnotify event), but as I don't get to run on an ideal kernel [;)] I'll
-be happy with POLL_RDNORM.
-
-> I still believe that the 1:1 mapping is sufficent and with that in place (
-> and the one line patch to kernel/futex.c ) futex support comes nicely.
-
-It does work - actually, with ->poll() you don't need any lines in futex.c :)
-
-Even if a specialised futex hook is added someday, the fd support will
-continue to be useful.
-
-> >    2. Add a check to EP_CTL_ADD which checks whether a file supports
-> >       epoll notifications natively.  Perhaps a file_operations hook
-> >       is in order here.  If it does, great.  If not, fall back to
-> >       a generic mechanism that uses the file's ->poll() method.  (I
-> >       haven't thought through for sure how plausible this is).
-> >       Magically, every kind of fd works, including special devices,
-> >       and the things that are most performance critical (sockets,
-> >       pipes, futexes) are tuned.  Yum!
-> 
-> Yes, kind of. The hook for an efficent edge triggered event notification
-> should be something like the socket one where you have a ->data_ready()
-> and ->write_space(), where the caller of these callbacks know that signals
-> has to be delivered on 0->1 transactions. With the poll hook you have the
-> drawback that the wakeup list is invoked each time data arrives and this
-> might generate a little bit too many events. This is no a problem since
-> epoll collapse them, but still collapsing do cost CPU cycles.
-
-You avoid the extra CPU cycles like this:
-
-    1. EP_CTL_ADD adds the listener to the file's wait queue using
-       ->poll(), and gets a free test of the object readiness [;)]
-
-    2. When the transition happens, the wakeup will call your function,
-       epoll_wakeup_function.  That removes the listener from the file's
-       wait queue.  Note, you won't see any more wakeups from that file.
-
-    3. When you report the event user space, _then_ you automatically
-       add the listener back to the file's wait queue by calling ->poll().
-
-This way, there are no spurious wakeups, and nothing to collapse.  I
-would not be surprised if this is quite fast - perhaps as fast as the
-special epoll hooks.
-
-The nice feature that makes this possible is that waitqueues don't
-wake up tasks any more: they simply call your choice of callback
-function.  It was changed for aio, and it's a good change.
-
--- Jamie

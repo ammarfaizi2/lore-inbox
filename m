@@ -1,79 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269215AbUINI4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269217AbUINI7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269215AbUINI4L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 04:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbUINI4K
+	id S269217AbUINI7i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 04:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbUINI7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 04:56:10 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:46246 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S269215AbUINIzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 04:55:54 -0400
-Subject: Re: Add skeleton "generic IO mapping" infrastructure.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com
-In-Reply-To: <200409132206.i8DM6dSC030620@hera.kernel.org>
-References: <200409132206.i8DM6dSC030620@hera.kernel.org>
-Content-Type: text/plain
-Message-Id: <1095152147.9144.254.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 14 Sep 2004 09:55:47 +0100
+	Tue, 14 Sep 2004 04:59:38 -0400
+Received: from mail.xtrahost.co.uk ([80.75.66.36]:26377 "EHLO
+	mail.xtrahost.co.uk") by vger.kernel.org with ESMTP id S269217AbUINI7S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 04:59:18 -0400
+From: "Ivan Groenewald" <ivang2@xtrahost.co.uk>
+To: "'Wolfpaw - Dale Corse'" <admin-lists@wolfpaw.net>,
+       <linux-kernel@vger.kernel.org>
+Cc: <grsecurity@grsecurity.net>, <bugtraq@securityfocus.com>
+Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial of Service
+Date: Tue, 14 Sep 2004 10:00:02 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <004c01c49848$2608e180$0200a8c0@wolf>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcSaMf17T0nKnmiFRPaxSS+Oi3RZGQABXkgQ
+Message-Id: <20040914101021.SM01156@ivan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-13 at 18:32 +0000, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1869, 2004/09/13 11:32:00-07:00, torvalds@ppc970.osdl.org
-> 
-> 	Add skeleton "generic IO mapping" infrastructure.
-> 	
-> 	Jeff wants to use this to clean up SATA and some network drivers.
+Close_wait is maintained by the server/application. Not releasing a resource
+is bad programming and would be seen as a bug in an app, not the kernel.
+
+Read the good 'ol unix socket faq
+http://www.informatik.hu-berlin.de/~mueller/dsm/kipper.york.ac.uk/vic/sock-f
+aq/html/unix-socket-faq-2.html
+
+If you google around a bit you'll see other people who have discussed this
+issue in depth.
+
+Cheerio
+Ivan 
+
+Tel: 0845 345 0919
+Xtraordinary Hosting, 6 The Clocktower, South Gyle, Edinburgh, EH12 9LB
+http://www.xtrahost.co.uk
 
 
-> + * Read/write from/to an (offsettable) iomem cookie. It might be a PIO
-> + * access or a MMIO access, these functions don't care. The info is
-> + * encoded in the hardware mapping set up by the mapping functions
-> + * (or the cookie itself, depending on implementation and hw).
-> + *
-> + * The generic routines don't assume any hardware mappings, and just
-> + * encode the PIO/MMIO as part of the cookie. They coldly assume that
-> + * the MMIO IO mappings are not in the low address range.
-> + *
-> + * Architectures for which this is not true can't use this generic
-> + * implementation and should do their own copy.
-> + *
-> + * We encode the physical PIO addresses (0-0xffff) into the
-> + * pointer by offsetting them with a constant (0x10000) and
-> + * assuming that all the low addresses are always PIO. That means
-> + * we can do some sanity checks on the low bits, and don't
-> + * need to just take things for granted.
-> + */
-> +#define PIO_OFFSET	0x10000
-> +#define PIO_MASK	0x0ffff
-> +#define PIO_RESERVED	0x40000
+-----Original Message-----
+From: Wolfpaw - Dale Corse [mailto:admin-lists@wolfpaw.net] 
+Sent: 11 September 2004 22:42
+To: linux-kernel@vger.kernel.org
+Cc: grsecurity@grsecurity.net; bugtraq@securityfocus.com
+Subject: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial of
+Service
 
-> +#define IO_COND(addr, is_pio, is_mmio) do {			\
-> +	unsigned long port = (unsigned long __force)addr;	\
-> +	if (port < PIO_RESERVED) {				\
-> +		VERIFY_PIO(port);				\
-> +		port &= PIO_MASK;				\
-> +		is_pio;						\
-> +	} else {						\
-> +		is_mmio;					\
-> +	}							\
-> +} while (0)
+Greetings,
 
-Argh! Please no. You can't infer the IO space from the address. Provide
-a cookie containing {space, address} instead -- or indeed {bus,
-address}. Let some architectures optimise that by ignoring the bus and
-working it out from the address if you must, but don't put that in the
-generic version.
+ My apologies if this is to the wrong place - it happens to be the
+first kernel bug I have found (or what appears to be one), and I'm
+not entirely sure how to properly inform the Linux community about
+it. 
 
--- 
-dwmw2
+Anyway - on to the bug :)
+==========================
+Severity: HIGH
+Title: KERNEL: TCP Local (probable remote) Denial of Service
+Date: September 11, 2004
+
+Synopsis
+========
+It appears there is a problem with sockets being reused before
+they are actually closed. 
+
+Description
+============
+I have intentionally not included very much detail, because it appears 
+to me this could cause some serious havoc, and I'd rather not be responsible
+
+for the results. Details are available to kernel developers upon request 
+to admin@wolfpaw.com.
+
+It appears there is a problem with sockets being reused before they are
+actually closed. Leaving them in TIME_WAIT until they expire. We were also
+able to leave them in CLOSE_WAIT, and they remained for days (assumably 
+indefinitely)
+
+The result of this ends up a bit unpredictable (or rather irreproducible).
+We are working on a commercial product including a proxy server, which
+ends up leaving the connections in CLOSE_WAIT state forever. When I wrote
+some proof of concept code, I was able to create a DOS condition, but I
+was only able to get the sockets to sit in TIME_WAIT state, so the kernel
+eventually cleared them. This is likely because I spent about 20 minutes
+on the proof of concept code, and have determined it can be abused, which
+is really all I was trying to accomplish :)
+
+IMPACT:
+=======
+The issue ends up in the end that the kernel lets the connections sit in
+this state for a while, so once a ton of slots are taken up, it doesn't
+take much to keep the table full (several attempts every 10 - 20 seconds).
+occasionally the machine catches up, and the attack has to restart. The
+result however, is a 10 - 30 second delay in web transactions, and that
+was on a server with just me hitting it. On a busy web server, I wouldn't
+want to guess what it would be :)
+
+** I was able to launch this attack as a regular user, and this machine
+** has GrSecurity installed on it (CC'd to them too)
+** You could compile this as a CGI, and take out about any Linux based
+** web host (thus the reason for not releasing the PoC code.)
+
+I tested it against telnetd (vulnerable), and sshd (didn't seem affected)
+mysqld (with the commercial product, it would run out of sockets, and
+require
+the offending process to be restarted to accept more), and Apache 1.3.29 
+(vulnerable)
+
+The socket table looks like this while it is going on:
+
+http://www.ancients.org/LG.txt
+(it is 29,000+ lines, so I didn't put it here)
+
+The bug doesn't appear to completely kill the ability to serve, but it slows
+it down to almost nothing.. On a busy web server, it would be virtually
+dead.
+
+Proof of concept code:
+======================
+I will not be releasing this for the script kiddies to use :) If any of the
+kernel dev team wish to have it, please contact me. So long as I can verify
+you are a kernel maintainer, its all yours.
+
+NOTE: Please send ALL correspondence regarding this to [admin <A>
+wolfpaw.com], do
+      not reply to this message, this address is simply one which receives a
+
+      ton of list traffic. I could of course be off my rocker, and this not
+      be a bug, but I don't think so :)
+
+Regards,
+D.
+--------------------------------
+Dale Corse
+System Administrator
+Wolfpaw Services Inc.
+http://www.wolfpaw.net
+(780) 474-4095
 
 

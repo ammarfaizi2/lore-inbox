@@ -1,40 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265378AbTABBoH>; Wed, 1 Jan 2003 20:44:07 -0500
+	id <S265320AbTABBuM>; Wed, 1 Jan 2003 20:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265382AbTABBoH>; Wed, 1 Jan 2003 20:44:07 -0500
-Received: from foursticks.link.internode.on.net ([150.101.16.181]:2957 "EHLO
-	mars") by vger.kernel.org with ESMTP id <S265378AbTABBoG>;
-	Wed, 1 Jan 2003 20:44:06 -0500
-To: linux-kernel@vger.kernel.org
-cc: pschulz@foursticks.com
-Subject: Broadcom Gigabit 5703 and Bridging
-Date: Thu, 02 Jan 2003 12:20:29 +1030
-From: Paul Schulz <pschulz@foursticks.com>
-Message-Id: <E18TuVB-000282-00@mars>
+	id <S265339AbTABBuM>; Wed, 1 Jan 2003 20:50:12 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:30644 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265320AbTABBuL>;
+	Wed, 1 Jan 2003 20:50:11 -0500
+Date: Wed, 1 Jan 2003 17:55:53 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: observations on 2.5 config screens
+In-Reply-To: <20030101200717.GA17053@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.33L2.0301011750010.21149-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Wed, 1 Jan 2003, Tomas Szepe wrote:
 
-I'm seeing 'TCP Checksum' Errors after packets pass through a host
-bridging TCP packets with:
+[snippage]
+| >     It seems that the final option, "Preemptible kernel", does
+| >   not belong there.  In fact, there seem to be a number of
+| >   kernel-related, kind of hacking/debugging options, that
+| >   could be collected in one place, like preemption, sysctl,
+| >   hacking, executable file formats, etc.  "Low-level kernel
+| >   options", perhaps?
 
- - Kernel 2.4.20
- - Bridge code 
- - tg3 (Broadcom Gigabit 5703)
+So long as they come after the processor selection or whatever
+dependencies they have.
 
-   eth0: Tigon3 [partno(BCM95703A30) rev 1002 PHY(5703)] 
-    (PCIX:100MHz:64-bit) 10/100/1000BaseT
-  (eth1 is similar)
-  
-Pings (ICMP) pass through the bridge just fine.
+| Should go to "General config" IMHO.
 
-The hardware is IBM's xSeries 305.
+But is General Config still above processor selection?
+I made a patch for a second "More general config" at the end
+of the main menu so that dependencies can be used.
+Andrew Morton has it queued in -mm now.
 
-Paul
---
-                Paul Schulz - Software Engineer [codito, ergo sum]
-        Foursticks Pty Ltd - 2/259 Glen Osmond Road, Frewville, SA 5063
-    Phone: +61 8 8338 5500   Fax: +61 8 8338 5511   Mobile: +61 401 981 301
-       Email: pschulz@foursticks.com           Web: www.foursticks.com
+| > Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+| >
+| >     First, there's no hint from that heading that hot-pluggable
+| >   settings are hidden under there as well.
+|
+| Well, PCMCIA pretty much suggests that, doesn't it?
+|
+| >     In addition, why does "Bus options" not include the USB bus,
+| >   the I2C bus, FireWire, etc?  A bus is a bus, isn't it?
+|
+| Yes, this is a valid comment.  Placing USB under "Bus options"
+| should be totally straightforward, but that one's for Greg KH
+| to decide.
+
+USB needs to follow the Input subsystem unless there's something
+else going on regarding dependencies.
+
+| > Multimedia devices
+| >
+| >     How come "Sound" is not here?  And (as we've already
+| >   established), Radio Adapters is not a sub-entry of Video for
+| >   Linux. :-)  (And is there a reason why Amateur Radio Support
+| >   and Radio Adapters are so far apart in the config menus?
+
+I agree.
+
+Greg Banks has (had) a real nice program for checking
+dependency ordering using Config.in files.  It would be
+very nice if it now worked with Kconfig files.  :)
+It could be used for this type of config reordering to
+verify that things weren't screwed up.  I used it when
+I moved Network Devices to just under/after Network Options
+to show that no dependency ordering was mangled by that patch.
+
+-- 
+~Randy
+

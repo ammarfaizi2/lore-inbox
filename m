@@ -1,89 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266210AbSL1QzY>; Sat, 28 Dec 2002 11:55:24 -0500
+	id <S266199AbSL1RIP>; Sat, 28 Dec 2002 12:08:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266218AbSL1QzY>; Sat, 28 Dec 2002 11:55:24 -0500
-Received: from jamesconeyisland.com ([66.64.43.2]:14602 "EHLO
-	mail.jamesconeyisland.com") by vger.kernel.org with ESMTP
-	id <S266210AbSL1QzX> convert rfc822-to-8bit; Sat, 28 Dec 2002 11:55:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ron Cooper <rcooper@jamesconeyisland.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre2: CPU0 handles all interrupts
-Date: Sat, 28 Dec 2002 11:03:36 -0600
-User-Agent: KMail/1.4.3
-References: <200212281056.58419.hans.lambrechts@skynet.be>
-In-Reply-To: <200212281056.58419.hans.lambrechts@skynet.be>
-Cc: Hans Lambrechts <hans.lambrechts@skynet.be>
+	id <S266218AbSL1RIO>; Sat, 28 Dec 2002 12:08:14 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:28933 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266199AbSL1RIO>;
+	Sat, 28 Dec 2002 12:08:14 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212281715.gBSHFkf3001354@darkstar.example.net>
+Subject: Re: Want a random entropy source?
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Sat, 28 Dec 2002 17:15:46 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021228164750.A5217@flint.arm.linux.org.uk> from "Russell King" at Dec 28, 2002 04:47:50 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212281103.36973.rcooper@jamesconeyisland.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mine does this too.  2.4.20.  Iwill dp400 board running dual 2.4Ghz 
-Xeons with HT enabled.
+> > I have never understood how a 16-bit DAC or ADC can have noise above
+> > 96 dB.  Surely _by definition_ a 16-bit DAC or ADC is one that does
+> > not have noise above that level.
+> 
+> You're assuming that the ADC input is coupled to a noiseless source.
+> Most ADCs have a chunk of analogue circuitry just before them which
+> is a nice source of noise.
+> 
+> Not only will noise be picked up via disconnected inputs, but it will
+> also be picked up via the power supply and ground connections to that
+> analogue circuit.  How much of that noise gets into the ADC input is
+> dependent on the quality, design and physical layout of the analogue
+> circuit.
 
-I have to boot by passing "noapic" to the kernel, otherwise 
-/cat/proc/interrupts will show the interrupt numbers wrong,
-however. not doing this changes nothing.
+Right...  So basically it can be claimed to be a 16-bit ADC as long as
+it is noiseless above 96 dB, when all of the inputs to the ADC are
+correctly terminated directly at the ADC inputs.
 
-Can someone help with this?   If you can help I can dedicate the 
-necessary time in getting you whatever info you need.
+I just think it's funny that loads of "16-bit" soundcards are
+effectively only 12-bit soundcards :-).  Especially as that's about
+the noise-floor of good quality vinyl :-).
 
-Thanks
+> (As a side note, it's interesting that (what used to be) Crystal
+> Semiconductor published a large chunk of information on the layout of
+> boards including the routing of power supplies for combined digital
+> and analogue circuits (and ADCs fall into that category.))
 
+Good idea - I'd be grateful if more manufacturers would supply a
+datasheet at all :-).
 
-
-
-On Saturday 28 December 2002 03:56 am, Hans Lambrechts wrote:
-> Hi
->
-> with kernel 2.4.21-pre2:
->
-> pc:~ # cat /proc/interrupts
->            CPU0       CPU1
->   0:      29372          0    IO-APIC-edge  timer
->   1:        504          0    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   8:          2          0    IO-APIC-edge  rtc
->   9:          0          0    IO-APIC-edge  acpi
->  12:       8078          0    IO-APIC-edge  PS/2 Mouse
->  14:          7          0    IO-APIC-edge  ide0
->  16:       8690          0   IO-APIC-level  aic7xxx
->  18:        241          0   IO-APIC-level  eth0
-> NMI:          0          0
-> LOC:      29276      29275
-> ERR:          0
-> MIS:          0
->
-> Booting with "noapic" or "acpi=off" doesn't make a difference.
-> With kernel 2.4.20 both CPU's handled the same amount of
-> interrupts. I haven't checked this with 2.4.21-pre1.
->
-> The CPU's are PIII@500
->
-> pc:~ # lspci
-> 00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host
-> bridge (rev 03)
-> 00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP
-> bridge (rev 03)
-> 00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-> 00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev
-> 01) 00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB
-> (rev 01) 00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI
-> (rev 02) 00:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev
-> 01) 00:11.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-> RTL-8139/8139C/8139C+ (rev 10)
-> 01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage
-> Pro AGP 1X/2X (rev 5c)
->
-> please cc me because I'm not on the list
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to
-> majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html Please read the FAQ at
->  http://www.tux.org/lkml/
-
+John.

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132109AbRDGXzg>; Sat, 7 Apr 2001 19:55:36 -0400
+	id <S132101AbRDHAAG>; Sat, 7 Apr 2001 20:00:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132101AbRDGXz0>; Sat, 7 Apr 2001 19:55:26 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24273 "EHLO
+	id <S132111AbRDGX75>; Sat, 7 Apr 2001 19:59:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:49873 "EHLO
 	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S132109AbRDGXzN>; Sat, 7 Apr 2001 19:55:13 -0400
+	id <S132101AbRDGX7s>; Sat, 7 Apr 2001 19:59:48 -0400
 Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        lse-tech-admin@lists.sourceforge.net, nigel@nrg.org
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        lse-tech-admin@lists.sourceforge.net, nigel@nrg.org,
+        rusty@rustcorp.com.au
 X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF42269F5F.CDF56B0F-ON88256A27.0083566F@LocalDomain>
+Message-ID: <OF8061E404.7B47083C-ON88256A27.0083BDCC@LocalDomain>
 From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Sat, 7 Apr 2001 16:54:52 -0700
+Date: Sat, 7 Apr 2001 16:59:15 -0700
 X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 04/07/2001 05:55:06 PM
+ 04/07/2001 05:59:42 PM
 MIME-Version: 1.0
 Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > I see your point here, but need to think about it.  One question:
-> > isn't it the case that the alternative to using synchronize_kernel()
-> > is to protect the read side with explicit locks, which will themselves
-> > suppress preemption?  If so, why not just suppress preemption on the
-read
-> > side in preemptible kernels, and thus gain the simpler implementation
-> > of synchronize_kernel()?  You are not losing any preemption latency
-> > compared to a kernel that uses traditional locks, in fact, you should
-> > improve latency a bit since the lock operations are more expensive than
-> > are simple increments and decrements.  As usual, what am I missing
-> > here?  ;-)
->
-> Already preempted tasks.
-
-But if you are suppressing preemption in all read-side critical sections,
-then wouldn't any already-preempted tasks be guaranteed to -not- be in
-a read-side critical section, and therefore be guaranteed to be unaffected
-by the update (in other words, wouldn't such tasks not need to be waited
-for)?
-
+> > > > 2.   Isn't it possible to get in trouble even on a UP if a task
+> > > >      is preempted in a critical region?  For example, suppose the
+> > > >      preempting task does a synchronize_kernel()?
+> > >
+> > > Ugly. I guess one way to solve it would be to readd the 2.2 scheduler
+> > > taskqueue, and just queue a scheduler callback in this case.
+> >
 > > Another approach would be to define a "really low" priority that noone
 > > other than synchronize_kernel() was allowed to use.  Then the UP
 > > implementation of synchronize_kernel() could drop its priority to
@@ -50,10 +38,25 @@ for)?
 ()
 > > gets it back again.
 >
-> Or "never", because I'm running RC5 etc. 8(.
+> That just would allow nasty starvation, e.g. when someone runs a cpu
+intensive
+> screensaver or a seti-at-home.
 
-Ummmm...  Good point!  Never mind use of low priorities in UP kernels
-for synchronize_kernel()...
+Good point!  I hereby withdraw my suggested use of ultra-low priorities
+for UP implementations of synchronize_kernel().  ;-)
 
-                                   Thanx, Paul
+> > I still prefer suppressing preemption on the read side, though I
+> > suppose one could claim that this is only because I am -really-
+> > used to it.  ;-)
+>
+> For a lot of reader cases non-preemption by threads is guaranteed anyways
+--
+> e.g.  anything that runs in interrupts, timers, tasklets and network
+softirq.
+> I think that already covers a lot of interesting cases.
+
+Good point again!  For example, this does cover most of the TCP/IP
+cases, right?
+
+                              Thanx, Paul
 

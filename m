@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314154AbSDQWfs>; Wed, 17 Apr 2002 18:35:48 -0400
+	id <S314190AbSDQWkC>; Wed, 17 Apr 2002 18:40:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314190AbSDQWfs>; Wed, 17 Apr 2002 18:35:48 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:8082 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S314154AbSDQWfr>; Wed, 17 Apr 2002 18:35:47 -0400
-Date: Wed, 17 Apr 2002 15:35:44 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
-cc: nick@snowman.net, Mike Dresser <mdresser_l@windsormachine.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/raid performance
-In-Reply-To: <20020417173629.GA32736@dark.x.dtu.dk>
-Message-ID: <Pine.LNX.4.44.0204171514350.2509-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314192AbSDQWkB>; Wed, 17 Apr 2002 18:40:01 -0400
+Received: from f50.pav2.hotmail.com ([64.4.37.50]:17419 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S314190AbSDQWkB>;
+	Wed, 17 Apr 2002 18:40:01 -0400
+X-Originating-IP: [166.102.199.91]
+From: "bob dobalina" <mrdobalina@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 1 Terabyte+ Disk Support?
+Date: Wed, 17 Apr 2002 17:39:51 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F50W2lSYgCSrlrCv3wB00016f23@hotmail.com>
+X-OriginalArrivalTime: 17 Apr 2002 22:39:52.0027 (UTC) FILETIME=[C9D14AB0:01C1E660]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Baldur Norddahl wrote:
+Hello,
 
-> It is not likely that both CPUs are burning 66W during the inital phases of
-> boot where the disk do their spinup.
+I am looking for someone who has experience using 1TB+ Disks with the Linux 
+2.2.14-5 Kernel that comes standard with Redhat Linux 6.2. I am trying to 
+determine the best way to patch a pile of Redhat 6.2 (zoot)systems to 
+recognize 1Terabyte and larger disks. I am trying to directly attach 
+1.5Terabyte (external) RAID arrays to these Redhat 6.2 systems via Ultra160 
+SCSI adapters.
 
-while one cpu is almost certainly idle during, the other probably is not
-doing nice things like going into HALT states; so it's entirely likely
-that it's consuming a substantial amount of power.  the BIOS does not
-typically ever use HALT or other power saving states except on non-boot
-CPUs.
+The RAID devices are external rackmount enclosures with their own hardware 
+IDE->Ultra160 SCSI RAID Controller. They use 160 Gigabyte IDE drives 
+internally in a RAID5 configuration w/ no hot spare. The units striped in 
+this configuration present the host they are directly attached to with about 
+1.5 Terabytes of storage as (1) Logical
+disk. Neither Redhat 6.2 or 7.2 will see properly recognize this large of a 
+disk. The dmesg see's the RAID on the SCSI chain, assigns it 'sdb' but 
+claims it has a negative number of sectors, and im unable to fdisk the 
+device.
 
-i've got an external power meter for doing measurements of this sort of
-thing, and i recently built a dual athlon system (tyan S2462NG mobo) w/
-four maxtor D740X 80GB disks (on a pair of promise ultra100 TX2).  its
-peak during powerup is 255W.  it idles at 193W, and will run up to 225W
-while compiling a kernel.
+The cut-off point for large disks in Redhat 6.2 and 7.2 appears to be around 
+900 Gigabytes, I can get both Redhat 6.2 and 7.2 to see up to around 900 
+gigs as 1 disk. I've heard about a 64-bit IO patch for an older 2.x.x 'pre8' 
+release kernel but would like to know if theres a way to get this 
+accomplished with Redhat 6.2/Kernel 2.2.14-5. Any insight into this problem 
+would be greatly appreciated!
 
-(i made no attempt to find a "power virus" for this system.  i have a 460W
-power supply and i'm happy i'm well within limits.)
+Thanks!
 
-fwiw, my drives are rated at 24W each for power up... and the CPUs are
-1.4GHz (purchased in feb/02, which was when the 1.4GHz were the best
-price/performance, so around the middle of AMD's yield curve.)
+-Bobd
 
-my meter is a ~USD1000 lab quality meter... but you can get reasonablly
-accurate measurements by picking up a ~USD50 "AC clamp meter" from an
-electrician's supply store.  look for one with 0.1A accuracy.  AC clamp
-meters use magnetic inductance to measure the current flow around an AC
-wire.  (for example, see
-<http://www.fluke.com/products/home.asp?SID=5&AGID=3&PID=30405>)
 
-to make the measurements you need to put the clamp around a single live
-wire.  you don't need to remove insulation from a live wire -- the
-magnetic induction occurs even if there's still insulation around it.
-but you can't measure with both live wires inside the clamp (their fields
-are opposite and cancel)... so you do need to isolate the clamp around one
-live wire ...
-
-i've carefully removed the outer (black) insulation from a computer power
-cable, exposing the three (still insulated) wires inside (which happen to
-be black, white, and green).  then i put the clamp around the black wire
-for measurement.  (or you can measure entire circuits at the fuse box.)
-
-WARNING DANGER!  i'm not responsible for any damage, injury and so forth,
-which you incur as a result of trying to use one of these devices.  you
-assume all responsibility, and so forth.  see my legal disclaimer at
-<http://arctic.org/~dean/legal.html> if you're in doubt.
-
-remember that power = current * volts-rms... (and now all the EE geeks
-will jump in and tell me how i'm wrong and what the real detailed formula
-actually is, and how power supplies quote their power numbers in confusing
-manners, and so forth... and me being a software engineer i'm happy just
-to see that i'm only consuming half the rated power of my power supply,
-and that's probably a fine enough safety margin :)
-
--dean
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

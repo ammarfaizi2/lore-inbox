@@ -1,58 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317751AbSG0Sx2>; Sat, 27 Jul 2002 14:53:28 -0400
+	id <S318805AbSG0TH6>; Sat, 27 Jul 2002 15:07:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318803AbSG0Sx2>; Sat, 27 Jul 2002 14:53:28 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:49935 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317751AbSG0Sx1>;
-	Sat, 27 Jul 2002 14:53:27 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207271856.g6RIufn63592@saturn.cs.uml.edu>
-Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
-To: wowbagger@sktc.net (David D. Hagood)
-Date: Sat, 27 Jul 2002 14:56:41 -0400 (EDT)
-Cc: arodland@noln.com (Andrew Rodland),
-       acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
-In-Reply-To: <3D4298C6.9080103@sktc.net> from "David D. Hagood" at Jul 27, 2002 07:57:42 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S318806AbSG0TH6>; Sat, 27 Jul 2002 15:07:58 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:22286 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S318805AbSG0TH5>; Sat, 27 Jul 2002 15:07:57 -0400
+Message-Id: <200207271907.g6RJ7ST27551@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: keep code simple
+Date: Sat, 27 Jul 2002 22:05:34 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <200207270323.g6R3Nkb39182@saturn.cs.uml.edu>
+In-Reply-To: <200207270323.g6R3Nkb39182@saturn.cs.uml.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David D. Hagood writes:
+On 27 July 2002 01:23, Albert D. Cahalan wrote:
+> Remember that "optimized" code often runs slower than
+> simple code.
 
-> Either you are trying to output the panic information with minimal 
-> hardware, and in a form a human might be able to decode, in which case 
-> the Morse option seems to me to be the best, or you are trying to panic 
-> in a machine readable format - in which case just dump the data out 
-> /dev/ttyS0 and be done with it!
->
-> To my way of thinking, the idea of the Morse option is that if an oops 
-> happens when you are not expecting it, and you haven't set up any 
-> equipment to help you, you still have a shot at getting the data.
->
-> Trying to dump the oops data out by some form of FSK in most cases seems 
-> silly - if you have taken the time to set up a microphone and decoder, 
-> why not just set up a serial terminal?
-
-Reality?
-
-I'm one of the 42 remaining people with a terminal. My VT510
-mostly sits unplugged due to heat, and it's taking up space.
-The RS-232 port is legacy hardware anyway, due for removal.
-My VT510 doesn't speak USB.
-
-Morse doesn't do "<" and other common characters. For those
-who know it, morse is useful. For well over 99% of the users,
-morse is gibberish anyway.
-
-There's no "set up a microphone and decoder" problem.
-Most people have a tape recorder. Use that, then play
-back into the PC's sound card after you reboot. Post the
-sound file on a web site.
-
-Sure, morse is cute and FSK isn't. FSK is useful. Morse is
-useful too, for different reasons. One could output in both
-formats, alternating between them until reboot.
+A bit offtopic, but: I heard M$ and Intel compilers beat GCC
+by 20-40% in terms of code size. Why GCC is so much behind?
+--
+vda

@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbTJ2ULc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 15:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTJ2ULc
+	id S261555AbTJ2Uh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 15:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTJ2Uh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 15:11:32 -0500
-Received: from mcomail03.maxtor.com ([134.6.76.14]:2571 "EHLO
-	mcomail03.maxtor.com") by vger.kernel.org with ESMTP
-	id S261567AbTJ2ULa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 15:11:30 -0500
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB3F0@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>, John Bradford <john@grabjohn.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
-       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       linux-kernel@vger.kernel.org, nikita@namesys.com,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-Subject: RE: Blockbusting news, results get worse
-Date: Wed, 29 Oct 2003 13:11:27 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Wed, 29 Oct 2003 15:37:27 -0500
+Received: from harddata.com ([216.123.194.198]:61420 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id S261555AbTJ2Uh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 15:37:26 -0500
+Message-Id: <5.1.1.6.0.20031029125436.03dcd050@mail.harddata.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 29 Oct 2003 13:38:40 -0700
+To: Andi Kleen <ak@muc.de>
+From: Mark Lane <mark@harddata.com>
+Subject: Re: 2.4.22 and Athlon64
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3llr3zv98.fsf@averell.firstfloor.org>
+References: <M4ba.8dv.3@gated-at.bofh.it>
+ <M4ba.8dv.3@gated-at.bofh.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 12:41 PM 10/29/03, Andi Kleen wrote:
+>Mark Lane <mark@harddata.com> writes:
+>
+> > I am having trouble compiling the 2.4.22 kernel for x86-64 non-smp. I
+> > can compile the smp kernel but not the regular kernel.
+>
+>2.4.22 broke the ACPI compilation in the last minute. You can either
+>disable ACPI or apply ftp://ftp.x86-64.org/pub/linux/v2.4/acpi-2.4.22-hotfix
+
+Yeah I have tried compiling with ACPI off. This is not my problem.
 
 
-> -----Original Message-----
-> From: Pavel Machek [mailto:pavel@ucw.cz]
-> 
-> > > If you don't FLUSH CACHE, you have no guarantees your 
-> data is on the 
-> > > platter.
-> > 
-> > I think that the idea that is floating around is to 
-> deliberately ruin
-> > the formatting on part of the drive in order to simulate a 
-> bad block.
-> > 
-> > Operation of disk drives immediately after a power failiure has been
-> > discussed before, by the way:
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=100665153518652&w=2
-> 
-> Well, that looks like pure speculation.
-> 
-> BTW I *do* believe that powerfail can make the sector bad. Imagine you
-> bump into bad sector during write, and need to reallocate...
-> 
-> 								Pavel
+> > It seems that ksyms.c for x86-64 is looking for some smp stuff from
+> > the errors I am getting.
+> >
+> > I have tried 2.4.23-8 and the problem seems gone but I get an error
+> > when linking fs/fs.o into vmlinux. I have attached the errors I
+> > received.
+>
+>fs/fs.o(.text+0x1429f): In function `dput':
+>: undefined reference to `atomic_dec_and_lock'
+>
+>either your tree is unclean (do a make mrproper and try again)
+>or your compiler does not properly inline. What compiler are you using?
 
-Both the linked post and Pavel's point are correct.
-
-In a modern drive, tolerances are so tight that your drive is constantly
-re-writing blocks it knows it didn't write very well.  In a power-fail
-event, there's little to no time to reallocate or reattempt a write, and
-even less energy available to "fix" things that aren't within specification
-anymore (spin speed, etc) ... if we don't get the actuator to the latch,
-your drive probably won't spin again and you'll lose *all* your data, so
-that is our number 1 concern when the power fails.
-
-"Performance" IDE drives these days ship with 8MB buffers, which compounds
-the problem even further if you're trying to get data on the media after
-power has been cut.
+make mrproper worked thanks
+-- 
+Mark Lane, CET  mailto:mark@harddata.com
+Hard Data Ltd.  http://www.harddata.com
+T: 01-780-456-9771      F: 01-780-456-9772
+11060 - 166 Avenue Edmonton, AB, Canada, T5X 1Y3
+--> Ask me about our Excellent 1U Systems! <--
 

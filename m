@@ -1,71 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbTD3Iub (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 04:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTD3Iua
+	id S261886AbTD3JIR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 05:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTD3JIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 04:50:30 -0400
-Received: from codepoet.org ([166.70.99.138]:25567 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S261962AbTD3Iu0 (ORCPT
+	Wed, 30 Apr 2003 05:08:17 -0400
+Received: from [218.4.63.7] ([218.4.63.7]:53520 "HELO FTP.mitac-mkl.com.cn")
+	by vger.kernel.org with SMTP id S261886AbTD3JIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 04:50:26 -0400
-Date: Wed, 30 Apr 2003 03:02:42 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA and 2.4.x
-Message-ID: <20030430090242.GA15480@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030424212508.GI14661@codepoet.org> <200304251401.36430.m.c.p@wolk-project.de> <200304251410.31701.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304251410.31701.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	Wed, 30 Apr 2003 05:08:15 -0400
+Date: Wed, 30 Apr 2003 17:19:52 +0800
+From: Roger.Ling@mitac-mkl.com.cn
+To: <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="----=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4"
+Subject: Mail delivery failure
+Message-Id: <S261886AbTD3JIP/20030430090815Z+920@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Apr 25, 2003 at 02:10:31PM +0200, Marc-Christian Petersen wrote:
-> On Friday 25 April 2003 14:01, Marc-Christian Petersen wrote:
-> 
-> Hi again,
-> 
-> > > I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
-> > > 2.4.x a week or two ago.  I just prefer to have ALSA be part of
-> > > the kernel rather than needing to compile it seperately all the
-> > > time.  The patch, along with various other things, is included as
-> > > part of my 2.4.21-rc1-erik kernel:
-> > Are you sure that this is 0.9.2 ALSA? I am afraid it is 0.9.0-rc6.
-> this looks _very_ similar to the patch I had in WOLK4 some time ago and it was 
-> 0.9.0-rc6.
 
-I finally got a bit of time this morning, so I have now updated
-my patch set.  I check very carefully and made sure I generated
-my ALSA 0.9.2 patch from the correct kernel tree this time, so 
-it actually contains my 0.9.2 port this time.
+------=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4
+Content-type: text/plain
 
-    http://codepoet.org/kernel/
+****** Message from InterScan E-Mail VirusWall NT ******
 
-Sorry about having the wrong alsa patch in there last time.  Last
-time around I has accidentlly built my alsa patch from my older
-alsa kernel tree.  I have this built into my kernel and I now see 
+Sent >>> RCPT TO: <Roger.Ling@mitac.com.cn>
+Received <<< 550 <Roger.Ling@mitac.com.cn>, Recipient unknown
 
-    Partition check:
-     hda: hda1 hda2
-    Advanced Linux Sound Architecture Driver Version 0.9.2.
-    PCI: Setting latency timer of device 00:11.5 to 64
-    ALSA device list:
-      #0: VIA 8233 at 0xcc00, irq 5
+Could not deliver mail to this user.
+*****************     End of message     ***************
 
-on bootup and xmms is playing.  Hope this is helpful,
+------=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4
+Content-type: message/rfc822
 
- -Erik
+Received: from 10.83.30.200 by FTP.mitac-mkl.com.cn (InterScan E-Mail VirusWall NT); Wed, 30 Apr 2003 17:19:51 +0800
+Message-ID: <001201c30ef9$45e1d720$c81e530a@anson>
+From: "LINUX-KERNEL@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: "=?gb2312?B?Um9nZXIuTGluZyBbwejydoTZXQ==?=" <Roger.Ling@mitac.com.cn>
+References: <71C00BF11D82D611883000306E002CCA01D84CFD@mrspdc.mrs.com.cn>
+Subject: =?gb2312?B?0tG2wTog?=
+Date: Wed, 30 Apr 2003 17:09:07 +0800
+MIME-Version: 1.0
+Content-Type: multipart/report;
+	report-type=disposition-notification;
+	boundary="----=_NextPart_000_000E_01C30F3B.35784F30"
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_000E_01C30F3B.35784F30
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
+
+1eLKx9PKvP672Na0o6zK1bz+yMs6DQogIkFkbWluTUtMIFvApd9fz7W9ebncwO2GVF0iIDxBZG1p
+bk1LTEBtaWMuY29tLnR3PiDT2iAyMDAzLTQtMzAgMTc6MDcNCg0KtMu72Na0se3D97jD08q8/tLR
+vq3P1Mq+1NrK1bz+yMu1xLzGy+O7+snPwcujrM/Uyr7KsbzkOiAyMDAzLTQtMzAgMTc6MDk=
+
+------=_NextPart_000_000E_01C30F3B.35784F30
+Content-Type: message/disposition-notification
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Final-Recipient: rfc822;Roger.Ling@mitac.com.cn
+Original-Message-ID: <71C00BF11D82D611883000306E002CCA01D84CFD@mrspdc.mrs.com.cn>
+Disposition: manual-action/MDN-sent-manually; displayed
+
+
+------=_NextPart_000_000E_01C30F3B.35784F30--
+
+
+------=_NextPartTM-000-6fb28b76-ecce-46ef-86c9-ee81883ceed4--

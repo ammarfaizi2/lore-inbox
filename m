@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbTJOXYo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 19:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbTJOXYo
+	id S262563AbTJOXWO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 19:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbTJOXWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 19:24:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5339 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262536AbTJOXYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 19:24:43 -0400
-Date: Thu, 16 Oct 2003 01:24:40 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
+	Wed, 15 Oct 2003 19:22:14 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:18697 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262563AbTJOXWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 19:22:11 -0400
+Date: Thu, 16 Oct 2003 00:22:05 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20031015232440.GU17986@fs.tum.de>
-References: <20031015225055.GS17986@fs.tum.de> <20031015161251.7de440ab.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031015161251.7de440ab.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+cc: linux-fbdev-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>,
+       Chris Heath <chris@heathens.co.nz>
+Subject: Re: FBDEV 2.6.0-test7 updates.
+In-Reply-To: <20031015161705.221a579b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0310160018100.13660-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 04:12:51PM -0700, Andrew Morton wrote:
->...
-> They are small concerns really, but it does make one wonder why we should
-> not make this change unconditional: just switch the kernel to -Os?
+
+> > Here is the latest fbdev patches. Please test!!! Many new enhancements. 
+> > Several fixes. The patch is against 2.6.0-test7
+> > 
+> > http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 > 
-> Does anyone have any (non-micro-)benchmark results which say this is a bad
-> idea?
+> Cool.  I've had the below fix floating about for a while.  Is it still
+> relevant?
 
-No benchmarks, only arguments:
-
-- it's less tested (there might be miscompilations in some part of the 
-  kernel with some supported compilers)
-- there might be fast path code somewhere in the kernel that becomes
-  significantely slower with -Os
-- I've already seen a report for an ICE in gcc 2.95 of a user compiling
-  kernel 2.4 with -Os [1]
-
-cu
-Adrian
-
-[1] http://bugs.debian.org/213497
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Its not the proper fix. The latest patch fixes this problem. I had to save 
+the area under the cursor and redraw that area when the cursor was 
+disabled or moved. The cursor api is set in stone from the drivers 
+prespective. So it will be easy for driver writers to make use of 
+a hardware cursor. The old cursor code was written around a software 
+emulated cursor. The new code favors hardware cursors with software 
+emulation the exception.
 

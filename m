@@ -1,112 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTL1QgG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 11:36:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTL1QgG
+	id S261827AbTL1RCc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 12:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTL1RCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 11:36:06 -0500
-Received: from holomorphy.com ([199.26.172.102]:29874 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261595AbTL1QgB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 11:36:01 -0500
-Date: Sun, 28 Dec 2003 08:35:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: rl@hellgate.ch, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@surriel.com>, torvalds@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: Page aging broken in 2.6
-Message-ID: <20031228163528.GK27687@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	rl@hellgate.ch, Andrew Morton <akpm@osdl.org>,
-	Rik van Riel <riel@surriel.com>, torvalds@osdl.org,
-	benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-	andrea@suse.de
-References: <Pine.LNX.4.58.0312260957100.14874@home.osdl.org> <1072482941.15458.90.camel@gaston> <Pine.LNX.4.58.0312261626260.14874@home.osdl.org> <1072485899.15456.96.camel@gaston> <Pine.LNX.4.58.0312261649070.14874@home.osdl.org> <Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com> <20031226190045.0f4651f3.akpm@osdl.org> <20031227230757.GA25229@k3.hellgate.ch> <20031227235538.GP22443@holomorphy.com> <20031228112339.GA4847@k3.hellgate.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031228112339.GA4847@k3.hellgate.ch>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Dec 2003 12:02:32 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:11707 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261827AbTL1RCb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 12:02:31 -0500
+Date: Sun, 28 Dec 2003 14:56:45 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Nicklas Bondesson <nicke@nicke.nu>
+Cc: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+ (PDC20271)
+In-Reply-To: <S261660AbTL1Q0E/20031228162604Z+16979@vger.kernel.org>
+Message-ID: <Pine.LNX.4.58L.0312281456090.15034@logos.cnet>
+References: <S261660AbTL1Q0E/20031228162604Z+16979@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> Part of this is unrealistic; paging I/O being congested must be due to
->> paging itself causing seeks without additional I/O load. Reading a
->> single page once and then faulting that one page back into numerous
->> process address spaces is only one I/O request, and so cannot seek in
->> and of itself. So in this scenario, a convoy of processes on a single
->> page is plausible; aggravated paging I/O seekiness is not. Did you have
->> in mind some additional I/O load? Or do affected processes actually all
->> fault before the one I/O completes, and so all block temporarily?
-
-On Sun, Dec 28, 2003 at 12:23:40PM +0100, Roger Luethi wrote:
-> My previous message was meant as a warning of the assumption that
-> the aggregated reference frequency is all that matters. I was merely
-> pointing out how the number of processes referencing a page could affect
-> performance as well. Reference frequency is used as an estimator for
-> the _likelihood_ of a fault in the future, but the potential _impact_
-> of a fault grows with the number of processes that may block on it.
-> It is one possible (though not necessarily the most likely) explanation
-> for the symptoms I see with 2.6.
-
-I guess caution against LFU is uncontroversial.
 
 
-On Sun, Dec 28, 2003 at 12:23:40PM +0100, Roger Luethi wrote:
-> vmstat finds all processes blocked a lot more often in 2.6 than in
-> 2.4, often for several seconds in a row. That only means something in
-> comparison, of course, because it is anything but a precise measurement
-> -- not only because of the 1 second snapshot granularity but also due
-> to the fact that bookkeeping of running and blocked processes in the
-> kernel is not accurate (processes may count as both blocked and running).
-> Typical log snippet for a kernel build under some 2.6.0-test release:
+On Sun, 28 Dec 2003, Nicklas Bondesson wrote:
 
-I'm not convinced what vmstat gets out of 2.4 is entirely comparable to
-what it gets out of 2.6. "blocked" and "running" are collected very
-differently in 2.6. iowait shouldn't be collected on 2.4 at all.
+> I really hope so :) I think you should wrap it up and send it to the list
+> marked as [PATCH].
+>
+> Many thanks for the help again!
 
-This could probably be addressed by backporting 2.6's reporting methods
-to 2.4 so the two kernels use similar reporting mechanisms.
+Nicklas,
 
-
-On Sun, Dec 28, 2003 at 12:23:40PM +0100, Roger Luethi wrote:
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  9  3   6268 851814   1500   8992  440    0   996   348 1141   294 87 13  0  0
->  9  3   6164 852816   1540   9088  352    0   456     0 1045   145 91  9  0  0
->  9  6   6164   4044 853818   8112   60    0   100    28 1016    71 92  8  0  0
->  4  6   6604 854820    924   7432  532  472   784   488 1096   626 57 43  0  0
->  2  9   9248   3556 855921   6968 1044 2748  1640  2752 1283   412 74 13  0 13
->  3  7   9248 857071    924   6864 1208    0  1720   108 1326   524 60 34  0  6
-> 10  8  11164   2080 858438   5952 1068 1944  2040  2064 1623  1655 74 26  0  0
->  0 11  13000 859563    356   5824  796 2032  1572  2036 1330   656 66 24  0 10
->  0 10  16608   4064 861037   5868  832 3960  1836  3964 1755   725 42  9  0 49
->  0 11  16604 862284    420   5920 1420    0  2216     4 1471   485 39  4  0 57
->  7  4   9772  10656 863286   6644  552    0  1344    12 1112   250 56  5  0 39
->  9  2   8228 864687    732   6960  296    0   632   108 1484   257 96  4  0  0
->  8  3   8212  10656 865689   7176   80    0   320     0 1050   146 95  5  0  0
-> The trace above is not for the benchmark I referred to as kbuild in the
-> past few weeks (it was taken under lighter load). Even so 2.6 exhibits
-> significantly more periods with I/O wait and consequently takes longer
-> than 2.4 to complete.
-
-The oscillation in "free" and "buff" is very unusual. What is this
-box doing?
-
-
-On Sat, 27 Dec 2003 15:55:38 -0800, William Lee Irwin III wrote:
->> Can you capture sysrq t while a situation like this is in progress?
-
-On Sun, Dec 28, 2003 at 12:23:40PM +0100, Roger Luethi wrote:
-> What are you getting at? This may be easier for you to do because you
-> know what you are looking for.
-
-I'm not looking for anything per se. It will say what codepaths tasks
-are blocked in and give an idea of what's going on around the system.
-kgdb can do something similar that might be more useful, since data can
-be examined also.
-
-
--- wli
+Have you tried to compile the kernel with CONFIG_PDC202XX_FORCE unset ?

@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbTCESQ6>; Wed, 5 Mar 2003 13:16:58 -0500
+	id <S267364AbTCESRI>; Wed, 5 Mar 2003 13:17:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267364AbTCESQ6>; Wed, 5 Mar 2003 13:16:58 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:42508 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267346AbTCESQ5>; Wed, 5 Mar 2003 13:16:57 -0500
-Date: Wed, 5 Mar 2003 18:27:15 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Derek Atkins <derek@ihtfp.com>
-Cc: Kostadin Karaivanov <larry@minfin.bg>, linux-kernel@vger.kernel.org
-Subject: Re: ipsec-tools 0.1 + kernel 2.5.64
-Message-ID: <20030305182715.A27888@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Derek Atkins <derek@ihtfp.com>,
-	Kostadin Karaivanov <larry@minfin.bg>, linux-kernel@vger.kernel.org
-References: <sjmof4pvfx7.fsf@kikki.mit.edu>
+	id <S267383AbTCESRI>; Wed, 5 Mar 2003 13:17:08 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:47347 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S267364AbTCESRG>; Wed, 5 Mar 2003 13:17:06 -0500
+Subject: RE: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       kai.bankett@ontika.net, mingo@redhat.com,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+In-Reply-To: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
+References: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qt1yLcvLzkFbRRJFeKoY"
+Organization: 
+Message-Id: <1046888812.1539.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <sjmof4pvfx7.fsf@kikki.mit.edu>; from derek@ihtfp.com on Wed, Mar 05, 2003 at 01:15:00PM -0500
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 Mar 2003 19:26:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 01:15:00PM -0500, Derek Atkins wrote:
-> Hmm...  What version of glibc are you using?  This seems to imply that
-> getifaddrs() and freeifaddrs() is now in libc, where it wasn't before.
-> I didn't know it got added -- I wonder when that happened?
 
-It's new in glibc 2.3
+--=-qt1yLcvLzkFbRRJFeKoY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->  
-> @@ -78,7 +78,7 @@
->  static int suitable_ifaddr6 __P((const char *, const struct sockaddr *));
->  #endif
->  
-> -#ifdef __linux__
-> +#if defined(__linux__) && !defined(HAVE_GETIFADDRS)
+On Wed, 2003-03-05 at 05:21, Kamble, Nitin A wrote:
+> There are few issues we found with the user level daemon approach.
+>  =20
+>    Static binding compatibility: With the user level daemon, users can
+> not =20
+> use the /proc/irq/i/smp_affinity interface for the static binding of
+> interrupts.
 
-#ifdef <OS> is a very bad style.  As you're already using autoconf
-I'd suggest just checking for HAVE_GETIFADDRS
+no they can just write/change the config file, with a gui if needed
 
+>=20
+>   There is some information which is only available in the kernel today,
+
+there's also some information only available to userspace today that the
+userspace daemon can and does use.
+
+> Also the future implementation might need more kernel data. This is
+> important for interfaces such as NAPI, where interrupts handling changes
+> on the fly.
+
+ehm. almost. but napi isn't it ....
+
+and the userspace side can easily have a system vendor provided file
+that represents all kinds of very specific system info about the numa
+structure..... working with every kernel out there.
+
+
+--=-qt1yLcvLzkFbRRJFeKoY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+ZkFsxULwo51rQBIRAvmnAJ91kXexX3irCPCHl37KLhRU1ieT2wCgka62
+nx2Qz5D2Ugw17CLpHOGbv+A=
+=cfau
+-----END PGP SIGNATURE-----
+
+--=-qt1yLcvLzkFbRRJFeKoY--

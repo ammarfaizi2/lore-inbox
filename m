@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVCZRn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVCZRwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVCZRn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 12:43:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVCZRn1
+	id S261197AbVCZRwa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 12:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVCZRwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 12:43:27 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:22922 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261186AbVCZRnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 12:43:18 -0500
-Date: Sat, 26 Mar 2005 18:43:11 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Michael Seydl <mingy@hlw.co.at>
+	Sat, 26 Mar 2005 12:52:30 -0500
+Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:38665 "EHLO
+	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261197AbVCZRw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 12:52:26 -0500
+Date: Sat, 26 Mar 2005 17:52:20 +0000 (GMT)
+From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+To: greg@kroah.com
 cc: linux-kernel@vger.kernel.org
-Subject: Re: vanilla 2.6.11 Kernel Hangs after hlt checking
-In-Reply-To: <1111851854.9137.3.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0503261842390.9796@yvahk01.tjqt.qr>
-References: <1111851854.9137.3.camel@localhost.localdomain>
+Subject: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-ID: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->actually i've exprienced this happening with old systems but not with a
->new one. 
+I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
+I have found that I can't use SYSFS on Linux-2.6.10.
 
-Well, only with older i386's...
+Why ?. 
 
->haven't started debugging yet maybe someone has experinced the same
->issue. 
+I am not modifing the Kernel/SYSFS code so I should be able, to use all
+the SYSFS/internal kernel function calls without hinderence.
 
-Anyway, you could try the "nohlt" bootoption, as well as sysrq+t when it 
-hangs.
+In order to be able to use SYSFS to debug the driver during development
+the way I would like to be able to do, I will have to temporally change
+the module licence line to "GPL". When the development is finnished I will
+then need to remove all the code that accesses the SYSFS stuf in the
+Kernel and change the module back to a "Proprietry" licence in order to
+comply with other requirements. This will then hinder any debugging if
+future issues arise.
+
+I believe that this sort of idiocy is what helps Microsoft hold on to its
+manopoly and as shuch hinders hardware/software development in all areas
+and should be chanaged in a way that promotes diversified software
+development.
+
+Regards
+	Mark Fortescue.
 
 
 
-Jan Engelhardt
--- 
-No TOFU for me, please.
+
+

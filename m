@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262888AbVCDPFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVCDPMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbVCDPFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 10:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVCDPFU
+	id S262212AbVCDPMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 10:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVCDPMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 10:05:20 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:62689 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262888AbVCDPCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 10:02:05 -0500
-Date: Fri, 04 Mar 2005 10:02:03 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [linux-dvb-maintainer] Re: 2.6.11 vs DVB cx88 stuffs
-In-reply-to: <20050304122434.GB9121@linuxtv.org>
-To: Johannes Stezenbach <js@linuxtv.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org,
-       Gerd Knorr <kraxel@bytesex.org>
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503041002.03471.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200503032119.04675.gene.heskett@verizon.net>
- <4227CE34.2040805@osdl.org> <20050304122434.GB9121@linuxtv.org>
-User-Agent: KMail/1.7
+	Fri, 4 Mar 2005 10:12:17 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:59277 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262212AbVCDPMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 10:12:13 -0500
+Message-ID: <42287AC9.2050100@drzeus.cx>
+Date: Fri, 04 Mar 2005 16:12:09 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcel Holtmann <marcel@holtmann.org>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH][MMC] Secure Digital (SD) support
+References: <422701A0.8030408@drzeus.cx> <1109948432.8058.57.camel@pegasus>
+In-Reply-To: <1109948432.8058.57.camel@pegasus>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 March 2005 07:24, Johannes Stezenbach wrote:
->On Thu, Mar 03, 2005 at 06:55:48PM -0800, Randy.Dunlap wrote:
->> Gene Heskett wrote:
->> >Greetings;
->> >
->> >I've a new pcHDTV-3000 card, and I thought maybe it would
->> >be a good idea to build the cx88 stuff in the DVB section
->> >of a make xconfig.
->> >
->> >It doesn't build, spitting out this bailout:
+Marcel Holtmann wrote:
+
+>Hi Pierre,
 >
->...
+>  
 >
->> >Another patch needed maybe?
+>>Here are the patches for Secure Digital support that I've been sitting 
+>>on for a while. I tried to get some feedback on inclusion of this 
+>>previously but since I didn't get any I'll just submit the thing.
+>>It was originally diffed against 2.6.10 but it applies to 2.6.11 just 
+>>fine (only minor fuzz).
+>>    
 >>
->> Sure, some patch is needed.  Let's ask the maintainer (cc-ed).
->>
->> BTW, to get this you had to enable CONFIG_BROKEN:
->>
->> config VIDEO_CX88_DVB
->>         tristate "DVB Support for cx2388x based TV cards"
->>         depends on VIDEO_CX88 && DVB_CORE && BROKEN
->>         select VIDEO_BUF_DVB
 >
->Gerd Knorr has patches pending which depend on patches which
->I have to create from linuxtv.org CVS. I will submit then asap.
+>lately I got a request for the support of a Bluetooth SD card. These are
+>using SDIO and I think at the moment only memory cards are handled. Do
+>you have any plans for SDIO support?
 >
->Johannes
+>  
+>
 
-Ok, but this morning I noticed another potential problem, one that 
-I've pinged Jack K., (the author of the pcHDTV-1.6 driver kit, some 
-of whose modules overwrite kernel modules by the same names,) about 
-just a few minutes ago.
+I would if I had some hardware to play with *hint* *hint* ;)
+The SDIO spec is publically available on the SD card associations web 
+page so it shouldn't be too difficult to get some basic support. But I 
+can't do much as long as I don't have any hardware to test it with. I 
+might also need specs for the card itself. I haven't looked too much at 
+SDIO at the moment.
 
-I'm getting the usual nvidia generated 'tainted kernel' messages in my 
-log when the modules are loaded:
+Rgds
+Pierre
 
-Mar  4 04:17:46 coyote kernel: bttv: no version for "struct_module" 
-found: kernel tainted.
-Mar  4 04:17:46 coyote kernel: bttv: No versions for exported symbols. 
-Tainting kernel.
-Mar  4 04:17:46 coyote kernel: bttv: driver version 0.9.15 loaded
-Mar  4 04:17:46 coyote kernel: bttv: using 8 buffers with 2080k (520 
-pages) each for capture
-
-Since we do have the srcs for this one, how can a relative dummy like 
-me fix this?  Or should I wait for Jack K.'s answer...  Grepping 
-kernel srcs for a 'struct_module' seems to come up empty for 2.6.11.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

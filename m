@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262360AbSLZENI>; Wed, 25 Dec 2002 23:13:08 -0500
+	id <S262373AbSLZEOS>; Wed, 25 Dec 2002 23:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262373AbSLZENI>; Wed, 25 Dec 2002 23:13:08 -0500
-Received: from server.ehost4u.biz ([209.51.155.18]:21720 "EHLO
-	host.ehost4u.biz") by vger.kernel.org with ESMTP id <S262360AbSLZENH>;
-	Wed, 25 Dec 2002 23:13:07 -0500
-From: "Billy Rose" <billyrose@billyrose.net>
-To: user@mail.econolodgetulsa.com
-CC: bp@dynastytech.com, linux-kernel@vger.kernel.org, felipewd@terra.com.br
-Reply-To: billyrose@billyrose.net
-Subject: Re: CPU failures ... or something else ?
-X-Mailer: NeoMail 1.25
-X-IPAddress: 65.132.64.212
+	id <S262384AbSLZEOS>; Wed, 25 Dec 2002 23:14:18 -0500
+Received: from CPE-203-51-25-222.nsw.bigpond.net.au ([203.51.25.222]:17653
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S262373AbSLZEOQ>; Wed, 25 Dec 2002 23:14:16 -0500
+Message-ID: <3E0A8403.BDCAF9ED@eyal.emu.id.au>
+Date: Thu, 26 Dec 2002 15:22:27 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-e1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <E18RPWN-0001xf-00@host.ehost4u.biz>
-Date: Wed, 25 Dec 2002 23:21:23 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.ehost4u.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
-X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21pre2aa1: compile error in fs/buffer.c
+References: <20021226010605.GA4223@dualathlon.random>
+Content-Type: multipart/mixed;
+ boundary="------------11414C0B8DB1E4A7A3DE5756"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Understood.  Thank you for that diagnosis.
->
->
-> usually it says proc #1 in the error, but the first time it said proc
-> #0 - is that interesting ?
+This is a multi-part message in MIME format.
+--------------11414C0B8DB1E4A7A3DE5756
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-youre welcome :)
+A declaration at the wrong place was introduced by pre2aa1 in
+fs/buffer.c. I simply moved the declaration tot the top of the
+relevant block.
 
-if youre hanging on to that box, remove the memory from banks 3 and 4
-and it should be ok. if my memory serves me right, you cant have only 3
-banks of memory (hence removing bank 3 also), the motherboard is
-configured to handle 1, 2, or 4 populated banks. it you leave bank 3
-in while removing bank 4, it will beep at you when you power it on and
-do nothing. with a gig of ram, it should still be plenty useful.
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+--------------11414C0B8DB1E4A7A3DE5756
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.21-pre2-aa1-buffer.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.21-pre2-aa1-buffer.patch"
 
-billy
-=====
-"there's some milk in the fridge that's about to go bad...
-and there it goes..." -bobby
+--- linux/fs/buffer.c.orig	Thu Dec 26 15:10:26 2002
++++ linux/fs/buffer.c	Thu Dec 26 15:10:51 2002
+@@ -2334,8 +2334,8 @@
+ 				}
+ 				if (iobuf->varyio &&
+ 				    (!(offset & RAWIO_BLOCKMASK))) {
+-					iosize = RAWIO_BLOCKSIZE; 
+ 					int block_iter;
++					iosize = RAWIO_BLOCKSIZE; 
+ 					if (iosize > length)
+ 						iosize = length;
+ 					for (block_iter = 1; block_iter < iosize / size; block_iter++) {
+
+--------------11414C0B8DB1E4A7A3DE5756--
+

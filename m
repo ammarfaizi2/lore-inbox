@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUGJF5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266146AbUGJGAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266141AbUGJF5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 01:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGJF5q
+	id S266146AbUGJGAM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 02:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUGJGAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 01:57:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23446 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266141AbUGJF5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 01:57:44 -0400
-Date: Fri, 9 Jul 2004 22:56:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mason@suse.com
-Subject: Re: writepage fs corruption fixes
-Message-Id: <20040709225634.2eb0b8b0.akpm@osdl.org>
-In-Reply-To: <20040710045920.GY20947@dualathlon.random>
-References: <20040709040151.GB20947@dualathlon.random>
-	<20040708212923.406135f0.akpm@osdl.org>
-	<20040709044205.GF20947@dualathlon.random>
-	<20040708215645.16d0f227.akpm@osdl.org>
-	<20040710001600.GT20947@dualathlon.random>
-	<20040710010738.GX20947@dualathlon.random>
-	<20040710045920.GY20947@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jul 2004 02:00:12 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:24763 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266146AbUGJGAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 02:00:04 -0400
+From: jmerkey@comcast.net
+To: Hans Reiser <reiser@namesys.com>
+Cc: Pete Harlan <harlan@artselect.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 File System "Too many files" with snort
+Date: Sat, 10 Jul 2004 06:00:01 +0000
+Message-Id: <071020040600.3803.40EF85E1000853B300000EDB2200762194970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jun 24 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> +page_is_mapped:
->  +
->  +	end_index = i_size >> PAGE_CACHE_SHIFT;
->   	if (page->index >= end_index) {
->  -		unsigned offset = i_size_read(inode) & (PAGE_CACHE_SIZE - 1);
->  +		unsigned offset = i_size & (PAGE_CACHE_SIZE - 1);
->   		char *kaddr;
->   
->   		if (page->index > end_index || !offset)
->  @@ -503,8 +506,6 @@ mpage_writepage(struct bio *bio, struct 
->   		kunmap_atomic(kaddr, KM_USER0);
->   	}
->   
->  -page_is_mapped:
-
-What's the thinking behind moving the page_is_mapped label here?
-
-We've established that we have found `first_unmapped' number of uptodate
-and dirty buffers at the "front" of the page, and we're about to stick
-(first_unmapped<<blkbits) bytes of this page into the BIO for writeout. 
-Hence everything which will go into the BIO is known to be uptodate and
-dirty.  So I'm wondering why this change was made.
 
 
-The change is correct, though.  It prevents us from writing non-zero data
-between i_size and the end of the final bh to the file. 
-block_write_full_page() does it too:
 
-	/*
-	 * The page straddles i_size.  It must be zeroed out on each and every
-	 * writepage invokation because it may be mmapped.  "A file is mapped
-	 * in multiples of the page size.  For a file that is not a multiple of
-	 * the  page size, the remaining memory is zeroed when mapped, and
-	 * writes to that region are not written out to the file."
-	 */
+> >NetWare has always supported more than this, so this whole idea of fixed inode 
+> tables 
+> >is somewhat strange to me to start with.  I am still looking through Hans code, 
+> but if 
+> >this is accurate I'll just take a system out Monday and see if it works.  My 
+> only concern 
+> >with Reiser has to do with the bug reports I've seen on it over the years, but 
+> Suse is 
+> >shipping it as default, and we have been running it here for about a year on a 
+> production 
+> >server.  I'll post if it crashes, corrupts data, or has problems.  
+> >
+> >Jeff
+> >
+> >
+> Don't use it on redhat systems, those bug reports tend to be for redhat 
+> kernels, redhat refuses to apply our bugfixes that we send in to the 
+> official kernel because they want us to look bad.  I sound so paranoid 
+> when I say that, but they really do refuse to apply our bugfixes.
 
-(Note that this is a "best effort" thing - userspace could still write
-non-zero data into the mmapped page outside i_size even while I/O is in
-flight.  Can't do much about that).
+Not nice at all to not post updates.  They don't respond to email much either.   
 
-But was this the reason for you making this change?
+> 
+> ReiserFS V3 has been very stable for quite some time in 2.4.x.  There 
+> were some instabilities recently in some versions of 2.6.x due to code 
+> changes not by our team. sigh....
+> 
+> We at Namesys are much more conservative in code changes for V3 than 
+> ext*.  I can't control some of the changes by SuSE though that have 
+> added some bugs that could have been caught by more serious QA.  (SuSE 
+> adheres to the usual linux lack of QA approach, it is not that they are 
+> bad, but that they conform to the social norm for linux.)  Hopefully I 
+> will have more control over that in V4.
+
+We are using Suse for appliance builds for customer shipments.  More stable, 
+more features, better quality.  I will be using Suse for the site with Reiser 
+Monday.  So far looks good.  Builds finished tonight on 2.6 and running stable.
+
+I will post a report of any problems at the site with Reiser.  From initial tests, looks
+fixed.
+
+:-)
+
+> 
+> Hans
+

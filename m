@@ -1,142 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270700AbTHAKbK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 06:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270707AbTHAKbK
+	id S270707AbTHAKlz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 06:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270712AbTHAKlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 06:31:10 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.29]:22923 "EHLO
-	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S270700AbTHAKa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 06:30:57 -0400
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="smSKSeMoTW"
+	Fri, 1 Aug 2003 06:41:55 -0400
+Received: from AMarseille-201-1-1-232.w193-252.abo.wanadoo.fr ([193.252.38.232]:51239
+	"EHLO gaston") by vger.kernel.org with ESMTP id S270707AbTHAKly
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 06:41:54 -0400
+Subject: Re: mremap sleeping in incorrect context
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030731145132.64ab1574.akpm@osdl.org>
+References: <1059586337.2420.44.camel@gaston>
+	 <20030730153439.7df44a69.akpm@osdl.org> <1059658728.2417.112.camel@gaston>
+	 <20030731145132.64ab1574.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 1 Aug 2003 12:32:26 +0200
-From: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] Allow initrd_load() before software_resume() (version 2)
-In-Reply-To: <1059700691.1750.1.camel@laptop-linux>
-References: <20030801002742.1033FE8003AE@mwinf0502.wanadoo.fr>
-	<1059700691.1750.1.camel@laptop-linux>
-Message-Id: <20030801103054.9E75F30003B9@mwinf0201.wanadoo.fr>
+Message-Id: <1059734484.8194.45.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 01 Aug 2003 12:41:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-07-31 at 23:51, Andrew Morton wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> >
+> > 
+> > > oops.  What are your CONFIG_HIGHMEM and CONFIG_HIGHPTE settings there?
+> > 
+> > this is on ppc32, HIGHPTE doesn't exist, HIGHMEM is enabled (1Gb of
+> > RAM)
+> > 
+> 
+> OK, thanks.  Seems that I made a little bug.  This should fix it.  With a
+> changelog like this, it _has_ to be right ;)
 
---smSKSeMoTW
-Content-Type: text/plain; charset=us-ascii
-Content-Description: message body text
-Content-Transfer-Encoding: 7bit
+Thanks, I'll apply here and let you know if this warning is really gone
+after a couple of days of use...
 
-[Sorry, new version already... I hadn't noticed that mount_root() is
- also called from within initrd_load(). resume() must run before.]
-
-
-This patch adds a boot parameter "resume_initrd".  If present,
-init will load the initrd before trying to resume from swsusp.
-
-This makes it posssible to resume from an encrypted suspend image.
-The initrd should insmod cryptoloop.o or loop-AES.o and perform
-losetup -e so that resume=/dev/loopX makes sense.
-Note: software_resume() should not be allowed to complete if
-initrd has altered disks (e.g. by flushing journals).
-
-
-
---smSKSeMoTW
-Content-Type: text/plain
-Content-Disposition: inline;
-	filename="resume_initrd-2.diff"
-Content-Transfer-Encoding: 7bit
-
-diff -ur linux-2.6.0-test2.orig/Documentation/kernel-parameters.txt linux-2.6.0-test2/Documentation/kernel-parameters.txt
---- linux-2.6.0-test2.orig/Documentation/kernel-parameters.txt	2003-07-27 19:12:45.000000000 +0200
-+++ linux-2.6.0-test2/Documentation/kernel-parameters.txt	2003-08-01 11:28:10.000000000 +0200
-@@ -816,6 +816,8 @@
- 
- 	resume=		[SWSUSP] Specify the partition device for software suspension
- 
-+	resume_initrd	[SWSUSP] Run initrd before resuming from software suspension
-+
- 	riscom8=	[HW,SERIAL]
- 			Format: <io_board1>[,<io_board2>[,...<io_boardN>]]
- 
-diff -ur linux-2.6.0-test2.orig/init/do_mounts.c linux-2.6.0-test2/init/do_mounts.c
---- linux-2.6.0-test2.orig/init/do_mounts.c	2003-07-27 19:00:37.000000000 +0200
-+++ linux-2.6.0-test2/init/do_mounts.c	2003-08-01 11:31:17.000000000 +0200
-@@ -15,6 +15,7 @@
- extern int get_filesystem_list(char * buf);
- 
- int __initdata rd_doload;	/* 1 = load RAM disk, 0 = don't load */
-+unsigned char resume_initrd = 0; /* Run initrd before resuming from swsusp */
- 
- int root_mountflags = MS_RDONLY | MS_VERBOSE;
- char * __initdata root_device_name;
-@@ -49,6 +50,13 @@
- __setup("ro", readonly);
- __setup("rw", readwrite);
- 
-+static int __init set_resume_initrd(char *str)
-+{
-+	resume_initrd = 1;
-+	return 1;
-+}
-+__setup("resume_initrd", set_resume_initrd);
-+
- static dev_t __init try_name(char *name, int part)
- {
- 	char path[64];
-@@ -365,9 +373,11 @@
- 
- 	is_floppy = MAJOR(ROOT_DEV) == FLOPPY_MAJOR;
- 
--	/* This has to be before mounting root, because even readonly mount of reiserfs would replay
--	   log corrupting stuff */
--	software_resume();
-+	/* software_resume() has to be before mounting root, because even
-+	   readonly mount of reiserfs would replay log corrupting stuff.
-+	   However, users may want to run a special initrd first. */
-+	if (!resume_initrd)
-+		software_resume();
- 
- 	if (initrd_load())
- 		goto out;
-diff -ur linux-2.6.0-test2.orig/init/do_mounts.h linux-2.6.0-test2/init/do_mounts.h
---- linux-2.6.0-test2.orig/init/do_mounts.h	2003-07-27 19:04:19.000000000 +0200
-+++ linux-2.6.0-test2/init/do_mounts.h	2003-08-01 11:31:41.000000000 +0200
-@@ -28,6 +28,7 @@
- void  mount_root(void);
- extern int root_mountflags;
- extern char *root_device_name;
-+extern unsigned char resume_initrd;
- 
- #ifdef CONFIG_DEVFS_FS
- 
-diff -ur linux-2.6.0-test2.orig/init/do_mounts_initrd.c linux-2.6.0-test2/init/do_mounts_initrd.c
---- linux-2.6.0-test2.orig/init/do_mounts_initrd.c	2003-07-27 18:57:13.000000000 +0200
-+++ linux-2.6.0-test2/init/do_mounts_initrd.c	2003-08-01 11:33:36.000000000 +0200
-@@ -6,6 +6,7 @@
- #include <linux/romfs_fs.h>
- #include <linux/initrd.h>
- #include <linux/sched.h>
-+#include <linux/suspend.h>
- 
- #include "do_mounts.h"
- 
-@@ -74,6 +75,10 @@
- 		return;
- 	}
- 
-+	/* Must resume from swsusp before mounting a journalling root fs */
-+	if (resume_initrd)
-+		software_resume();
-+
- 	ROOT_DEV = real_root_dev;
- 	mount_root();
- 
-
---smSKSeMoTW--
+Ben.
 

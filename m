@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbSALPqC>; Sat, 12 Jan 2002 10:46:02 -0500
+	id <S285498AbSALPrC>; Sat, 12 Jan 2002 10:47:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285498AbSALPpn>; Sat, 12 Jan 2002 10:45:43 -0500
-Received: from ns.suse.de ([213.95.15.193]:13319 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S285352AbSALPpb>;
-	Sat, 12 Jan 2002 10:45:31 -0500
-Date: Sat, 12 Jan 2002 16:45:30 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: <hachi@kuiki.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: netlink sockets in 2.4.17
-In-Reply-To: <20020112153510.GB22133@ryoko.kuiki.net>
-Message-ID: <Pine.LNX.4.33.0201121643370.7982-100000@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287134AbSALPqs>; Sat, 12 Jan 2002 10:46:48 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:28584 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S285498AbSALPq3>; Sat, 12 Jan 2002 10:46:29 -0500
+Date: Sat, 12 Jan 2002 10:50:09 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 1-2-3 GB
+Message-ID: <20020112105009.A6642@earthlink.net>
+In-Reply-To: <20020112004528.A159@earthlink.net> <20020112125625.E1482@inspiron.school.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020112125625.E1482@inspiron.school.suse.de>; from andrea@suse.de on Sat, Jan 12, 2002 at 12:56:25PM +0100
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jan 2002 hachi@kuiki.net wrote:
+> > Derived from:
+> > htty://kernelnewbies.org/kernels/rh72/SOURCES/linux-2.4.2-vm-1-2-3-gbyte.patch
+> > Some parts of the patch above are already in the mainline trees.
+> > 
+> > Patch below applies to 2.4.18pre2aa2:
+> 
+> for a fileserver (even more if in kernel like tux) it certainly make
+> sense to have as much direct mapped memory as possible, it is not the
+> recommended setup for a generic purpose kernel though. So I applied the
+> patch (except the prefix thing which is distribution specific). thanks,
+> 
+> Andrea
 
-> My query is this, when and why were netlink sockets removed from 2.4,
-
-They are still there, just the config option is removed.
-
-> and why was this not included in a Changelog at any point?
-
-Probably comes under the incredibly terse..
-
-- Networking updates                (David S. Miller)
-
-in the 2.4.17 changelog.
+Thanks so much!
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Randy Hron
 

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbTJPEPf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 00:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTJPEPf
+	id S262695AbTJPEWf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 00:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTJPEWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 00:15:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35544 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262726AbTJPEPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 00:15:33 -0400
-Date: Wed, 15 Oct 2003 21:19:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alberto Bertogli <albertogli@telpin.com.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
-Message-Id: <20031015211918.1a70c4d2.akpm@osdl.org>
-In-Reply-To: <20031016025554.GH4292@telpin.com.ar>
-References: <20031016025554.GH4292@telpin.com.ar>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Oct 2003 00:22:35 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:40833
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262695AbTJPEWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 00:22:35 -0400
+Date: Thu, 16 Oct 2003 00:22:14 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] constant_test_bit doesn't like my gcc
+In-Reply-To: <20031015212134.41a427d3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0310160020060.2328@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.53.0310152244330.2328@montezuma.fsmlabs.com>
+ <20031015211012.5daac8fc.akpm@osdl.org> <Pine.LNX.4.53.0310160008530.2328@montezuma.fsmlabs.com>
+ <20031015212134.41a427d3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alberto Bertogli <albertogli@telpin.com.ar> wrote:
->
-> I want to report a memory leak for 2.6.0-test5 that I've noticed today on
->  a mail server after 32 days of uptime.
-> 
->  As I'm upgrading it tomorrow to test7 I wasn't going to report this until
->  verifying if the behaviour continued, but I saw on kernelnewbies that
->  others were having this issue with test7 too, so I decided to post a
->  report with the information before I reboot the server.
-> 
->  The attached files are gzipped for space reasons, and were taken at night
->  when the server isn't very loaded.
-> 
->  The workload is a simple sendmail with ipop3d and imapd, nothing much, for
->  about 6500 users; the machine is a dual Pentium III with 1gb of RAM and a
->  couple of SCSI disks.
-> 
->  Slabinfo reports that size-4096 has 104341 active objects and growing.
-> 
->  On another box at home I see the same issue with test6, but "only" with
->  11612 objects; I'm not posting info on this box as I guess the mailserver
->  is much more important because the leak is really noticeable.
+On Wed, 15 Oct 2003, Andrew Morton wrote:
 
-At least I'm not the only one; my main desktop machine does the same
-thing.  It leaks two megabytes a day into size-4096, like clockwork.  It's
-up to 43 megs now.
+> >   static __inline__ int constant_test_bit(int nr, const volatile unsigned long * addr)
+> >   {
+> >  -	return ((1UL << (nr & 31)) & (((const volatile unsigned int *) addr)[nr >> 5])) != 0;
+> >  +	return ((1UL << (nr & 31)) & (addr[nr >> 5])) != 0;
+> >   }
+> >  
+> 
+> Looks fine.  Does your compiler get this right? 
 
-I was ignoring it and hoping it would go away.  Ho hum.  Tricky.
+Yep, thanks.

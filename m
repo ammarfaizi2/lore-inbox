@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132855AbRDXH72>; Tue, 24 Apr 2001 03:59:28 -0400
+	id <S132853AbRDXH72>; Tue, 24 Apr 2001 03:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132862AbRDXH7S>; Tue, 24 Apr 2001 03:59:18 -0400
-Received: from juicer14.bigpond.com ([139.134.6.23]:54257 "EHLO
-	mailin2.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S132855AbRDXH7G>; Tue, 24 Apr 2001 03:59:06 -0400
-Message-Id: <m14rv59-001PKNC@mozart>
+	id <S132855AbRDXH7T>; Tue, 24 Apr 2001 03:59:19 -0400
+Received: from juicer13.bigpond.com ([139.134.6.21]:18911 "EHLO
+	mailin1.bigpond.com") by vger.kernel.org with ESMTP
+	id <S132853AbRDXH7G>; Tue, 24 Apr 2001 03:59:06 -0400
+Message-Id: <m14ruux-001PJtC@mozart>
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dale Amon <amon@vnl.com>
+To: Jesper Juhl <juhl@eisenstein.dk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Has the iptables security patch been vetted? 
-In-Reply-To: Your message of "Mon, 23 Apr 2001 20:48:27 +0100."
-             <20010423204825.H26083@vnl.com> 
-Date: Tue, 24 Apr 2001 15:09:47 +1000
+Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this? 
+In-Reply-To: Your message of "Mon, 23 Apr 2001 17:26:27 +0200."
+             <3AE449A3.3050601@eisenstein.dk> 
+Date: Tue, 24 Apr 2001 14:59:15 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010423204825.H26083@vnl.com> you write:
-> I'm sure you've run across this one:
+In message <3AE449A3.3050601@eisenstein.dk> you write:
+>          return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
 > 
-> 	http://netfilter.samba.org/security-fix/
-> 
-> I'd like to know how official this patch is, ie how
-> well checked out?
+> To be strictly correct the second expression (between '?' and ':' ) 
+> should not be omitted (all you guys already know that ofcourse).
 
-Hi Dale,
+It's a GCC extension.  From Documentation/DocBook/kernel-hacking.tmpl:
 
-	The preferred patch is available, and has been tested (several
-new testsuite tests now exist) and submitted to Linus (et. al):
+    GNU Extensions are explicitly allowed in the Linux kernel.
 
-	http://netfilter.filewatcher.org/security-fix/ftp-security2.patch
-	http://netfilter.samba.org/security-fix/ftp-security2.patch
-	http://netfilter.gnumonks.org/security-fix/ftp-security2.patch
-
-Hope that helps,
 Rusty.
 --
 Premature optmztion is rt of all evl. --DK

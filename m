@@ -1,114 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265033AbSKAOno>; Fri, 1 Nov 2002 09:43:44 -0500
+	id <S265038AbSKAOrh>; Fri, 1 Nov 2002 09:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265036AbSKAOno>; Fri, 1 Nov 2002 09:43:44 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:46725 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S265033AbSKAOnn>; Fri, 1 Nov 2002 09:43:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: might_sleep() in copy_{from,to}_user and friends?
-Date: Fri, 1 Nov 2002 17:49:37 +0100
-User-Agent: KMail/1.4.3
-Cc: kernel-janitor-discuss@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <3DC285D4.2040305@colorfullife.com>
-In-Reply-To: <3DC285D4.2040305@colorfullife.com>
+	id <S265040AbSKAOrh>; Fri, 1 Nov 2002 09:47:37 -0500
+Received: from excalibur.cc.purdue.edu ([128.210.189.22]:58884 "EHLO
+	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
+	id <S265038AbSKAOrf>; Fri, 1 Nov 2002 09:47:35 -0500
+Date: Fri, 1 Nov 2002 09:55:38 -0500 (EST)
+From: Patrick Finnegan <pat@purdueriots.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+In-Reply-To: <aptgsu$b29$1@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.44.0211010931090.10880-100000@ibm-ps850.purdueriots.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211011749.37661.arnd@bergmann-dalldorf.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 14:47, Manfred Spraul wrote:
+On Fri, 1 Nov 2002, Henning P. Schmiedehausen wrote:
 
-> Good idea.
-> There is some abuse of __get_user to identify bad pointers:
-> show_registers in the oops codepath, mm/slab.c in the /proc/slabinfo code.
+> Patrick Finnegan <pat@purdueriots.com> writes:
 >
-> Could you omit the test from the __ versions?
+> >Because I'm not a vendor, and I want it.
+>
+> You don't have a vendor, but roll your own kernels? Tough, so you're
+> are a "vendor". Surprise, surprise.
+>
+> Replace "vendor" with "people who roll up and distribute kernels". So
+> one vendor (Linus) refuses to integrate LKCD. Tough. Use another
 
-That would we the patch below. But shouldn't those abuses
-of __get_user rather be changed to use something else?
-The name is just wrong there and the first argument is
-never used.
+I'm confused, you just said (1) I'm a vendor and then (2) Linus is my
+vendor.  And besides, we don't distribute the kernels - we install them on
+our own machines, and say 'done'.  The lack of distribution (at least IMO)
+should make us not be a vendor.
 
-We could instead do something like
+> one. Think USP here. Think diversity. Think competition. Maybe "that
+> vendor" (Linus) will catch up one day. Maybe not. Maybe "competition"
+> is not on his agenda. So what?
 
-#define check_pointer(p) ({				\
-	typeof(*(p)) __t;				\
-	long __gu_err;					\
-	__get_user_size(__t, p, sizeof(__t), __gu_err);	\
-	__gu_err;					\
-})
+This isn't about competition.  It's about integrating a core useful
+feature that has been shown to be emperically useful by every other person
+who writes an OS kernel.
 
-	Arnd <><
+> Get SuSE. They will integrate everything and their grand mother in
+> their kernels.
 
-===== arch/i386/lib/usercopy.c 1.8 vs edited =====
---- 1.8/arch/i386/lib/usercopy.c	Tue Oct 29 22:10:51 2002
-+++ edited/arch/i386/lib/usercopy.c	Fri Nov  1 17:10:30 2002
-@@ -62,6 +62,7 @@
- strncpy_from_user(char *dst, const char *src, long count)
- {
- 	long res = -EFAULT;
-+	might_sleep();
- 	if (access_ok(VERIFY_READ, src, 1))
- 		__do_strncpy_from_user(dst, src, count, res);
- 	return res;
-@@ -96,6 +97,7 @@
- unsigned long
- clear_user(void *to, unsigned long n)
- {
-+	might_sleep();
- 	if (access_ok(VERIFY_WRITE, to, n))
- 		__do_clear_user(to, n);
- 	return n;
-@@ -119,6 +121,7 @@
- 	unsigned long mask = -__addr_ok(s);
- 	unsigned long res, tmp;
- 
-+	might_sleep();
- 	__asm__ __volatile__(
- 		"	testl %0, %0\n"
- 		"	jz 3f\n"
-@@ -438,6 +441,7 @@
- unsigned long copy_to_user(void *to, const void *from, unsigned long n)
- {
- 	prefetch(from);
-+	might_sleep();
- 	if (access_ok(VERIFY_WRITE, to, n))
- 		n = __copy_to_user(to, from, n);
- 	return n;
-@@ -446,6 +450,7 @@
- unsigned long copy_from_user(void *to, const void *from, unsigned long n)
- {
- 	prefetchw(to);
-+	might_sleep();
- 	if (access_ok(VERIFY_READ, from, n))
- 		n = __copy_from_user(to, from, n);
- 	return n;
-===== include/asm-i386/uaccess.h 1.12 vs edited =====
---- 1.12/include/asm-i386/uaccess.h	Sat Oct 12 12:18:15 2002
-+++ edited/include/asm-i386/uaccess.h	Fri Nov  1 17:07:40 2002
-@@ -123,6 +123,7 @@
- /* Careful: we have to cast the result to the type of the pointer for sign reasons */
- #define get_user(x,ptr)							\
- ({	int __ret_gu,__val_gu;						\
-+	might_sleep();							\
- 	switch(sizeof (*(ptr))) {					\
- 	case 1:  __get_user_x(1,__ret_gu,__val_gu,ptr); break;		\
- 	case 2:  __get_user_x(2,__ret_gu,__val_gu,ptr); break;		\
-@@ -158,8 +159,9 @@
- 
- #define __put_user_check(x,ptr,size)			\
- ({							\
--	long __pu_err = -EFAULT;					\
-+	long __pu_err = -EFAULT;			\
- 	__typeof__(*(ptr)) *__pu_addr = (ptr);		\
-+	might_sleep();					\
- 	if (access_ok(VERIFY_WRITE,__pu_addr,size))	\
- 		__put_user_size((x),__pu_addr,(size),__pu_err);	\
- 	__pu_err;					\
+That's not really an option at the moment.  We have a disto vendor
+(RedHat) and were dissatisfied with its kernels so we are trying to use
+*the*official* kernel (Linus's kernel).
+
+> Gee, most people seem to think that "vendor" means "big evil
+> corporation in Redmont, WA".
+
+No, vendor == people who sold or gave us the softare.  Right now, Linus is
+acting like he's a big evil corporation that won't add the change no
+matter what we say:
+
+On Thu, 31 Oct 2002, Linus Torvalds wrote:
+
+> On Thu, 31 Oct 2002, Matt D. Robinson wrote:
+> >
+> > Sure, but why should they have to?  What technical reason is there
+> > for not including it, Linus?
+<snipped reasons that are imho incorrect>
+> To me this says "LKCD is stupid". Which means that I'm not going to
+> apply it
+
+On Thu, 31 Oct 2002, Linus Torvalds wrote:
+
+> Don't bother to ask me to merge the thing, that only makes me get even
+> more fed up with the whole discussion.
+
+On Thu, 31 Oct 2002, Linus Torvalds wrote:
+
+> And imnsho, debugging the kernel on a source level is the way to do it.
+>
+> Which is why it's not going to be me who merges it.
+
+On Fri, 1 Nov 2002, Linus Torvalds wrote:
+
+> You got to hear my comment now, several times: convince somebody _else_.
+<snip>
+> What's so hard to understand about the "vendor-driven" thing, and why do
+> people continue to argue about it?
+
+You know, considering the volume of people on this list that have been
+saying "I want it, Linus, please integrated it"  and:
+
+On Thu, 31 Oct 2002, Matt D. Robinson wrote:
+
+> I hate Linus' ego, I hate this whole damn discussion, and I find
+> it very irritating that I have to go through this process after
+> many people have created, enhanced and used LKCD for three years,
+> and this is where we're at.
+>
+> To spend the last month and a half finalizing things for Linus,
+> sending this to him on multiple occasions, asking for his comments
+> and inclusion, asking for his feedback (as well as others), and
+> not hearing _one damn word_ from Linus all that time, and for him
+> to wait until now to just say "LKCD is stupid" is insulting.
+
+You know, pissing off core developers of projects that have been shown to
+be (1) desired (2) potentially useful in Linux, even as an aid to other
+Linux subsystem developers and (3) emperically show to be useful for other
+Free *nixes such as the BSDs, is not what I would be doing as a project
+maintainer.  Of course, I'm not Linus...
+
+Pat
+--
+Purdue Universtiy ITAP/RCS
+Information Technology at Purdue
+Research Computing and Storage
+http://www-rcd.cc.purdue.edu
+
+http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
+
+
+
+
+
+
+
 

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267484AbRG3TXe>; Mon, 30 Jul 2001 15:23:34 -0400
+	id <S267621AbRG3T3Y>; Mon, 30 Jul 2001 15:29:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267591AbRG3TXY>; Mon, 30 Jul 2001 15:23:24 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:14048 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S267484AbRG3TXP>; Mon, 30 Jul 2001 15:23:15 -0400
-Message-Id: <4.3.1.0.20010730121828.05eaf310@mail1>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
-Date: Mon, 30 Jul 2001 12:24:08 -0700
-To: linux-kernel@vger.kernel.org
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: [PATCH] netif_rx from non interrupt context
-Cc: davem@redhat.com, andrea@suse.de, torvalds@transmeta.com,
-        kuznet@ms2.inr.ac.ru
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S267585AbRG3T3O>; Mon, 30 Jul 2001 15:29:14 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:4876 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S267518AbRG3T3D>; Mon, 30 Jul 2001 15:29:03 -0400
+Message-Id: <200107301929.f6UJT5I20640@aslan.scsiguy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: mason@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: BUG at smp.c:481, 2.4.8-pre2 
+In-Reply-To: Your message of "Mon, 30 Jul 2001 10:33:08 PDT."
+             <200107301733.f6UHX8H01494@penguin.transmeta.com> 
+Date: Mon, 30 Jul 2001 13:29:05 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Folks,
+>In article <296370000.996508500@tiny> you write:
+>>
+>>Ok, During boot on 2.4.8-pre2 I'm getting this oops just as it starts to
+>>probe my aic7890 card.  Andrea is cc'd because I'm guessing it is due to
+>>one of his patches ;-)
+>
+>It's a sanity check, which I removed (because it's worse to panic in a
+>2.4.x kernel than it is to have the sanity problem). But the sanity
+>check does show that there is some problem in ahc_pci_map_registers():
+>it calls "ioremap()" with interrupts disabled, which is rather broken.
+>
+>I don't know that driver well enough to understand why the heck it would
+>keep interrupts disabled over apparently a _long_ stretch of time during
+>probing. The irq disable code seems to be somewhere else..
+>
+>Justin?
 
-Generic function for the net drivers that call netif_rx from non interrupt context.
-And TUN/TAP driver patch.
+At least in 6.2.0, interrupts are not disabled at all during the probe.
+In fact the driver doesn't explicitly disable interrupts ever other
+than by way of taking a spinlock.  No spinlocks are held during this
+portion of the probe.  Instead, we disable the interrupt line on the card,
+and don't enable it until the probe is complete.  I haven't yet checked in
+6.1.13, but this hasn't changed in a long time.  I'd be surprised if the
+behavior is any different.  Perhaps interrupts are disabled higher in
+the food chain?
 
---- linux/include/linux/netdevice.h.old Mon Jul 30 11:37:27 2001
-+++ linux/include/linux/netdevice.h     Mon Jul 30 11:48:32 2001
-@@ -563,6 +563,19 @@
-  
-  extern int             netdev_nit;
-  
-+
-+/* 
-+ * netif_rx_ni -       post buffer to the network code from _non interrupt_ context.
-+ *                     see net/core/dev.c for netif_rx description.
-+ */
-+static inline int netif_rx_ni(struct sk_buff *skb)
-+{
-+       int err = netif_rx(skb);
-+       if (softirq_pending(smp_processor_id()))
-+               do_softirq();
-+       return err;
-+}
-+
-
---- linux/drivers/net/tun.c.old Mon Jun 11 19:15:27 2001
-+++ linux/drivers/net/tun.c     Mon Jul 30 11:49:01 2001
-@@ -218,7 +218,7 @@
-         if (tun->flags & TUN_NOCHECKSUM)
-                 skb->ip_summed = CHECKSUM_UNNECESSARY;
-   
--       netif_rx(skb);
-+       netif_rx_ni(skb);
-     
-         tun->stats.rx_packets++;
-         tun->stats.rx_bytes += len;
-
-
-Thanks
-Max
-
-Maksim Krasnyanskiy	
-Senior Kernel Engineer
-Qualcomm Incorporated
-
-maxk@qualcomm.com
-http://bluez.sf.net
-http://vtun.sf.net
-
+--
+Justin

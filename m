@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVBOTZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVBOT0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVBOTZo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVBOTZn
+	id S261830AbVBOT0b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 14:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVBOT0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:25:43 -0500
-Received: from gator7.brazosport.edu ([206.40.176.7]:39947 "EHLO
-	caddo.brazosport.cc.tx.us") by vger.kernel.org with ESMTP
-	id S261826AbVBOTZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:25:24 -0500
-Subject: [PATCH] Change fb.h to compile with GCC-4.0
-From: Art Haas <ahaas@airmail.net>
-To: Antonio Daplas <adaplas@pol.net>, linux-fbdev-devel@lists.sourceforge.net
+	Tue, 15 Feb 2005 14:26:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56778 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261830AbVBOT0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 14:26:20 -0500
+Date: Tue, 15 Feb 2005 19:26:18 +0000
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Alexey Dobriyan <adobriyan@mail.ru>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1108494519.16101.11.camel@localhost.localdomain>
+Subject: Re: [PATCH] procfs: Fix sparse warnings
+Message-ID: <20050215192618.GL8859@parcelfarce.linux.theplanet.co.uk>
+References: <200502151455.55711.adobriyan@mail.ru> <20050215115934.GK8859@parcelfarce.linux.theplanet.co.uk> <200502151512.37774.adobriyan@mail.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 15 Feb 2005 13:24:03 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502151512.37774.adobriyan@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, Feb 15, 2005 at 03:12:37PM +0200, Alexey Dobriyan wrote:
+> On Tuesday 15 February 2005 13:59, Al Viro wrote:
+> > On Tue, Feb 15, 2005 at 02:55:55PM +0200, Alexey Dobriyan wrote:
+> > 
+> > Let's hold this kind of stuff until 2.6.11, OK?
+> > 
+> > 	Al, sitting on more than a megabyte of such patches...
+> 
+> Could you send diffstat or something? I did "make allyesconfig" with
+> -Wbitwise and digging slowly from the beginning. Now at fs/qnx4.
 
-The current GCC cvs code does not like the include/linux/fb.h file:
+Umm...  Let's do it that way: I'll get carving the sucker up to relatively
+sane point and post it again (-bird, that is).  Give me until tomorrow
+morning and then feel free to send stuff my way - I'll merge it and feed
+upstream when 2.6.11 opens (credited, obviously).
 
-In file included from drivers/video/aty/atyfb_base.c:63:
-include/linux/fb.h:865: error: array type has incomplete element type
-
-This error is due to recent changes in GCC. A thread discussing this
-change can be found by following the link below:
-
-http://gcc.gnu.org/ml/gcc/2005-02/msg00053.html
-
-The patch moves the array declaration after the definition of the 
-fb_modelist structure, and with this small change GCC is happy once
-again. Maybe this can sneak in for 2.6.11?
-
-Art Haas
-===== include/linux/fb.h 1.94 vs edited =====
---- 1.94/include/linux/fb.h	2005-01-20 23:01:17 -06:00
-+++ edited/include/linux/fb.h	2005-02-15 11:38:28 -06:00
-@@ -862,7 +862,6 @@
- 
- /* drivers/video/modedb.c */
- #define VESA_MODEDB_SIZE 34
--extern const struct fb_videomode vesa_modes[];
- extern void fb_var_to_videomode(struct fb_videomode *mode,
- 				struct fb_var_screeninfo *var);
- extern void fb_videomode_to_var(struct fb_var_screeninfo *var,
-@@ -906,6 +905,8 @@
- 	u32 vmode;
- 	u32 flag;
- };
-+
-+extern const struct fb_videomode vesa_modes[];
- 
- struct fb_modelist {
- 	struct list_head list;
-
-
+Keep in mind that for endianness patches you *really* need to check on
+at least some big-endian targets and both on 32 and 64bit ones.  I've
+got a decent cross-build environment (tracking 14 targets now); if you need 
+help with setting up something similar, I can help.

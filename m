@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285709AbSAMPVg>; Sun, 13 Jan 2002 10:21:36 -0500
+	id <S285935AbSAMPYG>; Sun, 13 Jan 2002 10:24:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285745AbSAMPV0>; Sun, 13 Jan 2002 10:21:26 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:54146 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S285709AbSAMPVT>;
-	Sun, 13 Jan 2002 10:21:19 -0500
-Date: Sun, 13 Jan 2002 18:18:37 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, -H5
-In-Reply-To: <20020111091744.B1170@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0201131811460.5353-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286238AbSAMPX5>; Sun, 13 Jan 2002 10:23:57 -0500
+Received: from lilly.ping.de ([62.72.90.2]:30214 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S285935AbSAMPXq>;
+	Sun, 13 Jan 2002 10:23:46 -0500
+Date: 13 Jan 2002 16:22:58 +0100
+Message-ID: <20020113162258.C1439@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Ed Sweetman" <ed.sweetman@wmich.edu>
+Cc: "Andrea Arcangeli" <andrea@suse.de>, yodaiken@fsmlabs.com,
+        "Robert Love" <rml@tech9.net>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        nigel@nrg.org, "Rob Landley" <landley@trommello.org>,
+        "Andrew Morton" <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <005301c19b9b$6acc61e0$0501a8c0@psuedogod>; from ed.sweetman@wmich.edu on Sat, Jan 12, 2002 at 02:00:17PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 12, 2002 at 02:00:17PM -0500, Ed Sweetman wrote:
+> 
+> 
+> > On Sat, Jan 12, 2002 at 09:52:09AM -0700, yodaiken@fsmlabs.com wrote:
+> > > On Sat, Jan 12, 2002 at 04:07:14PM +0100, jogi@planetzork.ping.de wrote:
+> > > > I did my usual compile testings (untar kernel archive, apply patches,
+> > > > make -j<value> ...
+> > >
+> > > If I understand your test,
+> > > you are testing different loads - you are compiling kernels that may
+> differ
+> > > in size and makefile organization, not to mention different layout on
+> the
+> > > file system and disk.
+> 
+> Can someone tell me why we're "testing" the preempt kernel by running
+> make -j on a build?  What exactly is this going to show us?  The only thing
+> i can think of is showing us that throughput is not damaged when you want to
+> run single apps by using preempt.  You dont get to see the effects of the
+> kernel preemption because all the damn thing is doing is preempting itself.
+> 
+> If you want to test the preempt kernel you're going to need something that
+> can find the mean latancy or "time to action" for a particular program or
+> all programs being run at the time and then run multiple programs that you
+> would find on various peoples' systems.   That is the "feel" people talk
+> about when they praise the preempt patch.  make -j'ing something and not
+> testing anything else but that will show you nothing important except "does
+> throughput get screwed by the preempt patch."   Perhaps checking the
+> latencies on a common program on people's systems like mozilla or konqueror
+> while doing a 'make -j N bzImage'  would be a better idea.
 
-On Fri, 11 Jan 2002, Mike Kravetz wrote:
+That's the second test I am normally running. Just running xmms while
+doing the kernel compile. I just wanted to check if the system slows
+down because of preemption but instead it compiled the kernel even
+faster :-) But so far I was not able to test the latency and furthermore
+it is very difficult to "measure" skipping of xmms ...
 
->         reacquire_kernel_lock(current);
->         if (unlikely(current->need_resched))
->                 goto need_resched_back;
->         return;
->
-> The question is why do we reacquire the kernel lock before checking
-> for need_resched?.  If it is not needed, we can save a lock/unlock
-> cycle in the case of need_resched.
+> > Ouch, I assumed this wasn't the case indeed.
 
-that code is something i discovered when trying to reduce scheduling
-latencies for the very first lowlatency patchset i released. Back then,
-1-2-3 years ago, kernel_lock usage was still common in the kernel. So it
-often happened that tasks were spending more than 1 msec spinning for the
-kernel lock, and often they did that in the reacquire code. So to reduce
-latencies, i've added ->need_resched checking to kernel_lock() and
-reacquire_kernel_lock() as well.
+Sorry for not answering immedeatly but I am compiling the same kernel
+source with the same .config and everything I could think of being the
+same! I even do a 'rm -rf linux' after every run and untar the same
+sources *every* time.
 
-these days kernel_lock contention doesnt happen all that often, so i think
-we should remove it from the 2.5 tree. I consider the preemptible kernel
-patch to be the most advanced method to get low scheduling-latencies
-anyway.
+Regards,
 
-> This code isn't new with the O(1) scheduler, so I'm guessing there is
-> a need to hold the kernel_lock when checking need_resched.  I just
-> don't know what it is.
+   Jogi
 
-there is no need for it to be under the kernel_lock - i simply found it to
-be an easy and common preemption point.
+-- 
 
-	Ingo
+Well, yeah ... I suppose there's no point in getting greedy, is there?
 
+    << Calvin & Hobbes >>

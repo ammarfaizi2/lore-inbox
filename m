@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbUCCLpe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 06:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUCCLpd
+	id S262466AbUCCMMa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 07:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCCMMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 06:45:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22763 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262443AbUCCLpc (ORCPT
+	Wed, 3 Mar 2004 07:12:21 -0500
+Received: from [202.97.150.150] ([202.97.150.150]:42372 "HELO vermontel.net")
+	by vger.kernel.org with SMTP id S262450AbUCCMMN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 06:45:32 -0500
-Date: Wed, 3 Mar 2004 12:45:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 ide-cd DMA ripping
-Message-ID: <20040303114531.GR9196@suse.de>
-References: <20040303113756.GQ9196@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303113756.GQ9196@suse.de>
+	Wed, 3 Mar 2004 07:12:13 -0500
+To: <linux-kernel@vger.kernel.org>
+From: "ismael" <gibson21director@hotmail.com>
+Date: Wed, 03 Mar 2004 12:11:54 GMT
+Message-Id: <1078315914-16992@excite.com>
+Subject: Feel younger!
+Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03 2004, Jens Axboe wrote:
-> +static int cdrom_read_cdda(struct cdrom_device_info *cdi, __u8 __user *ubuf,
-> +			   int lba, int nframes)
-> +{
-> +	int ret;
-> +
-> +	if (cdi->cdda_method == CDDA_OLD)
-> +		return cdrom_read_cdda_old(cdi, ubuf, lba, nframes);
-> +
-> +	do {
-> +		ret = cdrom_read_cdda_bpc(cdi, ubuf, lba, nframes);
-> +
-> +		if (!ret)
-> +			break;
-> +
-> +		/*
-> +		 * I've seen drives get sense 4/8/3 udma crc errors, so
-> +		 * drop to single frame dma if we need to
-> +		 */
-> +		if (cdi->cdda_method == CDDA_BPC_FULL && nframes > 1) {
-> +			printk("cdrom: dropping to single frame dma\n");
-> +			cdi->cdda_method = CDDA_BPC_SINGLE;
-> +			continue;
-> +		}
-> +
-> +		printk("cdrom: dropping to old style cdda\n");
-> +		cdi->cdda_method = CDDA_OLD;
-> +		ret = cdrom_read_cdda_old(cdi, ubuf, lba, nframes);	
-> +	} while (0);
+Tired of looking at your wrinkled face in the mirror as you pluck yet another grey hair and watch the 
+pounds pile on? Is the "spark" missing from your love life? If you're over 40, chances are it is. 
+Wouldn't you enjoy a longer, healthier and happier life? 
 
-Irk, that should have been a while (1) of course, and a break after the
-last cdrom_read_cdda_old();
+http://newmedformula.com/hgh/index.php?pid=eph9106
 
--- 
-Jens Axboe
 
+Human Growth Hormone can repair the physiology of the old cell, and rejuvenating the body, and reversing 
+years of damage!
+
+http://newmedformula.com/hgh/index.php?pid=eph9106
+
+
+
+Human Growth Hormone (HGH) increases: 
+
+Energy 
+Weight Loss 
+Muscle Gain and Endurance  
+Increase Immune Function
+Smoother Skin - More Elasticity
+Quality of Deep Sleep 
+
+http://newmedformula.com/hgh/index.php?pid=eph9106
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+reznor larry1groovy misha pedro church petunia rux 
+isaac hansonariane wonder lloyd
+tequila lucas benson 

@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVCDQ3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVCDQ3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbVCDQ3K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 11:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbVCDQ3K
+	id S262916AbVCDQ3n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 11:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVCDQ3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 11:29:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:15510 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262922AbVCDQ20 (ORCPT
+	Fri, 4 Mar 2005 11:29:43 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:58373 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S262918AbVCDQ3j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 11:28:26 -0500
-Date: Fri, 4 Mar 2005 08:27:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net
-Cc: Chris Wright <chrisw@osdl.org>, jgarzik@pobox.com, olof@austin.ibm.com,
-       paulus@samba.org, rene@exactcode.de, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-Message-ID: <20050304162755.GA28179@kroah.com>
-References: <422756DC.6000405@pobox.com> <16935.36862.137151.499468@cargo.ozlabs.ibm.com> <20050303225542.GB16886@austin.ibm.com> <20050303175951.41cda7a4.akpm@osdl.org> <20050304022424.GA26769@austin.ibm.com> <20050304055451.GN5389@shell0.pdx.osdl.net> <20050303220631.79a4be7b.akpm@osdl.org> <4227FC5C.60707@pobox.com> <20050304062016.GO5389@shell0.pdx.osdl.net> <20050303222335.372d1ad2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303222335.372d1ad2.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+	Fri, 4 Mar 2005 11:29:39 -0500
+Message-ID: <42288CDD.7080106@tuleriit.ee>
+Date: Fri, 04 Mar 2005 18:29:17 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 10:23:35PM -0800, Andrew Morton wrote:
-> From: Dmitry Torokhov <dtor_core@ameritech.net>
-> 
-> Some ACPI-related changes were recently made to i8042 discovery for ia64. 
-> Unfortunately this broke a significant number of Dell laptops due to their
-> having incorrect BIOS tables.
-> 
-> So, for now, arrange for the new code to be ia64-only.
-> 
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+ > I'd love for the -mm tree to get more testing, but it doesn't.
 
-Ok, based on consensus, I've applied this one too.
+So the question is how to hook up more "customers" for testing thing?
 
-Yes, we will get a bk-stable-commits tree up and running, still working
-out the infrastructure...
+mm...maybe OSDL should provide special live mini-distro weekly, which 
+will run entirely from 256 MB USB flashdrive :)
+Lot of automated testing, lot of nice and colorful progressbars, graphs 
+(it is ubelieveable how people love to watch how defragmentation goes) 
+etc. and you are there :)
+
+If the only question is to boot my computer from CD/flash (without 
+touching my harddrive) and pushing at the end "I'm agree to send 
+automatically collected results to OSDL" then you can count me as a 
+tester :)
+
 
 thanks,
+Indrek
 
-greg k-h

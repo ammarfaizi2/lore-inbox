@@ -1,31 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbUBYSdu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:33:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbUBYSdu
+	id S261543AbUBYSip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUBYSip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:33:50 -0500
-Received: from newsread1.arcor-online.net ([151.189.0.146]:45705 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S261532AbUBYSbl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:31:41 -0500
-Date: Wed, 25 Feb 2004 19:31:03 +0100
-From: Juergen Quade <quade@hsnr.de>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6: debugging loadable modules?
-Message-ID: <20040225183103.GA29486@hsnr.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 25 Feb 2004 13:38:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62982 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261540AbUBYSij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:38:39 -0500
+Message-ID: <403CEBA5.5020008@zytor.com>
+Date: Wed, 25 Feb 2004 10:38:29 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Early memory patch, revised
+References: <403ADCDD.8080206@zytor.com> <m1r7wjf22s.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1r7wjf22s.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+> 
+> Thanks.  :)
+> 
+> Two little tweaks I can think of.
+> 1) Can we reserve space between __bss_stop and _end for the page
+>    tables and the bitmap of memory?   
+>    
+>    This should make it obvious that the early boot code is touching
+>    that memory.
+> 
 
-I tried kgdb in 2.6.3-mm3, but I am not able to debug loadable modules :-(
-(gdbinit-modules seems "out of date" for Kernel 2.6.3.)
+The bitmap of memory, perhaps, I'll let wli speak to that one.  The page
+tables shouldn't need to be fixed-sized like what you're proposing;
+although the current patch doesn't make use of it, I'd like to in the
+future, and this would make it impossible.
 
-Has someone tried debugging modules with 2.6?
-Any hints?
+> 2) Can we export _end in setup.S so a bootloader can verify the
+>    kernel + bss will fit in memory?
 
-           Juergen.
+For what good?  Seriously... you're just pushing further into the kernel
+the point where you will run completely out of memory during
+initialization -- this case dynamic.
+
+There is absolutely no use in trying to pointf*ck this.  Really.
+
+	-hpa
+

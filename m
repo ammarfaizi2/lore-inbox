@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUHDCUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267211AbUHDCVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUHDCUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 22:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267218AbUHDCUZ
+	id S267211AbUHDCVf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 22:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267231AbUHDCVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 22:20:25 -0400
-Received: from holomorphy.com ([207.189.100.168]:52408 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264917AbUHDCUU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 22:20:20 -0400
-Date: Tue, 3 Aug 2004 19:20:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-ID: <20040804022012.GJ2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
-	Chris Wright <chrisw@osdl.org>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <20040804015350.GS2241@dualathlon.random> <Pine.LNX.4.44.0408032157160.5948-100000@dhcp83-102.boston.redhat.com> <20040804021332.GT2241@dualathlon.random>
+	Tue, 3 Aug 2004 22:21:34 -0400
+Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:10972 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267211AbUHDCUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 22:20:31 -0400
+References: <1091570098.1612.27.camel@localhost>
+Message-ID: <cone.1091586026.382136.9775.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: jacquesf@wciatl.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Booting 2.6.x slows to almost to a halt when detecting hard
+         drives on Dell Inspiron 5150
+Date: Wed, 04 Aug 2004 12:20:26 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-In-Reply-To: <20040804021332.GT2241@dualathlon.random>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 10:01:12PM -0400, Rik van Riel wrote:
->> Nope, Arjan's patch (and my incremental) touch hugetlb_zero_setup,
->> which only seems to be called from ipc/shm.c
->> Normal hugetlb file creation (through the filesystem) isn't touched
->> by these patches.
+Jacques Fortier writes:
 
-On Wed, Aug 04, 2004 at 04:13:32AM +0200, Andrea Arcangeli wrote:
-> it is:
+> Hi,
+> 
+> I've had issues getting 2.6 kernels to boot. It seems to be an issue
+> either with my Intel ICH4 IDE controller or my Hitachi Travelstar 60GB
+> disk.
+> 
+> I'm trying to get 2.6 working on a Dell Inspiron 5150. I've been running
+> 2.4 for a while without any problems. I've witnessed this problem in the
+> Debian 2.6.7 and 2.6.6 kernel packages, 2.6.7 compiled from the Debian
+> source code, and 2.6.7 compiled from the vanilla kernel.org source.
+> 
+> Everything seems to work fine until the hard drive detection starts.
+> Since I'm not sure how much of this stuff if relelvant, I've
+> painstakingly transcribed a bunch of the output
+> 
+> ICH4: IDE controller at PCI slot 0000:00:1f.1
+> PCI: enabling device 0000:00:1f.1 (0005 -> 0007)
+> ICH4: chipset revision 1
+> ICH4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA hdb:pio
+>     ide1: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA hdb:pio
+> hda: SAMSUNG CDRW/DVD SN-324F, ATAPI CD/DVD-ROM drive
+> Using anticipatory io scheduler
+> ide0 at 0x1f0-0x1f7 0x3f6 on irq 14
+> hdc HTS548060M9AT00, ATA DISK drive
+> ide1 at 0x170-0x177 0x376 on irq 15
+> hdc: max request size: 1024KiB
+> hdc: lost interrupt
+> hdc: lost interrupt
+> hdc: lost interrupt
 
-hugetlb_zero_setup() is only used for shm last I checked.
+Have you tried booting with various apic and acpi options? Try 
+noapic 
+and / or
+acpi=off
 
+see if that helps.
 
--- wli
+Cheers,
+Con
+

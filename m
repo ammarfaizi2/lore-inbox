@@ -1,94 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264219AbRFMUsf>; Wed, 13 Jun 2001 16:48:35 -0400
+	id <S264221AbRFMVKt>; Wed, 13 Jun 2001 17:10:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264221AbRFMUsQ>; Wed, 13 Jun 2001 16:48:16 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:40853 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S264219AbRFMUsP>; Wed, 13 Jun 2001 16:48:15 -0400
-Message-Id: <4.3.1.0.20010613134530.022336c0@mail1>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
-Date: Wed, 13 Jun 2001 13:48:05 -0700
-To: esr@thyrsus.com, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Configure.help entries for Bluetooth (updated)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S264230AbRFMVKj>; Wed, 13 Jun 2001 17:10:39 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:15759 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S264221AbRFMVK0>; Wed, 13 Jun 2001 17:10:26 -0400
+Message-ID: <3B27D6FE.8CE2A92A@idcomm.com>
+Date: Wed, 13 Jun 2001 15:11:26 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel-list <linux-kernel@vger.kernel.org>
+Subject: bzDisk compression Q; boot debug Q
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_BLUEZ
-   Bluetooth is low-cost, low-power, short-range wireless technology. 
-   It was designed as a replacement for cables and other short-range 
-   technologies like IrDA. Bluetooth operates in personal area range
-   that typically extends up to 10 meters.
-   More information about Bluetooth can be found at http://www.bluetooth.com
+First I have a question about the compression of bzDisk. While trying to
+debug the reason for a modular boot failure versus a successful
+non-module boot (XFS filesystem for root), I found that I can mount my
+initial ramdisk on loopback as a means of examining which modules are
+available to it. However, it doesn't actually point out which modules
+were loaded at the time when a filesystem mount fails. Viewing ramdisk
+is via:
+gzip -dc your.img > somefile
+mount -o loop somefile somedir
 
-   Linux Bluetooth subsystem consist of several layers:
-                 HCI Core (device and connection manager, scheduler)
-                 HCI Device drivers (interface to the hardware)
-                 L2CAP Module (L2CAP protocol)
+Question 1, how hard would it be to cause failure of mount of root
+filesystem to also output a list of current modules it has loaded?
 
-   Say Y here to enable Linux Bluetooth support and to build HCI Core 
-   layer.
+Question 2, apparently ramdisk uses gzip compression; the name of the
+kernel from make bzImage seems to maybe refer to bzip2 compression. Is
+the kernel image using gzip or bzip2 compression for bzImage? Would
+anything be gained in reducing boot size requirements by running bzip2
+compression for any initial ramdisk, versus gzip compression?
 
-   To use Linux Bluetooth subsystem, you will need several user-space utilities 
-   like hciconfig and hcid. These utilities and updates to Bluetooth kernel 
-   modules are provided in the BlueZ package.
-   For more information, see http://bluez.sf.net.
-
-   If you want to compile HCI Core as module (hci.o) say M here.
-
-   Not sure ? say N.
-
-CONFIG_BLUEZ_L2CAP
-   L2CAP (Logical Link Control and Adaptation Protocol) provides connection 
-   oriented and connection-less data transport. L2CAP support is required for 
-   most Bluetooth applications.
-
-   Say Y here to compile L2CAP support into the kernel or say M to compile it 
-   as module (l2cap.o).
-
-   Not sure ? say M.
-
-CONFIG_BLUEZ_HCIUART
-   Bluetooth HCI UART driver.
-   This driver is required if you want to use Bluetooth devices with serial
-   port interface.
-
-   Say Y here to compile support for Bluetooth UART devices into the kernel 
-   or say M to compile it as module (hci_uart.o).
-
-   Not sure ? say M.
-
-
-CONFIG_BLUEZ_HCIUSB
-   Bluetooth HCI USB driver.
-   This driver is required if you want to use Bluetooth devices with USB
-   interface. 
-
-   Say Y here to compile support for Bluetooth USB devices into the kernel 
-   or say M to compile it as module (hci_usb.o).
-
-   Not sure ? say M.
-
-CONFIG_BLUEZ_HCIEMU
-   Bluetooth Virtual HCI device driver.
-   This driver is required if you want to use HCI Emulation software.
-
-   Say Y here to compile support for Virtual HCI devices into the kernel or 
-   say M to compile it as module (hci_usb.o).
-
-   Not sure ? say M.
-
-Thanks
-Max
-
-Maksim Krasnyanskiy		
-Senior Kernel Engineer
-Qualcomm Incorporated
-
-maxk@qualcomm.com
-(408) 557-1092
-
+D. Stimits, stimits@idcomm.com

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261636AbSJFO6Y>; Sun, 6 Oct 2002 10:58:24 -0400
+	id <S261285AbSJFPFv>; Sun, 6 Oct 2002 11:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261647AbSJFO6Y>; Sun, 6 Oct 2002 10:58:24 -0400
-Received: from flaske.stud.ntnu.no ([129.241.56.72]:50585 "EHLO
-	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S261636AbSJFO6X>; Sun, 6 Oct 2002 10:58:23 -0400
-Date: Sun, 6 Oct 2002 16:54:50 +0200
-From: Thomas =?iso-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>
-To: Graham Murray <graham@barnowl.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to kill processes in D-state
-Message-ID: <20021006145450.GB30441@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no> <20021006021802.GA31878@pegasys.ws> <1033871869.1247.4397.camel@phantasy> <20021006024902.GB31878@pegasys.ws> <20021006105917.GB13046@stud.ntnu.no> <m3ptunej1h.fsf@home.gmurray.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3ptunej1h.fsf@home.gmurray.org.uk>
-User-Agent: Mutt/1.4i
+	id <S261538AbSJFPFv>; Sun, 6 Oct 2002 11:05:51 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:47577 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261285AbSJFPFu>;
+	Sun, 6 Oct 2002 11:05:50 -0400
+Date: Sun, 6 Oct 2002 17:22:33 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Larry McVoy <lm@bitmover.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021006075627.I9032@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0210061718370.9062-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Graham Murray:
-> > They won't have any effect on the system, but the load number is
-> > insane (we have a 2 CPU intel-boks with a load number of 480)
-> > and there's like 200-300 (or more) processes hanging in D-state
-> > with they're FD's and stuff.
-> That in itself could have an effect on the system. Applications such
-> as sendmail and inn can monitor the load average and enter an
-> 'overload' state (eg refuse connections) if it gets too high.
 
-Good point, didn't think of that :)
+On Sun, 6 Oct 2002, Larry McVoy wrote:
 
--- 
-Thomas
+> > a simple question: does the BK license allow the Rational kernel
+> > developers to use BK (to eg. check out Linus' tree) when working on kernel
+> > support for ClearCase?
+> 
+> I think the license is clear on that point.
+
+so BK cannot be used to access the kernel tree in that case, correct? I'm
+just wondering where the boundary line is. Eg. if i started working on a
+versioned filesystem today, i'd not be allowed to use BK. I just have to
+keep stuff like that in mind when using BK.
+
+> > perhaps you should restrict the BK license's wording to closed-source
+> > 'competitors' only
+> 
+> And how would that solve the problem posed in your first question?
+
+in no way - but it would be a (small) incentive for them to open-source
+their kernel mods. Which would also enable you to use the technology. Ie.  
+potentially good for you.
+
+	Ingo
+

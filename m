@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267873AbRG0JNT>; Fri, 27 Jul 2001 05:13:19 -0400
+	id <S267857AbRG0JS2>; Fri, 27 Jul 2001 05:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267880AbRG0JNI>; Fri, 27 Jul 2001 05:13:08 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:24236 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S267873AbRG0JMy>;
-	Fri, 27 Jul 2001 05:12:54 -0400
-Message-ID: <3B613041.C1330757@amiga.com.pl>
-Date: Fri, 27 Jul 2001 11:11:29 +0200
-From: Miloslaw Smyk <thorgal@amiga.com.pl>
-Organization: W.F.M.H.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S267864AbRG0JSS>; Fri, 27 Jul 2001 05:18:18 -0400
+Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:58119 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S267857AbRG0JSH>;
+	Fri, 27 Jul 2001 05:18:07 -0400
+Message-ID: <3B60886B.57C31DA9@mail.utexas.edu>
+Date: Fri, 27 Jul 2001 03:15:23 +0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
+X-Accept-Language: en,fr,de
 MIME-Version: 1.0
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Hard disk problem:
-In-Reply-To: <Pine.LNX.4.33.0107270005210.25463-100000@asdf.capslock.lan>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: bogo-howto: ATA-100 drives on the Asus A7A266
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Mike A. Harris" wrote:
-> 
-> Is this a hardware or software problem, or could it be either?
-> 
-> Jul 26 23:51:59 asdf kernel: hda: dma_intr: status=0x51
-> { DriveReady SeekComplete Error }
-> Jul 26 23:51:59 asdf kernel: hda: dma_intr: error=0x40
-> { UncorrectableError }, LBAsect=8545004, sector=62608
-> Jul 26 23:51:59 asdf kernel: end_request: I/O error, dev 03:05
-> (hda), sector 62608
-> 
-> Just got it opening up a mail folder.  Drive made a bit of noise
-> and then PINE had to be killed.
-> 
-> 2 root@asdf:~# hdparm -i /dev/hda
-> 
-> /dev/hda:
-> 
->  Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKGF1437
+People are using the archive and discovering my earlier question about
+getting my ATA-100 drive to work on  the Asus A7A266, and are now
+writing to see whether I ever got a solution.
 
-Ah, one of these excellent Hungarian DTLA drives? :) AFAIK, the entire batch
-was broken, although there are people who insist that there was no single
-working hard drive leaving that factory! I personally have seen 7 out of 7
-failing...
+I did, and since I have had a number of enquiries I decided to excerpt
+the correspondence as a pseudo-howto.  I am posting this message in
+hopes that others may find the information useful.
 
-Take it back to where you bought it and demand a replacement for something
-NOT bearing "MADE IN HUNGARY" sign.
+The information is at
+http://www.cs.utexas.edu/users/bdbryant/howtos/hardware/asus-a7a266/DMA_for_ATA-100/
 
-cheers,
-Milek
--- 
-mailto:thorgal@amiga.com.pl   |  "Man in the Moon and other weird things" -
-http://wfmh.org.pl/~thorgal/  |  see it at http://wfmh.org.pl/~thorgal/Moon/
-         Fight for the good cause: http://www.laubzega.com/dvd/
+Good luck with it, and holler if you have better suggestions.
+
+Bobby Bryant
+Austin, Texas
+
+

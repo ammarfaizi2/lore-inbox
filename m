@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbTDDUyC (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:54:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDDUyC (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:54:02 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:53478 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261317AbTDDUyB (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 15:54:01 -0500
-Date: Sat, 5 Apr 2003 00:05:30 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VGER's filters..
-Message-ID: <20030404210530.GV29167@mea-ext.zmailer.org>
-References: <20030404181054.GT29167@mea-ext.zmailer.org> <b6kqc4$2td$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b6kqc4$2td$1@cesium.transmeta.com>
+	id S261282AbTDDVCf (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbTDDVCe (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:02:34 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:7553 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261282AbTDDVCd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 16:02:33 -0500
+Date: Fri, 4 Apr 2003 16:17:05 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Stephen Cameron <steve.cameron@hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to speed up building of modules?
+In-Reply-To: <20030404085740.GA10052@zuul.cca.cpqcorp.net>
+Message-ID: <Pine.LNX.4.53.0304041601100.5000@chaos>
+References: <20030404085740.GA10052@zuul.cca.cpqcorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 12:36:20PM -0800, H. Peter Anvin wrote:
-> By author:    Matti Aarnio <matti.aarnio@zmailer.org>
-> > <<-  MAIL FROM: <yahoo-dev-null@yahoo-inc.com>
-> > ->>  501 5.1.7 strangeness between ':' and '<': <yahoo-dev-null@yahoo-inc.com>
-...
-> Sendmail, and a whole bunch of other mailers, have taken the more
-> liberal approach of allowing any RFC 822-compliant address in this
-> place (which is a *lot* more liberal than an RFC 821-compliant
-> reverse-path.)  This is consistent with the "be liberal in what you
-> accept, conservative in what you send" philosophy of network
-> interoperability.
+On Fri, 4 Apr 2003, Stephen Cameron wrote:
 
-Definitely.  VGER is running fairly liberal mode, while some
-other systems I run in extremely strict mode.   As a result,
-vger lets in spams, which could be blocked by running strict.
+> Hi
+>
+> I'm wondering if you guys know any tricks to speed up building
+> of linux kernel modules.
+>
+> First, some background.
+>
+> We have to put out binary HBA driver modules for a variety
+> of linux distributions for things like driver diskettes, to allow
+> new drivers to be used during initial install.  (I'm thinking
+> of the cciss, cpqarray and cpqfc drivers.)
+>
+> With all the distributions, and differnent
+> offerings of distributions, and errata kernels... today, I count
+> almost 40 distinct kernels we're trying to support, not counting the
+> mainline development on kernel.org, and not counting multiple
+> config file variations for each of those 40 or so kernels.
+>
+> The main catch seems to be the symbol checksums.  In order for those
+> to match (and I'm not too interested in subverting those), the
+> config files used during the compile need to be very similar.  That
+> means building lots and lots of modules.  (Think about all the
+> modules which are enabled in redhat's typical default config files.)
+> This takes time.  Mulitply 3 drivers * ~40 kernels * several config
+> files, and pretty soon... well, pretty soon you don't remember
+> what "preety soon" means.
+>
+> It would be VERY nice if I could find a way to build only the modules
+> I care about  and not all the rest, which add hours and hours.
+> It seems that some things in the config file can be turned off without
+> harm, but it's not clear how I can know whether it's safe to turn a module
+> off  Also, sometimes I need to make changes to the Config.in files,
+> add options, etc.  Ccache hasn't helped.  (I think because the different
+> config files use different compiler flags, and otherwise the kernels
+> just aren't the same.)
+>
+> Any ideas?
+>
+> Thanks,
+>
+> -- steve
 
-> I suspect in Sendmail it naturally falls out of using a single set
-> of canonicalization rules for all syntax.
+You can create a Makefile to make only the modules you want.
+All you need exists in a kernel tree that has (once) been configured
+to build, at least, the modules that you want. It is trivial.
+You have to remember to -DMODULE as well as -D__KERNEL__ as a
+'C' compile parameter along with the other stuff on the command-line.
 
-Nope, the protocol line parser in original version was simple,
-it reused same code for "MAIL FROM:" and "RCPT TO:" as for
-"From:" and "To:", therefore with old sendmails you could
-do in SMTP:
-   MAIL FROM: < foo@bar >
-   MAIL FROM:   foo@bar
-and I think even:
-   MAIL FROM: Example User foo@bar
+Understand that when somebody is designing a module, they just
+build it in their own directory but, using -I on the command-line
+make sure that the correct kernel headers are used (like
+-I/usr/src/linux-2.4.20/include -I.).
 
-There really was no SMTP protocol parser, there was just something
-resembling it on surface.   (And tons of security problems...)
+So, a typical compile-command for a module would be to define the
+correct includes and defines as CFLAGS, export those parameters, then
+do make -C drivers/net 3x59x.o from inside your Makefile (to do the
+3x59x.o module (it requires mii.o also).
 
-> 	-hpa
 
-/Matti Aarnio
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315257AbSEDXyD>; Sat, 4 May 2002 19:54:03 -0400
+	id <S315260AbSEEANB>; Sat, 4 May 2002 20:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315258AbSEDXyC>; Sat, 4 May 2002 19:54:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32272 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315257AbSEDXyB>;
-	Sat, 4 May 2002 19:54:01 -0400
-Message-ID: <3CD47511.79846141@zip.com.au>
-Date: Sat, 04 May 2002 16:56:01 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cantab.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH-2.5.13] NTFS 2.0.6 Bugfix/adapt to 2.5.12 changes
-In-Reply-To: <E1747yJ-0005eY-00@storm.christs.cam.ac.uk>
+	id <S315705AbSEEANA>; Sat, 4 May 2002 20:13:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:11837 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315260AbSEEAM7>; Sat, 4 May 2002 20:12:59 -0400
+Date: Sun, 5 May 2002 02:14:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: linux-kernel@vger.kernel.org, Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Subject: Re: 2.4.19pre8aa2
+Message-ID: <20020505021400.I1260@dualathlon.random>
+In-Reply-To: <20020504165440.C1260@dualathlon.random> <20020504205653.A27564@fafner.intra.cogenit.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+On Sat, May 04, 2002 at 08:56:53PM +0200, Francois Romieu wrote:
+> Andrea Arcangeli <andrea@suse.de> :
+> [...]
+> > Only in 2.4.19pre8aa2: 00_comx-driver-compile-1
+> > 
+> > 	Export proc_get_inode for kernel/drivers/net/wan/comx.o so
+> > 	it can link as a module, noticed by Eyal Lebedinsky.
 > 
-> Hi,
-> 
-> I have just sent the below NTFS update to Linus for inclusion. Andrew
-> Morton's changes to 2.5.12 broke NTFS because they added fields to
-> struct address_space which ntfs obviously wasn't initializing...
+> http://www.cs.Helsinki.FI/linux/linux-kernel/2001-24/0984.html may be of
+> interest.
 
-Sorry about that, Chief.  ra_pages, presumably.  That's one
-which *has* to be initialised.
+I also mentioned it would been cleaner if the driver design would be
+changed not to use procfs that way. I will back it out as soon as the
+driver will stop using it, it's not a change in a monolithic kernel
+where it could be forgotten like an -ac or a mainline, it's in a
+separate patch called 00_comx-driver-compile-1 so there's no risk to
+forget about it.  It cannot hurt anybody to export it until the driver
+design is changed to be cleaner, just don't use it in the meantime, if
+you use it again in another driver that's your mistake not mine. It is
+not a pratical problem (the pratical problem infact happens without the
+00_comx-driver-compile-1 patch), it is only a documentation problem and
+I think the name of the patch should be clear enough in that sense.
 
-I've added quite a lot of "if you didn't provide one then I'll 
-do the default" code, but that's an interim step - later, all
-the address_spaces need to be populated with the right stuff.
-
-> ...
-> +       /* Initialize the mftbmp address space mapping.  */
-> +       INIT_RADIX_TREE(&vol->mftbmp_mapping.page_tree, GFP_ATOMIC);
-> +       rwlock_init(&vol->mftbmp_mapping.page_lock);
-> +       INIT_LIST_HEAD(&vol->mftbmp_mapping.clean_pages);
-> +       INIT_LIST_HEAD(&vol->mftbmp_mapping.dirty_pages);
-> +       INIT_LIST_HEAD(&vol->mftbmp_mapping.locked_pages);
-> +       INIT_LIST_HEAD(&vol->mftbmp_mapping.io_pages);
-> +       vol->mftbmp_mapping.nrpages = 0;
-> +       vol->mftbmp_mapping.a_ops = NULL;
-> +       vol->mftbmp_mapping.host = NULL;
-> +       INIT_LIST_HEAD(&vol->mftbmp_mapping.i_mmap);
-> +       INIT_LIST_HEAD(&vol->mftbmp_mapping.i_mmap_shared);
-> +       spin_lock_init(&vol->mftbmp_mapping.i_shared_lock);
-> +       vol->mftbmp_mapping.dirtied_when = 0;
-> +       vol->mftbmp_mapping.gfp_mask = GFP_HIGHUSER;
-
-That's all generic code.   It's initialising core
-kernel fields.  If should be done in the core kernel.
-
-It would be better to split the address_space initialisation
-parts out of inode_init_once(), and export the new function...
-
--
+Andrea

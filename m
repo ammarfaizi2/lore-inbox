@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSFGItp>; Fri, 7 Jun 2002 04:49:45 -0400
+	id <S317251AbSFGI6B>; Fri, 7 Jun 2002 04:58:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317256AbSFGItp>; Fri, 7 Jun 2002 04:49:45 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:6033 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S316789AbSFGIto>;
-	Fri, 7 Jun 2002 04:49:44 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available 
-In-Reply-To: Your message of "Wed, 05 Jun 2002 23:53:43 +1000."
-             <26430.1023285223@ocs3.intra.ocs.com.au> 
+	id <S317253AbSFGI6A>; Fri, 7 Jun 2002 04:58:00 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10907 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317251AbSFGI6A>;
+	Fri, 7 Jun 2002 04:58:00 -0400
+Date: Fri, 07 Jun 2002 01:54:18 -0700 (PDT)
+Message-Id: <20020607.015418.127179640.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+        kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: AUDIT of 2.5.15 copy_to/from_user
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E179PZF-0003gC-00@the-village.bc.nu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 07 Jun 2002 18:49:19 +1000
-Message-ID: <13225.1023439759@kao2.melbourne.sgi.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Jun 2002 23:53:43 +1000, 
-Keith Owens <kaos@ocs.com.au> wrote:
->Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
->http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
->release 3.0.
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Sun, 19 May 2002 13:13:41 +0100 (BST)
 
-New files:
+   > arch/sparc/kernel/sys_sunos.c:481:	ret = copy_to_user(&name->sname[0], &system_utsname.sysname[0], sizeof(name->sname) - 1);
+   
+   Very broken.
+   
+   > arch/sparc64/kernel/sys_sparc32.c:3675:	return copy_to_user(res32, kres, sizeof(*res32));
+   
+   Looks very borked in several other spots
 
-kbuild-2.5-core-18
-  Change from core-17.
-
-    Add a missing case for dependency standardization.
-
-kbuild-2.5-common-2.4.18-8
-kbuild-2.5-i386-2.4.18-3
-
-    Synchronize link order method with 2.5.20, so both 2.4 and 2.5
-    versions of kbuild 2.5 use the same process.
-
-kbuild-2.5-common-2.4.19-pre10-1
-kbuild-2.5-i386-2.4.19-pre10-1
-
-    Upgrade to 2.4.19-pre10.  Also has new link order method.
+I've taken care of these bits in my tree and double checked each file
+in it's entirety.
 

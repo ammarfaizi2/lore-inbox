@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268175AbUH2Qz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268209AbUH2Q5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268175AbUH2Qz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268204AbUH2Qz1
+	id S268209AbUH2Q5S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUH2Q4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:55:27 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:52616 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268175AbUH2QxS
+	Sun, 29 Aug 2004 12:56:42 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:57480 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S268200AbUH2Qxb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:53:18 -0400
-Date: Sun, 29 Aug 2004 18:53:29 +0200
+	Sun, 29 Aug 2004 12:53:31 -0400
+Date: Sun, 29 Aug 2004 18:54:50 +0200
 From: Spam <spam@tnonline.net>
 Reply-To: Spam <spam@tnonline.net>
 X-Priority: 3 (Normal)
-Message-ID: <956432928.20040829185329@tnonline.net>
+Message-ID: <1691055525.20040829185450@tnonline.net>
 To: Horst von Brand <vonbrand@inf.utfsm.cl>
 CC: Hans Reiser <reiser@namesys.com>, Helge Hafting <helgehaf@aitel.hist.no>,
        Rik van Riel <riel@redhat.com>, Spam <spam@tnonline.net>,

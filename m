@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129329AbRB1XBf>; Wed, 28 Feb 2001 18:01:35 -0500
+	id <S129346AbRB1XDz>; Wed, 28 Feb 2001 18:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRB1XB0>; Wed, 28 Feb 2001 18:01:26 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:22689 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129329AbRB1XBM>; Wed, 28 Feb 2001 18:01:12 -0500
-Message-ID: <3A9D8316.24D6BA42@uow.edu.au>
-Date: Wed, 28 Feb 2001 23:00:38 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Mansfield <lkml@dm.ultramaster.com>
-CC: Manfred Spraul <manfred@colorfullife.com>, neelam_saboo@usa.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: paging behavior in Linux
-In-Reply-To: <3A9D6F05.F24D5558@colorfullife.com> <3A9D7382.A020354E@dm.ultramaster.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129344AbRB1XDq>; Wed, 28 Feb 2001 18:03:46 -0500
+Received: from mail.buylink.com ([63.203.87.2]:8200 "EHLO mail.buylink.com")
+	by vger.kernel.org with ESMTP id <S129324AbRB1XDb>;
+	Wed, 28 Feb 2001 18:03:31 -0500
+Message-Id: <5.0.2.1.0.20010228140411.02475e38@ns1.kenjim.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Wed, 28 Feb 2001 15:02:19 -0800
+To: linux-kernel@vger.kernel.org
+From: james@game-hunter.com
+Subject: STL2 onboard Adaptec controller problems with Kernel 2.4.2
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mansfield wrote:
-> 
-> Manfred Spraul wrote:
-> >
-> > >
-> > > When I run my program on a readhat linux machine, I dont get results as
-> > > expected, work thread seems to be stuck when prefetch thread is waiting on
-> > > a page fault
-> > >
-> > That's a known problem:
-> >
-> > The paging io for a process is controlled with a per-process semaphore.
-> > The semaphore is held while waiting for the actual io. Thus the paging
-> > in multi threaded applications is single threaded.
-> > Probably your prefetch thread is waiting for disk io, and the worker
-> > thread causes a minor pagefault --> worker thread sleeps until the disk
-> > io is completed.
-> 
-> This behavior is actually pretty annoying.  There can be cases where a
-> process wakes up from a page fault, does some work, goes back to sleep
-> on a page fault, thereby keeping it's mmap_sem locked at all times (i.e.
-> vmstat, top, ps unusable) on a UP system.  I posted this complaint a
-> while ago, it was discussed by Linus and Andrew Morton about how it also
-> boiled down to semaphore wakeup unfairness (and bugs?).  The current
-> semaphore was determined to be too ugly to even look at.  So it was
-> dropped.
-> 
-> Is there any way that the mmap_sem could be dropped during the blocking
-> on I/O, and reclaimed after the handle_mm_fault?  Probably not, or it'd
-> be done.
-> 
-> It can be a real DOS though, a 'well-written' clobbering program can
-> make ps/vmstat useless.  (it's actually /proc/pid/stat that's the
-> killer, IIRC).
+Hello.
 
-Did the `goto inside' trick in the semaphore code actually
-fix this unfairness issue?
+I recently tried to upgrade to the 2.4.2 kernel from the 2.2.x kernels on a 
+STL2 motherboard and it appears the kernel can not detect the onboard SCSI 
+controller.  I have even tried the patches from 
+http://people.freebsd.org/~gibbs/linux/ to bring the aic module up to 6.1.4 
+with still no luck.  Has anyone gotten this to work?
 
--
+I get the following error during booting when I compile the aic7xxx as a 
+module.  I have also tried compiling it into the kernel with no luck.
+
+Loading aic7xxx module
+/lib/aic7xxx.o: init_module: No such device
+Hint: insmod errors can be caused by incorrect module parameters, including 
+invalid IO or IRQ parameters
+ERROR: insmod exited abnormally
+kmod: failed to exec /sbin/modprob -s -k block-major-8, errno=2
+VFS: Cannot open root device "802" or 08:02
+Please append a correct "root=" boot option
+Kernel panic: VFS: Unable to mount root fs on 08:02
+
+The system is configured as follows
+
+Intel STL2 motherboard.
+2x1GHz PIII
+512MB Ram
+IDE CDROM drive
+Segate ST318451LW 18.2GB ULTRA160 HD
+Redhat 7.0 with all updates
+updated modutils to the latest version.
+Full Reiser FS
+
+
+Any ideas anyone?
+--James
+

@@ -1,77 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265708AbSKUAKM>; Wed, 20 Nov 2002 19:10:12 -0500
+	id <S263491AbSKUAGG>; Wed, 20 Nov 2002 19:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266041AbSKUAKL>; Wed, 20 Nov 2002 19:10:11 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:54410 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265708AbSKUAKK>;
-	Wed, 20 Nov 2002 19:10:10 -0500
-Date: Thu, 21 Nov 2002 00:18:19 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
-Message-ID: <20021121001819.GA12650@bjl1.asuk.net>
-References: <Pine.LNX.4.44.0211181303240.1639-100000@localhost.localdomain> <3DDAE822.1040400@redhat.com> <20021120033747.GB9007@bjl1.asuk.net> <3DDB09C2.3070100@redhat.com> <20021120215540.GA11879@bjl1.asuk.net> <3DDC08AF.7020107@redhat.com> <20021120232647.GC11879@bjl1.asuk.net> <3DDC1A9B.2040604@redhat.com>
+	id <S263544AbSKUAGG>; Wed, 20 Nov 2002 19:06:06 -0500
+Received: from netrealtor.ca ([216.209.85.42]:28170 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S263491AbSKUAGF>;
+	Wed, 20 Nov 2002 19:06:05 -0500
+Date: Wed, 20 Nov 2002 19:20:46 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [rfc] new poll callback'd wake up hell ...
+Message-ID: <20021121002046.GD32715@mark.mielke.cc>
+References: <Pine.LNX.4.44.0211201354210.1989-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DDC1A9B.2040604@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0211201354210.1989-100000@blue1.dev.mcafeelabs.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> > Erm, am I getting confused here?  I'm assuming that you can block
-> > signals in _only_ the thread that is forking, leaving it unblocked in
-> > the others.  I'm not very familiar with the current threaded signal
-> > model - is the blocked-signal mask shared between all of them?
+> 1) Move the wake_up() call done inside the poll callback outside the lock
+> void poll_cb(xxx *data)
+> {
+> 	int pwake = 0;
 > 
-> Each thread has it's own mask but that also means that a signal can be
-> blocked by all threads except the one forking.
+> 	lock(data);
+> 	...
+> 	if (wait_queue_active(&data->poll_wait))
+> 		pwake++;
+> 	unlock(data)
+> 	if (pwake)
+> 		ep_poll_safe_wakeup(&data->psw, &data->poll_wait)
+> }
 
-Thread calls cfork(), which does this in the parent:
+This looks like a good thing to do with or without the problem. Minimizing
+the time that a lock is held is usually a good idea.
 
-	sigprocmask(...)
-		// Very short time during which signals aren't delivered.
-	clone(...)
-		// Very short time during which signals aren't delivered.
-	sigprocmask(...)
+> 2) Use this infrastructure to perform safe poll wakeups
+> ...
+> static void ep_poll_safe_wakeup(struct poll_safewake *psw, wait_queue_head_t *wq)
+> {
+>         atomic_inc(&psw->count);
+>         do {
+>                 if (!xchg(&psw->wakedoor, 0))
+>                         break;
+>                 wake_up(wq);
+>                 xchg(&psw->wakedoor, 1);
+>         } while (!atomic_dec_and_test(&psw->count));
+> }
+> Does anyone foresee problem in this implementation ?
+> Another ( crappy ) solution might be to avoid the epoll fd to drop inside
+> its poll wait queue head, wait queues that has the function pointer != NULL
 
-and the child does this:
+Clever. (I think the second xchg() can just be atomic_set()) Without actually
+playing with it, it looks good to me.
 
-	current_thread->tid = *argument_to_cfork
-	sigprocmask(...)
+If the problem is too hard to solve - it isn't that bad if one can't
+epoll recursively. If the functionality was added later, it is
+doubtful that the API itself would need to change.
 
-The only time that a signal can be delayed due to the sigprocmask()
-calls, if all the other threads have blocked it, is immediately before
-and after the clone() call.  I.e. zero instructions worth of time :)
+mark
 
-It can also be delayed during the clone() call, but that is _already_
-true; adding the sigprocmask() calls doesn't change that.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-(Note that the _only_ reason for blocking signals is because of the
-possibility of the child receiving SIGINT or something like that, and
-wanting its own current_thread->tid value to be valid in the signal
-handler.)
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-Here's an idea
---------------
+                           http://mark.mielke.cc/
 
-I appreciate that the above method of implementing cfork() isn't as
-fast as it could be.  On the other hand, it works with a simpler
-clone(), and an idea has just appeared in my head:
-
-The above pattern is simpler if we add _another_ clone flag:
-CLONE_BLOCKSIGS, meaning "set the child's signal mask to block all
-signals".  That removes the sigprocmask() calls from the parent.
-
-That could be quite a useful flag in a number of situations, whenever
-a child thread or process would like to do more complicated things
-before re-allowing signals, such as a few dup() calls to set up
-stdin/stdout, for example.  (Setting current_thread->tid is just a
-special case of that, which its possible to handle with an extra
-argument to clone().  The general case cannot be handled in that way.)
-
--- Jamie

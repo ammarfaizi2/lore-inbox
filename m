@@ -1,209 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUFWMcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUFWMex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUFWMcD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 08:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbUFWMbr
+	id S264984AbUFWMex (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 08:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUFWMex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 08:31:47 -0400
-Received: from gprs214-143.eurotel.cz ([160.218.214.143]:52363 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262547AbUFWMb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 08:31:29 -0400
-Date: Wed, 23 Jun 2004 14:30:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: shuffle cpu.c to make it usable for smp suspend
-Message-ID: <20040623123052.GA1053@elf.ucw.cz>
+	Wed, 23 Jun 2004 08:34:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13839 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265368AbUFWMeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 08:34:50 -0400
+Date: Wed, 23 Jun 2004 13:34:23 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Matt Porter <mporter@kernel.crashing.org>,
+       Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+       linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+       david-b@pacbell.net, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040623133423.B27549@flint.arm.linux.org.uk>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	Matt Porter <mporter@kernel.crashing.org>,
+	Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+	linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+	david-b@pacbell.net, joshua@joshuawise.com
+References: <20040618110721.B3851@home.com> <40D3356E.8040800@hp.com> <20040618122112.D3851@home.com> <20040618204322.C17516@flint.arm.linux.org.uk> <s5hoendm3td.wl@alsa2.suse.de> <20040622000838.B7802@flint.arm.linux.org.uk> <40D7941F.3020909@pobox.com> <Pine.LNX.4.58.0406212006270.6530@ppc970.osdl.org> <Pine.LNX.4.58.0406212024550.6530@ppc970.osdl.org> <s5hfz8nnadu.wl@alsa2.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <s5hfz8nnadu.wl@alsa2.suse.de>; from tiwai@suse.de on Tue, Jun 22, 2004 at 12:40:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jun 22, 2004 at 12:40:45PM +0200, Takashi Iwai wrote:
+> At Mon, 21 Jun 2004 20:26:39 -0700 (PDT),
+> Linus Torvalds wrote:
+> > 
+> > On Mon, 21 Jun 2004, Linus Torvalds wrote:
+> > > 
+> > > The argument at some point was that some architectures may not even _have_
+> > > a "struct page" for DMA memory, since it's not "normal" memory (ie "slow
+> > > memory" on m68k). However, I thought we all agreed that such a "struct
+> > > page" could be furnished if that architecture wants so support mmap'ing.
+> > 
+> > .. which is not to say that we shouldn't have a "pci_mmap_pages()" thing
+> > _too_. Pretty clearly the easiest interface often is to just map the pages
+> > at mmap() time, and then we should just have a helper function to do that. 
+> > 
+> > I thought we did one already, but hey, maybe not.
+> 
+> I don't think we have such.
+> 
+> Russell has once proposed a similar one (but not pci-specific), and I
+> believe it makes sense for many drivers.  We can hide the
+> architecture-specific cache handling inside the helper function, too.
 
-This moves fix_processor_context() so that additional prototype is not
-needed, and adds context * to processor state saving functions, so
-that they can be used on SMP. It should be done this way from the
-beggining. Please consider applying,
+Ok.  So does anyone have any objections if I push the ARM DMA mmap
+interface upstream, which consists of:
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-							Pavel
+/**
+ * dma_mmap_coherent - map a coherent DMA allocation into user space
+ * @dev: valid struct device pointer, or NULL for ISA and EISA-like devices
+ * @vma: vm_area_struct describing requested user mapping
+ * @cpu_addr: kernel CPU-view address returned from dma_alloc_coherent
+ * @handle: device-view address returned from dma_alloc_coherent
+ * @size: size of memory originally requested in dma_alloc_coherent
+ *
+ * Map a coherent DMA buffer previously allocated by dma_alloc_coherent
+ * into user space.  The coherent DMA buffer must not be freed by the
+ * driver until the user space mapping has been released.
+ */
+int dma_mmap_coherent(struct device *dev, struct vm_area_struct *vma,
+                      void *cpu_addr, dma_addr_t handle, size_t size);
 
---- linux.orig/arch/i386/power/cpu.c	2004-06-22 12:53:19.000000000 +0200
-+++ linux/arch/i386/power/cpu.c	2004-06-09 14:38:54.000000000 +0200
-@@ -27,7 +27,6 @@
- #include <asm/tlbflush.h>
- 
- static struct saved_context saved_context;
--static void fix_processor_context(void);
- 
- unsigned long saved_context_eax, saved_context_ebx;
- unsigned long saved_context_ecx, saved_context_edx;
-@@ -37,33 +36,38 @@
- 
- extern void enable_sep_cpu(void *);
- 
--void save_processor_state(void)
-+void __save_processor_state(struct saved_context *ctxt)
- {
- 	kernel_fpu_begin();
- 
- 	/*
- 	 * descriptor tables
- 	 */
--	asm volatile ("sgdt %0" : "=m" (saved_context.gdt_limit));
--	asm volatile ("sidt %0" : "=m" (saved_context.idt_limit));
--	asm volatile ("sldt %0" : "=m" (saved_context.ldt));
--	asm volatile ("str %0"  : "=m" (saved_context.tr));
-+	asm volatile ("sgdt %0" : "=m" (ctxt->gdt_limit));
-+	asm volatile ("sidt %0" : "=m" (ctxt->idt_limit));
-+	asm volatile ("sldt %0" : "=m" (ctxt->ldt));
-+	asm volatile ("str %0"  : "=m" (ctxt->tr));
- 
- 	/*
- 	 * segment registers
- 	 */
--	asm volatile ("movw %%es, %0" : "=m" (saved_context.es));
--	asm volatile ("movw %%fs, %0" : "=m" (saved_context.fs));
--	asm volatile ("movw %%gs, %0" : "=m" (saved_context.gs));
--	asm volatile ("movw %%ss, %0" : "=m" (saved_context.ss));
-+	asm volatile ("movw %%es, %0" : "=m" (ctxt->es));
-+	asm volatile ("movw %%fs, %0" : "=m" (ctxt->fs));
-+	asm volatile ("movw %%gs, %0" : "=m" (ctxt->gs));
-+	asm volatile ("movw %%ss, %0" : "=m" (ctxt->ss));
- 
- 	/*
- 	 * control registers 
- 	 */
--	asm volatile ("movl %%cr0, %0" : "=r" (saved_context.cr0));
--	asm volatile ("movl %%cr2, %0" : "=r" (saved_context.cr2));
--	asm volatile ("movl %%cr3, %0" : "=r" (saved_context.cr3));
--	asm volatile ("movl %%cr4, %0" : "=r" (saved_context.cr4));
-+	asm volatile ("movl %%cr0, %0" : "=r" (ctxt->cr0));
-+	asm volatile ("movl %%cr2, %0" : "=r" (ctxt->cr2));
-+	asm volatile ("movl %%cr3, %0" : "=r" (ctxt->cr3));
-+	asm volatile ("movl %%cr4, %0" : "=r" (ctxt->cr4));
-+}
-+
-+void save_processor_state(void)
-+{
-+	__save_processor_state(&saved_context);
- }
- 
- static void
-@@ -75,32 +79,59 @@
- 	mxcsr_feature_mask_init();
- }
- 
--void restore_processor_state(void)
-+
-+static void fix_processor_context(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct tss_struct * t = init_tss + cpu;
-+
-+	set_tss_desc(cpu,t);	/* This just modifies memory; should not be necessary. But... This is necessary, because 386 hardware has concept of busy TSS or some similar stupidity. */
-+        cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
-+
-+	load_TR_desc();				/* This does ltr */
-+	load_LDT(&current->active_mm->context);	/* This does lldt */
-+
-+	/*
-+	 * Now maybe reload the debug registers
-+	 */
-+	if (current->thread.debugreg[7]){
-+                loaddebug(&current->thread, 0);
-+                loaddebug(&current->thread, 1);
-+                loaddebug(&current->thread, 2);
-+                loaddebug(&current->thread, 3);
-+                /* no 4 and 5 */
-+                loaddebug(&current->thread, 6);
-+                loaddebug(&current->thread, 7);
-+	}
-+
-+}
-+
-+void __restore_processor_state(struct saved_context *ctxt)
- {
- 
- 	/*
- 	 * control registers
- 	 */
--	asm volatile ("movl %0, %%cr4" :: "r" (saved_context.cr4));
--	asm volatile ("movl %0, %%cr3" :: "r" (saved_context.cr3));
--	asm volatile ("movl %0, %%cr2" :: "r" (saved_context.cr2));
--	asm volatile ("movl %0, %%cr0" :: "r" (saved_context.cr0));
-+	asm volatile ("movl %0, %%cr4" :: "r" (ctxt->cr4));
-+	asm volatile ("movl %0, %%cr3" :: "r" (ctxt->cr3));
-+	asm volatile ("movl %0, %%cr2" :: "r" (ctxt->cr2));
-+	asm volatile ("movl %0, %%cr0" :: "r" (ctxt->cr0));
- 
- 	/*
- 	 * segment registers
- 	 */
--	asm volatile ("movw %0, %%es" :: "r" (saved_context.es));
--	asm volatile ("movw %0, %%fs" :: "r" (saved_context.fs));
--	asm volatile ("movw %0, %%gs" :: "r" (saved_context.gs));
--	asm volatile ("movw %0, %%ss" :: "r" (saved_context.ss));
-+	asm volatile ("movw %0, %%es" :: "r" (ctxt->es));
-+	asm volatile ("movw %0, %%fs" :: "r" (ctxt->fs));
-+	asm volatile ("movw %0, %%gs" :: "r" (ctxt->gs));
-+	asm volatile ("movw %0, %%ss" :: "r" (ctxt->ss));
- 
- 	/*
- 	 * now restore the descriptor tables to their proper values
- 	 * ltr is done i fix_processor_context().
- 	 */
--	asm volatile ("lgdt %0" :: "m" (saved_context.gdt_limit));
--	asm volatile ("lidt %0" :: "m" (saved_context.idt_limit));
--	asm volatile ("lldt %0" :: "m" (saved_context.ldt));
-+	asm volatile ("lgdt %0" :: "m" (ctxt->gdt_limit));
-+	asm volatile ("lidt %0" :: "m" (ctxt->idt_limit));
-+	asm volatile ("lldt %0" :: "m" (ctxt->ldt));
- 
- 	/*
- 	 * sysenter MSRs
-@@ -112,31 +143,11 @@
- 	do_fpu_end();
- }
- 
--static void fix_processor_context(void)
-+void restore_processor_state(void)
- {
--	int cpu = smp_processor_id();
--	struct tss_struct * t = init_tss + cpu;
--
--	set_tss_desc(cpu,t);	/* This just modifies memory; should not be necessary. But... This is necessary, because 386 hardware has concept of busy TSS or some similar stupidity. */
--        cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
--
--	load_TR_desc();				/* This does ltr */
--	load_LDT(&current->active_mm->context);	/* This does lldt */
--
--	/*
--	 * Now maybe reload the debug registers
--	 */
--	if (current->thread.debugreg[7]){
--                loaddebug(&current->thread, 0);
--                loaddebug(&current->thread, 1);
--                loaddebug(&current->thread, 2);
--                loaddebug(&current->thread, 3);
--                /* no 4 and 5 */
--                loaddebug(&current->thread, 6);
--                loaddebug(&current->thread, 7);
--	}
--
-+	__restore_processor_state(&saved_context);
- }
- 
-+
- EXPORT_SYMBOL(save_processor_state);
- EXPORT_SYMBOL(restore_processor_state);
+and a similar one for the ARM-specific "write combining" case (for
+framebuffers utilising the DMA API)?
 
+This was discussed on linux-arch, and the discussion died while trying
+to settle on a suitable interface through apparant lack of interest.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263372AbUDBJTi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 04:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUDBJTi
+	id S263554AbUDBJW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 04:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUDBJW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 04:19:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22915 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263372AbUDBJTh (ORCPT
+	Fri, 2 Apr 2004 04:22:26 -0500
+Received: from Kiwi.CS.UCLA.EDU ([131.179.128.19]:57591 "EHLO kiwi.cs.ucla.edu")
+	by vger.kernel.org with ESMTP id S263554AbUDBJWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 04:19:37 -0500
-Date: Fri, 2 Apr 2004 04:19:11 -0500
-From: Alan Cox <alan@redhat.com>
-To: Ken Ashcraft <kash@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com, mc@cs.stanford.edu
-Subject: Re: [CHECKER] Race condition in i2o_core.c
-Message-ID: <20040402091911.GB22652@devserv.devel.redhat.com>
-References: <5.2.1.1.2.20040401172809.01bcfa50@kash.pobox.stanford.edu>
-Mime-Version: 1.0
+	Fri, 2 Apr 2004 04:22:24 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       bug-coreutils@gnu.org
+Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
+References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
+	<20040401220957.5f4f9ad2.ak@suse.de> <7w3c7nb4jb.fsf@sic.twinsun.com>
+	<20040402011411.GE28520@mail.shareable.org>
+From: Paul Eggert <eggert@CS.UCLA.EDU>
+Date: Fri, 02 Apr 2004 01:22:10 -0800
+In-Reply-To: <20040402011411.GE28520@mail.shareable.org> (Jamie Lokier's
+ message of "Fri, 2 Apr 2004 02:14:11 +0100")
+Message-ID: <87wu4yohtp.fsf@penguin.cs.ucla.edu>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.2.1.1.2.20040401172809.01bcfa50@kash.pobox.stanford.edu>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 05:46:00PM -0800, Ken Ashcraft wrote:
-> Looks like there is a race condition in i2o_core_reply involving the 
-> variable "evt_in".  Notice that the increment of evt_in is protected by the 
-> lock, but the reads are not protected.  It looks like "events" should also 
-> be protected by the lock.  If this is not a race condition, the increment 
-> should not be inside the critical section.
-> 
-> Feedback is appreciated.
+Jamie Lokier <jamie@shareable.org> writes:
 
-Looks a fair catch to me.
+> All Linux filesystems - the nanoseconds field is retained on in-memory
+> inodes by the generic VFS code.
+
+It's OK to do that, so long as 'stat' and 'fstat' truncate the
+user-visible time stamps to the resolution of the filesystem.  This
+shouldn't cost much.
+
+> AFAIK there is no way to determine the stored resolution using file
+> operations alone.
+
+Would it be easy to add one?  For example, we might extend pathconf so
+that pathconf(filename, _PC_MTIME_DELTA) returns the file system's
+mtime stamp resolution in nanoseconds.
+
+I write "mtime" because I understand that some Microsoft file systems
+use different resolutions for mtime versus ctime versus atime, and
+mtime resolution is all that I need for now.  Also, the NFSv3 protocol
+supports a delta quantity that tells the NFS client the mtime
+resolution on the NFS server, so if you assume NFSv3 or better the
+time stamp resolution is known for remote servers too.
+
+> This behaviour was established in 2.5.48, 18th November 2002.
+> The behaviour might not be restricted to Linux, because non-Linux NFS
+> clients may be connected to a Linux NFS server which has this behaviour.
+
+Ouch.  Then it sounds like there's no easy workaround for existing
+systems.  Still it'd be nice to fix the bug for future systems.

@@ -1,36 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTI1KGR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 06:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTI1KGR
+	id S262379AbTI1KML (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 06:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTI1KML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 06:06:17 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:45201 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262094AbTI1KGP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 06:06:15 -0400
-From: pavel@ucw.cz
-To: "=?ISO-8859-1?Q?Linus_Torvalds?=" <torvalds@osdl.org>
-Cc: "=?ISO-8859-1?Q?kernel_list?=" <linux-kernel@vger.kernel.org>,
-       "=?ISO-8859-1?Q??= =?ISO-8859-1?Q?Patrick_Mochel?=" <mochel@osdl.org>
-Subject: =?ISO-8859-1?Q?Re:_pm:_Revert_swsusp_to_2.6.0-test3_?=
-Date: 28 Sep 2003 12:05:08 +0000
+	Sun, 28 Sep 2003 06:12:11 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:63499 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S262379AbTI1KKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 06:10:22 -0400
+Date: Sun, 28 Sep 2003 20:10:13 +1000
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [WIRELESS] Added probe declaration in arlan-main.c
+Message-ID: <20030928101013.GA11057@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030928100620.5FAA63450F@smtp-out2.iol.cz>
+Content-Type: multipart/mixed; boundary="9jxsPFA5p3P2qPhR"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi! 
->> makes it work here (*). Please apply,
 
->No. 
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->I'm not going to apply warring patches. You two sort it out 
+Hi:
 
-This should not be warring patch. Pat
-already has variant in his tree,
-feel free to pull from him - but it
-would be nice to have working swsusp
-in -test6. --p
+The declaration for probe got lost in the move from arlan to arlan-main.
+This patch puts it back.
+
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=q
+
+Index: kernel-source-2.5/drivers/net/wireless/arlan-main.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/net/wireless/arlan-main.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 arlan-main.c
+--- kernel-source-2.5/drivers/net/wireless/arlan-main.c	28 Sep 2003 04:44:14 -0000	1.1.1.1
++++ kernel-source-2.5/drivers/net/wireless/arlan-main.c	28 Sep 2003 10:08:11 -0000
+@@ -22,6 +22,7 @@
+ static char encryptionKey[12] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+ static int mem = memUNKNOWN;
+ int arlan_debug = debugUNKNOWN;
++static int probe = probeUNKNOWN;
+ static int numDevices = numDevicesUNKNOWN;
+ static int spreadingCode = spreadingCodeUNKNOWN;
+ static int channelNumber = channelNumberUNKNOWN;
+
+--9jxsPFA5p3P2qPhR--

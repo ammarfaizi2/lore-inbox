@@ -1,86 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317352AbSHHEFN>; Thu, 8 Aug 2002 00:05:13 -0400
+	id <S317354AbSHHEPw>; Thu, 8 Aug 2002 00:15:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSHHEFM>; Thu, 8 Aug 2002 00:05:12 -0400
-Received: from smtp01.web.de ([194.45.170.210]:2829 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S317352AbSHHEFM>;
-	Thu, 8 Aug 2002 00:05:12 -0400
-Date: Wed, 7 Aug 2002 22:55:42 +0200
-From: Lars Ellenberg <l.g.e@web.de>
+	id <S317373AbSHHEPw>; Thu, 8 Aug 2002 00:15:52 -0400
+Received: from [61.140.110.4] ([61.140.110.4]:5248 "EHLO systemx.zsu.edu.cn")
+	by vger.kernel.org with ESMTP id <S317354AbSHHEPv>;
+	Thu, 8 Aug 2002 00:15:51 -0400
+Date: Thu, 8 Aug 2002 12:19:22 +0000 (UTC)
+From: Bruce M Beach <brucemartinbeach@21cn.com>
+X-X-Sender: bmbeach@systemx.zsu.edu.cn
 To: linux-kernel@vger.kernel.org
-Subject: Re: stacked bdev driver, howto? locking of lower level block device
-Message-ID: <20020807205542.GA2359@johann>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020805221652.A4250@johann> <20020807105059.A18751@vato.org> <20020805221652.A4250@johann> <200208060542.g765gc856679@sullivan.realtime.net> <20020805221652.A4250@johann>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020807105059.A18751@vato.org> <200208060542.g765gc856679@sullivan.realtime.net> <20020805221652.A4250@johann>
-User-Agent: Mutt/1.5.1i
+Subject: IDE numbers
+Message-ID: <Pine.LNX.4.43.0208081211180.224-100000@systemx.zsu.edu.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ok, I got some answers. not that much though.
+   Hello All
 
-On Mon, Aug 05, 2002 at 10:16:52PM +0200, I wrote:
-> I'd like to implement some kind of locking of the lower level
-> block device, so nobody can mount it/modify it underneath the drbd
-> driver.
-> 
-> I know drivers/md/md.c does this somehow. I tried to understand
-> and adapt, but it does not work.
-to be more explicit:
-/*
- * prevent the device from being mounted, repartitioned or
- * otherwise reused by a RAID array (or any other kernel
- * subsystem), by opening the device. [simply getting an
- * inode is not enough, the SCSI module usage code needs
- * an explicit open() on the device]
- */
-static int lock_rdev(mdk_rdev_t *rdev)
+  I'm just sending these numbers because they are interesting. I bought
+  a couple of SCSI drives(seagate) a while ago  so I thought I would try
+  a simple performance test. I copied  a 9.2Gb file (using G=1024^3) and
+  timed it in the following manner:
 
-but this does _not_ prevent the device from being mounted or used, I
-did not check the repartitioning.
+  1) Partition to Partition(IDE)  hda1 to hda3  # wd drive
+  2) Partition to SCSI drive hda2 to sda1       # wd to seagate
+  3) SCSI drive to SCSI drive sda1 to sdb1      # seagate to seagate
 
-On Tue, Aug 06, 2002 at 12:42:38AM -0500, Milton Miller suggested:
->> In 2.5 see bd_claim and bd_release in fs/block_dev.c
-well, I need to have this on 2.4 for now. I did not check the 2.5 code
-yet. other opinions whether this will work when we swithc to 2.5?
+  and got the following numbers
 
->> In 2.4 as fars as I know you have to add yourself to the list of checks
->> that are incomplete and don't all check against each other (swap,
->> filesystems, raid, etc).
-could someone be so kind an be more explicit please.
-what piece of code do "list of checks" translate to?
+  time cp TEMP.tar ... hda3->hda1   49m18.320s ~  3,339,200.9 bytes/s
+  time cp TEMP.tar ... hdc1->sda1   51m16.493s
+  time cp TEMP.tar ... sda1->scb1    5m41.388s ~ 28,936,063   bytes/s
 
-or do I have to follow this?
-On Wed, Aug 07, 2002 at 10:51:00AM -0700, Tim Pepper had the impression:
->> this is not possible from what I've seen inside the kernel.  You can
->> do a bdget/blkdev_get() on teh underlying dev, but as far as I saw
->> that only prevents somebody from fdisking the device.
->> 
->> I think a lot of people figure this is just in line with the unix way
->> of allowing you to shoot yourself in the foot if you want.  I don't
->> have a big problem with that, but understand the arguments to the
->> contrary.
-is this the case? it is not possible?
-I understand that all this is not that important, but I want do do it
-anyways, to reduce the careless foot shooter. I suppose, iff someone
-really wants to, the shooting can be done with raw io anyways.
-no problem, then every now and then someone will have to do some
-transplantation...
+  At first I thought the IDE numbers were a little bit slow but thought
+  the transfer must read and write the 9.2Gb so maybe I should double
+  the rate and after all the 33 Mhz is just the IDE bus rate. I was suprised
+  at the IDE -> SCSI transfer time except the the SCSI transport(adaptec) is
+  on another PCI bus and maybe there is significant latency across the
+  bridge.  The real surprise was the SCSI -> SCSI and the ultimate result
+  of this little experiment was that I bought 2 more SCSI drives.
 
-BTW: why can I mount just about every device multiple times on different
-     mountpoints at the same time?
+  I looked around a little bit to see if dmesg had anything to say
+  and found the following lines:
 
-ok, my questions remain:
-> 
-> - How does block device locking work?
-> - In which mode do I have to open it?
-> - Which flags have to be set?
-> - What else am I missing?
+  ...
+  Real Time Clock Driver v1.10e
+  Non-volatile memory driver v1.1
+  block: 128 slots per queue, batch=32
+  Uniform Multi-Platform E-IDE driver Revision: 6.31
+  ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+  PCI_IDE: unknown IDE controller on PCI bus 00 device f9, VID=8086, DID=248b
+  PCI: Device 00:1f.1 not available because of resource collisions
+  PCI_IDE: chipset revision 2
+  PCI_IDE: not 100% native mode: will probe irqs later
+      ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
+      ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
+  hda: ST360021A, ATA DISK drive
+  hdb: 16X10, ATAPI CD/DVD-ROM drive
+  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+  hda: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=7297/255/63
+  Partition check:
+   /dev/ide/host0/bus0/target0/lun0: p1 p2 p3
+  ...
 
-Thanks.
-	Lars-Gunnar
+  What 'PCI: Device 00:1f.1' is I couldn't determine except for a binary
+  in /proc/bus/pci/00/1f.1. The PCI slots share resources across
+  several bus's, (i.e. Slots 1 & 2 share with the SCSI trasport)
+  and the only anomaly is that due to the onboard video having only 4Mb
+  ram and there being no AGP slot, there is a PCI video card
+  on bus 3.
+  Please cc any comments to me.
+
+  Bruce
+`
+

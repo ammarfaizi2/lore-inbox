@@ -1,104 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263967AbTI2Rq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTI2Rom
+	id S263953AbTI2RlP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTI2Rhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:44:42 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:63130 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S263967AbTI2RmP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:42:15 -0400
-From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] [2.6.0-test6] Stale NFS file handle
-Date: Mon, 29 Sep 2003 19:42:04 +0200
-User-Agent: KMail/1.5.3
-References: <200309282031.54043.MalteSch@gmx.de> <20030928184841.GL532@neon>
-In-Reply-To: <20030928184841.GL532@neon>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_v7Ge/lqrMlaQ1w0";
-  charset="iso-8859-1"
+	Mon, 29 Sep 2003 13:37:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59800 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263926AbTI2RfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:35:23 -0400
+Date: Mon, 29 Sep 2003 10:27:25 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Shine Mohamed <shinemohamed_j@naturesoft.net>
+Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Initializedd the module parameters in
+ drivers/net/wireless/arlan-main.c
+Message-Id: <20030929102725.796f2259.rddunlap@osdl.org>
+In-Reply-To: <200309291644.06043.shinemohamed_j@naturesoft.net>
+References: <200309291644.06043.shinemohamed_j@naturesoft.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309291942.07724.MalteSch@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Sep 2003 16:44:06 +0530 Shine Mohamed <shinemohamed_j@naturesoft.net> wrote:
 
---Boundary-02=_v7Ge/lqrMlaQ1w0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+| Quick patch to  Initialize  the module parameters in 
+| drivers/net/wireless/arlan-main.c
+| 
+| 
+| --- drivers/net/wireless/arlan-main.c.orig      2003-09-29 16:40:33.000000000 
+| +0530
+| +++ drivers/net/wireless/arlan-main.c   2003-09-29 16:40:18.000000000 +0530
+| @@ -33,6 +33,7 @@
+|  static int retries = 5;
+|  static int tx_queue_len = 1;
+|  static int arlan_EEPROM_bad;
+| +static int probe = 0; /* Initially it is setting to be 'Probing Disabled' */
 
-On Sunday 28 September 2003 20:48, Axel Siebenwirth wrote:
-> Hi Malte!
->
-> On Sun, 28 Sep 2003, Malte Schr?der wrote:
-> > Hi,
-> > since 2.6.0-test6 I get "Stale NFS file handle" when transferring huge
-> > amounts of data from a nfs-server which is running on -test6.
-> > The client also runs -test6. Transfers from a server running kernel
-> > 2.4.22 work flawless.
-> >
-> > I use the nfs-kernel-server 1.0.6 on Debian/sid.
->
-> Are you using mount options when mounting the NFS volume?
-> I had this problem when I used rsize=3D8192 and wsize=3D8192 as nfs mount
-Does not make a difference .. but there seems to be something wrong in the=
-=20
-code as far as I can interpret what I read on this list ...
-=46or now I'm using the user-space-deamon .. work's fine :)
+Yes, it does need to be declared, but it doesn't need to be init
+to 0.
 
-> options. Just left them out and everything was fine again.
->
-> Axel
->
->
->
-> _________________________________________________________________________=
-__
->_ Axel Siebenwirth				      phone +49 3641 776807 |
-> Am Birnstiel 3			 		  axel at pearbough dot net |
-> 07745 Jena								    |
-> Germany________________________________________________http://pearbough.n=
-et
-> |
->
-> For my birthday I got a humidifier and a de-humidifier...  I put them in
-> the same room and let them fight it out.
->                 -- Stephen Wright
-> _________________________________________________________________________=
-__
->_ -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-=2D-=20
-=2D--------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
-=2D--------------------------------------
-
-
---Boundary-02=_v7Ge/lqrMlaQ1w0
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/eG7v4q3E2oMjYtURAnj9AJ49cehsXXa6gYZkMAeoMhpJgEPAGgCg6XBK
-ov0uFuD96t1UaT/2bALDxuo=
-=2bwR
------END PGP SIGNATURE-----
-
---Boundary-02=_v7Ge/lqrMlaQ1w0--
-
+--
+~Randy

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUF3Ksy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266579AbUF3LGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUF3Ksy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 06:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266579AbUF3Ksy
+	id S266579AbUF3LGx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 07:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUF3LGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 06:48:54 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:12198 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265970AbUF3Ksx (ORCPT
+	Wed, 30 Jun 2004 07:06:53 -0400
+Received: from svwc4-062.svtv.com ([12.17.65.190]:61959 "HELO cervepar.com.py")
+	by vger.kernel.org with SMTP id S266579AbUF3LGg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 06:48:53 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-Subject: Re: Preemption of the OS system call due to expiration of the time-sl ice for: a) SCHED_NORMAL (aka SCHED_OTHER) b) SCHED_RR
-Date: Wed, 30 Jun 2004 12:50:04 +0200
-User-Agent: KMail/1.6.2
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'andrebalsa@altern.org'" <andrebalsa@altern.org>,
-       "'Richard E. Gooch'" <rgooch@atnf.csiro.au>,
-       "'Ingo Molnar'" <mingo@elte.hu>, "'rml@tech9.net'" <rml@tech9.net>,
-       "'akpm@osdl.org'" <akpm@osdl.org>, "'Con Kolivas'" <kernel@kolivas.org>
-References: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
-In-Reply-To: <313680C9A886D511A06000204840E1CF08F42FAE@whq-msgusr-02.pit.comms.marconi.com>
+	Wed, 30 Jun 2004 07:06:36 -0400
+Message-ID: <b7da01c45e92$30452558$ed81d363@cervepar.com.py>
+From: "Colby Stanley" <colbystanleycw@uninet.com.py>
+To: linux-kernel@vger.kernel.org
+Subject: Get $200 bonus at our Casino!
+Date: Wed, 30 Jun 2004 05:06:08 -0600
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406301250.04473.oliver@neukum.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 30. Juni 2004 11:50 schrieb Povolotsky, Alexander:
-> Con - thanks for your kind answers !
-> 
-> Preemption (due to the expiration of the time-slice) of the process, while
-> it executes OS system call, -  by another process (of equal or higher
-> priority) when running under following scheduling policies:
-> 
->  a) SCHED_NORMAL (aka SCHED_OTHER)
->  b) SCHED_RR 
-> 
-> Is it possible in Linux 2.6 ? Linux 2.4 ?
+Hi, 
+I have a special offer available for you at our casino.
 
-It is possible if the kernel is compiled with CONFIG_PREEMPT
-and the calling task has not blocked it.
+$20 to try our internet casino, no deposit is necessary!
+At the casino software's cashier enter bonus code: FR93P
 
-	HTH
-		Oliver
+$200 bonus on your first deposit!
+At the casino software's cashier enter bonus code: FMJKU
+
+Allow us to show you our quality operation, fast payouts,
+generous bonuses, and super friendly around-the-clock
+customer support.
+
+Click here: http://gocasino-dollar.com
+
+Best regards,
+Jamie Zawinsky
+
+
+
+No thanks: http://gocasino-dollar.com/u
+

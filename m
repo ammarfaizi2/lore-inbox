@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbQLUAk2>; Wed, 20 Dec 2000 19:40:28 -0500
+	id <S129485AbQLUA4P>; Wed, 20 Dec 2000 19:56:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbQLUAkT>; Wed, 20 Dec 2000 19:40:19 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:56585 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S129413AbQLUAkK>; Wed, 20 Dec 2000 19:40:10 -0500
-Date: Thu, 21 Dec 2000 01:09:35 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Steve Grubb <ddata@gate.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] performance enhancement for simple_strtoul
-Message-ID: <20001221010935.A22817@pcep-jamie.cern.ch>
-In-Reply-To: <000e01c06a8e$6945db60$bc1a24cf@master> <20001220100446.A1249@inetnebr.com> <001401c06ab4$ac8615e0$7d1a24cf@master>
-Mime-Version: 1.0
+	id <S129601AbQLUA4G>; Wed, 20 Dec 2000 19:56:06 -0500
+Received: from rztsun.rz.tu-harburg.de ([134.28.200.14]:35044 "EHLO
+	rztsun.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id <S129485AbQLUAzx>; Wed, 20 Dec 2000 19:55:53 -0500
+Message-ID: <3A414DCA.A348081F@jandittmer.de>
+Date: Thu, 21 Dec 2000 01:24:42 +0100
+From: Jan Dittmer <jan@jandittmer.de>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: emu10k1 and 8139oo with 2.4.0test13pre3
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <001401c06ab4$ac8615e0$7d1a24cf@master>; from ddata@gate.net on Wed, Dec 20, 2000 at 01:42:56PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Grubb wrote:
-> It seems gcc creates much better code with the variables set to register
-> types.
+Hello,
 
-Curious.  GCC should be generating the same code regardless; ah well.
+I'm using the emu10k1 module with my SB Live. This works quite fine, but
+I cannot switch the recording channel. This worked with 2.2.17. Now
+volume works, but selecting the input channel not anymore.
+is anyone else experiencing this problem , or don't i just get the right
+setting?
 
-Is strtoul actually used in the kernel other than for the occasional
-(rare) write to /proc/sys and parsing boot options?
+second, i habe 2 nics in my K6-2 system, both with rtl8139 chip and
+compiled 8139oo into the kernel. the cards work fine, but dmesg says:
 
-> But this is the kernel and there are people that would reject my patch
-> purely on the basis that it adds precious bytes to the kernel.
+eth0: Abnormal interrupt, status 00002002
+and
+eth0: Abnormal interrupt, status 00000020
 
-Perhaps I am mistaken but I'd expect it to be called what, ten times at
-boot time, and a couple of times when X loads the MTRRs?
+endless times. Usually about 2-3 entries per minute.
+The cards work fine, so how can I get rid of the message, other then
+uncommenting the line in the source code? This also happens if I compile
+the driver as module. And happened sind 2.4.0-test12 (the first 2.4.0er
+I installed).
 
-Sounds like the neatest trick would be reducing bytes used here...
+This is my first post on this list. If you need additional information,
+I'd like to provide it.
 
--- Jamie
+So far,
+
+Jan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

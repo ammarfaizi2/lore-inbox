@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316826AbSGHJQv>; Mon, 8 Jul 2002 05:16:51 -0400
+	id <S316827AbSGHJUg>; Mon, 8 Jul 2002 05:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316827AbSGHJQu>; Mon, 8 Jul 2002 05:16:50 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:36260 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316826AbSGHJQu>;
-	Mon, 8 Jul 2002 05:16:50 -0400
-Message-Id: <200207080919.g689JE6w029012@westrelay01.boulder.ibm.com>
-User-Agent: Pan/0.11.2 (Unix)
-From: "Suparna Bhattacharya" <suparna@in.ibm.com>
-To: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@zip.com.au,
-       bcrl@redhat.com
-Subject: Re: direct-to-BIO for O_DIRECT
-Date: Mon, 08 Jul 2002 14:49:38 +0530
-References: <3D2904C5.53E38ED4@zip.com.au.suse.lists.linux.kernel> <p73adp2wugy.fsf@oldwotan.suse.de>
+	id <S316831AbSGHJUf>; Mon, 8 Jul 2002 05:20:35 -0400
+Received: from 62-190-203-21.pdu.pipex.net ([62.190.203.21]:43781 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S316827AbSGHJUf>; Mon, 8 Jul 2002 05:20:35 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200207080927.KAA00734@darkstar.example.net>
+Subject: Re: spurious 8259A interrupt: IRQ7
+To: pat@cs.curtin.edu.au (Patrick Clohessy)
+Date: Mon, 8 Jul 2002 10:27:41 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D2957A9.6D90A916@cs.curtin.edu.au> from "Patrick Clohessy" at Jul 08, 2002 05:13:13 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 08 Jul 2002 13:00:12 +0530, Andi Kleen wrote:
+Hi,
 
-> Andrew Morton <akpm@zip.com.au> writes:
+> I was just wondering if anyone could help me solve a problem I'm having.
+> I have installed red hat 7.3 with kernel version 2.4.18 on an AMD Duron
+> 1100 with a ASUS A7V133-C Motherboard, 32MB TNT2 and a 20 GIG Maxtor
+> Viper HD. Whenever the machine boots up, the following error appears :
 > 
->> 	drivers/md/lvm-snap.c
->> 	drivers/media/video/video-buf.c
->> 	drivers/mtd/devices/blkmtd.c
->> 	drivers/scsi/sg.c
->> 
->> the video and mtd drivers seems to be fairly easy to de-kiobufize. I'm
->> aware of one proprietary driver which uses kiobufs.  XFS uses kiobufs a
->> little bit - just to map the pages.
+> spurious 8259A interrupt: IRQ7
 > 
-> lkcd uses it too for its kernel crash dump. I suspect it wouldn't be
-> that hard to change.
-
-No, it shouldn't be hard to change. In fact, we've had to think of
-changing it for 2.5 anyhow, since most likely we can't afford bio
-alloc's happening under the covers down that path.
-
-
+> I have read through quite a few mailing lists and other sources but
+> can't find an adequate solution. One solution I found was to turn off
+> Local APIC support and IO-APIC support in the kernel, which I tried and
+> it worked, but I'd rather not do this. I realise the error isn't of a
+> huge concern but it's still annoying having it appear everytime the
+> machine boots up.
 > 
->> So with a bit of effort and maintainer-irritation, we can extract the
->> kiobuf layer from the kernel.
->> 
->> Do we want to do that?
-> 
-> I think yes - keeping two kinds of iovectors for IO (kiovecs and BIOs)
-> seems to be redundant.
-> kiovecs never fulfilled their original promise of a universal zero copy
-> container (e.g. they were too heavy weight for networking) so it's
-> probably best to remove them as a failed experiment.
-> 
+> Any help will be greatly appreciated.
 
-Yes, I think Kiobufs can go, and we can use something like kvecs
-(from aio code base) instead which are better for representing 
-readv/writev, for the generic case (i.e. when its not just
-for block i/o). Its easy enough to map kvecs into bio s or
-zero-copy networking. 
+Why not just comment out the line in the kernel source that prints the error?  I know it sounds stupid, but it will solve your problem :-).
 
-Regards 
-Suparna
-
-
-
-
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org More majordomo
-> info at  http://vger.kernel.org/majordomo-info.html Please read the FAQ
-> at  http://www.tux.org/lkml/
+John.

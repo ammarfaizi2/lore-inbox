@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQLaNns>; Sun, 31 Dec 2000 08:43:48 -0500
+	id <S129370AbQLaNtt>; Sun, 31 Dec 2000 08:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLaNni>; Sun, 31 Dec 2000 08:43:38 -0500
-Received: from swm.pp.se ([195.54.133.5]:48132 "EHLO uplift.swm.pp.se")
-	by vger.kernel.org with ESMTP id <S129324AbQLaNnT>;
-	Sun, 31 Dec 2000 08:43:19 -0500
-Date: Sun, 31 Dec 2000 14:12:51 +0100 (CET)
-From: Mikael Abrahamsson <swmike@swm.pp.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: path MTU bug still there?
-In-Reply-To: <Pine.LNX.4.30.0012311449250.9644-100000@shodan.irccrew.org>
-Message-ID: <Pine.LNX.4.30.0012311409390.14553-100000@uplift.swm.pp.se>
-Organization: People's Front Against WWW
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129450AbQLaNtk>; Sun, 31 Dec 2000 08:49:40 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14856 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129370AbQLaNtW>;
+	Sun, 31 Dec 2000 08:49:22 -0500
+Date: Sun, 31 Dec 2000 14:18:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 test13-pre7 still causes CDROM ioctl errors
+Message-ID: <20001231141855.B574@suse.de>
+In-Reply-To: <1344.978265187@nice.ram.loc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1344.978265187@nice.ram.loc>; from Raphael_Manfredi@pobox.com on Sun, Dec 31, 2000 at 01:19:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2000, Jussi Hamalainen wrote:
+On Sun, Dec 31 2000, Raphael Manfredi wrote:
+> I had sent the following report a week ago:
+> 
+> --------------------------
+> Since I've installed 2.4.0 test13-pre4, I see the following errors
+> in my log:
+> 
+> 	sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
+> 
+> and xmcd reports:
+> 
+> 	CD audio: ioctl error on /dev/scd0: cmd=CDROMVOLCTRL errno=95
+> 
+> This was working fine with 2.4.0 test12-pre5, which was the previous
+> kernel I was using.
+> -------------------------
+> 
+> Well, I installed 2.4.0 test13-pre7 and I still have the same error.
 
-> I'm running 2.2.18 vanilla and my firewall rules aren't blocking
-> ICMP. The ethernet interfaces and the ISDN link have an MTU of
-> 1500 and the GRE tunnel has an MTU of 1514 (courtesy of Cisco).
-
-How is this solved? Personally, I am behind a CIPE tunnel with an MTU of
-1442 or something like that. I experienced problems to some places and
-have solved it by using the linux box as socks5 proxy (only napster) and
-webproxy (squid). When the linux box does TCP to the outside it'll use the
-MTU of the tunnel (default route is the tunnel) and thus works perfectly
-(since TCP MSS will be set low enough to fit into the tunnel).
-
-Could it be some kind of incompability at the tunnel level that make you
-unable to receive large packets over the tunnel? Have you tcpdump:ed to
-see if the tunnel packets actually make it the way they should?
+Appears audio capabilities are not being detected as supported. What
+does /proc/sys/dev/cdrom/info say? And what does the sr_mod load line
+look like?
 
 -- 
-Mikael Abrahamsson    email: swmike@swm.pp.se
-
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,116 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264492AbRFYNPg>; Mon, 25 Jun 2001 09:15:36 -0400
+	id <S264503AbRFYNTg>; Mon, 25 Jun 2001 09:19:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264503AbRFYNP1>; Mon, 25 Jun 2001 09:15:27 -0400
-Received: from smtp-rt-10.wanadoo.fr ([193.252.19.59]:59850 "EHLO
-	camelia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264492AbRFYNPJ>; Mon, 25 Jun 2001 09:15:09 -0400
-Message-ID: <3B373949.5A53BF83@wanadoo.fr>
-Date: Mon, 25 Jun 2001 15:14:49 +0200
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20pre5 i586)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
+	id <S264511AbRFYNT0>; Mon, 25 Jun 2001 09:19:26 -0400
+Received: from f237.law14.hotmail.com ([64.4.21.237]:14092 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264503AbRFYNTK>;
+	Mon, 25 Jun 2001 09:19:10 -0400
+X-Originating-IP: [194.236.106.153]
+From: "John Nilsson" <pzycrow@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi detecting CDR as "CD-ROM" in 2.2.19
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: Some experience of linux on a Laptop
+Date: Mon, 25 Jun 2001 15:19:03 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F237A9bbbJXncnm5c4G000148cc@hotmail.com>
+X-OriginalArrivalTime: 25 Jun 2001 13:19:04.0394 (UTC) FILETIME=[67FDF2A0:01C0FD79]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > 8: A way to change kernel without rebooting. I have no diskdrive or 
+>cddrive
+> > in my laptop so I often do drastic things when I install a new 
+>distribution.
+>
+>Well, don't do drastic things then, if that cause problems!
 
-Fabian Arias <dewback@vtr.net> wrote :
->Try cdrecord --scanbus and folow the directions on CD-Writing HOWTO.
+=) First of all that part was intended as a joke ;) but what I meant is 
+this.
 
-The behaviour (even if I can run the burner with both), is different
-with
-2.2.20pre (or 2.2.19) and 2.4.5-ac.
+I think it was when installing debian I wanted to change back to ext2 from 
+reiserfs. Trouble is for some reason their install program needs kernel 
+2.2.x which doesn't support reiserfs. So I had to make an ext2 partition to 
+save all files I wanted to save. Thats when I noticed that their install 
+program had managed to delete all my modules. So a reboot would mean loss of 
+reiserfs support, but not to reboot would mean no ext2 support... tricky. 
+Well I tar'ed the damn files and dd 'em to the swap parttion right after the 
+debianinstall disk. Hmmm.... come to think of it I don't remmber why I 
+wanted to change kernel on the fly... The problem was that the modules was 
+in mem only.
 
-This is what tells cdrecord -scanbus in 2.4.5-ac17 :
-----------------------------------------------------
+well well...
 
-[root@debian-f5ibh] ~ # cdrecord -scanbus
-Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
-Linux sg driver version: 3.1.19
-Using libscg version 'schily-0.1'
-scsibus0:
-        0,0,0     0) 'GoldStar' 'CD-RW CED-8083B ' '1.05' Removable
-CD-ROM
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-        0,1,0     1) 'CREATIVE' 'CD3621E  ZC100  ' '1.00' Removable
-CD-ROM
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
+and when it comes to the slow X..
+actually eaven xdm hangs fairly often. I was running blackbox when it 
+didn't, but then blackbox would hang.
 
- And here is what I get in 2.2.20-pre5 :
----------------------------------------
-[root@debian-f5ibh] ~ # cdrecord -scanbus
-Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
-Linux sg driver version: 3.1.19
-Using libscg version 'schily-0.1'
-scsibus0:
-        0,0,0     0) *
-        0,1,0     1) *
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
 
-        0,6,0     6) 'IOMEGA  ' 'ZIP 100         ' 'L.01' Removable Disk
-        0,7,0     7) *
-scsibus1:
-        1,0,0   100) 'GoldStar' 'CD-RW CED-8083B ' '1.05' Removable
-CD-ROM
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-ide-scsi: The scsi wants to send us more data than expected - discarding
-data
-        1,1,0   101) 'CREATIVE' 'CD3621E  ZC100  ' '1.00' Removable
-CD-ROM
-        1,2,0   102) *
-        1,3,0   103) *
-        1,4,0   104) *
-        1,5,0   105) *
-        1,6,0   106) *
-        1,7,0   107) *
+I did't really mean to drop a request list on your laps, just thought that 
+some feed back keeps the mind going.
 
-Is this a linux administration problem [my fault] ? A cdrecord bug or a
-kernel matter ?
----------
-Regards
-		Jean-Luc
+/John Nilsson
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+

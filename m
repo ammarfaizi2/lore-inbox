@@ -1,57 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264867AbSJ3TJa>; Wed, 30 Oct 2002 14:09:30 -0500
+	id <S264862AbSJ3TNU>; Wed, 30 Oct 2002 14:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264863AbSJ3TJ3>; Wed, 30 Oct 2002 14:09:29 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:37522 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264867AbSJ3TJ0>; Wed, 30 Oct 2002 14:09:26 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 30 Oct 2002 11:25:21 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Zach Brown <zab@zabbo.net>
-cc: John Gardiner Myers <jgmyers@netscape.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-In-Reply-To: <20021030135920.K4044@bitchcake.off.net>
-Message-ID: <Pine.LNX.4.44.0210301114400.1446-100000@blue1.dev.mcafeelabs.com>
+	id <S264864AbSJ3TNS>; Wed, 30 Oct 2002 14:13:18 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25235 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S264862AbSJ3TNN>;
+	Wed, 30 Oct 2002 14:13:13 -0500
+Date: Wed, 30 Oct 2002 11:23:19 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Ian Soboroff <ian.soboroff@nist.gov>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: post-halloween 0.2
+In-Reply-To: <9cfk7jzspns.fsf@rogue.ncsl.nist.gov>
+Message-ID: <Pine.LNX.4.44.0210301122350.983-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Oct 2002, Zach Brown wrote:
 
-> > It is very easy for me to remain calm here. You're a funny guy. You're in
-> > the computer science by many many years and still you're not able to
-> > understand how edge triggered events works. And look, this apply to every
-> > field, form ee to cs. Book suggestions would be requested here, but since
-> > I believe grasping inside a technical library to be pretty fun, I'll leave
-> > you this pleasure.
->
-> 	http://www.infidels.org/news/atheism/logic.html#hominem
->
-> I know its hard, but can we try and avoid the most pathetic pitfalls of
-> arguing over email?
+> > sysfs != Sisyphus. They are coincidental hominems. 
+> 
+> Homonyms.  Or is this an ad-homonym attack?
 
-Zach, on one side it's very easy for me. I just won't reply. This should
-cut this very short. Looking at the whole thread you'll find that he
-wanted to pass his non agreement with the interface, that is a pretty
-normal and legitimate thing, for a bug of the interface. Now, while non
-agreement imply a very own subjective way to see a thing, a bug means a
-very objective thing. That is, "it does not work". Now, when someone state
-something that is proven to be false ( it's not even an RTQA, it's a
-NOT-A-BUG ), and when this someone tried in every way to kill the
-interface ( for reason that I'm not aware about ), and also implied that
-"I do not understand", well I've been educated to respond. Look, I'm a
-very simple guy. You don't touch me and I'll be transparent like a ghost
-for you. You touch me personally, and I retaliate.
+Woops. Hasn't anyone ever told you no one likes a smart ass? ;)
 
-
-
-- Davide
-
-
+	-pat
 

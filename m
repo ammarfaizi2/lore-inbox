@@ -1,92 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbUEWK6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUEWLCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbUEWK6w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 06:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUEWK6v
+	id S262476AbUEWLCr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 07:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUEWLCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 06:58:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:24760 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262451AbUEWK44 (ORCPT
+	Sun, 23 May 2004 07:02:47 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:47550 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262476AbUEWK7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 06:56:56 -0400
-Date: Sun, 23 May 2004 12:56:46 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kurt Garloff <garloff@suse.de>,
-       Lorenzo Allegrucci <l_allegrucci@despammed.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Message-ID: <20040523105646.GK1952@suse.de>
-References: <200405222107.55505.l_allegrucci@despammed.com> <20040523082728.GH1952@suse.de> <20040523103717.GA5253@tpkurt.garloff.de>
+	Sun, 23 May 2004 06:59:03 -0400
+Date: Sun, 23 May 2004 12:50:18 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [4/4][PATCH 2.6] via-rhine: USE_MEM, USE_IO -> USE_MMIO
+Message-ID: <20040523105018.GA10472@k3.hellgate.ch>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="liOOAslEiF7prFVr"
 Content-Disposition: inline
-In-Reply-To: <20040523103717.GA5253@tpkurt.garloff.de>
+In-Reply-To: <20040523104650.GA9979@k3.hellgate.ch>
+X-Operating-System: Linux 2.6.6 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23 2004, Kurt Garloff wrote:
-> Hi Jens,
-> 
-> On Sun, May 23, 2004 at 10:27:28AM +0200, Jens Axboe wrote:
-> > @@ -1729,8 +1723,29 @@ static void idedisk_setup (ide_drive_t *
-> >  
-> >  	write_cache(drive, 1);
-> >  
-> > -	blk_queue_ordered(drive->queue, 1);
-> > -	blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
-> > +	/*
-> > +	 * decide if we can sanely support flushes and barriers on
-> > +	 * this drive
-> > +	 */
-> > +	if (drive->addressing == 1) {
-> > +		/*
-> > +		 * if capacity is over 2^28 sectors, drive must support
-> > +		 * FLUSH_CACHE_EXT
-> > +		 */
-> > +		if (ide_id_has_flush_cache_ext(id))
-> > +			barrier = 1;
-> > +		else if (capacity <= (1ULL << 28))
-> > +			barrier = 1;
-> > +		else
-> > +			printk("%s: drive is buggy, no support for FLUSH_CACHE_EXT with lba48\n", drive->name);
-> 
-> So, for drives with LBA48, you enable barriers either if report to
-> support it or if their capacity is _smaller_ than 2^28. If neither
-> is the case, it's left disabled and the kernel complains.
-> Is it safe to enable for 
-> (addressing == 1 && !ide_id_has_flush_cache_ext() && capacity <= 1<<28)
-> ?
 
-Yes that's safe.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Shouldn't we check ide_has_flush_cache() then, as for the non-
-> LBA48 drives?
+Replace USE_MEM and USE_IO with USE_MMIO define.
 
-Yep.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="via-rhine-2.6.6-4-defmem.diff"
 
-Yeah that was buggy, see later posting (which had a barrier = 1 hanging
-from update, argh). Here's a better version imho. I have one drive here
-that does support FLUSH_CACHE, but doesn't flag cfs_enable_2 as such. So
-I think our logic should be:
+--- linux-2.6.6/drivers/net/via-rhine.c	2004-05-23 11:38:22.798939458 +0200
++++ linux-2.6.6-patch/drivers/net/via-rhine.c	2004-05-23 11:44:18.972292582 +0200
+@@ -222,9 +222,8 @@ static char shortname[] = DRV_NAME;
+ /* This driver was written to use PCI memory space, however most versions
+    of the Rhine only work correctly with I/O space accesses. */
+ #ifdef CONFIG_VIA_RHINE_MMIO
+-#define USE_MEM
++#define USE_MMIO
+ #else
+-#define USE_IO
+ #undef readb
+ #undef readw
+ #undef readl
+@@ -380,7 +379,7 @@ enum chip_capability_flags {
+ 	ReqTxAlign=0x10, HasWOL=0x20,
+ };
+ 
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ #define RHINE_IOTYPE (PCI_USES_MEM | PCI_USES_MASTER | PCI_ADDR1)
+ #else
+ #define RHINE_IOTYPE (PCI_USES_IO  | PCI_USES_MASTER | PCI_ADDR0)
+@@ -432,7 +431,7 @@ enum backoff_bits {
+ 	BackCaptureEffect=0x04, BackRandom=0x08
+ };
+ 
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ /* Registers we check that mmio and reg are the same. */
+ int mmio_verify_registers[] = {
+ 	RxConfig, TxConfig, IntrEnable, ConfigA, ConfigB, ConfigC, ConfigD,
+@@ -590,7 +589,7 @@ static void wait_for_reset(struct net_de
+ 			boguscnt ? "succeeded" : "failed");
+ }
+ 
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ static void __devinit enable_mmio(long ioaddr, int chip_id)
+ {
+ 	int n;
+@@ -636,7 +635,7 @@ static int __devinit rhine_init_one(stru
+ 	long memaddr;
+ 	int io_size;
+ 	int pci_flags;
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ 	long ioaddr0;
+ #endif
+ 
+@@ -687,7 +686,7 @@ static int __devinit rhine_init_one(stru
+ 	if (pci_request_regions(pdev, shortname))
+ 		goto err_out_free_netdev;
+ 
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ 	ioaddr0 = ioaddr;
+ 	enable_mmio(ioaddr0, chip_id);
+ 
+@@ -710,7 +709,7 @@ static int __devinit rhine_init_one(stru
+ 			goto err_out_unmap;
+ 		}
+ 	}
+-#endif
++#endif /* USE_MMIO */
+ 
+ 	/* D-Link provided reset code (with comment additions) */
+ 	if (rhine_chip_info[chip_id].drv_flags & HasWOL) {
+@@ -737,14 +736,14 @@ static int __devinit rhine_init_one(stru
+ 	wait_for_reset(dev, chip_id, shortname);
+ 
+ 	/* Reload the station address from the EEPROM. */
+-#ifdef USE_IO
+-	reload_eeprom(ioaddr);
+-#else
++#ifdef USE_MMIO
+ 	reload_eeprom(ioaddr0);
+ 	/* Reloading from eeprom overwrites cfgA-D, so we must re-enable MMIO.
+ 	   If reload_eeprom() was done first this could be avoided, but it is
+ 	   not known if that still works with the "win98-reboot" problem. */
+ 	enable_mmio(ioaddr0, chip_id);
++#else
++	reload_eeprom(ioaddr);
+ #endif
+ 
+ 	for (i = 0; i < 6; i++)
+@@ -880,7 +879,7 @@ static int __devinit rhine_init_one(stru
+ 	return 0;
+ 
+ err_out_unmap:
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ 	iounmap((void *)ioaddr);
+ err_out_free_res:
+ #endif
+@@ -1933,7 +1932,7 @@ static void __devexit rhine_remove_one(s
+ 
+ 	pci_release_regions(pdev);
+ 
+-#ifdef USE_MEM
++#ifdef USE_MMIO
+ 	iounmap((char *)(dev->base_addr));
+ #endif
+ 
 
-        /*
-         * decide if we can sanely support flushes and barriers on
-         * this drive. unfortunately not all drives advertise
-         * FLUSH_CACHE
-         * support even if they support it. So assume FLUSH_CACHE is
-         * there
-         * if write back caching is enabled. LBA48 drives are newer, so
-         * expect it to flag support properly. We can safely support
-         * FLUSH_CACHE on lba48, if capacity doesn't exceed lba28
-         */
-        barrier = drive->wcache;
-        if (drive->addressing == 1) {
-                barrier = ide_id_has_flush_cache(id);
-                if (capacity > (1ULL << 28) && !ide_id_has_flush_cache_ext(id))
-                        barrier = 0;
-        }
-
--- 
-Jens Axboe
-
+--liOOAslEiF7prFVr--

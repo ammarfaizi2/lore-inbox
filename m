@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265843AbUA1Dw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 22:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265846AbUA1Dw7
+	id S265841AbUA1Dts (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 22:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265843AbUA1Dts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 22:52:59 -0500
-Received: from mail.bluebottle.com ([69.20.6.25]:21891 "EHLO
-	www.bluebottle.com") by vger.kernel.org with ESMTP id S265843AbUA1Dw5 convert rfc822-to-8bit
+	Tue, 27 Jan 2004 22:49:48 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:35855 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S265841AbUA1Dtq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 22:52:57 -0500
-Date: Wed, 28 Jan 2004 01:52:53 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
+	Tue, 27 Jan 2004 22:49:46 -0500
+Date: Tue, 27 Jan 2004 19:49:39 -0800
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Subject: Re: devfs 199.17 not in 2.4 (was Re:2.4.22 devfs/zlib outstanding
- updates ...)
-In-Reply-To: <Pine.LNX.4.58.0401280110530.949@pervalidus.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0401280143510.949@pervalidus.dyndns.org>
-References: <Pine.LNX.4.58.0401280110530.949@pervalidus.dyndns.org>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: RFC: Trailing blanks in source files
+Message-ID: <20040128034939.GE15979@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt.suse.lists.linux.kernel> <p73bropfdgl.fsf@nielsen.suse.de> <200401271251.34926.theman@josephdwagner.info> <20040127191358.GI20879@khan.acc.umu.se> <20040127111824.7f76efe6.rddunlap@osdl.org> <20040127160214.69850c9c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127160214.69850c9c.akpm@osdl.org>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content unsuitable for young readers.  Parental guidance is suggested.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jan 2004, Frédéric L. W. Meunier wrote:
+On Tue, Jan 27, 2004 at 04:02:14PM -0800, Andrew Morton wrote:
+> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+> >
+> > So please don't bother with just whitespace changes unless you
+> > are going to cleanup a <driver | fs | module | etc> completely.
+> 
+> And if you're going to do that, do the whitespace cleanup _first_, so the
+> substantive changes to the driver/fs/module/etc can be sanely understood
+> and reverted if necessary.
+> 
+> I frequently sneakily remove all newly-added trailing whitespace from the
+> patches people send me.  In 15 years it'll all be gone.
 
-> Herbert Pötzl wrote on Sat, 12 Jul 2003 00:22:07 +0200
->
-> > just wanted to remind/state that the final? v199.17 devfs
-> > patch and the 1.1.4 zlib update are not in 2.4.22-pre5.
->
-> About the devfs patch.
->
-> Yes, I already reported it a long time ago -
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.2/1655.html
-> and have no idea why it hasn't been merged in 2.4, after all
-> it's supposed to fix some things and there have been no changes
-> since then in the kernel.
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103474534430016&w=2
->
-> Can someone clarify this ? I've been applying this patch since
-> its release and it didn't broke anything.
+This would maybe warrant a bk option to remove trailing
+whitespace from modified lines.  Preferably with an
+notification that it is happening so if for some reason you
+do want trailing whitespace you could abort or override.
 
-And you can find a patch from Andrey Borzenkov at
-http://www.cs.helsinki.fi/linux/linux-kernel/2003-18/1161.html
-http://www.cs.helsinki.fi/linux/linux-kernel/2003-25/0100.html
-
-Nobody bothered to review and submit it ?
+A patch filter that removed trailing whitespace from + lines
+could also be used.
 
 -- 
-http://www.pervalidus.net/contact.html
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

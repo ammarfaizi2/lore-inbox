@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275247AbTHMQOo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 12:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275248AbTHMQOo
+	id S275256AbTHMQSR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 12:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275261AbTHMQSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 12:14:44 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:12677 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S275247AbTHMQOm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 12:14:42 -0400
-Date: Wed, 13 Aug 2003 12:16:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: Bogus serial port ttyS02
-In-Reply-To: <Pine.GSO.4.21.0308131601070.11378-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.53.0308131202410.10804@chaos>
-References: <Pine.GSO.4.21.0308131601070.11378-100000@vervain.sonytel.be>
+	Wed, 13 Aug 2003 12:18:16 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:26520 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S275256AbTHMQSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 12:18:15 -0400
+Date: Wed, 13 Aug 2003 09:16:41 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hugh Dickins <hugh@veritas.com>, Con Kolivas <kernel@kolivas.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test3-mm2
+Message-ID: <22380000.1060791398@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0308131529200.1558-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0308131529200.1558-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Geert Uytterhoeven wrote:
+> --- 2.6.0-test3-mm2/mm/filemap.c	Wed Aug 13 11:51:33 2003
+> +++ linux/mm/filemap.c	Wed Aug 13 15:26:36 2003
+> @@ -1927,8 +1927,6 @@ generic_file_aio_write_nolock(struct kio
+>  	ssize_t ret;
+>  	loff_t pos = *ppos;
+>  
+> -	BUG_ON(iocb->ki_pos != *ppos);
+> -
+>  	if (!iov->iov_base && !is_sync_kiocb(iocb)) {
+>  		/* nothing to transfer, may just need to sync data */
+>  		ret = iov->iov_len; /* vector AIO not supported yet */
 
->
-> Linux always finds 3 serial ports instead of 2:
->
-> | ttyS00 at 0x03f8 (irq = 4) is a 16550A
-> | ttyS01 at 0x02f8 (irq = 3) is a 16550A
-> | ttyS02 at 0x03e8 (irq = 4) is a 16450
->
-> The last one is bogus.
+Even with this, still hangs when "mostly-booted". alt+sysrq+t doesn't
+work, but ping does, oddly enough. I suppose I'll play with nmi_watchdog
+or something later, but I doubt I'll have time today.
 
-First, this looks like ix86 stuff, not m68k. Drivers for ix86
-machines probe the de facto addresses for up to a maximum of
-4 8250-type UARTS. Those addresses are:
-
-(0)	0x3f8
-(1)	0x2f8
-(2)	0x3e8
-(3)	0x328
-
-(from the Phoenix SYSTEM BIOS book)
-
-Usually, there are several bits that are permanently 0 in
-some of the registers. This is used to "positively" identify
-the chip. Note that many IR devices are also connected
-to 8250-type UARTS.
-
-I would guess that you have two serial ports, plus another
-UART that's used for IR (maybe a IR keyboard???).
-
-You can do `od /dev/ttyS2` from the root account and see
-what happends.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+M.
 

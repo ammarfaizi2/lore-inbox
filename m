@@ -1,81 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274495AbRIYFLQ>; Tue, 25 Sep 2001 01:11:16 -0400
+	id <S274497AbRIYFSg>; Tue, 25 Sep 2001 01:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274496AbRIYFLG>; Tue, 25 Sep 2001 01:11:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:17804 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274495AbRIYFKz>;
-	Tue, 25 Sep 2001 01:10:55 -0400
-Date: Mon, 24 Sep 2001 22:11:19 -0700 (PDT)
-Message-Id: <20010924.221119.90368086.davem@redhat.com>
-To: taral@taral.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bug in ipip.c SIOCDELTUNNEL
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010922024241.A620@taral.net>
-In-Reply-To: <20010922024241.A620@taral.net>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274498AbRIYFSS>; Tue, 25 Sep 2001 01:18:18 -0400
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:4807 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S274497AbRIYFSK>; Tue, 25 Sep 2001 01:18:10 -0400
+Message-ID: <3BB013D3.6060408@wipro.com>
+Date: Tue, 25 Sep 2001 10:49:15 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] OOM aware applications
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Taral <taral@taral.net>
-   Date: Sat, 22 Sep 2001 02:42:41 -0500
 
-   Patch is attached. Basically we were always removing "tunl0" even if a
-   different tunnel was specified.
-   
-A bug in one tunnel driver is likely to be in all the
-others :-)  I've taken care of that and the patch I am
-using is below:
+This is a multi-part message in MIME format.
 
---- net/ipv4/ipip.c.~1~	Mon Sep 17 17:36:07 2001
-+++ net/ipv4/ipip.c	Mon Sep 24 22:09:53 2001
-@@ -1,7 +1,7 @@
- /*
-  *	Linux NET3:	IP/IP protocol decoder. 
-  *
-- *	Version: $Id: ipip.c,v 1.47 2001/09/18 00:36:07 davem Exp $
-+ *	Version: $Id: ipip.c,v 1.48 2001/09/25 05:09:53 davem Exp $
-  *
-  *	Authors:
-  *		Sam Lantinga (slouken@cs.ucdavis.edu)  02/01/95
-@@ -758,6 +758,7 @@
- 			err = -EPERM;
- 			if (t == &ipip_fb_tunnel)
- 				goto done;
-+			dev = t->dev;
- 		}
- 		err = unregister_netdevice(dev);
- 		break;
---- net/ipv4/ip_gre.c.~1~	Wed May 16 22:27:58 2001
-+++ net/ipv4/ip_gre.c	Mon Sep 24 22:08:43 2001
-@@ -1011,6 +1011,7 @@
- 			err = -EPERM;
- 			if (t == &ipgre_fb_tunnel)
- 				goto done;
-+			dev = t->dev;
- 		}
- 		err = unregister_netdevice(dev);
- 		break;
---- net/ipv6/sit.c.~1~	Fri Aug 31 17:31:50 2001
-+++ net/ipv6/sit.c	Mon Sep 24 22:09:53 2001
-@@ -6,7 +6,7 @@
-  *	Pedro Roque		<roque@di.fc.ul.pt>	
-  *	Alexey Kuznetsov	<kuznet@ms2.inr.ac.ru>
-  *
-- *	$Id: sit.c,v 1.52 2001/09/01 00:31:50 davem Exp $
-+ *	$Id: sit.c,v 1.53 2001/09/25 05:09:53 davem Exp $
-  *
-  *	This program is free software; you can redistribute it and/or
-  *      modify it under the terms of the GNU General Public License
-@@ -712,6 +712,7 @@
- 			err = -EPERM;
- 			if (t == &ipip6_fb_tunnel)
- 				goto done;
-+			dev = t->dev;
- 		}
- 		err = unregister_netdevice(dev);
- 		break;
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+I was looking at the code in oom_kill.c, I had the following suggestions
+
+Warning: I am not aware of what was discussed earlier about these issues 
+or if they were discusses at all.
+
+1. I was wondering that instead of killing the application using 
+oom_kill_task() directly, should the OOM
+    issue some kind of a warning by sending a signal (some signal with 
+si_code set to a value indicating that
+    the application is causing memory to run out). Then, wait for a 
+while and then see if the application is still
+    misbehaving and if so kill it.
+
+2. Minor changes suggested
+
+    In the code, I see
+
+    points *= 2 and points /= 4 in a few places, recommend changing them to
+
+    points <<= 1 and points >>= 2 to help the compiler generate better code
+
+
+Dialog between the kernel and an OOM aware application
+
+on OOM condition
+
+kernel to the application: Hey u  are running the system out of memory
+application: Sorry my lord, I commited a blunder and will rectify myself
+
+application rectifies itself and everybody lives happily everafter
+application is stuborn
+
+kernel: You must go now, u have been unfair in your demands and have 
+caused a lot of problem
+application: Does not get to say anything, it is zapped
+
+Comments, Suggestions, Criticism
+Balbir
+
+
+
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132829AbRDXGqZ>; Tue, 24 Apr 2001 02:46:25 -0400
+	id <S132835AbRDXG40>; Tue, 24 Apr 2001 02:56:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132831AbRDXGqQ>; Tue, 24 Apr 2001 02:46:16 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:11533 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132829AbRDXGqJ>;
-	Tue, 24 Apr 2001 02:46:09 -0400
-Date: Tue, 24 Apr 2001 07:44:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Szabolcs Szakacsits <szaka@f-secure.com>
-Subject: [patch] swap-speedup-2.4.3-B3
-In-Reply-To: <Pine.LNX.4.30.0104231707350.31693-200000@elte.hu>
-Message-ID: <Pine.LNX.4.30.0104240714200.1227-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132838AbRDXG4P>; Tue, 24 Apr 2001 02:56:15 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15398 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132835AbRDXG4D>; Tue, 24 Apr 2001 02:56:03 -0400
+Date: Tue, 24 Apr 2001 08:56:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: RAWIO-5 and O_DIRECT-3 updates
+Message-ID: <20010424085600.A784@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I fixed a new bug pointed out by Andrew and discussed on the kiobuf list
+(thanks Andrew!) (lock_kiovec was not handling correctly a failed trylockpage
+and could unlock pages locked by other people, not a big deal though as such
+function is never called in the whole pre6 and I'm wondering if it make sense
+at all to allow the pinned pages to be locked down in 2.4 [it certainly is
+still necessary in 2.2 for all the reads from disk]). However I didn't killed
+that function just in case there's an useful use of it. New updated rawio patch
+against vanilla 2.4.4pre6 is here:
 
-the latest swap-speedup patch can be found at:
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.4pre6/rawio-5.bz2
 
-  http://people.redhat.com/mingo/swap-speedup/swap-speedup-2.4.3-B3
+Then I integrated a new feature in the O_DIRECT support to make possible to
+set/unset from fcntl (I delayed that feature intentionally in the first release
+because I thought it was low prio but Michael Susæg just asked for it to do I/O
+at misaligned offsets sometime). The way I preferred to implement it is to left
+the kiobuf allocated all the time, until we destroy the file structure in fput
+(the kiobuf is huge thing, even more with my above rawio x2 boost patch that
+handles 512k of atomic I/O with everything needed for the I/O just
+preallocated, and we don't want to allocate/deallocate the whole thing every
+time we switch in/out buffered mode). I'm also abusing the inode->i_sem in
+fcntl to serialize the case of two tasks doing the fcntl(O_DIRECT) on two
+filedescriptors pointing to the same file at the same time (kiobuf allocation
+can sleep, it does even vmalloc...). Abusing it looks safe and we save the
+memory of one semaphore per file structure this way. New patch is here:
 
-(the patch is against 2.4.4-pre6 or 2.4.3-ac13.)
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.4pre6/o_direct-3
 
--B3 includes Marcelo's patch for another area that blocks unnecesserily on
-locked swapcache pages: async swapcache readahead. Marcello did some tests
-which shows that this fix brought some nice improvements too.
+As usual o_direct-3 has to be applied after rawio-5. rawio-5 is recommended for
+integration into pre7 as it's not only a performance optimization but includes
+strictly necessary fixes for race conditions, mm corruption etc..etc..  (again
+credit for some of the stability fixes goes to SCT!)
 
-"make -j32 bzImage" using 128MB mem, 128MB swap, 4 CPUs:
-
-  stock 2.4.3-ac13
-  ----------------
-  real    4m0.678s
-  user    4m2.870s
-  sys     0m38.920s
-
-  swap-speedup-A2
-  ---------------
-  real    3m24.190s
-  user    4m1.070s
-  sys     0m31.950s
-
-  swap-speedup-B3 (A2 + Marcelo's swapin-readahead non-blocking patch)
-  ---------------
-  real    3m7.410s
-  user    4m0.940s
-  sys     0m28.680s
-
-ie. for this kernel compile test:
-
-   swap-speedup-A2 is a 18% speedup relative to stock 2.4.3-ac13
-   swap-speedup-B3 is a 28% speedup relative to stock 2.4.3-ac13
-
-and the amount of CPU time spent in the kernel has been reduced
-significantly as well.
-
-I believe all the correctness and SMP-locking issues have been taken care
-of in -B3 as well.
-
-	Ingo
-
+Andrea

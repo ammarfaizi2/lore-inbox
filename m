@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311721AbSCNSjH>; Thu, 14 Mar 2002 13:39:07 -0500
+	id <S311722AbSCNSlR>; Thu, 14 Mar 2002 13:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311720AbSCNSi5>; Thu, 14 Mar 2002 13:38:57 -0500
-Received: from dsl-213-023-038-002.arcor-ip.net ([213.23.38.2]:26533 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311721AbSCNSio>;
-	Thu, 14 Mar 2002 13:38:44 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Momchil Velikov <velco@fadata.bg>, Anton Blanchard <anton@samba.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Date: Thu, 14 Mar 2002 19:33:40 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20020313085217.GA11658@krispykreme> <20020314112725.GA2008@krispykreme> <87wuwfxp25.fsf@fadata.bg>
-In-Reply-To: <87wuwfxp25.fsf@fadata.bg>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16la2m-0000SX-00@starship>
+	id <S311724AbSCNSlH>; Thu, 14 Mar 2002 13:41:07 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:8200 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S311722AbSCNSlD>;
+	Thu, 14 Mar 2002 13:41:03 -0500
+Date: Thu, 14 Mar 2002 19:41:01 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Dave Jones <davej@suse.de>, Martin Dalecki <martin@dalecki.de>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Actually hide x86 IDE chipsets on !CONFIG_X86
+Message-ID: <20020314194101.B15318@ucw.cz>
+In-Reply-To: <20020314165018.GE706@opus.bloom.county> <20020314181106.J19636@suse.de> <20020314172402.GG706@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020314172402.GG706@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Mar 14, 2002 at 10:24:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 14, 2002 02:21 pm, Momchil Velikov wrote:
-> >>>>> "Anton" == Anton Blanchard <anton@samba.org> writes:
-> Anton> Thats due to the way we manipulate the ppc hashed page table. Every
-> Anton> time we update the linux page tables we have to update the hashed
-> Anton> page table. There are some obvious optimisations we need to make,
+On Thu, Mar 14, 2002 at 10:24:02AM -0700, Tom Rini wrote:
+> On Thu, Mar 14, 2002 at 06:11:06PM +0100, Dave Jones wrote:
+> > On Thu, Mar 14, 2002 at 09:50:18AM -0700, Tom Rini wrote:
+> >  > Hello.  The following actually hides x86-specific drivers on
+> >  > !CONFIG_X86.  The problem is that dep_bool '...' CONFIG_FOO $CONFIG_BAR
+> >  > doesn't have the desired effect if CONFIG_BAR isn't set.
+> >  > 
+> >  > +   if [ "$CONFIG_X86" = "y" ]; then
+> >  > +      bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640
+> >  > +      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
+> >  > +   fi
+> > 
+> >  I've a PCI card with one of these. It could in theory work on any arch
+> >  with a PCI slot.
 > 
-> Out of curiousity, why there's a need to update the linux page tables ?
-> Doesn't pte/pmd/pgd family functions provide enough abstraction in
-> order to maintain _only_ the hashed page table ?
+> A 640 and not a 646?
 
-No, it's hardwired to the x86 tree view of page translation.
+Yes, exactly. I have one on a card as well.
 
 -- 
-Daniel
+Vojtech Pavlik
+SuSE Labs

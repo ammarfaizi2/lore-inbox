@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318752AbSIFPew>; Fri, 6 Sep 2002 11:34:52 -0400
+	id <S318650AbSIFPhf>; Fri, 6 Sep 2002 11:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318756AbSIFPew>; Fri, 6 Sep 2002 11:34:52 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:56459 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318752AbSIFPeu>;
-	Fri, 6 Sep 2002 11:34:50 -0400
-Message-ID: <3D78CBF6.10609@us.ibm.com>
-Date: Fri, 06 Sep 2002 08:38:30 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020822
-X-Accept-Language: en-us, en
+	id <S318744AbSIFPhf>; Fri, 6 Sep 2002 11:37:35 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:15497 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318650AbSIFPhb>;
+	Fri, 6 Sep 2002 11:37:31 -0400
+Date: Fri, 6 Sep 2002 17:39:55 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pid_max hang again...
+In-Reply-To: <1031320378.24570.44.camel@plars.austin.ibm.com>
+Message-ID: <Pine.LNX.4.44.0209061738330.24094-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
-       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-References: <20020905.235159.128049953.davem@redhat.com> <46202575.1031297360@[10.10.2.3]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>Stupid question, are you sure you have CONFIG_E1000_NAPI enabled?
->>
->>NAPI is also not the panacea to all problems in the world.
-> 
-> No, but I didn't expect throughput to drop by 40% or so either,
-> which is (very roughly) what happened. Interrupts are a pain to
-> manage and do affinity with, so NAPI should (at least in theory)
-> be better for this kind of setup ... I think.
 
-No, no.  Bad Martin!  Throughput didn't drop, "Specweb compliance" dropped. 
-  Those are two very, very different things.  I've found that the server 
-can produce a lot more throughput, although it doesn't have the 
-characteristics that Specweb considers compliant.  Just have Troy enable 
-mod-status and look at the throughput that Apache tells you that it is 
-giving during a run.  _That_ is real throughput, not number of compliant 
-connections.
+On 6 Sep 2002, Paul Larson wrote:
 
-_And_ NAPI is for receive only, right?  Also, my compliance drop occurs 
-with the NAPI checkbox disabled.  There is something else in the new driver 
-that causes our problems.
+> It looks like this change dropped us back to the same error all this was
+> originally supposed to fix.  When you hit PID_MAX, get_pid() starts
+> looping forever looking for a free pid and hangs.  I could probably make
+> my original fix work on this very easily if you'd like.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+yes please send a patch for this. Reintroduction of the looping bug was
+unintended.
+
+> I wonder though, would it be possible to do this in a more simple way by
+> just throttling max_threads back to something more sane if it gets
+> defaulted too high?  Since it gets checked before we even get to the
+> get_pid call in copy_process().  That would keep the number of processes
+> down to a sane level without the risk.
+
+this is a good approach as well, but now pid_max can be adjusted runtime
+so truncating max_threads as a side-effect looks a bit problematic. We
+should rather fail the fork() cleanly.
+
+	Ingo
 

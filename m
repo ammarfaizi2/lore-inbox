@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263497AbTKWWt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 17:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263517AbTKWWt0
+	id S263517AbTKWX0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 18:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263524AbTKWX0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 17:49:26 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:22701 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S263497AbTKWWtZ (ORCPT
+	Sun, 23 Nov 2003 18:26:24 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10123 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263517AbTKWX0X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 17:49:25 -0500
-Date: Sun, 23 Nov 2003 14:49:03 -0800
-To: Andrew Morton <akpm@osdl.org>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       mbligh@aracnet.com
-Subject: Re: [RFC] Simplify node/zone portion of page->flags
-Message-ID: <20031123224903.GB21617@sgi.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, colpatch@us.ibm.com,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, mbligh@aracnet.com
-References: <3FBEB867.9080506@us.ibm.com> <20031123144052.1f0d5071.akpm@osdl.org>
+	Sun, 23 Nov 2003 18:26:23 -0500
+Date: Sun, 23 Nov 2003 15:26:01 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: anand@eis.iisc.ernet.in, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.0-test9 : bridge freezes
+Message-Id: <20031123152601.67646dc1.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0311220819260.2379-100000@home.osdl.org>
+References: <200311221527.UAA29684@eis.iisc.ernet.in>
+	<Pine.LNX.4.44.0311220819260.2379-100000@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031123144052.1f0d5071.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 23, 2003 at 02:40:52PM -0800, Andrew Morton wrote:
-> >  zone_num.  This makes it trivial to recover either the node or zone 
-> >  number with a simple bitshift.  There are many places in the kernel 
-> >  where we do things like: page_zone(page)->zone_pgdat->node_id to 
-> >  determine the node a page belongs to.  With this patch we save several 
-> >  pointer dereferences, and it boils down to shifting some bits.
+On Sat, 22 Nov 2003 08:20:40 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
+
+> On Sat, 22 Nov 2003, SVR Anand wrote:
+> > 
+> > The problem is : After 3 to 4 hours of functioning, the bridge stops working 
+> > and the machine becomes unusable where it doesn't respond to keyboard, and 
+> > there is no video display.
 > 
-> This rather conflicts with the patch from Jesse which I have.  Can you guys
-> work that out and let me know when you're done?
+> Sounds like a memory leak somewhere. It would probably be interesting to 
+> watch /proc/slabinfo every five minutes or so, and see what happens..
 
-I like Matt's patch, but haven't tested it yet.  I'll try it out on
-Monday.
-
-Jesse
+Also, we've certainly fixed some serious networking bugs since test9
+came out.

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269334AbUICQfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUICQja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269334AbUICQfK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269366AbUICQfK
+	id S269398AbUICQja (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269369AbUICQja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:35:10 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:63617 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S269334AbUICQfD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:35:03 -0400
-Message-ID: <41389CDA.5060609@rtr.ca>
-Date: Fri, 03 Sep 2004 12:33:30 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: md RAID over SATA performance
-References: <1094169937l.17931l.0l@werewolf.able.es>
-In-Reply-To: <1094169937l.17931l.0l@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 3 Sep 2004 12:39:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54200 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269416AbUICQjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:39:22 -0400
+Date: Fri, 3 Sep 2004 09:37:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm3
+Message-Id: <20040903093727.5810bb7d.akpm@osdl.org>
+In-Reply-To: <m3brgncphy.fsf@telia.com>
+References: <20040903014811.6247d47d.akpm@osdl.org>
+	<m3brgncphy.fsf@telia.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Even with hardware RAID the numbers I see are not often
-much better than this.
+Peter Osterlund <petero2@telia.com> wrote:
+>
+> One problem that does remain though, is that when dumping huge amounts
+>  of data to a CD or DVD disc (so that you get memory pressure), the
+>  effective writing speed of other block devices (like IDE hard disks)
+>  is reduced to the same speed as the packet device.
+> 
+>  I have posted a patch that fixes this problem by limiting the amount
+>  of writeback data in the packet driver, but unfortunately it makes the
+>  effective writing speed of the packet device suffer a lot. The proper
+>  fix is probably to improve the filesystem and/or VM code to start I/O
+>  operations in sequential order a lot more often than it currently
+>  does.
 
-Unless O_DIRECT is used (hdparm --direct), in which case they
-immediately jump to a level that is more limited by the PCI
-and memory speeds of the system.
+If you decrease /proc/sys/vm/dirty_ratio and dirty_background_ratio to much
+smaller levels, does that fix things up? 
 
-Eg.  205Mbytes/sec for a 4-drive RAID0 over 64-bit/66Mhz PCI.
-
-I guess the page_cache overhead is rather substantial
-for the simple read-a-sequential-block test.
-
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+If so, we might be able to put some sort of per-queue override into your
+queue's backing_dev_info.

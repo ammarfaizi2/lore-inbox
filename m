@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271398AbTGXBBr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 21:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271399AbTGXBBr
+	id S271401AbTGXBDB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 21:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271403AbTGXBDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 21:01:47 -0400
-Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:48281 "EHLO
-	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S271398AbTGXBBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 21:01:46 -0400
-Date: Wed, 23 Jul 2003 20:16:51 -0500
-From: Greg Norris <haphazard@kc.rr.com>
+	Wed, 23 Jul 2003 21:03:00 -0400
+Received: from mrout2.yahoo.com ([216.145.54.172]:8968 "EHLO mrout2.yahoo.com")
+	by vger.kernel.org with ESMTP id S271401AbTGXBCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 21:02:54 -0400
+Message-ID: <3F1F33B0.4070701@bigfoot.com>
+Date: Wed, 23 Jul 2003 18:17:36 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1: some modules refuse to autoload
-Message-ID: <20030724011651.GA2435@glitch.localdomain>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030717215139.GA19877@glitch.localdomain> <bfmsu5$l2k$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bfmsu5$l2k$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.4i
+Subject: SATA HD 137GB limitation?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 08:58:45PM +0000, bill davidsen wrote:
-> Is hdd set to anything special? And is hdc set to cdrom? If not, try
-> an explicit "hdc=cdrom" on the boot line. I have had to do this on
-> several systems, in spite of dmesg telling me the kernel knows that
-> it's a CD.
+   system:
 
-Thanx for the suggestion, but it unfortunately doesn't appear to have
-made any difference. :-( The full kernel command-line was
-"acpismp=force hdc=cdrom hdd=cdrom" (hdc is a DVD-ROM, and hdd is a
-CD-RW).
+   MB: intel D865PERL
+   maxtor 250GB SATA drive (not a boot drive)
+   kernel 2.4.21-ac4
+   debian unstable
 
-   # mount /cdrom
-   mount: /dev/hdc is not a valid block device
-   # grep ide /proc/modules
-   # mount -t iso9660 /dev/hdc /cdrom
-   mount: /dev/hdc is not a valid block device
-   # modprobe ide-cd
-   end_request: I/O error, dev hdc, sector 0
-   hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-   Uniform CD-ROM driver Revision: 3.12
-   end_request: I/O error, dev hdd, sector 0
-   hdd: ATAPI 48X CD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-   # mount -t iso9660 /dev/hdc /cdrom
-   mount: block device /dev/hdc is write-protected, mounting read-only
-   ISO 9660 Extensions: Microsoft Joliet Level 3
-   ISO 9660 Extensions: RRIP_1991A
+   normal kernels up to 2.4.21 freeze during HD detection, only 
+2.4.21-ac4 properly detects the drive. All programs (mkfs, badblocks, 
+cfdisk) recognize it as 250GB drive but none of them can read anything 
+beyond 137GB. All programs (that I tried) report read failure when 
+sectors above 137GB are being read.
 
-I can't find any messages under /var/log or dmesg to indicate that a
-module load was attempted for block-major-22 (or anything else, for
-that matter).
+   anybody knows the status of SATA driver(s)?
 
-I appreciate the suggestion, tho!
+   TIA
+
+	erik
+

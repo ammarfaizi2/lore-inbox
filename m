@@ -1,126 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbUKUI5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbUKUJXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbUKUI5a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 03:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbUKUI5a
+	id S263208AbUKUJXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 04:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUKUJXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 03:57:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8084 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261927AbUKUI5T (ORCPT
+	Sun, 21 Nov 2004 04:23:12 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:47076 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262940AbUKUJXG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 03:57:19 -0500
-Date: Sun, 21 Nov 2004 09:56:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Chandler <alan@chandlerfamily.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd problem
-Message-ID: <20041121085636.GG26240@suse.de>
-References: <200411201842.15091.alan@chandlerfamily.org.uk> <20041120194756.GU26240@suse.de> <200411210053.45065.alan@chandlerfamily.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411210053.45065.alan@chandlerfamily.org.uk>
+	Sun, 21 Nov 2004 04:23:06 -0500
+Date: Sun, 21 Nov 2004 10:22:33 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: linux-2.4.28 released
+In-Reply-To: <419E0644.909@pobox.com>
+Message-ID: <Pine.GSO.4.61.0411211021550.19680@waterleaf.sonytel.be>
+References: <BF571719A4041A478005EF3F08EA6DF05EB481@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+ <20041118111235.GA26216@logos.cnet> <20041119134832.GA9552@havoc.gtf.org>
+ <20041119135452.GA10422@devserv.devel.redhat.com> <419E0644.909@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21 2004, Alan Chandler wrote:
-> On Saturday 20 November 2004 19:47, Jens Axboe wrote:
-> > On Sat, Nov 20 2004, Alan Chandler wrote:
-> ...
-> > > Normally, because the requested data_len is not zero, the data is
-> > > sent.  In this case however, because the original request had nothing
-> > > to send, the while/if clauses to initiate a new transfer are skipped
-> > > and the routine ends up setting a new interrupt handler address and
-> > > returning to await an interrupt that will never come.
-> >
-> > The big question is - what does the original command look like? Just
-> > dumping rq->cmd[0] would be a big help, but really just put code in
-> > sg_io() in block/scsi_ioctl.c to dump the completed sg_io_hdr_t and send
-> > that.
+On Fri, 19 Nov 2004, Jeff Garzik wrote:
+> Alan Cox wrote:
+> > On Fri, Nov 19, 2004 at 08:48:32AM -0500, Jeff Garzik wrote:
+> > > PATA and SATA (DMA doesn't work for PATA, in split-driver configuration),
+> > > and there is no split-driver to worry about.
+> > > 
+> > > I think there may need to be some code to prevent the IDE driver from
+> > > claiming the legacy ISA ports.
+> > 
+> > Its called "request_resource". If you want the resource claim it. IDE will
+> > be a good citizen.
 > 
-> I haven't dumped the whole request header, but the command (after it has been 
-> retrieved from the user) and the dxfer_length.  Is there anything else I 
-> should dump?
+> That's what the quirk does.  libata still needs to find out who obtained the
+> resource, not blindly grab it (and fail).
 
-No that's fine, that's all I need.
+If libata would be initialized before IDE, it could grab the resource during
+probing.
 
-> Here is the output leading up to the point where ide-cd hangs because the IO 
-> is just left pending
-> 
-> Nov 21 00:44:20 kanger kernel: sg_io command length 10
-> Nov 21 00:44:20 kanger kernel: sg_io command [0] = 0x3c
-> Nov 21 00:44:20 kanger kernel: sg_io command [1] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [2] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [3] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [4] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [5] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [6] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [7] = 0xfc
-> Nov 21 00:44:20 kanger kernel: sg_io command [8] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [9] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io dxfer_len = 64512
-> Nov 21 00:44:20 kanger kernel: sg_io command length 10
-> Nov 21 00:44:20 kanger kernel: sg_io command [0] = 0x3c
-> Nov 21 00:44:20 kanger kernel: sg_io command [1] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [2] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [3] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [4] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [5] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [6] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [7] = 0xfc
-> Nov 21 00:44:20 kanger kernel: sg_io command [8] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [9] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io dxfer_len = 64512
-> Nov 21 00:44:20 kanger kernel: sg_io command length 10
-> Nov 21 00:44:20 kanger kernel: sg_io command [0] = 0x3c
-> Nov 21 00:44:20 kanger kernel: sg_io command [1] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [2] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [3] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [4] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [5] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [6] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [7] = 0xfc
-> Nov 21 00:44:20 kanger kernel: sg_io command [8] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [9] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io dxfer_len = 64512
-> Nov 21 00:44:20 kanger kernel: sg_io command length 10
-> Nov 21 00:44:20 kanger kernel: sg_io command [0] = 0x3c
-> Nov 21 00:44:20 kanger kernel: sg_io command [1] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [2] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [3] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [4] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [5] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [6] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [7] = 0xfc
-> Nov 21 00:44:20 kanger kernel: sg_io command [8] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [9] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io dxfer_len = 64512
-> Nov 21 00:44:20 kanger kernel: sg_io command length 6
-> Nov 21 00:44:20 kanger kernel: sg_io command [0] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [1] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [2] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [3] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [4] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [5] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io dxfer_len = 0
-> Nov 21 00:44:20 kanger kernel: sg_io command length 6
-> Nov 21 00:44:20 kanger kernel: sg_io command [0] = 0x1b
-> Nov 21 00:44:20 kanger kernel: sg_io command [1] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [2] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [3] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io command [4] = 0x3
-> Nov 21 00:44:20 kanger kernel: sg_io command [5] = 0x0
-> Nov 21 00:44:20 kanger kernel: sg_io dxfer_len = 0
-> Nov 21 00:45:00 kanger kernel: hdc: lost interrupt
-> Nov 21 00:45:40 kanger kernel: hdc: lost interrupt
-> Nov 21 00:47:00 kanger last message repeated 2 times
-> Nov 21 00:47:40 kanger kernel: hdc: lost interrupt
+Gr{oetje,eeting}s,
 
-So the last request is a START_STOP unit, which doesn't transfer any
-data. If the drive has DRQ_STAT stat set here, it looks very odd. Any
-chance you could instrument cdrom_newpc_intr() as well to dump status
-bytes and expected transfer lengths from the drive?
+						Geert
 
--- 
-Jens Axboe
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

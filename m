@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129552AbQKAKHQ>; Wed, 1 Nov 2000 05:07:16 -0500
+	id <S129029AbQKAKNR>; Wed, 1 Nov 2000 05:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129820AbQKAKHG>; Wed, 1 Nov 2000 05:07:06 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:13934 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129552AbQKAKGv>;
-	Wed, 1 Nov 2000 05:06:51 -0500
-Date: Wed, 1 Nov 2000 10:07:49 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: hang ftp connections...
-In-Reply-To: <Pine.LNX.4.21.0011011000580.1722-100000@saturn.homenet>
-Message-ID: <Pine.LNX.4.21.0011011007200.1722-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129057AbQKAKNI>; Wed, 1 Nov 2000 05:13:08 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:58894 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129029AbQKAKM7>; Wed, 1 Nov 2000 05:12:59 -0500
+Date: Wed, 1 Nov 2000 02:13:15 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Jerry Kelley <jkelley@iei.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc question (off topic)
+Message-ID: <20001101021315.A17757@twiddle.net>
+In-Reply-To: <001801c041bb$5e894c80$0a00a8c0@gamma>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <001801c041bb$5e894c80$0a00a8c0@gamma>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Tigran Aivazian wrote:
+On Sun, Oct 29, 2000 at 10:17:36AM -0500, Jerry Kelley wrote:
+> Can gcc generate ASM output with the source lines from the C file
+> interspersed as comments?
 
-> Hi guys,
-> 
-> I noticed this since I installed test10-pre5 (maybe 6) on my
-> desktop. FTP connections to Solaris became very strange, i.e. after the
-> transfer is finished it would never actually close the control socket and
-> hang it there. So, I assumed that most likely Solaris kernel is full of
-> bugs (as a commercial OS ought to be) and they don't even implement FTP
-                                                                      ~~~
+Not directly.  However, gas will happily generate assembler listings
+containing the C source.  See "-alh".
 
-did I say FTP? I meant TCP :) Though it would be nice to see a kernel with
-kFTP in it :)
 
-> protocol correctly, so that the exceeding correctness of ours at
-> test10-preX shows their bugs. However, now the same thing happened when
-> talking to ftp.kernel.org and that surely runs Linux. So there must be a
-> bug somewhere. I will now upgrade all my systems to final proper test10
-> and see if the problem is still there...
-> 
-> I only noticed this with ftp; other critical services (irc, telnet etc.)
-> work fine.
-> 
-> Regards,
-> Tigran
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSHYQvq>; Sun, 25 Aug 2002 12:51:46 -0400
+	id <S317422AbSHYQ4N>; Sun, 25 Aug 2002 12:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317415AbSHYQvq>; Sun, 25 Aug 2002 12:51:46 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:48772 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S317404AbSHYQvq>;
-	Sun, 25 Aug 2002 12:51:46 -0400
-Message-ID: <3D690C1F.1090604@colorfullife.com>
-Date: Sun, 25 Aug 2002 18:55:59 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S317427AbSHYQ4M>; Sun, 25 Aug 2002 12:56:12 -0400
+Received: from pD9E236A6.dip.t-dialin.net ([217.226.54.166]:8107 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317422AbSHYQ4L>; Sun, 25 Aug 2002 12:56:11 -0400
+Date: Sun, 25 Aug 2002 11:00:02 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Donald Becker <becker@scyld.com>
+cc: Christophe Devalquenaire <C.Devalquenaire@wanadoo.fr>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 and 2.5 Problem ne.c driver
+In-Reply-To: <Pine.LNX.4.44.0208251222280.1561-100000@beohost.scyld.com>
+Message-ID: <Pine.LNX.4.44.0208251059410.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [patch 2.5.31] transparent PCI-to-PCI bridges
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan wrote:
-> +	/*
-> +	 * The PCI-to-PCI bridge spec requires that subtractive decoding
-> +	 * (i.e. transparent) bridge must have programming interface code
-> +	 * of 0x01.
-> +	 */ 
-> +	if (dev->class & 1) {
-> +		printk("Transparent bridge - %s\n", dev->name);
+Hi,
 
-Why not
-	if ((dev->class & 0xff) == 0x01)
+On Sun, 25 Aug 2002, Donald Becker wrote:
+> This sounds as if you are just running out of ISA bus bandwidth...
 
-Is the lowest bit an indicator of subtractive decoding, or is 
-Progif==0x01 the indicator of subtractive decoding?
-The code and the comment should match.
+Can you explain why it's unidirectional then?
 
---
-	Manfred
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

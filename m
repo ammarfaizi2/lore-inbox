@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270688AbTGNRgA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270700AbTGNRgA
+	id S270604AbTGNRfI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 13:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270446AbTGNRfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:36:00 -0400
-Received: from mail.kroah.org ([65.200.24.183]:40599 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270688AbTGNRfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:35:39 -0400
-Date: Mon, 14 Jul 2003 10:38:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] /proc/bus/pci* changes
-Message-ID: <20030714173812.GA24142@kroah.com>
-References: <1058154708.747.1391.camel@cube> <20030714045304.GB19392@kroah.com> <1058161200.749.1454.camel@cube>
+	Mon, 14 Jul 2003 13:35:07 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26520 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S270765AbTGNRc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 13:32:29 -0400
+Date: Mon, 14 Jul 2003 13:45:55 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: sizeof (siginfo_t) problem
+Message-ID: <20030714134555.O15481@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20030714084000.J15481@devserv.devel.redhat.com> <20030715025252.17ec8d6f.sfr@canb.auug.org.au> <20030714130024.M15481@devserv.devel.redhat.com> <20030715031123.5c8e0c96.sfr@canb.auug.org.au> <20030714131400.N15481@devserv.devel.redhat.com> <20030715032552.672d21ea.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1058161200.749.1454.camel@cube>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030715032552.672d21ea.sfr@canb.auug.org.au>; from sfr@canb.auug.org.au on Tue, Jul 15, 2003 at 03:25:52AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 01:40:01AM -0400, Albert Cahalan wrote:
+On Tue, Jul 15, 2003 at 03:25:52AM +1000, Stephen Rothwell wrote:
+> > Then that pad needs to be #ifdef __s390x__ as well.
 > 
-> The directory structure may well be finished,
-> at least until it is time to remove the old
-> interfaces. (in a few years I guess)
-> 
-> What's missing is the ability to pass cache-control
-> info through the mmap() interface. This is useful
-> for non-PCI purposes as well. Some thought will be
-> required, as there is a set of commonly useful
-> settings among all the arch-specific features.
+> But why pad at all since we have now increased the size of the siginfo
+> structure in the 64bit case (maybe I am being thick as it is 3:25am here
+> :-)).
 
-Why would userspace want to do this?  Any examples?
+Decreased, from 136 bytes when __ARCH_SI_PREAMBLE_SIZE is (3 * sizeof(int))
+to 128 bytes with (4 * sizeof(int)).
+The pad in rt_sigframe is certainly open for discussion. GCC does on s390x:
+        struct ucontext_                                                \
+          {                                                             \
+            unsigned long     uc_flags;                                 \
+            struct ucontext_ *uc_link;                                  \
+            unsigned long     uc_stack[3];                              \
+            sigregs_          uc_mcontext;                              \
+          } *uc_ = (CONTEXT)->cfa + 8 + 128;                            \
+                                                                        \
+        regs_ = &uc_->uc_mcontext;                                      \
+(128 stands for sizeof(siginfo_t)).
+This means it does not work on any kernels so far, if we don't add a pad
+to the kernel and just fix __ARCH_SI_PREAMBLE_SIZE on s390x, then GCC
+will suddenly work with all newer kernels but will never work with older
+kernels.
+If pad is added to the kernel at the same time as __ARCH_SI_PREAMBLE_SIZE
+is increased, it would need to be added to GCC as well, so older GCCs
+would not work on any kernels while patched/newer GCCs would work on all
+kernels.
 
-> > And are you prepared to patch all of
-> > the userspace programs that currently rely on the existing interface
-> > (like XFree86 for one)?
-> 
-> The existing interface STILL WORKS. Apps can
-> transition over time, in part or in whole.
-> ("in part" meaning to use the old hacks on
-> the new pathname, gaining PCI domain support)
-> 
-> It's important to get the new interface in
-> ASAP, so that all the obscure (in-house, etc.)
-> user-space drivers can start to transition.
-> The X server is less of a worry, because it
-> is a very active project.
-> 
-> > Also, I don't think you are handling the pci domain space in your patch,
-> > or am I just missing it?
-> 
-> You missed it: third paragraph, first email
-> 
-> Example:
-> You have two devices with the same bus
-> number (5), device number (4), and function
-> number (2). One is in domain 0, and the
-> other is in domain 42. You get:
-> 
-> pci0/bus5/dev4/fn2/config-space
-> pci42/bus5/dev4/fn2/config-space
-> 
-> Depending on what pci_name_bus does with
-> the conflict, you'll get one or two symlinks
-> from the old name(s). You'll also get some
-> correctly-sized files to represent the
-> resources. For example:
-> 
-> pci0/bus5/dev4/fn2/bar0
-> pci0/bus5/dev4/fn2/bar1
-> pci0/bus5/dev4/fn2/bar2
-> pci42/bus5/dev4/fn2/bar0
-
-Any reason for not using the same sysfs naming scheme to keep things
-universal?
-
-> Here's an attachment:
-
-Which can't be quoted :(
-
-Anyway, I really don't like the huge array you are declaring if we have
-pci domains.  And I really don't want to apply this until someone shows
-me a real use for it.  Maybe we should add mmap functions to sysfs?  :)
-
-thanks,
-
-greg k-h
+	Jakub

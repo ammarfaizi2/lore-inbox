@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270371AbRHHHIj>; Wed, 8 Aug 2001 03:08:39 -0400
+	id <S270381AbRHHHQT>; Wed, 8 Aug 2001 03:16:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270376AbRHHHI3>; Wed, 8 Aug 2001 03:08:29 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:32576 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S270371AbRHHHIP>; Wed, 8 Aug 2001 03:08:15 -0400
-Message-ID: <3B70E4C8.2020400@blue-labs.org>
-Date: Wed, 08 Aug 2001 03:05:44 -0400
-From: David Ford <david@blue-labs.org>
-Organization: Blue Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010717
-X-Accept-Language: en-us
+	id <S270380AbRHHHQJ>; Wed, 8 Aug 2001 03:16:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:7434 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S270381AbRHHHP6>; Wed, 8 Aug 2001 03:15:58 -0400
+Date: Wed, 8 Aug 2001 02:46:52 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
+In-Reply-To: <Pine.LNX.4.33.0108072353530.956-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0108080240250.13133-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Ben Ford <ben@kalifornia.com>, David Wagner <daw@mozart.cs.berkeley.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: summary Re: encrypted swap
-In-Reply-To: <Pine.LNX.4.33.0108071957170.3450-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can't guarantee much if the machine is physically compromised.  In 
-the situation of wiping, you probably won't need swap immediately after 
-boot so you can afford to execute a script that wipes the file/partition 
-then mounts it.
 
-It's all easily accomplished in userspace.
 
-David
+On Wed, 8 Aug 2001, Linus Torvalds wrote:
 
-David Lang wrote:
+> 
+> [ Hey, I can have long discussions by myself. I don't need you guys to
+>   answer me at all.
+> 
+>   This must be what senility feels like. Linus "doddering fool" Torvalds ]
+> 
+> On Tue, 7 Aug 2001, Linus Torvalds wrote:
+> >
+> > We should really document the ranges clearly. Right now (with these
+> > changes), the ranges would be (with users in parenthesis):
+> >
+> >  free (free + inactive_clean):
+> >
+> > 	low water mark: zone->pages_high	(__alloc_pages, zone_free_shortage)
+> > 	high water mark: zone->pages_high*2	(zone_free_plenty)
+> 
+> That's subtly wrong, __alloc_pages really has "zone->pages_low", not
+> "pages_high"  as the low water mark on when to start kswapd.
+> 
+> It does use "pages_high" too - but it is used as a "prefer this zone
+> because it isn't close to empty" marker. In short, it's really more of a
+> local high water mark.
+> 
+> So the free_shortage() logic really should be:
+>  - we want zone to have "pages_high" on _average_, but it's a shortage
+>    only if any zone is under the "pages_low" thing.
 
->only if you can guarenty that there is no way to avoid wiping it even if
->this is the 2nd (or 3rd) hard drive (and what about how swap drives that
->get added to a system after boot)
->
->also this had better be a configuration option. I don't want to wait for
->2g of swap space to be wiped when I boot by webserver (which defeates my
->previous requirement)
->
->David Lang
->
+I think you are misunderstanding things here.
+
+Having "zone->pages_low" as the low water mark to when start kswapd does
+_not_ mean we want "zone->pages_low" as the freetarget (or the "free
+shortage" indicator). 
+
+Could you be more verbose ? 
 

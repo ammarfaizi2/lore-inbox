@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130784AbQKBNyC>; Thu, 2 Nov 2000 08:54:02 -0500
+	id <S129823AbQKBNyM>; Thu, 2 Nov 2000 08:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130736AbQKBNxm>; Thu, 2 Nov 2000 08:53:42 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:14580 "EHLO
+	id <S131605AbQKBNyC>; Thu, 2 Nov 2000 08:54:02 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:15348 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129823AbQKBNxi>; Thu, 2 Nov 2000 08:53:38 -0500
-Date: Thu, 2 Nov 2000 11:52:56 -0200 (BRDT)
+	id <S129823AbQKBNxp>; Thu, 2 Nov 2000 08:53:45 -0500
+Date: Thu, 2 Nov 2000 11:49:01 -0200 (BRDT)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Rohland <cr@sap.com>
-cc: Jonathan George <Jonathan.George@trcinc.com>,
-        "'matthew@mattshouse.com'" <matthew@mattshouse.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test10 Sluggish After Load
-In-Reply-To: <qwwlmv269p4.fsf@sap.com>
-Message-ID: <Pine.LNX.4.21.0011021152310.15168-100000@duckman.distro.conectiva>
+To: Anthony Towns <aj@azure.humbug.org.au>
+cc: "'Pasi Kärkkäinen'" <pk@edu.joroinen.fi>,
+        "Forever shall I be." <zinx@microsoftisevil.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 3-order allocation failed
+In-Reply-To: <20001102082043.C22439@azure.humbug.org.au>
+Message-ID: <Pine.LNX.4.21.0011021148330.15168-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Nov 2000, Christoph Rohland wrote:
-> On Wed, 1 Nov 2000, Rik van Riel wrote:
-> >> BTW, I think that everyone is happy with the direction of the
-> >> new VM.  I'm looking forward to your upcoming enhancements which
-> >> I hope will make it in to a later 2.4 release.
-> > 
-> > I'm working on it. I have no idea if it'll be ready in time
-> > for other 2.4 releases ... maybe stuff will be there, maybe
-> > it'll be 2.5 work.
-> > 
-> > Of course, this also depends on the amount of people willing
-> > to test out new VM patches and/or help with development.
+On Thu, 2 Nov 2000, Anthony Towns wrote:
+> On Wed, Nov 01, 2000 at 01:42:17PM -0800, Dunlap, Randy wrote:
+> > > Is this bug in the usb-driver (usb-uhci), in the camera's driver
+> > > (cpia_usb) or in the v4l?
+> > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > Could there be a memory leak as well?  But I expect that
+> > it's simply that memory is just fragmented so that enough
+> > contiguous pages aren't available, like Rik said.
 > 
-> As you know I am doing regular thrash tests and I am willing to do
-> this further. I would hate to see a customer go down because his
-> machine becomes unusable. IMHO we should try to fix this during 2.4.
+> There is a memory leak, the memory kmalloc'ed in cpia_usb_open
+> for sbuf[*].data is never kfree'd
 
-Agreed. Also, we don't have to have the thrashing control
-be too friendly, as long as it is effective and simple ;)
+This way you'll be running out of order-2 free memory
+segments /very/ quickly ... ;)
 
 Rik
 --

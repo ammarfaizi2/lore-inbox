@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbTJHXoc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 19:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTJHXoc
+	id S261840AbTJIAD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 20:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTJIAD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 19:44:32 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:50314 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261744AbTJHXoa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 19:44:30 -0400
-Date: Thu, 9 Oct 2003 00:43:40 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: vatsa@in.ibm.com, Dave Jones <davej@redhat.com>,
-       lkcd-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Poll-based IDE driver
-Message-ID: <20031008234340.GB17019@mail.shareable.org>
-References: <20030917144120.A11425@in.ibm.com> <1063806900.12279.47.camel@dhcp23.swansea.linux.org.uk> <20031008151357.A31976@in.ibm.com> <20031008115051.GD705@redhat.com> <20031008174458.A32517@in.ibm.com> <1065649708.10565.23.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
+	Wed, 8 Oct 2003 20:03:28 -0400
+Received: from shiva.jussieu.fr ([134.157.0.129]:13072 "EHLO shiva.jussieu.fr")
+	by vger.kernel.org with ESMTP id S261840AbTJIAD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 20:03:27 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22 regression: ide-scsi no longer likes broken hardware
+From: Juliusz Chroboczek <jch@pps.jussieu.fr>
+Date: 09 Oct 2003 02:03:26 +0200
+Message-ID: <tpoewrb7ld.fsf@lanthane.pps.jussieu.fr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065649708.10565.23.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+X-Antivirus: scanned by sophie at shiva.jussieu.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2003-10-08 at 13:14, Srivatsa Vaddagiri wrote:
-> > Since my code is supposed to run when system is crashing, I would like 
-> > to avoid calling any function in the kernel as far as possible, since 
-> > the kernel and its data structures may be in a inconsistent state 
-> > and/or corrupted.
-> 
-> For x86 udelay is a tiny piece of code - you could easily inline it
+IDE chipset is Intel Corp. 82801DB ICH4 IDE (rev 01).
 
-No, because that changes the delay.  Things like whether the
-instructions straddle a cache line or page boundary, or ar 4-byte or
-16-byte aligned affect the timing on some x86 CPUs.
+Both the CD-ROM on hdc and the CD-RW on hdd are broken, but work
+flawlessly under 2.4.20.  According to cdrecord, they are:
 
-udelay must reside at a fixed memory location to get the nearest thing
-to determinism that we know how to get.
+  hdc: 'E-IDE   ' 'CD-ROM 56X/AKH  ' 'A8E ' Removable CD-ROM
+  hdd: 'AOPEN   ' 'CD-RW CRW4048   ' '1.05' Removable CD-ROM
 
--- Jamie
+Both work under 2.4.22 as IDE devices.
+
+Putting ide-scsi over hdc under 2.4.22 leads to a silent hang during
+boot (just after the friendly ``ide-cd: passing drive...'' message).
+
+With ide-scsi over hdd, on the other hand, the kernel gets into a loop
+reporting that ``the scsi wants to send us more data than expected''.
+I am sorry I didn't write the log down, I'll be glad to do that if
+anyone thinks it can help.
+
+In either case, a cold boot is necessary.
+
+As an additional data point, cdrecord has the following complaints
+about the drives:
+
+  hdc: cdrecord.mmap: Warning: controller returns wrong size for CD capabilities page.  
+
+  hdd: cdrecord.mmap: WARNING: Drive returns wrong startsec (0) using -150
+
+I do realise that this is probably broken hardware.  However, 2.4.20
+shows that it is possible to make it work, and I'm wondering what
+happened that made 2.4.22 picky.
+
+                                        Juliusz Chroboczek

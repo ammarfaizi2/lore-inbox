@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbRBAKHr>; Thu, 1 Feb 2001 05:07:47 -0500
+	id <S130286AbRBAKN7>; Thu, 1 Feb 2001 05:13:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130035AbRBAKHi>; Thu, 1 Feb 2001 05:07:38 -0500
-Received: from cnxt10005.conexant.com ([198.62.10.5]:13831 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129392AbRBAKHZ>; Thu, 1 Feb 2001 05:07:25 -0500
-Date: Thu, 1 Feb 2001 11:06:44 +0100 (CET)
-From: <rui.sousa@conexant.com>
-To: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-cc: Lukasz Gogolewski <lucas@supremedesigns.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: problems with sblive as well as 3com 3c905
-In-Reply-To: <003701c08bcc$19b8bae0$7930000a@hcd.net>
-Message-ID: <Pine.LNX.4.30.0102011105560.1707-100000@localhost.localdomain>
+	id <S130122AbRBAKNj>; Thu, 1 Feb 2001 05:13:39 -0500
+Received: from slc26.modem.xmission.com ([166.70.9.26]:15378 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S130035AbRBAKNf>; Thu, 1 Feb 2001 05:13:35 -0500
+To: David Gould <dg@suse.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] vma limited swapin readahead
+In-Reply-To: <Pine.LNX.4.21.0101310636530.16408-100000@freak.distro.conectiva> <m18znrcxx7.fsf@frodo.biederman.org> <20010131162424.E9053@archimedes.oak.suse.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 01 Feb 2001 00:41:12 -0700
+In-Reply-To: David Gould's message of "Wed, 31 Jan 2001 16:24:24 -0800"
+Message-ID: <m14ryedf53.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Timothy A. DeWees wrote:
+David Gould <dg@suse.com> writes:
 
-How about just upgrading modutils?!
+> Hmmm, arguably reading pages we do not want is a mistake. I should think that
+> if a big performance win is required to justify a design choice, it should
+> be especially required to show such a win for doing something that on its
+> face is wrong.
 
-> You need to create a symlink
->
-> ln -s /lib/modules/2.4.1/kernel/drivers/net /lib/modules/2.4.1/net
->
-> That will fix the nic, I am not sure about sound.  You may need to
-> create a misc link like
->
-> ln -s /lib/modules/2.4.1/kernel/drivers/misc /lib/modules/2.4.1/misc
->
->
-> ----- Original Message -----
-> From: "Lukasz Gogolewski" <lucas@supremedesigns.com>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Wednesday, January 31, 2001 4:03 PM
-> Subject: problems with sblive as well as 3com 3c905
->
->
-> > After I compiled kernel 2.4.1 on rh 6.2 I enabled module support for 2
-> > of those devices.
-> >
-> > However when I rebooted my machine both of those devices are not
-> > working.
-> >
-> > I don't know what's wrong since I did make moudle and make
-> > module_install.
-> >
-> > When I try to configure mdoule for the sound card, I get a message
-> > saying that module wasn't found.
-> >
-> > For the network card I get Delaying initialization
-> >
-> > any suggestions on how to fix it?
-> >
-> > - Lucas
-> >
+The case for files and has already been justified.   
+The performance gain of reading pages that are contiguous on disk has
+been justified. 
+The only problem thing that has not been shown is that swap pages that
+are used together are located near each other in swap.
+
+As for design choices simplicity, maintainability and
+comprehensiblility, tend to be more important than absolute
+performance.  This lets bugs be fixed, and the big changes that tend
+to be the biggest wins happen.
+
+> I am skeptical of the argument that we can win by replacing "the least
+> desirable" pages with pages were even less desireable and that we have
+> no recent indication of any need for. It seems possible under heavy swap
+> to discard quite a portion of the useful pages in favor of junk that just
+> happenned to have a lucky disk address.
+
+I won't argue that.  My gut just says we should work to improve the
+disk addresses, so it isn't luck. ;)  And only if we fail in that
+hack up the efficient simple policy, that we have for reading disk
+data in.
+
+Of course since I'm not actually writing the code at the moment
+this is all hot air :)
+
+Eric
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

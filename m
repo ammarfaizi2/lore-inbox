@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUFIMjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265756AbUFIMnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUFIMjw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 08:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUFIMjC
+	id S265756AbUFIMnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 08:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUFIMnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 08:39:02 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:914 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S266092AbUFIMgr (ORCPT
+	Wed, 9 Jun 2004 08:43:49 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:54162 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265767AbUFIMnd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 08:36:47 -0400
-Date: Wed, 9 Jun 2004 14:36:33 +0200
+	Wed, 9 Jun 2004 08:43:33 -0400
+Date: Wed, 9 Jun 2004 14:43:02 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [STACK] weird code in some isdn drivers
-Message-ID: <20040609123633.GH21168@wohnheim.fh-wedel.de>
+To: chase.maupin@hp.com, iss_storagedev@hp.com
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [STACK] >4k call path in hp/compaq fibre channel driver
+Message-ID: <20040609124302.GI21168@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -23,28 +24,25 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karsten, Kai,
+Chase, I guess this code won't live long with 4k stacks.  Can you
+please fix CpqTsProcessIMQEntry() and PeekIMQEntry()?
 
-while I agree that this is a measurement bug, it's not exacly fun to
-look at the code in question.  Can you please find a solution for
-hscx_irq.c?
+Linus, Andrew, how about marking CONFIG_SCSI_CPQFCTS as broken for the
+time being?
 
-Either transform it into a header and uninline some of the longer
-functions or make the functions global and add the necessary header
-and Makefile-line.  In any case, I don't like to see something like
-#include "hscx_irq.c"
-
-stackframes for call path too long (268435490):
+stackframes for call path too long (4144):
     size  function
-       0  IsdnCardState->irq_func
-268435466  teles3_interrupt
-      24  hscx_empty_fifo
-       0  read_fifo
-       0  insb
+       0
+____FAKE.Name.Chip.stat.Regi.LILP.Opti.high.lowe->ProcessIMQEntry
+    2076  CpqTsProcessIMQEntry
+    2052  PeekIMQEntry
+      16  CpqTsGetSFQEntry
+       0  __constant_memcpy
+       0  __builtin_memcpy
 
 Jörn
 
 -- 
-People will accept your ideas much more readily if you tell them
-that Benjamin Franklin said it first.
--- unknown
+The grand essentials of happiness are: something to do, something to
+love, and something to hope for.
+-- Allan K. Chalmers

@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283345AbRK2R2b>; Thu, 29 Nov 2001 12:28:31 -0500
+	id <S283343AbRK2R2V>; Thu, 29 Nov 2001 12:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283339AbRK2R2V>; Thu, 29 Nov 2001 12:28:21 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45581 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283337AbRK2R2M>;
-	Thu, 29 Nov 2001 12:28:12 -0500
-Date: Thu, 29 Nov 2001 18:27:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Ron Lawrence <rlawrence@netraverse.com>, linux-kernel@vger.kernel.org
-Subject: Re: CDROM ioctl bug (fwd)
-Message-ID: <20011129182745.O10601@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0111281009140.1724-100000@monster.jayfay.com> <m2elmi1mjx.fsf@ppro.localdomain>
+	id <S283339AbRK2R2L>; Thu, 29 Nov 2001 12:28:11 -0500
+Received: from f56.law3.hotmail.com ([209.185.241.56]:2823 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S283337AbRK2R1z>;
+	Thu, 29 Nov 2001 12:27:55 -0500
+X-Originating-IP: [63.122.122.73]
+From: "Xiaozhou Qiu" <xzqiu@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: how to communicate between kernel and user space?
+Date: Thu, 29 Nov 2001 17:27:49 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2elmi1mjx.fsf@ppro.localdomain>
+Content-Type: text/plain; format=flowed
+Message-ID: <F56sjUHQHh2wLCVYl4m0000010f@hotmail.com>
+X-OriginalArrivalTime: 29 Nov 2001 17:27:49.0401 (UTC) FILETIME=[2AD80890:01C178FB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29 2001, Peter Osterlund wrote:
-> In general, who is responsible for unplugging the request queue after
-> queuing an ioctl command?
+Hi,
 
-The queuer is responsible for that. As Doug mentioned, you have the same
-race that was long standing in sg as well which I fixed some months ago.
+I am sorry if this is a newbie's question. I am developing a kernel module 
+which needs to call some crypt functions implemented in user space. Since 
+those functions utilize openssl library, I assume there is no easy way to 
+port them into kernel.
 
--- 
-Jens Axboe
+I wonder whether there is an easy and elegant way to call the user space 
+functions from the kernel and get the results, if /proc can not be used.  If 
+anybody knows where I can find a crypt library in the kernel, that will be a 
+great help too.
+
+Thank you very much.
+
+Xiaozhou Qiu
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

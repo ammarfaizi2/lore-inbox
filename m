@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbTEEOpd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 10:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTEEOpd
+	id S262334AbTEEOrB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 10:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbTEEOpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 10:45:33 -0400
-Received: from [203.199.140.162] ([203.199.140.162]:44548 "EHLO
-	calvin.codito.com") by vger.kernel.org with ESMTP id S262293AbTEEOp1
+	Mon, 5 May 2003 10:45:39 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:5762 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262334AbTEEOpe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 10:45:27 -0400
-From: Amit Shah <shahamit@gmx.net>
-To: linux-serial@vger.kernel.org
-Subject: [PATCH][2.5] const char* to char* update in console.h
-Date: Mon, 5 May 2003 20:27:59 +0530
-User-Agent: KMail/1.5.1
-Cc: trivial@rustcorp.com.au,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 5 May 2003 10:45:34 -0400
+Date: Mon, 5 May 2003 21:46:44 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: Christoph Hellwig <hch@infradead.org>
+cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <20030505144229.A23483@infradead.org>
+Message-ID: <Pine.SGI.4.10.10305052130530.8200163-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305052027.59853.shahamit@gmx.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 5 May 2003, Christoph Hellwig wrote:
 
-(resending updated version for 2.5.69)
+> > I use the following calls:
+> > 
+> > sys_mknod
+> > sys_chown
+> > sys_umask
+> > sys_unlink
+> > 
+> > for creating/deleting /dev entries dynamically on driver
+> > loading/unloading. It allows me to acquire dynamic major
+> > number without devfs and external utility of any kind.
+> > And there is no risk of intersection with statically assigned major
+> > numbers, as it is for many others third-party sources.
+> 
+> You don't want to tell me you do that for real, do you?
 
-The read function for consoles in include/linux/console.h contains const 
-char* for a pointer that it will actually modify. Although no one seems 
-to be using this as of now, it should be corrected.
+I do that for real.
+Please, think about it as small portable private devfs library.
 
---- linux-2.5.69/include/linux/console.h.orig	Mon May  5 16:32:47 2003
-+++ linux-2.5.69/include/linux/console.h	Mon May  5 16:33:13 2003
-@@ -96,7 +96,7 @@
- {
- 	char	name[8];
- 	void	(*write)(struct console *, const char *, unsigned);
--	int	(*read)(struct console *, const char *, unsigned);
-+	int	(*read)(struct console *, char *, unsigned);
- 	struct tty_driver *(*device)(struct console *, int *);
- 	void	(*unblank)(void);
- 	int	(*setup)(struct console *, char *);
+> That alone is a very good idea to unexport the syscall table without
+> exporting those symbols..
 
--- 
-Amit Shah
-http://amitshah.nav.to/
-
-A: No.
-Q: Should I include quotations after my reply?
+It does not helps, I would find another way, maybe vfs_* calls
+or proc_mknod, unexport it too.
 

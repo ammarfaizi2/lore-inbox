@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285046AbRLKPHg>; Tue, 11 Dec 2001 10:07:36 -0500
+	id <S285047AbRLKPLR>; Tue, 11 Dec 2001 10:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285056AbRLKPH1>; Tue, 11 Dec 2001 10:07:27 -0500
-Received: from demokritos.cytanet.com.cy ([195.14.133.252]:3085 "EHLO
-	demokritos.cytanet.com.cy") by vger.kernel.org with ESMTP
-	id <S285054AbRLKPHO>; Tue, 11 Dec 2001 10:07:14 -0500
-From: Sinisa Milivojevic <sinisa@mysql.com>
+	id <S285056AbRLKPK5>; Tue, 11 Dec 2001 10:10:57 -0500
+Received: from web12308.mail.yahoo.com ([216.136.173.106]:5646 "HELO
+	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S285047AbRLKPKv>; Tue, 11 Dec 2001 10:10:51 -0500
+Message-ID: <20011211151050.12948.qmail@web12308.mail.yahoo.com>
+Date: Tue, 11 Dec 2001 07:10:50 -0800 (PST)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: [PATCH] cciss 2.5.0 for 2.5.1-pre9
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15382.8806.167316.426217@sinisa.nasamreza.org>
-Date: Tue, 11 Dec 2001 17:12:38 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.16 and gcc 3.0.2
-X-Mailer: VM 6.96 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
-Reply-To: sinisa@mysql.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sorry to bother you again and please CC: the answer directly to me.
+Here's a patch for the cciss driver in the 2.5.1-pre8 tree
+(patch also applies to 2.5.1-pre9):
 
-I have built 2.4.16 with 3.0.2 and when kernel reboots, it gets
-segmentation violation at this command in init file:
+http://geocities.com/dotslashstar/cciss_2.5.0_for_2.5.1-pre8.txt
 
-swapon -a
+This patch:
 
-I have used latest util-linux and rebuilt all programs, but to no
-avail.
+* adds support for SCSI tape drives. 
+* adds support for dynamically adding and removing      
+  logical volumes on the fly.
 
-Should I comment out that line ??
+I can't include this patch inline for a variety of reasons:
+(it's too big, Mozilla pukes when I try to paste it into yahoo mail,
+My Compaq MS mail account seems to insist on mangling whitespace, 
+etc.  Sorry.)
 
-Many thanks in advance.
+Variants of this patch have been submitted before with little or 
+no response.  Perhaps it's too big.  Perhaps it does 2 things,
+and so is unacceptable.  Perhaps a hybrid scsi/block driver is
+just too weird.  Perhaps it was just too weird and big for 2.4, but
+maybe it's ok for 2.5.   In any case, here is the patch, rearing
+its head again. :-)
 
--- 
-Regards,
-   __  ___     ___ ____  __
-  /  |/  /_ __/ __/ __ \/ /    Mr. Sinisa Milivojevic <sinisa@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__   MySQL AB, Fulltime Developer
-/_/  /_/\_, /___/\___\_\___/   Larnaca, Cyprus
-       <___/   www.mysql.com
+Enjoy, and thanks.
 
+-- steve
+
+
+__________________________________________________
+Do You Yahoo!?
+Check out Yahoo! Shopping and Yahoo! Auctions for all of
+your unique holiday gifts! Buy at http://shopping.yahoo.com
+or bid at http://auctions.yahoo.com

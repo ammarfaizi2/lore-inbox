@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSG3TXQ>; Tue, 30 Jul 2002 15:23:16 -0400
+	id <S315928AbSG3T0Q>; Tue, 30 Jul 2002 15:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSG3TXQ>; Tue, 30 Jul 2002 15:23:16 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:22287 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S315923AbSG3TXP>;
-	Tue, 30 Jul 2002 15:23:15 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: dalecki@evision.ag
-Date: Tue, 30 Jul 2002 21:26:27 +0200
+	id <S315942AbSG3T0Q>; Tue, 30 Jul 2002 15:26:16 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:43677 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S315928AbSG3T0P>;
+	Tue, 30 Jul 2002 15:26:15 -0400
+Date: Tue, 30 Jul 2002 15:29:33 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Gerhard Mack <gmack@innerfire.net>
+cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+In-Reply-To: <Pine.LNX.4.44.0207301506290.18526-100000@innerfire.net>
+Message-ID: <Pine.GSO.4.21.0207301527110.5389-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <9B9F331783@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> 
-> Unfortunately ATA/ATAPIv7 says that single interrupt is triggered
-> after command is done and all data transfered, and we do not play
-> with select bit. But we play with nIEN bit of disk. Do you see
-> any reason why this should cause spurious interrupt? (system is using
-> XT-PIC, FYI)
 
-OK. As I am using only one device on each channel, I commented
-out ata_irq_enable(drive, 1) in ide-disk.c when issuing command,
-and removed disabling irq in ide_do_request in ide.c when we
-do not issue command to the drive, and spurious interrupts disappeared.
-So now I'm getting only half of IRQs for channel 0, and system still
-works as before ;-)
 
-Unfortunately, problem is still here: when kernel was in idedisk_do_request
-performed on channel 0, IRQ for channel 1 arrived, and this irq found 
-channel 1 DMA engine ready, but drive had DRQ set... oops. Shortly after 
-that IRQ for channel 1 arrived again, but as it was unexpected, nothing 
-happened. 
+On Tue, 30 Jul 2002, Gerhard Mack wrote:
 
-I hope that i845 is not simplex device, but first (unexpected) IRQ arrived 
-just when channel 0 code wrote new value to its IDE_SELECT_REG register. 
-Now I even disconnected DVD drive, so it is simple two masters, two
-channels configuration, but it still happens.
+> Does the average user know about code clarity and maintainability?  I
+> think I see his point.  I've seen what happens when non coders make
+> decisions as to what features need to go in.  Don't think it happens in
 
-And as always, something else: ata_error does:
+That's part of the problem, indeed, but nowhere near the entire picture.
 
-OUT_BYTE(WIN_NOP, ch->ports[IDE_CONTROL_OFFSET])
+> the open source world?  Go look at what most irc nets use for code.
 
-I'd say that it should use 0x00 instead of WIN_NOP, and also that
-comment above OUT_BYTE(0x04, ch->ports[IDE_CONTROL_OFFSET]) is bogus.
-Command register is IDE_COMMAND, not IDE_CONTROL ;-)
-                                        Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+Or, easier yet, go to prep.ai.mit.edu and try to RTFS.  Use of safety
+barfbags is mandatory.
+

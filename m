@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbTBEPYt>; Wed, 5 Feb 2003 10:24:49 -0500
+	id <S261495AbTBEPl4>; Wed, 5 Feb 2003 10:41:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbTBEPYt>; Wed, 5 Feb 2003 10:24:49 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:51722 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261486AbTBEPYs>; Wed, 5 Feb 2003 10:24:48 -0500
-Date: Wed, 5 Feb 2003 15:34:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Cc: greg@kroah.com, torvalds@transmeta.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Message-ID: <20030205153417.A21675@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
-	torvalds@transmeta.com, linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-References: <200302051500.KAA05879@moss-shockers.ncsc.mil>
+	id <S261518AbTBEPl4>; Wed, 5 Feb 2003 10:41:56 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49678 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261495AbTBEPlz>; Wed, 5 Feb 2003 10:41:55 -0500
+Date: Wed, 5 Feb 2003 15:51:27 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: fbcon scrolling madness + fbset corruption
+Message-ID: <20030205155127.B28758@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	James Simmons <jsimmons@infradead.org>
+References: <20030119200340.A13758@flint.arm.linux.org.uk> <1043026112.988.4.camel@localhost.localdomain> <20030202195744.C32007@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302051500.KAA05879@moss-shockers.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Feb 05, 2003 at 10:00:23AM -0500
+In-Reply-To: <20030202195744.C32007@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sun, Feb 02, 2003 at 07:57:44PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 10:00:23AM -0500, Stephen D. Smalley wrote:
-> No.  If one were to add such a field, then it would be accessible
-> through the ctl_table structure that is already passed to the hook.
+No one's commented on this yet.
 
-It would.  But it shouldn't be passed in for the first time.
+James?
 
-> You would not replace the ctl_table parameter with the kernel's
-> sensitivity hint, since the security module must be able to make its
-> own determination as to the protection requirements based on its
-> particular security model and attributes.  If you only pass the
-> kernel's view of the sensitivity, then you are hardcoding a specific
-> policy into the kernel and severely limiting the flexibility of the
-> security module.
+On Sun, Feb 02, 2003 at 07:57:44PM +0000, Russell King wrote:
+> This doesn't appear to solve the ywrap problem - I still get
+> places where the screen doesn't scroll.  I decided to write a
+> small program to dump out the contents of fb_var_screeninfo, and
+> where stuff goes horribly wrong:
+> 
+> bash-2.04# ./tst
+> Visible: 1280x1024
+> Virtual: 1280x1632
+> BPP    : 8
+> Offset : +0+2352
+> bash-2.04# ./tst
+> Visible: 1280x1024
+> Virtual: 1280x1632
+> BPP    : 8
+> Offset : +0+2392
+> 
+> Up to the point where it goes wrong:
+> 
+> bash-2.04# ./tst
+> Visible: 1280x1024
+> Virtual: 1280x1632
+> BPP    : 8
+> Offset : +0+528
+> bash-2.04# ./tst
+> Visible: 1280x1024
+> Virtual: 1280x1632
+> BPP    : 8
+> Offset : +0+568
+> bash-2.04# ./tst
+> Visible: 1280x1024	<--- this is the last line on the screen
+> Virtual: 1280x1632
+> BPP    : 8
+> Offset : +0+608
+> bash-2.04#
+> 
+> So it looks like something isn't limiting the yoffset in the generic
+> console layer; an xoffset of 2392 when the maximum virtual Y is 1632
+> is just nonsense.
+> 
+> I also noticed an additional problem with fbcon: if I change the
+> resolution using fbset, the change occurs, except I end up with
+> corrupted mess on the screen (the reminents of the original display.)
+> The shell prompt is nowhere to be seen.
+> 
+> Hitting ^L clears the screen and then the shell prompt is visiable.
 
-Yes, and exactly that's the whole point of it!  The problem with LSM
-is that it tries to be overly flexible and thus adds random hooks that
-expose internal details all over the place.  Just stop that silly no policy
-approach and life will get a lot simpler.  There's no reason to implement
-everything and a kitchen sink in LSM.
-
-Since the kernel's hint is necessarily independent of
-> any particular security model/attributes, it will only provide a
-> coarse-grained partitioning, e.g. you are unlikely to be able to
-> uniquely distinguish the modprobe variable if you want to specifically
-> limit a particular process to modifying it.  The existing hook
-> interface does not need to change.
-
-If you need attributes attached to the sysctl nodes just diable sysctl by
-number and use the existing filesystem based hooks.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

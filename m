@@ -1,91 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUGSFgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUGSGCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUGSFgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 01:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUGSFgq
+	id S264702AbUGSGCn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 02:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUGSGCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 01:36:46 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:56525 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S264097AbUGSFgn (ORCPT
+	Mon, 19 Jul 2004 02:02:43 -0400
+Received: from ozlabs.org ([203.10.76.45]:31953 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264702AbUGSGCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 01:36:43 -0400
-Date: Mon, 19 Jul 2004 09:36:40 +0400
-From: Andrey Panin <pazke@donpac.ru>
-To: Torsten Scheck <torsten.scheck@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PIIX4 ACPI device - hardwired IRQ9
-Message-ID: <20040719053640.GE32614@pazke>
-Mail-Followup-To: Torsten Scheck <torsten.scheck@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <40F41D22.5080603@gmx.de>
+	Mon, 19 Jul 2004 02:02:40 -0400
+Date: Mon, 19 Jul 2004 15:55:42 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page align emergency stack
+Message-ID: <20040719055542.GC11586@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+References: <20040715145708.GG27715@krispykreme> <20040716004729.GA24753@zax> <20040716011141.GC17574@krispykreme> <20040716013901.GC24753@zax>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3O1VwFp74L81IIeR"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40F41D22.5080603@gmx.de>
+In-Reply-To: <20040716013901.GC24753@zax>
 User-Agent: Mutt/1.5.6+20040523i
-X-SMTP-Authenticated: pazke@donpac.ru (cram)
-X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 16, 2004 at 11:39:01AM +1000, David Gibson wrote:
+> 
+> On Fri, Jul 16, 2004 at 11:11:41AM +1000, Anton Blanchard wrote:
+> >
+> >
+> > > Do we actually need to do this?  I noted that the old guard pages were
+> > > page aligned, but couldn't see any particular reason for it, so I
+> > > didn't transfer the alignment to the new version.
+> >
+> > The ABI requires us to have 128 bit alignment doesnt it? Im thinking
+> > about what would happen if we saved altivec registers to the stack.
+> 
+> Ok, that's not quite the same thing as page alignment...
 
---3O1VwFp74L81IIeR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, here's a patch that just applies the weaker 128-byte alignment
+constraint.
 
-On 195, 07 13, 2004 at 07:34:26PM +0200, Torsten Scheck wrote:
-> Dear friends:
->=20
-> Please excuse my ignorance: Does the indicated line below have any other=
-=20
-> purpose apart from making me comment it and recompile the kernel to get=
-=20
-> my soundcard working? ;-)
->=20
-> kernel-source-2.4.26/arch/i386/kernel/pci-pc.c
-> static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
->         /* PIIX4 ACPI device: hardwired IRQ9 */
->  =3D=3D=3D>   d->irq =3D 9;
->=20
-> $ isapnp /etc/isapnp.conf
-> /etc/isapnp.conf:167 -- Fatal - resource conflict allocating IRQ9
-> (see pci)
-> /etc/isapnp.conf:167 -- Fatal - Error occurred executing request
-> 'IRQ 9' --- further action aborted
->=20
-> My soundcard is a Terratec EWS64 XL. I successfully use the=20
-> sam9407-1.0.4 driver after a proper isapnp configuration, i.e. comment=20
-> the hardwired IRQ9 line, compile the kernel, run isapnp.
->=20
->=20
-> If there should be really no other purpose I recommend to comment the=20
-> line, so I can use a precompiled kernel from now on. :-)
+Andrew, please apply
 
-The answer is simple: don't use isapnptools with 2.4 kernel,
-drivers should use kernel ISA PnP subsystem instead.
+The PPC64 ABI requires the stack to be 128 byte aligned (and that can
+become important if AltiVec registers are saved there).  In the
+kernel, that's usually dealt with by the fact that the stack has a
+page more-or-less to itself.  However, the emergency stacks (used in
+SMP bringup and when we detect a bad stack pointer) aren't necessarily
+page aligned, or anything aligned for that matter.  This patch applies
+the necessary alignement constraint to them.
 
-Unfortunately the sam9407-1.0.4 is extremely ugly piece of code and
-no person sane enough will touch it (for the good summ of money perhaps :)
+Signed-off-by: David Gibson <dwg@au.ibm.com>
 
-So the real thing you need is sam9407 driver rewritten from scrath :(
+Index: working-2.6/arch/ppc64/kernel/pacaData.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/kernel/pacaData.c
++++ working-2.6/arch/ppc64/kernel/pacaData.c
+@@ -29,8 +29,10 @@
+ 
+ /* Stack space used when we detect a bad kernel stack pointer, and
+  * early in SMP boots before relocation is enabled.
++ *
++ * ABI requires stack to be 128-byte aligned
+  */
+-char emergency_stack[PAGE_SIZE * NR_CPUS];
++char emergency_stack[PAGE_SIZE * NR_CPUS] __attribute__((aligned(128)));
+ 
+ /* The Paca is an array with one entry per processor.  Each contains an 
+  * ItLpPaca, which contains the information shared between the 
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
-
---3O1VwFp74L81IIeR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA+13oby9O0+A2ZecRAn9UAJ9mPvrLmTCoBq3ITNfkx3KbKe2n/QCfYMHZ
-tQLJ8hP0wIFD0pC3xgd2oLM=
-=oep3
------END PGP SIGNATURE-----
-
---3O1VwFp74L81IIeR--
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273191AbRIJEJX>; Mon, 10 Sep 2001 00:09:23 -0400
+	id <S273189AbRIJEEy>; Mon, 10 Sep 2001 00:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273192AbRIJEJN>; Mon, 10 Sep 2001 00:09:13 -0400
-Received: from mail.tconl.com ([204.26.80.9]:45322 "EHLO hermes.tconl.com")
-	by vger.kernel.org with ESMTP id <S273191AbRIJEJF>;
-	Mon, 10 Sep 2001 00:09:05 -0400
-Message-ID: <3B9C3CE9.D33DEE5@tconl.com>
-Date: Sun, 09 Sep 2001 23:09:13 -0500
-From: Joe Fago <cfago@tconl.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.5 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jacob@chaos2.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9: PDC20267 not working
-In-Reply-To: <Pine.LNX.4.21.0109091843220.31509-100000@inbetween.blorf.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S273190AbRIJEEo>; Mon, 10 Sep 2001 00:04:44 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:53947 "EHLO snfc21.pbi.net")
+	by vger.kernel.org with ESMTP id <S273189AbRIJEE0>;
+	Mon, 10 Sep 2001 00:04:26 -0400
+Date: Sun, 09 Sep 2001 21:04:41 -0700 (PDT)
+From: Chris Rankin <rankinc@pacbell.net>
+Subject: PATCH: Basic devfs support for raw IO
+To: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Message-id: <200109100404.f8A44fi00670@twopit.underworld>
+MIME-version: 1.0
+X-Mailer: ELM [version 2.5 PL3]
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacob Luna Lundberg wrote:
-> 
-> On Sun, 9 Sep 2001, Joe Fago wrote:
-> 
-> > System hangs on boot:
-> 
-> > PDC20267: IDE controller on PCI bus 00 dev 40
-> 
-> > This is the only device attached to the controller. Any suggestions?
-> 
-> I have seen this before.  I have a system that will do it every time right
-> now, in fact.  You can try setting interrupts to edge-triggered in your
-> BIOS if it has such an option; this usually ``fixes'' the problem for me.
-> Of course, it will mean you can't share PCI interrupts, if I understand it
-> correctly.  However, I'm not sure what's going on and nobody has commented
-> on it thus far that I know of.  :(
-> 
-> -Jacob
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Hi,
+I have written a small patch to create a /dev/rawctl device node and a
+/dev/raw directory using devfs. Any feedback would be welcome - it
+certainly seems to work on my box.
 
-Thanks, that worked -- well the opposite worked. I had to set mine to 
-triggered by `level' rather than `edge'. But I never would have suspected
-it if you hadn't brought it up.
+Cheers,
+Chris
 
-Thanks Again,
-Joe
+--- drivers/char/raw.c.orig	Wed Jun 27 17:10:55 2001
++++ drivers/char/raw.c	Sat Sep  1 14:54:43 2001
+@@ -15,6 +15,7 @@
+ #include <linux/raw.h>
+ #include <linux/capability.h>
+ #include <linux/smp_lock.h>
++#include <linux/devfs_fs_kernel.h>
+ #include <asm/uaccess.h>
+ 
+ #define dprintk(x...) 
+@@ -53,7 +54,24 @@
+ static int __init raw_init(void)
+ {
+ 	int i;
+-	register_chrdev(RAW_MAJOR, "raw", &raw_fops);
++
++	if (devfs_register_chrdev(RAW_MAJOR, "raw", &raw_fops) != 0) {
++		printk(KERN_ERR "Unable to get major device %d for raw block devices",
++		                RAW_MAJOR);
++	} else {
++		/*
++		 * Make a directory for raw devices to go in ...
++		 */
++		devfs_mk_dir(NULL, "raw", NULL);
++
++		/*
++		 * Make the "control" device node for raw devices ...
++		 */
++		devfs_register(NULL, "rawctl", DEVFS_FL_DEFAULT,
++		               RAW_MAJOR, 0,
++		               S_IFCHR | S_IRUSR | S_IWUSR,
++		               &raw_fops, NULL);
++	}
+ 
+ 	for (i = 0; i < 256; i++)
+ 		init_MUTEX(&raw_devices[i].mutex);

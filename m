@@ -1,63 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133029AbRA0QUW>; Sat, 27 Jan 2001 11:20:22 -0500
+	id <S129292AbRA0QbF>; Sat, 27 Jan 2001 11:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135181AbRA0QUM>; Sat, 27 Jan 2001 11:20:12 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47629 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S133029AbRA0QTy>; Sat, 27 Jan 2001 11:19:54 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: ps hang in 241-pre10
-Date: 27 Jan 2001 08:19:42 -0800
-Organization: Transmeta Corporation
-Message-ID: <94useu$etc$1@penguin.transmeta.com>
-In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com> <3A7285D4.9409E63A@linux.com>
+	id <S129399AbRA0Qaz>; Sat, 27 Jan 2001 11:30:55 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:22798 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129292AbRA0Qau>;
+	Sat, 27 Jan 2001 11:30:50 -0500
+Message-ID: <3A72F7B0.9F6AA989@mandrakesoft.com>
+Date: Sat, 27 Jan 2001 11:30:40 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+CC: linux-kernel@vger.kernel.org, Scott Robinson <scott@tranzoa.com>
+Subject: Re: eepro100 problems in 2.4.0
+In-Reply-To: <006601c08711$4bdfb600$9b2f4189@angelw2k> <3A709504.5599E0F7@mandrakesoft.com> <3A70985F.E5A0AB7F@mandrakesoft.com> <20010126085037.B467@saw.sw.com.sg>
+Content-Type: multipart/mixed;
+ boundary="------------D52E08EA32A9D859913BF258"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A7285D4.9409E63A@linux.com>, David Ford  <david@linux.com> wrote:
->I can quickly and easily duplicate it on my notebook by playing music or
->mpegs in xmms.  It may take a few minutes but it's guaranteed.
->
->xmms stalls flat on it's face and anything accessing /proc stalls.  If I get
->the time to do it, I'll take a gander at it with kdb.
+This is a multi-part message in MIME format.
+--------------D52E08EA32A9D859913BF258
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Please, if you see something like this, just do a simple
-<Alt+ScrollLock> followed by <Ctrl+ScrollLock> while in text-mode. The
-magic keystrokes will give a stack trace of the currently running
-process and all processes respectively.
+Andrey Savochkin wrote:
+> 
+> Hi,
+> 
+> On Thu, Jan 25, 2001 at 04:19:27PM -0500, Jeff Garzik wrote:
+> > Oops, sorry guys.  Thanks to DaveM for correcting me -- my patch has
+> > nothing to do with the "card reports no resources" problem.  My
+> > apologies.
+> 
+> No problems.
+> 
+> However, there is a real problem with eepro100 when the system resumes
+> operations after a sleep.
+> May be, you could guess what's wrong in this case?
 
-Then, just look in your /var/log/messages, and if you have everything
-set up correctly the system should have done the conversion to symbolic
-kernel addresses for you - so you can see directly where the different
-processes are sleeping.
+The regions shouldn't be disabled, the attached patch (against
+2.4.1-pre10) adds a call to pci_enable_device to enable things in
+eepro100_resume().
 
-Sanity-check that your System.map information (and thus the symbolic
-conversion) ooks to be ok: the processes that hang should show up in the
-trace as being in __down_failed() or something like that. Tha only
-reason for a hang with /proc/<pid>/ tends to be that some process would
-have deadlocked on it's MM semaphore or is somehow stuck inside it's
-critical region on something else.
+It also includes the patch I posted previously; the patch itself is
+correct -- the pci_enable_device call should be moved up -- however it
+was my description of the patch ("fixes 'card has no resources'") which
+was completely incorrect.
 
-Finally, try to pinpoint _which_ process it is. Usully most easily done
-by simply seeing where it is that the /proc accesses get stuck, with
-something simple like
+Scott, does the attached patch help you out?
 
-	cd /proc
-	for i in [0-9]*; do
-	  echo $i
-	  cat $i/stat > /dev/null
-	done
+	Jeff
 
-and see what the last pid it printed out was (not that the above
-guarantees that you found the thing, because there might be several
-things. But it's one more piece to the puzzle).
 
-And send the information to the kernel mailing list, along with anything
-else you might think of.
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
+--------------D52E08EA32A9D859913BF258
+Content-Type: text/plain; charset=us-ascii;
+ name="eepro100.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="eepro100.patch"
 
-		Linus
+Index: linux_2_4/drivers/net/eepro100.c
+diff -u linux_2_4/drivers/net/eepro100.c:1.1.1.9 linux_2_4/drivers/net/eepro100.c:1.1.1.9.42.4
+--- linux_2_4/drivers/net/eepro100.c:1.1.1.9	Sat Nov 25 15:53:20 2000
++++ linux_2_4/drivers/net/eepro100.c	Sat Jan 27 08:27:00 2001
+@@ -560,6 +560,9 @@
+ 	if (speedo_debug > 0  &&  did_version++ == 0)
+ 		printk(version);
+ 
++	if (pci_enable_device(pdev))
++		return -EIO;
++
+ 	if (!request_region(pci_resource_start(pdev, 1),
+ 			pci_resource_len(pdev, 1), "eepro100")) {
+ 		printk (KERN_ERR "eepro100: cannot reserve I/O ports\n");
+@@ -598,9 +601,6 @@
+ 		acpi_idle_state = pwr_command & PCI_PM_CTRL_STATE_MASK;
+ 	}
+ 
+-	if (pci_enable_device(pdev))
+-		goto err_out_free_mmio_region;
+-
+ 	pci_set_master(pdev);
+ 
+ 	if (speedo_found1(pdev, ioaddr, cards_found, acpi_idle_state) == 0)
+@@ -2146,6 +2146,13 @@
+ 	struct net_device *dev = pdev->driver_data;
+ 	struct speedo_private *sp = (struct speedo_private *)dev->priv;
+ 	long ioaddr = dev->base_addr;
++
++	/* Make sure power state is D0, a.k.a. alive, and also
++	 * make sure PIO and MMIO are active.  Apparently some
++	 * cases exist where PCI_COMMAND_{IO,MEM} is not set when
++	 * we return from resume. -jgarzik
++	 */
++	pci_enable_device(pdev);
+ 
+ 	/* I'm absolutely uncertain if this part of code may work.
+ 	   The problems are:
+
+--------------D52E08EA32A9D859913BF258--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261505AbRE1XFt>; Mon, 28 May 2001 19:05:49 -0400
+	id <S261550AbRE1XL7>; Mon, 28 May 2001 19:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261513AbRE1XFj>; Mon, 28 May 2001 19:05:39 -0400
-Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:19474 "HELO
-	mail.thock.com") by vger.kernel.org with SMTP id <S261505AbRE1XF0>;
-	Mon, 28 May 2001 19:05:26 -0400
-Message-ID: <3B12D212.28C2B01D@bigfoot.com>
-Date: Mon, 28 May 2001 16:32:50 -0600
-From: Dylan Griffiths <Dylan_G@bigfoot.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Broken memory init on VIA KX133
-In-Reply-To: <E154UXz-0003Yl-00@the-village.bc.nu>
+	id <S261616AbRE1XLt>; Mon, 28 May 2001 19:11:49 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:15920
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S261550AbRE1XLi>; Mon, 28 May 2001 19:11:38 -0400
+Date: Tue, 29 May 2001 00:11:34 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch]: ide dma timeout retry in pio
+Message-ID: <20010529001134.C29504@work.bitmover.com>
+Mail-Followup-To: Meelis Roos <mroos@linux.ee>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010528231809.A29504@work.bitmover.com> <E154VwD-0005CB-00@roos.tartu-labor>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E154VwD-0005CB-00@roos.tartu-labor>; from mroos@linux.ee on Tue, May 29, 2001 at 12:56:37AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> >       I'm wondering if anyone knows/has a fix for memory past 64mb not
-being
-> > detected (unless you use append="mem=...M" in lilo) on the Via VT8371
-> > [KX133] North bridge.   (Please CC any replies since I'm off kernel list
-> > atm.)
+On Tue, May 29, 2001 at 12:56:37AM +0200, Meelis Roos wrote:
+> LM> For what it is worth, in the recent postings I made about this topic, you
+> LM> suggested that it was bad cabling, I swapped the cabling, same problem.
+> LM> I swapped the mother board from Abit K7T to ASUS A7V and all cables worked
+> LM> fine.
 > 
-> Consult your BIOS vendor
+> Similar info about KT7 - changing cables (both 30 and 80 wire) on Abit KT7 did
+> not help, still CRC errors (with all disks tried). So it looks like some KT7
+> boards have problems with IDE interface cabling or smth. like that.
 
-Actually, I just did some additional testing (as this was not an issue with
-FreebSD 4.2, Win2k, Win98 on the same hardware).  The problem I describe was
-fixed in 2.2.19 -- where Linux now properly uses e820 instead of a legacy
-BIOS call to determine memory size.
+I don't think it is a cabling problem, I think it is that motherboard.  I
+suspect that the chipset on that motherboard is not well supported by
+Linux.  
 
---
-    www.kuro5hin.org -- technology and culture, from the trenches.
+As an aside, I am less than impressed with the IDE support in Linux.
+It's been a constant source of problems for the last couple of years
+and it doesn't seem to get fixed.  We seem to get lots of chip sets 
+almost working and then move on to the next one.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSGMPqw>; Sat, 13 Jul 2002 11:46:52 -0400
+	id <S315162AbSGMPvW>; Sat, 13 Jul 2002 11:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315120AbSGMPqv>; Sat, 13 Jul 2002 11:46:51 -0400
-Received: from dingo.clsp.jhu.edu ([128.220.34.67]:29389 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314835AbSGMPqv>;
-	Sat, 13 Jul 2002 11:46:51 -0400
-Date: Sat, 13 Jul 2002 16:15:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1-ac3
-Message-ID: <20020713141543.GC163@elf.ucw.cz>
-References: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S315167AbSGMPvV>; Sat, 13 Jul 2002 11:51:21 -0400
+Received: from pD9E23254.dip.t-dialin.net ([217.226.50.84]:53632 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315162AbSGMPvU>; Sat, 13 Jul 2002 11:51:20 -0400
+Date: Sat, 13 Jul 2002 09:54:00 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Undefined references to "jiffies" on sparc64
+Message-ID: <Pine.LNX.4.44.0207130933190.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out]
-> 
-> This is mostly a housekeeping patch designed to shrink diff sizes down
-> and get ready for 2.4.20pre merging. Promise users please test this with
-> *caution*. It should fix large drives on the 20262/3 but change nothing
-> else but namings.
-> 
-> Linux 2.4.19rc1-ac3
-> o	Remove SWSUSPEND
-> 	| With the IDE backport option and other general 2.5 improvements
-> 	| its now best worked on in 2.5
+Using 2.5.25 with 
+<URL:ftp://luckynet.dynu.com/pub/linux/2.5.25-ct1/patch-2.5.25-ct1.bz2>, I 
+get lots of unsigned references to "jiffies" when compiling on sparc64. Do 
+jiffies have to be defined in some special location, apart from 
+linux/jiffies.h? I can't  find them on i386, either.
 
-Do you have this patch separated somewhere? Lot of people still looks
-interested in 2.4. [If you don't I'll probably just extract it from
-ac2-to-ac3 diff].
-								Pavel
+							Regards,
+							Thunder
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+
+
+

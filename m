@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266298AbTBQDWR>; Sun, 16 Feb 2003 22:22:17 -0500
+	id <S266330AbTBQDhR>; Sun, 16 Feb 2003 22:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266330AbTBQDWR>; Sun, 16 Feb 2003 22:22:17 -0500
-Received: from manchaca.ece.utexas.edu ([128.83.59.38]:138 "EHLO
-	manchaca.ece.utexas.edu") by vger.kernel.org with ESMTP
-	id <S266298AbTBQDWQ>; Sun, 16 Feb 2003 22:22:16 -0500
-Message-ID: <3E5057A7.80909@ece.utexas.edu>
-Date: Sun, 16 Feb 2003 21:31:51 -0600
-From: yi <yi@ece.utexas.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: tcp window size
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266368AbTBQDhR>; Sun, 16 Feb 2003 22:37:17 -0500
+Received: from crack.them.org ([65.125.64.184]:35517 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S266330AbTBQDhQ>;
+	Sun, 16 Feb 2003 22:37:16 -0500
+Date: Sun, 16 Feb 2003 22:46:44 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.53 not compiling
+Message-ID: <20030217034644.GA10083@nevyn.them.org>
+Mail-Followup-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>,
+	linux-kernel@vger.kernel.org
+References: <20030216182512.GB4861@nevyn.them.org> <Pine.SOL.3.96.1030217085753.27558A-100000@osiris.csa.iisc.ernet.in>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.3.96.1030217085753.27558A-100000@osiris.csa.iisc.ernet.in>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+On Mon, Feb 17, 2003 at 09:03:30AM +0530, Rahul Vaidya wrote:
+> The command ./gcc -v -iwithprefix include -E - < /dev/null
+> from the directory containing the actual gcc file.
+> 
+> Reading specs from ./../lib/gcc-lib/i686-pc-linux-gnu/3.2/specs
+> Configured with: ../gcc-3.2/configure --prefix=/usr/local/gcc-3.2
 
-I apologize for my naive question. However, I think it's good way to ask 
-my question to linux-kernel gurus here.
+>  ../lib/gcc-lib/i686-pc-linux-gnu/3.2/include
 
-Basically, I want to add a system call which return the window size of 
-the corresponding tcp connection. It should have a parameter of socket 
-descriptor. (Say, get_winsize( int sock ) )
+And isn't that the right directory?  Try building a kernel this way.
 
-My question is which in-kernel data structure has the window size value 
-of the ongoing tcp connection and how can I get that value from the 
-socket descriptor. Actually, the question is related with the linkage of 
-data structures from the socket to the tcp window size.
-
-If you know any link or documentation, please let me know.
-
-Thanks in advance.
-
-- Yung Yi.
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

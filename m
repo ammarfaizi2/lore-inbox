@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262060AbSI3Ncl>; Mon, 30 Sep 2002 09:32:41 -0400
+	id <S262062AbSI3Nln>; Mon, 30 Sep 2002 09:41:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262058AbSI3Ncl>; Mon, 30 Sep 2002 09:32:41 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:34715 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S262060AbSI3Nck>; Mon, 30 Sep 2002 09:32:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Michael Clark <michael@metaparadigm.com>,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: v2.6 vs v3.0
-Date: Mon, 30 Sep 2002 08:05:57 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200209290114.15994.jdickens@ameritech.net> <20020929214652.GF12928@merlin.emma.line.org> <3D97F7AE.5070304@metaparadigm.com>
-In-Reply-To: <3D97F7AE.5070304@metaparadigm.com>
-MIME-Version: 1.0
-Message-Id: <02093008055700.15956@boiler>
-Content-Transfer-Encoding: 7BIT
+	id <S262063AbSI3Nln>; Mon, 30 Sep 2002 09:41:43 -0400
+Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:27039 "EHLO
+	kermit.unets.com") by vger.kernel.org with ESMTP id <S262062AbSI3Nlm>;
+	Mon, 30 Sep 2002 09:41:42 -0400
+Subject: Re: 2.5.39 XConfig Processor Detection
+From: Adam Voigt <adam@cryptocomm.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020930133057.GA8868@suse.de>
+References: <Pine.NEB.4.44.0209301257210.12605-100000@mimas.fachschaften.tu-muenchen.de>
+	 <1033389340.16337.14.camel@irongate.swansea.linux.org.uk>
+	<20020930.052555.123500588.davem@redhat.com>
+	<1033391751.16468.51.camel@irongate.swansea.linux.org.uk>
+	<1033392021.1491.6.camel@beowulf.internetstore.com> 
+	<20020930133057.GA8868@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 30 Sep 2002 09:48:10 -0400
+Message-Id: <1033393690.1487.14.camel@beowulf.internetstore.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 30 Sep 2002 13:47:08.0242 (UTC) FILETIME=[DE7D4320:01C26887]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 September 2002 02:05, Michael Clark wrote:
-> On 09/30/02 05:46, Matthias Andree wrote:
-> >
-> > Is not EVMS ready for the show? Is Linux >=2.6 going to have LVM2 and
-> > EVMS? Or just LVM2? I'm not aware of the current status, but I do recall
-> > having seen EVMS stable announcements (but not sure about 2.5 status).
->
->  From reading the EVMS list, it was working with 2.5.36 a couple weeks
-> ago but needs some small bio and gendisk changes to work in 2.5.39.
->
-> http://sourceforge.net/mailarchive/forum.php?thread_id=1105826&forum_id=2003
->
-> CVS version may be up-to-date quite soon from reading the thread.
-> It seems to be further along in 2.5 support than LVM2 - also including
-> the fact that EVMS supports LVM1 metadata (which the 2.5 version of LVM2
-> may not do so quite so soon from mentions on the lvm list).
->
-> I haven't tried EVMS but certainly from looking at the feature set,
-> it looks more comprehensive and modular than LVM (with its support
-> for multiple metadata personalities).
->
-> I too have LVM on quite a few of my machines, including my desktop,
-> and if I wanted to test 2.5 right now - i'd probably have to do it
-> using EVMS.
+Ahh, that would make sense then. Well I feel kind of dumb, I
+just naturally assumed you had a built in feature that read
+the /proc for current hardware or something (and since it worked
+for me once (when the Athlon was the default)). Heh, well you
+learn something new every day.
 
-EVMS is now up-to-date and running on 2.5.39. You can get the latest kernel 
-code from CVS (http://sourceforge.net/cvs/?group_id=25076) or Bitkeepr 
-(http://evms.bkbits.net/). There will be a new, full release (1.2) coming out 
-this week.
+Adam Voigt
+adam.voigt@cryptocomm.com
 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+On Mon, 2002-09-30 at 09:30, Dave Jones wrote:
+> On Mon, Sep 30, 2002 at 09:20:21AM -0400, Adam Voigt wrote:
+>  > Apologies if this has already been noted or if I'm posting
+>  > this to the wrong place/annoying you very busy people needlessly,
+>  > but when I run XConfig, in the "Processor Type and Features" tab
+>  > it autodetects my processor as a Pentium-4 when in fact it is a
+>  > P3 700MHZ. The last time I installed a kernel (2.4.x) by hand, it did
+>  > autodetect the processor on that machine (Athlon), so I assume that
+>  > feature is still active. Anyways, here's the output from my cpuinfo:
+> 
+>  There's no 'autodetect' feature.
+>  Only defconfig, which sets the default option.
+>  These defaults match whatever Linus is currently using, so
+>  it seems he upgraded his Athlon box to a P4 8-)
+> 
+>  Dave
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+
+

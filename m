@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314542AbSDSEFB>; Fri, 19 Apr 2002 00:05:01 -0400
+	id <S314544AbSDSERD>; Fri, 19 Apr 2002 00:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314543AbSDSEFA>; Fri, 19 Apr 2002 00:05:00 -0400
-Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:18129 "EHLO
-	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S314542AbSDSEFA> convert rfc822-to-8bit; Fri, 19 Apr 2002 00:05:00 -0400
-Message-ID: <3CBF996D.1070900@wanadoo.fr>
-Date: Fri, 19 Apr 2002 06:13:33 +0200
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] ide-2.4.19-p7.all.convert.5.patch
-In-Reply-To: <Pine.LNX.4.10.10204182030140.17538-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S314545AbSDSERC>; Fri, 19 Apr 2002 00:17:02 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:40200 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S314544AbSDSERB>;
+	Fri, 19 Apr 2002 00:17:01 -0400
+Date: Fri, 19 Apr 2002 00:12:08 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Stevie O <stevie@qrpff.net>
+Cc: Larry McVoy <lm@bitmover.com>, Kent Borg <kentborg@borg.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Versioning File Systems?
+Message-ID: <20020419001208.A14615@mark.mielke.cc>
+In-Reply-To: <20020418110558.A16135@borg.org> <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com> <5.1.0.14.2.20020418191904.028f1290@whisper.qrpff.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.5.patch.bz2
-> 
-> This now has clean taskfile io tested on two archs.
-> 
-> Both PowerMac UP and x86 all appear stable with taskfile io enabled.
-> PPC well generate a random missed interrupt in mult-mode pio on a sync
-> call but it never misses a beat or hangs.
-> 
-> Feed back from a few people have stated Sparc ?? amnd PPC64 appear stable.
-> 
-> IA-64 is the only know broken arch.  Since returning the heater^WItanic^box 
-> testing various hardware there is not practical.
-> 
-> Cheers and Complain if it does not work.
+On Thu, Apr 18, 2002 at 07:19:47PM -0400, Stevie O wrote:
+> At 08:20 AM 4/18/2002 -0700, Larry McVoy wrote:
+> >It's certainly a fun space, file system hacking is always fun.  There
+> >doesn't seem to be a good match between file system operations and
+> >SCM operations, especially stuff like checkin.  write != checkin.
+> >But you can handle that with
+> How about
+>         fsync(fd) || close(fd) == checkin?
 
-Testing begins immediately on 3 different comps (x86) with
-different IDE controllers and hard drives.
+Source management systems usually work much better given explicit
+control for the user.
 
-> Andre Hedrick
-> LAD Storage Consulting Group
+ClearCase has MVFS to do what is being suggested. Compare:
 
-I'll report any bugs / unusual behaviour.
+    cat a.c                 # currently selected version of a.c
+    cat a.c@@/main/5        # version 5 on the main branch
 
-François Cami
+    cat a.c@@LINUX_2.4.18   # the version of a.c selected by the
+                            # label 'LINUX_2.4.18'
 
+Having a file system that implicitly performs these operations is
+not very useful.
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

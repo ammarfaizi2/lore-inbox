@@ -1,55 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVBCHE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVBCHJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbVBCHE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 02:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVBCHE1
+	id S262505AbVBCHJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 02:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVBCHJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 02:04:27 -0500
-Received: from waste.org ([216.27.176.166]:6021 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262353AbVBCHEW (ORCPT
+	Thu, 3 Feb 2005 02:09:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:24233 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262995AbVBCHIO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 02:04:22 -0500
-Date: Wed, 2 Feb 2005 23:04:15 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Ethan Weinstein <lists@stinkfoot.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: e1000, sshd, and the infamous "Corrupted MAC on input"
-Message-ID: <20050203070415.GC17460@waste.org>
-References: <42019E0E.1020205@stinkfoot.org>
+	Thu, 3 Feb 2005 02:08:14 -0500
+Date: Thu, 3 Feb 2005 08:08:07 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Olien <dmo@osdl.org>, linux-kernel@vger.kernel.org,
+       agk@sourceware.org, dm-devel@redhat.com
+Subject: Re: [PATCH] add local bio pool support and modify dm
+Message-ID: <20050203070803.GA8094@suse.de>
+References: <20050202064720.GA7436@osdl.org> <20050202181924.395165fe.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42019E0E.1020205@stinkfoot.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050202181924.395165fe.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 10:44:14PM -0500, Ethan Weinstein wrote:
-> Hey all,
+On Wed, Feb 02 2005, Andrew Morton wrote:
+> Dave Olien <dmo@osdl.org> wrote:
+> >
+> >  +extern inline void zero_fill_bio(struct bio *bio)
+> >  +{
+> >  +	unsigned long flags;
+> >  +	struct bio_vec *bv;
+> >  +	int i;
+> >  +
+> >  +	bio_for_each_segment(bv, bio, i) {
+> >  +		char *data = bvec_kmap_irq(bv, &flags);
+> >  +		memset(data, 0, bv->bv_len);
+> >  +		flush_dcache_page(bv->bv_page);
+> >  +		bvec_kunmap_irq(data, &flags);
+> >  +	}
+> >  +}
 > 
-> I've been having quite a time with the e1000 driver running at gigabit 
-> speeds.  Running it at 100Fdx has never been a problem, which I've done 
-> done for a long time. Last week I picked up a gigabit switch, and that's 
-> when the trouble began.  I find that transferring large amounts of data 
-> using scp invariably ends up with sshd spitting out "Disconnecting: 
-> Corrupted MAC on input."  After deciding I must have purchased a bum 
-> switch, I grabbed another model.. only to get the same error.
-> Finally, I used a crossover cable between the two boxes, which resulted 
-> in the same error from sshd again.
+> heavens.  Why was this made inline?  And extern inline?
+> 
+> It's too big for inlining (and is super-slow anyway) and will cause all
+> sorts of unpleasant header file dependencies for all architectures.  bio.h
+> now needs to see the implementation of everyone's flush_dcache_page(), for
+> example.
+> 
+> 
+> Something like this?
+> 
+> --- 25/include/linux/bio.h~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio	2005-02-02 18:17:18.225901376 -0800
+> +++ 25-akpm/include/linux/bio.h	2005-02-02 18:17:18.230900616 -0800
+> @@ -286,6 +286,7 @@ extern void bio_set_pages_dirty(struct b
+>  extern void bio_check_pages_dirty(struct bio *bio);
+>  extern struct bio *bio_copy_user(struct request_queue *, unsigned long, unsigned int, int);
+>  extern int bio_uncopy_user(struct bio *);
+> +void zero_fill_bio(struct bio *bio);
+>  
+>  #ifdef CONFIG_HIGHMEM
+>  /*
+> @@ -335,18 +336,4 @@ extern inline char *__bio_kmap_irq(struc
+>  	__bio_kmap_irq((bio), (bio)->bi_idx, (flags))
+>  #define bio_kunmap_irq(buf,flags)	__bio_kunmap_irq(buf, flags)
+>  
+> -extern inline void zero_fill_bio(struct bio *bio)
+> -{
+> -	unsigned long flags;
+> -	struct bio_vec *bv;
+> -	int i;
+> -
+> -	bio_for_each_segment(bv, bio, i) {
+> -		char *data = bvec_kmap_irq(bv, &flags);
+> -		memset(data, 0, bv->bv_len);
+> -		flush_dcache_page(bv->bv_page);
+> -		bvec_kunmap_irq(data, &flags);
+> -	}
+> -}
+> -
+>  #endif /* __LINUX_BIO_H */
+> diff -puN fs/bio.c~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio fs/bio.c
+> --- 25/fs/bio.c~add-local-bio-pool-support-and-modify-dm-uninline-zero_fill_bio	2005-02-02 18:17:18.227901072 -0800
+> +++ 25-akpm/fs/bio.c	2005-02-02 18:17:18.231900464 -0800
+> @@ -182,6 +182,21 @@ struct bio *bio_alloc(int gfp_mask, int 
+>  	return bio_alloc_bioset(gfp_mask, nr_iovecs, fs_bio_set);
+>  }
+>  
+> +void zero_fill_bio(struct bio *bio)
+> +{
+> +	unsigned long flags;
+> +	struct bio_vec *bv;
+> +	int i;
+> +
+> +	bio_for_each_segment(bv, bio, i) {
+> +		char *data = bvec_kmap_irq(bv, &flags);
+> +		memset(data, 0, bv->bv_len);
+> +		flush_dcache_page(bv->bv_page);
+> +		bvec_kunmap_irq(data, &flags);
+> +	}
+> +}
+> +EXPORT_SYMBOL(zero_fill_bio);
+> +
+>  /**
+>   * bio_put - release a reference to a bio
+>   * @bio:   bio to release reference to
+> _
 
-Well ssh isn't an especially good test as it's hard to debug.
-
-Try transferring large compressed files via netcat and comparing the
-results. eg:
-
-host1# nc -l -p 2000 > foo.bz2
-
-host2# nc host1 2000 < foo.bz2
-
-If the md5sums differ, follow up with a cmp -bl to see what changed.
-
-Then we can look at the failure patterns and determine if there's some
-data or alignment dependence.
+Yep looks good, thanks Andrew.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Jens Axboe
+

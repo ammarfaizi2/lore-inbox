@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129191AbRCBOZm>; Fri, 2 Mar 2001 09:25:42 -0500
+	id <S129197AbRCBOae>; Fri, 2 Mar 2001 09:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129197AbRCBOZc>; Fri, 2 Mar 2001 09:25:32 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26885 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129191AbRCBOZ2>; Fri, 2 Mar 2001 09:25:28 -0500
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-To: hps@tanstaafl.de
-Date: Fri, 2 Mar 2001 14:28:18 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <97nnil$dn9$1@forge.intermeta.de> from "Henning P. Schmiedehausen" at Mar 02, 2001 09:02:13 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129199AbRCBOaY>; Fri, 2 Mar 2001 09:30:24 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:36346 "HELO
+	burns.conectiva") by vger.kernel.org with SMTP id <S129197AbRCBOaP> convert rfc822-to-8bit;
+	Fri, 2 Mar 2001 09:30:15 -0500
+Date: Fri, 2 Mar 2001 12:32:09 -0300 (EST)
+From: Fernando Fuganti <fuganti@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac8
+In-Reply-To: <E14YcvP-0000Tg-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0103021222191.991-100000@ze.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14YqXd-0001eT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So we would get dual-licensed ReiserFS (BSD and GPL)? 
-> 
-> Are you aware of the legal implications, making your currently
-> GPL-only code BSD-licensed (status of third party patches for the GPL
-> code and so on)?
 
-Read Hans licensing. He's been very careful both to make that clear and
-cover it.
+
+On Thu, 1 Mar 2001, Alan Cox wrote:
+
+> 2.4.2-ac8
+> o	Fix missing watchdog configure.help		(Fernando Fuganti)
+
+was Jakob Østergaard (jakob@unthought.net) that find out that, I just sent
+a new watchdog driver for 2.2 (I'm diffing 2.4 right now)
+
+
+Fernando Fuganti
+
+
+

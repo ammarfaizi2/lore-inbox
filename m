@@ -1,80 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129640AbQK0Sbr>; Mon, 27 Nov 2000 13:31:47 -0500
+        id <S129226AbQK0Sk6>; Mon, 27 Nov 2000 13:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130781AbQK0Sbi>; Mon, 27 Nov 2000 13:31:38 -0500
-Received: from mailb.telia.com ([194.22.194.6]:21253 "EHLO mailb.telia.com")
-        by vger.kernel.org with ESMTP id <S130607AbQK0SbE>;
-        Mon, 27 Nov 2000 13:31:04 -0500
-From: Roger Larsson <roger.larsson@norran.net>
-Date: Mon, 27 Nov 2000 18:58:03 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-To: Mastoras <mastoras@hack.gr>, rtl@rtlinux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.BSF.4.21.0011270332160.9529-100000@papari.hack.gr>
-In-Reply-To: <Pine.BSF.4.21.0011270332160.9529-100000@papari.hack.gr>
-Subject: Re: RTlinux & Linux Question
+        id <S129289AbQK0Sks>; Mon, 27 Nov 2000 13:40:48 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:57852 "HELO
+        matrix.mandrakesoft.com") by vger.kernel.org with SMTP
+        id <S129226AbQK0Skl>; Mon, 27 Nov 2000 13:40:41 -0500
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        Mandrake Install <install@linux-mandrake.com>
+Subject: Re: Universal debug macros.
+In-Reply-To: <200011270045.BAA13121@cave.bitwizard.nl>
+        <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
+        <8vsno2$pc6$1@cesium.transmeta.com>
+        <m3vgt9nykk.fsf@matrix.mandrakesoft.com>
+        <3A229E41.B3C278E2@transmeta.com>
+        <m3aealnvt6.fsf@matrix.mandrakesoft.com>
+        <3A22A0C9.6888B08@transmeta.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 27 Nov 2000 19:10:35 +0100
+In-Reply-To: <3A22A0C9.6888B08@transmeta.com>
+Message-ID: <m366l9nv50.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Message-Id: <00112718580301.01110@dox>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 November 2000 02:36, Mastoras wrote:
-> Hello,
->
->         I'm trying to use RTlinux to make a unix process wakeup
-> periodicaly, in terms of "real time".
+"H. Peter Anvin" <hpa@transmeta.com> writes:
 
-Have I understood correctly - you try to use a RTLinux process to get a
-finer grained periodical wakeup than linux standard 10 ms?
+> It's not that slow compared to a whole distro install, although you would
+> of course want to do it *optionally*.  
 
->
-> 1) the unix process uses 2 system calls, one to make it self periodic, and
-> one to suspend its self until the next period.
->
-> 2) The system call that makes the unix process periodic, creates a Rtlinux
-> thread, which is periodic with the same period.
->
-> 3) The periodic RT linux thread, sets a flag & sends fakes IRQ0 to linux,
-> in order to force its scheduling as soon as possible and then suspends it
-> self. (i know that this advances time, but this is not the question right
-> now).
->
-> 4) The unix process wakeups perfectely when there is no disk activity, but
-> when there is some disk activity ("find /" and/or "updatedb") or the
-> period is too small (300us) i noticed that sometimes it loses one or two
-> periods. This is very rare, i mean 14 loses in 5000 executions at 5ms
-> period.
->
-> 5) The unix process isn't scheduled the appropriate time although that
-> every IRQ is received by linux correctly, the myprocess->counter is
-> initialized to a very high value (in each period) and
-> current->need_resched is set to 1.
->
+that would be for sure, but keep in mind by experiences most people
+sent us a /lot/ of bug reports because they don't know how to do even
+if we wrote (IT IS ONLY FOR EXPERIENCED PEOPLE). Let say a scenario :
 
-You have been hit by the kernel latency, see
-http://www.gardena.net/benno/linux/audio
+dumb^Hjoe user make a expert install even if he don't have any clue
+about what is a kernel or a compiler or even drivers (yep we have some
+users like this)
+joe user choose to compile kernel
+click on everything (sound fun all this checkboxes)
+choose to reboot on his kernel (this sound too cook he can make some
+uname -r on IRC to show ''his'' kernel)
+reboot and sure he put some idiotic options like IDE in modules.
 
-(There are patches)
+as i said it's a very special case but we have so much strangness in
+our buisness...
 
-> 6) I don't want to use PSC.
+You may say  that don't let the user choose the wrong option (ie:
+don't let to choose to put IDE as modules when he has installed on an
+only IDE partition), but there is too much case to handle...
 
-All attempts to guarantee wake up of a linux process within any
-time frame will fail.
-Applying a low latency kernel patch will help - good enough for many
-applications, but no guarantees...
+> You wouldn't want to get into every single option, of course, but I
 
-To get guarantees you need to do your stuff in a RTLinux thread.
-(and why not, you are already using it?)
+what do you purpose of something else of every single of options ?
 
+> thought that was obvious (apparently not.)  The drivers and stuff is
+> the least of the problem -- there, you can use modules anyway.
 
-/RogerL
+sorry i don't see the point, but indeed it could be doable if the
+story of joe user didn't exist.
+
 
 -- 
-Home page:
-  http://www.norran.net/nra02596/
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbSI3SZY>; Mon, 30 Sep 2002 14:25:24 -0400
+	id <S262823AbSI3S0D>; Mon, 30 Sep 2002 14:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262823AbSI3SZY>; Mon, 30 Sep 2002 14:25:24 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:19074 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262821AbSI3SZX>;
-	Mon, 30 Sep 2002 14:25:23 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 30 Sep 2002 20:30:48 +0200 (MEST)
-Message-Id: <UTC200209301830.g8UIUmR20205.aeb@smtp.cwi.nl>
-To: aebr@win.tue.nl, axboe@suse.de
-Subject: Re: 2.5.37 oopses at boot in ide_toggle_bounce
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+	id <S262825AbSI3S0D>; Mon, 30 Sep 2002 14:26:03 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:62339 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262823AbSI3SZ7>;
+	Mon, 30 Sep 2002 14:25:59 -0400
+Date: Mon, 30 Sep 2002 13:29:34 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Kernel Problem Reports as of 27 Sep
+In-Reply-To: <1033403382.16918.16.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0209301328480.3692-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does it work in 2.4.20-pre-ac?
+On 30 Sep 2002, Alan Cox wrote:
 
+> On Mon, 2002-09-30 at 01:10, Mikael Pettersson wrote:
+> > On Fri, 27 Sep 2002 19:54:16 -0500 (CDT), Thomas Molina wrote:
+> > >------------------------------------------------------------------------
+> > >  24. http://marc.theaimsgroup.com/?l=linux-kernel&m=103277899317468&w=2
+> > >   IDE problems on prePCI                 open               23 Sep 2002
+> > >
+> > >This was reported by Mikael Pettersson <mikpe@csd.uu.se>, but never 
+> > >responded to, and never followed up.  Should this be kept open?
+> > 
+> > The hang in INIT with 2.5.38 is gone with 2.5.39, but the instant
+> > reboot when I pass the "ide0=qd65xx" kernel option is still there.
+> 
+> This seems to be working ok on the 2.4.20pre8-ac IDE branch.
 
-In 2.4.20-pre8 and in 2.5.33 the disks on a HPT366 are
-detected without CONFIG_BLK_DEV_HPT366 being present.
-Look at 2.4.20-pre8 in ide-pci.c and find an explicit list
-ide_pci_chipsets that is walked by ide_scan_pcidev().
+The concern in the original message was specifically with 2.5 stuff, not 
+2.4.  Has anyone looked at his patch for pci-less systems?
 
-In 2.4.20-pre8ac2 and in 2.5.38 this HPT366 is not seen
-without CONFIG_BLK_DEV_HPT366. The routine ide_scan_pcidev()
-in setup-pci.c walks a list ide_pci_drivers that is
-initially empty. HPT366 will only add itself when hpt366.c
-is present and its hpt366_ide_init() invokes
-ide_pci_register_driver().
-
-
-So, all is well in both worlds, but one has to add
-CONFIG_BLK_DEV_HPT366=y to .config now.
-Long ago that would cause corruption, but so far
-I have not seen any bad effects with recent kernels.
-
-All the best - Andries

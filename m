@@ -1,105 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbTAWRYF>; Thu, 23 Jan 2003 12:24:05 -0500
+	id <S265517AbTAWRok>; Thu, 23 Jan 2003 12:44:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265480AbTAWRYF>; Thu, 23 Jan 2003 12:24:05 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:38046 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S265477AbTAWRYE>; Thu, 23 Jan 2003 12:24:04 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: no version magic, tainting kernel.
-Date: Thu, 23 Jan 2003 18:32:59 +0100
-User-Agent: KMail/1.4.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
-References: <200301231459.22789.schlicht@uni-mannheim.de> <20030123165256.GA1092@mars.ravnborg.org>
-In-Reply-To: <20030123165256.GA1092@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3"
-Message-Id: <200301231832.59942.schlicht@uni-mannheim.de>
+	id <S265523AbTAWRok>; Thu, 23 Jan 2003 12:44:40 -0500
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:39055 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S265517AbTAWRoj>; Thu, 23 Jan 2003 12:44:39 -0500
+Date: Thu, 23 Jan 2003 18:52:24 +0100 (CET)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de>
+To: axboe@suse.de, greg@ulima.unil.ch
+Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org,
+       schilling@fokus.fraunhofer.de
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-Thanks for your answers!
-
-I did not compile my module with a kernel Makefile, I used the very small and 
-simple one attatched to this mail. So it seems I miss something when the 
-module is linked and I have to know what I have to link to the module or 
-which header-file I have to include...
-
-For me it seems link I have to link the init/vermagic.c file to my module, but 
-how would this be possible if only the kernel includes were available??
-I think only these should be needed to compile a module...
-
-  Thomas Schlichter
-
-
-Am Donnerstag, 23. Januar 2003 17:29 schrieb Randy.Dunlap:
-> Did you rebuild the module with a 2.5.59 Makefile?
->
->
-> Yes, it's a 2.5.59 change according to the Changelog at kernel.org:
->
-> <QUOTE>
-> <kai@tp1.ruhr-uni-bochum.de>
-> Module Sanity Check
->
-> This patch, based on Rusty's implementation,
-> adds a special section to vmlinux and all modules, which
-> contain the kernel version string, values of some
-> particularly important config options (SMP,preempt,proc
-> family) and the gcc version.
->
-> When inserting a module, the version string is checked against the
-> kernel version string and loading is rejected if they don't match.
->
-> The version string is actually added to the modules during the final
-> .ko generation, so that a changed version string does only cause relinking,
-> not recompilation, which is a major performance improvement over the old
-> 2.4 way of doing things.
-> </QUOTE>
+>From greg@ulima.unil.ch Thu Jan 23 18:51:42 2003
+>   7 seconds.  0.98% done, estimate finish Thu Jan 23 18:51:05 2003
+>   6 seconds.  1.22% done, estimate finish Thu Jan 23 18:51:46 2003
+>   5 seconds.  1.46% done, estimate finish Thu Jan 23 18:52:14 2003
+>   0 seconds. Operation starts.
+>Waiting for reader process to fill input buffer ... input buffer ready.
+>BURN-Free is ON.
+>Starting new track at sector: 0
+>Track 01:    4 of 4001 MB written (fifo  96%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
+>CDB:  2A 00 00 00 08 B8 00 00 1F 00
+>status: 0x2 (CHECK CONDITION)
+>Sense Bytes:
+>Sense Key: 0xFFFFFFFF [], Segment 0
+>Sense Code: 0x00 Qual 0x00 (no additional sense information) Fru 0x0
+>Sense flags: Blk 0 (not valid) 
+>resid: 63488
+>cmd finished after 0.007s timeout 100s
 
 
-Am Donnerstag, 23. Januar 2003 17:52 schrieb Sam Ravnborg:
-> What command did you use to build your module?
-> If you did no use:
-> make -C path/to/kernel/src SUBDIRS=$PWD modules
->
-> chances are big you did not compile the module correct.
-> This requires the Makefile to look like any other kernel (kbuild) makefile.
->
-> 	Sam
+In one of my mails, I decribed why there are 2 bugs in the kernel.
+Only one of them so far has been fixed. The sense data is still missing.
 
---------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3
-Content-Type: text/x-makefile;
-  charset="iso-8859-1";
-  name="Makefile"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="Makefile"
+Jörg
 
-# get current release for include path
-RELEASE   = $(shell uname -r)
-
-# set compile flags, defines and include directory
-CFLAGS    = -Wall -O2 -fno-common
-INCLUDES  = -I/lib/modules/$(RELEASE)/build/include
-DEFINES   = -D__KERNEL__ -DMODULE -DKBUILD_MODNAME="tlbstat"
-
-all: tlbstat.o
-
-tlbstat.o: tlbstat.c
-	gcc -c $(CFLAGS) $(INCLUDES) $(DEFINES) $<
-
-clean:
-	rm -f tlbstat.o *~ core
-
-
---------------Boundary-00=_ZQG6OHDDZNQTQM1DTAA3--
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fhg.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fhg.de/usr/schilling   ftp://ftp.berlios.de/pub/schily

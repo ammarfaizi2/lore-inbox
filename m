@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270011AbRHWTGz>; Thu, 23 Aug 2001 15:06:55 -0400
+	id <S270090AbRHWTKF>; Thu, 23 Aug 2001 15:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270037AbRHWTGp>; Thu, 23 Aug 2001 15:06:45 -0400
-Received: from pk.nord-com.net ([213.168.202.34]:50082 "EHLO pk.nord-com.de")
-	by vger.kernel.org with ESMTP id <S270011AbRHWTGi>;
-	Thu, 23 Aug 2001 15:06:38 -0400
-Date: Thu, 23 Aug 2001 21:02:11 +0200
-From: Roland Bauerschmidt <rb@debian.org>
-To: linux-kernel@vger.kernel.org
+	id <S270135AbRHWTJz>; Thu, 23 Aug 2001 15:09:55 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36613 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S270090AbRHWTJm>; Thu, 23 Aug 2001 15:09:42 -0400
+Date: Thu, 23 Aug 2001 16:09:46 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Disconnect <lkml@sigkill.net>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010823210211.A2212@newton.bauerschmidt.eu.org>
-Mail-Followup-To: Roland Bauerschmidt <rb@debian.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010822030807.N120@pervalidus> <20010823103620.A6965@kittpeak.ece.umn.edu> <20010823115506.D25051@sigkill.net> <20010823182934Z16190-32383+1035@humbolt.nl.linux.org> <20010823144406.G25051@sigkill.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20010823144406.G25051@sigkill.net>
-User-Agent: Mutt/1.3.20i
+Message-ID: <Pine.LNX.4.33L.0108231608520.31410-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disconnect wrote:
-> Forth, some form of java runtime.  And after that is python.
+On Thu, 23 Aug 2001, Disconnect wrote:
 
-I disagree that a java runtime environment is more likely to be
-installed than python. I'm not much into Java, but from what I know
-there isn't even a really good java virtual machine for linux that is
-free (kaffe is lacking quite a few features and stuff?).
+> ONLY task that they will use python for.  And everyone who builds a kernel
+> will have gcc, so thats the 'ideal' dependency.  Second and third most
+> likely, a C++ compiler or perl (depending on what you figure the
+> installbase of each one is).  Forth, some form of java runtime.  And after
+> that is python.
 
-Roland
+Sounds like you'd just might be fanatical enough to implement
+CML2 in C or Perl, then ;)
 
--- 
-Roland Bauerschmidt
+Personally, I'd welcome such a thing...
+
+cheers,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264257AbTF0Mvo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 08:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTF0Mvo
+	id S264272AbTF0NHc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 09:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTF0NHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 08:51:44 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:20474 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264257AbTF0Mvn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 08:51:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Larry McVoy <lm@bitmover.com>, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Date: Fri, 27 Jun 2003 07:51:49 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
-       Scott Robert Ladd <coyote@coyotegulch.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-       lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-References: <20030620163349.GG17563@work.bitmover.com> <20030626174520.GA3710@fs.tum.de> <20030626184033.GA14299@work.bitmover.com>
-In-Reply-To: <20030626184033.GA14299@work.bitmover.com>
+	Fri, 27 Jun 2003 09:07:32 -0400
+Received: from robur.slu.se ([130.238.98.12]:4874 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id S264262AbTF0NHb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 09:07:31 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-Message-Id: <03062707514900.08212@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16124.17582.796111.577015@robur.slu.se>
+Date: Fri, 27 Jun 2003 15:20:46 +0200
+To: "adamski" <adam_lista_linux@poczta.onet.pl>
+Cc: "Robert Olsson" <Robert.Olsson@data.slu.se>,
+       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+Subject: RE: How to do kernel packet forwarding performance analysys - please comment on my method 
+In-Reply-To: <GMEGLMHAELFDACHHIEPICEBPCFAA.adam_lista_linux@poczta.onet.pl>
+References: <16124.11592.136156.61126@robur.slu.se>
+	<GMEGLMHAELFDACHHIEPICEBPCFAA.adam_lista_linux@poczta.onet.pl>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 June 2003 13:40, Larry McVoy wrote:
-> On Thu, Jun 26, 2003 at 07:45:21PM +0200, Adrian Bunk wrote:
-> > > That's probably a good enough test case.  Explain to me how your
-> > > support contracts are ever going to provide enough money to redo GCC or
-> > > build something equally substantial.
-> >
-> > [incremental changes given as example]
->
-> Incremental changes != redo.  Redo is a ~$10M project.
 
+adamski writes:
 
-	The Los Alamos National Laboratory have sponsored the work for a new
-	hand-crafted recursive-descent C++ parser for GCC.
+ > i would like to start two flows through linux router: PHB EF and BE PHB..
+ > like voip and ftp or so...
+ > 
+ > than i want to analyse what exactly happens ... since my theoretical
+ > analysys show delays (or latencies - from packet entering the NIC to going
+ > out of the outgoing interface) of hundereds of usec (~200us) while
+ > experiments shows 5-10ms !!!!! with CBQ (configured like CBWFQ and LLQ)
 
-	Apple contributed a precompiled header implementation for GCC.
+ Seems you have to add your own hooks for this and I guess you've seen 
+ CONFIG_NET_PROFILE which does accurate measurements for network related  
+ operations. It was long time since I used though...
 
-Both of these are comple rewrites. Not incremental changes.
-
-Claiming these are "incremental" is like claiming Linux is an incremental 
-change to the AT&T Kernel...
+ Cheers.
+						--ro

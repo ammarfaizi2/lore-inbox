@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288759AbSA3Hlx>; Wed, 30 Jan 2002 02:41:53 -0500
+	id <S288761AbSA3Hmx>; Wed, 30 Jan 2002 02:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288761AbSA3Hle>; Wed, 30 Jan 2002 02:41:34 -0500
-Received: from waste.org ([209.173.204.2]:15510 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S288759AbSA3HlZ>;
-	Wed, 30 Jan 2002 02:41:25 -0500
-Date: Wed, 30 Jan 2002 01:41:22 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <E16VgQ0-0000AS-00@starship.berlin>
-Message-ID: <Pine.LNX.4.44.0201300136430.25123-100000@waste.org>
+	id <S288765AbSA3Hmp>; Wed, 30 Jan 2002 02:42:45 -0500
+Received: from chmls05.ne.ipsvc.net ([24.147.1.143]:64235 "EHLO
+	chmls05.mediaone.net") by vger.kernel.org with ESMTP
+	id <S288761AbSA3Hmb>; Wed, 30 Jan 2002 02:42:31 -0500
+From: "Guillaume Boissiere" <boissiere@mediaone.net>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 30 Jan 2002 02:42:27 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [STATUS 2.5]  January 30, 2002
+Message-ID: <3C575D93.2928.1EE60B2B@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Daniel Phillips wrote:
+> The latest list is available at:  http://kernelnewbies.org/status/
+> Items in bold are changes since last week.
+> 
+> The big thing in the past week is the work done on driverfs by 
+> Patrick Mochel, which started to appear in 2.5
+> If you are a driver maintainer, you may want to look at this :-)
 
-> Exactly.  The successor patch to the 'kind of gross' patch got rid of the
-> double-pointers, it was the proper fix, though there is still no excuse for
-> leaving the bug hanging around while coming up with the better version.
+Oops...  s/driver/device/g
 
-The gross fixes tend to get dropped because if they're in, the proper fix
-loses priority. FIXMEs can take many years to fix. The problem seems not
-to be the dropping of the patch so much as the dropping of the bug report
-and bug tracking is an altogether different problem.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+-- Guillaume

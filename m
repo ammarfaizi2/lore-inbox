@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbUKRUHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbUKRUFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262935AbUKRUHw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 15:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbUKRUGR
+	id S262938AbUKRUFN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbUKRUDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:06:17 -0500
-Received: from motgate7.mot.com ([129.188.136.7]:37351 "EHLO motgate7.mot.com")
-	by vger.kernel.org with ESMTP id S262935AbUKRTvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:51:16 -0500
-In-Reply-To: <1100806489.14467.47.camel@jmcmullan>
-References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com> <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com> <1100806489.14467.47.camel@jmcmullan>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <2B68D9FA-399B-11D9-96F6-000393C30512@freescale.com>
+	Thu, 18 Nov 2004 15:03:06 -0500
+Received: from neopsis.com ([213.239.204.14]:65005 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S261157AbUKRUA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:00:58 -0500
+Message-ID: <419CFF73.3010407@dbservice.com>
+Date: Thu, 18 Nov 2004 21:00:51 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+References: <200411181859.27722.gjwucherpfennig@gmx.net>
+In-Reply-To: <200411181859.27722.gjwucherpfennig@gmx.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: "<netdev@oss.sgi.com>" <netdev@oss.sgi.com>,
-       "<linux-kernel@vger.kernel.org>" <linux-kernel@vger.kernel.org>
-From: Andy Fleming <afleming@freescale.com>
-Subject: Re: [PATCH] MII bus API for PHY devices
-Date: Thu, 18 Nov 2004 13:50:59 -0600
-To: Jason McMullan <jason.mcmullan@timesys.com>
-X-Mailer: Apple Mail (2.619)
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gerold J. Wucherpfennig wrote:
+ > - Replace DRI with sth. slimmer and intoduce real kernel drivers
+> and introduce real kernel drivers which handel all the initialization and 
+> interrupt handling (only minimal hardware abstraction). One goal is to
+> remove X.org's PCI magic. Ultimately this shall give framebuffer and X
+> the same basis. This was summarized on kerneltrap.org.
 
-On Nov 18, 2004, at 13:34, Jason McMullan wrote:
->> 3) How should we bind ethernet drivers to PHY drivers?
->
-> A PHY 'platform_data' struct like:
->
-> struct phy_device_data {
-> 	struct {
-> 		const char *name;
-> 		int id;
-> 	} ethernet_platform_device_parent;
-> 	int	phy_id;
-> }
+Is it possible to have two or more 'workstations' on one computer?
+A 'workstation' is a monitor, keyboard, mouse etc. tied together and
+represents a place where someone can work.
+I know it's possible to do this using a Xserver (running two Xservers on
+different virtual consoles, each with its own
+configuration/keyboard/mouse/monitor), but I'd like to realise it more
+low-level, on the level of virtual terminals, so that each 'workstation'
+would have it's own 'Ctrl+F1', 'Ctrl+F2' etc.
 
-So you would have each PHY know the controller to which it's attached?  
-I would have thought the other way around... Hm.  I will definitely 
-have to read up on my driver model stuff
+Background:
+Today, you can buy video cards with two connectors for monitors, or even
+put two of those cards into one mainboard, making it possible to connect
+four monitors to one computer. A P4 HT enabled CPU would be enough for
+four office workers who edit text documents, unless they aren't playing
+games :) So you could cut costs by buying one set of Mainboard/CPU/RAM
+and then for every worker just a monitor/keyboard/mouse.
+Places like internet-cafes could profit, they usually have many same
+computers side by side, each with the same configuration, but on many no
+one is working, they just run and consume energy.
 
-> 	
->> Oh, and a 4th side-issue:
->> Should each PHY have its own file?
->
-> Actually, each PHY should have it's own device directory, like every
-> other device. Eventually, PHYs should have /dev/phy* entries, where
-> user-space can read/write PHY registers.
-
-I think you misunderstood.  Are you talking about sysfs?  I was talking 
-about actual source files.  i.e. should there be dm9161.c, m88e1101.c, 
-cis8201.c, etc.
-
-Also, do we need user-space to read/write PHY registers.  ethtool has 
-this capability, I believe, and the interfaces there are settled.
-
-Andy Fleming
+tom
 

@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129514AbQKWCi2>; Wed, 22 Nov 2000 21:38:28 -0500
+        id <S129586AbQKWCtX>; Wed, 22 Nov 2000 21:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129529AbQKWCiS>; Wed, 22 Nov 2000 21:38:18 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:9826 "EHLO
-        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-        id <S129514AbQKWCiG>; Wed, 22 Nov 2000 21:38:06 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Frank van de Pol <fvdpol@home.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 + ALSA 0.6pre1 version is OOPSing 
-In-Reply-To: Your message of "Thu, 23 Nov 2000 02:49:27 BST."
-             <20001123024927.B6395@idefix.fvdpol.home.nl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Nov 2000 13:07:56 +1100
-Message-ID: <3322.974945276@kao2.melbourne.sgi.com>
+        id <S129529AbQKWCtM>; Wed, 22 Nov 2000 21:49:12 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:54982 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S129514AbQKWCsw>; Wed, 22 Nov 2000 21:48:52 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 22 Nov 2000 18:18:48 -0800
+Message-Id: <200011230218.SAA04398@baldur.yggdrasil.com>
+To: jgarzik@mandrakesoft.com
+Subject: Re: Patch(?): pci_device_id tables for linux-2.4.0-test11/drivers/block
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2000 02:49:27 +0100, 
-Frank van de Pol <fvdpol@home.nl> wrote:
->After upgrade to 2.4.0-test11 my copy of ALSA 0.6pre1 (cvs version) stopped
->working (causing OOPS on module load of snd-card-sbawe). I reverted back to
->2.4.0-test10 and verified that the problem does not exist in that version.
->
->Could any of the changes between 2.4.0-test10 and 2.4.0-test11 cause this
->behaviour??? 
+>"Adam J. Richter" wrote:
+>>         Just to avoid duplication of effort, I am posting this preliminary
+>> patch which adds PCI MODULE_DEVICE_TABLE declarations to the three PCI
+>> drivers in linux-2.4.0-test11/drivers/block.  In response to input from
+>> Christoph Hellwig, I have reduced my threshhold on using named initializers
+>> to three entries, although I think that may be going to far, as I would
+>> really like to keep the number of files that initialize the pci_device_id
+>> arrays this way low so that changing struct pci_device_id remains feasible.
 
-2.4.0-test11 incorrectly handles module initialization when the
-userspace struct module is smaller than the kernel struct module.
+>*This* is the over-engineering attitude I was talking about.  The only
+>reason why you are preferring named initializers is because
+>pci_device_id MIGHT be changed.  And if it is changed, it makes the
+>changeover just tad easier.
 
-Index: 0-test11-pre6.1/kernel/module.c
---- 0-test11-pre6.1/kernel/module.c Wed, 08 Nov 2000 11:52:15 +1100 kaos (linux-2.4/j/28_module.c 1.1.2.1.1.1.7.1.1.1 644)
-+++ 0-test11-pre6.1(w)/kernel/module.c Thu, 23 Nov 2000 10:22:26 +1100 kaos (linux-2.4/j/28_module.c 1.1.2.1.1.1.7.1.1.1 644)
-@@ -480,7 +480,9 @@ sys_init_module(const char *name_user, s
- 
- 	/* Ok, that's about all the sanity we can stomach; copy the rest.  */
- 
--	if (copy_from_user(mod+1, mod_user+1, mod->size-sizeof(*mod))) {
-+	if (copy_from_user((char *)mod+mod_user_size,
-+			   (char *)mod_user+mod_user_size,
-+			   mod->size-mod_user_size)) {
- 		error = -EFAULT;
- 		goto err3;
- 	}
+	It is also much easier to spot an initialization bug, if, say,
+a class is being initialized with a class_mask.  It also make the
+code much more self-documenting.  I frequently have to bring up a copy
+of include/linux/pci.h to decipher usb_devicde_id tables.
 
+>For that, you ugly up the code and make it
+>more difficult to maintain.
 
+	I think this makes it easier to maintain, especially by
+driver authors who want to think more about their pet hardware than
+how a generic kernel data structure is ordered.
+
+	Also bear in mind that once these drivers are ported to the
+new PCI interface, many will use pci_device_id->driver_data, which
+will cause all of the entries that are not in "field:value" form to
+no longer fit on one line anyhow. 
+	
+
+>_I_ am one of the people that works on maintaining these random PCI
+>drivers that no one gives a shit about.
+
+	I don't believe that using "field:value" format makes centralized
+maintenance harder, but, if you find it that way, you should consider
+the position of driver author a driver author who is more
+knowledgeable about the hardware and has less repetitive need to
+memorize the arrangement of an obscure kernel data structure.  The
+__initdata vs __devinitdata for the pci_device_id tables is the same
+sort of issue.  I believe that named initializers also make it easier
+for developers whose focus is not on the central kernel data structures
+to spot and fix bugs and develop new drivers, and that this is a more
+scalable approach to kernel development.
+
+	In any case, if you want, I would be happy to send you patches
+that include only the changes that do the initilization anonymously.
+Until those appear in Linus's releases, I see it is a more definitely
+positive contribution on my part to focus on writing pci_device_id
+tables for other drivers that lack them.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

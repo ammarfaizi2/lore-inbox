@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271844AbRIQQen>; Mon, 17 Sep 2001 12:34:43 -0400
+	id <S271809AbRIQQkD>; Mon, 17 Sep 2001 12:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271809AbRIQQed>; Mon, 17 Sep 2001 12:34:33 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:13830 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S271834AbRIQQeW>;
-	Mon, 17 Sep 2001 12:34:22 -0400
-Date: Mon, 17 Sep 2001 18:34:33 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, <ast@domdv.de>
-Subject: Re: broken VM in 2.4.10-pre9
-Message-Id: <20010917183433.5b992e74.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33.0109170846050.8847-100000@penguin.transmeta.com>
-In-Reply-To: <20010917173555.460c8ea3.skraw@ithnet.com>
-	<Pine.LNX.4.33.0109170846050.8847-100000@penguin.transmeta.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S271832AbRIQQjx>; Mon, 17 Sep 2001 12:39:53 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:13584 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S271809AbRIQQjn> convert rfc822-to-8bit; Mon, 17 Sep 2001 12:39:43 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: Juan <piernas@ditec.um.es>,
+        Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Subject: Re: Ext3 journal on its own device?
+Date: Mon, 17 Sep 2001 18:39:10 +0200
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es> <E15j19N-0006Gh-00@mrvdom03.schlund.de> <3BA62575.E14C5808@ditec.um.es>
+In-Reply-To: <3BA62575.E14C5808@ditec.um.es>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E15j1RG-00082a-00@mrvdom03.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001 08:51:54 -0700 (PDT) Linus Torvalds
-<torvalds@transmeta.com> wrote:
+> But the problem is that I need to use Linux 2.2.19, and the latest Ext3
+> version for that kernel is 0.0.7a, isn't it?.
 
-> 
-> On Mon, 17 Sep 2001, Stephan von Krawczynski wrote:
-> >
-> > - cpu load goes pretty high (11-12 according to xosview)during several
-> > occasions, upto the point where you cannot even move the mouse. Compared to
-an
-> > once tested ac-version it is not _that_ nice. I have some problems cat'ing
-> > /proc/meminfo, too. I takes sometimes pretty long (minutes).
-> 
-> It's not really CPU load - the loadaverage in Linux (and some other UNIXes
-> too) also accounts for disk wait.
+good point. I am not sure if ext3 is still maintained for linux 2.2, but I 
+doubt it. Andrew or Stephen should be able to answer this question.
 
-Well, what I meant was: compared to the _same_ situation and test bed, the load
-seems "pretty high". ac versions are somewhat lower in this setup.
+But with 0.0.7a it is not possible to have an external journal.
 
-> > - the meminfo shows me great difference to former versions in the balancing
-of
-> > inact_dirty and active. This pre10 tends to have a _lot_ more inact_dirty
-pages
-> > than active (compared to pre9 and before) in my test. I guess this is
-intended
-> > by this (used-once) patch. So take this as a hint, that your work performs
-as
-> > expected.
-> 
-> No, I think they are related, and bad. I suspect it just means that pages
-> really do not get elevated to the active list, and it's probably _too_
-> unwilling to activate pages. That's bad too - it means that the inactive
-> list is the one solely responsible for working set changes, and the VM
-> won't bother with any other pages. Which also leads to bad results..
+greetings
 
-Hm, remember my setup: I read a lot from CD, write it to disk and read a lot
-from nfs and write it to disk. Basically both are read once - write once
-setups, so the pages are touched once (or worst twice) at maximum, so I see a
-good chance none of them ever make it to the active list, according to your
-state explanation from previous posts. And thats what I see (I guess). If I do
-a CD compare (read disk, read CD and compare) I see lots of pages walk over to
-active. And that again looks as you told before. I think it does work as you
-said.
-Anyway I cannot "feel" a difference in performance (maybe even worse than
-before), but it _looks_ cleaner. How about taking it as a first step in the
-cleanup direction? :-)
-
-Regards, Stephan
-
+Christian Bornträger

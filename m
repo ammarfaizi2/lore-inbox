@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbTAWSTY>; Thu, 23 Jan 2003 13:19:24 -0500
+	id <S265470AbTAWSXL>; Thu, 23 Jan 2003 13:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbTAWSTY>; Thu, 23 Jan 2003 13:19:24 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:57816 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265523AbTAWSTY>;
-	Thu, 23 Jan 2003 13:19:24 -0500
-Date: Thu, 23 Jan 2003 18:28:31 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-Message-ID: <20030123182831.GA8184@bjl1.asuk.net>
-References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com> <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030123172734.GA2490@mark.mielke.cc>
-User-Agent: Mutt/1.4i
+	id <S265587AbTAWSXL>; Thu, 23 Jan 2003 13:23:11 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:65415 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S265470AbTAWSXK>;
+	Thu, 23 Jan 2003 13:23:10 -0500
+Message-ID: <3E30352F.1080100@candelatech.com>
+Date: Thu, 23 Jan 2003 10:32:15 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ksoftirqd_CPU0 spinning in 2.4.21-pre3
+References: <3E2EF490.20402@candelatech.com> <15920.796.897388.111085@robur.slu.se>
+In-Reply-To: <15920.796.897388.111085@robur.slu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
-> Or, fix sys_poll(). With the +1, this means that sys_poll() would have
-> a 1 in 1001 chance per second of returning one jiffie too early.
-
-Nope.  Read the expression again.
-
-> > poll(2) takes an int, but sys_poll() takes a long.
-> > I think everyone is confused :)
-> > The reason I suggested "long timeout" for ep_poll is because the
-> > multiply in the expression:
-> > 	jtimeout = (unsigned long)(timeout*HZ+999)/1000;
-> > can overflow if you don't.  If you stick with the int, you'll need to
-> > write:
-> > 	jtimeout = (((unsigned long)timeout)*HZ+999)/1000;
+Robert Olsson wrote:
+> Ben Greear writes:
+>  > I happened to notice that my ksoftirqd_CPU0 process started spinning
+>  > at 99% CPU when I plugged in the ports to a tulip NIC.  I didn't see
+>  > any significant amount of interrupts when I looked at /proc/interrupts,
+>  > and there was no traffic running.
+>  > 
+>  > However, this is also running a hacked up tulip-napi driver, so it
+>  > could very well be my problem.  I have not seen this on any other kernel
+>  > in several months though...
+>  > 
+>  > Anyway, if anyone has seen this, I'd like to know.  Otherwise, I'll blame
+>  > my code and start poking at things...
 > 
-> On a 16 bit platform, perhaps... :-)
+>  Well it can be normal operation if box is highly loaded...
 
-Nope.  It will overflow on a _64_ bit platform, if you give it a value
-of MAXINT for example.
+There was zero network load on the box.  I think there must be a bug in
+my napi-ization of the tulip driver.  Since I coppied it almost verbatim
+from your stuff, you might want to check too :)
 
--- Jamie
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271255AbTHMAH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 20:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271262AbTHMAH4
+	id S271266AbTHMAL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 20:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271270AbTHMAL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 20:07:56 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:57984 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S271255AbTHMAHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 20:07:54 -0400
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: linux-ia64@vger.kernel.org
-Date: Wed, 13 Aug 2003 10:07:51 +1000
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
-Message-ID: <20030813000751.GD25474@cse.unsw.edu.au>
-References: <200308041737.h74HbdCf015443@napali.hpl.hp.com> <16174.59114.386209.649300@wombat.chubb.wattle.id.au> <16174.60868.750901.704560@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16174.60868.750901.704560@napali.hpl.hp.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 12 Aug 2003 20:11:26 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:20895 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S271266AbTHMALZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 20:11:25 -0400
+Date: Tue, 12 Aug 2003 20:11:22 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200308130011.h7D0BME29033@devserv.devel.redhat.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: consistent_dma_mask is a ghost?
+In-Reply-To: <mailman.1060643897.16128.linux-kernel2news@redhat.com>
+References: <mailman.1060643897.16128.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 04:35:32PM -0700, David Mosberger wrote:
->   David> Now that Linus' tree works for ia64, the next question is how
->   David> we can keep it that way.  I think it would be useful to have
->   David> someone setup a cron job which does daily builds/automated
->   David> tests off of Linus tree. 
-> 
->   Peter> We'd probably do daily automated builds to check that the kernel
->   Peter> still compiles cleanly for HPSIM, DIG, and ZX1, but test only weekly.
+> This means that only _two_ platforms, ia64 and x86_64, have means to use
+> that information, and other platforms use set_dma_mask() and dev->dma_mask
+> for consistent (coherent) allocations ignoring consistent_dma_mask at all
+> (and possibly allocating memory from invalid region, if the masks are
+> not equal).
 
-It has been running OK for a few days now, so please feel free to
-check out
+Platforms which worked correctly before continue to work
+correctly thereafter. IMHO, the whole thing is a kludge,
+designed to support AIC7xxx on SGI SN-2, and that's about
+all it does. There's a device which uses fewer DMA bits
+when it accesses its mailbox than when it accesses data.
+Since the mailbox is allocated in consistent memory, this
+can be used as a clue to restrict the allocation. This is a
+fragile, opaque construct and it's conceptually wrong (what if
+the driver accessed device mailboxes through streaming mappings?),
+but it works for its purpose. Just don't use it in your drivers
+and you'll be fine.
 
-http://www.gelato.unsw.edu.au/kerncomp
-
-for the status of daily IA64 builds.  We will attempt to keep track of
-what is happening and fix anything that needs fixing or point to where
-it has been fixed.
-
-We're still working on automated testing (i.e. booting on the
-simulator, maybe real hardware).
-
--i
-ianw@gelato.unsw.edu.au
-http://www.gelato.unsw.edu.au
+-- Pete

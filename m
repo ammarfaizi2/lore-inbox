@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267743AbUIJSRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267632AbUIJSYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267743AbUIJSRr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 14:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267748AbUIJSRr
+	id S267632AbUIJSYj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 14:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUIJSYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 14:17:47 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:64433 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267743AbUIJSRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 14:17:38 -0400
-Subject: Re: radeon-pre-2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <9e47339104091010221f03ec06@mail.gmail.com>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <DA459966-02B9-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <9e47339104090917353554a586@mail.gmail.com>
-	 <Pine.LNX.4.58.0409100209100.32064@skynet>
-	 <9e47339104090919015b5b5a4d@mail.gmail.com>
-	 <20040910153135.4310c13a.felix@trabant>
-	 <9e47339104091008115b821912@mail.gmail.com>
-	 <1094829278.17801.18.camel@localhost.localdomain>
-	 <9e4733910409100937126dc0e7@mail.gmail.com>
-	 <1094832031.17883.1.camel@localhost.localdomain>
-	 <9e47339104091010221f03ec06@mail.gmail.com>
-Content-Type: text/plain
+	Fri, 10 Sep 2004 14:24:39 -0400
+Received: from pD9FF120F.dip.t-dialin.net ([217.255.18.15]:6660 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S267632AbUIJSYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 14:24:35 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.6.9-rc1-mm4, visor.c, Badness in usb_unlink_urb
+Date: Fri, 10 Sep 2004 20:24:31 +0200
+User-Agent: KMail/1.7
+Cc: Greg KH <greg@kroah.com>
+References: <20040910082601.GA32746@gamma.logic.tuwien.ac.at> <200409101148.37587.petkov@uni-muenster.de> <20040910140152.GA15589@kroah.com>
+In-Reply-To: <20040910140152.GA15589@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094836308.17991.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 18:12:00 +0100
+Message-Id: <200409102024.32082.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PS: Don't get me wrong - we have to address the main points on that list
-(the ones on the list not in your head). The last thing I want to see is
-another person march off into the distance with a framebuffer agenda and
-a lack of understanding about the importance of getting
-from where we are now to where we want to be without breaking anything
-major and without leaving everyone else behind or going a different
-way.
+Hi Greg,
+I'll be happy to tackle the other drivers. Question: Does usb_unlink_urb have 
+to be replaced only for synchronious unlinking and if so, is the wrapping 
+function responsible for checking the URB_ASYNC_UNLINK transfer flag? Here's 
+a patch:
 
-Thats happened at least twice before in the console world because people
-didn't get it. Kgi is one case, ruby is another.
+Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
 
-Alan
+--- linux-2.6.9-rc1-mm/drivers/usb/class/audio.c.orig 2004-09-10 20:05:17.000000000 +0200
++++ linux-2.6.9-rc1-mm/drivers/usb/class/audio.c 2004-09-10 20:23:12.000000000 +0200
+@@ -635,13 +635,13 @@ static void usbin_stop(struct usb_audiod
+   spin_unlock_irqrestore(&as->lock, flags);
+   if (notkilled && signal_pending(current)) {
+    if (i & FLG_URB0RUNNING)
+-    usb_unlink_urb(u->durb[0].urb);
++    usb_kill_urb(u->durb[0].urb);
+    if (i & FLG_URB1RUNNING)
+-    usb_unlink_urb(u->durb[1].urb);
++    usb_kill_urb(u->durb[1].urb);
+    if (i & FLG_SYNC0RUNNING)
+-    usb_unlink_urb(u->surb[0].urb);
++    usb_kill_urb(u->surb[0].urb);
+    if (i & FLG_SYNC1RUNNING)
+-    usb_unlink_urb(u->surb[1].urb);
++    usb_kill_urb(u->surb[1].urb);
+    notkilled = 0;
+   }
+  }
+@@ -1114,13 +1114,13 @@ static void usbout_stop(struct usb_audio
+   spin_unlock_irqrestore(&as->lock, flags);
+   if (notkilled && signal_pending(current)) {
+    if (i & FLG_URB0RUNNING)
+-    usb_unlink_urb(u->durb[0].urb);
++    usb_kill_urb(u->durb[0].urb);
+    if (i & FLG_URB1RUNNING)
+-    usb_unlink_urb(u->durb[1].urb);
++    usb_kill_urb(u->durb[1].urb);
+    if (i & FLG_SYNC0RUNNING)
+-    usb_unlink_urb(u->surb[0].urb);
++    usb_kill_urb(u->surb[0].urb);
+    if (i & FLG_SYNC1RUNNING)
+-    usb_unlink_urb(u->surb[1].urb);
++    usb_kill_urb(u->surb[1].urb);
+    notkilled = 0;
+   }
+  }
 

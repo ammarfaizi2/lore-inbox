@@ -1,96 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271102AbTGPUNn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 16:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271118AbTGPUNm
+	id S271098AbTGPUSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 16:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271104AbTGPUSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 16:13:42 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:31110 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S271102AbTGPUNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 16:13:05 -0400
-Date: Wed, 16 Jul 2003 16:31:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.20 RTC Timer bug
-Message-ID: <Pine.LNX.4.53.0307161626240.30604@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Jul 2003 16:18:50 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:7554 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S271098AbTGPUSi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 16:18:38 -0400
+Message-Id: <200307162033.h6GKXTup002619@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "David St.Clair" <dstclair@cs.wcu.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1 Vesa fb and Nvidia 
+In-Reply-To: Your message of "Wed, 16 Jul 2003 16:13:16 EDT."
+             <1058386396.3710.4.camel@localhost> 
+From: Valdis.Kletnieks@vt.edu
+References: <1058386396.3710.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-850428676P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Jul 2003 16:33:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-850428676P
+Content-Type: text/plain; charset=us-ascii
 
-#if 0
+On Wed, 16 Jul 2003 16:13:16 EDT, "David St.Clair" <dstclair@cs.wcu.edu>  said:
+> I don't know if this is a hardware specific bug or I just don't have
+> something configured right.
 
-In Linux 2.4.20, some rogue is incrementing the value
-in register 0x71 at about 1 second intervals!  This
-port is the index register for the CMOS timer chip
-and it must be left alone when the chip is not being
-accessed and it must be left at an unused offset,
-typically 0xff, after access. This is to prevent
-destruction of CMOS data during the power-down
-transient.
+2.6.0-test1-mm1, Dell C840 laptop with a Geforce4 440Go.
 
-This code clearly shows that somebody is mucking with
-this chip. Here, I have reviewed the only drivers
-installed, SCSI and network, and have not found anybody
-messing with this chip so I think it must be something
-in the kernel proper. The numbers increase at 1 second
-intervals from 0 to 89 and then restart. This shows that
-it is not residual from the system clock code that will
-read only the timer registers.
+I do *NOT* have 'CONFIG_FB_VGA16' set, but *do* have 'CONFIG_VIDEO_VESA'.
 
-These are the only modules installed...
+With this, 'vga=794' gets me a small font and a penguin on boot,
+the NVidia binary driver works fine under X  after the minion.de patch,
+switching back and forth works well, and life is generally good.
 
-Module                  Size  Used by
-ipchains               41400   7
-3c59x                  28224   1  (autoclean)
-nls_cp437               4376   4  (autoclean)
-BusLogic               35768   7
-sd_mod                 10184  14
-scsi_mod               54572   2  [BusLogic sd_mod]
+Mode 792 is in the VESA bios mode range: from Documentation/svga.txt:
 
-This running of the CMOS timer index register is the
-reason why the CMOS checksum and parameters are being
-lost on several systems that run 2.4.20. If any of
-these system are turned off when the index register
-points to checksummed data, the byte at that location
-will get smashed to whatever is on the bus when the
-power fails. To non-believers, note that the chip-select
-goes low to enable ... and that's what a power failure
-does ... goes low, while internally, the chip still has
-power from its battery.
+   0x0200 to 0x08ff - VESA BIOS modes. The ID is a VESA mode ID increased by
+        0x0100. All VESA modes should be autodetected and shown on the menu.
+....
+   CONFIG_VIDEO_VESA - enables autodetection of VESA modes. If it doesn't work
+on your machine (or displays a "Error: Scanning of VESA modes failed" message),
+you can switch it off and report as a bug.
 
-#endif
-
-#include <stdio.h>
-
-__inline__ int inb()
-{
-	register int eax = 0;
-	__asm__ volatile ("inb	$0x71, %%al" : "=eax" (eax));
-	return eax;
-}
-
-extern int iopl(int);
-extern int usleep(int);
-
-int main()
-{
-    iopl(3);
-
-    for(;;)
-    {
-        printf("%d\n", inb());
-        usleep(100000);
-    }
-}
+Try turning that on?
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.3% of all statistics are fiction.
+--==_Exmh_-850428676P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/FbaZcC3lWbTT17ARAgLZAJ4/uG+d6IlSu4WSghO++r3Iw9VM3ACghMoU
+6nTg+jvJbmDwvjKfd02aVwA=
+=8YcA
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-850428676P--

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVAUIrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVAUIra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVAUIrn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 03:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVAUIrn
+	id S262327AbVAUIra (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVAUIrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 03:47:43 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:28317 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262323AbVAUIqH (ORCPT
+	Fri, 21 Jan 2005 03:47:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51081 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262324AbVAUIqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 03:46:07 -0500
-Date: Fri, 21 Jan 2005 09:45:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] to fix xtime lock for in the RT kernel patch
-Message-ID: <20050121084557.GA29550@elte.hu>
-References: <41F04573.7070508@mvista.com> <20050121063519.GA19954@elte.hu> <41F0BA56.9000605@mvista.com> <20050121082125.GA28267@elte.hu> <41F0BFA4.5030107@mvista.com>
+	Fri, 21 Jan 2005 03:46:08 -0500
+Date: Fri, 21 Jan 2005 09:46:07 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: oom killer gone nuts
+Message-ID: <20050121084606.GE2763@suse.de>
+References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl> <20050120171544.GN12647@dualathlon.random> <20050121074203.GH2755@suse.de> <20050121080520.GA7703@dualathlon.random> <20050121080940.GA2763@suse.de> <20050121084111.GB7703@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41F0BFA4.5030107@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050121084111.GB7703@dualathlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* George Anzinger <george@mvista.com> wrote:
-
-> > so ->mark_offset and do_timer() go together, and happen under
-> > xtime_lock. What problem is there if we do this?
+On Fri, Jan 21 2005, Andrea Arcangeli wrote:
+> On Fri, Jan 21, 2005 at 09:09:41AM +0100, Jens Axboe wrote:
+> > Jan 20 13:22:15 wiggum kernel: oom-killer: gfp_mask=0xd1
 > 
-> We are trying to get an accurate picture of when, exactly in time,
-> jiffies changes. [...]
+> This was a GFP_KERNEL|GFP_DMA allocation triggering this. However it
+> didn't look so much out of DMA zone, there's 4M of ram free. Could be
+> the ram was relased by another CPU in the meantime if this was SMP (or
+> even by an interrupt in UP too).
 
-but that's the point of allowing the threading of the timer interrupt. 
-If you _have_ an interrupt source (and task) that _is_ more important
-than the timer interrupt then so be it. Yes, the accuracy of timekeeping
-may suffer.
+It is/was UP.
 
-so everything is relative, and the user decides which functionality
-should have the better latency. do_offset() can take up to 10 usecs so
-it's a latency source i'd like to keep out of the direct IRQ path, as
-much as possible.
+> Could very well be you'll get things fixed by the lowmem_reserve patch,
+> that will reserve part of the dma zone, so with it you're sure it
+> couldn't have gone below 4M due slab allocs like skb.
+> 
+> I recommend trying again with the patches applied, the oom stuff is so
+> buggy right now that it's better you apply the fixes and try again, and
+> if it still happens we know it's a regression.
 
-> We can handle (do today) some variability in this area, but, at least
-> for RT systems, we would like to get this down to a small a window as
-> possible. 
+I've added all 6 of the OOM patches (I didn't notice that thread until
+now).
 
-by default the timer interrupt has the highest priority, and you can
-still change it to prio 99 to avoid any potential impact from RT tasks
-or other interrupt threads.
+-- 
+Jens Axboe
 
-	Ingo

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270823AbTG1Tkk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 15:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270827AbTG1Tkk
+	id S270517AbTG1TsT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 15:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270519AbTG1TsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 15:40:40 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:51677 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S270823AbTG1Tkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 15:40:35 -0400
-Date: Mon, 28 Jul 2003 12:40:20 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 999] New: Problem with the /dev/ptmx file
-Message-ID: <3898100000.1059421220@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 28 Jul 2003 15:48:19 -0400
+Received: from pat.uio.no ([129.240.130.16]:3978 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S270517AbTG1TsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 15:48:15 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16165.32242.536710.725927@charged.uio.no>
+Date: Mon, 28 Jul 2003 21:48:02 +0200
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS weirdness in 2.6.0-test1
+In-Reply-To: <20030726015007.GA18944@linux-sh.org>
+References: <20030725151127.GA2947@linux-sh.org>
+	<16161.25923.623651.618044@charged.uio.no>
+	<20030726015007.GA18944@linux-sh.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=999
+>>>>> " " == Paul Mundt <lethal@linux-sh.org> writes:
 
-           Summary: Problem with the /dev/ptmx file
-    Kernel Version: 2.6.0-test2
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: areversat@tuxfamily.org
-                CC: areversat@tuxfamily.org
+     > Any other suggestions?
 
+I think I've found the problem. It is due to us overwriting
+req->rq_rcv_buf in call_encode() while the RPC request is still on the
+list waiting for a reply from the server.
 
-Distribution: Gentoo GNU/Linux
-Hardware Environment: P4 2.0Ghz 512 mo ram, Ati Radeon 9000 Mobility
-Software Environment: Linux 2.6.0-test2
-Problem Description:
-When i want to open an Eterm or an xterm (whatever until it uses a virtual
-terminal) it fails saying granpt(4) failed.
-I've traced the program and it seems that it calls /dev/ptmx well but that ptmx
-doesn't create the right entry in /dev/pts.
-Note : I don't have /dev/pts support in my kernel but it works with a 2.4 like
-that... And i also tried with it compiled in and it didn't work either.
+Actually, this *is* likely to be an issue on 2.4.x too, but as it is
+also going to be very timing related, you are probably being lucky in
+one case, and not the other.
 
-Steps to reproduce:
-For me you only have to open something using a virtual terminal.
-It may be a configuration problem but i searched and didn't find where it was...
+I'll draw up a patch some time in the next 24 hours...
 
-
+Cheers,
+  Trond

@@ -1,110 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbSJ2NDX>; Tue, 29 Oct 2002 08:03:23 -0500
+	id <S261872AbSJ2NgF>; Tue, 29 Oct 2002 08:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261850AbSJ2NDX>; Tue, 29 Oct 2002 08:03:23 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:44507 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261844AbSJ2NDW>;
-	Tue, 29 Oct 2002 08:03:22 -0500
-Date: Tue, 29 Oct 2002 14:09:43 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021029130943.GA13728@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	lse-tech@lists.sourceforge.net
-References: <20021029004034.GA32118@outpost.ds9a.nl> <Pine.LNX.4.44.0210281652270.966-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210281652270.966-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.28i
+	id <S261874AbSJ2NgF>; Tue, 29 Oct 2002 08:36:05 -0500
+Received: from dino.conectiva.com.br ([200.250.58.152]:57355 "EHLO
+	dino.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261872AbSJ2NgC>; Tue, 29 Oct 2002 08:36:02 -0500
+From: acme@conectiva.com.br
+To: davem@redhat.com
+Subject: [PATCH] ipv4: move proc stuff from net/ipv4/af_inet.c to net/ipv4/proc.c
+Message-ID: <1035898927.3dbe902f7534c@webmail.conectiva.com.br>
+Date: Tue, 29 Oct 2002 11:42:07 -0200 (BRDT)
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="-MOQ1035898927af6bd1332c7cd2b0cdca293da7a7d88e"
+User-Agent: IMP/PHP IMAP webmail program 2.2.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 04:57:12PM -0800, Davide Libenzi wrote:
+This message is in MIME format.
 
-> The epoll interface has to be used with non-blocking fds. The EAGAIN
-> return code from read/write tells you that you can go safely to wait for
-> events for that fd because you making the read/write to return EAGAIN, you
-> consumed the whole I/O space for that fd. Consuming the whole I/O space
-> meant that you brought the signal to zero ( talking in ee terms ), and a
-> followinf 0->1 transaction will trigger the event. Where 1 means I/O space
-> available ...
+---MOQ1035898927af6bd1332c7cd2b0cdca293da7a7d88e
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-I tried to modify the mtasker webserver
-(http://ds9a.nl/mtasker/releases/mtasker-0.2.tar.gz) to work with epoll
-instead of select and, well, this is awkward.
+David,
 
-The right way to use epoll is (schematically);
+     Please consider pulling from:
 
-	int clientfd=accept();
-	setnonblocking(clientfd);
+kernel.bkbits.net:/home/acme/net-2.5
 
-	epfd=epoll_create();
-	epoll_ctl(epfd,EP_CTL_ADD, clientfd, POLLIN);
+     This is to just flush my tree, I have confirmed the crash when
+using cat /proc/net/llc/core after psnap.o is loaded, will be fixing it,
+have not confirmed the crash using cat /proc/net/arp, will try it again
+in a different test case tho.
 
-	for(;;) {
-		if(read(clientfd)<0 && errno==EAGAIN) {
-			epoll_wait(epfd);
-			continue;
-		}
-                epoll_ctl(epfd,EP_CTL_DEL, clientfd); // remove again
-		break;
-	}
+- Arnaldo
+---MOQ1035898927af6bd1332c7cd2b0cdca293da7a7d88e
+Content-Type: application/octet-stream; name="ip.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ip.patch"
 
-This requires having the fd in epoll before trying to read, which means a
-weird interface where you have to register your interest, try to read, and
-unregister your interface in case it succeeded.
-	
-This means two epoll syscalls per read.
+WW91IGNhbiBpbXBvcnQgdGhpcyBjaGFuZ2VzZXQgaW50byBCSyBieSBwaXBpbmcgdGhpcyB3aG9s
+ZSBtZXNzYWdlIHRvOgonfCBiayByZWNlaXZlIFtwYXRoIHRvIHJlcG9zaXRvcnldJyBvciBhcHBs
+eSB0aGUgcGF0Y2ggYXMgdXN1YWwuCgo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CgoKQ2hhbmdlU2V0QDEuODIxLCAyMDAy
+LTEwLTI5IDEwOjMxOjQ4LTAzOjAwLCBhY21lQGNvbmVjdGl2YS5jb20uYnIKICBpcHY0OiBtb3Zl
+IHByb2Mgc3R1ZmYgZnJvbSBuZXQvaXB2NC9hZl9pbmV0LmMgdG8gbmV0L2lwdjQvcHJvYy5jCiAg
+CiAgQWxzbyBtYWtlIGNvbXBpbGF0aW9uIG9mIHRoaXMgbWlzYyBwcm9jIHN0dWZmIG5vdCBjb21w
+aWxlL2xpbmsgaWYKICBDT05GSUdfUFJPQ19GUyBpcyBub3Qgc2V0LiBOb3cgdG8gc2VxX2ZpbGUg
+dGhpcyByb3V0aW5lcy4KCgogaW5jbHVkZS9uZXQvaXBfZmliLmggfCAgICAxICsKIG5ldC9pcHY0
+L01ha2VmaWxlICAgIHwgICAgMyArKy0KIG5ldC9pcHY0L2FmX2luZXQuYyAgIHwgICAyOSArKysr
+Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogbmV0L2lwdjQvZmliX2hhc2guYyAgfCAgIDEyICsr
+KysrKysrKysrKwogbmV0L2lwdjQvcHJvYy5jICAgICAgfCAgIDMyICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrCiA1IGZpbGVzIGNoYW5nZWQsIDUyIGluc2VydGlvbnMoKyksIDI1IGRl
+bGV0aW9ucygtKQoKCmRpZmYgLU5ydSBhL2luY2x1ZGUvbmV0L2lwX2ZpYi5oIGIvaW5jbHVkZS9u
+ZXQvaXBfZmliLmgKLS0tIGEvaW5jbHVkZS9uZXQvaXBfZmliLmgJVHVlIE9jdCAyOSAxMDozMzo0
+NSAyMDAyCisrKyBiL2luY2x1ZGUvbmV0L2lwX2ZpYi5oCVR1ZSBPY3QgMjkgMTA6MzM6NDUgMjAw
+MgpAQCAtMjc3LDUgKzI3Nyw2IEBACiB9CiAKIGV4dGVybiBpbnQgZmliX3Byb2NfaW5pdCh2b2lk
+KTsKK2V4dGVybiB2b2lkIGZpYl9wcm9jX2V4aXQodm9pZCk7CiAKICNlbmRpZiAgLyogX05FVF9G
+SUJfSCAqLwpkaWZmIC1OcnUgYS9uZXQvaXB2NC9NYWtlZmlsZSBiL25ldC9pcHY0L01ha2VmaWxl
+Ci0tLSBhL25ldC9pcHY0L01ha2VmaWxlCVR1ZSBPY3QgMjkgMTA6MzM6NDUgMjAwMgorKysgYi9u
+ZXQvaXB2NC9NYWtlZmlsZQlUdWUgT2N0IDI5IDEwOjMzOjQ1IDIwMDIKQEAgLTIsMTMgKzIsMTQg
+QEAKICMgTWFrZWZpbGUgZm9yIHRoZSBMaW51eCBUQ1AvSVAgKElORVQpIGxheWVyLgogIwogCi1v
+YmoteSAgICAgOj0gdXRpbHMubyByb3V0ZS5vIGluZXRwZWVyLm8gcHJvYy5vIHByb3RvY29sLm8g
+XAorb2JqLXkgICAgIDo9IHV0aWxzLm8gcm91dGUubyBpbmV0cGVlci5vIHByb3RvY29sLm8gXAog
+CSAgICAgaXBfaW5wdXQubyBpcF9mcmFnbWVudC5vIGlwX2ZvcndhcmQubyBpcF9vcHRpb25zLm8g
+XAogCSAgICAgaXBfb3V0cHV0Lm8gaXBfc29ja2dsdWUubyBcCiAJICAgICB0Y3AubyB0Y3BfaW5w
+dXQubyB0Y3Bfb3V0cHV0Lm8gdGNwX3RpbWVyLm8gdGNwX2lwdjQubyB0Y3BfbWluaXNvY2tzLm8g
+XAogCSAgICAgdGNwX2RpYWcubyByYXcubyB1ZHAubyBhcnAubyBpY21wLm8gZGV2aW5ldC5vIGFm
+X2luZXQubyBpZ21wLm8gXAogCSAgICAgc3lzY3RsX25ldF9pcHY0Lm8gZmliX2Zyb250ZW5kLm8g
+ZmliX3NlbWFudGljcy5vIGZpYl9oYXNoLm8KIAorb2JqLSQoQ09ORklHX1BST0NfRlMpICs9IHBy
+b2Mubwogb2JqLSQoQ09ORklHX0lQX01VTFRJUExFX1RBQkxFUykgKz0gZmliX3J1bGVzLm8KIG9i
+ai0kKENPTkZJR19JUF9ST1VURV9OQVQpICs9IGlwX25hdF9kdW1iLm8KIG9iai0kKENPTkZJR19J
+UF9NUk9VVEUpICs9IGlwbXIubwpkaWZmIC1OcnUgYS9uZXQvaXB2NC9hZl9pbmV0LmMgYi9uZXQv
+aXB2NC9hZl9pbmV0LmMKLS0tIGEvbmV0L2lwdjQvYWZfaW5ldC5jCVR1ZSBPY3QgMjkgMTA6MzM6
+NDUgMjAwMgorKysgYi9uZXQvaXB2NC9hZl9pbmV0LmMJVHVlIE9jdCAyOSAxMDozMzo0NSAyMDAy
+CkBAIC0xMTU1LDEyICsxMTU1LDkgQEAKIAogI2lmZGVmIENPTkZJR19QUk9DX0ZTCiAKK2V4dGVy
+biBpbnQgaXBfbWlzY19wcm9jX2luaXQodm9pZCk7CiBleHRlcm4gaW50IHJhd19nZXRfaW5mbyhj
+aGFyICosIGNoYXIgKiosIG9mZl90LCBpbnQpOwotZXh0ZXJuIGludCBzbm1wX2dldF9pbmZvKGNo
+YXIgKiwgY2hhciAqKiwgb2ZmX3QsIGludCk7Ci1leHRlcm4gaW50IG5ldHN0YXRfZ2V0X2luZm8o
+Y2hhciAqLCBjaGFyICoqLCBvZmZfdCwgaW50KTsKLWV4dGVybiBpbnQgYWZpbmV0X2dldF9pbmZv
+KGNoYXIgKiwgY2hhciAqKiwgb2ZmX3QsIGludCk7CiBleHRlcm4gaW50IHRjcF9nZXRfaW5mbyhj
+aGFyICosIGNoYXIgKiosIG9mZl90LCBpbnQpOwotZXh0ZXJuIGludCB1ZHBfZ2V0X2luZm8oY2hh
+ciAqLCBjaGFyICoqLCBvZmZfdCwgaW50KTsKIAogaW50IF9faW5pdCBpcHY0X3Byb2NfaW5pdCh2
+b2lkKQogewpAQCAtMTE2OCw0NSArMTE2NSwyOSBAQAogCiAJaWYgKCFwcm9jX25ldF9jcmVhdGUo
+InJhdyIsIDAsIHJhd19nZXRfaW5mbykpCiAJCWdvdG8gb3V0X3JhdzsKLQlpZiAoIXByb2NfbmV0
+X2NyZWF0ZSgibmV0c3RhdCIsIDAsIG5ldHN0YXRfZ2V0X2luZm8pKQotCQlnb3RvIG91dF9uZXRz
+dGF0OwotCWlmICghcHJvY19uZXRfY3JlYXRlKCJzbm1wIiwgMCwgc25tcF9nZXRfaW5mbykpCi0J
+CWdvdG8gb3V0X3NubXA7Ci0JaWYgKCFwcm9jX25ldF9jcmVhdGUoInNvY2tzdGF0IiwgMCwgYWZp
+bmV0X2dldF9pbmZvKSkKLQkJZ290byBvdXRfc29ja3N0YXQ7CiAJaWYgKCFwcm9jX25ldF9jcmVh
+dGUoInRjcCIsIDAsIHRjcF9nZXRfaW5mbykpCiAJCWdvdG8gb3V0X3RjcDsKIAlpZiAodWRwX3By
+b2NfaW5pdCgpKQogCQlnb3RvIG91dF91ZHA7CiAJaWYgKGZpYl9wcm9jX2luaXQoKSkKIAkJZ290
+byBvdXRfZmliOworCWlmIChpcF9taXNjX3Byb2NfaW5pdCgpKQorCQlnb3RvIG91dF9taXNjOwog
+b3V0OgogCXJldHVybiByYzsKK291dF9taXNjOgorCWZpYl9wcm9jX2V4aXQoKTsKIG91dF9maWI6
+CiAJdWRwX3Byb2NfZXhpdCgpOwogb3V0X3VkcDoKIAlwcm9jX25ldF9yZW1vdmUoInRjcCIpOwog
+b3V0X3RjcDoKLQlwcm9jX25ldF9yZW1vdmUoInNvY2tzdGF0Iik7Ci1vdXRfc29ja3N0YXQ6Ci0J
+cHJvY19uZXRfcmVtb3ZlKCJzbm1wIik7Ci1vdXRfc25tcDoKLQlwcm9jX25ldF9yZW1vdmUoIm5l
+dHN0YXQiKTsKLW91dF9uZXRzdGF0OgogCXByb2NfbmV0X3JlbW92ZSgicmF3Iik7CiBvdXRfcmF3
+OgogCXJjID0gLUVOT01FTTsKIAlnb3RvIG91dDsKIH0KIAotaW50IGlwX3NlcV9yZWxlYXNlKHN0
+cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlKQotewotCXN0cnVjdCBzZXFfZmls
+ZSAqc2VxID0gKHN0cnVjdCBzZXFfZmlsZSAqKWZpbGUtPnByaXZhdGVfZGF0YTsKLQotCWtmcmVl
+KHNlcS0+cHJpdmF0ZSk7Ci0Jc2VxLT5wcml2YXRlID0gTlVMTDsKLQlyZXR1cm4gc2VxX3JlbGVh
+c2UoaW5vZGUsIGZpbGUpOwotfQogI2Vsc2UgLyogQ09ORklHX1BST0NfRlMgKi8KIGludCBfX2lu
+aXQgaXB2NF9wcm9jX2luaXQodm9pZCkKIHsKZGlmZiAtTnJ1IGEvbmV0L2lwdjQvZmliX2hhc2gu
+YyBiL25ldC9pcHY0L2ZpYl9oYXNoLmMKLS0tIGEvbmV0L2lwdjQvZmliX2hhc2guYwlUdWUgT2N0
+IDI5IDEwOjMzOjQ1IDIwMDIKKysrIGIvbmV0L2lwdjQvZmliX2hhc2guYwlUdWUgT2N0IDI5IDEw
+OjMzOjQ1IDIwMDIKQEAgLTEwODYsOCArMTA4NiwyMCBAQAogCQlyYyA9IC1FTk9NRU07CiAJcmV0
+dXJuIHJjOwogfQorCit2b2lkIF9faW5pdCBmaWJfcHJvY19leGl0KHZvaWQpCit7CisJcmVtb3Zl
+X3Byb2NfZW50cnkoInJvdXRlIiwgcHJvY19uZXQpOworfQorCiAjZWxzZSAvKiBDT05GSUdfUFJP
+Q19GUyAqLworCiBpbnQgX19pbml0IGZpYl9wcm9jX2luaXQodm9pZCkKK3sKKwlyZXR1cm4gMDsK
+K30KKwordm9pZCBfX2luaXQgZmliX3Byb2NfZXhpdCh2b2lkKQogewogCXJldHVybiAwOwogfQpk
+aWZmIC1OcnUgYS9uZXQvaXB2NC9wcm9jLmMgYi9uZXQvaXB2NC9wcm9jLmMKLS0tIGEvbmV0L2lw
+djQvcHJvYy5jCVR1ZSBPY3QgMjkgMTA6MzM6NDUgMjAwMgorKysgYi9uZXQvaXB2NC9wcm9jLmMJ
+VHVlIE9jdCAyOSAxMDozMzo0NSAyMDAyCkBAIC00Nyw2ICs0Nyw4IEBACiAjaW5jbHVkZSA8bmV0
+L3RjcC5oPgogI2luY2x1ZGUgPG5ldC91ZHAuaD4KICNpbmNsdWRlIDxsaW51eC9za2J1ZmYuaD4K
+KyNpbmNsdWRlIDxsaW51eC9wcm9jX2ZzLmg+CisjaW5jbHVkZSA8bGludXgvc2VxX2ZpbGUuaD4K
+ICNpbmNsdWRlIDxuZXQvc29jay5oPgogI2luY2x1ZGUgPG5ldC9yYXcuaD4KIApAQCAtMjExLDQg
+KzIxMywzNCBAQAogCWlmIChsZW4gPCAwKQogCQlsZW4gPSAwOyAKIAlyZXR1cm4gbGVuOworfQor
+CitpbnQgX19pbml0IGlwX21pc2NfcHJvY19pbml0KHZvaWQpCit7CisJaW50IHJjID0gMDsKKwor
+CWlmICghcHJvY19uZXRfY3JlYXRlKCJuZXRzdGF0IiwgMCwgbmV0c3RhdF9nZXRfaW5mbykpCisJ
+CWdvdG8gb3V0X25ldHN0YXQ7CisJaWYgKCFwcm9jX25ldF9jcmVhdGUoInNubXAiLCAwLCBzbm1w
+X2dldF9pbmZvKSkKKwkJZ290byBvdXRfc25tcDsKKwlpZiAoIXByb2NfbmV0X2NyZWF0ZSgic29j
+a3N0YXQiLCAwLCBhZmluZXRfZ2V0X2luZm8pKQorCQlnb3RvIG91dF9zb2Nrc3RhdDsKK291dDoK
+KwlyZXR1cm4gcmM7CitvdXRfc29ja3N0YXQ6CisJcHJvY19uZXRfcmVtb3ZlKCJzbm1wIik7Citv
+dXRfc25tcDoKKwlwcm9jX25ldF9yZW1vdmUoIm5ldHN0YXQiKTsKK291dF9uZXRzdGF0OgorCXJj
+ID0gLUVOT01FTTsKKwlnb3RvIG91dDsKK30KKworaW50IGlwX3NlcV9yZWxlYXNlKHN0cnVjdCBp
+bm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlKQoreworCXN0cnVjdCBzZXFfZmlsZSAqc2Vx
+ID0gKHN0cnVjdCBzZXFfZmlsZSAqKWZpbGUtPnByaXZhdGVfZGF0YTsKKworCWtmcmVlKHNlcS0+
+cHJpdmF0ZSk7CisJc2VxLT5wcml2YXRlID0gTlVMTDsKKwlyZXR1cm4gc2VxX3JlbGVhc2UoaW5v
+ZGUsIGZpbGUpOwogfQoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PQoKClRoaXMgQml0S2VlcGVyIHBhdGNoIGNvbnRhaW5z
+IHRoZSBmb2xsb3dpbmcgY2hhbmdlc2V0czoKMS44MjEKIyMgV3JhcHBlZCB3aXRoIGd6aXBfdXUg
+IyMKCgpiZWdpbiA2NjQgYmtwYXRjaDEzNzM3Ck0nWEwoYCNGLk9DVGBgXlU4OzcvOi4hI15DJ1ol
+S0tUL0kiVSYrWzoxWD5CRDM1XE5UUzspSS0tT0Y2JiwKTSswPFc4JSU7VCY6Ll5eXldEQVU+MEFQ
+KjxRXCMjKSpVVE5LMVtLLktBPj9YNlInUztCLiwpQShdUVdeSwpNMEc8O0Q8SURJLS1ZWiQxSlhA
+UVMkJVBKITgrVjIkVUReXlZHPUI5VUJTRD5gTEUlSiosMUdMTlxaIzpICk1QWTxDXkc4Sk5YVytd
+UV5fPzdZU0I1Il9DVF0mODc4TU9USi1eV1ZENTNYL1FXJVEnLksxNiY2LlNMLkwKTUYkQU1dVVBM
+SVJYOCgwUz4nTlVQWE9EK1pBLldMWEFIMyZHSDRBRDNZQEs/MTs+SiYiNlNbXkdRLixVRgpNT1VL
+ST0uWFsqS15eSVg/IjskSFxQSCglXFQ3YFQzTSwnPCRIKUpRLTI5TCVGKShOSVVVN01gQ08kSCot
+Ck01OFtPNlAuX10nIitIKz9YX1NXIiI4SFBYJzpbPiorRiREXVMlPiUiU1koJClbRjo4KyFYVlhD
+OzgzKSgKTVg8Jik4L181SilHTjEqYCIvRl8mQTwqM1wkOUJQIyUtUVolLjU4OTVATzRIKz9gRCs6
+KVVbOUcyVTNTOQpNIU5PPVgjMCEnMj9HOVFdLi9QWE4rTF0vIUFeXjhFQUdZQTZQK1NZMy9cVzZB
+P1BRMiYhMUozNTcsUFZQCk0iQD1dUEYhO1Q0JDcqV15DVUlYT0EkQShULkw9JURaUzojUis5O0xU
+YEhgOS5KLVU4UD5ONiFgXzwrVSUKTVFRPilCIS9BPF47JlBaIyZMPzQqQDNAIVk5UFBNR2A5JD1Z
+LjovP1xMSCcqJFBPTl5JVUAoMC4/XDpCMwpNXChgKChPQlAhTTUjTk04YD40KVhdLzwhUDokJkhb
+YDg7OC1STzAjOC40UCJFRzBEJFkpJ1UvLlw3OiNOCk1aNUwjUUdTSltWJkkrVCE4UFo/W0wpQSdB
+O0wwLS84RCdQOiI8STgoLV1IJTpULzsmQkI/PlNTWD81IysKTTgtTSYhNEJgNVMzVi8zXUAwXlkm
+KSEqWzQmVko2Vj41Ilw+VDI/KEEjTlsuRVg+J2BNSF8lYENRIjcnWQpNQEhPYCVTOideSUw5RScw
+OT5TUiNUSjwsXkVAJis5LywuNltFL15UJyxOKyVAXFBYKCsuPkxAWVgiPEU/Ck02Tjg5R0pMVFFC
+OiZTN0QmXEU+SkZWO0hKJj8pTiE1Lk5ZRVg4I1M3VCtgVkdCRVE6OD4oQTRcJVpVQC4KTSFPTVJE
+LiQ2Pz4pQCswPyszJ0YvQFVPXi4oImBbU1JAV1pHWTRML09LNU1MN01UXkFJVydBOixMIUBGTQpN
+LDxdNFJBUlo8JFpNKEM2JltBNFpJOzE6XkY9U1xXUSdeJjc/VkwxMUZeUT0mP09XWjtNR1lEPVEu
+KT4zCk1YVlJGIlI8I15YPC4rJ1hEXDAtXzc8OkEkT2BZSTk6X0cuUSs4IkEjRj9PJFgvSEw6Ql81
+LkA4T1wxXjIKTTBSR1UuSkxERkY4OjMjOFApUktTOilKTVxOQFtGIU1AO0VKP1BRSUguUTNbMUg9
+QEYqJSZGTiNGXU5KQwpNKF0xSDdgL08sOVMoIkdNVkIwTStbRDpaSismOU5MT01IK1tVSDA1Pzhb
+JDkiKk1COzhdKFYrPUJXKTcqCk1NUk8mTlgqIj5NM0MhUTg0WypGQj4vUFdGMkcmWlYpQVk5KiNA
+SCQoYDhSWzBLOjgmJUNeL0UxM0gnXTAKTShZPyZESTREVF9FTVxZRS1eLF0+Vj8sL2AhKjBeJV1U
+OT02OjBMN1ZALSk+TjVTLyguISguNjc3P0FPPApNK1tWUSFeX1dePkYmQkZCRDkpO0RRXT1BKicu
+PVA7VDVSWD1VITlQMFghUEQ/VCgiMkJTP083V1lTSV9YCk1fQkM/UlVfJT03Uk9EIVtgPTM+YF8v
+TlwqTDdRN187TylKTU5EITMuWi82NlpgWkFEOVRSUkMkR0VLS0YKTVJKQjg2Vy1TJitKOzYzRVBV
+QSNeSktQSV9LQCtEVCY0UlUjK1lDL0glU0s0JCQnRCU6WD4hTTxQKDxUMgpNTTdGLTUtKT5HOkhC
+RlRRKy86OTdIXDIoWkM2SFomOiUpRFAsMz5LVDUlLVtZQ1tLK0YsW0NeU2A0QFIyCk1ZMllFXUpB
+UCdFN1NIL18wRyNOUzUtLkoxWy4vLDZDS189R1lFXz0/WCFRVz4nSStPWCEjQy1NUi45OUEKTSg5
+TiVTRjwxQyY4KlcvSyItRiI/PE0iMltYN1lNT1pKMUk+VD9gJF1WKlJZLTdZREZNO0s6MFhRSz40
+QApNI0c1SC83UjNZISlWRSNeNixIIz82J1wmPTY/Py9HX04rPlZVI0s0IjlfJ1Q1R18uMUIsKU1J
+US1eRlg8Ci8+XC9BLCQnX2AyMmAkLEdXJTBgYApgCmVuZAo=
 
-This is all solved if epoll_ctl() creates an edge if it finds that the poll
-condition is met at insert time.	
 
-The way it works now is way more awkward then using regular poll(), the way
-it works now is very easy to do wrong because of this awkwardness. Even
-semi-correct which zeroes the pollstate before calling epoll is wrong:
-
-	for(;;) {
-		if(read(clientfd)<0 && errno==EAGAIN) {
-			waitOn(clientfd);  /* function which registers our
-                                              interest with a central
-			                      dispatcher and waits */ 
-			continue;
-		}
-		break;
-	}
-	
-Code like this would appear in many userspace threading abstractions, like
-GNU Pth or mtasker. Instead, we need:
-
-	for(;;) {
-		registerReadInterest(clientfd);
-		if(read(clientfd)<0 && errno==EAGAIN) {
-			waitOn(clientfd);  /* function which waits for our
-			                      interest be satisfied */
-			continue;
-		}
-		deleteReadInterest(clientfd);
-		break;
-	}
-
-If epoll_ctl make epoll_wait report an edge in case it finds that there is
-already data, all this is way way simpler, allowing:
-
-	waitOn(clientfd); /* function which registers interest and waits for
-	                     an edge to appear */
-	read(clientfd);
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+---MOQ1035898927af6bd1332c7cd2b0cdca293da7a7d88e--

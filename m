@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265815AbUAKJaa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 04:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265818AbUAKJaa
+	id S265816AbUAKJh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 04:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUAKJh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 04:30:30 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:35589 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S265815AbUAKJa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 04:30:29 -0500
-Date: Sun, 11 Jan 2004 10:30:10 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Simon Kirby <sim@netnation.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 SMP lockups
-Message-ID: <20040111093010.GG545@alpha.home.local>
-References: <20040109210450.GA31404@netnation.com> <Pine.LNX.4.58L.0401101719400.1310@logos.cnet> <20040110144049.5e195ebd.akpm@osdl.org> <20040111085506.GA6834@netnation.com>
-Mime-Version: 1.0
+	Sun, 11 Jan 2004 04:37:57 -0500
+Received: from smtp2.fre.skanova.net ([195.67.227.95]:36593 "EHLO
+	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S265816AbUAKJhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 04:37:45 -0500
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Increase recursive symlink limit from 5 to 8
+References: <E1AeMqJ-00022k-00@minerva.hungry.com>
+	<2flllofnvp6.fsf@saruman.uio.no>
+	<microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 11 Jan 2004 10:37:42 +0100
+In-Reply-To: <microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org>
+Message-ID: <m27jzyrfkp.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040111085506.GA6834@netnation.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 12:55:06AM -0800, Simon Kirby wrote:
-> On Sat, Jan 10, 2004 at 02:40:49PM -0800, Andrew Morton wrote:
-> 
-> > Presumably it's spinning on the lock with interrupts enabled.  Make that
-> > the `NMI' counters in /proc/interrupts are incrementing for all CPUs.
-> 
-> Actually, on one of the boxes it doesn't seem to be working at all:
-> 
-> activating NMI Watchdog ... done.
-> testing NMI watchdog ... CPU#0: NMI appears to be stuck!  
+Steve Youngs <sryoungs@bigpond.net.au> writes:
 
-Could you try with "nmi_watchdog=2" ? This is the only one which works on
-my ASUS A7M266-D (MPX + dual XP 1800+).
+> * Petter Reinholdtsen <pere@hungry.com> writes:
+> 
+>   >   Linux:         Symlink limit seem to be 6 path entities.
+>   >   AIX:           Symlink limit seem to be 21 path entities.
+>   >   HP-UX:         Symlink limit seem to be 21 path entities.
+>   >   Solaris:       Symlink limit seem to be 21 path entities.
+>   >   Irix:          Symlink limit seem to be 31 path entities.
+>   >   Mac OS X:      Symlink limit seem to be 33 path entities.
+>   >   Tru64 Unix:    Symlink limit seem to be 65 path entities.
+> 
+>   > I really think this limit should be increased in Linux.  Not sure
+>   > how high it should go, but from 5 to somewhere between 20 and 64
+>   > seem like a good idea to me.
+> 
+> 6 does seem pretty low.  What was the reason for setting it there?  Is
+> there a downside to increasing it?
 
-Willy
+Search the archives for "symlink recursion":
 
+http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=1&s=symlink+recursion&q=b
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

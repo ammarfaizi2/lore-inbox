@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbTJUUti (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbTJUUti
+	id S263358AbTJUUyd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263363AbTJUUyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:49:38 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19716 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263301AbTJUUtN
+	Tue, 21 Oct 2003 16:54:33 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20996 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263358AbTJUUya
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:49:13 -0400
+	Tue, 21 Oct 2003 16:54:30 -0400
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
-Date: 21 Oct 2003 20:39:11 GMT
+Subject: Re: ATA Defect management
+Date: 21 Oct 2003 20:44:29 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bn45hf$ir2$1@gatekeeper.tmr.com>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310171935.h9HJZaLm002335@81-2-122-30.bradfords.org.uk> <m37k33igui.fsf@defiant. <m3u166vjn0.fsf@defiant.pm.waw.pl>
-X-Trace: gatekeeper.tmr.com 1066768751 19298 192.168.12.62 (21 Oct 2003 20:39:11 GMT)
+Message-ID: <bn45rd$is6$1@gatekeeper.tmr.com>
+References: <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60> <200310171037.h9HAbOrv000559@81-2-122-30.bradfords.org.uk>
+X-Trace: gatekeeper.tmr.com 1066769069 19334 192.168.12.62 (21 Oct 2003 20:44:29 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m3u166vjn0.fsf@defiant.pm.waw.pl>,
-Krzysztof Halasa  <khc@pm.waw.pl> wrote:
-| John Bradford <john@grabjohn.com> writes:
-|
-| > My most important point is that writes should never fail on a good
-| > drive.
+In article <200310171037.h9HAbOrv000559@81-2-122-30.bradfords.org.uk>,
+John Bradford  <john@grabjohn.com> wrote:
+| [Note to Eric, who is CC'ed, can you comment on how Maxtor drives
+| handle these issues?]
 | 
-| That's certainly what the drives do. Unless they are out of spare
-| sectors, of course.
+| Quote from "Norman Diamond" <ndiamond@wta.att.ne.jp>:
+| > Friends in the disk drive section at Toshiba said this:
+| > 
+| > When a drive tries to read a block, if it detects errors, it retries up to
+| > 255 times.  If a retry succeeds then the block gets reallocated.  IF 255
+| > RETRIES FAIL THEN THE BLOCK DOES NOT GET REALLOCATED.
 | 
-| Doing cat /dev/zero > /dev/hd* fixes all bad sectors on modern drive.
+| OK, this is interesting, at least we have some specific information.
+| 
+| > This was so unbelievable to that I had to confirm this with them in
+| > different words.  In case of a temporary error, the drive provides the
+| > recovered data as the result of the read operation and the drive writes the
+| > data to a reallocated sector.  In case of a permanent error, the block is
+| > assumed bad, and of course the data are lost.  Since the data are assumed
+| > lost, the drive keeps the defective LBA sector number associated with the
+| > same defective physical block and it does not reallocate the defective
+| > block.
 
-Flash from the past, back in the days of MFM drives, and "new" RLL
-controllers, we wrote software which regularly read all the data off a
-track with appropriate retries, reformatted the track, wrote the data,
-and read it back to verify. This was because of 'sector walk" which made
-the sectors move relative to the IRG. And we wrote our own device
-drivers to use large sectors to get more capacity, those were the days.
+Not so. Assuming the admin is restoring to the same bad drive (the
+twit!), since the drive does do relocate on write, the recovery will
+work, the data will be whole, and life will be good.
 
-However, that's the kind of thing I would hope S.M.A.R.T. could do, with
-relocation of course.
+I'm not sure why one would do a by-sector backup, but I guess for some
+filesystems or raw database info it might be useful.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

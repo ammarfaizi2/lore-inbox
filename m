@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285415AbRLSS6R>; Wed, 19 Dec 2001 13:58:17 -0500
+	id <S282489AbRLSSyH>; Wed, 19 Dec 2001 13:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282497AbRLSS6I>; Wed, 19 Dec 2001 13:58:08 -0500
-Received: from sammy.netpathway.com ([208.137.139.2]:20233 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S283724AbRLSS5w>; Wed, 19 Dec 2001 13:57:52 -0500
-Message-ID: <3C20E330.EDA31ACA@netpathway.com>
-Date: Wed, 19 Dec 2001 12:57:52 -0600
-From: Gary White <linux-kernel@netpathway.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+	id <S282495AbRLSSxq>; Wed, 19 Dec 2001 13:53:46 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:26383 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S282489AbRLSSxj>; Wed, 19 Dec 2001 13:53:39 -0500
+Message-ID: <3C20E1F8.9C8D2825@lexus.com>
+Date: Wed, 19 Dec 2001 10:52:40 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-rc2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] reiserfs remount problem (Re: Linux 2.4.17-rc2)
+To: "M. R. Brown" <mrbrown@0xd6.org>
+CC: nbecker@fred.net, Benoit Poulot-Cazajous <poulot@ifrance.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com> <20011219184745.GF19236@0xd6.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same problem here, but fixed with reiserfsck --rebuild-tree ...
+"M. R. Brown" wrote:
 
-> Is your reiserfs root partition 3.5 or 3.6 format? (can be checked in
-/proc/fs/reiserfs/.../version
-
-Mine is 3.6.26 but I don't have that info in my proc...Show info not
-compiled in kernel
-
+> * nbecker@fred.net <nbecker@fred.net> on Wed, Dec 19, 2001:
 >
-> Try to boot of different media (rescue disk/CD) and run resiserfsck on
-your root partition,
-
-Did so and found errors
-
+> > Is it safe to use gcc-3.0.2 to compile the kernel?
 >
-> is there any errors? If yes - then fix them (with reiserfsck
---rebuild-tree probably),
+> Absolutely not.  There was at least one reported ICE (internal compiler
+> error) with drivers/net/8139too.c.  Stick to the 2.95.x series.
 
-Ran  reiserfsck --rebuild-tree and system now boots
+BTW 2.96 is fine also -
 
+cu
 
-> Is your root partition big?
-
-No,  4GB
+jjs
 

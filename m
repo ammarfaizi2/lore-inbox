@@ -1,86 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284778AbRLKBX1>; Mon, 10 Dec 2001 20:23:27 -0500
+	id <S284785AbRLKBfj>; Mon, 10 Dec 2001 20:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284776AbRLKBXR>; Mon, 10 Dec 2001 20:23:17 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:32964 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S284772AbRLKBXH>;
-	Mon, 10 Dec 2001 20:23:07 -0500
-Date: Tue, 11 Dec 2001 12:22:58 +1100
-From: Timothy Shimmin <tes@boing.melbourne.sgi.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Nathan Scott <nathans@sgi.com>, Andreas Gruenbacher <ag@bestbits.at>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-xfs@oss.sgi.com
-Subject: Re: [PATCH] Revised extended attributes interface
-Message-ID: <20011211122258.V61575@boing.melbourne.sgi.com>
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <20011210115209.C1919@redhat.com>
+	id <S284780AbRLKBfT>; Mon, 10 Dec 2001 20:35:19 -0500
+Received: from cx662584-g.okcnc1.ok.home.com ([24.254.203.6]:46743 "HELO
+	cx662584-g.oknc1.ok.home.com") by vger.kernel.org with SMTP
+	id <S284781AbRLKBfR>; Mon, 10 Dec 2001 20:35:17 -0500
+Subject: Re: [PATCH] Make highly niced processes run only when idle
+From: Steve Bergman <steve@rueb.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1007944229.878.21.camel@phantasy>
+In-Reply-To: <75F30A52-ECF4-11D5-80FE-00039355CFA6@suespammers.org>
+	<1007939114.878.1.camel@phantasy> <20011209181643.A8846@redhat.com>
+	<1007940066.878.7.camel@phantasy>  <20011209184656.E8846@redhat.com> 
+	<1007944229.878.21.camel@phantasy>
+X-Mailer: Evolution/0.13 (Preview Release)
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 10 Dec 2001 19:35:16 -0600
+Message-Id: <1008034516.1454.16.camel@cx662584-f.oknc1.ok.home.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0us
-In-Reply-To: <20011210115209.C1919@redhat.com>; from sct@redhat.com on Mon, Dec 10, 2001 at 11:52:09AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 11:52:09AM +0000, Stephen C. Tweedie wrote:
-> On Sat, Dec 08, 2001 at 03:58:41PM +1100, Nathan Scott wrote:
-> > On Fri, Dec 07, 2001 at 08:20:36PM +0000, Stephen C. Tweedie wrote:
-> > 
-> > > This is looking OK as far as EAs go.  However, there is still no
-> > > mention of ACLs specifically, except an oblique reference to
-> > > "system.posix_acl_access".  
-> > 
-> > Yup - there's little mention of ACLs because they are only an
-> > optional, higher-level consumer of the API, & so didn't seem
-> > appropriate to document here.
-> 
-> Unfortunately, if there are many filesystems wanting to use posix
-> ACLs, then standardising the API is still desirable.
-True.
+I'm not a kernel hacker by any stretch of the imagination but I do
+follow lkml.  While SCHED_IDLE would be really nice it seems like this
+topic comes up from time to time there always seems to be a (deadlock)
+catch that keeps it from getting into the main kernel tree.  While it
+would be really great if Robert's patch turns out to be the magic bullet
+this time, as a Linux user and SetiAtHome supporter I would be happy
+just to have a "nice -19" that was truly nice.  Running setiathome at
+nice -19 on my box and then firing up a processor intensive process at
+normal priority, I find that seti still uses 14% processor according to
+top.  I like to run 2 setiathome processes because I get better overall
+throughput that way, but the 2 combined then get ~25% of the processor.
+Not really all that nice.  Would it be difficult to make "19" a special
+case that was really, really nice, but not *totally* nice?  Avoiding
+deadlock but still following the spirit of SCHED_IDLE?  
 
-> 
-> > We have implemented POSIX ACLs above this interface - there
-> > is source to new versions of Andreas' user tools here:
-> > http://oss.sgi.com/cgi-bin/cvsweb.cgi/linux-2.4-xfs/cmd/acl2
-> > These have been tested with XFS and seem to work fine, so we
-> > are ready to transition over from our old implementation to
-> > this new one.
-> 
-> But the ACL encoding is still hobbled: there's no namespace for
-> credentials other than uid/gid.  This has been brought up before, but
-> it's worth going over some of the things we'd like to be able to do
-> with extended credentials again:
-> 
-[credential examples deleted] 
 
-> 
-> Authentication is about *much* more than just local uid/gids, but the
-> current EA/ACL specs are creating an implicit standard for ACLs
-> without addressing any of these concerns.
-> 
-> > The existence of a POSIX ACL implementation using attributes
-> > system.posix_acl_access and system.posix_acl_default doesn't
-> > preclude other types of ACLs from being implemented (obviously
-> > using different attributes) as well of course, if someone had
-> > an itch to scratch.
-> 
-> I am not talking about other types of ACLs!  I am talking about
-> *POSIX* ACLs, but using a credentials namespace which is more than
-> just uid/gid.  Only the credentials change: the rest of the POSIX
-> semantics still apply.  The CITI NFSv4 implementation is already doing
-> POSIX ACLs and GSSAPI krb5 authentication on top of the bestbits API,
-> so we already have at least one application ready and waiting to use
-> such an extension.
-> 
 
-So you are particularly interested in more general "qualifiers" 
-(in posix acl entry speak:).
-Some people are also interested in more general "permissions" for ACEs.
 
-Could this not be catered for independent of the proposed EA interface
-for getting/setting/removing EAs ?
-One could come up with more general data structures and functions
-for ACLs/ACEs than what we currently propose, 
-and yet still use the same EA interface.
-
---Tim

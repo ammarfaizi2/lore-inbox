@@ -1,97 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271376AbTHFUWk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271373AbTHFUWj
+	id S270850AbTHFU0M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270926AbTHFU0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:22:39 -0400
-Received: from noc.mainstreet.net ([207.5.0.45]:2578 "EHLO noc.mainstreet.net")
-	by vger.kernel.org with ESMTP id S270995AbTHFUW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:22:29 -0400
-Message-ID: <C8AEE7623CD92344B097388DA0ABD05C0544E7AA@corpbridge.corp.idt.com>
-From: "Kou, Haofeng" <Haofeng.Kou@idt.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: SI3112
-Date: Wed, 6 Aug 2003 13:22:22 -0700 
+	Wed, 6 Aug 2003 16:26:12 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:50293 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S270850AbTHFUZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 16:25:43 -0400
+Message-ID: <3F316446.3020808@RedHat.com>
+Date: Wed, 06 Aug 2003 16:25:42 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: util-linux@math.uio.no
+CC: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: NFS Mount Patch: Making NFS over TCP the default
+Content-Type: multipart/mixed;
+ boundary="------------020601020503030005020209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone has make the SI3112 SATA card fully work on the embedded board?
-I have tried the 2.4.21 from kernel.org, the RedHat9.0 and the MIPS
-kernel-2.4.21 from linux-mips.org. But all of them shows:
-
-hda: lost interrupt
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: drive not ready for command
-
-Any suggestion or information are welcome!
-
-Thanks!
+This is a multi-part message in MIME format.
+--------------020601020503030005020209
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
+This patch changes the default transport of NFS mounts
+from UDP to TCP, iff the transport not explicitly
+specified and the server support TCP mounts.
 
------Original Message-----
-From: Michael Buesch [mailto:fsdeveloper@yahoo.de]
-Sent: Wednesday, August 06, 2003 12:32 PM
-To: Frank Van Damme
-Cc: linux kernel mailing list; linux-ide@vger.kernel.org
-Subject: Re: [2.6] system is very slow during disk access
-
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Wednesday 06 August 2003 21:29, Frank Van Damme wrote:
-> Maybe you just didn't enable DMA on them. Use hdparm -v /dev/foo to find
-> out.
-
-DMA is on.
-
-root@lfs:/home/mb> hdparm -v /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 14244/16/63, sectors = 80418240, start = 0
+This patch is backwards compatible with servers that
+don't support TCP mounts since it quarries the server
+(which was already happening for the mount version)
+to see if the server support TCP mounts.
 
 
-root@lfs:/home/mb> hdparm -v /dev/hdc
-
-/dev/hdc:
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 14244/16/63, sectors = 80418240, start = 0
+SteveD.
 
 
-- -- 
-Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
-Penguin on this machine:  Linux 2.6.0-test2 - i386
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE/MVeeoxoigfggmSgRAkVfAJ4/SIBNLy7v4+E5OgA/z4FjMcKFfgCfTF94
-orXbTJpyryLpKXwjzkZoyqU=
-=4jnz
------END PGP SIGNATURE-----
+--------------020601020503030005020209
+Content-Type: text/plain;
+ name="util-linux-2.11y-mount-nfs-v3tcp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="util-linux-2.11y-mount-nfs-v3tcp.patch"
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--- util-linux-2.11y/mount/nfsmount.c.diff	2003-08-05 09:26:14.000000000 -0400
++++ util-linux-2.11y/mount/nfsmount.c	2003-08-05 10:47:41.000000000 -0400
+@@ -133,6 +133,52 @@ find_kernel_nfs_mount_version(void) {
+ 	     nfs_mount_version = NFS_MOUNT_VERSION;
+ 	return nfs_mount_version;
+ }
++static inline struct pmaplist *
++get_pmaps(struct sockaddr_in *addr)
++{
++	static struct pmaplist *phead = NULL;
++	static struct sockaddr_in *lastaddr = NULL;
++
++	/*
++	 * Make sure we are taking to the same server
++	 */
++	if (lastaddr && (addr->sin_addr.s_addr != lastaddr->sin_addr.s_addr))
++		phead = NULL;
++	
++	if (phead == NULL)
++		phead = pmap_getmaps(addr);
++
++	lastaddr = addr;
++	return phead;
++}
++#define NFS_TCP_CAP 0x01
++#define NFS_V3_CAP  0x02
++
++static unsigned short
++get_nfs_caps(struct sockaddr_in *server_addr)
++{
++	struct pmaplist *pmap;
++	unsigned short nfs_caps = 0;
++
++	if ((pmap = get_pmaps(server_addr)) == NULL)
++		return 0;
++
++	do {
++		if (pmap->pml_map.pm_prog == NFS_PROGRAM) {
++			if (pmap->pml_map.pm_prot == IPPROTO_TCP)
++				nfs_caps |= NFS_TCP_CAP;
++			if (pmap->pml_map.pm_vers == 3)
++				nfs_caps |= NFS_V3_CAP;
++			/*
++			 * Check to see if we are finished
++			 */
++			if ((nfs_caps & (NFS_TCP_CAP|NFS_V3_CAP)) == (NFS_TCP_CAP|NFS_V3_CAP))
++				break;
++		}
++	} while ((pmap = pmap->pml_next));
++	
++	return nfs_caps;
++}
+ 
+ static struct pmap *
+ get_mountport(struct sockaddr_in *server_addr,
+@@ -155,7 +201,7 @@ get_mountport(struct sockaddr_in *server
+ 	p.pm_port = port;
+ 
+ 	server_addr->sin_port = PMAPPORT;
+-	pmap = pmap_getmaps(server_addr);
++	pmap = get_pmaps(server_addr);
+ 
+ 	while (pmap) {
+ 		if (pmap->pml_map.pm_prog != prog)
+@@ -230,6 +276,7 @@ int nfsmount(const char *spec, const cha
+ 	time_t t;
+ 	time_t prevt;
+ 	time_t timeout;
++	unsigned short nfs_caps;
+ 
+ 	/* The version to try is either specified or 0
+ 	   In case it is 0 we tell the caller what we tried */
+@@ -443,6 +490,49 @@ int nfsmount(const char *spec, const cha
+ 			}
+ 		}
+ 	}
++
++	/* create mount deamon client */
++	/* See if the nfs host = mount host. */
++	if (mounthost) {
++		if (mounthost[0] >= '0' && mounthost[0] <= '9') {
++			mount_server_addr.sin_family = AF_INET;
++			mount_server_addr.sin_addr.s_addr = inet_addr(hostname);
++		} else {
++			if ((hp = gethostbyname(mounthost)) == NULL) {
++				fprintf(stderr, _("mount: can't get address for %s\n"),
++					mounthost);
++				goto fail;
++			} else {
++				if (hp->h_length > sizeof(struct in_addr)) {
++					fprintf(stderr,
++						_("mount: got bad hp->h_length?\n"));
++					hp->h_length = sizeof(struct in_addr);
++				}
++				mount_server_addr.sin_family = AF_INET;
++				memcpy(&mount_server_addr.sin_addr,
++				       hp->h_addr, hp->h_length);
++			}
++		}
++	}
++	/*
++	 * Set the defaults to be NFS v3 over TCP iff the
++	 * version or transport have not been explicitly
++	 * set and the server is able to support those
++	 * options.
++	 */
++	if (nfsvers == 0 || tcp == 0) {
++		if ((nfs_caps = get_nfs_caps(&mount_server_addr))) {
++			if (nfsvers == 0) {
++				if (nfs_caps & NFS_V3_CAP)
++					nfsvers = 3;
++			}
++			if (tcp == 0) {
++				if (nfs_caps & NFS_TCP_CAP)
++					tcp = 1;
++			}
++		}
++	}
++
+ 	proto = (tcp) ? IPPROTO_TCP : IPPROTO_UDP;
+ 
+ 	data.flags = (soft ? NFS_MOUNT_SOFT : 0)
+@@ -518,29 +608,6 @@ int nfsmount(const char *spec, const cha
+ 		return retval;
+ 	}
+ 
+-	/* create mount deamon client */
+-	/* See if the nfs host = mount host. */
+-	if (mounthost) {
+-		if (mounthost[0] >= '0' && mounthost[0] <= '9') {
+-			mount_server_addr.sin_family = AF_INET;
+-			mount_server_addr.sin_addr.s_addr = inet_addr(hostname);
+-		} else {
+-			if ((hp = gethostbyname(mounthost)) == NULL) {
+-				fprintf(stderr, _("mount: can't get address for %s\n"),
+-					mounthost);
+-				goto fail;
+-			} else {
+-				if (hp->h_length > sizeof(struct in_addr)) {
+-					fprintf(stderr,
+-						_("mount: got bad hp->h_length?\n"));
+-					hp->h_length = sizeof(struct in_addr);
+-				}
+-				mount_server_addr.sin_family = AF_INET;
+-				memcpy(&mount_server_addr.sin_addr,
+-				       hp->h_addr, hp->h_length);
+-			}
+-		}
+-	}
+ 
+ 	/*
+ 	 * The following loop implements the mount retries. On the first
+@@ -675,7 +742,8 @@ int nfsmount(const char *spec, const cha
+ 		if (t >= timeout)
+ 			goto fail;
+ 	}
+-	nfsvers = (pm_mnt->pm_vers < 2) ? 2 : pm_mnt->pm_vers;
++	if (nfsvers == 0)
++		nfsvers = (pm_mnt->pm_vers < 2) ? 2 : pm_mnt->pm_vers;
+ 
+ 	if (nfsvers == 2) {
+ 		if (status.nfsv2.fhs_status != 0) {
+
+
+--------------020601020503030005020209--
+

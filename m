@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263906AbRFMA1t>; Tue, 12 Jun 2001 20:27:49 -0400
+	id <S263922AbRFMAfj>; Tue, 12 Jun 2001 20:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263922AbRFMA1j>; Tue, 12 Jun 2001 20:27:39 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:1808
-	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S263906AbRFMA1h>;
-	Tue, 12 Jun 2001 20:27:37 -0400
-To: John Martin <suntzu@stanford.edu>
-Subject: Re: [PATCH] symlink.c
-Message-ID: <992392024.3b26b3586645a@www.goop.org>
-Date: Tue, 12 Jun 2001 17:27:04 -0700 (PDT)
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <Pine.GSO.4.31.0106121706490.25662-100000@epic20.Stanford.EDU>
-In-Reply-To: <Pine.GSO.4.31.0106121706490.25662-100000@epic20.Stanford.EDU>
+	id <S263923AbRFMAf3>; Tue, 12 Jun 2001 20:35:29 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38927 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S263922AbRFMAfK>;
+	Tue, 12 Jun 2001 20:35:10 -0400
+Date: Tue, 12 Jun 2001 21:34:42 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Craig Lyons <craigl@promise.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Getting A Patch Into The Kernel
+In-Reply-To: <005101c0f38f$e2000960$bd01a8c0@promise.com>
+Message-ID: <Pine.LNX.4.21.0106122133130.14934-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting John Martin <suntzu@stanford.edu>:
-> this patch adds a check to make sure memory was allocated, returns an
-> error code otherwise.
+On Tue, 12 Jun 2001, Craig Lyons wrote:
 
-autofs4_dentry_ino doesn't allocate memory; it just extracts the fsdata pointer
-from the dentry structure.  If it's returning NULL, then there's something else
-wrong and you're papering over the symptoms.  Are you seeing this happen?
+> My name is Craig Lyons and I am the marketing manager at Promise
+> Technology. We have a question and are hoping you can point us in the
+> right direction.
 
-Linus, please don't apply this.
+I think most, if not all, of the things you want to know are
+described in the following two documents in the Documentation/
+directory of the Linux kernel source  ;)
 
-     J
+linux/Documentation/SubmittingDrivers
+linux/Documentation/SubmittingPatches
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbUKLCUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbUKLCbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbUKLCUM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 21:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbUKLCUM
+	id S262402AbUKLCbK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 21:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbUKLCbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 21:20:12 -0500
-Received: from zlynx.org ([199.45.143.209]:17158 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S262378AbUKLCTw (ORCPT
+	Thu, 11 Nov 2004 21:31:10 -0500
+Received: from ozlabs.org ([203.10.76.45]:42952 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262402AbUKLCbI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 21:19:52 -0500
-Subject: Re: Reiser{3,4}: problem with the copyright statement
-From: Zan Lynx <zlynx@acm.org>
-To: Stephen Pollei <stephen_pollei@comcast.net>
-Cc: Adrian Bunk <bunk@stusta.de>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1100213504.8355.27.camel@fury>
-References: <20041111012333.1b529478.akpm@osdl.org>
-	 <20041111214554.GB2310@stusta.de>  <1100213504.8355.27.camel@fury>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XoqthebYfgFLEIE31DQ8"
-Date: Thu, 11 Nov 2004 19:08:12 -0700
-Message-Id: <1100225292.16114.27.camel@localhost>
+	Thu, 11 Nov 2004 21:31:08 -0500
+Date: Fri, 12 Nov 2004 13:29:13 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: [TRIVIAL] ppc64: Kill unused KRANGE_{START,END} macros
+Message-ID: <20041112022913.GE25274@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew, please apply:
 
---=-XoqthebYfgFLEIE31DQ8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Remove KRANGE_{START,END} macros from ppc64 code.  These were not used
+anywhere.  Further KRANGE_END was misleading, since it implied a limit
+on the linear mapping range based on the pagetable structure, whereas
+in fact the linear mapping does not use a (Linux) pagetable at all.
 
-On Thu, 2004-11-11 at 14:51 -0800, Stephen Pollei wrote:
-> On Thu, 2004-11-11 at 13:45, Adrian Bunk wrote:
-> > If you add your code to governed files, and don't
-> > want it to be owned by Hans Reiser, put your copyright label on that
-> > code ... All portions of governed files not labeled otherwise are owned
-> > by Hans Reiser, and ... and leaving the sentence in stating that
-> > licensing is governed by the statement in this file, you accept this.
->=20
-> > Besides the fact that giving the copyright completely away is nothing=20
-> > that is legally possible in at least Germany, ...
->=20
-> Han's method is also very likely nugatory within the USA.
->=20
-> http://copyright.gov/title17/92chap2.html#204 clearly states that to
-> transfer title of copyrighted work requires a written instrument of
-> conveyance. That instrument of conveyance has to be signed and should in
-> many ways look a lot like a deed or title for real estate -- ie. it must
-> denote the boundaries of the transaction in a specific and explicit
-> manner. In this instance it would probably be required to state in as
-> unambiguous manner as possible which files and which versions this
-> transfer is to cover. In the case of patches to preexisting files; it
-> should also be specific as to which lines are to be covered unless one
-> writes it in a style like a "Quit Claim Deed".
+Index: working-2.6/include/asm-ppc64/pgtable.h
+===================================================================
+--- working-2.6.orig/include/asm-ppc64/pgtable.h	2004-10-29 13:17:44.000000000 +1000
++++ working-2.6/include/asm-ppc64/pgtable.h	2004-11-12 13:20:42.941952600 +1100
+@@ -67,12 +67,6 @@
+ #define IMALLOC_END       (IMALLOC_BASE + PGTABLE_EA_MASK)
+ 
+ /*
+- * Define the address range mapped virt <-> physical
+- */
+-#define KRANGE_START KERNELBASE
+-#define KRANGE_END   (KRANGE_START + PGTABLE_EA_MASK)
+-
+-/*
+  * Define the user address range
+  */
+ #define USER_START (0UL)
 
-(not a lawyer, etc, etc.  Just a LKML lurker.)
 
-As I understand it, these things depend on the size of the changes.  For
-example, in the world of publishing, an editor may change spellings and
-phrases, even add or remove entire paragraphs, but does not gain any
-rights over the work by doing so.
-
-If there was argument about this, deciding where the line is between a
-edit and new work would be up to a court, no doubt.  If I was deciding
-it, changes to fit ReiserFS into a new VFS structure or fixing a locking
-bug would be a "edit", while adding a new Reiser4 plugin or a more
-efficient hash function would be "new work."
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-XoqthebYfgFLEIE31DQ8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBlBsMG8fHaOLTWwgRAgoqAJ9LOlm9do0VDxQK3x1dNl1vzjAKmACdFwHw
-mEvGRARgFshv3j3AQs8hBuM=
-=te22
------END PGP SIGNATURE-----
-
---=-XoqthebYfgFLEIE31DQ8--
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

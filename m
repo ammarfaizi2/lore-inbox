@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbVCPXK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVCPXLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbVCPXK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 18:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVCPXHs
+	id S262869AbVCPXLK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 18:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbVCPXLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 18:07:48 -0500
-Received: from mailer.gwdg.de ([134.76.10.26]:6784 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S262874AbVCPXEI (ORCPT
+	Wed, 16 Mar 2005 18:11:04 -0500
+Received: from fire.osdl.org ([65.172.181.4]:8065 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262874AbVCPXJV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 18:04:08 -0500
-Date: Thu, 17 Mar 2005 00:04:04 +0100 (CET)
-From: Eberhard Moenkeberg <emoenke@gwdg.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] small fixes for example programs in Documentation/cdrom/sbpcd
-In-Reply-To: <Pine.LNX.4.62.0503162210250.2558@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.61.0503162353140.25585@gwdu05.gwdg.de>
-References: <Pine.LNX.4.62.0503162210250.2558@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	Wed, 16 Mar 2005 18:09:21 -0500
+Date: Wed, 16 Mar 2005 15:09:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make gconfig build again
+Message-Id: <20050316150901.3b5e4ba5.akpm@osdl.org>
+In-Reply-To: <1111013866l.23273l.0l@werewolf.able.es>
+References: <20050316040654.62881834.akpm@osdl.org>
+	<1110985632l.8879l.0l@werewolf.able.es>
+	<20050316132600.3f6e4df2.akpm@osdl.org>
+	<1111013866l.23273l.0l@werewolf.able.es>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 16 Mar 2005, Jesper Juhl wrote:
-
-> Example programs in documentation files are great, but they are even
-> better when they compile :)
+"J.A. Magallon" <jamagallon@able.es> wrote:
 >
-> The second one, the "cdtester" utility, is still not completely happy, but
-> at least the patch fixes up most of the warnings and errors when trying to
-> build it. The first app is perfectly happy here after this patch.
+>  The patch caused those little pixmap buttons across the top of the main
+>  > window to vanish when using gtk+-1.2.10-28.1.  See
+>  > http://www.zip.com.au/~akpm/linux/patches/stuff/x.jpg.
+>  > 
+>  > I now note that scripts/kconfig/gconf.c doesn't compile at all with the
+>  > above backout patch.  Drat.
+>  > 
+> 
+>  This is enough to make it compile:
 
-Thanks.
-One small correction: your words "still not" should read "no longer".
-Because old happiness already lasted more than 10 years (I guess 11, 
-because my son has grown to 23 meanwhile).
+OK..  I still don't have pixmaps over "Collapse" and "Expand" though.
 
-> -main(int argc, char *argv[])
-> +int main(int argc, char *argv[])
+And I assume we're again broken with gtk-2.4?  What is the nature of that
+breakage?
 
-> +    return 0;
-
-> -#endif SBP_PRIVATE_IOCTLS
-> +#endif /* SBP_PRIVATE_IOCTLS */
-
-> -#endif AZT_PRIVATE_IOCTLS
-> +#endif /* AZT_PRIVATE_IOCTLS */
-
-> -main(int argc, char *argv[])
-> +int main(int argc, char *argv[])
-
-> -#endif SBP_PRIVATE_IOCTLS
-> +#endif /* SBP_PRIVATE_IOCTLS */
-> +	return 0;
-
-Do it.
-I'm kind of proud, only "cosmetical" changes after a whole 
-decennium. ;-))
-
-Cheers -e
--- 
-Eberhard Moenkeberg (emoenke@gwdg.de, em@kki.org)

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319004AbSHEU0Q>; Mon, 5 Aug 2002 16:26:16 -0400
+	id <S318876AbSHEUdH>; Mon, 5 Aug 2002 16:33:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319005AbSHEU0Q>; Mon, 5 Aug 2002 16:26:16 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:54714 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319004AbSHEU0P>;
-	Mon, 5 Aug 2002 16:26:15 -0400
-Subject: [PATCH] 2.5.30-dj1
-From: Paul Larson <plars@austin.ibm.com>
-To: davej@suse.de
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.NEB.4.44.0208051638340.27501-100000@mimas.fachschaften.tu-muenchen.de>
-References: <Pine.NEB.4.44.0208051638340.27501-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 05 Aug 2002 15:24:43 -0500
-Message-Id: <1028579086.19435.31.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S318878AbSHEUdH>; Mon, 5 Aug 2002 16:33:07 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:30092 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S318876AbSHEUdG>;
+	Mon, 5 Aug 2002 16:33:06 -0400
+To: Paul Mackerras <paulus@au1.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4.19 warnings cleanup
+References: <m3znw3k8qq.fsf@defiant.pm.waw.pl>
+	<1028470583.14196.29.camel@irongate.swansea.linux.org.uk>
+	<15693.49493.300424.746502@argo.ozlabs.ibm.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 05 Aug 2002 11:41:04 +0200
+In-Reply-To: <15693.49493.300424.746502@argo.ozlabs.ibm.com>
+Message-ID: <m3k7n51w3z.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial fix for sym53c8xx driver breakage when 
-CONFIG_BROKEN_SCSI_ERROR_HANDLING is turned off.
+Paul Mackerras <paulus@au1.ibm.com> writes:
 
-Thanks,
-Paul Larson
+> > > --- linux/drivers/net/ppp_generic.c.orig	Sat Aug  3 17:13:58 2002
+> > > +++ linux/drivers/net/ppp_generic.c	Sat Aug  3 19:11:54 2002
+> > > @@ -378,7 +378,7 @@
+> > >  {
+> > >  	struct ppp_file *pf = file->private_data;
+> > >  	DECLARE_WAITQUEUE(wait, current);
+> > > -	ssize_t ret;
+> > > +	ssize_t ret = 0; /* suppress compiler warning */
+> > >  	struct sk_buff *skb = 0;
+> > >  
+> The code is in ppp_read actually OK; if you trace through the logic
+> you can prove that ret is never actually used without being set first.
 
---- linux-dj/drivers/scsi/sym53c8xx.h	Mon Aug  5 15:42:11 2002
-+++ linux-dj-symfix/drivers/scsi/sym53c8xx.h	Mon Aug  5 15:41:43 2002
-@@ -89,8 +89,10 @@
- 			release:        sym53c8xx_release,	\
- 			info:           sym53c8xx_info, 	\
- 			queuecommand:   sym53c8xx_queue_command,\
-+#ifdef CONFIG_BROKEN_SCSI_ERROR_HANDLING
- 			abort:          sym53c8xx_abort,	\
- 			reset:          sym53c8xx_reset,	\
-+#endif
- 			bios_param:     scsicam_bios_param,	\
- 			can_queue:      SCSI_NCR_CAN_QUEUE,	\
- 			this_id:        7,			\
+That's right - that's exactly why I wrote "suppress compiler warning".
+It's just the compiler not smart enough (of course, i looked at the code
+paths and I'd just fix it if it was broken).
 
+Anyway, it seems there are more places like that in the kernel tree, so,
+as Alan said, the correct thing to improve is the compiler (not even sure
+if gcc3 would print the warning, I'm using RH "2.96" gcc).
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267590AbTGONGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 09:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbTGONGX
+	id S267314AbTGONNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 09:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267323AbTGONNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 09:06:23 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61381
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S267590AbTGONGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 09:06:21 -0400
-Subject: Re: PROBLEM: Module maestro3 fails to load on Dell Latitude C510
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dbell@perfectorder.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307150852.20854.dbell@perfectorder.com>
-References: <200307150852.20854.dbell@perfectorder.com>
-Content-Type: text/plain
+	Tue, 15 Jul 2003 09:13:24 -0400
+Received: from smtp1.brturbo.com ([200.199.201.21]:53419 "EHLO
+	smtp.brturbo.com") by vger.kernel.org with ESMTP id S267314AbTGONNY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 09:13:24 -0400
+From: Marcelo Penna Guerra <eu@marcelopenna.org>
+To: Lars Duesing <ld@stud.fh-muenchen.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1: include/linux/pci.h inconsistency?
+Date: Tue, 15 Jul 2003 10:27:06 -0300
+User-Agent: KMail/1.5.9
+References: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de>
+In-Reply-To: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058275117.3845.37.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Jul 2003 14:18:37 +0100
+Message-Id: <200307151027.06474.eu@marcelopenna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-15 at 13:52, Doug Bell wrote:
-> 
-> # insmod maestro3
-> Using /lib/modules/2.4.21-0.13mdk/kernel/drivers/sound/maestro3.o.gz
-> /lib/modules/2.4.21-0.13mdk/kernel/drivers/sound/maestro3.o.gz: unresolved 
-> symbol ac97_probe_codec_R84601c2b
+Hi Lars,
 
-Not an error - use "modprobe"
+On Monday 14 July 2003 12:06, Lars Duesing wrote:
+> btw: this driver_data is used by the networking part of the
+> nforce2-driver. If anybody knows a hint, tell me.
+> Else I will try to wake up someone at nvidia.
 
+There are patches for nvnet to work with 2.5.x. I'm using it right now with 
+2.6.0-test1.
+
+Step by in www.nforcershq.com and join us in the linux forum.
+
+Marcelo Penna Guerra

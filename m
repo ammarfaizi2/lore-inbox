@@ -1,187 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUCWPdX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 10:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUCWPdX
+	id S262625AbUCWPcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 10:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUCWPcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 10:33:23 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:47959 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262634AbUCWPcn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 10:32:43 -0500
-Date: Tue, 23 Mar 2004 09:31:42 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] let EDD work on x86-64 too
-Message-ID: <20040323153142.GA20267@lists.us.dell.com>
-References: <20040316162344.GA20289@lists.us.dell.com> <20040316165127.GB6145@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+	Tue, 23 Mar 2004 10:32:45 -0500
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:23915 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S262625AbUCWPcc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 10:32:32 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: |TEcHNO| <techno@punkt.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.x][2.6.x]EIO AP-1600 ATA133 Controller Card
+Date: Tue, 23 Mar 2004 15:22:43 +0000
+User-Agent: KMail/1.5.3
+References: <40601966.3010706@punkt.pl>
+In-Reply-To: <40601966.3010706@punkt.pl>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20040316165127.GB6145@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200403231522.43676.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 16, 2004 at 05:51:27PM +0100, Andi Kleen wrote:
-> On Tue, Mar 16, 2004 at 10:23:44AM -0600, Matt Domsch wrote:
-> > Andi, I'm proposing allowing my BIOS Enhanced Disk Drive (EDD) code to
-> > work on x86-64 as it does on x86 today.  The patch below moves some
-> > files around out of arch/i386/kernel and include/asm-i386 into more
-> > generic locations, and allows EDD to work.
->=20
-> I have no problems with the x86-64 changes (assuming they work).
->=20
-> But I won't push the i386 changes. I would suggest you get that into
-> mainline first and when it's there send me a patch with just the x86-64
-> bits.
-
-The i386 changes have hit 2.6.5-rc2.  x86-64 patch below for your
-consideration.  I'm intentionally not copying the
-Documentation/i386/zero_page.txt file as it's the same as x86 in this
-regard.  This boots and works for me.
-
-Thanks,
-Matt
-
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-EDD: Enable x86_64
+I have the same card:
 
-reserve boot_params space
-include arch/i386/boot/edd.S
-include EDD in Kconfig and defconfig
-reserve global vars in setup.c, copy data
+SiI680: IDE controller at PCI slot 02:09.0
+SiI680: chipset revision 1
+SiI680: not 100% native mode: will probe irqs later
+SiI680: BASE CLOCK == 133
+    ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
+    ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
 
- arch/x86_64/Kconfig            |    2 ++
- arch/x86_64/boot/setup.S       |    2 ++
- arch/x86_64/defconfig          |    1 +
- arch/x86_64/kernel/setup.c     |   26 ++++++++++++++++++++++++++
- include/asm-x86_64/bootsetup.h |    3 +++
- 5 files changed, 34 insertions(+)
+hde: attached ide-disk driver.
+hde: host protected area => 1
+hde: 80418240 sectors (41174 MB) w/1863KiB Cache, CHS=79780/16/63, UDMA(100)
+hdg: attached ide-disk driver.
+hdg: host protected area => 1
+hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, 
+UDMA(133)
 
-diff -Nru a/include/asm-x86_64/bootsetup.h b/include/asm-x86_64/bootsetup.h
---- a/include/asm-x86_64/bootsetup.h	Tue Mar 16 10:03:36 2004
-+++ b/include/asm-x86_64/bootsetup.h	Tue Mar 16 10:03:36 2004
-@@ -26,6 +26,9 @@
- #define INITRD_START (*(unsigned int *) (PARAM+0x218))
- #define INITRD_SIZE (*(unsigned int *) (PARAM+0x21c))
- #define EDID_INFO (*(struct edid_info *) (PARAM+0x440))
-+#define DISK80_SIGNATURE (*(unsigned int*) (PARAM+DISK80_SIG_BUFFER))
-+#define EDD_NR     (*(unsigned char *) (PARAM+EDDNR))
-+#define EDD_BUF     ((struct edd_info *) (PARAM+EDDBUF))
- #define COMMAND_LINE saved_command_line
- #define COMMAND_LINE_SIZE 256
-=20
-diff -Nru a/arch/x86_64/boot/setup.S b/arch/x86_64/boot/setup.S
---- a/arch/x86_64/boot/setup.S	Tue Mar 16 10:03:36 2004
-+++ b/arch/x86_64/boot/setup.S	Tue Mar 16 10:03:36 2004
-@@ -533,6 +533,8 @@
- 	movw	$0xAA, (0x1ff)			# device present
- no_psmouse:
-=20
-+#include "../../i386/boot/edd.S"
-+
- # Now we want to move to protected mode ...
- 	cmpw	$0, %cs:realmode_swtch
- 	jz	rmodeswtch_normal
-diff -Nru a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
---- a/arch/x86_64/Kconfig	Tue Mar 16 10:03:36 2004
-+++ b/arch/x86_64/Kconfig	Tue Mar 16 10:03:36 2004
-@@ -397,6 +397,8 @@
-=20
- source drivers/Kconfig
-=20
-+source "drivers/firmware/Kconfig"
-+
- source fs/Kconfig
-=20
- source "arch/x86_64/oprofile/Kconfig"
-diff -Nru a/arch/x86_64/defconfig b/arch/x86_64/defconfig
---- a/arch/x86_64/defconfig	Tue Mar 16 10:03:36 2004
-+++ b/arch/x86_64/defconfig	Tue Mar 16 10:03:36 2004
-@@ -136,6 +136,7 @@
- #
- # Device Drivers
- #
-+CONFIG_EDD=3Dm
-=20
- #
- # Generic Driver Options
-diff -Nru a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
---- a/arch/x86_64/kernel/setup.c	Tue Mar 16 10:03:36 2004
-+++ b/arch/x86_64/kernel/setup.c	Tue Mar 16 10:03:36 2004
-@@ -39,6 +39,7 @@
- #include <linux/pci.h>
- #include <linux/acpi.h>
- #include <linux/kallsyms.h>
-+#include <linux/edd.h>
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -346,6 +347,30 @@
-=20
- __setup("noreplacement", noreplacement_setup);=20
-=20
-+#if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
-+unsigned char eddnr;
-+struct edd_info edd[EDDMAXNR];
-+unsigned int edd_disk80_sig;
-+#ifdef CONFIG_EDD_MODULE
-+EXPORT_SYMBOL(eddnr);
-+EXPORT_SYMBOL(edd);
-+EXPORT_SYMBOL(edd_disk80_sig);
-+#endif
-+/**
-+ * copy_edd() - Copy the BIOS EDD information
-+ *              from empty_zero_page into a safe place.
-+ *
-+ */
-+static inline void copy_edd(void)
-+{
-+     eddnr =3D EDD_NR;
-+     memcpy(edd, EDD_BUF, sizeof(edd));
-+     edd_disk80_sig =3D DISK80_SIGNATURE;
-+}
-+#else
-+#define copy_edd() do {} while (0)
-+#endif
-+
- void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long low_mem_size;
-@@ -364,6 +389,7 @@
- 	rd_doload =3D ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) !=3D 0);
- #endif
- 	setup_memory_region();
-+	copy_edd();
-=20
- 	if (!MOUNT_ROOT_RDONLY)
- 		root_mountflags &=3D ~MS_RDONLY;
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+02:09.0 RAID bus controller: CMD Technology Inc PCI0680 (rev 01)
+        Subsystem: Unknown device 1771:1680
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64, cache line size 01
+        Interrupt: pin A routed to IRQ 18
+        Region 0: I/O ports at ecb8 [size=8]
+        Region 1: I/O ports at ecb0 [size=4]
+        Region 2: I/O ports at eca0 [size=8]
+        Region 3: I/O ports at ec98 [size=4]
+        Region 4: I/O ports at ec80 [size=16]
+        Region 5: Memory at fe9ff400 (32-bit, non-prefetchable) [size=256]
+        Expansion ROM at fea00000 [disabled] [size=512K]
+        Capabilities: [60] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+
+Seems to work just fine with the two hard drives I have on it.
+
+Mark.
+
+> Hi,
+> I recently bought this card, hopeing that it woudl work under linux,
+> even the manufacurers page say's so. But afer installing it I found out
+> that both 2.4.22, 2.4.25 and 2.6.4 fail to work with it correctly. They
+> all report:
+>
+> SiI680: IDE controller at PCI slot 00:0d.0
+> PCI: Found IRQ 9 for device 00:0d.0
+> PCI: Sharing IRQ 9 with 00:09.0
+> SiI680: chipset revision 2
+> SiI680: not 100% native mode: will probe irqs later
+> SiI680: BASE CLOCK == 133
+>      ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
+>      ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+> hda: ST330621A, ATA DISK drive
+> hdb: ST3120026A, ATA DISK drive
+> blk: queue c0526860, I/O limit 4095Mb (mask 0xffffffff)
+> blk: queue c052699c, I/O limit 4095Mb (mask 0xffffffff)
+> hdc: ST3120026A, ATA DISK drive
+> blk: queue c0526cb4, I/O limit 4095Mb (mask 0xffffffff)
+> hdf: PLEXTOR CD-R PX-W2410A, ATAPI CD/DVD-ROM drive
+> hdf: set_drive_speed_status: status=0x41 { DriveReady Error }
+> hdf: set_drive_speed_status: error=0x04
+> hdf: set_drive_speed_status: status=0x41 { DriveReady Error }
+> hdf: set_drive_speed_status: error=0x04
+> hdf: set_drive_speed_status: status=0x41 { DriveReady Error }
+> hdf: set_drive_speed_status: error=0x04
+> hdh: LG CD-RW CED-8083B, ATAPI CD/DVD-ROM drive
+> hdh: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+> hdh: set_drive_speed_status: error=0x04
+> hdh: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+> hdh: set_drive_speed_status: error=0x04
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0xc8810e80-0xc8810e87,0xc8810e8a on irq 9
+> ide3 at 0xc8810ec0-0xc8810ec7,0xc8810eca on irq 9
+>
+> sometimes it's a bit diffrent(ie. last time hdf reported hdh error, and
+> hdh none), but the CD's work (read and write alike).
+> If I connect some HDD's they report hdh error, and then a number of
+> other errors (which I don't have written, but they look like data
+> gathering information errors). Sometimes it even detects my HDD's as 2TB
+> drives and such (after reporting some errors) but even watinga lot
+> didn't prove to help, it simply stops somewhere there.
+>
+> The chipset is exactly Sil0680ACL144. Controller BIOS 3.0.77.
+>
+> lspci -vvvvv
+>
+> 00:0d.0 Unknown mass storage controller: CMD Technology Inc PCI0680 (rev
+> 02) Subsystem: CMD Technology Inc PCI0680
+>          Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+> ParErr- Stepping- SERR+ FastB2B-
+>          Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
+>
+>  >TAbort+ <TAbort- <MAbort- >SERR- <PERR-
+>
+>          Latency: 64, cache line size 01
+>          Interrupt: pin A routed to IRQ 9
+>          Region 0: I/O ports at c400 [size=8]
+>          Region 1: I/O ports at c000 [size=4]
+>          Region 2: I/O ports at bc00 [size=8]
+>          Region 3: I/O ports at b800 [size=4]
+>          Region 4: I/O ports at b400 [size=16]
+>          Region 5: Memory at dffffe00 (32-bit, non-prefetchable) [size=256]
+>          Expansion ROM at dff00000 [disabled] [size=512K]
+>          Capabilities: [60] Power Management version 2
+>                  Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
+> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                  Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+>
+> Hope this helps, I'm nto subscribed so pleas CC: to me.
+> I'm willing to help in testing of any patches etc.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQFAYFheIavu95Lw/AkRAjWFAJ92O0cexTGIfgEbVMczM93I4Zx6PwCghp8/
-uGymTcQ5fIdrD9AHzJj36Po=
-=P+sy
+iD8DBQFAYFZDBn4EFUVUIO0RAr7NAKDwQ4jMk9cCwDW9GEt7qccqoZRqmQCfWnLx
+3iaL/UqmnasFJkCvphQyHzs=
+=lGMR
 -----END PGP SIGNATURE-----
 
---tThc/1wpZn/ma/RB--

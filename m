@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHDQxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267315AbUHDRB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUHDQxv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 12:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUHDQxv
+	id S267315AbUHDRB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 13:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHDRB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 12:53:51 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:4749 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S266274AbUHDQxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 12:53:49 -0400
-Message-ID: <411114E6.2060407@myrealbox.com>
-Date: Wed, 04 Aug 2004 09:55:02 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Wed, 4 Aug 2004 13:01:59 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:5549 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S267312AbUHDRB4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 13:01:56 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Realtek 8169 NIC driver version
-References: <1677288031.20040803142517@yahoo.com.cn> <20040803093606.A4911@electric-eye.fr.zoreil.com>
-In-Reply-To: <20040803093606.A4911@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: CONFIG_FORCE_MAX_ZONEORDER
+Date: Wed, 4 Aug 2004 09:30:35 -0700
+Message-ID: <01EF044AAEE12F4BAAD955CB7506494301FB54AB@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: CONFIG_FORCE_MAX_ZONEORDER
+Thread-Index: AcR6KMKJVfCAii5BRFCjT7nck8t+RAAF3JBw
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "Sourav Sen" <souravs@india.hp.com>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 04 Aug 2004 16:30:35.0929 (UTC) FILETIME=[5EBF0890:01C47A40]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> dlion <dlion2005@yahoo.com.cn> :
-> [...]
-> 
->>  I have read some driver codes in the Linux kernel. I noticed
->>that the RTL-8169 driver(r8169.c) is an older version (v1.2).
->>There is a newer drivers on Realtek's website. It's version
->>number is v1.6 , and it is really much better than v1.2. Why
->>not merge it into official kernel realease?
-> 
-> 
-> It has already been merged in 2.4.x and 2.6.x. That's old history,
-> really.
+Sourav Sen <> wrote on Wednesday, August 04, 2004 6:39 AM:
 
-This one bit me awhile back, too.  Could we just remove that version 
-number?  (Especially with the latest round of changes, the in-kernel 
-driver bears little resemblance to Realtek's.)
+> Hi,
+> 
+> Is there a way of changing the value of MAX_ORDER
+> using CONFIG_FORCE_MAX_ZOMEORDER? During 'make xconfig'
+> I did not see a way. If I change it by hand in .config
+> and then run make oldconfig, it gets changed back to
+> the old value (== 18). The source version is 2.6.6
+> 
+> And, if it matters here -- I am on ia64.
+> 
+> Thanks
+> Sourav
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
---Andy
+
+arch/ia64/defconfig is the place where you want to make the change.

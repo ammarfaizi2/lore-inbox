@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264632AbTEPXtX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 19:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbTEPXtX
+	id S264624AbTEQAOs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 20:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbTEQAOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 19:49:23 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:48809 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264632AbTEPXtU (ORCPT
+	Fri, 16 May 2003 20:14:48 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:5339 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264624AbTEQAOr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 19:49:20 -0400
-Date: Fri, 16 May 2003 17:03:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Manuel Estrada Sainz <ranty@debian.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>
-Subject: Re: request_firmware() hotplug interface, third round.
-Message-ID: <20030517000338.GA17466@kroah.com>
-References: <20030515200324.GB12949@ranty.ddts.net> <20030516223624.GA16759@kroah.com> <200305170155.15295.oliver@neukum.org>
+	Fri, 16 May 2003 20:14:47 -0400
+Subject: Re: Race between vmtruncate and mapped areas?
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, dmccr@us.ibm.com,
+       mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030515231714.GL1429@dualathlon.random>
+References: <20030514103421.197f177a.akpm@digeo.com>
+	 <82240000.1052934152@baldur.austin.ibm.com>
+	 <20030515004915.GR1429@dualathlon.random>
+	 <20030515013245.58bcaf8f.akpm@digeo.com>
+	 <20030515085519.GV1429@dualathlon.random>
+	 <20030515022000.0eb9db29.akpm@digeo.com>
+	 <20030515094041.GA1429@dualathlon.random>
+	 <1053016706.2693.10.camel@ibm-c.pdx.osdl.net>
+	 <20030515191921.GJ1429@dualathlon.random>
+	 <1053036250.2696.33.camel@ibm-c.pdx.osdl.net>
+	 <20030515231714.GL1429@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053131245.2690.78.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305170155.15295.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 16 May 2003 17:27:25 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2003 at 01:55:15AM +0200, Oliver Neukum wrote:
+On Thu, 2003-05-15 at 16:17, Andrea Arcangeli wrote:
+
+> no, the spin_lock only acts as a barrier in one way, not both ways, so
+> an smp_something is still needed.
 > 
-> > > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
-> > > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
-> > > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
-> >
-> > Nice, but can't you get rid of the loading file by just relying on
-> > open() and close()?  Oh wait, sysfs doesn't pass that down to you, hm,
-> > looks like you need that info.  But does the new binary interface in
-> > sysfs that just got merged into the tree provide that info for you?
-> 
-> But what if the close() is due to irregular termination?
-> If the script is killed, do you download half a firmware?
 
-Good point.  Actually I don't think that the binary interface for sysfs
-passes open and close down to the lower levels, so it's a moot point.
+Can you explain this more?  On a x86, isn't a spin_lock a lock; dec
+instruction and the rmb() a lock; addl.  I thought x86 instructions
+with lock prefix provided a memory barrier.
 
-echo... works for me.
+Just curious,
 
-thanks,
+-- 
+Daniel McNeil <daniel@osdl.org>
 
-greg k-h

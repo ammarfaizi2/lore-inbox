@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266587AbTGKDmF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 23:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269771AbTGKDmF
+	id S269773AbTGKDsP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 23:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269774AbTGKDsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 23:42:05 -0400
-Received: from hancock.siteprotect.com ([64.41.120.29]:37514 "EHLO
-	hancock.siteprotect.com") by vger.kernel.org with ESMTP
-	id S266587AbTGKDmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 23:42:03 -0400
-Date: Thu, 10 Jul 2003 22:56:54 -0500
-From: Dee <dfisher@uptimedevices.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre3-ac1 write hang
-Message-Id: <20030710225654.2f47e7e0.dfisher@uptimedevices.com>
-In-Reply-To: <20030710001944.35faa96d.dfisher@uptimedevices.com>
-References: <20030710001944.35faa96d.dfisher@uptimedevices.com>
-Organization: Uptime Devices
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Jul 2003 23:48:15 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:5545 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269773AbTGKDsO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 23:48:14 -0400
+Date: Thu, 10 Jul 2003 23:02:33 -0500
+Subject: Re: Style question: Should one check for NULL pointers?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-kernel@vger.kernel.org
+To: "David D. Hagood" <wowbagger@sktc.net>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <3F0DEEA4.5050605@sktc.net>
+Message-Id: <7FD4C648-B354-11D7-9801-000A95A0560C@us.ibm.com>
 Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003 00:19:44 -0500
-Dee <dfisher@uptimedevices.com> wrote:
+On Thursday, Jul 10, 2003, at 17:54 US/Central, David D. Hagood wrote:
+>
+> Now, if you have some function that can return an error code, then 
+> testing for NULL and returning an error condition is sensible. But if 
+> you have no way to report the error, then what good is the test?
 
-> 
-> 	Hi,
-> 
-> 	I just got a new Toshiba SPro M15-S405, I have been having
-> problems with writes to the disk. 
+Then you add the test, fix your interface to be able to report the 
+error, and update callers as necessary... if your code can fail, you 
+should be able to report it.
 
-	I got it stable by switching from ordered data mode to
-	journaled mode, it runs very stable now. I have Journal 
-	Block Device support turned on, maybe something about
-	not using journal data mode with that enabled. Do all new
-	ext3 version partitions default to ordered mode ? 
-	Happy it works now anyway :)
-	
-					Dee
+When writing a new function you think returns void, seriously consider 
+having it return success instead.
+
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 

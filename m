@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbSJYUsw>; Fri, 25 Oct 2002 16:48:52 -0400
+	id <S261584AbSJYUyX>; Fri, 25 Oct 2002 16:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261605AbSJYUsw>; Fri, 25 Oct 2002 16:48:52 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:23239 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261600AbSJYUsv>; Fri, 25 Oct 2002 16:48:51 -0400
-Subject: Re: KT333, IO-APIC, Promise Fasttrak, Initrd
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: freaky <freaky@bananateam.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <007501c27c5d$378aef10$1400a8c0@Freaky>
-References: <007501c27c5d$378aef10$1400a8c0@Freaky>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 22:11:39 +0100
-Message-Id: <1035580299.13244.82.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261590AbSJYUyX>; Fri, 25 Oct 2002 16:54:23 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:58010 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S261584AbSJYUyW>; Fri, 25 Oct 2002 16:54:22 -0400
+Date: Fri, 25 Oct 2002 22:01:30 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Alexander Viro <viro@math.psu.edu>
+cc: Andrew Morton <akpm@digeo.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i_blkbits inconsistency
+Message-ID: <Pine.LNX.4.44.0210252158020.1213-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 20:32, freaky wrote:
-> it in IDE mode so I tricked it. Attached the harddisks one by one so arrays
-> were created of one disk each. This works under WinXP. Most of the
-> partitions were created on my previous system with PIIX intel controllers
-> and are read without probs under XP.
+Fix premature -EIO from blkdev_get_block: bdget initialize bd_block_size
+consistent with bd_inode->i_blkbits (assigned by new_inode).  Otherwise,
+subsequent set_blocksize can find bd_block_size doesn't need updating,
+and skip updating i_blkbits, leaving them inconsistent.
 
-Thats still going to have strange raid blocks on it. However if you then
-partitioned the driver you should have blown it away with luck.
-
-> The RAID controller comes up with both hd[e-h] and d<x>p<y>'s. Can I use the
-> hd[e-h]'s? since I have 1 disk arrays?
-
-hde/f/g/h are the real disks as a normal controller would see them. The
-ataraid devices are interpreting a subset (the bits we know about) of
-the raid partitioning the promise does
-
-> Tried booting into my old partitions with the hdg3 but came up with IO
-> errors. I'm guessing it has to do with the south bridge not being supported
-> or the ext 2 partitions having trouble with being on the raid controller.
-
-Need more details. Exact error messages matter here
-
+--- 2.5.44/fs/block_dev.c	Sat Oct 19 07:14:45 2002
++++ linux/fs/block_dev.c	Fri Oct 25 21:30:41 2002
+@@ -310,6 +310,7 @@
+ 			new_bdev->bd_queue = NULL;
+ 			new_bdev->bd_contains = NULL;
+ 			new_bdev->bd_inode = inode;
++			new_bdev->bd_block_size = (1 << inode->i_blkbits);
+ 			new_bdev->bd_part_count = 0;
+ 			new_bdev->bd_invalidated = 0;
+ 			inode->i_mode = S_IFBLK;
 

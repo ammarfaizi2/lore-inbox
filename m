@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUJITLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUJITY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267304AbUJITLs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 15:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUJITLs
+	id S267312AbUJITY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 15:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUJITY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 15:11:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14233 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267304AbUJITLq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 15:11:46 -0400
-Date: Sat, 9 Oct 2004 12:11:41 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041009121141.X2357@build.pdx.osdl.net>
-References: <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <87zn2wbt7c.fsf@sulphur.joq.us> <20041008221635.V2357@build.pdx.osdl.net> <87is9jc1eb.fsf@sulphur.joq.us>
+	Sat, 9 Oct 2004 15:24:59 -0400
+Received: from gonzo.webpack.hosteurope.de ([217.115.142.69]:12466 "EHLO
+	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S267312AbUJITY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 15:24:57 -0400
+Date: Sat, 9 Oct 2004 21:26:14 +0000
+From: stefan.eletzhofer@eletztrick.de
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041009212614.GA25441@tier.local>
+Reply-To: stefan.eletzhofer@eletztrick.de
+Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <41677E4D.1030403@mvista.com> <416822B7.5050206@opersys.com> <1097346628.1428.11.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87is9jc1eb.fsf@sulphur.joq.us>; from joq@io.com on Sat, Oct 09, 2004 at 11:16:44AM -0500
+In-Reply-To: <1097346628.1428.11.camel@krustophenia.net>
+Organization: Eletztrick Computing
+User-Agent: Mutt/1.5.6i
+X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jack O'Quin (joq@io.com) wrote:
-> Thanks.  I was familiar with gid, and egid from other Unix kernels,
-> but fsgid is new to me.  
+On Sat, Oct 09, 2004 at 02:30:28PM -0400, Lee Revell wrote:
+> On Sat, 2004-10-09 at 13:41, Karim Yaghmour wrote:
+> > Sven-Thorsten Dietrich wrote:
+> > >     - Voluntary Preemption by Ingo Molnar
+> > >     - IRQ thread patches by Scott Wood and Ingo Molnar
+> > >     - BKL mutex patch by Ingo Molnar (with MV extensions)
+> > >     - PMutex from Germany's Universitaet der Bundeswehr, Munich
+> > >     - MontaVista mutex abstraction layer replacing spinlocks with mutexes
+> > 
+> > To the best of my understanding, this still doesn't provide deterministic
+> > hard-real-time performance in Linux.
 > 
-> In what cases does it *differ* from the effective group ID?
+> Using only the VP+IRQ thread patch, I ran my RT app for 11 million
+> cycles yesterday, with a maximum delay of 190 usecs.  How would this not
+> satisfy a 200 usec hard RT constraint?
 
-If the program calls setfsgid.  It would typically only do this if it
-wanted to assume a new gid for filesystem access on behalf of someone
-else (e.g. file server).
+I think the keyword here is "deterministic", isn't it?
 
-> > --- security/realtime.c~rm_CONFIG_SECURITY	2004-10-08 16:16:35.000000000 -0700
-> > +++ security/realtime.c	2004-10-08 21:06:28.020084984 -0700
-> > @@ -66,7 +66,7 @@
-> >  	if ((gid == e_gid) || (gid == current->gid))
-> >  		return 1;
-> >  
-> > -	return in_group_p(gid);
-> > +	return in_egroup_p(gid);
-> >  }
-> >  
-> >  static int realtime_bprm_set_security(struct linux_binprm *bprm)
 > 
-> This adds a test against current->egid in addition to the explicit
-> check of current->gid.  I don't see any problem with that.  AFAICT,
-> the current->gid check is still useful.
+> PHB:      "I've looked at your proposal and decided it can't be done"
+> Dilbert:  "I just did it.  It's working perfectly" 
+> 
+> Lee
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The egid makes a setgid-audio program be meaningful as well.
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Stefan Eletzhofer
+InQuant Data GBR
+http://www.inquant.de
++49 (0) 751 35 44 112 
++49 (0) 171 23 24 529 (Mobil)
++49 (0) 751 35 44 115 (FAX)

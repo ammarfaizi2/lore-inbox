@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbRAZTo2>; Fri, 26 Jan 2001 14:44:28 -0500
+	id <S130026AbRAZTqS>; Fri, 26 Jan 2001 14:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129706AbRAZToS>; Fri, 26 Jan 2001 14:44:18 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:61963 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129282AbRAZToI>;
-	Fri, 26 Jan 2001 14:44:08 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101261943.WAA28202@ms2.inr.ac.ru>
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-To: ionut@cs.columbia.EDU (Ion Badulescu), davem@redhat.com (Dave Miller)
-Date: Fri, 26 Jan 2001 22:43:05 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101251253300.20615-100000@age.cs.columbia.edu> from "Ion Badulescu" at Jan 26, 1 00:15:01 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S130110AbRAZTqI>; Fri, 26 Jan 2001 14:46:08 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:50181 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S130092AbRAZTqE>; Fri, 26 Jan 2001 14:46:04 -0500
+Date: Fri, 26 Jan 2001 19:46:05 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre8 losing pages
+Message-ID: <20010126194605.A923@colonel-panic.com>
+Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
+In-Reply-To: <20010125231659.A2128@colonel-panic.com> <3A70DEF1.80ECEF80@baldauf.org> <20010126092412.A508@colonel-panic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010126092412.A508@colonel-panic.com>; from pdh@colonel-panic.com on Fri, Jan 26, 2001 at 09:24:12AM +0000
+From: Peter Horton <pdh@colonel-panic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Jan 26, 2001 at 09:24:12AM +0000, Peter Horton wrote:
+> On Fri, Jan 26, 2001 at 03:20:33AM +0100, Xuan Baldauf wrote:
+> > 
+> > Peter Horton wrote:
+> > 
+> > > I'm experiencing repeatable corruption whilst writing large volumes of
+> > > data to disk. Kernel version is 2.4.1-pre8, on an 850MHz AMD Athlon on an
+> > > ASUS A7V (VIA KT133 chipset) motherboard 128M RAM (tested with 'memtest86'
+> > > for 10 hours).
+> > >
+> > 
+> 
+> ... this is the kinda output I get on most runs :-
+> 
+>    Linux mole-rat 2.4.1-pre10 #1 Fri Jan 26 08:48:55 GMT 2001 i686 unknown
+>    ...
+>    aa6a64589748321899bab2b66f71427f  testt
+>    aa6a64589748321899bab2b66f71427f  testu
+>    aa6a64589748321899bab2b66f71427f  testv
+>    9dde1bed276e32a1f9af98c87ab05978  testw
+>    aa6a64589748321899bab2b66f71427f  testx
+>    aa6a64589748321899bab2b66f71427f  testy
+>    aa6a64589748321899bab2b66f71427f  testz
+>    mole-rat:~# cmp testw testx
+>    testw testx differ: char 110862337, line 433772
+>    mole-rat:~# cmp -i $(( 110862336 + 4096 )) testw testx
+>    mole-rat:~# echo $(( 110862336 % 4096 ))
+>    0
+> 
+> > 
+> > I cannot reproduce your behaviour in 2.4.1-pre9.
+> > 
+> 
 
-> drivers use it at this time, I see a grand total of 2 (hamachi and hme) in
+The corruption is dependent on having a swapped on swap partition. If I
+"swapoff" the corruption goes away, but it comes back when I "swapon"
+again. I feel this a kernel bug, but as I'm the only person out here who's
+seeing it I'm at a loss ...
 
-Plus acenic in zerocopy.
-Plus patch to do this is available for eepro100.
-
-
-> I'm just wondering, if a card supports sg but *not* TX csum, is it worth
-> it to make use of sg? eepro100 falls into this category..
-
-This is simply not permitted just now.
-
-Mea culpa...
-
-Dave, seems, it is better to repair this. Code really assumes
-that SG cannot be used without one of CSUM flags...
-
-Actually, drivers which are able to SG without checksumming
-should do this. Even though just this minute this feature
-has no applications. Next minute it will. Not only with decnet,
-but for IP too.
-
-Alexey
+P.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVA3RXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVA3RZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVA3RXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 12:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVA3RXo
+	id S261740AbVA3RZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 12:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVA3RZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 12:23:44 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:3225 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261739AbVA3RXm (ORCPT
+	Sun, 30 Jan 2005 12:25:57 -0500
+Received: from waste.org ([216.27.176.166]:53224 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261740AbVA3RZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 12:23:42 -0500
-Message-ID: <41FD17FE.6050007@trash.net>
-Date: Sun, 30 Jan 2005 18:23:10 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: "David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
-       akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-References: <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk> <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk> <20050127163444.1bfb673b.davem@davemloft.net> <20050128085858.B9486@flint.arm.linux.org.uk> <20050130132343.A25000@flint.arm.linux.org.uk>
-In-Reply-To: <20050130132343.A25000@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jan 2005 12:25:52 -0500
+Date: Sun, 30 Jan 2005 09:25:39 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: Fruhwirth Clemens <clemens-dated-1107431870.41eb@endorphin.org>,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/04] Add LRW
+Message-ID: <20050130172539.GG2891@waste.org>
+References: <20050124115750.GA21883@ghanima.endorphin.org> <20050130000221.GA2955@waste.org> <1107085769.13776.11.camel@ghanima>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107085769.13776.11.camel@ghanima>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Sun, Jan 30, 2005 at 12:49:29PM +0100, Fruhwirth Clemens wrote:
+> 
+> In fact, it's lowerCamelCase, that's intentional.
 
->I don't know if the code is using fragment lists in ip_fragment(), but
->on reading the code a question comes to mind: if we have a list of
->fragments, does each fragment skb have a valid (and refcounted) dst
->pointer before ip_fragment() does it's job?  If yes, then isn't the
->first ip_copy_metadata() in ip_fragment() going to overwrite this
->pointer without dropping the refcount?
->
-Nice spotting. If conntrack isn't loaded defragmentation happens after
-routing, so this is likely the cause.
+The problem with mixing of naming styles is that it becomes
+difficult to remember what style is used where. Is it foo_bar_baz() or
+foobarbaz() or fooBarBaz() or FooBarBaz()? 
 
-Regards
-Patrick
+> > LRW and the GF(2**128) code is not configurable?
+> 
+> No, it's a cipher mode. None of the modes is configurable.
 
+Is LRW an appropriate mode for anything but block storage?
+
+-- 
+Mathematics is the supreme nostalgia of our time.

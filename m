@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSC1Fav>; Thu, 28 Mar 2002 00:30:51 -0500
+	id <S311664AbSC1GO3>; Thu, 28 Mar 2002 01:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311650AbSC1Fak>; Thu, 28 Mar 2002 00:30:40 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:56960 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S311618AbSC1Fa0>; Thu, 28 Mar 2002 00:30:26 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 27 Mar 2002 21:35:50 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] /dev/epoll update
-Message-ID: <Pine.LNX.4.44.0203272128480.937-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311735AbSC1GOT>; Thu, 28 Mar 2002 01:14:19 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:28074 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S311664AbSC1GOH>;
+	Thu, 28 Mar 2002 01:14:07 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ne2k-pci module for EZCARD10 i.e SMC1208T --connections dying out 
+In-Reply-To: Your message of "27 Mar 2002 10:53:25 MDT."
+             <1017248005.10060.4.camel@regatta> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Mar 2002 17:13:58 +1100
+Message-ID: <22514.1017296038@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 27 Mar 2002 10:53:25 -0600, 
+"Daniel E. Shipton" <dshipton@vrac.iastate.edu> wrote:
+>I have a computer that on most web sites, ftp transfers or anything
+>related to the network
+>will start a connection and atart transferring for about 2 seconds and
+>then the connection
+>will die out.  This does not happen on all sites but with most.  When
+>booted into windows it has
+>no problem.
 
-- module setup not works for real ( missed export-objs entry )
-- fixed a bug that caused random kernel crashes if the server crashed
-  while it was handling pretty-high ( > 60k on my machine ) number of fds
-  ( thx to  Yan-Fa Li  for ksymops reports )
+ifconfig eth0 mtu 528
 
-http://www.xmailserver.org/linux-patches/nio-improve.html#patches
-
-
-
-- Davide
-
-
+If that works, read
+http://groups.google.com/groups?hl=en&threadm=linux.kernel.1750.961061901%40ocs3.ocs-net&rnum=2
 

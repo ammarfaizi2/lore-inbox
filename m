@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTKJLeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 06:34:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTKJLeC
+	id S263178AbTKJLtC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 06:49:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTKJLtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 06:34:02 -0500
-Received: from postino1.roma1.infn.it ([141.108.26.15]:25228 "EHLO
-	postino1.roma1.infn.it") by vger.kernel.org with ESMTP
-	id S263205AbTKJLd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 06:33:58 -0500
-Message-ID: <3FAF77A5.60607@roma1.infn.it>
-Date: Mon, 10 Nov 2003 12:33:57 +0100
-From: Davide Rossetti <davide.rossetti@roma1.infn.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en, it
+	Mon, 10 Nov 2003 06:49:02 -0500
+Received: from [212.86.245.254] ([212.86.245.254]:43392 "EHLO umka.bear.com.ua")
+	by vger.kernel.org with ESMTP id S263178AbTKJLtA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 06:49:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Alex Lyashkov <shadow@itt.net.ru>
+Organization: Home
+To: Jan Kara <jack@suse.cz>
+Subject: Re: [BUG] journal handler reference count breaked and fs deadlocked
+Date: Mon, 10 Nov 2003 13:48:47 +0200
+User-Agent: KMail/1.4.1
+References: <200311092334.01957.shadow@itt.net.ru> <20031110111325.GC11335@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20031110111325.GC11335@atrey.karlin.mff.cuni.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Herbert Poetzl <herbert@13thfloor.at>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: OT: why no file copy() libc/syscall ??
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.3.1(snapshot 20020108) (postino1.roma1.infn.it)
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311101348.49623.shadow@itt.net.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it may be orribly RTFM... but writing a simple framework I realized 
-there is no libc/POSIX/whoknows
-copy(const char* dest_file_name, const char* src_file_name)
+On Monday 10 November 2003 13:13, Jan Kara wrote:
+>   Hi,
+>
+>   thanks for tracking. Are you able to reproduce the problem also on
+> recent vanilla kernels (ie. 2.4.22)? Can you try the vanilla kernel with
+> the attached patch (it should fix one of possible deadlocks).
+>
+Hi Jan
 
-What is the technical reason???
+I can`t do it with vanila kernel, because my kernel not be exactly rh kernel.
 
-I understand that there may be little space for kernel side 
-optimizations in this area but anyway I'm surprised I have to write
+It kernel from my fork vserver project who adapted to RH kernel tree.
+i do stress testing and see this problems.
+I see you only rename function, set NO_ATIME to diskquota..
+and change at one point
+-		commit_dqblk(dquot);
++		dquot->dq_sb->dq_op->write_dquot(dquot);
+it`s rignt ?
+i probe to adapted it fix to my kernel..
 
-< the bits to clone the metadata of src_file_name on opening 
-dest_file_name >
-const int BUFSIZE = 1<<12;
-char buffer[BUFSIZE];
-int nrb;
-while((nrb = read(infd, buffer, BUFSIZE) != -1) {
-  ret = write(outfd, buffer, nrb);
-  if(ret != nrb) {...}
-}
-
-instead of something similar to:
-sys_fscopy(...)
-
-regards
-
-
-
+-- 
+With best regards,
+Alex

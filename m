@@ -1,147 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbUK0FzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbUK0F7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbUK0FzW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 00:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUK0Fwz
+	id S262096AbUK0F7J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 00:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbUK0Du2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 00:52:55 -0500
-Received: from web13523.mail.yahoo.com ([216.136.174.161]:2434 "HELO
-	web13523.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262147AbUK0Fs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 00:48:56 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=MTA2rOKR5/15G0YdoxwtL7fZGDY3Ey0O6QDXUyapCZh2f0IQpeHGK/rY/rE0W0+yi3KLXlgiVKJHlmswAv5+bNdW7HguS7bt4LPPP643YKehP/4txx8X4Todv9EQPWqCjIvzf9y3rL01EtisZh9J95AaFUeZA7KMomQ15Vg7wak=  ;
-Message-ID: <20041127054852.47669.qmail@web13523.mail.yahoo.com>
-Date: Fri, 26 Nov 2004 21:48:52 -0800 (PST)
-From: Richard Patterson <vectro@yahoo.com>
-Subject: Seekable pipes
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 26 Nov 2004 22:50:28 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262538AbUKZTdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:33:44 -0500
+Date: Fri, 26 Nov 2004 04:42:01 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Sumit Pandya <sumit@elitecore.com>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
+       len.brown@intel.com
+Subject: Re: OOPS - APIC or othere?
+Message-ID: <20041126064200.GB4912@logos.cnet>
+References: <Pine.LNX.4.61.0411170941130.3941@musoma.fsmlabs.com> <HGEFKOBCHAIJDIEJLAKDAEMKCAAA.sumit@elitecore.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <HGEFKOBCHAIJDIEJLAKDAEMKCAAA.sumit@elitecore.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Nov 26, 2004 at 02:23:57PM +0530, Sumit Pandya wrote:
+> Marcelo,
+> 	No other message except my name "Sumit" ? 
 
-I want to implement an interface for seekable pipes
-(and FIFOs) in the Linux kernel.  The basic idea of
-this is that when the reader issues a seek(), this
-information can be passed onto the writer, who will
-continue writing from the new location. Since the
-reader doesn't have to do anything special, this
-allows user-space programs to simulate real files,
-providing features such as network filesystems and
-database large-objects, all in user space.
+Yes, because Zwane has written the message
 
-However, I have a few questions. On looking through
-fs/pipe.c, I see inode fields READERS and WRITERS.
-Similarly, I see open functions independent of
-do_pipe() -- such as pipe_read_open(). Does that mean
-it is possible to have multiple writers and readers on
-a single pipe, or is this just to implement of dup
-and dup2? Obviously my idea is much more complex in
-the event of multiple actors on a single pipe.
+"Sending bug report for partially patched kernel isn't easy for us to 
+debug, is there no way for you to simply try booting 2.4.27?"
 
-My other question relates to pipefs -- is this just a
-dummy filesystem to give a home to pipe inodes, or
-something more? Can you open existing pipes using
-pipefs?
+And I was assuming you read that. Did you?
 
-Finally, let me propose how I would modify the syscall
-interface to implement this behavior:
-1) New IOCTL SEEKPIPE_START, when called on the
-writing
-   fd, makes the entire pipe seekable. This must be 
-   called before any data has been written to the
-   pipe. At this time the writer also provides an 
-   initial file size, to be used in case of fstat() 
-   or SEEK_END. Note, however, that this length is not
+The bugzilla entry makes it understand that Len has fixed the 
+problem in 2.4.27:
 
-   actually enforced, if the writer cares to provide 
-   data past it.
-2) When reader calls lseek() on a seekable pipe, any
-   buffer data is discarded. Write()s to the pipe fail
-   with EINVAL until --
-3) The writer calls lseek twice in response. The first
-   call is of the form lseek(fd, SEEK_CUR, 0), and 
-   returns the new index requested by the reader. The 
-   second is of the form lseek(fd, SEEK_SET, x) and 
-   should confirm this number. If the requested 
-   location is beyond the writer's idea of 
-   end-of-file, the writer may so indicate by calling 
-   lseek(fd, SEEK_END, 0) followed by write(fd, buf,
-0).
+------- Additional Comment #2 From Len Brown  2004-11-04 13:32 -------
 
-There are a few other miscellaneous interface issues
-to
-address. If the writer uses select() or poll(), the
-seek-pending condition is considered an uncleared
-error. The writer may update it's idea of the file
-size
-with the same SEEKPIPE_START system call, and the
-reader may access this value with fstat -- we just
-store it in the inode. If anyone can think of other
-points, feel free.
- 
-An strace-style example may make this paradigm
-clearer. R and W indicate Reader and Writer,
-respectively.
-
-  pipe([5, 6])                       = 0
-R close(6)                           = 0
-R read(5, buf, 32768)                = (unfinished...)
-W close(5)                           = 0
-W ioctl(6, SEEKPIPE_START, 20480)    = 0
-W write(6, bigbuf, 4096)             = 4096
-R (read resumed)                     = 4096
-W write(6, bigbuf+4096, 4096)        = 4096
-W write(6, bigbuf+8192, 4096)        = (unfinished...)
--- The ioctl aside, so far this is just another pipe.
--- Then the reader seeks...
-R lseek(5, SEEK_SET, 10000)          = 10000
-W (write resumed)                    = -1 (EINVAL)
--- which wakes the writer...
-R read(5, buf, 32768)                = (unfinished...)
-W lseek(6, SEEK_CUR, 0)              = 10000
-W write(6, bigbuf+10000, 4096)       = -1 (EINVAL)
-W lseek(6, SEEK_SET, 10000)          = 10000
-W write(6, bigbuf+10000, 4096)       = 4096
--- If the writer tries to write before confirming the
--- seek, it gets back EINVAL. Once the writer seeks to
--- match the reader, we go back into standard pipe 
--- mode.
-R (read resumed)                     = 4096
-W write(6, bigbuf+14096, 4096)       = 4096
-W write(6, bigbuf+18192, 4096)       = (unfinished...)
--- Next, the reader tries to seek past the end of the
--- file. Note that, just as with a regular file, the
--- seek is allowed.
-R lseek(5, SEEK_SET, 50000)          = 50000
-R read(5, buf, 32768)                = (unfinished...)
-W (write resumed)                    = -1 (EINVAL)
-W lseek(6, SEEK_CUR, 0)              = 50000
-W lseek(6, SEEK_END, 0)              = 50000
-W write(6, buf, 0)                   = (unfinished...)
--- The combination of the second lseek and the write 
--- tell the kernel the reader has seeked too far. So
--- we wake the reader up with 0 bytes.
-R (read resumed)                     = 0
-
-Any comments or suggestions on this idea or its 
-implementation are strongly requested.
-
-Thanks in advance,
-
---Ian Turner
+shipped in 2.4.27 - closing
 
 
+> Any update in my problem
+> statement?	My problem is having an embaded LinuxOS and changing kernel
+> version is very critical.
 
-		
-__________________________________ 
-Do you Yahoo!? 
-The all-new My Yahoo! - Get yours free! 
-http://my.yahoo.com 
- 
+Zwane's statement is valid here.
 
+> Expecting just a quick answer from anyone. Could
+> following solution patch break any other functionality if applied on the top
+> of 2.4.26?
+> http://bugzilla.kernel.org/show_bug.cgi?id=2834
+> 	I got attachemnt from the above link and applied patch. Above patch applies
+> nicely and runs without any problem. But wanted just a final confirmation
+> from authers.
+
+Seems to be doing its job then isnt it?
+
+> Thanks for your time,
+> -- Sumit
+> 
+> > -----Original Message-----
+> > From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
+> > Sent: Thursday, November 25, 2004 5:46 PM
+> >
+> >
+> > On Wed, Nov 17, 2004 at 09:42:58AM -0700, Zwane Mwaikambo wrote:
+> > > On Wed, 17 Nov 2004, Sumit Pandya wrote:
+> > >
+> > > > 	At one of our client I faced timer problem in kernel-2.4.26
+> > and I tried to
+> > > > fixed with patching "arch/i386/kernel/mpparse.c" file taken from
+> > > > patch-2.4.27.
+> > > > ...	...	...
+> > > > Mikael Pettersson:
+> > > >   o i386 and x86_64 ACPI mpparse timer bug
+> > > > ...	...	...
+> > > > 	After booting up the system now I get OOPS. Did I applied
+> > partial patch by
+> > > > taking only patch for mpparse.c from the whole buntch? Does it broken
+> > > > dependency to some other functionality? I've ACPI support enabled into
+> > > > kernel.
+> > > > 	Does following Len's patch provide solution to my OOPS?
+> > > >
+> > ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/test/2.4.
+> 26-rc4/200
+> > > 40422153228-irq2.patch
+> > >
+> > > Here is output of ksymsoops.
+> >
+> > Sending bug reports for partially patched kernels isn't easy for us to
+> > debug, is there no way for you to simply try booting 2.4.27?
+> 
+> Sumit?

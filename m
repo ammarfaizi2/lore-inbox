@@ -1,38 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSJYVsI>; Fri, 25 Oct 2002 17:48:08 -0400
+	id <S261622AbSJYV4Z>; Fri, 25 Oct 2002 17:56:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261617AbSJYVsI>; Fri, 25 Oct 2002 17:48:08 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:47885
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261619AbSJYVsH>; Fri, 25 Oct 2002 17:48:07 -0400
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
-From: Robert Love <rml@tech9.net>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com>
-References: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 17:54:26 -0400
-Message-Id: <1035582867.734.3953.camel@phantasy>
-Mime-Version: 1.0
+	id <S261623AbSJYV4Z>; Fri, 25 Oct 2002 17:56:25 -0400
+Received: from [63.204.6.12] ([63.204.6.12]:50862 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S261622AbSJYV4U>;
+	Fri, 25 Oct 2002 17:56:20 -0400
+Date: Fri, 25 Oct 2002 18:02:31 -0400 (EDT)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
+       KOCHI Takayoshi <t-kouchi@mvf.biglobe.ne.jp>, <jung-ik.lee@intel.com>,
+       <tony.luck@intel.com>,
+       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>,
+       <linux-ia64@linuxia64.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Pcihpd-discuss] Re: PCI Hotplug Drivers for 2.5
+In-Reply-To: <20021025193725.A3300@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.33.0210251754290.17433-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 17:50, Nakajima, Jun wrote:
+On Fri, 25 Oct 2002, Ivan Kokshaysky wrote:
 
-> Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for example,
-> is already doing it:
+> On Thu, Oct 24, 2002 at 06:22:44PM -0400, Scott Murray wrote:
+> > I hopefully will have something working against 2.5.44 tomorrow.  I think
+> > the only potentially contentious piece that I'd like to get reviewed and
+> > maybe integrated before the feature freeze is the resource reservation
+> > stuff.  There seemed to be no serious objections to the 2.4.x version I
+> > posted a while back, so maybe this won't be a big deal.  Everything else
+> > is either __devinit/export tweaks or driver code.
+>
+> The setup-bus code already does resource reservation, but only for
+> cardbus. It can be easily extended for any type of hotplug
+> controller though. Other enhancements (like configurable amount
+> of reserved IO/memory) also shouldn't be a problem.
 
-But RedHat apparently is using siblings.  2.4-ac also uses siblings.
-And I like "siblings" better so it wins in my opinion.
+Unfortunately, my take on the scheme used to reserve space for CardBus
+bridges was that it only works on platforms that use the setup-*.c code
+to do their complete PCI subsystem initialization.  On platforms like
+x86, where the BIOS configures all the devices, something like my patch
+is needed to fixup things to handle the desired reservation.  I'm not
+finished getting things ported to 2.5 yet, I'll post a patch ASAP once
+I've got everything workin.  If you're keen on devising an alternative
+method, check put my old patch against 2.4.19 at:
 
-	Robert Love
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102866931731553&w=2
+
+[snip]
+> BTW, 2.5 setup-* stuff went into 2.4 recently. :-)
+
+Cool, that definitely will make my life easier.
+
+Thanks,
+
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

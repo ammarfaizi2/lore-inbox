@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267280AbTABVhi>; Thu, 2 Jan 2003 16:37:38 -0500
+	id <S267310AbTABVu4>; Thu, 2 Jan 2003 16:50:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbTABVfG>; Thu, 2 Jan 2003 16:35:06 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:13241 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267266AbTABVeg>; Thu, 2 Jan 2003 16:34:36 -0500
-Date: Thu, 2 Jan 2003 19:42:38 -0200 (BRST)
-From: Rik van Riel <admin@dsbl.org>
-X-X-Sender: riel@imladris.surriel.com
-To: Hell.Surfers@cwctv.net
-cc: alan@lxorguk.ukuu.org.uk, "" <paul@clubi.ie>,
-       "" <linux-kernel@vger.kernel.org>, "" <rms@gnu.org>
-Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <0f0fb5934050213DTVMAIL12@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.50L.0301021941110.2429-100000@imladris.surriel.com>
-References: <0f0fb5934050213DTVMAIL12@smtp.cwctv.net>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267309AbTABVuq>; Thu, 2 Jan 2003 16:50:46 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46855 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267306AbTABVug>; Thu, 2 Jan 2003 16:50:36 -0500
+Date: Thu, 2 Jan 2003 16:56:50 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] do justice to netfilter configuration
+In-Reply-To: <20030101174458.GK15200@louise.pinerecords.com>
+Message-ID: <Pine.LNX.3.96.1030102164458.20297F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.50L.0301021941112.2429@imladris.surriel.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jan 2003 Hell.Surfers@cwctv.net wrote:
+On Wed, 1 Jan 2003, Tomas Szepe wrote:
 
-> "or later" perhaps copyright could be defined, and headers added to
-> derivative?
+> $subj.  I wanted to do this for a long time, so here comes:
+> 
+> o  Move all IPv4 netfilter config entries to net/ipv4/netfilter/Kconfig.
+> o  Move the netfilter submenu right under the netfilter on/off switch.
+> o  Move the netfilter debug option into the netfilter submenu.
+> o  Move all netfilter settings as close to their IPv6 sibling as possible.
+> o  Rename "IP: Netfilter Configuration" to "IPv4 Netfilter Configuration"
+> o  Rename "IPv6: Netfilter Configuration" to "IPv6 Netfilter Configuration"
 
-Luckily copyright holders cannot define the scope of copyright
-law.  This doesn't just include the (often illegal) EULAs of
-proprietary software companies, but also the very strict
-interpretation "some people" have of the GPL.
+Another Christmas present. I'd just like to thank you for the work you
+have done on making the options make sense.
 
-Both proprietary EULAs and the GPL have to work within the law
-and cannot add anything illegal under the law.
+I haven't tried the mods to PCMCIA yet, but I certainly would like to stop
+chasing through other menus to turn on the drivers I need. Repeat thought
+for USB.
 
-Rik
+Now if there was a way to symbolic link to required options, so instead of
+being told you can't config USB this-n-that because you didn't find human
+interface whatever, you could click into the menu to turn on the whatever
+and pop back to what you really wanted to do. Yes, this is definitely 2.7
+material (if at all) because someone will create either a loop or
+recursion, but I can dream, right?
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

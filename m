@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVCCMBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVCCMJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVCCMBB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 07:01:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVCCLKW
+	id S261615AbVCCMJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 07:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVCCMFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:10:22 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:422 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S261592AbVCCKvB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:51:01 -0500
-Date: Thu, 3 Mar 2005 20:50:13 +1000
-From: David McCullough <davidm@snapgear.com>
-To: James Morris <jmorris@redhat.com>
-Cc: Fruhwirth Clemens <clemens@endorphin.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz,
-       Michal Ludvig <michal@logix.cz>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers at a time
-Message-ID: <20050303105013.GE453@beast>
-References: <20050120033019.GD9407@beast> <Xine.LNX.4.44.0501200844530.952-100000@thoron.boston.redhat.com>
+	Thu, 3 Mar 2005 07:05:17 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:41683 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261618AbVCCMEZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 07:04:25 -0500
+Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, torvalds@osdl.org, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050302222826.GS1512@redhat.com>
+References: <20050228192001.GA14221@apps.cwi.nl>
+	 <1109721162.15795.47.camel@localhost.localdomain>
+	 <20050302075037.GH20190@apps.cwi.nl> <20050302080255.GA28512@redhat.com>
+	 <1109771140.20986.3.camel@localhost.localdomain>
+	 <20050302222106.GI20190@apps.cwi.nl>  <20050302222826.GS1512@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1109851329.21781.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0501200844530.952-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 03 Mar 2005 12:02:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2005-03-02 at 22:28, Dave Jones wrote:
+> The winchips had a funky feature where you could mark system ram
+> writes as out-of-order. This led to something like a 25% speedup iirc
+> on benchmarks that did lots of memory copying. lmbench showed
+> significant wins iirc, but any results I had saved are long since
+> wiped out in hard disk failures/cruft removal over the years.
 
-Jivin James Morris lays it down ...
-> On Thu, 20 Jan 2005, David McCullough wrote:
-> 
-> > As for permission to use a dual license,  I will gladly approach the
-> > authors if others feel it is important to know the possibility of it at this
-> > point,
-> 
-> Please do so.  It would be useful to have the option of using an already
-> developed, debugged and analyzed framework.
+Yep - providing your kernel is built for it you get about 20-30% speed
+up against a base kernel. It's the one freak case (in 2.4 anyway) where
+kernel cpu options matter.
 
-Ok,  I finally managed to get responses from all the individual
-contributors,  though none of the corporations contacted have responded.
+Alan
 
-While a good number of those contacted were happy to dual-license,  most
-are concerned that changes made under the GPL will not be available for
-use in BSD.  A couple were a definate no.
-
-I have had offers to rewrite any portions that can not be dual-licensed,
-but I think that is overkill for now unless there is significant
-interest in taking that path.
-
-Fortunately we have been able to obtain some funding to complete a large
-amount of work on the project so it should have some nice progress in the
-next couple of weeks as that ramps up :-)
-
-Cheers,
-Davidm
-
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

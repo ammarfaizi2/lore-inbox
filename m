@@ -1,39 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQJ3QGW>; Mon, 30 Oct 2000 11:06:22 -0500
+	id <S129040AbQJ3QGw>; Mon, 30 Oct 2000 11:06:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129040AbQJ3QGM>; Mon, 30 Oct 2000 11:06:12 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:1499 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129033AbQJ3QGG>;
-	Mon, 30 Oct 2000 11:06:06 -0500
-Date: Mon, 30 Oct 2000 16:06:10 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
+	id <S129133AbQJ3QGe>; Mon, 30 Oct 2000 11:06:34 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:6163 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S129040AbQJ3QG2>; Mon, 30 Oct 2000 11:06:28 -0500
+Date: Mon, 30 Oct 2000 16:06:25 +0000 (GMT)
+From: John Levon <moz@compsoc.man.ac.uk>
 To: "Richard B. Johnson" <root@chaos.analogic.com>
 cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: kmalloc() allocation.
 In-Reply-To: <Pine.LNX.3.95.1001030104956.735A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0010301602240.2383-100000@saturn.homenet>
+Message-ID: <Pine.LNX.4.21.0010301605380.14174-100000@mrworry.compsoc.man.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Hi Dick,
-
-Sorry, I thought you knew this already :) The maximum for kmalloc is 128K
-and is defined in mm/slab.c. It is trivial to "enhance" slab.c to support
-more but it is in practice not very useful because requesting too much
-physically-contiguous (which kmalloc is all about) memory is impossible
-except at very early stages after boot (due to obvious fragmentation).
-
-So, if you don't need physically contiguous (and fast) allocations perhaps
-you could make use of vmalloc()/vfree() instead? There must be also some
-"exotic" allocation APIs like bootmem but I know nothing of them so I stop
-here.
-
-Regards,
-Tigran
-
 
 On Mon, 30 Oct 2000, Richard B. Johnson wrote:
 
@@ -52,25 +35,17 @@ On Mon, 30 Oct 2000, Richard B. Johnson wrote:
 > since it's the first module being installed.
 > 
 > The attempt to allocate is memory of type GFP_KERNEL.
-> 
-> 
-> Any advice?
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-> 
-> "Memory is like gasoline. You use it up when you are running. Of
-> course you get it all back when you reboot..."; Actual explanation
-> obtained from the Micro$oft help desk.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+
+Why do you need physically-contiguous memory ? Can you not just use
+vmalloc()/vfree()
+
+john
+
+-- 
+"It's not that the suggestions are not good ideas.  That problem is that
+ committees cannot say no to good ideas, while the one thing that matters
+ above all in any design task is saying no to almost everything." 
+	- Vern Schryver 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

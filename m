@@ -1,25 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293002AbSCAMHf>; Fri, 1 Mar 2002 07:07:35 -0500
+	id <S292854AbSCAMGw>; Fri, 1 Mar 2002 07:06:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293015AbSCAMHX>; Fri, 1 Mar 2002 07:07:23 -0500
-Received: from radio-112-20.poa.terraempresas.com.br ([200.176.112.20]:64780
-	"EHLO rush.interage.com.br") by vger.kernel.org with ESMTP
-	id <S293002AbSCAMHT>; Fri, 1 Mar 2002 07:07:19 -0500
-Message-ID: <3C7F6F5A.BECDF61F@interage.com.br>
-Date: Fri, 01 Mar 2002 09:08:58 -0300
-From: Mauricio Pretto <pretto@interage.com.br>
-Organization: Interage Integradora
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S293002AbSCAMGm>; Fri, 1 Mar 2002 07:06:42 -0500
+Received: from mother.ludd.luth.se ([130.240.16.3]:48298 "EHLO
+	mother.ludd.luth.se") by vger.kernel.org with ESMTP
+	id <S292854AbSCAMGa>; Fri, 1 Mar 2002 07:06:30 -0500
+Date: Fri, 1 Mar 2002 13:06:28 +0100 (MET)
+From: texas <texas@ludd.luth.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
+In-Reply-To: <E16glTg-0003Nd-00@the-village.bc.nu>
+Message-ID: <Pine.GSU.4.33.0203011244100.414-100000@father.ludd.luth.se>
 MIME-Version: 1.0
-To: lista kernel <linux-kernel@vger.kernel.org>
-Subject: compile erro 2.5.6pre2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.32)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove suport for scsi emulation and frame buffer and the kernel
-compiled without errors.
+Nope, "noapic" didn't do it for 2.4, it locked up on me again :-(
+
+I am currently running a vanilla 2.2.20 with "noapic". As mentioned, it
+fixes the boot problem but we'll see about lockups in 2.2.
+
+Thanks,
+Johan
+

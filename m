@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263320AbTJZRGN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 12:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTJZRGN
+	id S263312AbTJZRQf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 12:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTJZRQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 12:06:13 -0500
-Received: from nameserver1.brainwerkz.net ([209.251.159.130]:42373 "EHLO
-	nameserver1.mcve.com") by vger.kernel.org with ESMTP
-	id S263320AbTJZRGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 12:06:11 -0500
-Message-ID: <32991.68.105.173.45.1067188625.squirrel@mail.mainstreetsoftworks.com>
-Date: Sun, 26 Oct 2003 12:17:05 -0500 (EST)
-Subject: nVidia nForce3 IDE patches for 2.6.0-test9
-From: "Brad House" <brad_mssw@gentoo.org>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 26 Oct 2003 12:16:35 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:9437 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S263312AbTJZRQd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 12:16:33 -0500
+Date: Sun, 26 Oct 2003 19:13:49 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Hans Reiser <reiser@namesys.com>
+Cc: ndiamond@wta.att.ne.jp, vitaly@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results end
+Message-ID: <20031026171348.GA14147@linuxhacker.ru>
+References: <346101c39b9e$35932680$24ee4ca5@DIAMONDLX60> <3F9BA98B.20408@namesys.com> <200310261259.h9QCxhWv004314@car.linuxhacker.ru> <3F9BB870.1010500@namesys.com> <20031026123925.GA6412@linuxhacker.ru> <3F9BF5BE.9030601@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F9BF5BE.9030601@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch enables nForce2/3 IDE to properly work on 2.6.0-test9.
-It also enables ATA 133 on those drives that support it.
-This patch has been extensively tested by many people on x86_64
-in Gentoo Linux, and is part of our current development-sources
-kernel branch.
+Hello!
 
-The patch for 2.6.0-test9 is located here:
-http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/2.6.0-test9-nforce-ideata133.patch
+On Sun, Oct 26, 2003 at 07:26:38PM +0300, Hans Reiser wrote:
+> >>bad shape is concerned, from the user's point of view it either works or 
+> >>it doesn't.
+> >Sure. And in modern desktop world it does not work (if SMART does not want 
+> >to
+> >do it).
+> I don't understand what SMART has to do with it.  I was talking about a 
+> patch is either ready for use, or it isn't, and "almost ready" is worthless.
 
-The original patches for the 2.4 kernel these are based off
-of are located here:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0309.2/0447/linux-2.4.23-pre4-nvide.patch
-http://www.ussg.iu.edu/hypermail/linux/kernel/0309.2/0448/linux-2.4.23-pre4-nvata133.patch
+Ah. Last time I checked, patch was ready to use.
+But it is not strictly necessary, the reason of the patch was to mark bad blocks
+in mounted filesystems "on the fly". Everything else should be handled
+by reiserfsprogs anyway. Without reiserfsprogs support (which was ready too),
+it is worthless.
 
-Please CC me on any replies!
-
--Brad House
-brad_mssw@gentoo.org
-Gentoo Linux
-
-
+Bye,
+    Oleg

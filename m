@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263971AbRFFRwT>; Wed, 6 Jun 2001 13:52:19 -0400
+	id <S263957AbRFFSLD>; Wed, 6 Jun 2001 14:11:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbRFFRwK>; Wed, 6 Jun 2001 13:52:10 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:47058 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S264019AbRFFRv6>; Wed, 6 Jun 2001 13:51:58 -0400
-Date: Wed, 6 Jun 2001 19:26:59 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Tom Vier <tmv5@home.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        rth@twiddle.net
-Subject: Re: [patch] Re: Linux 2.4.5-ac6
-In-Reply-To: <3B1E42EA.B0AE7F6E@mandrakesoft.com>
-Message-ID: <Pine.GSO.3.96.1010606185833.2113C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263950AbRFFSKn>; Wed, 6 Jun 2001 14:10:43 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:28173 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263804AbRFFSKn>; Wed, 6 Jun 2001 14:10:43 -0400
+Date: Wed, 6 Jun 2001 20:09:33 +0200
+From: Tomas Telensky <ttel5535@artax.karlin.mff.cuni.cz>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to know HZ from userspace?
+Message-ID: <20010606200933.B16802@artax.karlin.mff.cuni.cz>
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>; from laforge@gnumonks.org on Wed, May 30, 2001 at 08:37:25PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jun 2001, Jeff Garzik wrote:
-
-> There are two things you can do here, one is easy:  use linker tricks to
-> make sure that an application built on alpha -- with 64-bit pointers --
-> uses no more than the lower 32 bits of each pointer for addressing. 
-> This should fix a ton of applications which cast pointer values to ints
-> and similar garbage.
-
- Note we are only writing of executing an OSF/1 netscape binary.  The
-binary is built with the -taso option on OSF/1 and is linked fine with
-respect to 31-bit pointers.  It fails when mmap()ping shared libraries
-after applying my patch that went to -ac series recently.  Since OSF/1
-shared libraries are PIC, there should be no problem to mmap() them into
-the low 2GB provided mmap() know we want it.  And mmap() has already all
-needed bits in place -- it's the ECOFF support on Alpha/Linux that does
-not set the personality as it should. 
-
-> The other option, hacking gcc to output "32-bit alpha" binary code, is a
-> tougher job.
+> Hi!
 > 
-> I had mentioned this to Richard Henderson a while back, when I was
-> wondering how easy it is to implement -taso under Linux, and IIRC he
-> seemed to think that linker tricks were much easier.
+> Is there any way to read out the compile-time HZ value of the kernel?
 
- It might be unavoidable to prevent shared libraries from being mmap()ped
-outside the 31-bit address space unless we hint the dynamic linker
-somehow.  Implementing the -taso option is trivial -- all it actually does
-on OSF/1 is mapping program's segments into low 2GB of memory (we may do
-it by selecting a different linker script) and setting the "31-bit address
-space flag" in the program's header so that the dynamic linker mmap()s
-shared libraries appropriately as well.  We do have all the bits in place
-already as well.
+Why simply #include <asm/param.h>?
 
- Note that personally I'm strongly against the -taso approach -- it's a
-hack to be meant as an excuse for fixing broken programs.  But fixing
-programs is not that difficult (though it might be boring and
-time-consuming).  I've already did a conversion of a moderately sized DOS
-program to *nix.  The program was twisted by far and near pointers and
-casts to ints and longs (depending on the pointer type) scattered over the
-source.  It took me about two weeks worth of full-time work (assuming
-eight hours per day; the actual time elapsed was longer, but I was only
-doing it in my free time) to make the program working on i386/Linux,
-another week to port it to Alpha/Linux (i.e. make it 64-bit clean) and yet
-another day to make it work on SPARC/Solaris (i.e. make it
-endianness-clean).  The program was checked to be running fine on
-MIPS/Ultrix and Alpha/OSF/1 afterwards as well.  Therefore I see no point
-in keeping programs broken.  If a vendor is not willing to fix a
-non-open-sourced broken program, then maybe the program is just not worth
-attention.
+	Tomas
 
-  Maciej
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+> 
+> I had a brief look at /proc/* and didn't find anything.
+> 
+> The background, why it is needed:
+> 
+> There are certain settings, for example the icmp rate limiting values,
+> which can be set using sysctl. Those setting are basically derived from
+> HZ values (1*HZ, for example).
+> 
+> If you now want to set those values from a userspace program / script in
+> a portable manner, you need to be able to find out of HZ of the currently
+> running kernel.
+> 
+> -- 
+> Live long and prosper
+> - Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+> ============================================================================
+> GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+> V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbTFLWXS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbTFLWXS
+	id S265026AbTFLW2o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTFLW2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:23:18 -0400
-Received: from dp.samba.org ([66.70.73.150]:52660 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265024AbTFLWXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:23:17 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16104.65329.190055.862284@nanango.paulus.ozlabs.org>
-Date: Fri, 13 Jun 2003 08:31:13 +1000 (EST)
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Greg KH <greg@kroah.com>, Miles Lane <miles.lane@attbi.com>,
-       willy@debian.org,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Looks like your PCI patch broke the PPC build (and others)?
-In-Reply-To: <1055424925.604.39.camel@gaston>
-References: <3EE77FD6.9020502@attbi.com>
-	<20030611202811.GA26387@kroah.com>
-	<16104.10078.284006.569894@cargo.ozlabs.ibm.com>
-	<1055424925.604.39.camel@gaston>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	Thu, 12 Jun 2003 18:28:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:50629 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S265026AbTFLW2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:28:42 -0400
+Date: Thu, 12 Jun 2003 19:41:53 -0300
+From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: Changes made by fdisk not being written to disk (2.5-bk)
+Message-ID: <20030612224153.GY4639@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MhP8cYafZlTESjGT"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
 
-> Well... asm/pci-bridge.h includes linux/pci.h which includes asm/pci.h,
-> so we have a circular include here...
+--MhP8cYafZlTESjGT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-True, but it seems that the multiple inclusion protection saves us. :)
 
-> What I did in my tree is to move the definition of pci_controller
-> from asm/pci-bridge.h to asm/pci.h. I'm now considering removing
-> asm/pci-bridge.h, what do you think ?
+I have a SMP machine with a IDE hard disk running 2.5-bk20030611.
 
-We could do that.  It might be simpler to just take pci_domain_nr out
-of line again though.
+Today I changed the partition table of the disk, using fdisk, and
+noticed, after reboot, that the new partition table was not written to
+the disk. Before rebooting, 'fdisk -l /dev/hda' shows the new partition
+table, as if it were written.
 
-Paul.
+I've made a few more tests, and even if I sync() a dozen of times
+before rebooting (using /bin/sync and sysrq), the data is not written.
+Even when I've waited about 20 minutes after changing the partition table,
+before rebooting, the problem persisted.
+
+Although, after changing fdisk to call fsync() before closing the device,
+everything worked, the changes were written, and the new partition table
+were on the disk, after rebooting.
+
+I think that changing fdisk to use fsync() would be a Good Thing, but
+I guess that sync() should have the data be written, anyway.
+
+Am I missing something?
+
+If there is any additional information I could give, please let me know.
+
+Regards,
+
+--=20
+Eduardo
+
+--MhP8cYafZlTESjGT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+6QGxcaRJ66w1lWgRAujvAJ9m+jpLlfFHL1pto0WebBrDwBo6vgCgkM5b
+Ra94n3pn6mfRwTL5O/MPdBs=
+=FXcN
+-----END PGP SIGNATURE-----
+
+--MhP8cYafZlTESjGT--

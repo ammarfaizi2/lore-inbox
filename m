@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264583AbTK0TYP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 14:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbTK0TYP
+	id S264603AbTK0TqL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 14:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264602AbTK0TqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 14:24:15 -0500
-Received: from smtp5.wanadoo.nl ([194.134.35.176]:17945 "EHLO smtp5.wanadoo.nl")
-	by vger.kernel.org with ESMTP id S264583AbTK0TYO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 14:24:14 -0500
-From: Vladimir Lazarenko <vlad@lazarenko.net>
-Organization: Favoretti Spagettolino Inc
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9/10 speedtouch glitch
-Date: Thu, 27 Nov 2003 20:23:56 +0100
-User-Agent: KMail/1.5.93
-MIME-Version: 1.0
+	Thu, 27 Nov 2003 14:46:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37903 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264603AbTK0TqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 14:46:09 -0500
+Date: Thu, 27 Nov 2003 19:46:02 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: felipe_alfaro@linuxmail.org, davem@redhat.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
+Message-ID: <20031127194602.A25015@flint.arm.linux.org.uk>
+Mail-Followup-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
+	felipe_alfaro@linuxmail.org, davem@redhat.com,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <20031127.173320.19253188.yoshfuji@linux-ipv6.org> <20031127025921.3fed8dd4.davem@redhat.com> <1069934643.2393.0.camel@teapot.felipe-alfaro.com> <20031127.210953.116254624.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311272023.56413.vlad@lazarenko.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031127.210953.116254624.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Thu, Nov 27, 2003 at 09:09:53PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Nov 27, 2003 at 09:09:53PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> In article <1069934643.2393.0.camel@teapot.felipe-alfaro.com> (at Thu, 27 Nov 2003 13:04:04 +0100), Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> says:
+> 
+> > On Thu, 2003-11-27 at 11:59, David S. Miller wrote:
+> > 
+> > > I agree, using sizeof() is the less error prone way of
+> > > doing things like this.
+> > > 
+> > > Felipe could you please rewrite your patch like this?
+> > 
+> > Done!
+> 
+> Thanks. Ok to me.
 
-Dunno if this has been mentioned already, but I have an interesting glitch 
-with speedtouch DSL modem. When i compile the driver as module, it says 
-registered driver speedtouch, but can not access the device.
-
-However, when i compile the driver in, everything works smoothly and nicely.
-If you need some more testing/information do not hesitate to contact me.
-
-Thanks in advance.
+I'm slightly cautious here, although I haven't read the patch yet.
+Did anyone consider whether any of these structures were copied to
+user space, and whether, as a result of this change, we're now
+copying uninitialised data to users?
 
 -- 
-Best regards,
-Vladimir Lazarenko
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

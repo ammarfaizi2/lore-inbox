@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286274AbRL0Nry>; Thu, 27 Dec 2001 08:47:54 -0500
+	id <S286272AbRL0NsE>; Thu, 27 Dec 2001 08:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285134AbRL0Nrf>; Thu, 27 Dec 2001 08:47:35 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:33937 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S286272AbRL0Nra>; Thu, 27 Dec 2001 08:47:30 -0500
-Date: 27 Dec 2001 13:41:00 +0200
+	id <S286277AbRL0Nrz>; Thu, 27 Dec 2001 08:47:55 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:6636 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286272AbRL0Nrj>; Thu, 27 Dec 2001 08:47:39 -0500
+Date: 27 Dec 2001 13:46:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8FeKiRymw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.conectiva>
+Message-ID: <8FeKi-zXw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>
 Subject: Re: Configure.help editorial policy
 X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20011221134034.B11147@thyrsus.com> <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.conectiva>
+In-Reply-To: <20011223174608.A25335@thyrsus.com> <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-riel@conectiva.com.br (Rik van Riel)  wrote on 21.12.01 in <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.conectiva>:
+rhw@MemAlpha.cx (Riley Williams)  wrote on 26.12.01 in <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>:
 
-> On Fri, 21 Dec 2001, Eric S. Raymond wrote:
+> 			Symbol	Designation	  Number of Bytes
+> 			~~~~~~	~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~
+> 			KiB	Decimal Kilobyte  1,000
+> 			KB	Binary Kilobyte   1,024
 >
-> > What, and *encourage* non-uniform terminology?  No, I won't do that.
-> > Better to have a single standard set of abbreviations, no matter how
-> > ugly, than this.
+> 			MiB	Decimal Megabyte  1,000,000
+> 			MB	Binary Megabyte   1,048,576
 >
-> Last I checked the purpose of language was _communication_.
+> 			GiB	Decimal Gigabyte  1,000,000,000
+> 			GB	Binary Gigabyte   1,073,741,824
 >
-> Better use words people understand.
+> 			TiB	Decimal Terabyte  1,000,000,000,000
+> 			TB	Binary Terabyte   1,099,511,627,776
 
-People in general *don't* understand the current so-called "established  
-practice", because not only is it inconsistent with all of the rest of the  
-world, it's also inconsistent with itself.
-
-A few specialists such as you or me understand those terms in those few  
-areas we are familiar with.
-
-> Also, the kB vs KiB mess is so ambiguous and complex that
-
-What is ambiguous or complex about it?
-
-> As a last point, we shouldn't forget about the inconsistent
-> way in which the marketing departments of hardware vendors
-> apply these units to their products.
-
-Do you know of *any* case where KiB and friends have been applied  
-inconsistently? You may not be arguing the side you seem to want to be  
-arguing here ...
-
-> In many cases binary
-> and decimal units are mixed, leading to something which is
-> impossible to "get right".  Disk space would be one example
-> of this, but I'm sure there are more.
-
-I have no idea why you think it is impossible to get right. It is fairly  
-easy to get right. Of course, that means using different numbers, but then  
-I've been saying for more than a decade that those numbers are a lie.
-
+Uh, that's all wrong. The "i" versions are *binary*, the non-"i" versions  
+are *decimal*. Completely backward.
 
 MfG Kai

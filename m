@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135610AbRAMABQ>; Fri, 12 Jan 2001 19:01:16 -0500
+	id <S135778AbRAMADG>; Fri, 12 Jan 2001 19:03:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135791AbRAMABG>; Fri, 12 Jan 2001 19:01:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55557 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135610AbRAMAA5>; Fri, 12 Jan 2001 19:00:57 -0500
-Subject: Re: [BUG] 2.4.0-ac8 PS/2 mouse woes
-To: zinx@magenet.com (Forever shall I be.)
-Date: Sat, 13 Jan 2001 00:02:35 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010112173811.A618@bliss.zebra.net> from "Forever shall I be." at Jan 12, 2001 05:38:11 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135791AbRAMAC4>; Fri, 12 Jan 2001 19:02:56 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:48910 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S135778AbRAMACm>; Fri, 12 Jan 2001 19:02:42 -0500
+Message-ID: <3A5F9B01.53B42D06@sgi.com>
+Date: Fri, 12 Jan 2001 16:02:09 -0800
+From: Florin Andrei <florin@sgi.com>
+Organization: SGI
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-lvs-1.0.3-reiserfs-3.5.29 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, db@cyclonehq.dnsalias.net
+Subject: Re: [eepro100] Ok, I'm fed up now
+In-Reply-To: <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>
+	 <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com> <5.0.2.1.0.20010112153102.021f34e8@10.0.0.254>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14HE9V-0005ID-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> pc_keyb.c..   I also have the cuecat patch applied, and use it over
-> the PS/2 mouse port, but I don't think it's interfering..  I doubt
-> this will be noticable to people not using the "Resolution" option to
-> speed up the mouse, and mine's rather insane:
+Dan B wrote:
+> 
+> Has anyone gotten Intel's (non-GPL) e100 driver working in 2.4.x yet?  What
+> about their e100-ANS driver that supports FEC 800mbps?
 
-Can you tell me if the problem can be duplicated without the cuecat patch
-applied. It is quite possible the ps/2 mouse patch is buggy
+	My system at home has an Intel 815 motherboard (video, sound and network are
+included into the motherboard), and works quite well with 2.4.0. I was able to
+use its graphics card (obviously, because it's an i815), sound (with ALSA)
+and... surprise!... network card!
+	You just have to use the eepro100 driver (from the mainstream 2.4.0 kernel),
+and the netcard will work (i use the eepro100 driver compiled as a module). I
+posted this tip few days ago to the Intel netcards newsgroup.
 
-> Anyway, just letting you know, and very sorry for the lack of
-> information..
+	Previously, with 2.2 kernels, i had to use Intel's non-GPL e100 driver,
+because the eepro100 driver from 2.2 kernels didn't worked with my card.
 
-Its most of the info I need. Since I churn through patches fast we can normally
-get a good guess at the culprit.
-
-Alan
-
-
+-- 
+Florin Andrei
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,91 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132762AbRDQRG5>; Tue, 17 Apr 2001 13:06:57 -0400
+	id <S132387AbRDQRJR>; Tue, 17 Apr 2001 13:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132774AbRDQRGt>; Tue, 17 Apr 2001 13:06:49 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:64016 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S132773AbRDQRGX>;
-	Tue, 17 Apr 2001 13:06:23 -0400
-Date: Tue, 17 Apr 2001 19:06:20 +0200
-From: FAVRE Gregoire <greg@ulima.unil.ch>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB with 2.4.3-ac{1,3,7} without devfs-> aic7xxx ?
-Message-ID: <20010417190620.B31178@ulima.unil.ch>
-Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
-	Johannes Erdfelt <johannes@erdfelt.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010417004248.A19914@ulima.unil.ch> <20010416185740.Y4295@sventech.com> <20010417182130.A30800@ulima.unil.ch> <20010417123546.B4295@sventech.com>
+	id <S132521AbRDQRJH>; Tue, 17 Apr 2001 13:09:07 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:20714 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S132773AbRDQRHx>; Tue, 17 Apr 2001 13:07:53 -0400
+Date: Tue, 17 Apr 2001 19:07:48 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, pavel@janik.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: Possible problem with zero-copy TCP and sendfile()
+Message-ID: <20010417190748.A2591015@informatics.muni.cz>
+In-Reply-To: <20010417151007.F916@informatics.muni.cz> <20010417164103.A9515@gruyere.muc.suse.de> <20010417175003.D2589096@informatics.muni.cz> <20010417175916.A11824@gruyere.muc.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010417123546.B4295@sventech.com>; from johannes@erdfelt.com on Tue, Apr 17, 2001 at 12:35:46PM -0400
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010417175916.A11824@gruyere.muc.suse.de>; from ak@suse.de on Tue, Apr 17, 2001 at 05:59:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Johannes Erdfelt (johannes@erdfelt.com):
+Andi Kleen wrote:
+: I guess to debug this problem it would be useful to get some idea about the
+: nature of the corruption. Could you enable sendfile() again, and when a 
+: user complains ask to download it again and provide a 
+: cmp -cl fileA fileB | head -500 listing of their differences? 
 
-> http://www.linux-usb.org
+	Well, here it is:
 
-Thanks, I'll go there ;-)
+$ cmp -cl seawolf-sendfile.iso seawolf-i386-SRPMS.iso
+160628609   0 ^@   276 M->
+160628610   0 ^@    32 ^Z
+160628611   0 ^@    14 ^L
+160628612   0 ^@    55 -
+160628613   0 ^@   116 N
+160628614   0 ^@   300 M-@
+160628615   0 ^@   150 h
+160628616   0 ^@   210 M-^H
+160628617   0 ^@   271 M-9
+160628618   0 ^@   307 M-G
+160628619   0 ^@   377 M-^?
+[ all bytes in sendfile()d image changed to zero until: ]
+160661374   0 ^@   376 M-~
+160661375   0 ^@   231 M-^Y
+160661376   0 ^@   205 M-^E
+160661377   1 ^A   364 M-t
+160661378 103 C    277 M-?
+160661379 104 D     13 ^K
+160661380  60 0     50 (
+160661381  60 0    360 M-p
+160661382  61 1     77 ?
+160661383   1 ^A   304 M-D
+160661384   0 ^@   133 [
+160661385 114 L    131 Y
+160661386 111 I    377 M-^?
+160661387 116 N    123 S
+160661388 125 U    234 M-^\
+160661389 130 X    250 M-(
 
-> > Sorry for the strange looking of my copy and paste to vim...
-> 
-> You may want to turn off auto-indent under vim, or you can always just
-> remove the excess spaces by hand.
+	Which simply means, that at 160628609 it started to send
+the CD image from the beginning. Yes, the original image contains 0x8000 zeros,
+and then the text "\001CD001\001\000LINUX".
 
-Thanks also for that answer, here are the one I got from several people:
----------------------------------------------------------------------
-^o:set paste
-[paste stuff]
-^o:set nopaste
+	So it has probably nothing to do with 3c59x driver, but with sendfile()
+or ProFTPd's use of sendfile().
 
-Or you could ^[ back to cmd mode first..  I find ^o more useful for a
-quick set change like that though.
----------------------------------------------------------------------
-Hint: use shift+v to mark the lines, then gc to format the text.
----------------------------------------------------------------------
-Hint: type ':set paste' before pasting and ':set nopaste' after pasting.
+	If anybody wants to test it, I've left running ProFTPd with sendfile()
+enabled at ftp.linux.cz, port 2121.
 
-> Nope. Both drivers support IRQ sharing just fine.
+	Thanks,
 
-Yes, at most under 2.4.3 ;-)
+-Yenya
 
-> > So, as my only change in config betweem 2.4.3 and 2.4.3-ac[137] was the
-> > removing of devfs, that's not the problem...
- 
-> Yeah. I don't think there are any changes in the USB code between 2.4.3
-> and 2.4.3-ac[137].
-> 
-> I'll have to check and see.
+-- 
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+///... in B its 'extrn' not 'extern'.        Alan (yes I programmed in B)\\\
 
-Well, I think there are some change in usb:
-[greg@localhost kernel]$ foreach x ( patch-2.4.3-ac*-ac* )
-foreach? echo $x
-foreach? bzcat $x |grep -i usb|wc -l
-foreach? end
-patch-2.4.3-ac1-ac2.bz2
-    132
-patch-2.4.3-ac2-ac3.bz2
-      6
-patch-2.4.3-ac3-ac4.bz2
-     12
-patch-2.4.3-ac4-ac5.bz2
-    160
-patch-2.4.3-ac5-ac6.bz2
-      0
-patch-2.4.3-ac6-ac7.bz2
-     14
-
-(Notice the good paste)
-
-None of those seems to change things in usb-uhci
-
-Thanks for all your help (and all the answer concerning vim, I haven't
-yet replyed to two, because they are PGP signed and I still have problem
-with PGP with mutt...), it's time for http://www.linux-usb.org ;-))
-
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

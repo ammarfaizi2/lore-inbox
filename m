@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318209AbSG3DGN>; Mon, 29 Jul 2002 23:06:13 -0400
+	id <S318206AbSG3DKS>; Mon, 29 Jul 2002 23:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318211AbSG3DGN>; Mon, 29 Jul 2002 23:06:13 -0400
-Received: from mail.MtRoyal.AB.CA ([142.109.10.24]:494 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S318209AbSG3DGM>; Mon, 29 Jul 2002 23:06:12 -0400
-Date: Mon, 29 Jul 2002 21:09:19 -0600 (MDT)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: Andrew Theurer <habanero@us.ibm.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.19-rc3 (hyperthreading)
-In-Reply-To: <000f01c23766$a04259d0$2c060e09@beavis>
-Message-ID: <Pine.LNX.4.44.0207292101230.23799-100000@skuld.mtroyal.ab.ca>
-MIME-Version: 1.0
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318210AbSG3DKS>; Mon, 29 Jul 2002 23:10:18 -0400
+Received: from gusi.leathercollection.ph ([202.163.192.10]:32452 "EHLO
+	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
+	id <S318206AbSG3DKR>; Mon, 29 Jul 2002 23:10:17 -0400
+Date: Tue, 30 Jul 2002 11:13:21 +0800
+From: Federico Sevilla III <jijo@free.net.ph>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Unkillable processes stuck in "D" state running forever
+Message-ID: <20020730031321.GH1796@leathercollection.ph>
+Mail-Followup-To: Federico Sevilla III <jijo@free.net.ph>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200207290819.g6T8JOT31352@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.33L2.0207290908110.23252-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0207290908110.23252-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.4i
+X-Organization: The Leather Collection, Inc.
+X-Organization-URL: http://www.leathercollection.ph
+X-Personal-URL: http://jijo.free.net.ph
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002, Andrew Theurer wrote:
+On Mon, Jul 29, 2002 at 09:13:33AM -0700, Randy.Dunlap wrote:
+> On Mon, 29 Jul 2002, Denis Vlasenko wrote:
+> | It is logged by syslog. /var/log/messages if your conf is standard.
+> That helps on the output side, sure, but I (mis?)understood the question
+> to be about the ability to do Alt-SysRq-x via ssh.  Is that possible?
 
-> 
-> Thanks for the info.  Did you get any performance results for before and
-> after?  I did try Ingo's patch a while back, and I experienced about a 8%
-> drop in performance.  I did not have hyperthreading on, just a simple case
-> comparing balance to no balance.  The overhead of the ioapic programming was
-> too high.  Increasing the time between reroutes by 20 got me back to the
-> same performance as no balancing at all.  I intend to test his patch again,
-> along with Andrea's next.
+No you didn't misunderstand my question. Alt-SysRq-x via ssh doesn't
+work, and that's what I was wondering about. :)
 
-The http://www.hardrock.org/HT-results/ output is with and without
-hyper threading.
+> Not that I know of, but I could be wrong about that.
+> So if you really need Alt-SysRq over a network connection (or even
+> a serial console connection)...
+> A few months ago I cooked up a patch so that "echo {magickey}"
+> mimics SysRq via proc/sysctl.  Patch against 2.4.18 is here:
+>   http://www.osdl.org/archive/rddunlap/patches/sys-magic.dif
+> Usage is:  echo {key} > /proc/sys/kernel/magickey
 
-The balancing patch was applied to both sets of tests.  
+I'm curious: can anyone logged on do this? With the physical Alt-SysRq-x
+people have to actually go into the server room, up to the server,
+connect a keyboard, and do their mumbo-jumbo. With this anybody can say,
+unmount all filesystems, right?
 
-The system is now in production, therefore I can't do the same tests on it
-without the routing patches (note there are 2, one for
-everything but the timer, and one for the timer).
+:(
 
-We will be receiving several new Dell systems (1650, 2650, and
-6650 models) and I know that at least the 2650 and 6650 are P4
-with the server works GC chipset, so I may be able to run some tests
-on those, given I have the time to do it.
+But thanks, anyway. I'm thinking about whether or not I should do this
+(and just restrict logins to root, or something like that).
 
-Regards
-James Bourne
-
-> 
-> -Andrew Theurer
-> 
+ --> Jijo
 
 -- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
-
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
-
-
+Federico Sevilla III   :  <http://jijo.free.net.ph/>
+Network Administrator  :  The Leather Collection, Inc.
+GnuPG Key ID           :  0x93B746BE

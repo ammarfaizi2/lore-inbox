@@ -1,153 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317547AbSGETuf>; Fri, 5 Jul 2002 15:50:35 -0400
+	id <S317549AbSGET4n>; Fri, 5 Jul 2002 15:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317549AbSGETue>; Fri, 5 Jul 2002 15:50:34 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:23408 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id <S317547AbSGETub>;
-	Fri, 5 Jul 2002 15:50:31 -0400
-Date: Fri, 5 Jul 2002 17:08:23 +0200
+	id <S317550AbSGET4m>; Fri, 5 Jul 2002 15:56:42 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:22266 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id <S317549AbSGET4l>;
+	Fri, 5 Jul 2002 15:56:41 -0400
+Date: Fri, 5 Jul 2002 22:00:20 +0200
 From: Diego Calleja <diegocg@teleline.es>
-To: linux-kernel@vger.kernel.org
-Cc: xfree86@xfree86.org, jwz@netscape.org, vizzie@airmail.net
-Subject: XFree + "stonerview" screensaver -> Xfree oops
-Message-Id: <20020705170823.1b5551c7.diegocg@teleline.es>
+To: "Pablo Fischer" <exilion@yifan.net>
+Cc: paubert@iram.es, linux-kernel@vger.kernel.org
+Subject: Re: StackPages errors (CALLTRACE)
+Message-Id: <20020705220020.77ef07b8.diegocg@teleline.es>
+In-Reply-To: <IDEJJDGBFBNEKLNKFPAEIEAHCDAA.exilion@yifan.net>
+References: <3D2565E1.9050708@iram.es>
+	<IDEJJDGBFBNEKLNKFPAEIEAHCDAA.exilion@yifan.net>
 X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Fri__5_Jul_2002_17:08:23_+0200_081e9e20"
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, 5 Jul 2002 10:47:50 -0600
+"Pablo Fischer" <exilion@yifan.net> escribió:
 
---Multipart_Fri__5_Jul_2002_17:08:23_+0200_081e9e20
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> >Because you are trying to execute a CMOV (0f 4x) instruction. The
+> >module you are loading is compiled for PPro or higher.
+> 
+> 1) Whats that? the CMMOV?..
+> 2) Could I fix it with the kernel?.. YES, how?. Please Im newbie and I
+> would like to fix it.
+> 3) If the fix its in the kernel, at what menu is it?.
+It seems that you have to recompile the module for yor processor, or if
+you want you can use the cmov emulation (and others) patch that has benn
+submited a few days ago by Willy Tarreau.
 
-I'm using the Xfree version existing in unstable debian (4.1.0-16), X
--version shows 4.1.0.1.
-
-This bug is reproducible between several trees: stable, -ac, -aa1 from
-several releases.
-
-Output of lspci -v attached (voodoo 3 pci video board)
-
-I can reproduce the bug (not always but very usual):
--I don't touch anything.
--xscreensaver-gl starts
--_only_, when the screensaver called "stonerview" starts, and after a
-while, the image stops, and an oops is generated:
-
------------------------------------------------------------------------
----------- ksymoops 2.4.5 on i686 2.4.19-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19-rc1/ (default)
-     -m /boot/System.map-2.4.19-rc1 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Jul  5 16:33:36 localhost kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 0000001c Jul  5 16:33:36 localhost
-kernel: c01b41aa Jul  5 16:33:36 localhost kernel: *pde = 00a63067
-Jul  5 16:33:36 localhost kernel: Oops: 0000
-Jul  5 16:33:36 localhost kernel: CPU:    0
-Jul  5 16:33:36 localhost kernel: EIP:    0010:[sock_poll+30/40]    Not
-tainted Jul  5 16:33:36 localhost kernel: EFLAGS: 00210282
-Jul  5 16:33:36 localhost kernel: eax: 00000000   ebx: c0b4db20   ecx:
-00000000   edx: c1bd35b4 Jul  5 16:33:36 localhost kernel: esi: c0b4db20
-  edi: 00000000   ebp: c1845f70   esp: c1845f28 Jul  5 16:33:36
-localhost kernel: ds: 0018   es: 0018   ss: 0018 Jul  5 16:33:36
-localhost kernel: Process XFree86 (pid: 310, stackpage=c1845000) Jul  5
-16:33:36 localhost kernel: Stack: c0b4db20 c1bd35b4 00000000 00000000
-c013e1d6 c0b4db20 00000000 00000100 Jul  5 16:33:36 localhost kernel:   
-    00000020 c11fff20 00000145 00080000 c1844000 7fffffff 00000013
-00000000 Jul  5 16:33:36 localhost kernel:        00000000 c149d000
-00000000 c013e62c 00000017 c1845fa8 c1845fa4 c1844000 Jul  5 16:33:36
-localhost kernel: Call Trace: [do_select+226/476] [sys_select+820/1156]
-[system_call+51/64] Jul  5 16:33:36 localhost kernel: Code: 8b 40 1c ff
-d0 83 c4 0c 5b c3 53 8b 5c 24 08 8b 43 08 8b 54 Using defaults from
-ksymoops -t elf32-i386 -a i386
-
-
->>ebx; c0b4db20 <[apm].bss.end+137801/2cdce1>
->>edx; c1bd35b4 <[sb].bss.end+9ab8d5/bf0321>
->>esi; c0b4db20 <[apm].bss.end+137801/2cdce1>
->>ebp; c1845f70 <[sb].bss.end+61e291/bf0321>
->>esp; c1845f28 <[sb].bss.end+61e249/bf0321>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   8b 40 1c                  mov    0x1c(%eax),%eax
-Code;  00000003 Before first symbol
-   3:   ff d0                     call   *%eax
-Code;  00000005 Before first symbol
-   5:   83 c4 0c                  add    $0xc,%esp
-Code;  00000008 Before first symbol
-   8:   5b                        pop    %ebx
-Code;  00000009 Before first symbol
-   9:   c3                        ret    
-Code;  0000000a Before first symbol
-   a:   53                        push   %ebx
-Code;  0000000b Before first symbol
-   b:   8b 5c 24 08               mov    0x8(%esp,1),%ebx
-Code;  0000000f Before first symbol
-   f:   8b 43 08                  mov    0x8(%ebx),%eax
-Code;  00000012 Before first symbol
-  12:   8b 54 00 00               mov    0x0(%eax,%eax,1),%edx
-
-
-1 warning issued.  Results may not be reliable.
-
------------------------------------------------------------------------
-----------
-
--When i watch the stopped screen, the image _always_ is the same, the
-screensaver always stops at the same point Any advices of how to
-debug/strace/whatever this?
-
-(after Xfree is hanged, ctrl+alt+Fn does'nt works, so i do sysrq sync +
-reboot, but this is normal...)
-
-
-Regards, Diego Calleja
-
-
---Multipart_Fri__5_Jul_2002_17:08:23_+0200_081e9e20
-Content-Type: application/octet-stream;
- name="lspci"
-Content-Disposition: attachment;
- filename="lspci"
-Content-Transfer-Encoding: base64
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10gNTU3
-MSAocmV2IDAxKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMjU1
-CgowMDowMS4wIElTQSBicmlkZ2U6IFNpbGljb24gSW50ZWdyYXRlZCBTeXN0ZW1zIFtTaVNdIDg1
-QzUwMy81NTEzIChyZXYgMDEpCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0
-ZW5jeSAwCgowMDowMS4xIElERSBpbnRlcmZhY2U6IFNpbGljb24gSW50ZWdyYXRlZCBTeXN0ZW1z
-IFtTaVNdIDU1MTMgW0lERV0gKHJldiBjMSkgKHByb2ctaWYgOGEgW01hc3RlciBTZWNQIFByaVBd
-KQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmljZSAwMDQwOjAwMDAKCUZsYWdzOiBidXMgbWFzdGVy
-LCBmYXN0IGRldnNlbCwgbGF0ZW5jeSAzMiwgSVJRIDE0CglJL08gcG9ydHMgYXQgPGlnbm9yZWQ+
-CglJL08gcG9ydHMgYXQgPGlnbm9yZWQ+CglJL08gcG9ydHMgYXQgPGlnbm9yZWQ+CglJL08gcG9y
-dHMgYXQgPGlnbm9yZWQ+CglJL08gcG9ydHMgYXQgMTAwMCBbc2l6ZT0xNl0KCjAwOjAxLjIgVVNC
-IENvbnRyb2xsZXI6IFNpbGljb24gSW50ZWdyYXRlZCBTeXN0ZW1zIFtTaVNdIDcwMDEgKHJldiBl
-MCkgKHByb2ctaWYgMTAgW09IQ0ldKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWws
-IGxhdGVuY3kgMzIsIElSUSAxMAoJTWVtb3J5IGF0IGU0MDAwMDAwICgzMi1iaXQsIG5vbi1wcmVm
-ZXRjaGFibGUpIFtzaXplPTRLXQoKMDA6MGYuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiAz
-RGZ4IEludGVyYWN0aXZlLCBJbmMuIFZvb2RvbyAzIChyZXYgMDEpIChwcm9nLWlmIDAwIFtWR0Fd
-KQoJU3Vic3lzdGVtOiAzRGZ4IEludGVyYWN0aXZlLCBJbmMuOiBVbmtub3duIGRldmljZSAwMDU3
-CglGbGFnczogZmFzdCBkZXZzZWwsIElSUSAxMQoJTWVtb3J5IGF0IGUwMDAwMDAwICgzMi1iaXQs
-IG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTMyTV0KCU1lbW9yeSBhdCBlMjAwMDAwMCAoMzItYml0
-LCBwcmVmZXRjaGFibGUpIFtzaXplPTMyTV0KCUkvTyBwb3J0cyBhdCA2MDAwIFtzaXplPTI1Nl0K
-CUV4cGFuc2lvbiBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9NjRLXQoJQ2Fw
-YWJpbGl0aWVzOiBbNjBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAxCgo=
-
---Multipart_Fri__5_Jul_2002_17:08:23_+0200_081e9e20--
+> 
+> Thanks.
+> 
+> 
+> Pablo Fischer wrote:
+> > Hi..
+> >
+> > I have MDK 8.2 and I get this error with: MDK 8.2, RH 7.2, RH 7.3..
+> > but just with ONE COMPUTER, the other computers works fine.
+> >
+> > Ok.. I have a SpeedTouch, but to get it work I need to
+> >
+> > 1) modprobe the module
+> > 2) Then.. call the speedmgmt (a binary)
+> >
+> > When I call the speedmgmt, I get:
+> >
+> >
+> > Process speedmgmt (pid: 1748, stackpage=c1827000)
+> > Stack: c0263a10 c1040000 c0263a4c 00000212 00000000 00000000
+> > c4c10f60 c4d79c9e
+> > c11e4e60 00000001 00000000 00000000 00000001 00000001 00000000
+> > bffff752 c3430460 fffffdfd c398cde0 c0312ae0 c4d79f97 c3430460
+> > bffff758 bffff758 Call Trace:
+> >
+> [af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pa
+> c+-1548 448/96]
+> [af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pa
+> c+-7049 8/96]
+> [af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pa
+> c+-6973 7/96] [file_ioctl+340/368] [sys_ioctl+546/608]
+> > Call Trace: [<c4c10f60>] [<c4d79c9e>] [<c4d79f97>] [<c01413b4>]
+> > [<c01415f2>]
+> > [system_call+51/64]
+> > [<c0106f23>]
+> > Code: 0f 44 c2 8b 57 04 0d 80 00 00 c0 89 42 18 8b 07 8b 57 04 8b
+> >
+> > Why I get that error?
+> 
+> Because you are trying to execute a CMOV (0f 4x) instruction. The
+> module you are loading is compiled for PPro or higher.
+> 
+> >
+> > I have a Compaq (AMD K6 - 500mhz) and 64 of Memory.
+> 
+> Hence no CMOV support (cat /proc/cpuinfo).
+> 
+> 	Gabriel.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,258 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271682AbRHQQOw>; Fri, 17 Aug 2001 12:14:52 -0400
+	id <S271687AbRHQQg1>; Fri, 17 Aug 2001 12:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271683AbRHQQOm>; Fri, 17 Aug 2001 12:14:42 -0400
-Received: from atlrel7.hp.com ([192.151.27.9]:8709 "HELO atlrel7.hp.com")
-	by vger.kernel.org with SMTP id <S271682AbRHQQOh>;
-	Fri, 17 Aug 2001 12:14:37 -0400
-Message-ID: <F341E03C8ED6D311805E00902761278C04728EA6@xfc04.fc.hp.com>
-From: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results sho
-	w this)
-Date: Fri, 17 Aug 2001 12:14:33 -0400
+	id <S271684AbRHQQgQ>; Fri, 17 Aug 2001 12:36:16 -0400
+Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:15421 "HELO
+	email03.aon.at") by vger.kernel.org with SMTP id <S271685AbRHQQgF>;
+	Fri, 17 Aug 2001 12:36:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Peter Klotz <peter.klotz@aon.at>
+To: linux-kernel@vger.kernel.org
+Subject: Error on fs unmount
+Date: Fri, 17 Aug 2001 18:39:08 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Message-Id: <01081718390800.01143@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More results: 
+Hi developers
 
-2.4.7 with Dieter Nutzel's kupdated/bdflush ideas
-http://lists.insecure.org/linux-kernel/2001/Aug/2377.html
-2.4.7 with ext2
-2.4.9-pre3
-2.4.9-pre3 with ext2
-2.4.9 (not good)
+Kernel 2.4.8 produces the following message on almost every shutdown:
 
-2.4.7 with Dieter Nutzel's kupdated/bdflush ideas
-http://lists.insecure.org/linux-kernel/2001/Aug/2377.html
-  500     497     1.2   149158  300 3 U    5070624   1 48  2  2 2.0
- 1000    1005     1.4   300591  299 3 U   10141248   1 48  2  2 2.0
- 1500    1504     1.4   449815  299 3 U   15210624   1 48  2  2 2.0
-peak IOPS: 63% of 2.4.5pre1
-performance slightly worse (2%, could be within repeatability) than without
-Dieter's ideas.
+Unmounting filesystems: Trying to _clear_inode of system file 9! Shouldn't 
+happen.
 
-2.4.7 with ext2
-  500     497     0.9   149186  300 3 U    5070624   1 48  2  2 2.0
- 1000    1004     1.0   300202  299 3 U   10141248   1 48  2  2 2.0
- 1500    1500     1.1   448489  299 3 U   15210624   1 48  2  2 2.0
-peak IOPS: 78% of 2.4.5pre1
+This did not occur in 2.4.6 and prior.
 
-2.4.9-pre3
-  500     497     1.3   149177  300 3 U    5070624   1 48  2  2 2.0
- 1000     995     2.0   298633  300 3 U   10141248   1 48  2  2 2.0
- 1500    1487     2.0   446234  300 3 U   15210624   1 48  2  2 2.0
-peak IOPS: 55% of 2.4.5pre1
+Is this an issue?
 
-2.4.9-pre3 with ext2
-  500     497     1.5   149113  300 3 U    5070624   1 48  2  2 2.0
- 1000    1078     1.5   322280  299 3 U   10141248   1 48  2  2 2.0
- 1500    1512     1.6   452080  299 3 U   15210624   1 48  2  2 2.0
-INVALID
-peak IOPS: 57% of 2.4.5pre1
-This test started having rpc problems late in the test.  I had stopped the
-reiserfs 2.4.9-pre3 test before getting that far, so I don't know if
-2.4.9-pre3 would have the same problems.
+Please CC to me since I am not on the list.
 
-2.4.9 (not good)
-  500     499     1.9   149185  299 3 U    5070624   1 48  2  2 2.0
- 1000    1007     4.8   302210  300 3 U   10141248   1 48  2  2 2.0
- 1500    1561    11.0   466752  299 3 U   15210624   1 48  2  2 2.0
-INVALID
-peak IOPS: 21% of 2.4.5pre1
-response time kept increasing dramatically after the 1500 IOPS run, failing
-after a few more tests
-
-Erik
-
-> -----Original Message-----
-> From: HABBINGA,ERIK (HP-Loveland,ex1) 
-> Sent: Wednesday, August 15, 2001 3:14 PM
-> To: 'linux-kernel@vger.kernel.org'
-> Subject: re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results
-> show this)
-> 
-> 
-> And the results for 2.4.9pre4 (not good)
-> 
->             500     492     2.6   147693  300 3 U    5070624  
->  1 48  2  2 2.0
->            1000    1019     4.4   304713  299 3 U   10141248  
->  1 48  2  2 2.0
->            1500    1475     6.1   442446  300 3 U   15210624  
->  1 48  2  2 2.0
-> peak IOPS: 22% of 2.4.5pre1 
-> TIMED OUT
-> 
-> response time kept going up, only two more SPEC runs (2500 
-> IOPS) finished.
-> 
-> Erik
-> 
-> > -----Original Message-----
-> > From: HABBINGA,ERIK (HP-Loveland,ex1) 
-> > Sent: Monday, August 13, 2001 10:41 AM
-> > To: 'linux-kernel@vger.kernel.org'
-> > Subject: re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC 
-> NFS results
-> > show this)
-> > 
-> > 
-> > Here are some SPEC SFS NFS testing 
-> > (http://www.spec.org/osg/sfs97) results I've been doing over 
-> > the past few weeks that shows NFS performance degrading since 
-> > the 2.4.5pre1 kernel.  I've kept the hardware constant, only 
-> > changing the kernel.  I'm prevented by management from 
-> > releasing our top numbers, but have given our results 
-> > normalized to the 2.4.5pre1 kernel.  I've also shown the 
-> > results from the first three SPEC runs to show the response 
-> > time trend.
-> > 
-> > Normally, response time should start out very low, increasing 
-> > slowly until the maximum load of the system under test is 
-> > reached.  Starting with 2.4.8pre8, the response time starts 
-> > very high, and then decreases.  Very bizarre behaviour.
-> > 
-> > The spec results consist of the following data (only the 
-> > first three numbers are significant for this discussion)
-> > - load.  The load the SPEC prime client will try to get out 
-> > of the system under test.  Measured in I/O's per second (IOPS).
-> > - throughput.  The load seen from the system under test.  
-> > Measured in IOPS
-> > - response time.  Measured in milliseconds
-> > - total operations
-> > - elapsed time.  Measured in seconds
-> > - NFS version. 2 or 3
-> > - Protocol. UDP (U) or TCP (T)
-> > - file set size in megabytes
-> > - number of clients
-> > - number of SPEC SFS processes
-> > - biod reads
-> > - biod writes
-> > - SPEC SFS version
-> > 
-> > The 2.4.8pre4 and 2.4.8 tests were invalid.  Too many (> 1%) 
-> > of the RPC calls between the SPEC prime client and the system 
-> > under test failed.  This is not a good thing.
-> > 
-> > I'm willing to try out any ideas on this system to help find 
-> > and fix the performance degradation.
-> > 
-> > Erik Habbinga
-> > Hewlett Packard
-> > 
-> > Hardware:
-> > 4 processors, 4GB ram
-> > 45 fibre channel drives, set up in hardware RAID 0/1
-> > 2 direct Gigabit Ethernet connections between SPEC SFS prime 
-> > client and system under test
-> > reiserfs
-> > all NFS filesystems exported with sync,no_wdelay to insure 
-> > O_SYNC writes to storage
-> > NFS v3 UDP
-> > 
-> > Results:
-> > 2.4.5pre1
-> >             500     497     0.8   149116  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1004     1.0   300240  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1501     1.0   448807  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS: 100% of 2.4.5pre1
-> > 
-> > 2.4.5pre2
-> >             500     497     1.0   149195  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1005     1.2   300449  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1502     1.2   449057  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS: 91% of 2.4.5pre1
-> > 
-> > 2.4.5pre3
-> >             500     497     1.0   149095  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1004     1.1   300135  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1502     1.2   449069  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS: 91% of 2.4.5pre1
-> > 
-> > 2.4.5pre4
-> >    wouldn't run (stale NFS file handle error)
-> > 
-> > 2.4.5pre5
-> >    wouldn't run (stale NFS file handle error)
-> > 
-> > 2.4.5pre6
-> >    wouldn't run (stale NFS file handle error)
-> > 
-> > 2.4.7
-> >             500     497     1.2   149206  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1005     1.5   300503  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1502     1.3   449232  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS: 65% of 2.4.5pre1
-> > 
-> > 2.4.8pre1
-> >    wouldn't run
-> > 
-> > 2.4.8pre4
-> >             500     497     1.1   149180  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1002     1.2   299465  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1502     1.3   449190  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > INVALID
-> > peak IOPS: 54% of 2.4.5pre1
-> > 
-> > 2.4.8pre6
-> >             500     497     1.1   149168  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1004     1.3   300246  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1502     1.3   449135  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS 55% of 2.4.5pre1
-> > 
-> > 2.4.8pre7
-> >             500     498     1.5   149367  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1006     2.2   301829  300 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1502     2.2   449244  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS: 58% of 2.4.5pre1
-> > 
-> > 2.4.8pre8
-> >             500     597     8.3   179030  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000    1019     6.5   304614  299 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1538     4.5   461335  300 3 U   15210624  
-> >  1 48  2  2 2.0
-> > peak IOPS: 48% of 2.4.5pre1
-> > 
-> > 2.4.8
-> >             500     607     7.1   181981  300 3 U    5070624  
-> >  1 48  2  2 2.0
-> >            1000     997     7.0   299243  300 3 U   10141248  
-> >  1 48  2  2 2.0
-> >            1500    1497     2.9   447475  299 3 U   15210624  
-> >  1 48  2  2 2.0
-> > INVALID
-> > peak IOPS: 45% of 2.4.5pre1
-> > 
-> > 2.4.9pre2
-> >    wouldn't run (NFS readdir errors)
-> > 
-> 
+Bye, Peter.

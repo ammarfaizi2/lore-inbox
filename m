@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132140AbRDPVS7>; Mon, 16 Apr 2001 17:18:59 -0400
+	id <S132151AbRDPVTJ>; Mon, 16 Apr 2001 17:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132146AbRDPVSu>; Mon, 16 Apr 2001 17:18:50 -0400
-Received: from mail1.rdc2.ab.home.com ([24.64.2.48]:23695 "EHLO
-	mail1.rdc2.ab.home.com") by vger.kernel.org with ESMTP
-	id <S132140AbRDPVSg>; Mon, 16 Apr 2001 17:18:36 -0400
-Message-ID: <3ADB608C.4D2E3ED5@home.com>
-Date: Mon, 16 Apr 2001 15:13:48 -0600
-From: swds.mlowe@home.com
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Slow LAN /w 2.4.3
+	id <S132146AbRDPVTA>; Mon, 16 Apr 2001 17:19:00 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:2308 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S132144AbRDPVSs>;
+	Mon, 16 Apr 2001 17:18:48 -0400
+Date: Mon, 16 Apr 2001 15:32:18 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
+Message-ID: <20010416153216.C40@(none)>
+In-Reply-To: <3AD622AB.5F0A061B@linux-ide.org> <Pine.LNX.4.10.10104121448520.4564-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10104121448520.4564-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Apr 12, 2001 at 02:52:22PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I've just switched from kernel 2.2.16 to 2.4.3 (because of a smbfs
-bug). Anyways, all is well except for one little thing. Over the LAN in
-2.2.16 I was getting around 900k/sec between the linux server and the
-rest of the computers. After I upgraded I only get 200k/sec. I've
-rebooted using 2.2.16 and all the sudden I get 900k/sec again. So, does
-anyone know what's going on?
+Hi!
 
-I've got two nics (Realtek PCI - External INet, Ehterlink III ISA -
-LAN). I'm running Redhat 7.0, as well as ipchains.
+> /*
+>  * Timeouts for various operations:
+>  */
+> #define WAIT_DRQ        (5*HZ/100)      /* 50msec - spec allows up to 20ms */
+> #ifdef CONFIG_APM
+> #define WAIT_READY      (5*HZ)          /* 5sec - some laptops are very slow */
 
-Thanks,
-  Matt
+Broken broken broken. CONFIG_APM has *nothing* to do with machine being laptop.
+Think ACPI, think mips handheld. You should assume 5seconds, always.
+
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

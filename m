@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVACX1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVACX2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVACX1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 18:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVACXZi
+	id S261971AbVACX2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVACX1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:25:38 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:31392 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261930AbVACXXF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:23:05 -0500
-Message-ID: <41D9D3C8.1040602@zytor.com>
-Date: Mon, 03 Jan 2005 15:22:48 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nicholas Miell <nmiell@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] get/set FAT filesystem attribute bits
-References: <41D9B1C4.5050507@zytor.com>	 <1104787447.3604.9.camel@localhost.localdomain>	 <41D9BA8B.2000108@zytor.com>	 <1104788816.3604.17.camel@localhost.localdomain>	 <41D9C111.2090504@zytor.com>	 <1104790243.3604.23.camel@localhost.localdomain>	 <41D9C64E.7080508@zytor.com> <1104794219.3604.29.camel@localhost.localdomain>
-In-Reply-To: <1104794219.3604.29.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jan 2005 18:27:42 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38406 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261961AbVACX1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:27:07 -0500
+Date: Mon, 3 Jan 2005 23:27:01 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PREWARN] ARM DMA API extension
+Message-ID: <20050103232701.H3442@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Pruning the Cc: list.]
+Ok, I'm planning to push these changes to Linus imminently (iow, tomorrow)
+- they were discussed back in March 2003 (or was it 2004?) on various
+mailing lists and I think it's about time I threw them out of my private
+tree into something more public, especially as some drivers depend on them.
+You can review a copy of the diff at:
 
-Nicholas Miell wrote:
-> On Mon, 2005-01-03 at 14:25 -0800, H. Peter Anvin wrote:
-> 
->>I'm honestly not sure that using an ASCII string in an xattr is the sane 
->>way of doing this.  Even a binary byte in an xattr would make more sense 
->>in some ways.
-> 
-> ASCII strings require no special tools to manipulate from shell scripts.
-> 
+	http://www.arm.linux.org.uk/~rmk/misc/linus-dma.diff
 
-You need some kind of special tool anyway, i.e. getfattr/setfattr.  What 
-tool you use isn't really important.
+Discussion ground to a halt on the exact nature of the API, so I've gone
+with my proposed ideas back then.  I hope no one's going to complain.
 
-The fact that getfattr/setfattr can't deal with attributes that aren't 
-ASCII strings seem like flaws in these tools.
+Comments only at this stage please.
 
-> 
->>I think the xattr mechanism is ignored largely because it's painfully 
->>complex.
->>
->>A plus with using xattr is that in theory (but of course not in 
->>practice!) it would let one store a copy of a DOS filesystem on an ext3 
->>(or xfs, or...) filesystem and have it restored, all using standard (but 
->>by necessity, xattr-aware) tools.  However, the splitting of xattr into 
->>namespaces may very well make that impossible, since what's a "system" 
->>attribute to one filesystem is a "user" attribute to another.  Classic 
->>design flaw, by the way.
-> 
-> The design does allow users to store whatever they want as an xattr
-> without having to worry about how the kernel chooses to interpret it,
-> though. (i.e. the user namespace is just a byte array that the kernel
-> stores for you, while the system/security namespaces are probably
-> generated and interpreted on demand.)
- >
+diffstat:
 
-Exactly, and that's a total screwup.  It makes something that would 
-otherwise be possible -- for some filesystems to have an attribute (call 
-it "system.dosattrib") which is used, and for others which is stored. 
-The problem is that with the current design, that won't happen.
+ arch/arm/mach-integrator/impd1.c         |   13 +++++++
+ arch/arm/mach-integrator/integrator_cp.c |    9 ++++
+ arch/arm/mach-versatile/core.c           |    9 ++++
+ arch/arm/mm/consistent.c                 |   56 ++++++++++++++++++++++++++++++-
+ drivers/video/amba-clcd.c                |   18 +++++++++
+ drivers/video/pxafb.c                    |   15 ++++++++
+ drivers/video/sa1100fb.c                 |   32 ++++++++++++++++-
+ include/asm-arm/dma-mapping.h            |   19 ++++++++++
+ include/asm-arm/hardware/amba_clcd.h     |    5 ++
+ 9 files changed, 173 insertions(+), 3 deletions(-)
 
-Encoding this in the namespace, therefore preventing this kind of 
-compatiblity, is daft.  From the looks of it, the CIFS people were 
-planning to do the "put everything in user.*" workaround for this design 
-error.
+ChangeSets:
 
-	-hpa
+<rmk@flint.arm.linux.org.uk> (05/01/02 1.2091)
+	[ARM] Add DMA mmap support for SA1100/PXA framebuffer drivers.
+	
+	Since the framebuffers are allocated via dma_alloc_writecombine() we
+	should use the DMA mmap interface to map these buffers.
+	
+	Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+
+<rmk@flint.arm.linux.org.uk> (04/12/31 1.2090)
+	[ARM] Add CLCD driver mmap method and callbacks.
+	
+	Convert CLCD driver such that boards can use the dma_mmap_*()
+	interfaces where appropriate.
+	
+	Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+
+<rmk@flint.arm.linux.org.uk> (04/12/30 1.2089)
+	[ARM] Add DMA mmap() support.
+	
+	This adds DMA mmap() support for the ARM architecture, as discussed
+	around March 2003 on the linux-arch and linux-kernel mailing lists.
+	
+	Subsystems such as ALSA (for sample ring buffers) and video drivers
+	(for framebuffers in system memory) require this infrastructure to
+	provide userspace with an architecture clean method to mmap these
+	memory areas.
+	
+	Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+
+
+-- 
+Russell King
+

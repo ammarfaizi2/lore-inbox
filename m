@@ -1,113 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUHITgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266893AbUHITkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUHITgW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUHISzz
+	id S266893AbUHITkm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUHITjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:55:55 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:30870 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266850AbUHISvl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:51:41 -0400
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [RFC] Host Virtual Serial Interface driver
-Date: Mon, 9 Aug 2004 13:46:56 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-References: <1091827384.31867.21.camel@localhost> <20040809105113.4923342d.rddunlap@osdl.org>
-In-Reply-To: <20040809105113.4923342d.rddunlap@osdl.org>
+	Mon, 9 Aug 2004 15:39:42 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:13021 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S266893AbUHITiR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 15:38:17 -0400
+Date: Mon, 9 Aug 2004 12:38:16 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re-implemented i586 asm AES (updated)
+In-Reply-To: <Pine.LNX.4.58.0408060941550.24588@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0408091207430.25286@twinlark.arctic.org>
+References: <2qbyt-1Op-45@gated-at.bofh.it> <2qemF-3Pj-49@gated-at.bofh.it>
+ <m3wu0cgv6q.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0408060941550.24588@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408091346.56518.hollisb@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 August 2004 12:51, Randy.Dunlap wrote:
-> 
-> To the extent possible, we like to put the linux/* files in alpha
-> order, and same with the asm/* files.  Separately, as you have them.
+On Fri, 6 Aug 2004, Linus Torvalds wrote:
 
-Ok.
+> work to first check that the FP context is safed. Even _without_ the extra
+> work I simply cannot imagine that a "movd reg,mmx" is faster than a plain
+> "movl reg,stackslot".
 
-> | #define __ALIGNED__	__attribute__((__aligned__(sizeof(long))))
->
-> You should explain this bit (__ALIGNED__).
+p3/p-m have datapaths specifically for movd -- apparently a path for
+int->mmx and a separate path for mmx->int.  the paths are latency 1,
+throughput one per clock.
 
-Ok.
+however that line of x86 processors is essentially unique in this
+respect...
 
-> | static inline int hdrlen(const uint8_t *packet)
-> | {
-> | 	const int lengths[] = { 4, 6, 6, 8, };
-> | 	struct hvsi_header *header = (struct hvsi_header *)packet;
-> |
-> | 	return lengths[VS_DATA_PACKET_HEADER - header->type];
-> | }
->
-> Any chance of bad data (value) in header->type ?
+my measurement methodology is to pair a bunch of movd back and forth
+between (int,mmx) register pairs, then measure the avg latency per
+round-trip as i increase the number of pairs (i.e. to see how much
+parallelism is available.)
 
-No, but I realized that was only being called from one place anyways, so this 
-is simpler:
+i.e. for 2 in parallel my code is this fragment repeated 100 times:
 
---- drivers/char/hvsi.c.lkml1   2004-08-09 13:34:22.000000000 -0500
-+++ drivers/char/hvsi.c 2004-08-09 13:49:08.000000000 -0500
-@@ -211,29 +211,11 @@
-        spin_unlock_irqrestore(&hp->lock, flags);
- }
+	movd %eax,%mm0
+	movd %ebx,%mm1
+	movd %mm0,%eax
+	movd %mm1,%ebx
 
--static inline int hdrlen(const uint8_t *packet)
--{
--       const int lengths[] = { 4, 6, 6, 8, };
--       struct hvsi_header *header = (struct hvsi_header *)packet;
--
--       return lengths[VS_DATA_PACKET_HEADER - header->type];
--}
--
--static inline const uint8_t *payload(const uint8_t *packet)
--{
--       return packet + hdrlen(packet);
--}
--
- static inline int len_packet(const uint8_t *packet)
- {
-        return (int)((struct hvsi_header *)packet)->len;
- }
+here's the average round-trip latency (in cycles) per movd/movd pair
+for various processors i have access to, and availble parallelisms:
 
--static inline int len_payload(const uint8_t *packet)
--{
--       return len_packet(packet) - hdrlen(packet);
--}
--
- static inline int is_header(const uint8_t *packet)
- {
-        struct hvsi_header *header = (struct hvsi_header *)packet;
-@@ -443,8 +425,9 @@
- static struct tty_struct *hvsi_recv_data(struct hvsi_struct *hp,
-                const uint8_t *packet)
- {
--       const uint8_t *data = payload(packet);
--       int datalen = len_payload(packet);
-+       const struct hvsi_header *header = (const struct hvsi_header *)packet;
-+       const uint8_t *data = packet + sizeof(struct hvsi_header);
-+       int datalen = header->len - sizeof(struct hvsi_header);
-        int overflow = datalen - TTY_THRESHOLD_THROTTLE;
+                       available parallelism
+             1       2       3       4       5       6
+p-m         2.00    1.30    1.00    1.04    1.01    1.00
+p4-2        8.00    4.05    2.67    2.50    2.40    2.33
+p4-3       11.02    5.50    3.67    2.75    2.40    2.33
+opteron    14.67    6.00    5.33    5.00    5.00    5.00
+efficeon    7.06    3.55    2.80    2.97    2.95    3.08
 
-        pr_debug("queueing %i chars '%.*s'\n", datalen, datalen, data);
+i'm pretty sure the gladman code was tuned on processors like
+p3/p-m... where movd is an improvement over using memory.  actually i've
+been kind of puzzled why nobody ever used mmx for the XORing on a p3
+-- i think the 1 cycle latency mmx plus the 1 cycle latency movd makes
+it all pay off fine... but this won't pay off anywhere else because of
+2-cycle mmx latency, and long latency between int/mmx register files.
 
-(And yes, header->len is guaranteed to be ok by the got_packet() check in the 
-caller.)
+i've seen another totally slimy AES trick for this problem -- store %esp
+in a global memory location then use it as a general purpose register.
+there's a benchmark which does this, i consider it wholly inappropriate
+for general code though :)
 
-> | 		if (hangup) {
-> | 			tty_hangup(hangup);
-> | 		}
->
-> extra braces (style); maybe in a few other places also.
-
-Ok.
-
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+-dean

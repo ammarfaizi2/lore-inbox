@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266908AbTAOSf5>; Wed, 15 Jan 2003 13:35:57 -0500
+	id <S266876AbTAOSdU>; Wed, 15 Jan 2003 13:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266918AbTAOSf5>; Wed, 15 Jan 2003 13:35:57 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:38918 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S266908AbTAOSf4>; Wed, 15 Jan 2003 13:35:56 -0500
-Date: Wed, 15 Jan 2003 19:44:55 +0100
-From: DervishD <raul@pleyades.net>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: argv0 revisited...
-Message-ID: <20030115184455.GB47@DervishD>
-References: <A46BBDB345A7D5118EC90002A5072C7806CACA85@orsmsx116.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA85@orsmsx116.jf.intel.com>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S266859AbTAOSdU>; Wed, 15 Jan 2003 13:33:20 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:43674 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S266852AbTAOSdT>; Wed, 15 Jan 2003 13:33:19 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD905@usslc-exch-4.slc.unisys.com>
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "'Martin J. Bligh'" <mbligh@aracnet.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] (0/7) Finish moving NUMA-Q into subarch, cleanup
+Date: Wed, 15 Jan 2003 12:41:19 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Iñaki :)) (is that right?)
 
-> > welcome. Although I would like a portable solution, any solution that
-> > works under *any* Linux kernel is welcome...
-> What about mounting /proc from inside your program? Not a big deal, easy
-> sollution ... 
 
-    I don't like it, because it should happen at the very beginning
-of init. Remember, is not any program, is an init. Should be a more
-clean way, I suppose :??
+>> Can these (MAX_IO_APICS, MAX_APICS) be moved to sub-arch too, instead of
 
-    Raúl
+Yes, pleeese! Without CLUSTERED_APIC I would have to re-define it in some
+ugly way in subarch.
+
+>Actually replacing CONFIG_X86_NUMA with CONFIG_NUMA ... and we could
+>do (CONFIG_NUMA || CONFIG_BIGSMP) instead. But you're right, subarch
+>would be much better if you can find a way.
+
+With BIGSMP, we are still only allowed 16, whereus es7000 needs 256 of
+each...

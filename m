@@ -1,134 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267652AbTAHBQC>; Tue, 7 Jan 2003 20:16:02 -0500
+	id <S267644AbTAHBRd>; Tue, 7 Jan 2003 20:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267653AbTAHBQC>; Tue, 7 Jan 2003 20:16:02 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:3296
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S267652AbTAHBP7>;
-	Tue, 7 Jan 2003 20:15:59 -0500
-Date: Tue, 7 Jan 2003 17:21:46 -0800
-From: Joshua Kwan <joshk@ludicrus.ath.cx>
+	id <S267653AbTAHBRc>; Tue, 7 Jan 2003 20:17:32 -0500
+Received: from antivirus.uni-rostock.de ([139.30.8.12]:60169 "EHLO
+	antivirus.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S267644AbTAHBR3>; Tue, 7 Jan 2003 20:17:29 -0500
+Date: Wed, 08 Jan 2003 02:25:50 +0100
+From: Andreas Pakulat <ap125@informatik.uni-rostock.de>
+Subject: problems while burning
 To: linux-kernel@vger.kernel.org
-Cc: jsimmons@infradead.org, dahinds@users.sourceforge.net
-Subject: [2.5.54-dj1-bk] Some interesting experiences...
-Message-Id: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
-X-Mailer: Sylpheed version 0.8.8claws65 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.o)VI0zwbXTgp'I"
+Message-id: <20030108012550.GA16970@debian.pakulat>
+MIME-version: 1.0
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-disposition: inline
+Mail-Followup-To: linux-kernel@vger.kernel.org
+User-Agent: Mutt/1.4i
+X-OriginalArrivalTime: 08 Jan 2003 01:25:59.0705 (UTC) FILETIME=[E67C0090:01C2B6B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.o)VI0zwbXTgp'I
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-So I pulled 2.5 bk, James' fbdev updates and linux-dj, and built.
-Here are some things here and there that I have noticed so far:
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(note [linux-dj] means i think it's the result of pulling from that;
-[linux-2.5] means i think it's a problem with the main tree;
-[fbdev] means i think it's James' problem :))
+Hi,
 
-1. [linux-dj] (i think?) after pulling linux-dj i noticed that the
-references to 'font.h' in drivers/video/console were broken. They were
-like#include "font.h" - I have fixed this to refer to the right font.h
-(#include <linux/font.h>)...
+I'm new to this list and already searched the archive, but didn't find
+anything that helped.
 
-...But for some reason bk edit fails in 2.5. Says it can't plock the
-files i want to edit. Any idea what's up here? I can't make a patch now
-:(
+My Problem is the following:
 
-2. [linux-2.5] pcmcia-cs 3.2.3 will no longer build: here is the build
-log, pertinent details only.
+I've got a LiteOn Lt12101B IDE CD Burner here and it causes Kernel
+Panics once in a while. I cannot reproduce this safely, but it comes up
+when the PC not only does the burning, but a make or a galeon session
+also.=20
 
-cc  -MD -O3 -Wall -Wstrict-prototypes -pipe -Wa,--no-warn
--I../include/static -I/usr/src/linux-2.5/include -I../include
--I../modules -c cardmgr.c
-In file included from cardmgr.c:200:
-/usr/src/linux-2.5/include/scsi/scsi.h:185: parse error before "u8"
-/usr/src/linux-2.5/include/scsi/scsi.h:185: warning: no semicolon at end
-of struct or union
-/usr/src/linux-2.5/include/scsi/scsi.h:186: warning: type defaults to
-`int' in declaration of`ScsiLun'
-/usr/src/linux-2.5/include/scsi/scsi.h:186: warning: data definition has
-no type or storage class
-make[1]: *** [cardmgr.o] Error 
+The first mysterious thing is that as far as I've tested until now, it
+only comes up with cdrecord, cdrdao burns images without kernel panic.
 
-This occurs also in whatever NEW stuff there is on the pcmcia-cs web
-area. This occurs with or without having pulled -dj.
+For the hardware and that stuff:
 
-SCSI is not part of my kernel. Might this have anything to do with it?
+I've got a PIII 500 MHz on a Tyan Tsunami AT (PIIX4 Chip). The primary
+master is a SAMSUNG SV4002H with the following from
+/proc/ide/hda/settings:
+name		value		min	max	mode
+----		-----		---	---	----
+current_speed	66		0	69	rw
+init_speed	66		0	69	rw
+io_32bit	1		0	3	rw
+multcount	16		0	16	rw
+pio_mode	write-only	0	255	w
+using_dma	1		0	1	rw
 
-3. [linux-2.5] PS/2 mouse goes haywire every 30 seconds or so of use.
-dmesg sayeth:
-mice: PS/2 mouse device common for all mice
-input: PS/2 Synaptics TouchPad on isa0060/serio4
+primary slave is a Mistumi FX4820T with settings:
+name		value		min	max	mode
+----		-----		---	---	----
+current_speed	66		0	69	rw
+init_speed	66		0	69	rw
+io_32bit	1		0	3	rw
+pio_mode	write-only	0	255	w
+using_dma	1		0	1	rw
 
-but more importantly this is the cause:
+secondary master is the LITE-ON LTR-12101B
+with setting:
+name		value		min	max	mode
+----		-----		---	---	----
+current_speed	34		0	69	rw
+init_speed	34		0	69	rw
+io_32bit	0		0	3	rw
+pio_mode	write-only	0	255	w
+using_dma	1		0	1	rw
 
-psmouse.c: Lost synchronization, throwing 2 bytes away.
-psmouse.c: Lost synchronization, throwing 2 bytes away.
+and the secondary Slave is a Maxtor 91360U4 with settings:
+name		value		min	max	mode
+----		-----		---	---	----
+current_speed	66		0	69	rw
+init_speed	66		0	69	rw
+io_32bit	1		0	3	rw
+multcount	16		0	16	rw
+pio_mode	write-only	0	255	w
+using_dma	1		0	1	rw
 
-This happens on my desktop machine running 2.5.54mm3 (release) as well.
+The Image lies on the primary HDD and the cdrecord call is:
 
-varies between 1/2 bytes.
+| cdrecord -VVVV debug=3D7 -kd=3D7 -vvvv -fs=3D16m dev=3D0,1,0 \
+| timeout=3D60 driveropts=3Dburnfree -xa2 iso.bin
 
-4. [fbdev] random junk on screen at boot using radeonfb, and no blinking
-cursor. 'nuff said. James, I already told you this but never cc'd it to
-the mailing list so I'm saying it here just for the record.
-dmesg sayeth:
+The Bin-Iso-image was made with cdrdao, but it also happens with
+mkisofs-created ones. I can also remove all switches and it still
+hapens.
 
-radeonfb_pci_register BEGIN
-radeonfb: ref_clk=2700, ref_div=60, xclk=17500 from BIOS
-radeonfb: probed DDR SGRAM 32768k videoram
-radeon_get_moninfo: bios 4 scratch = 10000c4
-radeonfb: panel ID string: 1024x768                
-radeonfb: detected DFP panel size from BIOS: 1024x768
-radeonfb: ATI Radeon M6 LY DDR SGRAM 32 MB
-radeonfb: DVI port LCD monitor connected
-radeonfb: CRT port no monitor connected
-radeonfb_pci_register END
-[drm] Initialized radeon 1.7.0 20020828 on minor 0
+Sometimes there is somethins in /var/log/messages:
 
-but i doubt any of this is any use because it shows a bit AFTER the
-resolution has actually changed.
+In some cases I get:
+| Dec 19 18:06:38 debian kernel: scsi : aborting command due to timeout :
+| pid 4561
+| , scsi0, channel 0, id 1, lun 0 0x2a 00 00 01 f0 ba 00 00 1f 00=20
+| Dec 19 18:06:38 debian kernel: hdc: timeout waiting for DMA
+| Dec 19 18:06:38 debian kernel: ide_dmaproc: chipset supported
+| ide_dma_timeout fu
+| nc only: 14
+| Dec 19 18:06:38 debian kernel: hdc: status timeout: status=3D0xd8 { Busy }
+| Dec 19 18:06:38 debian kernel: hdc: drive not ready for command
+| Dec 19 18:07:08 debian kernel: hdc: ATAPI reset timed-out, status=3D0x88
+| Dec 19 18:07:08 debian kernel: hdd: DMA disabled
+| Dec 19 18:07:13 debian kernel: scsi : aborting command due to timeout :
+| pid 4561
+| , scsi0, channel 0, id 1, lun 0 0x2a 00 00 01 f0 ba 00 00 1f 00=20
+| Dec 19 18:07:13 debian kernel: SCSI host 0 abort (pid 4561) timed out -
+| resetting
 
-5. [unsure] When poking around in /proc/acpi this stuff shows up in
-kernel log/dmesg:
+And so on, until I reset the system.
 
-    ACPI-0250: *** Error: Looking up [BUF0] in namespace,
-AE_ALREADY_EXISTS
-    ACPI-1102: *** Error: Method execution failed
-[\_SB_.BAT0._BST] (Node cff4b940), AE_ALREADY_EXISTS
+And 2 times in the last 4 I got:
+| Jan  7 20:40:17 debian kernel: scsi : aborting command due to timeout :
+| pid 1356
+| 4, scsi0, channel 0, id 1, lun 0 0x2a 00 00 00 4c 69 00 00 1f 00=20
+| Jan  7 20:40:17 debian kernel: hdc: timeout waiting for DMA
+| Jan  7 20:40:17 debian kernel: ide_dmaproc: chipset supported
+| ide_dma_timeout fu
+| nc only: 14
+| Jan  7 20:40:17 debian kernel: hdd: status timeout: status=3D0xd8 { Busy }
+| Jan  7 20:40:17 debian kernel: hdd: DMA disabled
+| Jan  7 20:40:17 debian kernel: hdd: drive not ready for command
+| Jan  7 20:40:17 debian kernel: ide1: reset: master: error (0x00?)
 
-This is an i845 Intel chipset. Doesn't affect usability, though.
+I havn't got the time to try to disable dma with hdparm -d0 or to reduce
+the speed of the cdburner to something below 34 (which is mdma? right).
 
-Hope this helps development - I have my .config up at
-http://ludicrus.ath.cx/~joshk/kernconf for whoever needs to refer to it.
+Is there something else that can be done about this?
 
-2.5.54 is still great, btw :D
+Ooops I forgot: Kernel is 2.4.20 from debian packages, I can send the
+config if it is needed.
 
-Regards
-Josh
+Andreas
 
---
-Joshua Kwan
-joshk@mspencer.net
-pgp public key at http://joshk.mspencer.net/pubkey_gpg.asc
- 
-It's hard to keep your shirt on when you're getting something off your
-chest.	
+--=20
+Gut ist auch das Emporkommen von Linux als Herausforderer von Microsoft.
+		-- CDU-Vorsitzende Angela Merkel
 
---=.o)VI0zwbXTgp'I
+--/04w6evG8XlLl3ft
 Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQE+G30u6TRUxq22Mx4RApRDAKCBfVcj5wk7rcqdrDezf3+KtzODpACgnIeu
-1GhJL7OySsK1qEDwME1bczA=
-=eE/T
+iD8DBQE+G34dEeTwtO5zjFYRAif9AJoC3h/LqyYBB2cVHTM7g2UfFUNlTACeJAK1
+2OmAANL3VydzijNp4EfRWyU=
+=h4du
 -----END PGP SIGNATURE-----
 
---=.o)VI0zwbXTgp'I--
+--/04w6evG8XlLl3ft--
